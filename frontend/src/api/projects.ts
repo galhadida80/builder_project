@@ -1,0 +1,60 @@
+import { apiClient } from './client'
+import type { Project, ProjectMember } from '../types'
+
+interface ProjectCreate {
+  name: string
+  code: string
+  description?: string
+  location?: string
+  startDate?: string
+  expectedEndDate?: string
+}
+
+interface ProjectUpdate {
+  name?: string
+  description?: string
+  location?: string
+  status?: string
+  startDate?: string
+  expectedEndDate?: string
+}
+
+interface MemberCreate {
+  userId: string
+  role: string
+}
+
+export const projectsApi = {
+  list: async (): Promise<Project[]> => {
+    const response = await apiClient.get('/projects')
+    return response.data
+  },
+
+  get: async (id: string): Promise<Project> => {
+    const response = await apiClient.get(`/projects/${id}`)
+    return response.data
+  },
+
+  create: async (data: ProjectCreate): Promise<Project> => {
+    const response = await apiClient.post('/projects', data)
+    return response.data
+  },
+
+  update: async (id: string, data: ProjectUpdate): Promise<Project> => {
+    const response = await apiClient.put(`/projects/${id}`, data)
+    return response.data
+  },
+
+  delete: async (id: string): Promise<void> => {
+    await apiClient.delete(`/projects/${id}`)
+  },
+
+  addMember: async (projectId: string, data: MemberCreate): Promise<ProjectMember> => {
+    const response = await apiClient.post(`/projects/${projectId}/members`, data)
+    return response.data
+  },
+
+  removeMember: async (projectId: string, userId: string): Promise<void> => {
+    await apiClient.delete(`/projects/${projectId}/members/${userId}`)
+  },
+}
