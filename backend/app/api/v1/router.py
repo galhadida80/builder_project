@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1 import projects, equipment, materials, meetings, approvals, areas, contacts, files, audit, auth
+from app.api.v1 import projects, equipment, materials, meetings, approvals, areas, contacts, files, audit, auth, inspections
 
 api_router = APIRouter()
 
@@ -13,3 +13,4 @@ api_router.include_router(areas.router, tags=["areas"])
 api_router.include_router(contacts.router, tags=["contacts"])
 api_router.include_router(files.router, tags=["files"])
 api_router.include_router(audit.router, tags=["audit"])
+api_router.include_router(inspections.router, tags=["inspections"])
