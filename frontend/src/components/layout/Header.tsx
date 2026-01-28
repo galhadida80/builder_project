@@ -16,6 +16,7 @@ import SettingsIcon from '@mui/icons-material/Settings'
 import LogoutIcon from '@mui/icons-material/Logout'
 import type { User, Project } from '../../types'
 import ProjectSelector from './ProjectSelector'
+import { useToast } from '../common/ToastProvider'
 
 interface HeaderProps {
   user: User
@@ -26,6 +27,7 @@ interface HeaderProps {
 }
 
 export default function Header({ user, currentProject, projects, onProjectChange, onLogout }: HeaderProps) {
+  const { showInfo } = useToast()
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [notificationAnchor, setNotificationAnchor] = useState<null | HTMLElement>(null)
 
@@ -131,11 +133,11 @@ export default function Header({ user, currentProject, projects, onProjectChange
             <Typography variant="caption" color="text.secondary">{user.email}</Typography>
           </Box>
           <Divider />
-          <MenuItem onClick={handleMenuClose}>
+          <MenuItem onClick={() => { handleMenuClose(); showInfo('Profile page coming soon!'); }}>
             <ListItemIcon><PersonIcon fontSize="small" /></ListItemIcon>
             Profile
           </MenuItem>
-          <MenuItem onClick={handleMenuClose}>
+          <MenuItem onClick={() => { handleMenuClose(); showInfo('Settings page coming soon!'); }}>
             <ListItemIcon><SettingsIcon fontSize="small" /></ListItemIcon>
             Settings
           </MenuItem>

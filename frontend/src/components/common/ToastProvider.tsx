@@ -8,6 +8,8 @@ interface ToastContextType {
   showToast: (message: string, severity?: ToastSeverity) => void
   showError: (message: string) => void
   showSuccess: (message: string) => void
+  showInfo: (message: string) => void
+  showWarning: (message: string) => void
 }
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined)
@@ -43,12 +45,20 @@ export function ToastProvider({ children }: ToastProviderProps) {
     showToast(msg, 'success')
   }, [showToast])
 
+  const showInfo = useCallback((msg: string) => {
+    showToast(msg, 'info')
+  }, [showToast])
+
+  const showWarning = useCallback((msg: string) => {
+    showToast(msg, 'warning')
+  }, [showToast])
+
   const handleClose = () => {
     setOpen(false)
   }
 
   return (
-    <ToastContext.Provider value={{ showToast, showError, showSuccess }}>
+    <ToastContext.Provider value={{ showToast, showError, showSuccess, showInfo, showWarning }}>
       {children}
       <Snackbar
         open={open}

@@ -27,6 +27,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import CancelIcon from '@mui/icons-material/Cancel'
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz'
 import { auditApi } from '../api/audit'
+import { useToast } from '../components/common/ToastProvider'
 import type { AuditLog } from '../types'
 
 const actionIcons: Record<string, React.ReactNode> = {
@@ -51,6 +52,7 @@ const entityTypes = ['equipment', 'material', 'meeting', 'project', 'contact', '
 const actionTypes = ['create', 'update', 'delete', 'status_change', 'approval', 'rejection']
 
 export default function AuditLogPage() {
+  const { showError } = useToast()
   const [loading, setLoading] = useState(true)
   const [logs, setLogs] = useState<AuditLog[]>([])
   const [search, setSearch] = useState('')
@@ -70,6 +72,7 @@ export default function AuditLogPage() {
       setLogs(data)
     } catch (error) {
       console.error('Failed to load audit logs:', error)
+      showError('Failed to load audit logs. Please try again.')
     } finally {
       setLoading(false)
     }

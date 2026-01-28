@@ -25,6 +25,7 @@ import { materialsApi } from '../api/materials'
 import { meetingsApi } from '../api/meetings'
 import { approvalsApi } from '../api/approvals'
 import { auditApi } from '../api/audit'
+import { useToast } from '../components/common/ToastProvider'
 
 interface StatCardProps {
   title: string
@@ -60,6 +61,7 @@ function StatCard({ title, value, subtitle, icon, color }: StatCardProps) {
 }
 
 export default function DashboardPage() {
+  const { showError } = useToast()
   const [loading, setLoading] = useState(true)
   const [equipment, setEquipment] = useState<Equipment[]>([])
   const [materials, setMaterials] = useState<Material[]>([])
@@ -88,6 +90,7 @@ export default function DashboardPage() {
       setAuditLogs(auditData)
     } catch (error) {
       console.error('Failed to load dashboard data:', error)
+      showError('Failed to load dashboard data. Please refresh the page.')
     } finally {
       setLoading(false)
     }
