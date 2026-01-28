@@ -1,5 +1,5 @@
 from uuid import UUID
-from datetime import datetime
+from datetime import datetime, date
 from pydantic import BaseModel, Field, field_validator
 from app.core.validators import (
     sanitize_string,
@@ -55,6 +55,42 @@ class InspectionStageTemplateResponse(BaseModel):
     name_he: str
     description: str | None = None
     display_order: int
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class ProjectInspectionCreate(BaseModel):
+    project_id: UUID
+    stage_id: UUID
+    status: str = Field(min_length=1, max_length=50)
+    scheduled_date: date | None = None
+
+    @field_validator('status', mode='before')
+    @classmethod
+    def sanitize_text(cls, v: str | None) -> str | None:
+        return sanitize_string(v)
+
+
+class ProjectInspectionUpdate(BaseModel):
+    stage_id: UUID | None = None
+    status: str | None = Field(default=None, min_length=1, max_length=50)
+    scheduled_date: date | None = None
+
+    @field_validator('status', mode='before')
+    @classmethod
+    def sanitize_text(cls, v: str | None) -> str | None:
+        return sanitize_string(v)
+
+
+class ProjectInspectionResponse(BaseModel):
+    id: UUID
+    project_id: UUID
+    stage_id: UUID
+    status: str
+    scheduled_date: date | None = None
     created_at: datetime
     updated_at: datetime
 
