@@ -7,6 +7,7 @@ from app.models.meeting import Meeting, MeetingAttendee
 from app.models.approval import ApprovalRequest, ApprovalStep
 from app.models.area import ConstructionArea, AreaProgress
 from app.models.file import File
+from app.models.inspection_template import InspectionConsultantType, InspectionStageTemplate
 from app.models.audit import AuditLog
 
 __all__ = [
@@ -24,5 +25,7 @@ __all__ = [
     "ConstructionArea",
     "AreaProgress",
     "File",
+    "InspectionConsultantType",
+    "InspectionStageTemplate",
     "AuditLog",
 ]
