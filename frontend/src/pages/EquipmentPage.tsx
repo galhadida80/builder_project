@@ -36,7 +36,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import SendIcon from '@mui/icons-material/Send'
 import { equipmentApi } from '../api/equipment'
 import StatusBadge from '../components/common/StatusBadge'
-import type { Equipment } from '../types'
+import type { Equipment, FileAttachment } from '../types'
 import { validateEquipmentForm, hasErrors, VALIDATION, type ValidationError } from '../utils/validation'
 
 const equipmentTypes = ['Heavy Machinery', 'Lifting Equipment', 'Power Equipment', 'Safety Equipment', 'Tools']
@@ -58,6 +58,9 @@ export default function EquipmentPage() {
     serialNumber: '',
     notes: ''
   })
+  const [files, setFiles] = useState<FileAttachment[]>([])
+  const [filesLoading, setFilesLoading] = useState(false)
+  const [filesError, setFilesError] = useState<string | null>(null)
 
   useEffect(() => {
     loadEquipment()
