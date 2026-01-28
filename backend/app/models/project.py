@@ -1,0 +1,58 @@
+import uuid
+from datetime import datetime, date
+from enum import Enum
+from sqlalchemy import String, Text, Date, DateTime, ForeignKey
+from sqlalchemy.dialects.postgresql import UUID, ENUM
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from app.db.session import Base
+
+
+class UserRole(str, Enum):
+    PROJECT_ADMIN = "project_admin"
+    CONTRACTOR = "contractor"
+    CONSULTANT = "consultant"
+    SUPERVISOR = "supervisor"
+    INSPECTOR = "inspector"
+
+
+class ProjectStatus(str, Enum):
+    ACTIVE = "active"
+    ON_HOLD = "on_hold"
+    COMPLETED = "completed"
+    ARCHIVED = "archived"
+
+
+class Project(Base):
+    __tablename__ = "projects"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    code: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
+    description: Mapped[str | None] = mapped_column(Text)
+    address: Mapped[str | None] = mapped_column(Text)
+    start_date: Mapped[date | None] = mapped_column(Date)
+    estimated_end_date: Mapped[date | None] = mapped_column(Date)
+    status: Mapped[str] = mapped_column(String(50), default=ProjectStatus.ACTIVE.value)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_by_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
+
+    members = relationship("ProjectMember", back_populates="project", cascade="all, delete-orphan")
+    equipment = relationship("Equipment", back_populates="project", cascade="all, delete-orphan")
+    materials = relationship("Material", back_populates="project", cascade="all, delete-orphan")
+    meetings = relationship("Meeting", back_populates="project", cascade="all, delete-orphan")
+    contacts = relationship("Contact", back_populates="project", cascade="all, delete-orphan")
+    areas = relationship("ConstructionArea", back_populates="project", cascade="all, delete-orphan")
+
+
+class ProjectMember(Base):
+    __tablename__ = "project_members"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    project_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("projects.id", ondelete="CASCADE"))
+    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"))
+    role: Mapped[str] = mapped_column(String(50), nullable=False)
+    added_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+    project = relationship("Project", back_populates="members")
+    user = relationship("User", back_populates="project_memberships")

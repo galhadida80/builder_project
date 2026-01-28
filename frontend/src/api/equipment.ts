@@ -1,0 +1,68 @@
+import { apiClient } from './client'
+import type { Equipment } from '../types'
+
+interface EquipmentCreate {
+  name: string
+  equipment_type?: string
+  manufacturer?: string
+  model_number?: string
+  serial_number?: string
+  specifications?: Record<string, unknown>
+  installation_date?: string
+  warranty_expiry?: string
+  notes?: string
+}
+
+interface EquipmentUpdate {
+  name?: string
+  equipment_type?: string
+  manufacturer?: string
+  model_number?: string
+  serial_number?: string
+  specifications?: Record<string, unknown>
+  installation_date?: string
+  warranty_expiry?: string
+  notes?: string
+}
+
+interface ChecklistCreate {
+  checklistName: string
+  items: Array<{ name: string; completed: boolean }>
+}
+
+export const equipmentApi = {
+  list: async (projectId?: string): Promise<Equipment[]> => {
+    const url = projectId ? `/projects/${projectId}/equipment` : '/equipment'
+    const response = await apiClient.get(url)
+    return response.data
+  },
+
+  get: async (projectId: string, id: string): Promise<Equipment> => {
+    const response = await apiClient.get(`/projects/${projectId}/equipment/${id}`)
+    return response.data
+  },
+
+  create: async (projectId: string, data: EquipmentCreate): Promise<Equipment> => {
+    const response = await apiClient.post(`/projects/${projectId}/equipment`, data)
+    return response.data
+  },
+
+  update: async (projectId: string, id: string, data: EquipmentUpdate): Promise<Equipment> => {
+    const response = await apiClient.put(`/projects/${projectId}/equipment/${id}`, data)
+    return response.data
+  },
+
+  delete: async (projectId: string, id: string): Promise<void> => {
+    await apiClient.delete(`/projects/${projectId}/equipment/${id}`)
+  },
+
+  submit: async (projectId: string, id: string): Promise<Equipment> => {
+    const response = await apiClient.post(`/projects/${projectId}/equipment/${id}/submit`)
+    return response.data
+  },
+
+  addChecklist: async (projectId: string, equipmentId: string, data: ChecklistCreate) => {
+    const response = await apiClient.post(`/projects/${projectId}/equipment/${equipmentId}/checklists`, data)
+    return response.data
+  },
+}
