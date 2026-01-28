@@ -6,7 +6,7 @@ import Tab from '@mui/material/Tab'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Button from '@mui/material/Button'
-import Chip from '@mui/material/Chip'
+// Chip import removed - unused
 import Avatar from '@mui/material/Avatar'
 import Dialog from '@mui/material/Dialog'
 import DialogTitle from '@mui/material/DialogTitle'

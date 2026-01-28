@@ -2,21 +2,23 @@ import { apiClient } from './client'
 import type { Contact } from '../types'
 
 interface ContactCreate {
-  name: string
-  company?: string
-  role?: string
+  contact_type: string
+  company_name?: string
+  contact_name: string
   email?: string
   phone?: string
-  notes?: string
+  role_description?: string
+  is_primary?: boolean
 }
 
 interface ContactUpdate {
-  name?: string
-  company?: string
-  role?: string
+  contact_type?: string
+  company_name?: string
+  contact_name?: string
   email?: string
   phone?: string
-  notes?: string
+  role_description?: string
+  is_primary?: boolean
 }
 
 export const contactsApi = {

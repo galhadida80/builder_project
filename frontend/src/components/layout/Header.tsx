@@ -81,7 +81,7 @@ export default function Header({ user, currentProject, projects, onProjectChange
 
           <IconButton onClick={handleMenuOpen} sx={{ ml: 1 }}>
             <Avatar sx={{ width: 36, height: 36, bgcolor: 'primary.main' }}>
-              {getInitials(user.fullName)}
+              {getInitials(user.fullName || user.email)}
             </Avatar>
           </IconButton>
         </Box>

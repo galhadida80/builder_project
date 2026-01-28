@@ -15,7 +15,7 @@ import TableRow from '@mui/material/TableRow'
 import IconButton from '@mui/material/IconButton'
 import Drawer from '@mui/material/Drawer'
 import Divider from '@mui/material/Divider'
-import Chip from '@mui/material/Chip'
+// Chip import removed - unused
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'

@@ -15,9 +15,14 @@ router = APIRouter()
 
 
 @router.get("", response_model=list[ProjectResponse])
-async def list_projects(db: AsyncSession = Depends(get_db)):
+async def list_projects(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     result = await db.execute(
         select(Project)
+        .join(ProjectMember, Project.id == ProjectMember.project_id)
+        .where(ProjectMember.user_id == current_user.id)
         .options(selectinload(Project.members).selectinload(ProjectMember.user))
         .order_by(Project.created_at.desc())
     )
@@ -45,11 +50,16 @@ async def create_project(
 
 
 @router.get("/{project_id}", response_model=ProjectResponse)
-async def get_project(project_id: UUID, db: AsyncSession = Depends(get_db)):
+async def get_project(
+    project_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     result = await db.execute(
         select(Project)
+        .join(ProjectMember, Project.id == ProjectMember.project_id)
+        .where(Project.id == project_id, ProjectMember.user_id == current_user.id)
         .options(selectinload(Project.members).selectinload(ProjectMember.user))
-        .where(Project.id == project_id)
     )
     project = result.scalar_one_or_none()
     if not project:
@@ -64,7 +74,11 @@ async def update_project(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    result = await db.execute(select(Project).where(Project.id == project_id))
+    result = await db.execute(
+        select(Project)
+        .join(ProjectMember, Project.id == ProjectMember.project_id)
+        .where(Project.id == project_id, ProjectMember.user_id == current_user.id)
+    )
     project = result.scalar_one_or_none()
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
@@ -86,7 +100,11 @@ async def delete_project(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    result = await db.execute(select(Project).where(Project.id == project_id))
+    result = await db.execute(
+        select(Project)
+        .join(ProjectMember, Project.id == ProjectMember.project_id)
+        .where(Project.id == project_id, ProjectMember.user_id == current_user.id)
+    )
     project = result.scalar_one_or_none()
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")

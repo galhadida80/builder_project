@@ -10,7 +10,7 @@ import ListItemText from '@mui/material/ListItemText'
 import ListItemAvatar from '@mui/material/ListItemAvatar'
 import Avatar from '@mui/material/Avatar'
 import Chip from '@mui/material/Chip'
-import LinearProgress from '@mui/material/LinearProgress'
+// LinearProgress import removed - unused
 import CircularProgress from '@mui/material/CircularProgress'
 import BuildIcon from '@mui/icons-material/Build'
 import InventoryIcon from '@mui/icons-material/Inventory'

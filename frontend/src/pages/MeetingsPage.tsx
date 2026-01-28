@@ -79,7 +79,7 @@ export default function MeetingsPage() {
         meetingType: formData.meetingType || undefined,
         description: formData.description || undefined,
         location: formData.location || undefined,
-        scheduledDate: formData.date ? `${formData.date}T${formData.startTime || '09:00'}:00Z` : undefined
+        scheduledDate: `${formData.date || new Date().toISOString().split('T')[0]}T${formData.startTime || '09:00'}:00Z`
       })
       setDialogOpen(false)
       setFormData({ title: '', meetingType: '', description: '', location: '', date: '', startTime: '', endTime: '' })

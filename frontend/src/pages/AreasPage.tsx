@@ -45,7 +45,7 @@ interface AreaNodeProps {
 function AreaNode({ area, level }: AreaNodeProps) {
   const [expanded, setExpanded] = useState(true)
   const hasChildren = area.children && area.children.length > 0
-  const overallProgress = 65
+  const overallProgress: number = 65
   const areaType = areaTypes.find(t => t.value === area.areaType)
 
   const getStatusColor = (status: AreaStatus) => {
@@ -116,7 +116,7 @@ export default function AreasPage() {
   const loadAreas = async () => {
     try {
       setLoading(true)
-      const data = await areasApi.list(projectId)
+      const data = await areasApi.list(projectId!)
       setAreas(data)
     } catch (error) {
       console.error('Failed to load areas:', error)

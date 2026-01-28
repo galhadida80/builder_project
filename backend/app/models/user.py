@@ -10,8 +10,9 @@ class User(Base):
     __tablename__ = "users"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    firebase_uid: Mapped[str] = mapped_column(String(128), unique=True, nullable=False)
+    firebase_uid: Mapped[str | None] = mapped_column(String(128), unique=True, nullable=True)
     email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
+    password_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
     full_name: Mapped[str | None] = mapped_column(String(255))
     phone: Mapped[str | None] = mapped_column(String(50))
     company: Mapped[str | None] = mapped_column(String(255))

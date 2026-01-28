@@ -6,44 +6,83 @@ import CardContent from '@mui/material/CardContent'
 import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
-import Divider from '@mui/material/Divider'
 import Alert from '@mui/material/Alert'
 import CircularProgress from '@mui/material/CircularProgress'
+import Tabs from '@mui/material/Tabs'
+import Tab from '@mui/material/Tab'
 import BuildIcon from '@mui/icons-material/Build'
-import GoogleIcon from '@mui/icons-material/Google'
+import { authApi } from '../api/auth'
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const [tab, setTab] = useState(0)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [fullName, setFullName] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
 
-  const handleEmailLogin = async (e: React.FormEvent) => {
+  const resetForm = () => {
+    setEmail('')
+    setPassword('')
+    setFullName('')
+    setConfirmPassword('')
+    setError(null)
+    setSuccess(null)
+  }
+
+  const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
+    setTab(newValue)
+    resetForm()
+  }
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
 
     try {
-      localStorage.setItem('authToken', 'dev-token')
+      const response = await authApi.login(email, password)
+      localStorage.setItem('authToken', response.access_token)
+      localStorage.setItem('userId', response.user.id)
       navigate('/dashboard')
-    } catch {
-      setError('Invalid email or password')
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { detail?: string } } }
+      setError(error.response?.data?.detail || 'Invalid email or password')
     } finally {
       setLoading(false)
     }
   }
 
-  const handleGoogleLogin = async () => {
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault()
     setLoading(true)
     setError(null)
 
+    if (password !== confirmPassword) {
+      setError('Passwords do not match')
+      setLoading(false)
+      return
+    }
+
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters')
+      setLoading(false)
+      return
+    }
+
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      localStorage.setItem('authToken', 'dev-token')
-      navigate('/dashboard')
-    } catch {
-      setError('Google sign-in failed')
+      await authApi.register(email, password, fullName)
+      setSuccess('Account created successfully! Please sign in.')
+      setTab(0)
+      setPassword('')
+      setConfirmPassword('')
+      setFullName('')
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { detail?: string } } }
+      setError(error.response?.data?.detail || 'Registration failed')
     } finally {
       setLoading(false)
     }
@@ -62,7 +101,7 @@ export default function LoginPage() {
     >
       <Card sx={{ maxWidth: 420, width: '100%' }}>
         <CardContent sx={{ p: 4 }}>
-          <Box sx={{ textAlign: 'center', mb: 4 }}>
+          <Box sx={{ textAlign: 'center', mb: 3 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
               <BuildIcon color="primary" sx={{ fontSize: 40 }} />
               <Typography variant="h4" color="primary" fontWeight="bold">
@@ -74,66 +113,110 @@ export default function LoginPage() {
             </Typography>
           </Box>
 
+          <Tabs value={tab} onChange={handleTabChange} variant="fullWidth" sx={{ mb: 3 }}>
+            <Tab label="Sign In" />
+            <Tab label="Sign Up" />
+          </Tabs>
+
           {error && (
-            <Alert severity="error" sx={{ mb: 3 }}>
+            <Alert severity="error" sx={{ mb: 2 }}>
               {error}
             </Alert>
           )}
 
-          <form onSubmit={handleEmailLogin}>
-            <TextField
-              fullWidth
-              label="Email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              margin="normal"
-              required
-              autoComplete="email"
-            />
-            <TextField
-              fullWidth
-              label="Password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              margin="normal"
-              required
-              autoComplete="current-password"
-            />
-            <Button
-              fullWidth
-              type="submit"
-              variant="contained"
-              size="large"
-              disabled={loading}
-              sx={{ mt: 3, py: 1.5 }}
-            >
-              {loading ? <CircularProgress size={24} color="inherit" /> : 'Sign In'}
-            </Button>
-          </form>
+          {success && (
+            <Alert severity="success" sx={{ mb: 2 }}>
+              {success}
+            </Alert>
+          )}
 
-          <Divider sx={{ my: 3 }}>
-            <Typography variant="body2" color="text.secondary">
-              or
-            </Typography>
-          </Divider>
-
-          <Button
-            fullWidth
-            variant="outlined"
-            size="large"
-            startIcon={<GoogleIcon />}
-            onClick={handleGoogleLogin}
-            disabled={loading}
-            sx={{ py: 1.5 }}
-          >
-            Continue with Google
-          </Button>
-
-          <Typography variant="body2" color="text.secondary" align="center" sx={{ mt: 3 }}>
-            Contact your administrator for account access
-          </Typography>
+          {tab === 0 ? (
+            <form onSubmit={handleLogin}>
+              <TextField
+                fullWidth
+                label="Email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                margin="normal"
+                required
+                autoComplete="email"
+              />
+              <TextField
+                fullWidth
+                label="Password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                margin="normal"
+                required
+                autoComplete="current-password"
+              />
+              <Button
+                fullWidth
+                type="submit"
+                variant="contained"
+                size="large"
+                disabled={loading}
+                sx={{ mt: 3, py: 1.5 }}
+              >
+                {loading ? <CircularProgress size={24} color="inherit" /> : 'Sign In'}
+              </Button>
+            </form>
+          ) : (
+            <form onSubmit={handleRegister}>
+              <TextField
+                fullWidth
+                label="Full Name"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                margin="normal"
+                required
+                autoComplete="name"
+              />
+              <TextField
+                fullWidth
+                label="Email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                margin="normal"
+                required
+                autoComplete="email"
+              />
+              <TextField
+                fullWidth
+                label="Password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                margin="normal"
+                required
+                autoComplete="new-password"
+                helperText="At least 8 characters"
+              />
+              <TextField
+                fullWidth
+                label="Confirm Password"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                margin="normal"
+                required
+                autoComplete="new-password"
+              />
+              <Button
+                fullWidth
+                type="submit"
+                variant="contained"
+                size="large"
+                disabled={loading}
+                sx={{ mt: 3, py: 1.5 }}
+              >
+                {loading ? <CircularProgress size={24} color="inherit" /> : 'Create Account'}
+              </Button>
+            </form>
+          )}
         </CardContent>
       </Card>
     </Box>

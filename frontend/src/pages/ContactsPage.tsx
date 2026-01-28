@@ -59,7 +59,7 @@ export default function ContactsPage() {
   const loadContacts = async () => {
     try {
       setLoading(true)
-      const data = await contactsApi.list(projectId)
+      const data = await contactsApi.list(projectId!)
       setContacts(data)
     } catch (error) {
       console.error('Failed to load contacts:', error)
@@ -71,13 +71,13 @@ export default function ContactsPage() {
   const handleCreateContact = async () => {
     if (!projectId) return
     try {
-      await contactsApi.create(projectId, {
-        contactName: formData.contactName,
-        contactType: formData.contactType,
-        companyName: formData.companyName || undefined,
+      await contactsApi.create(projectId!, {
+        contact_name: formData.contactName,
+        contact_type: formData.contactType,
+        company_name: formData.companyName || undefined,
         email: formData.email || undefined,
         phone: formData.phone || undefined,
-        roleDescription: formData.roleDescription || undefined
+        role_description: formData.roleDescription || undefined
       })
       setDialogOpen(false)
       setFormData({ contactName: '', contactType: '', companyName: '', email: '', phone: '', roleDescription: '' })

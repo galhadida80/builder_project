@@ -1,6 +1,7 @@
 from uuid import UUID
 from datetime import datetime
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field, field_validator
+from app.core.validators import sanitize_string, MIN_NAME_LENGTH, MAX_NAME_LENGTH
 
 
 class UserBase(BaseModel):
@@ -11,7 +12,23 @@ class UserBase(BaseModel):
 
 
 class UserCreate(UserBase):
-    firebase_uid: str
+    firebase_uid: str | None = None
+
+
+class UserRegister(BaseModel):
+    email: EmailStr
+    password: str = Field(min_length=8, max_length=128)
+    full_name: str = Field(min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
+
+    @field_validator('full_name', mode='before')
+    @classmethod
+    def sanitize_name(cls, v: str) -> str:
+        return sanitize_string(v) or ''
+
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str = Field(min_length=1, max_length=128)
 
 
 class UserResponse(UserBase):
@@ -22,3 +39,9 @@ class UserResponse(UserBase):
 
     class Config:
         from_attributes = True
+
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: UserResponse

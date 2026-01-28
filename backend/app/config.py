@@ -7,6 +7,8 @@ class Settings(BaseSettings):
     debug: bool = False
     environment: str = "development"
 
+    secret_key: str = "dev-secret-key-change-in-production-use-strong-random-key"
+
     database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/builder_db"
     database_url_sync: str = "postgresql://postgres:postgres@localhost:5432/builder_db"
 
