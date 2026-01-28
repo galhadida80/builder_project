@@ -136,3 +136,29 @@ class InspectionFindingResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class InspectionConsultantTypeWithStages(BaseModel):
+    id: UUID
+    name: str
+    name_he: str
+    category: str
+    created_at: datetime
+    stages: list[InspectionStageTemplateResponse] = []
+
+    class Config:
+        from_attributes = True
+
+
+class ProjectInspectionWithFindings(BaseModel):
+    id: UUID
+    project_id: UUID
+    stage_id: UUID
+    status: str
+    scheduled_date: date | None = None
+    created_at: datetime
+    updated_at: datetime
+    findings: list[InspectionFindingResponse] = []
+
+    class Config:
+        from_attributes = True
