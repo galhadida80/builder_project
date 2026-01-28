@@ -237,11 +237,31 @@ export default function EquipmentPage() {
             <Divider sx={{ my: 2 }} />
 
             <Typography variant="subtitle2" color="text.secondary" gutterBottom>Documents</Typography>
-            <List dense>
-              <ListItem><ListItemIcon><DescriptionIcon /></ListItemIcon><ListItemText primary="Technical Specifications" secondary="PDF - 2.4 MB" /></ListItem>
-              <ListItem><ListItemIcon><DescriptionIcon /></ListItemIcon><ListItemText primary="Safety Certificate" secondary="PDF - 1.1 MB" /></ListItem>
-              <ListItem><ListItemIcon><DescriptionIcon /></ListItemIcon><ListItemText primary="Installation Manual" secondary="PDF - 5.8 MB" /></ListItem>
-            </List>
+            {filesLoading ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                <CircularProgress size={24} />
+              </Box>
+            ) : filesError ? (
+              <Box sx={{ py: 2 }}>
+                <Typography color="error" variant="body2">{filesError}</Typography>
+              </Box>
+            ) : files.length === 0 ? (
+              <Box sx={{ py: 2 }}>
+                <Typography color="text.secondary" variant="body2">No documents attached</Typography>
+              </Box>
+            ) : (
+              <List dense>
+                {files.map((file) => (
+                  <ListItem key={file.id}>
+                    <ListItemIcon><DescriptionIcon /></ListItemIcon>
+                    <ListItemText
+                      primary={file.filename}
+                      secondary={`${file.fileType?.toUpperCase() || 'FILE'} - ${file.fileSize ? (file.fileSize / (1024 * 1024)).toFixed(1) : '0.0'} MB`}
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            )}
             <Button size="small" startIcon={<AddIcon />}>Add Document</Button>
 
             <Divider sx={{ my: 2 }} />
