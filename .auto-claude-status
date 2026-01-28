@@ -1,0 +1,25 @@
+{
+  "active": true,
+  "spec": "002-3-5-create-alembic-migration-for-inspections",
+  "state": "building",
+  "subtasks": {
+    "completed": 0,
+    "total": 7,
+    "in_progress": 1,
+    "failed": 0
+  },
+  "phase": {
+    "current": "Create SQLAlchemy Models",
+    "id": null,
+    "total": 2
+  },
+  "workers": {
+    "active": 0,
+    "max": 1
+  },
+  "session": {
+    "number": 1,
+    "started_at": "2026-01-29T01:27:40.431729"
+  },
+  "last_update": "2026-01-29T01:27:40.495709"
+}
