@@ -3,23 +3,23 @@
   "spec": "022-hardcoded-documents-list-in-equipment-drawer",
   "state": "building",
   "subtasks": {
-    "completed": 2,
+    "completed": 4,
     "total": 5,
     "in_progress": 1,
     "failed": 0
   },
   "phase": {
-    "current": "Frontend Implementation",
+    "current": "Integration Testing",
     "id": null,
-    "total": 4
+    "total": 1
   },
   "workers": {
     "active": 0,
     "max": 1
   },
   "session": {
-    "number": 3,
+    "number": 5,
     "started_at": "2026-01-29T01:42:36.327684"
   },
-  "last_update": "2026-01-29T01:46:22.088642"
+  "last_update": "2026-01-29T01:50:21.906632"
 }
