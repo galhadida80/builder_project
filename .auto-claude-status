@@ -1,0 +1,25 @@
+{
+  "active": true,
+  "spec": "001-3-6-seed-inspection-templates-from-excel-data",
+  "state": "building",
+  "subtasks": {
+    "completed": 2,
+    "total": 5,
+    "in_progress": 1,
+    "failed": 0
+  },
+  "phase": {
+    "current": "Create Seed Scripts",
+    "id": null,
+    "total": 2
+  },
+  "workers": {
+    "active": 0,
+    "max": 1
+  },
+  "session": {
+    "number": 3,
+    "started_at": "2026-01-29T01:30:43.144820"
+  },
+  "last_update": "2026-01-29T01:35:20.374854"
+}
