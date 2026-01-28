@@ -45,7 +45,9 @@ interface AreaNodeProps {
 function AreaNode({ area, level }: AreaNodeProps) {
   const [expanded, setExpanded] = useState(true)
   const hasChildren = area.children && area.children.length > 0
-  const overallProgress: number = 65
+  const overallProgress: number = area.progress && area.progress.length > 0
+    ? Math.round(area.progress.reduce((sum, p) => sum + p.progressPercent, 0) / area.progress.length)
+    : 0
   const areaType = areaTypes.find(t => t.value === area.areaType)
 
   const getStatusColor = (status: AreaStatus) => {

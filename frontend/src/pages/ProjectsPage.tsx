@@ -26,9 +26,11 @@ import MenuItem from '@mui/material/MenuItem'
 import { projectsApi } from '../api/projects'
 import type { Project } from '../types'
 import { validateProjectForm, hasErrors, VALIDATION, type ValidationError } from '../utils/validation'
+import { useToast } from '../components/common/ToastProvider'
 
 export default function ProjectsPage() {
   const navigate = useNavigate()
+  const { showError, showSuccess } = useToast()
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -56,6 +58,7 @@ export default function ProjectsPage() {
       setProjects(data)
     } catch (error) {
       console.error('Failed to load projects:', error)
+      showError('Failed to load projects. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -79,9 +82,11 @@ export default function ProjectsPage() {
       setOpenDialog(false)
       setFormData({ name: '', code: '', description: '', address: '', startDate: '', estimatedEndDate: '' })
       setErrors({})
+      showSuccess('Project created successfully!')
       loadProjects()
     } catch (error) {
       console.error('Failed to create project:', error)
+      showError('Failed to create project. Please try again.')
     }
   }
 

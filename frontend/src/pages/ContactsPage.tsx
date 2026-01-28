@@ -26,6 +26,7 @@ import EditIcon from '@mui/icons-material/Edit'
 import StarIcon from '@mui/icons-material/Star'
 import { contactsApi } from '../api/contacts'
 import type { Contact } from '../types'
+import { useToast } from '../components/common/ToastProvider'
 
 const contactTypes = [
   { value: 'contractor', label: 'Contractor', color: '#1976d2' },
@@ -38,6 +39,7 @@ const contactTypes = [
 
 export default function ContactsPage() {
   const { projectId } = useParams()
+  const { showError, showSuccess } = useToast()
   const [loading, setLoading] = useState(true)
   const [contacts, setContacts] = useState<Contact[]>([])
   const [search, setSearch] = useState('')
@@ -63,6 +65,7 @@ export default function ContactsPage() {
       setContacts(data)
     } catch (error) {
       console.error('Failed to load contacts:', error)
+      showError('Failed to load contacts. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -81,9 +84,11 @@ export default function ContactsPage() {
       })
       setDialogOpen(false)
       setFormData({ contactName: '', contactType: '', companyName: '', email: '', phone: '', roleDescription: '' })
+      showSuccess('Contact created successfully!')
       loadContacts()
     } catch (error) {
       console.error('Failed to create contact:', error)
+      showError('Failed to create contact. Please try again.')
     }
   }
 

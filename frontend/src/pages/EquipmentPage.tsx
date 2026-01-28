@@ -38,11 +38,13 @@ import { equipmentApi } from '../api/equipment'
 import StatusBadge from '../components/common/StatusBadge'
 import type { Equipment } from '../types'
 import { validateEquipmentForm, hasErrors, VALIDATION, type ValidationError } from '../utils/validation'
+import { useToast } from '../components/common/ToastProvider'
 
 const equipmentTypes = ['Heavy Machinery', 'Lifting Equipment', 'Power Equipment', 'Safety Equipment', 'Tools']
 
 export default function EquipmentPage() {
   const { projectId } = useParams()
+  const { showError, showSuccess } = useToast()
   const [loading, setLoading] = useState(true)
   const [equipment, setEquipment] = useState<Equipment[]>([])
   const [search, setSearch] = useState('')
@@ -66,10 +68,11 @@ export default function EquipmentPage() {
   const loadEquipment = async () => {
     try {
       setLoading(true)
-      const data = await equipmentApi.list(projectId)
+      const data = await equipmentApi.list(projectId!)
       setEquipment(data)
     } catch (error) {
       console.error('Failed to load equipment:', error)
+      showError('Failed to load equipment. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -90,9 +93,11 @@ export default function EquipmentPage() {
         notes: formData.notes || undefined
       })
       handleCloseDialog()
+      showSuccess('Equipment created successfully!')
       loadEquipment()
     } catch (error) {
       console.error('Failed to create equipment:', error)
+      showError('Failed to create equipment. Please try again.')
     }
   }
 

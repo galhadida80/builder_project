@@ -14,11 +14,15 @@ router = APIRouter()
 
 
 @router.get("/projects/{project_id}/contacts", response_model=list[ContactResponse])
-async def list_contacts(project_id: UUID, db: AsyncSession = Depends(get_db)):
+async def list_contacts(
+    project_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     result = await db.execute(
         select(Contact)
         .where(Contact.project_id == project_id)
-        .order_by(Contact.company, Contact.name)
+        .order_by(Contact.company_name, Contact.contact_name)
     )
     return result.scalars().all()
 
