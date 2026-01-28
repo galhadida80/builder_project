@@ -15,7 +15,6 @@ import TableRow from '@mui/material/TableRow'
 import IconButton from '@mui/material/IconButton'
 import Drawer from '@mui/material/Drawer'
 import Divider from '@mui/material/Divider'
-// Chip import removed - unused
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
@@ -30,6 +29,7 @@ import SearchIcon from '@mui/icons-material/Search'
 import AddIcon from '@mui/icons-material/Add'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import EditIcon from '@mui/icons-material/Edit'
+import DeleteIcon from '@mui/icons-material/Delete'
 import CloseIcon from '@mui/icons-material/Close'
 import DescriptionIcon from '@mui/icons-material/Description'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
@@ -51,6 +51,11 @@ export default function EquipmentPage() {
   const [selectedEquipment, setSelectedEquipment] = useState<Equipment | null>(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [editingEquipment, setEditingEquipment] = useState<Equipment | null>(null)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [equipmentToDelete, setEquipmentToDelete] = useState<Equipment | null>(null)
+  const [saving, setSaving] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
   const [errors, setErrors] = useState<ValidationError>({})
   const [formData, setFormData] = useState({
     name: '',
@@ -78,33 +83,109 @@ export default function EquipmentPage() {
     }
   }
 
-  const handleCreateEquipment = async () => {
+  const resetForm = () => {
+    setFormData({ name: '', equipmentType: '', manufacturer: '', modelNumber: '', serialNumber: '', notes: '' })
+    setErrors({})
+    setEditingEquipment(null)
+  }
+
+  const handleCloseDialog = () => {
+    setDialogOpen(false)
+    resetForm()
+  }
+
+  const handleOpenCreate = () => {
+    resetForm()
+    setDialogOpen(true)
+  }
+
+  const handleOpenEdit = (eq: Equipment, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation()
+    setEditingEquipment(eq)
+    setFormData({
+      name: eq.name,
+      equipmentType: eq.equipmentType || '',
+      manufacturer: eq.manufacturer || '',
+      modelNumber: eq.modelNumber || '',
+      serialNumber: eq.serialNumber || '',
+      notes: eq.notes || ''
+    })
+    setErrors({})
+    setDialogOpen(true)
+    setDrawerOpen(false)
+  }
+
+  const handleSaveEquipment = async () => {
     if (!projectId) return
     const validationErrors = validateEquipmentForm(formData)
     setErrors(validationErrors)
     if (hasErrors(validationErrors)) return
+
+    setSaving(true)
     try {
-      await equipmentApi.create(projectId, {
+      const payload = {
         name: formData.name,
         equipment_type: formData.equipmentType || undefined,
         manufacturer: formData.manufacturer || undefined,
         model_number: formData.modelNumber || undefined,
         serial_number: formData.serialNumber || undefined,
         notes: formData.notes || undefined
-      })
+      }
+
+      if (editingEquipment) {
+        await equipmentApi.update(projectId, editingEquipment.id, payload)
+        showSuccess('Equipment updated successfully!')
+      } else {
+        await equipmentApi.create(projectId, payload)
+        showSuccess('Equipment created successfully!')
+      }
       handleCloseDialog()
-      showSuccess('Equipment created successfully!')
       loadEquipment()
     } catch (error) {
-      console.error('Failed to create equipment:', error)
-      showError('Failed to create equipment. Please try again.')
+      console.error('Failed to save equipment:', error)
+      showError(`Failed to ${editingEquipment ? 'update' : 'create'} equipment. Please try again.`)
+    } finally {
+      setSaving(false)
     }
   }
 
-  const handleCloseDialog = () => {
-    setDialogOpen(false)
-    setErrors({})
-    setFormData({ name: '', equipmentType: '', manufacturer: '', modelNumber: '', serialNumber: '', notes: '' })
+  const handleDeleteClick = (eq: Equipment, e: React.MouseEvent) => {
+    e.stopPropagation()
+    setEquipmentToDelete(eq)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!projectId || !equipmentToDelete) return
+
+    try {
+      await equipmentApi.delete(projectId, equipmentToDelete.id)
+      showSuccess('Equipment deleted successfully!')
+      setDeleteDialogOpen(false)
+      setEquipmentToDelete(null)
+      setDrawerOpen(false)
+      loadEquipment()
+    } catch (error) {
+      console.error('Failed to delete equipment:', error)
+      showError('Failed to delete equipment. Please try again.')
+    }
+  }
+
+  const handleSubmitForApproval = async () => {
+    if (!projectId || !selectedEquipment) return
+
+    setSubmitting(true)
+    try {
+      await equipmentApi.submit(projectId, selectedEquipment.id)
+      showSuccess('Equipment submitted for approval!')
+      loadEquipment()
+      setDrawerOpen(false)
+    } catch (error) {
+      console.error('Failed to submit equipment:', error)
+      showError('Failed to submit equipment for approval. Please try again.')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   const filteredEquipment = equipment.filter(e =>
@@ -134,7 +215,7 @@ export default function EquipmentPage() {
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Typography variant="h5" fontWeight="bold">Equipment</Typography>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={() => setDialogOpen(true)}>
+        <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenCreate}>
           Add Equipment
         </Button>
       </Box>
@@ -172,10 +253,15 @@ export default function EquipmentPage() {
                   <TableCell>{eq.modelNumber || '-'}</TableCell>
                   <TableCell><StatusBadge status={eq.status} /></TableCell>
                   <TableCell align="right">
-                    <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleViewDetails(eq); }}>
+                    <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleViewDetails(eq); }} title="View details">
                       <VisibilityIcon fontSize="small" />
                     </IconButton>
-                    <IconButton size="small"><EditIcon fontSize="small" /></IconButton>
+                    <IconButton size="small" onClick={(e) => handleOpenEdit(eq, e)} title="Edit equipment">
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton size="small" onClick={(e) => handleDeleteClick(eq, e)} title="Delete equipment" color="error">
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
                   </TableCell>
                 </TableRow>
               ))}
@@ -233,16 +319,26 @@ export default function EquipmentPage() {
 
             <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
               {selectedEquipment.status === 'draft' && (
-                <Button variant="contained" startIcon={<SendIcon />} fullWidth>Submit for Approval</Button>
+                <Button
+                  variant="contained"
+                  startIcon={submitting ? <CircularProgress size={20} /> : <SendIcon />}
+                  fullWidth
+                  onClick={handleSubmitForApproval}
+                  disabled={submitting}
+                >
+                  Submit for Approval
+                </Button>
               )}
-              <Button variant="outlined" fullWidth>Edit Equipment</Button>
+              <Button variant="outlined" fullWidth onClick={() => handleOpenEdit(selectedEquipment)}>
+                Edit Equipment
+              </Button>
             </Box>
           </Box>
         )}
       </Drawer>
 
       <Dialog open={dialogOpen} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>Add New Equipment</DialogTitle>
+        <DialogTitle>{editingEquipment ? 'Edit Equipment' : 'Add New Equipment'}</DialogTitle>
         <DialogContent>
           <TextField
             fullWidth
@@ -263,6 +359,7 @@ export default function EquipmentPage() {
             value={formData.equipmentType}
             onChange={(e) => setFormData({ ...formData, equipmentType: e.target.value })}
           >
+            <MenuItem value="">Select type...</MenuItem>
             {equipmentTypes.map(type => <MenuItem key={type} value={type}>{type}</MenuItem>)}
           </TextField>
           <TextField
@@ -303,8 +400,23 @@ export default function EquipmentPage() {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog}>Cancel</Button>
-          <Button variant="contained" onClick={handleCreateEquipment}>Add Equipment</Button>
+          <Button onClick={handleCloseDialog} disabled={saving}>Cancel</Button>
+          <Button variant="contained" onClick={handleSaveEquipment} disabled={saving}>
+            {saving ? <CircularProgress size={24} /> : (editingEquipment ? 'Save Changes' : 'Add Equipment')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+        <DialogTitle>Delete Equipment</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Are you sure you want to delete <strong>{equipmentToDelete?.name}</strong>? This action cannot be undone.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+          <Button variant="contained" color="error" onClick={handleConfirmDelete}>Delete</Button>
         </DialogActions>
       </Dialog>
     </Box>

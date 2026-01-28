@@ -36,7 +36,11 @@ export default function ProjectsPage() {
   const [search, setSearch] = useState('')
   const [openDialog, setOpenDialog] = useState(false)
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
-  const [, setSelectedProject] = useState<Project | null>(null)
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null)
+  const [editingProject, setEditingProject] = useState<Project | null>(null)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [projectToDelete, setProjectToDelete] = useState<Project | null>(null)
+  const [saving, setSaving] = useState(false)
   const [errors, setErrors] = useState<ValidationError>({})
   const [formData, setFormData] = useState({
     name: '',
@@ -64,36 +68,93 @@ export default function ProjectsPage() {
     }
   }
 
-  const handleCreateProject = async () => {
-    const validationErrors = validateProjectForm(formData)
-    setErrors(validationErrors)
-    if (hasErrors(validationErrors)) {
-      return
-    }
-    try {
-      await projectsApi.create({
-        name: formData.name,
-        code: formData.code,
-        description: formData.description || undefined,
-        location: formData.address || undefined,
-        startDate: formData.startDate || undefined,
-        expectedEndDate: formData.estimatedEndDate || undefined
-      })
-      setOpenDialog(false)
-      setFormData({ name: '', code: '', description: '', address: '', startDate: '', estimatedEndDate: '' })
-      setErrors({})
-      showSuccess('Project created successfully!')
-      loadProjects()
-    } catch (error) {
-      console.error('Failed to create project:', error)
-      showError('Failed to create project. Please try again.')
-    }
+  const resetForm = () => {
+    setFormData({ name: '', code: '', description: '', address: '', startDate: '', estimatedEndDate: '' })
+    setErrors({})
+    setEditingProject(null)
   }
 
   const handleCloseDialog = () => {
     setOpenDialog(false)
+    resetForm()
+  }
+
+  const handleOpenCreate = () => {
+    resetForm()
+    setOpenDialog(true)
+  }
+
+  const handleOpenEdit = (project: Project) => {
+    setEditingProject(project)
+    setFormData({
+      name: project.name,
+      code: project.code,
+      description: project.description || '',
+      address: project.address || '',
+      startDate: project.startDate || '',
+      estimatedEndDate: project.estimatedEndDate || ''
+    })
     setErrors({})
-    setFormData({ name: '', code: '', description: '', address: '', startDate: '', estimatedEndDate: '' })
+    setOpenDialog(true)
+    handleMenuClose()
+  }
+
+  const handleSaveProject = async () => {
+    const validationErrors = validateProjectForm(formData)
+    setErrors(validationErrors)
+    if (hasErrors(validationErrors)) return
+
+    setSaving(true)
+    try {
+      if (editingProject) {
+        await projectsApi.update(editingProject.id, {
+          name: formData.name,
+          description: formData.description || undefined,
+          location: formData.address || undefined,
+          startDate: formData.startDate || undefined,
+          expectedEndDate: formData.estimatedEndDate || undefined
+        })
+        showSuccess('Project updated successfully!')
+      } else {
+        await projectsApi.create({
+          name: formData.name,
+          code: formData.code,
+          description: formData.description || undefined,
+          location: formData.address || undefined,
+          startDate: formData.startDate || undefined,
+          expectedEndDate: formData.estimatedEndDate || undefined
+        })
+        showSuccess('Project created successfully!')
+      }
+      handleCloseDialog()
+      loadProjects()
+    } catch (error) {
+      console.error('Failed to save project:', error)
+      showError(`Failed to ${editingProject ? 'update' : 'create'} project. Please try again.`)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleDeleteClick = () => {
+    setProjectToDelete(selectedProject)
+    setDeleteDialogOpen(true)
+    handleMenuClose()
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!projectToDelete) return
+
+    try {
+      await projectsApi.delete(projectToDelete.id)
+      showSuccess('Project deleted successfully!')
+      setDeleteDialogOpen(false)
+      setProjectToDelete(null)
+      loadProjects()
+    } catch (error) {
+      console.error('Failed to delete project:', error)
+      showError('Failed to delete project. Please try again.')
+    }
   }
 
   const filteredProjects = projects.filter(p =>
@@ -148,7 +209,7 @@ export default function ProjectsPage() {
         <Button
           variant="contained"
           startIcon={<AddIcon />}
-          onClick={() => setOpenDialog(true)}
+          onClick={handleOpenCreate}
         >
           New Project
         </Button>
@@ -246,14 +307,14 @@ export default function ProjectsPage() {
       )}
 
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-        <MenuItem onClick={handleMenuClose}>Edit Project</MenuItem>
+        <MenuItem onClick={() => selectedProject && handleOpenEdit(selectedProject)}>Edit Project</MenuItem>
         <MenuItem onClick={handleMenuClose}>View Team</MenuItem>
         <MenuItem onClick={handleMenuClose}>Export Report</MenuItem>
-        <MenuItem onClick={handleMenuClose} sx={{ color: 'error.main' }}>Archive</MenuItem>
+        <MenuItem onClick={handleDeleteClick} sx={{ color: 'error.main' }}>Delete Project</MenuItem>
       </Menu>
 
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>Create New Project</DialogTitle>
+        <DialogTitle>{editingProject ? 'Edit Project' : 'Create New Project'}</DialogTitle>
         <DialogContent>
           <TextField
             fullWidth
@@ -271,10 +332,11 @@ export default function ProjectsPage() {
             label="Project Code"
             margin="normal"
             required
+            disabled={!!editingProject}
             value={formData.code}
             onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
             error={!!errors.code}
-            helperText={errors.code || 'Letters, numbers, hyphens only'}
+            helperText={editingProject ? 'Code cannot be changed' : (errors.code || 'Letters, numbers, hyphens only')}
             inputProps={{ maxLength: VALIDATION.MAX_CODE_LENGTH }}
           />
           <TextField
@@ -321,8 +383,23 @@ export default function ProjectsPage() {
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog}>Cancel</Button>
-          <Button variant="contained" onClick={handleCreateProject}>Create Project</Button>
+          <Button onClick={handleCloseDialog} disabled={saving}>Cancel</Button>
+          <Button variant="contained" onClick={handleSaveProject} disabled={saving}>
+            {saving ? <CircularProgress size={24} /> : (editingProject ? 'Save Changes' : 'Create Project')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+        <DialogTitle>Delete Project</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Are you sure you want to delete <strong>{projectToDelete?.name}</strong>? This will permanently remove the project and all associated data. This action cannot be undone.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+          <Button variant="contained" color="error" onClick={handleConfirmDelete}>Delete Project</Button>
         </DialogActions>
       </Dialog>
     </Box>
