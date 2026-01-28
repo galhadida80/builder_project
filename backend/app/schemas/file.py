@@ -2,9 +2,10 @@ from uuid import UUID
 from datetime import datetime
 from pydantic import BaseModel
 from app.schemas.user import UserResponse
+from app.core.validators import CamelCaseModel
 
 
-class FileResponse(BaseModel):
+class FileResponse(CamelCaseModel):
     id: UUID
     project_id: UUID
     entity_type: str
@@ -15,6 +16,3 @@ class FileResponse(BaseModel):
     storage_path: str
     uploaded_at: datetime
     uploaded_by: UserResponse | None = None
-
-    class Config:
-        from_attributes = True

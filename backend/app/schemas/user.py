@@ -1,7 +1,7 @@
 from uuid import UUID
 from datetime import datetime
 from pydantic import BaseModel, EmailStr, Field, field_validator
-from app.core.validators import sanitize_string, MIN_NAME_LENGTH, MAX_NAME_LENGTH
+from app.core.validators import sanitize_string, MIN_NAME_LENGTH, MAX_NAME_LENGTH, CamelCaseModel
 
 
 class UserBase(BaseModel):
@@ -31,17 +31,14 @@ class UserLogin(BaseModel):
     password: str = Field(min_length=1, max_length=128)
 
 
-class UserResponse(UserBase):
+class UserResponse(CamelCaseModel, UserBase):
     id: UUID
     role: str | None = None
     is_active: bool
     created_at: datetime
 
-    class Config:
-        from_attributes = True
 
-
-class TokenResponse(BaseModel):
+class TokenResponse(CamelCaseModel):
     access_token: str
     token_type: str = "bearer"
     user: UserResponse

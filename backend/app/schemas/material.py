@@ -5,7 +5,8 @@ from pydantic import BaseModel, Field, field_validator
 from app.schemas.user import UserResponse
 from app.core.validators import (
     sanitize_string,
-    MIN_NAME_LENGTH, MAX_NAME_LENGTH, MAX_NOTES_LENGTH
+    MIN_NAME_LENGTH, MAX_NAME_LENGTH, MAX_NOTES_LENGTH,
+    CamelCaseModel
 )
 
 
@@ -61,7 +62,7 @@ class MaterialReceive(BaseModel):
         return sanitize_string(v)
 
 
-class MaterialResponse(BaseModel):
+class MaterialResponse(CamelCaseModel):
     id: UUID
     project_id: UUID
     name: str
@@ -79,6 +80,3 @@ class MaterialResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     created_by: UserResponse | None = None
-
-    class Config:
-        from_attributes = True

@@ -1,7 +1,8 @@
 import re
 from typing import Annotated
-from pydantic import Field, field_validator
+from pydantic import BaseModel, Field, ConfigDict
 from pydantic.functional_validators import BeforeValidator
+from pydantic.alias_generators import to_camel
 
 MIN_NAME_LENGTH = 2
 MAX_NAME_LENGTH = 255
@@ -56,3 +57,11 @@ NotesField = Annotated[str | None, Field(max_length=MAX_NOTES_LENGTH)]
 AddressField = Annotated[str | None, Field(max_length=MAX_ADDRESS_LENGTH)]
 PhoneField = Annotated[str | None, Field(max_length=MAX_PHONE_LENGTH)]
 ShortTextField = Annotated[str | None, Field(max_length=MAX_NAME_LENGTH)]
+
+
+class CamelCaseModel(BaseModel):
+    model_config = ConfigDict(
+        from_attributes=True,
+        alias_generator=to_camel,
+        populate_by_name=True,
+    )

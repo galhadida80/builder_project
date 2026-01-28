@@ -8,6 +8,22 @@ export const VALIDATION = {
   MAX_ADDRESS_LENGTH: 500,
 }
 
+const DANGEROUS_PATTERNS = [
+  /<script[^>]*>.*?<\/script>/gi,
+  /javascript:/gi,
+  /on\w+\s*=/gi,
+  /<iframe[^>]*>/gi,
+]
+
+export const sanitizeString = (value: string | undefined | null): string => {
+  if (!value) return ''
+  let sanitized = value.trim()
+  for (const pattern of DANGEROUS_PATTERNS) {
+    sanitized = sanitized.replace(pattern, '')
+  }
+  return sanitized
+}
+
 export const validateRequired = (value: string | undefined | null, fieldName: string): string | null => {
   if (!value || value.trim() === '') {
     return `${fieldName} is required`

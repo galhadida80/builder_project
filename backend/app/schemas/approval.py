@@ -2,13 +2,14 @@ from uuid import UUID
 from datetime import datetime
 from pydantic import BaseModel
 from app.schemas.user import UserResponse
+from app.core.validators import CamelCaseModel
 
 
 class ApprovalAction(BaseModel):
     comments: str | None = None
 
 
-class ApprovalStepResponse(BaseModel):
+class ApprovalStepResponse(CamelCaseModel):
     id: UUID
     approval_request_id: UUID
     step_order: int
@@ -20,11 +21,8 @@ class ApprovalStepResponse(BaseModel):
     decided_at: datetime | None = None
     created_at: datetime
 
-    class Config:
-        from_attributes = True
 
-
-class ApprovalRequestResponse(BaseModel):
+class ApprovalRequestResponse(CamelCaseModel):
     id: UUID
     project_id: UUID
     entity_type: str
@@ -33,6 +31,3 @@ class ApprovalRequestResponse(BaseModel):
     created_at: datetime
     created_by: UserResponse | None = None
     steps: list[ApprovalStepResponse] = []
-
-    class Config:
-        from_attributes = True

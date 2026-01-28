@@ -4,7 +4,8 @@ from pydantic import BaseModel, Field, field_validator
 from app.schemas.user import UserResponse
 from app.core.validators import (
     sanitize_string,
-    MIN_NAME_LENGTH, MAX_NAME_LENGTH, MAX_DESCRIPTION_LENGTH, MAX_NOTES_LENGTH
+    MIN_NAME_LENGTH, MAX_NAME_LENGTH, MAX_DESCRIPTION_LENGTH, MAX_NOTES_LENGTH,
+    CamelCaseModel
 )
 
 
@@ -31,16 +32,13 @@ class MeetingAttendeeCreate(BaseModel):
         return sanitize_string(v)
 
 
-class MeetingAttendeeResponse(BaseModel):
+class MeetingAttendeeResponse(CamelCaseModel):
     id: UUID
     meeting_id: UUID
     user_id: UUID | None = None
     user: UserResponse | None = None
     role: str | None = None
     confirmed: bool = False
-
-    class Config:
-        from_attributes = True
 
 
 class MeetingBase(BaseModel):
@@ -78,7 +76,7 @@ class MeetingUpdate(BaseModel):
         return sanitize_string(v)
 
 
-class MeetingResponse(BaseModel):
+class MeetingResponse(CamelCaseModel):
     id: UUID
     project_id: UUID
     title: str
@@ -94,6 +92,3 @@ class MeetingResponse(BaseModel):
     created_at: datetime
     created_by: UserResponse | None = None
     attendees: list[MeetingAttendeeResponse] = []
-
-    class Config:
-        from_attributes = True

@@ -4,7 +4,8 @@ from pydantic import BaseModel, Field, field_validator
 from app.schemas.user import UserResponse
 from app.core.validators import (
     sanitize_string,
-    MIN_NAME_LENGTH, MAX_NAME_LENGTH, MAX_NOTES_LENGTH
+    MIN_NAME_LENGTH, MAX_NAME_LENGTH, MAX_NOTES_LENGTH,
+    CamelCaseModel
 )
 
 
@@ -31,15 +32,12 @@ class ChecklistCreate(BaseModel):
         return sanitize_string(v) or ''
 
 
-class ChecklistResponse(BaseModel):
+class ChecklistResponse(CamelCaseModel):
     id: UUID
     equipment_id: UUID
     checklist_name: str
     items: list
     created_at: datetime
-
-    class Config:
-        from_attributes = True
 
 
 class EquipmentBase(BaseModel):
@@ -80,7 +78,7 @@ class EquipmentUpdate(BaseModel):
         return sanitize_string(v)
 
 
-class EquipmentResponse(BaseModel):
+class EquipmentResponse(CamelCaseModel):
     id: UUID
     project_id: UUID
     name: str
@@ -97,6 +95,3 @@ class EquipmentResponse(BaseModel):
     updated_at: datetime
     created_by: UserResponse | None = None
     checklists: list[ChecklistResponse] = []
-
-    class Config:
-        from_attributes = True

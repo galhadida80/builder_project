@@ -5,7 +5,8 @@ from app.schemas.user import UserResponse
 from app.core.validators import (
     sanitize_string, validate_code,
     MIN_NAME_LENGTH, MAX_NAME_LENGTH, MAX_CODE_LENGTH,
-    MAX_DESCRIPTION_LENGTH, MAX_ADDRESS_LENGTH
+    MAX_DESCRIPTION_LENGTH, MAX_ADDRESS_LENGTH,
+    CamelCaseModel
 )
 
 
@@ -47,18 +48,15 @@ class ProjectMemberCreate(BaseModel):
     role: str
 
 
-class ProjectMemberResponse(BaseModel):
+class ProjectMemberResponse(CamelCaseModel):
     id: UUID
     user_id: UUID
     user: UserResponse
     role: str
     added_at: datetime
 
-    class Config:
-        from_attributes = True
 
-
-class ProjectResponse(BaseModel):
+class ProjectResponse(CamelCaseModel):
     id: UUID
     name: str
     code: str
@@ -70,6 +68,3 @@ class ProjectResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     members: list[ProjectMemberResponse] = []
-
-    class Config:
-        from_attributes = True

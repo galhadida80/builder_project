@@ -5,7 +5,8 @@ from pydantic import BaseModel, Field, field_validator
 from app.schemas.user import UserResponse
 from app.core.validators import (
     sanitize_string, validate_code,
-    MIN_NAME_LENGTH, MAX_NAME_LENGTH, MAX_CODE_LENGTH, MAX_NOTES_LENGTH
+    MIN_NAME_LENGTH, MAX_NAME_LENGTH, MAX_CODE_LENGTH, MAX_NOTES_LENGTH,
+    CamelCaseModel
 )
 
 
@@ -20,7 +21,7 @@ class AreaProgressCreate(BaseModel):
         return sanitize_string(v)
 
 
-class AreaProgressResponse(BaseModel):
+class AreaProgressResponse(CamelCaseModel):
     id: UUID
     area_id: UUID
     progress_percentage: Decimal
@@ -28,9 +29,6 @@ class AreaProgressResponse(BaseModel):
     photos: list[str] | None = None
     reported_at: datetime
     reported_by: UserResponse | None = None
-
-    class Config:
-        from_attributes = True
 
 
 class AreaBase(BaseModel):
@@ -77,7 +75,7 @@ class AreaUpdate(BaseModel):
         return validate_code(v)
 
 
-class AreaResponse(BaseModel):
+class AreaResponse(CamelCaseModel):
     id: UUID
     project_id: UUID
     parent_id: UUID | None = None
@@ -90,6 +88,3 @@ class AreaResponse(BaseModel):
     created_at: datetime
     children: list["AreaResponse"] = []
     progress_updates: list[AreaProgressResponse] = []
-
-    class Config:
-        from_attributes = True

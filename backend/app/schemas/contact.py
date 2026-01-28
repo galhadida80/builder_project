@@ -3,7 +3,8 @@ from datetime import datetime
 from pydantic import BaseModel, EmailStr, Field, field_validator
 from app.core.validators import (
     sanitize_string, validate_phone,
-    MIN_NAME_LENGTH, MAX_NAME_LENGTH, MAX_PHONE_LENGTH, MAX_DESCRIPTION_LENGTH
+    MIN_NAME_LENGTH, MAX_NAME_LENGTH, MAX_PHONE_LENGTH, MAX_DESCRIPTION_LENGTH,
+    CamelCaseModel
 )
 
 
@@ -51,7 +52,7 @@ class ContactUpdate(BaseModel):
         return validate_phone(v)
 
 
-class ContactResponse(BaseModel):
+class ContactResponse(CamelCaseModel):
     id: UUID
     project_id: UUID
     contact_type: str
@@ -62,6 +63,3 @@ class ContactResponse(BaseModel):
     role_description: str | None = None
     is_primary: bool = False
     created_at: datetime
-
-    class Config:
-        from_attributes = True

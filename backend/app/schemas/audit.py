@@ -2,9 +2,10 @@ from uuid import UUID
 from datetime import datetime
 from pydantic import BaseModel
 from app.schemas.user import UserResponse
+from app.core.validators import CamelCaseModel
 
 
-class AuditLogResponse(BaseModel):
+class AuditLogResponse(CamelCaseModel):
     id: UUID
     project_id: UUID | None = None
     user_id: UUID | None = None
@@ -17,6 +18,3 @@ class AuditLogResponse(BaseModel):
     ip_address: str | None = None
     user_agent: str | None = None
     created_at: datetime
-
-    class Config:
-        from_attributes = True
