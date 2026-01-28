@@ -35,6 +35,7 @@ import DescriptionIcon from '@mui/icons-material/Description'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import SendIcon from '@mui/icons-material/Send'
 import { equipmentApi } from '../api/equipment'
+import { filesApi } from '../api/files'
 import StatusBadge from '../components/common/StatusBadge'
 import type { Equipment, FileAttachment } from '../types'
 import { validateEquipmentForm, hasErrors, VALIDATION, type ValidationError } from '../utils/validation'
@@ -65,6 +66,27 @@ export default function EquipmentPage() {
   useEffect(() => {
     loadEquipment()
   }, [projectId])
+
+  useEffect(() => {
+    const loadFiles = async () => {
+      if (!drawerOpen || !selectedEquipment || !projectId) {
+        setFiles([])
+        setFilesError(null)
+        return
+      }
+      try {
+        setFilesLoading(true)
+        setFilesError(null)
+        const data = await filesApi.list(projectId, 'equipment', selectedEquipment.id)
+        setFiles(data)
+      } catch (error) {
+        setFilesError('Failed to load files')
+      } finally {
+        setFilesLoading(false)
+      }
+    }
+    loadFiles()
+  }, [drawerOpen, selectedEquipment, projectId])
 
   const loadEquipment = async () => {
     try {
