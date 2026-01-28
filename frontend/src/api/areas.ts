@@ -3,19 +3,19 @@ import type { ConstructionArea } from '../types'
 
 interface AreaCreate {
   name: string
-  areaType?: string
-  floorNumber?: number
-  areaCode?: string
-  totalUnits?: number
-  parentId?: string
+  area_type?: string
+  floor_number?: number
+  area_code?: string
+  total_units?: number
+  parent_id?: string
 }
 
 interface AreaUpdate {
   name?: string
-  areaType?: string
-  floorNumber?: number
-  areaCode?: string
-  totalUnits?: number
+  area_type?: string
+  floor_number?: number
+  area_code?: string
+  total_units?: number
 }
 
 interface ProgressCreate {

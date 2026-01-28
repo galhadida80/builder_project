@@ -27,9 +27,11 @@ import { approvalsApi } from '../api/approvals'
 import { equipmentApi } from '../api/equipment'
 import { materialsApi } from '../api/materials'
 import StatusBadge from '../components/common/StatusBadge'
+import { useToast } from '../components/common/ToastProvider'
 import type { ApprovalRequest, ApprovalStep, Equipment, Material } from '../types'
 
 export default function ApprovalsPage() {
+  const { showError, showSuccess } = useToast()
   const [loading, setLoading] = useState(true)
   const [approvals, setApprovals] = useState<ApprovalRequest[]>([])
   const [equipment, setEquipment] = useState<Equipment[]>([])
@@ -39,6 +41,7 @@ export default function ApprovalsPage() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [actionType, setActionType] = useState<'approve' | 'reject' | null>(null)
   const [comment, setComment] = useState('')
+  const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
     loadData()
@@ -57,6 +60,7 @@ export default function ApprovalsPage() {
       setMaterials(materialsData)
     } catch (error) {
       console.error('Failed to load data:', error)
+      showError('Failed to load approval data. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -90,20 +94,26 @@ export default function ApprovalsPage() {
 
   const handleSubmitAction = async () => {
     if (!selectedApproval) return
+    setSubmitting(true)
     try {
       if (actionType === 'approve') {
         await approvalsApi.approve(selectedApproval.id, comment || undefined)
+        showSuccess('Request approved successfully!')
       } else {
         await approvalsApi.reject(selectedApproval.id, comment)
+        showSuccess('Request rejected.')
       }
+      setDialogOpen(false)
+      setSelectedApproval(null)
+      setActionType(null)
+      setComment('')
       loadData()
     } catch (error) {
       console.error('Failed to submit action:', error)
+      showError(`Failed to ${actionType} request. Please try again.`)
+    } finally {
+      setSubmitting(false)
     }
-    setDialogOpen(false)
-    setSelectedApproval(null)
-    setActionType(null)
-    setComment('')
   }
 
   if (loading) {
@@ -180,15 +190,15 @@ export default function ApprovalsPage() {
         </Box>
       )}
 
-      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
+      <Dialog open={dialogOpen} onClose={() => !submitting && setDialogOpen(false)} maxWidth="sm" fullWidth>
         <DialogTitle>{actionType === 'approve' ? 'Approve Request' : 'Reject Request'}</DialogTitle>
         <DialogContent>
-          <TextField fullWidth multiline rows={4} label={actionType === 'approve' ? 'Comments (optional)' : 'Rejection Reason'} value={comment} onChange={(e) => setComment(e.target.value)} required={actionType === 'reject'} sx={{ mt: 2 }} />
+          <TextField fullWidth multiline rows={4} label={actionType === 'approve' ? 'Comments (optional)' : 'Rejection Reason'} value={comment} onChange={(e) => setComment(e.target.value)} required={actionType === 'reject'} disabled={submitting} sx={{ mt: 2 }} />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDialogOpen(false)}>Cancel</Button>
-          <Button variant="contained" color={actionType === 'approve' ? 'success' : 'error'} onClick={handleSubmitAction} disabled={actionType === 'reject' && !comment}>
-            {actionType === 'approve' ? 'Confirm Approval' : 'Confirm Rejection'}
+          <Button onClick={() => setDialogOpen(false)} disabled={submitting}>Cancel</Button>
+          <Button variant="contained" color={actionType === 'approve' ? 'success' : 'error'} onClick={handleSubmitAction} disabled={submitting || (actionType === 'reject' && !comment)}>
+            {submitting ? <CircularProgress size={24} /> : (actionType === 'approve' ? 'Confirm Approval' : 'Confirm Rejection')}
           </Button>
         </DialogActions>
       </Dialog>

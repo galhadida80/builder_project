@@ -148,6 +148,20 @@ export const validateMeetingForm = (data: { title?: string; description?: string
   return errors
 }
 
+export const validateAreaForm = (data: { name?: string; areaCode?: string }): ValidationError => {
+  const errors: ValidationError = {}
+
+  errors.name = validateRequired(data.name, 'Area Name')
+    || validateMinLength(data.name, VALIDATION.MIN_NAME_LENGTH, 'Area Name')
+    || validateMaxLength(data.name, VALIDATION.MAX_NAME_LENGTH, 'Area Name')
+
+  errors.areaCode = validateRequired(data.areaCode, 'Area Code')
+    || validateCode(data.areaCode, 'Area Code')
+    || validateMaxLength(data.areaCode, VALIDATION.MAX_CODE_LENGTH, 'Area Code')
+
+  return errors
+}
+
 export const hasErrors = (errors: ValidationError): boolean => {
   return Object.values(errors).some(error => error !== null)
 }

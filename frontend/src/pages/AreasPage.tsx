@@ -25,8 +25,11 @@ import LocalParkingIcon from '@mui/icons-material/LocalParking'
 import RoofingIcon from '@mui/icons-material/Roofing'
 import FoundationIcon from '@mui/icons-material/Foundation'
 import EditIcon from '@mui/icons-material/Edit'
+import DeleteIcon from '@mui/icons-material/Delete'
 import { areasApi } from '../api/areas'
 import type { ConstructionArea, AreaStatus } from '../types'
+import { validateAreaForm, hasErrors, VALIDATION, type ValidationError } from '../utils/validation'
+import { useToast } from '../components/common/ToastProvider'
 
 const areaTypes = [
   { value: 'apartment', label: 'Apartment', icon: <ApartmentIcon /> },
@@ -40,9 +43,11 @@ const areaTypes = [
 interface AreaNodeProps {
   area: ConstructionArea
   level: number
+  onEdit: (area: ConstructionArea) => void
+  onDelete: (area: ConstructionArea) => void
 }
 
-function AreaNode({ area, level }: AreaNodeProps) {
+function AreaNode({ area, level, onEdit, onDelete }: AreaNodeProps) {
   const [expanded, setExpanded] = useState(true)
   const hasChildren = area.children && area.children.length > 0
   const overallProgress: number = area.progress && area.progress.length > 0
@@ -90,14 +95,21 @@ function AreaNode({ area, level }: AreaNodeProps) {
                 <LinearProgress variant="determinate" value={overallProgress} sx={{ height: 6, borderRadius: 3 }} color={overallProgress === 100 ? 'success' : 'primary'} />
               </Box>
               <Chip label="In Progress" size="small" color={getStatusColor('in_progress')} />
-              <IconButton size="small"><EditIcon fontSize="small" /></IconButton>
+              <IconButton size="small" onClick={() => onEdit(area)} title="Edit area">
+                <EditIcon fontSize="small" />
+              </IconButton>
+              <IconButton size="small" onClick={() => onDelete(area)} title="Delete area" color="error">
+                <DeleteIcon fontSize="small" />
+              </IconButton>
             </Box>
           </Box>
         </CardContent>
       </Card>
       {hasChildren && (
         <Collapse in={expanded}>
-          {area.children!.map(child => <AreaNode key={child.id} area={child} level={level + 1} />)}
+          {area.children!.map(child => (
+            <AreaNode key={child.id} area={child} level={level + 1} onEdit={onEdit} onDelete={onDelete} />
+          ))}
         </Collapse>
       )}
     </Box>
@@ -106,10 +118,23 @@ function AreaNode({ area, level }: AreaNodeProps) {
 
 export default function AreasPage() {
   const { projectId } = useParams()
+  const { showError, showSuccess } = useToast()
   const [loading, setLoading] = useState(true)
   const [areas, setAreas] = useState<ConstructionArea[]>([])
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [formData, setFormData] = useState({ name: '', areaCode: '', areaType: '', parentId: '', floorNumber: '', totalUnits: '' })
+  const [editingArea, setEditingArea] = useState<ConstructionArea | null>(null)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [areaToDelete, setAreaToDelete] = useState<ConstructionArea | null>(null)
+  const [saving, setSaving] = useState(false)
+  const [errors, setErrors] = useState<ValidationError>({})
+  const [formData, setFormData] = useState({
+    name: '',
+    areaCode: '',
+    areaType: '',
+    parentId: '',
+    floorNumber: '',
+    totalUnits: ''
+  })
 
   useEffect(() => {
     loadAreas()
@@ -122,29 +147,115 @@ export default function AreasPage() {
       setAreas(data)
     } catch (error) {
       console.error('Failed to load areas:', error)
+      showError('Failed to load areas. Please try again.')
     } finally {
       setLoading(false)
     }
   }
 
-  const handleCreateArea = async () => {
+  const getAllAreas = (areaList: ConstructionArea[]): ConstructionArea[] => {
+    const result: ConstructionArea[] = []
+    const traverse = (areas: ConstructionArea[]) => {
+      for (const area of areas) {
+        result.push(area)
+        if (area.children && area.children.length > 0) {
+          traverse(area.children)
+        }
+      }
+    }
+    traverse(areaList)
+    return result
+  }
+
+  const resetForm = () => {
+    setFormData({ name: '', areaCode: '', areaType: '', parentId: '', floorNumber: '', totalUnits: '' })
+    setErrors({})
+    setEditingArea(null)
+  }
+
+  const handleCloseDialog = () => {
+    setDialogOpen(false)
+    resetForm()
+  }
+
+  const handleOpenCreate = () => {
+    resetForm()
+    setDialogOpen(true)
+  }
+
+  const handleOpenEdit = (area: ConstructionArea) => {
+    setEditingArea(area)
+    setFormData({
+      name: area.name,
+      areaCode: area.areaCode,
+      areaType: area.areaType || '',
+      parentId: area.parentId || '',
+      floorNumber: area.floorNumber?.toString() || '',
+      totalUnits: area.totalUnits?.toString() || ''
+    })
+    setErrors({})
+    setDialogOpen(true)
+  }
+
+  const handleSaveArea = async () => {
     if (!projectId) return
+
+    const validationErrors = validateAreaForm({
+      name: formData.name,
+      areaCode: formData.areaCode
+    })
+    setErrors(validationErrors)
+    if (hasErrors(validationErrors)) return
+
+    setSaving(true)
     try {
-      await areasApi.create(projectId, {
+      const payload = {
         name: formData.name,
-        areaCode: formData.areaCode,
-        areaType: formData.areaType || undefined,
-        parentId: formData.parentId || undefined,
-        floorNumber: formData.floorNumber ? parseInt(formData.floorNumber) : undefined,
-        totalUnits: formData.totalUnits ? parseInt(formData.totalUnits) : undefined
-      })
-      setDialogOpen(false)
-      setFormData({ name: '', areaCode: '', areaType: '', parentId: '', floorNumber: '', totalUnits: '' })
+        area_code: formData.areaCode,
+        area_type: formData.areaType || undefined,
+        parent_id: formData.parentId || undefined,
+        floor_number: formData.floorNumber ? parseInt(formData.floorNumber) : undefined,
+        total_units: formData.totalUnits ? parseInt(formData.totalUnits) : undefined
+      }
+
+      if (editingArea) {
+        await areasApi.update(projectId, editingArea.id, payload)
+        showSuccess('Area updated successfully!')
+      } else {
+        await areasApi.create(projectId, payload)
+        showSuccess('Area created successfully!')
+      }
+      handleCloseDialog()
       loadAreas()
     } catch (error) {
-      console.error('Failed to create area:', error)
+      console.error('Failed to save area:', error)
+      showError(`Failed to ${editingArea ? 'update' : 'create'} area. Please try again.`)
+    } finally {
+      setSaving(false)
     }
   }
+
+  const handleDeleteClick = (area: ConstructionArea) => {
+    setAreaToDelete(area)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!projectId || !areaToDelete) return
+
+    try {
+      await areasApi.delete(projectId, areaToDelete.id)
+      showSuccess('Area deleted successfully!')
+      setDeleteDialogOpen(false)
+      setAreaToDelete(null)
+      loadAreas()
+    } catch (error) {
+      console.error('Failed to delete area:', error)
+      showError('Failed to delete area. Please try again.')
+    }
+  }
+
+  const allAreas = getAllAreas(areas)
 
   if (loading) {
     return (
@@ -161,7 +272,7 @@ export default function AreasPage() {
           <Typography variant="h5" fontWeight="bold">Construction Areas</Typography>
           <Typography variant="body2" color="text.secondary">Track progress by building area</Typography>
         </Box>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={() => setDialogOpen(true)}>Add Area</Button>
+        <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenCreate}>Add Area</Button>
       </Box>
 
       <Card sx={{ mb: 3, bgcolor: 'primary.light', color: 'primary.contrastText' }}>
@@ -182,7 +293,15 @@ export default function AreasPage() {
       </Card>
 
       <Box>
-        {areas.map(area => <AreaNode key={area.id} area={area} level={0} />)}
+        {areas.map(area => (
+          <AreaNode
+            key={area.id}
+            area={area}
+            level={0}
+            onEdit={handleOpenEdit}
+            onDelete={handleDeleteClick}
+          />
+        ))}
       </Box>
 
       {areas.length === 0 && (
@@ -191,24 +310,97 @@ export default function AreasPage() {
         </Box>
       )}
 
-      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Add Construction Area</DialogTitle>
+      <Dialog open={dialogOpen} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
+        <DialogTitle>{editingArea ? 'Edit Construction Area' : 'Add Construction Area'}</DialogTitle>
         <DialogContent>
-          <TextField fullWidth label="Area Name" margin="normal" required value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
-          <TextField fullWidth label="Area Code" margin="normal" required value={formData.areaCode} onChange={(e) => setFormData({ ...formData, areaCode: e.target.value })} />
-          <TextField fullWidth select label="Area Type" margin="normal" value={formData.areaType} onChange={(e) => setFormData({ ...formData, areaType: e.target.value })}>
+          <TextField
+            fullWidth
+            label="Area Name"
+            margin="normal"
+            required
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            error={!!errors.name}
+            helperText={errors.name || `${formData.name.length}/${VALIDATION.MAX_NAME_LENGTH}`}
+            inputProps={{ maxLength: VALIDATION.MAX_NAME_LENGTH }}
+          />
+          <TextField
+            fullWidth
+            label="Area Code"
+            margin="normal"
+            required
+            disabled={!!editingArea}
+            value={formData.areaCode}
+            onChange={(e) => setFormData({ ...formData, areaCode: e.target.value.toUpperCase() })}
+            error={!!errors.areaCode}
+            helperText={editingArea ? 'Code cannot be changed' : (errors.areaCode || 'Letters, numbers, hyphens only')}
+            inputProps={{ maxLength: VALIDATION.MAX_CODE_LENGTH }}
+          />
+          <TextField
+            fullWidth
+            select
+            label="Area Type"
+            margin="normal"
+            value={formData.areaType}
+            onChange={(e) => setFormData({ ...formData, areaType: e.target.value })}
+          >
+            <MenuItem value="">Select type...</MenuItem>
             {areaTypes.map(type => <MenuItem key={type.value} value={type.value}>{type.label}</MenuItem>)}
           </TextField>
-          <TextField fullWidth select label="Parent Area (optional)" margin="normal" value={formData.parentId} onChange={(e) => setFormData({ ...formData, parentId: e.target.value })}>
+          <TextField
+            fullWidth
+            select
+            label="Parent Area (optional)"
+            margin="normal"
+            value={formData.parentId}
+            onChange={(e) => setFormData({ ...formData, parentId: e.target.value })}
+          >
             <MenuItem value="">None (Top Level)</MenuItem>
-            {areas.map(area => <MenuItem key={area.id} value={area.id}>{area.name}</MenuItem>)}
+            {allAreas
+              .filter(area => !editingArea || area.id !== editingArea.id)
+              .map(area => <MenuItem key={area.id} value={area.id}>{area.name}</MenuItem>)}
           </TextField>
-          <TextField fullWidth label="Floor Number" type="number" margin="normal" value={formData.floorNumber} onChange={(e) => setFormData({ ...formData, floorNumber: e.target.value })} />
-          <TextField fullWidth label="Total Units" type="number" margin="normal" value={formData.totalUnits} onChange={(e) => setFormData({ ...formData, totalUnits: e.target.value })} />
+          <TextField
+            fullWidth
+            label="Floor Number"
+            type="number"
+            margin="normal"
+            value={formData.floorNumber}
+            onChange={(e) => setFormData({ ...formData, floorNumber: e.target.value })}
+            inputProps={{ min: -10, max: 200 }}
+          />
+          <TextField
+            fullWidth
+            label="Total Units"
+            type="number"
+            margin="normal"
+            value={formData.totalUnits}
+            onChange={(e) => setFormData({ ...formData, totalUnits: e.target.value })}
+            inputProps={{ min: 0, max: 10000 }}
+          />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDialogOpen(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleCreateArea}>Add Area</Button>
+          <Button onClick={handleCloseDialog} disabled={saving}>Cancel</Button>
+          <Button variant="contained" onClick={handleSaveArea} disabled={saving}>
+            {saving ? <CircularProgress size={24} /> : (editingArea ? 'Save Changes' : 'Add Area')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+        <DialogTitle>Delete Area</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Are you sure you want to delete <strong>{areaToDelete?.name}</strong>?
+            {areaToDelete?.children && areaToDelete.children.length > 0 && (
+              <> This will also delete all child areas.</>
+            )}
+            {' '}This action cannot be undone.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+          <Button variant="contained" color="error" onClick={handleConfirmDelete}>Delete</Button>
         </DialogActions>
       </Dialog>
     </Box>
