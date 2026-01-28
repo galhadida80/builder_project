@@ -22,19 +22,27 @@ import CircularProgress from '@mui/material/CircularProgress'
 import SearchIcon from '@mui/icons-material/Search'
 import AddIcon from '@mui/icons-material/Add'
 import EditIcon from '@mui/icons-material/Edit'
+import DeleteIcon from '@mui/icons-material/Delete'
 import { materialsApi } from '../api/materials'
 import StatusBadge from '../components/common/StatusBadge'
 import type { Material } from '../types'
 import { validateMaterialForm, hasErrors, VALIDATION, type ValidationError } from '../utils/validation'
+import { useToast } from '../components/common/ToastProvider'
 
 const materialTypes = ['Structural', 'Finishing', 'Safety', 'MEP', 'Insulation']
+const unitOptions = ['ton', 'm3', 'm2', 'm', 'kg', 'unit', 'box', 'pallet', 'roll']
 
 export default function MaterialsPage() {
   const { projectId } = useParams()
+  const { showError, showSuccess } = useToast()
   const [loading, setLoading] = useState(true)
   const [materials, setMaterials] = useState<Material[]>([])
   const [search, setSearch] = useState('')
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [editingMaterial, setEditingMaterial] = useState<Material | null>(null)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [materialToDelete, setMaterialToDelete] = useState<Material | null>(null)
+  const [saving, setSaving] = useState(false)
   const [errors, setErrors] = useState<ValidationError>({})
   const [formData, setFormData] = useState({
     name: '',
@@ -59,12 +67,46 @@ export default function MaterialsPage() {
       setMaterials(data)
     } catch (error) {
       console.error('Failed to load materials:', error)
+      showError('Failed to load materials. Please try again.')
     } finally {
       setLoading(false)
     }
   }
 
-  const handleCreateMaterial = async () => {
+  const resetForm = () => {
+    setFormData({ name: '', materialType: '', manufacturer: '', modelNumber: '', quantity: '', unit: '', expectedDelivery: '', storageLocation: '', notes: '' })
+    setErrors({})
+    setEditingMaterial(null)
+  }
+
+  const handleCloseDialog = () => {
+    setDialogOpen(false)
+    resetForm()
+  }
+
+  const handleOpenCreate = () => {
+    resetForm()
+    setDialogOpen(true)
+  }
+
+  const handleOpenEdit = (material: Material) => {
+    setEditingMaterial(material)
+    setFormData({
+      name: material.name,
+      materialType: material.materialType || '',
+      manufacturer: material.manufacturer || '',
+      modelNumber: material.modelNumber || '',
+      quantity: material.quantity?.toString() || '',
+      unit: material.unit || '',
+      expectedDelivery: material.expectedDelivery || '',
+      storageLocation: material.storageLocation || '',
+      notes: material.notes || ''
+    })
+    setErrors({})
+    setDialogOpen(true)
+  }
+
+  const handleSaveMaterial = async () => {
     if (!projectId) return
     const validationErrors = validateMaterialForm({
       name: formData.name,
@@ -73,8 +115,10 @@ export default function MaterialsPage() {
     })
     setErrors(validationErrors)
     if (hasErrors(validationErrors)) return
+
+    setSaving(true)
     try {
-      await materialsApi.create(projectId, {
+      const payload = {
         name: formData.name,
         material_type: formData.materialType || undefined,
         manufacturer: formData.manufacturer || undefined,
@@ -84,18 +128,43 @@ export default function MaterialsPage() {
         expected_delivery: formData.expectedDelivery || undefined,
         storage_location: formData.storageLocation || undefined,
         notes: formData.notes || undefined
-      })
+      }
+
+      if (editingMaterial) {
+        await materialsApi.update(projectId, editingMaterial.id, payload)
+        showSuccess('Material updated successfully!')
+      } else {
+        await materialsApi.create(projectId, payload)
+        showSuccess('Material created successfully!')
+      }
       handleCloseDialog()
       loadMaterials()
     } catch (error) {
-      console.error('Failed to create material:', error)
+      console.error('Failed to save material:', error)
+      showError(`Failed to ${editingMaterial ? 'update' : 'create'} material. Please try again.`)
+    } finally {
+      setSaving(false)
     }
   }
 
-  const handleCloseDialog = () => {
-    setDialogOpen(false)
-    setErrors({})
-    setFormData({ name: '', materialType: '', manufacturer: '', modelNumber: '', quantity: '', unit: '', expectedDelivery: '', storageLocation: '', notes: '' })
+  const handleDeleteClick = (material: Material) => {
+    setMaterialToDelete(material)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!projectId || !materialToDelete) return
+
+    try {
+      await materialsApi.delete(projectId, materialToDelete.id)
+      showSuccess('Material deleted successfully!')
+      setDeleteDialogOpen(false)
+      setMaterialToDelete(null)
+      loadMaterials()
+    } catch (error) {
+      console.error('Failed to delete material:', error)
+      showError('Failed to delete material. Please try again.')
+    }
   }
 
   const filteredMaterials = materials.filter(m =>
@@ -115,7 +184,7 @@ export default function MaterialsPage() {
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Typography variant="h5" fontWeight="bold">Materials</Typography>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={() => setDialogOpen(true)}>
+        <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenCreate}>
           Add Material
         </Button>
       </Box>
@@ -157,7 +226,12 @@ export default function MaterialsPage() {
                   </TableCell>
                   <TableCell><StatusBadge status={material.status} /></TableCell>
                   <TableCell align="right">
-                    <IconButton size="small"><EditIcon fontSize="small" /></IconButton>
+                    <IconButton size="small" onClick={() => handleOpenEdit(material)} title="Edit material">
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton size="small" onClick={() => handleDeleteClick(material)} title="Delete material" color="error">
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
                   </TableCell>
                 </TableRow>
               ))}
@@ -173,7 +247,7 @@ export default function MaterialsPage() {
       )}
 
       <Dialog open={dialogOpen} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>Add New Material</DialogTitle>
+        <DialogTitle>{editingMaterial ? 'Edit Material' : 'Add New Material'}</DialogTitle>
         <DialogContent>
           <TextField
             fullWidth
@@ -194,6 +268,7 @@ export default function MaterialsPage() {
             value={formData.materialType}
             onChange={(e) => setFormData({ ...formData, materialType: e.target.value })}
           >
+            <MenuItem value="">Select type...</MenuItem>
             {materialTypes.map(type => <MenuItem key={type} value={type}>{type}</MenuItem>)}
           </TextField>
           <TextField
@@ -226,13 +301,15 @@ export default function MaterialsPage() {
             />
             <TextField
               fullWidth
+              select
               label="Unit"
               margin="normal"
-              placeholder="e.g., ton, m3, unit"
               value={formData.unit}
               onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
-              inputProps={{ maxLength: 50 }}
-            />
+            >
+              <MenuItem value="">Select unit...</MenuItem>
+              {unitOptions.map(unit => <MenuItem key={unit} value={unit}>{unit}</MenuItem>)}
+            </TextField>
           </Box>
           <TextField
             fullWidth
@@ -265,8 +342,23 @@ export default function MaterialsPage() {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog}>Cancel</Button>
-          <Button variant="contained" onClick={handleCreateMaterial}>Add Material</Button>
+          <Button onClick={handleCloseDialog} disabled={saving}>Cancel</Button>
+          <Button variant="contained" onClick={handleSaveMaterial} disabled={saving}>
+            {saving ? <CircularProgress size={24} /> : (editingMaterial ? 'Save Changes' : 'Add Material')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+        <DialogTitle>Delete Material</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Are you sure you want to delete <strong>{materialToDelete?.name}</strong>? This action cannot be undone.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+          <Button variant="contained" color="error" onClick={handleConfirmDelete}>Delete</Button>
         </DialogActions>
       </Dialog>
     </Box>
