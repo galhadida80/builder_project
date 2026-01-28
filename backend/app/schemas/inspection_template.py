@@ -96,3 +96,43 @@ class ProjectInspectionResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class InspectionFindingCreate(BaseModel):
+    inspection_id: UUID
+    finding_type: str = Field(min_length=1, max_length=50)
+    severity: str = Field(min_length=1, max_length=50)
+    description: str = Field(min_length=MIN_NAME_LENGTH, max_length=MAX_DESCRIPTION_LENGTH)
+    status: str = Field(min_length=1, max_length=50)
+
+    @field_validator('finding_type', 'severity', 'description', 'status', mode='before')
+    @classmethod
+    def sanitize_text(cls, v: str | None) -> str | None:
+        return sanitize_string(v)
+
+
+class InspectionFindingUpdate(BaseModel):
+    inspection_id: UUID | None = None
+    finding_type: str | None = Field(default=None, min_length=1, max_length=50)
+    severity: str | None = Field(default=None, min_length=1, max_length=50)
+    description: str | None = Field(default=None, min_length=MIN_NAME_LENGTH, max_length=MAX_DESCRIPTION_LENGTH)
+    status: str | None = Field(default=None, min_length=1, max_length=50)
+
+    @field_validator('finding_type', 'severity', 'description', 'status', mode='before')
+    @classmethod
+    def sanitize_text(cls, v: str | None) -> str | None:
+        return sanitize_string(v)
+
+
+class InspectionFindingResponse(BaseModel):
+    id: UUID
+    inspection_id: UUID
+    finding_type: str
+    severity: str
+    description: str
+    status: str
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
