@@ -26,8 +26,11 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime'
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth'
 import SyncIcon from '@mui/icons-material/Sync'
 import EditIcon from '@mui/icons-material/Edit'
+import DeleteIcon from '@mui/icons-material/Delete'
 import { meetingsApi } from '../api/meetings'
 import type { Meeting } from '../types'
+import { validateMeetingForm, hasErrors, VALIDATION, type ValidationError } from '../utils/validation'
+import { useToast } from '../components/common/ToastProvider'
 
 const meetingTypes = [
   { value: 'site_inspection', label: 'Site Inspection' },
@@ -39,12 +42,18 @@ const meetingTypes = [
 
 export default function MeetingsPage() {
   const { projectId } = useParams()
+  const { showError, showSuccess } = useToast()
   const [loading, setLoading] = useState(true)
   const [meetings, setMeetings] = useState<Meeting[]>([])
   const [tabValue, setTabValue] = useState(0)
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [editingMeeting, setEditingMeeting] = useState<Meeting | null>(null)
   const [selectedMeeting, setSelectedMeeting] = useState<Meeting | null>(null)
   const [detailsOpen, setDetailsOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [meetingToDelete, setMeetingToDelete] = useState<Meeting | null>(null)
+  const [saving, setSaving] = useState(false)
+  const [errors, setErrors] = useState<ValidationError>({})
   const [formData, setFormData] = useState({
     title: '',
     meetingType: '',
@@ -66,26 +75,116 @@ export default function MeetingsPage() {
       setMeetings(data)
     } catch (error) {
       console.error('Failed to load meetings:', error)
+      showError('Failed to load meetings. Please try again.')
     } finally {
       setLoading(false)
     }
   }
 
-  const handleCreateMeeting = async () => {
+  const resetForm = () => {
+    setFormData({ title: '', meetingType: '', description: '', location: '', date: '', startTime: '', endTime: '' })
+    setErrors({})
+    setEditingMeeting(null)
+  }
+
+  const handleCloseDialog = () => {
+    setDialogOpen(false)
+    resetForm()
+  }
+
+  const handleOpenCreate = () => {
+    resetForm()
+    setDialogOpen(true)
+  }
+
+  const handleOpenEdit = (meeting: Meeting) => {
+    setEditingMeeting(meeting)
+    const startDate = new Date(meeting.startTime)
+    const endDate = new Date(meeting.endTime)
+    setFormData({
+      title: meeting.title,
+      meetingType: meeting.meetingType || '',
+      description: meeting.description || '',
+      location: meeting.location || '',
+      date: startDate.toISOString().split('T')[0],
+      startTime: startDate.toTimeString().slice(0, 5),
+      endTime: endDate.toTimeString().slice(0, 5)
+    })
+    setErrors({})
+    setDialogOpen(true)
+    setDetailsOpen(false)
+  }
+
+  const handleSaveMeeting = async () => {
     if (!projectId) return
+
+    const validationErrors = validateMeetingForm({
+      title: formData.title,
+      description: formData.description
+    })
+
+    if (!formData.date) {
+      validationErrors.date = 'Date is required'
+    }
+    if (!formData.startTime) {
+      validationErrors.startTime = 'Start time is required'
+    }
+
+    setErrors(validationErrors)
+    if (hasErrors(validationErrors)) return
+
+    setSaving(true)
     try {
-      await meetingsApi.create(projectId, {
-        title: formData.title,
-        meetingType: formData.meetingType || undefined,
-        description: formData.description || undefined,
-        location: formData.location || undefined,
-        scheduledDate: `${formData.date || new Date().toISOString().split('T')[0]}T${formData.startTime || '09:00'}:00Z`
-      })
-      setDialogOpen(false)
-      setFormData({ title: '', meetingType: '', description: '', location: '', date: '', startTime: '', endTime: '' })
+      const scheduledDate = `${formData.date}T${formData.startTime}:00Z`
+
+      if (editingMeeting) {
+        await meetingsApi.update(projectId, editingMeeting.id, {
+          title: formData.title,
+          meetingType: formData.meetingType || undefined,
+          description: formData.description || undefined,
+          location: formData.location || undefined,
+          scheduledDate
+        })
+        showSuccess('Meeting updated successfully!')
+      } else {
+        await meetingsApi.create(projectId, {
+          title: formData.title,
+          meetingType: formData.meetingType || undefined,
+          description: formData.description || undefined,
+          location: formData.location || undefined,
+          scheduledDate
+        })
+        showSuccess('Meeting scheduled successfully!')
+      }
+      handleCloseDialog()
       loadMeetings()
     } catch (error) {
-      console.error('Failed to create meeting:', error)
+      console.error('Failed to save meeting:', error)
+      showError(`Failed to ${editingMeeting ? 'update' : 'schedule'} meeting. Please try again.`)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleDeleteClick = (meeting: Meeting, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation()
+    setMeetingToDelete(meeting)
+    setDeleteDialogOpen(true)
+    setDetailsOpen(false)
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!projectId || !meetingToDelete) return
+
+    try {
+      await meetingsApi.delete(projectId, meetingToDelete.id)
+      showSuccess('Meeting deleted successfully!')
+      setDeleteDialogOpen(false)
+      setMeetingToDelete(null)
+      loadMeetings()
+    } catch (error) {
+      console.error('Failed to delete meeting:', error)
+      showError('Failed to delete meeting. Please try again.')
     }
   }
 
@@ -134,7 +233,7 @@ export default function MeetingsPage() {
         <Typography variant="h5" fontWeight="bold">Meetings</Typography>
         <Box sx={{ display: 'flex', gap: 1 }}>
           <Button variant="outlined" startIcon={<SyncIcon />}>Sync Calendar</Button>
-          <Button variant="contained" startIcon={<AddIcon />} onClick={() => setDialogOpen(true)}>
+          <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenCreate}>
             Schedule Meeting
           </Button>
         </Box>
@@ -184,7 +283,14 @@ export default function MeetingsPage() {
                   <AvatarGroup max={4} sx={{ '& .MuiAvatar-root': { width: 28, height: 28, fontSize: '0.75rem' } }}>
                     <Avatar>U</Avatar>
                   </AvatarGroup>
-                  <IconButton size="small"><EditIcon fontSize="small" /></IconButton>
+                  <Box>
+                    <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleOpenEdit(meeting); }} title="Edit meeting">
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton size="small" onClick={(e) => handleDeleteClick(meeting, e)} title="Delete meeting" color="error">
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
                 </Box>
               </CardContent>
             </Card>
@@ -201,8 +307,8 @@ export default function MeetingsPage() {
         </Box>
       )}
 
-      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Schedule Meeting</DialogTitle>
+      <Dialog open={dialogOpen} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
+        <DialogTitle>{editingMeeting ? 'Edit Meeting' : 'Schedule Meeting'}</DialogTitle>
         <DialogContent>
           <TextField
             fullWidth
@@ -211,6 +317,9 @@ export default function MeetingsPage() {
             required
             value={formData.title}
             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+            error={!!errors.title}
+            helperText={errors.title || `${formData.title.length}/${VALIDATION.MAX_NAME_LENGTH}`}
+            inputProps={{ maxLength: VALIDATION.MAX_NAME_LENGTH }}
           />
           <TextField
             fullWidth
@@ -220,6 +329,7 @@ export default function MeetingsPage() {
             value={formData.meetingType}
             onChange={(e) => setFormData({ ...formData, meetingType: e.target.value })}
           >
+            <MenuItem value="">Select type...</MenuItem>
             {meetingTypes.map(type => <MenuItem key={type.value} value={type.value}>{type.label}</MenuItem>)}
           </TextField>
           <TextField
@@ -230,6 +340,9 @@ export default function MeetingsPage() {
             rows={2}
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            error={!!errors.description}
+            helperText={errors.description || `${formData.description.length}/${VALIDATION.MAX_DESCRIPTION_LENGTH}`}
+            inputProps={{ maxLength: VALIDATION.MAX_DESCRIPTION_LENGTH }}
           />
           <TextField
             fullWidth
@@ -237,6 +350,7 @@ export default function MeetingsPage() {
             margin="normal"
             value={formData.location}
             onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+            inputProps={{ maxLength: VALIDATION.MAX_NAME_LENGTH }}
           />
           <Box sx={{ display: 'flex', gap: 2 }}>
             <TextField
@@ -248,6 +362,8 @@ export default function MeetingsPage() {
               required
               value={formData.date}
               onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+              error={!!errors.date}
+              helperText={errors.date}
             />
             <TextField
               fullWidth
@@ -258,6 +374,8 @@ export default function MeetingsPage() {
               required
               value={formData.startTime}
               onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
+              error={!!errors.startTime}
+              helperText={errors.startTime}
             />
             <TextField
               fullWidth
@@ -265,15 +383,16 @@ export default function MeetingsPage() {
               type="time"
               margin="normal"
               InputLabelProps={{ shrink: true }}
-              required
               value={formData.endTime}
               onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
             />
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDialogOpen(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleCreateMeeting}>Schedule & Send Invites</Button>
+          <Button onClick={handleCloseDialog} disabled={saving}>Cancel</Button>
+          <Button variant="contained" onClick={handleSaveMeeting} disabled={saving}>
+            {saving ? <CircularProgress size={24} /> : (editingMeeting ? 'Save Changes' : 'Schedule Meeting')}
+          </Button>
         </DialogActions>
       </Dialog>
 
@@ -316,11 +435,25 @@ export default function MeetingsPage() {
             </DialogContent>
             <DialogActions>
               <Button onClick={() => setDetailsOpen(false)}>Close</Button>
-              <Button variant="outlined">Edit Meeting</Button>
+              <Button variant="outlined" color="error" onClick={() => handleDeleteClick(selectedMeeting)}>Delete</Button>
+              <Button variant="outlined" onClick={() => handleOpenEdit(selectedMeeting)}>Edit Meeting</Button>
               {selectedMeeting.status === 'completed' && <Button variant="contained">Add Summary</Button>}
             </DialogActions>
           </>
         )}
+      </Dialog>
+
+      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+        <DialogTitle>Delete Meeting</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Are you sure you want to delete <strong>{meetingToDelete?.title}</strong>? This action cannot be undone.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+          <Button variant="contained" color="error" onClick={handleConfirmDelete}>Delete</Button>
+        </DialogActions>
       </Dialog>
     </Box>
   )
