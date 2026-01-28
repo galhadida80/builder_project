@@ -1,10 +1,11 @@
 from uuid import UUID
+from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, func, case
 from sqlalchemy.orm import selectinload
 from app.db.session import get_db
-from app.models.inspection import InspectionConsultantType, InspectionStage, Inspection
+from app.models.inspection import InspectionConsultantType, InspectionStage, Inspection, Finding, InspectionStatus
 from app.models.user import User
 from app.schemas.inspection import (
     InspectionConsultantTypeCreate,
@@ -13,7 +14,8 @@ from app.schemas.inspection import (
     InspectionStageResponse,
     InspectionCreate,
     InspectionUpdate,
-    InspectionResponse
+    InspectionResponse,
+    InspectionSummaryResponse
 )
 from app.services.audit_service import create_audit_log, get_model_dict
 from app.models.audit import AuditAction
@@ -141,6 +143,47 @@ async def create_inspection(
 
     await db.refresh(inspection, ["created_by", "consultant_type", "findings"])
     return inspection
+
+
+@router.get("/projects/{project_id}/inspections/summary", response_model=InspectionSummaryResponse)
+async def get_inspection_summary(project_id: UUID, db: AsyncSession = Depends(get_db)):
+    """Get dashboard summary of inspection progress and findings"""
+    # Get inspection counts by status
+    status_result = await db.execute(
+        select(
+            func.count().label('total'),
+            func.sum(case((Inspection.status == InspectionStatus.PENDING.value, 1), else_=0)).label('pending'),
+            func.sum(case((Inspection.status == InspectionStatus.IN_PROGRESS.value, 1), else_=0)).label('in_progress'),
+            func.sum(case((Inspection.status == InspectionStatus.COMPLETED.value, 1), else_=0)).label('completed'),
+            func.sum(case((Inspection.status == InspectionStatus.FAILED.value, 1), else_=0)).label('failed'),
+            func.sum(case((
+                (Inspection.scheduled_date < datetime.utcnow()) &
+                (Inspection.status != InspectionStatus.COMPLETED.value), 1
+            ), else_=0)).label('overdue')
+        )
+        .where(Inspection.project_id == project_id)
+    )
+    status_counts = status_result.first()
+
+    # Get findings grouped by severity
+    findings_result = await db.execute(
+        select(Finding.severity, func.count(Finding.id).label('count'))
+        .join(Inspection, Finding.inspection_id == Inspection.id)
+        .where(Inspection.project_id == project_id)
+        .group_by(Finding.severity)
+    )
+
+    findings_by_severity = {row.severity: row.count for row in findings_result.all()}
+
+    return InspectionSummaryResponse(
+        total_inspections=status_counts.total or 0,
+        pending_count=status_counts.pending or 0,
+        in_progress_count=status_counts.in_progress or 0,
+        completed_count=status_counts.completed or 0,
+        failed_count=status_counts.failed or 0,
+        findings_by_severity=findings_by_severity,
+        overdue_count=status_counts.overdue or 0
+    )
 
 
 @router.get("/projects/{project_id}/inspections/{inspection_id}", response_model=InspectionResponse)

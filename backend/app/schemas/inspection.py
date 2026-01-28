@@ -186,3 +186,14 @@ class InspectionResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+# Dashboard Summary Schema
+class InspectionSummaryResponse(BaseModel):
+    total_inspections: int
+    pending_count: int
+    in_progress_count: int
+    completed_count: int
+    failed_count: int
+    findings_by_severity: dict[str, int]
+    overdue_count: int
