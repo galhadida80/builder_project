@@ -187,7 +187,7 @@ export default function AreasPage() {
     setEditingArea(area)
     setFormData({
       name: area.name,
-      areaCode: area.areaCode,
+      areaCode: area.areaCode || '',
       areaType: area.areaType || '',
       parentId: area.parentId || '',
       floorNumber: area.floorNumber?.toString() || '',
