@@ -6,11 +6,9 @@ import CardContent from '@mui/material/CardContent'
 import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
-import Divider from '@mui/material/Divider'
 import Alert from '@mui/material/Alert'
 import CircularProgress from '@mui/material/CircularProgress'
 import BuildIcon from '@mui/icons-material/Build'
-import GoogleIcon from '@mui/icons-material/Google'
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -29,21 +27,6 @@ export default function LoginPage() {
       navigate('/dashboard')
     } catch {
       setError('Invalid email or password')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleGoogleLogin = async () => {
-    setLoading(true)
-    setError(null)
-
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      localStorage.setItem('authToken', 'dev-token')
-      navigate('/dashboard')
-    } catch {
-      setError('Google sign-in failed')
     } finally {
       setLoading(false)
     }
@@ -112,24 +95,6 @@ export default function LoginPage() {
               {loading ? <CircularProgress size={24} color="inherit" /> : 'Sign In'}
             </Button>
           </form>
-
-          <Divider sx={{ my: 3 }}>
-            <Typography variant="body2" color="text.secondary">
-              or
-            </Typography>
-          </Divider>
-
-          <Button
-            fullWidth
-            variant="outlined"
-            size="large"
-            startIcon={<GoogleIcon />}
-            onClick={handleGoogleLogin}
-            disabled={loading}
-            sx={{ py: 1.5 }}
-          >
-            Continue with Google
-          </Button>
 
           <Typography variant="body2" color="text.secondary" align="center" sx={{ mt: 3 }}>
             Contact your administrator for account access
