@@ -4,13 +4,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from app.db.session import get_db
-from app.models.inspection import InspectionConsultantType, InspectionStage
+from app.models.inspection import InspectionConsultantType, InspectionStage, Inspection
 from app.models.user import User
 from app.schemas.inspection import (
     InspectionConsultantTypeCreate,
     InspectionConsultantTypeResponse,
     InspectionStageCreate,
-    InspectionStageResponse
+    InspectionStageResponse,
+    InspectionCreate,
+    InspectionUpdate,
+    InspectionResponse
 )
 from app.services.audit_service import create_audit_log, get_model_dict
 from app.models.audit import AuditAction
@@ -101,3 +104,103 @@ async def add_stage_to_consultant_type(
 
     await db.refresh(stage)
     return stage
+
+
+# Project Inspection Endpoints
+
+@router.get("/projects/{project_id}/inspections", response_model=list[InspectionResponse])
+async def list_inspections(project_id: UUID, db: AsyncSession = Depends(get_db)):
+    """List all inspections for a project"""
+    result = await db.execute(
+        select(Inspection)
+        .options(
+            selectinload(Inspection.created_by),
+            selectinload(Inspection.consultant_type).selectinload(InspectionConsultantType.stages),
+            selectinload(Inspection.findings)
+        )
+        .where(Inspection.project_id == project_id)
+        .order_by(Inspection.scheduled_date.desc())
+    )
+    return result.scalars().all()
+
+
+@router.post("/projects/{project_id}/inspections", response_model=InspectionResponse)
+async def create_inspection(
+    project_id: UUID,
+    data: InspectionCreate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Create a new inspection for a project"""
+    inspection = Inspection(**data.model_dump(), project_id=project_id, created_by_id=current_user.id)
+    db.add(inspection)
+    await db.flush()
+
+    await create_audit_log(db, current_user, "inspection", inspection.id, AuditAction.CREATE,
+                          project_id=project_id, new_values=get_model_dict(inspection))
+
+    await db.refresh(inspection, ["created_by", "consultant_type", "findings"])
+    return inspection
+
+
+@router.get("/projects/{project_id}/inspections/{inspection_id}", response_model=InspectionResponse)
+async def get_inspection(project_id: UUID, inspection_id: UUID, db: AsyncSession = Depends(get_db)):
+    """Get a specific inspection"""
+    result = await db.execute(
+        select(Inspection)
+        .options(
+            selectinload(Inspection.created_by),
+            selectinload(Inspection.consultant_type).selectinload(InspectionConsultantType.stages),
+            selectinload(Inspection.findings)
+        )
+        .where(Inspection.id == inspection_id, Inspection.project_id == project_id)
+    )
+    inspection = result.scalar_one_or_none()
+    if not inspection:
+        raise HTTPException(status_code=404, detail="Inspection not found")
+    return inspection
+
+
+@router.put("/projects/{project_id}/inspections/{inspection_id}", response_model=InspectionResponse)
+async def update_inspection(
+    project_id: UUID,
+    inspection_id: UUID,
+    data: InspectionUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Update an inspection"""
+    result = await db.execute(select(Inspection).where(Inspection.id == inspection_id))
+    inspection = result.scalar_one_or_none()
+    if not inspection:
+        raise HTTPException(status_code=404, detail="Inspection not found")
+
+    old_values = get_model_dict(inspection)
+    for key, value in data.model_dump(exclude_unset=True).items():
+        setattr(inspection, key, value)
+
+    await create_audit_log(db, current_user, "inspection", inspection.id, AuditAction.UPDATE,
+                          project_id=project_id, old_values=old_values, new_values=get_model_dict(inspection))
+
+    await db.refresh(inspection, ["created_by", "consultant_type", "findings"])
+    return inspection
+
+
+@router.delete("/projects/{project_id}/inspections/{inspection_id}")
+async def delete_inspection(
+    project_id: UUID,
+    inspection_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Delete an inspection"""
+    result = await db.execute(select(Inspection).where(Inspection.id == inspection_id))
+    inspection = result.scalar_one_or_none()
+    if not inspection:
+        raise HTTPException(status_code=404, detail="Inspection not found")
+
+    await create_audit_log(db, current_user, "inspection", inspection.id, AuditAction.DELETE,
+                          project_id=project_id, old_values=get_model_dict(inspection))
+
+    await db.delete(inspection)
+    return {"message": "Inspection deleted"}
