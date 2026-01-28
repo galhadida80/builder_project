@@ -13,6 +13,13 @@ class InspectionStatus(str, Enum):
     APPROVED = "approved"
 
 
+class ResultStatus(str, Enum):
+    PENDING = "pending"
+    COMPLETED = "completed"
+    APPROVED = "approved"
+    REJECTED = "rejected"
+
+
 class ConsultantType(Base):
     __tablename__ = "consultant_types"
 
@@ -61,3 +68,22 @@ class ProjectInspection(Base):
     project = relationship("Project", back_populates="inspections")
     consultant_type = relationship("ConsultantType", back_populates="inspections")
     area = relationship("ConstructionArea", foreign_keys=[area_id])
+    results = relationship("InspectionResult", back_populates="inspection", cascade="all, delete-orphan")
+
+
+class InspectionResult(Base):
+    __tablename__ = "inspection_results"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    inspection_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("project_inspections.id", ondelete="CASCADE"))
+    stage_number: Mapped[int] = mapped_column(Integer, nullable=False)
+    completion_date: Mapped[date | None] = mapped_column(Date)
+    approval_date: Mapped[date | None] = mapped_column(Date)
+    inspector_name: Mapped[str | None] = mapped_column(String(255))
+    result_status: Mapped[str] = mapped_column(String(50), default=ResultStatus.PENDING.value)
+    findings: Mapped[str | None] = mapped_column(Text)
+    attachments: Mapped[dict | None] = mapped_column(JSONB, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    inspection = relationship("ProjectInspection", back_populates="results")
