@@ -15,7 +15,10 @@ from app.schemas.inspection import (
     InspectionCreate,
     InspectionUpdate,
     InspectionResponse,
-    InspectionSummaryResponse
+    InspectionSummaryResponse,
+    FindingCreate,
+    FindingUpdate,
+    FindingResponse
 )
 from app.services.audit_service import create_audit_log, get_model_dict
 from app.models.audit import AuditAction
@@ -186,6 +189,22 @@ async def get_inspection_summary(project_id: UUID, db: AsyncSession = Depends(ge
     )
 
 
+@router.get("/projects/{project_id}/inspections/pending", response_model=list[InspectionResponse])
+async def list_pending_inspections(project_id: UUID, db: AsyncSession = Depends(get_db)):
+    """List only pending inspections for a project"""
+    result = await db.execute(
+        select(Inspection)
+        .options(
+            selectinload(Inspection.created_by),
+            selectinload(Inspection.consultant_type).selectinload(InspectionConsultantType.stages),
+            selectinload(Inspection.findings)
+        )
+        .where(Inspection.project_id == project_id, Inspection.status == InspectionStatus.PENDING.value)
+        .order_by(Inspection.scheduled_date.desc())
+    )
+    return result.scalars().all()
+
+
 @router.get("/projects/{project_id}/inspections/{inspection_id}", response_model=InspectionResponse)
 async def get_inspection(project_id: UUID, inspection_id: UUID, db: AsyncSession = Depends(get_db)):
     """Get a specific inspection"""
@@ -229,6 +248,30 @@ async def update_inspection(
     return inspection
 
 
+@router.post("/projects/{project_id}/inspections/{inspection_id}/complete", response_model=InspectionResponse)
+async def complete_inspection(
+    project_id: UUID,
+    inspection_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Mark an inspection as complete"""
+    result = await db.execute(select(Inspection).where(Inspection.id == inspection_id))
+    inspection = result.scalar_one_or_none()
+    if not inspection:
+        raise HTTPException(status_code=404, detail="Inspection not found")
+
+    old_values = get_model_dict(inspection)
+    inspection.status = InspectionStatus.COMPLETED.value
+    inspection.completed_date = datetime.utcnow()
+
+    await create_audit_log(db, current_user, "inspection", inspection.id, AuditAction.UPDATE,
+                          project_id=project_id, old_values=old_values, new_values=get_model_dict(inspection))
+
+    await db.refresh(inspection, ["created_by", "consultant_type", "findings"])
+    return inspection
+
+
 @router.delete("/projects/{project_id}/inspections/{inspection_id}")
 async def delete_inspection(
     project_id: UUID,
@@ -247,3 +290,66 @@ async def delete_inspection(
 
     await db.delete(inspection)
     return {"message": "Inspection deleted"}
+
+
+# Findings Management Endpoints
+
+@router.post("/projects/{project_id}/inspections/{inspection_id}/findings", response_model=FindingResponse)
+async def add_finding_to_inspection(
+    project_id: UUID,
+    inspection_id: UUID,
+    data: FindingCreate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Add a finding to an inspection"""
+    # Verify inspection exists
+    result = await db.execute(
+        select(Inspection)
+        .where(Inspection.id == inspection_id, Inspection.project_id == project_id)
+    )
+    inspection = result.scalar_one_or_none()
+    if not inspection:
+        raise HTTPException(status_code=404, detail="Inspection not found")
+
+    finding = Finding(**data.model_dump(), inspection_id=inspection_id, created_by_id=current_user.id)
+    db.add(finding)
+    await db.flush()
+
+    await create_audit_log(db, current_user, "finding", finding.id, AuditAction.CREATE,
+                          project_id=project_id, new_values=get_model_dict(finding))
+
+    await db.refresh(finding, ["created_by"])
+    return finding
+
+
+@router.put("/inspections/findings/{finding_id}", response_model=FindingResponse)
+async def update_finding(
+    finding_id: UUID,
+    data: FindingUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Update an existing finding"""
+    result = await db.execute(select(Finding).where(Finding.id == finding_id))
+    finding = result.scalar_one_or_none()
+    if not finding:
+        raise HTTPException(status_code=404, detail="Finding not found")
+
+    # Get inspection for project_id (for audit logging)
+    result = await db.execute(
+        select(Inspection)
+        .where(Inspection.id == finding.inspection_id)
+    )
+    inspection = result.scalar_one_or_none()
+
+    old_values = get_model_dict(finding)
+    for key, value in data.model_dump(exclude_unset=True).items():
+        setattr(finding, key, value)
+
+    await create_audit_log(db, current_user, "finding", finding.id, AuditAction.UPDATE,
+                          project_id=inspection.project_id if inspection else None,
+                          old_values=old_values, new_values=get_model_dict(finding))
+
+    await db.refresh(finding, ["created_by"])
+    return finding
