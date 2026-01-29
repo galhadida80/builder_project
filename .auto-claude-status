@@ -3,7 +3,7 @@
   "spec": "017-1-2-create-equipmentapprovalsubmission-model",
   "state": "building",
   "subtasks": {
-    "completed": 5,
+    "completed": 6,
     "total": 8,
     "in_progress": 1,
     "failed": 0
@@ -18,8 +18,8 @@
     "max": 1
   },
   "session": {
-    "number": 6,
+    "number": 7,
     "started_at": "2026-01-29T19:15:36.394866"
   },
-  "last_update": "2026-01-29T19:27:41.547363"
+  "last_update": "2026-01-29T19:33:28.651795"
 }
