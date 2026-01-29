@@ -303,6 +303,8 @@ export default function ProjectsPage() {
               InputLabelProps={{ shrink: true }}
               value={formData.startDate}
               onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+              error={!!errors.startDate}
+              helperText={errors.startDate}
             />
             <TextField
               fullWidth
@@ -312,12 +314,14 @@ export default function ProjectsPage() {
               InputLabelProps={{ shrink: true }}
               value={formData.estimatedEndDate}
               onChange={(e) => setFormData({ ...formData, estimatedEndDate: e.target.value })}
+              error={!!errors.estimatedEndDate}
+              helperText={errors.estimatedEndDate}
             />
           </Box>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialog}>Cancel</Button>
-          <Button variant="contained" onClick={handleCreateProject}>Create Project</Button>
+          <Button variant="contained" onClick={handleCreateProject} disabled={hasErrors(errors)}>Create Project</Button>
         </DialogActions>
       </Dialog>
     </Box>
