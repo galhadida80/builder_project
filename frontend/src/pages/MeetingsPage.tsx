@@ -129,6 +129,9 @@ export default function MeetingsPage() {
     if (!formData.startTime) {
       validationErrors.startTime = 'Start time is required'
     }
+    if (formData.startTime && formData.endTime && formData.endTime <= formData.startTime) {
+      validationErrors.endTime = 'End time must be after start time'
+    }
 
     setErrors(validationErrors)
     if (hasErrors(validationErrors)) return
@@ -317,8 +320,8 @@ export default function MeetingsPage() {
             required
             value={formData.title}
             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-            error={!!errors.title}
-            helperText={errors.title || `${formData.title.length}/${VALIDATION.MAX_NAME_LENGTH}`}
+            error={!!errors.title || formData.title.length >= VALIDATION.MAX_NAME_LENGTH}
+            helperText={errors.title || (formData.title.length > 0 ? `${formData.title.length}/${VALIDATION.MAX_NAME_LENGTH}${formData.title.length >= VALIDATION.MAX_NAME_LENGTH * 0.9 ? ' - Approaching limit' : ''}` : undefined)}
             inputProps={{ maxLength: VALIDATION.MAX_NAME_LENGTH }}
           />
           <TextField
@@ -340,8 +343,8 @@ export default function MeetingsPage() {
             rows={2}
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            error={!!errors.description}
-            helperText={errors.description || `${formData.description.length}/${VALIDATION.MAX_DESCRIPTION_LENGTH}`}
+            error={!!errors.description || formData.description.length >= VALIDATION.MAX_DESCRIPTION_LENGTH}
+            helperText={errors.description || (formData.description.length > 0 ? `${formData.description.length}/${VALIDATION.MAX_DESCRIPTION_LENGTH}${formData.description.length >= VALIDATION.MAX_DESCRIPTION_LENGTH * 0.9 ? ' - Approaching limit' : ''}` : undefined)}
             inputProps={{ maxLength: VALIDATION.MAX_DESCRIPTION_LENGTH }}
           />
           <TextField
@@ -385,6 +388,8 @@ export default function MeetingsPage() {
               InputLabelProps={{ shrink: true }}
               value={formData.endTime}
               onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
+              error={!!errors.endTime}
+              helperText={errors.endTime}
             />
           </Box>
         </DialogContent>

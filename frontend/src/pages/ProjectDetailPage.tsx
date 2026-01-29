@@ -42,7 +42,8 @@ export default function ProjectDetailPage() {
   const [meetings, setMeetings] = useState<Meeting[]>([])
 
   const currentPath = window.location.pathname.split('/').pop() || ''
-  const currentTabIndex = tabs.findIndex(t => t.path === currentPath) || 0
+  const tabIndex = tabs.findIndex(t => t.path === currentPath)
+  const currentTabIndex = tabIndex === -1 ? 0 : tabIndex
 
   useEffect(() => {
     loadProjectData()

@@ -17,6 +17,13 @@ DANGEROUS_PATTERNS = [
     r'javascript:',
     r'on\w+\s*=',
     r'<iframe[^>]*>',
+    r'<img[^>]*>',
+    r'<svg[^>]*>.*?</svg>',
+    r'<object[^>]*>',
+    r'<embed[^>]*>',
+    r'<link[^>]*>',
+    r'<meta[^>]*>',
+    r'<style[^>]*>.*?</style>',
 ]
 
 

@@ -13,6 +13,13 @@ const DANGEROUS_PATTERNS = [
   /javascript:/gi,
   /on\w+\s*=/gi,
   /<iframe[^>]*>/gi,
+  /<img[^>]*>/gi,
+  /<svg[^>]*>.*?<\/svg>/gi,
+  /<object[^>]*>/gi,
+  /<embed[^>]*>/gi,
+  /<link[^>]*>/gi,
+  /<meta[^>]*>/gi,
+  /<style[^>]*>.*?<\/style>/gi,
 ]
 
 export const sanitizeString = (value: string | undefined | null): string => {
@@ -77,11 +84,21 @@ export const validatePositiveNumber = (value: number | undefined | null, fieldNa
   return null
 }
 
+export const validateDateRange = (startDate: string | undefined | null, endDate: string | undefined | null): string | null => {
+  if (!startDate || !endDate) return null
+  const start = new Date(startDate)
+  const end = new Date(endDate)
+  if (end < start) {
+    return 'End date must be after start date'
+  }
+  return null
+}
+
 export interface ValidationError {
   [field: string]: string | null
 }
 
-export const validateProjectForm = (data: { name?: string; code?: string; description?: string; address?: string }): ValidationError => {
+export const validateProjectForm = (data: { name?: string; code?: string; description?: string; address?: string; startDate?: string; endDate?: string }): ValidationError => {
   const errors: ValidationError = {}
 
   errors.name = validateRequired(data.name, 'Project Name')
@@ -94,6 +111,7 @@ export const validateProjectForm = (data: { name?: string; code?: string; descri
 
   errors.description = validateMaxLength(data.description, VALIDATION.MAX_DESCRIPTION_LENGTH, 'Description')
   errors.address = validateMaxLength(data.address, VALIDATION.MAX_ADDRESS_LENGTH, 'Address')
+  errors.endDate = validateDateRange(data.startDate, data.endDate)
 
   return errors
 }

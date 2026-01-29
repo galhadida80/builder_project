@@ -100,7 +100,10 @@ export default function ProjectsPage() {
   }
 
   const handleSaveProject = async () => {
-    const validationErrors = validateProjectForm(formData)
+    const validationErrors = validateProjectForm({
+      ...formData,
+      endDate: formData.estimatedEndDate
+    })
     setErrors(validationErrors)
     if (hasErrors(validationErrors)) return
 
@@ -323,8 +326,8 @@ export default function ProjectsPage() {
             required
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            error={!!errors.name}
-            helperText={errors.name || `${formData.name.length}/${VALIDATION.MAX_NAME_LENGTH}`}
+            error={!!errors.name || formData.name.length >= VALIDATION.MAX_NAME_LENGTH}
+            helperText={errors.name || (formData.name.length > 0 ? `${formData.name.length}/${VALIDATION.MAX_NAME_LENGTH}${formData.name.length >= VALIDATION.MAX_NAME_LENGTH * 0.9 ? ' - Approaching limit' : ''}` : undefined)}
             inputProps={{ maxLength: VALIDATION.MAX_NAME_LENGTH }}
           />
           <TextField
@@ -347,8 +350,8 @@ export default function ProjectsPage() {
             rows={3}
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            error={!!errors.description}
-            helperText={errors.description || `${formData.description.length}/${VALIDATION.MAX_DESCRIPTION_LENGTH}`}
+            error={!!errors.description || formData.description.length >= VALIDATION.MAX_DESCRIPTION_LENGTH}
+            helperText={errors.description || (formData.description.length > 0 ? `${formData.description.length}/${VALIDATION.MAX_DESCRIPTION_LENGTH}${formData.description.length >= VALIDATION.MAX_DESCRIPTION_LENGTH * 0.9 ? ' - Approaching limit' : ''}` : undefined)}
             inputProps={{ maxLength: VALIDATION.MAX_DESCRIPTION_LENGTH }}
           />
           <TextField
@@ -379,6 +382,8 @@ export default function ProjectsPage() {
               InputLabelProps={{ shrink: true }}
               value={formData.estimatedEndDate}
               onChange={(e) => setFormData({ ...formData, estimatedEndDate: e.target.value })}
+              error={!!errors.endDate}
+              helperText={errors.endDate}
             />
           </Box>
         </DialogContent>

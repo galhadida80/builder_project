@@ -313,8 +313,8 @@ export default function ContactsPage() {
             required
             value={formData.contactName}
             onChange={(e) => setFormData({ ...formData, contactName: e.target.value })}
-            error={!!errors.contact_name}
-            helperText={errors.contact_name || `${formData.contactName.length}/${VALIDATION.MAX_NAME_LENGTH}`}
+            error={!!errors.contact_name || formData.contactName.length >= VALIDATION.MAX_NAME_LENGTH}
+            helperText={errors.contact_name || (formData.contactName.length > 0 ? `${formData.contactName.length}/${VALIDATION.MAX_NAME_LENGTH}${formData.contactName.length >= VALIDATION.MAX_NAME_LENGTH * 0.9 ? ' - Approaching limit' : ''}` : undefined)}
             inputProps={{ maxLength: VALIDATION.MAX_NAME_LENGTH }}
           />
           <TextField

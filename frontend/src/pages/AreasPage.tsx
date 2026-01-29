@@ -257,6 +257,15 @@ export default function AreasPage() {
 
   const allAreas = getAllAreas(areas)
 
+  const overallProgress = allAreas.length > 0
+    ? Math.round(allAreas.reduce((sum, area) => {
+        const areaProgress = area.progress && area.progress.length > 0
+          ? area.progress.reduce((s, p) => s + p.progressPercent, 0) / area.progress.length
+          : 0
+        return sum + areaProgress
+      }, 0) / allAreas.length)
+    : 0
+
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 400 }}>
@@ -284,8 +293,8 @@ export default function AreasPage() {
             </Grid>
             <Grid item xs={12} md={6}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <LinearProgress variant="determinate" value={58} sx={{ flexGrow: 1, height: 12, borderRadius: 6, bgcolor: 'rgba(255,255,255,0.3)', '& .MuiLinearProgress-bar': { bgcolor: 'white' } }} />
-                <Typography variant="h4" fontWeight="bold">58%</Typography>
+                <LinearProgress variant="determinate" value={overallProgress} sx={{ flexGrow: 1, height: 12, borderRadius: 6, bgcolor: 'rgba(255,255,255,0.3)', '& .MuiLinearProgress-bar': { bgcolor: 'white' } }} />
+                <Typography variant="h4" fontWeight="bold">{overallProgress}%</Typography>
               </Box>
             </Grid>
           </Grid>
@@ -320,8 +329,8 @@ export default function AreasPage() {
             required
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            error={!!errors.name}
-            helperText={errors.name || `${formData.name.length}/${VALIDATION.MAX_NAME_LENGTH}`}
+            error={!!errors.name || formData.name.length >= VALIDATION.MAX_NAME_LENGTH}
+            helperText={errors.name || (formData.name.length > 0 ? `${formData.name.length}/${VALIDATION.MAX_NAME_LENGTH}${formData.name.length >= VALIDATION.MAX_NAME_LENGTH * 0.9 ? ' - Approaching limit' : ''}` : undefined)}
             inputProps={{ maxLength: VALIDATION.MAX_NAME_LENGTH }}
           />
           <TextField
