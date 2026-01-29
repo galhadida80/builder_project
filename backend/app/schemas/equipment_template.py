@@ -107,3 +107,39 @@ class EquipmentTemplateResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class EquipmentApprovalSubmissionBase(BaseModel):
+    comments: str | None = Field(default=None, max_length=MAX_NOTES_LENGTH)
+
+    @field_validator('comments', mode='before')
+    @classmethod
+    def sanitize_text(cls, v: str | None) -> str | None:
+        return sanitize_string(v)
+
+
+class EquipmentApprovalSubmissionCreate(EquipmentApprovalSubmissionBase):
+    equipment_id: UUID
+
+
+class EquipmentApprovalSubmissionUpdate(BaseModel):
+    comments: str | None = Field(default=None, max_length=MAX_NOTES_LENGTH)
+
+    @field_validator('comments', mode='before')
+    @classmethod
+    def sanitize_text(cls, v: str | None) -> str | None:
+        return sanitize_string(v)
+
+
+class EquipmentApprovalSubmissionResponse(BaseModel):
+    id: UUID
+    equipment_id: UUID
+    status: str
+    comments: str | None = None
+    submitted_at: datetime
+    decided_at: datetime | None = None
+    created_by: UserResponse | None = None
+    decided_by: UserResponse | None = None
+
+    class Config:
+        from_attributes = True
