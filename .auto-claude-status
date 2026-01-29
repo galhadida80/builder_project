@@ -1,0 +1,25 @@
+{
+  "active": true,
+  "spec": "013-1-6-seed-initial-equipment-templates-from-excel-da",
+  "state": "building",
+  "subtasks": {
+    "completed": 7,
+    "total": 9,
+    "in_progress": 1,
+    "failed": 0
+  },
+  "phase": {
+    "current": "Database Verification",
+    "id": null,
+    "total": 3
+  },
+  "workers": {
+    "active": 0,
+    "max": 1
+  },
+  "session": {
+    "number": 8,
+    "started_at": "2026-01-29T15:30:41.928122"
+  },
+  "last_update": "2026-01-29T15:47:45.752800"
+}
