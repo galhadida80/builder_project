@@ -1,10 +1,18 @@
 from uuid import UUID
-from datetime import datetime
+from datetime import datetime, date
+from enum import Enum
 from pydantic import BaseModel, Field, field_validator
+from app.schemas.user import UserResponse
 from app.core.validators import (
     sanitize_string,
-    MIN_NAME_LENGTH, MAX_NAME_LENGTH, MAX_DESCRIPTION_LENGTH
+    MIN_NAME_LENGTH, MAX_NAME_LENGTH, MAX_DESCRIPTION_LENGTH, MAX_NOTES_LENGTH
 )
+
+
+class InspectionStatus(str, Enum):
+    SCHEDULED = "scheduled"
+    COMPLETED = "completed"
+    APPROVED = "approved"
 
 
 class ConsultantTypeBase(BaseModel):
@@ -73,6 +81,58 @@ class InspectionStageTemplateResponse(BaseModel):
     is_active: bool
     created_at: datetime
     updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class ProjectInspectionBase(BaseModel):
+    consultant_type_id: UUID
+    area_id: UUID | None = None
+    template_snapshot: dict | None = None
+    status: InspectionStatus = InspectionStatus.SCHEDULED
+    scheduled_date: date | None = None
+    assigned_inspector: str | None = Field(default=None, max_length=MAX_NAME_LENGTH)
+    notes: str | None = Field(default=None, max_length=MAX_NOTES_LENGTH)
+
+    @field_validator('assigned_inspector', 'notes', mode='before')
+    @classmethod
+    def sanitize_text(cls, v: str | None) -> str | None:
+        return sanitize_string(v)
+
+
+class ProjectInspectionCreate(ProjectInspectionBase):
+    pass
+
+
+class ProjectInspectionUpdate(BaseModel):
+    consultant_type_id: UUID | None = None
+    area_id: UUID | None = None
+    template_snapshot: dict | None = None
+    status: InspectionStatus | None = None
+    scheduled_date: date | None = None
+    assigned_inspector: str | None = Field(default=None, max_length=MAX_NAME_LENGTH)
+    notes: str | None = Field(default=None, max_length=MAX_NOTES_LENGTH)
+
+    @field_validator('assigned_inspector', 'notes', mode='before')
+    @classmethod
+    def sanitize_text(cls, v: str | None) -> str | None:
+        return sanitize_string(v)
+
+
+class ProjectInspectionResponse(BaseModel):
+    id: UUID
+    project_id: UUID
+    consultant_type_id: UUID
+    area_id: UUID | None = None
+    template_snapshot: dict | None = None
+    status: str
+    scheduled_date: date | None = None
+    assigned_inspector: str | None = None
+    notes: str | None = None
+    created_at: datetime
+    updated_at: datetime
+    consultant_type: ConsultantTypeResponse | None = None
 
     class Config:
         from_attributes = True
