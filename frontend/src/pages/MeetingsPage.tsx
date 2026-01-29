@@ -51,8 +51,7 @@ export default function MeetingsPage() {
     description: '',
     location: '',
     date: '',
-    startTime: '',
-    endTime: ''
+    startTime: ''
   })
 
   useEffect(() => {
@@ -82,7 +81,7 @@ export default function MeetingsPage() {
         scheduledDate: formData.date ? `${formData.date}T${formData.startTime || '09:00'}:00Z` : undefined
       })
       setDialogOpen(false)
-      setFormData({ title: '', meetingType: '', description: '', location: '', date: '', startTime: '', endTime: '' })
+      setFormData({ title: '', meetingType: '', description: '', location: '', date: '', startTime: '' })
       loadMeetings()
     } catch (error) {
       console.error('Failed to create meeting:', error)
@@ -259,16 +258,7 @@ export default function MeetingsPage() {
               value={formData.startTime}
               onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
             />
-            <TextField
-              fullWidth
-              label="End Time"
-              type="time"
-              margin="normal"
-              InputLabelProps={{ shrink: true }}
-              required
-              value={formData.endTime}
-              onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
-            />
+            {/* End Time TextField removed - backend doesn't support end times */}
           </Box>
         </DialogContent>
         <DialogActions>
