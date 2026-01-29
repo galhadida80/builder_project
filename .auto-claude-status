@@ -1,0 +1,25 @@
+{
+  "active": true,
+  "spec": "009-2-4-create-checklist-template-api-endpoints",
+  "state": "building",
+  "subtasks": {
+    "completed": 7,
+    "total": 8,
+    "in_progress": 1,
+    "failed": 0
+  },
+  "phase": {
+    "current": "Integration Verification",
+    "id": null,
+    "total": 1
+  },
+  "workers": {
+    "active": 0,
+    "max": 1
+  },
+  "session": {
+    "number": 8,
+    "started_at": "2026-01-29T15:29:34.170721"
+  },
+  "last_update": "2026-01-29T15:45:15.137311"
+}
