@@ -43,6 +43,7 @@ class Project(Base):
     meetings = relationship("Meeting", back_populates="project", cascade="all, delete-orphan")
     contacts = relationship("Contact", back_populates="project", cascade="all, delete-orphan")
     areas = relationship("ConstructionArea", back_populates="project", cascade="all, delete-orphan")
+    inspections = relationship("Inspection", back_populates="project", cascade="all, delete-orphan")
 
 
 class ProjectMember(Base):
