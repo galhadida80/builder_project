@@ -6,9 +6,12 @@ from sqlalchemy.orm import selectinload
 from app.db.session import get_db
 from app.models.equipment_template import EquipmentTemplate
 from app.models.equipment_submission import EquipmentSubmission
+from app.models.approval_decision import ApprovalDecision
+from app.models.equipment import ApprovalStatus
 from app.models.user import User
 from app.schemas.equipment_template import EquipmentTemplateCreate, EquipmentTemplateUpdate, EquipmentTemplateResponse
 from app.schemas.equipment_submission import EquipmentSubmissionCreate, EquipmentSubmissionUpdate, EquipmentSubmissionResponse
+from app.schemas.approval_decision import ApprovalDecisionCreate, ApprovalDecisionResponse
 from app.services.audit_service import create_audit_log, get_model_dict
 from app.models.audit import AuditAction
 from app.core.security import get_current_user, get_current_admin_user
@@ -180,3 +183,74 @@ async def delete_equipment_submission(
 
     await db.delete(submission)
     return {"message": "Equipment submission deleted"}
+
+
+@router.post("/equipment-submissions/{submission_id}/decisions", response_model=ApprovalDecisionResponse)
+async def create_approval_decision(
+    submission_id: UUID,
+    data: ApprovalDecisionCreate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    result = await db.execute(
+        select(EquipmentSubmission).where(EquipmentSubmission.id == submission_id)
+    )
+    submission = result.scalar_one_or_none()
+    if not submission:
+        raise HTTPException(status_code=404, detail="Equipment submission not found")
+
+    decision = ApprovalDecision(
+        submission_id=submission_id,
+        decision=data.decision,
+        comments=data.comments,
+        decided_by_id=current_user.id
+    )
+    db.add(decision)
+    await db.flush()
+
+    old_status = submission.status
+    if data.decision == "approve":
+        submission.status = ApprovalStatus.APPROVED.value
+    elif data.decision == "reject":
+        submission.status = ApprovalStatus.REJECTED.value
+    elif data.decision == "revision":
+        submission.status = ApprovalStatus.REVISION_REQUESTED.value
+    else:
+        raise HTTPException(status_code=400, detail="Invalid decision")
+
+    await create_audit_log(
+        db, current_user, "approval_decision", decision.id, AuditAction.CREATE,
+        project_id=submission.project_id,
+        new_values=get_model_dict(decision)
+    )
+
+    await create_audit_log(
+        db, current_user, "equipment_submission", submission.id, AuditAction.STATUS_CHANGE,
+        project_id=submission.project_id,
+        old_values={"status": old_status},
+        new_values={"status": submission.status}
+    )
+
+    await db.refresh(decision, ["decided_by"])
+    return decision
+
+
+@router.get("/equipment-submissions/{submission_id}/decisions", response_model=list[ApprovalDecisionResponse])
+async def list_approval_decisions(
+    submission_id: UUID,
+    db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(
+        select(EquipmentSubmission).where(EquipmentSubmission.id == submission_id)
+    )
+    submission = result.scalar_one_or_none()
+    if not submission:
+        raise HTTPException(status_code=404, detail="Equipment submission not found")
+
+    result = await db.execute(
+        select(ApprovalDecision)
+        .options(selectinload(ApprovalDecision.decided_by))
+        .where(ApprovalDecision.submission_id == submission_id)
+        .order_by(ApprovalDecision.created_at.desc())
+    )
+    return result.scalars().all()
