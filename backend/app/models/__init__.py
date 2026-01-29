@@ -8,6 +8,7 @@ from app.models.approval import ApprovalRequest, ApprovalStep
 from app.models.area import ConstructionArea, AreaProgress
 from app.models.file import File
 from app.models.audit import AuditLog
+from app.models.checklist_template import ChecklistInstance, ChecklistItemResponse
 
 __all__ = [
     "User",
@@ -25,4 +26,6 @@ __all__ = [
     "AreaProgress",
     "File",
     "AuditLog",
+    "ChecklistInstance",
+    "ChecklistItemResponse",
 ]

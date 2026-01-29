@@ -1,0 +1,25 @@
+{
+  "active": true,
+  "spec": "011-2-2-create-checklistinstance-model-for-filled-chec",
+  "state": "building",
+  "subtasks": {
+    "completed": 4,
+    "total": 9,
+    "in_progress": 1,
+    "failed": 0
+  },
+  "phase": {
+    "current": "Model Implementation",
+    "id": null,
+    "total": 5
+  },
+  "workers": {
+    "active": 0,
+    "max": 1
+  },
+  "session": {
+    "number": 5,
+    "started_at": "2026-01-29T10:33:11.344780"
+  },
+  "last_update": "2026-01-29T10:45:00.382847"
+}
