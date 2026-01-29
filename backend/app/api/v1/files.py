@@ -11,7 +11,7 @@ from app.models.file import File
 from app.models.user import User
 from app.schemas.file import FileResponse
 from app.services.audit_service import create_audit_log, get_model_dict
-from app.services.storage_service import get_storage_backend, generate_storage_path
+from app.services.storage_service import get_storage_backend, generate_storage_path, StorageBackend
 from app.models.audit import AuditAction
 from app.core.security import get_current_user
 
@@ -42,9 +42,10 @@ async def upload_file(
     entity_id: UUID,
     file: UploadFile = FastAPIFile(...),
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    storage: StorageBackend = Depends(get_storage_backend)
 ):
-    storage = get_storage_backend()
+    # storage = get_storage_backend()  # No longer needed
     storage_path = generate_storage_path(
         user_id=current_user.id,
         project_id=project_id,
@@ -95,14 +96,15 @@ async def delete_file(
     project_id: UUID,
     file_id: UUID,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    storage: StorageBackend = Depends(get_storage_backend)
 ):
     result = await db.execute(select(File).where(File.id == file_id, File.project_id == project_id))
     file_record = result.scalar_one_or_none()
     if not file_record:
         raise HTTPException(status_code=404, detail="File not found")
 
-    storage = get_storage_backend()
+    # storage = get_storage_backend()  # No longer needed
     try:
         await storage.delete_file(file_record.storage_path)
     except Exception:
@@ -119,7 +121,12 @@ async def delete_file(
 
 
 @router.get("/projects/{project_id}/files/{file_id}/download")
-async def download_file(project_id: UUID, file_id: UUID, db: AsyncSession = Depends(get_db)):
+async def download_file(
+    project_id: UUID,
+    file_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    storage: StorageBackend = Depends(get_storage_backend)
+):
     result = await db.execute(
         select(File).where(File.id == file_id, File.project_id == project_id)
     )
@@ -127,14 +134,14 @@ async def download_file(project_id: UUID, file_id: UUID, db: AsyncSession = Depe
     if not file_record:
         raise HTTPException(status_code=404, detail="File not found")
 
-    storage = get_storage_backend()
+    # storage = get_storage_backend()  # No longer needed
     download_url = storage.get_file_url(file_record.storage_path)
     return {"download_url": download_url, "filename": file_record.filename}
 
 
 @router.get("/storage/{path:path}")
-async def serve_local_file(path: str):
-    storage = get_storage_backend()
+async def serve_local_file(path: str, storage: StorageBackend = Depends(get_storage_backend)):
+    # storage = get_storage_backend()  # No longer needed
     try:
         content = await storage.get_file_content(path)
         return Response(content=content, media_type="application/octet-stream")

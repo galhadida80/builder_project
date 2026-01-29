@@ -2,8 +2,8 @@ import os
 import uuid
 from pathlib import Path
 from abc import ABC, abstractmethod
-from fastapi import UploadFile
-from app.config import get_settings
+from fastapi import UploadFile, Depends
+from app.config import get_settings, Settings
 
 try:
     import boto3
@@ -109,8 +109,7 @@ class S3StorageBackend(StorageBackend):
         return response['Body'].read()
 
 
-def get_storage_backend() -> StorageBackend:
-    settings = get_settings()
+def get_storage_backend(settings: Settings = Depends(get_settings)) -> StorageBackend:
     if settings.storage_type == "s3":
         return S3StorageBackend(
             bucket_name=settings.s3_bucket_name,

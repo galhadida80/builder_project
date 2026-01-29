@@ -25,23 +25,12 @@ from sqlalchemy.pool import NullPool
 from app.main import app
 from app.db.session import Base, get_db
 from app.config import Settings, get_settings
+from app.core.security import get_current_user
+from app.models.user import User
 
 
 # Configure pytest-asyncio
 pytest_plugins = ('pytest_asyncio',)
-
-
-@pytest.fixture(scope="session")
-def event_loop():
-    """
-    Create an event loop for the test session.
-
-    This fixture provides a single event loop for all async tests
-    to avoid creating/closing loops for each test.
-    """
-    loop = asyncio.get_event_loop_policy().new_event_loop()
-    yield loop
-    loop.close()
 
 
 @pytest.fixture(scope="session")
@@ -64,7 +53,7 @@ def test_settings() -> Settings:
     )
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 async def test_engine(test_settings: Settings):
     """
     Create async database engine for tests.
@@ -119,29 +108,17 @@ def override_get_settings(test_settings: Settings):
     This ensures all parts of the app use test settings
     instead of production settings.
     """
+    # Clear the lru_cache so test settings are used
+    get_settings.cache_clear()
     app.dependency_overrides[get_settings] = lambda: test_settings
     yield
     app.dependency_overrides.clear()
+    # Clear cache again after test
+    get_settings.cache_clear()
 
 
 @pytest.fixture
-def override_get_db(db_session: AsyncSession, override_get_settings):
-    """
-    Override the get_db dependency for tests.
-
-    This ensures all endpoints use the test database session
-    instead of creating new connections.
-    """
-    async def _get_test_db():
-        yield db_session
-
-    app.dependency_overrides[get_db] = _get_test_db
-    yield
-    app.dependency_overrides.clear()
-
-
-@pytest.fixture
-def client(override_get_db) -> Generator[TestClient, None, None]:
+def client(override_get_settings) -> Generator[TestClient, None, None]:
     """
     Provide a synchronous FastAPI test client.
 
@@ -153,15 +130,87 @@ def client(override_get_db) -> Generator[TestClient, None, None]:
 
 
 @pytest.fixture
-async def async_client(override_get_db) -> AsyncGenerator[AsyncClient, None]:
+async def test_db_user(test_engine) -> User:
+    """
+    Create a test user in the database for authentication.
+
+    Returns a User instance that persists across the test.
+    """
+    async_session = async_sessionmaker(
+        test_engine,
+        class_=AsyncSession,
+        expire_on_commit=False,
+    )
+
+    async with async_session() as session:
+        user = User(
+            firebase_uid="test-auth-uid",
+            email="testauth@example.com",
+            full_name="Test Auth User",
+            is_active=True
+        )
+        session.add(user)
+        await session.commit()
+        await session.refresh(user)
+        yield user
+        # Cleanup happens automatically when test database is dropped
+
+
+@pytest.fixture
+async def async_client(override_get_settings, test_engine, test_db_user) -> AsyncGenerator[AsyncClient, None]:
     """
     Provide an async FastAPI test client.
 
     Use this for testing async endpoints and operations.
     The client automatically uses test database and settings.
     """
+    # Override get_db to use test database
+    async def _get_test_db():
+        async_session = async_sessionmaker(
+            test_engine,
+            class_=AsyncSession,
+            expire_on_commit=False,
+        )
+        async with async_session() as session:
+            yield session
+
+    # Override get_current_user to return test user
+    async def _get_current_test_user():
+        return test_db_user
+
+    app.dependency_overrides[get_db] = _get_test_db
+    app.dependency_overrides[get_current_user] = _get_current_test_user
+
     async with AsyncClient(app=app, base_url="http://test") as ac:
         yield ac
+
+    app.dependency_overrides.clear()
+
+
+@pytest.fixture
+async def async_client_no_auth(override_get_settings, test_engine) -> AsyncGenerator[AsyncClient, None]:
+    """
+    Provide an async FastAPI test client without authentication override.
+
+    Use this for testing endpoints that require authentication checks.
+    The client uses test database but does NOT override get_current_user.
+    """
+    # Override get_db to use test database
+    async def _get_test_db():
+        async_session = async_sessionmaker(
+            test_engine,
+            class_=AsyncSession,
+            expire_on_commit=False,
+        )
+        async with async_session() as session:
+            yield session
+
+    app.dependency_overrides[get_db] = _get_test_db
+
+    async with AsyncClient(app=app, base_url="http://test") as ac:
+        yield ac
+
+    app.dependency_overrides.clear()
 
 
 @pytest.fixture

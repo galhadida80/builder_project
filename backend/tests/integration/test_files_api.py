@@ -23,42 +23,32 @@ from app.models.project import Project, ProjectStatus
 
 
 @pytest.fixture
-async def test_user(db_session: AsyncSession) -> User:
-    """
-    Create a test user for file operations.
-
-    Returns a User instance persisted to the test database.
-    """
-    user = User(
-        firebase_uid="test-uid-123",
-        email="testuser@example.com",
-        full_name="Test User",
-        is_active=True
-    )
-    db_session.add(user)
-    await db_session.commit()
-    await db_session.refresh(user)
-    return user
-
-
-@pytest.fixture
-async def test_project(db_session: AsyncSession, test_user: User) -> Project:
+async def test_project(test_engine, test_db_user: User) -> Project:
     """
     Create a test project for file operations.
 
     Returns a Project instance persisted to the test database.
     """
-    project = Project(
-        name="Test Project",
-        code="TEST-001",
-        description="Test project for file uploads",
-        status=ProjectStatus.ACTIVE.value,
-        created_by_id=test_user.id
+    from sqlalchemy.ext.asyncio import async_sessionmaker
+    async_session = async_sessionmaker(
+        test_engine,
+        class_=AsyncSession,
+        expire_on_commit=False,
     )
-    db_session.add(project)
-    await db_session.commit()
-    await db_session.refresh(project)
-    return project
+
+    async with async_session() as session:
+        project = Project(
+            name="Test Project",
+            code="TEST-001",
+            description="Test project for file uploads",
+            status=ProjectStatus.ACTIVE.value,
+            created_by_id=test_db_user.id
+        )
+        session.add(project)
+        await session.commit()
+        await session.refresh(project)
+        yield project
+        # Cleanup happens automatically when test database is dropped
 
 
 @pytest.fixture
@@ -81,7 +71,7 @@ class TestFileUploadEndpoint:
         self,
         async_client: AsyncClient,
         db_session: AsyncSession,
-        test_user: User,
+        test_db_user: User,
         test_project: Project,
         temp_storage_dir: Path,
         sample_file_content: bytes,
@@ -147,13 +137,13 @@ class TestFileUploadEndpoint:
         assert file_record.filename == filename
         assert file_record.file_type == "text/plain"
         assert file_record.file_size == len(sample_file_content)
-        assert file_record.uploaded_by_id == test_user.id
+        assert file_record.uploaded_by_id == test_db_user.id
 
         # Verify storage path structure
         storage_path = file_record.storage_path
         path_parts = storage_path.split("/")
         assert len(path_parts) == 5  # user_id/project_id/entity_type/entity_id/filename
-        assert path_parts[0] == str(test_user.id)
+        assert path_parts[0] == str(test_db_user.id)
         assert path_parts[1] == str(test_project.id)
         assert path_parts[2] == entity_type
         assert path_parts[3] == str(entity_id)
@@ -276,7 +266,7 @@ class TestFileUploadEndpoint:
     @pytest.mark.asyncio
     async def test_upload_file_without_auth(
         self,
-        async_client: AsyncClient,
+        async_client_no_auth: AsyncClient,
         test_project: Project,
         sample_file_content: bytes
     ):
@@ -295,7 +285,7 @@ class TestFileUploadEndpoint:
             "file": (filename, BytesIO(sample_file_content), "text/plain")
         }
 
-        response = await async_client.post(
+        response = await async_client_no_auth.post(
             f"/api/v1/projects/{test_project.id}/files",
             params={
                 "entity_type": entity_type,
@@ -364,7 +354,7 @@ class TestFileDownloadEndpoint:
         self,
         async_client: AsyncClient,
         db_session: AsyncSession,
-        test_user: User,
+        test_db_user: User,
         test_project: Project,
         temp_storage_dir: Path,
         sample_file_content: bytes,
