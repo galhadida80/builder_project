@@ -27,6 +27,7 @@ import FoundationIcon from '@mui/icons-material/Foundation'
 import EditIcon from '@mui/icons-material/Edit'
 import { areasApi } from '../api/areas'
 import type { ConstructionArea, AreaStatus } from '../types'
+import { validateRequired, validateCode, validateInteger, validatePositiveNumber, validateMinLength, validateMaxLength, VALIDATION, type ValidationError } from '../utils/validation'
 
 const areaTypes = [
   { value: 'apartment', label: 'Apartment', icon: <ApartmentIcon /> },
@@ -108,6 +109,7 @@ export default function AreasPage() {
   const [areas, setAreas] = useState<ConstructionArea[]>([])
   const [dialogOpen, setDialogOpen] = useState(false)
   const [formData, setFormData] = useState({ name: '', areaCode: '', areaType: '', parentId: '', floorNumber: '', totalUnits: '' })
+  const [errors, setErrors] = useState<ValidationError>({ name: null, areaCode: null, floorNumber: null, totalUnits: null })
 
   useEffect(() => {
     loadAreas()
@@ -130,6 +132,39 @@ export default function AreasPage() {
   const validateAreaCodeUniqueness = (areaCode: string): boolean => {
     const allAreas = getAllAreas(areas)
     return !allAreas.some(area => area.areaCode.toLowerCase() === areaCode.toLowerCase())
+  }
+
+  const validateField = (fieldName: string) => {
+    let error: string | null = null
+
+    switch (fieldName) {
+      case 'name':
+        error = validateRequired(formData.name, 'Area Name')
+          || validateMinLength(formData.name, VALIDATION.MIN_NAME_LENGTH, 'Area Name')
+          || validateMaxLength(formData.name, VALIDATION.MAX_NAME_LENGTH, 'Area Name')
+        break
+      case 'areaCode':
+        error = validateCode(formData.areaCode, 'Area Code')
+          || validateMaxLength(formData.areaCode, VALIDATION.MAX_CODE_LENGTH, 'Area Code')
+        if (!error && formData.areaCode && !validateAreaCodeUniqueness(formData.areaCode)) {
+          error = 'Area Code already exists'
+        }
+        break
+      case 'floorNumber':
+        error = validateInteger(formData.floorNumber, 'Floor Number')
+        break
+      case 'totalUnits':
+        error = validateInteger(formData.totalUnits, 'Total Units')
+        if (!error && formData.totalUnits) {
+          const num = Number(formData.totalUnits)
+          if (!isNaN(num) && num <= 0) {
+            error = 'Total Units must be greater than zero'
+          }
+        }
+        break
+    }
+
+    setErrors(prev => ({ ...prev, [fieldName]: error }))
   }
 
   const loadAreas = async () => {
@@ -157,6 +192,7 @@ export default function AreasPage() {
       })
       setDialogOpen(false)
       setFormData({ name: '', areaCode: '', areaType: '', parentId: '', floorNumber: '', totalUnits: '' })
+      setErrors({ name: null, areaCode: null, floorNumber: null, totalUnits: null })
       loadAreas()
     } catch (error) {
       console.error('Failed to create area:', error)
@@ -208,11 +244,11 @@ export default function AreasPage() {
         </Box>
       )}
 
-      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
+      <Dialog open={dialogOpen} onClose={() => { setDialogOpen(false); setErrors({ name: null, areaCode: null, floorNumber: null, totalUnits: null }) }} maxWidth="sm" fullWidth>
         <DialogTitle>Add Construction Area</DialogTitle>
         <DialogContent>
-          <TextField fullWidth label="Area Name" margin="normal" required value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
-          <TextField fullWidth label="Area Code" margin="normal" required value={formData.areaCode} onChange={(e) => setFormData({ ...formData, areaCode: e.target.value })} />
+          <TextField fullWidth label="Area Name" margin="normal" required value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} onBlur={() => validateField('name')} error={!!errors.name} helperText={errors.name} />
+          <TextField fullWidth label="Area Code" margin="normal" required value={formData.areaCode} onChange={(e) => setFormData({ ...formData, areaCode: e.target.value })} onBlur={() => validateField('areaCode')} error={!!errors.areaCode} helperText={errors.areaCode} />
           <TextField fullWidth select label="Area Type" margin="normal" value={formData.areaType} onChange={(e) => setFormData({ ...formData, areaType: e.target.value })}>
             {areaTypes.map(type => <MenuItem key={type.value} value={type.value}>{type.label}</MenuItem>)}
           </TextField>
@@ -220,11 +256,11 @@ export default function AreasPage() {
             <MenuItem value="">None (Top Level)</MenuItem>
             {areas.map(area => <MenuItem key={area.id} value={area.id}>{area.name}</MenuItem>)}
           </TextField>
-          <TextField fullWidth label="Floor Number" type="number" margin="normal" value={formData.floorNumber} onChange={(e) => setFormData({ ...formData, floorNumber: e.target.value })} />
-          <TextField fullWidth label="Total Units" type="number" margin="normal" value={formData.totalUnits} onChange={(e) => setFormData({ ...formData, totalUnits: e.target.value })} />
+          <TextField fullWidth label="Floor Number" type="number" margin="normal" value={formData.floorNumber} onChange={(e) => setFormData({ ...formData, floorNumber: e.target.value })} onBlur={() => validateField('floorNumber')} error={!!errors.floorNumber} helperText={errors.floorNumber} />
+          <TextField fullWidth label="Total Units" type="number" margin="normal" value={formData.totalUnits} onChange={(e) => setFormData({ ...formData, totalUnits: e.target.value })} onBlur={() => validateField('totalUnits')} error={!!errors.totalUnits} helperText={errors.totalUnits} />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDialogOpen(false)}>Cancel</Button>
+          <Button onClick={() => { setDialogOpen(false); setErrors({ name: null, areaCode: null, floorNumber: null, totalUnits: null }) }}>Cancel</Button>
           <Button variant="contained" onClick={handleCreateArea}>Add Area</Button>
         </DialogActions>
       </Dialog>
