@@ -5,6 +5,11 @@ from abc import ABC, abstractmethod
 from fastapi import UploadFile
 from app.config import get_settings
 
+try:
+    import boto3
+except ImportError:
+    boto3 = None
+
 
 class StorageBackend(ABC):
     @abstractmethod
@@ -66,7 +71,8 @@ class S3StorageBackend(StorageBackend):
     @property
     def client(self):
         if self._client is None:
-            import boto3
+            if boto3 is None:
+                raise ImportError("boto3 is required for S3 storage backend")
             self._client = boto3.client(
                 's3',
                 region_name=self.region,

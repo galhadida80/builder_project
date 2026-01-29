@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+from typing import Optional
 from uuid import UUID
 from datetime import datetime, date
 from decimal import Decimal
@@ -11,20 +14,20 @@ from app.core.validators import (
 
 class MaterialBase(BaseModel):
     name: str = Field(min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
-    material_type: str | None = Field(default=None, max_length=100)
-    manufacturer: str | None = Field(default=None, max_length=MAX_NAME_LENGTH)
-    model_number: str | None = Field(default=None, max_length=100)
-    quantity: Decimal | None = Field(default=None, ge=0, le=999999999)
-    unit: str | None = Field(default=None, max_length=50)
-    specifications: dict | None = None
-    expected_delivery: date | None = None
-    actual_delivery: date | None = None
-    storage_location: str | None = Field(default=None, max_length=MAX_NAME_LENGTH)
-    notes: str | None = Field(default=None, max_length=MAX_NOTES_LENGTH)
+    material_type: Optional[str] = Field(default=None, max_length=100)
+    manufacturer: Optional[str] = Field(default=None, max_length=MAX_NAME_LENGTH)
+    model_number: Optional[str] = Field(default=None, max_length=100)
+    quantity: Optional[Decimal] = Field(default=None, ge=0, le=999999999)
+    unit: Optional[str] = Field(default=None, max_length=50)
+    specifications: Optional[dict] = None
+    expected_delivery: Optional[date] = None
+    actual_delivery: Optional[date] = None
+    storage_location: Optional[str] = Field(default=None, max_length=MAX_NAME_LENGTH)
+    notes: Optional[str] = Field(default=None, max_length=MAX_NOTES_LENGTH)
 
     @field_validator('name', 'material_type', 'manufacturer', 'model_number', 'unit', 'storage_location', 'notes', mode='before')
     @classmethod
-    def sanitize_text(cls, v: str | None) -> str | None:
+    def sanitize_text(cls, v: Optional[str]) -> Optional[str]:
         return sanitize_string(v)
 
 
@@ -33,31 +36,31 @@ class MaterialCreate(MaterialBase):
 
 
 class MaterialUpdate(BaseModel):
-    name: str | None = Field(default=None, min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
-    material_type: str | None = Field(default=None, max_length=100)
-    manufacturer: str | None = Field(default=None, max_length=MAX_NAME_LENGTH)
-    model_number: str | None = Field(default=None, max_length=100)
-    quantity: Decimal | None = Field(default=None, ge=0, le=999999999)
-    unit: str | None = Field(default=None, max_length=50)
-    specifications: dict | None = None
-    expected_delivery: date | None = None
-    actual_delivery: date | None = None
-    storage_location: str | None = Field(default=None, max_length=MAX_NAME_LENGTH)
-    notes: str | None = Field(default=None, max_length=MAX_NOTES_LENGTH)
+    name: Optional[str] = Field(default=None, min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
+    material_type: Optional[str] = Field(default=None, max_length=100)
+    manufacturer: Optional[str] = Field(default=None, max_length=MAX_NAME_LENGTH)
+    model_number: Optional[str] = Field(default=None, max_length=100)
+    quantity: Optional[Decimal] = Field(default=None, ge=0, le=999999999)
+    unit: Optional[str] = Field(default=None, max_length=50)
+    specifications: Optional[dict] = None
+    expected_delivery: Optional[date] = None
+    actual_delivery: Optional[date] = None
+    storage_location: Optional[str] = Field(default=None, max_length=MAX_NAME_LENGTH)
+    notes: Optional[str] = Field(default=None, max_length=MAX_NOTES_LENGTH)
 
     @field_validator('name', 'material_type', 'manufacturer', 'model_number', 'unit', 'storage_location', 'notes', mode='before')
     @classmethod
-    def sanitize_text(cls, v: str | None) -> str | None:
+    def sanitize_text(cls, v: Optional[str]) -> Optional[str]:
         return sanitize_string(v)
 
 
 class MaterialReceive(BaseModel):
     quantity_received: Decimal = Field(gt=0, le=999999999)
-    notes: str | None = Field(default=None, max_length=MAX_NOTES_LENGTH)
+    notes: Optional[str] = Field(default=None, max_length=MAX_NOTES_LENGTH)
 
     @field_validator('notes', mode='before')
     @classmethod
-    def sanitize_text(cls, v: str | None) -> str | None:
+    def sanitize_text(cls, v: Optional[str]) -> Optional[str]:
         return sanitize_string(v)
 
 
@@ -65,20 +68,20 @@ class MaterialResponse(BaseModel):
     id: UUID
     project_id: UUID
     name: str
-    material_type: str | None = None
-    manufacturer: str | None = None
-    model_number: str | None = None
-    quantity: Decimal | None = None
-    unit: str | None = None
-    specifications: dict | None = None
-    expected_delivery: date | None = None
-    actual_delivery: date | None = None
-    storage_location: str | None = None
-    notes: str | None = None
+    material_type: Optional[str] = None
+    manufacturer: Optional[str] = None
+    model_number: Optional[str] = None
+    quantity: Optional[Decimal] = None
+    unit: Optional[str] = None
+    specifications: Optional[dict] = None
+    expected_delivery: Optional[date] = None
+    actual_delivery: Optional[date] = None
+    storage_location: Optional[str] = None
+    notes: Optional[str] = None
     status: str
     created_at: datetime
     updated_at: datetime
-    created_by: UserResponse | None = None
+    created_by: Optional[UserResponse] = None
 
     class Config:
         from_attributes = True

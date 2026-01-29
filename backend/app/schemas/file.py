@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+from typing import Optional
 from uuid import UUID
 from datetime import datetime
 from pydantic import BaseModel
@@ -10,11 +13,11 @@ class FileResponse(BaseModel):
     entity_type: str
     entity_id: UUID
     filename: str
-    file_type: str | None = None
-    file_size: int | None = None
+    file_type: Optional[str] = None
+    file_size: Optional[int] = None
     storage_path: str
     uploaded_at: datetime
-    uploaded_by: UserResponse | None = None
+    uploaded_by: Optional[UserResponse] = None
 
     class Config:
         from_attributes = True

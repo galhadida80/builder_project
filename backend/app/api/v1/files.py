@@ -1,3 +1,5 @@
+from __future__ import annotations
+from typing import Optional
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File as FastAPIFile
 from fastapi.responses import Response
@@ -19,8 +21,8 @@ router = APIRouter()
 @router.get("/projects/{project_id}/files", response_model=list[FileResponse])
 async def list_files(
     project_id: UUID,
-    entity_type: str | None = None,
-    entity_id: UUID | None = None,
+    entity_type: Optional[str] = None,
+    entity_id: Optional[UUID] = None,
     db: AsyncSession = Depends(get_db)
 ):
     query = select(File).where(File.project_id == project_id).options(selectinload(File.uploaded_by))

@@ -1,13 +1,16 @@
+from __future__ import annotations
+
 from uuid import UUID
 from datetime import datetime
+from typing import Optional
 from pydantic import BaseModel, EmailStr
 
 
 class UserBase(BaseModel):
     email: EmailStr
-    full_name: str | None = None
-    phone: str | None = None
-    company: str | None = None
+    full_name: Optional[str] = None
+    phone: Optional[str] = None
+    company: Optional[str] = None
 
 
 class UserCreate(UserBase):
@@ -16,7 +19,7 @@ class UserCreate(UserBase):
 
 class UserResponse(UserBase):
     id: UUID
-    role: str | None = None
+    role: Optional[str] = None
     is_active: bool
     created_at: datetime
 

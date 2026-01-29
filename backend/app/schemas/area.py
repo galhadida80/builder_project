@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+from typing import Optional
 from uuid import UUID
 from datetime import datetime
 from decimal import Decimal
@@ -11,12 +14,12 @@ from app.core.validators import (
 
 class AreaProgressCreate(BaseModel):
     progress_percentage: Decimal = Field(ge=0, le=100)
-    notes: str | None = Field(default=None, max_length=MAX_NOTES_LENGTH)
-    photos: list[str] | None = Field(default=None, max_length=20)
+    notes: Optional[str] = Field(default=None, max_length=MAX_NOTES_LENGTH)
+    photos: Optional[list[str]] = Field(default=None, max_length=20)
 
     @field_validator('notes', mode='before')
     @classmethod
-    def sanitize_text(cls, v: str | None) -> str | None:
+    def sanitize_text(cls, v: Optional[str]) -> Optional[str]:
         return sanitize_string(v)
 
 
@@ -24,10 +27,10 @@ class AreaProgressResponse(BaseModel):
     id: UUID
     area_id: UUID
     progress_percentage: Decimal
-    notes: str | None = None
-    photos: list[str] | None = None
+    notes: Optional[str] = None
+    photos: Optional[list[str]] = None
     reported_at: datetime
-    reported_by: UserResponse | None = None
+    reported_by: Optional[UserResponse] = None
 
     class Config:
         from_attributes = True
@@ -35,43 +38,43 @@ class AreaProgressResponse(BaseModel):
 
 class AreaBase(BaseModel):
     name: str = Field(min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
-    area_type: str | None = Field(default=None, max_length=50)
-    floor_number: int | None = Field(default=None, ge=-99, le=999)
-    area_code: str | None = Field(default=None, max_length=MAX_CODE_LENGTH)
+    area_type: Optional[str] = Field(default=None, max_length=50)
+    floor_number: Optional[int] = Field(default=None, ge=-99, le=999)
+    area_code: Optional[str] = Field(default=None, max_length=MAX_CODE_LENGTH)
     total_units: int = Field(default=1, ge=1, le=10000)
 
     @field_validator('name', 'area_type', mode='before')
     @classmethod
-    def sanitize_text(cls, v: str | None) -> str | None:
+    def sanitize_text(cls, v: Optional[str]) -> Optional[str]:
         return sanitize_string(v)
 
     @field_validator('area_code', mode='before')
     @classmethod
-    def validate_area_code(cls, v: str | None) -> str | None:
+    def validate_area_code(cls, v: Optional[str]) -> Optional[str]:
         if v is None or v.strip() == '':
             return None
         return validate_code(v)
 
 
 class AreaCreate(AreaBase):
-    parent_id: UUID | None = None
+    parent_id: Optional[UUID] = None
 
 
 class AreaUpdate(BaseModel):
-    name: str | None = Field(default=None, min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
-    area_type: str | None = Field(default=None, max_length=50)
-    floor_number: int | None = Field(default=None, ge=-99, le=999)
-    area_code: str | None = Field(default=None, max_length=MAX_CODE_LENGTH)
-    total_units: int | None = Field(default=None, ge=1, le=10000)
+    name: Optional[str] = Field(default=None, min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
+    area_type: Optional[str] = Field(default=None, max_length=50)
+    floor_number: Optional[int] = Field(default=None, ge=-99, le=999)
+    area_code: Optional[str] = Field(default=None, max_length=MAX_CODE_LENGTH)
+    total_units: Optional[int] = Field(default=None, ge=1, le=10000)
 
     @field_validator('name', 'area_type', mode='before')
     @classmethod
-    def sanitize_text(cls, v: str | None) -> str | None:
+    def sanitize_text(cls, v: Optional[str]) -> Optional[str]:
         return sanitize_string(v)
 
     @field_validator('area_code', mode='before')
     @classmethod
-    def validate_area_code(cls, v: str | None) -> str | None:
+    def validate_area_code(cls, v: Optional[str]) -> Optional[str]:
         if v is None or v.strip() == '':
             return None
         return validate_code(v)
@@ -80,11 +83,11 @@ class AreaUpdate(BaseModel):
 class AreaResponse(BaseModel):
     id: UUID
     project_id: UUID
-    parent_id: UUID | None = None
+    parent_id: Optional[UUID] = None
     name: str
-    area_type: str | None = None
-    floor_number: int | None = None
-    area_code: str | None = None
+    area_type: Optional[str] = None
+    floor_number: Optional[int] = None
+    area_code: Optional[str] = None
     total_units: int = 1
     current_progress: Decimal = Decimal(0)
     created_at: datetime

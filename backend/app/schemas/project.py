@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 from uuid import UUID
 from datetime import datetime, date
+from typing import Optional
 from pydantic import BaseModel, Field, field_validator
 from app.schemas.user import UserResponse
 from app.core.validators import (
@@ -12,14 +15,14 @@ from app.core.validators import (
 class ProjectCreate(BaseModel):
     name: str = Field(min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
     code: str = Field(min_length=2, max_length=MAX_CODE_LENGTH)
-    description: str | None = Field(default=None, max_length=MAX_DESCRIPTION_LENGTH)
-    address: str | None = Field(default=None, max_length=MAX_ADDRESS_LENGTH)
-    start_date: date | None = None
-    estimated_end_date: date | None = None
+    description: Optional[str] = Field(default=None, max_length=MAX_DESCRIPTION_LENGTH)
+    address: Optional[str] = Field(default=None, max_length=MAX_ADDRESS_LENGTH)
+    start_date: Optional[date] = None
+    estimated_end_date: Optional[date] = None
 
     @field_validator('name', 'description', 'address', mode='before')
     @classmethod
-    def sanitize_text(cls, v: str | None) -> str | None:
+    def sanitize_text(cls, v: Optional[str]) -> Optional[str]:
         return sanitize_string(v)
 
     @field_validator('code', mode='before')
@@ -29,16 +32,16 @@ class ProjectCreate(BaseModel):
 
 
 class ProjectUpdate(BaseModel):
-    name: str | None = Field(default=None, min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
-    description: str | None = Field(default=None, max_length=MAX_DESCRIPTION_LENGTH)
-    address: str | None = Field(default=None, max_length=MAX_ADDRESS_LENGTH)
-    start_date: date | None = None
-    estimated_end_date: date | None = None
-    status: str | None = Field(default=None, max_length=50)
+    name: Optional[str] = Field(default=None, min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
+    description: Optional[str] = Field(default=None, max_length=MAX_DESCRIPTION_LENGTH)
+    address: Optional[str] = Field(default=None, max_length=MAX_ADDRESS_LENGTH)
+    start_date: Optional[date] = None
+    estimated_end_date: Optional[date] = None
+    status: Optional[str] = Field(default=None, max_length=50)
 
     @field_validator('name', 'description', 'address', mode='before')
     @classmethod
-    def sanitize_text(cls, v: str | None) -> str | None:
+    def sanitize_text(cls, v: Optional[str]) -> Optional[str]:
         return sanitize_string(v)
 
 
@@ -62,10 +65,10 @@ class ProjectResponse(BaseModel):
     id: UUID
     name: str
     code: str
-    description: str | None = None
-    address: str | None = None
-    start_date: date | None = None
-    estimated_end_date: date | None = None
+    description: Optional[str] = None
+    address: Optional[str] = None
+    start_date: Optional[date] = None
+    estimated_end_date: Optional[date] = None
     status: str
     created_at: datetime
     updated_at: datetime

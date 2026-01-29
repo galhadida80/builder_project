@@ -394,8 +394,6 @@ class TestS3StorageBackend:
             filename="test.bin",
             content_type=None
         )
-        # Manually set content_type to None to simulate missing content type
-        mock_file.content_type = None
 
         storage_path = "user123/test.bin"
         await s3_backend.save_file(mock_file, storage_path)

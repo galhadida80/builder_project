@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 import uuid
 from datetime import datetime
 from enum import Enum
+from typing import Optional
 from sqlalchemy import String, Text, DateTime, ForeignKey, Boolean
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -20,18 +23,18 @@ class Meeting(Base):
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     project_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("projects.id", ondelete="CASCADE"))
     title: Mapped[str] = mapped_column(String(255), nullable=False)
-    description: Mapped[str | None] = mapped_column(Text)
-    meeting_type: Mapped[str | None] = mapped_column(String(50))
-    location: Mapped[str | None] = mapped_column(String(255))
+    description: Mapped[Optional[str]] = mapped_column(Text)
+    meeting_type: Mapped[Optional[str]] = mapped_column(String(50))
+    location: Mapped[Optional[str]] = mapped_column(String(255))
     scheduled_date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
-    scheduled_time: Mapped[str | None] = mapped_column(String(20))
-    google_event_id: Mapped[str | None] = mapped_column(String(255))
-    summary: Mapped[str | None] = mapped_column(Text)
-    action_items: Mapped[dict | None] = mapped_column(JSONB, default=list)
+    scheduled_time: Mapped[Optional[str]] = mapped_column(String(20))
+    google_event_id: Mapped[Optional[str]] = mapped_column(String(255))
+    summary: Mapped[Optional[str]] = mapped_column(Text)
+    action_items: Mapped[Optional[dict]] = mapped_column(JSONB, default=list)
     status: Mapped[str] = mapped_column(String(50), default=MeetingStatus.SCHEDULED.value)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    created_by_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
+    created_by_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
 
     project = relationship("Project", back_populates="meetings")
     created_by = relationship("User", foreign_keys=[created_by_id])
@@ -43,8 +46,8 @@ class MeetingAttendee(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     meeting_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("meetings.id", ondelete="CASCADE"))
-    user_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
-    role: Mapped[str | None] = mapped_column(String(100))
+    user_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
+    role: Mapped[Optional[str]] = mapped_column(String(100))
     confirmed: Mapped[bool] = mapped_column(Boolean, default=False)
 
     meeting = relationship("Meeting", back_populates="attendees")

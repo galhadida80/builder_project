@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import re
-from typing import Annotated
+from typing import Annotated, Optional
 from pydantic import Field, field_validator
 from pydantic.functional_validators import BeforeValidator
 
@@ -19,7 +21,7 @@ DANGEROUS_PATTERNS = [
 ]
 
 
-def sanitize_string(value: str | None) -> str | None:
+def sanitize_string(value: Optional[str]) -> Optional[str]:
     if value is None:
         return None
     value = value.strip()
@@ -35,7 +37,7 @@ def validate_code(value: str) -> str:
     return value
 
 
-def validate_phone(value: str | None) -> str | None:
+def validate_phone(value: Optional[str]) -> Optional[str]:
     if value is None:
         return None
     value = value.strip()
@@ -45,14 +47,14 @@ def validate_phone(value: str | None) -> str | None:
 
 
 SanitizedStr = Annotated[str, BeforeValidator(sanitize_string)]
-SanitizedStrOptional = Annotated[str | None, BeforeValidator(sanitize_string)]
+SanitizedStrOptional = Annotated[Optional[str], BeforeValidator(sanitize_string)]
 CodeStr = Annotated[str, BeforeValidator(validate_code)]
-PhoneStr = Annotated[str | None, BeforeValidator(validate_phone)]
+PhoneStr = Annotated[Optional[str], BeforeValidator(validate_phone)]
 
 NameField = Annotated[str, Field(min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)]
 CodeField = Annotated[str, Field(min_length=2, max_length=MAX_CODE_LENGTH)]
-DescriptionField = Annotated[str | None, Field(max_length=MAX_DESCRIPTION_LENGTH)]
-NotesField = Annotated[str | None, Field(max_length=MAX_NOTES_LENGTH)]
-AddressField = Annotated[str | None, Field(max_length=MAX_ADDRESS_LENGTH)]
-PhoneField = Annotated[str | None, Field(max_length=MAX_PHONE_LENGTH)]
-ShortTextField = Annotated[str | None, Field(max_length=MAX_NAME_LENGTH)]
+DescriptionField = Annotated[Optional[str], Field(max_length=MAX_DESCRIPTION_LENGTH)]
+NotesField = Annotated[Optional[str], Field(max_length=MAX_NOTES_LENGTH)]
+AddressField = Annotated[Optional[str], Field(max_length=MAX_ADDRESS_LENGTH)]
+PhoneField = Annotated[Optional[str], Field(max_length=MAX_PHONE_LENGTH)]
+ShortTextField = Annotated[Optional[str], Field(max_length=MAX_NAME_LENGTH)]
