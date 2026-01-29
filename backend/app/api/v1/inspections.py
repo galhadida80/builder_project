@@ -34,6 +34,24 @@ async def list_inspections(project_id: UUID, db: AsyncSession = Depends(get_db))
     return result.scalars().all()
 
 
+@router.get("/projects/{project_id}/areas/{area_id}/inspections", response_model=list[ProjectInspectionResponse])
+async def list_area_inspections(
+    project_id: UUID,
+    area_id: UUID,
+    db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(
+        select(ProjectInspection)
+        .options(
+            selectinload(ProjectInspection.consultant_type),
+            selectinload(ProjectInspection.results)
+        )
+        .where(ProjectInspection.project_id == project_id, ProjectInspection.area_id == area_id)
+        .order_by(ProjectInspection.created_at.desc())
+    )
+    return result.scalars().all()
+
+
 @router.post("/projects/{project_id}/inspections", response_model=ProjectInspectionResponse)
 async def create_inspection(
     project_id: UUID,
