@@ -3,6 +3,7 @@ from datetime import datetime, date
 from enum import Enum
 from sqlalchemy import String, Text, DateTime, Integer, Boolean, ForeignKey, Date
 from sqlalchemy.dialects.postgresql import UUID, JSONB
+from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.session import Base
 
@@ -41,7 +42,7 @@ class InspectionStageTemplate(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     consultant_type_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("consultant_types.id", ondelete="CASCADE"))
-    stage_definitions: Mapped[dict | None] = mapped_column(JSONB, default=dict)
+    stage_definitions: Mapped[dict | None] = mapped_column(MutableDict.as_mutable(JSONB), default=dict)
     version: Mapped[int] = mapped_column(Integer, default=1)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
@@ -57,7 +58,7 @@ class ProjectInspection(Base):
     project_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("projects.id", ondelete="CASCADE"))
     consultant_type_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("consultant_types.id", ondelete="CASCADE"))
     area_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("construction_areas.id", ondelete="CASCADE"))
-    template_snapshot: Mapped[dict | None] = mapped_column(JSONB, default=dict)
+    template_snapshot: Mapped[dict | None] = mapped_column(MutableDict.as_mutable(JSONB), default=dict)
     status: Mapped[str] = mapped_column(String(50), default=InspectionStatus.SCHEDULED.value)
     scheduled_date: Mapped[date | None] = mapped_column(Date)
     assigned_inspector: Mapped[str | None] = mapped_column(String(255))
@@ -82,7 +83,7 @@ class InspectionResult(Base):
     inspector_name: Mapped[str | None] = mapped_column(String(255))
     result_status: Mapped[str] = mapped_column(String(50), default=ResultStatus.PENDING.value)
     findings: Mapped[str | None] = mapped_column(Text)
-    attachments: Mapped[dict | None] = mapped_column(JSONB, default=dict)
+    attachments: Mapped[dict | None] = mapped_column(MutableDict.as_mutable(JSONB), default=dict)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
