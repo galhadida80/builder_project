@@ -15,6 +15,13 @@ class InspectionStatus(str, Enum):
     APPROVED = "approved"
 
 
+class ResultStatus(str, Enum):
+    PENDING = "pending"
+    COMPLETED = "completed"
+    APPROVED = "approved"
+    REJECTED = "rejected"
+
+
 class ConsultantTypeBase(BaseModel):
     name: str = Field(min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
     description: str | None = Field(default=None, max_length=MAX_DESCRIPTION_LENGTH)
@@ -133,6 +140,59 @@ class ProjectInspectionResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     consultant_type: ConsultantTypeResponse | None = None
+
+    class Config:
+        from_attributes = True
+
+
+class InspectionResultBase(BaseModel):
+    inspection_id: UUID
+    stage_number: int = Field(ge=1, le=7)
+    completion_date: date | None = None
+    approval_date: date | None = None
+    inspector_name: str | None = Field(default=None, max_length=MAX_NAME_LENGTH)
+    result_status: ResultStatus = ResultStatus.PENDING
+    findings: str | None = Field(default=None, max_length=MAX_NOTES_LENGTH)
+    attachments: dict | None = None
+
+    @field_validator('inspector_name', 'findings', mode='before')
+    @classmethod
+    def sanitize_text(cls, v: str | None) -> str | None:
+        return sanitize_string(v)
+
+
+class InspectionResultCreate(InspectionResultBase):
+    pass
+
+
+class InspectionResultUpdate(BaseModel):
+    inspection_id: UUID | None = None
+    stage_number: int | None = Field(default=None, ge=1, le=7)
+    completion_date: date | None = None
+    approval_date: date | None = None
+    inspector_name: str | None = Field(default=None, max_length=MAX_NAME_LENGTH)
+    result_status: ResultStatus | None = None
+    findings: str | None = Field(default=None, max_length=MAX_NOTES_LENGTH)
+    attachments: dict | None = None
+
+    @field_validator('inspector_name', 'findings', mode='before')
+    @classmethod
+    def sanitize_text(cls, v: str | None) -> str | None:
+        return sanitize_string(v)
+
+
+class InspectionResultResponse(BaseModel):
+    id: UUID
+    inspection_id: UUID
+    stage_number: int
+    completion_date: date | None = None
+    approval_date: date | None = None
+    inspector_name: str | None = None
+    result_status: str
+    findings: str | None = None
+    attachments: dict | None = None
+    created_at: datetime
+    updated_at: datetime
 
     class Config:
         from_attributes = True
