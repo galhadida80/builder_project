@@ -94,3 +94,53 @@ class ChecklistSubSectionResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class ChecklistTemplateBase(BaseModel):
+    name: str = Field(min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
+    name_he: str = Field(min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
+    description: str | None = Field(default=None, max_length=MAX_DESCRIPTION_LENGTH)
+    description_he: str | None = Field(default=None, max_length=MAX_DESCRIPTION_LENGTH)
+    level: str | None = Field(default=None, max_length=50)
+    group_name: str | None = Field(default=None, max_length=MAX_NAME_LENGTH)
+    is_active: bool = Field(default=True)
+
+    @field_validator('name', 'name_he', 'description', 'description_he', 'level', 'group_name', mode='before')
+    @classmethod
+    def sanitize_text(cls, v: str | None) -> str | None:
+        return sanitize_string(v)
+
+
+class ChecklistTemplateCreate(ChecklistTemplateBase):
+    pass
+
+
+class ChecklistTemplateUpdate(BaseModel):
+    name: str | None = Field(default=None, min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
+    name_he: str | None = Field(default=None, min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
+    description: str | None = Field(default=None, max_length=MAX_DESCRIPTION_LENGTH)
+    description_he: str | None = Field(default=None, max_length=MAX_DESCRIPTION_LENGTH)
+    level: str | None = Field(default=None, max_length=50)
+    group_name: str | None = Field(default=None, max_length=MAX_NAME_LENGTH)
+    is_active: bool | None = Field(default=None)
+
+    @field_validator('name', 'name_he', 'description', 'description_he', 'level', 'group_name', mode='before')
+    @classmethod
+    def sanitize_text(cls, v: str | None) -> str | None:
+        return sanitize_string(v)
+
+
+class ChecklistTemplateResponse(BaseModel):
+    id: UUID
+    name: str
+    name_he: str
+    description: str | None = None
+    description_he: str | None = None
+    level: str | None = None
+    group_name: str | None = None
+    is_active: bool = True
+    created_at: datetime
+    sub_sections: list[ChecklistSubSectionResponse] = []
+
+    class Config:
+        from_attributes = True
