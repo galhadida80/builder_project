@@ -29,7 +29,7 @@ async def list_equipment_templates(db: AsyncSession = Depends(get_db)):
     return result.scalars().all()
 
 
-@router.post("/equipment-templates", response_model=EquipmentTemplateResponse)
+@router.post("/equipment-templates", response_model=EquipmentTemplateResponse, status_code=201)
 async def create_equipment_template(
     data: EquipmentTemplateCreate,
     db: AsyncSession = Depends(get_db),
@@ -93,10 +93,18 @@ async def delete_equipment_template(
     if not template:
         raise HTTPException(status_code=404, detail="Equipment template not found")
 
+    # Check for active submissions using this template
+    submissions_result = await db.execute(
+        select(EquipmentSubmission).where(EquipmentSubmission.template_id == template_id).limit(1)
+    )
+    if submissions_result.scalar_one_or_none():
+        raise HTTPException(status_code=400, detail="Cannot delete template with existing submissions")
+
     await create_audit_log(db, current_user, "equipment_template", template.id, AuditAction.DELETE,
                           old_values=get_model_dict(template))
 
     await db.delete(template)
+    await db.commit()
     return {"message": "Equipment template deleted"}
 
 
@@ -111,7 +119,7 @@ async def list_equipment_submissions(project_id: UUID, db: AsyncSession = Depend
     return result.scalars().all()
 
 
-@router.post("/projects/{project_id}/equipment-submissions", response_model=EquipmentSubmissionResponse)
+@router.post("/projects/{project_id}/equipment-submissions", response_model=EquipmentSubmissionResponse, status_code=201)
 async def create_equipment_submission(
     project_id: UUID,
     data: EquipmentSubmissionCreate,
@@ -155,6 +163,10 @@ async def update_equipment_submission(
     if not submission:
         raise HTTPException(status_code=404, detail="Equipment submission not found")
 
+    # Prevent updates to approved submissions
+    if submission.status == ApprovalStatus.APPROVED.value:
+        raise HTTPException(status_code=400, detail="Cannot modify approved submission")
+
     old_values = get_model_dict(submission)
     for key, value in data.model_dump(exclude_unset=True).items():
         setattr(submission, key, value)
@@ -182,10 +194,11 @@ async def delete_equipment_submission(
                           project_id=project_id, old_values=get_model_dict(submission))
 
     await db.delete(submission)
+    await db.commit()
     return {"message": "Equipment submission deleted"}
 
 
-@router.post("/equipment-submissions/{submission_id}/decisions", response_model=ApprovalDecisionResponse)
+@router.post("/equipment-submissions/{submission_id}/decisions", response_model=ApprovalDecisionResponse, status_code=201)
 async def create_approval_decision(
     submission_id: UUID,
     data: ApprovalDecisionCreate,

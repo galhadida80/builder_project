@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field, field_validator
 from app.schemas.user import UserResponse
 from app.core.validators import (
     sanitize_string,
+    CamelCaseModel,
     MIN_NAME_LENGTH, MAX_NAME_LENGTH, MAX_DESCRIPTION_LENGTH, MAX_NOTES_LENGTH
 )
 
@@ -36,7 +37,7 @@ class EquipmentSubmissionUpdate(BaseModel):
         return sanitize_string(v)
 
 
-class EquipmentSubmissionResponse(BaseModel):
+class EquipmentSubmissionResponse(CamelCaseModel):
     id: UUID
     project_id: UUID
     template_id: UUID
@@ -48,6 +49,3 @@ class EquipmentSubmissionResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     created_by: UserResponse | None = None
-
-    class Config:
-        from_attributes = True

@@ -1,7 +1,22 @@
 import re
 from typing import Annotated
-from pydantic import Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from pydantic.functional_validators import BeforeValidator
+
+
+def to_camel(string: str) -> str:
+    """Convert snake_case to camelCase"""
+    components = string.split('_')
+    return components[0] + ''.join(x.title() for x in components[1:])
+
+
+class CamelCaseModel(BaseModel):
+    """Base model that converts snake_case fields to camelCase in JSON responses"""
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True,
+        from_attributes=True
+    )
 
 MIN_NAME_LENGTH = 2
 MAX_NAME_LENGTH = 255
