@@ -120,8 +120,8 @@ export interface Meeting {
   description?: string
   meetingType?: 'site_inspection' | 'approval_meeting' | 'coordination' | 'safety_review' | 'other'
   location?: string
-  startTime: string
-  endTime: string
+  scheduledDate: string
+  scheduledTime?: string
   googleEventId?: string
   summary?: string
   actionItems?: ActionItem[]
