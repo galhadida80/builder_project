@@ -26,11 +26,13 @@ import { materialsApi } from '../api/materials'
 import StatusBadge from '../components/common/StatusBadge'
 import type { Material } from '../types'
 import { validateMaterialForm, hasErrors, VALIDATION, type ValidationError } from '../utils/validation'
+import { useToast } from '../components/common/ToastProvider'
 
 const materialTypes = ['Structural', 'Finishing', 'Safety', 'MEP', 'Insulation']
 
 export default function MaterialsPage() {
   const { projectId } = useParams()
+  const { showError, showSuccess } = useToast()
   const [loading, setLoading] = useState(true)
   const [materials, setMaterials] = useState<Material[]>([])
   const [search, setSearch] = useState('')
@@ -58,7 +60,7 @@ export default function MaterialsPage() {
       const data = await materialsApi.list(projectId)
       setMaterials(data)
     } catch (error) {
-      console.error('Failed to load materials:', error)
+      showError('Failed to load materials. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -85,10 +87,11 @@ export default function MaterialsPage() {
         storage_location: formData.storageLocation || undefined,
         notes: formData.notes || undefined
       })
+      showSuccess('Material created successfully!')
       handleCloseDialog()
       loadMaterials()
     } catch (error) {
-      console.error('Failed to create material:', error)
+      showError('Failed to create material. Please try again.')
     }
   }
 
