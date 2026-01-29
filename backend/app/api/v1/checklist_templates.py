@@ -201,3 +201,123 @@ async def delete_template(
 
     # Placeholder return until models are available
     raise HTTPException(status_code=404, detail="Template not found")
+
+
+@router.post("/checklist-templates/{template_id}/sections")
+async def add_section(
+    template_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Add a section to a checklist template.
+
+    Args:
+        template_id: Template UUID
+        db: Database session
+        current_user: Authenticated user
+
+    Returns:
+        Created section
+    """
+    # TODO: Import ChecklistTemplateSection model and schema when available
+    # from app.models.checklist_template import ChecklistTemplate, ChecklistTemplateSection
+    # from app.schemas.checklist_template import SectionCreate, SectionResponse
+
+    # TODO: Implement section creation logic
+    # # Verify template exists
+    # result = await db.execute(select(ChecklistTemplate).where(ChecklistTemplate.id == template_id))
+    # template = result.scalar_one_or_none()
+    # if not template:
+    #     raise HTTPException(status_code=404, detail="Template not found")
+    #
+    # section = ChecklistTemplateSection(template_id=template_id, **data.model_dump())
+    # db.add(section)
+    # await db.flush()
+    # await db.refresh(section)
+    # return section
+
+    # Placeholder return until models are available
+    return {"message": "Section creation not yet implemented"}
+
+
+@router.put("/checklist-templates/{template_id}/sections/{section_id}")
+async def update_section(
+    template_id: UUID,
+    section_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Update a section in a checklist template.
+
+    Args:
+        template_id: Template UUID
+        section_id: Section UUID
+        db: Database session
+        current_user: Authenticated user
+
+    Returns:
+        Updated section
+    """
+    # TODO: Import ChecklistTemplateSection model and schema when available
+    # from app.models.checklist_template import ChecklistTemplateSection
+    # from app.schemas.checklist_template import SectionUpdate, SectionResponse
+
+    # TODO: Implement section update logic
+    # result = await db.execute(
+    #     select(ChecklistTemplateSection).where(
+    #         ChecklistTemplateSection.id == section_id,
+    #         ChecklistTemplateSection.template_id == template_id
+    #     )
+    # )
+    # section = result.scalar_one_or_none()
+    # if not section:
+    #     raise HTTPException(status_code=404, detail="Section not found")
+    #
+    # for key, value in data.model_dump(exclude_unset=True).items():
+    #     setattr(section, key, value)
+    #
+    # await db.refresh(section)
+    # return section
+
+    # Placeholder return until models are available
+    raise HTTPException(status_code=404, detail="Section not found")
+
+
+@router.post("/checklist-templates/sections/{section_id}/items")
+async def add_item(
+    section_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Add an item to a checklist template section.
+
+    Args:
+        section_id: Section UUID
+        db: Database session
+        current_user: Authenticated user
+
+    Returns:
+        Created item
+    """
+    # TODO: Import ChecklistTemplateItem model and schema when available
+    # from app.models.checklist_template import ChecklistTemplateSection, ChecklistTemplateItem
+    # from app.schemas.checklist_template import ItemCreate, ItemResponse
+
+    # TODO: Implement item creation logic
+    # # Verify section exists
+    # result = await db.execute(select(ChecklistTemplateSection).where(ChecklistTemplateSection.id == section_id))
+    # section = result.scalar_one_or_none()
+    # if not section:
+    #     raise HTTPException(status_code=404, detail="Section not found")
+    #
+    # item = ChecklistTemplateItem(section_id=section_id, **data.model_dump())
+    # db.add(item)
+    # await db.flush()
+    # await db.refresh(item)
+    # return item
+
+    # Placeholder return until models are available
+    return {"message": "Item creation not yet implemented"}
