@@ -144,3 +144,94 @@ class ChecklistItemTemplateResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class ChecklistInstanceBase(BaseModel):
+    unit_identifier: str = Field(min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
+    status: str = Field(max_length=50)
+    metadata: dict | None = None
+
+    @field_validator('unit_identifier', 'status', mode='before')
+    @classmethod
+    def sanitize_text(cls, v: str | None) -> str | None:
+        return sanitize_string(v)
+
+
+class ChecklistInstanceCreate(ChecklistInstanceBase):
+    template_id: UUID
+
+
+class ChecklistInstanceUpdate(BaseModel):
+    unit_identifier: str | None = Field(default=None, min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
+    status: str | None = Field(default=None, max_length=50)
+    metadata: dict | None = None
+
+    @field_validator('unit_identifier', 'status', mode='before')
+    @classmethod
+    def sanitize_text(cls, v: str | None) -> str | None:
+        return sanitize_string(v)
+
+
+class ChecklistInstanceResponse(BaseModel):
+    id: UUID
+    template_id: UUID
+    project_id: UUID
+    unit_identifier: str
+    status: str
+    metadata: dict | None = None
+    created_at: datetime
+    updated_at: datetime
+    created_by: UserResponse | None = None
+    responses: list = []
+
+    class Config:
+        from_attributes = True
+
+
+class ChecklistItemResponseBase(BaseModel):
+    item_template_id: UUID
+    status: str = Field(max_length=50)
+    notes: str | None = Field(default=None, max_length=MAX_NOTES_LENGTH)
+    image_urls: list | None = None
+    signature_url: str | None = Field(default=None, max_length=500)
+    completed_at: datetime | None = None
+
+    @field_validator('status', 'notes', 'signature_url', mode='before')
+    @classmethod
+    def sanitize_text(cls, v: str | None) -> str | None:
+        return sanitize_string(v)
+
+
+class ChecklistItemResponseCreate(ChecklistItemResponseBase):
+    pass
+
+
+class ChecklistItemResponseUpdate(BaseModel):
+    item_template_id: UUID | None = None
+    status: str | None = Field(default=None, max_length=50)
+    notes: str | None = Field(default=None, max_length=MAX_NOTES_LENGTH)
+    image_urls: list | None = None
+    signature_url: str | None = Field(default=None, max_length=500)
+    completed_at: datetime | None = None
+
+    @field_validator('status', 'notes', 'signature_url', mode='before')
+    @classmethod
+    def sanitize_text(cls, v: str | None) -> str | None:
+        return sanitize_string(v)
+
+
+class ChecklistItemResponseResponse(BaseModel):
+    id: UUID
+    instance_id: UUID
+    item_template_id: UUID
+    status: str
+    notes: str | None = None
+    image_urls: list | None = None
+    signature_url: str | None = None
+    completed_at: datetime | None = None
+    completed_by_id: UUID | None = None
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
