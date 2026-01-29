@@ -1,0 +1,25 @@
+{
+  "active": true,
+  "spec": "014-1-5-create-alembic-migration-for-equipment-templat",
+  "state": "building",
+  "subtasks": {
+    "completed": 4,
+    "total": 5,
+    "in_progress": 1,
+    "failed": 0
+  },
+  "phase": {
+    "current": "Database Verification",
+    "id": null,
+    "total": 1
+  },
+  "workers": {
+    "active": 0,
+    "max": 1
+  },
+  "session": {
+    "number": 5,
+    "started_at": "2026-01-29T15:29:38.383287"
+  },
+  "last_update": "2026-01-29T15:40:01.104716"
+}

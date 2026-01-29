@@ -52,8 +52,34 @@ docker compose exec backend alembic current
 
 ## Verification Commands
 
-After applying the migration, verify the database schema:
+After applying the migration, verify the database schema using one of these methods:
 
+### Method 1: Automated Python Verification (Recommended)
+```bash
+cd backend
+python verify_equipment_templates_migration.py
+```
+
+This script will:
+- Check all 5 tables exist
+- Verify all foreign key constraints
+- Verify all 6 required indexes
+- Check Alembic migration version
+- Provide color-coded pass/fail results
+
+### Method 2: SQL Verification Script
+```bash
+psql -h localhost -U postgres -d builder_db -f backend/verify_equipment_templates_schema.sql
+```
+
+This will run a comprehensive SQL verification that checks:
+- Table existence
+- Column data types
+- Foreign key relationships and cascade rules
+- Index definitions
+- Summary of counts
+
+### Method 3: Manual psql Commands
 ```bash
 # Check tables exist
 psql -h localhost -U postgres -d builder_db -c "\dt" | grep -E "(consultant_types|equipment_templates|equipment_template_consultants|equipment_approval_submissions|equipment_approval_decisions)"
