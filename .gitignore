@@ -22,3 +22,6 @@ htmlcov/
 firebase-credentials.json
 gcs-credentials.json
 uploads/
+
+# Auto Claude data directory
+.auto-claude/
