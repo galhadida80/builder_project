@@ -4,11 +4,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from app.db.session import get_db
-from app.models.checklist import ChecklistTemplate, ChecklistSubSection
+from app.models.checklist import ChecklistTemplate, ChecklistSubSection, ChecklistItemTemplate
 from app.models.user import User
 from app.schemas.checklist import (
     ChecklistTemplateCreate, ChecklistTemplateUpdate, ChecklistTemplateResponse,
-    ChecklistSubSectionCreate, ChecklistSubSectionUpdate, ChecklistSubSectionResponse
+    ChecklistSubSectionCreate, ChecklistSubSectionUpdate, ChecklistSubSectionResponse,
+    ChecklistItemTemplateCreate, ChecklistItemTemplateUpdate, ChecklistItemTemplateResponse
 )
 from app.services.audit_service import create_audit_log, get_model_dict
 from app.models.audit import AuditAction
@@ -200,3 +201,91 @@ async def delete_checklist_subsection(
 
     await db.delete(subsection)
     return {"message": "Checklist subsection deleted"}
+
+
+@router.post("/subsections/{subsection_id}/items", response_model=ChecklistItemTemplateResponse, status_code=201)
+async def create_checklist_item_template(
+    subsection_id: UUID,
+    data: ChecklistItemTemplateCreate,
+    db: AsyncSession = Depends(get_db)
+):
+    # Verify subsection exists
+    result = await db.execute(select(ChecklistSubSection).where(ChecklistSubSection.id == subsection_id))
+    subsection = result.scalar_one_or_none()
+    if not subsection:
+        raise HTTPException(status_code=404, detail="Checklist subsection not found")
+
+    item = ChecklistItemTemplate(**data.model_dump(), subsection_id=subsection_id)
+    db.add(item)
+    await db.flush()
+    await db.refresh(item)
+    return item
+
+
+@router.get("/subsections/{subsection_id}/items", response_model=list[ChecklistItemTemplateResponse])
+async def list_checklist_item_templates(
+    subsection_id: UUID,
+    db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(
+        select(ChecklistItemTemplate)
+        .where(ChecklistItemTemplate.subsection_id == subsection_id)
+        .order_by(ChecklistItemTemplate.created_at)
+    )
+    return result.scalars().all()
+
+
+@router.get("/subsections/{subsection_id}/items/{item_id}", response_model=ChecklistItemTemplateResponse)
+async def get_checklist_item_template(
+    subsection_id: UUID,
+    item_id: UUID,
+    db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(
+        select(ChecklistItemTemplate)
+        .where(ChecklistItemTemplate.id == item_id, ChecklistItemTemplate.subsection_id == subsection_id)
+    )
+    item = result.scalar_one_or_none()
+    if not item:
+        raise HTTPException(status_code=404, detail="Checklist item template not found")
+    return item
+
+
+@router.put("/subsections/{subsection_id}/items/{item_id}", response_model=ChecklistItemTemplateResponse)
+async def update_checklist_item_template(
+    subsection_id: UUID,
+    item_id: UUID,
+    data: ChecklistItemTemplateUpdate,
+    db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(
+        select(ChecklistItemTemplate)
+        .where(ChecklistItemTemplate.id == item_id, ChecklistItemTemplate.subsection_id == subsection_id)
+    )
+    item = result.scalar_one_or_none()
+    if not item:
+        raise HTTPException(status_code=404, detail="Checklist item template not found")
+
+    for key, value in data.model_dump(exclude_unset=True).items():
+        setattr(item, key, value)
+
+    await db.refresh(item)
+    return item
+
+
+@router.delete("/subsections/{subsection_id}/items/{item_id}")
+async def delete_checklist_item_template(
+    subsection_id: UUID,
+    item_id: UUID,
+    db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(
+        select(ChecklistItemTemplate)
+        .where(ChecklistItemTemplate.id == item_id, ChecklistItemTemplate.subsection_id == subsection_id)
+    )
+    item = result.scalar_one_or_none()
+    if not item:
+        raise HTTPException(status_code=404, detail="Checklist item template not found")
+
+    await db.delete(item)
+    return {"message": "Checklist item template deleted"}
