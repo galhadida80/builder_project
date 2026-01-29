@@ -12,7 +12,7 @@ class ConsultantType(Base):
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     name_he: Mapped[str] = mapped_column(String(255), nullable=False)
-    category: Mapped[str] = mapped_column(String(100), index=True)
+    category: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -25,7 +25,7 @@ class EquipmentTemplate(Base):
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     name_he: Mapped[str] = mapped_column(String(255), nullable=False)
-    category: Mapped[str] = mapped_column(String(100), index=True)
+    category: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     required_documents: Mapped[list] = mapped_column(JSONB, default=list)
     required_specifications: Mapped[list] = mapped_column(JSONB, default=list)
