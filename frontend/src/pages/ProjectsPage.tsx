@@ -73,7 +73,7 @@ export default function ProjectsPage() {
         code: formData.code,
         description: formData.description || undefined,
         address: formData.address || undefined,
-        startDate: formData.startDate || undefined,
+        start_date: formData.startDate || undefined,
         estimated_end_date: formData.estimatedEndDate || undefined
       })
       setOpenDialog(false)
