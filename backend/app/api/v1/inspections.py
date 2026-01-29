@@ -124,7 +124,10 @@ async def create_inspection_result(
     if not inspection:
         raise HTTPException(status_code=404, detail="Inspection not found")
 
-    inspection_result = InspectionResult(**data.model_dump())
+    inspection_result = InspectionResult(
+        inspection_id=inspection_id,
+        **data.model_dump()
+    )
     db.add(inspection_result)
 
     await create_audit_log(
