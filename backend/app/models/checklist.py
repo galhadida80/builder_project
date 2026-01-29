@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from sqlalchemy import String, Integer, DateTime, ForeignKey
+from sqlalchemy import String, Integer, Boolean, Text, DateTime, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.session import Base
@@ -37,3 +37,22 @@ class ChecklistSubSection(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     template = relationship("ChecklistTemplate", back_populates="subsections")
+    items = relationship("ChecklistItemTemplate", back_populates="subsection", cascade="all, delete-orphan")
+
+
+class ChecklistItemTemplate(Base):
+    __tablename__ = "checklist_item_templates"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    subsection_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("checklist_subsections.id", ondelete="CASCADE"))
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    category: Mapped[str | None] = mapped_column(String(100))
+    description: Mapped[str | None] = mapped_column(Text)
+    must_image: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    must_note: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    must_signature: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    metadata: Mapped[dict | None] = mapped_column(JSONB, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    subsection = relationship("ChecklistSubSection", back_populates="items")
