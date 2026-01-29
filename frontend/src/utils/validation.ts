@@ -61,6 +61,28 @@ export const validatePositiveNumber = (value: number | undefined | null, fieldNa
   return null
 }
 
+export const validateDateRange = (
+  startDate: string | undefined | null,
+  endDate: string | undefined | null,
+  startFieldName: string,
+  endFieldName: string
+): string | null => {
+  if (!startDate || !endDate) return null
+
+  const start = new Date(startDate)
+  const end = new Date(endDate)
+
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+    return 'Invalid date format'
+  }
+
+  if (end < start) {
+    return `${endFieldName} must be after ${startFieldName}`
+  }
+
+  return null
+}
+
 export interface ValidationError {
   [field: string]: string | null
 }
