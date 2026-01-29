@@ -119,7 +119,8 @@ async def delete_checklist_template(
 async def create_checklist_subsection(
     template_id: UUID,
     data: ChecklistSubSectionCreate,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     # Verify template exists
     result = await db.execute(select(ChecklistTemplate).where(ChecklistTemplate.id == template_id))
@@ -130,6 +131,10 @@ async def create_checklist_subsection(
     subsection = ChecklistSubSection(**data.model_dump(), template_id=template_id)
     db.add(subsection)
     await db.flush()
+
+    await create_audit_log(db, current_user, "checklist_subsection", subsection.id, AuditAction.CREATE,
+                          project_id=template.project_id, new_values=get_model_dict(subsection))
+
     await db.refresh(subsection, ["items"])
     return subsection
 
@@ -170,7 +175,8 @@ async def update_checklist_subsection(
     template_id: UUID,
     subsection_id: UUID,
     data: ChecklistSubSectionUpdate,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     result = await db.execute(
         select(ChecklistSubSection)
@@ -180,8 +186,17 @@ async def update_checklist_subsection(
     if not subsection:
         raise HTTPException(status_code=404, detail="Checklist subsection not found")
 
+    old_values = get_model_dict(subsection)
+
     for key, value in data.model_dump(exclude_unset=True).items():
         setattr(subsection, key, value)
+
+    # Get template for project_id
+    template_result = await db.execute(select(ChecklistTemplate).where(ChecklistTemplate.id == template_id))
+    template = template_result.scalar_one()
+
+    await create_audit_log(db, current_user, "checklist_subsection", subsection.id, AuditAction.UPDATE,
+                          project_id=template.project_id, old_values=old_values, new_values=get_model_dict(subsection))
 
     await db.refresh(subsection, ["items"])
     return subsection
@@ -191,7 +206,8 @@ async def update_checklist_subsection(
 async def delete_checklist_subsection(
     template_id: UUID,
     subsection_id: UUID,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     result = await db.execute(
         select(ChecklistSubSection)
@@ -201,6 +217,13 @@ async def delete_checklist_subsection(
     if not subsection:
         raise HTTPException(status_code=404, detail="Checklist subsection not found")
 
+    # Get template for project_id
+    template_result = await db.execute(select(ChecklistTemplate).where(ChecklistTemplate.id == template_id))
+    template = template_result.scalar_one()
+
+    await create_audit_log(db, current_user, "checklist_subsection", subsection.id, AuditAction.DELETE,
+                          project_id=template.project_id, old_values=get_model_dict(subsection))
+
     await db.delete(subsection)
     return {"message": "Checklist subsection deleted"}
 
@@ -209,10 +232,15 @@ async def delete_checklist_subsection(
 async def create_checklist_item_template(
     subsection_id: UUID,
     data: ChecklistItemTemplateCreate,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     # Verify subsection exists
-    result = await db.execute(select(ChecklistSubSection).where(ChecklistSubSection.id == subsection_id))
+    result = await db.execute(
+        select(ChecklistSubSection)
+        .options(selectinload(ChecklistSubSection.template))
+        .where(ChecklistSubSection.id == subsection_id)
+    )
     subsection = result.scalar_one_or_none()
     if not subsection:
         raise HTTPException(status_code=404, detail="Checklist subsection not found")
@@ -220,6 +248,10 @@ async def create_checklist_item_template(
     item = ChecklistItemTemplate(**data.model_dump(), subsection_id=subsection_id)
     db.add(item)
     await db.flush()
+
+    await create_audit_log(db, current_user, "checklist_item_template", item.id, AuditAction.CREATE,
+                          project_id=subsection.template.project_id, new_values=get_model_dict(item))
+
     await db.refresh(item)
     return item
 
@@ -258,7 +290,8 @@ async def update_checklist_item_template(
     subsection_id: UUID,
     item_id: UUID,
     data: ChecklistItemTemplateUpdate,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     result = await db.execute(
         select(ChecklistItemTemplate)
@@ -268,8 +301,21 @@ async def update_checklist_item_template(
     if not item:
         raise HTTPException(status_code=404, detail="Checklist item template not found")
 
+    old_values = get_model_dict(item)
+
     for key, value in data.model_dump(exclude_unset=True).items():
         setattr(item, key, value)
+
+    # Get subsection and template for project_id
+    subsection_result = await db.execute(
+        select(ChecklistSubSection)
+        .options(selectinload(ChecklistSubSection.template))
+        .where(ChecklistSubSection.id == subsection_id)
+    )
+    subsection = subsection_result.scalar_one()
+
+    await create_audit_log(db, current_user, "checklist_item_template", item.id, AuditAction.UPDATE,
+                          project_id=subsection.template.project_id, old_values=old_values, new_values=get_model_dict(item))
 
     await db.refresh(item)
     return item
@@ -279,7 +325,8 @@ async def update_checklist_item_template(
 async def delete_checklist_item_template(
     subsection_id: UUID,
     item_id: UUID,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     result = await db.execute(
         select(ChecklistItemTemplate)
@@ -288,6 +335,17 @@ async def delete_checklist_item_template(
     item = result.scalar_one_or_none()
     if not item:
         raise HTTPException(status_code=404, detail="Checklist item template not found")
+
+    # Get subsection and template for project_id
+    subsection_result = await db.execute(
+        select(ChecklistSubSection)
+        .options(selectinload(ChecklistSubSection.template))
+        .where(ChecklistSubSection.id == subsection_id)
+    )
+    subsection = subsection_result.scalar_one()
+
+    await create_audit_log(db, current_user, "checklist_item_template", item.id, AuditAction.DELETE,
+                          project_id=subsection.template.project_id, old_values=get_model_dict(item))
 
     await db.delete(item)
     return {"message": "Checklist item template deleted"}
@@ -404,6 +462,10 @@ async def create_checklist_item_response(
     response = ChecklistItemResponse(**data.model_dump(), instance_id=instance_id, completed_by_id=current_user.id)
     db.add(response)
     await db.flush()
+
+    await create_audit_log(db, current_user, "checklist_item_response", response.id, AuditAction.CREATE,
+                          project_id=instance.project_id, new_values=get_model_dict(response))
+
     await db.refresh(response)
     return response
 
@@ -453,12 +515,21 @@ async def update_checklist_item_response(
     if not response:
         raise HTTPException(status_code=404, detail="Checklist item response not found")
 
+    old_values = get_model_dict(response)
+
     for key, value in data.model_dump(exclude_unset=True).items():
         setattr(response, key, value)
 
     # Update completed_by if status changes
     if data.status and response.status != data.status:
         response.completed_by_id = current_user.id
+
+    # Get instance for project_id
+    instance_result = await db.execute(select(ChecklistInstance).where(ChecklistInstance.id == instance_id))
+    instance = instance_result.scalar_one()
+
+    await create_audit_log(db, current_user, "checklist_item_response", response.id, AuditAction.UPDATE,
+                          project_id=instance.project_id, old_values=old_values, new_values=get_model_dict(response))
 
     await db.refresh(response)
     return response
@@ -468,7 +539,8 @@ async def update_checklist_item_response(
 async def delete_checklist_item_response(
     instance_id: UUID,
     response_id: UUID,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     result = await db.execute(
         select(ChecklistItemResponse)
@@ -477,6 +549,13 @@ async def delete_checklist_item_response(
     response = result.scalar_one_or_none()
     if not response:
         raise HTTPException(status_code=404, detail="Checklist item response not found")
+
+    # Get instance for project_id
+    instance_result = await db.execute(select(ChecklistInstance).where(ChecklistInstance.id == instance_id))
+    instance = instance_result.scalar_one()
+
+    await create_audit_log(db, current_user, "checklist_item_response", response.id, AuditAction.DELETE,
+                          project_id=instance.project_id, old_values=get_model_dict(response))
 
     await db.delete(response)
     return {"message": "Checklist item response deleted"}
