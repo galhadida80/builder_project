@@ -28,8 +28,10 @@ import { equipmentApi } from '../api/equipment'
 import { materialsApi } from '../api/materials'
 import StatusBadge from '../components/common/StatusBadge'
 import type { ApprovalRequest, ApprovalStep, Equipment, Material } from '../types'
+import { useToast } from '../components/common/ToastProvider'
 
 export default function ApprovalsPage() {
+  const { showError, showSuccess } = useToast()
   const [loading, setLoading] = useState(true)
   const [approvals, setApprovals] = useState<ApprovalRequest[]>([])
   const [equipment, setEquipment] = useState<Equipment[]>([])
@@ -56,7 +58,7 @@ export default function ApprovalsPage() {
       setEquipment(equipmentData)
       setMaterials(materialsData)
     } catch (error) {
-      console.error('Failed to load data:', error)
+      showError('Failed to load approvals. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -93,17 +95,19 @@ export default function ApprovalsPage() {
     try {
       if (actionType === 'approve') {
         await approvalsApi.approve(selectedApproval.id, comment || undefined)
+        showSuccess('Request approved successfully!')
       } else {
         await approvalsApi.reject(selectedApproval.id, comment)
+        showSuccess('Request rejected successfully!')
       }
+      setDialogOpen(false)
+      setSelectedApproval(null)
+      setActionType(null)
+      setComment('')
       loadData()
     } catch (error) {
-      console.error('Failed to submit action:', error)
+      showError('Failed to submit action. Please try again.')
     }
-    setDialogOpen(false)
-    setSelectedApproval(null)
-    setActionType(null)
-    setComment('')
   }
 
   if (loading) {
