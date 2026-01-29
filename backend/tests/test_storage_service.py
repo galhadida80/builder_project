@@ -737,23 +737,22 @@ class TestGetStorageBackend:
         - Backend is configured with correct local_storage_path
         """
         from app.config import Settings
+        from app.services.storage_service import _create_storage_backend
 
-        with patch('app.services.storage_service.get_settings') as mock_get_settings:
-            mock_settings = Settings(
-                environment="test",
-                debug=True,
-                database_url="postgresql+asyncpg://localhost/test",
-                database_url_sync="postgresql://localhost/test",
-                storage_type="local",
-                local_storage_path="/tmp/test_storage",
-            )
-            mock_get_settings.return_value = mock_settings
+        mock_settings = Settings(
+            environment="test",
+            debug=True,
+            database_url="postgresql+asyncpg://localhost/test",
+            database_url_sync="postgresql://localhost/test",
+            storage_type="local",
+            local_storage_path="/tmp/test_storage",
+        )
 
-            backend = get_storage_backend()
+        backend = _create_storage_backend(mock_settings)
 
-            # Verify correct backend type is returned
-            assert isinstance(backend, LocalStorageBackend)
-            assert backend.base_path == Path("/tmp/test_storage")
+        # Verify correct backend type is returned
+        assert isinstance(backend, LocalStorageBackend)
+        assert backend.base_path == Path("/tmp/test_storage")
 
     def test_get_storage_backend_returns_s3(self):
         """
@@ -764,29 +763,28 @@ class TestGetStorageBackend:
         - Backend is configured with correct S3 settings
         """
         from app.config import Settings
+        from app.services.storage_service import _create_storage_backend
 
-        with patch('app.services.storage_service.get_settings') as mock_get_settings:
-            mock_settings = Settings(
-                environment="test",
-                debug=True,
-                database_url="postgresql+asyncpg://localhost/test",
-                database_url_sync="postgresql://localhost/test",
-                storage_type="s3",
-                s3_bucket_name="test-bucket",
-                s3_region="us-west-2",
-                s3_access_key_id="test-access-key",
-                s3_secret_access_key="test-secret-key",
-            )
-            mock_get_settings.return_value = mock_settings
+        mock_settings = Settings(
+            environment="test",
+            debug=True,
+            database_url="postgresql+asyncpg://localhost/test",
+            database_url_sync="postgresql://localhost/test",
+            storage_type="s3",
+            s3_bucket_name="test-bucket",
+            s3_region="us-west-2",
+            s3_access_key_id="test-access-key",
+            s3_secret_access_key="test-secret-key",
+        )
 
-            backend = get_storage_backend()
+        backend = _create_storage_backend(mock_settings)
 
-            # Verify correct backend type is returned
-            assert isinstance(backend, S3StorageBackend)
-            assert backend.bucket_name == "test-bucket"
-            assert backend.region == "us-west-2"
-            assert backend.access_key_id == "test-access-key"
-            assert backend.secret_access_key == "test-secret-key"
+        # Verify correct backend type is returned
+        assert isinstance(backend, S3StorageBackend)
+        assert backend.bucket_name == "test-bucket"
+        assert backend.region == "us-west-2"
+        assert backend.access_key_id == "test-access-key"
+        assert backend.secret_access_key == "test-secret-key"
 
     def test_get_storage_backend_default_to_local(self):
         """
@@ -796,20 +794,19 @@ class TestGetStorageBackend:
         the factory returns LocalStorageBackend.
         """
         from app.config import Settings
+        from app.services.storage_service import _create_storage_backend
 
-        with patch('app.services.storage_service.get_settings') as mock_get_settings:
-            mock_settings = Settings(
-                environment="test",
-                debug=True,
-                database_url="postgresql+asyncpg://localhost/test",
-                database_url_sync="postgresql://localhost/test",
-                storage_type="unknown",  # Any value other than "s3"
-                local_storage_path="/tmp/fallback_storage",
-            )
-            mock_get_settings.return_value = mock_settings
+        mock_settings = Settings(
+            environment="test",
+            debug=True,
+            database_url="postgresql+asyncpg://localhost/test",
+            database_url_sync="postgresql://localhost/test",
+            storage_type="unknown",  # Any value other than "s3"
+            local_storage_path="/tmp/fallback_storage",
+        )
 
-            backend = get_storage_backend()
+        backend = _create_storage_backend(mock_settings)
 
-            # Verify LocalStorageBackend is returned as default
-            assert isinstance(backend, LocalStorageBackend)
-            assert backend.base_path == Path("/tmp/fallback_storage")
+        # Verify LocalStorageBackend is returned as default
+        assert isinstance(backend, LocalStorageBackend)
+        assert backend.base_path == Path("/tmp/fallback_storage")
