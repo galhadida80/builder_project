@@ -1,9 +1,24 @@
 import uuid
 from datetime import datetime
+from enum import Enum
 from sqlalchemy import String, Integer, Boolean, Text, DateTime, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.session import Base
+
+
+class ChecklistStatus(str, Enum):
+    PENDING = "pending"
+    IN_PROGRESS = "in_progress"
+    COMPLETED = "completed"
+    CANCELLED = "cancelled"
+
+
+class ItemResponseStatus(str, Enum):
+    PENDING = "pending"
+    APPROVED = "approved"
+    REJECTED = "rejected"
+    NOT_APPLICABLE = "not_applicable"
 
 
 class ChecklistTemplate(Base):
@@ -23,6 +38,7 @@ class ChecklistTemplate(Base):
     project = relationship("Project", back_populates="checklist_templates")
     created_by = relationship("User", foreign_keys=[created_by_id])
     subsections = relationship("ChecklistSubSection", back_populates="template", cascade="all, delete-orphan")
+    instances = relationship("ChecklistInstance", back_populates="template", cascade="all, delete-orphan")
 
 
 class ChecklistSubSection(Base):
@@ -56,3 +72,42 @@ class ChecklistItemTemplate(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     subsection = relationship("ChecklistSubSection", back_populates="items")
+
+
+class ChecklistInstance(Base):
+    __tablename__ = "checklist_instances"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    template_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("checklist_templates.id", ondelete="CASCADE"))
+    project_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("projects.id", ondelete="CASCADE"))
+    unit_identifier: Mapped[str] = mapped_column(String(255), nullable=False)
+    status: Mapped[str] = mapped_column(String(50), default=ChecklistStatus.PENDING.value)
+    metadata: Mapped[dict | None] = mapped_column(JSONB, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_by_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
+
+    template = relationship("ChecklistTemplate", back_populates="instances")
+    project = relationship("Project")
+    created_by = relationship("User", foreign_keys=[created_by_id])
+    responses = relationship("ChecklistItemResponse", back_populates="instance", cascade="all, delete-orphan")
+
+
+class ChecklistItemResponse(Base):
+    __tablename__ = "checklist_item_responses"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    instance_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("checklist_instances.id", ondelete="CASCADE"))
+    item_template_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("checklist_item_templates.id", ondelete="CASCADE"))
+    status: Mapped[str] = mapped_column(String(50), default=ItemResponseStatus.PENDING.value)
+    notes: Mapped[str | None] = mapped_column(Text)
+    image_urls: Mapped[list | None] = mapped_column(JSONB, default=list)
+    signature_url: Mapped[str | None] = mapped_column(String(500))
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime)
+    completed_by_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    instance = relationship("ChecklistInstance", back_populates="responses")
+    item_template = relationship("ChecklistItemTemplate")
+    completed_by = relationship("User", foreign_keys=[completed_by_id])
