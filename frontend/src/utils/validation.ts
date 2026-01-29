@@ -77,7 +77,7 @@ export const validateDateRange = (
   }
 
   if (end < start) {
-    return `${endFieldName} must be after ${startFieldName}`
+    return `${endFieldName} must be after or equal to ${startFieldName}`
   }
 
   return null
