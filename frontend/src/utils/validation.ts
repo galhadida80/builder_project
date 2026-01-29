@@ -143,6 +143,34 @@ export const validateMeetingForm = (data: { title?: string; description?: string
   return errors
 }
 
+export const validateAreaForm = (data: { name?: string; areaCode?: string; description?: string; floorNumber?: number | string; totalUnits?: number | string }): ValidationError => {
+  const errors: ValidationError = {}
+
+  errors.name = validateRequired(data.name, 'Area Name')
+    || validateMinLength(data.name, VALIDATION.MIN_NAME_LENGTH, 'Area Name')
+    || validateMaxLength(data.name, VALIDATION.MAX_NAME_LENGTH, 'Area Name')
+
+  errors.areaCode = validateCode(data.areaCode, 'Area Code')
+    || validateMaxLength(data.areaCode, VALIDATION.MAX_CODE_LENGTH, 'Area Code')
+
+  errors.description = validateMaxLength(data.description, VALIDATION.MAX_DESCRIPTION_LENGTH, 'Description')
+
+  errors.floorNumber = validateInteger(data.floorNumber, 'Floor Number')
+
+  errors.totalUnits = validateInteger(data.totalUnits, 'Total Units')
+    || validatePositiveNumber(typeof data.totalUnits === 'string' ? Number(data.totalUnits) : data.totalUnits, 'Total Units')
+
+  // Additional check to ensure totalUnits is greater than zero (not just non-negative)
+  if (data.totalUnits !== undefined && data.totalUnits !== null && data.totalUnits !== '') {
+    const num = typeof data.totalUnits === 'string' ? Number(data.totalUnits) : data.totalUnits
+    if (!isNaN(num) && num <= 0) {
+      errors.totalUnits = 'Total Units must be greater than zero'
+    }
+  }
+
+  return errors
+}
+
 export const hasErrors = (errors: ValidationError): boolean => {
   return Object.values(errors).some(error => error !== null)
 }
