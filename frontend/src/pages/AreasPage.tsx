@@ -113,6 +113,25 @@ export default function AreasPage() {
     loadAreas()
   }, [projectId])
 
+  const getAllAreas = (areas: ConstructionArea[]): ConstructionArea[] => {
+    const flatList: ConstructionArea[] = []
+    const flatten = (areaList: ConstructionArea[]) => {
+      areaList.forEach(area => {
+        flatList.push(area)
+        if (area.children && area.children.length > 0) {
+          flatten(area.children)
+        }
+      })
+    }
+    flatten(areas)
+    return flatList
+  }
+
+  const validateAreaCodeUniqueness = (areaCode: string): boolean => {
+    const allAreas = getAllAreas(areas)
+    return !allAreas.some(area => area.areaCode.toLowerCase() === areaCode.toLowerCase())
+  }
+
   const loadAreas = async () => {
     try {
       setLoading(true)
