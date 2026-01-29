@@ -25,7 +25,7 @@ import EditIcon from '@mui/icons-material/Edit'
 import { materialsApi } from '../api/materials'
 import StatusBadge from '../components/common/StatusBadge'
 import type { Material } from '../types'
-import { validateMaterialForm, hasErrors, VALIDATION, type ValidationError } from '../utils/validation'
+import { validateMaterialForm, hasErrors, VALIDATION, validateFutureDate, type ValidationError } from '../utils/validation'
 
 const materialTypes = ['Structural', 'Finishing', 'Safety', 'MEP', 'Insulation']
 
@@ -71,8 +71,12 @@ export default function MaterialsPage() {
       notes: formData.notes,
       quantity: formData.quantity ? parseFloat(formData.quantity) : undefined
     })
+    const dateWarning = validateFutureDate(formData.expectedDelivery, 'Expected Delivery Date')
+    validationErrors.expectedDelivery = dateWarning
     setErrors(validationErrors)
-    if (hasErrors(validationErrors)) return
+    const blockingErrors = { ...validationErrors }
+    delete blockingErrors.expectedDelivery
+    if (hasErrors(blockingErrors)) return
     try {
       await materialsApi.create(projectId, {
         name: formData.name,
@@ -242,6 +246,7 @@ export default function MaterialsPage() {
             InputLabelProps={{ shrink: true }}
             value={formData.expectedDelivery}
             onChange={(e) => setFormData({ ...formData, expectedDelivery: e.target.value })}
+            helperText={errors.expectedDelivery}
           />
           <TextField
             fullWidth

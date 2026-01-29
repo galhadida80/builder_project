@@ -74,6 +74,22 @@ export const validatePastDate = (value: string | Date | undefined | null, fieldN
   return null
 }
 
+export const validateFutureDate = (value: string | Date | undefined | null, fieldName: string): string | null => {
+  if (!value) return null
+
+  const date = typeof value === 'string' ? new Date(value) : value
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const inputDate = new Date(date)
+  inputDate.setHours(0, 0, 0, 0)
+
+  if (inputDate < today) {
+    return `Warning: ${fieldName} is in the past`
+  }
+
+  return null
+}
+
 export interface ValidationError {
   [field: string]: string | null
 }
