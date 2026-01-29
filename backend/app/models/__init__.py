@@ -2,6 +2,7 @@ from app.models.user import User
 from app.models.project import Project, ProjectMember
 from app.models.contact import Contact
 from app.models.equipment import Equipment, EquipmentChecklist
+from app.models.equipment_template import EquipmentTemplate
 from app.models.material import Material
 from app.models.meeting import Meeting, MeetingAttendee
 from app.models.approval import ApprovalRequest, ApprovalStep
@@ -16,6 +17,7 @@ __all__ = [
     "Contact",
     "Equipment",
     "EquipmentChecklist",
+    "EquipmentTemplate",
     "Material",
     "Meeting",
     "MeetingAttendee",
