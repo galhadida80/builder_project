@@ -37,7 +37,9 @@ import SendIcon from '@mui/icons-material/Send'
 import { equipmentApi } from '../api/equipment'
 import { filesApi } from '../api/files'
 import StatusBadge from '../components/common/StatusBadge'
-import type { Equipment, FileAttachment } from '../types'
+import { formatFileSize } from '../utils/fileUtils'
+import type { Equipment } from '../types'
+import type { FileRecord } from '../api/files'
 import { validateEquipmentForm, hasErrors, VALIDATION, type ValidationError } from '../utils/validation'
 
 const equipmentTypes = ['Heavy Machinery', 'Lifting Equipment', 'Power Equipment', 'Safety Equipment', 'Tools']
@@ -59,7 +61,7 @@ export default function EquipmentPage() {
     serialNumber: '',
     notes: ''
   })
-  const [files, setFiles] = useState<FileAttachment[]>([])
+  const [files, setFiles] = useState<FileRecord[]>([])
   const [filesLoading, setFilesLoading] = useState(false)
   const [filesError, setFilesError] = useState<string | null>(null)
 
@@ -256,7 +258,7 @@ export default function EquipmentPage() {
                     <ListItemIcon><DescriptionIcon /></ListItemIcon>
                     <ListItemText
                       primary={file.filename}
-                      secondary={`${file.fileType?.toUpperCase() || 'FILE'} - ${file.fileSize ? (file.fileSize / (1024 * 1024)).toFixed(1) : '0.0'} MB`}
+                      secondary={`${file.fileType.toUpperCase()} - ${formatFileSize(file.fileSize)}`}
                     />
                   </ListItem>
                 ))}
