@@ -27,7 +27,7 @@ import FoundationIcon from '@mui/icons-material/Foundation'
 import EditIcon from '@mui/icons-material/Edit'
 import { areasApi } from '../api/areas'
 import type { ConstructionArea, AreaStatus } from '../types'
-import { validateRequired, validateCode, validateInteger, validatePositiveNumber, validateMinLength, validateMaxLength, VALIDATION, type ValidationError } from '../utils/validation'
+import { validateRequired, validateCode, validateInteger, validatePositiveNumber, validateMinLength, validateMaxLength, validateAreaForm, hasErrors, VALIDATION, type ValidationError } from '../utils/validation'
 
 const areaTypes = [
   { value: 'apartment', label: 'Apartment', icon: <ApartmentIcon /> },
@@ -181,6 +181,28 @@ export default function AreasPage() {
 
   const handleCreateArea = async () => {
     if (!projectId) return
+
+    // Validate all fields
+    const validationErrors = validateAreaForm({
+      name: formData.name,
+      areaCode: formData.areaCode,
+      floorNumber: formData.floorNumber,
+      totalUnits: formData.totalUnits
+    })
+
+    // Add uniqueness check for area code
+    if (formData.areaCode && !validateAreaCodeUniqueness(formData.areaCode)) {
+      validationErrors.areaCode = 'Area Code already exists'
+    }
+
+    // Update error state
+    setErrors(validationErrors)
+
+    // Prevent submission if there are errors
+    if (hasErrors(validationErrors)) {
+      return
+    }
+
     try {
       await areasApi.create(projectId, {
         name: formData.name,
@@ -261,7 +283,7 @@ export default function AreasPage() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => { setDialogOpen(false); setErrors({ name: null, areaCode: null, floorNumber: null, totalUnits: null }) }}>Cancel</Button>
-          <Button variant="contained" onClick={handleCreateArea}>Add Area</Button>
+          <Button variant="contained" onClick={handleCreateArea} disabled={hasErrors(errors)}>Add Area</Button>
         </DialogActions>
       </Dialog>
     </Box>
