@@ -46,3 +46,33 @@ class ConsultantTypeResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class InspectionStageTemplateBase(BaseModel):
+    consultant_type_id: UUID
+    stage_definitions: dict | None = None
+    version: int = Field(default=1, ge=1)
+    is_active: bool = True
+
+
+class InspectionStageTemplateCreate(InspectionStageTemplateBase):
+    pass
+
+
+class InspectionStageTemplateUpdate(BaseModel):
+    stage_definitions: dict | None = None
+    version: int | None = Field(default=None, ge=1)
+    is_active: bool | None = None
+
+
+class InspectionStageTemplateResponse(BaseModel):
+    id: UUID
+    consultant_type_id: UUID
+    stage_definitions: dict | None = None
+    version: int
+    is_active: bool
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
