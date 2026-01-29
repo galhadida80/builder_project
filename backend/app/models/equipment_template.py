@@ -41,3 +41,18 @@ class EquipmentApprovalSubmission(Base):
     project = relationship("Project", back_populates="equipment_approval_submissions")
     submitted_by = relationship("User", foreign_keys=[submitted_by_id])
     decisions = relationship("EquipmentApprovalDecision", back_populates="submission", cascade="all, delete-orphan")
+
+
+class EquipmentApprovalDecision(Base):
+    __tablename__ = "equipment_approval_decisions"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    submission_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("equipment_approval_submissions.id", ondelete="CASCADE"))
+    decision_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    reviewer_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
+    reviewer_role: Mapped[str] = mapped_column(String(50), nullable=False)
+    comments: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+    submission = relationship("EquipmentApprovalSubmission", back_populates="decisions")
+    reviewer = relationship("User", foreign_keys=[reviewer_id])
