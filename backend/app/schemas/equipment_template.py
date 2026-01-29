@@ -143,3 +143,27 @@ class EquipmentApprovalSubmissionResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class EquipmentApprovalDecisionCreate(BaseModel):
+    submission_id: UUID
+    decision: Literal["approved", "rejected"]
+    comments: str | None = Field(default=None, max_length=MAX_NOTES_LENGTH)
+
+    @field_validator('comments', mode='before')
+    @classmethod
+    def sanitize_text(cls, v: str | None) -> str | None:
+        return sanitize_string(v)
+
+
+class EquipmentApprovalDecisionResponse(BaseModel):
+    id: UUID
+    submission_id: UUID
+    decision: str
+    comments: str | None = None
+    decided_at: datetime
+    decided_by: UserResponse | None = None
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
