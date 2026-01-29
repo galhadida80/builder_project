@@ -49,7 +49,7 @@ class ChecklistTemplateResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     created_by: UserResponse | None = None
-    subsections: list = []
+    subsections: list["ChecklistSubSectionResponse"] = []
 
     class Config:
         from_attributes = True
@@ -89,7 +89,7 @@ class ChecklistSubSectionResponse(BaseModel):
     metadata: dict | None = None
     created_at: datetime
     updated_at: datetime
-    items: list = []
+    items: list["ChecklistItemTemplateResponse"] = []
 
     class Config:
         from_attributes = True
@@ -182,7 +182,7 @@ class ChecklistInstanceResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     created_by: UserResponse | None = None
-    responses: list = []
+    responses: list["ChecklistItemResponseResponse"] = []
 
     class Config:
         from_attributes = True
@@ -235,3 +235,9 @@ class ChecklistItemResponseResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+# Update forward references for nested relationships
+ChecklistSubSectionResponse.model_rebuild()
+ChecklistTemplateResponse.model_rebuild()
+ChecklistInstanceResponse.model_rebuild()
