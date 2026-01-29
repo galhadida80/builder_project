@@ -107,7 +107,7 @@ export const validateEquipmentForm = (data: { name?: string; notes?: string }): 
   return errors
 }
 
-export const validateMaterialForm = (data: { name?: string; notes?: string; quantity?: number }): ValidationError => {
+export const validateMaterialForm = (data: { name?: string; notes?: string; quantity?: number; expectedDelivery?: string | Date }): ValidationError => {
   const errors: ValidationError = {}
 
   errors.name = validateRequired(data.name, 'Material Name')
