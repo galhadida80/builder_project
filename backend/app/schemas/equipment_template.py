@@ -167,3 +167,14 @@ class EquipmentApprovalDecisionResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class ConsultantTypeResponse(BaseModel):
+    id: UUID
+    name: str
+    name_he: str
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
