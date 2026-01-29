@@ -179,3 +179,38 @@ class ChecklistInstanceResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class ChecklistItemResponseCreate(BaseModel):
+    instance_id: UUID
+    item_template_id: UUID
+    is_completed: bool = Field(default=False)
+    response_text: str | None = Field(default=None, max_length=MAX_DESCRIPTION_LENGTH)
+
+    @field_validator('response_text', mode='before')
+    @classmethod
+    def sanitize_text(cls, v: str | None) -> str | None:
+        return sanitize_string(v)
+
+
+class ChecklistItemResponseUpdate(BaseModel):
+    is_completed: bool | None = None
+    response_text: str | None = Field(default=None, max_length=MAX_DESCRIPTION_LENGTH)
+
+    @field_validator('response_text', mode='before')
+    @classmethod
+    def sanitize_text(cls, v: str | None) -> str | None:
+        return sanitize_string(v)
+
+
+class ChecklistItemResponseResponse(BaseModel):
+    id: UUID
+    instance_id: UUID
+    item_template_id: UUID
+    is_completed: bool = False
+    response_text: str | None = None
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
