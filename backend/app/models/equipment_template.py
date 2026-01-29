@@ -48,11 +48,12 @@ class EquipmentApprovalDecision(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     submission_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("equipment_approval_submissions.id", ondelete="CASCADE"))
-    decision_type: Mapped[str] = mapped_column(String(50), nullable=False)
-    reviewer_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
-    reviewer_role: Mapped[str] = mapped_column(String(50), nullable=False)
+    # TODO: consultant_type_id depends on ConsultantType model (to be created in separate task)
+    consultant_type_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("consultant_types.id", ondelete="SET NULL"))
+    approver_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
+    decision: Mapped[str] = mapped_column(String(50), nullable=False)
     comments: Mapped[str | None] = mapped_column(Text)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    decided_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     submission = relationship("EquipmentApprovalSubmission", back_populates="decisions")
-    reviewer = relationship("User", foreign_keys=[reviewer_id])
+    approver = relationship("User", foreign_keys=[approver_id])

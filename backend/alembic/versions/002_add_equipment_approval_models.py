@@ -39,11 +39,12 @@ def upgrade() -> None:
         'equipment_approval_decisions',
         sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True),
         sa.Column('submission_id', postgresql.UUID(as_uuid=True), sa.ForeignKey('equipment_approval_submissions.id', ondelete='CASCADE'), nullable=False),
-        sa.Column('decision_type', sa.String(50), nullable=False),
-        sa.Column('reviewer_id', postgresql.UUID(as_uuid=True), sa.ForeignKey('users.id')),
-        sa.Column('reviewer_role', sa.String(50), nullable=False),
+        # TODO: Add FK constraint to consultant_types.id when ConsultantType model is created
+        sa.Column('consultant_type_id', postgresql.UUID(as_uuid=True)),
+        sa.Column('approver_id', postgresql.UUID(as_uuid=True), sa.ForeignKey('users.id')),
+        sa.Column('decision', sa.String(50), nullable=False),
         sa.Column('comments', sa.Text()),
-        sa.Column('created_at', sa.DateTime(), server_default=sa.func.now()),
+        sa.Column('decided_at', sa.DateTime(), server_default=sa.func.now()),
     )
 
 
