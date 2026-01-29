@@ -56,3 +56,54 @@ class ChecklistItemDefinition(BaseModel):
     @classmethod
     def sanitize_text(cls, v: str | None) -> str | None:
         return sanitize_string(v)
+
+
+class EquipmentTemplateBase(BaseModel):
+    name: str = Field(min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
+    name_he: str = Field(min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
+    category: str | None = Field(default=None, max_length=MAX_NAME_LENGTH)
+    description: str | None = Field(default=None, max_length=MAX_DESCRIPTION_LENGTH)
+    documents: list[DocumentDefinition] = []
+    specifications: list[SpecificationDefinition] = []
+    checklist_items: list[ChecklistItemDefinition] = []
+
+    @field_validator('name', 'name_he', 'category', 'description', mode='before')
+    @classmethod
+    def sanitize_text(cls, v: str | None) -> str | None:
+        return sanitize_string(v)
+
+
+class EquipmentTemplateCreate(EquipmentTemplateBase):
+    pass
+
+
+class EquipmentTemplateUpdate(BaseModel):
+    name: str | None = Field(default=None, min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
+    name_he: str | None = Field(default=None, min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
+    category: str | None = Field(default=None, max_length=MAX_NAME_LENGTH)
+    description: str | None = Field(default=None, max_length=MAX_DESCRIPTION_LENGTH)
+    documents: list[DocumentDefinition] | None = None
+    specifications: list[SpecificationDefinition] | None = None
+    checklist_items: list[ChecklistItemDefinition] | None = None
+
+    @field_validator('name', 'name_he', 'category', 'description', mode='before')
+    @classmethod
+    def sanitize_text(cls, v: str | None) -> str | None:
+        return sanitize_string(v)
+
+
+class EquipmentTemplateResponse(BaseModel):
+    id: UUID
+    name: str
+    name_he: str
+    category: str | None = None
+    description: str | None = None
+    documents: list[DocumentDefinition] = []
+    specifications: list[SpecificationDefinition] = []
+    checklist_items: list[ChecklistItemDefinition] = []
+    created_at: datetime
+    updated_at: datetime
+    created_by: UserResponse | None = None
+
+    class Config:
+        from_attributes = True
