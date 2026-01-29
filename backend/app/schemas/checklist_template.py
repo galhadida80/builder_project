@@ -144,3 +144,38 @@ class ChecklistTemplateResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class ChecklistInstanceCreate(BaseModel):
+    project_id: UUID
+    template_id: UUID
+    status: str | None = Field(default=None, max_length=50)
+    notes: str | None = Field(default=None, max_length=MAX_DESCRIPTION_LENGTH)
+
+    @field_validator('status', 'notes', mode='before')
+    @classmethod
+    def sanitize_text(cls, v: str | None) -> str | None:
+        return sanitize_string(v)
+
+
+class ChecklistInstanceUpdate(BaseModel):
+    status: str | None = Field(default=None, max_length=50)
+    notes: str | None = Field(default=None, max_length=MAX_DESCRIPTION_LENGTH)
+
+    @field_validator('status', 'notes', mode='before')
+    @classmethod
+    def sanitize_text(cls, v: str | None) -> str | None:
+        return sanitize_string(v)
+
+
+class ChecklistInstanceResponse(BaseModel):
+    id: UUID
+    project_id: UUID
+    template_id: UUID
+    status: str | None = None
+    notes: str | None = None
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
