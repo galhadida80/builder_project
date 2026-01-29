@@ -397,3 +397,82 @@ async def create_instance(
 
     # Placeholder return until models are available
     return {"message": "Instance creation not yet implemented"}
+
+
+@router.get("/checklist-instances/{instance_id}")
+async def get_instance(
+    instance_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Get a specific checklist instance by ID.
+
+    Args:
+        instance_id: Instance UUID
+        db: Database session
+        current_user: Authenticated user
+
+    Returns:
+        Checklist instance with nested responses
+    """
+    # TODO: Import ChecklistInstance model and schema when available
+    # from app.models.checklist_instance import ChecklistInstance
+    # from app.schemas.checklist_instance import ChecklistInstanceResponse
+
+    # TODO: Implement get logic with selectinload for nested resources
+    # result = await db.execute(
+    #     select(ChecklistInstance)
+    #     .options(selectinload(ChecklistInstance.created_by), selectinload(ChecklistInstance.responses))
+    #     .where(ChecklistInstance.id == instance_id)
+    # )
+    # instance = result.scalar_one_or_none()
+    # if not instance:
+    #     raise HTTPException(status_code=404, detail="Instance not found")
+    # return instance
+
+    # Placeholder return until models are available
+    raise HTTPException(status_code=404, detail="Instance not found")
+
+
+@router.put("/checklist-instances/{instance_id}")
+async def update_instance(
+    instance_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Update a checklist instance.
+
+    Args:
+        instance_id: Instance UUID
+        db: Database session
+        current_user: Authenticated user
+
+    Returns:
+        Updated checklist instance
+    """
+    # TODO: Import ChecklistInstance model and schema when available
+    # from app.models.checklist_instance import ChecklistInstance
+    # from app.schemas.checklist_instance import ChecklistInstanceUpdate, ChecklistInstanceResponse
+    # from app.services.audit_service import create_audit_log, get_model_dict
+    # from app.models.audit import AuditAction
+
+    # TODO: Implement update logic with audit logging
+    # result = await db.execute(select(ChecklistInstance).where(ChecklistInstance.id == instance_id))
+    # instance = result.scalar_one_or_none()
+    # if not instance:
+    #     raise HTTPException(status_code=404, detail="Instance not found")
+    #
+    # old_values = get_model_dict(instance)
+    # for key, value in data.model_dump(exclude_unset=True).items():
+    #     setattr(instance, key, value)
+    #
+    # await create_audit_log(db, current_user, "checklist_instance", instance.id, AuditAction.UPDATE,
+    #                       old_values=old_values, new_values=get_model_dict(instance))
+    #
+    # await db.refresh(instance, ["created_by", "responses"])
+    # return instance
+
+    # Placeholder return until models are available
+    raise HTTPException(status_code=404, detail="Instance not found")
