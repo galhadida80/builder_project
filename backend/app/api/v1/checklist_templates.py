@@ -476,3 +476,128 @@ async def update_instance(
 
     # Placeholder return until models are available
     raise HTTPException(status_code=404, detail="Instance not found")
+
+
+@router.post("/checklist-instances/{instance_id}/responses")
+async def upsert_response(
+    instance_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Upsert a response for a checklist instance item.
+
+    Creates a new response if one doesn't exist for the given item_id,
+    or updates the existing response if it does.
+
+    Args:
+        instance_id: Instance UUID
+        db: Database session
+        current_user: Authenticated user
+
+    Returns:
+        Created or updated response
+    """
+    # TODO: Import ChecklistResponse model and schema when available
+    # from app.models.checklist_instance import ChecklistInstance, ChecklistResponse
+    # from app.schemas.checklist_instance import ResponseUpsert, ResponseResponse
+    # from app.services.audit_service import create_audit_log, get_model_dict
+    # from app.models.audit import AuditAction
+
+    # TODO: Implement upsert logic
+    # # Verify instance exists
+    # result = await db.execute(select(ChecklistInstance).where(ChecklistInstance.id == instance_id))
+    # instance = result.scalar_one_or_none()
+    # if not instance:
+    #     raise HTTPException(status_code=404, detail="Instance not found")
+    #
+    # # Check if response already exists for this item_id
+    # existing_response = await db.execute(
+    #     select(ChecklistResponse).where(
+    #         ChecklistResponse.instance_id == instance_id,
+    #         ChecklistResponse.item_id == data.item_id
+    #     )
+    # )
+    # response = existing_response.scalar_one_or_none()
+    #
+    # if response:
+    #     # Update existing response
+    #     old_values = get_model_dict(response)
+    #     for key, value in data.model_dump(exclude_unset=True).items():
+    #         setattr(response, key, value)
+    #
+    #     await create_audit_log(db, current_user, "checklist_response", response.id, AuditAction.UPDATE,
+    #                           project_id=instance.project_id, old_values=old_values, new_values=get_model_dict(response))
+    # else:
+    #     # Create new response
+    #     response = ChecklistResponse(
+    #         instance_id=instance_id,
+    #         responder_id=current_user.id,
+    #         **data.model_dump()
+    #     )
+    #     db.add(response)
+    #     await db.flush()
+    #
+    #     await create_audit_log(db, current_user, "checklist_response", response.id, AuditAction.CREATE,
+    #                           project_id=instance.project_id, new_values=get_model_dict(response))
+    #
+    # await db.refresh(response, ["responder"])
+    # return response
+
+    # Placeholder return until models are available
+    return {"message": "Response upsert not yet implemented"}
+
+
+@router.put("/checklist-instances/{instance_id}/responses/{response_id}")
+async def update_response(
+    instance_id: UUID,
+    response_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Update a specific checklist response.
+
+    Args:
+        instance_id: Instance UUID
+        response_id: Response UUID
+        db: Database session
+        current_user: Authenticated user
+
+    Returns:
+        Updated response
+    """
+    # TODO: Import ChecklistResponse model and schema when available
+    # from app.models.checklist_instance import ChecklistInstance, ChecklistResponse
+    # from app.schemas.checklist_instance import ResponseUpdate, ResponseResponse
+    # from app.services.audit_service import create_audit_log, get_model_dict
+    # from app.models.audit import AuditAction
+
+    # TODO: Implement update logic with audit logging
+    # result = await db.execute(
+    #     select(ChecklistResponse).where(
+    #         ChecklistResponse.id == response_id,
+    #         ChecklistResponse.instance_id == instance_id
+    #     )
+    # )
+    # response = result.scalar_one_or_none()
+    # if not response:
+    #     raise HTTPException(status_code=404, detail="Response not found")
+    #
+    # # Get the instance for project_id (needed for audit logging)
+    # instance_result = await db.execute(select(ChecklistInstance).where(ChecklistInstance.id == instance_id))
+    # instance = instance_result.scalar_one_or_none()
+    #
+    # old_values = get_model_dict(response)
+    # for key, value in data.model_dump(exclude_unset=True).items():
+    #     setattr(response, key, value)
+    #
+    # await create_audit_log(db, current_user, "checklist_response", response.id, AuditAction.UPDATE,
+    #                       project_id=instance.project_id if instance else None,
+    #                       old_values=old_values, new_values=get_model_dict(response))
+    #
+    # await db.refresh(response, ["responder"])
+    # return response
+
+    # Placeholder return until models are available
+    raise HTTPException(status_code=404, detail="Response not found")
