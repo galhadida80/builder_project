@@ -25,6 +25,7 @@ import { materialsApi } from '../api/materials'
 import { meetingsApi } from '../api/meetings'
 import { approvalsApi } from '../api/approvals'
 import { auditApi } from '../api/audit'
+import { useToast } from '../components/common/ToastProvider'
 
 interface StatCardProps {
   title: string
@@ -60,6 +61,7 @@ function StatCard({ title, value, subtitle, icon, color }: StatCardProps) {
 }
 
 export default function DashboardPage() {
+  const { showError } = useToast()
   const [loading, setLoading] = useState(true)
   const [equipment, setEquipment] = useState<Equipment[]>([])
   const [materials, setMaterials] = useState<Material[]>([])
@@ -75,11 +77,11 @@ export default function DashboardPage() {
     try {
       setLoading(true)
       const [equipmentData, materialsData, meetingsData, approvalsData, auditData] = await Promise.all([
-        equipmentApi.list().catch(() => []),
-        materialsApi.list().catch(() => []),
-        meetingsApi.list().catch(() => []),
-        approvalsApi.list().catch(() => []),
-        auditApi.listAll({ limit: 10 }).catch(() => [])
+        equipmentApi.list(),
+        materialsApi.list(),
+        meetingsApi.list(),
+        approvalsApi.list(),
+        auditApi.listAll({ limit: 10 })
       ])
       setEquipment(equipmentData)
       setMaterials(materialsData)
@@ -87,7 +89,7 @@ export default function DashboardPage() {
       setApprovals(approvalsData)
       setAuditLogs(auditData)
     } catch (error) {
-      console.error('Failed to load dashboard data:', error)
+      showError('Failed to load dashboard data. Please refresh the page.')
     } finally {
       setLoading(false)
     }
