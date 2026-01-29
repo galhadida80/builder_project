@@ -11,6 +11,7 @@ import Alert from '@mui/material/Alert'
 import CircularProgress from '@mui/material/CircularProgress'
 import BuildIcon from '@mui/icons-material/Build'
 import GoogleIcon from '@mui/icons-material/Google'
+import { authApi } from '../api/auth'
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -25,7 +26,9 @@ export default function LoginPage() {
     setError(null)
 
     try {
-      localStorage.setItem('authToken', 'dev-token')
+      const response = await authApi.login(email, password)
+      localStorage.setItem('authToken', response.accessToken)
+      localStorage.setItem('userId', response.user.id)
       navigate('/dashboard')
     } catch {
       setError('Invalid email or password')
@@ -39,6 +42,7 @@ export default function LoginPage() {
     setError(null)
 
     try {
+      // TODO: Implement Google OAuth authentication (out of scope for BUI-8)
       await new Promise(resolve => setTimeout(resolve, 1000))
       localStorage.setItem('authToken', 'dev-token')
       navigate('/dashboard')
