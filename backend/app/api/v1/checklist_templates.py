@@ -321,3 +321,79 @@ async def add_item(
 
     # Placeholder return until models are available
     return {"message": "Item creation not yet implemented"}
+
+
+# =============================================================================
+# Instance Management Endpoints (Project-Scoped)
+# =============================================================================
+
+
+@router.get("/projects/{project_id}/checklist-instances")
+async def list_project_instances(
+    project_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    List all checklist instances for a specific project.
+
+    Args:
+        project_id: Project UUID
+        db: Database session
+        current_user: Authenticated user
+
+    Returns:
+        List of checklist instances scoped to the project
+    """
+    # TODO: Import ChecklistInstance model when available
+    # from app.models.checklist_instance import ChecklistInstance
+
+    # TODO: Build query with project scoping
+    # result = await db.execute(
+    #     select(ChecklistInstance)
+    #     .options(selectinload(ChecklistInstance.created_by), selectinload(ChecklistInstance.responses))
+    #     .where(ChecklistInstance.project_id == project_id)
+    #     .order_by(ChecklistInstance.created_at.desc())
+    # )
+    # return result.scalars().all()
+
+    # Placeholder return until models are available
+    return []
+
+
+@router.post("/projects/{project_id}/checklist-instances")
+async def create_instance(
+    project_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Create a new checklist instance from a template for a project.
+
+    Args:
+        project_id: Project UUID
+        db: Database session
+        current_user: Authenticated user
+
+    Returns:
+        Created checklist instance with all sections and items copied from template
+    """
+    # TODO: Import ChecklistInstance model and schema when available
+    # from app.models.checklist_instance import ChecklistInstance
+    # from app.schemas.checklist_instance import ChecklistInstanceCreate, ChecklistInstanceResponse
+    # from app.services.audit_service import create_audit_log, get_model_dict
+    # from app.models.audit import AuditAction
+
+    # TODO: Implement create logic with audit logging
+    # instance = ChecklistInstance(**data.model_dump(), project_id=project_id, created_by_id=current_user.id)
+    # db.add(instance)
+    # await db.flush()
+    #
+    # await create_audit_log(db, current_user, "checklist_instance", instance.id, AuditAction.CREATE,
+    #                       project_id=project_id, new_values=get_model_dict(instance))
+    #
+    # await db.refresh(instance, ["created_by", "responses"])
+    # return instance
+
+    # Placeholder return until models are available
+    return {"message": "Instance creation not yet implemented"}
