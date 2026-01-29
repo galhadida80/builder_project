@@ -1,0 +1,25 @@
+{
+  "active": true,
+  "spec": "025-no-error-handling-feedback-when-api-calls-fail",
+  "state": "building",
+  "subtasks": {
+    "completed": 4,
+    "total": 13,
+    "in_progress": 1,
+    "failed": 0
+  },
+  "phase": {
+    "current": "Page-Level Error Handling",
+    "id": null,
+    "total": 5
+  },
+  "workers": {
+    "active": 0,
+    "max": 1
+  },
+  "session": {
+    "number": 5,
+    "started_at": "2026-01-29T16:48:51.082806"
+  },
+  "last_update": "2026-01-29T16:57:07.007911"
+}
