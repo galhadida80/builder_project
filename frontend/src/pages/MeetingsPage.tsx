@@ -28,6 +28,7 @@ import SyncIcon from '@mui/icons-material/Sync'
 import EditIcon from '@mui/icons-material/Edit'
 import { meetingsApi } from '../api/meetings'
 import type { Meeting } from '../types'
+import { useToast } from '../components/common/ToastProvider'
 
 const meetingTypes = [
   { value: 'site_inspection', label: 'Site Inspection' },
@@ -39,6 +40,7 @@ const meetingTypes = [
 
 export default function MeetingsPage() {
   const { projectId } = useParams()
+  const { showError, showSuccess } = useToast()
   const [loading, setLoading] = useState(true)
   const [meetings, setMeetings] = useState<Meeting[]>([])
   const [tabValue, setTabValue] = useState(0)
@@ -65,7 +67,7 @@ export default function MeetingsPage() {
       const data = await meetingsApi.list(projectId)
       setMeetings(data)
     } catch (error) {
-      console.error('Failed to load meetings:', error)
+      showError('Failed to load meetings. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -81,11 +83,12 @@ export default function MeetingsPage() {
         location: formData.location || undefined,
         scheduledDate: formData.date ? `${formData.date}T${formData.startTime || '09:00'}:00Z` : undefined
       })
+      showSuccess('Meeting created successfully!')
       setDialogOpen(false)
       setFormData({ title: '', meetingType: '', description: '', location: '', date: '', startTime: '', endTime: '' })
       loadMeetings()
     } catch (error) {
-      console.error('Failed to create meeting:', error)
+      showError('Failed to create meeting. Please try again.')
     }
   }
 
