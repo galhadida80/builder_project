@@ -61,6 +61,17 @@ export const validatePositiveNumber = (value: number | undefined | null, fieldNa
   return null
 }
 
+export const validateInteger = (value: number | string | undefined | null, fieldName: string): string | null => {
+  if (value === undefined || value === null || value === '') {
+    return null
+  }
+  const num = typeof value === 'string' ? Number(value) : value
+  if (isNaN(num) || !Number.isInteger(num)) {
+    return `${fieldName} must be a whole number`
+  }
+  return null
+}
+
 export interface ValidationError {
   [field: string]: string | null
 }
