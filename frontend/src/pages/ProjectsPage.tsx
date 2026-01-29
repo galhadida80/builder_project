@@ -72,9 +72,9 @@ export default function ProjectsPage() {
         name: formData.name,
         code: formData.code,
         description: formData.description || undefined,
-        location: formData.address || undefined,
+        address: formData.address || undefined,
         startDate: formData.startDate || undefined,
-        expectedEndDate: formData.estimatedEndDate || undefined
+        estimated_end_date: formData.estimatedEndDate || undefined
       })
       setOpenDialog(false)
       setFormData({ name: '', code: '', description: '', address: '', startDate: '', estimatedEndDate: '' })
