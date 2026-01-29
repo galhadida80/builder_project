@@ -8,3 +8,10 @@ from app.schemas.approval import ApprovalRequestResponse, ApprovalStepResponse
 from app.schemas.area import AreaCreate, AreaUpdate, AreaResponse, AreaProgressCreate, AreaProgressResponse
 from app.schemas.file import FileResponse
 from app.schemas.audit import AuditLogResponse
+from app.schemas.checklist import (
+    ChecklistTemplateCreate, ChecklistTemplateUpdate, ChecklistTemplateResponse,
+    ChecklistSubSectionCreate, ChecklistSubSectionUpdate, ChecklistSubSectionResponse,
+    ChecklistItemTemplateCreate, ChecklistItemTemplateUpdate, ChecklistItemTemplateResponse,
+    ChecklistInstanceCreate, ChecklistInstanceUpdate, ChecklistInstanceResponse,
+    ChecklistItemResponseCreate, ChecklistItemResponseUpdate, ChecklistItemResponseResponse
+)
