@@ -8,3 +8,10 @@ from app.schemas.approval import ApprovalRequestResponse, ApprovalStepResponse
 from app.schemas.area import AreaCreate, AreaUpdate, AreaResponse, AreaProgressCreate, AreaProgressResponse
 from app.schemas.file import FileResponse
 from app.schemas.audit import AuditLogResponse
+from app.schemas.inspection import (
+    ConsultantTypeCreate, ConsultantTypeUpdate, ConsultantTypeResponse,
+    InspectionStageTemplateCreate, InspectionStageTemplateUpdate, InspectionStageTemplateResponse,
+    ProjectInspectionCreate, ProjectInspectionUpdate, ProjectInspectionResponse,
+    InspectionResultCreate, InspectionResultUpdate, InspectionResultResponse,
+    InspectionStatus, ResultStatus
+)
