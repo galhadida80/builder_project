@@ -4,13 +4,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from app.db.session import get_db
-from app.models.checklist import ChecklistTemplate, ChecklistSubSection, ChecklistItemTemplate, ChecklistInstance
+from app.models.checklist import ChecklistTemplate, ChecklistSubSection, ChecklistItemTemplate, ChecklistInstance, ChecklistItemResponse
 from app.models.user import User
 from app.schemas.checklist import (
     ChecklistTemplateCreate, ChecklistTemplateUpdate, ChecklistTemplateResponse,
     ChecklistSubSectionCreate, ChecklistSubSectionUpdate, ChecklistSubSectionResponse,
     ChecklistItemTemplateCreate, ChecklistItemTemplateUpdate, ChecklistItemTemplateResponse,
-    ChecklistInstanceCreate, ChecklistInstanceUpdate, ChecklistInstanceResponse
+    ChecklistInstanceCreate, ChecklistInstanceUpdate, ChecklistInstanceResponse,
+    ChecklistItemResponseCreate, ChecklistItemResponseUpdate, ChecklistItemResponseResponse
 )
 from app.services.audit_service import create_audit_log, get_model_dict
 from app.models.audit import AuditAction
@@ -385,3 +386,97 @@ async def delete_checklist_instance(
 
     await db.delete(checklist_instance)
     return {"message": "Checklist instance deleted"}
+
+
+@router.post("/checklist-instances/{instance_id}/responses", response_model=ChecklistItemResponseResponse, status_code=201)
+async def create_checklist_item_response(
+    instance_id: UUID,
+    data: ChecklistItemResponseCreate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    # Verify instance exists
+    result = await db.execute(select(ChecklistInstance).where(ChecklistInstance.id == instance_id))
+    instance = result.scalar_one_or_none()
+    if not instance:
+        raise HTTPException(status_code=404, detail="Checklist instance not found")
+
+    response = ChecklistItemResponse(**data.model_dump(), instance_id=instance_id, completed_by_id=current_user.id)
+    db.add(response)
+    await db.flush()
+    await db.refresh(response)
+    return response
+
+
+@router.get("/checklist-instances/{instance_id}/responses", response_model=list[ChecklistItemResponseResponse])
+async def list_checklist_item_responses(
+    instance_id: UUID,
+    db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(
+        select(ChecklistItemResponse)
+        .where(ChecklistItemResponse.instance_id == instance_id)
+        .order_by(ChecklistItemResponse.created_at)
+    )
+    return result.scalars().all()
+
+
+@router.get("/checklist-instances/{instance_id}/responses/{response_id}", response_model=ChecklistItemResponseResponse)
+async def get_checklist_item_response(
+    instance_id: UUID,
+    response_id: UUID,
+    db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(
+        select(ChecklistItemResponse)
+        .where(ChecklistItemResponse.id == response_id, ChecklistItemResponse.instance_id == instance_id)
+    )
+    response = result.scalar_one_or_none()
+    if not response:
+        raise HTTPException(status_code=404, detail="Checklist item response not found")
+    return response
+
+
+@router.put("/checklist-instances/{instance_id}/responses/{response_id}", response_model=ChecklistItemResponseResponse)
+async def update_checklist_item_response(
+    instance_id: UUID,
+    response_id: UUID,
+    data: ChecklistItemResponseUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    result = await db.execute(
+        select(ChecklistItemResponse)
+        .where(ChecklistItemResponse.id == response_id, ChecklistItemResponse.instance_id == instance_id)
+    )
+    response = result.scalar_one_or_none()
+    if not response:
+        raise HTTPException(status_code=404, detail="Checklist item response not found")
+
+    for key, value in data.model_dump(exclude_unset=True).items():
+        setattr(response, key, value)
+
+    # Update completed_by if status changes
+    if data.status and response.status != data.status:
+        response.completed_by_id = current_user.id
+
+    await db.refresh(response)
+    return response
+
+
+@router.delete("/checklist-instances/{instance_id}/responses/{response_id}")
+async def delete_checklist_item_response(
+    instance_id: UUID,
+    response_id: UUID,
+    db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(
+        select(ChecklistItemResponse)
+        .where(ChecklistItemResponse.id == response_id, ChecklistItemResponse.instance_id == instance_id)
+    )
+    response = result.scalar_one_or_none()
+    if not response:
+        raise HTTPException(status_code=404, detail="Checklist item response not found")
+
+    await db.delete(response)
+    return {"message": "Checklist item response deleted"}
