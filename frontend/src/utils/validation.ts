@@ -6,6 +6,7 @@ export const VALIDATION = {
   MAX_NOTES_LENGTH: 5000,
   MAX_PHONE_LENGTH: 30,
   MAX_ADDRESS_LENGTH: 500,
+  MAX_SERIAL_NUMBER_LENGTH: 100,
 }
 
 export const validateRequired = (value: string | undefined | null, fieldName: string): string | null => {
@@ -30,6 +31,15 @@ export const validateMaxLength = (value: string | undefined | null, max: number,
 }
 
 export const validateCode = (value: string | undefined | null, fieldName: string): string | null => {
+  if (!value) return null
+  const trimmed = value.trim()
+  if (!/^[A-Za-z0-9][A-Za-z0-9\-_]*[A-Za-z0-9]?$/.test(trimmed)) {
+    return `${fieldName} must contain only letters, numbers, hyphens, and underscores`
+  }
+  return null
+}
+
+export const validateSerialNumber = (value: string | undefined | null, fieldName: string): string | null => {
   if (!value) return null
   const trimmed = value.trim()
   if (!/^[A-Za-z0-9][A-Za-z0-9\-_]*[A-Za-z0-9]?$/.test(trimmed)) {
@@ -82,12 +92,15 @@ export const validateProjectForm = (data: { name?: string; code?: string; descri
   return errors
 }
 
-export const validateEquipmentForm = (data: { name?: string; notes?: string }): ValidationError => {
+export const validateEquipmentForm = (data: { name?: string; notes?: string; serial_number?: string }): ValidationError => {
   const errors: ValidationError = {}
 
   errors.name = validateRequired(data.name, 'Equipment Name')
     || validateMinLength(data.name, VALIDATION.MIN_NAME_LENGTH, 'Equipment Name')
     || validateMaxLength(data.name, VALIDATION.MAX_NAME_LENGTH, 'Equipment Name')
+
+  errors.serial_number = validateSerialNumber(data.serial_number, 'Serial Number')
+    || validateMaxLength(data.serial_number, VALIDATION.MAX_SERIAL_NUMBER_LENGTH, 'Serial Number')
 
   errors.notes = validateMaxLength(data.notes, VALIDATION.MAX_NOTES_LENGTH, 'Notes')
 
