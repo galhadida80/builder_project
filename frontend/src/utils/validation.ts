@@ -61,6 +61,19 @@ export const validatePositiveNumber = (value: number | undefined | null, fieldNa
   return null
 }
 
+export const validatePastDate = (value: string | Date | undefined | null, fieldName: string): string | null => {
+  if (!value) return null
+
+  const date = typeof value === 'string' ? new Date(value) : value
+  const now = new Date()
+
+  if (date > now) {
+    return `${fieldName} cannot be in the future`
+  }
+
+  return null
+}
+
 export interface ValidationError {
   [field: string]: string | null
 }
