@@ -27,6 +27,7 @@ import FoundationIcon from '@mui/icons-material/Foundation'
 import EditIcon from '@mui/icons-material/Edit'
 import { areasApi } from '../api/areas'
 import type { ConstructionArea, AreaStatus } from '../types'
+import { useToast } from '../components/common/ToastProvider'
 
 const areaTypes = [
   { value: 'apartment', label: 'Apartment', icon: <ApartmentIcon /> },
@@ -104,6 +105,7 @@ function AreaNode({ area, level }: AreaNodeProps) {
 
 export default function AreasPage() {
   const { projectId } = useParams()
+  const { showError, showSuccess } = useToast()
   const [loading, setLoading] = useState(true)
   const [areas, setAreas] = useState<ConstructionArea[]>([])
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -119,7 +121,7 @@ export default function AreasPage() {
       const data = await areasApi.list(projectId)
       setAreas(data)
     } catch (error) {
-      console.error('Failed to load areas:', error)
+      showError('Failed to load areas. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -136,11 +138,12 @@ export default function AreasPage() {
         floorNumber: formData.floorNumber ? parseInt(formData.floorNumber) : undefined,
         totalUnits: formData.totalUnits ? parseInt(formData.totalUnits) : undefined
       })
+      showSuccess('Area created successfully!')
       setDialogOpen(false)
       setFormData({ name: '', areaCode: '', areaType: '', parentId: '', floorNumber: '', totalUnits: '' })
       loadAreas()
     } catch (error) {
-      console.error('Failed to create area:', error)
+      showError('Failed to create area. Please try again.')
     }
   }
 
