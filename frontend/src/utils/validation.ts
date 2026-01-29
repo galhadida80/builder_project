@@ -92,15 +92,15 @@ export const validateProjectForm = (data: { name?: string; code?: string; descri
   return errors
 }
 
-export const validateEquipmentForm = (data: { name?: string; notes?: string; serial_number?: string }): ValidationError => {
+export const validateEquipmentForm = (data: { name?: string; notes?: string; serialNumber?: string }): ValidationError => {
   const errors: ValidationError = {}
 
   errors.name = validateRequired(data.name, 'Equipment Name')
     || validateMinLength(data.name, VALIDATION.MIN_NAME_LENGTH, 'Equipment Name')
     || validateMaxLength(data.name, VALIDATION.MAX_NAME_LENGTH, 'Equipment Name')
 
-  errors.serial_number = validateSerialNumber(data.serial_number, 'Serial Number')
-    || validateMaxLength(data.serial_number, VALIDATION.MAX_SERIAL_NUMBER_LENGTH, 'Serial Number')
+  errors.serialNumber = validateSerialNumber(data.serialNumber, 'Serial Number')
+    || validateMaxLength(data.serialNumber, VALIDATION.MAX_SERIAL_NUMBER_LENGTH, 'Serial Number')
 
   errors.notes = validateMaxLength(data.notes, VALIDATION.MAX_NOTES_LENGTH, 'Notes')
 
