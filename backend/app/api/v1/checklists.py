@@ -4,12 +4,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from app.db.session import get_db
-from app.models.checklist import ChecklistTemplate, ChecklistSubSection, ChecklistItemTemplate
+from app.models.checklist import ChecklistTemplate, ChecklistSubSection, ChecklistItemTemplate, ChecklistInstance
 from app.models.user import User
 from app.schemas.checklist import (
     ChecklistTemplateCreate, ChecklistTemplateUpdate, ChecklistTemplateResponse,
     ChecklistSubSectionCreate, ChecklistSubSectionUpdate, ChecklistSubSectionResponse,
-    ChecklistItemTemplateCreate, ChecklistItemTemplateUpdate, ChecklistItemTemplateResponse
+    ChecklistItemTemplateCreate, ChecklistItemTemplateUpdate, ChecklistItemTemplateResponse,
+    ChecklistInstanceCreate, ChecklistInstanceUpdate, ChecklistInstanceResponse
 )
 from app.services.audit_service import create_audit_log, get_model_dict
 from app.models.audit import AuditAction
@@ -289,3 +290,98 @@ async def delete_checklist_item_template(
 
     await db.delete(item)
     return {"message": "Checklist item template deleted"}
+
+
+@router.get("/checklist-instances", response_model=list[ChecklistInstanceResponse])
+async def list_all_checklist_instances(db: AsyncSession = Depends(get_db)):
+    result = await db.execute(
+        select(ChecklistInstance)
+        .options(selectinload(ChecklistInstance.created_by), selectinload(ChecklistInstance.responses))
+        .order_by(ChecklistInstance.created_at.desc())
+    )
+    return result.scalars().all()
+
+
+@router.get("/projects/{project_id}/checklist-instances", response_model=list[ChecklistInstanceResponse])
+async def list_checklist_instances(project_id: UUID, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(
+        select(ChecklistInstance)
+        .options(selectinload(ChecklistInstance.created_by), selectinload(ChecklistInstance.responses))
+        .where(ChecklistInstance.project_id == project_id)
+        .order_by(ChecklistInstance.created_at.desc())
+    )
+    return result.scalars().all()
+
+
+@router.post("/projects/{project_id}/checklist-instances", response_model=ChecklistInstanceResponse, status_code=201)
+async def create_checklist_instance(
+    project_id: UUID,
+    data: ChecklistInstanceCreate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    checklist_instance = ChecklistInstance(**data.model_dump(), project_id=project_id, created_by_id=current_user.id)
+    db.add(checklist_instance)
+    await db.flush()
+
+    await create_audit_log(db, current_user, "checklist_instance", checklist_instance.id, AuditAction.CREATE,
+                          project_id=project_id, new_values=get_model_dict(checklist_instance))
+
+    await db.refresh(checklist_instance, ["created_by", "responses"])
+    return checklist_instance
+
+
+@router.get("/projects/{project_id}/checklist-instances/{instance_id}", response_model=ChecklistInstanceResponse)
+async def get_checklist_instance(project_id: UUID, instance_id: UUID, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(
+        select(ChecklistInstance)
+        .options(selectinload(ChecklistInstance.created_by), selectinload(ChecklistInstance.responses))
+        .where(ChecklistInstance.id == instance_id, ChecklistInstance.project_id == project_id)
+    )
+    checklist_instance = result.scalar_one_or_none()
+    if not checklist_instance:
+        raise HTTPException(status_code=404, detail="Checklist instance not found")
+    return checklist_instance
+
+
+@router.put("/projects/{project_id}/checklist-instances/{instance_id}", response_model=ChecklistInstanceResponse)
+async def update_checklist_instance(
+    project_id: UUID,
+    instance_id: UUID,
+    data: ChecklistInstanceUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    result = await db.execute(select(ChecklistInstance).where(ChecklistInstance.id == instance_id))
+    checklist_instance = result.scalar_one_or_none()
+    if not checklist_instance:
+        raise HTTPException(status_code=404, detail="Checklist instance not found")
+
+    old_values = get_model_dict(checklist_instance)
+    for key, value in data.model_dump(exclude_unset=True).items():
+        setattr(checklist_instance, key, value)
+
+    await create_audit_log(db, current_user, "checklist_instance", checklist_instance.id, AuditAction.UPDATE,
+                          project_id=project_id, old_values=old_values, new_values=get_model_dict(checklist_instance))
+
+    await db.refresh(checklist_instance, ["created_by", "responses"])
+    return checklist_instance
+
+
+@router.delete("/projects/{project_id}/checklist-instances/{instance_id}")
+async def delete_checklist_instance(
+    project_id: UUID,
+    instance_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    result = await db.execute(select(ChecklistInstance).where(ChecklistInstance.id == instance_id))
+    checklist_instance = result.scalar_one_or_none()
+    if not checklist_instance:
+        raise HTTPException(status_code=404, detail="Checklist instance not found")
+
+    await create_audit_log(db, current_user, "checklist_instance", checklist_instance.id, AuditAction.DELETE,
+                          project_id=project_id, old_values=get_model_dict(checklist_instance))
+
+    await db.delete(checklist_instance)
+    return {"message": "Checklist instance deleted"}
