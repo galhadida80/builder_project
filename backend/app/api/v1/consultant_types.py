@@ -131,3 +131,77 @@ async def create_template(
 
     await db.refresh(template)
     return template
+
+
+@router.get("/consultant-types/{consultant_type_id}/templates/{template_id}", response_model=InspectionStageTemplateResponse)
+async def get_template(
+    consultant_type_id: UUID,
+    template_id: UUID,
+    db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(
+        select(InspectionStageTemplate)
+        .where(
+            InspectionStageTemplate.id == template_id,
+            InspectionStageTemplate.consultant_type_id == consultant_type_id
+        )
+    )
+    template = result.scalar_one_or_none()
+    if not template:
+        raise HTTPException(status_code=404, detail="Template not found")
+    return template
+
+
+@router.put("/consultant-types/{consultant_type_id}/templates/{template_id}", response_model=InspectionStageTemplateResponse)
+async def update_template(
+    consultant_type_id: UUID,
+    template_id: UUID,
+    data: InspectionStageTemplateUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    result = await db.execute(
+        select(InspectionStageTemplate)
+        .where(
+            InspectionStageTemplate.id == template_id,
+            InspectionStageTemplate.consultant_type_id == consultant_type_id
+        )
+    )
+    template = result.scalar_one_or_none()
+    if not template:
+        raise HTTPException(status_code=404, detail="Template not found")
+
+    old_values = get_model_dict(template)
+    for key, value in data.model_dump(exclude_unset=True).items():
+        setattr(template, key, value)
+
+    await create_audit_log(db, current_user, "inspection_stage_template", template.id, AuditAction.UPDATE,
+                          old_values=old_values, new_values=get_model_dict(template))
+
+    await db.refresh(template)
+    return template
+
+
+@router.delete("/consultant-types/{consultant_type_id}/templates/{template_id}")
+async def delete_template(
+    consultant_type_id: UUID,
+    template_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    result = await db.execute(
+        select(InspectionStageTemplate)
+        .where(
+            InspectionStageTemplate.id == template_id,
+            InspectionStageTemplate.consultant_type_id == consultant_type_id
+        )
+    )
+    template = result.scalar_one_or_none()
+    if not template:
+        raise HTTPException(status_code=404, detail="Template not found")
+
+    await create_audit_log(db, current_user, "inspection_stage_template", template.id, AuditAction.DELETE,
+                          old_values=get_model_dict(template))
+
+    await db.delete(template)
+    return {"message": "Template deleted"}
