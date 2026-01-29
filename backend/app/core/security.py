@@ -41,3 +41,15 @@ async def get_current_user_optional(
     if credentials is None:
         return None
     return await get_current_user(credentials, db)
+
+
+async def get_current_admin_user(
+    current_user: User = Depends(get_current_user)
+) -> User:
+    """Dependency to verify user is an admin"""
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required"
+        )
+    return current_user
