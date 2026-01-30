@@ -15,7 +15,13 @@ from app.models.checklist_templates import (
     ChecklistInstance,
     ChecklistItemResponse,
 )
-from app.models.equipment_template import ConsultantType, EquipmentTemplate, EquipmentTemplateConsultant
+from app.models.equipment_template import (
+    ConsultantType,
+    EquipmentTemplate,
+    EquipmentTemplateConsultant,
+    EquipmentApprovalSubmission,
+    EquipmentApprovalDecision,
+)
 
 __all__ = [
     "User",
@@ -41,4 +47,6 @@ __all__ = [
     "ConsultantType",
     "EquipmentTemplate",
     "EquipmentTemplateConsultant",
+    "EquipmentApprovalSubmission",
+    "EquipmentApprovalDecision",
 ]
