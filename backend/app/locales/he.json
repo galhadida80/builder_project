@@ -1,0 +1,76 @@
+{
+  "auth": {
+    "email_already_registered": "הדוא״ל כבר רשום",
+    "invalid_credentials": "דוא״ל או סיסמה לא תקינים",
+    "account_inactive": "החשבון אינו פעיל",
+    "account_locked": "החשבון נעול",
+    "not_authenticated": "לא מאומת",
+    "invalid_or_expired_token": "טוקן לא תקין או פג תוקף",
+    "refresh_token_expired": "טוקן ההרענון פג תוקף",
+    "token_generation_failed": "נכשל ליצור טוקן גישה"
+  },
+  "users": {
+    "user_not_found": "משתמש לא נמצא",
+    "user_inactive": "משתמש אינו פעיל",
+    "user_creation_failed": "נכשל ליצור משתמש",
+    "user_update_failed": "נכשל לעדכן משתמש",
+    "profile_not_found": "פרופיל המשתמש לא נמצא",
+    "language_preference_updated": "העדפת השפה עודכנה בהצלחה"
+  },
+  "authorization": {
+    "access_denied": "גישה נדחתה",
+    "unauthorized_access": "גישה לא מורשית",
+    "insufficient_permissions": "הרשאות לא מספיקות",
+    "resource_access_forbidden": "אין לך הרשאה להציג משאב זה"
+  },
+  "resources": {
+    "resource_not_found": "הרסורס לא נמצא",
+    "project_not_found": "הפרויקט לא נמצא",
+    "equipment_not_found": "הציוד לא נמצא",
+    "material_not_found": "החומר לא נמצא",
+    "meeting_not_found": "הפגישה לא נמצאה",
+    "approval_not_found": "האישור לא נמצא",
+    "area_not_found": "האזור לא נמצא",
+    "contact_not_found": "איש הקשר לא נמצא",
+    "file_not_found": "הקובץ לא נמצא",
+    "checklist_not_found": "רשימת הבדיקה לא נמצאה",
+    "audit_log_not_found": "ערך יומן הביקורת לא נמצא"
+  },
+  "validation": {
+    "invalid_input": "קלט לא תקין",
+    "validation_error": "שגיאת תיקוף",
+    "missing_required_field": "שדה חובה חסר",
+    "invalid_email_format": "פורמט דוא״ל לא תקין",
+    "password_too_short": "הסיסמה חייבת להיות לפחות 8 תווים",
+    "invalid_date_format": "פורמט תאריך לא תקין",
+    "invalid_number_format": "פורמט מספר לא תקין"
+  },
+  "database": {
+    "conflict": "ניגוד משאבים",
+    "duplicate_entry": "ערך זה כבר קיים",
+    "constraint_violation": "הפרת אילוץ מסד הנתונים",
+    "transaction_failed": "עסקת מסד הנתונים נכשלה"
+  },
+  "files": {
+    "file_upload_failed": "העלאת הקובץ נכשלה",
+    "file_too_large": "גודל הקובץ חורג מהמרבי המותר",
+    "invalid_file_type": "סוג קובץ לא תקין",
+    "file_not_readable": "לא ניתן לקרוא את הקובץ"
+  },
+  "server": {
+    "server_error": "שגיאה בשרת פנימית",
+    "method_not_allowed": "שיטה לא מותרת",
+    "not_found": "נקודת הקצה לא נמצאה",
+    "service_unavailable": "השירות זמנית לא זמין",
+    "database_connection_failed": "הקצאת חיבור מסד הנתונים נכשלה",
+    "external_service_error": "שגיאה בשירות חיצוני"
+  },
+  "operations": {
+    "creation_successful": "הרסורס נוצר בהצלחה",
+    "update_successful": "הרסורס עודכן בהצלחה",
+    "deletion_successful": "הרסורס נמחק בהצלחה",
+    "operation_pending": "הפעולה בטיפול",
+    "operation_completed": "הפעולה הושלמה",
+    "operation_failed": "הפעולה נכשלה"
+  }
+}
