@@ -1,7 +1,7 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { ThemeProvider } from '@mui/material/styles'
+import { ThemeProvider, Theme } from '@mui/material/styles'
 import i18n from './i18n/config'
 import getTheme from './theme'
 import Layout from './components/layout/Layout'
@@ -28,6 +28,7 @@ function ProtectedRoute() {
 
 export default function App() {
   const { i18n: i18nInstance } = useTranslation()
+  const [theme, setTheme] = useState<Theme>(getTheme())
 
   useEffect(() => {
     // Set document direction based on current language
@@ -35,11 +36,17 @@ export default function App() {
     document.dir = direction
     document.documentElement.lang = i18nInstance.language
 
-    // Listen for language changes and update document direction
+    // Update theme with new direction
+    setTheme(getTheme())
+
+    // Listen for language changes and update document direction and theme
     const handleLanguageChange = (lng: string) => {
       const newDirection = lng === 'he' ? 'rtl' : 'ltr'
       document.dir = newDirection
       document.documentElement.lang = lng
+
+      // Update theme when language changes
+      setTheme(getTheme())
     }
 
     i18n.on('languageChanged', handleLanguageChange)
@@ -50,7 +57,7 @@ export default function App() {
   }, [i18nInstance])
 
   return (
-    <ThemeProvider theme={getTheme()}>
+    <ThemeProvider theme={theme}>
       <ToastProvider>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
