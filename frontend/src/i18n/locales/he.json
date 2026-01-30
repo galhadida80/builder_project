@@ -387,7 +387,8 @@
     "passwordTooShort": "הסיסמה חייבת להיות לפחות 8 תווים",
     "passwordMismatch": "הסיסמאות אינן תואמות",
     "requiredField": "שדה זה הוא חובה",
-    "fileUploadError": "הטעינת הקובץ נכשלה"
+    "fileUploadError": "הטעינת הקובץ נכשלה",
+    "toastProviderError": "useToast חייב להיות בשימוש בתוך ToastProvider"
   },
   "notifications": {
     "equipment": "ציוד",
@@ -440,5 +441,18 @@
     "in_progress": "בעיצומו",
     "cancelled": "בוטל",
     "on_hold": "בהשהיה"
+  },
+  "statusBadges": {
+    "draft": "טיוטה",
+    "submitted": "הוגש",
+    "under_review": "בבדיקה",
+    "approved": "אושר",
+    "rejected": "דחוי",
+    "revision_requested": "בקשה לתיקון"
+  },
+  "projectSelector": {
+    "selectProject": "בחר פרויקט",
+    "selectAProject": "בחר פרויקט",
+    "noProjectsAvailable": "אין פרויקטים זמינים"
   }
 }

@@ -387,7 +387,8 @@
     "passwordTooShort": "Password must be at least 8 characters",
     "passwordMismatch": "Passwords do not match",
     "requiredField": "This field is required",
-    "fileUploadError": "File upload failed"
+    "fileUploadError": "File upload failed",
+    "toastProviderError": "useToast must be used within a ToastProvider"
   },
   "notifications": {
     "equipment": "Equipment",
@@ -440,5 +441,18 @@
     "in_progress": "In Progress",
     "cancelled": "Cancelled",
     "on_hold": "On Hold"
+  },
+  "statusBadges": {
+    "draft": "Draft",
+    "submitted": "Submitted",
+    "under_review": "Under Review",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "revision_requested": "Revision Requested"
+  },
+  "projectSelector": {
+    "selectProject": "Select a project",
+    "selectAProject": "Select a project",
+    "noProjectsAvailable": "No projects available"
   }
 }

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import FormControl from '@mui/material/FormControl'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
 import MenuItem from '@mui/material/MenuItem'
@@ -13,6 +14,8 @@ interface ProjectSelectorProps {
 }
 
 export default function ProjectSelector({ projects, currentProject, onProjectChange }: ProjectSelectorProps) {
+  const { t } = useTranslation()
+
   const handleChange = (event: SelectChangeEvent<string>) => {
     onProjectChange(event.target.value)
   }
@@ -40,7 +43,7 @@ export default function ProjectSelector({ projects, currentProject, onProjectCha
         }}
         renderValue={(selected) => {
           if (!selected) {
-            return <Typography color="text.secondary">Select a project</Typography>
+            return <Typography color="text.secondary">{t('projectSelector.selectAProject')}</Typography>
           }
           const project = projects.find(p => p.id === selected)
           return (
@@ -56,7 +59,7 @@ export default function ProjectSelector({ projects, currentProject, onProjectCha
         }}
       >
         <MenuItem value="" disabled>
-          <Typography color="text.secondary">Select a project</Typography>
+          <Typography color="text.secondary">{t('projectSelector.selectAProject')}</Typography>
         </MenuItem>
         {projects.map((project) => (
           <MenuItem key={project.id} value={project.id}>

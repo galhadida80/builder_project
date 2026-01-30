@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useCallback, ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import Snackbar from '@mui/material/Snackbar'
 import Alert from '@mui/material/Alert'
 
@@ -16,8 +17,9 @@ const ToastContext = createContext<ToastContextType | undefined>(undefined)
 
 export function useToast() {
   const context = useContext(ToastContext)
+  const { t } = useTranslation()
   if (!context) {
-    throw new Error('useToast must be used within a ToastProvider')
+    throw new Error(t('errors.toastProviderError') || 'useToast must be used within a ToastProvider')
   }
   return context
 }

@@ -1,4 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Drawer from '@mui/material/Drawer'
 import List from '@mui/material/List'
@@ -23,36 +24,43 @@ const DRAWER_WIDTH = 260
 
 interface NavItem {
   label: string
+  translationKey: string
   path: string
   icon: React.ReactNode
 }
 
-const mainNavItems: NavItem[] = [
-  { label: 'Dashboard', path: '/dashboard', icon: <DashboardIcon /> },
-  { label: 'Projects', path: '/projects', icon: <FolderIcon /> },
-]
-
-const projectNavItems: NavItem[] = [
-  { label: 'Equipment', path: '/equipment', icon: <BuildIcon /> },
-  { label: 'Materials', path: '/materials', icon: <InventoryIcon /> },
-  { label: 'Meetings', path: '/meetings', icon: <EventIcon /> },
-  { label: 'Approvals', path: '/approvals', icon: <CheckCircleIcon /> },
-  { label: 'Areas', path: '/areas', icon: <AccountTreeIcon /> },
-  { label: 'Contacts', path: '/contacts', icon: <ContactsIcon /> },
-]
-
-const systemNavItems: NavItem[] = [
-  { label: 'Audit Log', path: '/audit', icon: <HistoryIcon /> },
-  { label: 'Settings', path: '/settings', icon: <SettingsIcon /> },
-]
+const getNavItems = (t: (key: string) => string): {
+  main: NavItem[]
+  project: NavItem[]
+  system: NavItem[]
+} => ({
+  main: [
+    { label: t('sidebar.dashboard'), translationKey: 'sidebar.dashboard', path: '/dashboard', icon: <DashboardIcon /> },
+    { label: t('sidebar.projects'), translationKey: 'sidebar.projects', path: '/projects', icon: <FolderIcon /> },
+  ],
+  project: [
+    { label: t('sidebar.equipment'), translationKey: 'sidebar.equipment', path: '/equipment', icon: <BuildIcon /> },
+    { label: t('sidebar.materials'), translationKey: 'sidebar.materials', path: '/materials', icon: <InventoryIcon /> },
+    { label: t('sidebar.meetings'), translationKey: 'sidebar.meetings', path: '/meetings', icon: <EventIcon /> },
+    { label: t('sidebar.approvals'), translationKey: 'sidebar.approvals', path: '/approvals', icon: <CheckCircleIcon /> },
+    { label: t('sidebar.areas'), translationKey: 'sidebar.areas', path: '/areas', icon: <AccountTreeIcon /> },
+    { label: t('sidebar.contacts'), translationKey: 'sidebar.contacts', path: '/contacts', icon: <ContactsIcon /> },
+  ],
+  system: [
+    { label: t('sidebar.auditLog'), translationKey: 'sidebar.auditLog', path: '/audit', icon: <HistoryIcon /> },
+    { label: t('sidebar.settings'), translationKey: 'sidebar.settings', path: '/settings', icon: <SettingsIcon /> },
+  ],
+})
 
 interface SidebarProps {
   projectId?: string
 }
 
 export default function Sidebar({ projectId }: SidebarProps) {
+  const { t } = useTranslation()
   const location = useLocation()
   const navigate = useNavigate()
+  const { main: mainNavItems, project: projectNavItems, system: systemNavItems } = getNavItems(t)
 
   const isActive = (path: string) => {
     if (path === '/projects' && location.pathname.startsWith('/projects')) {
@@ -118,7 +126,7 @@ export default function Sidebar({ projectId }: SidebarProps) {
         <>
           <Divider sx={{ my: 1 }} />
           <Typography variant="caption" sx={{ px: 3, py: 1, color: 'text.secondary', fontWeight: 500 }}>
-            PROJECT
+            {t('sidebar.projectSection')}
           </Typography>
           <List>
             {projectNavItems.map((item) => {
