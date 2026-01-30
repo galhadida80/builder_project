@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
@@ -47,6 +48,7 @@ const equipmentTypes = ['Heavy Machinery', 'Lifting Equipment', 'Power Equipment
 
 export default function EquipmentPage() {
   const { projectId } = useParams()
+  const { t } = useTranslation()
   const { showError, showSuccess } = useToast()
   const [loading, setLoading] = useState(true)
   const [equipment, setEquipment] = useState<Equipment[]>([])
@@ -104,7 +106,7 @@ export default function EquipmentPage() {
       setEquipment(data)
     } catch (error) {
       console.error('Failed to load equipment:', error)
-      showError('Failed to load equipment. Please try again.')
+      showError(t('pages.equipment.failedToLoadEquipment'))
     } finally {
       setLoading(false)
     }
@@ -161,16 +163,16 @@ export default function EquipmentPage() {
 
       if (editingEquipment) {
         await equipmentApi.update(projectId, editingEquipment.id, payload)
-        showSuccess('Equipment updated successfully!')
+        showSuccess(t('pages.equipment.equipmentUpdatedSuccessfully'))
       } else {
         await equipmentApi.create(projectId, payload)
-        showSuccess('Equipment created successfully!')
+        showSuccess(t('pages.equipment.equipmentCreatedSuccessfully'))
       }
       handleCloseDialog()
       loadEquipment()
     } catch (error) {
       console.error('Failed to save equipment:', error)
-      showError(`Failed to ${editingEquipment ? 'update' : 'create'} equipment. Please try again.`)
+      showError(editingEquipment ? t('pages.equipment.failedToUpdateEquipment') : t('pages.equipment.failedToCreateEquipment'))
     } finally {
       setSaving(false)
     }
@@ -187,14 +189,14 @@ export default function EquipmentPage() {
 
     try {
       await equipmentApi.delete(projectId, equipmentToDelete.id)
-      showSuccess('Equipment deleted successfully!')
+      showSuccess(t('pages.equipment.equipmentDeletedSuccessfully'))
       setDeleteDialogOpen(false)
       setEquipmentToDelete(null)
       setDrawerOpen(false)
       loadEquipment()
     } catch (error) {
       console.error('Failed to delete equipment:', error)
-      showError('Failed to delete equipment. Please try again.')
+      showError(t('pages.equipment.failedToDeleteEquipment'))
     }
   }
 
@@ -204,12 +206,12 @@ export default function EquipmentPage() {
     setSubmitting(true)
     try {
       await equipmentApi.submit(projectId, selectedEquipment.id)
-      showSuccess('Equipment submitted for approval!')
+      showSuccess(t('pages.equipment.equipmentSubmittedForApproval'))
       loadEquipment()
       setDrawerOpen(false)
     } catch (error) {
       console.error('Failed to submit equipment:', error)
-      showError('Failed to submit equipment for approval. Please try again.')
+      showError(t('pages.equipment.failedToSubmitEquipment'))
     } finally {
       setSubmitting(false)
     }
@@ -241,14 +243,14 @@ export default function EquipmentPage() {
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h5" fontWeight="bold">Equipment</Typography>
+        <Typography variant="h5" fontWeight="bold">{t('pages.equipment.title')}</Typography>
         <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenCreate}>
-          Add Equipment
+          {t('pages.equipment.addEquipment')}
         </Button>
       </Box>
 
       <TextField
-        placeholder="Search equipment..."
+        placeholder={t('pages.equipment.searchEquipment')}
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         sx={{ mb: 3, width: 300 }}
@@ -263,12 +265,12 @@ export default function EquipmentPage() {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Name</TableCell>
-                <TableCell>Type</TableCell>
-                <TableCell>Manufacturer</TableCell>
-                <TableCell>Model</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell align="right">Actions</TableCell>
+                <TableCell>{t('common.name', { defaultValue: 'Name' })}</TableCell>
+                <TableCell>{t('pages.equipment.equipmentType')}</TableCell>
+                <TableCell>{t('pages.equipment.manufacturer')}</TableCell>
+                <TableCell>{t('pages.equipment.model')}</TableCell>
+                <TableCell>{t('pages.equipment.status')}</TableCell>
+                <TableCell align="right">{t('common.actions', { defaultValue: 'Actions' })}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -280,13 +282,13 @@ export default function EquipmentPage() {
                   <TableCell>{eq.modelNumber || '-'}</TableCell>
                   <TableCell><StatusBadge status={eq.status} /></TableCell>
                   <TableCell align="right">
-                    <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleViewDetails(eq); }} title="View details">
+                    <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleViewDetails(eq); }} title={t('common.view', { defaultValue: 'View' })}>
                       <VisibilityIcon fontSize="small" />
                     </IconButton>
-                    <IconButton size="small" onClick={(e) => handleOpenEdit(eq, e)} title="Edit equipment">
+                    <IconButton size="small" onClick={(e) => handleOpenEdit(eq, e)} title={t('pages.equipment.editEquipment')}>
                       <EditIcon fontSize="small" />
                     </IconButton>
-                    <IconButton size="small" onClick={(e) => handleDeleteClick(eq, e)} title="Delete equipment" color="error">
+                    <IconButton size="small" onClick={(e) => handleDeleteClick(eq, e)} title={t('pages.equipment.deleteEquipment')} color="error">
                       <DeleteIcon fontSize="small" />
                     </IconButton>
                   </TableCell>
@@ -299,7 +301,7 @@ export default function EquipmentPage() {
 
       {filteredEquipment.length === 0 && (
         <Box sx={{ textAlign: 'center', py: 8 }}>
-          <Typography color="text.secondary">No equipment found</Typography>
+          <Typography color="text.secondary">{t('pages.equipment.noEquipment')}</Typography>
         </Box>
       )}
 
@@ -307,7 +309,7 @@ export default function EquipmentPage() {
         {selectedEquipment && (
           <Box sx={{ p: 3 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-              <Typography variant="h6">Equipment Details</Typography>
+              <Typography variant="h6">{t('pages.equipment.equipmentDetails')}</Typography>
               <IconButton onClick={handleCloseDrawer}><CloseIcon /></IconButton>
             </Box>
 
@@ -318,18 +320,18 @@ export default function EquipmentPage() {
 
             <Divider sx={{ my: 2 }} />
 
-            <Typography variant="subtitle2" color="text.secondary" gutterBottom>Details</Typography>
+            <Typography variant="subtitle2" color="text.secondary" gutterBottom>{t('pages.equipment.details')}</Typography>
             <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, mb: 3 }}>
-              <Box><Typography variant="caption" color="text.secondary">Type</Typography><Typography>{selectedEquipment.equipmentType || '-'}</Typography></Box>
-              <Box><Typography variant="caption" color="text.secondary">Manufacturer</Typography><Typography>{selectedEquipment.manufacturer || '-'}</Typography></Box>
-              <Box><Typography variant="caption" color="text.secondary">Model</Typography><Typography>{selectedEquipment.modelNumber || '-'}</Typography></Box>
-              <Box><Typography variant="caption" color="text.secondary">Serial Number</Typography><Typography>{selectedEquipment.serialNumber || '-'}</Typography></Box>
-              {selectedEquipment.notes && <Box sx={{ gridColumn: '1 / -1' }}><Typography variant="caption" color="text.secondary">Notes</Typography><Typography>{selectedEquipment.notes}</Typography></Box>}
+              <Box><Typography variant="caption" color="text.secondary">{t('pages.equipment.equipmentType')}</Typography><Typography>{selectedEquipment.equipmentType || '-'}</Typography></Box>
+              <Box><Typography variant="caption" color="text.secondary">{t('pages.equipment.manufacturer')}</Typography><Typography>{selectedEquipment.manufacturer || '-'}</Typography></Box>
+              <Box><Typography variant="caption" color="text.secondary">{t('pages.equipment.model')}</Typography><Typography>{selectedEquipment.modelNumber || '-'}</Typography></Box>
+              <Box><Typography variant="caption" color="text.secondary">{t('pages.equipment.serialNumber')}</Typography><Typography>{selectedEquipment.serialNumber || '-'}</Typography></Box>
+              {selectedEquipment.notes && <Box sx={{ gridColumn: '1 / -1' }}><Typography variant="caption" color="text.secondary">{t('pages.equipment.notes', { defaultValue: 'Notes' })}</Typography><Typography>{selectedEquipment.notes}</Typography></Box>}
             </Box>
 
             <Divider sx={{ my: 2 }} />
 
-            <Typography variant="subtitle2" color="text.secondary" gutterBottom>Documents</Typography>
+            <Typography variant="subtitle2" color="text.secondary" gutterBottom>{t('pages.equipment.documents')}</Typography>
             {filesLoading ? (
               <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
                 <CircularProgress size={24} />
@@ -340,7 +342,7 @@ export default function EquipmentPage() {
               </Box>
             ) : files.length === 0 ? (
               <Box sx={{ py: 2 }}>
-                <Typography color="text.secondary" variant="body2">No documents attached</Typography>
+                <Typography color="text.secondary" variant="body2">{t('pages.equipment.noDocumentsAttached')}</Typography>
               </Box>
             ) : (
               <List dense>
@@ -355,13 +357,13 @@ export default function EquipmentPage() {
                 ))}
               </List>
             )}
-            <Button size="small" startIcon={<AddIcon />}>Add Document</Button>
+            <Button size="small" startIcon={<AddIcon />}>{t('pages.equipment.addDocument')}</Button>
 
             <Divider sx={{ my: 2 }} />
 
-            <Typography variant="subtitle2" color="text.secondary" gutterBottom>Approval Timeline</Typography>
+            <Typography variant="subtitle2" color="text.secondary" gutterBottom>{t('pages.equipment.approvalTimeline')}</Typography>
             <List dense>
-              <ListItem><ListItemIcon><CheckCircleIcon color="success" /></ListItemIcon><ListItemText primary="Submitted" secondary="Pending review" /></ListItem>
+              <ListItem><ListItemIcon><CheckCircleIcon color="success" /></ListItemIcon><ListItemText primary={t('pages.equipment.submitted')} secondary={t('pages.equipment.pendingReview')} /></ListItem>
             </List>
 
             <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
@@ -373,11 +375,11 @@ export default function EquipmentPage() {
                   onClick={handleSubmitForApproval}
                   disabled={submitting}
                 >
-                  Submit for Approval
+                  {t('pages.equipment.submitForApproval')}
                 </Button>
               )}
               <Button variant="outlined" fullWidth onClick={() => handleOpenEdit(selectedEquipment)}>
-                Edit Equipment
+                {t('pages.equipment.editEquipment')}
               </Button>
             </Box>
           </Box>
@@ -385,33 +387,33 @@ export default function EquipmentPage() {
       </Drawer>
 
       <Dialog open={dialogOpen} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>{editingEquipment ? 'Edit Equipment' : 'Add New Equipment'}</DialogTitle>
+        <DialogTitle>{editingEquipment ? t('pages.equipment.editEquipment') : t('pages.equipment.addNewEquipment')}</DialogTitle>
         <DialogContent>
           <TextField
             fullWidth
-            label="Equipment Name"
+            label={t('pages.equipment.equipmentName')}
             margin="normal"
             required
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             error={!!errors.name || formData.name.length >= VALIDATION.MAX_NAME_LENGTH}
-            helperText={errors.name || (formData.name.length > 0 ? `${formData.name.length}/${VALIDATION.MAX_NAME_LENGTH}${formData.name.length >= VALIDATION.MAX_NAME_LENGTH * 0.9 ? ' - Approaching limit' : ''}` : undefined)}
+            helperText={errors.name || (formData.name.length > 0 ? `${formData.name.length}/${VALIDATION.MAX_NAME_LENGTH}${formData.name.length >= VALIDATION.MAX_NAME_LENGTH * 0.9 ? ' - ' + t('pages.projects.approachingLimit') : ''}` : undefined)}
             inputProps={{ maxLength: VALIDATION.MAX_NAME_LENGTH }}
           />
           <TextField
             fullWidth
             select
-            label="Equipment Type"
+            label={t('pages.equipment.equipmentType')}
             margin="normal"
             value={formData.equipmentType}
             onChange={(e) => setFormData({ ...formData, equipmentType: e.target.value })}
           >
-            <MenuItem value="">Select type...</MenuItem>
+            <MenuItem value="">{t('pages.equipment.selectType')}</MenuItem>
             {equipmentTypes.map(type => <MenuItem key={type} value={type}>{type}</MenuItem>)}
           </TextField>
           <TextField
             fullWidth
-            label="Manufacturer"
+            label={t('pages.equipment.manufacturer')}
             margin="normal"
             value={formData.manufacturer}
             onChange={(e) => setFormData({ ...formData, manufacturer: e.target.value })}
@@ -419,7 +421,7 @@ export default function EquipmentPage() {
           />
           <TextField
             fullWidth
-            label="Model Number"
+            label={t('pages.equipment.modelNumber')}
             margin="normal"
             value={formData.modelNumber}
             onChange={(e) => setFormData({ ...formData, modelNumber: e.target.value })}
@@ -427,7 +429,7 @@ export default function EquipmentPage() {
           />
           <TextField
             fullWidth
-            label="Serial Number"
+            label={t('pages.equipment.serialNumber')}
             margin="normal"
             value={formData.serialNumber}
             onChange={(e) => setFormData({ ...formData, serialNumber: e.target.value })}
@@ -437,35 +439,33 @@ export default function EquipmentPage() {
           />
           <TextField
             fullWidth
-            label="Notes"
+            label={t('pages.equipment.notes', { defaultValue: 'Notes' })}
             margin="normal"
             multiline
             rows={3}
             value={formData.notes}
             onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
             error={!!errors.notes || formData.notes.length >= VALIDATION.MAX_NOTES_LENGTH}
-            helperText={errors.notes || (formData.notes.length > 0 ? `${formData.notes.length}/${VALIDATION.MAX_NOTES_LENGTH}${formData.notes.length >= VALIDATION.MAX_NOTES_LENGTH * 0.9 ? ' - Approaching limit' : ''}` : undefined)}
+            helperText={errors.notes || (formData.notes.length > 0 ? `${formData.notes.length}/${VALIDATION.MAX_NOTES_LENGTH}${formData.notes.length >= VALIDATION.MAX_NOTES_LENGTH * 0.9 ? ' - ' + t('pages.projects.approachingLimit') : ''}` : undefined)}
             inputProps={{ maxLength: VALIDATION.MAX_NOTES_LENGTH }}
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog} disabled={saving}>Cancel</Button>
+          <Button onClick={handleCloseDialog} disabled={saving}>{t('common.cancel')}</Button>
           <Button variant="contained" onClick={handleSaveEquipment} disabled={saving}>
-            {saving ? <CircularProgress size={24} /> : (editingEquipment ? 'Save Changes' : 'Add Equipment')}
+            {saving ? <CircularProgress size={24} /> : (editingEquipment ? t('common.save') : t('pages.equipment.addEquipment'))}
           </Button>
         </DialogActions>
       </Dialog>
 
       <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
-        <DialogTitle>Delete Equipment</DialogTitle>
+        <DialogTitle>{t('pages.equipment.deleteEquipment')}</DialogTitle>
         <DialogContent>
-          <Typography>
-            Are you sure you want to delete <strong>{equipmentToDelete?.name}</strong>? This action cannot be undone.
-          </Typography>
+          <Typography dangerouslySetInnerHTML={{ __html: t('pages.equipment.areYouSureYouWantToDeleteEquipment', { name: equipmentToDelete?.name || '' }) }} />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-          <Button variant="contained" color="error" onClick={handleConfirmDelete}>Delete</Button>
+          <Button onClick={() => setDeleteDialogOpen(false)}>{t('common.cancel')}</Button>
+          <Button variant="contained" color="error" onClick={handleConfirmDelete}>{t('common.delete')}</Button>
         </DialogActions>
       </Dialog>
     </Box>

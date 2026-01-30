@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
@@ -34,6 +35,7 @@ const unitOptions = ['ton', 'm3', 'm2', 'm', 'kg', 'unit', 'box', 'pallet', 'rol
 
 export default function MaterialsPage() {
   const { projectId } = useParams()
+  const { t } = useTranslation()
   const { showError, showSuccess } = useToast()
   const [loading, setLoading] = useState(true)
   const [materials, setMaterials] = useState<Material[]>([])
@@ -67,7 +69,7 @@ export default function MaterialsPage() {
       setMaterials(data)
     } catch (error) {
       console.error('Failed to load materials:', error)
-      showError('Failed to load materials. Please try again.')
+      showError(t('pages.materials.failedToLoadMaterials'))
     } finally {
       setLoading(false)
     }
@@ -134,16 +136,16 @@ export default function MaterialsPage() {
 
       if (editingMaterial) {
         await materialsApi.update(projectId, editingMaterial.id, payload)
-        showSuccess('Material updated successfully!')
+        showSuccess(t('pages.materials.materialUpdatedSuccessfully'))
       } else {
         await materialsApi.create(projectId, payload)
-        showSuccess('Material created successfully!')
+        showSuccess(t('pages.materials.materialCreatedSuccessfully'))
       }
       handleCloseDialog()
       loadMaterials()
     } catch (error) {
       console.error('Failed to save material:', error)
-      showError(`Failed to ${editingMaterial ? 'update' : 'create'} material. Please try again.`)
+      showError(editingMaterial ? t('pages.materials.failedToUpdateMaterial') : t('pages.materials.failedToCreateMaterial'))
     } finally {
       setSaving(false)
     }
@@ -159,13 +161,13 @@ export default function MaterialsPage() {
 
     try {
       await materialsApi.delete(projectId, materialToDelete.id)
-      showSuccess('Material deleted successfully!')
+      showSuccess(t('pages.materials.materialDeletedSuccessfully'))
       setDeleteDialogOpen(false)
       setMaterialToDelete(null)
       loadMaterials()
     } catch (error) {
       console.error('Failed to delete material:', error)
-      showError('Failed to delete material. Please try again.')
+      showError(t('pages.materials.failedToDeleteMaterial'))
     }
   }
 
@@ -185,14 +187,14 @@ export default function MaterialsPage() {
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h5" fontWeight="bold">Materials</Typography>
+        <Typography variant="h5" fontWeight="bold">{t('pages.materials.title')}</Typography>
         <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenCreate}>
-          Add Material
+          {t('pages.materials.addMaterial')}
         </Button>
       </Box>
 
       <TextField
-        placeholder="Search materials..."
+        placeholder={t('pages.materials.searchMaterials')}
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         sx={{ mb: 3, width: 300 }}
@@ -207,12 +209,12 @@ export default function MaterialsPage() {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Name</TableCell>
-                <TableCell>Type</TableCell>
-                <TableCell>Manufacturer</TableCell>
-                <TableCell>Quantity</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell align="right">Actions</TableCell>
+                <TableCell>{t('common.name', { defaultValue: 'Name' })}</TableCell>
+                <TableCell>{t('pages.materials.materialType')}</TableCell>
+                <TableCell>{t('pages.materials.manufacturer')}</TableCell>
+                <TableCell>{t('pages.materials.quantity')}</TableCell>
+                <TableCell>{t('pages.materials.status', { defaultValue: 'Status' })}</TableCell>
+                <TableCell align="right">{t('common.actions', { defaultValue: 'Actions' })}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -228,10 +230,10 @@ export default function MaterialsPage() {
                   </TableCell>
                   <TableCell><StatusBadge status={material.status} /></TableCell>
                   <TableCell align="right">
-                    <IconButton size="small" onClick={() => handleOpenEdit(material)} title="Edit material">
+                    <IconButton size="small" onClick={() => handleOpenEdit(material)} title={t('pages.materials.editMaterial')}>
                       <EditIcon fontSize="small" />
                     </IconButton>
-                    <IconButton size="small" onClick={() => handleDeleteClick(material)} title="Delete material" color="error">
+                    <IconButton size="small" onClick={() => handleDeleteClick(material)} title={t('pages.materials.deleteMaterial')} color="error">
                       <DeleteIcon fontSize="small" />
                     </IconButton>
                   </TableCell>
@@ -244,38 +246,38 @@ export default function MaterialsPage() {
 
       {filteredMaterials.length === 0 && (
         <Box sx={{ textAlign: 'center', py: 8 }}>
-          <Typography color="text.secondary">No materials found</Typography>
+          <Typography color="text.secondary">{t('pages.materials.noMaterials')}</Typography>
         </Box>
       )}
 
       <Dialog open={dialogOpen} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>{editingMaterial ? 'Edit Material' : 'Add New Material'}</DialogTitle>
+        <DialogTitle>{editingMaterial ? t('pages.materials.editMaterial') : t('pages.materials.addNewMaterial')}</DialogTitle>
         <DialogContent>
           <TextField
             fullWidth
-            label="Material Name"
+            label={t('pages.materials.materialName')}
             margin="normal"
             required
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             error={!!errors.name || formData.name.length >= VALIDATION.MAX_NAME_LENGTH}
-            helperText={errors.name || (formData.name.length > 0 ? `${formData.name.length}/${VALIDATION.MAX_NAME_LENGTH}${formData.name.length >= VALIDATION.MAX_NAME_LENGTH * 0.9 ? ' - Approaching limit' : ''}` : undefined)}
+            helperText={errors.name || (formData.name.length > 0 ? `${formData.name.length}/${VALIDATION.MAX_NAME_LENGTH}${formData.name.length >= VALIDATION.MAX_NAME_LENGTH * 0.9 ? ' - ' + t('pages.projects.approachingLimit') : ''}` : undefined)}
             inputProps={{ maxLength: VALIDATION.MAX_NAME_LENGTH }}
           />
           <TextField
             fullWidth
             select
-            label="Material Type"
+            label={t('pages.materials.materialType')}
             margin="normal"
             value={formData.materialType}
             onChange={(e) => setFormData({ ...formData, materialType: e.target.value })}
           >
-            <MenuItem value="">Select type...</MenuItem>
+            <MenuItem value="">{t('pages.materials.selectType')}</MenuItem>
             {materialTypes.map(type => <MenuItem key={type} value={type}>{type}</MenuItem>)}
           </TextField>
           <TextField
             fullWidth
-            label="Manufacturer"
+            label={t('pages.materials.manufacturer')}
             margin="normal"
             value={formData.manufacturer}
             onChange={(e) => setFormData({ ...formData, manufacturer: e.target.value })}
@@ -283,7 +285,7 @@ export default function MaterialsPage() {
           />
           <TextField
             fullWidth
-            label="Model Number"
+            label={t('pages.materials.modelNumber')}
             margin="normal"
             value={formData.modelNumber}
             onChange={(e) => setFormData({ ...formData, modelNumber: e.target.value })}
@@ -292,7 +294,7 @@ export default function MaterialsPage() {
           <Box sx={{ display: 'flex', gap: 2 }}>
             <TextField
               fullWidth
-              label="Quantity"
+              label={t('pages.materials.quantity')}
               type="number"
               margin="normal"
               value={formData.quantity}
@@ -304,18 +306,18 @@ export default function MaterialsPage() {
             <TextField
               fullWidth
               select
-              label="Unit"
+              label={t('pages.materials.unit')}
               margin="normal"
               value={formData.unit}
               onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
             >
-              <MenuItem value="">Select unit...</MenuItem>
+              <MenuItem value="">{t('pages.materials.selectUnit')}</MenuItem>
               {unitOptions.map(unit => <MenuItem key={unit} value={unit}>{unit}</MenuItem>)}
             </TextField>
           </Box>
           <TextField
             fullWidth
-            label="Expected Delivery Date"
+            label={t('pages.materials.expectedDeliveryDate')}
             type="date"
             margin="normal"
             InputLabelProps={{ shrink: true }}
@@ -325,7 +327,7 @@ export default function MaterialsPage() {
           />
           <TextField
             fullWidth
-            label="Storage Location"
+            label={t('pages.materials.storageLocation')}
             margin="normal"
             value={formData.storageLocation}
             onChange={(e) => setFormData({ ...formData, storageLocation: e.target.value })}
@@ -333,35 +335,33 @@ export default function MaterialsPage() {
           />
           <TextField
             fullWidth
-            label="Notes"
+            label={t('pages.materials.notes', { defaultValue: 'Notes' })}
             margin="normal"
             multiline
             rows={2}
             value={formData.notes}
             onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
             error={!!errors.notes || formData.notes.length >= VALIDATION.MAX_NOTES_LENGTH}
-            helperText={errors.notes || (formData.notes.length > 0 ? `${formData.notes.length}/${VALIDATION.MAX_NOTES_LENGTH}${formData.notes.length >= VALIDATION.MAX_NOTES_LENGTH * 0.9 ? ' - Approaching limit' : ''}` : undefined)}
+            helperText={errors.notes || (formData.notes.length > 0 ? `${formData.notes.length}/${VALIDATION.MAX_NOTES_LENGTH}${formData.notes.length >= VALIDATION.MAX_NOTES_LENGTH * 0.9 ? ' - ' + t('pages.projects.approachingLimit') : ''}` : undefined)}
             inputProps={{ maxLength: VALIDATION.MAX_NOTES_LENGTH }}
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog} disabled={saving}>Cancel</Button>
+          <Button onClick={handleCloseDialog} disabled={saving}>{t('common.cancel')}</Button>
           <Button variant="contained" onClick={handleSaveMaterial} disabled={saving}>
-            {saving ? <CircularProgress size={24} /> : (editingMaterial ? 'Save Changes' : 'Add Material')}
+            {saving ? <CircularProgress size={24} /> : (editingMaterial ? t('common.save') : t('pages.materials.addMaterial'))}
           </Button>
         </DialogActions>
       </Dialog>
 
       <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
-        <DialogTitle>Delete Material</DialogTitle>
+        <DialogTitle>{t('pages.materials.deleteMaterial')}</DialogTitle>
         <DialogContent>
-          <Typography>
-            Are you sure you want to delete <strong>{materialToDelete?.name}</strong>? This action cannot be undone.
-          </Typography>
+          <Typography dangerouslySetInnerHTML={{ __html: t('pages.materials.areYouSureYouWantToDeleteMaterial', { name: materialToDelete?.name || '' }) }} />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-          <Button variant="contained" color="error" onClick={handleConfirmDelete}>Delete</Button>
+          <Button onClick={() => setDeleteDialogOpen(false)}>{t('common.cancel')}</Button>
+          <Button variant="contained" color="error" onClick={handleConfirmDelete}>{t('common.delete')}</Button>
         </DialogActions>
       </Dialog>
     </Box>

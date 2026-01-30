@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
@@ -81,7 +82,7 @@ function AreaNode({ area, level, onEdit, onDelete }: AreaNodeProps) {
                   <Typography variant="subtitle1" fontWeight="medium">{area.name}</Typography>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <Chip label={area.areaCode} size="small" sx={{ height: 20, fontSize: '0.7rem' }} />
-                    {area.totalUnits && <Typography variant="caption" color="text.secondary">{area.totalUnits} units</Typography>}
+                    {area.totalUnits && <Typography variant="caption" color="text.secondary">{area.totalUnits} {t('pages.areas.units')}</Typography>}
                   </Box>
                 </Box>
               </Box>
@@ -89,16 +90,16 @@ function AreaNode({ area, level, onEdit, onDelete }: AreaNodeProps) {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <Box sx={{ width: 150 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                  <Typography variant="caption">Progress</Typography>
+                  <Typography variant="caption">{t('pages.areas.progress', { defaultValue: 'Progress' })}</Typography>
                   <Typography variant="caption" fontWeight="bold">{overallProgress}%</Typography>
                 </Box>
                 <LinearProgress variant="determinate" value={overallProgress} sx={{ height: 6, borderRadius: 3 }} color={overallProgress === 100 ? 'success' : 'primary'} />
               </Box>
-              <Chip label="In Progress" size="small" color={getStatusColor('in_progress')} />
-              <IconButton size="small" onClick={() => onEdit(area)} title="Edit area">
+              <Chip label={t('pages.areas.inProgress')} size="small" color={getStatusColor('in_progress')} />
+              <IconButton size="small" onClick={() => onEdit(area)} title={t('pages.areas.editConstructionArea')}>
                 <EditIcon fontSize="small" />
               </IconButton>
-              <IconButton size="small" onClick={() => onDelete(area)} title="Delete area" color="error">
+              <IconButton size="small" onClick={() => onDelete(area)} title={t('pages.areas.deleteArea')} color="error">
                 <DeleteIcon fontSize="small" />
               </IconButton>
             </Box>
@@ -118,6 +119,7 @@ function AreaNode({ area, level, onEdit, onDelete }: AreaNodeProps) {
 
 export default function AreasPage() {
   const { projectId } = useParams()
+  const { t } = useTranslation()
   const { showError, showSuccess } = useToast()
   const [loading, setLoading] = useState(true)
   const [areas, setAreas] = useState<ConstructionArea[]>([])
@@ -199,7 +201,7 @@ export default function AreasPage() {
       setAreas(data)
     } catch (error) {
       console.error('Failed to load areas:', error)
-      showError('Failed to load areas. Please try again.')
+      showError(t('pages.areas.failedToLoadAreas'))
     } finally {
       setLoading(false)
     }
@@ -272,16 +274,16 @@ export default function AreasPage() {
 
       if (editingArea) {
         await areasApi.update(projectId, editingArea.id, payload)
-        showSuccess('Area updated successfully!')
+        showSuccess(t('pages.areas.areaUpdatedSuccessfully'))
       } else {
         await areasApi.create(projectId, payload)
-        showSuccess('Area created successfully!')
+        showSuccess(t('pages.areas.areaCreatedSuccessfully'))
       }
       handleCloseDialog()
       loadAreas()
     } catch (error) {
       console.error('Failed to save area:', error)
-      showError(`Failed to ${editingArea ? 'update' : 'create'} area. Please try again.`)
+      showError(editingArea ? t('pages.areas.failedToUpdateArea') : t('pages.areas.failedToCreateArea'))
     } finally {
       setSaving(false)
     }
@@ -297,13 +299,13 @@ export default function AreasPage() {
 
     try {
       await areasApi.delete(projectId, areaToDelete.id)
-      showSuccess('Area deleted successfully!')
+      showSuccess(t('pages.areas.areaDeletedSuccessfully'))
       setDeleteDialogOpen(false)
       setAreaToDelete(null)
       loadAreas()
     } catch (error) {
       console.error('Failed to delete area:', error)
-      showError('Failed to delete area. Please try again.')
+      showError(t('pages.areas.failedToDeleteArea'))
     }
   }
 
@@ -330,18 +332,18 @@ export default function AreasPage() {
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Box>
-          <Typography variant="h5" fontWeight="bold">Construction Areas</Typography>
-          <Typography variant="body2" color="text.secondary">Track progress by building area</Typography>
+          <Typography variant="h5" fontWeight="bold">{t('pages.areas.constructionAreas')}</Typography>
+          <Typography variant="body2" color="text.secondary">{t('pages.areas.subtitle')}</Typography>
         </Box>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenCreate}>Add Area</Button>
+        <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenCreate}>{t('pages.areas.addArea')}</Button>
       </Box>
 
       <Card sx={{ mb: 3, bgcolor: 'primary.light', color: 'primary.contrastText' }}>
         <CardContent>
           <Grid container spacing={3} alignItems="center">
             <Grid item xs={12} md={6}>
-              <Typography variant="h6">Overall Project Progress</Typography>
-              <Typography variant="body2" sx={{ opacity: 0.8 }}>Based on all construction areas</Typography>
+              <Typography variant="h6">{t('pages.areas.overall ProjectProgress')}</Typography>
+              <Typography variant="body2" sx={{ opacity: 0.8 }}>{t('pages.areas.basedOnAllConstructionAreas')}</Typography>
             </Grid>
             <Grid item xs={12} md={6}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -367,63 +369,63 @@ export default function AreasPage() {
 
       {areas.length === 0 && (
         <Box sx={{ textAlign: 'center', py: 8 }}>
-          <Typography color="text.secondary">No construction areas found</Typography>
+          <Typography color="text.secondary">{t('pages.areas.noConstructionAreasFound')}</Typography>
         </Box>
       )}
 
       <Dialog open={dialogOpen} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>{editingArea ? 'Edit Construction Area' : 'Add Construction Area'}</DialogTitle>
+        <DialogTitle>{editingArea ? t('pages.areas.editConstructionArea') : t('pages.areas.addConstructionArea')}</DialogTitle>
         <DialogContent>
           <TextField
             fullWidth
-            label="Area Name"
+            label={t('pages.areas.areaName')}
             margin="normal"
             required
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             error={!!errors.name || formData.name.length >= VALIDATION.MAX_NAME_LENGTH}
-            helperText={errors.name || (formData.name.length > 0 ? `${formData.name.length}/${VALIDATION.MAX_NAME_LENGTH}${formData.name.length >= VALIDATION.MAX_NAME_LENGTH * 0.9 ? ' - Approaching limit' : ''}` : undefined)}
+            helperText={errors.name || (formData.name.length > 0 ? `${formData.name.length}/${VALIDATION.MAX_NAME_LENGTH}${formData.name.length >= VALIDATION.MAX_NAME_LENGTH * 0.9 ? ' - ' + t('pages.projects.approachingLimit') : ''}` : undefined)}
             inputProps={{ maxLength: VALIDATION.MAX_NAME_LENGTH }}
           />
           <TextField
             fullWidth
-            label="Area Code"
+            label={t('pages.areas.areaCode')}
             margin="normal"
             required
             disabled={!!editingArea}
             value={formData.areaCode}
             onChange={(e) => setFormData({ ...formData, areaCode: e.target.value.toUpperCase() })}
             error={!!errors.areaCode}
-            helperText={editingArea ? 'Code cannot be changed' : (errors.areaCode || 'Letters, numbers, hyphens only')}
+            helperText={editingArea ? t('pages.projects.codeCannotChanged') : (errors.areaCode || t('pages.projects.lettersNumbersHyphens'))}
             inputProps={{ maxLength: VALIDATION.MAX_CODE_LENGTH }}
           />
           <TextField
             fullWidth
             select
-            label="Area Type"
+            label={t('pages.areas.areaType')}
             margin="normal"
             value={formData.areaType}
             onChange={(e) => setFormData({ ...formData, areaType: e.target.value })}
           >
-            <MenuItem value="">Select type...</MenuItem>
+            <MenuItem value="">{t('pages.areas.selectType')}</MenuItem>
             {areaTypes.map(type => <MenuItem key={type.value} value={type.value}>{type.label}</MenuItem>)}
           </TextField>
           <TextField
             fullWidth
             select
-            label="Parent Area (optional)"
+            label={t('pages.areas.parentArea')}
             margin="normal"
             value={formData.parentId}
             onChange={(e) => setFormData({ ...formData, parentId: e.target.value })}
           >
-            <MenuItem value="">None (Top Level)</MenuItem>
+            <MenuItem value="">{t('pages.areas.none')}</MenuItem>
             {allAreas
               .filter(area => !editingArea || area.id !== editingArea.id)
               .map(area => <MenuItem key={area.id} value={area.id}>{area.name}</MenuItem>)}
           </TextField>
           <TextField
             fullWidth
-            label="Floor Number"
+            label={t('pages.areas.floorNumber')}
             type="number"
             margin="normal"
             value={formData.floorNumber}
@@ -432,7 +434,7 @@ export default function AreasPage() {
           />
           <TextField
             fullWidth
-            label="Total Units"
+            label={t('pages.areas.totalUnits')}
             type="number"
             margin="normal"
             value={formData.totalUnits}
@@ -441,27 +443,21 @@ export default function AreasPage() {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog} disabled={saving}>Cancel</Button>
+          <Button onClick={handleCloseDialog} disabled={saving}>{t('common.cancel')}</Button>
           <Button variant="contained" onClick={handleSaveArea} disabled={saving}>
-            {saving ? <CircularProgress size={24} /> : (editingArea ? 'Save Changes' : 'Add Area')}
+            {saving ? <CircularProgress size={24} /> : (editingArea ? t('common.save') : t('pages.areas.addArea'))}
           </Button>
         </DialogActions>
       </Dialog>
 
       <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
-        <DialogTitle>Delete Area</DialogTitle>
+        <DialogTitle>{t('pages.areas.deleteArea')}</DialogTitle>
         <DialogContent>
-          <Typography>
-            Are you sure you want to delete <strong>{areaToDelete?.name}</strong>?
-            {areaToDelete?.children && areaToDelete.children.length > 0 && (
-              <> This will also delete all child areas.</>
-            )}
-            {' '}This action cannot be undone.
-          </Typography>
+          <Typography dangerouslySetInnerHTML={{ __html: t('pages.areas.areYouSureYouWantToDeleteArea', { name: areaToDelete?.name || '', willAlsoDelete: (areaToDelete?.children && areaToDelete.children.length > 0) ? t('pages.areas.willAlsoDeleteChildAreas') : '' }) }} />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-          <Button variant="contained" color="error" onClick={handleConfirmDelete}>Delete</Button>
+          <Button onClick={() => setDeleteDialogOpen(false)}>{t('common.cancel')}</Button>
+          <Button variant="contained" color="error" onClick={handleConfirmDelete}>{t('common.delete')}</Button>
         </DialogActions>
       </Dialog>
     </Box>

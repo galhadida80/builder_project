@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
@@ -41,6 +42,7 @@ const contactTypes = [
 
 export default function ContactsPage() {
   const { projectId } = useParams()
+  const { t } = useTranslation()
   const { showError, showSuccess } = useToast()
   const [loading, setLoading] = useState(true)
   const [contacts, setContacts] = useState<Contact[]>([])
@@ -72,7 +74,7 @@ export default function ContactsPage() {
       setContacts(data)
     } catch (error) {
       console.error('Failed to load contacts:', error)
-      showError('Failed to load contacts. Please try again.')
+      showError(t('pages.contacts.failedToLoadContacts'))
     } finally {
       setLoading(false)
     }
@@ -118,7 +120,7 @@ export default function ContactsPage() {
     })
 
     if (!formData.contactType) {
-      validationErrors.contactType = 'Contact type is required'
+      validationErrors.contactType = t('validation.required')
     }
 
     setErrors(validationErrors)
@@ -137,16 +139,16 @@ export default function ContactsPage() {
 
       if (editingContact) {
         await contactsApi.update(projectId, editingContact.id, payload)
-        showSuccess('Contact updated successfully!')
+        showSuccess(t('pages.contacts.contactUpdatedSuccessfully'))
       } else {
         await contactsApi.create(projectId, payload)
-        showSuccess('Contact created successfully!')
+        showSuccess(t('pages.contacts.contactCreatedSuccessfully'))
       }
       handleCloseDialog()
       loadContacts()
     } catch (error) {
       console.error('Failed to save contact:', error)
-      showError(`Failed to ${editingContact ? 'update' : 'create'} contact. Please try again.`)
+      showError(editingContact ? t('pages.contacts.failedToUpdateContact') : t('pages.contacts.failedToCreateContact'))
     } finally {
       setSaving(false)
     }
@@ -163,13 +165,13 @@ export default function ContactsPage() {
 
     try {
       await contactsApi.delete(projectId, contactToDelete.id)
-      showSuccess('Contact deleted successfully!')
+      showSuccess(t('pages.contacts.contactDeletedSuccessfully'))
       setDeleteDialogOpen(false)
       setContactToDelete(null)
       loadContacts()
     } catch (error) {
       console.error('Failed to delete contact:', error)
-      showError('Failed to delete contact. Please try again.')
+      showError(t('pages.contacts.failedToDeleteContact'))
     }
   }
 
@@ -200,15 +202,15 @@ export default function ContactsPage() {
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h5" fontWeight="bold">Contacts</Typography>
+        <Typography variant="h5" fontWeight="bold">{t('pages.contacts.title')}</Typography>
         <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenCreate}>
-          Add Contact
+          {t('pages.contacts.addContact')}
         </Button>
       </Box>
 
       <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
         <TextField
-          placeholder="Search contacts..."
+          placeholder={t('pages.contacts.searchContacts')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           sx={{ width: 300 }}
@@ -224,7 +226,7 @@ export default function ContactsPage() {
           sx={{ width: 180 }}
           size="small"
         >
-          <MenuItem value="">All Types</MenuItem>
+          <MenuItem value="">{t('pages.contacts.allTypes')}</MenuItem>
           {contactTypes.map(type => (
             <MenuItem key={type.value} value={type.value}>{type.label}</MenuItem>
           ))}
@@ -283,10 +285,10 @@ export default function ContactsPage() {
                   )}
 
                   <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2, gap: 1 }}>
-                    <IconButton size="small" onClick={() => handleOpenEdit(contact)} title="Edit contact">
+                    <IconButton size="small" onClick={() => handleOpenEdit(contact)} title={t('pages.contacts.editContact')}>
                       <EditIcon fontSize="small" />
                     </IconButton>
-                    <IconButton size="small" onClick={(e) => handleDeleteClick(contact, e)} title="Delete contact" color="error">
+                    <IconButton size="small" onClick={(e) => handleDeleteClick(contact, e)} title={t('pages.contacts.deleteContact')} color="error">
                       <DeleteIcon fontSize="small" />
                     </IconButton>
                   </Box>
@@ -299,28 +301,28 @@ export default function ContactsPage() {
 
       {filteredContacts.length === 0 && (
         <Box sx={{ textAlign: 'center', py: 8 }}>
-          <Typography color="text.secondary">No contacts found</Typography>
+          <Typography color="text.secondary">{t('pages.contacts.noContacts')}</Typography>
         </Box>
       )}
 
       <Dialog open={dialogOpen} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>{editingContact ? 'Edit Contact' : 'Add Contact'}</DialogTitle>
+        <DialogTitle>{editingContact ? t('pages.contacts.editContact') : t('pages.contacts.addContact')}</DialogTitle>
         <DialogContent>
           <TextField
             fullWidth
-            label="Contact Name"
+            label={t('pages.contacts.contactName')}
             margin="normal"
             required
             value={formData.contactName}
             onChange={(e) => setFormData({ ...formData, contactName: e.target.value })}
             error={!!errors.contact_name || formData.contactName.length >= VALIDATION.MAX_NAME_LENGTH}
-            helperText={errors.contact_name || (formData.contactName.length > 0 ? `${formData.contactName.length}/${VALIDATION.MAX_NAME_LENGTH}${formData.contactName.length >= VALIDATION.MAX_NAME_LENGTH * 0.9 ? ' - Approaching limit' : ''}` : undefined)}
+            helperText={errors.contact_name || (formData.contactName.length > 0 ? `${formData.contactName.length}/${VALIDATION.MAX_NAME_LENGTH}${formData.contactName.length >= VALIDATION.MAX_NAME_LENGTH * 0.9 ? ' - ' + t('pages.projects.approachingLimit') : ''}` : undefined)}
             inputProps={{ maxLength: VALIDATION.MAX_NAME_LENGTH }}
           />
           <TextField
             fullWidth
             select
-            label="Contact Type"
+            label={t('pages.contacts.contactType')}
             margin="normal"
             required
             value={formData.contactType}
@@ -334,7 +336,7 @@ export default function ContactsPage() {
           </TextField>
           <TextField
             fullWidth
-            label="Company Name"
+            label={t('pages.contacts.companyName')}
             margin="normal"
             value={formData.companyName}
             onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
@@ -342,7 +344,7 @@ export default function ContactsPage() {
           />
           <TextField
             fullWidth
-            label="Email"
+            label={t('pages.contacts.email')}
             type="email"
             margin="normal"
             value={formData.email}
@@ -352,7 +354,7 @@ export default function ContactsPage() {
           />
           <TextField
             fullWidth
-            label="Phone"
+            label={t('pages.contacts.phone')}
             margin="normal"
             value={formData.phone}
             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
@@ -362,7 +364,7 @@ export default function ContactsPage() {
           />
           <TextField
             fullWidth
-            label="Role Description"
+            label={t('pages.contacts.roleDescription')}
             margin="normal"
             multiline
             rows={2}
@@ -372,23 +374,21 @@ export default function ContactsPage() {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog} disabled={saving}>Cancel</Button>
+          <Button onClick={handleCloseDialog} disabled={saving}>{t('common.cancel')}</Button>
           <Button variant="contained" onClick={handleSaveContact} disabled={saving}>
-            {saving ? <CircularProgress size={24} /> : (editingContact ? 'Save Changes' : 'Add Contact')}
+            {saving ? <CircularProgress size={24} /> : (editingContact ? t('common.save') : t('pages.contacts.addContact'))}
           </Button>
         </DialogActions>
       </Dialog>
 
       <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
-        <DialogTitle>Delete Contact</DialogTitle>
+        <DialogTitle>{t('pages.contacts.deleteContact')}</DialogTitle>
         <DialogContent>
-          <Typography>
-            Are you sure you want to delete <strong>{contactToDelete?.contactName}</strong>? This action cannot be undone.
-          </Typography>
+          <Typography dangerouslySetInnerHTML={{ __html: t('pages.contacts.areYouSureYouWantToDeleteContact', { name: contactToDelete?.contactName || '' }) }} />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-          <Button variant="contained" color="error" onClick={handleConfirmDelete}>Delete</Button>
+          <Button onClick={() => setDeleteDialogOpen(false)}>{t('common.cancel')}</Button>
+          <Button variant="contained" color="error" onClick={handleConfirmDelete}>{t('common.delete')}</Button>
         </DialogActions>
       </Dialog>
     </Box>

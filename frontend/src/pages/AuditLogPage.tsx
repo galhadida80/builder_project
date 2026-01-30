@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Card from '@mui/material/Card'
@@ -29,7 +30,6 @@ import SwapHorizIcon from '@mui/icons-material/SwapHoriz'
 import { auditApi } from '../api/audit'
 import { useToast } from '../components/common/ToastProvider'
 import type { AuditLog } from '../types'
-import { useToast } from '../components/common/ToastProvider'
 
 const actionIcons: Record<string, React.ReactNode> = {
   create: <AddCircleIcon color="success" />,
@@ -53,6 +53,7 @@ const entityTypes = ['equipment', 'material', 'meeting', 'project', 'contact', '
 const actionTypes = ['create', 'update', 'delete', 'status_change', 'approval', 'rejection']
 
 export default function AuditLogPage() {
+  const { t } = useTranslation()
   const { showError } = useToast()
   const [loading, setLoading] = useState(true)
   const [logs, setLogs] = useState<AuditLog[]>([])
@@ -73,7 +74,7 @@ export default function AuditLogPage() {
       setLogs(data)
     } catch (error) {
       console.error('Failed to load audit logs:', error)
-      showError('Failed to load audit logs. Please try again.')
+      showError(t('pages.audit.failedToLoadAuditLogs'))
     } finally {
       setLoading(false)
     }
@@ -114,17 +115,17 @@ export default function AuditLogPage() {
 
   return (
     <Box>
-      <Typography variant="h4" fontWeight="bold" gutterBottom>Audit Log</Typography>
-      <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>Complete history of all changes and actions</Typography>
+      <Typography variant="h4" fontWeight="bold" gutterBottom>{t('pages.audit.title')}</Typography>
+      <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>{t('pages.audit.subtitle')}</Typography>
 
       <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
-        <TextField placeholder="Search by user or entity..." value={search} onChange={(e) => setSearch(e.target.value)} sx={{ width: 300 }} size="small" InputProps={{ startAdornment: <InputAdornment position="start"><SearchIcon /></InputAdornment> }} />
+        <TextField placeholder={t('pages.audit.searchByUserOrEntity')} value={search} onChange={(e) => setSearch(e.target.value)} sx={{ width: 300 }} size="small" InputProps={{ startAdornment: <InputAdornment position="start"><SearchIcon /></InputAdornment> }} />
         <TextField select value={entityFilter} onChange={(e) => setEntityFilter(e.target.value)} sx={{ width: 150 }} size="small">
-          <MenuItem value="">All Entities</MenuItem>
+          <MenuItem value="">{t('pages.audit.allEntities')}</MenuItem>
           {entityTypes.map(type => <MenuItem key={type} value={type} sx={{ textTransform: 'capitalize' }}>{type}</MenuItem>)}
         </TextField>
         <TextField select value={actionFilter} onChange={(e) => setActionFilter(e.target.value)} sx={{ width: 150 }} size="small">
-          <MenuItem value="">All Actions</MenuItem>
+          <MenuItem value="">{t('pages.audit.allActions')}</MenuItem>
           {actionTypes.map(type => <MenuItem key={type} value={type} sx={{ textTransform: 'capitalize' }}>{type.replace('_', ' ')}</MenuItem>)}
         </TextField>
       </Box>
@@ -134,12 +135,12 @@ export default function AuditLogPage() {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Timestamp</TableCell>
-                <TableCell>User</TableCell>
-                <TableCell>Action</TableCell>
-                <TableCell>Entity</TableCell>
-                <TableCell>Changes</TableCell>
-                <TableCell align="right">Details</TableCell>
+                <TableCell>{t('pages.audit.timestamp')}</TableCell>
+                <TableCell>{t('pages.audit.user')}</TableCell>
+                <TableCell>{t('pages.audit.action')}</TableCell>
+                <TableCell>{t('pages.audit.resource')}</TableCell>
+                <TableCell>{t('pages.audit.changes')}</TableCell>
+                <TableCell align="right">{t('pages.audit.details')}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -165,9 +166,9 @@ export default function AuditLogPage() {
                     </TableCell>
                     <TableCell><Chip label={log.entityType} size="small" variant="outlined" sx={{ textTransform: 'capitalize' }} /></TableCell>
                     <TableCell>
-                      {changes.length > 0 ? <Typography variant="body2" color="text.secondary">{changes.length} field{changes.length > 1 ? 's' : ''} changed</Typography> : <Typography variant="body2" color="text.secondary">-</Typography>}
+                      {changes.length > 0 ? <Typography variant="body2" color="text.secondary">{t('pages.audit.fieldsChanged', { count: changes.length, plural: changes.length > 1 ? 's' : '' })}</Typography> : <Typography variant="body2" color="text.secondary">-</Typography>}
                     </TableCell>
-                    <TableCell align="right"><Button size="small" onClick={() => handleViewDetails(log)}>View</Button></TableCell>
+                    <TableCell align="right"><Button size="small" onClick={() => handleViewDetails(log)}>{t('pages.audit.view')}</Button></TableCell>
                   </TableRow>
                 )
               })}
@@ -176,7 +177,7 @@ export default function AuditLogPage() {
         </TableContainer>
       </Card>
 
-      {filteredLogs.length === 0 && <Box sx={{ textAlign: 'center', py: 8 }}><Typography color="text.secondary">No audit logs found</Typography></Box>}
+      {filteredLogs.length === 0 && <Box sx={{ textAlign: 'center', py: 8 }}><Typography color="text.secondary">{t('pages.audit.noAuditLogsFound')}</Typography></Box>}
 
       <Dialog open={detailsOpen} onClose={() => setDetailsOpen(false)} maxWidth="sm" fullWidth>
         {selectedLog && (
@@ -189,20 +190,20 @@ export default function AuditLogPage() {
             </DialogTitle>
             <DialogContent>
               <Box sx={{ mb: 3 }}>
-                <Typography variant="caption" color="text.secondary">Timestamp</Typography>
+                <Typography variant="caption" color="text.secondary">{t('pages.audit.timestamp')}</Typography>
                 <Typography>{new Date(selectedLog.createdAt).toLocaleString()}</Typography>
               </Box>
               <Box sx={{ mb: 3 }}>
-                <Typography variant="caption" color="text.secondary">User</Typography>
+                <Typography variant="caption" color="text.secondary">{t('pages.audit.user')}</Typography>
                 <Typography>{selectedLog.user?.fullName || 'Unknown'}</Typography>
               </Box>
               <Box sx={{ mb: 3 }}>
-                <Typography variant="caption" color="text.secondary">Entity ID</Typography>
+                <Typography variant="caption" color="text.secondary">{t('pages.audit.entityId')}</Typography>
                 <Typography sx={{ fontFamily: 'monospace' }}>{selectedLog.entityId}</Typography>
               </Box>
               {(selectedLog.oldValues || selectedLog.newValues) && (
                 <Box>
-                  <Typography variant="subtitle2" gutterBottom>Changes</Typography>
+                  <Typography variant="subtitle2" gutterBottom>{t('pages.audit.changes')}</Typography>
                   {formatChanges(selectedLog.oldValues, selectedLog.newValues).map(change => (
                     <Box key={change.field} sx={{ bgcolor: 'grey.50', p: 1.5, borderRadius: 1, mb: 1 }}>
                       <Typography variant="caption" color="text.secondary">{change.field}</Typography>
@@ -216,7 +217,7 @@ export default function AuditLogPage() {
                 </Box>
               )}
             </DialogContent>
-            <DialogActions><Button onClick={() => setDetailsOpen(false)}>Close</Button></DialogActions>
+            <DialogActions><Button onClick={() => setDetailsOpen(false)}>{t('pages.meetings.close')}</Button></DialogActions>
           </>
         )}
       </Dialog>

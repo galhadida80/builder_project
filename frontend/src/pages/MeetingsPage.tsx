@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
@@ -42,6 +43,7 @@ const meetingTypes = [
 
 export default function MeetingsPage() {
   const { projectId } = useParams()
+  const { t } = useTranslation()
   const { showError, showSuccess } = useToast()
   const [loading, setLoading] = useState(true)
   const [meetings, setMeetings] = useState<Meeting[]>([])
@@ -74,7 +76,7 @@ export default function MeetingsPage() {
       setMeetings(data)
     } catch (error) {
       console.error('Failed to load meetings:', error)
-      showError('Failed to load meetings. Please try again.')
+      showError(t('pages.meetings.failedToLoadMeetings'))
     } finally {
       setLoading(false)
     }
@@ -123,13 +125,13 @@ export default function MeetingsPage() {
     })
 
     if (!formData.date) {
-      validationErrors.date = 'Date is required'
+      validationErrors.date = t('validation.required')
     }
     if (!formData.startTime) {
-      validationErrors.startTime = 'Start time is required'
+      validationErrors.startTime = t('validation.required')
     }
     if (formData.startTime && formData.endTime && formData.endTime <= formData.startTime) {
-      validationErrors.endTime = 'End time must be after start time'
+      validationErrors.endTime = t('pages.meetings.endTimeMustBeAfterStartTime')
     }
 
     setErrors(validationErrors)
@@ -147,7 +149,7 @@ export default function MeetingsPage() {
           location: formData.location || undefined,
           scheduledDate
         })
-        showSuccess('Meeting updated successfully!')
+        showSuccess(t('pages.meetings.meetingUpdatedSuccessfully'))
       } else {
         await meetingsApi.create(projectId, {
           title: formData.title,
@@ -156,13 +158,13 @@ export default function MeetingsPage() {
           location: formData.location || undefined,
           scheduledDate
         })
-        showSuccess('Meeting scheduled successfully!')
+        showSuccess(t('pages.meetings.meetingScheduledSuccessfully'))
       }
       handleCloseDialog()
       loadMeetings()
     } catch (error) {
       console.error('Failed to save meeting:', error)
-      showError(`Failed to ${editingMeeting ? 'update' : 'schedule'} meeting. Please try again.`)
+      showError(editingMeeting ? t('pages.meetings.failedToUpdateMeeting') : t('pages.meetings.failedToScheduleMeeting'))
     } finally {
       setSaving(false)
     }
@@ -180,13 +182,13 @@ export default function MeetingsPage() {
 
     try {
       await meetingsApi.delete(projectId, meetingToDelete.id)
-      showSuccess('Meeting deleted successfully!')
+      showSuccess(t('pages.meetings.meetingDeletedSuccessfully'))
       setDeleteDialogOpen(false)
       setMeetingToDelete(null)
       loadMeetings()
     } catch (error) {
       console.error('Failed to delete meeting:', error)
-      showError('Failed to delete meeting. Please try again.')
+      showError(t('pages.meetings.failedToDeleteMeeting'))
     }
   }
 
@@ -232,18 +234,18 @@ export default function MeetingsPage() {
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h5" fontWeight="bold">Meetings</Typography>
+        <Typography variant="h5" fontWeight="bold">{t('pages.meetings.title')}</Typography>
         <Box sx={{ display: 'flex', gap: 1 }}>
-          <Button variant="outlined" startIcon={<SyncIcon />}>Sync Calendar</Button>
+          <Button variant="outlined" startIcon={<SyncIcon />}>{t('pages.meetings.syncCalendar')}</Button>
           <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenCreate}>
-            Schedule Meeting
+            {t('pages.meetings.scheduleMeeting')}
           </Button>
         </Box>
       </Box>
 
       <Tabs value={tabValue} onChange={(_, v) => setTabValue(v)} sx={{ mb: 3 }}>
-        <Tab label={`Upcoming (${upcomingMeetings.length})`} />
-        <Tab label={`Past (${pastMeetings.length})`} />
+        <Tab label={t('pages.meetings.upcomingCount', { count: upcomingMeetings.length })} />
+        <Tab label={t('pages.meetings.pastCount', { count: pastMeetings.length })} />
       </Tabs>
 
       <Grid container spacing={2}>
@@ -286,10 +288,10 @@ export default function MeetingsPage() {
                     <Avatar>U</Avatar>
                   </AvatarGroup>
                   <Box>
-                    <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleOpenEdit(meeting); }} title="Edit meeting">
+                    <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleOpenEdit(meeting); }} title={t('pages.meetings.editMeeting')}>
                       <EditIcon fontSize="small" />
                     </IconButton>
-                    <IconButton size="small" onClick={(e) => handleDeleteClick(meeting, e)} title="Delete meeting" color="error">
+                    <IconButton size="small" onClick={(e) => handleDeleteClick(meeting, e)} title={t('pages.meetings.deleteMeeting')} color="error">
                       <DeleteIcon fontSize="small" />
                     </IconButton>
                   </Box>
@@ -304,51 +306,51 @@ export default function MeetingsPage() {
         <Box sx={{ textAlign: 'center', py: 8 }}>
           <EventIcon sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
           <Typography variant="h6" color="text.secondary">
-            {tabValue === 0 ? 'No upcoming meetings' : 'No past meetings'}
+            {tabValue === 0 ? t('pages.meetings.noUpcomingMeetings') : t('pages.meetings.noPastMeetings')}
           </Typography>
         </Box>
       )}
 
       <Dialog open={dialogOpen} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>{editingMeeting ? 'Edit Meeting' : 'Schedule Meeting'}</DialogTitle>
+        <DialogTitle>{editingMeeting ? t('pages.meetings.editMeeting') : t('pages.meetings.scheduleMeeting')}</DialogTitle>
         <DialogContent>
           <TextField
             fullWidth
-            label="Meeting Title"
+            label={t('pages.meetings.meetingTitle')}
             margin="normal"
             required
             value={formData.title}
             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
             error={!!errors.title || formData.title.length >= VALIDATION.MAX_NAME_LENGTH}
-            helperText={errors.title || (formData.title.length > 0 ? `${formData.title.length}/${VALIDATION.MAX_NAME_LENGTH}${formData.title.length >= VALIDATION.MAX_NAME_LENGTH * 0.9 ? ' - Approaching limit' : ''}` : undefined)}
+            helperText={errors.title || (formData.title.length > 0 ? `${formData.title.length}/${VALIDATION.MAX_NAME_LENGTH}${formData.title.length >= VALIDATION.MAX_NAME_LENGTH * 0.9 ? ' - ' + t('pages.projects.approachingLimit') : ''}` : undefined)}
             inputProps={{ maxLength: VALIDATION.MAX_NAME_LENGTH }}
           />
           <TextField
             fullWidth
             select
-            label="Meeting Type"
+            label={t('pages.meetings.meetingType')}
             margin="normal"
             value={formData.meetingType}
             onChange={(e) => setFormData({ ...formData, meetingType: e.target.value })}
           >
-            <MenuItem value="">Select type...</MenuItem>
+            <MenuItem value="">{t('pages.meetings.selectType')}</MenuItem>
             {meetingTypes.map(type => <MenuItem key={type.value} value={type.value}>{type.label}</MenuItem>)}
           </TextField>
           <TextField
             fullWidth
-            label="Description"
+            label={t('pages.meetings.description')}
             margin="normal"
             multiline
             rows={2}
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             error={!!errors.description || formData.description.length >= VALIDATION.MAX_DESCRIPTION_LENGTH}
-            helperText={errors.description || (formData.description.length > 0 ? `${formData.description.length}/${VALIDATION.MAX_DESCRIPTION_LENGTH}${formData.description.length >= VALIDATION.MAX_DESCRIPTION_LENGTH * 0.9 ? ' - Approaching limit' : ''}` : undefined)}
+            helperText={errors.description || (formData.description.length > 0 ? `${formData.description.length}/${VALIDATION.MAX_DESCRIPTION_LENGTH}${formData.description.length >= VALIDATION.MAX_DESCRIPTION_LENGTH * 0.9 ? ' - ' + t('pages.projects.approachingLimit') : ''}` : undefined)}
             inputProps={{ maxLength: VALIDATION.MAX_DESCRIPTION_LENGTH }}
           />
           <TextField
             fullWidth
-            label="Location"
+            label={t('pages.meetings.location')}
             margin="normal"
             value={formData.location}
             onChange={(e) => setFormData({ ...formData, location: e.target.value })}
@@ -357,7 +359,7 @@ export default function MeetingsPage() {
           <Box sx={{ display: 'flex', gap: 2 }}>
             <TextField
               fullWidth
-              label="Date"
+              label={t('pages.meetings.date')}
               type="date"
               margin="normal"
               InputLabelProps={{ shrink: true }}
@@ -369,7 +371,7 @@ export default function MeetingsPage() {
             />
             <TextField
               fullWidth
-              label="Start Time"
+              label={t('pages.meetings.startTime')}
               type="time"
               margin="normal"
               InputLabelProps={{ shrink: true }}
@@ -381,7 +383,7 @@ export default function MeetingsPage() {
             />
             <TextField
               fullWidth
-              label="End Time"
+              label={t('pages.meetings.endTime')}
               type="time"
               margin="normal"
               InputLabelProps={{ shrink: true }}
@@ -393,9 +395,9 @@ export default function MeetingsPage() {
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog} disabled={saving}>Cancel</Button>
+          <Button onClick={handleCloseDialog} disabled={saving}>{t('common.cancel')}</Button>
           <Button variant="contained" onClick={handleSaveMeeting} disabled={saving}>
-            {saving ? <CircularProgress size={24} /> : (editingMeeting ? 'Save Changes' : 'Schedule Meeting')}
+            {saving ? <CircularProgress size={24} /> : (editingMeeting ? t('common.save') : t('pages.meetings.scheduleMeeting'))}
           </Button>
         </DialogActions>
       </Dialog>
@@ -438,25 +440,23 @@ export default function MeetingsPage() {
               </Box>
             </DialogContent>
             <DialogActions>
-              <Button onClick={() => setDetailsOpen(false)}>Close</Button>
-              <Button variant="outlined" color="error" onClick={() => handleDeleteClick(selectedMeeting)}>Delete</Button>
-              <Button variant="outlined" onClick={() => handleOpenEdit(selectedMeeting)}>Edit Meeting</Button>
-              {selectedMeeting.status === 'completed' && <Button variant="contained">Add Summary</Button>}
+              <Button onClick={() => setDetailsOpen(false)}>{t('pages.meetings.close')}</Button>
+              <Button variant="outlined" color="error" onClick={() => handleDeleteClick(selectedMeeting)}>{t('common.delete')}</Button>
+              <Button variant="outlined" onClick={() => handleOpenEdit(selectedMeeting)}>{t('pages.meetings.editMeeting')}</Button>
+              {selectedMeeting.status === 'completed' && <Button variant="contained">{t('pages.meetings.addSummary')}</Button>}
             </DialogActions>
           </>
         )}
       </Dialog>
 
       <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
-        <DialogTitle>Delete Meeting</DialogTitle>
+        <DialogTitle>{t('pages.meetings.deleteMeeting')}</DialogTitle>
         <DialogContent>
-          <Typography>
-            Are you sure you want to delete <strong>{meetingToDelete?.title}</strong>? This action cannot be undone.
-          </Typography>
+          <Typography dangerouslySetInnerHTML={{ __html: t('pages.meetings.areYouSureYouWantToDeleteMeeting', { name: meetingToDelete?.title || '' }) }} />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-          <Button variant="contained" color="error" onClick={handleConfirmDelete}>Delete</Button>
+          <Button onClick={() => setDeleteDialogOpen(false)}>{t('common.cancel')}</Button>
+          <Button variant="contained" color="error" onClick={handleConfirmDelete}>{t('common.delete')}</Button>
         </DialogActions>
       </Dialog>
     </Box>

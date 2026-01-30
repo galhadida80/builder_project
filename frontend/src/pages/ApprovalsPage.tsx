@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Tabs from '@mui/material/Tabs'
@@ -29,9 +30,9 @@ import { materialsApi } from '../api/materials'
 import StatusBadge from '../components/common/StatusBadge'
 import { useToast } from '../components/common/ToastProvider'
 import type { ApprovalRequest, ApprovalStep, Equipment, Material } from '../types'
-import { useToast } from '../components/common/ToastProvider'
 
 export default function ApprovalsPage() {
+  const { t } = useTranslation()
   const { showError, showSuccess } = useToast()
   const [loading, setLoading] = useState(true)
   const [approvals, setApprovals] = useState<ApprovalRequest[]>([])
@@ -61,7 +62,7 @@ export default function ApprovalsPage() {
       setMaterials(materialsData)
     } catch (error) {
       console.error('Failed to load data:', error)
-      showError('Failed to load approval data. Please try again.')
+      showError(t('pages.approvals.failedToLoadApprovals', { defaultValue: 'Failed to load approval data. Please try again.' }))
     } finally {
       setLoading(false)
     }
@@ -99,10 +100,10 @@ export default function ApprovalsPage() {
     try {
       if (actionType === 'approve') {
         await approvalsApi.approve(selectedApproval.id, comment || undefined)
-        showSuccess('Request approved successfully!')
+        showSuccess(t('pages.approvals.requestApprovedSuccessfully'))
       } else {
         await approvalsApi.reject(selectedApproval.id, comment)
-        showSuccess('Request rejected.')
+        showSuccess(t('pages.approvals.requestRejected'))
       }
       setDialogOpen(false)
       setSelectedApproval(null)
@@ -111,7 +112,7 @@ export default function ApprovalsPage() {
       loadData()
     } catch (error) {
       console.error('Failed to submit action:', error)
-      showError(`Failed to ${actionType} request. Please try again.`)
+      showError(actionType === 'approve' ? t('pages.approvals.failedToApproveRequest') : t('pages.approvals.failedToRejectRequest'))
     } finally {
       setSubmitting(false)
     }
@@ -127,12 +128,12 @@ export default function ApprovalsPage() {
 
   return (
     <Box>
-      <Typography variant="h5" fontWeight="bold" gutterBottom>Approvals</Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>Review and manage approval requests</Typography>
+      <Typography variant="h5" fontWeight="bold" gutterBottom>{t('pages.approvals.title')}</Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>{t('pages.approvals.subtitle')}</Typography>
 
       <Tabs value={tabValue} onChange={(_, v) => setTabValue(v)} sx={{ mb: 3 }}>
-        <Tab label={`Pending (${pendingApprovals.length})`} />
-        <Tab label={`Completed (${completedApprovals.length})`} />
+        <Tab label={t('pages.approvals.pendingCount', { count: pendingApprovals.length })} />
+        <Tab label={t('pages.approvals.completedCount', { count: completedApprovals.length })} />
       </Tabs>
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -158,19 +159,19 @@ export default function ApprovalsPage() {
                   </Box>
                   {tabValue === 0 && (
                     <Box sx={{ display: 'flex', gap: 1 }}>
-                      <Button variant="contained" color="success" size="small" startIcon={<CheckCircleIcon />} onClick={() => handleAction(approval, 'approve')}>Approve</Button>
-                      <Button variant="outlined" color="error" size="small" startIcon={<CancelIcon />} onClick={() => handleAction(approval, 'reject')}>Reject</Button>
+                      <Button variant="contained" color="success" size="small" startIcon={<CheckCircleIcon />} onClick={() => handleAction(approval, 'approve')}>{t('pages.approvals.approve')}</Button>
+                      <Button variant="outlined" color="error" size="small" startIcon={<CancelIcon />} onClick={() => handleAction(approval, 'reject')}>{t('pages.approvals.reject')}</Button>
                     </Box>
                   )}
                 </Box>
                 {approval.steps && approval.steps.length > 0 && (
                   <Box sx={{ mt: 3 }}>
-                    <Typography variant="subtitle2" color="text.secondary" gutterBottom>Approval Progress</Typography>
+                    <Typography variant="subtitle2" color="text.secondary" gutterBottom>{t('pages.approvals.approvalProgress')}</Typography>
                     <Stepper orientation="vertical" sx={{ mt: 1 }}>
                       {approval.steps.map((step, index) => (
                         <Step key={step.id} active={step.status === 'under_review'} completed={step.status === 'approved'}>
                           <StepLabel icon={getStepIcon(step)}>
-                            <Typography>Step {index + 1}: {step.approverRole?.replace('_', ' ')}</Typography>
+                            <Typography>{t('pages.approvals.step', { number: index + 1, role: step.approverRole?.replace('_', ' ') || '' })}</Typography>
                           </StepLabel>
                           {step.comments && <StepContent><Typography variant="body2" color="text.secondary">"{step.comments}"</Typography></StepContent>}
                         </Step>
@@ -187,19 +188,19 @@ export default function ApprovalsPage() {
       {displayedApprovals.length === 0 && (
         <Box sx={{ textAlign: 'center', py: 8 }}>
           <CheckCircleIcon sx={{ fontSize: 64, color: 'success.main', mb: 2 }} />
-          <Typography variant="h6" color="text.secondary">{tabValue === 0 ? 'No pending approvals' : 'No completed approvals'}</Typography>
+          <Typography variant="h6" color="text.secondary">{tabValue === 0 ? t('pages.approvals.noApprovals') : t('pages.approvals.noApprovals')}</Typography>
         </Box>
       )}
 
       <Dialog open={dialogOpen} onClose={() => !submitting && setDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>{actionType === 'approve' ? 'Approve Request' : 'Reject Request'}</DialogTitle>
+        <DialogTitle>{actionType === 'approve' ? t('pages.approvals.approveRequest') : t('pages.approvals.rejectRequest')}</DialogTitle>
         <DialogContent>
-          <TextField fullWidth multiline rows={4} label={actionType === 'approve' ? 'Comments (optional)' : 'Rejection Reason'} value={comment} onChange={(e) => setComment(e.target.value)} required={actionType === 'reject'} disabled={submitting} sx={{ mt: 2 }} />
+          <TextField fullWidth multiline rows={4} label={actionType === 'approve' ? t('pages.approvals.commentsOptional') : t('pages.approvals.rejectionReason')} value={comment} onChange={(e) => setComment(e.target.value)} required={actionType === 'reject'} disabled={submitting} sx={{ mt: 2 }} />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDialogOpen(false)} disabled={submitting}>Cancel</Button>
+          <Button onClick={() => setDialogOpen(false)} disabled={submitting}>{t('common.cancel')}</Button>
           <Button variant="contained" color={actionType === 'approve' ? 'success' : 'error'} onClick={handleSubmitAction} disabled={submitting || (actionType === 'reject' && !comment)}>
-            {submitting ? <CircularProgress size={24} /> : (actionType === 'approve' ? 'Confirm Approval' : 'Confirm Rejection')}
+            {submitting ? <CircularProgress size={24} /> : (actionType === 'approve' ? t('pages.approvals.confirmApproval') : t('pages.approvals.confirmRejection'))}
           </Button>
         </DialogActions>
       </Dialog>

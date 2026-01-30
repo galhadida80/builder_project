@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
 import Card from '@mui/material/Card'
@@ -61,6 +62,7 @@ function StatCard({ title, value, subtitle, icon, color }: StatCardProps) {
 }
 
 export default function DashboardPage() {
+  const { t } = useTranslation()
   const { showError } = useToast()
   const [loading, setLoading] = useState(true)
   const [equipment, setEquipment] = useState<Equipment[]>([])
@@ -90,7 +92,7 @@ export default function DashboardPage() {
       setAuditLogs(auditData)
     } catch (error) {
       console.error('Failed to load dashboard data:', error)
-      showError('Failed to load dashboard data. Please refresh the page.')
+      showError(t('pages.dashboard.failedToLoadData', { defaultValue: 'Failed to load dashboard data. Please refresh the page.' }))
     } finally {
       setLoading(false)
     }
@@ -112,45 +114,45 @@ export default function DashboardPage() {
   return (
     <Box>
       <Typography variant="h4" fontWeight="bold" gutterBottom>
-        Dashboard
+        {t('pages.dashboard.title')}
       </Typography>
       <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-        Overview of your construction projects
+        {t('pages.dashboard.subtitle')}
       </Typography>
 
       <Grid container spacing={3}>
         <Grid item xs={12} sm={6} md={3}>
           <StatCard
-            title="Equipment Items"
+            title={t('pages.dashboard.equipmentItems')}
             value={equipment.length}
-            subtitle={`${equipmentPending.length} pending approval`}
+            subtitle={t('pages.dashboard.requiresAttention', { defaultValue: `${equipmentPending.length} pending approval` })}
             icon={<BuildIcon />}
             color="#1976d2"
           />
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
           <StatCard
-            title="Materials"
+            title={t('pages.dashboard.materials')}
             value={materials.length}
-            subtitle={`${materialsPending.length} pending approval`}
+            subtitle={t('pages.dashboard.requiresAttention', { defaultValue: `${materialsPending.length} pending approval` })}
             icon={<InventoryIcon />}
             color="#ff9800"
           />
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
           <StatCard
-            title="Pending Approvals"
+            title={t('pages.dashboard.pendingApprovalsTitle')}
             value={pendingApprovals.length}
-            subtitle="Requires your attention"
+            subtitle={t('pages.dashboard.requiresAttention')}
             icon={<CheckCircleIcon />}
             color="#4caf50"
           />
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
           <StatCard
-            title="Upcoming Meetings"
+            title={t('pages.dashboard.upcomingMeetingsTitle')}
             value={upcomingMeetings.length}
-            subtitle="In the next 7 days"
+            subtitle={t('pages.dashboard.inNext7Days')}
             icon={<EventIcon />}
             color="#9c27b0"
           />
@@ -160,7 +162,7 @@ export default function DashboardPage() {
           <Card sx={{ height: '100%' }}>
             <CardContent>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Typography variant="h6">Pending Approvals</Typography>
+                <Typography variant="h6">{t('pages.dashboard.pendingApprovalsTitle')}</Typography>
                 <Chip label={pendingApprovals.length} size="small" color="warning" />
               </Box>
               <List disablePadding>
@@ -187,7 +189,7 @@ export default function DashboardPage() {
               {pendingApprovals.length === 0 && (
                 <Box sx={{ textAlign: 'center', py: 4 }}>
                   <CheckCircleIcon sx={{ fontSize: 48, color: 'success.main', mb: 1 }} />
-                  <Typography color="text.secondary">All caught up!</Typography>
+                  <Typography color="text.secondary">{t('pages.dashboard.allCaughtUp')}</Typography>
                 </Box>
               )}
             </CardContent>
@@ -198,7 +200,7 @@ export default function DashboardPage() {
           <Card sx={{ height: '100%' }}>
             <CardContent>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Typography variant="h6">Upcoming Meetings</Typography>
+                <Typography variant="h6">{t('pages.dashboard.upcomingMeetingsTitle')}</Typography>
                 <Chip label={upcomingMeetings.length} size="small" color="primary" />
               </Box>
               <List disablePadding>
@@ -227,7 +229,7 @@ export default function DashboardPage() {
               {upcomingMeetings.length === 0 && (
                 <Box sx={{ textAlign: 'center', py: 4 }}>
                   <EventIcon sx={{ fontSize: 48, color: 'text.disabled', mb: 1 }} />
-                  <Typography color="text.secondary">No upcoming meetings</Typography>
+                  <Typography color="text.secondary">{t('pages.dashboard.noUpcomingMeetings')}</Typography>
                 </Box>
               )}
             </CardContent>
@@ -237,9 +239,9 @@ export default function DashboardPage() {
         <Grid item xs={12} md={8}>
           <Card>
             <CardContent>
-              <Typography variant="h6" gutterBottom>Project Progress</Typography>
+              <Typography variant="h6" gutterBottom>{t('pages.dashboard.projectProgress')}</Typography>
               <Box sx={{ textAlign: 'center', py: 4 }}>
-                <Typography color="text.secondary">Select a project to view progress</Typography>
+                <Typography color="text.secondary">{t('pages.dashboard.selectProjectToViewProgress')}</Typography>
               </Box>
             </CardContent>
           </Card>
@@ -248,7 +250,7 @@ export default function DashboardPage() {
         <Grid item xs={12} md={4}>
           <Card>
             <CardContent>
-              <Typography variant="h6" gutterBottom>Recent Activity</Typography>
+              <Typography variant="h6" gutterBottom>{t('pages.dashboard.recentActivity')}</Typography>
               <List disablePadding>
                 {auditLogs.slice(0, 5).map((log) => (
                   <ListItem key={log.id} sx={{ px: 0 }}>
@@ -272,7 +274,7 @@ export default function DashboardPage() {
               </List>
               {auditLogs.length === 0 && (
                 <Box sx={{ textAlign: 'center', py: 4 }}>
-                  <Typography color="text.secondary">No recent activity</Typography>
+                  <Typography color="text.secondary">{t('pages.dashboard.noRecentActivity')}</Typography>
                 </Box>
               )}
             </CardContent>
