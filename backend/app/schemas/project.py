@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from uuid import UUID
 from datetime import datetime, date
 from pydantic import BaseModel, Field, field_validator
