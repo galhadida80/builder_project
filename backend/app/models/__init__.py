@@ -14,6 +14,7 @@ from app.models.meeting import Meeting, MeetingAttendee
 from app.models.approval import ApprovalRequest, ApprovalStep
 from app.models.area import ConstructionArea, AreaProgress
 from app.models.file import File
+from app.models.inspection_template import InspectionConsultantType, InspectionStageTemplate
 from app.models.audit import AuditLog
 from app.models.checklist_templates import (
     ChecklistTemplate,
@@ -50,6 +51,8 @@ __all__ = [
     "ConstructionArea",
     "AreaProgress",
     "File",
+    "InspectionConsultantType",
+    "InspectionStageTemplate",
     "AuditLog",
     "ChecklistTemplate",
     "ChecklistSubSection",
