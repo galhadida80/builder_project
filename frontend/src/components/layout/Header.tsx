@@ -17,6 +17,7 @@ import SettingsIcon from '@mui/icons-material/Settings'
 import LogoutIcon from '@mui/icons-material/Logout'
 import type { User, Project } from '../../types'
 import ProjectSelector from './ProjectSelector'
+import LanguageSelector from '../common/LanguageSelector'
 import { useToast } from '../common/ToastProvider'
 
 interface HeaderProps {
@@ -77,6 +78,8 @@ export default function Header({ user, currentProject, projects, onProjectChange
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <LanguageSelector />
+
           <IconButton onClick={handleNotificationOpen}>
             <Badge badgeContent={3} color="error">
               <NotificationsIcon />

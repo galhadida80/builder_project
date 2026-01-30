@@ -1,0 +1,58 @@
+import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import IconButton from '@mui/material/IconButton'
+import Menu from '@mui/material/Menu'
+import MenuItem from '@mui/material/MenuItem'
+import Box from '@mui/material/Box'
+import Typography from '@mui/material/Typography'
+import LanguageIcon from '@mui/icons-material/Language'
+
+export default function LanguageSelector() {
+  const { t, i18n } = useTranslation()
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget)
+  }
+
+  const handleClose = () => {
+    setAnchorEl(null)
+  }
+
+  const handleLanguageChange = (lng: string) => {
+    i18n.changeLanguage(lng)
+    handleClose()
+  }
+
+  return (
+    <Box>
+      <IconButton
+        onClick={handleClick}
+        title={t('language.selectLanguage')}
+        sx={{ ml: 1 }}
+      >
+        <LanguageIcon />
+      </IconButton>
+
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleClose}
+        PaperProps={{ sx: { width: 150 } }}
+      >
+        <MenuItem
+          onClick={() => handleLanguageChange('en')}
+          selected={i18n.language === 'en'}
+        >
+          <Typography variant="body2">{t('language.english')}</Typography>
+        </MenuItem>
+        <MenuItem
+          onClick={() => handleLanguageChange('he')}
+          selected={i18n.language === 'he'}
+        >
+          <Typography variant="body2">{t('language.hebrew')}</Typography>
+        </MenuItem>
+      </Menu>
+    </Box>
+  )
+}
