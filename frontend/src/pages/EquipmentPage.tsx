@@ -431,6 +431,8 @@ export default function EquipmentPage() {
             margin="normal"
             value={formData.serialNumber}
             onChange={(e) => setFormData({ ...formData, serialNumber: e.target.value })}
+            error={!!errors.serialNumber}
+            helperText={errors.serialNumber || `${formData.serialNumber.length}/100`}
             inputProps={{ maxLength: 100 }}
           />
           <TextField
