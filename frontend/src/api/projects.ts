@@ -5,18 +5,18 @@ interface ProjectCreate {
   name: string
   code: string
   description?: string
-  location?: string
-  startDate?: string
-  expectedEndDate?: string
+  address?: string
+  start_date?: string
+  estimated_end_date?: string
 }
 
 interface ProjectUpdate {
   name?: string
   description?: string
-  location?: string
+  address?: string
   status?: string
-  startDate?: string
-  expectedEndDate?: string
+  start_date?: string
+  estimated_end_date?: string
 }
 
 interface MemberCreate {
