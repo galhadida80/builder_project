@@ -123,6 +123,8 @@ export const validateProjectForm = (data: { name?: string; code?: string; descri
   errors.address = validateMaxLength(data.address, VALIDATION.MAX_ADDRESS_LENGTH, 'Address')
   errors.endDate = validateDateRange(data.startDate, data.endDate)
 
+  errors.estimatedEndDate = validateDateRange(data.startDate, data.estimatedEndDate, 'Start Date', 'End Date')
+
   return errors
 }
 

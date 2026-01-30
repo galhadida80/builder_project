@@ -373,6 +373,8 @@ export default function ProjectsPage() {
               InputLabelProps={{ shrink: true }}
               value={formData.startDate}
               onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+              error={!!errors.startDate}
+              helperText={errors.startDate}
             />
             <TextField
               fullWidth
