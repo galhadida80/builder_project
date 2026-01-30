@@ -2,8 +2,14 @@ import os
 import uuid
 from pathlib import Path
 from abc import ABC, abstractmethod
-from fastapi import UploadFile
-from app.config import get_settings
+from typing import Optional
+from fastapi import UploadFile, Depends
+from app.config import get_settings, Settings
+
+try:
+    import boto3
+except ImportError:
+    boto3 = None
 
 
 class StorageBackend(ABC):
@@ -66,7 +72,8 @@ class S3StorageBackend(StorageBackend):
     @property
     def client(self):
         if self._client is None:
-            import boto3
+            if boto3 is None:
+                raise ImportError("boto3 is required for S3 storage backend")
             self._client = boto3.client(
                 's3',
                 region_name=self.region,
@@ -103,8 +110,12 @@ class S3StorageBackend(StorageBackend):
         return response['Body'].read()
 
 
-def get_storage_backend() -> StorageBackend:
-    settings = get_settings()
+def _create_storage_backend(settings: Settings) -> StorageBackend:
+    """Core function to create storage backend from settings.
+
+    This function is separated to allow easy testing while still
+    supporting FastAPI's dependency injection.
+    """
     if settings.storage_type == "s3":
         return S3StorageBackend(
             bucket_name=settings.s3_bucket_name,
@@ -113,6 +124,16 @@ def get_storage_backend() -> StorageBackend:
             secret_access_key=settings.s3_secret_access_key
         )
     return LocalStorageBackend(settings.local_storage_path)
+
+
+def get_storage_backend(settings: Settings = Depends(get_settings)) -> StorageBackend:
+    """FastAPI dependency that provides the configured storage backend.
+
+    This function uses Depends() to integrate with FastAPI's dependency
+    injection system while delegating to _create_storage_backend for the
+    core logic.
+    """
+    return _create_storage_backend(settings)
 
 
 def generate_storage_path(

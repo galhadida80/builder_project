@@ -8,9 +8,9 @@ from app.core.validators import sanitize_string, MIN_NAME_LENGTH, MAX_NAME_LENGT
 
 class UserBase(BaseModel):
     email: EmailStr
-    full_name: str | None = None
-    phone: str | None = None
-    company: str | None = None
+    full_name: Optional[str] = None
+    phone: Optional[str] = None
+    company: Optional[str] = None
 
 
 class UserCreate(UserBase):
@@ -35,7 +35,7 @@ class UserLogin(BaseModel):
 
 class UserResponse(CamelCaseModel, UserBase):
     id: UUID
-    role: str | None = None
+    role: Optional[str] = None
     is_active: bool
     created_at: datetime
 

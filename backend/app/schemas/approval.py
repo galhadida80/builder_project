@@ -8,19 +8,19 @@ from app.core.validators import CamelCaseModel
 
 
 class ApprovalAction(BaseModel):
-    comments: str | None = None
+    comments: Optional[str] = None
 
 
 class ApprovalStepResponse(CamelCaseModel):
     id: UUID
     approval_request_id: UUID
     step_order: int
-    approver_id: UUID | None = None
-    approver: UserResponse | None = None
-    approver_role: str | None = None
+    approver_id: Optional[UUID] = None
+    approver: Optional[UserResponse] = None
+    approver_role: Optional[str] = None
     status: str
-    comments: str | None = None
-    decided_at: datetime | None = None
+    comments: Optional[str] = None
+    decided_at: Optional[datetime] = None
     created_at: datetime
 
 
@@ -31,5 +31,5 @@ class ApprovalRequestResponse(CamelCaseModel):
     entity_id: UUID
     current_status: str
     created_at: datetime
-    created_by: UserResponse | None = None
+    created_by: Optional[UserResponse] = None
     steps: list[ApprovalStepResponse] = []

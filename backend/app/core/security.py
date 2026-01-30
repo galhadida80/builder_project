@@ -45,7 +45,7 @@ def decode_access_token(token: str) -> UUID | None:
 
 
 async def get_current_user(
-    credentials: HTTPAuthorizationCredentials | None = Depends(security),
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
     db: AsyncSession = Depends(get_db)
 ) -> User:
     if credentials is None:
@@ -80,9 +80,9 @@ async def get_current_user(
 
 
 async def get_current_user_optional(
-    credentials: HTTPAuthorizationCredentials | None = Depends(security),
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
     db: AsyncSession = Depends(get_db)
-) -> User | None:
+) -> Optional[User]:
     if credentials is None:
         return None
     try:

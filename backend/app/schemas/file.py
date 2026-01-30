@@ -13,8 +13,8 @@ class FileResponse(CamelCaseModel):
     entity_type: str
     entity_id: UUID
     filename: str
-    file_type: str | None = None
-    file_size: int | None = None
+    file_type: Optional[str] = None
+    file_size: Optional[int] = None
     storage_path: str
     uploaded_at: datetime
     uploaded_by: UserResponse | None = None

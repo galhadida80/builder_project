@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import re
 from typing import Annotated
 from pydantic import BaseModel, Field, ConfigDict
@@ -27,7 +29,7 @@ DANGEROUS_PATTERNS = [
 ]
 
 
-def sanitize_string(value: str | None) -> str | None:
+def sanitize_string(value: Optional[str]) -> Optional[str]:
     if value is None:
         return None
     value = value.strip()
@@ -43,7 +45,7 @@ def validate_code(value: str) -> str:
     return value
 
 
-def validate_phone(value: str | None) -> str | None:
+def validate_phone(value: Optional[str]) -> Optional[str]:
     if value is None:
         return None
     value = value.strip()
@@ -53,9 +55,9 @@ def validate_phone(value: str | None) -> str | None:
 
 
 SanitizedStr = Annotated[str, BeforeValidator(sanitize_string)]
-SanitizedStrOptional = Annotated[str | None, BeforeValidator(sanitize_string)]
+SanitizedStrOptional = Annotated[Optional[str], BeforeValidator(sanitize_string)]
 CodeStr = Annotated[str, BeforeValidator(validate_code)]
-PhoneStr = Annotated[str | None, BeforeValidator(validate_phone)]
+PhoneStr = Annotated[Optional[str], BeforeValidator(validate_phone)]
 
 NameField = Annotated[str, Field(min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)]
 CodeField = Annotated[str, Field(min_length=2, max_length=MAX_CODE_LENGTH)]

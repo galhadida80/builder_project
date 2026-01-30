@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 from uuid import UUID
 from decimal import Decimal
+from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.audit import AuditLog, AuditAction
 from app.models.user import User
@@ -7,15 +10,15 @@ from app.models.user import User
 
 async def create_audit_log(
     db: AsyncSession,
-    user: User | None,
+    user: Optional[User],
     entity_type: str,
     entity_id: UUID,
     action: AuditAction,
-    project_id: UUID | None = None,
-    old_values: dict | None = None,
-    new_values: dict | None = None,
-    ip_address: str | None = None,
-    user_agent: str | None = None
+    project_id: Optional[UUID] = None,
+    old_values: Optional[dict] = None,
+    new_values: Optional[dict] = None,
+    ip_address: Optional[str] = None,
+    user_agent: Optional[str] = None
 ) -> AuditLog:
     audit_log = AuditLog(
         project_id=project_id,
@@ -32,7 +35,7 @@ async def create_audit_log(
     return audit_log
 
 
-def get_model_dict(model, exclude: set | None = None) -> dict:
+def get_model_dict(model, exclude: Optional[set] = None) -> dict:
     exclude = exclude or set()
     result = {}
     for column in model.__table__.columns:

@@ -15,12 +15,12 @@ class ChecklistItem(BaseModel):
     id: str = Field(max_length=100)
     label: str = Field(min_length=1, max_length=MAX_NAME_LENGTH)
     is_completed: bool = False
-    completed_at: datetime | None = None
-    notes: str | None = Field(default=None, max_length=MAX_NOTES_LENGTH)
+    completed_at: Optional[datetime] = None
+    notes: Optional[str] = Field(default=None, max_length=MAX_NOTES_LENGTH)
 
     @field_validator('label', 'notes', mode='before')
     @classmethod
-    def sanitize_text(cls, v: str | None) -> str | None:
+    def sanitize_text(cls, v: Optional[str]) -> Optional[str]:
         return sanitize_string(v)
 
 
@@ -44,18 +44,18 @@ class ChecklistResponse(CamelCaseModel):
 
 class EquipmentBase(BaseModel):
     name: str = Field(min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
-    equipment_type: str | None = Field(default=None, max_length=100)
-    manufacturer: str | None = Field(default=None, max_length=MAX_NAME_LENGTH)
-    model_number: str | None = Field(default=None, max_length=100)
-    serial_number: str | None = Field(default=None, max_length=100)
-    specifications: dict | None = None
-    installation_date: datetime | None = None
-    warranty_expiry: datetime | None = None
-    notes: str | None = Field(default=None, max_length=MAX_NOTES_LENGTH)
+    equipment_type: Optional[str] = Field(default=None, max_length=100)
+    manufacturer: Optional[str] = Field(default=None, max_length=MAX_NAME_LENGTH)
+    model_number: Optional[str] = Field(default=None, max_length=100)
+    serial_number: Optional[str] = Field(default=None, max_length=100)
+    specifications: Optional[dict] = None
+    installation_date: Optional[datetime] = None
+    warranty_expiry: Optional[datetime] = None
+    notes: Optional[str] = Field(default=None, max_length=MAX_NOTES_LENGTH)
 
     @field_validator('name', 'equipment_type', 'manufacturer', 'model_number', 'serial_number', 'notes', mode='before')
     @classmethod
-    def sanitize_text(cls, v: str | None) -> str | None:
+    def sanitize_text(cls, v: Optional[str]) -> Optional[str]:
         return sanitize_string(v)
 
 
@@ -64,19 +64,19 @@ class EquipmentCreate(EquipmentBase):
 
 
 class EquipmentUpdate(BaseModel):
-    name: str | None = Field(default=None, min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
-    equipment_type: str | None = Field(default=None, max_length=100)
-    manufacturer: str | None = Field(default=None, max_length=MAX_NAME_LENGTH)
-    model_number: str | None = Field(default=None, max_length=100)
-    serial_number: str | None = Field(default=None, max_length=100)
-    specifications: dict | None = None
-    installation_date: datetime | None = None
-    warranty_expiry: datetime | None = None
-    notes: str | None = Field(default=None, max_length=MAX_NOTES_LENGTH)
+    name: Optional[str] = Field(default=None, min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
+    equipment_type: Optional[str] = Field(default=None, max_length=100)
+    manufacturer: Optional[str] = Field(default=None, max_length=MAX_NAME_LENGTH)
+    model_number: Optional[str] = Field(default=None, max_length=100)
+    serial_number: Optional[str] = Field(default=None, max_length=100)
+    specifications: Optional[dict] = None
+    installation_date: Optional[datetime] = None
+    warranty_expiry: Optional[datetime] = None
+    notes: Optional[str] = Field(default=None, max_length=MAX_NOTES_LENGTH)
 
     @field_validator('name', 'equipment_type', 'manufacturer', 'model_number', 'serial_number', 'notes', mode='before')
     @classmethod
-    def sanitize_text(cls, v: str | None) -> str | None:
+    def sanitize_text(cls, v: Optional[str]) -> Optional[str]:
         return sanitize_string(v)
 
 
@@ -84,16 +84,16 @@ class EquipmentResponse(CamelCaseModel):
     id: UUID
     project_id: UUID
     name: str
-    equipment_type: str | None = None
-    manufacturer: str | None = None
-    model_number: str | None = None
-    serial_number: str | None = None
-    specifications: dict | None = None
-    installation_date: datetime | None = None
-    warranty_expiry: datetime | None = None
-    notes: str | None = None
+    equipment_type: Optional[str] = None
+    manufacturer: Optional[str] = None
+    model_number: Optional[str] = None
+    serial_number: Optional[str] = None
+    specifications: Optional[dict] = None
+    installation_date: Optional[datetime] = None
+    warranty_expiry: Optional[datetime] = None
+    notes: Optional[str] = None
     status: str
     created_at: datetime
     updated_at: datetime
-    created_by: UserResponse | None = None
+    created_by: Optional[UserResponse] = None
     checklists: list[ChecklistResponse] = []

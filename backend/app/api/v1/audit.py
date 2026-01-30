@@ -1,3 +1,5 @@
+from __future__ import annotations
+from typing import Optional
 from uuid import UUID
 from datetime import datetime
 from fastapi import APIRouter, Depends
@@ -14,12 +16,12 @@ router = APIRouter()
 @router.get("/projects/{project_id}/audit", response_model=list[AuditLogResponse])
 async def list_audit_logs(
     project_id: UUID,
-    entity_type: str | None = None,
-    entity_id: UUID | None = None,
-    action: str | None = None,
-    user_id: UUID | None = None,
-    start_date: datetime | None = None,
-    end_date: datetime | None = None,
+    entity_type: Optional[str] = None,
+    entity_id: Optional[UUID] = None,
+    action: Optional[str] = None,
+    user_id: Optional[UUID] = None,
+    start_date: Optional[datetime] = None,
+    end_date: Optional[datetime] = None,
     limit: int = 100,
     offset: int = 0,
     db: AsyncSession = Depends(get_db)
@@ -51,11 +53,11 @@ async def list_audit_logs(
 
 @router.get("/audit", response_model=list[AuditLogResponse])
 async def list_all_audit_logs(
-    entity_type: str | None = None,
-    action: str | None = None,
-    user_id: UUID | None = None,
-    start_date: datetime | None = None,
-    end_date: datetime | None = None,
+    entity_type: Optional[str] = None,
+    action: Optional[str] = None,
+    user_id: Optional[UUID] = None,
+    start_date: Optional[datetime] = None,
+    end_date: Optional[datetime] = None,
     limit: int = 100,
     offset: int = 0,
     db: AsyncSession = Depends(get_db)

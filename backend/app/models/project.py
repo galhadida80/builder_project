@@ -3,6 +3,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime, date
 from enum import Enum
+from typing import Optional
 from sqlalchemy import String, Text, Date, DateTime, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID, ENUM
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -30,14 +31,14 @@ class Project(Base):
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     code: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
-    description: Mapped[str | None] = mapped_column(Text)
-    address: Mapped[str | None] = mapped_column(Text)
-    start_date: Mapped[date | None] = mapped_column(Date)
-    estimated_end_date: Mapped[date | None] = mapped_column(Date)
+    description: Mapped[Optional[str]] = mapped_column(Text)
+    address: Mapped[Optional[str]] = mapped_column(Text)
+    start_date: Mapped[Optional[date]] = mapped_column(Date)
+    estimated_end_date: Mapped[Optional[date]] = mapped_column(Date)
     status: Mapped[str] = mapped_column(String(50), default=ProjectStatus.ACTIVE.value)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    created_by_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
+    created_by_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
 
     members = relationship("ProjectMember", back_populates="project", cascade="all, delete-orphan")
     equipment = relationship("Equipment", back_populates="project", cascade="all, delete-orphan")
