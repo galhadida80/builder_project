@@ -29,6 +29,7 @@ import { materialsApi } from '../api/materials'
 import StatusBadge from '../components/common/StatusBadge'
 import { useToast } from '../components/common/ToastProvider'
 import type { ApprovalRequest, ApprovalStep, Equipment, Material } from '../types'
+import { useToast } from '../components/common/ToastProvider'
 
 export default function ApprovalsPage() {
   const { showError, showSuccess } = useToast()

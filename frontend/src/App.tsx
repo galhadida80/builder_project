@@ -11,6 +11,7 @@ import ApprovalsPage from './pages/ApprovalsPage'
 import AreasPage from './pages/AreasPage'
 import ContactsPage from './pages/ContactsPage'
 import AuditLogPage from './pages/AuditLogPage'
+import { ToastProvider } from './components/common/ToastProvider'
 
 function ProtectedRoute() {
   const token = localStorage.getItem('authToken')
@@ -22,30 +23,32 @@ function ProtectedRoute() {
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/login" element={<LoginPage />} />
+    <ToastProvider>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
 
-      <Route element={<ProtectedRoute />}>
-        <Route element={<Layout />}>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/projects" element={<ProjectsPage />} />
+        <Route element={<ProtectedRoute />}>
+          <Route element={<Layout />}>
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/projects" element={<ProjectsPage />} />
 
-          <Route path="/projects/:projectId" element={<ProjectDetailPage />}>
-            <Route path="equipment" element={<EquipmentPage />} />
-            <Route path="materials" element={<MaterialsPage />} />
-            <Route path="meetings" element={<MeetingsPage />} />
-            <Route path="approvals" element={<ApprovalsPage />} />
-            <Route path="areas" element={<AreasPage />} />
-            <Route path="contacts" element={<ContactsPage />} />
+            <Route path="/projects/:projectId" element={<ProjectDetailPage />}>
+              <Route path="equipment" element={<EquipmentPage />} />
+              <Route path="materials" element={<MaterialsPage />} />
+              <Route path="meetings" element={<MeetingsPage />} />
+              <Route path="approvals" element={<ApprovalsPage />} />
+              <Route path="areas" element={<AreasPage />} />
+              <Route path="contacts" element={<ContactsPage />} />
+            </Route>
+
+            <Route path="/approvals" element={<ApprovalsPage />} />
+            <Route path="/audit" element={<AuditLogPage />} />
           </Route>
-
-          <Route path="/approvals" element={<ApprovalsPage />} />
-          <Route path="/audit" element={<AuditLogPage />} />
         </Route>
-      </Route>
 
-      <Route path="*" element={<Navigate to="/login" replace />} />
-    </Routes>
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </ToastProvider>
   )
 }

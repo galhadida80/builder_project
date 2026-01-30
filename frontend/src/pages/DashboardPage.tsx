@@ -77,11 +77,11 @@ export default function DashboardPage() {
     try {
       setLoading(true)
       const [equipmentData, materialsData, meetingsData, approvalsData, auditData] = await Promise.all([
-        equipmentApi.list().catch(() => []),
-        materialsApi.list().catch(() => []),
-        meetingsApi.list().catch(() => []),
-        approvalsApi.list().catch(() => []),
-        auditApi.listAll({ limit: 10 }).catch(() => [])
+        equipmentApi.list(),
+        materialsApi.list(),
+        meetingsApi.list(),
+        approvalsApi.list(),
+        auditApi.listAll({ limit: 10 })
       ])
       setEquipment(equipmentData)
       setMaterials(materialsData)
