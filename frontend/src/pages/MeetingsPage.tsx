@@ -60,8 +60,7 @@ export default function MeetingsPage() {
     description: '',
     location: '',
     date: '',
-    startTime: '',
-    endTime: ''
+    startTime: ''
   })
 
   useEffect(() => {
@@ -268,11 +267,11 @@ export default function MeetingsPage() {
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <CalendarMonthIcon fontSize="small" color="action" />
-                    <Typography variant="body2">{formatDate(meeting.startTime)}</Typography>
+                    <Typography variant="body2">{formatDate(meeting.scheduledDate)}</Typography>
                   </Box>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <AccessTimeIcon fontSize="small" color="action" />
-                    <Typography variant="body2">{formatTime(meeting.startTime)} - {formatTime(meeting.endTime)}</Typography>
+                    <Typography variant="body2">{formatTime(meeting.scheduledDate)}</Typography>
                   </Box>
                   {meeting.location && (
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -424,11 +423,11 @@ export default function MeetingsPage() {
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 3 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <CalendarMonthIcon color="action" />
-                  <Typography>{formatDate(selectedMeeting.startTime)}</Typography>
+                  <Typography>{formatDate(selectedMeeting.scheduledDate)}</Typography>
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <AccessTimeIcon color="action" />
-                  <Typography>{formatTime(selectedMeeting.startTime)} - {formatTime(selectedMeeting.endTime)}</Typography>
+                  <Typography>{formatTime(selectedMeeting.scheduledDate)}</Typography>
                 </Box>
                 {selectedMeeting.location && (
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>

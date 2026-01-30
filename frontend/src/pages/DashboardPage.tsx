@@ -211,7 +211,7 @@ export default function DashboardPage() {
                     </ListItemAvatar>
                     <ListItemText
                       primary={meeting.title}
-                      secondary={new Date(meeting.startTime).toLocaleString('en-US', {
+                      secondary={new Date(meeting.scheduledDate).toLocaleString('en-US', {
                         weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
                       })}
                     />

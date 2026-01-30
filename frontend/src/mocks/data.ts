@@ -35,9 +35,9 @@ export const mockMaterials: Material[] = [
 ]
 
 export const mockMeetings: Meeting[] = [
-  { id: '1', projectId: '1', title: 'Weekly Site Coordination', description: 'Regular weekly meeting to review progress', meetingType: 'coordination', location: 'Site Office', startTime: '2024-02-26T09:00:00Z', endTime: '2024-02-26T10:30:00Z', status: 'scheduled', createdAt: '2024-02-20T00:00:00Z', createdBy: mockUsers[0] },
-  { id: '2', projectId: '1', title: 'Crane Installation Inspection', description: 'Safety inspection for tower crane', meetingType: 'site_inspection', location: 'Building A - North', startTime: '2024-02-27T14:00:00Z', endTime: '2024-02-27T16:00:00Z', status: 'scheduled', createdAt: '2024-02-21T00:00:00Z', createdBy: mockUsers[0] },
-  { id: '3', projectId: '1', title: 'Material Approval Review', description: 'Review pending material approvals', meetingType: 'approval_meeting', location: 'Main Office', startTime: '2024-02-28T11:00:00Z', endTime: '2024-02-28T12:00:00Z', status: 'invitations_sent', createdAt: '2024-02-22T00:00:00Z', createdBy: mockUsers[0] },
+  { id: '1', projectId: '1', title: 'Weekly Site Coordination', description: 'Regular weekly meeting to review progress', meetingType: 'coordination', location: 'Site Office', scheduledDate: '2024-02-26T09:00:00Z', status: 'scheduled', createdAt: '2024-02-20T00:00:00Z', createdBy: mockUsers[0] },
+  { id: '2', projectId: '1', title: 'Crane Installation Inspection', description: 'Safety inspection for tower crane', meetingType: 'site_inspection', location: 'Building A - North', scheduledDate: '2024-02-27T14:00:00Z', status: 'scheduled', createdAt: '2024-02-21T00:00:00Z', createdBy: mockUsers[0] },
+  { id: '3', projectId: '1', title: 'Material Approval Review', description: 'Review pending material approvals', meetingType: 'approval_meeting', location: 'Main Office', scheduledDate: '2024-02-28T11:00:00Z', status: 'invitations_sent', createdAt: '2024-02-22T00:00:00Z', createdBy: mockUsers[0] },
 ]
 
 export const mockAreas: ConstructionArea[] = [
