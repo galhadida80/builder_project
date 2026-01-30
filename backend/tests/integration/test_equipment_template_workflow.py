@@ -1,0 +1,402 @@
+import uuid
+import pytest
+from httpx import AsyncClient
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from app.models.equipment_template import EquipmentTemplate
+from app.models.equipment_submission import EquipmentSubmission
+from app.models.approval_decision import ApprovalDecision
+from app.models.audit import AuditLog
+from app.models.user import User
+from app.models.project import Project
+
+
+class TestEquipmentTemplateWorkflow:
+    """Integration tests for equipment template end-to-end workflows."""
+
+    @pytest.mark.asyncio
+    async def test_template_to_submission_flow(
+        self,
+        admin_client: AsyncClient,
+        user_client: AsyncClient,
+        project: Project,
+        db: AsyncSession
+    ):
+        """Create template → create submission → verify linkage."""
+        # Step 1: Admin creates a template
+        template_response = await admin_client.post(
+            "/api/v1/equipment-templates",
+            json={
+                "name": "Crane Template",
+                "category": "Lifting Equipment",
+                "description": "Standard crane template",
+                "specifications": {
+                    "capacity": "50 tons",
+                    "height": "100 feet",
+                    "model": "Grove GMK5250L"
+                }
+            }
+        )
+
+        assert template_response.status_code == 201
+        template_data = template_response.json()
+        template_id = template_data["id"]
+
+        # Verify template in database
+        result = await db.execute(
+            select(EquipmentTemplate).where(EquipmentTemplate.id == uuid.UUID(template_id))
+        )
+        template = result.scalar_one_or_none()
+        assert template is not None
+        assert template.name == "Crane Template"
+
+        # Step 2: User creates a submission from the template
+        submission_response = await user_client.post(
+            f"/api/v1/projects/{project.id}/equipment-submissions",
+            json={
+                "template_id": template_id,
+                "name": "Crane for Site A",
+                "description": "Need crane for site A construction",
+                "specifications": {
+                    "capacity": "50 tons",
+                    "custom_note": "Needed for 3 months"
+                }
+            }
+        )
+
+        assert submission_response.status_code == 201
+        submission_data = submission_response.json()
+        submission_id = submission_data["id"]
+
+        # Step 3: Verify linkage between submission, template, and project
+        result = await db.execute(
+            select(EquipmentSubmission).where(
+                EquipmentSubmission.id == uuid.UUID(submission_id)
+            )
+        )
+        submission = result.scalar_one_or_none()
+        assert submission is not None
+        assert submission.name == "Crane for Site A"
+        assert submission.template_id == uuid.UUID(template_id)
+        assert submission.project_id == project.id
+        assert submission.status == "draft"
+
+        # Step 4: Verify we can retrieve the submission and see the linkage via API
+        get_submission_response = await user_client.get(
+            f"/api/v1/projects/{project.id}/equipment-submissions/{submission_id}"
+        )
+
+        assert get_submission_response.status_code == 200
+        submission_detail = get_submission_response.json()
+        assert submission_detail["templateId"] == template_id
+        assert submission_detail["projectId"] == str(project.id)
+
+    @pytest.mark.asyncio
+    async def test_submission_to_approval_flow(
+        self,
+        user_client: AsyncClient,
+        project: Project,
+        equipment_template: EquipmentTemplate,
+        db: AsyncSession
+    ):
+        """Create submission → add decision → verify status update."""
+        # Step 1: Create a submission
+        submission_response = await user_client.post(
+            f"/api/v1/projects/{project.id}/equipment-submissions",
+            json={
+                "template_id": str(equipment_template.id),
+                "name": "Bulldozer Submission",
+                "description": "Need bulldozer for site clearing",
+                "specifications": {"type": "heavy-duty"}
+            }
+        )
+
+        assert submission_response.status_code == 201
+        submission_data = submission_response.json()
+        submission_id = submission_data["id"]
+        assert submission_data["status"] == "draft"
+
+        # Step 2: Add an approval decision
+        decision_response = await user_client.post(
+            f"/api/v1/equipment-submissions/{submission_id}/decisions",
+            json={
+                "decision": "approve",
+                "comments": "Approved for project use"
+            }
+        )
+
+        assert decision_response.status_code == 201
+        decision_data = decision_response.json()
+        assert decision_data["decision"] == "approve"
+        assert decision_data["comments"] == "Approved for project use"
+
+        # Step 3: Verify submission status was updated to approved
+        result = await db.execute(
+            select(EquipmentSubmission).where(
+                EquipmentSubmission.id == uuid.UUID(submission_id)
+            )
+        )
+        submission = result.scalar_one_or_none()
+        assert submission is not None
+        assert submission.status == "approved"
+
+        # Step 4: Verify decision is linked to submission
+        result = await db.execute(
+            select(ApprovalDecision).where(
+                ApprovalDecision.submission_id == uuid.UUID(submission_id)
+            )
+        )
+        decision = result.scalar_one_or_none()
+        assert decision is not None
+        assert decision.decision == "approve"
+        assert decision.submission_id == uuid.UUID(submission_id)
+
+        # Step 5: Test rejection workflow
+        rejection_submission_response = await user_client.post(
+            f"/api/v1/projects/{project.id}/equipment-submissions",
+            json={
+                "template_id": str(equipment_template.id),
+                "name": "Rejected Submission",
+                "description": "This will be rejected",
+                "specifications": {}
+            }
+        )
+
+        rejection_submission_id = rejection_submission_response.json()["id"]
+
+        reject_decision_response = await user_client.post(
+            f"/api/v1/equipment-submissions/{rejection_submission_id}/decisions",
+            json={
+                "decision": "reject",
+                "comments": "Not needed at this time"
+            }
+        )
+
+        assert reject_decision_response.status_code == 201
+
+        # Verify rejection status update
+        result = await db.execute(
+            select(EquipmentSubmission).where(
+                EquipmentSubmission.id == uuid.UUID(rejection_submission_id)
+            )
+        )
+        rejected_submission = result.scalar_one_or_none()
+        assert rejected_submission.status == "rejected"
+
+    @pytest.mark.asyncio
+    async def test_admin_access_control(
+        self,
+        admin_client: AsyncClient,
+        user_client: AsyncClient,
+        equipment_template: EquipmentTemplate
+    ):
+        """Verify admin endpoints require valid admin role."""
+        # Test 1: Admin can create template
+        admin_create_response = await admin_client.post(
+            "/api/v1/equipment-templates",
+            json={
+                "name": "Admin Template",
+                "category": "Test"
+            }
+        )
+        assert admin_create_response.status_code == 201
+
+        # Test 2: Regular user cannot create template (403)
+        user_create_response = await user_client.post(
+            "/api/v1/equipment-templates",
+            json={
+                "name": "User Template",
+                "category": "Test"
+            }
+        )
+        assert user_create_response.status_code == 403
+        assert user_create_response.json()["detail"] == "Admin access required"
+
+        # Test 3: Admin can update template
+        admin_update_response = await admin_client.put(
+            f"/api/v1/equipment-templates/{equipment_template.id}",
+            json={"name": "Updated by Admin"}
+        )
+        assert admin_update_response.status_code == 200
+
+        # Test 4: Regular user cannot update template (403)
+        user_update_response = await user_client.put(
+            f"/api/v1/equipment-templates/{equipment_template.id}",
+            json={"name": "Updated by User"}
+        )
+        assert user_update_response.status_code == 403
+
+        # Test 5: Admin can delete template
+        # First create a template to delete
+        template_to_delete = await admin_client.post(
+            "/api/v1/equipment-templates",
+            json={"name": "Template to Delete", "category": "Test"}
+        )
+        template_id_to_delete = template_to_delete.json()["id"]
+
+        admin_delete_response = await admin_client.delete(
+            f"/api/v1/equipment-templates/{template_id_to_delete}"
+        )
+        assert admin_delete_response.status_code == 200
+
+        # Test 6: Regular user cannot delete template (403)
+        # Create another template
+        another_template = await admin_client.post(
+            "/api/v1/equipment-templates",
+            json={"name": "Another Template", "category": "Test"}
+        )
+        another_template_id = another_template.json()["id"]
+
+        user_delete_response = await user_client.delete(
+            f"/api/v1/equipment-templates/{another_template_id}"
+        )
+        assert user_delete_response.status_code == 403
+
+    @pytest.mark.asyncio
+    async def test_audit_log_integration(
+        self,
+        admin_client: AsyncClient,
+        user_client: AsyncClient,
+        project: Project,
+        equipment_template: EquipmentTemplate,
+        db: AsyncSession
+    ):
+        """Verify all operations create audit log entries."""
+        # Operation 1: Create template (admin)
+        create_template_response = await admin_client.post(
+            "/api/v1/equipment-templates",
+            json={
+                "name": "Audit Test Template",
+                "category": "Test",
+                "description": "For audit testing"
+            }
+        )
+        assert create_template_response.status_code == 201
+        template_id = create_template_response.json()["id"]
+
+        # Verify audit log for template creation
+        result = await db.execute(
+            select(AuditLog).where(
+                AuditLog.entity_type == "equipment_template",
+                AuditLog.entity_id == uuid.UUID(template_id),
+                AuditLog.action == "create"
+            )
+        )
+        create_audit = result.scalar_one_or_none()
+        assert create_audit is not None
+
+        # Operation 2: Update template (admin)
+        await admin_client.put(
+            f"/api/v1/equipment-templates/{template_id}",
+            json={"name": "Updated Audit Template"}
+        )
+
+        # Verify audit log for template update
+        result = await db.execute(
+            select(AuditLog).where(
+                AuditLog.entity_type == "equipment_template",
+                AuditLog.entity_id == uuid.UUID(template_id),
+                AuditLog.action == "update"
+            )
+        )
+        update_audit = result.scalar_one_or_none()
+        assert update_audit is not None
+
+        # Operation 3: Create submission (user)
+        create_submission_response = await user_client.post(
+            f"/api/v1/projects/{project.id}/equipment-submissions",
+            json={
+                "template_id": str(equipment_template.id),
+                "name": "Audit Test Submission",
+                "description": "For audit testing"
+            }
+        )
+        assert create_submission_response.status_code == 201
+        submission_id = create_submission_response.json()["id"]
+
+        # Verify audit log for submission creation
+        result = await db.execute(
+            select(AuditLog).where(
+                AuditLog.entity_type == "equipment_submission",
+                AuditLog.entity_id == uuid.UUID(submission_id),
+                AuditLog.action == "create"
+            )
+        )
+        submission_create_audit = result.scalar_one_or_none()
+        assert submission_create_audit is not None
+        assert submission_create_audit.project_id == project.id
+
+        # Operation 4: Update submission (user)
+        await user_client.put(
+            f"/api/v1/projects/{project.id}/equipment-submissions/{submission_id}",
+            json={"name": "Updated Audit Submission"}
+        )
+
+        # Verify audit log for submission update
+        result = await db.execute(
+            select(AuditLog).where(
+                AuditLog.entity_type == "equipment_submission",
+                AuditLog.entity_id == uuid.UUID(submission_id),
+                AuditLog.action == "update"
+            )
+        )
+        submission_update_audit = result.scalar_one_or_none()
+        assert submission_update_audit is not None
+
+        # Operation 5: Add approval decision (creates 2 audit logs: decision + status change)
+        await user_client.post(
+            f"/api/v1/equipment-submissions/{submission_id}/decisions",
+            json={
+                "decision": "approve",
+                "comments": "Audit test approval"
+            }
+        )
+
+        # Verify audit log for decision creation
+        result = await db.execute(
+            select(AuditLog).where(
+                AuditLog.entity_type == "approval_decision",
+                AuditLog.action == "create"
+            )
+        )
+        decision_audit = result.scalar_one_or_none()
+        assert decision_audit is not None
+
+        # Verify audit log for status change
+        result = await db.execute(
+            select(AuditLog).where(
+                AuditLog.entity_type == "equipment_submission",
+                AuditLog.entity_id == uuid.UUID(submission_id),
+                AuditLog.action == "status_change"
+            )
+        )
+        status_change_audit = result.scalar_one_or_none()
+        assert status_change_audit is not None
+
+        # Operation 6: Delete template
+        # Create a new template to delete (can't delete one with submissions)
+        delete_template_response = await admin_client.post(
+            "/api/v1/equipment-templates",
+            json={"name": "Template to Delete", "category": "Test"}
+        )
+        delete_template_id = delete_template_response.json()["id"]
+
+        await admin_client.delete(
+            f"/api/v1/equipment-templates/{delete_template_id}"
+        )
+
+        # Verify audit log for template deletion
+        result = await db.execute(
+            select(AuditLog).where(
+                AuditLog.entity_type == "equipment_template",
+                AuditLog.entity_id == uuid.UUID(delete_template_id),
+                AuditLog.action == "delete"
+            )
+        )
+        delete_audit = result.scalar_one_or_none()
+        assert delete_audit is not None
+
+        # Summary: Verify we have at least 8 audit log entries from all operations
+        result = await db.execute(select(AuditLog))
+        all_audits = result.scalars().all()
+        assert len(all_audits) >= 8
