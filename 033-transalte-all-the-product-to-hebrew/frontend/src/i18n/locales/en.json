@@ -44,8 +44,6 @@
   "pages": {
     "login": {
       "title": "Login",
-      "appName": "BuilderOps",
-      "appSubtitle": "Construction Project Operations Platform",
       "signIn": "Sign In",
       "createAccount": "Create Account",
       "email": "Email",

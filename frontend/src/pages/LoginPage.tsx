@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
@@ -14,6 +15,7 @@ import BuildIcon from '@mui/icons-material/Build'
 import { authApi } from '../api/auth'
 
 export default function LoginPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [tab, setTab] = useState(0)
   const [email, setEmail] = useState('')
@@ -50,7 +52,7 @@ export default function LoginPage() {
       navigate('/dashboard')
     } catch (err: unknown) {
       const error = err as { response?: { data?: { detail?: string } } }
-      setError(error.response?.data?.detail || 'Invalid email or password')
+      setError(error.response?.data?.detail || t('pages.login.invalidCredentials'))
     } finally {
       setLoading(false)
     }
@@ -62,27 +64,27 @@ export default function LoginPage() {
     setError(null)
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match')
+      setError(t('pages.login.passwordMismatch'))
       setLoading(false)
       return
     }
 
     if (password.length < 8) {
-      setError('Password must be at least 8 characters')
+      setError(t('pages.login.passwordTooShort'))
       setLoading(false)
       return
     }
 
     try {
       await authApi.register(email, password, fullName)
-      setSuccess('Account created successfully! Please sign in.')
+      setSuccess(t('pages.login.accountCreated'))
       setTab(0)
       setPassword('')
       setConfirmPassword('')
       setFullName('')
     } catch (err: unknown) {
       const error = err as { response?: { data?: { detail?: string } } }
-      setError(error.response?.data?.detail || 'Registration failed')
+      setError(error.response?.data?.detail || t('pages.login.registrationFailed'))
     } finally {
       setLoading(false)
     }
@@ -105,17 +107,17 @@ export default function LoginPage() {
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
               <BuildIcon color="primary" sx={{ fontSize: 40 }} />
               <Typography variant="h4" color="primary" fontWeight="bold">
-                BuilderOps
+                {t('pages.login.appName')}
               </Typography>
             </Box>
             <Typography variant="body2" color="text.secondary">
-              Construction Project Operations Platform
+              {t('pages.login.appSubtitle')}
             </Typography>
           </Box>
 
           <Tabs value={tab} onChange={handleTabChange} variant="fullWidth" sx={{ mb: 3 }}>
-            <Tab label="Sign In" />
-            <Tab label="Sign Up" />
+            <Tab label={t('pages.login.signIn')} />
+            <Tab label={t('pages.login.createAccount')} />
           </Tabs>
 
           {error && (
@@ -134,7 +136,7 @@ export default function LoginPage() {
             <form onSubmit={handleLogin}>
               <TextField
                 fullWidth
-                label="Email"
+                label={t('pages.login.email')}
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -144,7 +146,7 @@ export default function LoginPage() {
               />
               <TextField
                 fullWidth
-                label="Password"
+                label={t('pages.login.password')}
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -160,14 +162,14 @@ export default function LoginPage() {
                 disabled={loading}
                 sx={{ mt: 3, py: 1.5 }}
               >
-                {loading ? <CircularProgress size={24} color="inherit" /> : 'Sign In'}
+                {loading ? <CircularProgress size={24} color="inherit" /> : t('pages.login.signIn')}
               </Button>
             </form>
           ) : (
             <form onSubmit={handleRegister}>
               <TextField
                 fullWidth
-                label="Full Name"
+                label={t('pages.login.fullName')}
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 margin="normal"
@@ -176,7 +178,7 @@ export default function LoginPage() {
               />
               <TextField
                 fullWidth
-                label="Email"
+                label={t('pages.login.email')}
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -186,18 +188,18 @@ export default function LoginPage() {
               />
               <TextField
                 fullWidth
-                label="Password"
+                label={t('pages.login.password')}
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 margin="normal"
                 required
                 autoComplete="new-password"
-                helperText="At least 8 characters"
+                helperText={t('pages.login.helperText')}
               />
               <TextField
                 fullWidth
-                label="Confirm Password"
+                label={t('pages.login.confirmPassword')}
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
@@ -213,7 +215,7 @@ export default function LoginPage() {
                 disabled={loading}
                 sx={{ mt: 3, py: 1.5 }}
               >
-                {loading ? <CircularProgress size={24} color="inherit" /> : 'Create Account'}
+                {loading ? <CircularProgress size={24} color="inherit" /> : t('pages.login.createAccount')}
               </Button>
             </form>
           )}

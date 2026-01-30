@@ -44,6 +44,8 @@
   "pages": {
     "login": {
       "title": "כניסה",
+      "appName": "BuilderOps",
+      "appSubtitle": "פלטפורמת ניהול פרויקטים בנייה",
       "signIn": "התחבר",
       "createAccount": "צור חשבון",
       "email": "דוא״ל",
