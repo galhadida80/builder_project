@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
 import Card from '@mui/material/Card'
@@ -29,6 +30,7 @@ import { validateProjectForm, hasErrors, VALIDATION, type ValidationError } from
 import { useToast } from '../components/common/ToastProvider'
 
 export default function ProjectsPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { showError, showSuccess } = useToast()
   const [projects, setProjects] = useState<Project[]>([])
@@ -62,7 +64,7 @@ export default function ProjectsPage() {
       setProjects(data)
     } catch (error) {
       console.error('Failed to load projects:', error)
-      showError('Failed to load projects. Please try again.')
+      showError(t('pages.projects.failedToLoad'))
     } finally {
       setLoading(false)
     }
@@ -117,7 +119,7 @@ export default function ProjectsPage() {
           startDate: formData.startDate || undefined,
           expectedEndDate: formData.estimatedEndDate || undefined
         })
-        showSuccess('Project updated successfully!')
+        showSuccess(t('pages.projects.updateSuccess'))
       } else {
         await projectsApi.create({
           name: formData.name,
@@ -127,13 +129,13 @@ export default function ProjectsPage() {
           startDate: formData.startDate || undefined,
           expectedEndDate: formData.estimatedEndDate || undefined
         })
-        showSuccess('Project created successfully!')
+        showSuccess(t('pages.projects.createSuccess'))
       }
       handleCloseDialog()
       loadProjects()
     } catch (error) {
       console.error('Failed to save project:', error)
-      showError(`Failed to ${editingProject ? 'update' : 'create'} project. Please try again.`)
+      showError(editingProject ? t('pages.projects.failedToUpdate') : t('pages.projects.failedToCreate'))
     } finally {
       setSaving(false)
     }
@@ -150,13 +152,13 @@ export default function ProjectsPage() {
 
     try {
       await projectsApi.delete(projectToDelete.id)
-      showSuccess('Project deleted successfully!')
+      showSuccess(t('pages.projects.deleteSuccess'))
       setDeleteDialogOpen(false)
       setProjectToDelete(null)
       loadProjects()
     } catch (error) {
       console.error('Failed to delete project:', error)
-      showError('Failed to delete project. Please try again.')
+      showError(t('pages.projects.failedToDelete'))
     }
   }
 
@@ -203,10 +205,10 @@ export default function ProjectsPage() {
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
         <Box>
           <Typography variant="h4" fontWeight="bold" gutterBottom>
-            Projects
+            {t('pages.projects.title')}
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            Manage your construction projects
+            {t('pages.projects.subtitle')}
           </Typography>
         </Box>
         <Button
@@ -214,13 +216,13 @@ export default function ProjectsPage() {
           startIcon={<AddIcon />}
           onClick={handleOpenCreate}
         >
-          New Project
+          {t('pages.projects.newProject')}
         </Button>
       </Box>
 
       <TextField
         fullWidth
-        placeholder="Search projects..."
+        placeholder={t('pages.projects.searchProjects')}
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         sx={{ mb: 3, maxWidth: 400 }}
@@ -277,20 +279,20 @@ export default function ProjectsPage() {
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                     <CalendarTodayIcon fontSize="small" color="action" />
                     <Typography variant="caption" color="text.secondary">
-                      {new Date(project.startDate).toLocaleDateString()} - {project.estimatedEndDate ? new Date(project.estimatedEndDate).toLocaleDateString() : 'Ongoing'}
+                      {new Date(project.startDate).toLocaleDateString()} - {project.estimatedEndDate ? new Date(project.estimatedEndDate).toLocaleDateString() : t('pages.projects.ongoing')}
                     </Typography>
                   </Box>
                 )}
               </CardContent>
               <CardActions sx={{ justifyContent: 'space-between', px: 2, pb: 2 }}>
                 <Chip
-                  label={project.status.replace('_', ' ')}
+                  label={t(`status.${project.status.replace(/-/g, '_')}`)}
                   size="small"
                   color={getStatusColor(project.status)}
                   sx={{ textTransform: 'capitalize' }}
                 />
                 <Button size="small" onClick={() => handleProjectClick(project.id)}>
-                  View Details
+                  {t('pages.projects.viewDetails')}
                 </Button>
               </CardActions>
             </Card>
@@ -301,62 +303,62 @@ export default function ProjectsPage() {
       {filteredProjects.length === 0 && (
         <Box sx={{ textAlign: 'center', py: 8 }}>
           <Typography variant="h6" color="text.secondary" gutterBottom>
-            No projects found
+            {t('pages.projects.noProjects')}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Try adjusting your search or create a new project
+            {t('pages.projects.tryAdjusting')}
           </Typography>
         </Box>
       )}
 
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-        <MenuItem onClick={() => selectedProject && handleOpenEdit(selectedProject)}>Edit Project</MenuItem>
-        <MenuItem onClick={handleMenuClose}>View Team</MenuItem>
-        <MenuItem onClick={handleMenuClose}>Export Report</MenuItem>
-        <MenuItem onClick={handleDeleteClick} sx={{ color: 'error.main' }}>Delete Project</MenuItem>
+        <MenuItem onClick={() => selectedProject && handleOpenEdit(selectedProject)}>{t('pages.projects.editProject')}</MenuItem>
+        <MenuItem onClick={handleMenuClose}>{t('pages.projects.viewTeam')}</MenuItem>
+        <MenuItem onClick={handleMenuClose}>{t('pages.projects.exportReport')}</MenuItem>
+        <MenuItem onClick={handleDeleteClick} sx={{ color: 'error.main' }}>{t('pages.projects.deleteProject')}</MenuItem>
       </Menu>
 
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>{editingProject ? 'Edit Project' : 'Create New Project'}</DialogTitle>
+        <DialogTitle>{editingProject ? t('pages.projects.editProject') : t('pages.projects.createNewProject')}</DialogTitle>
         <DialogContent>
           <TextField
             fullWidth
-            label="Project Name"
+            label={t('pages.projects.projectName')}
             margin="normal"
             required
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             error={!!errors.name || formData.name.length >= VALIDATION.MAX_NAME_LENGTH}
-            helperText={errors.name || (formData.name.length > 0 ? `${formData.name.length}/${VALIDATION.MAX_NAME_LENGTH}${formData.name.length >= VALIDATION.MAX_NAME_LENGTH * 0.9 ? ' - Approaching limit' : ''}` : undefined)}
+            helperText={errors.name || (formData.name.length > 0 ? `${formData.name.length}/${VALIDATION.MAX_NAME_LENGTH}${formData.name.length >= VALIDATION.MAX_NAME_LENGTH * 0.9 ? ` - ${t('pages.projects.approachingLimit')}` : ''}` : undefined)}
             inputProps={{ maxLength: VALIDATION.MAX_NAME_LENGTH }}
           />
           <TextField
             fullWidth
-            label="Project Code"
+            label={t('pages.projects.projectCode')}
             margin="normal"
             required
             disabled={!!editingProject}
             value={formData.code}
             onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
             error={!!errors.code}
-            helperText={editingProject ? 'Code cannot be changed' : (errors.code || 'Letters, numbers, hyphens only')}
+            helperText={editingProject ? t('pages.projects.codeCannotChanged') : (errors.code || t('pages.projects.lettersNumbersHyphens'))}
             inputProps={{ maxLength: VALIDATION.MAX_CODE_LENGTH }}
           />
           <TextField
             fullWidth
-            label="Description"
+            label={t('pages.projects.description')}
             margin="normal"
             multiline
             rows={3}
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             error={!!errors.description || formData.description.length >= VALIDATION.MAX_DESCRIPTION_LENGTH}
-            helperText={errors.description || (formData.description.length > 0 ? `${formData.description.length}/${VALIDATION.MAX_DESCRIPTION_LENGTH}${formData.description.length >= VALIDATION.MAX_DESCRIPTION_LENGTH * 0.9 ? ' - Approaching limit' : ''}` : undefined)}
+            helperText={errors.description || (formData.description.length > 0 ? `${formData.description.length}/${VALIDATION.MAX_DESCRIPTION_LENGTH}${formData.description.length >= VALIDATION.MAX_DESCRIPTION_LENGTH * 0.9 ? ` - ${t('pages.projects.approachingLimit')}` : ''}` : undefined)}
             inputProps={{ maxLength: VALIDATION.MAX_DESCRIPTION_LENGTH }}
           />
           <TextField
             fullWidth
-            label="Address"
+            label={t('pages.projects.address')}
             margin="normal"
             value={formData.address}
             onChange={(e) => setFormData({ ...formData, address: e.target.value })}
@@ -367,7 +369,7 @@ export default function ProjectsPage() {
           <Box sx={{ display: 'flex', gap: 2 }}>
             <TextField
               fullWidth
-              label="Start Date"
+              label={t('pages.projects.startDate')}
               type="date"
               margin="normal"
               InputLabelProps={{ shrink: true }}
@@ -378,7 +380,7 @@ export default function ProjectsPage() {
             />
             <TextField
               fullWidth
-              label="End Date"
+              label={t('pages.projects.endDate')}
               type="date"
               margin="normal"
               InputLabelProps={{ shrink: true }}
@@ -390,23 +392,21 @@ export default function ProjectsPage() {
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog} disabled={saving}>Cancel</Button>
+          <Button onClick={handleCloseDialog} disabled={saving}>{t('common.cancel')}</Button>
           <Button variant="contained" onClick={handleSaveProject} disabled={saving}>
-            {saving ? <CircularProgress size={24} /> : (editingProject ? 'Save Changes' : 'Create Project')}
+            {saving ? <CircularProgress size={24} /> : (editingProject ? t('buttons.save') : t('buttons.create'))}
           </Button>
         </DialogActions>
       </Dialog>
 
       <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
-        <DialogTitle>Delete Project</DialogTitle>
+        <DialogTitle>{t('pages.projects.deleteProject')}</DialogTitle>
         <DialogContent>
-          <Typography>
-            Are you sure you want to delete <strong>{projectToDelete?.name}</strong>? This will permanently remove the project and all associated data. This action cannot be undone.
-          </Typography>
+          <Typography dangerouslySetInnerHTML={{ __html: t('pages.projects.deleteConfirmMessage', { name: projectToDelete?.name || '' }) }} />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-          <Button variant="contained" color="error" onClick={handleConfirmDelete}>Delete Project</Button>
+          <Button onClick={() => setDeleteDialogOpen(false)}>{t('common.cancel')}</Button>
+          <Button variant="contained" color="error" onClick={handleConfirmDelete}>{t('pages.projects.deleteProject')}</Button>
         </DialogActions>
       </Dialog>
     </Box>
