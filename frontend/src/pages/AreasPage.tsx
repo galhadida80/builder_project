@@ -140,6 +140,58 @@ export default function AreasPage() {
     loadAreas()
   }, [projectId])
 
+  const getAllAreas = (areas: ConstructionArea[]): ConstructionArea[] => {
+    const flatList: ConstructionArea[] = []
+    const flatten = (areaList: ConstructionArea[]) => {
+      areaList.forEach(area => {
+        flatList.push(area)
+        if (area.children && area.children.length > 0) {
+          flatten(area.children)
+        }
+      })
+    }
+    flatten(areas)
+    return flatList
+  }
+
+  const validateAreaCodeUniqueness = (areaCode: string): boolean => {
+    const allAreas = getAllAreas(areas)
+    return !allAreas.some(area => area.areaCode.toLowerCase() === areaCode.toLowerCase())
+  }
+
+  const validateField = (fieldName: string) => {
+    let error: string | null = null
+
+    switch (fieldName) {
+      case 'name':
+        error = validateRequired(formData.name, 'Area Name')
+          || validateMinLength(formData.name, VALIDATION.MIN_NAME_LENGTH, 'Area Name')
+          || validateMaxLength(formData.name, VALIDATION.MAX_NAME_LENGTH, 'Area Name')
+        break
+      case 'areaCode':
+        error = validateCode(formData.areaCode, 'Area Code')
+          || validateMaxLength(formData.areaCode, VALIDATION.MAX_CODE_LENGTH, 'Area Code')
+        if (!error && formData.areaCode && !validateAreaCodeUniqueness(formData.areaCode)) {
+          error = 'Area Code already exists'
+        }
+        break
+      case 'floorNumber':
+        error = validateInteger(formData.floorNumber, 'Floor Number')
+        break
+      case 'totalUnits':
+        error = validateInteger(formData.totalUnits, 'Total Units')
+        if (!error && formData.totalUnits) {
+          const num = Number(formData.totalUnits)
+          if (!isNaN(num) && num <= 0) {
+            error = 'Total Units must be greater than zero'
+          }
+        }
+        break
+    }
+
+    setErrors(prev => ({ ...prev, [fieldName]: error }))
+  }
+
   const loadAreas = async () => {
     try {
       setLoading(true)
