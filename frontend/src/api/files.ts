@@ -1,6 +1,6 @@
 import { apiClient } from './client'
 
-interface FileRecord {
+export interface FileRecord {
   id: string
   projectId: string
   entityType: string

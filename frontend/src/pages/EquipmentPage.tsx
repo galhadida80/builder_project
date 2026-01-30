@@ -35,8 +35,11 @@ import DescriptionIcon from '@mui/icons-material/Description'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import SendIcon from '@mui/icons-material/Send'
 import { equipmentApi } from '../api/equipment'
+import { filesApi } from '../api/files'
 import StatusBadge from '../components/common/StatusBadge'
+import { formatFileSize } from '../utils/fileUtils'
 import type { Equipment } from '../types'
+import type { FileRecord } from '../api/files'
 import { validateEquipmentForm, hasErrors, VALIDATION, type ValidationError } from '../utils/validation'
 import { useToast } from '../components/common/ToastProvider'
 
@@ -65,10 +68,34 @@ export default function EquipmentPage() {
     serialNumber: '',
     notes: ''
   })
+  const [files, setFiles] = useState<FileRecord[]>([])
+  const [filesLoading, setFilesLoading] = useState(false)
+  const [filesError, setFilesError] = useState<string | null>(null)
 
   useEffect(() => {
     loadEquipment()
   }, [projectId])
+
+  useEffect(() => {
+    const loadFiles = async () => {
+      if (!drawerOpen || !selectedEquipment || !projectId) {
+        setFiles([])
+        setFilesError(null)
+        return
+      }
+      try {
+        setFilesLoading(true)
+        setFilesError(null)
+        const data = await filesApi.list(projectId, 'equipment', selectedEquipment.id)
+        setFiles(data)
+      } catch (error) {
+        setFilesError('Failed to load files')
+      } finally {
+        setFilesLoading(false)
+      }
+    }
+    loadFiles()
+  }, [drawerOpen, selectedEquipment, projectId])
 
   const loadEquipment = async () => {
     try {
@@ -303,11 +330,31 @@ export default function EquipmentPage() {
             <Divider sx={{ my: 2 }} />
 
             <Typography variant="subtitle2" color="text.secondary" gutterBottom>Documents</Typography>
-            <List dense>
-              <ListItem><ListItemIcon><DescriptionIcon /></ListItemIcon><ListItemText primary="Technical Specifications" secondary="PDF - 2.4 MB" /></ListItem>
-              <ListItem><ListItemIcon><DescriptionIcon /></ListItemIcon><ListItemText primary="Safety Certificate" secondary="PDF - 1.1 MB" /></ListItem>
-              <ListItem><ListItemIcon><DescriptionIcon /></ListItemIcon><ListItemText primary="Installation Manual" secondary="PDF - 5.8 MB" /></ListItem>
-            </List>
+            {filesLoading ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                <CircularProgress size={24} />
+              </Box>
+            ) : filesError ? (
+              <Box sx={{ py: 2 }}>
+                <Typography color="error" variant="body2">{filesError}</Typography>
+              </Box>
+            ) : files.length === 0 ? (
+              <Box sx={{ py: 2 }}>
+                <Typography color="text.secondary" variant="body2">No documents attached</Typography>
+              </Box>
+            ) : (
+              <List dense>
+                {files.map((file) => (
+                  <ListItem key={file.id}>
+                    <ListItemIcon><DescriptionIcon /></ListItemIcon>
+                    <ListItemText
+                      primary={file.filename}
+                      secondary={`${file.fileType.toUpperCase()} - ${formatFileSize(file.fileSize)}`}
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            )}
             <Button size="small" startIcon={<AddIcon />}>Add Document</Button>
 
             <Divider sx={{ my: 2 }} />
