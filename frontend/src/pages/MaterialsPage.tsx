@@ -113,6 +113,8 @@ export default function MaterialsPage() {
       notes: formData.notes,
       quantity: formData.quantity ? parseFloat(formData.quantity) : undefined
     })
+    const dateWarning = validateFutureDate(formData.expectedDelivery, 'Expected Delivery Date')
+    validationErrors.expectedDelivery = dateWarning
     setErrors(validationErrors)
     if (hasErrors(validationErrors)) return
 
@@ -319,6 +321,7 @@ export default function MaterialsPage() {
             InputLabelProps={{ shrink: true }}
             value={formData.expectedDelivery}
             onChange={(e) => setFormData({ ...formData, expectedDelivery: e.target.value })}
+            helperText={errors.expectedDelivery}
           />
           <TextField
             fullWidth
