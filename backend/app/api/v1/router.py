@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1 import projects, equipment, equipment_templates, materials, meetings, approvals, areas, contacts, files, audit, auth
+from app.api.v1 import projects, equipment, equipment_templates, materials, meetings, approvals, areas, contacts, files, audit, auth, checklist_templates
 
 api_router = APIRouter()
 

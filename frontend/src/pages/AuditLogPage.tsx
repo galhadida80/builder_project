@@ -29,7 +29,6 @@ import SwapHorizIcon from '@mui/icons-material/SwapHoriz'
 import { auditApi } from '../api/audit'
 import { useToast } from '../components/common/ToastProvider'
 import type { AuditLog } from '../types'
-import { useToast } from '../components/common/ToastProvider'
 
 const actionIcons: Record<string, React.ReactNode> = {
   create: <AddCircleIcon color="success" />,

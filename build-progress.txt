@@ -1,0 +1,140 @@
+=== AUTO-BUILD PROGRESS ===
+
+Project: Translate entire product to Hebrew with i18n infrastructure
+Workspace: ./
+Started: 2026-01-30
+
+Workflow Type: feature
+Rationale: This is a new feature implementation adding internationalization infrastructure and Hebrew language support across multiple services (frontend and backend). It requires changes to component rendering, introduces new dependencies, modifies theme configuration, and establishes patterns for future localization.
+
+Session 1 (Planner Agent):
+✓ Completed Phase 0 - Deep Codebase Investigation
+  - Explored project structure: monorepo with frontend (React/Vite) and backend (FastAPI)
+  - Found existing patterns: useTranslation hooks, Material-UI RTL support, translation structure
+  - Identified tech stack: React 18, TypeScript, Material-UI v5, FastAPI, i18next-ready architecture
+  - Key findings: Header has hardcoded "Notifications", "Profile", "Settings", "Logout"
+  - All pages have hardcoded English strings that need extraction (ProjectsPage, LoginPage, etc.)
+
+✓ Completed Phase 1 - Context Files Review
+  - project_index.json: Monorepo with 2 services (backend, frontend)
+  - Backend: FastAPI + SQLAlchemy + Celery
+  - Frontend: React + TypeScript + Vite + Material-UI
+  - Database: PostgreSQL with Alembic migrations
+  - Infrastructure: Docker-compose, Redis, Celery available
+
+✓ Completed Phase 2 - Understanding Workflow Type
+  - Type: FEATURE (new i18n infrastructure + Hebrew language support)
+  - Services: Frontend (primary) + Backend (secondary)
+  - Multiple files to modify, new dependencies, establishes localization patterns
+
+✓ Created implementation_plan.json
+  - Phases: 5 (Setup, String Extraction, Backend Localization, RTL Support, Integration)
+  - Subtasks: 18 total
+  - Dependencies properly sequenced
+  - Parallelism: 2 phases can run in parallel (phases 2 & 3 after phase 1)
+
+Phase Summary:
+- Phase 1 (i18n Infrastructure Setup): 6 subtasks
+  - Install dependencies (i18next, react-i18next, i18next-browser-languagedetector)
+  - Create config.ts file
+  - Create translation directory and base files (en.json, he.json)
+  - Update main.tsx to initialize i18next
+  - Modify theme.ts for RTL support
+
+- Phase 2 (Frontend String Extraction): 6 subtasks
+  - Extract Header component strings (Notifications, Profile, Settings, Logout)
+  - Extract LoginPage strings
+  - Extract ProjectsPage strings
+  - Extract remaining pages (Equipment, Materials, Meetings, Approvals, Areas, Contacts, Audit, Dashboard)
+  - Extract layout components (Layout, Sidebar, ProjectSelector, StatusBadge)
+  - Add LanguageSelector component to Header
+
+- Phase 3 (Backend API Localization): 6 subtasks
+  - Create app/utils/localization.py utility module
+  - Create translation dictionaries (app/locales/en.json, app/locales/he.json)
+  - Add Accept-Language middleware to FastAPI
+  - Update auth routes (register, login) to use localization
+  - Add language preference field to User model
+  - Update all API routes (9 route files) to use localized messages
+
+- Phase 4 (RTL Layout & Localization): 4 subtasks
+  - Update App.tsx to set document.dir based on language
+  - Configure Material-UI theme for RTL direction
+  - Add dayjs Hebrew locale configuration
+  - Test and verify RTL rendering on all layouts
+
+- Phase 5 (Integration & Verification): 6 subtasks
+  - Verify language preference persistence
+  - Test end-to-end flows in both languages
+  - Verify backend API localization
+  - Run frontend tests
+  - Run backend tests
+  - Final verification (no errors, all strings translated, RTL works)
+
+Services Involved:
+- Frontend: React + TypeScript + Vite + Material-UI
+  - 1 entry point: src/main.tsx
+  - 8 pages to modify
+  - 5 layout/common components
+  - 2 new files (i18n/config.ts, LanguageSelector.tsx)
+  - 2 translation files (en.json, he.json)
+
+- Backend: FastAPI + SQLAlchemy
+  - Entry point: app/main.py
+  - 9 API route files to modify
+  - 1 new utility module (app/utils/localization.py)
+  - 2 translation files (app/locales/en.json, app/locales/he.json)
+  - 2 model files to update (User model, User schema)
+
+Parallelism Analysis:
+- Max parallel phases: 2
+- Recommended workers: 2
+- Parallel groups:
+  1. Phases 2 & 3 can run in parallel (different services, both depend only on phase 1)
+  2. Phase 4 depends on phase 2 (RTL needs string extraction first)
+  3. Phase 5 depends on phases 3 & 4 (final integration)
+- Speedup estimate: 1.4x faster than sequential (28 subtasks / 2 parallel = ~14 rounds vs sequential)
+
+Critical Findings from Investigation:
+1. Project already has Material-UI configured with RTL-capable theme
+2. Frontend uses dayjs already (can add Hebrew locale)
+3. Backend has structured API routes following consistent patterns
+4. Hardcoded strings found in: Header, 8 Pages, Layout components
+5. No existing i18n infrastructure - starting from scratch
+6. All language preference storage needed at User model level
+
+Next Steps for Coder Agent:
+1. Read implementation_plan.json for full task breakdown
+2. Start with Phase 1 (Setup) - least dependent, highest priority
+3. Follow dependency chain: Phase 1 → Phases 2 & 3 (parallel) → Phase 4 → Phase 5
+4. Use init.sh to start both services during development
+5. Test language switching after Phase 1 (setup)
+6. Each subtask = one git commit
+
+=== STARTUP COMMAND ===
+
+To continue building this spec, run:
+
+  source auto-claude/.venv/bin/activate && python auto-claude/run.py --spec 033 --parallel 2
+
+Or to use the development setup script:
+
+  chmod +x init.sh && ./init.sh
+
+Then in separate terminals:
+  - Frontend dev server runs on http://localhost:3000
+  - Backend API runs on http://localhost:8000
+  - API documentation at http://localhost:8000/api/v1/docs
+
+=== PLANNING COMPLETE ===
+
+Status: ✓ READY FOR IMPLEMENTATION
+All planning artifacts created:
+  - implementation_plan.json (18 subtasks, 5 phases, properly sequenced)
+  - init.sh (development environment setup)
+  - build-progress.txt (this file, progress tracking)
+
+Waiting for Coder Agent to begin implementation phase.
+DO NOT commit planning files - they are gitignored in .auto-claude/specs/
+
+=== END SESSION 1 ===

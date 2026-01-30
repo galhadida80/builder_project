@@ -1,0 +1,36 @@
+{
+  "project_type": "monorepo",
+  "services": {
+    "backend": {
+      "path": "./backend",
+      "tech_stack": ["python", "fastapi", "sqlalchemy", "pydantic", "alembic"],
+      "port": 8000,
+      "dev_command": "uvicorn app.main:app --reload --port 8000",
+      "test_command": "pytest",
+      "entry_point": "app/main.py"
+    },
+    "frontend": {
+      "path": "./frontend",
+      "tech_stack": ["typescript", "react", "vite"],
+      "port": 3000,
+      "dev_command": "npm run dev",
+      "test_command": "npm test",
+      "entry_point": "src/main.tsx"
+    }
+  },
+  "infrastructure": {
+    "docker": true,
+    "docker_compose": true,
+    "database": "postgresql",
+    "migrations": "alembic",
+    "task_queue": "celery",
+    "cache": "redis"
+  },
+  "conventions": {
+    "linter": "pylint",
+    "formatter": "black",
+    "testing": "pytest",
+    "schema_validation": "pydantic v2",
+    "type_hints": "python 3.10+ (Type | None syntax)"
+  }
+}
