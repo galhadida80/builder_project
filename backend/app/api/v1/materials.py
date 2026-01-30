@@ -1,5 +1,5 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
@@ -11,6 +11,7 @@ from app.schemas.material import MaterialCreate, MaterialUpdate, MaterialRespons
 from app.services.audit_service import create_audit_log, get_model_dict
 from app.models.audit import AuditAction
 from app.core.security import get_current_user
+from app.utils.localization import get_language_from_request, translate_message
 
 router = APIRouter()
 
@@ -55,7 +56,7 @@ async def create_material(
 
 
 @router.get("/projects/{project_id}/materials/{material_id}", response_model=MaterialResponse)
-async def get_material(project_id: UUID, material_id: UUID, db: AsyncSession = Depends(get_db)):
+async def get_material(project_id: UUID, material_id: UUID, db: AsyncSession = Depends(get_db), request: Request = None):
     result = await db.execute(
         select(Material)
         .options(selectinload(Material.created_by))
@@ -63,7 +64,9 @@ async def get_material(project_id: UUID, material_id: UUID, db: AsyncSession = D
     )
     material = result.scalar_one_or_none()
     if not material:
-        raise HTTPException(status_code=404, detail="Material not found")
+        language = get_language_from_request(request)
+        error_message = translate_message('resources.material_not_found', language)
+        raise HTTPException(status_code=404, detail=error_message)
     return material
 
 
@@ -73,12 +76,15 @@ async def update_material(
     material_id: UUID,
     data: MaterialUpdate,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    request: Request = None
 ):
     result = await db.execute(select(Material).where(Material.id == material_id))
     material = result.scalar_one_or_none()
     if not material:
-        raise HTTPException(status_code=404, detail="Material not found")
+        language = get_language_from_request(request)
+        error_message = translate_message('resources.material_not_found', language)
+        raise HTTPException(status_code=404, detail=error_message)
 
     old_values = get_model_dict(material)
     for key, value in data.model_dump(exclude_unset=True).items():
@@ -96,12 +102,15 @@ async def delete_material(
     project_id: UUID,
     material_id: UUID,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    request: Request = None
 ):
     result = await db.execute(select(Material).where(Material.id == material_id))
     material = result.scalar_one_or_none()
     if not material:
-        raise HTTPException(status_code=404, detail="Material not found")
+        language = get_language_from_request(request)
+        error_message = translate_message('resources.material_not_found', language)
+        raise HTTPException(status_code=404, detail=error_message)
 
     await create_audit_log(db, current_user, "material", material.id, AuditAction.DELETE,
                           project_id=project_id, old_values=get_model_dict(material))
@@ -115,12 +124,15 @@ async def submit_material_for_approval(
     project_id: UUID,
     material_id: UUID,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    request: Request = None
 ):
     result = await db.execute(select(Material).where(Material.id == material_id))
     material = result.scalar_one_or_none()
     if not material:
-        raise HTTPException(status_code=404, detail="Material not found")
+        language = get_language_from_request(request)
+        error_message = translate_message('resources.material_not_found', language)
+        raise HTTPException(status_code=404, detail=error_message)
 
     old_status = material.status
     material.status = ApprovalStatus.SUBMITTED.value
