@@ -68,7 +68,7 @@ function AreaNode({ area, level, onEdit, onDelete }: AreaNodeProps) {
   const statusConfig = getStatusConfig('in_progress')
 
   return (
-    <Box sx={{ ml: level * 3 }}>
+    <Box sx={{ marginInlineStart: level * 3 }}>
       <Card hoverable sx={{ mb: 1 }}>
         <Box sx={{ p: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
