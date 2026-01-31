@@ -4,7 +4,8 @@ import type {
   InspectionStageTemplate,
   Inspection,
   Finding,
-  InspectionSummary
+  InspectionSummary,
+  InspectionHistoryEvent
 } from '../types'
 
 export const inspectionsApi = {
@@ -64,6 +65,11 @@ export const inspectionsApi = {
 
   updateFinding: async (findingId: string, data: Partial<Finding>): Promise<Finding> => {
     const response = await apiClient.put(`/inspections/findings/${findingId}`, data)
+    return response.data
+  },
+
+  getInspectionHistory: async (projectId: string, inspectionId: string): Promise<InspectionHistoryEvent[]> => {
+    const response = await apiClient.get(`/projects/${projectId}/inspections/${inspectionId}/history`)
     return response.data
   }
 }
