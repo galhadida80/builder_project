@@ -9,7 +9,7 @@ import CancelIcon from '@mui/icons-material/Cancel'
 import HistoryIcon from '@mui/icons-material/History'
 import { Avatar } from './ui/Avatar'
 import { EmptyState } from './ui/EmptyState'
-import type { AuditLog } from '../types'
+import type { InspectionHistoryEvent } from '../types'
 
 const eventConfig: Record<string, { icon: React.ReactNode; color: 'success' | 'info' | 'error' | 'warning' | 'default' | 'primary'; bg: string }> = {
   create: { icon: <AddCircleIcon sx={{ fontSize: 18 }} />, color: 'primary', bg: 'primary.light' },
@@ -23,7 +23,7 @@ const eventConfig: Record<string, { icon: React.ReactNode; color: 'success' | 'i
 }
 
 interface InspectionHistoryTimelineProps {
-  events: AuditLog[]
+  events: InspectionHistoryEvent[]
   loading?: boolean
 }
 
@@ -82,7 +82,7 @@ export function InspectionHistoryTimeline({ events, loading = false }: Inspectio
     return changes.join(', ')
   }
 
-  const getEventDescription = (event: AuditLog): string => {
+  const getEventDescription = (event: InspectionHistoryEvent): string => {
     const changes = formatChanges(event.oldValues, event.newValues)
 
     if (event.action === 'create') {

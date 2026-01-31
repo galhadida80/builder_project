@@ -33,7 +33,7 @@ import { InspectionHistoryTimeline } from '../components/InspectionHistoryTimeli
 import { inspectionsApi } from '../api/inspections'
 import { useToast } from '../components/common/ToastProvider'
 import type {
-  Inspection, InspectionConsultantType, InspectionStageTemplate, InspectionSummary, AuditLog
+  Inspection, InspectionConsultantType, InspectionStageTemplate, InspectionSummary, InspectionHistoryEvent
 } from '../types'
 
 export default function InspectionsPage() {
@@ -51,7 +51,7 @@ export default function InspectionsPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedInspection, setSelectedInspection] = useState<Inspection | null>(null)
   const [detailsOpen, setDetailsOpen] = useState(false)
-  const [historyEvents, setHistoryEvents] = useState<AuditLog[]>([])
+  const [historyEvents, setHistoryEvents] = useState<InspectionHistoryEvent[]>([])
   const [historyLoading, setHistoryLoading] = useState(false)
 
   useEffect(() => {
