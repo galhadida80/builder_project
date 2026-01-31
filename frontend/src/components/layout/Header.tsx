@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import AppBar from '@mui/material/AppBar'
 import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
@@ -18,6 +18,8 @@ import type { User, Project } from '../../types'
 import ProjectSelector from './ProjectSelector'
 import { useToast } from '../common/ToastProvider'
 import { ThemeToggle } from '../common/ThemeToggle'
+import { NotificationsPanel } from '../notifications/NotificationsPanel'
+import { useNotifications } from '../../hooks/useNotifications'
 
 interface HeaderProps {
   user: User
@@ -30,7 +32,18 @@ interface HeaderProps {
 export default function Header({ user, currentProject, projects, onProjectChange, onLogout }: HeaderProps) {
   const { showInfo } = useToast()
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
-  const [notificationAnchor, setNotificationAnchor] = useState<null | HTMLElement>(null)
+  const [notificationsPanelOpen, setNotificationsPanelOpen] = useState(false)
+
+  const {
+    notifications,
+    unreadCount,
+    loading,
+    hasMore,
+    markAsRead,
+    markAllAsRead,
+    loadMore,
+    refresh,
+  } = useNotifications()
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget)
@@ -40,13 +53,20 @@ export default function Header({ user, currentProject, projects, onProjectChange
     setAnchorEl(null)
   }
 
-  const handleNotificationOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setNotificationAnchor(event.currentTarget)
+  const handleNotificationOpen = () => {
+    setNotificationsPanelOpen(true)
   }
 
   const handleNotificationClose = () => {
-    setNotificationAnchor(null)
+    setNotificationsPanelOpen(false)
   }
+
+  // Refresh notifications when panel opens
+  useEffect(() => {
+    if (notificationsPanelOpen) {
+      refresh()
+    }
+  }, [notificationsPanelOpen, refresh])
 
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
@@ -79,7 +99,7 @@ export default function Header({ user, currentProject, projects, onProjectChange
           <ThemeToggle />
 
           <IconButton onClick={handleNotificationOpen}>
-            <Badge badgeContent={3} color="error">
+            <Badge badgeContent={unreadCount} color="error">
               <NotificationsIcon />
             </Badge>
           </IconButton>
@@ -91,39 +111,17 @@ export default function Header({ user, currentProject, projects, onProjectChange
           </IconButton>
         </Box>
 
-        <Menu
-          anchorEl={notificationAnchor}
-          open={Boolean(notificationAnchor)}
+        <NotificationsPanel
+          open={notificationsPanelOpen}
           onClose={handleNotificationClose}
-          PaperProps={{ sx: { width: 320, maxHeight: 400 } }}
-        >
-          <Box sx={{ px: 2, py: 1 }}>
-            <Typography variant="subtitle1" fontWeight="bold">Notifications</Typography>
-          </Box>
-          <Divider />
-          <MenuItem onClick={handleNotificationClose}>
-            <Box>
-              <Typography variant="body2">Equipment approval pending</Typography>
-              <Typography variant="caption" color="text.secondary">Concrete Pump CP-200 requires review</Typography>
-            </Box>
-          </MenuItem>
-          <MenuItem onClick={handleNotificationClose}>
-            <Box>
-              <Typography variant="body2">Meeting scheduled</Typography>
-              <Typography variant="caption" color="text.secondary">Weekly Site Coordination - Tomorrow 9:00 AM</Typography>
-            </Box>
-          </MenuItem>
-          <MenuItem onClick={handleNotificationClose}>
-            <Box>
-              <Typography variant="body2">Material delivery update</Typography>
-              <Typography variant="caption" color="text.secondary">Reinforcement Steel - 150 tons received</Typography>
-            </Box>
-          </MenuItem>
-          <Divider />
-          <MenuItem sx={{ justifyContent: 'center' }}>
-            <Typography variant="body2" color="primary">View all notifications</Typography>
-          </MenuItem>
-        </Menu>
+          notifications={notifications}
+          unreadCount={unreadCount}
+          onMarkAsRead={markAsRead}
+          onMarkAllAsRead={markAllAsRead}
+          onLoadMore={loadMore}
+          hasMore={hasMore}
+          loading={loading}
+        />
 
         <Menu
           anchorEl={anchorEl}
