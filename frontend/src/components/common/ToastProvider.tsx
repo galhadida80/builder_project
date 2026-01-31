@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useCallback, ReactNode } from 'react'
 import Snackbar from '@mui/material/Snackbar'
 import Alert from '@mui/material/Alert'
+import { slideInUp, fadeOut, duration, easing } from '@/utils/animations'
 
 type ToastSeverity = 'success' | 'error' | 'warning' | 'info'
 
@@ -30,10 +31,12 @@ export function ToastProvider({ children }: ToastProviderProps) {
   const [open, setOpen] = useState(false)
   const [message, setMessage] = useState('')
   const [severity, setSeverity] = useState<ToastSeverity>('info')
+  const [isExiting, setIsExiting] = useState(false)
 
   const showToast = useCallback((msg: string, sev: ToastSeverity = 'info') => {
     setMessage(msg)
     setSeverity(sev)
+    setIsExiting(false)
     setOpen(true)
   }, [])
 
@@ -54,7 +57,12 @@ export function ToastProvider({ children }: ToastProviderProps) {
   }, [showToast])
 
   const handleClose = () => {
-    setOpen(false)
+    setIsExiting(true)
+    // Wait for fade-out animation to complete before closing
+    setTimeout(() => {
+      setOpen(false)
+      setIsExiting(false)
+    }, duration.normal)
   }
 
   return (
@@ -65,6 +73,13 @@ export function ToastProvider({ children }: ToastProviderProps) {
         autoHideDuration={5000}
         onClose={handleClose}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        sx={{
+          '& .MuiSnackbarContent-root, & .MuiPaper-root': {
+            animation: isExiting
+              ? `${fadeOut} ${duration.normal}ms ${easing.accelerate} forwards`
+              : `${slideInUp} ${duration.normal}ms ${easing.decelerate} forwards`,
+          },
+        }}
       >
         <Alert onClose={handleClose} severity={severity} variant="filled" sx={{ width: '100%' }}>
           {message}
