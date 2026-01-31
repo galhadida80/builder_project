@@ -5,6 +5,7 @@ import Toolbar from '@mui/material/Toolbar'
 import CircularProgress from '@mui/material/CircularProgress'
 import Sidebar from './Sidebar'
 import Header from './Header'
+import { OfflineBanner } from '../common/OfflineBanner'
 import { projectsApi } from '../../api/projects'
 import { authApi } from '../../api/auth'
 import type { Project, User } from '../../types'
@@ -70,6 +71,7 @@ export default function Layout() {
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+      <OfflineBanner />
       <Header
         user={currentUser}
         currentProject={currentProject}
