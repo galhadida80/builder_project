@@ -22,7 +22,7 @@ import { inspectionsApi } from '../api/inspections'
 export default function InspectorDashboard() {
   const [loading, setLoading] = useState(true)
   const [inspections, setInspections] = useState<Inspection[]>([])
-  const [isOffline] = useState(false)
+  const [isOffline] = useState(true)
 
   // For demo purposes, using a hardcoded project ID
   // In production, this would come from user context or route params
