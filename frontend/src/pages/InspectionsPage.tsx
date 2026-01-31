@@ -24,9 +24,10 @@ import { FormModal } from '../components/ui/Modal'
 import { PageHeader } from '../components/ui/Breadcrumbs'
 import { EmptyState } from '../components/ui/EmptyState'
 import { TextField, SearchField } from '../components/ui/TextField'
+import { FindingDocumentationCard } from '../components/inspections/FindingDocumentationCard'
 import { inspectionsApi } from '../api/inspections'
 import type {
-  Inspection, InspectionConsultantType, InspectionStageTemplate, InspectionSummary
+  Inspection, InspectionConsultantType, InspectionStageTemplate, InspectionSummary, FindingSeverity
 } from '../types'
 
 export default function InspectionsPage() {
@@ -41,6 +42,7 @@ export default function InspectionsPage() {
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
+  const [selectedInspection, setSelectedInspection] = useState<Inspection | null>(null)
 
   useEffect(() => {
     if (projectId) loadData()
@@ -81,6 +83,20 @@ export default function InspectionsPage() {
     setDialogOpen(false)
     setNewInspection({ consultantTypeId: '', scheduledDate: '', notes: '' })
     loadData()
+  }
+
+  const handleInspectionClick = (inspection: Inspection) => {
+    setSelectedInspection(selectedInspection?.id === inspection.id ? null : inspection)
+  }
+
+  const handleSeverityChange = async (findingId: string, severity: FindingSeverity) => {
+    try {
+      await inspectionsApi.updateFinding(findingId, { severity })
+      // Refresh data to get updated findings
+      loadData()
+    } catch (error) {
+      console.error('Failed to update severity:', error)
+    }
   }
 
   const filteredInspections = inspections.filter(inspection => {
@@ -462,9 +478,36 @@ export default function InspectionsPage() {
               rows={filteredInspections}
               getRowId={(row) => row.id}
               emptyMessage="No inspections found"
-              onRowClick={(row) => console.log('View inspection:', row.id)}
+              onRowClick={handleInspectionClick}
             />
           </Box>
+
+          {/* Finding Cards for Selected Inspection */}
+          {selectedInspection && selectedInspection.findings && selectedInspection.findings.length > 0 && (
+            <Box sx={{ mt: 3 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Typography variant="h6" fontWeight={600}>
+                  Findings for {selectedInspection.consultantType?.name || 'Inspection'}
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {selectedInspection.findings.length} finding{selectedInspection.findings.length !== 1 ? 's' : ''}
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }, gap: 2 }}>
+                {selectedInspection.findings.map((finding) => (
+                  <FindingDocumentationCard
+                    key={finding.id}
+                    finding={finding}
+                    onSeverityChange={(severity) => handleSeverityChange(finding.id, severity)}
+                    onAssign={() => console.log('Assign finding:', finding.id)}
+                    onResolve={() => console.log('Resolve finding:', finding.id)}
+                    onAddPhoto={() => console.log('Add photo to finding:', finding.id)}
+                    onPhotoClick={(photoUrl) => console.log('View photo:', photoUrl)}
+                  />
+                ))}
+              </Box>
+            </Box>
+          )}
         </Box>
       </Card>
 
