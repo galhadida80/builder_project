@@ -7,7 +7,9 @@ import {
   Typography,
 } from '@mui/material'
 import { styled } from '@mui/material/styles'
+import { keyframes } from '@emotion/react'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import { duration, easing, createTransition, scaleIn } from '../../utils/animations'
 
 interface StepItem {
   label: string
@@ -35,6 +37,7 @@ const CustomConnector = styled(StepConnector)(({ theme }) => ({
     borderColor: theme.palette.divider,
     borderTopWidth: 2,
     borderRadius: 1,
+    transition: createTransition('border-color', duration.normal, easing.standard),
   },
 }))
 
@@ -56,9 +59,22 @@ const StepIconContainer = styled('div')<{ active: boolean; completed: boolean; e
     color: completed || active || error ? '#fff' : theme.palette.text.disabled,
     fontWeight: 600,
     fontSize: '0.875rem',
-    transition: 'all 200ms ease-out',
+    transition: createTransition(
+      ['background-color', 'color', 'transform'],
+      duration.normal,
+      easing.standard
+    ),
   })
 )
+
+const AnimatedCheckIcon = styled(CheckCircleIcon)({
+  fontSize: 18,
+  animation: `${scaleIn} ${duration.normal}ms ${easing.decelerate}`,
+})
+
+const StepNumber = styled('span')<{ entering: boolean }>(({ entering }) => ({
+  animation: entering ? `${scaleIn} ${duration.normal}ms ${easing.decelerate}` : 'none',
+}))
 
 function CustomStepIcon({
   icon,
@@ -73,7 +89,11 @@ function CustomStepIcon({
 }) {
   return (
     <StepIconContainer active={active} completed={completed} error={error}>
-      {completed ? <CheckCircleIcon sx={{ fontSize: 18 }} /> : icon}
+      {completed ? (
+        <AnimatedCheckIcon />
+      ) : (
+        <StepNumber entering={active}>{icon}</StepNumber>
+      )}
     </StepIconContainer>
   )
 }
@@ -120,6 +140,11 @@ export function Stepper({
               sx={{
                 fontWeight: index === activeStep ? 600 : 400,
                 color: index === activeStep ? 'text.primary' : 'text.secondary',
+                transition: createTransition(
+                  ['font-weight', 'color'],
+                  duration.normal,
+                  easing.standard
+                ),
               }}
             >
               {step.label}
