@@ -17,6 +17,7 @@ import LogoutIcon from '@mui/icons-material/Logout'
 import type { User, Project } from '../../types'
 import ProjectSelector from './ProjectSelector'
 import { useToast } from '../common/ToastProvider'
+import { ThemeToggle } from '../common/ThemeToggle'
 
 interface HeaderProps {
   user: User
@@ -75,6 +76,8 @@ export default function Header({ user, currentProject, projects, onProjectChange
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <ThemeToggle />
+
           <IconButton onClick={handleNotificationOpen}>
             <Badge badgeContent={3} color="error">
               <NotificationsIcon />

@@ -11,7 +11,8 @@ import ApprovalsPage from './pages/ApprovalsPage'
 import AreasPage from './pages/AreasPage'
 import ContactsPage from './pages/ContactsPage'
 import AuditLogPage from './pages/AuditLogPage'
-import { ToastProvider } from './components/common/ToastProvider'
+import InspectionsPage from './pages/InspectionsPage'
+import RFIPage from './pages/RFIPage'
 
 function ProtectedRoute() {
   const token = localStorage.getItem('authToken')
@@ -23,8 +24,7 @@ function ProtectedRoute() {
 
 export default function App() {
   return (
-    <ToastProvider>
-      <Routes>
+    <Routes>
         <Route path="/login" element={<LoginPage />} />
 
         <Route element={<ProtectedRoute />}>
@@ -40,6 +40,8 @@ export default function App() {
               <Route path="approvals" element={<ApprovalsPage />} />
               <Route path="areas" element={<AreasPage />} />
               <Route path="contacts" element={<ContactsPage />} />
+              <Route path="inspections" element={<InspectionsPage />} />
+              <Route path="rfis" element={<RFIPage />} />
             </Route>
 
             <Route path="/approvals" element={<ApprovalsPage />} />
@@ -49,6 +51,5 @@ export default function App() {
 
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
-    </ToastProvider>
   )
 }

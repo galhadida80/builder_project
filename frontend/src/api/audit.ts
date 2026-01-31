@@ -14,35 +14,35 @@ interface AuditFilters {
 
 interface ApiAuditLog {
   id: string
-  project_id?: string
-  user_id?: string
-  user?: { id: string; email: string; full_name?: string; is_active: boolean; created_at: string }
-  entity_type: string
-  entity_id: string
+  projectId?: string
+  userId?: string
+  user?: { id: string; email: string; fullName?: string; isActive: boolean; createdAt: string }
+  entityType: string
+  entityId: string
   action: string
-  old_values?: Record<string, unknown>
-  new_values?: Record<string, unknown>
-  created_at: string
+  oldValues?: Record<string, unknown>
+  newValues?: Record<string, unknown>
+  createdAt: string
 }
 
 function transformAuditLog(log: ApiAuditLog): AuditLog {
   return {
     id: log.id,
-    projectId: log.project_id,
-    userId: log.user_id,
+    projectId: log.projectId,
+    userId: log.userId,
     user: log.user ? {
       id: log.user.id,
       email: log.user.email,
-      fullName: log.user.full_name,
-      isActive: log.user.is_active,
-      createdAt: log.user.created_at,
+      fullName: log.user.fullName,
+      isActive: log.user.isActive,
+      createdAt: log.user.createdAt,
     } as User : undefined,
-    entityType: log.entity_type,
-    entityId: log.entity_id,
+    entityType: log.entityType,
+    entityId: log.entityId,
     action: log.action as AuditLog['action'],
-    oldValues: log.old_values,
-    newValues: log.new_values,
-    createdAt: log.created_at,
+    oldValues: log.oldValues,
+    newValues: log.newValues,
+    createdAt: log.createdAt,
   }
 }
 

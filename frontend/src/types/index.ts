@@ -234,3 +234,71 @@ export interface Notification {
   isRead: boolean
   createdAt: string
 }
+
+export type InspectionStatus = 'pending' | 'in_progress' | 'completed' | 'failed'
+export type FindingSeverity = 'low' | 'medium' | 'high' | 'critical'
+export type FindingStatus = 'open' | 'resolved'
+
+export interface InspectionConsultantType {
+  id: string
+  name: string
+  nameHe: string
+  category?: string
+  isActive: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export interface InspectionStageTemplate {
+  id: string
+  consultantTypeId: string
+  name: string
+  nameHe: string
+  description?: string
+  stageOrder: number
+  triggerConditions?: Record<string, unknown>
+  requiredDocuments?: Record<string, unknown>
+  isActive: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export interface Inspection {
+  id: string
+  projectId: string
+  consultantTypeId: string
+  scheduledDate: string
+  completedDate?: string
+  currentStage?: string
+  status: InspectionStatus
+  notes?: string
+  createdAt: string
+  updatedAt: string
+  createdBy?: User
+  consultantType?: InspectionConsultantType
+  findings?: Finding[]
+}
+
+export interface Finding {
+  id: string
+  inspectionId: string
+  title: string
+  description?: string
+  severity: FindingSeverity
+  status: FindingStatus
+  location?: string
+  photos?: string[]
+  createdAt: string
+  updatedAt: string
+  createdBy?: User
+}
+
+export interface InspectionSummary {
+  totalInspections: number
+  pendingCount: number
+  inProgressCount: number
+  completedCount: number
+  failedCount: number
+  findingsBySeverity: Record<string, number>
+  overdueCount: number
+}

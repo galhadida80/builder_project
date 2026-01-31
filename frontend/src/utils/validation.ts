@@ -108,7 +108,7 @@ export interface ValidationError {
   [field: string]: string | null
 }
 
-export const validateProjectForm = (data: { name?: string; code?: string; description?: string; address?: string; startDate?: string; endDate?: string }): ValidationError => {
+export const validateProjectForm = (data: { name?: string; code?: string; description?: string; address?: string; startDate?: string; estimatedEndDate?: string }): ValidationError => {
   const errors: ValidationError = {}
 
   errors.name = validateRequired(data.name, 'Project Name')
@@ -121,9 +121,7 @@ export const validateProjectForm = (data: { name?: string; code?: string; descri
 
   errors.description = validateMaxLength(data.description, VALIDATION.MAX_DESCRIPTION_LENGTH, 'Description')
   errors.address = validateMaxLength(data.address, VALIDATION.MAX_ADDRESS_LENGTH, 'Address')
-  errors.endDate = validateDateRange(data.startDate, data.endDate)
-
-  errors.estimatedEndDate = validateDateRange(data.startDate, data.estimatedEndDate, 'Start Date', 'End Date')
+  errors.estimatedEndDate = validateDateRange(data.startDate, data.estimatedEndDate)
 
   return errors
 }

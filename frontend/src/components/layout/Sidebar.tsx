@@ -18,6 +18,9 @@ import AccountTreeIcon from '@mui/icons-material/AccountTree'
 import ContactsIcon from '@mui/icons-material/Contacts'
 import HistoryIcon from '@mui/icons-material/History'
 import SettingsIcon from '@mui/icons-material/Settings'
+import AssignmentIcon from '@mui/icons-material/Assignment'
+import ConstructionIcon from '@mui/icons-material/Construction'
+import EmailIcon from '@mui/icons-material/Email'
 
 const DRAWER_WIDTH = 260
 
@@ -39,6 +42,8 @@ const projectNavItems: NavItem[] = [
   { label: 'Approvals', path: '/approvals', icon: <CheckCircleIcon /> },
   { label: 'Areas', path: '/areas', icon: <AccountTreeIcon /> },
   { label: 'Contacts', path: '/contacts', icon: <ContactsIcon /> },
+  { label: 'Inspections', path: '/inspections', icon: <AssignmentIcon /> },
+  { label: 'RFIs', path: '/rfis', icon: <EmailIcon /> },
 ]
 
 const systemNavItems: NavItem[] = [
@@ -79,36 +84,90 @@ export default function Sidebar({ projectId }: SidebarProps) {
           width: DRAWER_WIDTH,
           boxSizing: 'border-box',
           bgcolor: 'background.paper',
+          borderRight: '1px solid',
+          borderColor: 'divider',
         },
       }}
     >
-      <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-        <BuildIcon color="primary" sx={{ fontSize: 32 }} />
-        <Typography variant="h6" color="primary" fontWeight="bold">
-          BuilderOps
-        </Typography>
+      <Box
+        sx={{
+          p: 2.5,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1.5,
+        }}
+      >
+        <Box
+          sx={{
+            width: 40,
+            height: 40,
+            borderRadius: 2,
+            bgcolor: 'primary.main',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <ConstructionIcon sx={{ color: 'white', fontSize: 24 }} />
+        </Box>
+        <Box>
+          <Typography
+            variant="h6"
+            sx={{
+              fontWeight: 700,
+              fontSize: '1.125rem',
+              color: 'text.primary',
+              lineHeight: 1.2,
+            }}
+          >
+            BuilderOps
+          </Typography>
+          <Typography
+            variant="caption"
+            sx={{ color: 'text.secondary', fontSize: '0.7rem' }}
+          >
+            Construction Platform
+          </Typography>
+        </Box>
       </Box>
 
       <Divider />
 
-      <List>
+      <List sx={{ px: 1.5, py: 1 }}>
         {mainNavItems.map((item) => (
-          <ListItem key={item.path} disablePadding>
+          <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }}>
             <ListItemButton
               selected={isActive(item.path)}
               onClick={() => handleNavigation(item.path, false)}
               sx={{
-                mx: 1,
                 borderRadius: 2,
+                py: 1,
+                transition: 'all 200ms ease-out',
+                '&:hover': {
+                  bgcolor: 'action.hover',
+                },
                 '&.Mui-selected': {
-                  bgcolor: 'primary.light',
+                  bgcolor: 'primary.main',
                   color: 'primary.contrastText',
-                  '& .MuiListItemIcon-root': { color: 'primary.contrastText' },
+                  '&:hover': {
+                    bgcolor: 'primary.dark',
+                  },
+                  '& .MuiListItemIcon-root': {
+                    color: 'primary.contrastText',
+                  },
                 },
               }}
             >
-              <ListItemIcon sx={{ minWidth: 40 }}>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.label} />
+              <ListItemIcon sx={{ minWidth: 40, color: 'text.secondary' }}>
+                {item.icon}
+              </ListItemIcon>
+              <ListItemText
+                primary={item.label}
+                primaryTypographyProps={{
+                  fontWeight: 500,
+                  fontSize: '0.875rem',
+                }}
+              />
             </ListItemButton>
           </ListItem>
         ))}
@@ -116,30 +175,59 @@ export default function Sidebar({ projectId }: SidebarProps) {
 
       {projectId && (
         <>
-          <Divider sx={{ my: 1 }} />
-          <Typography variant="caption" sx={{ px: 3, py: 1, color: 'text.secondary', fontWeight: 500 }}>
-            PROJECT
+          <Divider sx={{ mx: 2 }} />
+          <Typography
+            variant="caption"
+            sx={{
+              px: 3,
+              py: 1.5,
+              display: 'block',
+              color: 'text.secondary',
+              fontWeight: 600,
+              fontSize: '0.65rem',
+              letterSpacing: '0.1em',
+              textTransform: 'uppercase',
+            }}
+          >
+            Current Project
           </Typography>
-          <List>
+          <List sx={{ px: 1.5, py: 0 }}>
             {projectNavItems.map((item) => {
               const fullPath = `/projects/${projectId}${item.path}`
               return (
-                <ListItem key={item.path} disablePadding>
+                <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }}>
                   <ListItemButton
                     selected={location.pathname === fullPath}
                     onClick={() => handleNavigation(item.path, true)}
                     sx={{
-                      mx: 1,
                       borderRadius: 2,
+                      py: 1,
+                      transition: 'all 200ms ease-out',
+                      '&:hover': {
+                        bgcolor: 'action.hover',
+                      },
                       '&.Mui-selected': {
-                        bgcolor: 'primary.light',
+                        bgcolor: 'primary.main',
                         color: 'primary.contrastText',
-                        '& .MuiListItemIcon-root': { color: 'primary.contrastText' },
+                        '&:hover': {
+                          bgcolor: 'primary.dark',
+                        },
+                        '& .MuiListItemIcon-root': {
+                          color: 'primary.contrastText',
+                        },
                       },
                     }}
                   >
-                    <ListItemIcon sx={{ minWidth: 40 }}>{item.icon}</ListItemIcon>
-                    <ListItemText primary={item.label} />
+                    <ListItemIcon sx={{ minWidth: 40, color: 'text.secondary' }}>
+                      {item.icon}
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={item.label}
+                      primaryTypographyProps={{
+                        fontWeight: 500,
+                        fontSize: '0.875rem',
+                      }}
+                    />
                   </ListItemButton>
                 </ListItem>
               )
@@ -150,21 +238,55 @@ export default function Sidebar({ projectId }: SidebarProps) {
 
       <Box sx={{ flexGrow: 1 }} />
 
-      <Divider />
-      <List>
+      <Divider sx={{ mx: 2 }} />
+      <List sx={{ px: 1.5, py: 1 }}>
         {systemNavItems.map((item) => (
-          <ListItem key={item.path} disablePadding>
+          <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }}>
             <ListItemButton
               selected={isActive(item.path)}
               onClick={() => handleNavigation(item.path, false)}
-              sx={{ mx: 1, borderRadius: 2 }}
+              sx={{
+                borderRadius: 2,
+                py: 1,
+                transition: 'all 200ms ease-out',
+                '&:hover': {
+                  bgcolor: 'action.hover',
+                },
+                '&.Mui-selected': {
+                  bgcolor: 'primary.main',
+                  color: 'primary.contrastText',
+                  '& .MuiListItemIcon-root': {
+                    color: 'primary.contrastText',
+                  },
+                },
+              }}
             >
-              <ListItemIcon sx={{ minWidth: 40 }}>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.label} />
+              <ListItemIcon sx={{ minWidth: 40, color: 'text.secondary' }}>
+                {item.icon}
+              </ListItemIcon>
+              <ListItemText
+                primary={item.label}
+                primaryTypographyProps={{
+                  fontWeight: 500,
+                  fontSize: '0.875rem',
+                }}
+              />
             </ListItemButton>
           </ListItem>
         ))}
       </List>
+
+      <Box sx={{ p: 2, pt: 0 }}>
+        <Typography
+          variant="caption"
+          sx={{
+            color: 'text.disabled',
+            fontSize: '0.65rem',
+          }}
+        >
+          v1.0.0
+        </Typography>
+      </Box>
     </Drawer>
   )
 }
