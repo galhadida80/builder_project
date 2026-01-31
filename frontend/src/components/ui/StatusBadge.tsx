@@ -7,6 +7,7 @@ import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty'
 import EditIcon from '@mui/icons-material/Edit'
 import ErrorIcon from '@mui/icons-material/Error'
 import WarningIcon from '@mui/icons-material/Warning'
+import { keyframeAnimations, createTransition, duration, easing, createAnimation } from '../../utils/animations'
 
 export type StatusType =
   | 'draft'
@@ -42,6 +43,17 @@ interface StatusBadgeProps {
   showIcon?: boolean
 }
 
+// Statuses that should have pulse animation (active/ongoing states)
+const activeStatuses: StatusType[] = [
+  'active',
+  'in_progress',
+  'open',
+  'pending',
+  'waiting_response',
+  'submitted',
+  'under_review',
+]
+
 const statusConfig: Record<StatusType, { label: string; color: ChipProps['color']; icon: React.ReactNode }> = {
   draft: { label: 'Draft', color: 'default', icon: <EditIcon /> },
   pending: { label: 'Pending', color: 'warning', icon: <PendingIcon /> },
@@ -74,6 +86,10 @@ const StyledChip = styled(Chip)(() => ({
   fontWeight: 600,
   fontSize: '0.75rem',
   letterSpacing: '0.02em',
+  transition: createTransition('transform', duration.fast, easing.standard),
+  '&:hover': {
+    transform: 'scale(1.05)',
+  },
   '& .MuiChip-icon': {
     fontSize: '1rem',
   },
@@ -81,6 +97,7 @@ const StyledChip = styled(Chip)(() => ({
 
 export function StatusBadge({ status, size = 'small', showIcon = false }: StatusBadgeProps) {
   const config = statusConfig[status] || { label: status, color: 'default', icon: null }
+  const shouldPulse = activeStatuses.includes(status)
 
   return (
     <StyledChip
@@ -90,6 +107,12 @@ export function StatusBadge({ status, size = 'small', showIcon = false }: Status
       icon={showIcon ? config.icon as React.ReactElement : undefined}
       sx={{
         borderRadius: 1.5,
+        ...(shouldPulse && {
+          animation: createAnimation(keyframeAnimations.pulse, 2000, easing.easeInOut, 'infinite'),
+          '& .MuiChip-icon': {
+            animation: createAnimation(keyframeAnimations.pulse, 2000, easing.easeInOut, 'infinite'),
+          },
+        }),
       }}
     />
   )
