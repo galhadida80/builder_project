@@ -1,15 +1,20 @@
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react'
 import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles'
+import { CacheProvider } from '@emotion/react'
 import CssBaseline from '@mui/material/CssBaseline'
 import { createLightTheme, createDarkTheme } from './theme'
+import { cacheRtl, cacheLtr } from './rtlCache'
 
 type ThemeMode = 'light' | 'dark' | 'system'
+type Direction = 'ltr' | 'rtl'
 
 interface ThemeContextType {
   mode: ThemeMode
   setMode: (mode: ThemeMode) => void
   isDark: boolean
   toggleTheme: () => void
+  direction: Direction
+  setDirection: (direction: Direction) => void
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
@@ -32,6 +37,11 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     return (stored as ThemeMode) || 'system'
   })
 
+  const [direction, setDirection] = useState<Direction>(() => {
+    const stored = localStorage.getItem('theme-direction')
+    return (stored as Direction) || 'ltr'
+  })
+
   const [systemPrefersDark, setSystemPrefersDark] = useState(() =>
     window.matchMedia('(prefers-color-scheme: dark)').matches
   )
@@ -47,14 +57,23 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     localStorage.setItem('theme-mode', mode)
   }, [mode])
 
+  useEffect(() => {
+    localStorage.setItem('theme-direction', direction)
+    document.documentElement.dir = direction
+  }, [direction])
+
   const isDark = useMemo(() => {
     if (mode === 'system') return systemPrefersDark
     return mode === 'dark'
   }, [mode, systemPrefersDark])
 
   const theme = useMemo(() => {
-    return isDark ? createDarkTheme() : createLightTheme()
-  }, [isDark])
+    return isDark ? createDarkTheme(direction) : createLightTheme(direction)
+  }, [isDark, direction])
+
+  const cache = useMemo(() => {
+    return direction === 'rtl' ? cacheRtl : cacheLtr
+  }, [direction])
 
   const toggleTheme = () => {
     setMode(prev => {
@@ -69,14 +88,18 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     setMode,
     isDark,
     toggleTheme,
-  }), [mode, isDark])
+    direction,
+    setDirection,
+  }), [mode, isDark, direction])
 
   return (
     <ThemeContext.Provider value={value}>
-      <MuiThemeProvider theme={theme}>
-        <CssBaseline />
-        {children}
-      </MuiThemeProvider>
+      <CacheProvider value={cache}>
+        <MuiThemeProvider theme={theme}>
+          <CssBaseline />
+          {children}
+        </MuiThemeProvider>
+      </CacheProvider>
     </ThemeContext.Provider>
   )
 }
