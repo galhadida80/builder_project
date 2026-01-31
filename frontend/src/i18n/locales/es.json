@@ -271,5 +271,18 @@
     "in_progress": "En Progreso",
     "cancelled": "Cancelado",
     "on_hold": "En Espera"
+  },
+  "statusBadges": {
+    "draft": "Borrador",
+    "submitted": "Enviado",
+    "under_review": "En Revisión",
+    "approved": "Aprobado",
+    "rejected": "Rechazado",
+    "revision_requested": "Revisión Solicitada"
+  },
+  "projectSelector": {
+    "selectProject": "Seleccionar un proyecto",
+    "selectAProject": "Seleccionar un proyecto",
+    "noProjectsAvailable": "No hay proyectos disponibles"
   }
 }
