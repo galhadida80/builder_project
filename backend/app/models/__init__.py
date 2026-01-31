@@ -11,6 +11,7 @@ from app.models.equipment_template import (
 )
 from app.models.material import Material
 from app.models.meeting import Meeting, MeetingAttendee
+from app.models.notification import Notification, NotificationCategory
 from app.models.approval import ApprovalRequest, ApprovalStep
 from app.models.area import ConstructionArea, AreaProgress
 from app.models.file import File
@@ -46,6 +47,8 @@ __all__ = [
     "Material",
     "Meeting",
     "MeetingAttendee",
+    "Notification",
+    "NotificationCategory",
     "ApprovalRequest",
     "ApprovalStep",
     "ConstructionArea",
