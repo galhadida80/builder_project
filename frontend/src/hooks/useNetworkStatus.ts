@@ -4,7 +4,7 @@ export function useNetworkStatus() {
   const [isOnline, setIsOnline] = useState(() => navigator.onLine)
 
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout | null = null
+    let timeoutId: ReturnType<typeof setTimeout> | null = null
 
     const handleOnline = () => {
       if (timeoutId) {
