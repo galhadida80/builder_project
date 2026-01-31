@@ -1,7 +1,10 @@
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react'
 import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles'
+import { CacheProvider } from '@emotion/react'
 import CssBaseline from '@mui/material/CssBaseline'
+import { useTranslation } from 'react-i18next'
 import { createLightTheme, createDarkTheme } from './theme'
+import { createEmotionCache } from './emotionCache'
 
 type ThemeMode = 'light' | 'dark' | 'system'
 
@@ -27,6 +30,7 @@ interface ThemeProviderProps {
 }
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
+  const { i18n } = useTranslation()
   const [mode, setMode] = useState<ThemeMode>(() => {
     const stored = localStorage.getItem('theme-mode')
     return (stored as ThemeMode) || 'system'
@@ -52,6 +56,12 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     return mode === 'dark'
   }, [mode, systemPrefersDark])
 
+  const direction = useMemo(() => i18n.dir(), [i18n.language])
+
+  const emotionCache = useMemo(() => {
+    return createEmotionCache(direction)
+  }, [direction])
+
   const theme = useMemo(() => {
     return isDark ? createDarkTheme() : createLightTheme()
   }, [isDark])
@@ -73,10 +83,12 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
 
   return (
     <ThemeContext.Provider value={value}>
-      <MuiThemeProvider theme={theme}>
-        <CssBaseline />
-        {children}
-      </MuiThemeProvider>
+      <CacheProvider value={emotionCache}>
+        <MuiThemeProvider theme={theme}>
+          <CssBaseline />
+          {children}
+        </MuiThemeProvider>
+      </CacheProvider>
     </ThemeContext.Provider>
   )
 }
