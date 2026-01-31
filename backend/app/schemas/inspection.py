@@ -1,8 +1,12 @@
+from __future__ import annotations
+
 from uuid import UUID
 from datetime import datetime
+from typing import Optional
 from pydantic import BaseModel, Field, field_validator
 from app.schemas.user import UserResponse
 from app.core.validators import (
+    CamelCaseModel,
     sanitize_string,
     MIN_NAME_LENGTH, MAX_NAME_LENGTH, MAX_DESCRIPTION_LENGTH, MAX_NOTES_LENGTH
 )
@@ -197,3 +201,17 @@ class InspectionSummaryResponse(BaseModel):
     failed_count: int
     findings_by_severity: dict[str, int]
     overdue_count: int
+
+
+# Inspection History Timeline Event Schema
+class InspectionHistoryEventResponse(CamelCaseModel):
+    id: UUID
+    inspection_id: UUID
+    user_id: Optional[UUID] = None
+    user: Optional[UserResponse] = None
+    entity_type: str
+    entity_id: UUID
+    action: str
+    old_values: Optional[dict] = None
+    new_values: Optional[dict] = None
+    created_at: datetime
