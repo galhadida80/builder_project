@@ -1,6 +1,8 @@
-import { Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Box, Typography } from '@mui/material'
+import { Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Box, Typography, Fade, Grow } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import CloseIcon from '@mui/icons-material/Close'
+import { TransitionProps } from '@mui/material/transitions'
+import { forwardRef } from 'react'
 import { Button } from './Button'
 
 interface ModalProps {
@@ -43,6 +45,20 @@ const StyledDialogActions = styled(DialogActions)(({ theme }) => ({
   gap: theme.spacing(1),
 }))
 
+// Combined Fade+Grow transition component
+const FadeGrowTransition = forwardRef(function Transition(
+  props: TransitionProps & {
+    children: React.ReactElement<any, any>
+  },
+  ref: React.Ref<unknown>
+) {
+  return (
+    <Fade in={props.in} timeout={300}>
+      <Grow ref={ref} {...props} timeout={200} />
+    </Fade>
+  )
+})
+
 export function Modal({
   open,
   onClose,
@@ -54,7 +70,13 @@ export function Modal({
   hideCloseButton = false,
 }: ModalProps) {
   return (
-    <StyledDialog open={open} onClose={onClose} maxWidth={maxWidth} fullWidth={fullWidth}>
+    <StyledDialog
+      open={open}
+      onClose={onClose}
+      maxWidth={maxWidth}
+      fullWidth={fullWidth}
+      TransitionComponent={FadeGrowTransition}
+    >
       {title && (
         <StyledDialogTitle>
           <Typography variant="h6" component="div" fontWeight={600}>
