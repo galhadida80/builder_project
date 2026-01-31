@@ -35,9 +35,25 @@ const StyledLink = styled(Link)(({ theme }) => ({
   fontWeight: 500,
   transition: 'color 150ms ease-out',
   cursor: 'pointer',
+  position: 'relative',
+  '&::after': {
+    content: '""',
+    position: 'absolute',
+    bottom: -2,
+    left: 0,
+    width: '100%',
+    height: 2,
+    backgroundColor: theme.palette.primary.main,
+    transform: 'scaleX(0)',
+    transformOrigin: 'left',
+    transition: 'transform 200ms ease-out',
+  },
   '&:hover': {
     color: theme.palette.primary.main,
     textDecoration: 'none',
+    '&::after': {
+      transform: 'scaleX(1)',
+    },
   },
 }))
 
