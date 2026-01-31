@@ -62,7 +62,7 @@ export default function Header({ user, currentProject, projects, onProjectChange
         borderBottom: '1px solid',
         borderColor: 'divider',
         bgcolor: 'background.paper',
-        ml: '260px',
+        marginInlineStart: '260px',
         width: 'calc(100% - 260px)',
       }}
     >
@@ -84,7 +84,7 @@ export default function Header({ user, currentProject, projects, onProjectChange
             </Badge>
           </IconButton>
 
-          <IconButton onClick={handleMenuOpen} sx={{ ml: 1 }}>
+          <IconButton onClick={handleMenuOpen} sx={{ marginInlineStart: 1 }}>
             <Avatar sx={{ width: 36, height: 36, bgcolor: 'primary.main' }}>
               {getInitials(user.fullName || user.email)}
             </Avatar>
