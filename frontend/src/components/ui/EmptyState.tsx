@@ -5,6 +5,7 @@ import SearchOffIcon from '@mui/icons-material/SearchOff'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 import FolderOffIcon from '@mui/icons-material/FolderOff'
 import { Button } from './Button'
+import { createFadeIn, duration } from '../../utils/animations'
 
 export type EmptyStateVariant = 'empty' | 'no-results' | 'error' | 'no-data' | 'not-found'
 
@@ -30,6 +31,7 @@ const Container = styled(Box)(({ theme }) => ({
   justifyContent: 'center',
   padding: theme.spacing(6),
   textAlign: 'center',
+  ...createFadeIn(true, duration.normal),
 }))
 
 const IconContainer = styled(Box)(({ theme }) => ({
