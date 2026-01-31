@@ -5,8 +5,10 @@ import {
   SelectProps as MuiSelectProps,
   MenuItem,
   FormHelperText,
+  Fade,
 } from '@mui/material'
 import { styled } from '@mui/material/styles'
+import { transitions, animations, borderRadius } from '../../theme/tokens'
 
 export interface SelectOption {
   value: string | number
@@ -22,19 +24,49 @@ export interface SelectProps extends Omit<MuiSelectProps, 'variant'> {
 
 const StyledFormControl = styled(FormControl)(({ theme }) => ({
   '& .MuiOutlinedInput-root': {
-    borderRadius: 8,
-    transition: 'all 200ms ease-out',
+    borderRadius: borderRadius.md,
+    transition: `all ${transitions.normal}`,
     '&:hover': {
       '& .MuiOutlinedInput-notchedOutline': {
         borderColor: theme.palette.primary.main,
+        borderWidth: 2,
+      },
+    },
+    '&.Mui-focused': {
+      '& .MuiOutlinedInput-notchedOutline': {
+        borderWidth: 2,
       },
     },
   },
   '& .MuiInputLabel-root': {
     fontSize: '0.875rem',
+    transition: `all ${transitions.fast}`,
   },
   '& .MuiSelect-select': {
     fontSize: '0.875rem',
+  },
+}))
+
+const StyledMenuItem = styled(MenuItem)(({ theme }) => ({
+  fontSize: '0.875rem',
+  padding: '10px 16px',
+  transition: `all ${transitions.fast}`,
+  '&:hover': {
+    backgroundColor: theme.palette.action.hover,
+    transform: 'translateX(2px)',
+  },
+  '&:active': {
+    transform: animations.transforms.activePress,
+  },
+  '&.Mui-selected': {
+    backgroundColor: theme.palette.action.selected,
+    '&:hover': {
+      backgroundColor: theme.palette.action.selected,
+      opacity: 0.9,
+    },
+  },
+  '&.Mui-disabled': {
+    opacity: 0.5,
   },
 }))
 
@@ -51,11 +83,25 @@ export function Select({
   return (
     <StyledFormControl fullWidth={fullWidth} error={error} size={size} variant={variant}>
       {label && <InputLabel>{label}</InputLabel>}
-      <MuiSelect label={label} {...props}>
+      <MuiSelect
+        label={label}
+        MenuProps={{
+          TransitionComponent: Fade,
+          transitionDuration: animations.duration.normal,
+          PaperProps: {
+            sx: {
+              borderRadius: `${borderRadius.md}px`,
+              marginTop: 1,
+              maxHeight: 400,
+            },
+          },
+        }}
+        {...props}
+      >
         {options.map((option) => (
-          <MenuItem key={option.value} value={option.value} disabled={option.disabled}>
+          <StyledMenuItem key={option.value} value={option.value} disabled={option.disabled}>
             {option.label}
-          </MenuItem>
+          </StyledMenuItem>
         ))}
       </MuiSelect>
       {helperText && <FormHelperText>{helperText}</FormHelperText>}
