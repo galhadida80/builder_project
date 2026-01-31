@@ -84,7 +84,7 @@ export default function Sidebar({ projectId }: SidebarProps) {
           width: DRAWER_WIDTH,
           boxSizing: 'border-box',
           bgcolor: 'background.paper',
-          borderRight: '1px solid',
+          borderInlineEnd: '1px solid',
           borderColor: 'divider',
         },
       }}
