@@ -1,0 +1,21 @@
+{
+  "common": {
+    "welcome": "ברוכים הבאים",
+    "language": "שפה",
+    "english": "אנגלית",
+    "hebrew": "עברית"
+  },
+  "nav": {
+    "dashboard": "לוח בקרה",
+    "projects": "פרויקטים",
+    "equipment": "ציוד",
+    "materials": "חומרים",
+    "meetings": "פגישות",
+    "approvals": "אישורים",
+    "areas": "אזורים",
+    "contacts": "אנשי קשר",
+    "inspections": "בדיקות",
+    "rfis": "בקשות מידע",
+    "audit": "יומן ביקורת"
+  }
+}

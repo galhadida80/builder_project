@@ -51,6 +51,12 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     localStorage.setItem('theme-mode', mode)
   }, [mode])
 
+  useEffect(() => {
+    const dir = i18n.dir()
+    document.documentElement.setAttribute('dir', dir)
+    document.documentElement.setAttribute('lang', i18n.language)
+  }, [i18n.language])
+
   const isDark = useMemo(() => {
     if (mode === 'system') return systemPrefersDark
     return mode === 'dark'
@@ -63,8 +69,8 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   }, [direction])
 
   const theme = useMemo(() => {
-    return isDark ? createDarkTheme() : createLightTheme()
-  }, [isDark])
+    return isDark ? createDarkTheme(direction) : createLightTheme(direction)
+  }, [isDark, direction])
 
   const toggleTheme = () => {
     setMode(prev => {

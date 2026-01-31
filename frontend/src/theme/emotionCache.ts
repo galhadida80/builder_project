@@ -1,6 +1,6 @@
 import createCache from '@emotion/cache'
 import { prefixer } from 'stylis'
-import rtlPlugin from 'stylis-plugin-rtl'
+import rtlPlugin from '@mui/stylis-plugin-rtl'
 
 /**
  * Creates an Emotion cache configured for the specified text direction.

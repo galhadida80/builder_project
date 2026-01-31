@@ -290,9 +290,10 @@ const baseThemeOptions: ThemeOptions = {
   },
 }
 
-export function createLightTheme() {
+export function createLightTheme(direction: 'ltr' | 'rtl' = 'ltr') {
   return createTheme({
     ...baseThemeOptions,
+    direction,
     palette: {
       mode: 'light',
       primary: {
@@ -356,9 +357,10 @@ export function createLightTheme() {
   })
 }
 
-export function createDarkTheme() {
+export function createDarkTheme(direction: 'ltr' | 'rtl' = 'ltr') {
   return createTheme({
     ...baseThemeOptions,
+    direction,
     palette: {
       mode: 'dark',
       primary: {

@@ -1,0 +1,21 @@
+{
+  "common": {
+    "welcome": "Welcome",
+    "language": "Language",
+    "english": "English",
+    "hebrew": "Hebrew"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "projects": "Projects",
+    "equipment": "Equipment",
+    "materials": "Materials",
+    "meetings": "Meetings",
+    "approvals": "Approvals",
+    "areas": "Areas",
+    "contacts": "Contacts",
+    "inspections": "Inspections",
+    "rfis": "RFIs",
+    "audit": "Audit Log"
+  }
+}
