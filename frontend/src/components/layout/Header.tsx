@@ -18,6 +18,8 @@ import type { User, Project } from '../../types'
 import ProjectSelector from './ProjectSelector'
 import { useToast } from '../common/ToastProvider'
 import { ThemeToggle } from '../common/ThemeToggle'
+import SyncStatus from '../common/SyncStatus'
+import { useNetwork } from '../../contexts/NetworkContext'
 
 interface HeaderProps {
   user: User
@@ -29,6 +31,7 @@ interface HeaderProps {
 
 export default function Header({ user, currentProject, projects, onProjectChange, onLogout }: HeaderProps) {
   const { showInfo } = useToast()
+  const { syncStatus } = useNetwork()
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [notificationAnchor, setNotificationAnchor] = useState<null | HTMLElement>(null)
 
@@ -76,6 +79,8 @@ export default function Header({ user, currentProject, projects, onProjectChange
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <SyncStatus status={syncStatus} size="small" />
+
           <ThemeToggle />
 
           <IconButton onClick={handleNotificationOpen}>
