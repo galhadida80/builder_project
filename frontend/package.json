@@ -12,6 +12,7 @@
     "start": "vite build && vite preview"
   },
   "dependencies": {
+    "@emotion/cache": "^11.11.0",
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^5.15.6",
@@ -24,7 +25,8 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.3",
-    "react-router-dom": "^6.21.3"
+    "react-router-dom": "^6.21.3",
+    "stylis-plugin-rtl": "^2.1.1"
   },
   "devDependencies": {
     "@emotion/babel-plugin": "^11.13.5",
