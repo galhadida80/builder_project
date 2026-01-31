@@ -80,9 +80,29 @@ export const borderRadius = {
 }
 
 export const transitions = {
+  // Convenience values (combined duration + easing)
   fast: '150ms ease-out',
   normal: '200ms ease-out',
   slow: '300ms ease-out',
+
+  // Material-UI compatible durations (in milliseconds)
+  duration: {
+    shortest: 150,
+    shorter: 200,
+    short: 250,
+    standard: 300,
+    complex: 375,
+    enteringScreen: 225,
+    leavingScreen: 195,
+  },
+
+  // Material-UI compatible easing curves
+  easing: {
+    easeInOut: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    easeOut: 'cubic-bezier(0.0, 0, 0.2, 1)',
+    easeIn: 'cubic-bezier(0.4, 0, 1, 1)',
+    sharp: 'cubic-bezier(0.4, 0, 0.6, 1)',
+  },
 }
 
 export const typography = {
