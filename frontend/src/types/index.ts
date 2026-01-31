@@ -302,3 +302,16 @@ export interface InspectionSummary {
   findingsBySeverity: Record<string, number>
   overdueCount: number
 }
+
+export interface InspectionHistoryEvent {
+  id: string
+  inspectionId: string
+  userId?: string
+  user?: User
+  entityType: string
+  entityId: string
+  action: 'create' | 'update' | 'delete' | 'status_change' | 'approval' | 'rejection'
+  oldValues?: Record<string, unknown>
+  newValues?: Record<string, unknown>
+  createdAt: string
+}
