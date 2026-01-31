@@ -18,6 +18,7 @@ import type { User, Project } from '../../types'
 import ProjectSelector from './ProjectSelector'
 import { useToast } from '../common/ToastProvider'
 import { ThemeToggle } from '../common/ThemeToggle'
+import { LanguageToggle } from '../common/LanguageToggle'
 
 interface HeaderProps {
   user: User
@@ -77,6 +78,7 @@ export default function Header({ user, currentProject, projects, onProjectChange
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <ThemeToggle />
+          <LanguageToggle />
 
           <IconButton onClick={handleNotificationOpen}>
             <Badge badgeContent={3} color="error">
