@@ -1,5 +1,5 @@
 import { createTheme, ThemeOptions } from '@mui/material/styles'
-import { colors, shadows, borderRadius, typography, transitions } from './tokens'
+import { colors, shadows, borderRadius, typography, transitions, animations } from './tokens'
 
 const baseThemeOptions: ThemeOptions = {
   typography: {
@@ -466,4 +466,4 @@ export function createDarkTheme() {
   })
 }
 
-export { colors, shadows, borderRadius, typography, transitions }
+export { colors, shadows, borderRadius, typography, transitions, animations }
