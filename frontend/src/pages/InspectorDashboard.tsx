@@ -87,22 +87,29 @@ export default function InspectorDashboard() {
             margin: '0 auto',
             minHeight: '100vh',
             bgcolor: 'background.default',
-            p: 2,
-            pb: 10,
+            px: { xs: 2, sm: 3 },
+            py: { xs: 2, sm: 2.5 },
+            pb: { xs: 10, sm: 12 },
           }}
         >
+          {/* Header skeleton */}
           <Box sx={{ mb: 3 }}>
-            <Skeleton variant="text" width={150} height={32} sx={{ mb: 1 }} />
-            <Skeleton variant="text" width={100} height={24} />
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+              <Skeleton variant="text" width={150} height={36} />
+              <Skeleton variant="rounded" width={80} height={24} sx={{ borderRadius: '12px' }} />
+            </Box>
+            <Skeleton variant="text" width={180} height={20} />
           </Box>
-          <Box sx={{ mb: 3 }}>
-            <Skeleton variant="rounded" height={60} sx={{ mb: 1.5 }} />
-            <Skeleton variant="rounded" height={60} sx={{ mb: 1.5 }} />
-            <Skeleton variant="rounded" height={60} />
+          {/* Quick action buttons skeleton */}
+          <Box sx={{ mb: 4 }}>
+            <Skeleton variant="rounded" height={56} sx={{ mb: 1.5, borderRadius: '8px' }} />
+            <Skeleton variant="rounded" height={56} sx={{ mb: 1.5, borderRadius: '8px' }} />
+            <Skeleton variant="rounded" height={56} sx={{ borderRadius: '8px' }} />
           </Box>
-          <Skeleton variant="text" width={200} height={28} sx={{ mb: 2 }} />
-          <Skeleton variant="rounded" height={120} sx={{ mb: 2 }} />
-          <Skeleton variant="rounded" height={120} />
+          {/* Schedule section skeleton */}
+          <Skeleton variant="text" width={150} height={28} sx={{ mb: 2 }} />
+          <Skeleton variant="rounded" height={130} sx={{ mb: 2, borderRadius: '12px' }} />
+          <Skeleton variant="rounded" height={130} sx={{ borderRadius: '12px' }} />
         </Box>
         <MobileBottomNav projectId={projectId} />
       </>
@@ -119,18 +126,20 @@ export default function InspectorDashboard() {
           bgcolor: 'background.default',
           display: 'flex',
           flexDirection: 'column',
-          p: 2,
-          pb: 10,
+          px: { xs: 2, sm: 3 },
+          py: { xs: 2, sm: 2.5 },
+          pb: { xs: 10, sm: 12 },
         }}
       >
         {/* Header */}
         <Box sx={{ mb: 3 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
             <Typography
               variant="h5"
               sx={{
                 fontWeight: 700,
                 color: 'text.primary',
+                fontSize: { xs: '1.5rem', sm: '1.75rem' },
               }}
             >
               Field Inspector
@@ -146,14 +155,19 @@ export default function InspectorDashboard() {
                   fontWeight: 600,
                   fontSize: '0.7rem',
                   height: 24,
+                  px: 1,
                   '& .MuiChip-icon': {
                     color: 'white',
+                    marginLeft: '4px',
+                  },
+                  '& .MuiChip-label': {
+                    px: '6px',
                   },
                 }}
               />
             )}
           </Box>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
             {new Date().toLocaleDateString('en-US', {
               weekday: 'long',
               month: 'long',
@@ -168,12 +182,14 @@ export default function InspectorDashboard() {
             variant="success"
             fullWidth
             size="large"
-            icon={<CheckCircleIcon />}
+            icon={<CheckCircleIcon sx={{ fontSize: 20 }} />}
             onClick={handleStartInspection}
             sx={{
               mb: 1.5,
-              py: 1.5,
+              py: 1.75,
+              minHeight: 56,
               fontSize: '0.95rem',
+              fontWeight: 600,
               letterSpacing: '0.5px',
             }}
           >
@@ -183,12 +199,14 @@ export default function InspectorDashboard() {
             variant="primary"
             fullWidth
             size="large"
-            icon={<CameraAltIcon />}
+            icon={<CameraAltIcon sx={{ fontSize: 20 }} />}
             onClick={handleTakePhoto}
             sx={{
               mb: 1.5,
-              py: 1.5,
+              py: 1.75,
+              minHeight: 56,
               fontSize: '0.95rem',
+              fontWeight: 600,
               letterSpacing: '0.5px',
             }}
           >
@@ -198,11 +216,13 @@ export default function InspectorDashboard() {
             variant="danger"
             fullWidth
             size="large"
-            icon={<ReportProblemIcon />}
+            icon={<ReportProblemIcon sx={{ fontSize: 20 }} />}
             onClick={handleReportIssue}
             sx={{
-              py: 1.5,
+              py: 1.75,
+              minHeight: 56,
               fontSize: '0.95rem',
+              fontWeight: 600,
               letterSpacing: '0.5px',
             }}
           >
@@ -218,6 +238,7 @@ export default function InspectorDashboard() {
               fontWeight: 600,
               color: 'text.primary',
               mb: 2,
+              fontSize: { xs: '1.125rem', sm: '1.25rem' },
             }}
           >
             Today's Schedule
@@ -225,9 +246,9 @@ export default function InspectorDashboard() {
 
           {inspections.length === 0 ? (
             <Card>
-              <Box sx={{ p: 3 }}>
+              <Box sx={{ p: 3, textAlign: 'center' }}>
                 <EmptyState
-                  icon={<AssignmentIcon sx={{ fontSize: 48 }} />}
+                  icon={<AssignmentIcon sx={{ fontSize: 48, color: 'text.secondary' }} />}
                   title="No inspections scheduled"
                   description="You have no inspections scheduled for today"
                 />
@@ -242,7 +263,7 @@ export default function InspectorDashboard() {
                       display: 'flex',
                       flexDirection: 'column',
                       alignItems: 'flex-start',
-                      px: 2,
+                      px: { xs: 2, sm: 2.5 },
                       py: 2,
                     }}
                   >
@@ -268,6 +289,7 @@ export default function InspectorDashboard() {
                           fontWeight={600}
                           sx={{
                             mb: 0.5,
+                            fontSize: '1rem',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
                             whiteSpace: 'nowrap',
@@ -282,6 +304,7 @@ export default function InspectorDashboard() {
                             dir="rtl"
                             sx={{
                               display: 'block',
+                              fontSize: '0.75rem',
                               overflow: 'hidden',
                               textOverflow: 'ellipsis',
                               whiteSpace: 'nowrap',
@@ -295,21 +318,24 @@ export default function InspectorDashboard() {
 
                     <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 1 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <AccessTimeIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-                        <Typography variant="body2" color="text.secondary">
+                        <AccessTimeIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
+                        <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
                           {formatTime(inspection.scheduledDate)}
                         </Typography>
                       </Box>
                       {inspection.currentStage && (
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <LocationOnIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
+                        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
+                          <LocationOnIcon sx={{ fontSize: 18, color: 'text.secondary', flexShrink: 0, mt: 0.25 }} />
                           <Typography
                             variant="body2"
                             color="text.secondary"
                             sx={{
+                              fontSize: '0.875rem',
                               overflow: 'hidden',
                               textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap',
+                              display: '-webkit-box',
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: 'vertical',
                             }}
                           >
                             {inspection.currentStage}
@@ -323,11 +349,13 @@ export default function InspectorDashboard() {
                         variant="caption"
                         color="text.secondary"
                         sx={{
-                          mt: 1,
+                          mt: 1.5,
+                          fontSize: '0.75rem',
                           display: '-webkit-box',
                           WebkitLineClamp: 2,
                           WebkitBoxOrient: 'vertical',
                           overflow: 'hidden',
+                          lineHeight: 1.5,
                         }}
                       >
                         {inspection.notes}
