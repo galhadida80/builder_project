@@ -3,7 +3,7 @@
   "spec": "047-implement-rtl-layout-support",
   "state": "building",
   "subtasks": {
-    "completed": 7,
+    "completed": 8,
     "total": 9,
     "in_progress": 1,
     "failed": 0
@@ -18,8 +18,8 @@
     "max": 1
   },
   "session": {
-    "number": 8,
+    "number": 9,
     "started_at": "2026-02-01T19:34:40.232160"
   },
-  "last_update": "2026-02-01T19:52:41.417790"
+  "last_update": "2026-02-01T19:56:46.259443"
 }
