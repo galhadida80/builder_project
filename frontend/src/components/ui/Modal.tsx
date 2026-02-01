@@ -61,7 +61,7 @@ export function Modal({
             {title}
           </Typography>
           {!hideCloseButton && (
-            <IconButton onClick={onClose} size="small" sx={{ ml: 2 }}>
+            <IconButton onClick={onClose} size="small" sx={{ marginInlineStart: 2 }}>
               <CloseIcon fontSize="small" />
             </IconButton>
           )}
