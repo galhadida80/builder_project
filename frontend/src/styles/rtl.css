@@ -1,0 +1,114 @@
+/**
+ * RTL Layout Support Styles
+ * Uses CSS Logical Properties for bidirectional layout support
+ * No !important overrides - logical properties work automatically with dir attribute
+ */
+
+/* LTR-only content class for mixed-direction scenarios */
+.ltr-content {
+  direction: ltr;
+  text-align: left;
+  unicode-bidi: embed;
+}
+
+/* Common utility classes using logical properties */
+.text-start {
+  text-align: start;
+}
+
+.text-end {
+  text-align: end;
+}
+
+/* Spacing utilities - logical properties */
+.margin-inline-start-1 {
+  margin-inline-start: 0.5rem;
+}
+
+.margin-inline-start-2 {
+  margin-inline-start: 1rem;
+}
+
+.margin-inline-start-3 {
+  margin-inline-start: 1.5rem;
+}
+
+.margin-inline-start-4 {
+  margin-inline-start: 2rem;
+}
+
+.margin-inline-end-1 {
+  margin-inline-end: 0.5rem;
+}
+
+.margin-inline-end-2 {
+  margin-inline-end: 1rem;
+}
+
+.margin-inline-end-3 {
+  margin-inline-end: 1.5rem;
+}
+
+.margin-inline-end-4 {
+  margin-inline-end: 2rem;
+}
+
+.padding-inline-start-1 {
+  padding-inline-start: 0.5rem;
+}
+
+.padding-inline-start-2 {
+  padding-inline-start: 1rem;
+}
+
+.padding-inline-start-3 {
+  padding-inline-start: 1.5rem;
+}
+
+.padding-inline-start-4 {
+  padding-inline-start: 2rem;
+}
+
+.padding-inline-end-1 {
+  padding-inline-end: 0.5rem;
+}
+
+.padding-inline-end-2 {
+  padding-inline-end: 1rem;
+}
+
+.padding-inline-end-3 {
+  padding-inline-end: 1.5rem;
+}
+
+.padding-inline-end-4 {
+  padding-inline-end: 2rem;
+}
+
+/* Position utilities - logical properties */
+.inset-inline-start-0 {
+  inset-inline-start: 0;
+}
+
+.inset-inline-end-0 {
+  inset-inline-end: 0;
+}
+
+/* Border utilities - logical properties */
+.border-inline-start {
+  border-inline-start: 1px solid currentColor;
+}
+
+.border-inline-end {
+  border-inline-end: 1px solid currentColor;
+}
+
+/* Ensure all elements respect text direction */
+* {
+  unicode-bidi: isolate;
+}
+
+/* Reset unicode-bidi for elements that should inherit */
+html, body {
+  unicode-bidi: normal;
+}
