@@ -6,7 +6,7 @@ from sqlalchemy import select, func
 from app.db.session import get_db
 from app.models.notification import Notification, NotificationCategory
 from app.models.user import User
-from app.schemas.notification import NotificationResponse
+from app.schemas.notification import NotificationResponse, UnreadCountResponse
 from app.core.security import get_current_user
 
 router = APIRouter()
@@ -29,7 +29,7 @@ async def list_notifications(
     return result.scalars().all()
 
 
-@router.get("/notifications/unread-count", response_model=dict)
+@router.get("/notifications/unread-count", response_model=UnreadCountResponse)
 async def get_unread_count(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
@@ -40,7 +40,7 @@ async def get_unread_count(
         .where(Notification.is_read == False)
     )
     count = result.scalar()
-    return {"unread_count": count}
+    return UnreadCountResponse(unread_count=count)
 
 
 @router.put("/notifications/{notification_id}/mark-read", response_model=NotificationResponse)

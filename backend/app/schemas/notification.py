@@ -38,3 +38,8 @@ class NotificationResponse(CamelCaseModel):
     is_read: bool = False
     created_at: datetime
     updated_at: datetime
+
+
+class UnreadCountResponse(CamelCaseModel):
+    """Response model for unread count endpoint."""
+    unread_count: int

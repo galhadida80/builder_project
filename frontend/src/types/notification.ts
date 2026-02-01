@@ -21,5 +21,5 @@ export interface NotificationFilters {
 }
 
 export interface UnreadCountResponse {
-  count: number
+  unreadCount: number
 }
