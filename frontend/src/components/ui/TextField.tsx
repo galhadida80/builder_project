@@ -1,6 +1,7 @@
 import { TextField as MuiTextField, TextFieldProps as MuiTextFieldProps, InputAdornment } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import { animations, transitions } from '../../theme/tokens'
+import { shake, fadeIn } from '../../utils/animations'
 
 export interface TextFieldProps extends Omit<MuiTextFieldProps, 'variant'> {
   variant?: 'outlined' | 'filled'
@@ -8,10 +9,13 @@ export interface TextFieldProps extends Omit<MuiTextFieldProps, 'variant'> {
   endIcon?: React.ReactNode
 }
 
-const StyledTextField = styled(MuiTextField)(({ theme }) => ({
+const StyledTextField = styled(MuiTextField)(({ theme, error }) => ({
   '& .MuiOutlinedInput-root': {
     borderRadius: 8,
     transition: `all ${animations.duration.normal}ms ${animations.easing.standard}`,
+    ...(error && {
+      animation: `${shake} 500ms cubic-bezier(0.4, 0.0, 0.6, 1)`,
+    }),
     '&:hover:not(.Mui-disabled)': {
       transform: 'translateY(-1px)',
       '& .MuiOutlinedInput-notchedOutline': {
@@ -45,6 +49,10 @@ const StyledTextField = styled(MuiTextField)(({ theme }) => ({
   '& .MuiInputBase-input': {
     fontSize: '0.875rem',
     transition: `all ${transitions.fast}`,
+  },
+  '& .MuiFormHelperText-root': {
+    animation: error ? `${fadeIn} 250ms cubic-bezier(0.0, 0.0, 0.2, 1)` : 'none',
+    fontSize: '0.75rem',
   },
 }))
 
