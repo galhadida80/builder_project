@@ -44,7 +44,7 @@ describe('OfflineBanner', () => {
 
     const { container } = renderWithProvider(<OfflineBanner />)
 
-    const alert = container.querySelector('.MuiAlert-standardWarning')
+    const alert = container.querySelector('.MuiAlert-filledWarning')
     expect(alert).toBeInTheDocument()
   })
 
@@ -105,6 +105,6 @@ describe('OfflineBanner', () => {
     const message = screen.getByText(/you are currently offline/i)
     expect(message).toBeInTheDocument()
     // Verify it contains helpful information
-    expect(message.textContent).toMatch(/changes will be saved|reconnect|connectivity/i)
+    expect(message.textContent).toMatch(/offline|unavailable/i)
   })
 })

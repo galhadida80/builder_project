@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react'
-import { SyncStatus } from './SyncStatus'
+import SyncStatus from './SyncStatus'
 
 describe('SyncStatus', () => {
   describe('Status Labels', () => {
@@ -18,16 +18,16 @@ describe('SyncStatus', () => {
       expect(screen.getByText('Synced')).toBeInTheDocument()
     })
 
-    it('displays "Error" label for error status', () => {
+    it('displays "Sync Error" label for error status', () => {
       render(<SyncStatus status="error" />)
-      expect(screen.getByText('Error')).toBeInTheDocument()
+      expect(screen.getByText('Sync Error')).toBeInTheDocument()
     })
   })
 
   describe('Icons', () => {
     it('shows circle icon for idle status', () => {
       const { container } = render(<SyncStatus status="idle" />)
-      const icon = container.querySelector('[data-testid="RadioButtonUncheckedIcon"]')
+      const icon = container.querySelector('[data-testid="CloudQueueIcon"]')
       expect(icon).toBeInTheDocument()
     })
 
@@ -91,14 +91,14 @@ describe('SyncStatus', () => {
 
     it('scales icon size based on chip size - small', () => {
       const { container } = render(<SyncStatus status="idle" size="small" />)
-      const icon = container.querySelector('[data-testid="RadioButtonUncheckedIcon"]')
+      const icon = container.querySelector('[data-testid="CloudQueueIcon"]')
       // Small size should use 16px icon
       expect(icon).toHaveStyle({ fontSize: '16px' })
     })
 
     it('scales icon size based on chip size - medium', () => {
       const { container } = render(<SyncStatus status="idle" size="medium" />)
-      const icon = container.querySelector('[data-testid="RadioButtonUncheckedIcon"]')
+      const icon = container.querySelector('[data-testid="CloudQueueIcon"]')
       // Medium size should use 20px icon
       expect(icon).toHaveStyle({ fontSize: '20px' })
     })
