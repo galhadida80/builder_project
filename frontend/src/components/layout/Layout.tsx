@@ -7,6 +7,7 @@ import Sidebar from './Sidebar'
 import Header from './Header'
 import { projectsApi } from '../../api/projects'
 import { authApi } from '../../api/auth'
+import { useProject } from '../../contexts/ProjectContext'
 import type { Project, User } from '../../types'
 
 const DRAWER_WIDTH = 260
@@ -14,7 +15,8 @@ const DRAWER_WIDTH = 260
 export default function Layout() {
   const { projectId } = useParams()
   const navigate = useNavigate()
-  const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>(projectId)
+  const { setSelectedProjectId } = useProject()
+  const [localProjectId, setLocalProjectId] = useState<string | undefined>(projectId)
   const [projects, setProjects] = useState<Project[]>([])
   const [currentUser, setCurrentUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
@@ -47,9 +49,17 @@ export default function Layout() {
     }
   }
 
-  const currentProject = projects.find(p => p.id === selectedProjectId)
+  useEffect(() => {
+    if (projectId) {
+      setLocalProjectId(projectId)
+      setSelectedProjectId(projectId)
+    }
+  }, [projectId, setSelectedProjectId])
+
+  const currentProject = projects.find(p => p.id === localProjectId)
 
   const handleProjectChange = (newProjectId: string) => {
+    setLocalProjectId(newProjectId)
     setSelectedProjectId(newProjectId)
     navigate(`/projects/${newProjectId}`)
   }
@@ -77,7 +87,7 @@ export default function Layout() {
         onProjectChange={handleProjectChange}
         onLogout={handleLogout}
       />
-      <Sidebar projectId={selectedProjectId} />
+      <Sidebar projectId={localProjectId} />
       <Box
         component="main"
         sx={{
@@ -89,7 +99,7 @@ export default function Layout() {
         }}
       >
         <Toolbar />
-        <Outlet context={{ projectId: selectedProjectId, project: currentProject }} />
+        <Outlet context={{ projectId: localProjectId, project: currentProject }} />
       </Box>
     </Box>
   )
