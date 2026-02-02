@@ -1,0 +1,43 @@
+/* Global touch interaction styles */
+
+/* Prevent double-tap zoom on interactive elements */
+button,
+a,
+input,
+textarea,
+select,
+[role="button"],
+[role="link"],
+[role="menuitem"],
+.interactive,
+.clickable {
+  touch-action: manipulation;
+}
+
+/* Touch target sizing - minimum 48x48px for touch devices */
+button,
+a,
+input[type="checkbox"],
+input[type="radio"],
+[role="button"],
+[role="checkbox"],
+[role="radio"] {
+  min-width: 48px;
+  min-height: 48px;
+}
+
+/* Touch feedback states */
+@media (hover: none) and (pointer: coarse) {
+  /* Touch device styles */
+  button:active,
+  a:active,
+  [role="button"]:active,
+  [role="link"]:active {
+    opacity: 0.8;
+  }
+}
+
+/* Remove tap highlight on touch devices */
+* {
+  -webkit-tap-highlight-color: transparent;
+}

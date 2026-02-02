@@ -1,0 +1,62 @@
+/* RTL (Right-to-Left) Layout Support */
+
+/* RTL direction handling */
+[dir="rtl"] {
+  direction: rtl;
+}
+
+/* RTL text alignment */
+[dir="rtl"] body {
+  text-align: right;
+}
+
+[dir="rtl"] p,
+[dir="rtl"] span,
+[dir="rtl"] div,
+[dir="rtl"] li,
+[dir="rtl"] label {
+  text-align: inherit;
+}
+
+/* RTL flex direction */
+[dir="rtl"] .flex {
+  flex-direction: row-reverse;
+}
+
+/* RTL margin and padding adjustments */
+[dir="rtl"] .ml {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+[dir="rtl"] .mr {
+  margin-right: 0;
+  margin-left: auto;
+}
+
+[dir="rtl"] .pl {
+  padding-left: 0;
+  padding-right: auto;
+}
+
+[dir="rtl"] .pr {
+  padding-right: 0;
+  padding-left: auto;
+}
+
+/* RTL transform adjustments for touch interactions */
+[dir="rtl"] .swipe-indicator {
+  transform: scaleX(-1);
+}
+
+/* Touch target sizing in RTL */
+[dir="rtl"] button,
+[dir="rtl"] a,
+[dir="rtl"] input,
+[dir="rtl"] textarea,
+[dir="rtl"] select,
+[dir="rtl"] [role="button"],
+[dir="rtl"] [role="link"],
+[dir="rtl"] [role="menuitem"] {
+  touch-action: manipulation;
+}
