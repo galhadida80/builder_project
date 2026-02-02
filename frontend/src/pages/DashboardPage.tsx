@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Skeleton from '@mui/material/Skeleton'
@@ -33,6 +34,7 @@ import { auditApi } from '../api/audit'
 import { useToast } from '../components/common/ToastProvider'
 
 export default function DashboardPage() {
+  const { t } = useTranslation()
   const { showError } = useToast()
   const [loading, setLoading] = useState(true)
   const [equipment, setEquipment] = useState<Equipment[]>([])
@@ -105,10 +107,10 @@ export default function DashboardPage() {
             mb: 0.5,
           }}
         >
-          Dashboard
+          {t('dashboard.title')}
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          Overview of your construction operations
+          {t('dashboard.subtitle')}
         </Typography>
       </Box>
 
@@ -121,29 +123,29 @@ export default function DashboardPage() {
         }}
       >
         <KPICard
-          title="Equipment Items"
+          title={t('dashboard.equipmentItems')}
           value={equipment.length}
           trend={12}
-          trendLabel="vs last month"
+          trendLabel={t('dashboard.vsLastMonth')}
           icon={<BuildIcon />}
           color="primary"
         />
         <KPICard
-          title="Materials"
+          title={t('materials.title')}
           value={materials.length}
           trend={-3}
-          trendLabel="vs last month"
+          trendLabel={t('dashboard.vsLastMonth')}
           icon={<InventoryIcon />}
           color="warning"
         />
         <KPICard
-          title="Pending Approvals"
+          title={t('dashboard.pendingApprovals')}
           value={pendingApprovals.length}
           icon={<CheckCircleIcon />}
           color="success"
         />
         <KPICard
-          title="Upcoming Meetings"
+          title={t('dashboard.upcomingMeetings')}
           value={upcomingMeetings.length}
           icon={<EventIcon />}
           color="info"
@@ -162,14 +164,14 @@ export default function DashboardPage() {
           <Box sx={{ p: 2.5 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
               <Box>
-                <Typography variant="h6" fontWeight={600}>Pending Approvals</Typography>
+                <Typography variant="h6" fontWeight={600}>{t('dashboard.pendingApprovals')}</Typography>
                 <Typography variant="caption" color="text.secondary">
-                  Items awaiting your review
+                  {t('dashboard.itemsAwaitingReview')}
                 </Typography>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Chip
-                  label={`${pendingApprovals.length} pending`}
+                  label={`${pendingApprovals.length} ${t('dashboard.pending')}`}
                   size="small"
                   color="warning"
                   sx={{ fontWeight: 600 }}
@@ -219,14 +221,14 @@ export default function DashboardPage() {
                           secondary={
                             <Box sx={{ mt: 1 }}>
                               <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-                                Step {completedSteps + 1} of {totalSteps}
+                                {t('dashboard.stepOfTotal', { current: completedSteps + 1, total: totalSteps })}
                               </Typography>
                               <ProgressBar value={progress} showValue={false} size="small" />
                             </Box>
                           }
                         />
                         <Button variant="tertiary" size="small" icon={<ArrowForwardIcon />} iconPosition="end">
-                          Review
+                          {t('dashboard.review')}
                         </Button>
                       </ListItem>
                     )
@@ -235,15 +237,15 @@ export default function DashboardPage() {
                 {pendingApprovals.length > 5 && (
                   <Box sx={{ mt: 2, textAlign: 'center' }}>
                     <Button variant="tertiary" size="small">
-                      View all {pendingApprovals.length} approvals
+                      {t('dashboard.viewAllApprovals', { count: pendingApprovals.length })}
                     </Button>
                   </Box>
                 )}
               </>
             ) : (
               <EmptyState
-                title="All caught up!"
-                description="No pending approvals at this time."
+                title={t('dashboard.allCaughtUp')}
+                description={t('dashboard.noPendingApprovals')}
                 icon={<CheckCircleIcon sx={{ color: 'success.main' }} />}
               />
             )}
@@ -254,7 +256,7 @@ export default function DashboardPage() {
           <Card>
             <Box sx={{ p: 2.5 }}>
               <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
-                Completion Rate
+                {t('dashboard.completionRate')}
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
                 <CircularProgressDisplay
@@ -265,19 +267,19 @@ export default function DashboardPage() {
                 />
                 <Box>
                   <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                    {equipment.filter(e => e.status === 'approved').length} of {equipment.length} approved
+                    {equipment.filter(e => e.status === 'approved').length} {t('dashboard.of')} {equipment.length} {t('dashboard.approved')}
                   </Typography>
                   <Box sx={{ display: 'flex', gap: 2 }}>
                     <Box>
-                      <Typography variant="caption" color="text.secondary">Equipment</Typography>
+                      <Typography variant="caption" color="text.secondary">{t('equipment.title')}</Typography>
                       <Typography variant="body2" fontWeight={600}>
-                        {equipmentPending.length} pending
+                        {equipmentPending.length} {t('dashboard.pending')}
                       </Typography>
                     </Box>
                     <Box>
-                      <Typography variant="caption" color="text.secondary">Materials</Typography>
+                      <Typography variant="caption" color="text.secondary">{t('materials.title')}</Typography>
                       <Typography variant="body2" fontWeight={600}>
-                        {materialsPending.length} pending
+                        {materialsPending.length} {t('dashboard.pending')}
                       </Typography>
                     </Box>
                   </Box>
@@ -289,7 +291,7 @@ export default function DashboardPage() {
           <Card>
             <Box sx={{ p: 2.5 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Typography variant="h6" fontWeight={600}>Quick Actions</Typography>
+                <Typography variant="h6" fontWeight={600}>{t('dashboard.quickActions')}</Typography>
               </Box>
               <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1.5 }}>
                 <Button
@@ -299,7 +301,7 @@ export default function DashboardPage() {
                   fullWidth
                   sx={{ justifyContent: 'flex-start', px: 2 }}
                 >
-                  Add Equipment
+                  {t('equipment.addEquipment')}
                 </Button>
                 <Button
                   variant="secondary"
@@ -308,7 +310,7 @@ export default function DashboardPage() {
                   fullWidth
                   sx={{ justifyContent: 'flex-start', px: 2 }}
                 >
-                  Add Material
+                  {t('materials.addMaterial')}
                 </Button>
                 <Button
                   variant="secondary"
@@ -317,7 +319,7 @@ export default function DashboardPage() {
                   fullWidth
                   sx={{ justifyContent: 'flex-start', px: 2 }}
                 >
-                  Schedule Meeting
+                  {t('meetings.scheduleMeeting')}
                 </Button>
                 <Button
                   variant="secondary"
@@ -326,7 +328,7 @@ export default function DashboardPage() {
                   fullWidth
                   sx={{ justifyContent: 'flex-start', px: 2 }}
                 >
-                  New Inspection
+                  {t('dashboard.newInspection')}
                 </Button>
               </Box>
             </Box>
@@ -345,9 +347,9 @@ export default function DashboardPage() {
           <Box sx={{ p: 2.5 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
               <Box>
-                <Typography variant="h6" fontWeight={600}>Upcoming Meetings</Typography>
+                <Typography variant="h6" fontWeight={600}>{t('dashboard.upcomingMeetings')}</Typography>
                 <Typography variant="caption" color="text.secondary">
-                  Next 7 days
+                  {t('dashboard.next7Days')}
                 </Typography>
               </Box>
               <Chip label={upcomingMeetings.length} size="small" color="primary" />
@@ -414,8 +416,8 @@ export default function DashboardPage() {
             ) : (
               <EmptyState
                 variant="empty"
-                title="No meetings scheduled"
-                description="Schedule your first meeting to get started."
+                title={t('dashboard.noMeetingsScheduled')}
+                description={t('dashboard.scheduleFirstMeeting')}
               />
             )}
           </Box>
@@ -424,7 +426,7 @@ export default function DashboardPage() {
         <Card>
           <Box sx={{ p: 2.5 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-              <Typography variant="h6" fontWeight={600}>Recent Activity</Typography>
+              <Typography variant="h6" fontWeight={600}>{t('dashboard.recentActivity')}</Typography>
               <IconButton size="small">
                 <MoreVertIcon fontSize="small" />
               </IconButton>
@@ -484,8 +486,8 @@ export default function DashboardPage() {
             ) : (
               <EmptyState
                 variant="empty"
-                title="No activity yet"
-                description="Activity will appear here as changes are made."
+                title={t('dashboard.noActivityYet')}
+                description={t('dashboard.activityWillAppear')}
               />
             )}
           </Box>
@@ -494,15 +496,15 @@ export default function DashboardPage() {
         <Card>
           <Box sx={{ p: 2.5 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-              <Typography variant="h6" fontWeight={600}>Team Overview</Typography>
+              <Typography variant="h6" fontWeight={600}>{t('dashboard.teamOverview')}</Typography>
               <Button variant="tertiary" size="small" icon={<GroupIcon />}>
-                View All
+                {t('dashboard.viewAll')}
               </Button>
             </Box>
 
             <Box sx={{ mb: 3 }}>
               <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
-                Active Team Members
+                {t('dashboard.activeTeamMembers')}
               </Typography>
               <AvatarGroup
                 users={[
@@ -520,21 +522,21 @@ export default function DashboardPage() {
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               <Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                  <Typography variant="caption" color="text.secondary">Tasks Completed</Typography>
+                  <Typography variant="caption" color="text.secondary">{t('dashboard.tasksCompleted')}</Typography>
                   <Typography variant="caption" fontWeight={600}>78%</Typography>
                 </Box>
                 <ProgressBar value={78} showValue={false} size="small" color="success" />
               </Box>
               <Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                  <Typography variant="caption" color="text.secondary">Inspections Done</Typography>
+                  <Typography variant="caption" color="text.secondary">{t('dashboard.inspectionsDone')}</Typography>
                   <Typography variant="caption" fontWeight={600}>65%</Typography>
                 </Box>
                 <ProgressBar value={65} showValue={false} size="small" color="info" />
               </Box>
               <Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                  <Typography variant="caption" color="text.secondary">Approvals Pending</Typography>
+                  <Typography variant="caption" color="text.secondary">{t('dashboard.approvalsPending')}</Typography>
                   <Typography variant="caption" fontWeight={600}>23%</Typography>
                 </Box>
                 <ProgressBar value={23} showValue={false} size="small" color="warning" />
