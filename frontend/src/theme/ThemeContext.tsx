@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useMemo } from '
 import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles'
 import CssBaseline from '@mui/material/CssBaseline'
 import { createLightTheme, createDarkTheme } from './theme'
+import { useTranslation } from 'react-i18next'
 
 type ThemeMode = 'light' | 'dark' | 'system'
 
@@ -27,6 +28,7 @@ interface ThemeProviderProps {
 }
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
+  const { i18n } = useTranslation()
   const [mode, setMode] = useState<ThemeMode>(() => {
     const stored = localStorage.getItem('theme-mode')
     return (stored as ThemeMode) || 'system'
@@ -42,6 +44,13 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     mediaQuery.addEventListener('change', handler)
     return () => mediaQuery.removeEventListener('change', handler)
   }, [])
+
+  // Set document direction based on language
+  useEffect(() => {
+    const dir = i18n.language === 'he' ? 'rtl' : 'ltr'
+    document.documentElement.dir = dir
+    document.documentElement.lang = i18n.language
+  }, [i18n.language])
 
   useEffect(() => {
     localStorage.setItem('theme-mode', mode)
