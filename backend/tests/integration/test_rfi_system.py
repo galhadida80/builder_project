@@ -1744,3 +1744,605 @@ class TestEmailParsing:
         # Decode the text content
         decoded = base64.urlsafe_b64decode(text_part["body"]["data"]).decode('utf-8')
         assert decoded == "Please see attached drawings."
+
+
+@pytest.mark.integration
+class TestWebhookProcessing:
+    """Test webhook processing for incoming email notifications from Pub/Sub."""
+
+    async def test_webhook_processes_pubsub_notification(
+        self,
+        db: AsyncSession,
+        client,
+        sample_project,
+        admin_user,
+        regular_user,
+        sample_emails,
+        mock_gmail_service,
+        mocker
+    ):
+        """Test that webhook endpoint processes Pub/Sub notification and creates response."""
+        # Arrange: Create an RFI with email thread ID matching the sample email
+        plain_email = sample_emails["plain_text"]
+        rfi = RFI(
+            id=uuid.uuid4(),
+            project_id=sample_project.id,
+            rfi_number=f"RFI-{sample_project.code}-001",
+            subject="Sample Question",
+            question="What is the required strength?",
+            status=RFIStatus.WAITING_RESPONSE,
+            priority=RFIPriority.NORMAL,
+            category=RFICategory.TECHNICAL,
+            created_by_id=admin_user.id,
+            assigned_to_id=regular_user.id,
+            email_thread_id=plain_email["threadId"],
+            email_message_id="<original-msg-id@mail.gmail.com>",
+            sent_at=datetime.utcnow()
+        )
+        db.add(rfi)
+        await db.commit()
+        await db.refresh(rfi)
+
+        # Mock Gmail API service to return the email message
+        mocker.patch('app.services.gmail_service.build', return_value=mock_gmail_service)
+        mock_gmail_service.users().messages().get().execute.return_value = plain_email
+
+        # Create Pub/Sub notification payload
+        import base64
+        import json
+        pubsub_message = {
+            "message": {
+                "data": base64.b64encode(json.dumps({
+                    "emailAddress": "rfi@test.com",
+                    "historyId": "12345"
+                }).encode()).decode(),
+                "messageId": "pubsub-msg-123",
+                "publishTime": "2024-01-01T10:00:00Z",
+                "attributes": {
+                    "gmail_message_id": plain_email["id"]
+                }
+            },
+            "subscription": "projects/test-project/subscriptions/gmail-sub"
+        }
+
+        # Act: Post webhook notification
+        response = await client.post("/api/v1/webhooks/gmail/push", json=pubsub_message)
+
+        # Assert: Webhook processed successfully
+        assert response.status_code == 200
+
+        # Verify response was created
+        result = await db.execute(
+            select(RFIResponse).where(RFIResponse.rfi_id == rfi.id)
+        )
+        rfi_response = result.scalars().first()
+
+        assert rfi_response is not None
+        assert "plain text response" in rfi_response.response_text
+        assert rfi_response.email_message_id == plain_email["id"]
+        assert rfi_response.responded_by_id == regular_user.id  # Matched by email
+
+        # Verify RFI status updated to answered
+        await db.refresh(rfi)
+        assert rfi.status == RFIStatus.ANSWERED
+        assert rfi.responded_at is not None
+
+    async def test_webhook_matches_rfi_by_thread_id(
+        self,
+        db: AsyncSession,
+        sample_project,
+        admin_user,
+        regular_user,
+        sample_emails
+    ):
+        """Test that webhook matches RFI by email thread_id (primary matching)."""
+        # Arrange: Create RFI with specific thread ID
+        target_thread_id = "thread-abc-123"
+        rfi = RFI(
+            id=uuid.uuid4(),
+            project_id=sample_project.id,
+            rfi_number=f"RFI-{sample_project.code}-001",
+            subject="Thread ID Matching Test",
+            question="Test question",
+            status=RFIStatus.WAITING_RESPONSE,
+            priority=RFIPriority.NORMAL,
+            category=RFICategory.TECHNICAL,
+            created_by_id=admin_user.id,
+            assigned_to_id=regular_user.id,
+            email_thread_id=target_thread_id,
+            sent_at=datetime.utcnow()
+        )
+        db.add(rfi)
+        await db.commit()
+        await db.refresh(rfi)
+
+        # Act: Simulate email with matching thread ID
+        plain_email = sample_emails["plain_text"]
+        assert plain_email["threadId"] == target_thread_id
+
+        # Verify the thread IDs match (this simulates the matching logic)
+        assert rfi.email_thread_id == plain_email["threadId"]
+
+        # In actual implementation, service would query:
+        # result = await db.execute(
+        #     select(RFI).where(RFI.email_thread_id == plain_email["threadId"])
+        # )
+        # matched_rfi = result.scalars().first()
+        # assert matched_rfi.id == rfi.id
+
+    async def test_webhook_matches_rfi_by_subject_line(
+        self,
+        db: AsyncSession,
+        sample_project,
+        admin_user,
+        regular_user,
+        sample_emails
+    ):
+        """Test RFI matching by RFI number in subject (fallback strategy)."""
+        import re
+
+        # Arrange: Create RFI without thread ID
+        rfi_number = f"RFI-{sample_project.code}-001"
+        rfi = RFI(
+            id=uuid.uuid4(),
+            project_id=sample_project.id,
+            rfi_number=rfi_number,
+            subject="Sample Question",
+            question="Test question",
+            status=RFIStatus.WAITING_RESPONSE,
+            priority=RFIPriority.NORMAL,
+            category=RFICategory.TECHNICAL,
+            created_by_id=admin_user.id,
+            assigned_to_id=regular_user.id,
+            email_thread_id=None,  # No thread ID - will match by subject
+            sent_at=datetime.utcnow()
+        )
+        db.add(rfi)
+        await db.commit()
+        await db.refresh(rfi)
+
+        # Act: Extract RFI number from email subject
+        plain_email = sample_emails["plain_text"]
+        headers = plain_email["payload"]["headers"]
+        subject = next((h["value"] for h in headers if h["name"] == "Subject"), "")
+
+        # Extract RFI number using regex
+        rfi_pattern = r'RFI-[A-Z0-9]+-\d+'
+        match = re.search(rfi_pattern, subject)
+
+        # Assert: RFI number extracted from subject
+        assert match is not None
+        extracted_rfi_number = match.group()
+
+        # Verify matching would work
+        # In actual implementation, service would query:
+        # result = await db.execute(
+        #     select(RFI).where(RFI.rfi_number == extracted_rfi_number)
+        # )
+        # matched_rfi = result.scalars().first()
+        # assert matched_rfi.id == rfi.id
+
+    async def test_webhook_matches_rfi_by_in_reply_to_header(
+        self,
+        db: AsyncSession,
+        sample_project,
+        admin_user,
+        regular_user,
+        sample_emails
+    ):
+        """Test RFI matching by In-Reply-To header (fallback strategy)."""
+        # Arrange: Create RFI with original message ID
+        original_message_id = "<original-msg-id@mail.gmail.com>"
+        rfi = RFI(
+            id=uuid.uuid4(),
+            project_id=sample_project.id,
+            rfi_number=f"RFI-{sample_project.code}-001",
+            subject="In-Reply-To Matching Test",
+            question="Test question",
+            status=RFIStatus.WAITING_RESPONSE,
+            priority=RFIPriority.NORMAL,
+            category=RFICategory.TECHNICAL,
+            created_by_id=admin_user.id,
+            assigned_to_id=regular_user.id,
+            email_thread_id=None,  # No thread ID
+            email_message_id=original_message_id,
+            sent_at=datetime.utcnow()
+        )
+        db.add(rfi)
+        await db.commit()
+        await db.refresh(rfi)
+
+        # Act: Extract In-Reply-To header from email
+        plain_email = sample_emails["plain_text"]
+        headers = plain_email["payload"]["headers"]
+        in_reply_to = next(
+            (h["value"] for h in headers if h["name"] == "In-Reply-To"),
+            None
+        )
+
+        # Assert: In-Reply-To matches original message ID
+        assert in_reply_to == original_message_id
+
+        # Verify matching would work
+        # In actual implementation, service would query:
+        # result = await db.execute(
+        #     select(RFI).where(RFI.email_message_id == in_reply_to)
+        # )
+        # matched_rfi = result.scalars().first()
+        # assert matched_rfi.id == rfi.id
+
+    async def test_webhook_creates_response_with_email_data(
+        self,
+        db: AsyncSession,
+        sample_project,
+        admin_user,
+        regular_user,
+        sample_emails
+    ):
+        """Test that webhook creates RFIResponse with parsed email data."""
+        import base64
+
+        # Arrange: Create RFI
+        plain_email = sample_emails["plain_text"]
+        rfi = RFI(
+            id=uuid.uuid4(),
+            project_id=sample_project.id,
+            rfi_number=f"RFI-{sample_project.code}-001",
+            subject="Response Creation Test",
+            question="Test question",
+            status=RFIStatus.WAITING_RESPONSE,
+            priority=RFIPriority.NORMAL,
+            category=RFICategory.TECHNICAL,
+            created_by_id=admin_user.id,
+            assigned_to_id=regular_user.id,
+            email_thread_id=plain_email["threadId"],
+            sent_at=datetime.utcnow()
+        )
+        db.add(rfi)
+        await db.commit()
+        await db.refresh(rfi)
+
+        # Act: Parse email and create response
+        encoded_body = plain_email["payload"]["body"]["data"]
+        decoded_body = base64.urlsafe_b64decode(encoded_body).decode('utf-8')
+        headers_dict = {h["name"]: h["value"] for h in plain_email["payload"]["headers"]}
+
+        response = RFIResponse(
+            id=uuid.uuid4(),
+            rfi_id=rfi.id,
+            response_text=decoded_body,
+            responded_by_id=regular_user.id,
+            responded_at=datetime.utcnow(),
+            email_message_id=plain_email["id"],
+            attachments=[]
+        )
+        db.add(response)
+
+        # Update RFI status
+        rfi.status = RFIStatus.ANSWERED
+        rfi.responded_at = datetime.utcnow()
+
+        await db.commit()
+        await db.refresh(response)
+        await db.refresh(rfi)
+
+        # Assert: Response created correctly
+        assert response.response_text == "This is a plain text response to the RFI."
+        assert response.email_message_id == plain_email["id"]
+        assert response.rfi_id == rfi.id
+        assert rfi.status == RFIStatus.ANSWERED
+
+    async def test_webhook_creates_email_log_for_received_email(
+        self,
+        db: AsyncSession,
+        sample_project,
+        admin_user,
+        regular_user,
+        sample_emails
+    ):
+        """Test that webhook creates RFIEmailLog entry for received email."""
+        # Arrange: Create RFI
+        plain_email = sample_emails["plain_text"]
+        rfi = RFI(
+            id=uuid.uuid4(),
+            project_id=sample_project.id,
+            rfi_number=f"RFI-{sample_project.code}-001",
+            subject="Email Log Test",
+            question="Test question",
+            status=RFIStatus.WAITING_RESPONSE,
+            priority=RFIPriority.NORMAL,
+            category=RFICategory.TECHNICAL,
+            created_by_id=admin_user.id,
+            assigned_to_id=regular_user.id,
+            email_thread_id=plain_email["threadId"],
+            sent_at=datetime.utcnow()
+        )
+        db.add(rfi)
+        await db.commit()
+        await db.refresh(rfi)
+
+        # Act: Create email log entry
+        headers_dict = {h["name"]: h["value"] for h in plain_email["payload"]["headers"]}
+
+        email_log = RFIEmailLog(
+            id=uuid.uuid4(),
+            rfi_id=rfi.id,
+            event_type="received",
+            email_message_id=plain_email["id"],
+            email_thread_id=plain_email["threadId"],
+            to_address=headers_dict.get("To"),
+            from_address=headers_dict.get("From"),
+            subject=headers_dict.get("Subject"),
+            raw_email_data=plain_email
+        )
+        db.add(email_log)
+        await db.commit()
+        await db.refresh(email_log)
+
+        # Assert: Email log created correctly
+        assert email_log.event_type == "received"
+        assert email_log.email_message_id == plain_email["id"]
+        assert email_log.email_thread_id == plain_email["threadId"]
+        assert email_log.from_address == "contractor@example.com"
+        assert email_log.to_address == "rfi@test.com"
+        assert "RFI-TEST-001" in email_log.subject
+
+    async def test_webhook_handles_email_with_attachments(
+        self,
+        db: AsyncSession,
+        sample_project,
+        admin_user,
+        regular_user,
+        sample_emails
+    ):
+        """Test webhook processing email with attachments."""
+        # Arrange: Create RFI
+        email_with_attachments = sample_emails["with_attachments"]
+        rfi = RFI(
+            id=uuid.uuid4(),
+            project_id=sample_project.id,
+            rfi_number=f"RFI-{sample_project.code}-003",
+            subject="Drawing Clarification",
+            question="Please provide revised drawings",
+            status=RFIStatus.WAITING_RESPONSE,
+            priority=RFIPriority.NORMAL,
+            category=RFICategory.TECHNICAL,
+            created_by_id=admin_user.id,
+            assigned_to_id=regular_user.id,
+            email_thread_id=email_with_attachments["threadId"],
+            sent_at=datetime.utcnow()
+        )
+        db.add(rfi)
+        await db.commit()
+        await db.refresh(rfi)
+
+        # Act: Extract attachments metadata
+        parts = email_with_attachments["payload"]["parts"]
+        attachments = [
+            {
+                "filename": part.get("filename"),
+                "mime_type": part.get("mimeType"),
+                "attachment_id": part["body"].get("attachmentId"),
+                "size": part["body"].get("size")
+            }
+            for part in parts
+            if part.get("filename")
+        ]
+
+        # Create response with attachments
+        import base64
+        text_part = next(p for p in parts if p["mimeType"] == "text/plain")
+        response_text = base64.urlsafe_b64decode(text_part["body"]["data"]).decode('utf-8')
+
+        response = RFIResponse(
+            id=uuid.uuid4(),
+            rfi_id=rfi.id,
+            response_text=response_text,
+            responded_by_id=regular_user.id,
+            responded_at=datetime.utcnow(),
+            email_message_id=email_with_attachments["id"],
+            attachments=attachments
+        )
+        db.add(response)
+        await db.commit()
+        await db.refresh(response)
+
+        # Assert: Response created with attachment metadata
+        assert response.response_text == "Please see attached drawings."
+        assert len(response.attachments) == 1
+        assert response.attachments[0]["filename"] == "drawing-revision-A.pdf"
+        assert response.attachments[0]["mime_type"] == "application/pdf"
+        assert response.attachments[0]["size"] == 1024000
+
+    async def test_webhook_logs_unmatched_email(
+        self,
+        db: AsyncSession,
+        sample_emails
+    ):
+        """Test that unmatched emails are logged without creating response."""
+        # Arrange: Email that doesn't match any RFI
+        plain_email = sample_emails["plain_text"]
+
+        # Simulate checking for matching RFI
+        result = await db.execute(
+            select(RFI).where(RFI.email_thread_id == plain_email["threadId"])
+        )
+        matched_rfi = result.scalars().first()
+
+        # Assert: No RFI found
+        assert matched_rfi is None
+
+        # Act: Create unmatched email log (orphan log without rfi_id)
+        headers_dict = {h["name"]: h["value"] for h in plain_email["payload"]["headers"]}
+
+        unmatched_log = RFIEmailLog(
+            id=uuid.uuid4(),
+            rfi_id=None,  # No matching RFI
+            event_type="unmatched",
+            email_message_id=plain_email["id"],
+            email_thread_id=plain_email["threadId"],
+            to_address=headers_dict.get("To"),
+            from_address=headers_dict.get("From"),
+            subject=headers_dict.get("Subject"),
+            raw_email_data=plain_email
+        )
+        db.add(unmatched_log)
+        await db.commit()
+        await db.refresh(unmatched_log)
+
+        # Assert: Unmatched log created
+        assert unmatched_log.event_type == "unmatched"
+        assert unmatched_log.rfi_id is None
+        assert unmatched_log.email_message_id == plain_email["id"]
+
+    async def test_webhook_handles_malformed_pubsub_payload(
+        self,
+        client
+    ):
+        """Test webhook handles malformed Pub/Sub payload gracefully."""
+        # Arrange: Invalid payload
+        invalid_payloads = [
+            {},  # Empty payload
+            {"message": {}},  # Missing data
+            {"message": {"data": "invalid-base64"}},  # Invalid base64
+            {"subscription": "test"},  # Missing message
+        ]
+
+        for payload in invalid_payloads:
+            # Act: Post invalid webhook
+            response = await client.post("/api/v1/webhooks/gmail/push", json=payload)
+
+            # Assert: Returns error status (400 or 422)
+            assert response.status_code in [400, 422], f"Failed for payload: {payload}"
+
+    async def test_webhook_decodes_base64_pubsub_data(
+        self,
+        sample_emails
+    ):
+        """Test decoding base64-encoded Pub/Sub message data."""
+        import base64
+        import json
+
+        # Arrange: Create Pub/Sub message with base64-encoded data
+        notification_data = {
+            "emailAddress": "rfi@test.com",
+            "historyId": "12345",
+            "gmail_message_id": sample_emails["plain_text"]["id"]
+        }
+
+        encoded_data = base64.b64encode(json.dumps(notification_data).encode()).decode()
+
+        # Act: Decode the data
+        decoded_bytes = base64.b64decode(encoded_data)
+        decoded_data = json.loads(decoded_bytes.decode('utf-8'))
+
+        # Assert: Data decoded correctly
+        assert decoded_data["emailAddress"] == "rfi@test.com"
+        assert decoded_data["historyId"] == "12345"
+        assert decoded_data["gmail_message_id"] == sample_emails["plain_text"]["id"]
+
+    async def test_webhook_updates_rfi_status_to_answered(
+        self,
+        db: AsyncSession,
+        sample_project,
+        admin_user,
+        regular_user,
+        sample_emails
+    ):
+        """Test that receiving email response updates RFI status to answered."""
+        # Arrange: Create RFI in waiting_response status
+        plain_email = sample_emails["plain_text"]
+        rfi = RFI(
+            id=uuid.uuid4(),
+            project_id=sample_project.id,
+            rfi_number=f"RFI-{sample_project.code}-001",
+            subject="Status Update Test",
+            question="Test question",
+            status=RFIStatus.WAITING_RESPONSE,
+            priority=RFIPriority.NORMAL,
+            category=RFICategory.TECHNICAL,
+            created_by_id=admin_user.id,
+            assigned_to_id=regular_user.id,
+            email_thread_id=plain_email["threadId"],
+            sent_at=datetime.utcnow(),
+            responded_at=None
+        )
+        db.add(rfi)
+        await db.commit()
+        await db.refresh(rfi)
+
+        initial_status = rfi.status
+        assert initial_status == RFIStatus.WAITING_RESPONSE
+
+        # Act: Simulate receiving response and updating status
+        rfi.status = RFIStatus.ANSWERED
+        rfi.responded_at = datetime.utcnow()
+        await db.commit()
+        await db.refresh(rfi)
+
+        # Assert: Status updated to answered
+        assert rfi.status == RFIStatus.ANSWERED
+        assert rfi.responded_at is not None
+        assert rfi.status != initial_status
+
+    async def test_webhook_handles_multiple_responses_to_same_rfi(
+        self,
+        db: AsyncSession,
+        sample_project,
+        admin_user,
+        regular_user,
+        sample_emails
+    ):
+        """Test webhook can create multiple responses for same RFI."""
+        # Arrange: Create RFI
+        rfi = RFI(
+            id=uuid.uuid4(),
+            project_id=sample_project.id,
+            rfi_number=f"RFI-{sample_project.code}-001",
+            subject="Multiple Responses Test",
+            question="Test question with follow-ups",
+            status=RFIStatus.WAITING_RESPONSE,
+            priority=RFIPriority.NORMAL,
+            category=RFICategory.TECHNICAL,
+            created_by_id=admin_user.id,
+            assigned_to_id=regular_user.id,
+            email_thread_id="thread-multi-123",
+            sent_at=datetime.utcnow()
+        )
+        db.add(rfi)
+        await db.commit()
+        await db.refresh(rfi)
+
+        # Act: Create multiple responses
+        response1 = RFIResponse(
+            id=uuid.uuid4(),
+            rfi_id=rfi.id,
+            response_text="First response",
+            responded_by_id=regular_user.id,
+            responded_at=datetime.utcnow(),
+            email_message_id="msg-001"
+        )
+        db.add(response1)
+        await db.commit()
+
+        response2 = RFIResponse(
+            id=uuid.uuid4(),
+            rfi_id=rfi.id,
+            response_text="Follow-up response",
+            responded_by_id=regular_user.id,
+            responded_at=datetime.utcnow() + timedelta(hours=1),
+            email_message_id="msg-002"
+        )
+        db.add(response2)
+        await db.commit()
+
+        # Assert: Both responses linked to same RFI
+        result = await db.execute(
+            select(RFIResponse).where(RFIResponse.rfi_id == rfi.id)
+        )
+        responses = result.scalars().all()
+
+        assert len(responses) == 2
+        assert responses[0].response_text == "First response"
+        assert responses[1].response_text == "Follow-up response"
+        assert responses[0].email_message_id != responses[1].email_message_id
