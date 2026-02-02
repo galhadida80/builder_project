@@ -180,6 +180,7 @@ export default function DocumentLibraryPage() {
               <FolderTree
                 folders={folders}
                 selectedFolderId={selectedFolderId}
+                files={files}
                 onSelectFolder={setSelectedFolderId}
                 onCreateFolder={createFolder}
                 onRenameFolder={renameFolder}

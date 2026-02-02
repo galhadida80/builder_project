@@ -83,34 +83,44 @@ export function FilePreview({ file, projectId, onClose, onDownload }: FilePrevie
   const [error, setError] = useState(false)
 
   useEffect(() => {
-    if (file) {
-      loadPreview()
-    } else {
-      setPreviewUrl('')
-      setError(false)
-    }
+    let currentUrl = ''
+    let mounted = true
 
-    return () => {
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl)
+    const load = async () => {
+      if (!file || !mounted) {
+        setPreviewUrl('')
+        setError(false)
+        return
+      }
+
+      try {
+        setLoading(true)
+        setError(false)
+        const url = await filesApi.getDownloadUrl(projectId, file.id)
+        if (mounted) {
+          currentUrl = url
+          setPreviewUrl(url)
+        }
+      } catch (err) {
+        if (mounted) {
+          setError(true)
+        }
+      } finally {
+        if (mounted) {
+          setLoading(false)
+        }
       }
     }
-  }, [file?.id])
 
-  const loadPreview = async () => {
-    if (!file) return
+    load()
 
-    try {
-      setLoading(true)
-      setError(false)
-      const url = await filesApi.getDownloadUrl(projectId, file.id)
-      setPreviewUrl(url)
-    } catch (err) {
-      setError(true)
-    } finally {
-      setLoading(false)
+    return () => {
+      mounted = false
+      if (currentUrl) {
+        URL.revokeObjectURL(currentUrl)
+      }
     }
-  }
+  }, [file?.id, projectId])
 
   const handleDownload = () => {
     if (file && onDownload) {

@@ -5,6 +5,7 @@ import { styled, alpha } from '@mui/material/styles'
 import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 import { useToast } from '../common/ToastProvider'
 import { ProgressBar } from '../ui/ProgressBar'
+import { formatFileSize } from '../../utils/fileUtils'
 
 interface UploadZoneProps {
   onUpload: (file: File) => Promise<void>
@@ -49,7 +50,7 @@ export function UploadZone({
   maxSize = 100 * 1024 * 1024, // 100MB default
   accept,
 }: UploadZoneProps) {
-  const { showError, showSuccess } = useToast()
+  const { showError } = useToast()
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [currentFileName, setCurrentFileName] = useState('')
@@ -89,7 +90,7 @@ export function UploadZone({
       try {
         await onUpload(file)
         setUploadedCount(i + 1)
-        showSuccess(`${file.name} uploaded successfully`)
+        // Parent component handles success notification
       } catch (error) {
         showError(`Failed to upload ${file.name}`)
       }
@@ -110,14 +111,6 @@ export function UploadZone({
     accept,
     multiple: true,
   })
-
-  const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return '0 Bytes'
-    const k = 1024
-    const sizes = ['Bytes', 'KB', 'MB', 'GB']
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i]
-  }
 
   return (
     <Box>

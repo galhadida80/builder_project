@@ -20,11 +20,12 @@ import AddIcon from '@mui/icons-material/Add'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { FormModal, ConfirmModal } from '../ui/Modal'
-import type { Folder } from '../../types'
+import type { Folder, FileRecord } from '../../types'
 
 interface FolderTreeProps {
   folders: Folder[]
   selectedFolderId: string | null
+  files: FileRecord[]
   onSelectFolder: (folderId: string) => void
   onCreateFolder: (name: string, parentId: string | null) => void
   onRenameFolder: (folderId: string, newName: string) => void
@@ -66,6 +67,7 @@ const ActionsBox = styled(Box)(() => ({
 export function FolderTree({
   folders,
   selectedFolderId,
+  files,
   onSelectFolder,
   onCreateFolder,
   onRenameFolder,
@@ -229,9 +231,24 @@ export function FolderTree({
     )
   }
 
-  const hasFolderChildren = (folder: Folder): boolean => {
+  const hasFolderContent = (folder: Folder): boolean => {
+    // Check for child folders
     if (folder.children && folder.children.length > 0) return true
-    return false
+
+    // Check for files in this folder
+    const filesInFolder = files.filter(f => f.entityId === folder.id)
+    return filesInFolder.length > 0
+  }
+
+  const getContentDescription = (folder: Folder): string => {
+    const childFolders = folder.children?.length || 0
+    const filesInFolder = files.filter(f => f.entityId === folder.id).length
+
+    const parts = []
+    if (childFolders > 0) parts.push(`${childFolders} subfolder${childFolders > 1 ? 's' : ''}`)
+    if (filesInFolder > 0) parts.push(`${filesInFolder} file${filesInFolder > 1 ? 's' : ''}`)
+
+    return parts.join(' and ')
   }
 
   return (
@@ -326,11 +343,11 @@ export function FolderTree({
         onConfirm={handleDeleteFolder}
         title="Delete Folder"
         message={
-          targetFolder && hasFolderChildren(targetFolder)
-            ? `Cannot delete "${targetFolder.name}". Folder contains subfolders. Please delete or move subfolders first.`
+          targetFolder && hasFolderContent(targetFolder)
+            ? `Cannot delete "${targetFolder.name}". Folder contains ${getContentDescription(targetFolder)}. Please delete or move items first.`
             : `Are you sure you want to delete "${targetFolder?.name}"? This action cannot be undone.`
         }
-        confirmLabel={targetFolder && hasFolderChildren(targetFolder) ? 'OK' : 'Delete'}
+        confirmLabel={targetFolder && hasFolderContent(targetFolder) ? 'OK' : 'Delete'}
         variant="danger"
       />
     </Box>
