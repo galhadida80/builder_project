@@ -135,6 +135,25 @@ export function FilePreview({ file, projectId, onClose, onDownload }: FilePrevie
     }
   }
 
+  const loadPreview = () => {
+    if (!file) return
+
+    setError(false)
+    setLoading(true)
+
+    filesApi.getDownloadUrl(projectId, file.id)
+      .then(url => {
+        setPreviewUrl(url)
+        setError(false)
+      })
+      .catch(() => {
+        setError(true)
+      })
+      .finally(() => {
+        setLoading(false)
+      })
+  }
+
   if (!file) {
     return (
       <PreviewContainer elevation={0}>
