@@ -293,7 +293,7 @@ export default function ContactsPage() {
                   <Card key={contact.id} hoverable>
                     <Box sx={{ p: 2.5, position: 'relative' }}>
                       {contact.isPrimary && (
-                        <StarIcon sx={{ position: 'absolute', top: 16, right: 16, color: 'warning.main', fontSize: 20 }} />
+                        <StarIcon sx={{ position: 'absolute', top: 16, insetInlineEnd: 16, color: 'warning.main', fontSize: 20 }} />
                       )}
 
                       <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>

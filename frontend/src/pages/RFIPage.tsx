@@ -574,7 +574,7 @@ export default function RFIPage() {
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                       <Typography variant="caption" fontWeight={600}>
                         {response.from_name || response.from_email}
-                        {response.is_internal && <Chip label={t('rfis.internal')} size="small" sx={{ ml: 1, height: 16 }} />}
+                        {response.is_internal && <Chip label={t('rfis.internal')} size="small" sx={{ marginInlineStart: 1, height: 16 }} />}
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
                         {formatDate(response.created_at)}

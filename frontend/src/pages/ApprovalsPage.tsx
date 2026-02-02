@@ -282,7 +282,7 @@ export default function ApprovalsPage() {
                         </Box>
 
                         {tabValue === 'pending' && (
-                          <Box sx={{ display: 'flex', gap: 1, ml: 2 }}>
+                          <Box sx={{ display: 'flex', gap: 1, marginInlineStart: 2 }}>
                             <Button
                               variant="success"
                               size="small"
