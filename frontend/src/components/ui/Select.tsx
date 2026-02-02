@@ -35,6 +35,7 @@ const StyledFormControl = styled(FormControl)(({ theme }) => ({
   },
   '& .MuiSelect-select': {
     fontSize: '0.875rem',
+    textAlign: 'start',
   },
 }))
 

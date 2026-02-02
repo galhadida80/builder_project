@@ -27,6 +27,7 @@ const StyledTextField = styled(MuiTextField)(({ theme }) => ({
   },
   '& .MuiInputBase-input': {
     fontSize: '0.875rem',
+    textAlign: 'start',
   },
 }))
 
