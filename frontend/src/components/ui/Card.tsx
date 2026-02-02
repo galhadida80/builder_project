@@ -3,6 +3,8 @@ import { styled, alpha } from '@mui/material/styles'
 import TrendingUpIcon from '@mui/icons-material/TrendingUp'
 import TrendingDownIcon from '@mui/icons-material/TrendingDown'
 import TrendingFlatIcon from '@mui/icons-material/TrendingFlat'
+import { useState } from 'react'
+import { useSwipeGesture, SwipeEvent } from '../../hooks/useSwipeGesture'
 
 interface BaseCardProps {
   children: React.ReactNode
@@ -10,25 +12,62 @@ interface BaseCardProps {
   onClick?: () => void
   hoverable?: boolean
   sx?: SxProps<Theme>
+  onSwipeLeft?: (event: SwipeEvent) => void
+  onSwipeRight?: (event: SwipeEvent) => void
 }
 
 const StyledCard = styled(MuiCard, {
-  shouldForwardProp: (prop) => prop !== 'hoverable',
-})<{ hoverable?: boolean }>(({ theme, hoverable }) => ({
-  borderRadius: 12,
-  transition: 'all 200ms ease-out',
-  cursor: hoverable ? 'pointer' : 'default',
-  ...(hoverable && {
-    '&:hover': {
-      transform: 'translateY(-2px)',
-      boxShadow: theme.shadows[4],
-    },
-  }),
-}))
+  shouldForwardProp: (prop) => prop !== 'hoverable' && prop !== 'isSwipingLeft' && prop !== 'isSwipingRight',
+})<{ hoverable?: boolean; isSwipingLeft?: boolean; isSwipingRight?: boolean }>(
+  ({ theme, hoverable, isSwipingLeft, isSwipingRight }) => ({
+    borderRadius: 12,
+    transition: isSwipingLeft || isSwipingRight ? 'transform 100ms ease-out' : 'all 200ms ease-out',
+    cursor: hoverable ? 'pointer' : 'default',
+    ...(isSwipingLeft && {
+      transform: 'translateX(-8px)',
+      opacity: 0.95,
+    }),
+    ...(isSwipingRight && {
+      transform: 'translateX(8px)',
+      opacity: 0.95,
+    }),
+    ...(hoverable && !isSwipingLeft && !isSwipingRight && {
+      '&:hover': {
+        transform: 'translateY(-2px)',
+        boxShadow: theme.shadows[4],
+      },
+    }),
+  })
+)
 
-export function Card({ children, hoverable = false, onClick, ...props }: BaseCardProps) {
+export function Card({ children, hoverable = false, onClick, onSwipeLeft, onSwipeRight, ...props }: BaseCardProps) {
+  const [isSwipingLeft, setIsSwipingLeft] = useState(false)
+  const [isSwipingRight, setIsSwipingRight] = useState(false)
+
+  const { onTouchStart, onTouchMove, onTouchEnd } = useSwipeGesture({
+    onSwipeLeft: (event) => {
+      setIsSwipingLeft(true)
+      setTimeout(() => setIsSwipingLeft(false), 200)
+      onSwipeLeft?.(event)
+    },
+    onSwipeRight: (event) => {
+      setIsSwipingRight(true)
+      setTimeout(() => setIsSwipingRight(false), 200)
+      onSwipeRight?.(event)
+    },
+  })
+
   return (
-    <StyledCard hoverable={hoverable} onClick={onClick} {...props}>
+    <StyledCard
+      hoverable={hoverable}
+      onClick={onClick}
+      isSwipingLeft={isSwipingLeft}
+      isSwipingRight={isSwipingRight}
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+      {...props}
+    >
       {children}
     </StyledCard>
   )
@@ -55,6 +94,8 @@ interface KPICardProps {
   loading?: boolean
   color?: 'primary' | 'success' | 'warning' | 'error' | 'info'
   onClick?: () => void
+  onSwipeLeft?: (event: SwipeEvent) => void
+  onSwipeRight?: (event: SwipeEvent) => void
 }
 
 export function KPICard({
@@ -66,7 +107,25 @@ export function KPICard({
   loading = false,
   color = 'primary',
   onClick,
+  onSwipeLeft,
+  onSwipeRight,
 }: KPICardProps) {
+  const [isSwipingLeft, setIsSwipingLeft] = useState(false)
+  const [isSwipingRight, setIsSwipingRight] = useState(false)
+
+  const { onTouchStart, onTouchMove, onTouchEnd } = useSwipeGesture({
+    onSwipeLeft: (event) => {
+      setIsSwipingLeft(true)
+      setTimeout(() => setIsSwipingLeft(false), 200)
+      onSwipeLeft?.(event)
+    },
+    onSwipeRight: (event) => {
+      setIsSwipingRight(true)
+      setTimeout(() => setIsSwipingRight(false), 200)
+      onSwipeRight?.(event)
+    },
+  })
+
   const getTrendIcon = () => {
     if (trend === undefined) return null
     if (trend > 0) return <TrendingUpIcon fontSize="small" sx={{ color: 'success.main' }} />
@@ -94,7 +153,16 @@ export function KPICard({
   }
 
   return (
-    <StyledCard hoverable={!!onClick} onClick={onClick} sx={{ cursor: onClick ? 'pointer' : 'default' }}>
+    <StyledCard
+      hoverable={!!onClick}
+      onClick={onClick}
+      isSwipingLeft={isSwipingLeft}
+      isSwipingRight={isSwipingRight}
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+      sx={{ cursor: onClick ? 'pointer' : 'default' }}
+    >
       <CardContent sx={{ p: 2.5 }}>
         <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
           <Box>
@@ -162,11 +230,37 @@ interface FeatureCardProps {
   title: string
   description: string
   onClick?: () => void
+  onSwipeLeft?: (event: SwipeEvent) => void
+  onSwipeRight?: (event: SwipeEvent) => void
 }
 
-export function FeatureCard({ icon, title, description, onClick }: FeatureCardProps) {
+export function FeatureCard({ icon, title, description, onClick, onSwipeLeft, onSwipeRight }: FeatureCardProps) {
+  const [isSwipingLeft, setIsSwipingLeft] = useState(false)
+  const [isSwipingRight, setIsSwipingRight] = useState(false)
+
+  const { onTouchStart, onTouchMove, onTouchEnd } = useSwipeGesture({
+    onSwipeLeft: (event) => {
+      setIsSwipingLeft(true)
+      setTimeout(() => setIsSwipingLeft(false), 200)
+      onSwipeLeft?.(event)
+    },
+    onSwipeRight: (event) => {
+      setIsSwipingRight(true)
+      setTimeout(() => setIsSwipingRight(false), 200)
+      onSwipeRight?.(event)
+    },
+  })
+
   return (
-    <StyledCard hoverable onClick={onClick}>
+    <StyledCard
+      hoverable
+      onClick={onClick}
+      isSwipingLeft={isSwipingLeft}
+      isSwipingRight={isSwipingRight}
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+    >
       <CardContent sx={{ p: 3 }}>
         <Box
           sx={{
@@ -201,9 +295,27 @@ interface ProjectCardProps {
   status: 'active' | 'on_hold' | 'completed' | 'archived'
   imageUrl?: string
   onClick?: () => void
+  onSwipeLeft?: (event: SwipeEvent) => void
+  onSwipeRight?: (event: SwipeEvent) => void
 }
 
-export function ProjectCard({ name, code, progress, status, imageUrl, onClick }: ProjectCardProps) {
+export function ProjectCard({ name, code, progress, status, imageUrl, onClick, onSwipeLeft, onSwipeRight }: ProjectCardProps) {
+  const [isSwipingLeft, setIsSwipingLeft] = useState(false)
+  const [isSwipingRight, setIsSwipingRight] = useState(false)
+
+  const { onTouchStart, onTouchMove, onTouchEnd } = useSwipeGesture({
+    onSwipeLeft: (event) => {
+      setIsSwipingLeft(true)
+      setTimeout(() => setIsSwipingLeft(false), 200)
+      onSwipeLeft?.(event)
+    },
+    onSwipeRight: (event) => {
+      setIsSwipingRight(true)
+      setTimeout(() => setIsSwipingRight(false), 200)
+      onSwipeRight?.(event)
+    },
+  })
+
   const getStatusColor = () => {
     switch (status) {
       case 'active': return 'success'
@@ -215,7 +327,15 @@ export function ProjectCard({ name, code, progress, status, imageUrl, onClick }:
   }
 
   return (
-    <StyledCard hoverable onClick={onClick}>
+    <StyledCard
+      hoverable
+      onClick={onClick}
+      isSwipingLeft={isSwipingLeft}
+      isSwipingRight={isSwipingRight}
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+    >
       {imageUrl && (
         <Box
           sx={{
