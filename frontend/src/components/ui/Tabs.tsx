@@ -23,6 +23,7 @@ const StyledTabs = styled(MuiTabs)(({ theme }) => ({
   '& .MuiTabs-indicator': {
     height: 3,
     borderRadius: '3px 3px 0 0',
+    // RTL-safe: MUI Tabs automatically positions indicator based on theme.direction
   },
   '& .MuiTab-root': {
     textTransform: 'none',

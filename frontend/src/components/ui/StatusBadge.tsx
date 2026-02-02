@@ -77,6 +77,7 @@ const StyledChip = styled(Chip)(() => ({
   '& .MuiChip-icon': {
     fontSize: '1rem',
   },
+  // RTL-safe: MUI Chip handles icon positioning automatically
 }))
 
 export function StatusBadge({ status, size = 'small', showIcon = false }: StatusBadgeProps) {

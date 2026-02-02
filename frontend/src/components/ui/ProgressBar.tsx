@@ -18,6 +18,7 @@ const StyledLinearProgress = styled(LinearProgress, {
   backgroundColor: theme.palette.mode === 'dark' ? theme.palette.grey[800] : theme.palette.grey[200],
   '& .MuiLinearProgress-bar': {
     borderRadius: 4,
+    // RTL-safe: MUI LinearProgress automatically fills from correct direction based on theme.direction
   },
 }))
 

@@ -64,7 +64,20 @@ export function Breadcrumbs({ items, showHome = true }: BreadcrumbsProps) {
     : items
 
   return (
-    <StyledBreadcrumbs separator={<NavigateNextIcon sx={{ fontSize: 18 }} />}>
+    <StyledBreadcrumbs
+      separator={
+        <NavigateNextIcon
+          sx={{
+            fontSize: 18,
+            // RTL-aware: Flip chevron direction in RTL languages
+            transform: 'scaleX(var(--rtl-flip, 1))',
+            '[dir="rtl"] &': {
+              transform: 'scaleX(-1)',
+            },
+          }}
+        />
+      }
+    >
       {allItems.map((item, index) => {
         const isLast = index === allItems.length - 1
 
