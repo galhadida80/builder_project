@@ -24,6 +24,7 @@ export interface GanttTask {
 export interface GanttChartProps {
   tasks: GanttTask[]
   viewMode?: GanttViewMode
+  onViewModeChange?: (viewMode: GanttViewMode) => void
   onDateChange?: (task: GanttTask, start: Date, end: Date) => void
   onProgressChange?: (task: GanttTask, progress: number) => void
   onDelete?: (task: GanttTask) => void

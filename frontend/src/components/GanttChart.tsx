@@ -1,8 +1,9 @@
-import { Box, Paper, useTheme, Typography } from '@mui/material'
+import { Box, Paper, useTheme, Typography, ButtonGroup } from '@mui/material'
 import { styled, alpha } from '@mui/material/styles'
 import { Gantt, Task, ViewMode } from 'gantt-task-react'
 import 'gantt-task-react/dist/index.css'
 import { GanttChartProps, GanttTask, GanttViewMode } from '../types/gantt'
+import { Button } from './ui/Button'
 
 // Styled components following MUI theme patterns
 const StyledGanttPaper = styled(Paper)(({ theme }) => ({
@@ -67,6 +68,17 @@ const EmptyStateBox = styled(Box)(({ theme }) => ({
   gap: theme.spacing(2),
 }))
 
+const ToolbarBox = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  marginBottom: theme.spacing(2),
+  padding: theme.spacing(1),
+  backgroundColor: alpha(theme.palette.primary.main, 0.03),
+  borderRadius: 8,
+  gap: theme.spacing(2),
+}))
+
 // Map our GanttViewMode string type to the library's ViewMode enum
 const viewModeMap: Record<GanttViewMode, ViewMode> = {
   Hour: ViewMode.Hour,
@@ -99,6 +111,7 @@ const convertToLibraryTask = (task: GanttTask): Task => {
 export function GanttChart({
   tasks,
   viewMode = 'Day',
+  onViewModeChange,
   onDateChange,
   onProgressChange,
   onDelete,
@@ -111,6 +124,21 @@ export function GanttChart({
 
   // Get the library ViewMode enum value
   const currentViewMode = viewModeMap[viewMode]
+
+  // View mode options for the toolbar
+  const viewModeOptions: { value: GanttViewMode; label: string }[] = [
+    { value: 'Hour', label: 'Hour' },
+    { value: 'Day', label: 'Day' },
+    { value: 'Week', label: 'Week' },
+    { value: 'Month', label: 'Month' },
+  ]
+
+  // Handle view mode change
+  const handleViewModeChange = (mode: GanttViewMode) => {
+    if (onViewModeChange) {
+      onViewModeChange(mode)
+    }
+  }
 
   // Handle date change event
   const handleTaskChange = (task: Task) => {
@@ -155,6 +183,28 @@ export function GanttChart({
   return (
     <StyledGanttPaper elevation={1}>
       <Box sx={{ width: '100%', height: '100%' }}>
+        {libraryTasks.length > 0 && (
+          <ToolbarBox>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.secondary' }}>
+                View Mode:
+              </Typography>
+              <ButtonGroup size="small">
+                {viewModeOptions.map((option) => (
+                  <Button
+                    key={option.value}
+                    variant={viewMode === option.value ? 'primary' : 'secondary'}
+                    onClick={() => handleViewModeChange(option.value)}
+                    size="small"
+                    sx={{ textTransform: 'none' }}
+                  >
+                    {option.label}
+                  </Button>
+                ))}
+              </ButtonGroup>
+            </Box>
+          </ToolbarBox>
+        )}
         {libraryTasks.length > 0 ? (
           <Gantt
             tasks={libraryTasks}
