@@ -1,9 +1,10 @@
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import { Box } from '@mui/material'
+import { useForm, Controller } from 'react-hook-form'
+import { Box, Stack } from '@mui/material'
 import { Modal } from '../ui/Modal'
 import { Button } from '../ui/Button'
+import { TextField } from '../ui/TextField'
 
 // Zod validation schema for RFI form data
 const rfiFormSchema = z.object({
@@ -46,7 +47,7 @@ export function RFIFormDialog({
   mode = 'create',
 }: RFIFormDialogProps) {
   const {
-    register,
+    control,
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
@@ -96,7 +97,56 @@ export function RFIFormDialog({
       }
     >
       <Box component="form" onSubmit={(e) => { e.preventDefault(); handleSubmit(handleFormSubmit)(); }}>
-        {/* Form fields will be added in subsequent subtasks */}
+        <Stack spacing={3}>
+          {/* Required Fields */}
+          <Controller
+            name="toEmail"
+            control={control}
+            render={({ field, fieldState }) => (
+              <TextField
+                {...field}
+                label="To Email"
+                type="email"
+                required
+                fullWidth
+                error={!!fieldState.error}
+                helperText={fieldState.error?.message}
+                disabled={loading || isSubmitting}
+              />
+            )}
+          />
+
+          <Controller
+            name="toName"
+            control={control}
+            render={({ field, fieldState }) => (
+              <TextField
+                {...field}
+                label="To Name"
+                fullWidth
+                error={!!fieldState.error}
+                helperText={fieldState.error?.message}
+                disabled={loading || isSubmitting}
+              />
+            )}
+          />
+
+          <Controller
+            name="subject"
+            control={control}
+            render={({ field, fieldState }) => (
+              <TextField
+                {...field}
+                label="Subject"
+                required
+                fullWidth
+                error={!!fieldState.error}
+                helperText={fieldState.error?.message}
+                disabled={loading || isSubmitting}
+              />
+            )}
+          />
+        </Stack>
       </Box>
     </Modal>
   )
