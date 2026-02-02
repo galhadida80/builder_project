@@ -2,6 +2,9 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, Controller } from 'react-hook-form'
 import { Box, Stack, Autocomplete, Chip } from '@mui/material'
+import { LocalizationProvider } from '@mui/x-date-pickers'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
 import { Modal } from '../ui/Modal'
 import { Button } from '../ui/Button'
 import { TextField } from '../ui/TextField'
@@ -232,6 +235,27 @@ export function RFIFormDialog({
               />
             )}
           />
+
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <Controller
+              name="dueDate"
+              control={control}
+              render={({ field, fieldState }) => (
+                <DateTimePicker
+                  {...field}
+                  label="Due Date"
+                  disabled={loading || isSubmitting}
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                      error: !!fieldState.error,
+                      helperText: fieldState.error?.message,
+                    },
+                  }}
+                />
+              )}
+            />
+          </LocalizationProvider>
         </Stack>
       </Box>
     </Modal>
