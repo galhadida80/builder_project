@@ -5,6 +5,8 @@ import { Box, Stack, Autocomplete, Chip } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
+import { RichTextEditor, useEditor } from 'mui-tiptap'
+import StarterKit from '@tiptap/starter-kit'
 import { Modal } from '../ui/Modal'
 import { Button } from '../ui/Button'
 import { TextField } from '../ui/TextField'
@@ -78,6 +80,12 @@ export function RFIFormDialog({
   } = useForm<RFIFormData>({
     resolver: zodResolver(rfiFormSchema),
     defaultValues: initialData,
+  })
+
+  // Initialize rich text editor for Question field
+  const editor = useEditor({
+    extensions: [StarterKit],
+    content: initialData?.question || '<p></p>',
   })
 
   const handleFormSubmit = async (data: RFIFormData) => {
@@ -168,6 +176,24 @@ export function RFIFormDialog({
                 helperText={fieldState.error?.message}
                 disabled={loading || isSubmitting}
               />
+            )}
+          />
+
+          <Controller
+            name="question"
+            control={control}
+            render={({ field, fieldState }) => (
+              <Box>
+                <RichTextEditor
+                  editor={editor}
+                  onUpdate={({ editor }) => field.onChange(editor.getHTML())}
+                />
+                {fieldState.error && (
+                  <Box sx={{ color: 'error.main', fontSize: '0.75rem', mt: 0.5, ml: 1.75 }}>
+                    {fieldState.error.message}
+                  </Box>
+                )}
+              </Box>
             )}
           />
 
