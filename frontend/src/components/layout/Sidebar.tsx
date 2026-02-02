@@ -10,6 +10,7 @@ import Divider from '@mui/material/Divider'
 import Typography from '@mui/material/Typography'
 import DashboardIcon from '@mui/icons-material/Dashboard'
 import FolderIcon from '@mui/icons-material/Folder'
+import GroupIcon from '@mui/icons-material/Group'
 import BuildIcon from '@mui/icons-material/Build'
 import InventoryIcon from '@mui/icons-material/Inventory'
 import EventIcon from '@mui/icons-material/Event'
@@ -33,6 +34,7 @@ interface NavItem {
 const mainNavItems: NavItem[] = [
   { label: 'Dashboard', path: '/dashboard', icon: <DashboardIcon /> },
   { label: 'Projects', path: '/projects', icon: <FolderIcon /> },
+  { label: 'Team Workload', path: '/team-workload', icon: <GroupIcon /> },
 ]
 
 const projectNavItems: NavItem[] = [
