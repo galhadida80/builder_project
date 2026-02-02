@@ -704,3 +704,350 @@ class TestRFINumberGeneration:
         # Verify all created numbers are in database
         for expected_number in created_rfis:
             assert expected_number in rfi_numbers
+
+
+@pytest.mark.integration
+class TestRFIStatusTransitions:
+    """Test RFI status transition state machine."""
+
+    @pytest.fixture
+    async def sample_project(self, db: AsyncSession, admin_user: User) -> Project:
+        """Create a sample project for testing."""
+        project = Project(
+            id=uuid.uuid4(),
+            name="Status Transition Project",
+            code="STATUS-TEST",
+            description="Project for status transition testing",
+            status="active",
+            created_by_id=admin_user.id
+        )
+        db.add(project)
+        await db.commit()
+        await db.refresh(project)
+        return project
+
+    async def test_valid_transition_draft_to_open(
+        self, db: AsyncSession, sample_project: Project, admin_user: User, regular_user: User
+    ):
+        """Test valid transition from draft to open status."""
+        # Create RFI in draft status
+        rfi = RFI(
+            id=uuid.uuid4(),
+            project_id=sample_project.id,
+            rfi_number=f"RFI-{sample_project.code}-001",
+            subject="Test RFI",
+            question="Test question?",
+            status=RFIStatus.DRAFT,
+            priority=RFIPriority.NORMAL,
+            category=RFICategory.TECHNICAL,
+            created_by_id=admin_user.id,
+            assigned_to_id=regular_user.id
+        )
+        db.add(rfi)
+        await db.commit()
+        await db.refresh(rfi)
+
+        # Transition to open
+        rfi.status = RFIStatus.OPEN
+        await db.commit()
+        await db.refresh(rfi)
+
+        # Verify transition succeeded
+        assert rfi.status == RFIStatus.OPEN
+
+    async def test_valid_transition_open_to_waiting_response(
+        self, db: AsyncSession, sample_project: Project, admin_user: User, regular_user: User
+    ):
+        """Test valid transition from open to waiting_response status."""
+        # Create RFI in open status
+        rfi = RFI(
+            id=uuid.uuid4(),
+            project_id=sample_project.id,
+            rfi_number=f"RFI-{sample_project.code}-002",
+            subject="Test RFI",
+            question="Test question?",
+            status=RFIStatus.OPEN,
+            priority=RFIPriority.NORMAL,
+            category=RFICategory.TECHNICAL,
+            created_by_id=admin_user.id,
+            assigned_to_id=regular_user.id
+        )
+        db.add(rfi)
+        await db.commit()
+        await db.refresh(rfi)
+
+        # Record sent_at timestamp when transitioning to waiting_response
+        sent_at = datetime.utcnow()
+        rfi.status = RFIStatus.WAITING_RESPONSE
+        rfi.sent_at = sent_at
+        await db.commit()
+        await db.refresh(rfi)
+
+        # Verify transition succeeded and timestamp updated
+        assert rfi.status == RFIStatus.WAITING_RESPONSE
+        assert rfi.sent_at is not None
+        assert abs((rfi.sent_at - sent_at).total_seconds()) < 1
+
+    async def test_valid_transition_waiting_response_to_answered(
+        self, db: AsyncSession, sample_project: Project, admin_user: User, regular_user: User
+    ):
+        """Test valid transition from waiting_response to answered status."""
+        # Create RFI in waiting_response status
+        rfi = RFI(
+            id=uuid.uuid4(),
+            project_id=sample_project.id,
+            rfi_number=f"RFI-{sample_project.code}-003",
+            subject="Test RFI",
+            question="Test question?",
+            status=RFIStatus.WAITING_RESPONSE,
+            priority=RFIPriority.NORMAL,
+            category=RFICategory.TECHNICAL,
+            created_by_id=admin_user.id,
+            assigned_to_id=regular_user.id,
+            sent_at=datetime.utcnow()
+        )
+        db.add(rfi)
+        await db.commit()
+        await db.refresh(rfi)
+
+        # Transition to answered
+        responded_at = datetime.utcnow()
+        rfi.status = RFIStatus.ANSWERED
+        rfi.responded_at = responded_at
+        await db.commit()
+        await db.refresh(rfi)
+
+        # Verify transition succeeded and timestamp updated
+        assert rfi.status == RFIStatus.ANSWERED
+        assert rfi.responded_at is not None
+        assert abs((rfi.responded_at - responded_at).total_seconds()) < 1
+
+    async def test_valid_transition_answered_to_closed(
+        self, db: AsyncSession, sample_project: Project, admin_user: User, regular_user: User
+    ):
+        """Test valid transition from answered to closed status."""
+        # Create RFI in answered status
+        rfi = RFI(
+            id=uuid.uuid4(),
+            project_id=sample_project.id,
+            rfi_number=f"RFI-{sample_project.code}-004",
+            subject="Test RFI",
+            question="Test question?",
+            status=RFIStatus.ANSWERED,
+            priority=RFIPriority.NORMAL,
+            category=RFICategory.TECHNICAL,
+            created_by_id=admin_user.id,
+            assigned_to_id=regular_user.id,
+            sent_at=datetime.utcnow(),
+            responded_at=datetime.utcnow()
+        )
+        db.add(rfi)
+        await db.commit()
+        await db.refresh(rfi)
+
+        # Transition to closed
+        closed_at = datetime.utcnow()
+        rfi.status = RFIStatus.CLOSED
+        rfi.closed_at = closed_at
+        await db.commit()
+        await db.refresh(rfi)
+
+        # Verify transition succeeded and timestamp updated
+        assert rfi.status == RFIStatus.CLOSED
+        assert rfi.closed_at is not None
+        assert abs((rfi.closed_at - closed_at).total_seconds()) < 1
+
+    async def test_valid_transition_any_status_to_cancelled(
+        self, db: AsyncSession, sample_project: Project, admin_user: User, regular_user: User
+    ):
+        """Test valid transition from any status to cancelled."""
+        # Test cancelling from different statuses
+        statuses_to_test = [
+            RFIStatus.DRAFT,
+            RFIStatus.OPEN,
+            RFIStatus.WAITING_RESPONSE,
+            RFIStatus.ANSWERED
+        ]
+
+        for idx, initial_status in enumerate(statuses_to_test, start=1):
+            # Create RFI in initial status
+            rfi = RFI(
+                id=uuid.uuid4(),
+                project_id=sample_project.id,
+                rfi_number=f"RFI-{sample_project.code}-{100 + idx:03d}",
+                subject=f"Test RFI {idx}",
+                question=f"Test question {idx}?",
+                status=initial_status,
+                priority=RFIPriority.NORMAL,
+                category=RFICategory.TECHNICAL,
+                created_by_id=admin_user.id,
+                assigned_to_id=regular_user.id
+            )
+            db.add(rfi)
+            await db.commit()
+            await db.refresh(rfi)
+
+            # Transition to cancelled
+            rfi.status = RFIStatus.CANCELLED
+            await db.commit()
+            await db.refresh(rfi)
+
+            # Verify transition succeeded
+            assert rfi.status == RFIStatus.CANCELLED
+
+    async def test_complete_status_lifecycle(
+        self, db: AsyncSession, sample_project: Project, admin_user: User, regular_user: User
+    ):
+        """Test complete RFI status lifecycle from draft to closed."""
+        # Create RFI in draft
+        rfi = RFI(
+            id=uuid.uuid4(),
+            project_id=sample_project.id,
+            rfi_number=f"RFI-{sample_project.code}-200",
+            subject="Lifecycle Test RFI",
+            question="Test complete lifecycle?",
+            status=RFIStatus.DRAFT,
+            priority=RFIPriority.NORMAL,
+            category=RFICategory.TECHNICAL,
+            created_by_id=admin_user.id,
+            assigned_to_id=regular_user.id
+        )
+        db.add(rfi)
+        await db.commit()
+        await db.refresh(rfi)
+        assert rfi.status == RFIStatus.DRAFT
+
+        # Transition: draft → open
+        rfi.status = RFIStatus.OPEN
+        await db.commit()
+        await db.refresh(rfi)
+        assert rfi.status == RFIStatus.OPEN
+
+        # Transition: open → waiting_response
+        rfi.status = RFIStatus.WAITING_RESPONSE
+        rfi.sent_at = datetime.utcnow()
+        await db.commit()
+        await db.refresh(rfi)
+        assert rfi.status == RFIStatus.WAITING_RESPONSE
+        assert rfi.sent_at is not None
+
+        # Transition: waiting_response → answered
+        rfi.status = RFIStatus.ANSWERED
+        rfi.responded_at = datetime.utcnow()
+        await db.commit()
+        await db.refresh(rfi)
+        assert rfi.status == RFIStatus.ANSWERED
+        assert rfi.responded_at is not None
+
+        # Transition: answered → closed
+        rfi.status = RFIStatus.CLOSED
+        rfi.closed_at = datetime.utcnow()
+        await db.commit()
+        await db.refresh(rfi)
+        assert rfi.status == RFIStatus.CLOSED
+        assert rfi.closed_at is not None
+
+        # Verify all timestamps are set
+        assert rfi.sent_at is not None
+        assert rfi.responded_at is not None
+        assert rfi.closed_at is not None
+        # Verify chronological order
+        assert rfi.sent_at <= rfi.responded_at
+        assert rfi.responded_at <= rfi.closed_at
+
+    async def test_timestamp_updates_on_status_changes(
+        self, db: AsyncSession, sample_project: Project, admin_user: User, regular_user: User
+    ):
+        """Test that timestamps are properly updated on status transitions."""
+        # Create RFI
+        rfi = RFI(
+            id=uuid.uuid4(),
+            project_id=sample_project.id,
+            rfi_number=f"RFI-{sample_project.code}-300",
+            subject="Timestamp Test",
+            question="Test timestamp updates?",
+            status=RFIStatus.DRAFT,
+            priority=RFIPriority.NORMAL,
+            category=RFICategory.TECHNICAL,
+            created_by_id=admin_user.id,
+            assigned_to_id=regular_user.id
+        )
+        db.add(rfi)
+        await db.commit()
+        await db.refresh(rfi)
+
+        # Initially, special timestamps should be None
+        assert rfi.sent_at is None
+        assert rfi.responded_at is None
+        assert rfi.closed_at is None
+
+        # Transition to waiting_response and set sent_at
+        rfi.status = RFIStatus.WAITING_RESPONSE
+        rfi.sent_at = datetime.utcnow()
+        await db.commit()
+        await db.refresh(rfi)
+        assert rfi.sent_at is not None
+        assert rfi.responded_at is None
+        assert rfi.closed_at is None
+
+        # Transition to answered and set responded_at
+        rfi.status = RFIStatus.ANSWERED
+        rfi.responded_at = datetime.utcnow()
+        await db.commit()
+        await db.refresh(rfi)
+        assert rfi.sent_at is not None
+        assert rfi.responded_at is not None
+        assert rfi.closed_at is None
+
+        # Transition to closed and set closed_at
+        rfi.status = RFIStatus.CLOSED
+        rfi.closed_at = datetime.utcnow()
+        await db.commit()
+        await db.refresh(rfi)
+        assert rfi.sent_at is not None
+        assert rfi.responded_at is not None
+        assert rfi.closed_at is not None
+
+    async def test_status_enum_values_are_valid(
+        self, db: AsyncSession, sample_project: Project, admin_user: User, regular_user: User
+    ):
+        """Test that all RFIStatus enum values can be assigned to RFI."""
+        # Test all valid status values
+        all_statuses = [
+            RFIStatus.DRAFT,
+            RFIStatus.OPEN,
+            RFIStatus.WAITING_RESPONSE,
+            RFIStatus.ANSWERED,
+            RFIStatus.CLOSED,
+            RFIStatus.CANCELLED
+        ]
+
+        for idx, status in enumerate(all_statuses, start=1):
+            rfi = RFI(
+                id=uuid.uuid4(),
+                project_id=sample_project.id,
+                rfi_number=f"RFI-{sample_project.code}-{400 + idx:03d}",
+                subject=f"Test RFI {status}",
+                question=f"Test question for {status}?",
+                status=status,
+                priority=RFIPriority.NORMAL,
+                category=RFICategory.TECHNICAL,
+                created_by_id=admin_user.id,
+                assigned_to_id=regular_user.id
+            )
+            db.add(rfi)
+            await db.commit()
+            await db.refresh(rfi)
+
+            # Verify status was saved correctly
+            assert rfi.status == status
+
+        # Query all RFIs and verify distinct statuses
+        result = await db.execute(
+            select(RFI).where(RFI.project_id == sample_project.id)
+        )
+        rfis = result.scalars().all()
+        statuses_in_db = {rfi.status for rfi in rfis if rfi.rfi_number.startswith(f"RFI-{sample_project.code}-40")}
+
+        # All status types should be represented
+        assert len(statuses_in_db) == len(all_statuses)
