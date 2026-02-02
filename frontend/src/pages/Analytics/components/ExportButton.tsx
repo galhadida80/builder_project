@@ -26,7 +26,6 @@ export default function ExportButton({
       const element = document.getElementById(targetId)
 
       if (!element) {
-        console.error(`Element with id "${targetId}" not found`)
         return
       }
 
@@ -71,7 +70,7 @@ export default function ExportButton({
       const timestamp = new Date().toISOString().split('T')[0]
       pdf.save(`${filename}-${timestamp}.pdf`)
     } catch (error) {
-      console.error('Error exporting PDF:', error)
+      // Error occurred during export
     } finally {
       setIsExporting(false)
     }

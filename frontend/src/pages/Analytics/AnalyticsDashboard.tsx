@@ -48,7 +48,6 @@ export default function AnalyticsDashboard() {
       setTrendsData(trends)
       setDistributionsData(distributions)
     } catch (error) {
-      console.error('Failed to load analytics data:', error)
       showError('Failed to load analytics data. Please try again.')
     } finally {
       setLoading(false)
