@@ -1,17 +1,17 @@
 {
   "active": true,
-  "spec": "017-1-2-create-equipmentapprovalsubmission-model",
+  "spec": "052-build-mobile-inspection-checklist",
   "state": "building",
   "subtasks": {
-    "completed": 7,
-    "total": 8,
+    "completed": 6,
+    "total": 10,
     "in_progress": 1,
     "failed": 0
   },
   "phase": {
-    "current": "Testing and Verification",
+    "current": "Checklist Display Components",
     "id": null,
-    "total": 3
+    "total": 2
   },
   "workers": {
     "active": 0,
@@ -19,7 +19,7 @@
   },
   "session": {
     "number": 8,
-    "started_at": "2026-01-29T19:15:36.394866"
+    "started_at": "2026-02-02T11:43:42.700393"
   },
-  "last_update": "2026-01-29T19:39:04.614686"
+  "last_update": "2026-02-02T12:02:45.013037"
 }
