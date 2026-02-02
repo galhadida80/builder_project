@@ -1,10 +1,12 @@
-import { Box, Paper, useTheme, Typography, ButtonGroup, Menu, MenuItem } from '@mui/material'
+import { Box, Paper, useTheme, Typography, ButtonGroup, Menu, MenuItem, Skeleton } from '@mui/material'
 import { styled, alpha } from '@mui/material/styles'
 import FilterListIcon from '@mui/icons-material/FilterList'
+import TimelineIcon from '@mui/icons-material/Timeline'
 import { Gantt, Task, ViewMode } from 'gantt-task-react'
 import 'gantt-task-react/dist/index.css'
 import { GanttChartProps, GanttTask, GanttViewMode, GanttTaskType } from '../types/gantt'
 import { Button } from './ui/Button'
+import { EmptyState } from './ui/EmptyState'
 import { useState } from 'react'
 
 // Styled components following MUI theme patterns
@@ -60,14 +62,11 @@ const StyledTooltip = styled(Box)(({ theme }) => ({
   },
 }))
 
-const EmptyStateBox = styled(Box)(({ theme }) => ({
+const LoadingContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-  minHeight: 400,
-  color: theme.palette.text.secondary,
   gap: theme.spacing(2),
+  padding: theme.spacing(2),
 }))
 
 const ToolbarBox = styled(Box)(({ theme }) => ({
@@ -113,6 +112,7 @@ const convertToLibraryTask = (task: GanttTask): Task => {
 export function GanttChart({
   tasks,
   viewMode = 'Day',
+  loading = false,
   onViewModeChange,
   onDateChange,
   onProgressChange,
@@ -207,116 +207,148 @@ export function GanttChart({
     { value: 'milestone', label: 'Milestones Only' },
   ]
 
+  // Render loading skeleton
+  if (loading) {
+    return (
+      <StyledGanttPaper elevation={1}>
+        <LoadingContainer>
+          <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+            <Skeleton variant="rectangular" width={120} height={36} sx={{ borderRadius: 1 }} />
+            <Skeleton variant="rectangular" width={80} height={36} sx={{ borderRadius: 1 }} />
+            <Skeleton variant="rectangular" width={80} height={36} sx={{ borderRadius: 1 }} />
+            <Skeleton variant="rectangular" width={80} height={36} sx={{ borderRadius: 1 }} />
+          </Box>
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <Box sx={{ width: '200px' }}>
+              <Skeleton variant="rectangular" height={40} sx={{ borderRadius: 1, mb: 1 }} />
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <Skeleton key={i} variant="rectangular" height={32} sx={{ borderRadius: 1, mb: 0.5 }} />
+              ))}
+            </Box>
+            <Box sx={{ flex: 1 }}>
+              <Skeleton variant="rectangular" height={40} sx={{ borderRadius: 1, mb: 1 }} />
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <Skeleton key={i} variant="rectangular" height={32} sx={{ borderRadius: 1, mb: 0.5 }} />
+              ))}
+            </Box>
+          </Box>
+        </LoadingContainer>
+      </StyledGanttPaper>
+    )
+  }
+
+  // Render empty state
+  if (libraryTasks.length === 0) {
+    return (
+      <StyledGanttPaper elevation={1}>
+        <EmptyState
+          variant="no-data"
+          title="No Tasks Available"
+          description="Create your first task to see it displayed on the timeline."
+          icon={<TimelineIcon />}
+        />
+      </StyledGanttPaper>
+    )
+  }
+
+  // Render the Gantt chart
   return (
     <StyledGanttPaper elevation={1}>
       <Box sx={{ width: '100%', height: '100%' }}>
-        {libraryTasks.length > 0 && (
-          <ToolbarBox>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.secondary' }}>
-                View Mode:
-              </Typography>
-              <ButtonGroup size="small">
-                {viewModeOptions.map((option) => (
-                  <Button
-                    key={option.value}
-                    variant={viewMode === option.value ? 'primary' : 'secondary'}
-                    onClick={() => handleViewModeChange(option.value)}
-                    size="small"
-                    sx={{ textTransform: 'none' }}
-                  >
-                    {option.label}
-                  </Button>
-                ))}
-              </ButtonGroup>
-            </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Button
-                variant="secondary"
-                size="small"
-                onClick={handleFilterClick}
-                startIcon={<FilterListIcon />}
-                sx={{ textTransform: 'none' }}
-              >
-                Filter: {filterOptions.find((opt) => opt.value === filterType)?.label}
-              </Button>
-              <Menu
-                anchorEl={filterAnchorEl}
-                open={filterMenuOpen}
-                onClose={handleFilterClose}
-                anchorOrigin={{
-                  vertical: 'bottom',
-                  horizontal: 'right',
-                }}
-                transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}
-              >
-                {filterOptions.map((option) => (
-                  <MenuItem
-                    key={option.value}
-                    selected={filterType === option.value}
-                    onClick={() => handleFilterSelect(option.value)}
-                  >
-                    {option.label}
-                  </MenuItem>
-                ))}
-              </Menu>
-            </Box>
-          </ToolbarBox>
-        )}
-        {libraryTasks.length > 0 ? (
-          <Gantt
-            tasks={libraryTasks}
-            viewMode={currentViewMode}
-            onDateChange={handleTaskChange}
-            onProgressChange={handleProgressChange}
-            onDelete={handleDelete}
-            onExpanderClick={handleExpanderClick}
-            listCellWidth="155px"
-            columnWidth={65}
-            barProgressColor={theme.palette.primary.main}
-            barProgressSelectedColor={theme.palette.primary.dark}
-            barBackgroundColor={alpha(theme.palette.primary.main, 0.2)}
-            barBackgroundSelectedColor={alpha(theme.palette.primary.main, 0.3)}
-            projectProgressColor={theme.palette.secondary.main}
-            projectProgressSelectedColor={theme.palette.secondary.dark}
-            projectBackgroundColor={alpha(theme.palette.secondary.main, 0.15)}
-            projectBackgroundSelectedColor={alpha(theme.palette.secondary.main, 0.25)}
-            milestoneBackgroundColor={theme.palette.success.main}
-            milestoneBackgroundSelectedColor={theme.palette.success.dark}
-            arrowColor={alpha(theme.palette.text.secondary, 0.6)}
-            arrowIndent={20}
-            todayColor={alpha(theme.palette.error.light, 0.2)}
-            TooltipContent={({ task }) => (
-              <StyledTooltip>
-                <div className="tooltip-title">{task.name}</div>
-                <div className="tooltip-row">
-                  <span className="tooltip-label">Progress:</span>
-                  <span>{task.progress}%</span>
-                </div>
-                <div className="tooltip-row">
-                  <span className="tooltip-label">Start:</span>
-                  <span>{task.start.toLocaleDateString()}</span>
-                </div>
-                <div className="tooltip-row">
-                  <span className="tooltip-label">End:</span>
-                  <span>{task.end.toLocaleDateString()}</span>
-                </div>
-              </StyledTooltip>
-            )}
-          />
-        ) : (
-          <EmptyStateBox>
-            <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 500 }}>
-              No tasks to display
+        <ToolbarBox>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.secondary' }}>
+              View Mode:
             </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Add tasks to see them in the timeline
-            </Typography>
-          </EmptyStateBox>
-        )}
+            <ButtonGroup size="small">
+              {viewModeOptions.map((option) => (
+                <Button
+                  key={option.value}
+                  variant={viewMode === option.value ? 'primary' : 'secondary'}
+                  onClick={() => handleViewModeChange(option.value)}
+                  size="small"
+                  sx={{ textTransform: 'none' }}
+                >
+                  {option.label}
+                </Button>
+              ))}
+            </ButtonGroup>
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Button
+              variant="secondary"
+              size="small"
+              onClick={handleFilterClick}
+              startIcon={<FilterListIcon />}
+              sx={{ textTransform: 'none' }}
+            >
+              Filter: {filterOptions.find((opt) => opt.value === filterType)?.label}
+            </Button>
+            <Menu
+              anchorEl={filterAnchorEl}
+              open={filterMenuOpen}
+              onClose={handleFilterClose}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'right',
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+            >
+              {filterOptions.map((option) => (
+                <MenuItem
+                  key={option.value}
+                  selected={filterType === option.value}
+                  onClick={() => handleFilterSelect(option.value)}
+                >
+                  {option.label}
+                </MenuItem>
+              ))}
+            </Menu>
+          </Box>
+        </ToolbarBox>
+        <Gantt
+          tasks={libraryTasks}
+          viewMode={currentViewMode}
+          onDateChange={handleTaskChange}
+          onProgressChange={handleProgressChange}
+          onDelete={handleDelete}
+          onExpanderClick={handleExpanderClick}
+          listCellWidth="155px"
+          columnWidth={65}
+          barProgressColor={theme.palette.primary.main}
+          barProgressSelectedColor={theme.palette.primary.dark}
+          barBackgroundColor={alpha(theme.palette.primary.main, 0.2)}
+          barBackgroundSelectedColor={alpha(theme.palette.primary.main, 0.3)}
+          projectProgressColor={theme.palette.secondary.main}
+          projectProgressSelectedColor={theme.palette.secondary.dark}
+          projectBackgroundColor={alpha(theme.palette.secondary.main, 0.15)}
+          projectBackgroundSelectedColor={alpha(theme.palette.secondary.main, 0.25)}
+          milestoneBackgroundColor={theme.palette.success.main}
+          milestoneBackgroundSelectedColor={theme.palette.success.dark}
+          arrowColor={alpha(theme.palette.text.secondary, 0.6)}
+          arrowIndent={20}
+          todayColor={alpha(theme.palette.error.light, 0.2)}
+          TooltipContent={({ task }) => (
+            <StyledTooltip>
+              <div className="tooltip-title">{task.name}</div>
+              <div className="tooltip-row">
+                <span className="tooltip-label">Progress:</span>
+                <span>{task.progress}%</span>
+              </div>
+              <div className="tooltip-row">
+                <span className="tooltip-label">Start:</span>
+                <span>{task.start.toLocaleDateString()}</span>
+              </div>
+              <div className="tooltip-row">
+                <span className="tooltip-label">End:</span>
+                <span>{task.end.toLocaleDateString()}</span>
+              </div>
+            </StyledTooltip>
+          )}
+        />
       </Box>
     </StyledGanttPaper>
   )
