@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import MenuItem from '@mui/material/MenuItem'
@@ -43,6 +44,7 @@ const meetingTypes = [
 export default function MeetingsPage() {
   const { projectId } = useParams()
   const { showError, showSuccess } = useToast()
+  const { t } = useTranslation('common')
   const [loading, setLoading] = useState(true)
   const [meetings, setMeetings] = useState<Meeting[]>([])
   const [tabValue, setTabValue] = useState('upcoming')
@@ -74,7 +76,7 @@ export default function MeetingsPage() {
       const data = await meetingsApi.list(projectId)
       setMeetings(data)
     } catch {
-      showError('Failed to load meetings. Please try again.')
+      showError(t('meetings.failedToLoad'))
     } finally {
       setLoading(false)
     }
@@ -135,7 +137,7 @@ export default function MeetingsPage() {
           location: formData.location || undefined,
           scheduledDate
         })
-        showSuccess('Meeting updated successfully!')
+        showSuccess(t('meetings.updatedSuccessfully'))
       } else {
         await meetingsApi.create(projectId, {
           title: formData.title,
@@ -144,12 +146,12 @@ export default function MeetingsPage() {
           location: formData.location || undefined,
           scheduledDate
         })
-        showSuccess('Meeting scheduled successfully!')
+        showSuccess(t('meetings.scheduledSuccessfully'))
       }
       handleCloseDialog()
       loadMeetings()
     } catch {
-      showError(`Failed to ${editingMeeting ? 'update' : 'schedule'} meeting. Please try again.`)
+      showError(t('meetings.failedToSave', { action: editingMeeting ? 'update' : 'schedule' }))
     } finally {
       setSaving(false)
     }
@@ -165,12 +167,12 @@ export default function MeetingsPage() {
     if (!projectId || !meetingToDelete) return
     try {
       await meetingsApi.delete(projectId, meetingToDelete.id)
-      showSuccess('Meeting deleted successfully!')
+      showSuccess(t('meetings.deletedSuccessfully'))
       setDeleteDialogOpen(false)
       setMeetingToDelete(null)
       loadMeetings()
     } catch {
-      showError('Failed to delete meeting. Please try again.')
+      showError(t('meetings.failedToDelete'))
     }
   }
 
@@ -217,16 +219,16 @@ export default function MeetingsPage() {
   return (
     <Box sx={{ p: 3 }}>
       <PageHeader
-        title="Meetings"
-        subtitle="Schedule and manage project meetings"
-        breadcrumbs={[{ label: 'Projects', href: '/projects' }, { label: 'Meetings' }]}
+        title={t('meetings.title')}
+        subtitle={t('meetings.subtitle')}
+        breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('meetings.title') }]}
         actions={
           <Box sx={{ display: 'flex', gap: 1 }}>
             <Button variant="secondary" icon={<SyncIcon />}>
-              Sync Calendar
+              {t('meetings.syncCalendar')}
             </Button>
             <Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>
-              Schedule Meeting
+              {t('meetings.scheduleMeeting')}
             </Button>
           </Box>
         }
@@ -241,19 +243,19 @@ export default function MeetingsPage() {
         }}
       >
         <KPICard
-          title="Total Meetings"
+          title={t('meetings.totalMeetings')}
           value={meetings.length}
           icon={<EventIcon />}
           color="primary"
         />
         <KPICard
-          title="Upcoming"
+          title={t('meetings.upcoming')}
           value={upcomingMeetings.length}
           icon={<CalendarMonthIcon />}
           color="info"
         />
         <KPICard
-          title="Completed"
+          title={t('meetings.completed')}
           value={pastMeetings.filter(m => m.status === 'completed').length}
           icon={<EventIcon />}
           color="success"
@@ -265,22 +267,22 @@ export default function MeetingsPage() {
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
             <Tabs
               items={[
-                { label: 'Upcoming', value: 'upcoming', badge: upcomingMeetings.length },
-                { label: 'Past', value: 'past', badge: pastMeetings.length },
+                { label: t('meetings.upcomingMeetings'), value: 'upcoming', badge: upcomingMeetings.length },
+                { label: t('meetings.pastMeetings'), value: 'past', badge: pastMeetings.length },
               ]}
               value={tabValue}
               onChange={setTabValue}
               size="small"
             />
-            <Chip label={`${displayedMeetings.length} meetings`} size="small" />
+            <Chip label={`${displayedMeetings.length} ${t('meetings.meetingCount')}`} size="small" />
           </Box>
 
           {displayedMeetings.length === 0 ? (
             <EmptyState
-              title={tabValue === 'upcoming' ? 'No upcoming meetings' : 'No past meetings'}
-              description={tabValue === 'upcoming' ? 'Schedule your first meeting to get started' : 'Past meetings will appear here'}
+              title={tabValue === 'upcoming' ? t('meetings.noUpcoming') : t('meetings.noPast')}
+              description={tabValue === 'upcoming' ? t('meetings.scheduleFirstMeeting') : t('meetings.pastMeetingsWillAppear')}
               icon={<EventIcon sx={{ color: 'text.secondary' }} />}
-              action={tabValue === 'upcoming' ? { label: 'Schedule Meeting', onClick: handleOpenCreate } : undefined}
+              action={tabValue === 'upcoming' ? { label: t('meetings.scheduleMeeting'), onClick: handleOpenCreate } : undefined}
             />
           ) : (
             <Box
@@ -357,14 +359,14 @@ export default function MeetingsPage() {
                         <IconButton
                           size="small"
                           onClick={(e) => { e.stopPropagation(); handleOpenEdit(meeting); }}
-                          title="Edit meeting"
+                          title={t('meetings.editMeeting')}
                         >
                           <EditIcon fontSize="small" />
                         </IconButton>
                         <IconButton
                           size="small"
                           onClick={(e) => { e.stopPropagation(); handleDeleteClick(meeting); }}
-                          title="Delete meeting"
+                          title={t('meetings.deleteMeeting')}
                           color="error"
                         >
                           <DeleteIcon fontSize="small" />
@@ -388,7 +390,7 @@ export default function MeetingsPage() {
         {selectedMeeting && (
           <Box sx={{ p: 3 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-              <Typography variant="h6" fontWeight={600}>Meeting Details</Typography>
+              <Typography variant="h6" fontWeight={600}>{t('meetings.details')}</Typography>
               <IconButton onClick={() => setDetailsOpen(false)} size="small">
                 <CloseIcon />
               </IconButton>
@@ -426,7 +428,7 @@ export default function MeetingsPage() {
 
             {selectedMeeting.description && (
               <Box sx={{ mb: 3 }}>
-                <Typography variant="caption" color="text.secondary" fontWeight={600}>DESCRIPTION</Typography>
+                <Typography variant="caption" color="text.secondary" fontWeight={600}>{t('meetings.description').toUpperCase()}</Typography>
                 <Typography variant="body2" sx={{ mt: 0.5 }}>{selectedMeeting.description}</Typography>
               </Box>
             )}
@@ -439,7 +441,7 @@ export default function MeetingsPage() {
                   <CalendarMonthIcon sx={{ fontSize: 20, color: 'text.secondary' }} />
                 </Box>
                 <Box>
-                  <Typography variant="caption" color="text.secondary">Date</Typography>
+                  <Typography variant="caption" color="text.secondary">{t('meetings.date')}</Typography>
                   <Typography variant="body2" fontWeight={500}>{formatDate(selectedMeeting.scheduledDate)}</Typography>
                 </Box>
               </Box>
@@ -448,7 +450,7 @@ export default function MeetingsPage() {
                   <AccessTimeIcon sx={{ fontSize: 20, color: 'text.secondary' }} />
                 </Box>
                 <Box>
-                  <Typography variant="caption" color="text.secondary">Time</Typography>
+                  <Typography variant="caption" color="text.secondary">{t('meetings.time')}</Typography>
                   <Typography variant="body2" fontWeight={500}>{formatTime(selectedMeeting.scheduledDate)}</Typography>
                 </Box>
               </Box>
@@ -458,7 +460,7 @@ export default function MeetingsPage() {
                     <LocationOnIcon sx={{ fontSize: 20, color: 'text.secondary' }} />
                   </Box>
                   <Box>
-                    <Typography variant="caption" color="text.secondary">Location</Typography>
+                    <Typography variant="caption" color="text.secondary">{t('meetings.location')}</Typography>
                     <Typography variant="body2" fontWeight={500}>{selectedMeeting.location}</Typography>
                   </Box>
                 </Box>
@@ -468,7 +470,7 @@ export default function MeetingsPage() {
             <Divider sx={{ my: 2 }} />
 
             <Box sx={{ mb: 3 }}>
-              <Typography variant="caption" color="text.secondary" fontWeight={600}>ATTENDEES</Typography>
+              <Typography variant="caption" color="text.secondary" fontWeight={600}>{t('meetings.attendees').toUpperCase()}</Typography>
               <Box sx={{ mt: 1 }}>
                 <AvatarGroup users={[{ name: 'User' }]} max={10} size="medium" />
               </Box>
@@ -476,10 +478,10 @@ export default function MeetingsPage() {
 
             <Box sx={{ display: 'flex', gap: 2 }}>
               <Button variant="secondary" fullWidth onClick={() => handleOpenEdit(selectedMeeting)}>
-                Edit Meeting
+                {t('meetings.editMeeting')}
               </Button>
               <Button variant="danger" fullWidth onClick={() => handleDeleteClick(selectedMeeting)}>
-                Delete
+                {t('common.delete')}
               </Button>
             </Box>
           </Box>
@@ -490,14 +492,14 @@ export default function MeetingsPage() {
         open={dialogOpen}
         onClose={handleCloseDialog}
         onSubmit={handleSaveMeeting}
-        title={editingMeeting ? 'Edit Meeting' : 'Schedule Meeting'}
-        submitLabel={editingMeeting ? 'Save Changes' : 'Schedule Meeting'}
+        title={editingMeeting ? t('meetings.editMeeting') : t('meetings.scheduleMeeting')}
+        submitLabel={editingMeeting ? t('common.saveChanges') : t('meetings.scheduleMeeting')}
         loading={saving}
       >
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
           <TextField
             fullWidth
-            label="Meeting Title"
+            label={t('meetings.meetingTitle')}
             required
             value={formData.title}
             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
@@ -507,16 +509,16 @@ export default function MeetingsPage() {
           <MuiTextField
             fullWidth
             select
-            label="Meeting Type"
+            label={t('meetings.meetingTypeLabel')}
             value={formData.meetingType}
             onChange={(e) => setFormData({ ...formData, meetingType: e.target.value })}
           >
-            <MenuItem value="">Select type...</MenuItem>
+            <MenuItem value="">{t('meetings.selectType')}</MenuItem>
             {meetingTypes.map(type => <MenuItem key={type.value} value={type.value}>{type.label}</MenuItem>)}
           </MuiTextField>
           <TextField
             fullWidth
-            label="Description"
+            label={t('meetings.description')}
             multiline
             rows={2}
             value={formData.description}
@@ -526,14 +528,14 @@ export default function MeetingsPage() {
           />
           <TextField
             fullWidth
-            label="Location"
+            label={t('meetings.location')}
             value={formData.location}
             onChange={(e) => setFormData({ ...formData, location: e.target.value })}
           />
           <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 2 }}>
             <TextField
               fullWidth
-              label="Date"
+              label={t('meetings.date')}
               type="date"
               InputLabelProps={{ shrink: true }}
               required
@@ -544,7 +546,7 @@ export default function MeetingsPage() {
             />
             <TextField
               fullWidth
-              label="Start Time"
+              label={t('meetings.startTime')}
               type="time"
               InputLabelProps={{ shrink: true }}
               required
@@ -555,7 +557,7 @@ export default function MeetingsPage() {
             />
             <TextField
               fullWidth
-              label="End Time"
+              label={t('meetings.endTime')}
               type="time"
               InputLabelProps={{ shrink: true }}
               value={formData.endTime}
@@ -569,9 +571,9 @@ export default function MeetingsPage() {
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={handleConfirmDelete}
-        title="Delete Meeting"
-        message={`Are you sure you want to delete "${meetingToDelete?.title}"? This action cannot be undone.`}
-        confirmLabel="Delete"
+        title={t('meetings.deleteConfirmation')}
+        message={t('meetings.deleteConfirmationMessage', { title: meetingToDelete?.title || '' })}
+        confirmLabel={t('common.delete')}
         variant="danger"
       />
     </Box>

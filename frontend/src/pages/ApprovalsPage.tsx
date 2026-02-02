@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Chip from '@mui/material/Chip'
@@ -28,6 +29,7 @@ import type { ApprovalRequest, ApprovalStep, Equipment, Material } from '../type
 
 export default function ApprovalsPage() {
   const { showError, showSuccess } = useToast()
+  const { t } = useTranslation('common')
   const [loading, setLoading] = useState(true)
   const [approvals, setApprovals] = useState<ApprovalRequest[]>([])
   const [equipment, setEquipment] = useState<Equipment[]>([])
@@ -56,7 +58,7 @@ export default function ApprovalsPage() {
       setEquipment(equipmentData)
       setMaterials(materialsData)
     } catch {
-      showError('Failed to load approval data. Please try again.')
+      showError(t('approvals.failedToLoad'))
     } finally {
       setLoading(false)
     }
@@ -111,10 +113,10 @@ export default function ApprovalsPage() {
     try {
       if (actionType === 'approve') {
         await approvalsApi.approve(selectedApproval.id, comment || undefined)
-        showSuccess('Request approved successfully!')
+        showSuccess(t('approvals.approvedSuccessfully'))
       } else {
         await approvalsApi.reject(selectedApproval.id, comment)
-        showSuccess('Request rejected.')
+        showSuccess(t('approvals.rejectedSuccessfully'))
       }
       setDialogOpen(false)
       setSelectedApproval(null)
@@ -122,7 +124,7 @@ export default function ApprovalsPage() {
       setComment('')
       loadData()
     } catch {
-      showError(`Failed to ${actionType} request. Please try again.`)
+      showError(t('approvals.failedToApproveReject', { action: actionType }))
     } finally {
       setSubmitting(false)
     }
@@ -146,9 +148,9 @@ export default function ApprovalsPage() {
   return (
     <Box sx={{ p: 3 }}>
       <PageHeader
-        title="Approvals"
-        subtitle="Review and manage approval requests"
-        breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Approvals' }]}
+        title={t('approvals.title')}
+        subtitle={t('approvals.subtitle')}
+        breadcrumbs={[{ label: t('nav.dashboard'), href: '/dashboard' }, { label: t('approvals.title') }]}
       />
 
       <Box
@@ -160,25 +162,25 @@ export default function ApprovalsPage() {
         }}
       >
         <KPICard
-          title="Total Requests"
+          title={t('approvals.totalRequests')}
           value={approvals.length}
           icon={<CheckCircleIcon />}
           color="primary"
         />
         <KPICard
-          title="Pending"
+          title={t('approvals.pendingCount')}
           value={pendingApprovals.length}
           icon={<PendingIcon />}
           color="warning"
         />
         <KPICard
-          title="Approved"
+          title={t('approvals.approvedCount')}
           value={approvedApprovals.length}
           icon={<ThumbUpIcon />}
           color="success"
         />
         <KPICard
-          title="Rejected"
+          title={t('approvals.rejectedCount')}
           value={rejectedApprovals.length}
           icon={<ThumbDownIcon />}
           color="error"
@@ -190,23 +192,23 @@ export default function ApprovalsPage() {
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
             <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
               <SearchField
-                placeholder="Search requests..."
+                placeholder={t('approvals.searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
               <Button variant="secondary" size="small" icon={<FilterListIcon />}>
-                Filters
+                {t('approvals.filters')}
               </Button>
             </Box>
-            <Chip label={`${displayedApprovals.length} items`} size="small" />
+            <Chip label={`${displayedApprovals.length} ${t('approvals.items')}`} size="small" />
           </Box>
 
           <Tabs
             items={[
-              { label: 'Pending', value: 'pending', badge: pendingApprovals.length },
-              { label: 'Approved', value: 'approved', badge: approvedApprovals.length },
-              { label: 'Rejected', value: 'rejected', badge: rejectedApprovals.length },
-              { label: 'All', value: 'all', badge: approvals.length },
+              { label: t('approvals.pending'), value: 'pending', badge: pendingApprovals.length },
+              { label: t('approvals.approved'), value: 'approved', badge: approvedApprovals.length },
+              { label: t('approvals.rejected'), value: 'rejected', badge: rejectedApprovals.length },
+              { label: t('common.actions'), value: 'all', badge: approvals.length },
             ]}
             value={tabValue}
             onChange={setTabValue}
@@ -216,8 +218,8 @@ export default function ApprovalsPage() {
           <Box sx={{ mt: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>
             {displayedApprovals.length === 0 ? (
               <EmptyState
-                title={tabValue === 'pending' ? 'No pending approvals' : 'No approvals found'}
-                description={tabValue === 'pending' ? 'All requests have been processed.' : 'Try adjusting your search criteria.'}
+                title={tabValue === 'pending' ? t('approvals.noPendingApprovals') : t('approvals.noApprovalsFound')}
+                description={tabValue === 'pending' ? t('approvals.allProcessed') : t('approvals.adjustSearchCriteria')}
                 icon={<CheckCircleIcon sx={{ color: 'success.main' }} />}
               />
             ) : (
@@ -257,16 +259,16 @@ export default function ApprovalsPage() {
                               <StatusBadge status={approval.currentStatus} />
                             </Box>
                             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                              {approval.entityType.charAt(0).toUpperCase() + approval.entityType.slice(1)} approval request
+                              {approval.entityType === 'equipment' ? t('approvals.equipmentApprovalRequest') : t('approvals.materialApprovalRequest')}
                             </Typography>
 
                             <Box sx={{ maxWidth: 400 }}>
                               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
                                 <Typography variant="caption" color="text.secondary">
-                                  Progress
+                                  {t('approvals.progress')}
                                 </Typography>
                                 <Typography variant="caption" fontWeight={600}>
-                                  Step {completedSteps} of {totalSteps}
+                                  {t('approvals.stepOf', { current: completedSteps, total: totalSteps })}
                                 </Typography>
                               </Box>
                               <ProgressBar
@@ -287,7 +289,7 @@ export default function ApprovalsPage() {
                               icon={<CheckCircleIcon />}
                               onClick={() => handleAction(approval, 'approve')}
                             >
-                              Approve
+                              {t('approvals.approve')}
                             </Button>
                             <Button
                               variant="danger"
@@ -295,7 +297,7 @@ export default function ApprovalsPage() {
                               icon={<CancelIcon />}
                               onClick={() => handleAction(approval, 'reject')}
                             >
-                              Reject
+                              {t('approvals.reject')}
                             </Button>
                           </Box>
                         )}
@@ -304,7 +306,7 @@ export default function ApprovalsPage() {
                       {approval.steps && approval.steps.length > 0 && (
                         <Box sx={{ mt: 3, pt: 2, borderTop: 1, borderColor: 'divider' }}>
                           <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ mb: 1.5, display: 'block' }}>
-                            APPROVAL WORKFLOW
+                            {t('approvals.workflow')}
                           </Typography>
                           <Box sx={{ display: 'flex', gap: 1 }}>
                             {approval.steps.map((step, index) => {
@@ -397,8 +399,8 @@ export default function ApprovalsPage() {
         open={dialogOpen}
         onClose={() => !submitting && setDialogOpen(false)}
         onSubmit={handleSubmitAction}
-        title={actionType === 'approve' ? 'Approve Request' : 'Reject Request'}
-        submitLabel={actionType === 'approve' ? 'Confirm Approval' : 'Confirm Rejection'}
+        title={actionType === 'approve' ? t('approvals.confirmApprovalTitle') : t('approvals.confirmRejectionTitle')}
+        submitLabel={actionType === 'approve' ? t('approvals.confirmApprovalLabel') : t('approvals.confirmRejectionLabel')}
         loading={submitting}
         submitDisabled={actionType === 'reject' && !comment}
       >
@@ -406,7 +408,7 @@ export default function ApprovalsPage() {
           {selectedApproval && (
             <Box sx={{ mb: 3, p: 2, bgcolor: 'action.hover', borderRadius: 2 }}>
               <Typography variant="body2" color="text.secondary">
-                You are about to {actionType} the request for:
+                {actionType === 'approve' ? t('approvals.aboutToApprove') : t('approvals.aboutToReject')}
               </Typography>
               <Typography variant="subtitle1" fontWeight={600}>
                 {getEntityDetails(selectedApproval)?.name || 'Unknown'}
@@ -417,13 +419,13 @@ export default function ApprovalsPage() {
             fullWidth
             multiline
             rows={4}
-            label={actionType === 'approve' ? 'Comments (optional)' : 'Rejection Reason'}
+            label={actionType === 'approve' ? t('approvals.commentsOptional') : t('approvals.rejectionReason')}
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             required={actionType === 'reject'}
             placeholder={actionType === 'approve'
-              ? 'Add any comments for this approval...'
-              : 'Please provide a reason for rejection...'}
+              ? t('approvals.addComments')
+              : t('approvals.provideRejectionReason')}
           />
         </Box>
       </FormModal>
