@@ -309,3 +309,16 @@ export interface Folder {
   parentId: string | null
   children: Folder[]
 }
+
+export interface FileRecord {
+  id: string
+  projectId: string
+  entityType: string
+  entityId: string
+  filename: string
+  fileType: string
+  fileSize: number
+  storagePath: string
+  uploadedAt: string
+  uploadedById?: string
+}
