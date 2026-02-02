@@ -21,6 +21,7 @@ import SettingsIcon from '@mui/icons-material/Settings'
 import AssignmentIcon from '@mui/icons-material/Assignment'
 import ConstructionIcon from '@mui/icons-material/Construction'
 import EmailIcon from '@mui/icons-material/Email'
+import DescriptionIcon from '@mui/icons-material/Description'
 
 const DRAWER_WIDTH = 260
 
@@ -44,6 +45,7 @@ const projectNavItems: NavItem[] = [
   { label: 'Contacts', path: '/contacts', icon: <ContactsIcon /> },
   { label: 'Inspections', path: '/inspections', icon: <AssignmentIcon /> },
   { label: 'RFIs', path: '/rfis', icon: <EmailIcon /> },
+  { label: 'Documents', path: '/documents', icon: <DescriptionIcon /> },
 ]
 
 const systemNavItems: NavItem[] = [
