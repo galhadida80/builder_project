@@ -83,10 +83,10 @@ export default function TeamWorkloadView() {
 
   if (loading) {
     return (
-      <Box sx={{ p: 3 }}>
+      <Box sx={{ p: { xs: 2, sm: 3 } }}>
         <Skeleton variant="text" width={300} height={48} sx={{ mb: 1 }} />
         <Skeleton variant="text" width={400} height={24} sx={{ mb: 4 }} />
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 3, mb: 3 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 3, mb: 3 }}>
           {[...Array(4)].map((_, i) => (
             <Skeleton key={i} variant="rounded" height={140} sx={{ borderRadius: 3 }} />
           ))}
@@ -97,14 +97,14 @@ export default function TeamWorkloadView() {
               <Skeleton key={i} variant="rounded" height={200} sx={{ borderRadius: 3, mb: 3 }} />
             ))}
           </Box>
-          <Skeleton variant="rounded" height={400} sx={{ borderRadius: 3 }} />
+          <Skeleton variant="rounded" height={400} sx={{ borderRadius: 3, display: { xs: 'none', lg: 'block' } }} />
         </Box>
       </Box>
     )
   }
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: { xs: 2, sm: 3 } }}>
       <Box sx={{ mb: 4 }}>
         <Typography
           variant="h4"
@@ -112,11 +112,12 @@ export default function TeamWorkloadView() {
             fontWeight: 700,
             color: 'text.primary',
             mb: 0.5,
+            fontSize: { xs: '1.75rem', sm: '2.125rem' },
           }}
         >
           Team Workload
         </Typography>
-        <Typography variant="body1" color="text.secondary">
+        <Typography variant="body1" color="text.secondary" sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}>
           Monitor team capacity and resource allocation
         </Typography>
       </Box>
@@ -174,11 +175,11 @@ export default function TeamWorkloadView() {
           ) : (
             <>
               <Box sx={{ mb: 3 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, gap: { xs: 1, sm: 0 }, mb: 2 }}>
                   <Typography variant="h6" fontWeight={600}>
                     Team Overview
                   </Typography>
-                  <Box sx={{ display: 'flex', gap: 1 }}>
+                  <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                     <Chip
                       label={`${underutilizedMembers} under-utilized`}
                       size="small"
@@ -230,9 +231,9 @@ export default function TeamWorkloadView() {
                 </Card>
               </Box>
 
-              <Grid container spacing={3}>
+              <Grid container spacing={{ xs: 2, sm: 3 }}>
                 {teamGroups.map((group) => (
-                  <Grid item xs={12} md={6} key={group.teamName}>
+                  <Grid item xs={12} sm={6} key={group.teamName}>
                     <TeamCard
                       teamName={group.teamName}
                       members={group.members}
@@ -246,7 +247,7 @@ export default function TeamWorkloadView() {
           )}
         </Box>
 
-        <Box>
+        <Box sx={{ display: { xs: 'none', lg: 'block' } }}>
           <WorkloadCalendar
             startDate={startDate}
             endDate={endDate}
