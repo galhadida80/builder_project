@@ -11,6 +11,9 @@ export interface ButtonProps extends Omit<MuiButtonProps, 'variant'> {
 const StyledButton = styled(MuiButton)(() => ({
   fontWeight: 600,
   transition: 'all 200ms ease-out',
+  touchAction: 'manipulation',
+  minWidth: 48,
+  minHeight: 48,
   '&:hover': {
     transform: 'translateY(-1px)',
   },
@@ -92,7 +95,8 @@ export function IconButton({
       color="primary"
       disabled={props.disabled || loading}
       sx={{
-        minWidth: 'auto',
+        minWidth: 48,
+        minHeight: 48,
         p: 1,
         ...props.sx,
       }}
