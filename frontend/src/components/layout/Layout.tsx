@@ -7,6 +7,7 @@ import Sidebar from './Sidebar'
 import Header from './Header'
 import { projectsApi } from '../../api/projects'
 import { authApi } from '../../api/auth'
+import { rfiApi } from '../../api/rfi'
 import type { Project, User } from '../../types'
 
 const DRAWER_WIDTH = 260
@@ -18,10 +19,19 @@ export default function Layout() {
   const [projects, setProjects] = useState<Project[]>([])
   const [currentUser, setCurrentUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const [rfiCount, setRfiCount] = useState(0)
 
   useEffect(() => {
     loadUserAndProjects()
   }, [])
+
+  useEffect(() => {
+    if (selectedProjectId) {
+      loadRfiCount(selectedProjectId)
+    } else {
+      setRfiCount(0)
+    }
+  }, [selectedProjectId])
 
   const loadUserAndProjects = async () => {
     try {
@@ -44,6 +54,17 @@ export default function Layout() {
       setProjects(data)
     } catch (error) {
       console.error('Failed to load projects:', error)
+    }
+  }
+
+  const loadRfiCount = async (projectId: string) => {
+    try {
+      const summary = await rfiApi.getSummary(projectId)
+      const pendingCount = summary.open_count + summary.waiting_response_count
+      setRfiCount(pendingCount)
+    } catch (error) {
+      console.error('Failed to load RFI count:', error)
+      setRfiCount(0)
     }
   }
 
@@ -77,7 +98,7 @@ export default function Layout() {
         onProjectChange={handleProjectChange}
         onLogout={handleLogout}
       />
-      <Sidebar projectId={selectedProjectId} />
+      <Sidebar projectId={selectedProjectId} rfiBadgeCount={rfiCount} />
       <Box
         component="main"
         sx={{
