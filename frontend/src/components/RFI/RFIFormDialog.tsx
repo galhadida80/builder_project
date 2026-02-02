@@ -61,7 +61,7 @@ export type RFIFormData = z.infer<typeof rfiFormSchema>
 interface RFIFormDialogProps {
   open: boolean
   onClose: () => void
-  onSubmit: (data: RFIFormData) => void | Promise<void>
+  onSubmit: (data: RFIFormData, action?: 'draft' | 'send') => void | Promise<void>
   initialData?: Partial<RFIFormData>
   loading?: boolean
   mode?: 'create' | 'edit'
@@ -126,9 +126,21 @@ export function RFIFormDialog({
     })
   }
 
-  const handleFormSubmit = async (data: RFIFormData) => {
+  // Handler for saving as draft
+  const handleDraft = async (data: RFIFormData) => {
     try {
-      await onSubmit(data)
+      await onSubmit(data, 'draft')
+      reset()
+      onClose()
+    } catch (error) {
+      // Error handling will be done by parent component
+    }
+  }
+
+  // Handler for sending immediately
+  const handleSend = async (data: RFIFormData) => {
+    try {
+      await onSubmit(data, 'send')
       reset()
       onClose()
     } catch (error) {
@@ -143,7 +155,6 @@ export function RFIFormDialog({
   }
 
   const title = mode === 'create' ? 'Create New RFI' : 'Edit RFI'
-  const submitLabel = mode === 'create' ? 'Create RFI' : 'Save Changes'
 
   return (
     <Modal
@@ -156,18 +167,39 @@ export function RFIFormDialog({
           <Button variant="tertiary" onClick={handleClose} disabled={loading || isSubmitting}>
             Cancel
           </Button>
-          <Button
-            variant="primary"
-            onClick={handleSubmit(handleFormSubmit)}
-            loading={loading || isSubmitting}
-            disabled={loading || isSubmitting}
-          >
-            {submitLabel}
-          </Button>
+          {mode === 'create' ? (
+            <>
+              <Button
+                variant="secondary"
+                onClick={handleSubmit(handleDraft)}
+                loading={loading || isSubmitting}
+                disabled={loading || isSubmitting}
+              >
+                Save as Draft
+              </Button>
+              <Button
+                variant="primary"
+                onClick={handleSubmit(handleSend)}
+                loading={loading || isSubmitting}
+                disabled={loading || isSubmitting}
+              >
+                Send Now
+              </Button>
+            </>
+          ) : (
+            <Button
+              variant="primary"
+              onClick={handleSubmit(handleDraft)}
+              loading={loading || isSubmitting}
+              disabled={loading || isSubmitting}
+            >
+              Save Changes
+            </Button>
+          )}
         </>
       }
     >
-      <Box component="form" onSubmit={(e) => { e.preventDefault(); handleSubmit(handleFormSubmit)(); }}>
+      <Box component="form" onSubmit={(e) => { e.preventDefault(); handleSubmit(mode === 'create' ? handleSend : handleDraft)(); }}>
         <Stack spacing={3}>
           {/* Required Fields */}
           <Controller
