@@ -3,23 +3,23 @@
   "spec": "131-build-team-workload-view",
   "state": "building",
   "subtasks": {
-    "completed": 8,
+    "completed": 11,
     "total": 14,
     "in_progress": 1,
     "failed": 0
   },
   "phase": {
-    "current": "Routing and Navigation",
+    "current": "Testing and Verification",
     "id": null,
-    "total": 2
+    "total": 3
   },
   "workers": {
     "active": 0,
     "max": 1
   },
   "session": {
-    "number": 9,
+    "number": 12,
     "started_at": "2026-02-02T12:16:30.715217"
   },
-  "last_update": "2026-02-02T12:34:16.918492"
+  "last_update": "2026-02-02T12:39:10.692475"
 }
