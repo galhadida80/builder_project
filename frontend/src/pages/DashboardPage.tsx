@@ -31,6 +31,7 @@ import { meetingsApi } from '../api/meetings'
 import { approvalsApi } from '../api/approvals'
 import { auditApi } from '../api/audit'
 import { useToast } from '../components/common/ToastProvider'
+import RFIStatsWidget from '../components/dashboard/RFIStatsWidget'
 
 export default function DashboardPage() {
   const { showError } = useToast()
@@ -542,6 +543,10 @@ export default function DashboardPage() {
             </Box>
           </Box>
         </Card>
+      </Box>
+
+      <Box sx={{ mt: 3 }}>
+        <RFIStatsWidget />
       </Box>
     </Box>
   )
