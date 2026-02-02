@@ -4,6 +4,7 @@ import dayjs, { Dayjs } from 'dayjs'
 import DateRangeSelector from './components/DateRangeSelector'
 import AnalyticsKPICard from './components/KPICard'
 import ProjectMetricsChart from './components/ProjectMetricsChart'
+import DistributionChart from './components/DistributionChart'
 import AssessmentIcon from '@mui/icons-material/Assessment'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import PendingActionsIcon from '@mui/icons-material/PendingActions'
@@ -115,6 +116,39 @@ export default function AnalyticsDashboard() {
               ]}
               xAxisLabels={['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7']}
               height={350}
+            />
+          </Grid>
+        </Grid>
+      </Box>
+
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+          Distribution Analysis
+        </Typography>
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={6}>
+            <DistributionChart
+              title="Projects by Status"
+              data={[
+                { id: 'active', label: 'Active', value: 12 },
+                { id: 'pending', label: 'Pending', value: 5 },
+                { id: 'completed', label: 'Completed', value: 7 },
+              ]}
+              height={350}
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <DistributionChart
+              title="Equipment by Category"
+              data={[
+                { id: 'excavators', label: 'Excavators', value: 8 },
+                { id: 'trucks', label: 'Trucks', value: 15 },
+                { id: 'cranes', label: 'Cranes', value: 6 },
+                { id: 'generators', label: 'Generators', value: 10 },
+                { id: 'other', label: 'Other', value: 4 },
+              ]}
+              height={350}
+              innerRadius={60}
             />
           </Grid>
         </Grid>
