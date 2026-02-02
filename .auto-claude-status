@@ -1,25 +1,25 @@
 {
   "active": true,
-  "spec": "017-1-2-create-equipmentapprovalsubmission-model",
+  "spec": "130-build-approval-queue-list-view",
   "state": "building",
   "subtasks": {
-    "completed": 7,
-    "total": 8,
+    "completed": 6,
+    "total": 7,
     "in_progress": 1,
     "failed": 0
   },
   "phase": {
-    "current": "Testing and Verification",
+    "current": "End-to-End Verification",
     "id": null,
-    "total": 3
+    "total": 1
   },
   "workers": {
     "active": 0,
     "max": 1
   },
   "session": {
-    "number": 8,
-    "started_at": "2026-01-29T19:15:36.394866"
+    "number": 7,
+    "started_at": "2026-02-02T12:17:45.118826"
   },
-  "last_update": "2026-01-29T19:39:04.614686"
+  "last_update": "2026-02-02T12:36:38.114448"
 }
