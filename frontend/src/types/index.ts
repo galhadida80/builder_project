@@ -302,3 +302,40 @@ export interface InspectionSummary {
   findingsBySeverity: Record<string, number>
   overdueCount: number
 }
+
+export interface TeamMember {
+  id: string
+  userId: string
+  user: User
+  role: UserRole
+  teamName?: string
+  availableHours: number
+  assignedHours: number
+  workloadPercent: number
+  assignments?: WorkloadAssignment[]
+  createdAt: string
+}
+
+export interface Workload {
+  id: string
+  teamMemberId: string
+  teamMember?: TeamMember
+  periodStart: string
+  periodEnd: string
+  totalAssignedHours: number
+  totalAvailableHours: number
+  workloadPercent: number
+  assignments: WorkloadAssignment[]
+  createdAt: string
+  updatedAt: string
+}
+
+export interface WorkloadAssignment {
+  id: string
+  type: 'meeting' | 'inspection' | 'approval' | 'task'
+  entityId: string
+  title: string
+  estimatedHours: number
+  scheduledDate?: string
+  status: string
+}
