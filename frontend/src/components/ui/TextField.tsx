@@ -9,6 +9,7 @@ export interface TextFieldProps extends Omit<MuiTextFieldProps, 'variant'> {
 
 const StyledTextField = styled(MuiTextField)(({ theme }) => ({
   '& .MuiOutlinedInput-root': {
+    minHeight: 44,
     borderRadius: 8,
     transition: 'all 200ms ease-out',
     '&:hover': {
@@ -27,6 +28,7 @@ const StyledTextField = styled(MuiTextField)(({ theme }) => ({
   },
   '& .MuiInputBase-input': {
     fontSize: '0.875rem',
+    minHeight: 44,
   },
 }))
 

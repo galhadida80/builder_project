@@ -33,11 +33,16 @@ const StyledLink = styled(Link)(({ theme }) => ({
   textDecoration: 'none',
   fontSize: '0.875rem',
   fontWeight: 500,
+  minHeight: 44,
+  minWidth: 44,
+  padding: theme.spacing(1),
+  borderRadius: theme.spacing(0.5),
   transition: 'color 150ms ease-out',
   cursor: 'pointer',
   '&:hover': {
     color: theme.palette.primary.main,
     textDecoration: 'none',
+    backgroundColor: theme.palette.action.hover,
   },
 }))
 

@@ -40,8 +40,10 @@ const CustomConnector = styled(StepConnector)(({ theme }) => ({
 
 const StepIconContainer = styled('div')<{ active: boolean; completed: boolean; error: boolean }>(
   ({ theme, active, completed, error }) => ({
-    width: 32,
-    height: 32,
+    width: 44,
+    height: 44,
+    minWidth: 44,
+    minHeight: 44,
     borderRadius: '50%',
     display: 'flex',
     alignItems: 'center',

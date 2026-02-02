@@ -74,6 +74,7 @@ const StyledChip = styled(Chip)(() => ({
   fontWeight: 600,
   fontSize: '0.75rem',
   letterSpacing: '0.02em',
+  minHeight: 40,
   '& .MuiChip-icon': {
     fontSize: '1rem',
   },
@@ -120,7 +121,7 @@ export function SeverityBadge({ severity, size = 'small' }: SeverityBadgeProps) 
         fontWeight: 600,
         fontSize: '0.7rem',
         borderRadius: 1,
-        height: size === 'small' ? 20 : 24,
+        minHeight: 40,
       }}
     />
   )
