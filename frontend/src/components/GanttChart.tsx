@@ -1,9 +1,11 @@
-import { Box, Paper, useTheme, Typography, ButtonGroup } from '@mui/material'
+import { Box, Paper, useTheme, Typography, ButtonGroup, Menu, MenuItem } from '@mui/material'
 import { styled, alpha } from '@mui/material/styles'
+import FilterListIcon from '@mui/icons-material/FilterList'
 import { Gantt, Task, ViewMode } from 'gantt-task-react'
 import 'gantt-task-react/dist/index.css'
-import { GanttChartProps, GanttTask, GanttViewMode } from '../types/gantt'
+import { GanttChartProps, GanttTask, GanttViewMode, GanttTaskType } from '../types/gantt'
 import { Button } from './ui/Button'
+import { useState } from 'react'
 
 // Styled components following MUI theme patterns
 const StyledGanttPaper = styled(Paper)(({ theme }) => ({
@@ -118,6 +120,9 @@ export function GanttChart({
   onExpanderClick,
 }: GanttChartProps) {
   const theme = useTheme()
+  const [filterAnchorEl, setFilterAnchorEl] = useState<null | HTMLElement>(null)
+  const [filterType, setFilterType] = useState<GanttTaskType | 'all'>('all')
+  const filterMenuOpen = Boolean(filterAnchorEl)
 
   // Convert our tasks to library format
   const libraryTasks = tasks.map(convertToLibraryTask)
@@ -180,6 +185,28 @@ export function GanttChart({
     }
   }
 
+  // Handle filter menu
+  const handleFilterClick = (event: React.MouseEvent<HTMLElement>) => {
+    setFilterAnchorEl(event.currentTarget)
+  }
+
+  const handleFilterClose = () => {
+    setFilterAnchorEl(null)
+  }
+
+  const handleFilterSelect = (type: GanttTaskType | 'all') => {
+    setFilterType(type)
+    handleFilterClose()
+  }
+
+  // Filter options for the menu
+  const filterOptions: { value: GanttTaskType | 'all'; label: string }[] = [
+    { value: 'all', label: 'All Tasks' },
+    { value: 'task', label: 'Tasks Only' },
+    { value: 'project', label: 'Projects Only' },
+    { value: 'milestone', label: 'Milestones Only' },
+  ]
+
   return (
     <StyledGanttPaper elevation={1}>
       <Box sx={{ width: '100%', height: '100%' }}>
@@ -202,6 +229,40 @@ export function GanttChart({
                   </Button>
                 ))}
               </ButtonGroup>
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Button
+                variant="secondary"
+                size="small"
+                onClick={handleFilterClick}
+                startIcon={<FilterListIcon />}
+                sx={{ textTransform: 'none' }}
+              >
+                Filter: {filterOptions.find((opt) => opt.value === filterType)?.label}
+              </Button>
+              <Menu
+                anchorEl={filterAnchorEl}
+                open={filterMenuOpen}
+                onClose={handleFilterClose}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'right',
+                }}
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+              >
+                {filterOptions.map((option) => (
+                  <MenuItem
+                    key={option.value}
+                    selected={filterType === option.value}
+                    onClick={() => handleFilterSelect(option.value)}
+                  >
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </Menu>
             </Box>
           </ToolbarBox>
         )}
