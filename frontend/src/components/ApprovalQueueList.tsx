@@ -8,6 +8,7 @@ import { StatusBadge } from './ui/StatusBadge'
 import { Tabs } from './ui/Tabs'
 import { SearchField, TextField } from './ui/TextField'
 import { FormModal } from './ui/Modal'
+import { EmptyState } from './ui/EmptyState'
 import { approvalsApi } from '../api/approvals'
 import { useToast } from './common/ToastProvider'
 import type { ApprovalRequest } from '../types'
@@ -25,6 +26,7 @@ interface ApprovalRow extends ApprovalRequest {
 export function ApprovalQueueList({ onViewDetails }: ApprovalQueueListProps) {
   const { showError, showSuccess } = useToast()
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
   const [approvals, setApprovals] = useState<ApprovalRow[]>([])
   const [tabValue, setTabValue] = useState('pending')
   const [searchQuery, setSearchQuery] = useState('')
@@ -41,6 +43,7 @@ export function ApprovalQueueList({ onViewDetails }: ApprovalQueueListProps) {
   const loadData = async () => {
     try {
       setLoading(true)
+      setError(false)
       const data = await approvalsApi.myPending()
 
       // Transform data to include entity names
@@ -53,6 +56,7 @@ export function ApprovalQueueList({ onViewDetails }: ApprovalQueueListProps) {
 
       setApprovals(transformedData)
     } catch {
+      setError(true)
       showError('Failed to load approvals. Please try again.')
     } finally {
       setLoading(false)
@@ -110,6 +114,16 @@ export function ApprovalQueueList({ onViewDetails }: ApprovalQueueListProps) {
     } finally {
       setSubmitting(false)
     }
+  }
+
+  if (error) {
+    return (
+      <EmptyState
+        variant="error"
+        description="Failed to load approvals. Please try again."
+        action={{ label: 'Retry', onClick: loadData }}
+      />
+    )
   }
 
   const columns: Column<ApprovalRow>[] = [
@@ -248,22 +262,40 @@ export function ApprovalQueueList({ onViewDetails }: ApprovalQueueListProps) {
       />
 
       <Box sx={{ mt: 3 }}>
-        <DataTable
-          columns={columns}
-          rows={displayedApprovals}
-          loading={loading}
-          getRowId={(row) => row.id}
-          onRowClick={onViewDetails}
-          pagination
-          pageSize={25}
-          emptyMessage={
-            tabValue === 'pending'
-              ? 'No pending approvals'
-              : searchQuery
-              ? 'No approvals found matching your search'
-              : 'No approvals found'
-          }
-        />
+        {!loading && displayedApprovals.length === 0 ? (
+          <EmptyState
+            icon={<CheckCircleIcon sx={{ color: 'success.main' }} />}
+            title={
+              tabValue === 'pending'
+                ? 'No pending approvals'
+                : searchQuery
+                ? 'No approvals found'
+                : tabValue === 'approved'
+                ? 'No approved requests'
+                : tabValue === 'rejected'
+                ? 'No rejected requests'
+                : 'No approvals found'
+            }
+            description={
+              tabValue === 'pending'
+                ? 'All requests have been processed.'
+                : searchQuery
+                ? 'Try adjusting your search criteria.'
+                : 'No approval requests in this category yet.'
+            }
+          />
+        ) : (
+          <DataTable
+            columns={columns}
+            rows={displayedApprovals}
+            loading={loading}
+            getRowId={(row) => row.id}
+            onRowClick={onViewDetails}
+            pagination
+            pageSize={25}
+            emptyMessage="No data available"
+          />
+        )}
       </Box>
 
       <FormModal
