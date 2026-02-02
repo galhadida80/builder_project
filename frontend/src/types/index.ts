@@ -302,3 +302,10 @@ export interface InspectionSummary {
   findingsBySeverity: Record<string, number>
   overdueCount: number
 }
+
+export interface Folder {
+  id: string
+  name: string
+  parentId: string | null
+  children: Folder[]
+}
