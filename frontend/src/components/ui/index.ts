@@ -27,3 +27,5 @@ export { Stepper, ApprovalStepper, ProgressStepper } from './Stepper'
 export { Breadcrumbs, PageHeader } from './Breadcrumbs'
 
 export { Modal, ConfirmModal, FormModal } from './Modal'
+
+export { PricingCard, PricingSection } from './PricingSection'
