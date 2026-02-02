@@ -1,12 +1,15 @@
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, Controller } from 'react-hook-form'
-import { Box, Stack, Autocomplete, Chip } from '@mui/material'
+import { useState } from 'react'
+import { Box, Stack, Autocomplete, Chip, Typography, IconButton, List, ListItem, ListItemText, ListItemSecondaryAction } from '@mui/material'
+import { Delete as DeleteIcon, CloudUpload as CloudUploadIcon } from '@mui/icons-material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
 import { RichTextEditor, useEditor } from 'mui-tiptap'
 import StarterKit from '@tiptap/starter-kit'
+import { useDropzone } from 'react-dropzone'
 import { Modal } from '../ui/Modal'
 import { Button } from '../ui/Button'
 import { TextField } from '../ui/TextField'
@@ -77,6 +80,7 @@ export function RFIFormDialog({
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
+    setValue,
   } = useForm<RFIFormData>({
     resolver: zodResolver(rfiFormSchema),
     defaultValues: initialData,
@@ -87,6 +91,40 @@ export function RFIFormDialog({
     extensions: [StarterKit],
     content: initialData?.question || '<p></p>',
   })
+
+  // File upload state management
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
+
+  // Configure dropzone for file uploads
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    multiple: true,
+    maxSize: 10485760, // 10MB
+    onDrop: (acceptedFiles) => {
+      setUploadedFiles((prev) => [...prev, ...acceptedFiles])
+      // Update form value for attachments
+      const fileData = [...uploadedFiles, ...acceptedFiles].map((file) => ({
+        name: file.name,
+        size: file.size,
+        type: file.type,
+      }))
+      setValue('attachments', fileData)
+    },
+  })
+
+  // Remove file from upload list
+  const handleRemoveFile = (index: number) => {
+    setUploadedFiles((prev) => {
+      const newFiles = prev.filter((_, i) => i !== index)
+      // Update form value
+      const fileData = newFiles.map((file) => ({
+        name: file.name,
+        size: file.size,
+        type: file.type,
+      }))
+      setValue('attachments', fileData)
+      return newFiles
+    })
+  }
 
   const handleFormSubmit = async (data: RFIFormData) => {
     try {
@@ -100,6 +138,7 @@ export function RFIFormDialog({
 
   const handleClose = () => {
     reset()
+    setUploadedFiles([])
     onClose()
   }
 
@@ -327,6 +366,72 @@ export function RFIFormDialog({
               />
             )}
           />
+
+          {/* File Upload Area */}
+          <Box>
+            <Typography variant="body2" sx={{ mb: 1, fontWeight: 500, color: 'text.primary' }}>
+              Attachments
+            </Typography>
+            <Box
+              {...getRootProps()}
+              sx={{
+                border: '2px dashed',
+                borderColor: isDragActive ? 'primary.main' : 'divider',
+                borderRadius: 1,
+                p: 3,
+                textAlign: 'center',
+                cursor: 'pointer',
+                backgroundColor: isDragActive ? 'action.hover' : 'background.paper',
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  borderColor: 'primary.main',
+                  backgroundColor: 'action.hover',
+                },
+              }}
+            >
+              <input {...getInputProps()} disabled={loading || isSubmitting} />
+              <CloudUploadIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 1 }} />
+              <Typography variant="body1" color="text.primary" gutterBottom>
+                {isDragActive ? 'Drop files here...' : 'Drag files here or click to upload'}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Maximum file size: 10MB per file
+              </Typography>
+            </Box>
+
+            {/* File List */}
+            {uploadedFiles.length > 0 && (
+              <List sx={{ mt: 2 }}>
+                {uploadedFiles.map((file, index) => (
+                  <ListItem
+                    key={`${file.name}-${index}`}
+                    sx={{
+                      border: '1px solid',
+                      borderColor: 'divider',
+                      borderRadius: 1,
+                      mb: 1,
+                      backgroundColor: 'background.paper',
+                    }}
+                  >
+                    <ListItemText
+                      primary={file.name}
+                      secondary={`${(file.size / 1024 / 1024).toFixed(2)} MB`}
+                    />
+                    <ListItemSecondaryAction>
+                      <IconButton
+                        edge="end"
+                        aria-label="delete"
+                        onClick={() => handleRemoveFile(index)}
+                        disabled={loading || isSubmitting}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </ListItemSecondaryAction>
+                  </ListItem>
+                ))}
+              </List>
+            )}
+          </Box>
         </Stack>
       </Box>
     </Modal>
