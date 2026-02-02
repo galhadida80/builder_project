@@ -25,9 +25,11 @@ interface HeaderProps {
   projects: Project[]
   onProjectChange: (projectId: string) => void
   onLogout: () => void
+  sidebarOpen?: boolean
+  onSidebarToggle?: () => void
 }
 
-export default function Header({ user, currentProject, projects, onProjectChange, onLogout }: HeaderProps) {
+export default function Header({ user, currentProject, projects, onProjectChange, onLogout, sidebarOpen = true, onSidebarToggle }: HeaderProps) {
   const { showInfo } = useToast()
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [notificationAnchor, setNotificationAnchor] = useState<null | HTMLElement>(null)

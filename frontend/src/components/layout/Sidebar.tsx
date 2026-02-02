@@ -53,9 +53,11 @@ const systemNavItems: NavItem[] = [
 
 interface SidebarProps {
   projectId?: string
+  open?: boolean
+  onClose?: () => void
 }
 
-export default function Sidebar({ projectId }: SidebarProps) {
+export default function Sidebar({ projectId, open = true, onClose }: SidebarProps) {
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -77,6 +79,8 @@ export default function Sidebar({ projectId }: SidebarProps) {
   return (
     <Drawer
       variant="permanent"
+      open={open}
+      onClose={onClose}
       sx={{
         width: DRAWER_WIDTH,
         flexShrink: 0,
