@@ -64,8 +64,8 @@ export default function Header({ user, currentProject, projects, onProjectChange
         borderBottom: '1px solid',
         borderColor: 'divider',
         bgcolor: 'background.paper',
-        ml: '260px',
-        width: 'calc(100% - 260px)',
+        ml: 0, // No margin since sidebar is now temporary/overlay
+        width: '100%', // Full width since sidebar is overlay
       }}
     >
       <Toolbar sx={{ justifyContent: 'space-between' }}>

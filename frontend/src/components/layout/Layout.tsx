@@ -131,7 +131,7 @@ export default function Layout() {
         sx={{
           flexGrow: 1,
           p: 3,
-          ml: `${DRAWER_WIDTH}px`,
+          ml: 0, // No margin needed since sidebar is now temporary/overlay
           bgcolor: 'background.default',
           minHeight: '100vh',
           position: 'relative',
@@ -145,6 +145,7 @@ export default function Layout() {
             width: `${EDGE_SWIPE_THRESHOLD}px`,
             height: '100%',
             zIndex: 1,
+            pointerEvents: 'auto',
           },
           '&::after': {
             content: '""',
@@ -154,6 +155,7 @@ export default function Layout() {
             width: `${EDGE_SWIPE_THRESHOLD}px`,
             height: '100%',
             zIndex: 1,
+            pointerEvents: 'auto',
           },
         }}
         onTouchStart={handleMainTouchStart}

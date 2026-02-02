@@ -78,9 +78,13 @@ export default function Sidebar({ projectId, open = true, onClose }: SidebarProp
 
   return (
     <Drawer
-      variant="permanent"
+      variant="temporary"
+      anchor="left"
       open={open}
       onClose={onClose}
+      ModalProps={{
+        keepMounted: true, // Keep DOM mounted for better performance
+      }}
       sx={{
         width: DRAWER_WIDTH,
         flexShrink: 0,
