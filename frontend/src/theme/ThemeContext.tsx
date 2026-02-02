@@ -61,9 +61,13 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     return mode === 'dark'
   }, [mode, systemPrefersDark])
 
+  const direction = useMemo(() => {
+    return i18n.language === 'he' ? 'rtl' : 'ltr'
+  }, [i18n.language])
+
   const theme = useMemo(() => {
-    return isDark ? createDarkTheme() : createLightTheme()
-  }, [isDark])
+    return isDark ? createDarkTheme(direction) : createLightTheme(direction)
+  }, [isDark, direction])
 
   const toggleTheme = () => {
     setMode(prev => {

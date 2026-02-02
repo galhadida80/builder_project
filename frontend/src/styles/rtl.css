@@ -24,9 +24,34 @@
 /**
  * Material-UI AppBar adjustments for RTL
  * Ensure proper spacing when sidebar is on the right side
+ * In RTL: marginInlineStart puts space on right (sidebar side)
+ * AppBar width is reduced to account for sidebar space
  */
 [dir="rtl"] .MuiAppBar-root {
-  /* RTL adjustments handled by theme direction property */
+  /* Width and margin calculations are handled by logical properties (marginInlineStart, width) */
+  /* MUI automatically handles direction-aware positioning with theme.direction */
+}
+
+/**
+ * Fix MUI Drawer anchor in RTL mode
+ * Ensures drawer is positioned correctly on the right in RTL
+ */
+[dir="rtl"] .MuiDrawer-root {
+  /* MUI handles positioning through theme.direction property */
+}
+
+/**
+ * Fix MUI Menu positioning in RTL mode
+ */
+[dir="rtl"] .MuiPopover-root {
+  /* MUI handles positioning through theme.direction property */
+}
+
+/**
+ * Fix MUI Modal/Dialog positioning in RTL mode
+ */
+[dir="rtl"] .MuiModal-root {
+  /* MUI handles positioning through theme.direction property */
 }
 
 /**
