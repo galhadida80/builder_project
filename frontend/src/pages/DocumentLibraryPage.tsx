@@ -1,0 +1,259 @@
+import { useState } from 'react'
+import { useParams } from 'react-router-dom'
+import { Box, Typography, Chip, Grid, Paper, Skeleton } from '@mui/material'
+import FolderIcon from '@mui/icons-material/Folder'
+import DescriptionIcon from '@mui/icons-material/Description'
+import CloudUploadIcon from '@mui/icons-material/CloudUpload'
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile'
+import { Card, KPICard } from '../components/ui/Card'
+import { PageHeader } from '../components/ui/Breadcrumbs'
+import { SearchField } from '../components/ui/TextField'
+import { useToast } from '../components/common/ToastProvider'
+import { FolderTree } from '../components/documents/FolderTree'
+import { FileList } from '../components/documents/FileList'
+import { UploadZone } from '../components/documents/UploadZone'
+import { FilePreview } from '../components/documents/FilePreview'
+import { ConfirmModal } from '../components/ui/Modal'
+import { useDocuments } from '../hooks/useDocuments'
+import { filesApi } from '../api/files'
+import type { FileRecord } from '../types'
+
+export default function DocumentLibraryPage() {
+  const { projectId } = useParams()
+  const { showError, showSuccess } = useToast()
+  const [search, setSearch] = useState('')
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [fileToDelete, setFileToDelete] = useState<FileRecord | null>(null)
+
+  const {
+    folders,
+    files,
+    selectedFolderId,
+    selectedFile,
+    loading,
+    uploading,
+    setSelectedFolderId,
+    setSelectedFile,
+    loadFiles,
+    createFolder,
+    renameFolder,
+    deleteFolder,
+    uploadFile,
+    deleteFile,
+  } = useDocuments(projectId)
+
+  const handleUpload = async (file: File) => {
+    try {
+      await uploadFile(file)
+      showSuccess(`${file.name} uploaded successfully`)
+    } catch (error) {
+      showError(`Failed to upload ${file.name}`)
+      throw error
+    }
+  }
+
+  const handleDownload = async (file: FileRecord) => {
+    if (!projectId) return
+    try {
+      const url = await filesApi.getDownloadUrl(projectId, file.id)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = file.filename
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      showSuccess(`Downloading ${file.filename}`)
+    } catch (error) {
+      showError(`Failed to download ${file.filename}`)
+    }
+  }
+
+  const handleDeleteClick = (file: FileRecord) => {
+    setFileToDelete(file)
+    setDeleteModalOpen(true)
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!fileToDelete) return
+    try {
+      await deleteFile(fileToDelete.id)
+      showSuccess(`${fileToDelete.filename} deleted successfully`)
+      setDeleteModalOpen(false)
+      setFileToDelete(null)
+    } catch (error) {
+      showError(`Failed to delete ${fileToDelete.filename}`)
+    }
+  }
+
+  // Filter files by search query
+  const filteredFiles = files.filter((file) =>
+    file.filename.toLowerCase().includes(search.toLowerCase())
+  )
+
+  // Calculate KPI stats
+  const totalFiles = files.length
+  const totalFolders = folders.reduce((count, folder) => {
+    const countChildren = (f: typeof folders[0]): number => {
+      return 1 + f.children.reduce((sum, child) => sum + countChildren(child), 0)
+    }
+    return count + countChildren(folder)
+  }, 0)
+  const totalSize = files.reduce((sum, file) => sum + file.fileSize, 0)
+  const formatTotalSize = (bytes: number): string => {
+    if (bytes === 0) return '0 MB'
+    const mb = bytes / (1024 * 1024)
+    const gb = mb / 1024
+    if (gb >= 1) {
+      return `${gb.toFixed(1)} GB`
+    }
+    return `${mb.toFixed(1)} MB`
+  }
+
+  if (loading && files.length === 0) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <Skeleton variant="text" width={200} height={48} sx={{ mb: 1 }} />
+        <Skeleton variant="text" width={300} height={24} sx={{ mb: 4 }} />
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 2, mb: 4 }}>
+          {[...Array(4)].map((_, i) => (
+            <Skeleton key={i} variant="rounded" height={100} sx={{ borderRadius: 3 }} />
+          ))}
+        </Box>
+        <Skeleton variant="rounded" height={500} sx={{ borderRadius: 3 }} />
+      </Box>
+    )
+  }
+
+  return (
+    <Box sx={{ p: 3 }}>
+      <PageHeader
+        title="Documents"
+        subtitle="Manage and organize project documents with folders and file uploads"
+        breadcrumbs={[{ label: 'Projects', href: '/projects' }, { label: 'Documents' }]}
+      />
+
+      {/* KPI Cards */}
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' },
+          gap: 2,
+          mb: 4,
+        }}
+      >
+        <KPICard
+          title="Total Files"
+          value={totalFiles}
+          icon={<DescriptionIcon />}
+          color="primary"
+        />
+        <KPICard
+          title="Total Folders"
+          value={totalFolders}
+          icon={<FolderIcon />}
+          color="warning"
+        />
+        <KPICard
+          title="Total Size"
+          value={formatTotalSize(totalSize)}
+          icon={<CloudUploadIcon />}
+          color="info"
+        />
+        <KPICard
+          title="Recent Uploads"
+          value={files.filter((f) => {
+            const dayAgo = new Date()
+            dayAgo.setDate(dayAgo.getDate() - 1)
+            return new Date(f.uploadedAt) > dayAgo
+          }).length}
+          icon={<InsertDriveFileIcon />}
+          color="success"
+        />
+      </Box>
+
+      {/* Three-panel layout */}
+      <Grid container spacing={3}>
+        {/* Left Sidebar - Folder Tree */}
+        <Grid item xs={12} md={3}>
+          <Card>
+            <Box sx={{ p: 2.5 }}>
+              <FolderTree
+                folders={folders}
+                selectedFolderId={selectedFolderId}
+                onSelectFolder={setSelectedFolderId}
+                onCreateFolder={createFolder}
+                onRenameFolder={renameFolder}
+                onDeleteFolder={deleteFolder}
+              />
+            </Box>
+          </Card>
+        </Grid>
+
+        {/* Center Panel - File List & Upload */}
+        <Grid item xs={12} md={6}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            {/* Upload Zone */}
+            <UploadZone onUpload={handleUpload} disabled={uploading} />
+
+            {/* File List */}
+            <Card>
+              <Box sx={{ p: 2.5 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                  <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flex: 1 }}>
+                    <SearchField
+                      placeholder="Search files..."
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                    />
+                  </Box>
+                  <Chip label={`${filteredFiles.length} files`} size="small" />
+                </Box>
+
+                <FileList
+                  files={filteredFiles}
+                  loading={loading}
+                  onFileClick={setSelectedFile}
+                  onDownload={handleDownload}
+                  onDelete={handleDeleteClick}
+                  emptyMessage={
+                    search
+                      ? 'No files match your search'
+                      : 'No files in this folder. Upload files to get started.'
+                  }
+                />
+              </Box>
+            </Card>
+          </Box>
+        </Grid>
+
+        {/* Right Panel - File Preview */}
+        <Grid item xs={12} md={3}>
+          <Box sx={{ position: 'sticky', top: 24 }}>
+            {projectId && (
+              <FilePreview
+                file={selectedFile}
+                projectId={projectId}
+                onClose={() => setSelectedFile(null)}
+                onDownload={handleDownload}
+              />
+            )}
+          </Box>
+        </Grid>
+      </Grid>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        open={deleteModalOpen}
+        onClose={() => {
+          setDeleteModalOpen(false)
+          setFileToDelete(null)
+        }}
+        onConfirm={handleConfirmDelete}
+        title="Delete File"
+        message={`Are you sure you want to delete "${fileToDelete?.filename}"? This action cannot be undone.`}
+        confirmLabel="Delete"
+        variant="danger"
+      />
+    </Box>
+  )
+}
