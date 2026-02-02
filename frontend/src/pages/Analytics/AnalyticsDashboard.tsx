@@ -1,7 +1,12 @@
 import { useState } from 'react'
-import { Box, Typography } from '@mui/material'
+import { Box, Typography, Grid } from '@mui/material'
 import dayjs, { Dayjs } from 'dayjs'
 import DateRangeSelector from './components/DateRangeSelector'
+import AnalyticsKPICard from './components/KPICard'
+import AssessmentIcon from '@mui/icons-material/Assessment'
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import PendingActionsIcon from '@mui/icons-material/PendingActions'
+import TrendingUpIcon from '@mui/icons-material/TrendingUp'
 
 export default function AnalyticsDashboard() {
   const [startDate, setStartDate] = useState<Dayjs | null>(dayjs().subtract(30, 'day'))
@@ -39,6 +44,54 @@ export default function AnalyticsDashboard() {
           endDate={endDate}
           onDateChange={handleDateChange}
         />
+      </Box>
+
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+          Key Metrics
+        </Typography>
+        <Grid container spacing={3}>
+          <Grid item xs={12} sm={6} md={3}>
+            <AnalyticsKPICard
+              title="Total Projects"
+              value={24}
+              trend={12.5}
+              trendLabel="vs last month"
+              icon={<AssessmentIcon />}
+              color="primary"
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <AnalyticsKPICard
+              title="Active Inspections"
+              value={156}
+              trend={8.2}
+              trendLabel="vs last month"
+              icon={<CheckCircleIcon />}
+              color="success"
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <AnalyticsKPICard
+              title="Pending RFIs"
+              value={42}
+              trend={-5.3}
+              trendLabel="vs last month"
+              icon={<PendingActionsIcon />}
+              color="warning"
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <AnalyticsKPICard
+              title="Approval Rate"
+              value="94.5%"
+              trend={2.1}
+              trendLabel="vs last month"
+              icon={<TrendingUpIcon />}
+              color="info"
+            />
+          </Grid>
+        </Grid>
       </Box>
 
       <Box sx={{ mt: 3 }}>
