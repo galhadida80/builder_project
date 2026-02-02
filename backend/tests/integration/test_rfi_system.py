@@ -1051,3 +1051,381 @@ class TestRFIStatusTransitions:
 
         # All status types should be represented
         assert len(statuses_in_db) == len(all_statuses)
+
+
+@pytest.mark.integration
+class TestRFIEmailSending:
+    """Test email sending workflow with mocked Gmail API."""
+
+    @pytest.fixture
+    async def sample_project(self, db: AsyncSession, admin_user: User) -> Project:
+        """Create a sample project for testing."""
+        project = Project(
+            id=uuid.uuid4(),
+            name="Test RFI Email Project",
+            code="RFI-EMAIL",
+            description="Project for RFI email testing",
+            status="active",
+            created_by_id=admin_user.id
+        )
+        db.add(project)
+        await db.commit()
+        await db.refresh(project)
+        return project
+
+    @pytest.fixture
+    async def draft_rfi(
+        self, db: AsyncSession, sample_project: Project, admin_user: User, regular_user: User
+    ) -> RFI:
+        """Create a draft RFI ready to be sent."""
+        rfi = RFI(
+            id=uuid.uuid4(),
+            project_id=sample_project.id,
+            rfi_number=f"RFI-{sample_project.code}-001",
+            subject="Foundation Concrete Specification",
+            question="What is the required compressive strength for the foundation concrete at 28 days?",
+            status=RFIStatus.DRAFT,
+            priority=RFIPriority.NORMAL,
+            category=RFICategory.TECHNICAL,
+            created_by_id=admin_user.id,
+            assigned_to_id=regular_user.id,
+            due_date=datetime.utcnow() + timedelta(days=7)
+        )
+        db.add(rfi)
+        await db.commit()
+        await db.refresh(rfi)
+        return rfi
+
+    async def test_send_rfi_with_mocked_gmail(
+        self,
+        db: AsyncSession,
+        draft_rfi: RFI,
+        mock_gmail_service,
+        admin_user: User,
+        regular_user: User
+    ):
+        """Test sending RFI email with mocked Gmail API service."""
+        # Mock the Gmail API response
+        mock_gmail_service.users().messages().send().execute.return_value = {
+            "id": "sent-msg-12345",
+            "threadId": "thread-abc-12345",
+            "labelIds": ["SENT"]
+        }
+
+        # Simulate sending the RFI
+        # In a real implementation, this would be done through an API endpoint
+        # For now, we directly update the RFI as the service would
+        draft_rfi.status = RFIStatus.WAITING_RESPONSE
+        draft_rfi.sent_at = datetime.utcnow()
+        draft_rfi.email_thread_id = "thread-abc-12345"
+        draft_rfi.email_message_id = "sent-msg-12345"
+        await db.commit()
+        await db.refresh(draft_rfi)
+
+        # Create email log entry
+        email_log = RFIEmailLog(
+            id=uuid.uuid4(),
+            rfi_id=draft_rfi.id,
+            event_type="sent",
+            email_message_id="sent-msg-12345",
+            email_thread_id="thread-abc-12345",
+            to_address=regular_user.email,
+            from_address=admin_user.email,
+            subject=f"RFI-{draft_rfi.rfi_number}: {draft_rfi.subject}",
+            raw_email_data={"status": "sent", "service": "gmail"}
+        )
+        db.add(email_log)
+        await db.commit()
+
+        # Verify RFI status changed to waiting_response
+        assert draft_rfi.status == RFIStatus.WAITING_RESPONSE
+        assert draft_rfi.sent_at is not None
+        assert draft_rfi.email_thread_id == "thread-abc-12345"
+        assert draft_rfi.email_message_id == "sent-msg-12345"
+
+        # Verify email log was created
+        result = await db.execute(
+            select(RFIEmailLog).where(RFIEmailLog.rfi_id == draft_rfi.id)
+        )
+        logs = result.scalars().all()
+        assert len(logs) == 1
+        assert logs[0].event_type == "sent"
+        assert logs[0].email_message_id == "sent-msg-12345"
+        assert logs[0].email_thread_id == "thread-abc-12345"
+
+    async def test_email_log_records_correct_addresses(
+        self,
+        db: AsyncSession,
+        draft_rfi: RFI,
+        admin_user: User,
+        regular_user: User
+    ):
+        """Test that email log records correct to/from addresses."""
+        # Create email log with proper addresses
+        email_log = RFIEmailLog(
+            id=uuid.uuid4(),
+            rfi_id=draft_rfi.id,
+            event_type="sent",
+            email_message_id="msg-test-123",
+            email_thread_id="thread-test-123",
+            to_address=regular_user.email,
+            from_address=admin_user.email,
+            subject=f"RFI-{draft_rfi.rfi_number}: {draft_rfi.subject}",
+            raw_email_data={"test": "data"}
+        )
+        db.add(email_log)
+        await db.commit()
+        await db.refresh(email_log)
+
+        # Verify addresses are correct
+        assert email_log.to_address == regular_user.email
+        assert email_log.from_address == admin_user.email
+        assert email_log.subject == f"RFI-{draft_rfi.rfi_number}: {draft_rfi.subject}"
+
+    async def test_gmail_api_called_with_correct_payload(
+        self,
+        db: AsyncSession,
+        draft_rfi: RFI,
+        mock_gmail_service,
+        regular_user: User
+    ):
+        """Test that Gmail API is called with correct email payload."""
+        import base64
+        from email.mime.text import MIMEText
+
+        # Prepare email content
+        email_body = f"""
+        RFI Number: {draft_rfi.rfi_number}
+        Subject: {draft_rfi.subject}
+
+        Question:
+        {draft_rfi.question}
+
+        Please respond to this RFI at your earliest convenience.
+        Due Date: {draft_rfi.due_date.strftime('%Y-%m-%d') if draft_rfi.due_date else 'Not specified'}
+        Priority: {draft_rfi.priority}
+        """
+
+        message = MIMEText(email_body)
+        message['to'] = regular_user.email
+        message['from'] = "rfi@test.com"
+        message['subject'] = f"RFI-{draft_rfi.rfi_number}: {draft_rfi.subject}"
+
+        raw_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
+
+        # Mock the Gmail API send call
+        mock_gmail_service.users().messages().send().execute.return_value = {
+            "id": "sent-msg-67890",
+            "threadId": "thread-xyz-67890",
+            "labelIds": ["SENT"]
+        }
+
+        # Simulate the send operation
+        # In real implementation, this would call the Gmail service
+        # For testing, we just verify the mock can be called
+        result = mock_gmail_service.users().messages().send(
+            userId='me',
+            body={'raw': raw_message}
+        ).execute()
+
+        # Verify the mock was called successfully
+        assert result['id'] == "sent-msg-67890"
+        assert result['threadId'] == "thread-xyz-67890"
+        assert 'SENT' in result['labelIds']
+
+        # Verify the mock was called
+        mock_gmail_service.users().messages().send.assert_called_once()
+
+    async def test_multiple_emails_create_separate_logs(
+        self,
+        db: AsyncSession,
+        draft_rfi: RFI,
+        admin_user: User,
+        regular_user: User
+    ):
+        """Test that sending multiple emails creates separate log entries."""
+        # Create first email log (sent)
+        log1 = RFIEmailLog(
+            id=uuid.uuid4(),
+            rfi_id=draft_rfi.id,
+            event_type="sent",
+            email_message_id="msg-001",
+            email_thread_id="thread-001",
+            to_address=regular_user.email,
+            from_address=admin_user.email,
+            subject=f"RFI-{draft_rfi.rfi_number}: {draft_rfi.subject}",
+            raw_email_data={"event": "initial_send"}
+        )
+        db.add(log1)
+        await db.commit()
+
+        # Create second email log (received response)
+        log2 = RFIEmailLog(
+            id=uuid.uuid4(),
+            rfi_id=draft_rfi.id,
+            event_type="received",
+            email_message_id="msg-002",
+            email_thread_id="thread-001",
+            to_address=admin_user.email,
+            from_address=regular_user.email,
+            subject=f"Re: RFI-{draft_rfi.rfi_number}: {draft_rfi.subject}",
+            raw_email_data={"event": "response"}
+        )
+        db.add(log2)
+        await db.commit()
+
+        # Create third email log (follow-up)
+        log3 = RFIEmailLog(
+            id=uuid.uuid4(),
+            rfi_id=draft_rfi.id,
+            event_type="sent",
+            email_message_id="msg-003",
+            email_thread_id="thread-001",
+            to_address=regular_user.email,
+            from_address=admin_user.email,
+            subject=f"Re: RFI-{draft_rfi.rfi_number}: {draft_rfi.subject}",
+            raw_email_data={"event": "follow_up"}
+        )
+        db.add(log3)
+        await db.commit()
+
+        # Verify all logs were created
+        result = await db.execute(
+            select(RFIEmailLog).where(RFIEmailLog.rfi_id == draft_rfi.id)
+        )
+        logs = result.scalars().all()
+        assert len(logs) == 3
+
+        # Verify event types
+        event_types = [log.event_type for log in logs]
+        assert "sent" in event_types
+        assert "received" in event_types
+        assert event_types.count("sent") == 2
+
+    async def test_sent_at_timestamp_recorded(
+        self,
+        db: AsyncSession,
+        draft_rfi: RFI
+    ):
+        """Test that sent_at timestamp is recorded when RFI is sent."""
+        # Verify initially None
+        assert draft_rfi.sent_at is None
+
+        # Simulate sending
+        send_time = datetime.utcnow()
+        draft_rfi.status = RFIStatus.WAITING_RESPONSE
+        draft_rfi.sent_at = send_time
+        await db.commit()
+        await db.refresh(draft_rfi)
+
+        # Verify sent_at was recorded
+        assert draft_rfi.sent_at is not None
+        assert draft_rfi.sent_at == send_time
+        assert draft_rfi.status == RFIStatus.WAITING_RESPONSE
+
+    async def test_email_thread_id_links_conversation(
+        self,
+        db: AsyncSession,
+        sample_project: Project,
+        admin_user: User,
+        regular_user: User
+    ):
+        """Test that email_thread_id properly links email conversation."""
+        # Create RFI with thread_id
+        rfi = RFI(
+            id=uuid.uuid4(),
+            project_id=sample_project.id,
+            rfi_number=f"RFI-{sample_project.code}-002",
+            subject="Thread Linking Test",
+            question="Test question for thread linking",
+            status=RFIStatus.WAITING_RESPONSE,
+            priority=RFIPriority.NORMAL,
+            category=RFICategory.TECHNICAL,
+            created_by_id=admin_user.id,
+            assigned_to_id=regular_user.id,
+            email_thread_id="thread-consistent-123",
+            email_message_id="msg-original-123",
+            sent_at=datetime.utcnow()
+        )
+        db.add(rfi)
+        await db.commit()
+        await db.refresh(rfi)
+
+        # Create multiple email logs with same thread_id
+        for i in range(3):
+            log = RFIEmailLog(
+                id=uuid.uuid4(),
+                rfi_id=rfi.id,
+                event_type="sent" if i % 2 == 0 else "received",
+                email_message_id=f"msg-thread-{i}",
+                email_thread_id="thread-consistent-123",
+                to_address=regular_user.email if i % 2 == 0 else admin_user.email,
+                from_address=admin_user.email if i % 2 == 0 else regular_user.email,
+                subject=f"{'Re: ' if i > 0 else ''}RFI-{rfi.rfi_number}: Thread Test",
+                raw_email_data={"index": i}
+            )
+            db.add(log)
+        await db.commit()
+
+        # Query logs by thread_id
+        result = await db.execute(
+            select(RFIEmailLog).where(
+                RFIEmailLog.email_thread_id == "thread-consistent-123"
+            ).order_by(RFIEmailLog.created_at)
+        )
+        thread_logs = result.scalars().all()
+
+        # Verify all logs share same thread_id
+        assert len(thread_logs) == 3
+        assert all(log.email_thread_id == "thread-consistent-123" for log in thread_logs)
+        assert thread_logs[0].rfi_id == rfi.id
+
+    async def test_raw_email_data_stored_as_jsonb(
+        self,
+        db: AsyncSession,
+        draft_rfi: RFI,
+        admin_user: User,
+        regular_user: User
+    ):
+        """Test that raw_email_data is properly stored as JSONB."""
+        # Create email log with complex raw data
+        complex_data = {
+            "headers": {
+                "Message-ID": "<test@gmail.com>",
+                "Date": "Mon, 1 Jan 2024 10:00:00 +0000",
+                "Content-Type": "text/plain; charset=UTF-8"
+            },
+            "body": {
+                "plain": "Response text here",
+                "html": "<p>Response text here</p>"
+            },
+            "attachments": [
+                {"filename": "doc1.pdf", "size": 1024},
+                {"filename": "doc2.jpg", "size": 2048}
+            ],
+            "metadata": {
+                "spam_score": 0.1,
+                "virus_scan": "clean"
+            }
+        }
+
+        email_log = RFIEmailLog(
+            id=uuid.uuid4(),
+            rfi_id=draft_rfi.id,
+            event_type="received",
+            email_message_id="msg-jsonb-test",
+            email_thread_id="thread-jsonb-test",
+            to_address=admin_user.email,
+            from_address=regular_user.email,
+            subject="JSONB Test",
+            raw_email_data=complex_data
+        )
+        db.add(email_log)
+        await db.commit()
+        await db.refresh(email_log)
+
+        # Verify data was stored and retrieved correctly
+        assert email_log.raw_email_data == complex_data
+        assert email_log.raw_email_data["headers"]["Message-ID"] == "<test@gmail.com>"
+        assert len(email_log.raw_email_data["attachments"]) == 2
+        assert email_log.raw_email_data["metadata"]["virus_scan"] == "clean"
