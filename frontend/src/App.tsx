@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
+import { useNavigationGestures } from './hooks/useNavigationGestures'
 import Layout from './components/layout/Layout'
 import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
@@ -22,9 +23,26 @@ function ProtectedRoute() {
   return <Outlet />
 }
 
-export default function App() {
+/**
+ * AppContent component with gesture-aware navigation
+ *
+ * Wraps the routes with touch event handlers for back/forward navigation.
+ * Gestures are RTL-aware and only active outside of input fields.
+ */
+function AppContent() {
+  const { onTouchStart, onTouchMove, onTouchEnd } = useNavigationGestures({
+    enabled: true,
+    debug: false,
+  })
+
   return (
-    <Routes>
+    <div
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+      style={{ width: '100%', height: '100%' }}
+    >
+      <Routes>
         <Route path="/login" element={<LoginPage />} />
 
         <Route element={<ProtectedRoute />}>
@@ -51,5 +69,10 @@ export default function App() {
 
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
+    </div>
   )
+}
+
+export default function App() {
+  return <AppContent />
 }
