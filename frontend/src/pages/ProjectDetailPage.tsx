@@ -30,6 +30,7 @@ import { projectsApi } from '../api/projects'
 import { equipmentApi } from '../api/equipment'
 import { materialsApi } from '../api/materials'
 import { meetingsApi } from '../api/meetings'
+import { rfiApi, type RFISummary } from '../api/rfi'
 import type { Project, Equipment, Material, Meeting } from '../types'
 
 const tabs = [
@@ -52,6 +53,7 @@ export default function ProjectDetailPage() {
   const [equipment, setEquipment] = useState<Equipment[]>([])
   const [materials, setMaterials] = useState<Material[]>([])
   const [meetings, setMeetings] = useState<Meeting[]>([])
+  const [rfiSummary, setRfiSummary] = useState<RFISummary | null>(null)
 
   const currentPath = window.location.pathname.split('/').pop() || ''
   const currentTab = tabs.find(t => t.value === currentPath)?.value || ''
@@ -64,16 +66,18 @@ export default function ProjectDetailPage() {
     if (!projectId) return
     try {
       setLoading(true)
-      const [projectData, equipmentData, materialsData, meetingsData] = await Promise.all([
+      const [projectData, equipmentData, materialsData, meetingsData, rfiSummaryData] = await Promise.all([
         projectsApi.get(projectId).catch(() => null),
         equipmentApi.list(projectId).catch(() => []),
         materialsApi.list(projectId).catch(() => []),
-        meetingsApi.list(projectId).catch(() => [])
+        meetingsApi.list(projectId).catch(() => []),
+        rfiApi.getSummary(projectId).catch(() => null)
       ])
       setProject(projectData)
       setEquipment(equipmentData)
       setMaterials(materialsData)
       setMeetings(meetingsData)
+      setRfiSummary(rfiSummaryData)
     } catch {
       // Error handled silently
     } finally {
@@ -116,6 +120,8 @@ export default function ProjectDetailPage() {
 
   const pendingApprovals = equipment.filter(e => e.status !== 'approved' && e.status !== 'draft').length +
     materials.filter(m => m.status !== 'approved' && m.status !== 'draft').length
+
+  const rfiBadgeCount = rfiSummary ? (rfiSummary.open_count + rfiSummary.waiting_response_count) : 0
 
   const isOverview = currentTab === ''
 
@@ -192,7 +198,12 @@ export default function ProjectDetailPage() {
 
       <Box sx={{ mb: 4 }}>
         <Tabs
-          items={tabs.map(t => ({ label: t.label, value: t.value }))}
+          items={tabs.map(t => ({
+            label: t.label,
+            value: t.value,
+            icon: t.icon,
+            badge: t.value === 'rfis' ? rfiBadgeCount : undefined
+          }))}
           value={currentTab}
           onChange={handleTabChange}
           variant="scrollable"
