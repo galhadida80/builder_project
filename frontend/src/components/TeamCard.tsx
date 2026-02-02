@@ -2,6 +2,7 @@ import { Card as MuiCard, CardContent, CardHeader, Box, Typography, Chip } from 
 import { styled } from '@mui/material/styles'
 import { Avatar, AvatarGroup } from './ui/Avatar'
 import { TeamMember } from '../types'
+import { getWorkloadColor } from '../utils/workloadCalculation'
 
 interface TeamCardProps {
   teamName: string
@@ -35,13 +36,6 @@ const MemberRow = styled(Box)(({ theme }) => ({
     marginBottom: 0,
   },
 }))
-
-function getWorkloadColor(percent: number): 'success' | 'warning' | 'error' | 'default' {
-  if (percent <= 60) return 'success'
-  if (percent <= 90) return 'warning'
-  if (percent <= 100) return 'error'
-  return 'error'
-}
 
 export function TeamCard({ teamName, members, onClick, showDetails = false }: TeamCardProps) {
   const avgWorkload = members.length > 0

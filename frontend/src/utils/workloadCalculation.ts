@@ -95,13 +95,13 @@ export const getWorkloadLevel = (workloadPercent: number): WorkloadLevel => {
  * Get color for workload visualization based on percentage
  */
 export const getWorkloadColor = (workloadPercent: number): WorkloadColor => {
+  if (workloadPercent <= WORKLOAD_THRESHOLDS.UNDER_UTILIZED) {
+    return 'success' // Green (under-utilized)
+  }
   if (workloadPercent <= WORKLOAD_THRESHOLDS.OPTIMAL) {
-    return 'success' // Green (under-utilized and optimal)
+    return 'warning' // Yellow (optimal)
   }
-  if (workloadPercent <= WORKLOAD_THRESHOLDS.HIGH) {
-    return 'warning' // Orange (high)
-  }
-  return 'error' // Red (over-allocated)
+  return 'error' // Red (high/over-allocated)
 }
 
 /**

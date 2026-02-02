@@ -1,5 +1,6 @@
 import { Box, Typography, LinearProgress } from '@mui/material'
 import { styled } from '@mui/material/styles'
+import { getWorkloadColor } from '../utils/workloadCalculation'
 
 interface WorkloadBarProps {
   value: number
@@ -21,15 +22,6 @@ const StyledLinearProgress = styled(LinearProgress, {
     borderRadius: 4,
   },
 }))
-
-function getWorkloadColor(percent: number): 'success' | 'warning' | 'error' {
-  // Green (Under-utilized): 0-60%
-  if (percent <= 60) return 'success'
-  // Yellow (Optimal): 61-90%
-  if (percent <= 90) return 'warning'
-  // Orange/Red (High/Over-allocated): > 90%
-  return 'error'
-}
 
 function getWorkloadLabel(percent: number): string {
   if (percent <= 60) return 'Under-utilized'
