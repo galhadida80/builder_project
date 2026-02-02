@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Outlet } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Chip from '@mui/material/Chip'
@@ -32,21 +33,22 @@ import { materialsApi } from '../api/materials'
 import { meetingsApi } from '../api/meetings'
 import type { Project, Equipment, Material, Meeting } from '../types'
 
-const tabs = [
-  { label: 'Overview', value: '', icon: <TrendingUpIcon sx={{ fontSize: 18 }} /> },
-  { label: 'Equipment', value: 'equipment', icon: <ConstructionIcon sx={{ fontSize: 18 }} /> },
-  { label: 'Materials', value: 'materials', icon: <InventoryIcon sx={{ fontSize: 18 }} /> },
-  { label: 'Meetings', value: 'meetings', icon: <EventIcon sx={{ fontSize: 18 }} /> },
-  { label: 'Approvals', value: 'approvals', icon: <TaskAltIcon sx={{ fontSize: 18 }} /> },
-  { label: 'Areas', value: 'areas', icon: <AccountTreeIcon sx={{ fontSize: 18 }} /> },
-  { label: 'Contacts', value: 'contacts', icon: <ContactsIcon sx={{ fontSize: 18 }} /> },
-  { label: 'Inspections', value: 'inspections', icon: <AssignmentIcon sx={{ fontSize: 18 }} /> },
-  { label: 'RFIs', value: 'rfis', icon: <EmailIcon sx={{ fontSize: 18 }} /> },
+const tabsConfig = [
+  { labelKey: 'projects.overview', value: '', icon: <TrendingUpIcon sx={{ fontSize: 18 }} /> },
+  { labelKey: 'equipment.title', value: 'equipment', icon: <ConstructionIcon sx={{ fontSize: 18 }} /> },
+  { labelKey: 'materials.title', value: 'materials', icon: <InventoryIcon sx={{ fontSize: 18 }} /> },
+  { labelKey: 'meetings.title', value: 'meetings', icon: <EventIcon sx={{ fontSize: 18 }} /> },
+  { labelKey: 'approvals.title', value: 'approvals', icon: <TaskAltIcon sx={{ fontSize: 18 }} /> },
+  { labelKey: 'areas.title', value: 'areas', icon: <AccountTreeIcon sx={{ fontSize: 18 }} /> },
+  { labelKey: 'contacts.title', value: 'contacts', icon: <ContactsIcon sx={{ fontSize: 18 }} /> },
+  { labelKey: 'inspections.title', value: 'inspections', icon: <AssignmentIcon sx={{ fontSize: 18 }} /> },
+  { labelKey: 'rfis.title', value: 'rfis', icon: <EmailIcon sx={{ fontSize: 18 }} /> },
 ]
 
 export default function ProjectDetailPage() {
   const { projectId } = useParams()
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const [loading, setLoading] = useState(true)
   const [project, setProject] = useState<Project | null>(null)
   const [equipment, setEquipment] = useState<Equipment[]>([])
@@ -54,7 +56,7 @@ export default function ProjectDetailPage() {
   const [meetings, setMeetings] = useState<Meeting[]>([])
 
   const currentPath = window.location.pathname.split('/').pop() || ''
-  const currentTab = tabs.find(t => t.value === currentPath)?.value || ''
+  const currentTab = tabsConfig.find(t => t.value === currentPath)?.value || ''
 
   useEffect(() => {
     loadProjectData()
@@ -102,9 +104,9 @@ export default function ProjectDetailPage() {
       <Box sx={{ p: 3 }}>
         <EmptyState
           variant="not-found"
-          title="Project not found"
-          description="The project you're looking for doesn't exist or has been removed"
-          action={{ label: 'Back to Projects', onClick: () => navigate('/projects') }}
+          title={t('projects.notFound')}
+          description={t('projects.notFoundMessage')}
+          action={{ label: t('projects.backToProjects'), onClick: () => navigate('/projects') }}
         />
       </Box>
     )
@@ -126,7 +128,7 @@ export default function ProjectDetailPage() {
           <ArrowBackIcon />
         </IconButton>
         <Typography variant="body2" color="text.secondary">
-          Back to Projects
+          {t('projects.backToProjects')}
         </Typography>
       </Box>
 
@@ -184,7 +186,7 @@ export default function ProjectDetailPage() {
               </Box>
             </Box>
             <Button variant="secondary" icon={<EditIcon />} sx={{ bgcolor: 'rgba(255,255,255,0.1)', color: 'white', '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' } }}>
-              Edit Project
+              {t('projects.editProject')}
             </Button>
           </Box>
         </Box>
@@ -192,7 +194,7 @@ export default function ProjectDetailPage() {
 
       <Box sx={{ mb: 4 }}>
         <Tabs
-          items={tabs.map(t => ({ label: t.label, value: t.value }))}
+          items={tabsConfig.map(tab => ({ label: t(tab.labelKey), value: tab.value }))}
           value={currentTab}
           onChange={handleTabChange}
           variant="scrollable"
@@ -210,28 +212,28 @@ export default function ProjectDetailPage() {
             }}
           >
             <KPICard
-              title="Equipment"
+              title={t('projects.equipmentCount')}
               value={equipment.length}
               icon={<ConstructionIcon />}
               color="primary"
               onClick={() => handleTabChange('equipment')}
             />
             <KPICard
-              title="Materials"
+              title={t('projects.materialsCount')}
               value={materials.length}
               icon={<InventoryIcon />}
               color="warning"
               onClick={() => handleTabChange('materials')}
             />
             <KPICard
-              title="Meetings"
+              title={t('projects.meetingsCount')}
               value={meetings.length}
               icon={<EventIcon />}
               color="info"
               onClick={() => handleTabChange('meetings')}
             />
             <KPICard
-              title="Pending Approvals"
+              title={t('projects.pendingApprovals')}
               value={pendingApprovals}
               icon={<WarningAmberIcon />}
               color={pendingApprovals > 0 ? 'error' : 'success'}
@@ -243,28 +245,28 @@ export default function ProjectDetailPage() {
             <Card>
               <Box sx={{ p: 3 }}>
                 <Typography variant="h6" fontWeight={600} sx={{ mb: 3 }}>
-                  Project Progress
+                  {t('projects.projectProgress')}
                 </Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', py: 4 }}>
                   <Box sx={{ textAlign: 'center' }}>
                     <CircularProgressDisplay value={67} size={140} thickness={8} showLabel />
                     <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-                      Overall Completion
+                      {t('projects.overallCompletion')}
                     </Typography>
                   </Box>
                 </Box>
                 <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2, mt: 2 }}>
                   <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'action.hover', borderRadius: 2 }}>
                     <Typography variant="h5" fontWeight={700} color="success.main">45</Typography>
-                    <Typography variant="caption" color="text.secondary">Completed Tasks</Typography>
+                    <Typography variant="caption" color="text.secondary">{t('projects.completedTasks')}</Typography>
                   </Box>
                   <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'action.hover', borderRadius: 2 }}>
                     <Typography variant="h5" fontWeight={700} color="info.main">12</Typography>
-                    <Typography variant="caption" color="text.secondary">In Progress</Typography>
+                    <Typography variant="caption" color="text.secondary">{t('projects.inProgress')}</Typography>
                   </Box>
                   <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'action.hover', borderRadius: 2 }}>
                     <Typography variant="h5" fontWeight={700} color="warning.main">8</Typography>
-                    <Typography variant="caption" color="text.secondary">Pending</Typography>
+                    <Typography variant="caption" color="text.secondary">{t('projects.pending')}</Typography>
                   </Box>
                 </Box>
               </Box>
@@ -274,34 +276,34 @@ export default function ProjectDetailPage() {
               <Card>
                 <Box sx={{ p: 3 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                    <Typography variant="h6" fontWeight={600}>Quick Stats</Typography>
+                    <Typography variant="h6" fontWeight={600}>{t('projects.quickStats')}</Typography>
                   </Box>
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1.5, borderBottom: 1, borderColor: 'divider' }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                         <ConstructionIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
-                        <Typography variant="body2" color="text.secondary">Equipment Items</Typography>
+                        <Typography variant="body2" color="text.secondary">{t('equipment.title')}</Typography>
                       </Box>
                       <Typography variant="body2" fontWeight={600}>{equipment.length}</Typography>
                     </Box>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1.5, borderBottom: 1, borderColor: 'divider' }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                         <InventoryIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
-                        <Typography variant="body2" color="text.secondary">Materials</Typography>
+                        <Typography variant="body2" color="text.secondary">{t('materials.title')}</Typography>
                       </Box>
                       <Typography variant="body2" fontWeight={600}>{materials.length}</Typography>
                     </Box>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1.5, borderBottom: 1, borderColor: 'divider' }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                         <EventIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
-                        <Typography variant="body2" color="text.secondary">Scheduled Meetings</Typography>
+                        <Typography variant="body2" color="text.secondary">{t('meetings.title')}</Typography>
                       </Box>
                       <Typography variant="body2" fontWeight={600}>{meetings.length}</Typography>
                     </Box>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1.5 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                         <WarningAmberIcon sx={{ fontSize: 18, color: pendingApprovals > 0 ? 'warning.main' : 'text.secondary' }} />
-                        <Typography variant="body2" color="text.secondary">Pending Approvals</Typography>
+                        <Typography variant="body2" color="text.secondary">{t('projects.pendingApprovals')}</Typography>
                       </Box>
                       <Chip
                         label={pendingApprovals}
@@ -317,14 +319,14 @@ export default function ProjectDetailPage() {
               <Card>
                 <Box sx={{ p: 3 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                    <Typography variant="h6" fontWeight={600}>Team</Typography>
+                    <Typography variant="h6" fontWeight={600}>{t('projects.team')}</Typography>
                     <GroupIcon sx={{ color: 'text.secondary' }} />
                   </Box>
                   <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                    Team members assigned to this project
+                    {t('projects.teamMembersDescription')}
                   </Typography>
                   <Button variant="secondary" size="small" onClick={() => handleTabChange('contacts')}>
-                    View Team
+                    {t('projects.viewTeam')}
                   </Button>
                 </Box>
               </Card>
