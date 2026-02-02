@@ -3,13 +3,13 @@
   "spec": "131-build-team-workload-view",
   "state": "building",
   "subtasks": {
-    "completed": 6,
+    "completed": 8,
     "total": 14,
     "in_progress": 1,
     "failed": 0
   },
   "phase": {
-    "current": "Team Workload View Page",
+    "current": "Routing and Navigation",
     "id": null,
     "total": 2
   },
@@ -18,8 +18,8 @@
     "max": 1
   },
   "session": {
-    "number": 7,
+    "number": 9,
     "started_at": "2026-02-02T12:16:30.715217"
   },
-  "last_update": "2026-02-02T12:29:14.120029"
+  "last_update": "2026-02-02T12:34:16.918492"
 }

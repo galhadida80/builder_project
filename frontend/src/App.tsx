@@ -13,6 +13,7 @@ import ContactsPage from './pages/ContactsPage'
 import AuditLogPage from './pages/AuditLogPage'
 import InspectionsPage from './pages/InspectionsPage'
 import RFIPage from './pages/RFIPage'
+import TeamWorkloadPage from './pages/TeamWorkloadPage'
 
 function ProtectedRoute() {
   const token = localStorage.getItem('authToken')
@@ -46,6 +47,7 @@ export default function App() {
 
             <Route path="/approvals" element={<ApprovalsPage />} />
             <Route path="/audit" element={<AuditLogPage />} />
+            <Route path="/team-workload" element={<TeamWorkloadPage />} />
           </Route>
         </Route>
 
