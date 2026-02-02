@@ -1,0 +1,61 @@
+/* RTL-specific styles for right-to-left languages like Hebrew */
+
+/**
+ * Flip directional icons (arrows, chevrons) in RTL mode
+ * Apply this class to icons that point in a direction (e.g., ArrowForward, ChevronRight)
+ */
+.flip-rtl {
+  transform: scaleX(var(--rtl-flip, 1));
+}
+
+[dir="rtl"] .flip-rtl {
+  transform: scaleX(-1);
+}
+
+/**
+ * Material-UI Drawer positioning in RTL
+ * Ensures drawer opens from the correct side in RTL mode
+ */
+[dir="rtl"] .MuiDrawer-paperAnchorLeft {
+  right: 0;
+  left: auto;
+}
+
+/**
+ * Material-UI AppBar adjustments for RTL
+ * Ensure proper spacing when sidebar is on the right side
+ */
+[dir="rtl"] .MuiAppBar-root {
+  /* RTL adjustments handled by theme direction property */
+}
+
+/**
+ * Text alignment utilities for RTL
+ * Use text-align: start instead of text-align: left
+ */
+.text-start {
+  text-align: start;
+}
+
+.text-end {
+  text-align: end;
+}
+
+/**
+ * Margin utilities for RTL (logical properties)
+ */
+.ml-auto {
+  margin-inline-start: auto;
+}
+
+.mr-auto {
+  margin-inline-end: auto;
+}
+
+/**
+ * Ensure consistent behavior across browsers
+ * Some older browsers may need vendor prefixes
+ */
+@supports (transform: scaleX(-1)) {
+  /* Modern browsers support scaleX directly */
+}

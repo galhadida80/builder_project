@@ -125,7 +125,7 @@ export default function ProjectDetailPage() {
     <Box sx={{ p: 3 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
         <IconButton onClick={() => navigate('/projects')} size="small">
-          <ArrowBackIcon />
+          <ArrowBackIcon className="flip-rtl" />
         </IconButton>
         <Typography variant="body2" color="text.secondary">
           {t('projects.backToProjects')}

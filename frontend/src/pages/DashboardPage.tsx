@@ -227,7 +227,7 @@ export default function DashboardPage() {
                             </Box>
                           }
                         />
-                        <Button variant="tertiary" size="small" icon={<ArrowForwardIcon />} iconPosition="end">
+                        <Button variant="tertiary" size="small" icon={<ArrowForwardIcon className="flip-rtl" />} iconPosition="end">
                           {t('dashboard.review')}
                         </Button>
                       </ListItem>
