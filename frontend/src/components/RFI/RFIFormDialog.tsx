@@ -282,6 +282,51 @@ export function RFIFormDialog({
               )}
             />
           </LocalizationProvider>
+
+          <Controller
+            name="location"
+            control={control}
+            render={({ field, fieldState }) => (
+              <TextField
+                {...field}
+                label="Location"
+                fullWidth
+                error={!!fieldState.error}
+                helperText={fieldState.error?.message}
+                disabled={loading || isSubmitting}
+              />
+            )}
+          />
+
+          <Controller
+            name="drawingReference"
+            control={control}
+            render={({ field, fieldState }) => (
+              <TextField
+                {...field}
+                label="Drawing Reference"
+                fullWidth
+                error={!!fieldState.error}
+                helperText={fieldState.error?.message}
+                disabled={loading || isSubmitting}
+              />
+            )}
+          />
+
+          <Controller
+            name="specificationReference"
+            control={control}
+            render={({ field, fieldState }) => (
+              <TextField
+                {...field}
+                label="Specification Reference"
+                fullWidth
+                error={!!fieldState.error}
+                helperText={fieldState.error?.message}
+                disabled={loading || isSubmitting}
+              />
+            )}
+          />
         </Stack>
       </Box>
     </Modal>
