@@ -1,13 +1,14 @@
-import { Box, Paper, useTheme, Typography, ButtonGroup, Menu, MenuItem, Skeleton } from '@mui/material'
+import { Box, Paper, useTheme, Typography, ButtonGroup, Menu, MenuItem, Skeleton, Alert, AlertTitle } from '@mui/material'
 import { styled, alpha } from '@mui/material/styles'
 import FilterListIcon from '@mui/icons-material/FilterList'
 import TimelineIcon from '@mui/icons-material/Timeline'
+import WarningIcon from '@mui/icons-material/Warning'
 import { Gantt, Task, ViewMode } from 'gantt-task-react'
 import 'gantt-task-react/dist/index.css'
 import { GanttChartProps, GanttTask, GanttViewMode, GanttTaskType } from '../types/gantt'
 import { Button } from './ui/Button'
 import { EmptyState } from './ui/EmptyState'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 
 // Styled components following MUI theme patterns
 const StyledGanttPaper = styled(Paper)(({ theme }) => ({
@@ -80,6 +81,176 @@ const ToolbarBox = styled(Box)(({ theme }) => ({
   gap: theme.spacing(2),
 }))
 
+// Validation warning type
+interface ValidationWarning {
+  taskId: string
+  taskName: string
+  message: string
+  type: 'error' | 'warning'
+}
+
+// Validate task dates
+const validateTaskDates = (task: GanttTask): string | null => {
+  if (task.end < task.start) {
+    return 'End date must be after start date'
+  }
+
+  // Check for very short tasks (less than 1 minute)
+  const durationMs = task.end.getTime() - task.start.getTime()
+  const oneMinute = 60 * 1000
+  if (durationMs < oneMinute) {
+    return 'Task duration is too short (less than 1 minute)'
+  }
+
+  return null
+}
+
+// Validate task progress
+const validateTaskProgress = (task: GanttTask): string | null => {
+  if (task.progress < 0 || task.progress > 100) {
+    return 'Task progress must be between 0 and 100'
+  }
+  return null
+}
+
+// Detect circular dependencies using depth-first search
+const hasCircularDependency = (
+  taskId: string,
+  tasks: GanttTask[],
+  visited: Set<string> = new Set(),
+  recursionStack: Set<string> = new Set()
+): boolean => {
+  const task = tasks.find((t) => t.id === taskId)
+  if (!task) return false
+
+  visited.add(taskId)
+  recursionStack.add(taskId)
+
+  const dependencies = task.dependencies || []
+  for (const depId of dependencies) {
+    if (!visited.has(depId)) {
+      if (hasCircularDependency(depId, tasks, visited, recursionStack)) {
+        return true
+      }
+    } else if (recursionStack.has(depId)) {
+      return true
+    }
+  }
+
+  recursionStack.delete(taskId)
+  return false
+}
+
+// Validate all dependencies exist
+const validateDependencies = (task: GanttTask, allTasks: GanttTask[]): string | null => {
+  if (!task.dependencies || task.dependencies.length === 0) {
+    return null
+  }
+
+  const taskIds = new Set(allTasks.map((t) => t.id))
+  const missingDeps = task.dependencies.filter((depId) => !taskIds.has(depId))
+
+  if (missingDeps.length > 0) {
+    return `Task has invalid dependencies: ${missingDeps.join(', ')}`
+  }
+
+  return null
+}
+
+// Validate tasks and collect warnings
+const validateTasks = (tasks: GanttTask[]): { validTasks: GanttTask[]; warnings: ValidationWarning[] } => {
+  const warnings: ValidationWarning[] = []
+  const validTasks: GanttTask[] = []
+
+  // Check for empty data - already handled by component logic
+  if (tasks.length === 0) {
+    return { validTasks: [], warnings: [] }
+  }
+
+  // First pass: validate individual tasks
+  for (const task of tasks) {
+    let hasErrors = false
+
+    // Validate dates
+    const dateError = validateTaskDates(task)
+    if (dateError) {
+      warnings.push({
+        taskId: task.id,
+        taskName: task.name,
+        message: dateError,
+        type: 'error',
+      })
+      hasErrors = true
+    }
+
+    // Validate progress
+    const progressError = validateTaskProgress(task)
+    if (progressError) {
+      warnings.push({
+        taskId: task.id,
+        taskName: task.name,
+        message: progressError,
+        type: 'error',
+      })
+      hasErrors = true
+    }
+
+    // Validate dependencies exist
+    const depError = validateDependencies(task, tasks)
+    if (depError) {
+      warnings.push({
+        taskId: task.id,
+        taskName: task.name,
+        message: depError,
+        type: 'error',
+      })
+      hasErrors = true
+    }
+
+    // Only include tasks without errors
+    if (!hasErrors) {
+      validTasks.push(task)
+    }
+  }
+
+  // Second pass: check for circular dependencies
+  const visited = new Set<string>()
+  for (const task of validTasks) {
+    if (!visited.has(task.id)) {
+      if (hasCircularDependency(task.id, validTasks, visited)) {
+        warnings.push({
+          taskId: task.id,
+          taskName: task.name,
+          message: 'Task is part of a circular dependency chain',
+          type: 'error',
+        })
+      }
+    }
+  }
+
+  // Remove tasks with circular dependencies
+  const circularTaskIds = new Set(
+    warnings.filter((w) => w.message.includes('circular')).map((w) => w.taskId)
+  )
+  const finalValidTasks = validTasks.filter((task) => !circularTaskIds.has(task.id))
+
+  // Check for very long tasks (more than 10 years) - warning only
+  for (const task of finalValidTasks) {
+    const durationMs = task.end.getTime() - task.start.getTime()
+    const tenYears = 10 * 365 * 24 * 60 * 60 * 1000
+    if (durationMs > tenYears) {
+      warnings.push({
+        taskId: task.id,
+        taskName: task.name,
+        message: 'Task duration exceeds 10 years - timeline may not render optimally',
+        type: 'warning',
+      })
+    }
+  }
+
+  return { validTasks: finalValidTasks, warnings }
+}
+
 // Map our GanttViewMode string type to the library's ViewMode enum
 const viewModeMap: Record<GanttViewMode, ViewMode> = {
   Hour: ViewMode.Hour,
@@ -124,8 +295,19 @@ export function GanttChart({
   const [filterType, setFilterType] = useState<GanttTaskType | 'all'>('all')
   const filterMenuOpen = Boolean(filterAnchorEl)
 
+  // Validate tasks and get warnings
+  const { validTasks, warnings } = useMemo(() => validateTasks(tasks), [tasks])
+
+  // Apply filter to valid tasks
+  const filteredTasks = useMemo(() => {
+    if (filterType === 'all') {
+      return validTasks
+    }
+    return validTasks.filter((task) => task.type === filterType)
+  }, [validTasks, filterType])
+
   // Convert our tasks to library format
-  const libraryTasks = tasks.map(convertToLibraryTask)
+  const libraryTasks = filteredTasks.map(convertToLibraryTask)
 
   // Get the library ViewMode enum value
   const currentViewMode = viewModeMap[viewMode]
@@ -148,9 +330,13 @@ export function GanttChart({
   // Handle date change event
   const handleTaskChange = (task: Task) => {
     if (onDateChange) {
-      const originalTask = tasks.find((t) => t.id === task.id)
+      const originalTask = validTasks.find((t) => t.id === task.id)
       if (originalTask) {
-        onDateChange(originalTask, task.start, task.end)
+        // Validate new dates
+        const dateError = validateTaskDates({ ...originalTask, start: task.start, end: task.end })
+        if (!dateError) {
+          onDateChange(originalTask, task.start, task.end)
+        }
       }
     }
   }
@@ -158,9 +344,13 @@ export function GanttChart({
   // Handle progress change event
   const handleProgressChange = (task: Task) => {
     if (onProgressChange) {
-      const originalTask = tasks.find((t) => t.id === task.id)
+      const originalTask = validTasks.find((t) => t.id === task.id)
       if (originalTask) {
-        onProgressChange(originalTask, task.progress)
+        // Validate new progress
+        const progressError = validateTaskProgress({ ...originalTask, progress: task.progress })
+        if (!progressError) {
+          onProgressChange(originalTask, task.progress)
+        }
       }
     }
   }
@@ -168,7 +358,7 @@ export function GanttChart({
   // Handle delete event
   const handleDelete = (task: Task) => {
     if (onDelete) {
-      const originalTask = tasks.find((t) => t.id === task.id)
+      const originalTask = validTasks.find((t) => t.id === task.id)
       if (originalTask) {
         onDelete(originalTask)
       }
@@ -178,7 +368,7 @@ export function GanttChart({
   // Handle expander click event
   const handleExpanderClick = (task: Task) => {
     if (onExpanderClick) {
-      const originalTask = tasks.find((t) => t.id === task.id)
+      const originalTask = validTasks.find((t) => t.id === task.id)
       if (originalTask) {
         onExpanderClick(originalTask)
       }
@@ -237,8 +427,8 @@ export function GanttChart({
     )
   }
 
-  // Render empty state
-  if (libraryTasks.length === 0) {
+  // Render empty state for original tasks
+  if (tasks.length === 0) {
     return (
       <StyledGanttPaper elevation={1}>
         <EmptyState
@@ -251,10 +441,64 @@ export function GanttChart({
     )
   }
 
+  // Render empty state if all tasks are invalid
+  if (libraryTasks.length === 0 && tasks.length > 0) {
+    return (
+      <StyledGanttPaper elevation={1}>
+        {warnings.length > 0 && (
+          <Box sx={{ mb: 2 }}>
+            {warnings.map((warning, index) => (
+              <Alert key={index} severity={warning.type} sx={{ mb: 1 }}>
+                <AlertTitle>
+                  {warning.type === 'error' ? 'Validation Error' : 'Warning'}: {warning.taskName}
+                </AlertTitle>
+                {warning.message}
+              </Alert>
+            ))}
+          </Box>
+        )}
+        <EmptyState
+          variant="no-data"
+          title="No Valid Tasks"
+          description="All tasks have validation errors. Please fix the issues above to display the timeline."
+          icon={<WarningIcon />}
+        />
+      </StyledGanttPaper>
+    )
+  }
+
   // Render the Gantt chart
   return (
     <StyledGanttPaper elevation={1}>
       <Box sx={{ width: '100%', height: '100%' }}>
+        {/* Display validation warnings */}
+        {warnings.length > 0 && (
+          <Box sx={{ mb: 2 }}>
+            <Alert severity="warning" icon={<WarningIcon />}>
+              <AlertTitle>Validation Issues Found</AlertTitle>
+              {warnings.length} task{warnings.length > 1 ? 's have' : ' has'} validation issues.{' '}
+              {warnings.filter((w) => w.type === 'error').length > 0 && (
+                <>
+                  {warnings.filter((w) => w.type === 'error').length} error
+                  {warnings.filter((w) => w.type === 'error').length > 1 ? 's' : ''} (tasks excluded from
+                  timeline).
+                </>
+              )}
+            </Alert>
+            <Box sx={{ mt: 1, maxHeight: 200, overflowY: 'auto' }}>
+              {warnings.slice(0, 5).map((warning, index) => (
+                <Alert key={index} severity={warning.type} sx={{ mb: 1 }}>
+                  <strong>{warning.taskName}:</strong> {warning.message}
+                </Alert>
+              ))}
+              {warnings.length > 5 && (
+                <Typography variant="body2" sx={{ mt: 1, color: 'text.secondary', textAlign: 'center' }}>
+                  ... and {warnings.length - 5} more issue{warnings.length - 5 > 1 ? 's' : ''}
+                </Typography>
+              )}
+            </Box>
+          </Box>
+        )}
         <ToolbarBox>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.secondary' }}>
