@@ -3,6 +3,7 @@ import { Box, Typography, Grid } from '@mui/material'
 import dayjs, { Dayjs } from 'dayjs'
 import DateRangeSelector from './components/DateRangeSelector'
 import AnalyticsKPICard from './components/KPICard'
+import ProjectMetricsChart from './components/ProjectMetricsChart'
 import AssessmentIcon from '@mui/icons-material/Assessment'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import PendingActionsIcon from '@mui/icons-material/PendingActions'
@@ -89,6 +90,31 @@ export default function AnalyticsDashboard() {
               trendLabel="vs last month"
               icon={<TrendingUpIcon />}
               color="info"
+            />
+          </Grid>
+        </Grid>
+      </Box>
+
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+          Project Metrics Over Time
+        </Typography>
+        <Grid container spacing={3}>
+          <Grid item xs={12}>
+            <ProjectMetricsChart
+              title="Inspections & RFIs"
+              data={[
+                {
+                  label: 'Inspections Completed',
+                  values: [12, 19, 15, 22, 18, 25, 28],
+                },
+                {
+                  label: 'RFIs Submitted',
+                  values: [8, 12, 10, 15, 13, 18, 20],
+                },
+              ]}
+              xAxisLabels={['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7']}
+              height={350}
             />
           </Grid>
         </Grid>
