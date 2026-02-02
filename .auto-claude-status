@@ -3,7 +3,7 @@
   "spec": "083-epic-rtl-and-internationalization",
   "state": "building",
   "subtasks": {
-    "completed": 9,
+    "completed": 10,
     "total": 20,
     "in_progress": 1,
     "failed": 0
@@ -18,8 +18,8 @@
     "max": 1
   },
   "session": {
-    "number": 3,
+    "number": 4,
     "started_at": "2026-02-02T14:31:41.954472"
   },
-  "last_update": "2026-02-02T14:40:18.483910"
+  "last_update": "2026-02-02T14:44:07.084131"
 }

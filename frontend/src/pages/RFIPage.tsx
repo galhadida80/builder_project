@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Drawer from '@mui/material/Drawer'
@@ -33,6 +34,7 @@ import { useToast } from '../components/common/ToastProvider'
 
 export default function RFIPage() {
   const { projectId } = useParams()
+  const { t } = useTranslation()
   const { showError, showSuccess } = useToast()
   const [loading, setLoading] = useState(true)
   const [rfis, setRfis] = useState<RFIListItem[]>([])
@@ -85,7 +87,7 @@ export default function RFIPage() {
       setTotalPages(response.total_pages)
       setTotal(response.total)
     } catch {
-      showError('Failed to load RFIs. Please try again.')
+      showError(t('rfis.failedToLoadRFIs'))
     } finally {
       setLoading(false)
     }
@@ -386,12 +388,12 @@ export default function RFIPage() {
   return (
     <Box sx={{ p: 3 }}>
       <PageHeader
-        title="RFIs"
+        title={t('rfis.title')}
         subtitle="Manage Requests for Information"
-        breadcrumbs={[{ label: 'Projects', href: '/projects' }, { label: 'RFIs' }]}
+        breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('rfis.title') }]}
         actions={
           <Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>
-            New RFI
+            {t('rfis.addRFI')}
           </Button>
         }
       />
@@ -401,19 +403,19 @@ export default function RFIPage() {
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
             <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
               <SearchField
-                placeholder="Search RFIs..."
+                placeholder={t('rfis.searchPlaceholder')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
               <Button variant="secondary" size="small" icon={<FilterListIcon />}>
-                Filters
+                {t('rfis.filters')}
               </Button>
             </Box>
             <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
               {summary && summary.overdue_count > 0 && (
                 <Chip label={`${summary.overdue_count} Overdue`} size="small" color="error" />
               )}
-              <Chip label={`${total} RFIs`} size="small" />
+              <Chip label={`${total} ${t('rfis.title')}`} size="small" />
             </Box>
           </Box>
 
@@ -444,13 +446,13 @@ export default function RFIPage() {
           {totalPages > 1 && (
             <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1, mt: 2 }}>
               <Button variant="secondary" size="small" disabled={page === 1} onClick={() => setPage(p => p - 1)}>
-                Previous
+                {t('common.previous')}
               </Button>
               <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', px: 2 }}>
-                Page {page} of {totalPages}
+                {t('common.stepOfTotal', { current: page, total: totalPages })}
               </Typography>
               <Button variant="secondary" size="small" disabled={page === totalPages} onClick={() => setPage(p => p + 1)}>
-                Next
+                {t('common.next')}
               </Button>
             </Box>
           )}
@@ -472,7 +474,7 @@ export default function RFIPage() {
         ) : selectedRfi && (
           <Box sx={{ p: 3 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-              <Typography variant="h6" fontWeight={600}>RFI Details</Typography>
+              <Typography variant="h6" fontWeight={600}>{t('rfis.title')} {t('common.details')}</Typography>
               <IconButton onClick={handleCloseDrawer} size="small">
                 <CloseIcon />
               </IconButton>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Skeleton from '@mui/material/Skeleton'
@@ -31,6 +32,7 @@ import type {
 
 export default function InspectionsPage() {
   const { projectId } = useParams()
+  const { t } = useTranslation()
   const [inspections, setInspections] = useState<Inspection[]>([])
   const [consultantTypes, setConsultantTypes] = useState<InspectionConsultantType[]>([])
   const [summary, setSummary] = useState<InspectionSummary | null>(null)
@@ -289,12 +291,12 @@ export default function InspectionsPage() {
   return (
     <Box sx={{ p: 3 }}>
       <PageHeader
-        title="Senior Supervision Inspections"
+        title={t('inspections.title')}
         subtitle="Manage and track all inspection activities"
-        breadcrumbs={[{ label: 'Projects', href: '/projects' }, { label: 'Inspections' }]}
+        breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('inspections.title') }]}
         actions={
           <Button variant="primary" icon={<AddIcon />} onClick={() => setDialogOpen(true)}>
-            Schedule Inspection
+            {t('inspections.newInspection')}
           </Button>
         }
       />
@@ -309,25 +311,25 @@ export default function InspectionsPage() {
           }}
         >
           <KPICard
-            title="Total Inspections"
+            title={t('inspections.totalInspections')}
             value={summary.totalInspections}
             icon={<AssignmentIcon />}
             color="primary"
           />
           <KPICard
-            title="Pending"
+            title={t('inspections.pending')}
             value={summary.pendingCount}
             icon={<ScheduleIcon />}
             color="info"
           />
           <KPICard
-            title="In Progress"
+            title={t('inspections.completed')}
             value={summary.inProgressCount}
             icon={<WarningIcon />}
             color="warning"
           />
           <KPICard
-            title="Completed"
+            title={t('inspections.completed')}
             value={summary.completedCount}
             icon={<CheckCircleIcon />}
             color="success"
@@ -351,7 +353,7 @@ export default function InspectionsPage() {
         <Card>
           <Box sx={{ p: 2.5 }}>
             <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
-              Consultant Types
+              {t('inspections.consultantType')}
             </Typography>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
               {consultantTypes.map((type) => (
@@ -472,15 +474,15 @@ export default function InspectionsPage() {
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
         onSubmit={handleCreateInspection}
-        title="Schedule New Inspection"
-        submitLabel="Schedule"
+        title={t('inspections.createInspection')}
+        submitLabel={t('common.save')}
         submitDisabled={!newInspection.consultantTypeId || !newInspection.scheduledDate}
       >
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1 }}>
           <MuiTextField
             select
             fullWidth
-            label="Consultant Type"
+            label={t('inspections.consultantType')}
             value={newInspection.consultantTypeId}
             onChange={(e) => setNewInspection({ ...newInspection, consultantTypeId: e.target.value })}
           >
@@ -493,7 +495,7 @@ export default function InspectionsPage() {
 
           <TextField
             fullWidth
-            label="Scheduled Date"
+            label={t('inspections.scheduledDate')}
             type="date"
             InputLabelProps={{ shrink: true }}
             value={newInspection.scheduledDate}
@@ -502,7 +504,7 @@ export default function InspectionsPage() {
 
           <TextField
             fullWidth
-            label="Notes"
+            label={t('common.notes')}
             multiline
             rows={3}
             value={newInspection.notes}
