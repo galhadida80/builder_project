@@ -8,6 +8,7 @@ import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
 import Divider from '@mui/material/Divider'
 import Typography from '@mui/material/Typography'
+import Badge from '@mui/material/Badge'
 import DashboardIcon from '@mui/icons-material/Dashboard'
 import FolderIcon from '@mui/icons-material/Folder'
 import BuildIcon from '@mui/icons-material/Build'
@@ -53,9 +54,10 @@ const systemNavItems: NavItem[] = [
 
 interface SidebarProps {
   projectId?: string
+  rfiBadgeCount?: number
 }
 
-export default function Sidebar({ projectId }: SidebarProps) {
+export default function Sidebar({ projectId, rfiBadgeCount = 0 }: SidebarProps) {
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -194,6 +196,18 @@ export default function Sidebar({ projectId }: SidebarProps) {
           <List sx={{ px: 1.5, py: 0 }}>
             {projectNavItems.map((item) => {
               const fullPath = `/projects/${projectId}${item.path}`
+              const isRFI = item.path === '/rfis'
+              const iconWithBadge = isRFI ? (
+                <Badge
+                  badgeContent={rfiBadgeCount}
+                  color="error"
+                  invisible={rfiBadgeCount === 0}
+                >
+                  {item.icon}
+                </Badge>
+              ) : (
+                item.icon
+              )
               return (
                 <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }}>
                   <ListItemButton
@@ -219,7 +233,7 @@ export default function Sidebar({ projectId }: SidebarProps) {
                     }}
                   >
                     <ListItemIcon sx={{ minWidth: 40, color: 'text.secondary' }}>
-                      {item.icon}
+                      {iconWithBadge}
                     </ListItemIcon>
                     <ListItemText
                       primary={item.label}
