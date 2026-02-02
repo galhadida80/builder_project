@@ -1,7 +1,71 @@
-import { Box, Paper, useTheme } from '@mui/material'
+import { Box, Paper, useTheme, Typography } from '@mui/material'
+import { styled, alpha } from '@mui/material/styles'
 import { Gantt, Task, ViewMode } from 'gantt-task-react'
 import 'gantt-task-react/dist/index.css'
 import { GanttChartProps, GanttTask, GanttViewMode } from '../types/gantt'
+
+// Styled components following MUI theme patterns
+const StyledGanttPaper = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(3),
+  borderRadius: 12,
+  overflow: 'auto',
+  transition: 'all 200ms ease-out',
+  '& .gantt-container': {
+    fontFamily: theme.typography.fontFamily,
+    fontSize: theme.typography.body2.fontSize,
+  },
+  '& ._3Rx27': {
+    // Gantt header styling
+    backgroundColor: alpha(theme.palette.primary.main, 0.05),
+    borderBottom: `1px solid ${theme.palette.divider}`,
+  },
+  '& ._1uWLi': {
+    // Task list styling
+    backgroundColor: theme.palette.background.paper,
+    borderRight: `1px solid ${theme.palette.divider}`,
+  },
+  '& ._36ChA': {
+    // Grid styling
+    backgroundColor: theme.palette.background.default,
+  },
+}))
+
+const StyledTooltip = styled(Box)(({ theme }) => ({
+  padding: theme.spacing(1.5),
+  backgroundColor: theme.palette.background.paper,
+  border: `1px solid ${alpha(theme.palette.divider, 0.8)}`,
+  borderRadius: 8,
+  boxShadow: theme.shadows[4],
+  minWidth: 200,
+  '& .tooltip-title': {
+    fontWeight: 600,
+    fontSize: theme.typography.body1.fontSize,
+    marginBottom: theme.spacing(1),
+    color: theme.palette.text.primary,
+  },
+  '& .tooltip-row': {
+    display: 'flex',
+    alignItems: 'center',
+    marginTop: theme.spacing(0.5),
+    fontSize: theme.typography.body2.fontSize,
+    color: theme.palette.text.secondary,
+  },
+  '& .tooltip-label': {
+    fontWeight: 500,
+    marginRight: theme.spacing(0.5),
+    color: theme.palette.text.primary,
+  },
+}))
+
+const EmptyStateBox = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  minHeight: 400,
+  color: theme.palette.text.secondary,
+  gap: theme.spacing(2),
+}))
 
 // Map our GanttViewMode string type to the library's ViewMode enum
 const viewModeMap: Record<GanttViewMode, ViewMode> = {
@@ -89,17 +153,7 @@ export function GanttChart({
   }
 
   return (
-    <Paper
-      sx={{
-        p: 2,
-        borderRadius: 2,
-        overflow: 'auto',
-        '& .gantt-container': {
-          fontFamily: theme.typography.fontFamily,
-          fontSize: theme.typography.body2.fontSize,
-        },
-      }}
-    >
+    <StyledGanttPaper elevation={1}>
       <Box sx={{ width: '100%', height: '100%' }}>
         {libraryTasks.length > 0 ? (
           <Gantt
@@ -113,53 +167,46 @@ export function GanttChart({
             columnWidth={65}
             barProgressColor={theme.palette.primary.main}
             barProgressSelectedColor={theme.palette.primary.dark}
-            barBackgroundColor={theme.palette.grey[300]}
-            barBackgroundSelectedColor={theme.palette.grey[400]}
+            barBackgroundColor={alpha(theme.palette.primary.main, 0.2)}
+            barBackgroundSelectedColor={alpha(theme.palette.primary.main, 0.3)}
             projectProgressColor={theme.palette.secondary.main}
             projectProgressSelectedColor={theme.palette.secondary.dark}
-            projectBackgroundColor={theme.palette.grey[200]}
-            projectBackgroundSelectedColor={theme.palette.grey[300]}
+            projectBackgroundColor={alpha(theme.palette.secondary.main, 0.15)}
+            projectBackgroundSelectedColor={alpha(theme.palette.secondary.main, 0.25)}
             milestoneBackgroundColor={theme.palette.success.main}
             milestoneBackgroundSelectedColor={theme.palette.success.dark}
-            arrowColor={theme.palette.text.secondary}
+            arrowColor={alpha(theme.palette.text.secondary, 0.6)}
             arrowIndent={20}
-            todayColor={theme.palette.error.light}
+            todayColor={alpha(theme.palette.error.light, 0.2)}
             TooltipContent={({ task }) => (
-              <Box
-                sx={{
-                  p: 1,
-                  bgcolor: 'background.paper',
-                  border: 1,
-                  borderColor: 'divider',
-                  borderRadius: 1,
-                  boxShadow: theme.shadows[2],
-                }}
-              >
-                <strong>{task.name}</strong>
-                <div>Progress: {task.progress}%</div>
-                <div>
-                  Start: {task.start.toLocaleDateString()}
+              <StyledTooltip>
+                <div className="tooltip-title">{task.name}</div>
+                <div className="tooltip-row">
+                  <span className="tooltip-label">Progress:</span>
+                  <span>{task.progress}%</span>
                 </div>
-                <div>
-                  End: {task.end.toLocaleDateString()}
+                <div className="tooltip-row">
+                  <span className="tooltip-label">Start:</span>
+                  <span>{task.start.toLocaleDateString()}</span>
                 </div>
-              </Box>
+                <div className="tooltip-row">
+                  <span className="tooltip-label">End:</span>
+                  <span>{task.end.toLocaleDateString()}</span>
+                </div>
+              </StyledTooltip>
             )}
           />
         ) : (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              minHeight: 400,
-              color: 'text.secondary',
-            }}
-          >
-            No tasks to display
-          </Box>
+          <EmptyStateBox>
+            <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 500 }}>
+              No tasks to display
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Add tasks to see them in the timeline
+            </Typography>
+          </EmptyStateBox>
         )}
       </Box>
-    </Paper>
+    </StyledGanttPaper>
   )
 }
