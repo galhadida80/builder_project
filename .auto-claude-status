@@ -1,25 +1,25 @@
 {
   "active": true,
-  "spec": "017-1-2-create-equipmentapprovalsubmission-model",
+  "spec": "084-write-rfi-system-integration-tests",
   "state": "building",
   "subtasks": {
-    "completed": 7,
-    "total": 8,
+    "completed": 10,
+    "total": 11,
     "in_progress": 1,
     "failed": 0
   },
   "phase": {
-    "current": "Testing and Verification",
+    "current": "Verification & Integration",
     "id": null,
-    "total": 3
+    "total": 1
   },
   "workers": {
     "active": 0,
     "max": 1
   },
   "session": {
-    "number": 8,
-    "started_at": "2026-01-29T19:15:36.394866"
+    "number": 4,
+    "started_at": "2026-02-02T14:31:22.998693"
   },
-  "last_update": "2026-01-29T19:39:04.614686"
+  "last_update": "2026-02-02T14:42:40.212071"
 }
