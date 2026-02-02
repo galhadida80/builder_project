@@ -1429,3 +1429,318 @@ class TestRFIEmailSending:
         assert email_log.raw_email_data["headers"]["Message-ID"] == "<test@gmail.com>"
         assert len(email_log.raw_email_data["attachments"]) == 2
         assert email_log.raw_email_data["metadata"]["virus_scan"] == "clean"
+
+
+@pytest.mark.integration
+class TestEmailParsing:
+    """Test email content parsing from Gmail API message format."""
+
+    async def test_parse_plain_text_email_body(self, sample_emails):
+        """Test parsing plain text email body from base64url-encoded content."""
+        import base64
+
+        plain_email = sample_emails["plain_text"]
+
+        # Extract and decode the email body
+        encoded_body = plain_email["payload"]["body"]["data"]
+        decoded_body = base64.urlsafe_b64decode(encoded_body).decode('utf-8')
+
+        # Verify the body was decoded correctly
+        assert decoded_body == "This is a plain text response to the RFI."
+        assert "plain text response" in decoded_body
+
+        # Verify mime type
+        assert plain_email["payload"]["mimeType"] == "text/plain"
+
+    async def test_parse_html_email_body(self, sample_emails):
+        """Test parsing HTML email body from base64url-encoded content."""
+        import base64
+
+        html_email = sample_emails["html"]
+
+        # Extract and decode the email body
+        encoded_body = html_email["payload"]["body"]["data"]
+        decoded_body = base64.urlsafe_b64decode(encoded_body).decode('utf-8')
+
+        # Verify the HTML body was decoded correctly
+        assert "<html>" in decoded_body
+        assert "<strong>HTML</strong>" in decoded_body
+        assert "response to the RFI" in decoded_body
+
+        # Verify mime type
+        assert html_email["payload"]["mimeType"] == "text/html"
+
+    async def test_extract_thread_id(self, sample_emails):
+        """Test extracting thread_id from email message."""
+        plain_email = sample_emails["plain_text"]
+        html_email = sample_emails["html"]
+
+        # Extract thread IDs
+        thread_id_1 = plain_email["threadId"]
+        thread_id_2 = html_email["threadId"]
+
+        # Verify thread IDs exist and are different
+        assert thread_id_1 == "thread-abc-123"
+        assert thread_id_2 == "thread-def-456"
+        assert thread_id_1 != thread_id_2
+
+    async def test_extract_message_id_header(self, sample_emails):
+        """Test extracting Message-ID header from email."""
+        plain_email = sample_emails["plain_text"]
+
+        # Extract Message-ID from headers
+        headers = plain_email["payload"]["headers"]
+        message_id = next(
+            (h["value"] for h in headers if h["name"] == "Message-ID"),
+            None
+        )
+
+        # Verify Message-ID was extracted
+        assert message_id == "<msg-plain-123@mail.gmail.com>"
+        assert message_id.startswith("<")
+        assert message_id.endswith(">")
+
+    async def test_extract_in_reply_to_header(self, sample_emails):
+        """Test extracting In-Reply-To header from email."""
+        plain_email = sample_emails["plain_text"]
+
+        # Extract In-Reply-To from headers
+        headers = plain_email["payload"]["headers"]
+        in_reply_to = next(
+            (h["value"] for h in headers if h["name"] == "In-Reply-To"),
+            None
+        )
+
+        # Verify In-Reply-To was extracted
+        assert in_reply_to == "<original-msg-id@mail.gmail.com>"
+        assert in_reply_to.startswith("<")
+        assert in_reply_to.endswith(">")
+
+    async def test_extract_standard_headers(self, sample_emails):
+        """Test extracting standard email headers (From, To, Subject, Date)."""
+        plain_email = sample_emails["plain_text"]
+        headers = plain_email["payload"]["headers"]
+
+        # Create a dict for easy lookup
+        header_dict = {h["name"]: h["value"] for h in headers}
+
+        # Verify all standard headers are present
+        assert header_dict["From"] == "contractor@example.com"
+        assert header_dict["To"] == "rfi@test.com"
+        assert header_dict["Subject"] == "Re: RFI-TEST-001: Sample Question"
+        assert header_dict["Date"] == "Mon, 1 Jan 2024 10:00:00 +0000"
+
+    async def test_extract_rfi_number_from_subject(self, sample_emails):
+        """Test extracting RFI number from email subject line."""
+        import re
+
+        plain_email = sample_emails["plain_text"]
+        headers = plain_email["payload"]["headers"]
+        subject = next((h["value"] for h in headers if h["name"] == "Subject"), "")
+
+        # Extract RFI number using regex pattern
+        rfi_pattern = r'RFI-[A-Z]+-\d+'
+        match = re.search(rfi_pattern, subject)
+
+        # Verify RFI number was extracted
+        assert match is not None
+        assert match.group() == "RFI-TEST-001"
+
+    async def test_extract_rfi_number_from_multiple_subjects(self, sample_emails):
+        """Test extracting RFI numbers from various subject formats."""
+        import re
+
+        test_subjects = [
+            "Re: RFI-TEST-001: Sample Question",
+            "RFI-PROJECT-042: Technical Issue",
+            "Fw: Re: RFI-BUILD-123: Clarification Needed",
+            "Answer to RFI-DEMO-999: Final Question"
+        ]
+
+        expected_numbers = [
+            "RFI-TEST-001",
+            "RFI-PROJECT-042",
+            "RFI-BUILD-123",
+            "RFI-DEMO-999"
+        ]
+
+        rfi_pattern = r'RFI-[A-Z]+-\d+'
+
+        for subject, expected in zip(test_subjects, expected_numbers):
+            match = re.search(rfi_pattern, subject)
+            assert match is not None
+            assert match.group() == expected
+
+    async def test_handle_email_with_attachments(self, sample_emails):
+        """Test parsing email with attachments and extracting metadata."""
+        import base64
+
+        email_with_attachments = sample_emails["with_attachments"]
+
+        # Verify multipart/mixed mime type
+        assert email_with_attachments["payload"]["mimeType"] == "multipart/mixed"
+
+        # Extract parts
+        parts = email_with_attachments["payload"]["parts"]
+        assert len(parts) == 2
+
+        # Verify text part
+        text_part = parts[0]
+        assert text_part["mimeType"] == "text/plain"
+        decoded_text = base64.urlsafe_b64decode(text_part["body"]["data"]).decode('utf-8')
+        assert decoded_text == "Please see attached drawings."
+
+        # Verify attachment part
+        attachment_part = parts[1]
+        assert attachment_part["mimeType"] == "application/pdf"
+        assert attachment_part["filename"] == "drawing-revision-A.pdf"
+        assert attachment_part["body"]["attachmentId"] == "attach-001"
+        assert attachment_part["body"]["size"] == 1024000
+
+    async def test_extract_attachment_metadata(self, sample_emails):
+        """Test extracting attachment metadata without downloading files."""
+        email_with_attachments = sample_emails["with_attachments"]
+
+        # Extract attachment information
+        parts = email_with_attachments["payload"]["parts"]
+        attachments = [
+            {
+                "filename": part.get("filename"),
+                "mime_type": part.get("mimeType"),
+                "attachment_id": part["body"].get("attachmentId"),
+                "size": part["body"].get("size")
+            }
+            for part in parts
+            if part.get("filename")  # Only parts with filename are attachments
+        ]
+
+        # Verify attachment metadata
+        assert len(attachments) == 1
+        attachment = attachments[0]
+        assert attachment["filename"] == "drawing-revision-A.pdf"
+        assert attachment["mime_type"] == "application/pdf"
+        assert attachment["attachment_id"] == "attach-001"
+        assert attachment["size"] == 1024000
+
+    async def test_handle_malformed_email_missing_headers(self, sample_emails):
+        """Test handling email with missing headers gracefully."""
+        malformed_email = sample_emails["malformed"]
+        headers = malformed_email["payload"]["headers"]
+
+        # Create header dict for easy lookup
+        header_dict = {h["name"]: h["value"] for h in headers}
+
+        # Verify expected headers are present
+        assert "From" in header_dict
+        assert "To" in header_dict
+        assert "Date" in header_dict
+
+        # Verify missing headers return None gracefully
+        subject = header_dict.get("Subject")
+        message_id = header_dict.get("Message-ID")
+        in_reply_to = header_dict.get("In-Reply-To")
+
+        assert subject is None
+        assert message_id is None
+        assert in_reply_to is None
+
+    async def test_handle_malformed_email_body_still_parseable(self, sample_emails):
+        """Test that malformed email body can still be decoded."""
+        import base64
+
+        malformed_email = sample_emails["malformed"]
+
+        # Even with missing headers, body should be parseable
+        encoded_body = malformed_email["payload"]["body"]["data"]
+        decoded_body = base64.urlsafe_b64decode(encoded_body).decode('utf-8')
+
+        # Verify body was decoded
+        assert decoded_body == "Response without proper headers."
+        assert len(decoded_body) > 0
+
+    async def test_parse_email_with_empty_body(self):
+        """Test handling email with empty body."""
+        import base64
+
+        # Create email with empty body
+        empty_body = ""
+        encoded_empty = base64.urlsafe_b64encode(empty_body.encode()).decode()
+
+        # Decode empty body
+        decoded = base64.urlsafe_b64decode(encoded_empty).decode('utf-8')
+
+        # Should handle empty string without error
+        assert decoded == ""
+        assert len(decoded) == 0
+
+    async def test_parse_all_sample_emails_without_error(self, sample_emails):
+        """Test that all sample emails can be processed without errors."""
+        import base64
+
+        for email_type, email_data in sample_emails.items():
+            # Verify basic structure exists
+            assert "id" in email_data
+            assert "threadId" in email_data
+            assert "payload" in email_data
+
+            # Verify headers exist
+            assert "headers" in email_data["payload"]
+            headers = email_data["payload"]["headers"]
+            assert isinstance(headers, list)
+
+            # Try to extract body (may be in different locations depending on mime type)
+            payload = email_data["payload"]
+
+            if "body" in payload and "data" in payload["body"]:
+                # Simple message with body in payload
+                encoded_body = payload["body"]["data"]
+                decoded_body = base64.urlsafe_b64decode(encoded_body).decode('utf-8')
+                assert isinstance(decoded_body, str)
+            elif "parts" in payload:
+                # Multipart message - check first text part
+                text_parts = [p for p in payload["parts"] if "text" in p.get("mimeType", "")]
+                if text_parts and "data" in text_parts[0]["body"]:
+                    encoded_body = text_parts[0]["body"]["data"]
+                    decoded_body = base64.urlsafe_b64decode(encoded_body).decode('utf-8')
+                    assert isinstance(decoded_body, str)
+
+    async def test_extract_all_header_values_as_dict(self, sample_emails):
+        """Test converting email headers list to dictionary for easy access."""
+        plain_email = sample_emails["plain_text"]
+        headers_list = plain_email["payload"]["headers"]
+
+        # Convert headers list to dict
+        headers_dict = {h["name"]: h["value"] for h in headers_list}
+
+        # Verify dict contains all expected headers
+        assert "From" in headers_dict
+        assert "To" in headers_dict
+        assert "Subject" in headers_dict
+        assert "Message-ID" in headers_dict
+        assert "In-Reply-To" in headers_dict
+        assert "Date" in headers_dict
+
+        # Verify values are accessible
+        assert headers_dict["From"] == "contractor@example.com"
+        assert headers_dict["Subject"] == "Re: RFI-TEST-001: Sample Question"
+
+    async def test_parse_multipart_email_finds_text_content(self, sample_emails):
+        """Test finding text content in multipart email structure."""
+        import base64
+
+        email_with_attachments = sample_emails["with_attachments"]
+        parts = email_with_attachments["payload"]["parts"]
+
+        # Find the text/plain part
+        text_part = next(
+            (part for part in parts if part["mimeType"] == "text/plain"),
+            None
+        )
+
+        assert text_part is not None
+        assert "body" in text_part
+        assert "data" in text_part["body"]
+
+        # Decode the text content
+        decoded = base64.urlsafe_b64decode(text_part["body"]["data"]).decode('utf-8')
+        assert decoded == "Please see attached drawings."
