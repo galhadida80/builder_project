@@ -1,5 +1,9 @@
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+import { Box } from '@mui/material'
+import { Modal } from '../ui/Modal'
+import { Button } from '../ui/Button'
 
 // Zod validation schema for RFI form data
 const rfiFormSchema = z.object({
@@ -23,6 +27,80 @@ const rfiFormSchema = z.object({
 
 // Infer TypeScript type from Zod schema
 export type RFIFormData = z.infer<typeof rfiFormSchema>
+
+interface RFIFormDialogProps {
+  open: boolean
+  onClose: () => void
+  onSubmit: (data: RFIFormData) => void | Promise<void>
+  initialData?: Partial<RFIFormData>
+  loading?: boolean
+  mode?: 'create' | 'edit'
+}
+
+export function RFIFormDialog({
+  open,
+  onClose,
+  onSubmit,
+  initialData,
+  loading = false,
+  mode = 'create',
+}: RFIFormDialogProps) {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm<RFIFormData>({
+    resolver: zodResolver(rfiFormSchema),
+    defaultValues: initialData,
+  })
+
+  const handleFormSubmit = async (data: RFIFormData) => {
+    try {
+      await onSubmit(data)
+      reset()
+      onClose()
+    } catch (error) {
+      // Error handling will be done by parent component
+    }
+  }
+
+  const handleClose = () => {
+    reset()
+    onClose()
+  }
+
+  const title = mode === 'create' ? 'Create New RFI' : 'Edit RFI'
+  const submitLabel = mode === 'create' ? 'Create RFI' : 'Save Changes'
+
+  return (
+    <Modal
+      open={open}
+      onClose={handleClose}
+      title={title}
+      maxWidth="md"
+      actions={
+        <>
+          <Button variant="tertiary" onClick={handleClose} disabled={loading || isSubmitting}>
+            Cancel
+          </Button>
+          <Button
+            variant="primary"
+            onClick={handleSubmit(handleFormSubmit)}
+            loading={loading || isSubmitting}
+            disabled={loading || isSubmitting}
+          >
+            {submitLabel}
+          </Button>
+        </>
+      }
+    >
+      <Box component="form" onSubmit={(e) => { e.preventDefault(); handleSubmit(handleFormSubmit)(); }}>
+        {/* Form fields will be added in subsequent subtasks */}
+      </Box>
+    </Modal>
+  )
+}
 
 // Export the schema for use with zodResolver
 export { rfiFormSchema, zodResolver }
