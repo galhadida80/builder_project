@@ -461,3 +461,246 @@ class TestCascadeDeleteBehavior:
         result = await db.execute(select(RFI).where(RFI.id == rfi_id))
         found = result.scalar_one_or_none()
         assert found is None
+
+
+@pytest.mark.integration
+class TestRFINumberGeneration:
+    """Test RFI number generation, uniqueness, and sequential numbering."""
+
+    @pytest.fixture
+    async def sample_project(self, db: AsyncSession, admin_user: User) -> Project:
+        """Create a sample project for testing."""
+        project = Project(
+            id=uuid.uuid4(),
+            name="Test RFI Project",
+            code="RFI-TEST",
+            description="Project for RFI testing",
+            status="active",
+            created_by_id=admin_user.id
+        )
+        db.add(project)
+        await db.commit()
+        await db.refresh(project)
+        return project
+
+    async def test_rfi_number_format(self, db: AsyncSession, sample_project: Project, admin_user: User, regular_user: User):
+        """Test that RFI numbers follow the correct format: RFI-{project_code}-{sequence}."""
+        rfi = RFI(
+            id=uuid.uuid4(),
+            project_id=sample_project.id,
+            rfi_number=f"RFI-{sample_project.code}-001",
+            subject="Test RFI Number Format",
+            question="Testing RFI number format",
+            status=RFIStatus.DRAFT,
+            priority=RFIPriority.NORMAL,
+            category=RFICategory.TECHNICAL,
+            created_by_id=admin_user.id,
+            assigned_to_id=regular_user.id
+        )
+        db.add(rfi)
+        await db.commit()
+        await db.refresh(rfi)
+
+        # Verify RFI number format
+        assert rfi.rfi_number == f"RFI-{sample_project.code}-001"
+        assert rfi.rfi_number.startswith(f"RFI-{sample_project.code}-")
+
+        # Verify format pattern
+        parts = rfi.rfi_number.split("-")
+        assert len(parts) == 3
+        assert parts[0] == "RFI"
+        assert parts[1] == sample_project.code
+        assert parts[2].isdigit()
+
+    async def test_rfi_number_uniqueness_constraint(
+        self, db: AsyncSession, sample_project: Project, admin_user: User, regular_user: User
+    ):
+        """Test that duplicate RFI numbers raise database constraint error."""
+        from sqlalchemy.exc import IntegrityError
+
+        # Create first RFI
+        rfi1 = RFI(
+            id=uuid.uuid4(),
+            project_id=sample_project.id,
+            rfi_number=f"RFI-{sample_project.code}-010",
+            subject="First RFI",
+            question="First question",
+            status=RFIStatus.DRAFT,
+            priority=RFIPriority.NORMAL,
+            category=RFICategory.TECHNICAL,
+            created_by_id=admin_user.id,
+            assigned_to_id=regular_user.id
+        )
+        db.add(rfi1)
+        await db.commit()
+
+        # Attempt to create second RFI with same number
+        rfi2 = RFI(
+            id=uuid.uuid4(),
+            project_id=sample_project.id,
+            rfi_number=f"RFI-{sample_project.code}-010",  # Duplicate number
+            subject="Second RFI",
+            question="Second question",
+            status=RFIStatus.DRAFT,
+            priority=RFIPriority.NORMAL,
+            category=RFICategory.TECHNICAL,
+            created_by_id=admin_user.id,
+            assigned_to_id=regular_user.id
+        )
+        db.add(rfi2)
+
+        # Should raise IntegrityError due to unique constraint
+        with pytest.raises(IntegrityError) as exc_info:
+            await db.commit()
+
+        # Verify error is about unique constraint
+        assert "rfi_number" in str(exc_info.value).lower() or "unique" in str(exc_info.value).lower()
+
+    async def test_sequential_rfi_numbering_within_project(
+        self, db: AsyncSession, sample_project: Project, admin_user: User, regular_user: User
+    ):
+        """Test that RFI numbers are sequential within a project scope."""
+        # Create multiple RFIs with sequential numbers
+        rfi_numbers = []
+        for i in range(1, 6):  # Create 5 RFIs
+            rfi = RFI(
+                id=uuid.uuid4(),
+                project_id=sample_project.id,
+                rfi_number=f"RFI-{sample_project.code}-{i:03d}",
+                subject=f"RFI {i}",
+                question=f"Question {i}",
+                status=RFIStatus.DRAFT,
+                priority=RFIPriority.NORMAL,
+                category=RFICategory.TECHNICAL,
+                created_by_id=admin_user.id,
+                assigned_to_id=regular_user.id
+            )
+            db.add(rfi)
+            rfi_numbers.append(rfi.rfi_number)
+
+        await db.commit()
+
+        # Verify all RFIs were created
+        result = await db.execute(
+            select(RFI)
+            .where(RFI.project_id == sample_project.id)
+            .order_by(RFI.rfi_number)
+        )
+        rfis = result.scalars().all()
+        assert len(rfis) == 5
+
+        # Verify sequential numbering
+        for idx, rfi in enumerate(rfis, start=1):
+            expected_number = f"RFI-{sample_project.code}-{idx:03d}"
+            assert rfi.rfi_number == expected_number
+
+    async def test_rfi_numbers_unique_across_all_rfis(
+        self, db: AsyncSession, admin_user: User, regular_user: User
+    ):
+        """Test that RFI numbers are globally unique, not just within a project."""
+        # Create two different projects
+        project1 = Project(
+            id=uuid.uuid4(),
+            name="Project One",
+            code="PROJ1",
+            description="First project",
+            status="active",
+            created_by_id=admin_user.id
+        )
+        project2 = Project(
+            id=uuid.uuid4(),
+            name="Project Two",
+            code="PROJ2",
+            description="Second project",
+            status="active",
+            created_by_id=admin_user.id
+        )
+        db.add_all([project1, project2])
+        await db.commit()
+
+        # Create RFI in first project
+        rfi1 = RFI(
+            id=uuid.uuid4(),
+            project_id=project1.id,
+            rfi_number=f"RFI-{project1.code}-001",
+            subject="RFI in Project 1",
+            question="Question for project 1",
+            status=RFIStatus.DRAFT,
+            priority=RFIPriority.NORMAL,
+            category=RFICategory.TECHNICAL,
+            created_by_id=admin_user.id,
+            assigned_to_id=regular_user.id
+        )
+        db.add(rfi1)
+        await db.commit()
+
+        # Create RFI in second project with different project code but same sequence
+        rfi2 = RFI(
+            id=uuid.uuid4(),
+            project_id=project2.id,
+            rfi_number=f"RFI-{project2.code}-001",
+            subject="RFI in Project 2",
+            question="Question for project 2",
+            status=RFIStatus.DRAFT,
+            priority=RFIPriority.NORMAL,
+            category=RFICategory.TECHNICAL,
+            created_by_id=admin_user.id,
+            assigned_to_id=regular_user.id
+        )
+        db.add(rfi2)
+        await db.commit()
+
+        # Both RFIs should exist with unique numbers
+        result = await db.execute(select(RFI))
+        all_rfis = result.scalars().all()
+
+        rfi_numbers = [rfi.rfi_number for rfi in all_rfis]
+        # Verify all numbers are unique
+        assert len(rfi_numbers) == len(set(rfi_numbers))
+
+        # Verify both RFIs exist with correct numbers
+        assert f"RFI-{project1.code}-001" in rfi_numbers
+        assert f"RFI-{project2.code}-001" in rfi_numbers
+
+    async def test_multiple_rfis_with_unique_numbers(
+        self, db: AsyncSession, sample_project: Project, admin_user: User, regular_user: User
+    ):
+        """Test creating multiple RFIs, each with unique auto-generated numbers."""
+        rfi_count = 10
+        created_rfis = []
+
+        # Create multiple RFIs
+        for i in range(1, rfi_count + 1):
+            rfi = RFI(
+                id=uuid.uuid4(),
+                project_id=sample_project.id,
+                rfi_number=f"RFI-{sample_project.code}-{i:03d}",
+                subject=f"Test RFI {i}",
+                question=f"Test question {i}",
+                status=RFIStatus.DRAFT,
+                priority=RFIPriority.NORMAL,
+                category=RFICategory.TECHNICAL,
+                created_by_id=admin_user.id,
+                assigned_to_id=regular_user.id
+            )
+            db.add(rfi)
+            created_rfis.append(rfi.rfi_number)
+
+        await db.commit()
+
+        # Query all RFIs for this project
+        result = await db.execute(
+            select(RFI).where(RFI.project_id == sample_project.id)
+        )
+        rfis = result.scalars().all()
+
+        # Verify count
+        assert len(rfis) == rfi_count
+
+        # Verify all numbers are unique
+        rfi_numbers = [rfi.rfi_number for rfi in rfis]
+        assert len(rfi_numbers) == len(set(rfi_numbers)), "All RFI numbers should be unique"
+
+        # Verify all created numbers are in database
+        for expected_number in created_rfis:
+            assert expected_number in rfi_numbers
