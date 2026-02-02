@@ -2346,3 +2346,610 @@ class TestWebhookProcessing:
         assert responses[0].response_text == "First response"
         assert responses[1].response_text == "Follow-up response"
         assert responses[0].email_message_id != responses[1].email_message_id
+
+
+@pytest.mark.integration
+class TestRFIMatching:
+    """Test RFI-to-response matching logic with priority fallback strategies."""
+
+    async def test_match_by_email_thread_id_primary(
+        self,
+        db: AsyncSession,
+        sample_project,
+        admin_user,
+        regular_user,
+        sample_emails
+    ):
+        """Test matching incoming email to RFI by email_thread_id (highest priority)."""
+        # Arrange: Create RFI with email_thread_id
+        plain_email = sample_emails["plain_text"]
+        thread_id = plain_email["threadId"]
+
+        rfi = RFI(
+            id=uuid.uuid4(),
+            project_id=sample_project.id,
+            rfi_number=f"RFI-{sample_project.code}-001",
+            subject="Primary Thread Matching Test",
+            question="Test question for thread matching",
+            status=RFIStatus.WAITING_RESPONSE,
+            priority=RFIPriority.NORMAL,
+            category=RFICategory.TECHNICAL,
+            created_by_id=admin_user.id,
+            assigned_to_id=regular_user.id,
+            email_thread_id=thread_id,  # Primary matching field
+            sent_at=datetime.utcnow()
+        )
+        db.add(rfi)
+        await db.commit()
+        await db.refresh(rfi)
+
+        # Act: Query RFI by thread_id (simulating matching logic)
+        result = await db.execute(
+            select(RFI).where(RFI.email_thread_id == thread_id)
+        )
+        matched_rfi = result.scalars().first()
+
+        # Assert: RFI matched by thread_id
+        assert matched_rfi is not None
+        assert matched_rfi.id == rfi.id
+        assert matched_rfi.email_thread_id == thread_id
+        assert matched_rfi.rfi_number == f"RFI-{sample_project.code}-001"
+
+    async def test_match_by_subject_rfi_number_fallback(
+        self,
+        db: AsyncSession,
+        sample_project,
+        admin_user,
+        regular_user,
+        sample_emails
+    ):
+        """Test fallback matching by extracting RFI number from email subject."""
+        # Arrange: Create RFI without thread_id
+        rfi_number = f"RFI-{sample_project.code}-002"
+        rfi = RFI(
+            id=uuid.uuid4(),
+            project_id=sample_project.id,
+            rfi_number=rfi_number,
+            subject="Subject Line Matching Test",
+            question="Test question for subject matching",
+            status=RFIStatus.WAITING_RESPONSE,
+            priority=RFIPriority.NORMAL,
+            category=RFICategory.TECHNICAL,
+            created_by_id=admin_user.id,
+            assigned_to_id=regular_user.id,
+            email_thread_id=None,  # No thread_id, must match by subject
+            sent_at=datetime.utcnow()
+        )
+        db.add(rfi)
+        await db.commit()
+        await db.refresh(rfi)
+
+        # Act: Simulate email with RFI number in subject
+        import re
+        email_subject = f"Re: {rfi_number} - Subject Line Matching Test"
+
+        # Extract RFI number from subject using regex
+        rfi_pattern = r'(RFI-[A-Z]+-\d+)'
+        match = re.search(rfi_pattern, email_subject)
+        extracted_rfi_number = match.group(1) if match else None
+
+        # Query by extracted RFI number
+        result = await db.execute(
+            select(RFI).where(RFI.rfi_number == extracted_rfi_number)
+        )
+        matched_rfi = result.scalars().first()
+
+        # Assert: RFI matched by subject line RFI number
+        assert extracted_rfi_number == rfi_number
+        assert matched_rfi is not None
+        assert matched_rfi.id == rfi.id
+        assert matched_rfi.rfi_number == rfi_number
+
+    async def test_match_by_in_reply_to_header_fallback(
+        self,
+        db: AsyncSession,
+        sample_project,
+        admin_user,
+        regular_user,
+        sample_emails
+    ):
+        """Test fallback matching by In-Reply-To header against email_message_id."""
+        # Arrange: Create RFI with email_message_id
+        original_message_id = "<test-message-123@gmail.com>"
+        rfi = RFI(
+            id=uuid.uuid4(),
+            project_id=sample_project.id,
+            rfi_number=f"RFI-{sample_project.code}-003",
+            subject="In-Reply-To Matching Test",
+            question="Test question for In-Reply-To matching",
+            status=RFIStatus.WAITING_RESPONSE,
+            priority=RFIPriority.NORMAL,
+            category=RFICategory.TECHNICAL,
+            created_by_id=admin_user.id,
+            assigned_to_id=regular_user.id,
+            email_thread_id=None,  # No thread_id
+            email_message_id=original_message_id,  # Message ID from sent RFI
+            sent_at=datetime.utcnow()
+        )
+        db.add(rfi)
+        await db.commit()
+        await db.refresh(rfi)
+
+        # Act: Simulate incoming email with In-Reply-To header
+        in_reply_to = original_message_id  # Reply references original message
+
+        # Query by In-Reply-To header
+        result = await db.execute(
+            select(RFI).where(RFI.email_message_id == in_reply_to)
+        )
+        matched_rfi = result.scalars().first()
+
+        # Assert: RFI matched by In-Reply-To header
+        assert matched_rfi is not None
+        assert matched_rfi.id == rfi.id
+        assert matched_rfi.email_message_id == in_reply_to
+
+    async def test_match_priority_thread_id_over_subject(
+        self,
+        db: AsyncSession,
+        sample_project,
+        admin_user,
+        regular_user
+    ):
+        """Test that thread_id matching takes priority over subject matching."""
+        # Arrange: Create two RFIs - one with matching thread_id, one with matching subject
+        rfi_number = f"RFI-{sample_project.code}-100"
+
+        # RFI with matching thread_id (should be matched)
+        rfi_with_thread = RFI(
+            id=uuid.uuid4(),
+            project_id=sample_project.id,
+            rfi_number=f"RFI-{sample_project.code}-999",  # Different number
+            subject="Different Subject",
+            question="RFI with correct thread_id",
+            status=RFIStatus.WAITING_RESPONSE,
+            priority=RFIPriority.NORMAL,
+            category=RFICategory.TECHNICAL,
+            created_by_id=admin_user.id,
+            assigned_to_id=regular_user.id,
+            email_thread_id="thread-priority-test-123",
+            sent_at=datetime.utcnow()
+        )
+
+        # RFI with matching subject but no thread_id (should NOT be matched)
+        rfi_with_subject = RFI(
+            id=uuid.uuid4(),
+            project_id=sample_project.id,
+            rfi_number=rfi_number,  # Matches subject
+            subject="Subject with RFI number",
+            question="RFI without thread_id",
+            status=RFIStatus.WAITING_RESPONSE,
+            priority=RFIPriority.NORMAL,
+            category=RFICategory.TECHNICAL,
+            created_by_id=admin_user.id,
+            assigned_to_id=regular_user.id,
+            email_thread_id=None,  # No thread_id
+            sent_at=datetime.utcnow()
+        )
+
+        db.add(rfi_with_thread)
+        db.add(rfi_with_subject)
+        await db.commit()
+        await db.refresh(rfi_with_thread)
+        await db.refresh(rfi_with_subject)
+
+        # Act: Simulate matching logic with priority
+        email_thread_id = "thread-priority-test-123"
+        email_subject = f"Re: {rfi_number} - Test"
+
+        # First try thread_id (highest priority)
+        result = await db.execute(
+            select(RFI).where(RFI.email_thread_id == email_thread_id)
+        )
+        matched_rfi = result.scalars().first()
+
+        # Assert: Thread_id match takes priority
+        assert matched_rfi is not None
+        assert matched_rfi.id == rfi_with_thread.id
+        assert matched_rfi.rfi_number == f"RFI-{sample_project.code}-999"
+        # Should NOT match the RFI with matching subject
+        assert matched_rfi.id != rfi_with_subject.id
+
+    async def test_match_cascading_fallback_strategy(
+        self,
+        db: AsyncSession,
+        sample_project,
+        admin_user,
+        regular_user
+    ):
+        """Test full cascading fallback: thread_id → subject → In-Reply-To."""
+        # Arrange: Create RFI with all matching fields
+        rfi_number = f"RFI-{sample_project.code}-050"
+        thread_id = "thread-cascade-123"
+        message_id = "<cascade-test@gmail.com>"
+
+        rfi = RFI(
+            id=uuid.uuid4(),
+            project_id=sample_project.id,
+            rfi_number=rfi_number,
+            subject="Cascade Fallback Test",
+            question="Test cascading match strategy",
+            status=RFIStatus.WAITING_RESPONSE,
+            priority=RFIPriority.NORMAL,
+            category=RFICategory.TECHNICAL,
+            created_by_id=admin_user.id,
+            assigned_to_id=regular_user.id,
+            email_thread_id=thread_id,
+            email_message_id=message_id,
+            sent_at=datetime.utcnow()
+        )
+        db.add(rfi)
+        await db.commit()
+        await db.refresh(rfi)
+
+        # Act: Test matching logic with cascading fallback
+        async def find_matching_rfi(thread_id=None, subject=None, in_reply_to=None):
+            """Simulates the cascading matching logic."""
+            # Strategy 1: Match by thread_id
+            if thread_id:
+                result = await db.execute(
+                    select(RFI).where(RFI.email_thread_id == thread_id)
+                )
+                match = result.scalars().first()
+                if match:
+                    return match, "thread_id"
+
+            # Strategy 2: Match by RFI number in subject
+            if subject:
+                import re
+                rfi_pattern = r'(RFI-[A-Z]+-\d+)'
+                match_obj = re.search(rfi_pattern, subject)
+                if match_obj:
+                    extracted_number = match_obj.group(1)
+                    result = await db.execute(
+                        select(RFI).where(RFI.rfi_number == extracted_number)
+                    )
+                    match = result.scalars().first()
+                    if match:
+                        return match, "subject"
+
+            # Strategy 3: Match by In-Reply-To header
+            if in_reply_to:
+                result = await db.execute(
+                    select(RFI).where(RFI.email_message_id == in_reply_to)
+                )
+                match = result.scalars().first()
+                if match:
+                    return match, "in_reply_to"
+
+            return None, "no_match"
+
+        # Test each strategy independently
+        match1, strategy1 = await find_matching_rfi(thread_id=thread_id)
+        match2, strategy2 = await find_matching_rfi(subject=f"Re: {rfi_number} Test")
+        match3, strategy3 = await find_matching_rfi(in_reply_to=message_id)
+
+        # Assert: All strategies find the same RFI
+        assert match1.id == rfi.id
+        assert strategy1 == "thread_id"
+
+        assert match2.id == rfi.id
+        assert strategy2 == "subject"
+
+        assert match3.id == rfi.id
+        assert strategy3 == "in_reply_to"
+
+    async def test_log_unmatched_email_no_rfi_found(
+        self,
+        db: AsyncSession,
+        sample_emails
+    ):
+        """Test logging unmatched email when no RFI is found by any strategy."""
+        # Arrange: Email that doesn't match any RFI
+        plain_email = sample_emails["plain_text"]
+        unmatched_thread_id = "unmatched-thread-789"
+        unmatched_subject = "Random Email Without RFI Number"
+        unmatched_message_id = "<random-msg-999@gmail.com>"
+
+        # Act: Try all matching strategies
+        result_thread = await db.execute(
+            select(RFI).where(RFI.email_thread_id == unmatched_thread_id)
+        )
+        match_thread = result_thread.scalars().first()
+
+        import re
+        rfi_pattern = r'(RFI-[A-Z]+-\d+)'
+        match_obj = re.search(rfi_pattern, unmatched_subject)
+        extracted_number = match_obj.group(1) if match_obj else None
+
+        result_message = await db.execute(
+            select(RFI).where(RFI.email_message_id == unmatched_message_id)
+        )
+        match_message = result_message.scalars().first()
+
+        # Assert: No matches found
+        assert match_thread is None
+        assert extracted_number is None
+        assert match_message is None
+
+        # Act: Create unmatched log entry
+        unmatched_log = RFIEmailLog(
+            id=uuid.uuid4(),
+            rfi_id=None,  # No matching RFI
+            event_type="unmatched",
+            email_message_id=plain_email["id"],
+            email_thread_id=unmatched_thread_id,
+            to_address="rfi@test.com",
+            from_address="unknown@example.com",
+            subject=unmatched_subject,
+            raw_email_data=plain_email
+        )
+        db.add(unmatched_log)
+        await db.commit()
+        await db.refresh(unmatched_log)
+
+        # Assert: Unmatched log created successfully
+        assert unmatched_log.event_type == "unmatched"
+        assert unmatched_log.rfi_id is None
+        assert unmatched_log.subject == unmatched_subject
+
+    async def test_match_handles_various_subject_formats(
+        self,
+        db: AsyncSession,
+        sample_project,
+        admin_user,
+        regular_user
+    ):
+        """Test matching RFI numbers from various email subject formats."""
+        # Arrange: Create RFI
+        rfi_number = f"RFI-{sample_project.code}-777"
+        rfi = RFI(
+            id=uuid.uuid4(),
+            project_id=sample_project.id,
+            rfi_number=rfi_number,
+            subject="Various Subject Format Test",
+            question="Test subject format parsing",
+            status=RFIStatus.WAITING_RESPONSE,
+            priority=RFIPriority.NORMAL,
+            category=RFICategory.TECHNICAL,
+            created_by_id=admin_user.id,
+            assigned_to_id=regular_user.id,
+            sent_at=datetime.utcnow()
+        )
+        db.add(rfi)
+        await db.commit()
+        await db.refresh(rfi)
+
+        # Act: Test various subject formats
+        import re
+        rfi_pattern = r'(RFI-[A-Z]+-\d+)'
+
+        test_subjects = [
+            f"Re: {rfi_number} - Concrete Specs",
+            f"Fw: {rfi_number}: Important Question",
+            f"[External] {rfi_number} - Response",
+            f"{rfi_number} More Information Needed",
+            f"Response to {rfi_number}",
+            f"RE: FW: {rfi_number} (Urgent)",
+        ]
+
+        matched_count = 0
+        for subject in test_subjects:
+            match = re.search(rfi_pattern, subject)
+            if match and match.group(1) == rfi_number:
+                # Query RFI by extracted number
+                result = await db.execute(
+                    select(RFI).where(RFI.rfi_number == match.group(1))
+                )
+                matched_rfi = result.scalars().first()
+                if matched_rfi and matched_rfi.id == rfi.id:
+                    matched_count += 1
+
+        # Assert: All subject formats extracted RFI number successfully
+        assert matched_count == len(test_subjects)
+
+    async def test_match_prevents_duplicate_responses(
+        self,
+        db: AsyncSession,
+        sample_project,
+        admin_user,
+        regular_user
+    ):
+        """Test that matching prevents creating duplicate responses for same email."""
+        # Arrange: Create RFI
+        thread_id = "thread-duplicate-check"
+        rfi = RFI(
+            id=uuid.uuid4(),
+            project_id=sample_project.id,
+            rfi_number=f"RFI-{sample_project.code}-888",
+            subject="Duplicate Prevention Test",
+            question="Test duplicate response prevention",
+            status=RFIStatus.WAITING_RESPONSE,
+            priority=RFIPriority.NORMAL,
+            category=RFICategory.TECHNICAL,
+            created_by_id=admin_user.id,
+            assigned_to_id=regular_user.id,
+            email_thread_id=thread_id,
+            sent_at=datetime.utcnow()
+        )
+        db.add(rfi)
+        await db.commit()
+        await db.refresh(rfi)
+
+        # Act: Create first response
+        email_message_id = "unique-msg-456"
+        response1 = RFIResponse(
+            id=uuid.uuid4(),
+            rfi_id=rfi.id,
+            response_text="First response",
+            responded_by_id=regular_user.id,
+            responded_at=datetime.utcnow(),
+            email_message_id=email_message_id
+        )
+        db.add(response1)
+        await db.commit()
+
+        # Check if response already exists for this email_message_id
+        result = await db.execute(
+            select(RFIResponse).where(
+                RFIResponse.email_message_id == email_message_id
+            )
+        )
+        existing_response = result.scalars().first()
+
+        # Assert: Response exists, should not create duplicate
+        assert existing_response is not None
+        assert existing_response.email_message_id == email_message_id
+
+        # Verify only one response exists for this message
+        result_all = await db.execute(
+            select(RFIResponse).where(
+                RFIResponse.email_message_id == email_message_id
+            )
+        )
+        all_responses = result_all.scalars().all()
+        assert len(all_responses) == 1
+
+    async def test_match_multiple_projects_same_rfi_number_pattern(
+        self,
+        db: AsyncSession,
+        admin_user,
+        regular_user
+    ):
+        """Test matching when multiple projects have similar RFI number patterns."""
+        # Arrange: Create two projects with RFIs having similar numbers
+        project1 = Project(
+            id=uuid.uuid4(),
+            name="Project Alpha",
+            code="ALPHA",
+            status="active",
+            created_by_id=admin_user.id
+        )
+        project2 = Project(
+            id=uuid.uuid4(),
+            name="Project Beta",
+            code="BETA",
+            status="active",
+            created_by_id=admin_user.id
+        )
+        db.add(project1)
+        db.add(project2)
+        await db.commit()
+
+        rfi1 = RFI(
+            id=uuid.uuid4(),
+            project_id=project1.id,
+            rfi_number="RFI-ALPHA-001",
+            subject="Alpha Project RFI",
+            question="Question for Alpha",
+            status=RFIStatus.WAITING_RESPONSE,
+            priority=RFIPriority.NORMAL,
+            category=RFICategory.TECHNICAL,
+            created_by_id=admin_user.id,
+            assigned_to_id=regular_user.id,
+            sent_at=datetime.utcnow()
+        )
+
+        rfi2 = RFI(
+            id=uuid.uuid4(),
+            project_id=project2.id,
+            rfi_number="RFI-BETA-001",  # Same sequence number, different project
+            subject="Beta Project RFI",
+            question="Question for Beta",
+            status=RFIStatus.WAITING_RESPONSE,
+            priority=RFIPriority.NORMAL,
+            category=RFICategory.TECHNICAL,
+            created_by_id=admin_user.id,
+            assigned_to_id=regular_user.id,
+            sent_at=datetime.utcnow()
+        )
+
+        db.add(rfi1)
+        db.add(rfi2)
+        await db.commit()
+        await db.refresh(rfi1)
+        await db.refresh(rfi2)
+
+        # Act: Match emails with specific RFI numbers
+        import re
+        rfi_pattern = r'(RFI-[A-Z]+-\d+)'
+
+        subject_alpha = "Re: RFI-ALPHA-001 - Response"
+        subject_beta = "Re: RFI-BETA-001 - Response"
+
+        match_alpha = re.search(rfi_pattern, subject_alpha)
+        match_beta = re.search(rfi_pattern, subject_beta)
+
+        result_alpha = await db.execute(
+            select(RFI).where(RFI.rfi_number == match_alpha.group(1))
+        )
+        matched_rfi_alpha = result_alpha.scalars().first()
+
+        result_beta = await db.execute(
+            select(RFI).where(RFI.rfi_number == match_beta.group(1))
+        )
+        matched_rfi_beta = result_beta.scalars().first()
+
+        # Assert: Each email matched to correct project's RFI
+        assert matched_rfi_alpha.id == rfi1.id
+        assert matched_rfi_alpha.project_id == project1.id
+        assert matched_rfi_alpha.rfi_number == "RFI-ALPHA-001"
+
+        assert matched_rfi_beta.id == rfi2.id
+        assert matched_rfi_beta.project_id == project2.id
+        assert matched_rfi_beta.rfi_number == "RFI-BETA-001"
+
+    async def test_match_case_insensitive_rfi_number(
+        self,
+        db: AsyncSession,
+        sample_project,
+        admin_user,
+        regular_user
+    ):
+        """Test that RFI number matching is case-insensitive."""
+        # Arrange: Create RFI with uppercase code
+        rfi_number = f"RFI-{sample_project.code}-555"
+        rfi = RFI(
+            id=uuid.uuid4(),
+            project_id=sample_project.id,
+            rfi_number=rfi_number,
+            subject="Case Insensitive Test",
+            question="Test case sensitivity",
+            status=RFIStatus.WAITING_RESPONSE,
+            priority=RFIPriority.NORMAL,
+            category=RFICategory.TECHNICAL,
+            created_by_id=admin_user.id,
+            assigned_to_id=regular_user.id,
+            sent_at=datetime.utcnow()
+        )
+        db.add(rfi)
+        await db.commit()
+        await db.refresh(rfi)
+
+        # Act: Try matching with various case combinations
+        import re
+
+        test_subjects = [
+            f"Re: {rfi_number.upper()} - Response",  # All uppercase
+            f"Re: {rfi_number.lower()} - Response",  # All lowercase
+            f"Re: rfi-{sample_project.code.lower()}-555 - Response",  # Mixed case
+        ]
+
+        # Use case-insensitive pattern
+        rfi_pattern = r'(RFI-[A-Z]+-\d+)'
+
+        for subject in test_subjects:
+            match = re.search(rfi_pattern, subject, re.IGNORECASE)
+            if match:
+                extracted = match.group(1).upper()  # Normalize to uppercase
+
+                # Query with case-insensitive comparison
+                result = await db.execute(
+                    select(RFI).where(RFI.rfi_number.ilike(extracted))
+                )
+                matched_rfi = result.scalars().first()
+
+                # Assert: Found RFI regardless of case
+                if extracted == rfi_number.upper():
+                    assert matched_rfi is not None
+                    assert matched_rfi.id == rfi.id

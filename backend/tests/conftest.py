@@ -408,6 +408,23 @@ def mock_pubsub(mocker):
     }
 
 
+@pytest.fixture(scope="function")
+async def sample_project(db: AsyncSession, admin_user: User) -> Project:
+    """Fixture that creates a sample project for RFI testing."""
+    proj = Project(
+        id=uuid.uuid4(),
+        name="Test RFI Project",
+        code="RFI-TEST",
+        description="Project for RFI testing",
+        status="active",
+        created_by_id=admin_user.id
+    )
+    db.add(proj)
+    await db.commit()
+    await db.refresh(proj)
+    return proj
+
+
 # Uncomment when RFI models are implemented
 # from app.models.rfi import RFI, RFIResponse, RFIEmailLog
 #
