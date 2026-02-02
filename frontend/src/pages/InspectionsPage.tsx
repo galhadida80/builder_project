@@ -94,7 +94,7 @@ export default function InspectionsPage() {
   const inspectionColumns: Column<Inspection>[] = [
     {
       id: 'consultantType',
-      label: 'Consultant Type',
+      label: t('inspections.consultantType'),
       minWidth: 200,
       render: (row) => (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
@@ -124,7 +124,7 @@ export default function InspectionsPage() {
     },
     {
       id: 'scheduledDate',
-      label: 'Scheduled Date',
+      label: t('inspections.scheduledDate'),
       minWidth: 140,
       sortable: true,
       render: (row) => (
@@ -147,7 +147,7 @@ export default function InspectionsPage() {
     },
     {
       id: 'status',
-      label: 'Status',
+      label: t('common.status'),
       minWidth: 130,
       render: (row) => {
         const statusConfig: Record<string, { icon: React.ReactNode; color: 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning' }> = {
@@ -170,7 +170,7 @@ export default function InspectionsPage() {
     },
     {
       id: 'currentStage',
-      label: 'Current Stage',
+      label: t('inspections.currentStage'),
       minWidth: 140,
       render: (row) => (
         <Typography variant="body2" color={row.currentStage ? 'text.primary' : 'text.secondary'}>
@@ -180,11 +180,11 @@ export default function InspectionsPage() {
     },
     {
       id: 'findings',
-      label: 'Findings',
+      label: t('inspections.findings'),
       minWidth: 180,
       render: (row) => {
         if (!row.findings || row.findings.length === 0) {
-          return <Typography variant="body2" color="text.secondary">No findings</Typography>
+          return <Typography variant="body2" color="text.secondary">{t('inspections.noFindings')}</Typography>
         }
         const critical = row.findings.filter(f => f.severity === 'critical').length
         const high = row.findings.filter(f => f.severity === 'high').length
@@ -208,7 +208,7 @@ export default function InspectionsPage() {
       align: 'right',
       render: () => (
         <Button variant="tertiary" size="small" icon={<VisibilityIcon />}>
-          View
+          {t('common.view')}
         </Button>
       ),
     },
@@ -217,7 +217,7 @@ export default function InspectionsPage() {
   const stageColumns: Column<InspectionStageTemplate>[] = [
     {
       id: 'stageOrder',
-      label: '#',
+      label: t('inspections.stageOrder'),
       minWidth: 60,
       render: (row) => (
         <Box
@@ -240,7 +240,7 @@ export default function InspectionsPage() {
     },
     {
       id: 'name',
-      label: 'Stage Name',
+      label: t('inspections.stageName'),
       minWidth: 200,
       render: (row) => (
         <Typography variant="body2" fontWeight={500}>
@@ -250,7 +250,7 @@ export default function InspectionsPage() {
     },
     {
       id: 'nameHe',
-      label: 'Hebrew Name',
+      label: t('inspections.hebrewName'),
       minWidth: 200,
       render: (row) => (
         <Typography variant="body2" dir="rtl" color="text.secondary">
@@ -260,12 +260,12 @@ export default function InspectionsPage() {
     },
     {
       id: 'isActive',
-      label: 'Status',
+      label: t('common.status'),
       minWidth: 100,
       render: (row) => (
         <Chip
           size="small"
-          label={row.isActive ? 'Active' : 'Inactive'}
+          label={row.isActive ? t('inspections.active') : t('inspections.inactive')}
           color={row.isActive ? 'success' : 'default'}
           sx={{ fontWeight: 500 }}
         />
@@ -291,8 +291,8 @@ export default function InspectionsPage() {
   return (
     <Box sx={{ p: 3 }}>
       <PageHeader
-        title={t('inspections.title')}
-        subtitle="Manage and track all inspection activities"
+        title={t('inspections.pageTitle')}
+        subtitle={t('inspections.subtitle')}
         breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('inspections.title') }]}
         actions={
           <Button variant="primary" icon={<AddIcon />} onClick={() => setDialogOpen(true)}>
@@ -400,14 +400,14 @@ export default function InspectionsPage() {
                       {selectedType.name}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
-                      Inspection Stages ({stageTemplates.length} stages)
+                      {t('inspections.inspectionStages', { count: stageTemplates.length })}
                     </Typography>
                   </Box>
-                  <Chip label={`${stageTemplates.filter(s => s.isActive).length} active`} size="small" color="success" />
+                  <Chip label={`${stageTemplates.filter(s => s.isActive).length} ${t('inspections.active')}`} size="small" color="success" />
                 </Box>
 
                 <Alert severity="info" sx={{ mb: 2, borderRadius: 2 }}>
-                  Each inspection for <strong>{selectedType.name}</strong> goes through {stageTemplates.length} sequential stages.
+                  {t('inspections.stageAlert', { name: selectedType.name, count: stageTemplates.length })}
                 </Alert>
 
                 <DataTable
@@ -415,13 +415,13 @@ export default function InspectionsPage() {
                   rows={stageTemplates}
                   getRowId={(row) => row.id}
                   pagination={false}
-                  emptyMessage="No stages defined"
+                  emptyMessage={t('inspections.noStages')}
                 />
               </>
             ) : (
               <EmptyState
-                title="Select a Consultant Type"
-                description="Choose a consultant type from the list to view its inspection stages."
+                title={t('inspections.selectConsultantType')}
+                description={t('inspections.selectConsultantTypeDesc')}
               />
             )}
           </Box>
@@ -432,26 +432,26 @@ export default function InspectionsPage() {
         <Box sx={{ p: 2.5 }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
             <Typography variant="h6" fontWeight={600}>
-              Project Inspections
+              {t('inspections.projectInspections')}
             </Typography>
             <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
               <SearchField
-                placeholder="Search inspections..."
+                placeholder={t('inspections.searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
               <Button variant="secondary" size="small" icon={<FilterListIcon />}>
-                Filters
+                {t('common.filter')}
               </Button>
             </Box>
           </Box>
 
           <Tabs
             items={[
-              { label: 'All', value: 'all', badge: inspections.length },
-              { label: 'Pending', value: 'pending', badge: inspections.filter(i => i.status === 'pending').length },
-              { label: 'In Progress', value: 'in_progress', badge: inspections.filter(i => i.status === 'in_progress').length },
-              { label: 'Completed', value: 'completed', badge: inspections.filter(i => i.status === 'completed').length },
+              { label: t('common.all'), value: 'all', badge: inspections.length },
+              { label: t('inspections.pending'), value: 'pending', badge: inspections.filter(i => i.status === 'pending').length },
+              { label: t('inspections.inProgress'), value: 'in_progress', badge: inspections.filter(i => i.status === 'in_progress').length },
+              { label: t('inspections.completed'), value: 'completed', badge: inspections.filter(i => i.status === 'completed').length },
             ]}
             value={activeTab}
             onChange={setActiveTab}
@@ -463,7 +463,7 @@ export default function InspectionsPage() {
               columns={inspectionColumns}
               rows={filteredInspections}
               getRowId={(row) => row.id}
-              emptyMessage="No inspections found"
+              emptyMessage={t('inspections.noInspectionsFound')}
               onRowClick={(row) => console.log('View inspection:', row.id)}
             />
           </Box>
@@ -509,7 +509,7 @@ export default function InspectionsPage() {
             rows={3}
             value={newInspection.notes}
             onChange={(e) => setNewInspection({ ...newInspection, notes: e.target.value })}
-            placeholder="Add any relevant notes for this inspection..."
+            placeholder={t('inspections.notesPlaceholder')}
           />
         </Box>
       </FormModal>

@@ -155,14 +155,14 @@ export default function RFIPage() {
       setDialogOpen(true)
       setDrawerOpen(false)
     } catch {
-      showError('Failed to load RFI details')
+      showError(t('rfis.failedToLoadDetails'))
     }
   }
 
   const handleSaveRfi = async () => {
     if (!projectId) return
     if (!formData.subject || !formData.question || !formData.to_email) {
-      showError('Please fill in all required fields')
+      showError(t('rfis.requiredFieldsError'))
       return
     }
 
@@ -181,16 +181,16 @@ export default function RFIPage() {
           drawing_reference: formData.drawing_reference || undefined,
           specification_reference: formData.specification_reference || undefined,
         })
-        showSuccess('RFI updated successfully!')
+        showSuccess(t('rfis.rfiUpdatedSuccessfully'))
       } else {
         await rfiApi.create(projectId, formData)
-        showSuccess('RFI created successfully!')
+        showSuccess(t('rfis.rfiCreatedSuccessfully'))
       }
       handleCloseDialog()
       loadRfis()
       loadSummary()
     } catch {
-      showError(`Failed to ${editingRfi ? 'update' : 'create'} RFI. Please try again.`)
+      showError(t('rfis.failedToSaveRFI', { action: editingRfi ? 'update' : 'create' }))
     } finally {
       setSaving(false)
     }
@@ -206,14 +206,14 @@ export default function RFIPage() {
     if (!rfiToDelete) return
     try {
       await rfiApi.delete(rfiToDelete.id)
-      showSuccess('RFI deleted successfully!')
+      showSuccess(t('rfis.rfiDeletedSuccessfully'))
       setDeleteDialogOpen(false)
       setRfiToDelete(null)
       setDrawerOpen(false)
       loadRfis()
       loadSummary()
     } catch {
-      showError('Failed to delete RFI. Only draft or cancelled RFIs can be deleted.')
+      showError(t('rfis.failedToDeleteRFI'))
     }
   }
 
@@ -222,13 +222,13 @@ export default function RFIPage() {
     setSending(true)
     try {
       await rfiApi.send(selectedRfi.id)
-      showSuccess('RFI sent successfully!')
+      showSuccess(t('rfis.rfiSentSuccessfully'))
       loadRfis()
       loadSummary()
       const updated = await rfiApi.get(selectedRfi.id)
       setSelectedRfi(updated)
     } catch {
-      showError('Failed to send RFI. Please try again.')
+      showError(t('rfis.failedToSendRFI'))
     } finally {
       setSending(false)
     }
@@ -241,7 +241,7 @@ export default function RFIPage() {
       const fullRfi = await rfiApi.get(rfi.id)
       setSelectedRfi(fullRfi)
     } catch {
-      showError('Failed to load RFI details')
+      showError(t('rfis.failedToLoadDetails'))
       setDrawerOpen(false)
     } finally {
       setDetailLoading(false)
@@ -266,7 +266,7 @@ export default function RFIPage() {
   const columns: Column<RFIListItem>[] = [
     {
       id: 'rfi_number',
-      label: 'RFI #',
+      label: t('rfis.rfiNumber'),
       minWidth: 140,
       render: (row) => (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
@@ -286,7 +286,7 @@ export default function RFIPage() {
           <Box>
             <Typography variant="body2" fontWeight={500}>{row.rfi_number}</Typography>
             {isOverdue(row) && (
-              <Chip label="Overdue" size="small" color="error" sx={{ height: 18, fontSize: 10 }} />
+              <Chip label={t('rfis.overdue')} size="small" color="error" sx={{ height: 18, fontSize: 10 }} />
             )}
           </Box>
         </Box>
@@ -294,7 +294,7 @@ export default function RFIPage() {
     },
     {
       id: 'subject',
-      label: 'Subject',
+      label: t('rfis.subject'),
       minWidth: 250,
       render: (row) => (
         <Box>
@@ -302,14 +302,14 @@ export default function RFIPage() {
             {row.subject}
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            To: {row.to_name || row.to_email}
+            {t('rfis.to')}: {row.to_name || row.to_email}
           </Typography>
         </Box>
       ),
     },
     {
       id: 'category',
-      label: 'Category',
+      label: t('rfis.category'),
       minWidth: 110,
       render: (row) => {
         const cat = RFI_CATEGORY_OPTIONS.find(c => c.value === row.category)
@@ -318,19 +318,19 @@ export default function RFIPage() {
     },
     {
       id: 'priority',
-      label: 'Priority',
+      label: t('rfis.priority'),
       minWidth: 100,
       render: (row) => <StatusBadge status={row.priority} />,
     },
     {
       id: 'status',
-      label: 'Status',
+      label: t('common.status'),
       minWidth: 130,
       render: (row) => <StatusBadge status={row.status} />,
     },
     {
       id: 'due_date',
-      label: 'Due Date',
+      label: t('rfis.dueDate'),
       minWidth: 110,
       render: (row) => (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
@@ -343,7 +343,7 @@ export default function RFIPage() {
     },
     {
       id: 'responses',
-      label: 'Responses',
+      label: t('rfis.responses'),
       minWidth: 90,
       align: 'center',
       render: (row) => (
@@ -357,15 +357,15 @@ export default function RFIPage() {
       align: 'right',
       render: (row) => (
         <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
-          <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleViewDetails(row); }} title="View details">
+          <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleViewDetails(row); }} title={t('common.view')}>
             <VisibilityIcon fontSize="small" />
           </IconButton>
           {row.status === 'draft' && (
             <>
-              <IconButton size="small" onClick={(e) => handleOpenEdit(row, e)} title="Edit RFI">
+              <IconButton size="small" onClick={(e) => handleOpenEdit(row, e)} title={t('rfis.editRFI')}>
                 <EditIcon fontSize="small" />
               </IconButton>
-              <IconButton size="small" onClick={(e) => handleDeleteClick(row, e)} title="Delete RFI" color="error">
+              <IconButton size="small" onClick={(e) => handleDeleteClick(row, e)} title={t('rfis.deleteRFI')} color="error">
                 <DeleteIcon fontSize="small" />
               </IconButton>
             </>
@@ -388,8 +388,8 @@ export default function RFIPage() {
   return (
     <Box sx={{ p: 3 }}>
       <PageHeader
-        title={t('rfis.title')}
-        subtitle="Manage Requests for Information"
+        title={t('rfis.pageTitle')}
+        subtitle={t('rfis.subtitle')}
         breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('rfis.title') }]}
         actions={
           <Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>
@@ -408,12 +408,12 @@ export default function RFIPage() {
                 onChange={(e) => setSearch(e.target.value)}
               />
               <Button variant="secondary" size="small" icon={<FilterListIcon />}>
-                {t('rfis.filters')}
+                {t('common.filter')}
               </Button>
             </Box>
             <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
               {summary && summary.overdue_count > 0 && (
-                <Chip label={`${summary.overdue_count} Overdue`} size="small" color="error" />
+                <Chip label={`${summary.overdue_count} ${t('rfis.overdue')}`} size="small" color="error" />
               )}
               <Chip label={`${total} ${t('rfis.title')}`} size="small" />
             </Box>
@@ -421,12 +421,12 @@ export default function RFIPage() {
 
           <Tabs
             items={[
-              { label: 'All', value: 'all', badge: summary?.total_rfis || 0 },
-              { label: 'Draft', value: 'draft', badge: summary?.draft_count || 0 },
-              { label: 'Open', value: 'open', badge: summary?.open_count || 0 },
-              { label: 'Waiting', value: 'waiting_response', badge: summary?.waiting_response_count || 0 },
-              { label: 'Answered', value: 'answered', badge: summary?.answered_count || 0 },
-              { label: 'Closed', value: 'closed', badge: summary?.closed_count || 0 },
+              { label: t('common.all'), value: 'all', badge: summary?.total_rfis || 0 },
+              { label: t('rfis.draft'), value: 'draft', badge: summary?.draft_count || 0 },
+              { label: t('rfis.open'), value: 'open', badge: summary?.open_count || 0 },
+              { label: t('rfis.waiting'), value: 'waiting_response', badge: summary?.waiting_response_count || 0 },
+              { label: t('rfis.answered'), value: 'answered', badge: summary?.answered_count || 0 },
+              { label: t('rfis.closed'), value: 'closed', badge: summary?.closed_count || 0 },
             ]}
             value={activeTab}
             onChange={(val) => { setActiveTab(val); setPage(1); }}
@@ -439,7 +439,7 @@ export default function RFIPage() {
               rows={rfis}
               getRowId={(row) => row.id}
               onRowClick={handleViewDetails}
-              emptyMessage="No RFIs found"
+              emptyMessage={t('rfis.noRFIs')}
             />
           </Box>
 
@@ -474,7 +474,7 @@ export default function RFIPage() {
         ) : selectedRfi && (
           <Box sx={{ p: 3 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-              <Typography variant="h6" fontWeight={600}>{t('rfis.title')} {t('common.details')}</Typography>
+              <Typography variant="h6" fontWeight={600}>{t('rfis.rfiTitle')} {t('common.details')}</Typography>
               <IconButton onClick={handleCloseDrawer} size="small">
                 <CloseIcon />
               </IconButton>
@@ -510,14 +510,14 @@ export default function RFIPage() {
             <Divider sx={{ my: 2 }} />
 
             <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1, fontWeight: 600 }}>
-              Question
+              {t('rfis.question')}
             </Typography>
             <Box sx={{ p: 2, bgcolor: 'action.hover', borderRadius: 2, mb: 3 }}>
               <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>{selectedRfi.question}</Typography>
             </Box>
 
             <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1.5, fontWeight: 600 }}>
-              Details
+              {t('rfis.details')}
             </Typography>
             <Box
               sx={{
@@ -531,33 +531,33 @@ export default function RFIPage() {
               }}
             >
               <Box>
-                <Typography variant="caption" color="text.secondary">To</Typography>
+                <Typography variant="caption" color="text.secondary">{t('rfis.to')}</Typography>
                 <Typography variant="body2" fontWeight={500}>{selectedRfi.to_name || selectedRfi.to_email}</Typography>
                 <Typography variant="caption" color="text.secondary">{selectedRfi.to_email}</Typography>
               </Box>
               <Box>
-                <Typography variant="caption" color="text.secondary">Category</Typography>
+                <Typography variant="caption" color="text.secondary">{t('rfis.category')}</Typography>
                 <Typography variant="body2" fontWeight={500}>
                   {RFI_CATEGORY_OPTIONS.find(c => c.value === selectedRfi.category)?.label || selectedRfi.category}
                 </Typography>
               </Box>
               <Box>
-                <Typography variant="caption" color="text.secondary">Due Date</Typography>
+                <Typography variant="caption" color="text.secondary">{t('rfis.dueDate')}</Typography>
                 <Typography variant="body2" fontWeight={500}>{formatDate(selectedRfi.due_date)}</Typography>
               </Box>
               <Box>
-                <Typography variant="caption" color="text.secondary">Created</Typography>
+                <Typography variant="caption" color="text.secondary">{t('rfis.created')}</Typography>
                 <Typography variant="body2" fontWeight={500}>{formatDate(selectedRfi.created_at)}</Typography>
               </Box>
               {selectedRfi.location && (
                 <Box>
-                  <Typography variant="caption" color="text.secondary">Location</Typography>
+                  <Typography variant="caption" color="text.secondary">{t('rfis.location')}</Typography>
                   <Typography variant="body2" fontWeight={500}>{selectedRfi.location}</Typography>
                 </Box>
               )}
               {selectedRfi.drawing_reference && (
                 <Box>
-                  <Typography variant="caption" color="text.secondary">Drawing Ref</Typography>
+                  <Typography variant="caption" color="text.secondary">{t('rfis.drawingReference')}</Typography>
                   <Typography variant="body2" fontWeight={500}>{selectedRfi.drawing_reference}</Typography>
                 </Box>
               )}
@@ -567,14 +567,14 @@ export default function RFIPage() {
               <>
                 <Divider sx={{ my: 2 }} />
                 <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1.5, fontWeight: 600 }}>
-                  Responses ({selectedRfi.responses.length})
+                  {t('rfis.responses')} ({selectedRfi.responses.length})
                 </Typography>
                 {selectedRfi.responses.map((response) => (
                   <Box key={response.id} sx={{ p: 2, bgcolor: response.is_internal ? 'warning.light' : 'success.light', borderRadius: 2, mb: 1.5 }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                       <Typography variant="caption" fontWeight={600}>
                         {response.from_name || response.from_email}
-                        {response.is_internal && <Chip label="Internal" size="small" sx={{ ml: 1, height: 16 }} />}
+                        {response.is_internal && <Chip label={t('rfis.internal')} size="small" sx={{ ml: 1, height: 16 }} />}
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
                         {formatDate(response.created_at)}
@@ -595,12 +595,12 @@ export default function RFIPage() {
                   fullWidth
                   onClick={handleSendRfi}
                 >
-                  Send RFI
+                  {t('rfis.sendRFI')}
                 </Button>
               )}
               {selectedRfi.status === 'draft' && (
                 <Button variant="secondary" fullWidth onClick={() => handleOpenEdit(selectedRfi as unknown as RFIListItem)}>
-                  Edit RFI
+                  {t('rfis.editRFI')}
                 </Button>
               )}
             </Box>
@@ -612,14 +612,14 @@ export default function RFIPage() {
         open={dialogOpen}
         onClose={handleCloseDialog}
         onSubmit={handleSaveRfi}
-        title={editingRfi ? 'Edit RFI' : 'Create New RFI'}
-        submitLabel={editingRfi ? 'Save Changes' : 'Create RFI'}
+        title={editingRfi ? t('rfis.editRFI') : t('rfis.addNewRFI')}
+        submitLabel={editingRfi ? t('common.saveChanges') : t('rfis.createRFI')}
         loading={saving}
       >
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
           <TextField
             fullWidth
-            label="Subject"
+            label={t('rfis.subject')}
             required
             value={formData.subject}
             onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
@@ -627,7 +627,7 @@ export default function RFIPage() {
           <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
             <TextField
               fullWidth
-              label="To Email"
+              label={t('rfis.toEmail')}
               required
               type="email"
               value={formData.to_email}
@@ -635,14 +635,14 @@ export default function RFIPage() {
             />
             <TextField
               fullWidth
-              label="To Name"
+              label={t('rfis.toName')}
               value={formData.to_name}
               onChange={(e) => setFormData({ ...formData, to_name: e.target.value })}
             />
           </Box>
           <TextField
             fullWidth
-            label="Question"
+            label={t('rfis.question')}
             required
             multiline
             rows={4}
@@ -653,7 +653,7 @@ export default function RFIPage() {
             <MuiTextField
               fullWidth
               select
-              label="Category"
+              label={t('rfis.category')}
               value={formData.category}
               onChange={(e) => setFormData({ ...formData, category: e.target.value })}
             >
@@ -664,7 +664,7 @@ export default function RFIPage() {
             <MuiTextField
               fullWidth
               select
-              label="Priority"
+              label={t('rfis.priority')}
               value={formData.priority}
               onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
             >
@@ -675,30 +675,30 @@ export default function RFIPage() {
           </Box>
           <TextField
             fullWidth
-            label="Due Date"
+            label={t('rfis.dueDate')}
             type="date"
             value={formData.due_date}
             onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
             InputLabelProps={{ shrink: true }}
           />
           <Divider />
-          <Typography variant="subtitle2" color="text.secondary">Optional References</Typography>
+          <Typography variant="subtitle2" color="text.secondary">{t('rfis.optionalReferences')}</Typography>
           <TextField
             fullWidth
-            label="Location"
+            label={t('rfis.location')}
             value={formData.location}
             onChange={(e) => setFormData({ ...formData, location: e.target.value })}
           />
           <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
             <TextField
               fullWidth
-              label="Drawing Reference"
+              label={t('rfis.drawingReference')}
               value={formData.drawing_reference}
               onChange={(e) => setFormData({ ...formData, drawing_reference: e.target.value })}
             />
             <TextField
               fullWidth
-              label="Specification Reference"
+              label={t('rfis.specificationReference')}
               value={formData.specification_reference}
               onChange={(e) => setFormData({ ...formData, specification_reference: e.target.value })}
             />
@@ -710,9 +710,9 @@ export default function RFIPage() {
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={handleConfirmDelete}
-        title="Delete RFI"
-        message={`Are you sure you want to delete "${rfiToDelete?.rfi_number}"? This action cannot be undone.`}
-        confirmLabel="Delete"
+        title={t('rfis.deleteRFI')}
+        message={t('rfis.deleteConfirmation', { number: rfiToDelete?.rfi_number })}
+        confirmLabel={t('common.delete')}
         variant="danger"
       />
     </Box>
