@@ -5,6 +5,27 @@ import { Box, Stack, Autocomplete, Chip } from '@mui/material'
 import { Modal } from '../ui/Modal'
 import { Button } from '../ui/Button'
 import { TextField } from '../ui/TextField'
+import { Select, SelectOption } from '../ui/Select'
+
+// Category options for RFI classification
+const RFI_CATEGORY_OPTIONS: SelectOption[] = [
+  { value: 'design', label: 'Design' },
+  { value: 'structural', label: 'Structural' },
+  { value: 'mep', label: 'MEP' },
+  { value: 'architectural', label: 'Architectural' },
+  { value: 'specifications', label: 'Specifications' },
+  { value: 'schedule', label: 'Schedule' },
+  { value: 'cost', label: 'Cost' },
+  { value: 'other', label: 'Other' },
+]
+
+// Priority options for RFI urgency
+const RFI_PRIORITY_OPTIONS: SelectOption[] = [
+  { value: 'urgent', label: 'Urgent' },
+  { value: 'high', label: 'High' },
+  { value: 'medium', label: 'Medium' },
+  { value: 'low', label: 'Low' },
+]
 
 // Zod validation schema for RFI form data
 const rfiFormSchema = z.object({
@@ -177,6 +198,36 @@ export function RFIFormDialog({
                     disabled={loading || isSubmitting}
                   />
                 )}
+                disabled={loading || isSubmitting}
+              />
+            )}
+          />
+
+          <Controller
+            name="category"
+            control={control}
+            render={({ field, fieldState }) => (
+              <Select
+                {...field}
+                label="Category"
+                options={RFI_CATEGORY_OPTIONS}
+                error={!!fieldState.error}
+                helperText={fieldState.error?.message}
+                disabled={loading || isSubmitting}
+              />
+            )}
+          />
+
+          <Controller
+            name="priority"
+            control={control}
+            render={({ field, fieldState }) => (
+              <Select
+                {...field}
+                label="Priority"
+                options={RFI_PRIORITY_OPTIONS}
+                error={!!fieldState.error}
+                helperText={fieldState.error?.message}
                 disabled={loading || isSubmitting}
               />
             )}
