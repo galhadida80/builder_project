@@ -2,7 +2,7 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, Controller } from 'react-hook-form'
 import { useState } from 'react'
-import { Box, Stack, Autocomplete, Chip, Typography, IconButton, List, ListItem, ListItemText, ListItemSecondaryAction } from '@mui/material'
+import { Box, Stack, Autocomplete, Chip, Typography, IconButton, List, ListItem, ListItemText, ListItemSecondaryAction, Alert } from '@mui/material'
 import { Delete as DeleteIcon, CloudUpload as CloudUploadIcon } from '@mui/icons-material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
@@ -95,6 +95,10 @@ export function RFIFormDialog({
   // File upload state management
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
 
+  // Loading and error state management - useState for loading state
+  const [loadingState, setLoadingState] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
   // Configure dropzone for file uploads
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     multiple: true,
@@ -128,33 +132,48 @@ export function RFIFormDialog({
 
   // Handler for saving as draft
   const handleDraft = async (data: RFIFormData) => {
+    setLoadingState(true)
+    setError(null)
     try {
       await onSubmit(data, 'draft')
       reset()
+      setUploadedFiles([])
       onClose()
     } catch (error) {
-      // Error handling will be done by parent component
+      const errorMessage = error instanceof Error ? error.message : 'Failed to save draft. Please try again.'
+      setError(errorMessage)
+    } finally {
+      setLoadingState(false)
     }
   }
 
   // Handler for sending immediately
   const handleSend = async (data: RFIFormData) => {
+    setLoadingState(true)
+    setError(null)
     try {
       await onSubmit(data, 'send')
       reset()
+      setUploadedFiles([])
       onClose()
     } catch (error) {
-      // Error handling will be done by parent component
+      const errorMessage = error instanceof Error ? error.message : 'Failed to send RFI. Please try again.'
+      setError(errorMessage)
+    } finally {
+      setLoadingState(false)
     }
   }
 
   const handleClose = () => {
     reset()
     setUploadedFiles([])
+    setError(null)
+    setLoadingState(false)
     onClose()
   }
 
   const title = mode === 'create' ? 'Create New RFI' : 'Edit RFI'
+  const isFormLoading = loading || loadingState || isSubmitting
 
   return (
     <Modal
@@ -164,7 +183,7 @@ export function RFIFormDialog({
       maxWidth="md"
       actions={
         <>
-          <Button variant="tertiary" onClick={handleClose} disabled={loading || isSubmitting}>
+          <Button variant="tertiary" onClick={handleClose} disabled={isFormLoading}>
             Cancel
           </Button>
           {mode === 'create' ? (
@@ -172,16 +191,16 @@ export function RFIFormDialog({
               <Button
                 variant="secondary"
                 onClick={handleSubmit(handleDraft)}
-                loading={loading || isSubmitting}
-                disabled={loading || isSubmitting}
+                loading={isFormLoading}
+                disabled={isFormLoading}
               >
                 Save as Draft
               </Button>
               <Button
                 variant="primary"
                 onClick={handleSubmit(handleSend)}
-                loading={loading || isSubmitting}
-                disabled={loading || isSubmitting}
+                loading={isFormLoading}
+                disabled={isFormLoading}
               >
                 Send Now
               </Button>
@@ -190,8 +209,8 @@ export function RFIFormDialog({
             <Button
               variant="primary"
               onClick={handleSubmit(handleDraft)}
-              loading={loading || isSubmitting}
-              disabled={loading || isSubmitting}
+              loading={isFormLoading}
+              disabled={isFormLoading}
             >
               Save Changes
             </Button>
@@ -201,6 +220,13 @@ export function RFIFormDialog({
     >
       <Box component="form" onSubmit={(e) => { e.preventDefault(); handleSubmit(mode === 'create' ? handleSend : handleDraft)(); }}>
         <Stack spacing={3}>
+          {/* Error Message Display */}
+          {error && (
+            <Alert severity="error" onClose={() => setError(null)}>
+              {error}
+            </Alert>
+          )}
+
           {/* Required Fields */}
           <Controller
             name="toEmail"
@@ -214,7 +240,7 @@ export function RFIFormDialog({
                 fullWidth
                 error={!!fieldState.error}
                 helperText={fieldState.error?.message}
-                disabled={loading || isSubmitting}
+                disabled={isFormLoading}
               />
             )}
           />
@@ -229,7 +255,7 @@ export function RFIFormDialog({
                 fullWidth
                 error={!!fieldState.error}
                 helperText={fieldState.error?.message}
-                disabled={loading || isSubmitting}
+                disabled={isFormLoading}
               />
             )}
           />
@@ -245,7 +271,7 @@ export function RFIFormDialog({
                 fullWidth
                 error={!!fieldState.error}
                 helperText={fieldState.error?.message}
-                disabled={loading || isSubmitting}
+                disabled={isFormLoading}
               />
             )}
           />
@@ -295,10 +321,10 @@ export function RFIFormDialog({
                     placeholder="Add email..."
                     error={!!fieldState.error}
                     helperText={fieldState.error?.message}
-                    disabled={loading || isSubmitting}
+                    disabled={isFormLoading}
                   />
                 )}
-                disabled={loading || isSubmitting}
+                disabled={isFormLoading}
               />
             )}
           />
@@ -313,7 +339,7 @@ export function RFIFormDialog({
                 options={RFI_CATEGORY_OPTIONS}
                 error={!!fieldState.error}
                 helperText={fieldState.error?.message}
-                disabled={loading || isSubmitting}
+                disabled={isFormLoading}
               />
             )}
           />
@@ -328,7 +354,7 @@ export function RFIFormDialog({
                 options={RFI_PRIORITY_OPTIONS}
                 error={!!fieldState.error}
                 helperText={fieldState.error?.message}
-                disabled={loading || isSubmitting}
+                disabled={isFormLoading}
               />
             )}
           />
@@ -341,7 +367,7 @@ export function RFIFormDialog({
                 <DateTimePicker
                   {...field}
                   label="Due Date"
-                  disabled={loading || isSubmitting}
+                  disabled={isFormLoading}
                   slotProps={{
                     textField: {
                       fullWidth: true,
@@ -364,7 +390,7 @@ export function RFIFormDialog({
                 fullWidth
                 error={!!fieldState.error}
                 helperText={fieldState.error?.message}
-                disabled={loading || isSubmitting}
+                disabled={isFormLoading}
               />
             )}
           />
@@ -379,7 +405,7 @@ export function RFIFormDialog({
                 fullWidth
                 error={!!fieldState.error}
                 helperText={fieldState.error?.message}
-                disabled={loading || isSubmitting}
+                disabled={isFormLoading}
               />
             )}
           />
@@ -394,7 +420,7 @@ export function RFIFormDialog({
                 fullWidth
                 error={!!fieldState.error}
                 helperText={fieldState.error?.message}
-                disabled={loading || isSubmitting}
+                disabled={isFormLoading}
               />
             )}
           />
@@ -421,7 +447,7 @@ export function RFIFormDialog({
                 },
               }}
             >
-              <input {...getInputProps()} disabled={loading || isSubmitting} />
+              <input {...getInputProps()} disabled={isFormLoading} />
               <CloudUploadIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 1 }} />
               <Typography variant="body1" color="text.primary" gutterBottom>
                 {isDragActive ? 'Drop files here...' : 'Drag files here or click to upload'}
@@ -454,7 +480,7 @@ export function RFIFormDialog({
                         edge="end"
                         aria-label="delete"
                         onClick={() => handleRemoveFile(index)}
-                        disabled={loading || isSubmitting}
+                        disabled={isFormLoading}
                       >
                         <DeleteIcon />
                       </IconButton>
