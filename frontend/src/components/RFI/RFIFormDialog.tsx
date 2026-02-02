@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, Controller } from 'react-hook-form'
-import { Box, Stack } from '@mui/material'
+import { Box, Stack, Autocomplete, Chip } from '@mui/material'
 import { Modal } from '../ui/Modal'
 import { Button } from '../ui/Button'
 import { TextField } from '../ui/TextField'
@@ -142,6 +142,41 @@ export function RFIFormDialog({
                 fullWidth
                 error={!!fieldState.error}
                 helperText={fieldState.error?.message}
+                disabled={loading || isSubmitting}
+              />
+            )}
+          />
+
+          <Controller
+            name="ccEmails"
+            control={control}
+            render={({ field, fieldState }) => (
+              <Autocomplete
+                {...field}
+                multiple
+                freeSolo
+                options={[]}
+                value={field.value || []}
+                onChange={(_, data) => field.onChange(data)}
+                renderTags={(value, getTagProps) =>
+                  value.map((email, index) => (
+                    <Chip
+                      label={email}
+                      {...getTagProps({ index })}
+                      key={index}
+                    />
+                  ))
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="CC Emails"
+                    placeholder="Add email..."
+                    error={!!fieldState.error}
+                    helperText={fieldState.error?.message}
+                    disabled={loading || isSubmitting}
+                  />
+                )}
                 disabled={loading || isSubmitting}
               />
             )}
