@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Alert from '@mui/material/Alert'
@@ -20,6 +21,7 @@ import { authApi } from '../api/auth'
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const { t } = useTranslation('login')
   const [tab, setTab] = useState('signin')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -56,7 +58,7 @@ export default function LoginPage() {
       navigate('/dashboard')
     } catch (err: unknown) {
       const error = err as { response?: { data?: { detail?: string } } }
-      setError(error.response?.data?.detail || 'Invalid email or password')
+      setError(error.response?.data?.detail || t('invalidCredentials'))
     } finally {
       setLoading(false)
     }
@@ -68,27 +70,27 @@ export default function LoginPage() {
     setError(null)
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match')
+      setError(t('passwordsMismatch'))
       setLoading(false)
       return
     }
 
     if (password.length < 8) {
-      setError('Password must be at least 8 characters')
+      setError(t('passwordMinLength'))
       setLoading(false)
       return
     }
 
     try {
       await authApi.register(email, password, fullName)
-      setSuccess('Account created successfully! Please sign in.')
+      setSuccess(t('accountCreated'))
       setTab('signin')
       setPassword('')
       setConfirmPassword('')
       setFullName('')
     } catch (err: unknown) {
       const error = err as { response?: { data?: { detail?: string } } }
-      setError(error.response?.data?.detail || 'Registration failed')
+      setError(error.response?.data?.detail || t('registrationFailed'))
     } finally {
       setLoading(false)
     }
@@ -150,28 +152,27 @@ export default function LoginPage() {
                 BuilderOps
               </Typography>
               <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                Construction Operations Platform
+                {t('platformSubtitle')}
               </Typography>
             </Box>
           </Box>
 
           <Typography variant="h3" fontWeight={700} sx={{ mb: 3, lineHeight: 1.2 }}>
-            Build Smarter.<br />
-            Inspect Faster.<br />
-            Deliver Excellence.
+            {t('buildSmarterTitle')}<br />
+            {t('inspectFasterTitle')}<br />
+            {t('deliverExcellenceTitle')}
           </Typography>
 
           <Typography variant="body1" sx={{ mb: 4, opacity: 0.9, lineHeight: 1.7 }}>
-            The complete platform for managing construction projects, equipment tracking,
-            inspection workflows, and team collaboration.
+            {t('platformDescription')}
           </Typography>
 
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             {[
-              'Real-time project tracking & analytics',
-              'Equipment & material management',
-              'Senior supervision inspection system',
-              'Multi-step approval workflows',
+              t('realTimeTracking'),
+              t('equipmentManagement'),
+              t('inspectionSystem'),
+              t('approvalWorkflows'),
             ].map((feature, index) => (
               <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                 <CheckCircleIcon sx={{ fontSize: 20, color: '#22C55E' }} />
@@ -219,19 +220,19 @@ export default function LoginPage() {
 
           <Box sx={{ mb: 4, textAlign: { xs: 'center', md: 'left' } }}>
             <Typography variant="h4" fontWeight={700} color="text.primary" sx={{ mb: 1 }}>
-              {tab === 'signin' ? 'Welcome back' : 'Create account'}
+              {tab === 'signin' ? t('welcomeBack') : t('createAccount')}
             </Typography>
             <Typography variant="body2" color="text.secondary">
               {tab === 'signin'
-                ? 'Enter your credentials to access your account'
-                : 'Fill in your details to get started'}
+                ? t('enterCredentials')
+                : t('fillDetails')}
             </Typography>
           </Box>
 
           <SegmentedTabs
             items={[
-              { label: 'Sign In', value: 'signin' },
-              { label: 'Sign Up', value: 'signup' },
+              { label: t('signIn'), value: 'signin' },
+              { label: t('signUp'), value: 'signup' },
             ]}
             value={tab}
             onChange={handleTabChange}
@@ -255,7 +256,7 @@ export default function LoginPage() {
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
                   <TextField
                     fullWidth
-                    label="Email"
+                    label={t('email')}
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -265,7 +266,7 @@ export default function LoginPage() {
                   />
                   <TextField
                     fullWidth
-                    label="Password"
+                    label={t('password')}
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -285,7 +286,7 @@ export default function LoginPage() {
 
                   <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                     <Link href="#" underline="hover" sx={{ fontSize: '0.875rem' }}>
-                      Forgot password?
+                      {t('forgotPassword')}
                     </Link>
                   </Box>
 
@@ -296,7 +297,7 @@ export default function LoginPage() {
                     loading={loading}
                     sx={{ py: 1.5, mt: 1 }}
                   >
-                    Sign In
+                    {t('signIn')}
                   </Button>
                 </Box>
               </form>
@@ -305,7 +306,7 @@ export default function LoginPage() {
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
                   <TextField
                     fullWidth
-                    label="Full Name"
+                    label={t('fullName')}
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     required
@@ -314,7 +315,7 @@ export default function LoginPage() {
                   />
                   <TextField
                     fullWidth
-                    label="Email"
+                    label={t('email')}
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -324,13 +325,13 @@ export default function LoginPage() {
                   />
                   <TextField
                     fullWidth
-                    label="Password"
+                    label={t('password')}
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     autoComplete="new-password"
-                    helperText="At least 8 characters"
+                    helperText={t('atLeast8Chars')}
                     startIcon={<LockIcon sx={{ color: 'text.secondary' }} />}
                     endIcon={
                       <IconButton
@@ -344,7 +345,7 @@ export default function LoginPage() {
                   />
                   <TextField
                     fullWidth
-                    label="Confirm Password"
+                    label={t('confirmPassword')}
                     type={showPassword ? 'text' : 'password'}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
@@ -360,7 +361,7 @@ export default function LoginPage() {
                     loading={loading}
                     sx={{ py: 1.5, mt: 1 }}
                   >
-                    Create Account
+                    {t('createButton')}
                   </Button>
                 </Box>
               </form>
@@ -368,13 +369,13 @@ export default function LoginPage() {
 
             <Divider sx={{ my: 3 }}>
               <Typography variant="caption" color="text.secondary">
-                OR
+                {t('or')}
               </Typography>
             </Divider>
 
             <Box sx={{ textAlign: 'center' }}>
               <Typography variant="body2" color="text.secondary">
-                {tab === 'signin' ? "Don't have an account? " : 'Already have an account? '}
+                {tab === 'signin' ? t('noAccount') : t('haveAccount')}
                 <Link
                   component="button"
                   type="button"
@@ -382,7 +383,7 @@ export default function LoginPage() {
                   underline="hover"
                   sx={{ fontWeight: 600 }}
                 >
-                  {tab === 'signin' ? 'Sign up' : 'Sign in'}
+                  {tab === 'signin' ? t('signUpLink') : t('signInLink')}
                 </Link>
               </Typography>
             </Box>
@@ -390,7 +391,7 @@ export default function LoginPage() {
 
           <Box sx={{ mt: 4, textAlign: 'center' }}>
             <Typography variant="caption" color="text.disabled">
-              By continuing, you agree to our Terms of Service and Privacy Policy
+              {t('terms')}
             </Typography>
           </Box>
         </Box>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import MenuItem from '@mui/material/MenuItem'
@@ -41,6 +42,7 @@ const actionTypes = ['create', 'update', 'delete', 'status_change', 'approval', 
 
 export default function AuditLogPage() {
   const { showError } = useToast()
+  const { t } = useTranslation('audit')
   const [loading, setLoading] = useState(true)
   const [logs, setLogs] = useState<AuditLog[]>([])
   const [search, setSearch] = useState('')
@@ -59,7 +61,7 @@ export default function AuditLogPage() {
       const data = await auditApi.listAll()
       setLogs(data)
     } catch {
-      showError('Failed to load audit logs. Please try again.')
+      showError(t('failedToLoad'))
     } finally {
       setLoading(false)
     }
@@ -100,7 +102,7 @@ export default function AuditLogPage() {
   const columns: Column<AuditLog>[] = [
     {
       id: 'createdAt',
-      label: 'Timestamp',
+      label: t('timestamp'),
       minWidth: 160,
       render: (row) => (
         <Box>
@@ -115,7 +117,7 @@ export default function AuditLogPage() {
     },
     {
       id: 'user',
-      label: 'User',
+      label: t('user'),
       minWidth: 180,
       render: (row) => (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
@@ -128,7 +130,7 @@ export default function AuditLogPage() {
     },
     {
       id: 'action',
-      label: 'Action',
+      label: t('action'),
       minWidth: 150,
       render: (row) => {
         const config = actionConfig[row.action] || actionConfig.update
@@ -160,7 +162,7 @@ export default function AuditLogPage() {
     },
     {
       id: 'entityType',
-      label: 'Entity',
+      label: t('entity'),
       minWidth: 120,
       render: (row) => (
         <Chip
@@ -173,13 +175,14 @@ export default function AuditLogPage() {
     },
     {
       id: 'changes',
-      label: 'Changes',
+      label: t('changes'),
       minWidth: 120,
       render: (row) => {
         const changes = formatChanges(row.oldValues, row.newValues)
+        const fieldText = changes.length > 0 ? `${changes.length} field${changes.length > 1 ? 's' : ''} changed` : '-'
         return (
           <Typography variant="body2" color="text.secondary">
-            {changes.length > 0 ? `${changes.length} field${changes.length > 1 ? 's' : ''} changed` : '-'}
+            {fieldText}
           </Typography>
         )
       },
@@ -191,7 +194,7 @@ export default function AuditLogPage() {
       align: 'right',
       render: (row) => (
         <Button variant="tertiary" size="small" onClick={() => handleViewDetails(row)}>
-          View
+          {t('view', { ns: 'common' })}
         </Button>
       ),
     },
@@ -215,9 +218,9 @@ export default function AuditLogPage() {
   return (
     <Box sx={{ p: 3 }}>
       <PageHeader
-        title="Audit Log"
-        subtitle="Complete history of all changes and actions"
-        breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Audit Log' }]}
+        title={t('pageTitle')}
+        subtitle={t('subtitle')}
+        breadcrumbs={[{ label: t('nav.dashboard', { ns: 'common' }), href: '/dashboard' }, { label: t('pageTitle') }]}
       />
 
       <Box
@@ -229,19 +232,19 @@ export default function AuditLogPage() {
         }}
       >
         <KPICard
-          title="Total Entries"
+          title={t('totalEntries')}
           value={logs.length}
           icon={<HistoryIcon />}
           color="primary"
         />
         <KPICard
-          title="Today's Activity"
+          title={t('todayActivity')}
           value={todayLogs}
           icon={<EditIcon />}
           color="info"
         />
         <KPICard
-          title="Users Active"
+          title={t('usersActive')}
           value={new Set(logs.map(l => l.user?.id)).size}
           icon={<CheckCircleIcon />}
           color="success"
@@ -253,7 +256,7 @@ export default function AuditLogPage() {
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
             <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
               <SearchField
-                placeholder="Search by user or entity..."
+                placeholder={t('searchPlaceholder')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
@@ -264,7 +267,7 @@ export default function AuditLogPage() {
                 size="small"
                 sx={{ minWidth: 140 }}
               >
-                <MenuItem value="">All Entities</MenuItem>
+                <MenuItem value="">{t('allEntities')}</MenuItem>
                 {entityTypes.map(type => (
                   <MenuItem key={type} value={type} sx={{ textTransform: 'capitalize' }}>{type}</MenuItem>
                 ))}
@@ -276,20 +279,20 @@ export default function AuditLogPage() {
                 size="small"
                 sx={{ minWidth: 140 }}
               >
-                <MenuItem value="">All Actions</MenuItem>
+                <MenuItem value="">{t('allActions')}</MenuItem>
                 {actionTypes.map(type => (
                   <MenuItem key={type} value={type} sx={{ textTransform: 'capitalize' }}>{type.replace('_', ' ')}</MenuItem>
                 ))}
               </MuiTextField>
             </Box>
-            <Chip label={`${filteredLogs.length} entries`} size="small" />
+            <Chip label={t('entriesLabel', { count: filteredLogs.length })} size="small" />
           </Box>
 
           {filteredLogs.length === 0 ? (
             <EmptyState
               variant="no-results"
-              title="No audit logs found"
-              description="Try adjusting your search or filters"
+              title={t('noLogsFound')}
+              description={t('tryAdjustingSearch')}
             />
           ) : (
             <DataTable
@@ -297,7 +300,7 @@ export default function AuditLogPage() {
               rows={filteredLogs}
               getRowId={(row) => row.id}
               onRowClick={handleViewDetails}
-              emptyMessage="No audit logs found"
+              emptyMessage={t('noLogsFound')}
             />
           )}
         </Box>
@@ -312,7 +315,7 @@ export default function AuditLogPage() {
         {selectedLog && (
           <Box sx={{ p: 3 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-              <Typography variant="h6" fontWeight={600}>Audit Details</Typography>
+              <Typography variant="h6" fontWeight={600}>{t('auditDetails')}</Typography>
               <IconButton onClick={() => setDetailsOpen(false)} size="small">
                 <CloseIcon />
               </IconButton>
@@ -355,11 +358,11 @@ export default function AuditLogPage() {
 
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 3 }}>
               <Box>
-                <Typography variant="caption" color="text.secondary" fontWeight={600}>TIMESTAMP</Typography>
+                <Typography variant="caption" color="text.secondary" fontWeight={600}>{t('timestamp').toUpperCase()}</Typography>
                 <Typography variant="body2">{new Date(selectedLog.createdAt).toLocaleString()}</Typography>
               </Box>
               <Box>
-                <Typography variant="caption" color="text.secondary" fontWeight={600}>USER</Typography>
+                <Typography variant="caption" color="text.secondary" fontWeight={600}>{t('user').toUpperCase()}</Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
                   <Avatar name={selectedLog.user?.fullName || 'Unknown'} size="small" />
                   <Typography variant="body2">{selectedLog.user?.fullName || 'Unknown'}</Typography>
@@ -377,7 +380,7 @@ export default function AuditLogPage() {
               <>
                 <Divider sx={{ my: 2 }} />
                 <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ mb: 1.5, display: 'block' }}>
-                  CHANGES
+                  {t('changes').toUpperCase()}
                 </Typography>
                 {formatChanges(selectedLog.oldValues, selectedLog.newValues).map(change => (
                   <Box
