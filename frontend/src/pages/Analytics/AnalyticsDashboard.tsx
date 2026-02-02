@@ -5,6 +5,7 @@ import DateRangeSelector from './components/DateRangeSelector'
 import AnalyticsKPICard from './components/KPICard'
 import ProjectMetricsChart from './components/ProjectMetricsChart'
 import DistributionChart from './components/DistributionChart'
+import ExportButton from './components/ExportButton'
 import AssessmentIcon from '@mui/icons-material/Assessment'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import PendingActionsIcon from '@mui/icons-material/PendingActions'
@@ -21,37 +22,41 @@ export default function AnalyticsDashboard() {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Box sx={{ mb: 4 }}>
-        <Typography
-          variant="h4"
-          sx={{
-            fontWeight: 700,
-            color: 'text.primary',
-            mb: 0.5,
-          }}
-        >
-          Analytics Dashboard
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
-          Comprehensive analytics and insights for your projects
-        </Typography>
+      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 2 }}>
+        <Box>
+          <Typography
+            variant="h4"
+            sx={{
+              fontWeight: 700,
+              color: 'text.primary',
+              mb: 0.5,
+            }}
+          >
+            Analytics Dashboard
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            Comprehensive analytics and insights for your projects
+          </Typography>
+        </Box>
+        <ExportButton />
       </Box>
 
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-          Date Range
-        </Typography>
-        <DateRangeSelector
-          startDate={startDate}
-          endDate={endDate}
-          onDateChange={handleDateChange}
-        />
-      </Box>
+      <Box id="dashboard-content">
+        <Box sx={{ mb: 4 }}>
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+            Date Range
+          </Typography>
+          <DateRangeSelector
+            startDate={startDate}
+            endDate={endDate}
+            onDateChange={handleDateChange}
+          />
+        </Box>
 
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-          Key Metrics
-        </Typography>
+        <Box sx={{ mb: 4 }}>
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+            Key Metrics
+          </Typography>
         <Grid container spacing={3}>
           <Grid item xs={12} sm={6} md={3}>
             <AnalyticsKPICard
@@ -152,12 +157,13 @@ export default function AnalyticsDashboard() {
             />
           </Grid>
         </Grid>
-      </Box>
+        </Box>
 
-      <Box sx={{ mt: 3 }}>
-        <Typography variant="body2" color="text.secondary">
-          Selected Range: {startDate?.format('MMM DD, YYYY')} - {endDate?.format('MMM DD, YYYY')}
-        </Typography>
+        <Box sx={{ mt: 3 }}>
+          <Typography variant="body2" color="text.secondary">
+            Selected Range: {startDate?.format('MMM DD, YYYY')} - {endDate?.format('MMM DD, YYYY')}
+          </Typography>
+        </Box>
       </Box>
     </Box>
   )
