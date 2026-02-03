@@ -1,25 +1,25 @@
 {
   "active": true,
-  "spec": "129-create-notifications-panel",
+  "spec": "130-build-approval-queue-list-view",
   "state": "building",
   "subtasks": {
-    "completed": 12,
-    "total": 13,
+    "completed": 6,
+    "total": 7,
     "in_progress": 1,
     "failed": 0
   },
   "phase": {
-    "current": "Testing and Verification",
+    "current": "End-to-End Verification",
     "id": null,
-    "total": 2
+    "total": 1
   },
   "workers": {
     "active": 0,
     "max": 1
   },
   "session": {
-    "number": 13,
-    "started_at": "2026-02-01T01:30:07.781801"
+    "number": 7,
+    "started_at": "2026-02-02T12:17:45.118826"
   },
-  "last_update": "2026-02-01T02:05:34.112892"
+  "last_update": "2026-02-02T12:36:38.114448"
 }

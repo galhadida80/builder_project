@@ -8,6 +8,7 @@ import EquipmentPage from './pages/EquipmentPage'
 import MaterialsPage from './pages/MaterialsPage'
 import MeetingsPage from './pages/MeetingsPage'
 import ApprovalsPage from './pages/ApprovalsPage'
+import ApprovalQueuePage from './pages/ApprovalQueuePage'
 import AreasPage from './pages/AreasPage'
 import ContactsPage from './pages/ContactsPage'
 import AuditLogPage from './pages/AuditLogPage'
@@ -47,6 +48,7 @@ export default function App() {
             </Route>
 
             <Route path="/approvals" element={<ApprovalsPage />} />
+            <Route path="/approval-queue" element={<ApprovalQueuePage />} />
             <Route path="/audit" element={<AuditLogPage />} />
           </Route>
         </Route>
