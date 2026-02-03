@@ -10,23 +10,20 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "start": "vite build && vite preview",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:ui": "vitest --ui"
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage"
   },
   "dependencies": {
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^5.15.6",
     "@mui/material": "^5.15.6",
-    "@mui/x-charts": "^6.19.2",
     "@mui/x-data-grid": "^6.19.2",
     "@mui/x-date-pickers": "^6.19.2",
     "axios": "^1.6.7",
     "dayjs": "^1.11.10",
     "firebase": "^10.7.2",
-    "html2canvas": "^1.4.1",
-    "jspdf": "^2.5.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.3",
@@ -35,21 +32,21 @@
   "devDependencies": {
     "@emotion/babel-plugin": "^11.13.5",
     "@playwright/test": "^1.58.0",
-    "@testing-library/jest-dom": "^6.1.0",
-    "@testing-library/react": "^14.0.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/react": "^18.2.48",
     "@types/react-dom": "^18.2.18",
     "@typescript-eslint/eslint-plugin": "^6.20.0",
     "@typescript-eslint/parser": "^6.20.0",
     "@vitejs/plugin-react": "^4.2.1",
     "@vitejs/plugin-react-swc": "^4.2.2",
-    "@vitest/ui": "^1.0.0",
     "eslint": "^8.56.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
-    "jsdom": "^23.0.0",
+    "jsdom": "^27.4.0",
     "typescript": "^5.3.3",
     "vite": "^5.0.12",
-    "vitest": "^1.0.0"
+    "vitest": "^4.0.18"
   }
 }
