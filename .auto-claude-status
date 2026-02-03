@@ -1,25 +1,25 @@
 {
   "active": true,
-  "spec": "083-epic-rtl-and-internationalization",
+  "spec": "084-write-rfi-system-integration-tests",
   "state": "building",
   "subtasks": {
-    "completed": 16,
-    "total": 20,
+    "completed": 10,
+    "total": 11,
     "in_progress": 1,
     "failed": 0
   },
   "phase": {
-    "current": "Comprehensive Testing and QA",
+    "current": "Verification & Integration",
     "id": null,
-    "total": 4
+    "total": 1
   },
   "workers": {
     "active": 0,
     "max": 1
   },
   "session": {
-    "number": 11,
-    "started_at": "2026-02-02T14:31:41.954472"
+    "number": 4,
+    "started_at": "2026-02-02T14:31:22.998693"
   },
-  "last_update": "2026-02-02T15:15:07.373593"
+  "last_update": "2026-02-02T14:42:40.212071"
 }

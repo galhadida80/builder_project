@@ -1,0 +1,6 @@
+#!/Users/galhadida/projects/builder_project/builder_program/.auto-claude/worktrees/tasks/084-write-rfi-system-integration-tests/backend/test_env/bin/python3
+import sys
+from rsa.cli import sign
+if __name__ == '__main__':
+    sys.argv[0] = sys.argv[0].removesuffix('.exe')
+    sys.exit(sign())

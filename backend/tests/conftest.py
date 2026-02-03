@@ -228,3 +228,233 @@ async def equipment_submission(
     await db.commit()
     await db.refresh(submission)
     return submission
+
+
+# ===== RFI Test Fixtures =====
+
+@pytest.fixture(scope="function")
+def sample_emails() -> dict:
+    """Fixture that provides sample email payloads for RFI testing."""
+    import base64
+
+    # Plain text email
+    plain_text_body = "This is a plain text response to the RFI."
+    plain_text_encoded = base64.urlsafe_b64encode(plain_text_body.encode()).decode()
+
+    # HTML email
+    html_body = "<html><body><p>This is an <strong>HTML</strong> response to the RFI.</p></body></html>"
+    html_encoded = base64.urlsafe_b64encode(html_body.encode()).decode()
+
+    return {
+        "plain_text": {
+            "id": "msg-plain-123",
+            "threadId": "thread-abc-123",
+            "labelIds": ["INBOX"],
+            "snippet": "This is a plain text response...",
+            "payload": {
+                "headers": [
+                    {"name": "From", "value": "contractor@example.com"},
+                    {"name": "To", "value": "rfi@test.com"},
+                    {"name": "Subject", "value": "Re: RFI-TEST-001: Sample Question"},
+                    {"name": "Message-ID", "value": "<msg-plain-123@mail.gmail.com>"},
+                    {"name": "In-Reply-To", "value": "<original-msg-id@mail.gmail.com>"},
+                    {"name": "Date", "value": "Mon, 1 Jan 2024 10:00:00 +0000"}
+                ],
+                "mimeType": "text/plain",
+                "body": {
+                    "data": plain_text_encoded,
+                    "size": len(plain_text_body)
+                }
+            }
+        },
+        "html": {
+            "id": "msg-html-456",
+            "threadId": "thread-def-456",
+            "labelIds": ["INBOX"],
+            "snippet": "This is an HTML response...",
+            "payload": {
+                "headers": [
+                    {"name": "From", "value": "engineer@example.com"},
+                    {"name": "To", "value": "rfi@test.com"},
+                    {"name": "Subject", "value": "Re: RFI-TEST-002: Technical Question"},
+                    {"name": "Message-ID", "value": "<msg-html-456@mail.gmail.com>"},
+                    {"name": "In-Reply-To", "value": "<original-msg-id-2@mail.gmail.com>"},
+                    {"name": "Date", "value": "Mon, 1 Jan 2024 11:00:00 +0000"}
+                ],
+                "mimeType": "text/html",
+                "body": {
+                    "data": html_encoded,
+                    "size": len(html_body)
+                }
+            }
+        },
+        "with_attachments": {
+            "id": "msg-attach-789",
+            "threadId": "thread-ghi-789",
+            "labelIds": ["INBOX"],
+            "snippet": "Please see attached drawings...",
+            "payload": {
+                "headers": [
+                    {"name": "From", "value": "architect@example.com"},
+                    {"name": "To", "value": "rfi@test.com"},
+                    {"name": "Subject", "value": "Re: RFI-TEST-003: Drawing Clarification"},
+                    {"name": "Message-ID", "value": "<msg-attach-789@mail.gmail.com>"},
+                    {"name": "In-Reply-To", "value": "<original-msg-id-3@mail.gmail.com>"},
+                    {"name": "Date", "value": "Mon, 1 Jan 2024 12:00:00 +0000"}
+                ],
+                "mimeType": "multipart/mixed",
+                "parts": [
+                    {
+                        "mimeType": "text/plain",
+                        "body": {
+                            "data": base64.urlsafe_b64encode(b"Please see attached drawings.").decode(),
+                            "size": 29
+                        }
+                    },
+                    {
+                        "mimeType": "application/pdf",
+                        "filename": "drawing-revision-A.pdf",
+                        "body": {
+                            "attachmentId": "attach-001",
+                            "size": 1024000
+                        }
+                    }
+                ]
+            }
+        },
+        "malformed": {
+            "id": "msg-malformed-999",
+            "threadId": "thread-malformed-999",
+            "labelIds": ["INBOX"],
+            "snippet": "Email with missing headers...",
+            "payload": {
+                "headers": [
+                    {"name": "From", "value": "unknown@example.com"},
+                    {"name": "To", "value": "rfi@test.com"},
+                    {"name": "Date", "value": "Mon, 1 Jan 2024 13:00:00 +0000"}
+                    # Missing Subject, Message-ID, In-Reply-To
+                ],
+                "mimeType": "text/plain",
+                "body": {
+                    "data": base64.urlsafe_b64encode(b"Response without proper headers.").decode(),
+                    "size": 32
+                }
+            }
+        }
+    }
+
+
+@pytest.fixture(scope="function")
+def mock_gmail_service(mocker):
+    """Fixture that provides a mocked Gmail API service."""
+    mock_service = mocker.MagicMock()
+
+    # Mock the users().messages().send() chain
+    mock_send = mocker.MagicMock()
+    mock_send.execute.return_value = {
+        "id": "sent-msg-123",
+        "threadId": "thread-new-123",
+        "labelIds": ["SENT"]
+    }
+
+    mock_messages = mocker.MagicMock()
+    mock_messages.send.return_value = mock_send
+
+    # Mock the users().messages().get() chain
+    mock_get = mocker.MagicMock()
+    mock_get.execute.return_value = {
+        "id": "msg-123",
+        "threadId": "thread-123",
+        "payload": {
+            "headers": [
+                {"name": "Subject", "value": "Test Subject"},
+                {"name": "From", "value": "test@example.com"}
+            ]
+        }
+    }
+    mock_messages.get.return_value = mock_get
+
+    mock_users = mocker.MagicMock()
+    mock_users.messages.return_value = mock_messages
+
+    mock_service.users.return_value = mock_users
+
+    return mock_service
+
+
+@pytest.fixture(scope="function")
+def mock_pubsub(mocker):
+    """Fixture that provides a mocked Google Cloud Pub/Sub client."""
+    mock_publisher = mocker.MagicMock()
+    mock_subscriber = mocker.MagicMock()
+
+    # Mock publish method
+    mock_future = mocker.MagicMock()
+    mock_future.result.return_value = "msg-published-123"
+    mock_publisher.publish.return_value = mock_future
+
+    # Mock subscriber pull
+    mock_response = mocker.MagicMock()
+    mock_message = mocker.MagicMock()
+    mock_message.message_id = "pubsub-msg-123"
+    mock_message.data = b'{"emailAddress": "rfi@test.com", "historyId": "12345"}'
+    mock_message.attributes = {"gmail_message_id": "msg-123"}
+    mock_response.received_messages = [mock_message]
+    mock_subscriber.pull.return_value = mock_response
+
+    return {
+        "publisher": mock_publisher,
+        "subscriber": mock_subscriber
+    }
+
+
+@pytest.fixture(scope="function")
+async def sample_project(db: AsyncSession, admin_user: User) -> Project:
+    """Fixture that creates a sample project for RFI testing."""
+    proj = Project(
+        id=uuid.uuid4(),
+        name="Test RFI Project",
+        code="RFI-TEST",
+        description="Project for RFI testing",
+        status="active",
+        created_by_id=admin_user.id
+    )
+    db.add(proj)
+    await db.commit()
+    await db.refresh(proj)
+    return proj
+
+
+# Uncomment when RFI models are implemented
+# from app.models.rfi import RFI, RFIResponse, RFIEmailLog
+#
+# @pytest.fixture(scope="function")
+# async def rfi_instance(
+#     db: AsyncSession,
+#     project: Project,
+#     admin_user: User,
+#     regular_user: User
+# ) -> RFI:
+#     """Fixture that creates a test RFI instance."""
+#     rfi = RFI(
+#         id=uuid.uuid4(),
+#         project_id=project.id,
+#         rfi_number=f"RFI-{project.code}-001",
+#         subject="Test RFI Subject",
+#         question="What is the specification for the concrete mix?",
+#         status="draft",
+#         priority="normal",
+#         category="technical",
+#         created_by_id=admin_user.id,
+#         assigned_to_id=regular_user.id,
+#         due_date=None,
+#         email_thread_id=None,
+#         email_message_id=None,
+#         sent_at=None,
+#         responded_at=None,
+#         closed_at=None
+#     )
+#     db.add(rfi)
+#     await db.commit()
+#     await db.refresh(rfi)
+#     return rfi
