@@ -23,27 +23,26 @@ const StyledTabs = styled(MuiTabs)(({ theme }) => ({
   '& .MuiTabs-indicator': {
     height: 3,
     borderRadius: '3px 3px 0 0',
-    transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
+    // RTL-safe: MUI Tabs automatically positions indicator based on theme.direction
   },
   '& .MuiTab-root': {
     textTransform: 'none',
     fontWeight: 500,
     fontSize: '0.875rem',
     minHeight: 44,
-    transition: 'all 200ms ease-out',
+    transition: 'all 150ms ease-out',
     '&:hover': {
       color: theme.palette.primary.main,
       backgroundColor: theme.palette.action.hover,
     },
     '&.Mui-selected': {
       fontWeight: 600,
-      transform: 'scale(1.02)',
     },
   },
 }))
 
 const PillTabs = styled(MuiTabs)(({ theme }) => ({
-  minHeight: 44,
+  minHeight: 40,
   padding: 4,
   backgroundColor: theme.palette.action.hover,
   borderRadius: 10,
@@ -54,15 +53,13 @@ const PillTabs = styled(MuiTabs)(({ theme }) => ({
     textTransform: 'none',
     fontWeight: 500,
     fontSize: '0.8rem',
-    minHeight: 44,
-    minWidth: 44,
+    minHeight: 32,
     borderRadius: 6,
-    transition: 'all 200ms ease-out',
+    transition: 'all 150ms ease-out',
     '&.Mui-selected': {
       backgroundColor: theme.palette.background.paper,
       boxShadow: theme.shadows[1],
       fontWeight: 600,
-      transform: 'scale(1.02)',
     },
   },
 }))

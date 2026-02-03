@@ -3,34 +3,34 @@ import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
-import Button from '@mui/material/Button'
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
-import Grid from '@mui/material/Grid'
-import Chip from '@mui/material/Chip'
-import Avatar from '@mui/material/Avatar'
-import AvatarGroup from '@mui/material/AvatarGroup'
-import Dialog from '@mui/material/Dialog'
-import DialogTitle from '@mui/material/DialogTitle'
-import DialogContent from '@mui/material/DialogContent'
-import DialogActions from '@mui/material/DialogActions'
-import TextField from '@mui/material/TextField'
 import MenuItem from '@mui/material/MenuItem'
+import MuiTextField from '@mui/material/TextField'
+import Skeleton from '@mui/material/Skeleton'
+import Chip from '@mui/material/Chip'
 import IconButton from '@mui/material/IconButton'
-import Tabs from '@mui/material/Tabs'
-import Tab from '@mui/material/Tab'
-import CircularProgress from '@mui/material/CircularProgress'
+import Drawer from '@mui/material/Drawer'
+import Divider from '@mui/material/Divider'
 import AddIcon from '@mui/icons-material/Add'
+import EditIcon from '@mui/icons-material/Edit'
+import DeleteIcon from '@mui/icons-material/Delete'
 import EventIcon from '@mui/icons-material/Event'
 import LocationOnIcon from '@mui/icons-material/LocationOn'
 import AccessTimeIcon from '@mui/icons-material/AccessTime'
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth'
 import SyncIcon from '@mui/icons-material/Sync'
-import EditIcon from '@mui/icons-material/Edit'
-import DeleteIcon from '@mui/icons-material/Delete'
+import CloseIcon from '@mui/icons-material/Close'
+import { Card, KPICard } from '../components/ui/Card'
+import { Button } from '../components/ui/Button'
+import { StatusBadge } from '../components/ui/StatusBadge'
+import { PageHeader } from '../components/ui/Breadcrumbs'
+import { TextField } from '../components/ui/TextField'
+import { FormModal, ConfirmModal } from '../components/ui/Modal'
+import { Tabs } from '../components/ui/Tabs'
+import { EmptyState } from '../components/ui/EmptyState'
+import { AvatarGroup } from '../components/ui/Avatar'
 import { meetingsApi } from '../api/meetings'
 import type { Meeting } from '../types'
-import { validateMeetingForm, hasErrors, VALIDATION, type ValidationError } from '../utils/validation'
+import { validateMeetingForm, hasErrors, type ValidationError } from '../utils/validation'
 import { useToast } from '../components/common/ToastProvider'
 
 const meetingTypes = [
@@ -43,11 +43,11 @@ const meetingTypes = [
 
 export default function MeetingsPage() {
   const { projectId } = useParams()
-  const { t } = useTranslation()
   const { showError, showSuccess } = useToast()
+  const { t } = useTranslation('common')
   const [loading, setLoading] = useState(true)
   const [meetings, setMeetings] = useState<Meeting[]>([])
-  const [tabValue, setTabValue] = useState(0)
+  const [tabValue, setTabValue] = useState('upcoming')
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingMeeting, setEditingMeeting] = useState<Meeting | null>(null)
   const [selectedMeeting, setSelectedMeeting] = useState<Meeting | null>(null)
@@ -62,7 +62,8 @@ export default function MeetingsPage() {
     description: '',
     location: '',
     date: '',
-    startTime: ''
+    startTime: '',
+    endTime: ''
   })
 
   useEffect(() => {
@@ -74,9 +75,8 @@ export default function MeetingsPage() {
       setLoading(true)
       const data = await meetingsApi.list(projectId)
       setMeetings(data)
-    } catch (error) {
-      console.error('Failed to load meetings:', error)
-      showError(t('pages.meetings.failedToLoadMeetings'))
+    } catch {
+      showError(t('meetings.failedToLoad'))
     } finally {
       setLoading(false)
     }
@@ -100,8 +100,7 @@ export default function MeetingsPage() {
 
   const handleOpenEdit = (meeting: Meeting) => {
     setEditingMeeting(meeting)
-    const startDate = new Date(meeting.startTime)
-    const endDate = new Date(meeting.endTime)
+    const startDate = new Date(meeting.scheduledDate)
     setFormData({
       title: meeting.title,
       meetingType: meeting.meetingType || '',
@@ -109,7 +108,7 @@ export default function MeetingsPage() {
       location: meeting.location || '',
       date: startDate.toISOString().split('T')[0],
       startTime: startDate.toTimeString().slice(0, 5),
-      endTime: endDate.toTimeString().slice(0, 5)
+      endTime: ''
     })
     setErrors({})
     setDialogOpen(true)
@@ -118,29 +117,18 @@ export default function MeetingsPage() {
 
   const handleSaveMeeting = async () => {
     if (!projectId) return
-
     const validationErrors = validateMeetingForm({
       title: formData.title,
       description: formData.description
     })
-
-    if (!formData.date) {
-      validationErrors.date = t('validation.required')
-    }
-    if (!formData.startTime) {
-      validationErrors.startTime = t('validation.required')
-    }
-    if (formData.startTime && formData.endTime && formData.endTime <= formData.startTime) {
-      validationErrors.endTime = t('pages.meetings.endTimeMustBeAfterStartTime')
-    }
-
+    if (!formData.date) validationErrors.date = 'Date is required'
+    if (!formData.startTime) validationErrors.startTime = 'Start time is required'
     setErrors(validationErrors)
     if (hasErrors(validationErrors)) return
 
     setSaving(true)
     try {
       const scheduledDate = `${formData.date}T${formData.startTime}:00Z`
-
       if (editingMeeting) {
         await meetingsApi.update(projectId, editingMeeting.id, {
           title: formData.title,
@@ -149,7 +137,7 @@ export default function MeetingsPage() {
           location: formData.location || undefined,
           scheduledDate
         })
-        showSuccess(t('pages.meetings.meetingUpdatedSuccessfully'))
+        showSuccess(t('meetings.updatedSuccessfully'))
       } else {
         await meetingsApi.create(projectId, {
           title: formData.title,
@@ -158,20 +146,18 @@ export default function MeetingsPage() {
           location: formData.location || undefined,
           scheduledDate
         })
-        showSuccess(t('pages.meetings.meetingScheduledSuccessfully'))
+        showSuccess(t('meetings.scheduledSuccessfully'))
       }
       handleCloseDialog()
       loadMeetings()
-    } catch (error) {
-      console.error('Failed to save meeting:', error)
-      showError(editingMeeting ? t('pages.meetings.failedToUpdateMeeting') : t('pages.meetings.failedToScheduleMeeting'))
+    } catch {
+      showError(t('meetings.failedToSave', { action: editingMeeting ? 'update' : 'schedule' }))
     } finally {
       setSaving(false)
     }
   }
 
-  const handleDeleteClick = (meeting: Meeting, e?: React.MouseEvent) => {
-    if (e) e.stopPropagation()
+  const handleDeleteClick = (meeting: Meeting) => {
     setMeetingToDelete(meeting)
     setDeleteDialogOpen(true)
     setDetailsOpen(false)
@@ -179,32 +165,20 @@ export default function MeetingsPage() {
 
   const handleConfirmDelete = async () => {
     if (!projectId || !meetingToDelete) return
-
     try {
       await meetingsApi.delete(projectId, meetingToDelete.id)
-      showSuccess(t('pages.meetings.meetingDeletedSuccessfully'))
+      showSuccess(t('meetings.deletedSuccessfully'))
       setDeleteDialogOpen(false)
       setMeetingToDelete(null)
       loadMeetings()
-    } catch (error) {
-      console.error('Failed to delete meeting:', error)
-      showError(t('pages.meetings.failedToDeleteMeeting'))
+    } catch {
+      showError(t('meetings.failedToDelete'))
     }
   }
 
   const upcomingMeetings = meetings.filter(m => m.status === 'scheduled' || m.status === 'invitations_sent')
   const pastMeetings = meetings.filter(m => m.status === 'completed' || m.status === 'cancelled')
-  const displayedMeetings = tabValue === 0 ? upcomingMeetings : pastMeetings
-
-  const getStatusColor = (status: Meeting['status']) => {
-    switch (status) {
-      case 'scheduled': return 'info'
-      case 'invitations_sent': return 'primary'
-      case 'completed': return 'success'
-      case 'cancelled': return 'error'
-      default: return 'default'
-    }
-  }
+  const displayedMeetings = tabValue === 'upcoming' ? upcomingMeetings : pastMeetings
 
   const getMeetingTypeLabel = (type?: string) => {
     return meetingTypes.find(t => t.value === type)?.label || type || 'Meeting'
@@ -225,143 +199,344 @@ export default function MeetingsPage() {
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 400 }}>
-        <CircularProgress />
+      <Box sx={{ p: 3 }}>
+        <Skeleton variant="text" width={200} height={48} sx={{ mb: 1 }} />
+        <Skeleton variant="text" width={300} height={24} sx={{ mb: 4 }} />
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2, mb: 4 }}>
+          {[...Array(3)].map((_, i) => (
+            <Skeleton key={i} variant="rounded" height={100} sx={{ borderRadius: 3 }} />
+          ))}
+        </Box>
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 2 }}>
+          {[...Array(4)].map((_, i) => (
+            <Skeleton key={i} variant="rounded" height={180} sx={{ borderRadius: 3 }} />
+          ))}
+        </Box>
       </Box>
     )
   }
 
   return (
-    <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h5" fontWeight="bold">{t('pages.meetings.title')}</Typography>
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          <Button variant="outlined" startIcon={<SyncIcon />}>{t('pages.meetings.syncCalendar')}</Button>
-          <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenCreate}>
-            {t('pages.meetings.scheduleMeeting')}
-          </Button>
-        </Box>
+    <Box sx={{ p: 3 }}>
+      <PageHeader
+        title={t('meetings.title')}
+        subtitle={t('meetings.subtitle')}
+        breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('meetings.title') }]}
+        actions={
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Button variant="secondary" icon={<SyncIcon />}>
+              {t('meetings.syncCalendar')}
+            </Button>
+            <Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>
+              {t('meetings.scheduleMeeting')}
+            </Button>
+          </Box>
+        }
+      />
+
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' },
+          gap: 2,
+          mb: 4,
+        }}
+      >
+        <KPICard
+          title={t('meetings.totalMeetings')}
+          value={meetings.length}
+          icon={<EventIcon />}
+          color="primary"
+        />
+        <KPICard
+          title={t('meetings.upcoming')}
+          value={upcomingMeetings.length}
+          icon={<CalendarMonthIcon />}
+          color="info"
+        />
+        <KPICard
+          title={t('meetings.completed')}
+          value={pastMeetings.filter(m => m.status === 'completed').length}
+          icon={<EventIcon />}
+          color="success"
+        />
       </Box>
 
-      <Tabs value={tabValue} onChange={(_, v) => setTabValue(v)} sx={{ mb: 3 }}>
-        <Tab label={t('pages.meetings.upcomingCount', { count: upcomingMeetings.length })} />
-        <Tab label={t('pages.meetings.pastCount', { count: pastMeetings.length })} />
-      </Tabs>
+      <Card>
+        <Box sx={{ p: 2.5 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+            <Tabs
+              items={[
+                { label: t('meetings.upcomingMeetings'), value: 'upcoming', badge: upcomingMeetings.length },
+                { label: t('meetings.pastMeetings'), value: 'past', badge: pastMeetings.length },
+              ]}
+              value={tabValue}
+              onChange={setTabValue}
+              size="small"
+            />
+            <Chip label={`${displayedMeetings.length} ${t('meetings.meetingCount')}`} size="small" />
+          </Box>
 
-      <Grid container spacing={2}>
-        {displayedMeetings.map((meeting) => (
-          <Grid item xs={12} md={6} key={meeting.id}>
-            <Card sx={{ cursor: 'pointer', '&:hover': { boxShadow: 4 } }} onClick={() => handleMeetingClick(meeting)}>
-              <CardContent>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                  <Box sx={{ display: 'flex', gap: 2 }}>
-                    <Avatar sx={{ bgcolor: 'primary.light', width: 48, height: 48 }}>
-                      <EventIcon />
-                    </Avatar>
-                    <Box>
-                      <Typography variant="h6">{meeting.title}</Typography>
-                      <Chip label={getMeetingTypeLabel(meeting.meetingType)} size="small" variant="outlined" sx={{ mt: 0.5 }} />
+          {displayedMeetings.length === 0 ? (
+            <EmptyState
+              title={tabValue === 'upcoming' ? t('meetings.noUpcoming') : t('meetings.noPast')}
+              description={tabValue === 'upcoming' ? t('meetings.scheduleFirstMeeting') : t('meetings.pastMeetingsWillAppear')}
+              icon={<EventIcon sx={{ color: 'text.secondary' }} />}
+              action={tabValue === 'upcoming' ? { label: t('meetings.scheduleMeeting'), onClick: handleOpenCreate } : undefined}
+            />
+          ) : (
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' },
+                gap: 2,
+              }}
+            >
+              {displayedMeetings.map((meeting) => (
+                <Card key={meeting.id} hoverable onClick={() => handleMeetingClick(meeting)}>
+                  <Box sx={{ p: 2.5 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+                      <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
+                        <Box
+                          sx={{
+                            width: 52,
+                            height: 52,
+                            borderRadius: 2,
+                            bgcolor: 'primary.main',
+                            color: 'white',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          <Typography variant="h6" sx={{ lineHeight: 1, fontWeight: 700 }}>
+                            {new Date(meeting.scheduledDate).getDate()}
+                          </Typography>
+                          <Typography variant="caption" sx={{ lineHeight: 1, fontSize: '0.6rem', textTransform: 'uppercase' }}>
+                            {new Date(meeting.scheduledDate).toLocaleDateString('en-US', { month: 'short' })}
+                          </Typography>
+                        </Box>
+                        <Box>
+                          <Typography variant="subtitle1" fontWeight={600}>
+                            {meeting.title}
+                          </Typography>
+                          <Chip
+                            label={getMeetingTypeLabel(meeting.meetingType)}
+                            size="small"
+                            variant="outlined"
+                            sx={{ mt: 0.5, fontSize: '0.7rem' }}
+                          />
+                        </Box>
+                      </Box>
+                      <StatusBadge status={meeting.status} size="small" />
+                    </Box>
+
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75, mb: 2 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <AccessTimeIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
+                        <Typography variant="body2" color="text.secondary">
+                          {formatTime(meeting.scheduledDate)}
+                        </Typography>
+                      </Box>
+                      {meeting.location && (
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <LocationOnIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
+                          <Typography variant="body2" color="text.secondary">
+                            {meeting.location}
+                          </Typography>
+                        </Box>
+                      )}
+                    </Box>
+
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <AvatarGroup
+                        users={[{ name: 'User' }]}
+                        max={4}
+                        size="small"
+                      />
+                      <Box sx={{ display: 'flex', gap: 0.5 }}>
+                        <IconButton
+                          size="small"
+                          onClick={(e) => { e.stopPropagation(); handleOpenEdit(meeting); }}
+                          title={t('meetings.editMeeting')}
+                        >
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton
+                          size="small"
+                          onClick={(e) => { e.stopPropagation(); handleDeleteClick(meeting); }}
+                          title={t('meetings.deleteMeeting')}
+                          color="error"
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </Box>
                     </Box>
                   </Box>
-                  <Chip label={meeting.status.replace('_', ' ')} size="small" color={getStatusColor(meeting.status)} sx={{ textTransform: 'capitalize' }} />
-                </Box>
-
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <CalendarMonthIcon fontSize="small" color="action" />
-                    <Typography variant="body2">{formatDate(meeting.scheduledDate)}</Typography>
-                  </Box>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <AccessTimeIcon fontSize="small" color="action" />
-                    <Typography variant="body2">{formatTime(meeting.scheduledDate)}</Typography>
-                  </Box>
-                  {meeting.location && (
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <LocationOnIcon fontSize="small" color="action" />
-                      <Typography variant="body2">{meeting.location}</Typography>
-                    </Box>
-                  )}
-                </Box>
-
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <AvatarGroup max={4} sx={{ '& .MuiAvatar-root': { width: 28, height: 28, fontSize: '0.75rem' } }}>
-                    <Avatar>U</Avatar>
-                  </AvatarGroup>
-                  <Box>
-                    <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleOpenEdit(meeting); }} title={t('pages.meetings.editMeeting')}>
-                      <EditIcon fontSize="small" />
-                    </IconButton>
-                    <IconButton size="small" onClick={(e) => handleDeleteClick(meeting, e)} title={t('pages.meetings.deleteMeeting')} color="error">
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  </Box>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-
-      {displayedMeetings.length === 0 && (
-        <Box sx={{ textAlign: 'center', py: 8 }}>
-          <EventIcon sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
-          <Typography variant="h6" color="text.secondary">
-            {tabValue === 0 ? t('pages.meetings.noUpcomingMeetings') : t('pages.meetings.noPastMeetings')}
-          </Typography>
+                </Card>
+              ))}
+            </Box>
+          )}
         </Box>
-      )}
+      </Card>
 
-      <Dialog open={dialogOpen} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>{editingMeeting ? t('pages.meetings.editMeeting') : t('pages.meetings.scheduleMeeting')}</DialogTitle>
-        <DialogContent>
+      <Drawer
+        anchor="right"
+        open={detailsOpen}
+        onClose={() => setDetailsOpen(false)}
+        PaperProps={{ sx: { width: { xs: '100%', sm: 420 }, borderRadius: '16px 0 0 16px' } }}
+      >
+        {selectedMeeting && (
+          <Box sx={{ p: 3 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+              <Typography variant="h6" fontWeight={600}>{t('meetings.details')}</Typography>
+              <IconButton onClick={() => setDetailsOpen(false)} size="small">
+                <CloseIcon />
+              </IconButton>
+            </Box>
+
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+              <Box
+                sx={{
+                  width: 64,
+                  height: 64,
+                  borderRadius: 2,
+                  bgcolor: 'primary.main',
+                  color: 'white',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Typography variant="h5" sx={{ lineHeight: 1, fontWeight: 700 }}>
+                  {new Date(selectedMeeting.scheduledDate).getDate()}
+                </Typography>
+                <Typography variant="caption" sx={{ lineHeight: 1, textTransform: 'uppercase' }}>
+                  {new Date(selectedMeeting.scheduledDate).toLocaleDateString('en-US', { month: 'short' })}
+                </Typography>
+              </Box>
+              <Box>
+                <Typography variant="h5" fontWeight={700}>{selectedMeeting.title}</Typography>
+                <Box sx={{ display: 'flex', gap: 1, mt: 0.5 }}>
+                  <Chip label={getMeetingTypeLabel(selectedMeeting.meetingType)} size="small" variant="outlined" />
+                  <StatusBadge status={selectedMeeting.status} size="small" />
+                </Box>
+              </Box>
+            </Box>
+
+            {selectedMeeting.description && (
+              <Box sx={{ mb: 3 }}>
+                <Typography variant="caption" color="text.secondary" fontWeight={600}>{t('meetings.description').toUpperCase()}</Typography>
+                <Typography variant="body2" sx={{ mt: 0.5 }}>{selectedMeeting.description}</Typography>
+              </Box>
+            )}
+
+            <Divider sx={{ my: 2 }} />
+
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 3 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Box sx={{ width: 36, height: 36, borderRadius: 1, bgcolor: 'action.hover', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <CalendarMonthIcon sx={{ fontSize: 20, color: 'text.secondary' }} />
+                </Box>
+                <Box>
+                  <Typography variant="caption" color="text.secondary">{t('meetings.date')}</Typography>
+                  <Typography variant="body2" fontWeight={500}>{formatDate(selectedMeeting.scheduledDate)}</Typography>
+                </Box>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Box sx={{ width: 36, height: 36, borderRadius: 1, bgcolor: 'action.hover', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <AccessTimeIcon sx={{ fontSize: 20, color: 'text.secondary' }} />
+                </Box>
+                <Box>
+                  <Typography variant="caption" color="text.secondary">{t('meetings.time')}</Typography>
+                  <Typography variant="body2" fontWeight={500}>{formatTime(selectedMeeting.scheduledDate)}</Typography>
+                </Box>
+              </Box>
+              {selectedMeeting.location && (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <Box sx={{ width: 36, height: 36, borderRadius: 1, bgcolor: 'action.hover', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <LocationOnIcon sx={{ fontSize: 20, color: 'text.secondary' }} />
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">{t('meetings.location')}</Typography>
+                    <Typography variant="body2" fontWeight={500}>{selectedMeeting.location}</Typography>
+                  </Box>
+                </Box>
+              )}
+            </Box>
+
+            <Divider sx={{ my: 2 }} />
+
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="caption" color="text.secondary" fontWeight={600}>{t('meetings.attendees').toUpperCase()}</Typography>
+              <Box sx={{ mt: 1 }}>
+                <AvatarGroup users={[{ name: 'User' }]} max={10} size="medium" />
+              </Box>
+            </Box>
+
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <Button variant="secondary" fullWidth onClick={() => handleOpenEdit(selectedMeeting)}>
+                {t('meetings.editMeeting')}
+              </Button>
+              <Button variant="danger" fullWidth onClick={() => handleDeleteClick(selectedMeeting)}>
+                {t('common.delete')}
+              </Button>
+            </Box>
+          </Box>
+        )}
+      </Drawer>
+
+      <FormModal
+        open={dialogOpen}
+        onClose={handleCloseDialog}
+        onSubmit={handleSaveMeeting}
+        title={editingMeeting ? t('meetings.editMeeting') : t('meetings.scheduleMeeting')}
+        submitLabel={editingMeeting ? t('common.saveChanges') : t('meetings.scheduleMeeting')}
+        loading={saving}
+      >
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
           <TextField
             fullWidth
-            label={t('pages.meetings.meetingTitle')}
-            margin="normal"
+            label={t('meetings.meetingTitle')}
             required
             value={formData.title}
             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-            error={!!errors.title || formData.title.length >= VALIDATION.MAX_NAME_LENGTH}
-            helperText={errors.title || (formData.title.length > 0 ? `${formData.title.length}/${VALIDATION.MAX_NAME_LENGTH}${formData.title.length >= VALIDATION.MAX_NAME_LENGTH * 0.9 ? ' - ' + t('pages.projects.approachingLimit') : ''}` : undefined)}
-            inputProps={{ maxLength: VALIDATION.MAX_NAME_LENGTH }}
+            error={!!errors.title}
+            helperText={errors.title}
           />
-          <TextField
+          <MuiTextField
             fullWidth
             select
-            label={t('pages.meetings.meetingType')}
-            margin="normal"
+            label={t('meetings.meetingTypeLabel')}
             value={formData.meetingType}
             onChange={(e) => setFormData({ ...formData, meetingType: e.target.value })}
           >
-            <MenuItem value="">{t('pages.meetings.selectType')}</MenuItem>
+            <MenuItem value="">{t('meetings.selectType')}</MenuItem>
             {meetingTypes.map(type => <MenuItem key={type.value} value={type.value}>{type.label}</MenuItem>)}
-          </TextField>
+          </MuiTextField>
           <TextField
             fullWidth
-            label={t('pages.meetings.description')}
-            margin="normal"
+            label={t('meetings.description')}
             multiline
             rows={2}
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            error={!!errors.description || formData.description.length >= VALIDATION.MAX_DESCRIPTION_LENGTH}
-            helperText={errors.description || (formData.description.length > 0 ? `${formData.description.length}/${VALIDATION.MAX_DESCRIPTION_LENGTH}${formData.description.length >= VALIDATION.MAX_DESCRIPTION_LENGTH * 0.9 ? ' - ' + t('pages.projects.approachingLimit') : ''}` : undefined)}
-            inputProps={{ maxLength: VALIDATION.MAX_DESCRIPTION_LENGTH }}
+            error={!!errors.description}
+            helperText={errors.description}
           />
           <TextField
             fullWidth
-            label={t('pages.meetings.location')}
-            margin="normal"
+            label={t('meetings.location')}
             value={formData.location}
             onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-            inputProps={{ maxLength: VALIDATION.MAX_NAME_LENGTH }}
           />
-          <Box sx={{ display: 'flex', gap: 2 }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 2 }}>
             <TextField
               fullWidth
-              label={t('pages.meetings.date')}
+              label={t('meetings.date')}
               type="date"
-              margin="normal"
               InputLabelProps={{ shrink: true }}
               required
               value={formData.date}
@@ -371,9 +546,8 @@ export default function MeetingsPage() {
             />
             <TextField
               fullWidth
-              label={t('pages.meetings.startTime')}
+              label={t('meetings.startTime')}
               type="time"
-              margin="normal"
               InputLabelProps={{ shrink: true }}
               required
               value={formData.startTime}
@@ -383,82 +557,25 @@ export default function MeetingsPage() {
             />
             <TextField
               fullWidth
-              label={t('pages.meetings.endTime')}
+              label={t('meetings.endTime')}
               type="time"
-              margin="normal"
               InputLabelProps={{ shrink: true }}
               value={formData.endTime}
               onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
-              error={!!errors.endTime}
-              helperText={errors.endTime}
             />
           </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog} disabled={saving}>{t('common.cancel')}</Button>
-          <Button variant="contained" onClick={handleSaveMeeting} disabled={saving}>
-            {saving ? <CircularProgress size={24} /> : (editingMeeting ? t('common.save') : t('pages.meetings.scheduleMeeting'))}
-          </Button>
-        </DialogActions>
-      </Dialog>
+        </Box>
+      </FormModal>
 
-      <Dialog open={detailsOpen} onClose={() => setDetailsOpen(false)} maxWidth="sm" fullWidth>
-        {selectedMeeting && (
-          <>
-            <DialogTitle>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                {selectedMeeting.title}
-                <Chip label={selectedMeeting.status.replace('_', ' ')} size="small" color={getStatusColor(selectedMeeting.status)} />
-              </Box>
-            </DialogTitle>
-            <DialogContent>
-              <Box sx={{ mb: 2 }}>
-                <Chip label={getMeetingTypeLabel(selectedMeeting.meetingType)} size="small" variant="outlined" />
-              </Box>
-
-              {selectedMeeting.description && (
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                  {selectedMeeting.description}
-                </Typography>
-              )}
-
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 3 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <CalendarMonthIcon color="action" />
-                  <Typography>{formatDate(selectedMeeting.scheduledDate)}</Typography>
-                </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <AccessTimeIcon color="action" />
-                  <Typography>{formatTime(selectedMeeting.scheduledDate)}</Typography>
-                </Box>
-                {selectedMeeting.location && (
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <LocationOnIcon color="action" />
-                    <Typography>{selectedMeeting.location}</Typography>
-                  </Box>
-                )}
-              </Box>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={() => setDetailsOpen(false)}>{t('pages.meetings.close')}</Button>
-              <Button variant="outlined" color="error" onClick={() => handleDeleteClick(selectedMeeting)}>{t('common.delete')}</Button>
-              <Button variant="outlined" onClick={() => handleOpenEdit(selectedMeeting)}>{t('pages.meetings.editMeeting')}</Button>
-              {selectedMeeting.status === 'completed' && <Button variant="contained">{t('pages.meetings.addSummary')}</Button>}
-            </DialogActions>
-          </>
-        )}
-      </Dialog>
-
-      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
-        <DialogTitle>{t('pages.meetings.deleteMeeting')}</DialogTitle>
-        <DialogContent>
-          <Typography dangerouslySetInnerHTML={{ __html: t('pages.meetings.areYouSureYouWantToDeleteMeeting', { name: meetingToDelete?.title || '' }) }} />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDeleteDialogOpen(false)}>{t('common.cancel')}</Button>
-          <Button variant="contained" color="error" onClick={handleConfirmDelete}>{t('common.delete')}</Button>
-        </DialogActions>
-      </Dialog>
+      <ConfirmModal
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title={t('meetings.deleteConfirmation')}
+        message={t('meetings.deleteConfirmationMessage', { title: meetingToDelete?.title || '' })}
+        confirmLabel={t('common.delete')}
+        variant="danger"
+      />
     </Box>
   )
 }

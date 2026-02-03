@@ -80,7 +80,16 @@ export function Breadcrumbs({ items, showHome = true }: BreadcrumbsProps) {
     : items
 
   return (
-    <StyledBreadcrumbs separator={<NavigateNextIcon sx={{ fontSize: 18 }} />}>
+    <StyledBreadcrumbs
+      separator={
+        <NavigateNextIcon
+          className="flip-rtl"
+          sx={{
+            fontSize: 18,
+          }}
+        />
+      }
+    >
       {allItems.map((item, index) => {
         const isLast = index === allItems.length - 1
 

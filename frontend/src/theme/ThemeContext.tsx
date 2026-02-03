@@ -1,22 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react'
 import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles'
-import { CacheProvider } from '@emotion/react'
-import createCache from '@emotion/cache'
-import rtlPlugin from '@mui/stylis-plugin-rtl'
-import { prefixer } from 'stylis'
 import CssBaseline from '@mui/material/CssBaseline'
 import { createLightTheme, createDarkTheme } from './theme'
-
-// Create Emotion caches for LTR and RTL
-const cacheLtr = createCache({
-  key: 'muiltr',
-  stylisPlugins: [prefixer],
-})
-
-const cacheRtl = createCache({
-  key: 'muirtl',
-  stylisPlugins: [prefixer, rtlPlugin],
-})
+import { useTranslation } from 'react-i18next'
 
 type ThemeMode = 'light' | 'dark' | 'system'
 
@@ -42,6 +28,7 @@ interface ThemeProviderProps {
 }
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
+  const { i18n } = useTranslation()
   const [mode, setMode] = useState<ThemeMode>(() => {
     const stored = localStorage.getItem('theme-mode')
     return (stored as ThemeMode) || 'system'
@@ -51,10 +38,6 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     window.matchMedia('(prefers-color-scheme: dark)').matches
   )
 
-  const [direction, setDirection] = useState<'ltr' | 'rtl'>(() =>
-    (document.dir as 'ltr' | 'rtl') || 'ltr'
-  )
-
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
     const handler = (e: MediaQueryListEvent) => setSystemPrefersDark(e.matches)
@@ -62,20 +45,12 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     return () => mediaQuery.removeEventListener('change', handler)
   }, [])
 
-  // Watch for changes to document.dir attribute
+  // Set document direction based on language
   useEffect(() => {
-    const observer = new MutationObserver(() => {
-      const newDir = (document.dir as 'ltr' | 'rtl') || 'ltr'
-      setDirection(newDir)
-    })
-
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['dir'],
-    })
-
-    return () => observer.disconnect()
-  }, [])
+    const dir = i18n.language === 'he' ? 'rtl' : 'ltr'
+    document.documentElement.dir = dir
+    document.documentElement.lang = i18n.language
+  }, [i18n.language])
 
   useEffect(() => {
     localStorage.setItem('theme-mode', mode)
@@ -86,17 +61,13 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     return mode === 'dark'
   }, [mode, systemPrefersDark])
 
-  const theme = useMemo(() => {
-    const baseTheme = isDark ? createDarkTheme() : createLightTheme()
-    return {
-      ...baseTheme,
-      direction,
-    }
-  }, [isDark, direction])
+  const direction = useMemo(() => {
+    return i18n.language === 'he' ? 'rtl' : 'ltr'
+  }, [i18n.language])
 
-  const cache = useMemo(() => {
-    return direction === 'rtl' ? cacheRtl : cacheLtr
-  }, [direction])
+  const theme = useMemo(() => {
+    return isDark ? createDarkTheme(direction) : createLightTheme(direction)
+  }, [isDark, direction])
 
   const toggleTheme = () => {
     setMode(prev => {
@@ -115,12 +86,10 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
 
   return (
     <ThemeContext.Provider value={value}>
-      <CacheProvider value={cache}>
-        <MuiThemeProvider theme={theme}>
-          <CssBaseline />
-          {children}
-        </MuiThemeProvider>
-      </CacheProvider>
+      <MuiThemeProvider theme={theme}>
+        <CssBaseline />
+        {children}
+      </MuiThemeProvider>
     </ThemeContext.Provider>
   )
 }

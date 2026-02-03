@@ -19,6 +19,7 @@ import ProjectSelector from './ProjectSelector'
 import { useToast } from '../common/ToastProvider'
 import { ThemeToggle } from '../common/ThemeToggle'
 import { LanguageToggle } from '../common/LanguageToggle'
+import { useTranslation } from 'react-i18next'
 
 interface HeaderProps {
   user: User
@@ -29,6 +30,7 @@ interface HeaderProps {
 }
 
 export default function Header({ user, currentProject, projects, onProjectChange, onLogout }: HeaderProps) {
+  const { t } = useTranslation()
   const { showInfo } = useToast()
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [notificationAnchor, setNotificationAnchor] = useState<null | HTMLElement>(null)
@@ -77,8 +79,8 @@ export default function Header({ user, currentProject, projects, onProjectChange
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <ThemeToggle />
           <LanguageToggle />
+          <ThemeToggle />
 
           <IconButton onClick={handleNotificationOpen}>
             <Badge badgeContent={3} color="error">
@@ -100,30 +102,30 @@ export default function Header({ user, currentProject, projects, onProjectChange
           PaperProps={{ sx: { width: 320, maxHeight: 400 } }}
         >
           <Box sx={{ px: 2, py: 1 }}>
-            <Typography variant="subtitle1" fontWeight="bold">Notifications</Typography>
+            <Typography variant="subtitle1" fontWeight="bold">{t('notifications.title')}</Typography>
           </Box>
           <Divider />
           <MenuItem onClick={handleNotificationClose}>
             <Box>
-              <Typography variant="body2">Equipment approval pending</Typography>
-              <Typography variant="caption" color="text.secondary">Concrete Pump CP-200 requires review</Typography>
+              <Typography variant="body2">{t('notifications.equipmentApprovalPending')}</Typography>
+              <Typography variant="caption" color="text.secondary">{t('notifications.equipmentApprovalPendingDetail')}</Typography>
             </Box>
           </MenuItem>
           <MenuItem onClick={handleNotificationClose}>
             <Box>
-              <Typography variant="body2">Meeting scheduled</Typography>
-              <Typography variant="caption" color="text.secondary">Weekly Site Coordination - Tomorrow 9:00 AM</Typography>
+              <Typography variant="body2">{t('notifications.meetingScheduled')}</Typography>
+              <Typography variant="caption" color="text.secondary">{t('notifications.meetingScheduledDetail')}</Typography>
             </Box>
           </MenuItem>
           <MenuItem onClick={handleNotificationClose}>
             <Box>
-              <Typography variant="body2">Material delivery update</Typography>
-              <Typography variant="caption" color="text.secondary">Reinforcement Steel - 150 tons received</Typography>
+              <Typography variant="body2">{t('notifications.materialDeliveryUpdate')}</Typography>
+              <Typography variant="caption" color="text.secondary">{t('notifications.materialDeliveryUpdateDetail')}</Typography>
             </Box>
           </MenuItem>
           <Divider />
           <MenuItem sx={{ justifyContent: 'center' }}>
-            <Typography variant="body2" color="primary">View all notifications</Typography>
+            <Typography variant="body2" color="primary">{t('notifications.viewAll')}</Typography>
           </MenuItem>
         </Menu>
 
@@ -138,18 +140,18 @@ export default function Header({ user, currentProject, projects, onProjectChange
             <Typography variant="caption" color="text.secondary">{user.email}</Typography>
           </Box>
           <Divider />
-          <MenuItem onClick={() => { handleMenuClose(); showInfo('Profile page coming soon!'); }}>
+          <MenuItem onClick={() => { handleMenuClose(); showInfo(t('profile.profilePageComingSoon')); }}>
             <ListItemIcon><PersonIcon fontSize="small" /></ListItemIcon>
-            Profile
+            {t('profile.title')}
           </MenuItem>
-          <MenuItem onClick={() => { handleMenuClose(); showInfo('Settings page coming soon!'); }}>
+          <MenuItem onClick={() => { handleMenuClose(); showInfo(t('profile.settingsPageComingSoon')); }}>
             <ListItemIcon><SettingsIcon fontSize="small" /></ListItemIcon>
-            Settings
+            {t('profile.settings')}
           </MenuItem>
           <Divider />
           <MenuItem onClick={onLogout}>
             <ListItemIcon><LogoutIcon fontSize="small" /></ListItemIcon>
-            Logout
+            {t('profile.logout')}
           </MenuItem>
         </Menu>
       </Toolbar>

@@ -1,35 +1,45 @@
-import i18n from 'i18next'
-import { initReactI18next } from 'react-i18next'
-import LanguageDetector from 'i18next-browser-languagedetector'
-import dayjs from 'dayjs'
-import 'dayjs/locale/he'
-import enTranslations from './locales/en.json'
-import heTranslations from './locales/he.json'
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
+import LanguageDetector from 'i18next-browser-languagedetector';
+import enTranslations from './locales/en.json';
+import heTranslations from './locales/he.json';
 
-// Configure dayjs with Hebrew locale on initialization
-dayjs.locale('en')
+// List all namespaces available in translation files
+const NAMESPACES = [
+  'common',
+  'nav',
+  'login',
+  'dashboard',
+  'projects',
+  'equipment',
+  'materials',
+  'meetings',
+  'approvals',
+  'areas',
+  'contacts',
+  'inspections',
+  'rfis',
+  'audit'
+];
 
 i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
     resources: {
-      en: { translation: enTranslations },
-      he: { translation: heTranslations },
+      en: enTranslations,
+      he: heTranslations
     },
+    defaultNS: 'common',
+    ns: NAMESPACES,
     fallbackLng: 'en',
     interpolation: {
-      escapeValue: false,
+      escapeValue: false // React already escapes
     },
     detection: {
       order: ['localStorage', 'navigator'],
-      caches: ['localStorage'],
-    },
-  })
+      caches: ['localStorage']
+    }
+  });
 
-// Update dayjs locale when language changes
-i18n.on('languageChanged', (lng) => {
-  dayjs.locale(lng === 'he' ? 'he' : 'en')
-})
-
-export default i18n
+export default i18n;

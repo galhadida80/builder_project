@@ -1,5 +1,5 @@
 import { Box, Typography, LinearProgress } from '@mui/material'
-import { styled, keyframes } from '@mui/material/styles'
+import { styled } from '@mui/material/styles'
 
 interface ProgressBarProps {
   value: number
@@ -10,15 +10,6 @@ interface ProgressBarProps {
   variant?: 'determinate' | 'indeterminate'
 }
 
-const shimmer = keyframes`
-  0% {
-    background-position: -200% center;
-  }
-  100% {
-    background-position: 200% center;
-  }
-`
-
 const StyledLinearProgress = styled(LinearProgress, {
   shouldForwardProp: (prop) => prop !== 'barSize',
 })<{ barSize: 'small' | 'medium' | 'large' }>(({ theme, barSize }) => ({
@@ -27,17 +18,7 @@ const StyledLinearProgress = styled(LinearProgress, {
   backgroundColor: theme.palette.mode === 'dark' ? theme.palette.grey[800] : theme.palette.grey[200],
   '& .MuiLinearProgress-bar': {
     borderRadius: 4,
-    transition: 'transform 300ms ease-out',
-  },
-  '& .MuiLinearProgress-bar1Indeterminate, & .MuiLinearProgress-bar2Indeterminate': {
-    backgroundImage: `linear-gradient(
-      90deg,
-      transparent 0%,
-      rgba(255, 255, 255, 0.3) 50%,
-      transparent 100%
-    )`,
-    backgroundSize: '200% 100%',
-    animation: `${shimmer} 2s ease-in-out infinite`,
+    // RTL-safe: MUI LinearProgress automatically fills from correct direction based on theme.direction
   },
 }))
 
@@ -135,9 +116,9 @@ export function CircularProgressDisplay({
           sx={{
             position: 'absolute',
             top: 0,
-            left: 0,
+            insetInlineStart: 0,
             bottom: 0,
-            right: 0,
+            insetInlineEnd: 0,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',

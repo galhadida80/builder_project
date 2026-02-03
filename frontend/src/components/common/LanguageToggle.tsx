@@ -1,21 +1,11 @@
-import { IconButton, Tooltip, Menu, MenuItem, ListItemIcon, ListItemText } from '@mui/material'
-import { useState, useEffect } from 'react'
+import { IconButton, Menu, MenuItem, ListItemText } from '@mui/material'
 import LanguageIcon from '@mui/icons-material/Language'
-
-type Language = 'en' | 'he'
+import { useState } from 'react'
+import { useLanguage } from '../../hooks/useLanguage'
 
 export function LanguageToggle() {
-  const [currentLanguage, setCurrentLanguage] = useState<Language>('en')
+  const { currentLanguage, changeLanguage } = useLanguage()
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
-  const open = Boolean(anchorEl)
-
-  // Initialize from document.dir or localStorage
-  useEffect(() => {
-    const savedLang = localStorage.getItem('language') as Language | null
-    const initialLang = savedLang || (document.dir === 'rtl' ? 'he' : 'en')
-    setCurrentLanguage(initialLang)
-    document.dir = initialLang === 'he' ? 'rtl' : 'ltr'
-  }, [])
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget)
@@ -25,62 +15,32 @@ export function LanguageToggle() {
     setAnchorEl(null)
   }
 
-  const handleSelect = (lng: Language) => {
-    setCurrentLanguage(lng)
-    document.dir = lng === 'he' ? 'rtl' : 'ltr'
-    localStorage.setItem('language', lng)
+  const handleLanguageChange = (lng: string) => {
+    changeLanguage(lng)
     handleClose()
-  }
-
-  const getLanguageFlag = (lng: Language) => {
-    return lng === 'en' ? '🇺🇸' : '🇮🇱'
-  }
-
-  const getLanguageName = (lng: Language) => {
-    return lng === 'en' ? 'English' : 'עברית'
   }
 
   return (
     <>
-      <Tooltip title="Language">
-        <IconButton
-          onClick={handleClick}
-          size="small"
-          sx={{
-            color: 'text.secondary',
-            '&:hover': { color: 'text.primary' },
-          }}
-        >
-          <LanguageIcon />
-        </IconButton>
-      </Tooltip>
+      <IconButton onClick={handleClick} color="inherit">
+        <LanguageIcon />
+      </IconButton>
       <Menu
         anchorEl={anchorEl}
-        open={open}
+        open={Boolean(anchorEl)}
         onClose={handleClose}
-        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-        PaperProps={{
-          sx: { marginBlockStart: 1, minWidth: 160 },
-        }}
       >
         <MenuItem
-          onClick={() => handleSelect('en')}
           selected={currentLanguage === 'en'}
+          onClick={() => handleLanguageChange('en')}
         >
-          <ListItemIcon sx={{ fontSize: '1.5rem' }}>
-            {getLanguageFlag('en')}
-          </ListItemIcon>
-          <ListItemText>{getLanguageName('en')}</ListItemText>
+          <ListItemText primary="English" />
         </MenuItem>
         <MenuItem
-          onClick={() => handleSelect('he')}
           selected={currentLanguage === 'he'}
+          onClick={() => handleLanguageChange('he')}
         >
-          <ListItemIcon sx={{ fontSize: '1.5rem' }}>
-            {getLanguageFlag('he')}
-          </ListItemIcon>
-          <ListItemText>{getLanguageName('he')}</ListItemText>
+          <ListItemText primary="עברית" />
         </MenuItem>
       </Menu>
     </>

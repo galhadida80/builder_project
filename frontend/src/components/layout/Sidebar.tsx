@@ -21,36 +21,35 @@ import SettingsIcon from '@mui/icons-material/Settings'
 import AssignmentIcon from '@mui/icons-material/Assignment'
 import ConstructionIcon from '@mui/icons-material/Construction'
 import EmailIcon from '@mui/icons-material/Email'
-import DescriptionIcon from '@mui/icons-material/Description'
+import { useTranslation } from 'react-i18next'
 
 const DRAWER_WIDTH = 260
 
 interface NavItem {
-  label: string
+  labelKey: string
   path: string
   icon: React.ReactNode
 }
 
 const mainNavItems: NavItem[] = [
-  { label: 'Dashboard', path: '/dashboard', icon: <DashboardIcon /> },
-  { label: 'Projects', path: '/projects', icon: <FolderIcon /> },
+  { labelKey: 'nav.dashboard', path: '/dashboard', icon: <DashboardIcon /> },
+  { labelKey: 'nav.projects', path: '/projects', icon: <FolderIcon /> },
 ]
 
 const projectNavItems: NavItem[] = [
-  { label: 'Equipment', path: '/equipment', icon: <BuildIcon /> },
-  { label: 'Materials', path: '/materials', icon: <InventoryIcon /> },
-  { label: 'Meetings', path: '/meetings', icon: <EventIcon /> },
-  { label: 'Approvals', path: '/approvals', icon: <CheckCircleIcon /> },
-  { label: 'Areas', path: '/areas', icon: <AccountTreeIcon /> },
-  { label: 'Contacts', path: '/contacts', icon: <ContactsIcon /> },
-  { label: 'Inspections', path: '/inspections', icon: <AssignmentIcon /> },
-  { label: 'RFIs', path: '/rfis', icon: <EmailIcon /> },
-  { label: 'Documents', path: '/documents', icon: <DescriptionIcon /> },
+  { labelKey: 'nav.equipment', path: '/equipment', icon: <BuildIcon /> },
+  { labelKey: 'nav.materials', path: '/materials', icon: <InventoryIcon /> },
+  { labelKey: 'nav.meetings', path: '/meetings', icon: <EventIcon /> },
+  { labelKey: 'nav.approvals', path: '/approvals', icon: <CheckCircleIcon /> },
+  { labelKey: 'nav.areas', path: '/areas', icon: <AccountTreeIcon /> },
+  { labelKey: 'nav.contacts', path: '/contacts', icon: <ContactsIcon /> },
+  { labelKey: 'nav.inspections', path: '/inspections', icon: <AssignmentIcon /> },
+  { labelKey: 'nav.rfis', path: '/rfis', icon: <EmailIcon /> },
 ]
 
 const systemNavItems: NavItem[] = [
-  { label: 'Audit Log', path: '/audit', icon: <HistoryIcon /> },
-  { label: 'Settings', path: '/settings', icon: <SettingsIcon /> },
+  { labelKey: 'nav.auditLog', path: '/audit', icon: <HistoryIcon /> },
+  { labelKey: 'profile.settings', path: '/settings', icon: <SettingsIcon /> },
 ]
 
 interface SidebarProps {
@@ -58,6 +57,7 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ projectId }: SidebarProps) {
+  const { t } = useTranslation()
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -86,7 +86,7 @@ export default function Sidebar({ projectId }: SidebarProps) {
           width: DRAWER_WIDTH,
           boxSizing: 'border-box',
           bgcolor: 'background.paper',
-          borderRight: '1px solid',
+          borderInlineEnd: '1px solid',
           borderColor: 'divider',
         },
       }}
@@ -164,7 +164,7 @@ export default function Sidebar({ projectId }: SidebarProps) {
                 {item.icon}
               </ListItemIcon>
               <ListItemText
-                primary={item.label}
+                primary={t(item.labelKey)}
                 primaryTypographyProps={{
                   fontWeight: 500,
                   fontSize: '0.875rem',
@@ -224,7 +224,7 @@ export default function Sidebar({ projectId }: SidebarProps) {
                       {item.icon}
                     </ListItemIcon>
                     <ListItemText
-                      primary={item.label}
+                      primary={t(item.labelKey)}
                       primaryTypographyProps={{
                         fontWeight: 500,
                         fontSize: '0.875rem',
@@ -267,7 +267,7 @@ export default function Sidebar({ projectId }: SidebarProps) {
                 {item.icon}
               </ListItemIcon>
               <ListItemText
-                primary={item.label}
+                primary={t(item.labelKey)}
                 primaryTypographyProps={{
                   fontWeight: 500,
                   fontSize: '0.875rem',

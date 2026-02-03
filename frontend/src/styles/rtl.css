@@ -1,17 +1,126 @@
-/**
- * RTL Layout Support Styles
- * Uses CSS Logical Properties for bidirectional layout support
- * No !important overrides - logical properties work automatically with dir attribute
+/* RTL-specific styles for right-to-left languages like Hebrew */
+/*
+ * This file contains CSS overrides and enhancements for proper RTL (right-to-left) support.
+ * It works in conjunction with:
+ * - Material-UI's direction property in the theme
+ * - CSS logical properties (marginInlineStart, etc.) in component styles
+ * - Document direction attribute set in ThemeContext.tsx
  */
 
-/* LTR-only content class for mixed-direction scenarios */
-.ltr-content {
-  direction: ltr;
-  text-align: left;
-  unicode-bidi: embed;
+/**
+ * ICON FLIPPING
+ * Flip directional icons (arrows, chevrons) in RTL mode
+ * Apply the .flip-rtl class to icons that point in a direction
+ * Examples: ArrowForward, ChevronRight, ArrowBack, NavigateNext
+ */
+.flip-rtl {
+  transform: scaleX(var(--rtl-flip, 1));
 }
 
-/* Common utility classes using logical properties */
+[dir="rtl"] .flip-rtl {
+  transform: scaleX(-1);
+}
+
+/**
+ * MATERIAL-UI DRAWER FIXES
+ * Ensures drawer opens from the correct side in RTL mode
+ * MUI Drawer with anchor="left" should appear on the right in RTL
+ */
+[dir="rtl"] .MuiDrawer-paperAnchorLeft {
+  right: 0;
+  left: auto;
+}
+
+/* MuiDrawer-paperAnchorRight should appear on the left in RTL */
+[dir="rtl"] .MuiDrawer-paperAnchorRight {
+  right: auto;
+  left: 0;
+}
+
+/**
+ * MATERIAL-UI APPBAR AND LAYOUT
+ * MUI AppBar is automatically positioned correctly with theme.direction
+ * Width and margin calculations use logical properties (marginInlineStart)
+ * No manual overrides needed - MUI handles positioning
+ */
+
+/**
+ * MATERIAL-UI DROPDOWN AND MENU
+ * MUI automatically positions menus correctly based on theme.direction
+ * Popovers, Menus, and Tooltips all respect RTL direction
+ * This is handled by MUI's internal positioning logic
+ */
+
+/**
+ * MATERIAL-UI MODAL AND DIALOG
+ * MUI Dialogs automatically center correctly in RTL mode
+ * Modal backdrops and dialog content positioning is handled by MUI
+ */
+
+/**
+ * MATERIAL-UI TABLE FIXES
+ * Tables in RTL mode need column alignment adjustments
+ * Ensure table columns are properly aligned when text is RTL
+ */
+[dir="rtl"] .MuiTableCell-root {
+  /* Text within table cells should be properly aligned by logical properties */
+  /* If using text-align: left, change to text-align: start */
+}
+
+/**
+ * Sticky table headers in RTL mode
+ * Ensure sticky positioning works correctly
+ */
+[dir="rtl"] .MuiTableCell-stickyHeader {
+  /* Sticky positioning is direction-agnostic */
+}
+
+/**
+ * MATERIAL-UI LIST ITEMS
+ * List item indentation and padding use logical properties by default
+ * MUI handles RTL indentation automatically
+ */
+[dir="rtl"] .MuiListItemButton-root {
+  /* Padding uses logical properties by default */
+}
+
+/**
+ * MATERIAL-UI EXPANSION PANEL
+ * Expansion panel icons and content alignment in RTL
+ */
+[dir="rtl"] .MuiExpansionPanel-root {
+  /* MUI handles expansion panel RTL positioning */
+}
+
+[dir="rtl"] .MuiExpansionPanelSummary-root {
+  /* MUI handles expansion icon positioning */
+}
+
+/**
+ * MATERIAL-UI STEPPER
+ * Stepper direction and connector positioning in RTL
+ */
+[dir="rtl"] .MuiStepper-root {
+  /* MUI handles stepper direction automatically */
+}
+
+/**
+ * MATERIAL-UI TABS
+ * Tab scroll buttons and indicator positioning in RTL
+ */
+[dir="rtl"] .MuiTabs-root {
+  /* MUI handles tab indicator positioning and scroll buttons */
+}
+
+[dir="rtl"] .MuiTabScrollButton-root {
+  /* Scroll button positioning is handled by MUI */
+}
+
+/**
+ * TEXT ALIGNMENT UTILITIES
+ * Use text-align: start instead of text-align: left for RTL support
+ * Use text-align: end instead of text-align: right
+ */
 .text-start {
   text-align: start;
 }
@@ -20,95 +129,169 @@
   text-align: end;
 }
 
-/* Spacing utilities - logical properties */
-.margin-inline-start-1 {
-  margin-inline-start: 0.5rem;
+.text-center {
+  text-align: center;
 }
 
-.margin-inline-start-2 {
-  margin-inline-start: 1rem;
+/**
+ * MARGIN AND PADDING UTILITIES (LOGICAL PROPERTIES)
+ * Use marginInlineStart/End instead of marginLeft/Right
+ * Use paddingInlineStart/End instead of paddingLeft/Right
+ */
+.ml-auto {
+  margin-inline-start: auto;
 }
 
-.margin-inline-start-3 {
-  margin-inline-start: 1.5rem;
+.mr-auto {
+  margin-inline-end: auto;
 }
 
-.margin-inline-start-4 {
-  margin-inline-start: 2rem;
+.pl-1 {
+  padding-inline-start: 0.25rem;
 }
 
-.margin-inline-end-1 {
-  margin-inline-end: 0.5rem;
-}
-
-.margin-inline-end-2 {
-  margin-inline-end: 1rem;
-}
-
-.margin-inline-end-3 {
-  margin-inline-end: 1.5rem;
-}
-
-.margin-inline-end-4 {
-  margin-inline-end: 2rem;
-}
-
-.padding-inline-start-1 {
+.pl-2 {
   padding-inline-start: 0.5rem;
 }
 
-.padding-inline-start-2 {
-  padding-inline-start: 1rem;
+.pr-1 {
+  padding-inline-end: 0.25rem;
 }
 
-.padding-inline-start-3 {
-  padding-inline-start: 1.5rem;
-}
-
-.padding-inline-start-4 {
-  padding-inline-start: 2rem;
-}
-
-.padding-inline-end-1 {
+.pr-2 {
   padding-inline-end: 0.5rem;
 }
 
-.padding-inline-end-2 {
-  padding-inline-end: 1rem;
+/**
+ * FORM INPUT DIRECTION
+ * Ensure form inputs maintain correct text direction in RTL
+ */
+[dir="rtl"] input[type="text"],
+[dir="rtl"] input[type="email"],
+[dir="rtl"] input[type="password"],
+[dir="rtl"] input[type="search"],
+[dir="rtl"] textarea {
+  direction: rtl;
+  text-align: start;
 }
 
-.padding-inline-end-3 {
-  padding-inline-end: 1.5rem;
+/**
+ * NUMBER INPUTS
+ * Numbers remain LTR even in RTL context
+ */
+[dir="rtl"] input[type="number"] {
+  direction: ltr;
+  text-align: end;
 }
 
-.padding-inline-end-4 {
-  padding-inline-end: 2rem;
+/**
+ * SCROLLBAR POSITIONING
+ * In modern browsers, scrollbars automatically position on the correct side
+ * For browsers that don't support this, we can use direction: rtl
+ * This is handled automatically by setting [dir="rtl"] on the document
+ */
+
+/**
+ * TEXT SELECTION AND HIGHLIGHTING
+ * Ensure selection highlight works correctly in both LTR and RTL
+ * This is handled automatically by browsers, but we can ensure consistency
+ */
+[dir="rtl"] ::selection {
+  /* Selection color should be consistent across directions */
 }
 
-/* Position utilities - logical properties */
-.inset-inline-start-0 {
-  inset-inline-start: 0;
+[dir="rtl"] ::-moz-selection {
+  /* Firefox-specific selection styling */
 }
 
-.inset-inline-end-0 {
-  inset-inline-end: 0;
+/**
+ * FOCUS OUTLINE POSITIONING
+ * Focus outlines should be visible and properly positioned in RTL
+ * This is mostly handled by the browser and MUI, but ensure consistency
+ */
+[dir="rtl"] *:focus-visible {
+  /* Focus outlines are automatically positioned by the browser */
 }
 
-/* Border utilities - logical properties */
-.border-inline-start {
-  border-inline-start: 1px solid currentColor;
+/**
+ * TOOLTIP AND POPOVER RTL HANDLING
+ * MUI tooltips and popovers automatically position in RTL mode
+ * No manual overrides needed
+ */
+[dir="rtl"] .MuiTooltip-popper {
+  /* Positioning handled by MUI */
 }
 
-.border-inline-end {
-  border-inline-end: 1px solid currentColor;
+[dir="rtl"] .MuiPopover-paper {
+  /* Positioning handled by MUI */
 }
 
-/* Ensure all elements respect text direction */
-* {
-  unicode-bidi: isolate;
+/**
+ * CHEVRON AND ARROW UTILITIES
+ * Additional utility classes for common directional icons
+ */
+.chevron-start {
+  /* Use with icon components that point in the "start" direction */
 }
 
-/* Reset unicode-bidi for elements that should inherit */
-html, body {
-  unicode-bidi: normal;
+.chevron-end {
+  /* Use with icon components that point in the "end" direction */
+}
+
+[dir="rtl"] .chevron-end {
+  transform: scaleX(-1);
+}
+
+/**
+ * CONTAINER QUERIES AND FLEX LAYOUTS
+ * Flexbox direction is NOT automatically reversed in RTL
+ * Always use explicit flex-direction or use CSS Grid instead for better RTL support
+ * Example: Use grid-auto-flow: column for automatic LTR/RTL handling
+ */
+
+/**
+ * GRID LAYOUT RTL SUPPORT
+ * CSS Grid respects the direction property for auto-placement
+ * Grid items automatically reorder in RTL mode when using auto-placement
+ */
+
+/**
+ * LINE CLAMP AND TEXT OVERFLOW
+ * Text overflow in RTL mode
+ */
+[dir="rtl"] .line-clamp {
+  /* Line clamping works correctly in RTL with proper direction */
+}
+
+/**
+ * BROWSER COMPATIBILITY
+ * Modern browsers (Chrome 70+, Firefox 68+, Safari 12.1+, Edge 79+) support:
+ * - CSS logical properties (marginInlineStart, paddingInlineEnd, etc.)
+ * - CSS Grid auto-placement with direction
+ * - Proper scrollbar positioning based on direction
+ * - Correct text direction in form inputs with direction: rtl
+ *
+ * Older browsers will need fallbacks or polyfills
+ */
+
+/**
+ * SUPPORT CHECK FOR LOGICAL PROPERTIES
+ * Modern CSS features used in this file
+ */
+@supports (margin-inline-start: 0) {
+  /* Logical properties are supported */
+}
+
+@supports (direction: rtl) {
+  /* direction property is universally supported */
+}
+
+/**
+ * ADDITIONAL FIXES AND OVERRIDES
+ * Place any additional RTL-specific CSS fixes here as they are discovered
+ */
+
+/* Fix for horizontal scrollbars in RTL mode */
+[dir="rtl"] ::-webkit-scrollbar {
+  /* Webkit scrollbar styling - scrollbar automatically appears on left in RTL */
 }
