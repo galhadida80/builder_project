@@ -1,5 +1,4 @@
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
-import { ProjectProvider } from './contexts/ProjectContext'
 import Layout from './components/layout/Layout'
 import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
@@ -14,7 +13,7 @@ import ContactsPage from './pages/ContactsPage'
 import AuditLogPage from './pages/AuditLogPage'
 import InspectionsPage from './pages/InspectionsPage'
 import RFIPage from './pages/RFIPage'
-import GanttDemoPage from './pages/GanttDemoPage'
+import GanttTimelinePage from './pages/GanttTimelinePage'
 
 function ProtectedRoute() {
   const token = localStorage.getItem('authToken')
@@ -26,8 +25,7 @@ function ProtectedRoute() {
 
 export default function App() {
   return (
-    <ProjectProvider>
-      <Routes>
+    <Routes>
         <Route path="/login" element={<LoginPage />} />
 
         <Route element={<ProtectedRoute />}>
@@ -45,16 +43,15 @@ export default function App() {
               <Route path="contacts" element={<ContactsPage />} />
               <Route path="inspections" element={<InspectionsPage />} />
               <Route path="rfis" element={<RFIPage />} />
+              <Route path="timeline" element={<GanttTimelinePage />} />
             </Route>
 
             <Route path="/approvals" element={<ApprovalsPage />} />
             <Route path="/audit" element={<AuditLogPage />} />
-            <Route path="/gantt" element={<GanttDemoPage />} />
           </Route>
         </Route>
 
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
-    </ProjectProvider>
   )
 }

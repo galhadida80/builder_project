@@ -20,6 +20,7 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp'
 import WarningAmberIcon from '@mui/icons-material/WarningAmber'
 import EmailIcon from '@mui/icons-material/Email'
 import AssignmentIcon from '@mui/icons-material/Assignment'
+import TimelineIcon from '@mui/icons-material/Timeline'
 import { Card, KPICard } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { StatusBadge } from '../components/ui/StatusBadge'
@@ -35,6 +36,7 @@ import type { Project, Equipment, Material, Meeting } from '../types'
 
 const tabs = [
   { label: 'Overview', value: '', icon: <TrendingUpIcon sx={{ fontSize: 18 }} /> },
+  { label: 'Timeline', value: 'timeline', icon: <TimelineIcon sx={{ fontSize: 18 }} /> },
   { label: 'Equipment', value: 'equipment', icon: <ConstructionIcon sx={{ fontSize: 18 }} /> },
   { label: 'Materials', value: 'materials', icon: <InventoryIcon sx={{ fontSize: 18 }} /> },
   { label: 'Meetings', value: 'meetings', icon: <EventIcon sx={{ fontSize: 18 }} /> },
