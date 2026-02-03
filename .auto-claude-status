@@ -1,25 +1,25 @@
 {
   "active": true,
-  "spec": "115-build-inspection-history-timeline",
+  "spec": "129-create-notifications-panel",
   "state": "building",
   "subtasks": {
-    "completed": 6,
-    "total": 7,
+    "completed": 12,
+    "total": 13,
     "in_progress": 1,
     "failed": 0
   },
   "phase": {
-    "current": "Integration Testing",
+    "current": "Testing and Verification",
     "id": null,
-    "total": 1
+    "total": 2
   },
   "workers": {
     "active": 0,
     "max": 1
   },
   "session": {
-    "number": 7,
-    "started_at": "2026-02-01T01:28:57.231620"
+    "number": 13,
+    "started_at": "2026-02-01T01:30:07.781801"
   },
-  "last_update": "2026-02-01T01:42:31.772142"
+  "last_update": "2026-02-01T02:05:34.112892"
 }
