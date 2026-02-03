@@ -22,6 +22,7 @@ export interface SelectProps extends Omit<MuiSelectProps, 'variant'> {
 
 const StyledFormControl = styled(FormControl)(({ theme }) => ({
   '& .MuiOutlinedInput-root': {
+    minHeight: 44,
     borderRadius: 8,
     transition: 'all 200ms ease-out',
     '&:hover': {
@@ -35,6 +36,10 @@ const StyledFormControl = styled(FormControl)(({ theme }) => ({
   },
   '& .MuiSelect-select': {
     fontSize: '0.875rem',
+    minHeight: 44,
+  },
+  '& .MuiMenuItem-root': {
+    minHeight: 44,
   },
 }))
 

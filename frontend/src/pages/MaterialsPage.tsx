@@ -7,6 +7,7 @@ import MuiTextField from '@mui/material/TextField'
 import Skeleton from '@mui/material/Skeleton'
 import Chip from '@mui/material/Chip'
 import IconButton from '@mui/material/IconButton'
+import CircularProgress from '@mui/material/CircularProgress'
 import AddIcon from '@mui/icons-material/Add'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -27,6 +28,7 @@ import { materialsApi } from '../api/materials'
 import type { Material } from '../types'
 import { validateMaterialForm, hasErrors, VALIDATION, type ValidationError } from '../utils/validation'
 import { useToast } from '../components/common/ToastProvider'
+import { usePullToRefresh } from '../hooks/usePullToRefresh'
 
 const materialTypes = ['Structural', 'Finishing', 'Safety', 'MEP', 'Insulation']
 const unitOptions = ['ton', 'm3', 'm2', 'm', 'kg', 'unit', 'box', 'pallet', 'roll']
@@ -71,6 +73,14 @@ export default function MaterialsPage() {
       setLoading(false)
     }
   }
+
+  // Pull-to-refresh hook
+  const { onTouchStart, onTouchMove, onTouchEnd, isLoading: isPullLoading } = usePullToRefresh({
+    onRefresh: async () => {
+      await loadMaterials()
+    },
+    threshold: 80,
+  })
 
   const resetForm = () => {
     setFormData({ name: '', materialType: '', manufacturer: '', modelNumber: '', quantity: '', unit: '', expectedDelivery: '', storageLocation: '', notes: '' })
@@ -357,7 +367,36 @@ export default function MaterialsPage() {
             size="small"
           />
 
-          <Box sx={{ mt: 2 }}>
+          <Box
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
+            sx={{
+              mt: 2,
+              position: 'relative',
+              opacity: isPullLoading ? 0.6 : 1,
+              transition: 'opacity 200ms ease-out',
+            }}
+          >
+            {/* Pull-to-refresh overlay with spinner */}
+            {isPullLoading && (
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: -60,
+                  left: 0,
+                  right: 0,
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  height: 60,
+                  zIndex: 1,
+                }}
+              >
+                <CircularProgress size={32} />
+              </Box>
+            )}
+
             {filteredMaterials.length === 0 ? (
               <EmptyState
                 variant="no-results"

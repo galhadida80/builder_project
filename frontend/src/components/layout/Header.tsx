@@ -25,9 +25,11 @@ interface HeaderProps {
   projects: Project[]
   onProjectChange: (projectId: string) => void
   onLogout: () => void
+  sidebarOpen?: boolean
+  onSidebarToggle?: () => void
 }
 
-export default function Header({ user, currentProject, projects, onProjectChange, onLogout }: HeaderProps) {
+export default function Header({ user, currentProject, projects, onProjectChange, onLogout, sidebarOpen = true, onSidebarToggle }: HeaderProps) {
   const { showInfo } = useToast()
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [notificationAnchor, setNotificationAnchor] = useState<null | HTMLElement>(null)
@@ -62,8 +64,8 @@ export default function Header({ user, currentProject, projects, onProjectChange
         borderBottom: '1px solid',
         borderColor: 'divider',
         bgcolor: 'background.paper',
-        ml: '260px',
-        width: 'calc(100% - 260px)',
+        ml: 0, // No margin since sidebar is now temporary/overlay
+        width: '100%', // Full width since sidebar is overlay
       }}
     >
       <Toolbar sx={{ justifyContent: 'space-between' }}>

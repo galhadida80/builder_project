@@ -39,6 +39,7 @@ import type { Equipment } from '../types'
 import type { FileRecord } from '../api/files'
 import { validateEquipmentForm, hasErrors, VALIDATION, type ValidationError } from '../utils/validation'
 import { useToast } from '../components/common/ToastProvider'
+import { usePullToRefresh } from '../hooks/usePullToRefresh'
 
 const equipmentTypes = ['Heavy Machinery', 'Lifting Equipment', 'Power Equipment', 'Safety Equipment', 'Tools']
 
@@ -106,6 +107,14 @@ export default function EquipmentPage() {
       setLoading(false)
     }
   }
+
+  // Pull-to-refresh hook
+  const { onTouchStart, onTouchMove, onTouchEnd, isLoading: isPullLoading } = usePullToRefresh({
+    onRefresh: async () => {
+      await loadEquipment()
+    },
+    threshold: 80,
+  })
 
   const resetForm = () => {
     setFormData({ name: '', equipmentType: '', manufacturer: '', modelNumber: '', serialNumber: '', notes: '' })
@@ -364,7 +373,36 @@ export default function EquipmentPage() {
             size="small"
           />
 
-          <Box sx={{ mt: 2 }}>
+          <Box
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
+            sx={{
+              mt: 2,
+              position: 'relative',
+              opacity: isPullLoading ? 0.6 : 1,
+              transition: 'opacity 200ms ease-out',
+            }}
+          >
+            {/* Pull-to-refresh overlay with spinner */}
+            {isPullLoading && (
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: -60,
+                  left: 0,
+                  right: 0,
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  height: 60,
+                  zIndex: 1,
+                }}
+              >
+                <CircularProgress size={32} />
+              </Box>
+            )}
+
             <DataTable
               columns={columns}
               rows={filteredEquipment}

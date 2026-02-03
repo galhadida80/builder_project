@@ -1,5 +1,6 @@
 import { Button as MuiButton, ButtonProps as MuiButtonProps, CircularProgress } from '@mui/material'
 import { styled } from '@mui/material/styles'
+import { hapticFeedback } from '../../utils/hapticFeedback'
 
 export interface ButtonProps extends Omit<MuiButtonProps, 'variant'> {
   variant?: 'primary' | 'secondary' | 'tertiary' | 'danger' | 'success'
@@ -9,11 +10,11 @@ export interface ButtonProps extends Omit<MuiButtonProps, 'variant'> {
 }
 
 const StyledButton = styled(MuiButton)(() => ({
+  minWidth: 48,
+  minHeight: 48,
   fontWeight: 600,
   transition: 'all 200ms ease-out',
   touchAction: 'manipulation',
-  minWidth: 48,
-  minHeight: 48,
   '&:hover': {
     transform: 'translateY(-1px)',
   },
@@ -32,6 +33,7 @@ export function Button({
   iconPosition = 'start',
   children,
   disabled,
+  onClick,
   ...props
 }: ButtonProps) {
   const getMuiVariant = (): MuiButtonProps['variant'] => {
@@ -69,6 +71,15 @@ export function Button({
   const startIcon = icon && iconPosition === 'start' ? icon : undefined
   const endIcon = icon && iconPosition === 'end' ? icon : undefined
 
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    // Trigger haptic feedback on button press (only if not disabled)
+    if (!disabled && !loading) {
+      hapticFeedback('light')
+    }
+    // Call the original onClick handler if provided
+    onClick?.(event)
+  }
+
   return (
     <StyledButton
       variant={getMuiVariant()}
@@ -76,6 +87,7 @@ export function Button({
       disabled={disabled || loading}
       startIcon={loading ? <CircularProgress size={18} color="inherit" /> : startIcon}
       endIcon={endIcon}
+      onClick={handleClick}
       {...props}
     >
       {children}
@@ -87,8 +99,18 @@ export function IconButton({
   children,
   loading = false,
   variant: _,
+  onClick,
   ...props
 }: Omit<ButtonProps, 'icon' | 'iconPosition'>) {
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    // Trigger haptic feedback on button press (only if not disabled)
+    if (!props.disabled && !loading) {
+      hapticFeedback('light')
+    }
+    // Call the original onClick handler if provided
+    onClick?.(event)
+  }
+
   return (
     <StyledButton
       variant="contained"
@@ -100,6 +122,7 @@ export function IconButton({
         p: 1,
         ...props.sx,
       }}
+      onClick={handleClick}
       {...props}
     >
       {loading ? <CircularProgress size={20} color="inherit" /> : children}

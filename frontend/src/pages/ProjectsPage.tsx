@@ -7,6 +7,7 @@ import MenuItem from '@mui/material/MenuItem'
 import IconButton from '@mui/material/IconButton'
 import Skeleton from '@mui/material/Skeleton'
 import Chip from '@mui/material/Chip'
+import CircularProgress from '@mui/material/CircularProgress'
 import AddIcon from '@mui/icons-material/Add'
 import LocationOnIcon from '@mui/icons-material/LocationOn'
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
@@ -28,6 +29,7 @@ import { projectsApi } from '../api/projects'
 import type { Project } from '../types'
 import { validateProjectForm, hasErrors, VALIDATION, type ValidationError } from '../utils/validation'
 import { useToast } from '../components/common/ToastProvider'
+import { usePullToRefresh } from '../hooks/usePullToRefresh'
 
 export default function ProjectsPage() {
   const navigate = useNavigate()
@@ -69,6 +71,14 @@ export default function ProjectsPage() {
       setLoading(false)
     }
   }
+
+  // Pull-to-refresh hook - disabled when already loading
+  const { onTouchStart, onTouchMove, onTouchEnd, isLoading: isPullLoading, progress } = usePullToRefresh({
+    onRefresh: async () => {
+      await loadProjects()
+    },
+    threshold: 80,
+  })
 
   const resetForm = () => {
     setFormData({ name: '', code: '', description: '', address: '', startDate: '', estimatedEndDate: '' })
@@ -297,15 +307,40 @@ export default function ProjectsPage() {
             </Box>
           ) : (
             <Box
+              onTouchStart={onTouchStart}
+              onTouchMove={onTouchMove}
+              onTouchEnd={onTouchEnd}
               sx={{
                 mt: 3,
+                position: 'relative',
                 display: 'grid',
                 gridTemplateColumns: viewMode === 'grid'
                   ? { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }
                   : '1fr',
                 gap: 2,
+                opacity: isPullLoading ? 0.6 : 1,
+                transition: 'opacity 200ms ease-out',
               }}
             >
+              {/* Pull-to-refresh overlay with spinner */}
+              {isPullLoading && (
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    top: -60,
+                    left: 0,
+                    right: 0,
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: 60,
+                    zIndex: 1,
+                  }}
+                >
+                  <CircularProgress size={32} />
+                </Box>
+              )}
+
               {filteredProjects.map((project) => (
                 <Card key={project.id} hoverable onClick={() => handleProjectClick(project.id)}>
                   <Box sx={{ p: 2.5 }}>
