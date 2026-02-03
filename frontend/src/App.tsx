@@ -8,13 +8,12 @@ import EquipmentPage from './pages/EquipmentPage'
 import MaterialsPage from './pages/MaterialsPage'
 import MeetingsPage from './pages/MeetingsPage'
 import ApprovalsPage from './pages/ApprovalsPage'
-import ApprovalQueuePage from './pages/ApprovalQueuePage'
 import AreasPage from './pages/AreasPage'
 import ContactsPage from './pages/ContactsPage'
 import AuditLogPage from './pages/AuditLogPage'
 import InspectionsPage from './pages/InspectionsPage'
 import RFIPage from './pages/RFIPage'
-import GanttTimelinePage from './pages/GanttTimelinePage'
+import TeamWorkloadPage from './pages/TeamWorkloadPage'
 
 function ProtectedRoute() {
   const token = localStorage.getItem('authToken')
@@ -44,12 +43,11 @@ export default function App() {
               <Route path="contacts" element={<ContactsPage />} />
               <Route path="inspections" element={<InspectionsPage />} />
               <Route path="rfis" element={<RFIPage />} />
-              <Route path="timeline" element={<GanttTimelinePage />} />
             </Route>
 
             <Route path="/approvals" element={<ApprovalsPage />} />
-            <Route path="/approval-queue" element={<ApprovalQueuePage />} />
             <Route path="/audit" element={<AuditLogPage />} />
+            <Route path="/team-workload" element={<TeamWorkloadPage />} />
           </Route>
         </Route>
 

@@ -1,25 +1,25 @@
 {
   "active": true,
-  "spec": "130-build-approval-queue-list-view",
+  "spec": "131-build-team-workload-view",
   "state": "building",
   "subtasks": {
-    "completed": 6,
-    "total": 7,
+    "completed": 13,
+    "total": 14,
     "in_progress": 1,
     "failed": 0
   },
   "phase": {
-    "current": "End-to-End Verification",
+    "current": "Testing and Verification",
     "id": null,
-    "total": 1
+    "total": 3
   },
   "workers": {
     "active": 0,
     "max": 1
   },
   "session": {
-    "number": 7,
-    "started_at": "2026-02-02T12:17:45.118826"
+    "number": 14,
+    "started_at": "2026-02-02T12:16:30.715217"
   },
-  "last_update": "2026-02-02T12:36:38.114448"
+  "last_update": "2026-02-02T12:46:12.597201"
 }
