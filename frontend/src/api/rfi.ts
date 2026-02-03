@@ -13,6 +13,7 @@ export interface RFI {
   to_email: string
   to_name?: string
   cc_emails?: string[]
+  cc_recipients?: string[]
   status: string
   due_date?: string
   responded_at?: string
@@ -43,7 +44,7 @@ export interface RFIResponseData {
   email_message_id?: string
   in_reply_to?: string
   response_text: string
-  attachments?: Record<string, unknown>[]
+  attachments?: Array<{ id: string; filename: string; url: string }>
   from_email: string
   from_name?: string
   responder?: {
@@ -110,6 +111,7 @@ export interface RFIUpdate {
 export interface RFIResponseCreate {
   response_text: string
   attachments?: Record<string, unknown>[]
+  is_internal?: boolean
 }
 
 export interface RFISummary {
@@ -213,6 +215,16 @@ export const rfiApi = {
 
   delete: async (rfiId: string): Promise<void> => {
     await apiClient.delete(`/rfis/${rfiId}`)
+  },
+
+  closeRfi: async (rfiId: string): Promise<RFI> => {
+    const response = await apiClient.post(`/rfis/${rfiId}/close`)
+    return response.data
+  },
+
+  reopenRfi: async (rfiId: string): Promise<RFI> => {
+    const response = await apiClient.post(`/rfis/${rfiId}/reopen`)
+    return response.data
   },
 }
 

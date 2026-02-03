@@ -1,5 +1,4 @@
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
-import { useNavigationGestures } from './hooks/useNavigationGestures'
 import Layout from './components/layout/Layout'
 import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
@@ -14,7 +13,7 @@ import ContactsPage from './pages/ContactsPage'
 import AuditLogPage from './pages/AuditLogPage'
 import InspectionsPage from './pages/InspectionsPage'
 import RFIPage from './pages/RFIPage'
-import RFIFormDialogTestPage from './pages/RFIFormDialogTestPage'
+import RFIDetailPage from './pages/RFIDetailPage'
 
 function ProtectedRoute() {
   const token = localStorage.getItem('authToken')
@@ -24,26 +23,9 @@ function ProtectedRoute() {
   return <Outlet />
 }
 
-/**
- * AppContent component with gesture-aware navigation
- *
- * Wraps the routes with touch event handlers for back/forward navigation.
- * Gestures are RTL-aware and only active outside of input fields.
- */
-function AppContent() {
-  const { onTouchStart, onTouchMove, onTouchEnd } = useNavigationGestures({
-    enabled: true,
-    debug: false,
-  })
-
+export default function App() {
   return (
-    <div
-      onTouchStart={onTouchStart}
-      onTouchMove={onTouchMove}
-      onTouchEnd={onTouchEnd}
-      style={{ width: '100%', height: '100%' }}
-    >
-      <Routes>
+    <Routes>
         <Route path="/login" element={<LoginPage />} />
 
         <Route element={<ProtectedRoute />}>
@@ -61,20 +43,15 @@ function AppContent() {
               <Route path="contacts" element={<ContactsPage />} />
               <Route path="inspections" element={<InspectionsPage />} />
               <Route path="rfis" element={<RFIPage />} />
+              <Route path="rfis/:rfiId" element={<RFIDetailPage />} />
             </Route>
 
             <Route path="/approvals" element={<ApprovalsPage />} />
             <Route path="/audit" element={<AuditLogPage />} />
-            <Route path="/test/rfi-form-dialog" element={<RFIFormDialogTestPage />} />
           </Route>
         </Route>
 
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
-    </div>
   )
-}
-
-export default function App() {
-  return <AppContent />
 }
