@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import AppBar from '@mui/material/AppBar'
 import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
@@ -17,8 +16,10 @@ import SettingsIcon from '@mui/icons-material/Settings'
 import LogoutIcon from '@mui/icons-material/Logout'
 import type { User, Project } from '../../types'
 import ProjectSelector from './ProjectSelector'
-import LanguageSelector from '../common/LanguageSelector'
 import { useToast } from '../common/ToastProvider'
+import { ThemeToggle } from '../common/ThemeToggle'
+import SyncStatus from '../common/SyncStatus'
+import { useNetwork } from '../../contexts/NetworkContext'
 
 interface HeaderProps {
   user: User
@@ -29,8 +30,8 @@ interface HeaderProps {
 }
 
 export default function Header({ user, currentProject, projects, onProjectChange, onLogout }: HeaderProps) {
-  const { t } = useTranslation()
   const { showInfo } = useToast()
+  const { syncStatus } = useNetwork()
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [notificationAnchor, setNotificationAnchor] = useState<null | HTMLElement>(null)
 
@@ -64,7 +65,7 @@ export default function Header({ user, currentProject, projects, onProjectChange
         borderBottom: '1px solid',
         borderColor: 'divider',
         bgcolor: 'background.paper',
-        marginInlineStart: '260px',
+        ml: '260px',
         width: 'calc(100% - 260px)',
       }}
     >
@@ -78,7 +79,9 @@ export default function Header({ user, currentProject, projects, onProjectChange
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <LanguageSelector />
+          <SyncStatus status={syncStatus} size="small" />
+
+          <ThemeToggle />
 
           <IconButton onClick={handleNotificationOpen}>
             <Badge badgeContent={3} color="error">
@@ -86,7 +89,7 @@ export default function Header({ user, currentProject, projects, onProjectChange
             </Badge>
           </IconButton>
 
-          <IconButton onClick={handleMenuOpen} sx={{ marginInlineStart: 1 }}>
+          <IconButton onClick={handleMenuOpen} sx={{ ml: 1 }}>
             <Avatar sx={{ width: 36, height: 36, bgcolor: 'primary.main' }}>
               {getInitials(user.fullName || user.email)}
             </Avatar>
@@ -100,30 +103,30 @@ export default function Header({ user, currentProject, projects, onProjectChange
           PaperProps={{ sx: { width: 320, maxHeight: 400 } }}
         >
           <Box sx={{ px: 2, py: 1 }}>
-            <Typography variant="subtitle1" fontWeight="bold">{t('header.notifications')}</Typography>
+            <Typography variant="subtitle1" fontWeight="bold">Notifications</Typography>
           </Box>
           <Divider />
           <MenuItem onClick={handleNotificationClose}>
             <Box>
-              <Typography variant="body2">{t('header.notifications_equipment_pending')}</Typography>
-              <Typography variant="caption" color="text.secondary">{t('header.notifications_equipment_detail', { name: 'Concrete Pump CP-200' })}</Typography>
+              <Typography variant="body2">Equipment approval pending</Typography>
+              <Typography variant="caption" color="text.secondary">Concrete Pump CP-200 requires review</Typography>
             </Box>
           </MenuItem>
           <MenuItem onClick={handleNotificationClose}>
             <Box>
-              <Typography variant="body2">{t('header.notifications_meeting_scheduled')}</Typography>
-              <Typography variant="caption" color="text.secondary">{t('header.notifications_meeting_detail', { name: 'Weekly Site Coordination', date: 'Tomorrow', time: '9:00 AM' })}</Typography>
+              <Typography variant="body2">Meeting scheduled</Typography>
+              <Typography variant="caption" color="text.secondary">Weekly Site Coordination - Tomorrow 9:00 AM</Typography>
             </Box>
           </MenuItem>
           <MenuItem onClick={handleNotificationClose}>
             <Box>
-              <Typography variant="body2">{t('header.notifications_material_delivery')}</Typography>
-              <Typography variant="caption" color="text.secondary">{t('header.notifications_material_detail', { material: 'Reinforcement Steel', quantity: '150 tons' })}</Typography>
+              <Typography variant="body2">Material delivery update</Typography>
+              <Typography variant="caption" color="text.secondary">Reinforcement Steel - 150 tons received</Typography>
             </Box>
           </MenuItem>
           <Divider />
           <MenuItem sx={{ justifyContent: 'center' }}>
-            <Typography variant="body2" color="primary">{t('header.viewAllNotifications')}</Typography>
+            <Typography variant="body2" color="primary">View all notifications</Typography>
           </MenuItem>
         </Menu>
 
@@ -138,18 +141,18 @@ export default function Header({ user, currentProject, projects, onProjectChange
             <Typography variant="caption" color="text.secondary">{user.email}</Typography>
           </Box>
           <Divider />
-          <MenuItem onClick={() => { handleMenuClose(); showInfo(t('header.profileComingSoon')); }}>
+          <MenuItem onClick={() => { handleMenuClose(); showInfo('Profile page coming soon!'); }}>
             <ListItemIcon><PersonIcon fontSize="small" /></ListItemIcon>
-            {t('header.profile')}
+            Profile
           </MenuItem>
-          <MenuItem onClick={() => { handleMenuClose(); showInfo(t('header.settingsComingSoon')); }}>
+          <MenuItem onClick={() => { handleMenuClose(); showInfo('Settings page coming soon!'); }}>
             <ListItemIcon><SettingsIcon fontSize="small" /></ListItemIcon>
-            {t('header.settings')}
+            Settings
           </MenuItem>
           <Divider />
           <MenuItem onClick={onLogout}>
             <ListItemIcon><LogoutIcon fontSize="small" /></ListItemIcon>
-            {t('header.logout')}
+            Logout
           </MenuItem>
         </Menu>
       </Toolbar>

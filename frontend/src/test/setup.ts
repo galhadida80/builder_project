@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom'
-import { expect, afterEach, vi } from 'vitest'
 import { cleanup } from '@testing-library/react'
+import { afterEach } from 'vitest'
 
 // Cleanup after each test
 afterEach(() => {
@@ -10,27 +10,20 @@ afterEach(() => {
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: vi.fn().mockImplementation((query) => ({
+  value: (query: string) => ({
     matches: false,
     media: query,
     onchange: null,
-    addListener: vi.fn(),
-    removeListener: vi.fn(),
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-    dispatchEvent: vi.fn(),
-  })),
+    addListener: () => {}, // deprecated
+    removeListener: () => {}, // deprecated
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    dispatchEvent: () => {},
+  }),
 })
 
-// Mock navigator.vibrate for haptic feedback tests
-Object.defineProperty(navigator, 'vibrate', {
+// Mock navigator.onLine
+Object.defineProperty(navigator, 'onLine', {
   writable: true,
-  value: vi.fn(),
-})
-
-// Mock document.dir for RTL testing
-Object.defineProperty(document.documentElement, 'dir', {
-  writable: true,
-  configurable: true,
-  value: 'ltr',
+  value: true,
 })
