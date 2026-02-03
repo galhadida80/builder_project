@@ -33,16 +33,27 @@ const StyledLink = styled(Link)(({ theme }) => ({
   textDecoration: 'none',
   fontSize: '0.875rem',
   fontWeight: 500,
-  minHeight: 44,
-  minWidth: 44,
-  padding: theme.spacing(1),
-  borderRadius: theme.spacing(0.5),
   transition: 'color 150ms ease-out',
   cursor: 'pointer',
+  position: 'relative',
+  '&::after': {
+    content: '""',
+    position: 'absolute',
+    bottom: -2,
+    left: 0,
+    width: '100%',
+    height: 2,
+    backgroundColor: theme.palette.primary.main,
+    transform: 'scaleX(0)',
+    transformOrigin: 'left',
+    transition: 'transform 200ms ease-out',
+  },
   '&:hover': {
     color: theme.palette.primary.main,
     textDecoration: 'none',
-    backgroundColor: theme.palette.action.hover,
+    '&::after': {
+      transform: 'scaleX(1)',
+    },
   },
 }))
 

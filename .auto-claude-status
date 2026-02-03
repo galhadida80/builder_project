@@ -1,25 +1,25 @@
 {
   "active": true,
-  "spec": "033-transalte-all-the-product-to-hebrew",
+  "spec": "034-add-micro-interactions-to-components",
   "state": "building",
   "subtasks": {
-    "completed": 11,
-    "total": 28,
+    "completed": 18,
+    "total": 19,
     "in_progress": 1,
     "failed": 0
   },
   "phase": {
-    "current": "Frontend String Extraction",
+    "current": "Integration & Testing",
     "id": null,
-    "total": 6
+    "total": 4
   },
   "workers": {
     "active": 0,
     "max": 1
   },
   "session": {
-    "number": 13,
-    "started_at": "2026-01-30T10:43:29.178156"
+    "number": 19,
+    "started_at": "2026-02-01T01:26:38.208589"
   },
-  "last_update": "2026-01-30T11:20:28.188829"
+  "last_update": "2026-02-01T02:22:07.105674"
 }

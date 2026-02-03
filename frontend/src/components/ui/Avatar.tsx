@@ -32,9 +32,13 @@ const StyledAvatar = styled(MuiAvatar, {
   backgroundColor: avatarColor || theme.palette.primary.main,
   color: theme.palette.primary.contrastText,
   fontWeight: 600,
-  transition: 'transform 150ms ease-out',
+  transition: 'all 200ms ease-out',
+  cursor: 'pointer',
   '&:hover': {
     transform: 'scale(1.05)',
+  },
+  '&:active': {
+    transform: 'scale(0.98)',
   },
 }))
 

@@ -85,6 +85,26 @@ export const transitions = {
   slow: '300ms ease-out',
 }
 
+export const animations = {
+  duration: {
+    instant: 0,
+    fast: 150,      // Quick hover states
+    normal: 250,    // Standard transitions
+    slow: 400,      // Complex animations
+  },
+  easing: {
+    standard: 'cubic-bezier(0.4, 0.0, 0.2, 1)',  // Material Design standard
+    decelerate: 'cubic-bezier(0.0, 0.0, 0.2, 1)', // Entrance animations
+    accelerate: 'cubic-bezier(0.4, 0.0, 1, 1)',   // Exit animations
+    sharp: 'cubic-bezier(0.4, 0.0, 0.6, 1)',      // Quick feedback
+  },
+  transforms: {
+    hoverLift: 'translateY(-2px)',
+    hoverScale: 'scale(1.02)',
+    activePress: 'scale(0.98)',
+  },
+}
+
 export const typography = {
   fontFamily: {
     english: '"Plus Jakarta Sans", system-ui, -apple-system, sans-serif',

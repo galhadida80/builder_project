@@ -1,20 +1,19 @@
 import { Button as MuiButton, ButtonProps as MuiButtonProps, CircularProgress } from '@mui/material'
 import { styled } from '@mui/material/styles'
-import { hapticFeedback } from '../../utils/hapticFeedback'
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import { scaleIn, duration, easing } from '@/utils/animations'
 
 export interface ButtonProps extends Omit<MuiButtonProps, 'variant'> {
   variant?: 'primary' | 'secondary' | 'tertiary' | 'danger' | 'success'
   loading?: boolean
+  success?: boolean
   icon?: React.ReactNode
   iconPosition?: 'start' | 'end'
 }
 
 const StyledButton = styled(MuiButton)(() => ({
-  minWidth: 48,
-  minHeight: 48,
   fontWeight: 600,
   transition: 'all 200ms ease-out',
-  touchAction: 'manipulation',
   '&:hover': {
     transform: 'translateY(-1px)',
   },
@@ -26,14 +25,31 @@ const StyledButton = styled(MuiButton)(() => ({
   },
 }))
 
+const AnimatedCheckIcon = styled(CheckCircleIcon)(() => ({
+  animation: `${scaleIn} ${duration.normal}ms ${easing.decelerate}`,
+  '@keyframes draw-circle': {
+    from: {
+      strokeDashoffset: 1,
+    },
+    to: {
+      strokeDashoffset: 0,
+    },
+  },
+  '& path': {
+    strokeDasharray: '1',
+    strokeDashoffset: '0',
+    animation: `draw-circle ${duration.slow}ms ${easing.decelerate}`,
+  },
+}))
+
 export function Button({
   variant = 'primary',
   loading = false,
+  success = false,
   icon,
   iconPosition = 'start',
   children,
   disabled,
-  onClick,
   ...props
 }: ButtonProps) {
   const getMuiVariant = (): MuiButtonProps['variant'] => {
@@ -68,16 +84,28 @@ export function Button({
     }
   }
 
-  const startIcon = icon && iconPosition === 'start' ? icon : undefined
-  const endIcon = icon && iconPosition === 'end' ? icon : undefined
-
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    // Trigger haptic feedback on button press (only if not disabled)
-    if (!disabled && !loading) {
-      hapticFeedback('light')
+  // Determine which icon to show based on state priority: success > loading > custom icon
+  const getStartIcon = () => {
+    if (success && iconPosition === 'start') {
+      return <AnimatedCheckIcon fontSize="small" />
     }
-    // Call the original onClick handler if provided
-    onClick?.(event)
+    if (loading) {
+      return <CircularProgress size={18} color="inherit" />
+    }
+    if (icon && iconPosition === 'start') {
+      return icon
+    }
+    return undefined
+  }
+
+  const getEndIcon = () => {
+    if (success && iconPosition === 'end') {
+      return <AnimatedCheckIcon fontSize="small" />
+    }
+    if (icon && iconPosition === 'end') {
+      return icon
+    }
+    return undefined
   }
 
   return (
@@ -85,9 +113,8 @@ export function Button({
       variant={getMuiVariant()}
       color={getColor()}
       disabled={disabled || loading}
-      startIcon={loading ? <CircularProgress size={18} color="inherit" /> : startIcon}
-      endIcon={endIcon}
-      onClick={handleClick}
+      startIcon={getStartIcon()}
+      endIcon={getEndIcon()}
       {...props}
     >
       {children}
@@ -99,30 +126,18 @@ export function IconButton({
   children,
   loading = false,
   variant: _,
-  onClick,
   ...props
 }: Omit<ButtonProps, 'icon' | 'iconPosition'>) {
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    // Trigger haptic feedback on button press (only if not disabled)
-    if (!props.disabled && !loading) {
-      hapticFeedback('light')
-    }
-    // Call the original onClick handler if provided
-    onClick?.(event)
-  }
-
   return (
     <StyledButton
       variant="contained"
       color="primary"
       disabled={props.disabled || loading}
       sx={{
-        minWidth: 48,
-        minHeight: 48,
+        minWidth: 'auto',
         p: 1,
         ...props.sx,
       }}
-      onClick={handleClick}
       {...props}
     >
       {loading ? <CircularProgress size={20} color="inherit" /> : children}
