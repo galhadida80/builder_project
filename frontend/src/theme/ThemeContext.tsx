@@ -1,8 +1,10 @@
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react'
 import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles'
+import { CacheProvider } from '@emotion/react'
 import CssBaseline from '@mui/material/CssBaseline'
-import { createLightTheme, createDarkTheme } from './theme'
 import { useTranslation } from 'react-i18next'
+import { createLightTheme, createDarkTheme } from './theme'
+import { createEmotionCache } from './emotionCache'
 
 type ThemeMode = 'light' | 'dark' | 'system'
 
@@ -45,25 +47,26 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     return () => mediaQuery.removeEventListener('change', handler)
   }, [])
 
-  // Set document direction based on language
-  useEffect(() => {
-    const dir = i18n.language === 'he' ? 'rtl' : 'ltr'
-    document.documentElement.dir = dir
-    document.documentElement.lang = i18n.language
-  }, [i18n.language])
-
   useEffect(() => {
     localStorage.setItem('theme-mode', mode)
   }, [mode])
+
+  useEffect(() => {
+    const dir = i18n.dir()
+    document.documentElement.setAttribute('dir', dir)
+    document.documentElement.setAttribute('lang', i18n.language)
+  }, [i18n.language])
 
   const isDark = useMemo(() => {
     if (mode === 'system') return systemPrefersDark
     return mode === 'dark'
   }, [mode, systemPrefersDark])
 
-  const direction = useMemo(() => {
-    return i18n.language === 'he' ? 'rtl' : 'ltr'
-  }, [i18n.language])
+  const direction = useMemo(() => i18n.dir(), [i18n.language])
+
+  const emotionCache = useMemo(() => {
+    return createEmotionCache(direction)
+  }, [direction])
 
   const theme = useMemo(() => {
     return isDark ? createDarkTheme(direction) : createLightTheme(direction)
@@ -86,10 +89,12 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
 
   return (
     <ThemeContext.Provider value={value}>
-      <MuiThemeProvider theme={theme}>
-        <CssBaseline />
-        {children}
-      </MuiThemeProvider>
+      <CacheProvider value={emotionCache}>
+        <MuiThemeProvider theme={theme}>
+          <CssBaseline />
+          {children}
+        </MuiThemeProvider>
+      </CacheProvider>
     </ThemeContext.Provider>
   )
 }

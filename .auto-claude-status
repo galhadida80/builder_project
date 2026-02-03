@@ -1,25 +1,25 @@
 {
   "active": true,
-  "spec": "112-create-language-toggle-ui",
+  "spec": "113-add-hebrew-language-support",
   "state": "building",
   "subtasks": {
-    "completed": 4,
+    "completed": 3,
     "total": 5,
     "in_progress": 1,
     "failed": 0
   },
   "phase": {
-    "current": "Verification and Testing",
+    "current": "RTL Infrastructure Implementation",
     "id": null,
-    "total": 1
+    "total": 5
   },
   "workers": {
     "active": 0,
     "max": 1
   },
   "session": {
-    "number": 5,
-    "started_at": "2026-02-01T01:27:11.742244"
+    "number": 4,
+    "started_at": "2026-02-01T01:33:18.630173"
   },
-  "last_update": "2026-02-01T01:39:15.455701"
+  "last_update": "2026-02-01T01:39:37.716171"
 }
