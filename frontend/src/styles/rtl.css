@@ -1,137 +1,114 @@
-/* RTL (Right-to-Left) Layout Support */
+/**
+ * RTL Layout Support Styles
+ * Uses CSS Logical Properties for bidirectional layout support
+ * No !important overrides - logical properties work automatically with dir attribute
+ */
 
-/* RTL direction handling */
-[dir="rtl"] {
-  direction: rtl;
+/* LTR-only content class for mixed-direction scenarios */
+.ltr-content {
+  direction: ltr;
+  text-align: left;
+  unicode-bidi: embed;
 }
 
-/* RTL text alignment */
-[dir="rtl"] body {
-  text-align: right;
+/* Common utility classes using logical properties */
+.text-start {
+  text-align: start;
 }
 
-[dir="rtl"] p,
-[dir="rtl"] span,
-[dir="rtl"] div,
-[dir="rtl"] li,
-[dir="rtl"] label {
-  text-align: inherit;
+.text-end {
+  text-align: end;
 }
 
-/* RTL flex direction */
-[dir="rtl"] .flex {
-  flex-direction: row-reverse;
+/* Spacing utilities - logical properties */
+.margin-inline-start-1 {
+  margin-inline-start: 0.5rem;
 }
 
-/* RTL margin and padding adjustments */
-[dir="rtl"] .ml {
-  margin-left: 0;
-  margin-right: auto;
+.margin-inline-start-2 {
+  margin-inline-start: 1rem;
 }
 
-[dir="rtl"] .mr {
-  margin-right: 0;
-  margin-left: auto;
+.margin-inline-start-3 {
+  margin-inline-start: 1.5rem;
 }
 
-[dir="rtl"] .pl {
-  padding-left: 0;
-  padding-right: auto;
+.margin-inline-start-4 {
+  margin-inline-start: 2rem;
 }
 
-[dir="rtl"] .pr {
-  padding-right: 0;
-  padding-left: auto;
+.margin-inline-end-1 {
+  margin-inline-end: 0.5rem;
 }
 
-/* RTL transform adjustments for touch interactions */
-[dir="rtl"] .swipe-indicator {
-  transform: scaleX(-1);
-  transform-origin: right center;
+.margin-inline-end-2 {
+  margin-inline-end: 1rem;
 }
 
-/* RTL swipe feedback positioning and animation */
-[dir="rtl"] .swipe-feedback {
-  transform-origin: right center;
-  animation-direction: reverse;
+.margin-inline-end-3 {
+  margin-inline-end: 1.5rem;
 }
 
-[dir="rtl"] .swipe-left-feedback {
-  transform: translateX(-8px) scaleX(-1);
+.margin-inline-end-4 {
+  margin-inline-end: 2rem;
 }
 
-[dir="rtl"] .swipe-right-feedback {
-  transform: translateX(8px) scaleX(-1);
+.padding-inline-start-1 {
+  padding-inline-start: 0.5rem;
 }
 
-/* RTL touch ripple positioning */
-[dir="rtl"] .MuiTouchRipple-ripple {
-  transform-origin: right center;
+.padding-inline-start-2 {
+  padding-inline-start: 1rem;
 }
 
-[dir="rtl"] .MuiRipple-ripple {
-  transform-origin: right center;
+.padding-inline-start-3 {
+  padding-inline-start: 1.5rem;
 }
 
-/* RTL animation direction reversals for touch feedback */
-[dir="rtl"] @keyframes swipeLeft {
-  from {
-    transform: translateX(0) scaleX(-1);
-    opacity: 1;
-  }
-  to {
-    transform: translateX(8px) scaleX(-1);
-    opacity: 0;
-  }
+.padding-inline-start-4 {
+  padding-inline-start: 2rem;
 }
 
-[dir="rtl"] @keyframes swipeRight {
-  from {
-    transform: translateX(0) scaleX(-1);
-    opacity: 1;
-  }
-  to {
-    transform: translateX(-8px) scaleX(-1);
-    opacity: 0;
-  }
+.padding-inline-end-1 {
+  padding-inline-end: 0.5rem;
 }
 
-/* RTL pull-to-refresh positioning */
-[dir="rtl"] .pull-to-refresh-indicator {
-  transform-origin: right center;
+.padding-inline-end-2 {
+  padding-inline-end: 1rem;
 }
 
-[dir="rtl"] .pull-indicator-icon {
-  transform: scaleX(-1) rotate(180deg);
+.padding-inline-end-3 {
+  padding-inline-end: 1.5rem;
 }
 
-/* RTL touch feedback states and transitions */
-[dir="rtl"] .touch-active {
-  transform-origin: right center;
+.padding-inline-end-4 {
+  padding-inline-end: 2rem;
 }
 
-[dir="rtl"] .touch-feedback-overlay {
-  transform-origin: right center;
-  direction: rtl;
+/* Position utilities - logical properties */
+.inset-inline-start-0 {
+  inset-inline-start: 0;
 }
 
-/* RTL-specific touch action and active states */
-[dir="rtl"] button:active,
-[dir="rtl"] a:active,
-[dir="rtl"] [role="button"]:active,
-[dir="rtl"] [role="link"]:active {
-  transform-origin: right center;
+.inset-inline-end-0 {
+  inset-inline-end: 0;
 }
 
-/* Touch target sizing in RTL */
-[dir="rtl"] button,
-[dir="rtl"] a,
-[dir="rtl"] input,
-[dir="rtl"] textarea,
-[dir="rtl"] select,
-[dir="rtl"] [role="button"],
-[dir="rtl"] [role="link"],
-[dir="rtl"] [role="menuitem"] {
-  touch-action: manipulation;
-  direction: rtl;
+/* Border utilities - logical properties */
+.border-inline-start {
+  border-inline-start: 1px solid currentColor;
+}
+
+.border-inline-end {
+  border-inline-end: 1px solid currentColor;
+}
+
+/* Ensure all elements respect text direction */
+* {
+  unicode-bidi: isolate;
+}
+
+/* Reset unicode-bidi for elements that should inherit */
+html, body {
+  unicode-bidi: normal;
 }

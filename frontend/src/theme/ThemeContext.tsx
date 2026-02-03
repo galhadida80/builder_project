@@ -1,7 +1,22 @@
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react'
 import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles'
+import { CacheProvider } from '@emotion/react'
+import createCache from '@emotion/cache'
+import rtlPlugin from '@mui/stylis-plugin-rtl'
+import { prefixer } from 'stylis'
 import CssBaseline from '@mui/material/CssBaseline'
 import { createLightTheme, createDarkTheme } from './theme'
+
+// Create Emotion caches for LTR and RTL
+const cacheLtr = createCache({
+  key: 'muiltr',
+  stylisPlugins: [prefixer],
+})
+
+const cacheRtl = createCache({
+  key: 'muirtl',
+  stylisPlugins: [prefixer, rtlPlugin],
+})
 
 type ThemeMode = 'light' | 'dark' | 'system'
 
@@ -36,11 +51,30 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     window.matchMedia('(prefers-color-scheme: dark)').matches
   )
 
+  const [direction, setDirection] = useState<'ltr' | 'rtl'>(() =>
+    (document.dir as 'ltr' | 'rtl') || 'ltr'
+  )
+
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
     const handler = (e: MediaQueryListEvent) => setSystemPrefersDark(e.matches)
     mediaQuery.addEventListener('change', handler)
     return () => mediaQuery.removeEventListener('change', handler)
+  }, [])
+
+  // Watch for changes to document.dir attribute
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      const newDir = (document.dir as 'ltr' | 'rtl') || 'ltr'
+      setDirection(newDir)
+    })
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['dir'],
+    })
+
+    return () => observer.disconnect()
   }, [])
 
   useEffect(() => {
@@ -53,8 +87,16 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   }, [mode, systemPrefersDark])
 
   const theme = useMemo(() => {
-    return isDark ? createDarkTheme() : createLightTheme()
-  }, [isDark])
+    const baseTheme = isDark ? createDarkTheme() : createLightTheme()
+    return {
+      ...baseTheme,
+      direction,
+    }
+  }, [isDark, direction])
+
+  const cache = useMemo(() => {
+    return direction === 'rtl' ? cacheRtl : cacheLtr
+  }, [direction])
 
   const toggleTheme = () => {
     setMode(prev => {
@@ -73,10 +115,12 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
 
   return (
     <ThemeContext.Provider value={value}>
-      <MuiThemeProvider theme={theme}>
-        <CssBaseline />
-        {children}
-      </MuiThemeProvider>
+      <CacheProvider value={cache}>
+        <MuiThemeProvider theme={theme}>
+          <CssBaseline />
+          {children}
+        </MuiThemeProvider>
+      </CacheProvider>
     </ThemeContext.Provider>
   )
 }

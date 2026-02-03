@@ -15,10 +15,12 @@
     "test:coverage": "vitest --coverage"
   },
   "dependencies": {
+    "@emotion/cache": "^11.11.0",
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^5.15.6",
     "@mui/material": "^5.15.6",
+    "@mui/stylis-plugin-rtl": "^2.1.1",
     "@mui/x-data-grid": "^6.19.2",
     "@mui/x-date-pickers": "^6.19.2",
     "axios": "^1.6.7",
@@ -27,7 +29,8 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.3",
-    "react-router-dom": "^6.21.3"
+    "react-router-dom": "^6.21.3",
+    "stylis": "^4.3.1"
   },
   "devDependencies": {
     "@emotion/babel-plugin": "^11.13.5",

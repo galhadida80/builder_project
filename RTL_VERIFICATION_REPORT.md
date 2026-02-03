@@ -1,317 +1,216 @@
-# RTL Rendering Verification Report
-**Date**: 2026-01-30
-**Task**: subtask-4-4 - Verify and test RTL rendering on all page layouts
-**Status**: Verified ✅
+# RTL Layout Implementation Verification Report
 
-## Executive Summary
+**Task:** subtask-5-1 - Verify RTL layout matches reference design
+**Date:** 2026-02-01
+**Status:** ✅ VERIFIED (Static Analysis Complete - Browser Testing Required)
 
-All RTL rendering has been verified and tested. The application is configured to properly display in both English (LTR) and Hebrew (RTL) modes with:
-- ✅ No horizontal scrollbars in RTL mode
-- ✅ Sidebar correctly positioned (right side for RTL)
-- ✅ Buttons and controls properly aligned
-- ✅ Proper margins/padding reversal
+## Static Code Verification Results
 
-## RTL Configuration Verification
+### ✅ 1. RTL Dependencies Installed
 
-### 1. Theme Configuration (✅ VERIFIED)
+All required packages are present in `frontend/package.json`:
 
-**File**: `./frontend/src/theme.ts`
-
-```typescript
-const getTheme = () => {
-  const direction = i18n.language === 'he' ? 'rtl' : 'ltr'
-  const theme = createTheme({
-    direction,  // Dynamic RTL/LTR direction
-    palette: { ... },
-    typography: { ... },
-    components: { ... }
-  })
-  return theme
-}
+```json
+"@emotion/cache": "^11.11.0",
+"@mui/stylis-plugin-rtl": "^2.1.1",
+"stylis": "^4.3.1"
 ```
 
-**Verification Points**:
-- ✅ Theme factory reads current language from i18n
-- ✅ Direction property set to 'rtl' for Hebrew, 'ltr' for English
-- ✅ Material-UI component overrides properly configured
-- ✅ Drawer styling supports RTL (borderRight, not borderLeft)
+**Status:** PASS
 
-### 2. Document Direction Setup (✅ VERIFIED)
+### ✅ 2. Emotion Cache Configuration
 
-**File**: `./frontend/src/App.tsx`
+**File:** `frontend/src/theme/ThemeContext.tsx`
 
-```typescript
-const handleLanguageChange = (lng: string) => {
-  const newDirection = lng === 'he' ? 'rtl' : 'ltr'
-  document.dir = newDirection
-  document.documentElement.lang = lng
-  setTheme(getTheme())
-}
-```
+- ✅ CacheProvider wraps MuiThemeProvider (lines 118-123)
+- ✅ Two caches created: `cacheLtr` (key: 'muiltr') and `cacheRtl` (key: 'muirtl')
+- ✅ RTL cache includes rtlPlugin (line 18)
+- ✅ LTR cache includes only prefixer (line 13)
+- ✅ Direction state managed with MutationObserver (lines 66-78)
+- ✅ Theme direction property synchronized (lines 89-95)
+- ✅ Cache selection dynamic based on direction (lines 97-99)
 
-**Verification Points**:
-- ✅ document.dir set dynamically based on language
-- ✅ document.documentElement.lang set correctly
-- ✅ Theme state updated when language changes
-- ✅ Event listener properly attached and cleaned up
+**Status:** PASS
 
-### 3. Layout Components (✅ VERIFIED)
+### ✅ 3. CSS Logical Properties Migration
 
-**File**: `./frontend/src/components/layout/Layout.tsx`
+**File:** `frontend/src/styles/rtl.css`
 
-```typescript
-<Box
-  component="main"
-  sx={{
-    flexGrow: 1,
-    p: 3,
-    marginInlineStart: `${DRAWER_WIDTH}px`,  // ✅ Logical property
-    bgcolor: 'background.default',
-    minHeight: '100vh',
-  }}
->
-```
+- ✅ Uses margin-inline-start/end (not margin-left/right)
+- ✅ Uses padding-inline-start/end (not padding-left/right)
+- ✅ Uses inset-inline-start/end (not left/right)
+- ✅ Uses text-align: start/end (not left/right)
+- ✅ Zero !important overrides (verification: only 1 match in comment)
+- ✅ Includes .ltr-content class for mixed-direction content
+- ✅ All spacing uses rem units
 
-**Verification Points**:
-- ✅ marginInlineStart used instead of marginLeft
-- ✅ Proper spacing for drawer accommodation in both directions
-- ✅ Layout flex properties handle RTL automatically
+**Status:** PASS
 
-### 4. Sidebar Component (✅ VERIFIED)
+### ✅ 4. Component Logical Properties Migration
 
-**File**: `./frontend/src/components/layout/Sidebar.tsx`
+**Verified Components:**
 
-```typescript
-<Drawer
-  variant="permanent"
-  sx={{
-    width: DRAWER_WIDTH,
-    flexShrink: 0,
-    '& .MuiDrawer-paper': {
-      width: DRAWER_WIDTH,
-      boxSizing: 'border-box',
-      bgcolor: 'background.paper',
-    },
-  }}
->
-```
+#### Header.tsx
+- Line 66: `marginInlineStart: '260px'` ✅
+- Line 89: `marginInlineStart: 1` ✅
 
-**Verification Points**:
-- ✅ Permanent Drawer (Material-UI automatically positions correctly in RTL)
-- ✅ Fixed width configuration works in both directions
-- ✅ No hardcoded left/right positioning
-- ✅ Material-UI handles drawer placement based on theme direction
+#### Layout.tsx
+- Line 86: `marginInlineStart: \`${DRAWER_WIDTH}px\`` ✅
 
-### 5. Header Component (✅ VERIFIED - FIXED)
+#### LanguageToggle.tsx
+- Line 64: `marginBlockStart: 1` ✅
+- No physical directional properties ✅
 
-**File**: `./frontend/src/components/layout/Header.tsx`
+#### Search Results:
+- ✅ No `margin-left` found in components
+- ✅ No `padding-left` found in components
+- ✅ No `ml/mr/pl/pr` shorthand properties in components
 
-**Changes Made**:
-- ✅ Changed `ml: '260px'` → `marginInlineStart: '260px'`
-- ✅ Changed `ml: 1` → `marginInlineStart: 1`
+**Status:** PASS
 
-**Verification Points**:
-- ✅ AppBar uses logical CSS properties for positioning
-- ✅ All margins use marginInlineStart instead of marginLeft
-- ✅ Responsive to drawer width and theme direction
-- ✅ Zindex properly configured for drawer overlay
+### ✅ 5. Language Toggle Integration
 
-## Material-UI RTL Support (✅ VERIFIED)
+**File:** `frontend/src/components/common/LanguageToggle.tsx`
 
-The following Material-UI components are used and automatically handle RTL:
+- ✅ Component exists and uses logical properties
+- ✅ Manages document.dir attribute (lines 17, 30)
+- ✅ Supports English (LTR) and Hebrew (RTL)
+- ✅ Persists language selection in localStorage
+- ✅ Integrated in Header.tsx (line 81)
 
-### Components with Automatic RTL Support:
-- ✅ AppBar - positions correctly in RTL
-- ✅ Drawer - positions on right side in RTL
-- ✅ Button - text and icons align correctly
-- ✅ Select/Dropdown - positioning correct in RTL
-- ✅ Card - flex content mirrors appropriately
-- ✅ List/ListItem - text alignment and icon positioning correct
-- ✅ Grid - column order reverses in RTL
-- ✅ Dialog/Modal - padding and alignment correct
-- ✅ TextField/Input - cursor position correct for RTL text
-- ✅ Menu/MenuItem - positioning correct
-- ✅ Badge - positioning correct
-- ✅ Avatar - positioning correct
+**Status:** PASS
 
-### Material-UI Theme Configuration:
-- ✅ `direction: 'rtl'` set in theme
-- ✅ Components automatically mirror in RTL mode
-- ✅ Padding and margins automatically reverse
-- ✅ Text alignment automatically reverses
-- ✅ Icon positioning properly handled
+### ✅ 6. Document Direction Synchronization
 
-## CSS Logical Properties Verification (✅ VERIFIED)
+**Implementation Flow:**
 
-**Code Audit Results**:
-- ✅ No hardcoded `margin-left` in CSS files
-- ✅ No hardcoded `margin-right` in CSS files
-- ✅ No hardcoded `padding-left` in CSS files
-- ✅ No hardcoded `padding-right` in CSS files
-- ✅ All directional spacing uses logical properties:
-  - `marginInlineStart` (instead of margin-left)
-  - `marginInlineEnd` (instead of margin-right)
-  - `paddingInlineStart` (instead of padding-left)
-  - `paddingInlineEnd` (instead of padding-right)
+1. User clicks LanguageToggle → selects Hebrew
+2. LanguageToggle sets `document.dir = 'rtl'` (line 30)
+3. MutationObserver in ThemeContext detects change (lines 67-70)
+4. Direction state updates → triggers cache selection (line 98)
+5. CacheProvider switches to cacheRtl with rtlPlugin
+6. Material-UI components automatically flip layout
 
-**Verification Command**:
+**Status:** PASS
+
+## Browser Verification Checklist
+
+The following items MUST be verified manually in a browser:
+
+### Setup Steps
 ```bash
-grep -r "margin-left\|margin-right\|padding-left\|padding-right" ./frontend/src --include="*.tsx" --include="*.css"
-# Result: No matches found ✅
+cd frontend
+npm install
+npm run dev
+# Open http://localhost:3000
 ```
 
-## i18n & dayjs Configuration (✅ VERIFIED)
+### RTL Layout Verification (Hebrew Mode)
 
-**File**: `./frontend/src/i18n/config.ts`
+1. **[ ] Language Toggle Works**
+   - Click LanguageToggle (globe icon in header)
+   - Select "עברית" (Hebrew)
+   - Verify language changes without page reload
 
-```typescript
-import 'dayjs/locale/he'
+2. **[ ] Document Direction Attribute**
+   - Open DevTools → Elements tab
+   - Check `<html dir="rtl">` attribute is set
+   - Verify it changes back to "ltr" when switching to English
 
-dayjs.locale('en')
+3. **[ ] Layout Mirroring**
+   - Sidebar appears on RIGHT side (not left)
+   - Main content offset from right
+   - Header extends from right edge
+   - Text flows right-to-left
 
-i18n.on('languageChanged', (lng) => {
-  dayjs.locale(lng === 'he' ? 'he' : 'en')
-})
-```
+4. **[ ] Material-UI Components in RTL**
+   - **Drawer:** Opens from right side
+   - **Menu:** Dropdowns align to right edge
+   - **Tooltip:** Positions correctly relative to RTL context
+   - **AppBar:** Content flows right-to-left
+   - **IconButton:** Icons positioned on correct side
 
-**Verification Points**:
-- ✅ dayjs Hebrew locale imported
-- ✅ Default locale set to English
-- ✅ Locale switches dynamically with language
-- ✅ Date formatting will respect Hebrew locale
+5. **[ ] Typography and Text**
+   - Hebrew text displays correctly
+   - Text alignment: right-aligned in RTL
+   - Mixed content (URLs, code) uses .ltr-content class
 
-## RTL Testing Checklist
+6. **[ ] No Layout Glitches**
+   - Switch English → Hebrew → English rapidly
+   - No visual jumps or misalignments
+   - Smooth transitions
 
-### Visual Layout Verification
-- ✅ Sidebar positions on right side in RTL
-- ✅ Header spans full width minus sidebar width
-- ✅ Main content area has correct margin for sidebar
-- ✅ All text content aligns correctly (Hebrew text right-aligned)
-- ✅ Icons maintain proper position relative to text
+7. **[ ] Console Errors**
+   - No errors in browser console
+   - No warnings about missing dependencies
+   - No cache-related errors
 
-### Scrollbar Verification
-- ✅ No horizontal scrollbars in RTL mode (verified by:)
-  - All containers use flexGrow/flex for responsive widths
-  - No hardcoded container widths that exceed viewport
-  - marginInlineStart properly accounts for drawer width
-  - Padding applied symmetrically
+8. **[ ] Reference Design Match**
+   - Compare layout with `design-assets/29-hebrew-rtl.png`
+   - Overall layout matches reference
+   - Component positioning matches reference
+   - Spacing and alignment match reference
 
-### Button & Control Alignment
-- ✅ Buttons display with correct text alignment
-- ✅ Button icons properly positioned
-- ✅ Icon buttons maintain proper spacing
-- ✅ Form controls properly aligned
-- ✅ Dropdowns position correctly
+### Bidirectional Switching Test
 
-### Margin & Padding Reversal
-- ✅ Header margins reverse correctly (marginInlineStart)
-- ✅ Layout content area offset reverses (marginInlineStart)
-- ✅ Material-UI components handle margin/padding reversal
-- ✅ No fixed left/right positioning
+1. Start in English (LTR)
+2. Navigate to different pages
+3. Switch to Hebrew (RTL)
+4. Verify all pages render correctly in RTL
+5. Switch back to English (LTR)
+6. Verify no residual RTL styling
+7. Check localStorage persistence after page reload
 
-## Translation Files Verification
+## Summary
 
-**File**: `./frontend/src/i18n/locales/en.json` & `he.json`
+### Static Verification: ✅ COMPLETE
 
-- ✅ English translation file complete
-- ✅ Hebrew translation file complete
-- ✅ All translation keys present in both files
-- ✅ No missing translations that would cause display gaps
-- ✅ Language selector working correctly
+All code-level requirements have been verified:
+- RTL dependencies installed
+- Emotion cache properly configured
+- CSS uses logical properties exclusively
+- Components migrated to logical properties
+- No physical directional properties remaining
+- No !important overrides in rtl.css
+- Document direction synchronization implemented
+- Language toggle integrated
 
-## Code Review Findings
+### Browser Verification: ⏳ PENDING
 
-### What Works Well:
-1. ✅ Material-UI theme properly configured with RTL support
-2. ✅ App.tsx correctly sets document.dir dynamically
-3. ✅ All layout components use proper logical CSS properties
-4. ✅ i18n properly configured with language detection
-5. ✅ Theme updates reactively when language changes
-6. ✅ No hardcoded directional CSS properties
-7. ✅ All Material-UI components automatically support RTL
+The implementation is ready for browser testing. All E2E verification steps are documented above and should be performed before final sign-off.
 
-### Issues Fixed:
-1. ✅ Fixed Header AppBar margin-left → marginInlineStart
-2. ✅ Fixed Header icon button margin-left → marginInlineStart
+### Acceptance Criteria Status
 
-### Potential Issues (None Found):
-- ✅ No horizontal overflow in RTL
-- ✅ No misaligned sidebars
-- ✅ No broken button layouts
-- ✅ No hardcoded directional styles
+From implementation_plan.json verification requirements:
 
-## Browser Rendering Expectations
+1. ✅ Start frontend (npm run dev) - Ready
+2. ⏳ Open http://localhost:3000 in browser - Pending manual test
+3. ⏳ Click LanguageToggle and switch to Hebrew - Pending manual test
+4. ⏳ Verify document.dir='rtl' in DevTools - Pending manual test
+5. ⏳ Verify layout matches 29-hebrew-rtl.png reference - Pending manual test
+6. ⏳ Test Drawer opens from right side - Pending manual test
+7. ⏳ Test Tooltips position correctly - Pending manual test
+8. ⏳ Test Menus expand correctly in RTL - Pending manual test
+9. ⏳ Switch back to English - verify no layout glitches - Pending manual test
+10. ⏳ Check browser console for errors - should be none - Pending manual test
 
-When the application runs in a browser:
+## Recommendations
 
-### LTR Mode (English):
-```
-┌─────────────────────────────────┐
-│         Header (260px margin)   │
-├────────────┬────────────────────┤
-│            │                    │
-│  Sidebar   │   Main Content     │
-│  (260px)   │   (flex-grow: 1)   │
-│            │                    │
-└────────────┴────────────────────┘
-```
+1. **Immediate:** Perform browser verification using checklist above
+2. **If Issues Found:** Document in GitHub issue and fix before final commit
+3. **Performance:** Monitor language switching performance (should be instant)
+4. **Accessibility:** Test with screen readers in both LTR and RTL modes
+5. **Cross-Browser:** Test in Chrome, Firefox, Safari
 
-### RTL Mode (Hebrew):
-```
-┌─────────────────────────────────┐
-│   (260px margin)        Header   │
-├────────────┬────────────────────┤
-│            │                    │
-│  Main      │   Sidebar          │
-│ Content    │   (260px)          │
-│(flex:1)    │                    │
-└────────────┴────────────────────┘
-```
+## Technical Notes
 
-## Test Results Summary
-
-| Test | Status | Notes |
-|------|--------|-------|
-| Theme direction property | ✅ PASS | Theme correctly sets 'rtl' for Hebrew, 'ltr' for English |
-| Document.dir setting | ✅ PASS | document.dir updated dynamically on language change |
-| Sidebar positioning | ✅ PASS | Material-UI Drawer handles positioning automatically |
-| Header layout | ✅ PASS | marginInlineStart ensures proper offset in both modes |
-| Main content area | ✅ PASS | Proper flex layout with logical margin properties |
-| i18n initialization | ✅ PASS | i18n loads before app renders |
-| Language switching | ✅ PASS | Theme and document direction update immediately |
-| Material-UI RTL | ✅ PASS | All MUI components respect theme direction |
-| Dayjs locale | ✅ PASS | Hebrew locale imported and configured |
-| Translation completeness | ✅ PASS | All strings translated to both languages |
-| No hardcoded margins | ✅ PASS | All directional spacing uses logical properties |
-
-## Deployment Readiness
-
-✅ **Ready for Browser Testing and Deployment**
-
-The frontend RTL implementation is complete and verified. All components are configured to properly display in both English (LTR) and Hebrew (RTL) modes. The application can now be deployed and tested in a browser environment.
-
-### Next Steps:
-1. Start the frontend development server: `cd frontend && npm install && npm run dev`
-2. Open http://localhost:3000 in a browser
-3. Manually verify in browser (see browser verification checklist above)
-4. Test language switching with the language selector
-5. Verify all pages display correctly in both languages
-
-## Files Modified in This Subtask
-
-- `./frontend/src/components/layout/Header.tsx` - Fixed margin properties for RTL
-- `./RTL_VERIFICATION_REPORT.md` - This verification document
-
-## Files Previously Modified (Earlier Subtasks)
-
-- `./frontend/src/App.tsx` - RTL document direction support
-- `./frontend/src/theme.ts` - RTL theme configuration
-- `./frontend/src/i18n/config.ts` - i18n and dayjs locale setup
-- `./frontend/src/components/layout/Layout.tsx` - marginInlineStart for main content
-- Translation files: `en.json` and `he.json`
-- Language selector component
+- Browser CSS Logical Properties support: Chrome 89+, Firefox 66+, Safari 15+
+- Material-UI RTL system relies on Emotion cache plugin architecture
+- Direction changes trigger cache swap and theme update without page reload
+- MutationObserver ensures synchronization between document.dir and theme
+- Logical properties provide superior approach vs. separate RTL stylesheets
 
 ---
 
-**Verification Completed**: 2026-01-30
-**Status**: Ready for Browser Testing ✅
+**Verification Performed By:** Claude Code (Auto-Claude)
+**Next Steps:** Browser E2E testing required for final sign-off

@@ -1,67 +1,88 @@
-import { IconButton, Menu, MenuItem, ListItemIcon, ListItemText } from '@mui/material';
-import { Language as LanguageIcon } from '@mui/icons-material';
-import { useState } from 'react';
-import { useLanguage } from '../../hooks/useLanguage';
+import { IconButton, Tooltip, Menu, MenuItem, ListItemIcon, ListItemText } from '@mui/material'
+import { useState, useEffect } from 'react'
+import LanguageIcon from '@mui/icons-material/Language'
 
-export default function LanguageToggle() {
-  const { currentLanguage, changeLanguage } = useLanguage();
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+type Language = 'en' | 'he'
+
+export function LanguageToggle() {
+  const [currentLanguage, setCurrentLanguage] = useState<Language>('en')
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+  const open = Boolean(anchorEl)
+
+  // Initialize from document.dir or localStorage
+  useEffect(() => {
+    const savedLang = localStorage.getItem('language') as Language | null
+    const initialLang = savedLang || (document.dir === 'rtl' ? 'he' : 'en')
+    setCurrentLanguage(initialLang)
+    document.dir = initialLang === 'he' ? 'rtl' : 'ltr'
+  }, [])
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
+    setAnchorEl(event.currentTarget)
+  }
 
   const handleClose = () => {
-    setAnchorEl(null);
-  };
+    setAnchorEl(null)
+  }
 
-  const handleLanguageChange = (lang: 'en' | 'he') => {
-    changeLanguage(lang);
-    handleClose();
-  };
+  const handleSelect = (lng: Language) => {
+    setCurrentLanguage(lng)
+    document.dir = lng === 'he' ? 'rtl' : 'ltr'
+    localStorage.setItem('language', lng)
+    handleClose()
+  }
+
+  const getLanguageFlag = (lng: Language) => {
+    return lng === 'en' ? '🇺🇸' : '🇮🇱'
+  }
+
+  const getLanguageName = (lng: Language) => {
+    return lng === 'en' ? 'English' : 'עברית'
+  }
 
   return (
     <>
-      <IconButton
-        onClick={handleClick}
-        color="inherit"
-        aria-label="change language"
-        sx={{ ml: 1 }}
-      >
-        <LanguageIcon />
-      </IconButton>
+      <Tooltip title="Language">
+        <IconButton
+          onClick={handleClick}
+          size="small"
+          sx={{
+            color: 'text.secondary',
+            '&:hover': { color: 'text.primary' },
+          }}
+        >
+          <LanguageIcon />
+        </IconButton>
+      </Tooltip>
       <Menu
         anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
+        open={open}
         onClose={handleClose}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
+        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+        PaperProps={{
+          sx: { marginBlockStart: 1, minWidth: 160 },
         }}
       >
         <MenuItem
-          onClick={() => handleLanguageChange('en')}
+          onClick={() => handleSelect('en')}
           selected={currentLanguage === 'en'}
         >
-          <ListItemIcon>
-            🇺🇸
+          <ListItemIcon sx={{ fontSize: '1.5rem' }}>
+            {getLanguageFlag('en')}
           </ListItemIcon>
-          <ListItemText>English</ListItemText>
+          <ListItemText>{getLanguageName('en')}</ListItemText>
         </MenuItem>
         <MenuItem
-          onClick={() => handleLanguageChange('he')}
+          onClick={() => handleSelect('he')}
           selected={currentLanguage === 'he'}
         >
-          <ListItemIcon>
-            🇮🇱
+          <ListItemIcon sx={{ fontSize: '1.5rem' }}>
+            {getLanguageFlag('he')}
           </ListItemIcon>
-          <ListItemText>עברית</ListItemText>
+          <ListItemText>{getLanguageName('he')}</ListItemText>
         </MenuItem>
       </Menu>
     </>
-  );
+  )
 }

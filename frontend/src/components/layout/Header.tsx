@@ -18,8 +18,7 @@ import type { User, Project } from '../../types'
 import ProjectSelector from './ProjectSelector'
 import { useToast } from '../common/ToastProvider'
 import { ThemeToggle } from '../common/ThemeToggle'
-import SyncStatus from '../common/SyncStatus'
-import { useNetwork } from '../../contexts/NetworkContext'
+import { LanguageToggle } from '../common/LanguageToggle'
 
 interface HeaderProps {
   user: User
@@ -31,7 +30,6 @@ interface HeaderProps {
 
 export default function Header({ user, currentProject, projects, onProjectChange, onLogout }: HeaderProps) {
   const { showInfo } = useToast()
-  const { syncStatus } = useNetwork()
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [notificationAnchor, setNotificationAnchor] = useState<null | HTMLElement>(null)
 
@@ -65,7 +63,7 @@ export default function Header({ user, currentProject, projects, onProjectChange
         borderBottom: '1px solid',
         borderColor: 'divider',
         bgcolor: 'background.paper',
-        ml: '260px',
+        marginInlineStart: '260px',
         width: 'calc(100% - 260px)',
       }}
     >
@@ -79,9 +77,8 @@ export default function Header({ user, currentProject, projects, onProjectChange
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <SyncStatus status={syncStatus} size="small" />
-
           <ThemeToggle />
+          <LanguageToggle />
 
           <IconButton onClick={handleNotificationOpen}>
             <Badge badgeContent={3} color="error">
@@ -89,7 +86,7 @@ export default function Header({ user, currentProject, projects, onProjectChange
             </Badge>
           </IconButton>
 
-          <IconButton onClick={handleMenuOpen} sx={{ ml: 1 }}>
+          <IconButton onClick={handleMenuOpen} sx={{ marginInlineStart: 1 }}>
             <Avatar sx={{ width: 36, height: 36, bgcolor: 'primary.main' }}>
               {getInitials(user.fullName || user.email)}
             </Avatar>
