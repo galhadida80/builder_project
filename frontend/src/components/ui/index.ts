@@ -27,3 +27,6 @@ export { Stepper, ApprovalStepper, ProgressStepper } from './Stepper'
 export { Breadcrumbs, PageHeader } from './Breadcrumbs'
 
 export { Modal, ConfirmModal, FormModal } from './Modal'
+
+export { BottomNav } from './BottomNav'
+export type { BottomNavItem } from './BottomNav'
