@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Outlet } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Chip from '@mui/material/Chip'
@@ -31,32 +30,33 @@ import { projectsApi } from '../api/projects'
 import { equipmentApi } from '../api/equipment'
 import { materialsApi } from '../api/materials'
 import { meetingsApi } from '../api/meetings'
+import { rfiApi, type RFISummary } from '../api/rfi'
 import type { Project, Equipment, Material, Meeting } from '../types'
 
-const tabsConfig = [
-  { labelKey: 'projects.overview', value: '', icon: <TrendingUpIcon sx={{ fontSize: 18 }} /> },
-  { labelKey: 'equipment.title', value: 'equipment', icon: <ConstructionIcon sx={{ fontSize: 18 }} /> },
-  { labelKey: 'materials.title', value: 'materials', icon: <InventoryIcon sx={{ fontSize: 18 }} /> },
-  { labelKey: 'meetings.title', value: 'meetings', icon: <EventIcon sx={{ fontSize: 18 }} /> },
-  { labelKey: 'approvals.title', value: 'approvals', icon: <TaskAltIcon sx={{ fontSize: 18 }} /> },
-  { labelKey: 'areas.title', value: 'areas', icon: <AccountTreeIcon sx={{ fontSize: 18 }} /> },
-  { labelKey: 'contacts.title', value: 'contacts', icon: <ContactsIcon sx={{ fontSize: 18 }} /> },
-  { labelKey: 'inspections.title', value: 'inspections', icon: <AssignmentIcon sx={{ fontSize: 18 }} /> },
-  { labelKey: 'rfis.title', value: 'rfis', icon: <EmailIcon sx={{ fontSize: 18 }} /> },
+const tabs = [
+  { label: 'Overview', value: '', icon: <TrendingUpIcon sx={{ fontSize: 18 }} /> },
+  { label: 'Equipment', value: 'equipment', icon: <ConstructionIcon sx={{ fontSize: 18 }} /> },
+  { label: 'Materials', value: 'materials', icon: <InventoryIcon sx={{ fontSize: 18 }} /> },
+  { label: 'Meetings', value: 'meetings', icon: <EventIcon sx={{ fontSize: 18 }} /> },
+  { label: 'Approvals', value: 'approvals', icon: <TaskAltIcon sx={{ fontSize: 18 }} /> },
+  { label: 'Areas', value: 'areas', icon: <AccountTreeIcon sx={{ fontSize: 18 }} /> },
+  { label: 'Contacts', value: 'contacts', icon: <ContactsIcon sx={{ fontSize: 18 }} /> },
+  { label: 'Inspections', value: 'inspections', icon: <AssignmentIcon sx={{ fontSize: 18 }} /> },
+  { label: 'RFIs', value: 'rfis', icon: <EmailIcon sx={{ fontSize: 18 }} /> },
 ]
 
 export default function ProjectDetailPage() {
   const { projectId } = useParams()
   const navigate = useNavigate()
-  const { t } = useTranslation()
   const [loading, setLoading] = useState(true)
   const [project, setProject] = useState<Project | null>(null)
   const [equipment, setEquipment] = useState<Equipment[]>([])
   const [materials, setMaterials] = useState<Material[]>([])
   const [meetings, setMeetings] = useState<Meeting[]>([])
+  const [rfiSummary, setRfiSummary] = useState<RFISummary | null>(null)
 
   const currentPath = window.location.pathname.split('/').pop() || ''
-  const currentTab = tabsConfig.find(t => t.value === currentPath)?.value || ''
+  const currentTab = tabs.find(t => t.value === currentPath)?.value || ''
 
   useEffect(() => {
     loadProjectData()
@@ -66,16 +66,18 @@ export default function ProjectDetailPage() {
     if (!projectId) return
     try {
       setLoading(true)
-      const [projectData, equipmentData, materialsData, meetingsData] = await Promise.all([
+      const [projectData, equipmentData, materialsData, meetingsData, rfiSummaryData] = await Promise.all([
         projectsApi.get(projectId).catch(() => null),
         equipmentApi.list(projectId).catch(() => []),
         materialsApi.list(projectId).catch(() => []),
-        meetingsApi.list(projectId).catch(() => [])
+        meetingsApi.list(projectId).catch(() => []),
+        rfiApi.getSummary(projectId).catch(() => null)
       ])
       setProject(projectData)
       setEquipment(equipmentData)
       setMaterials(materialsData)
       setMeetings(meetingsData)
+      setRfiSummary(rfiSummaryData)
     } catch {
       // Error handled silently
     } finally {
@@ -104,9 +106,9 @@ export default function ProjectDetailPage() {
       <Box sx={{ p: 3 }}>
         <EmptyState
           variant="not-found"
-          title={t('projects.notFound')}
-          description={t('projects.notFoundMessage')}
-          action={{ label: t('projects.backToProjects'), onClick: () => navigate('/projects') }}
+          title="Project not found"
+          description="The project you're looking for doesn't exist or has been removed"
+          action={{ label: 'Back to Projects', onClick: () => navigate('/projects') }}
         />
       </Box>
     )
@@ -119,16 +121,18 @@ export default function ProjectDetailPage() {
   const pendingApprovals = equipment.filter(e => e.status !== 'approved' && e.status !== 'draft').length +
     materials.filter(m => m.status !== 'approved' && m.status !== 'draft').length
 
+  const rfiBadgeCount = rfiSummary ? (rfiSummary.open_count + rfiSummary.waiting_response_count) : 0
+
   const isOverview = currentTab === ''
 
   return (
     <Box sx={{ p: 3 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
         <IconButton onClick={() => navigate('/projects')} size="small">
-          <ArrowBackIcon className="flip-rtl" />
+          <ArrowBackIcon />
         </IconButton>
         <Typography variant="body2" color="text.secondary">
-          {t('projects.backToProjects')}
+          Back to Projects
         </Typography>
       </Box>
 
@@ -186,7 +190,7 @@ export default function ProjectDetailPage() {
               </Box>
             </Box>
             <Button variant="secondary" icon={<EditIcon />} sx={{ bgcolor: 'rgba(255,255,255,0.1)', color: 'white', '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' } }}>
-              {t('projects.editProject')}
+              Edit Project
             </Button>
           </Box>
         </Box>
@@ -194,7 +198,12 @@ export default function ProjectDetailPage() {
 
       <Box sx={{ mb: 4 }}>
         <Tabs
-          items={tabsConfig.map(tab => ({ label: t(tab.labelKey), value: tab.value }))}
+          items={tabs.map(t => ({
+            label: t.label,
+            value: t.value,
+            icon: t.icon,
+            badge: t.value === 'rfis' ? rfiBadgeCount : undefined
+          }))}
           value={currentTab}
           onChange={handleTabChange}
           variant="scrollable"
@@ -212,28 +221,28 @@ export default function ProjectDetailPage() {
             }}
           >
             <KPICard
-              title={t('projects.equipmentCount')}
+              title="Equipment"
               value={equipment.length}
               icon={<ConstructionIcon />}
               color="primary"
               onClick={() => handleTabChange('equipment')}
             />
             <KPICard
-              title={t('projects.materialsCount')}
+              title="Materials"
               value={materials.length}
               icon={<InventoryIcon />}
               color="warning"
               onClick={() => handleTabChange('materials')}
             />
             <KPICard
-              title={t('projects.meetingsCount')}
+              title="Meetings"
               value={meetings.length}
               icon={<EventIcon />}
               color="info"
               onClick={() => handleTabChange('meetings')}
             />
             <KPICard
-              title={t('projects.pendingApprovals')}
+              title="Pending Approvals"
               value={pendingApprovals}
               icon={<WarningAmberIcon />}
               color={pendingApprovals > 0 ? 'error' : 'success'}
@@ -245,28 +254,28 @@ export default function ProjectDetailPage() {
             <Card>
               <Box sx={{ p: 3 }}>
                 <Typography variant="h6" fontWeight={600} sx={{ mb: 3 }}>
-                  {t('projects.projectProgress')}
+                  Project Progress
                 </Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', py: 4 }}>
                   <Box sx={{ textAlign: 'center' }}>
                     <CircularProgressDisplay value={67} size={140} thickness={8} showLabel />
                     <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-                      {t('projects.overallCompletion')}
+                      Overall Completion
                     </Typography>
                   </Box>
                 </Box>
                 <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2, mt: 2 }}>
                   <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'action.hover', borderRadius: 2 }}>
                     <Typography variant="h5" fontWeight={700} color="success.main">45</Typography>
-                    <Typography variant="caption" color="text.secondary">{t('projects.completedTasks')}</Typography>
+                    <Typography variant="caption" color="text.secondary">Completed Tasks</Typography>
                   </Box>
                   <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'action.hover', borderRadius: 2 }}>
                     <Typography variant="h5" fontWeight={700} color="info.main">12</Typography>
-                    <Typography variant="caption" color="text.secondary">{t('projects.inProgress')}</Typography>
+                    <Typography variant="caption" color="text.secondary">In Progress</Typography>
                   </Box>
                   <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'action.hover', borderRadius: 2 }}>
                     <Typography variant="h5" fontWeight={700} color="warning.main">8</Typography>
-                    <Typography variant="caption" color="text.secondary">{t('projects.pending')}</Typography>
+                    <Typography variant="caption" color="text.secondary">Pending</Typography>
                   </Box>
                 </Box>
               </Box>
@@ -276,34 +285,34 @@ export default function ProjectDetailPage() {
               <Card>
                 <Box sx={{ p: 3 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                    <Typography variant="h6" fontWeight={600}>{t('projects.quickStats')}</Typography>
+                    <Typography variant="h6" fontWeight={600}>Quick Stats</Typography>
                   </Box>
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1.5, borderBottom: 1, borderColor: 'divider' }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                         <ConstructionIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
-                        <Typography variant="body2" color="text.secondary">{t('equipment.title')}</Typography>
+                        <Typography variant="body2" color="text.secondary">Equipment Items</Typography>
                       </Box>
                       <Typography variant="body2" fontWeight={600}>{equipment.length}</Typography>
                     </Box>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1.5, borderBottom: 1, borderColor: 'divider' }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                         <InventoryIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
-                        <Typography variant="body2" color="text.secondary">{t('materials.title')}</Typography>
+                        <Typography variant="body2" color="text.secondary">Materials</Typography>
                       </Box>
                       <Typography variant="body2" fontWeight={600}>{materials.length}</Typography>
                     </Box>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1.5, borderBottom: 1, borderColor: 'divider' }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                         <EventIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
-                        <Typography variant="body2" color="text.secondary">{t('meetings.title')}</Typography>
+                        <Typography variant="body2" color="text.secondary">Scheduled Meetings</Typography>
                       </Box>
                       <Typography variant="body2" fontWeight={600}>{meetings.length}</Typography>
                     </Box>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1.5 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                         <WarningAmberIcon sx={{ fontSize: 18, color: pendingApprovals > 0 ? 'warning.main' : 'text.secondary' }} />
-                        <Typography variant="body2" color="text.secondary">{t('projects.pendingApprovals')}</Typography>
+                        <Typography variant="body2" color="text.secondary">Pending Approvals</Typography>
                       </Box>
                       <Chip
                         label={pendingApprovals}
@@ -319,14 +328,14 @@ export default function ProjectDetailPage() {
               <Card>
                 <Box sx={{ p: 3 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                    <Typography variant="h6" fontWeight={600}>{t('projects.team')}</Typography>
+                    <Typography variant="h6" fontWeight={600}>Team</Typography>
                     <GroupIcon sx={{ color: 'text.secondary' }} />
                   </Box>
                   <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                    {t('projects.teamMembersDescription')}
+                    Team members assigned to this project
                   </Typography>
                   <Button variant="secondary" size="small" onClick={() => handleTabChange('contacts')}>
-                    {t('projects.viewTeam')}
+                    View Team
                   </Button>
                 </Box>
               </Card>

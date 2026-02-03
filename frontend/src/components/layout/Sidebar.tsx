@@ -8,6 +8,7 @@ import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
 import Divider from '@mui/material/Divider'
 import Typography from '@mui/material/Typography'
+import Badge from '@mui/material/Badge'
 import DashboardIcon from '@mui/icons-material/Dashboard'
 import FolderIcon from '@mui/icons-material/Folder'
 import BuildIcon from '@mui/icons-material/Build'
@@ -21,43 +22,42 @@ import SettingsIcon from '@mui/icons-material/Settings'
 import AssignmentIcon from '@mui/icons-material/Assignment'
 import ConstructionIcon from '@mui/icons-material/Construction'
 import EmailIcon from '@mui/icons-material/Email'
-import { useTranslation } from 'react-i18next'
 
 const DRAWER_WIDTH = 260
 
 interface NavItem {
-  labelKey: string
+  label: string
   path: string
   icon: React.ReactNode
 }
 
 const mainNavItems: NavItem[] = [
-  { labelKey: 'nav.dashboard', path: '/dashboard', icon: <DashboardIcon /> },
-  { labelKey: 'nav.projects', path: '/projects', icon: <FolderIcon /> },
+  { label: 'Dashboard', path: '/dashboard', icon: <DashboardIcon /> },
+  { label: 'Projects', path: '/projects', icon: <FolderIcon /> },
 ]
 
 const projectNavItems: NavItem[] = [
-  { labelKey: 'nav.equipment', path: '/equipment', icon: <BuildIcon /> },
-  { labelKey: 'nav.materials', path: '/materials', icon: <InventoryIcon /> },
-  { labelKey: 'nav.meetings', path: '/meetings', icon: <EventIcon /> },
-  { labelKey: 'nav.approvals', path: '/approvals', icon: <CheckCircleIcon /> },
-  { labelKey: 'nav.areas', path: '/areas', icon: <AccountTreeIcon /> },
-  { labelKey: 'nav.contacts', path: '/contacts', icon: <ContactsIcon /> },
-  { labelKey: 'nav.inspections', path: '/inspections', icon: <AssignmentIcon /> },
-  { labelKey: 'nav.rfis', path: '/rfis', icon: <EmailIcon /> },
+  { label: 'Equipment', path: '/equipment', icon: <BuildIcon /> },
+  { label: 'Materials', path: '/materials', icon: <InventoryIcon /> },
+  { label: 'Meetings', path: '/meetings', icon: <EventIcon /> },
+  { label: 'Approvals', path: '/approvals', icon: <CheckCircleIcon /> },
+  { label: 'Areas', path: '/areas', icon: <AccountTreeIcon /> },
+  { label: 'Contacts', path: '/contacts', icon: <ContactsIcon /> },
+  { label: 'Inspections', path: '/inspections', icon: <AssignmentIcon /> },
+  { label: 'RFIs', path: '/rfis', icon: <EmailIcon /> },
 ]
 
 const systemNavItems: NavItem[] = [
-  { labelKey: 'nav.auditLog', path: '/audit', icon: <HistoryIcon /> },
-  { labelKey: 'profile.settings', path: '/settings', icon: <SettingsIcon /> },
+  { label: 'Audit Log', path: '/audit', icon: <HistoryIcon /> },
+  { label: 'Settings', path: '/settings', icon: <SettingsIcon /> },
 ]
 
 interface SidebarProps {
   projectId?: string
+  rfiBadgeCount?: number
 }
 
-export default function Sidebar({ projectId }: SidebarProps) {
-  const { t } = useTranslation()
+export default function Sidebar({ projectId, rfiBadgeCount = 0 }: SidebarProps) {
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -86,7 +86,7 @@ export default function Sidebar({ projectId }: SidebarProps) {
           width: DRAWER_WIDTH,
           boxSizing: 'border-box',
           bgcolor: 'background.paper',
-          borderInlineEnd: '1px solid',
+          borderRight: '1px solid',
           borderColor: 'divider',
         },
       }}
@@ -164,7 +164,7 @@ export default function Sidebar({ projectId }: SidebarProps) {
                 {item.icon}
               </ListItemIcon>
               <ListItemText
-                primary={t(item.labelKey)}
+                primary={item.label}
                 primaryTypographyProps={{
                   fontWeight: 500,
                   fontSize: '0.875rem',
@@ -196,6 +196,18 @@ export default function Sidebar({ projectId }: SidebarProps) {
           <List sx={{ px: 1.5, py: 0 }}>
             {projectNavItems.map((item) => {
               const fullPath = `/projects/${projectId}${item.path}`
+              const isRFI = item.path === '/rfis'
+              const iconWithBadge = isRFI ? (
+                <Badge
+                  badgeContent={rfiBadgeCount}
+                  color="error"
+                  invisible={rfiBadgeCount === 0}
+                >
+                  {item.icon}
+                </Badge>
+              ) : (
+                item.icon
+              )
               return (
                 <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }}>
                   <ListItemButton
@@ -221,10 +233,10 @@ export default function Sidebar({ projectId }: SidebarProps) {
                     }}
                   >
                     <ListItemIcon sx={{ minWidth: 40, color: 'text.secondary' }}>
-                      {item.icon}
+                      {iconWithBadge}
                     </ListItemIcon>
                     <ListItemText
-                      primary={t(item.labelKey)}
+                      primary={item.label}
                       primaryTypographyProps={{
                         fontWeight: 500,
                         fontSize: '0.875rem',
@@ -267,7 +279,7 @@ export default function Sidebar({ projectId }: SidebarProps) {
                 {item.icon}
               </ListItemIcon>
               <ListItemText
-                primary={t(item.labelKey)}
+                primary={item.label}
                 primaryTypographyProps={{
                   fontWeight: 500,
                   fontSize: '0.875rem',
