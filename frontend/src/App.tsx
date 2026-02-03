@@ -13,6 +13,7 @@ import ContactsPage from './pages/ContactsPage'
 import AuditLogPage from './pages/AuditLogPage'
 import InspectionsPage from './pages/InspectionsPage'
 import RFIPage from './pages/RFIPage'
+import RFIDetailPage from './pages/RFIDetailPage'
 
 function ProtectedRoute() {
   const token = localStorage.getItem('authToken')
@@ -42,6 +43,7 @@ export default function App() {
               <Route path="contacts" element={<ContactsPage />} />
               <Route path="inspections" element={<InspectionsPage />} />
               <Route path="rfis" element={<RFIPage />} />
+              <Route path="rfis/:rfiId" element={<RFIDetailPage />} />
             </Route>
 
             <Route path="/approvals" element={<ApprovalsPage />} />
