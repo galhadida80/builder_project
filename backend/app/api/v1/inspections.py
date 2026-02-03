@@ -1,4 +1,5 @@
 from uuid import UUID
+from typing import Optional
 from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -21,7 +22,8 @@ from app.schemas.inspection import (
     FindingResponse
 )
 from app.services.audit_service import create_audit_log, get_model_dict
-from app.models.audit import AuditAction
+from app.models.audit import AuditAction, AuditLog
+from app.schemas.audit import AuditLogResponse
 from app.core.security import get_current_user
 
 router = APIRouter()
@@ -221,6 +223,44 @@ async def get_inspection(project_id: UUID, inspection_id: UUID, db: AsyncSession
     if not inspection:
         raise HTTPException(status_code=404, detail="Inspection not found")
     return inspection
+
+
+@router.get("/projects/{project_id}/inspections/{inspection_id}/history", response_model=list[AuditLogResponse])
+async def get_inspection_history(
+    project_id: UUID,
+    inspection_id: UUID,
+    action: Optional[str] = None,
+    user_id: Optional[UUID] = None,
+    start_date: Optional[datetime] = None,
+    end_date: Optional[datetime] = None,
+    limit: int = 100,
+    offset: int = 0,
+    db: AsyncSession = Depends(get_db)
+):
+    """Get audit history for a specific inspection"""
+    query = (
+        select(AuditLog)
+        .options(selectinload(AuditLog.user))
+        .where(
+            AuditLog.entity_type == "inspection",
+            AuditLog.entity_id == inspection_id,
+            AuditLog.project_id == project_id
+        )
+    )
+
+    if action:
+        query = query.where(AuditLog.action == action)
+    if user_id:
+        query = query.where(AuditLog.user_id == user_id)
+    if start_date:
+        query = query.where(AuditLog.created_at >= start_date)
+    if end_date:
+        query = query.where(AuditLog.created_at <= end_date)
+
+    query = query.order_by(AuditLog.created_at.desc()).offset(offset).limit(limit)
+
+    result = await db.execute(query)
+    return result.scalars().all()
 
 
 @router.put("/projects/{project_id}/inspections/{inspection_id}", response_model=InspectionResponse)

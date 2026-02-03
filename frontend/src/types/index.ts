@@ -303,22 +303,15 @@ export interface InspectionSummary {
   overdueCount: number
 }
 
-export interface Folder {
+export interface InspectionHistoryEvent {
   id: string
-  name: string
-  parentId: string | null
-  children: Folder[]
-}
-
-export interface FileRecord {
-  id: string
-  projectId: string
+  inspectionId: string
+  userId?: string
+  user?: User
   entityType: string
   entityId: string
-  filename: string
-  fileType: string
-  fileSize: number
-  storagePath: string
-  uploadedAt: string
-  uploadedById?: string
+  action: 'create' | 'update' | 'delete' | 'status_change' | 'approval' | 'rejection'
+  oldValues?: Record<string, unknown>
+  newValues?: Record<string, unknown>
+  createdAt: string
 }

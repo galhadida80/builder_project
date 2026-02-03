@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Skeleton from '@mui/material/Skeleton'
@@ -8,6 +7,9 @@ import Chip from '@mui/material/Chip'
 import Alert from '@mui/material/Alert'
 import MenuItem from '@mui/material/MenuItem'
 import MuiTextField from '@mui/material/TextField'
+import Drawer from '@mui/material/Drawer'
+import Divider from '@mui/material/Divider'
+import IconButton from '@mui/material/IconButton'
 import AddIcon from '@mui/icons-material/Add'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import WarningIcon from '@mui/icons-material/Warning'
@@ -16,6 +18,8 @@ import ScheduleIcon from '@mui/icons-material/Schedule'
 import AssignmentIcon from '@mui/icons-material/Assignment'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import FilterListIcon from '@mui/icons-material/FilterList'
+import CloseIcon from '@mui/icons-material/Close'
+import HistoryIcon from '@mui/icons-material/History'
 import { Card, KPICard } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { DataTable, Column } from '../components/ui/DataTable'
@@ -25,14 +29,16 @@ import { FormModal } from '../components/ui/Modal'
 import { PageHeader } from '../components/ui/Breadcrumbs'
 import { EmptyState } from '../components/ui/EmptyState'
 import { TextField, SearchField } from '../components/ui/TextField'
+import { InspectionHistoryTimeline } from '../components/InspectionHistoryTimeline'
 import { inspectionsApi } from '../api/inspections'
+import { useToast } from '../components/common/ToastProvider'
 import type {
-  Inspection, InspectionConsultantType, InspectionStageTemplate, InspectionSummary
+  Inspection, InspectionConsultantType, InspectionStageTemplate, InspectionSummary, InspectionHistoryEvent
 } from '../types'
 
 export default function InspectionsPage() {
   const { projectId } = useParams()
-  const { t } = useTranslation()
+  const { showError } = useToast()
   const [inspections, setInspections] = useState<Inspection[]>([])
   const [consultantTypes, setConsultantTypes] = useState<InspectionConsultantType[]>([])
   const [summary, setSummary] = useState<InspectionSummary | null>(null)
@@ -43,6 +49,10 @@ export default function InspectionsPage() {
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
+  const [selectedInspection, setSelectedInspection] = useState<Inspection | null>(null)
+  const [detailsOpen, setDetailsOpen] = useState(false)
+  const [historyEvents, setHistoryEvents] = useState<InspectionHistoryEvent[]>([])
+  const [historyLoading, setHistoryLoading] = useState(false)
 
   useEffect(() => {
     if (projectId) loadData()
@@ -85,6 +95,26 @@ export default function InspectionsPage() {
     loadData()
   }
 
+  const loadHistory = async (inspection: Inspection) => {
+    if (!projectId) return
+    try {
+      setHistoryLoading(true)
+      const events = await inspectionsApi.getInspectionHistory(projectId, inspection.id)
+      setHistoryEvents(events)
+    } catch (error) {
+      showError('Failed to load inspection history. Please try again.')
+      setHistoryEvents([])
+    } finally {
+      setHistoryLoading(false)
+    }
+  }
+
+  const handleViewDetails = (inspection: Inspection) => {
+    setSelectedInspection(inspection)
+    setDetailsOpen(true)
+    loadHistory(inspection)
+  }
+
   const filteredInspections = inspections.filter(inspection => {
     if (activeTab !== 'all' && inspection.status !== activeTab) return false
     if (searchQuery && !inspection.consultantType?.name.toLowerCase().includes(searchQuery.toLowerCase())) return false
@@ -94,7 +124,7 @@ export default function InspectionsPage() {
   const inspectionColumns: Column<Inspection>[] = [
     {
       id: 'consultantType',
-      label: t('inspections.consultantType'),
+      label: 'Consultant Type',
       minWidth: 200,
       render: (row) => (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
@@ -124,7 +154,7 @@ export default function InspectionsPage() {
     },
     {
       id: 'scheduledDate',
-      label: t('inspections.scheduledDate'),
+      label: 'Scheduled Date',
       minWidth: 140,
       sortable: true,
       render: (row) => (
@@ -147,7 +177,7 @@ export default function InspectionsPage() {
     },
     {
       id: 'status',
-      label: t('common.status'),
+      label: 'Status',
       minWidth: 130,
       render: (row) => {
         const statusConfig: Record<string, { icon: React.ReactNode; color: 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning' }> = {
@@ -170,7 +200,7 @@ export default function InspectionsPage() {
     },
     {
       id: 'currentStage',
-      label: t('inspections.currentStage'),
+      label: 'Current Stage',
       minWidth: 140,
       render: (row) => (
         <Typography variant="body2" color={row.currentStage ? 'text.primary' : 'text.secondary'}>
@@ -180,11 +210,11 @@ export default function InspectionsPage() {
     },
     {
       id: 'findings',
-      label: t('inspections.findings'),
+      label: 'Findings',
       minWidth: 180,
       render: (row) => {
         if (!row.findings || row.findings.length === 0) {
-          return <Typography variant="body2" color="text.secondary">{t('inspections.noFindings')}</Typography>
+          return <Typography variant="body2" color="text.secondary">No findings</Typography>
         }
         const critical = row.findings.filter(f => f.severity === 'critical').length
         const high = row.findings.filter(f => f.severity === 'high').length
@@ -206,9 +236,14 @@ export default function InspectionsPage() {
       label: '',
       minWidth: 100,
       align: 'right',
-      render: () => (
-        <Button variant="tertiary" size="small" icon={<VisibilityIcon />}>
-          {t('common.view')}
+      render: (row) => (
+        <Button
+          variant="tertiary"
+          size="small"
+          icon={<VisibilityIcon />}
+          onClick={() => handleViewDetails(row)}
+        >
+          View
         </Button>
       ),
     },
@@ -217,7 +252,7 @@ export default function InspectionsPage() {
   const stageColumns: Column<InspectionStageTemplate>[] = [
     {
       id: 'stageOrder',
-      label: t('inspections.stageOrder'),
+      label: '#',
       minWidth: 60,
       render: (row) => (
         <Box
@@ -240,7 +275,7 @@ export default function InspectionsPage() {
     },
     {
       id: 'name',
-      label: t('inspections.stageName'),
+      label: 'Stage Name',
       minWidth: 200,
       render: (row) => (
         <Typography variant="body2" fontWeight={500}>
@@ -250,7 +285,7 @@ export default function InspectionsPage() {
     },
     {
       id: 'nameHe',
-      label: t('inspections.hebrewName'),
+      label: 'Hebrew Name',
       minWidth: 200,
       render: (row) => (
         <Typography variant="body2" dir="rtl" color="text.secondary">
@@ -260,12 +295,12 @@ export default function InspectionsPage() {
     },
     {
       id: 'isActive',
-      label: t('common.status'),
+      label: 'Status',
       minWidth: 100,
       render: (row) => (
         <Chip
           size="small"
-          label={row.isActive ? t('inspections.active') : t('inspections.inactive')}
+          label={row.isActive ? 'Active' : 'Inactive'}
           color={row.isActive ? 'success' : 'default'}
           sx={{ fontWeight: 500 }}
         />
@@ -291,12 +326,12 @@ export default function InspectionsPage() {
   return (
     <Box sx={{ p: 3 }}>
       <PageHeader
-        title={t('inspections.pageTitle')}
-        subtitle={t('inspections.subtitle')}
-        breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('inspections.title') }]}
+        title="Senior Supervision Inspections"
+        subtitle="Manage and track all inspection activities"
+        breadcrumbs={[{ label: 'Projects', href: '/projects' }, { label: 'Inspections' }]}
         actions={
           <Button variant="primary" icon={<AddIcon />} onClick={() => setDialogOpen(true)}>
-            {t('inspections.newInspection')}
+            Schedule Inspection
           </Button>
         }
       />
@@ -311,25 +346,25 @@ export default function InspectionsPage() {
           }}
         >
           <KPICard
-            title={t('inspections.totalInspections')}
+            title="Total Inspections"
             value={summary.totalInspections}
             icon={<AssignmentIcon />}
             color="primary"
           />
           <KPICard
-            title={t('inspections.pending')}
+            title="Pending"
             value={summary.pendingCount}
             icon={<ScheduleIcon />}
             color="info"
           />
           <KPICard
-            title={t('inspections.completed')}
+            title="In Progress"
             value={summary.inProgressCount}
             icon={<WarningIcon />}
             color="warning"
           />
           <KPICard
-            title={t('inspections.completed')}
+            title="Completed"
             value={summary.completedCount}
             icon={<CheckCircleIcon />}
             color="success"
@@ -353,7 +388,7 @@ export default function InspectionsPage() {
         <Card>
           <Box sx={{ p: 2.5 }}>
             <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
-              {t('inspections.consultantType')}
+              Consultant Types
             </Typography>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
               {consultantTypes.map((type) => (
@@ -400,14 +435,14 @@ export default function InspectionsPage() {
                       {selectedType.name}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
-                      {t('inspections.inspectionStages', { count: stageTemplates.length })}
+                      Inspection Stages ({stageTemplates.length} stages)
                     </Typography>
                   </Box>
-                  <Chip label={`${stageTemplates.filter(s => s.isActive).length} ${t('inspections.active')}`} size="small" color="success" />
+                  <Chip label={`${stageTemplates.filter(s => s.isActive).length} active`} size="small" color="success" />
                 </Box>
 
                 <Alert severity="info" sx={{ mb: 2, borderRadius: 2 }}>
-                  {t('inspections.stageAlert', { name: selectedType.name, count: stageTemplates.length })}
+                  Each inspection for <strong>{selectedType.name}</strong> goes through {stageTemplates.length} sequential stages.
                 </Alert>
 
                 <DataTable
@@ -415,13 +450,13 @@ export default function InspectionsPage() {
                   rows={stageTemplates}
                   getRowId={(row) => row.id}
                   pagination={false}
-                  emptyMessage={t('inspections.noStages')}
+                  emptyMessage="No stages defined"
                 />
               </>
             ) : (
               <EmptyState
-                title={t('inspections.selectConsultantType')}
-                description={t('inspections.selectConsultantTypeDesc')}
+                title="Select a Consultant Type"
+                description="Choose a consultant type from the list to view its inspection stages."
               />
             )}
           </Box>
@@ -432,26 +467,26 @@ export default function InspectionsPage() {
         <Box sx={{ p: 2.5 }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
             <Typography variant="h6" fontWeight={600}>
-              {t('inspections.projectInspections')}
+              Project Inspections
             </Typography>
             <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
               <SearchField
-                placeholder={t('inspections.searchPlaceholder')}
+                placeholder="Search inspections..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
               <Button variant="secondary" size="small" icon={<FilterListIcon />}>
-                {t('common.filter')}
+                Filters
               </Button>
             </Box>
           </Box>
 
           <Tabs
             items={[
-              { label: t('common.all'), value: 'all', badge: inspections.length },
-              { label: t('inspections.pending'), value: 'pending', badge: inspections.filter(i => i.status === 'pending').length },
-              { label: t('inspections.inProgress'), value: 'in_progress', badge: inspections.filter(i => i.status === 'in_progress').length },
-              { label: t('inspections.completed'), value: 'completed', badge: inspections.filter(i => i.status === 'completed').length },
+              { label: 'All', value: 'all', badge: inspections.length },
+              { label: 'Pending', value: 'pending', badge: inspections.filter(i => i.status === 'pending').length },
+              { label: 'In Progress', value: 'in_progress', badge: inspections.filter(i => i.status === 'in_progress').length },
+              { label: 'Completed', value: 'completed', badge: inspections.filter(i => i.status === 'completed').length },
             ]}
             value={activeTab}
             onChange={setActiveTab}
@@ -463,8 +498,8 @@ export default function InspectionsPage() {
               columns={inspectionColumns}
               rows={filteredInspections}
               getRowId={(row) => row.id}
-              emptyMessage={t('inspections.noInspectionsFound')}
-              onRowClick={(row) => console.log('View inspection:', row.id)}
+              emptyMessage="No inspections found"
+              onRowClick={handleViewDetails}
             />
           </Box>
         </Box>
@@ -474,15 +509,15 @@ export default function InspectionsPage() {
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
         onSubmit={handleCreateInspection}
-        title={t('inspections.createInspection')}
-        submitLabel={t('common.save')}
+        title="Schedule New Inspection"
+        submitLabel="Schedule"
         submitDisabled={!newInspection.consultantTypeId || !newInspection.scheduledDate}
       >
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1 }}>
           <MuiTextField
             select
             fullWidth
-            label={t('inspections.consultantType')}
+            label="Consultant Type"
             value={newInspection.consultantTypeId}
             onChange={(e) => setNewInspection({ ...newInspection, consultantTypeId: e.target.value })}
           >
@@ -495,7 +530,7 @@ export default function InspectionsPage() {
 
           <TextField
             fullWidth
-            label={t('inspections.scheduledDate')}
+            label="Scheduled Date"
             type="date"
             InputLabelProps={{ shrink: true }}
             value={newInspection.scheduledDate}
@@ -504,15 +539,157 @@ export default function InspectionsPage() {
 
           <TextField
             fullWidth
-            label={t('common.notes')}
+            label="Notes"
             multiline
             rows={3}
             value={newInspection.notes}
             onChange={(e) => setNewInspection({ ...newInspection, notes: e.target.value })}
-            placeholder={t('inspections.notesPlaceholder')}
+            placeholder="Add any relevant notes for this inspection..."
           />
         </Box>
       </FormModal>
+
+      <Drawer
+        anchor="right"
+        open={detailsOpen}
+        onClose={() => setDetailsOpen(false)}
+        PaperProps={{
+          sx: {
+            width: { xs: '100%', sm: 520 },
+            borderTopLeftRadius: 16,
+            borderBottomLeftRadius: 16,
+          },
+        }}
+      >
+        {selectedInspection && (
+          <>
+            <Box
+              sx={{
+                p: 3,
+                display: 'flex',
+                alignItems: 'flex-start',
+                justifyContent: 'space-between',
+                borderBottom: '1px solid',
+                borderColor: 'divider',
+              }}
+            >
+              <Box sx={{ flex: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
+                  <Box
+                    sx={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: 2,
+                      bgcolor: 'primary.light',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <AssignmentIcon sx={{ fontSize: 20, color: 'primary.main' }} />
+                  </Box>
+                  <Box>
+                    <Typography variant="h6" fontWeight={600}>
+                      {selectedInspection.consultantType?.name || 'Unknown'}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary" dir="rtl">
+                      {selectedInspection.consultantType?.nameHe}
+                    </Typography>
+                  </Box>
+                </Box>
+                <Box sx={{ display: 'flex', gap: 1, mt: 2 }}>
+                  <Chip
+                    size="small"
+                    label={selectedInspection.status.replace('_', ' ')}
+                    color={
+                      selectedInspection.status === 'completed'
+                        ? 'success'
+                        : selectedInspection.status === 'in_progress'
+                        ? 'warning'
+                        : selectedInspection.status === 'failed'
+                        ? 'error'
+                        : 'info'
+                    }
+                    sx={{ textTransform: 'capitalize' }}
+                  />
+                  {selectedInspection.currentStage && (
+                    <Chip size="small" label={selectedInspection.currentStage} variant="outlined" />
+                  )}
+                </Box>
+              </Box>
+              <IconButton onClick={() => setDetailsOpen(false)} size="small">
+                <CloseIcon />
+              </IconButton>
+            </Box>
+
+            <Box sx={{ p: 3 }}>
+              <Box sx={{ mb: 3 }}>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                  Scheduled Date
+                </Typography>
+                <Typography variant="body1" fontWeight={500}>
+                  {new Date(selectedInspection.scheduledDate).toLocaleDateString('en-US', {
+                    month: 'long',
+                    day: 'numeric',
+                    year: 'numeric',
+                  })}
+                  {' at '}
+                  {new Date(selectedInspection.scheduledDate).toLocaleTimeString('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
+                </Typography>
+              </Box>
+
+              {selectedInspection.findings && selectedInspection.findings.length > 0 && (
+                <Box sx={{ mb: 3 }}>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                    Findings ({selectedInspection.findings.length})
+                  </Typography>
+                  <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                    {['critical', 'high', 'medium', 'low'].map((severity) => {
+                      const count = selectedInspection.findings?.filter(f => f.severity === severity).length || 0
+                      if (count > 0) {
+                        return (
+                          <Box key={severity} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                            <SeverityBadge severity={severity as 'critical' | 'high' | 'medium' | 'low'} />
+                            <Typography variant="caption" color="text.secondary">
+                              {count}
+                            </Typography>
+                          </Box>
+                        )
+                      }
+                      return null
+                    })}
+                  </Box>
+                </Box>
+              )}
+            </Box>
+
+            <Divider />
+
+            <Box
+              sx={{
+                p: 2.5,
+                bgcolor: 'background.default',
+                borderBottom: '1px solid',
+                borderColor: 'divider',
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <HistoryIcon sx={{ fontSize: 20, color: 'text.secondary' }} />
+                <Typography variant="subtitle2" fontWeight={600}>
+                  Inspection History
+                </Typography>
+              </Box>
+            </Box>
+
+            <Box sx={{ overflowY: 'auto', flex: 1 }}>
+              <InspectionHistoryTimeline events={historyEvents} loading={historyLoading} />
+            </Box>
+          </>
+        )}
+      </Drawer>
     </Box>
   )
 }
