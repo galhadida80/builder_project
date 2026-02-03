@@ -303,151 +303,22 @@ export interface InspectionSummary {
   overdueCount: number
 }
 
-// Checklist Types
-export type ChecklistStatus = 'pending' | 'in_progress' | 'completed' | 'failed'
-export type ChecklistItemStatus = 'pending' | 'pass' | 'fail' | 'na'
+export interface Folder {
+  id: string
+  name: string
+  parentId: string | null
+  children: Folder[]
+}
 
-export interface ChecklistTemplate {
+export interface FileRecord {
   id: string
   projectId: string
-  name: string
-  level: string
-  group: string
-  category?: string
-  metadata?: Record<string, unknown>
-  createdAt: string
-  updatedAt: string
-  createdBy?: User
-  subsections: ChecklistSubSection[]
-}
-
-export interface ChecklistTemplateCreate {
-  name: string
-  level: string
-  group: string
-  category?: string
-  metadata?: Record<string, unknown>
-}
-
-export interface ChecklistTemplateUpdate {
-  name?: string
-  level?: string
-  group?: string
-  category?: string
-  metadata?: Record<string, unknown>
-}
-
-export interface ChecklistSubSection {
-  id: string
-  templateId: string
-  name: string
-  order: number
-  metadata?: Record<string, unknown>
-  createdAt: string
-  updatedAt: string
-  items: ChecklistItemTemplate[]
-}
-
-export interface ChecklistSubSectionCreate {
-  name: string
-  order: number
-  metadata?: Record<string, unknown>
-}
-
-export interface ChecklistSubSectionUpdate {
-  name?: string
-  order?: number
-  metadata?: Record<string, unknown>
-}
-
-export interface ChecklistItemTemplate {
-  id: string
-  subsectionId: string
-  name: string
-  category?: string
-  description?: string
-  mustImage: boolean
-  mustNote: boolean
-  mustSignature: boolean
-  metadata?: Record<string, unknown>
-  createdAt: string
-  updatedAt: string
-}
-
-export interface ChecklistItemTemplateCreate {
-  name: string
-  category?: string
-  description?: string
-  mustImage?: boolean
-  mustNote?: boolean
-  mustSignature?: boolean
-  metadata?: Record<string, unknown>
-}
-
-export interface ChecklistItemTemplateUpdate {
-  name?: string
-  category?: string
-  description?: string
-  mustImage?: boolean
-  mustNote?: boolean
-  mustSignature?: boolean
-  metadata?: Record<string, unknown>
-}
-
-export interface ChecklistInstance {
-  id: string
-  templateId: string
-  projectId: string
-  unitIdentifier: string
-  status: string
-  metadata?: Record<string, unknown>
-  createdAt: string
-  updatedAt: string
-  createdBy?: User
-  responses: ChecklistItemResponse[]
-}
-
-export interface ChecklistInstanceCreate {
-  templateId: string
-  unitIdentifier: string
-  status: string
-  metadata?: Record<string, unknown>
-}
-
-export interface ChecklistInstanceUpdate {
-  unitIdentifier?: string
-  status?: string
-  metadata?: Record<string, unknown>
-}
-
-export interface ChecklistItemResponse {
-  id: string
-  instanceId: string
-  itemTemplateId: string
-  status: string
-  notes?: string
-  imageUrls?: string[]
-  signatureUrl?: string
-  completedAt?: string
-  completedById?: string
-  createdAt: string
-  updatedAt: string
-}
-
-export interface ChecklistItemResponseCreate {
-  itemTemplateId: string
-  status: string
-  notes?: string
-  imageUrls?: string[]
-  signatureUrl?: string
-  completedAt?: string
-}
-
-export interface ChecklistItemResponseUpdate {
-  itemTemplateId?: string
-  status?: string
-  notes?: string
-  imageUrls?: string[]
-  signatureUrl?: string
-  completedAt?: string
+  entityType: string
+  entityId: string
+  filename: string
+  fileType: string
+  fileSize: number
+  storagePath: string
+  uploadedAt: string
+  uploadedById?: string
 }
