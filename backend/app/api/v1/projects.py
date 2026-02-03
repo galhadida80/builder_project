@@ -1,5 +1,5 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
@@ -10,6 +10,7 @@ from app.schemas.project import ProjectCreate, ProjectUpdate, ProjectResponse, P
 from app.services.audit_service import create_audit_log, get_model_dict
 from app.models.audit import AuditAction
 from app.core.security import get_current_user
+from app.utils.localization import get_language_from_request, translate_message
 
 router = APIRouter()
 
@@ -53,7 +54,8 @@ async def create_project(
 async def get_project(
     project_id: UUID,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    request: Request = None
 ):
     result = await db.execute(
         select(Project)
@@ -63,7 +65,9 @@ async def get_project(
     )
     project = result.scalar_one_or_none()
     if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
+        language = get_language_from_request(request)
+        error_message = translate_message('resources.project_not_found', language)
+        raise HTTPException(status_code=404, detail=error_message)
     return project
 
 
@@ -72,7 +76,8 @@ async def update_project(
     project_id: UUID,
     data: ProjectUpdate,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    request: Request = None
 ):
     result = await db.execute(
         select(Project)
@@ -81,7 +86,9 @@ async def update_project(
     )
     project = result.scalar_one_or_none()
     if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
+        language = get_language_from_request(request)
+        error_message = translate_message('resources.project_not_found', language)
+        raise HTTPException(status_code=404, detail=error_message)
 
     old_values = get_model_dict(project)
     for key, value in data.model_dump(exclude_unset=True).items():
@@ -98,7 +105,8 @@ async def update_project(
 async def delete_project(
     project_id: UUID,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    request: Request = None
 ):
     result = await db.execute(
         select(Project)
@@ -107,7 +115,9 @@ async def delete_project(
     )
     project = result.scalar_one_or_none()
     if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
+        language = get_language_from_request(request)
+        error_message = translate_message('resources.project_not_found', language)
+        raise HTTPException(status_code=404, detail=error_message)
 
     await create_audit_log(db, current_user, "project", project.id, AuditAction.DELETE,
                           project_id=project.id, old_values=get_model_dict(project))
@@ -134,14 +144,17 @@ async def add_project_member(
 async def remove_project_member(
     project_id: UUID,
     user_id: UUID,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    request: Request = None
 ):
     result = await db.execute(
         select(ProjectMember).where(ProjectMember.project_id == project_id, ProjectMember.user_id == user_id)
     )
     member = result.scalar_one_or_none()
     if not member:
-        raise HTTPException(status_code=404, detail="Member not found")
+        language = get_language_from_request(request)
+        error_message = translate_message('resources.resource_not_found', language)
+        raise HTTPException(status_code=404, detail=error_message)
 
     await db.delete(member)
     return {"message": "Member removed"}

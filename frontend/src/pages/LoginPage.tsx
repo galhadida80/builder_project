@@ -1,26 +1,23 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
+import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
+import TextField from '@mui/material/TextField'
+import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import Alert from '@mui/material/Alert'
-import Link from '@mui/material/Link'
-import Divider from '@mui/material/Divider'
-import ConstructionIcon from '@mui/icons-material/Construction'
-import EmailIcon from '@mui/icons-material/Email'
-import LockIcon from '@mui/icons-material/Lock'
-import PersonIcon from '@mui/icons-material/Person'
-import VisibilityIcon from '@mui/icons-material/Visibility'
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff'
-import IconButton from '@mui/material/IconButton'
-import CheckCircleIcon from '@mui/icons-material/CheckCircle'
-import { Button } from '../components/ui/Button'
-import { TextField } from '../components/ui/TextField'
-import { SegmentedTabs } from '../components/ui/Tabs'
+import CircularProgress from '@mui/material/CircularProgress'
+import Tabs from '@mui/material/Tabs'
+import Tab from '@mui/material/Tab'
+import BuildIcon from '@mui/icons-material/Build'
 import { authApi } from '../api/auth'
 
 export default function LoginPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
-  const [tab, setTab] = useState('signin')
+  const [tab, setTab] = useState(0)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [fullName, setFullName] = useState('')
@@ -28,7 +25,6 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
-  const [showPassword, setShowPassword] = useState(false)
 
   const resetForm = () => {
     setEmail('')
@@ -39,8 +35,8 @@ export default function LoginPage() {
     setSuccess(null)
   }
 
-  const handleTabChange = (value: string) => {
-    setTab(value)
+  const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
+    setTab(newValue)
     resetForm()
   }
 
@@ -56,7 +52,7 @@ export default function LoginPage() {
       navigate('/dashboard')
     } catch (err: unknown) {
       const error = err as { response?: { data?: { detail?: string } } }
-      setError(error.response?.data?.detail || 'Invalid email or password')
+      setError(error.response?.data?.detail || t('pages.login.invalidCredentials'))
     } finally {
       setLoading(false)
     }
@@ -68,27 +64,27 @@ export default function LoginPage() {
     setError(null)
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match')
+      setError(t('pages.login.passwordMismatch'))
       setLoading(false)
       return
     }
 
     if (password.length < 8) {
-      setError('Password must be at least 8 characters')
+      setError(t('pages.login.passwordTooShort'))
       setLoading(false)
       return
     }
 
     try {
       await authApi.register(email, password, fullName)
-      setSuccess('Account created successfully! Please sign in.')
-      setTab('signin')
+      setSuccess(t('pages.login.accountCreated'))
+      setTab(0)
       setPassword('')
       setConfirmPassword('')
       setFullName('')
     } catch (err: unknown) {
       const error = err as { response?: { data?: { detail?: string } } }
-      setError(error.response?.data?.detail || 'Registration failed')
+      setError(error.response?.data?.detail || t('pages.login.registrationFailed'))
     } finally {
       setLoading(false)
     }
@@ -99,302 +95,132 @@ export default function LoginPage() {
       sx={{
         minHeight: '100vh',
         display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
         bgcolor: 'background.default',
+        p: 2,
       }}
     >
-      <Box
-        sx={{
-          flex: 1,
-          display: { xs: 'none', md: 'flex' },
-          flexDirection: 'column',
-          justifyContent: 'center',
-          p: 6,
-          background: (theme) =>
-            theme.palette.mode === 'dark'
-              ? 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)'
-              : 'linear-gradient(135deg, #0369A1 0%, #0F172A 100%)',
-          color: 'white',
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
-        <Box
-          sx={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            opacity: 0.1,
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-          }}
-        />
-
-        <Box sx={{ position: 'relative', zIndex: 1, maxWidth: 480 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
-            <Box
-              sx={{
-                width: 56,
-                height: 56,
-                borderRadius: 3,
-                bgcolor: 'rgba(255,255,255,0.1)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <ConstructionIcon sx={{ fontSize: 32 }} />
-            </Box>
-            <Box>
-              <Typography variant="h4" fontWeight={700}>
-                BuilderOps
-              </Typography>
-              <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                Construction Operations Platform
+      <Card sx={{ maxWidth: 420, width: '100%' }}>
+        <CardContent sx={{ p: 4 }}>
+          <Box sx={{ textAlign: 'center', mb: 3 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
+              <BuildIcon color="primary" sx={{ fontSize: 40 }} />
+              <Typography variant="h4" color="primary" fontWeight="bold">
+                {t('pages.login.appName')}
               </Typography>
             </Box>
-          </Box>
-
-          <Typography variant="h3" fontWeight={700} sx={{ mb: 3, lineHeight: 1.2 }}>
-            Build Smarter.<br />
-            Inspect Faster.<br />
-            Deliver Excellence.
-          </Typography>
-
-          <Typography variant="body1" sx={{ mb: 4, opacity: 0.9, lineHeight: 1.7 }}>
-            The complete platform for managing construction projects, equipment tracking,
-            inspection workflows, and team collaboration.
-          </Typography>
-
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            {[
-              'Real-time project tracking & analytics',
-              'Equipment & material management',
-              'Senior supervision inspection system',
-              'Multi-step approval workflows',
-            ].map((feature, index) => (
-              <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                <CheckCircleIcon sx={{ fontSize: 20, color: '#22C55E' }} />
-                <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                  {feature}
-                </Typography>
-              </Box>
-            ))}
-          </Box>
-        </Box>
-      </Box>
-
-      <Box
-        sx={{
-          flex: { xs: 1, md: '0 0 520px' },
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          p: { xs: 3, md: 6 },
-        }}
-      >
-        <Box sx={{ width: '100%', maxWidth: 400 }}>
-          <Box sx={{ display: { xs: 'flex', md: 'none' }, alignItems: 'center', gap: 1.5, mb: 4, justifyContent: 'center' }}>
-            <Box
-              sx={{
-                width: 48,
-                height: 48,
-                borderRadius: 2,
-                bgcolor: 'primary.main',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
-              }}
-            >
-              <ConstructionIcon sx={{ fontSize: 28 }} />
-            </Box>
-            <Box>
-              <Typography variant="h5" fontWeight={700} color="text.primary">
-                BuilderOps
-              </Typography>
-            </Box>
-          </Box>
-
-          <Box sx={{ mb: 4, textAlign: { xs: 'center', md: 'left' } }}>
-            <Typography variant="h4" fontWeight={700} color="text.primary" sx={{ mb: 1 }}>
-              {tab === 'signin' ? 'Welcome back' : 'Create account'}
-            </Typography>
             <Typography variant="body2" color="text.secondary">
-              {tab === 'signin'
-                ? 'Enter your credentials to access your account'
-                : 'Fill in your details to get started'}
+              {t('pages.login.appSubtitle')}
             </Typography>
           </Box>
 
-          <SegmentedTabs
-            items={[
-              { label: 'Sign In', value: 'signin' },
-              { label: 'Sign Up', value: 'signup' },
-            ]}
-            value={tab}
-            onChange={handleTabChange}
-          />
+          <Tabs value={tab} onChange={handleTabChange} variant="fullWidth" sx={{ mb: 3 }}>
+            <Tab label={t('pages.login.signIn')} />
+            <Tab label={t('pages.login.createAccount')} />
+          </Tabs>
 
-          <Box sx={{ mt: 4 }}>
-            {error && (
-              <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
-                {error}
-              </Alert>
-            )}
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
 
-            {success && (
-              <Alert severity="success" sx={{ mb: 3, borderRadius: 2 }}>
-                {success}
-              </Alert>
-            )}
+          {success && (
+            <Alert severity="success" sx={{ mb: 2 }}>
+              {success}
+            </Alert>
+          )}
 
-            {tab === 'signin' ? (
-              <form onSubmit={handleLogin}>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-                  <TextField
-                    fullWidth
-                    label="Email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    autoComplete="email"
-                    startIcon={<EmailIcon sx={{ color: 'text.secondary' }} />}
-                  />
-                  <TextField
-                    fullWidth
-                    label="Password"
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    autoComplete="current-password"
-                    startIcon={<LockIcon sx={{ color: 'text.secondary' }} />}
-                    endIcon={
-                      <IconButton
-                        onClick={() => setShowPassword(!showPassword)}
-                        edge="end"
-                        size="small"
-                      >
-                        {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                      </IconButton>
-                    }
-                  />
-
-                  <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                    <Link href="#" underline="hover" sx={{ fontSize: '0.875rem' }}>
-                      Forgot password?
-                    </Link>
-                  </Box>
-
-                  <Button
-                    fullWidth
-                    type="submit"
-                    variant="primary"
-                    loading={loading}
-                    sx={{ py: 1.5, mt: 1 }}
-                  >
-                    Sign In
-                  </Button>
-                </Box>
-              </form>
-            ) : (
-              <form onSubmit={handleRegister}>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-                  <TextField
-                    fullWidth
-                    label="Full Name"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    required
-                    autoComplete="name"
-                    startIcon={<PersonIcon sx={{ color: 'text.secondary' }} />}
-                  />
-                  <TextField
-                    fullWidth
-                    label="Email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    autoComplete="email"
-                    startIcon={<EmailIcon sx={{ color: 'text.secondary' }} />}
-                  />
-                  <TextField
-                    fullWidth
-                    label="Password"
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    autoComplete="new-password"
-                    helperText="At least 8 characters"
-                    startIcon={<LockIcon sx={{ color: 'text.secondary' }} />}
-                    endIcon={
-                      <IconButton
-                        onClick={() => setShowPassword(!showPassword)}
-                        edge="end"
-                        size="small"
-                      >
-                        {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                      </IconButton>
-                    }
-                  />
-                  <TextField
-                    fullWidth
-                    label="Confirm Password"
-                    type={showPassword ? 'text' : 'password'}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    required
-                    autoComplete="new-password"
-                    startIcon={<LockIcon sx={{ color: 'text.secondary' }} />}
-                  />
-
-                  <Button
-                    fullWidth
-                    type="submit"
-                    variant="primary"
-                    loading={loading}
-                    sx={{ py: 1.5, mt: 1 }}
-                  >
-                    Create Account
-                  </Button>
-                </Box>
-              </form>
-            )}
-
-            <Divider sx={{ my: 3 }}>
-              <Typography variant="caption" color="text.secondary">
-                OR
-              </Typography>
-            </Divider>
-
-            <Box sx={{ textAlign: 'center' }}>
-              <Typography variant="body2" color="text.secondary">
-                {tab === 'signin' ? "Don't have an account? " : 'Already have an account? '}
-                <Link
-                  component="button"
-                  type="button"
-                  onClick={() => handleTabChange(tab === 'signin' ? 'signup' : 'signin')}
-                  underline="hover"
-                  sx={{ fontWeight: 600 }}
-                >
-                  {tab === 'signin' ? 'Sign up' : 'Sign in'}
-                </Link>
-              </Typography>
-            </Box>
-          </Box>
-
-          <Box sx={{ mt: 4, textAlign: 'center' }}>
-            <Typography variant="caption" color="text.disabled">
-              By continuing, you agree to our Terms of Service and Privacy Policy
-            </Typography>
-          </Box>
-        </Box>
-      </Box>
+          {tab === 0 ? (
+            <form onSubmit={handleLogin}>
+              <TextField
+                fullWidth
+                label={t('pages.login.email')}
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                margin="normal"
+                required
+                autoComplete="email"
+              />
+              <TextField
+                fullWidth
+                label={t('pages.login.password')}
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                margin="normal"
+                required
+                autoComplete="current-password"
+              />
+              <Button
+                fullWidth
+                type="submit"
+                variant="contained"
+                size="large"
+                disabled={loading}
+                sx={{ mt: 3, py: 1.5 }}
+              >
+                {loading ? <CircularProgress size={24} color="inherit" /> : t('pages.login.signIn')}
+              </Button>
+            </form>
+          ) : (
+            <form onSubmit={handleRegister}>
+              <TextField
+                fullWidth
+                label={t('pages.login.fullName')}
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                margin="normal"
+                required
+                autoComplete="name"
+              />
+              <TextField
+                fullWidth
+                label={t('pages.login.email')}
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                margin="normal"
+                required
+                autoComplete="email"
+              />
+              <TextField
+                fullWidth
+                label={t('pages.login.password')}
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                margin="normal"
+                required
+                autoComplete="new-password"
+                helperText={t('pages.login.helperText')}
+              />
+              <TextField
+                fullWidth
+                label={t('pages.login.confirmPassword')}
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                margin="normal"
+                required
+                autoComplete="new-password"
+              />
+              <Button
+                fullWidth
+                type="submit"
+                variant="contained"
+                size="large"
+                disabled={loading}
+                sx={{ mt: 3, py: 1.5 }}
+              >
+                {loading ? <CircularProgress size={24} color="inherit" /> : t('pages.login.createAccount')}
+              </Button>
+            </form>
+          )}
+        </CardContent>
+      </Card>
     </Box>
   )
 }

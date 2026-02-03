@@ -1,5 +1,5 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
@@ -10,6 +10,7 @@ from app.schemas.meeting import MeetingCreate, MeetingUpdate, MeetingResponse, M
 from app.services.audit_service import create_audit_log, get_model_dict
 from app.models.audit import AuditAction
 from app.core.security import get_current_user
+from app.utils.localization import get_language_from_request, translate_message
 
 router = APIRouter()
 
@@ -60,7 +61,7 @@ async def create_meeting(
 
 
 @router.get("/projects/{project_id}/meetings/{meeting_id}", response_model=MeetingResponse)
-async def get_meeting(project_id: UUID, meeting_id: UUID, db: AsyncSession = Depends(get_db)):
+async def get_meeting(project_id: UUID, meeting_id: UUID, db: AsyncSession = Depends(get_db), request: Request = None):
     result = await db.execute(
         select(Meeting)
         .options(
@@ -71,7 +72,9 @@ async def get_meeting(project_id: UUID, meeting_id: UUID, db: AsyncSession = Dep
     )
     meeting = result.scalar_one_or_none()
     if not meeting:
-        raise HTTPException(status_code=404, detail="Meeting not found")
+        language = get_language_from_request(request)
+        error_message = translate_message('resources.meeting_not_found', language)
+        raise HTTPException(status_code=404, detail=error_message)
     return meeting
 
 
@@ -81,12 +84,15 @@ async def update_meeting(
     meeting_id: UUID,
     data: MeetingUpdate,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    request: Request = None
 ):
     result = await db.execute(select(Meeting).where(Meeting.id == meeting_id))
     meeting = result.scalar_one_or_none()
     if not meeting:
-        raise HTTPException(status_code=404, detail="Meeting not found")
+        language = get_language_from_request(request)
+        error_message = translate_message('resources.meeting_not_found', language)
+        raise HTTPException(status_code=404, detail=error_message)
 
     old_values = get_model_dict(meeting)
     for key, value in data.model_dump(exclude_unset=True).items():
@@ -104,12 +110,15 @@ async def delete_meeting(
     project_id: UUID,
     meeting_id: UUID,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    request: Request = None
 ):
     result = await db.execute(select(Meeting).where(Meeting.id == meeting_id))
     meeting = result.scalar_one_or_none()
     if not meeting:
-        raise HTTPException(status_code=404, detail="Meeting not found")
+        language = get_language_from_request(request)
+        error_message = translate_message('resources.meeting_not_found', language)
+        raise HTTPException(status_code=404, detail=error_message)
 
     await create_audit_log(db, current_user, "meeting", meeting.id, AuditAction.DELETE,
                           project_id=project_id, old_values=get_model_dict(meeting))

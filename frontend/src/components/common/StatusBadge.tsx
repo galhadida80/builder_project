@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import Chip from '@mui/material/Chip'
 import type { ApprovalStatus } from '../../types'
 
@@ -6,22 +7,26 @@ interface StatusBadgeProps {
   size?: 'small' | 'medium'
 }
 
-const statusConfig: Record<ApprovalStatus, { label: string; color: 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning' }> = {
-  draft: { label: 'Draft', color: 'default' },
-  submitted: { label: 'Submitted', color: 'info' },
-  under_review: { label: 'Under Review', color: 'warning' },
-  approved: { label: 'Approved', color: 'success' },
-  rejected: { label: 'Rejected', color: 'error' },
-  revision_requested: { label: 'Revision Requested', color: 'secondary' },
+const statusColorMap: Record<ApprovalStatus, 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning'> = {
+  draft: 'default',
+  submitted: 'info',
+  under_review: 'warning',
+  approved: 'success',
+  rejected: 'error',
+  revision_requested: 'secondary',
 }
 
 export default function StatusBadge({ status, size = 'small' }: StatusBadgeProps) {
-  const config = statusConfig[status]
+  const { t } = useTranslation()
+
+  const statusKey = `statusBadges.${status}`
+  const label = t(statusKey)
+  const color = statusColorMap[status]
 
   return (
     <Chip
-      label={config.label}
-      color={config.color}
+      label={label}
+      color={color}
       size={size}
       sx={{
         fontWeight: 500,

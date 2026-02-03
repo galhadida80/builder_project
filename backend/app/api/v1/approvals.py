@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Optional
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
@@ -15,6 +15,7 @@ from app.schemas.approval import ApprovalRequestResponse, ApprovalStepResponse
 from app.services.audit_service import create_audit_log
 from app.models.audit import AuditAction
 from app.core.security import get_current_user
+from app.utils.localization import get_language_from_request, translate_message
 
 router = APIRouter()
 
@@ -52,7 +53,7 @@ async def list_approvals(project_id: UUID, db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/projects/{project_id}/approvals/{approval_id}", response_model=ApprovalRequestResponse)
-async def get_approval(project_id: UUID, approval_id: UUID, db: AsyncSession = Depends(get_db)):
+async def get_approval(project_id: UUID, approval_id: UUID, db: AsyncSession = Depends(get_db), request: Request = None):
     result = await db.execute(
         select(ApprovalRequest)
         .options(
@@ -63,7 +64,9 @@ async def get_approval(project_id: UUID, approval_id: UUID, db: AsyncSession = D
     )
     approval = result.scalar_one_or_none()
     if not approval:
-        raise HTTPException(status_code=404, detail="Approval request not found")
+        language = get_language_from_request(request)
+        error_message = translate_message('resources.approval_not_found', language)
+        raise HTTPException(status_code=404, detail=error_message)
     return approval
 
 
@@ -74,7 +77,8 @@ async def process_approval_step(
     step_id: UUID,
     data: ApprovalAction,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    request: Request = None
 ):
     result = await db.execute(
         select(ApprovalStep)
@@ -83,10 +87,14 @@ async def process_approval_step(
     )
     step = result.scalar_one_or_none()
     if not step:
-        raise HTTPException(status_code=404, detail="Approval step not found")
+        language = get_language_from_request(request)
+        error_message = translate_message('resources.resource_not_found', language)
+        raise HTTPException(status_code=404, detail=error_message)
 
     if step.status != "pending":
-        raise HTTPException(status_code=400, detail="Step already processed")
+        language = get_language_from_request(request)
+        error_message = translate_message('validation.validation_error', language)
+        raise HTTPException(status_code=400, detail=error_message)
 
     approval_request = step.approval_request
 
@@ -126,7 +134,9 @@ async def process_approval_step(
         await update_entity_status(db, approval_request.entity_type, approval_request.entity_id, ApprovalStatus.REVISION_REQUESTED.value)
 
     else:
-        raise HTTPException(status_code=400, detail="Invalid action")
+        language = get_language_from_request(request)
+        error_message = translate_message('validation.invalid_input', language)
+        raise HTTPException(status_code=400, detail=error_message)
 
     await create_audit_log(
         db, current_user, "approval_step", step.id, AuditAction.STATUS_CHANGE,

@@ -1,40 +1,41 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
-import MenuItem from '@mui/material/MenuItem'
-import MuiTextField from '@mui/material/TextField'
-import Skeleton from '@mui/material/Skeleton'
-import Chip from '@mui/material/Chip'
+import Button from '@mui/material/Button'
+import TextField from '@mui/material/TextField'
+import InputAdornment from '@mui/material/InputAdornment'
+import Card from '@mui/material/Card'
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableCell from '@mui/material/TableCell'
+import TableContainer from '@mui/material/TableContainer'
+import TableHead from '@mui/material/TableHead'
+import TableRow from '@mui/material/TableRow'
 import IconButton from '@mui/material/IconButton'
+import Dialog from '@mui/material/Dialog'
+import DialogTitle from '@mui/material/DialogTitle'
+import DialogContent from '@mui/material/DialogContent'
+import DialogActions from '@mui/material/DialogActions'
+import MenuItem from '@mui/material/MenuItem'
 import CircularProgress from '@mui/material/CircularProgress'
+import SearchIcon from '@mui/icons-material/Search'
 import AddIcon from '@mui/icons-material/Add'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
-import InventoryIcon from '@mui/icons-material/Inventory'
-import FilterListIcon from '@mui/icons-material/FilterList'
-import LocalShippingIcon from '@mui/icons-material/LocalShipping'
-import WarehouseIcon from '@mui/icons-material/Warehouse'
-import { Card, KPICard } from '../components/ui/Card'
-import { Button } from '../components/ui/Button'
-import { DataTable, Column } from '../components/ui/DataTable'
-import { StatusBadge } from '../components/ui/StatusBadge'
-import { PageHeader } from '../components/ui/Breadcrumbs'
-import { SearchField, TextField } from '../components/ui/TextField'
-import { FormModal, ConfirmModal } from '../components/ui/Modal'
-import { Tabs } from '../components/ui/Tabs'
-import { EmptyState } from '../components/ui/EmptyState'
 import { materialsApi } from '../api/materials'
+import StatusBadge from '../components/common/StatusBadge'
 import type { Material } from '../types'
 import { validateMaterialForm, hasErrors, VALIDATION, type ValidationError } from '../utils/validation'
 import { useToast } from '../components/common/ToastProvider'
-import { usePullToRefresh } from '../hooks/usePullToRefresh'
 
 const materialTypes = ['Structural', 'Finishing', 'Safety', 'MEP', 'Insulation']
 const unitOptions = ['ton', 'm3', 'm2', 'm', 'kg', 'unit', 'box', 'pallet', 'roll']
 
 export default function MaterialsPage() {
   const { projectId } = useParams()
+  const { t } = useTranslation()
   const { showError, showSuccess } = useToast()
   const [loading, setLoading] = useState(true)
   const [materials, setMaterials] = useState<Material[]>([])
@@ -45,7 +46,6 @@ export default function MaterialsPage() {
   const [materialToDelete, setMaterialToDelete] = useState<Material | null>(null)
   const [saving, setSaving] = useState(false)
   const [errors, setErrors] = useState<ValidationError>({})
-  const [activeTab, setActiveTab] = useState('all')
   const [formData, setFormData] = useState({
     name: '',
     materialType: '',
@@ -67,20 +67,13 @@ export default function MaterialsPage() {
       setLoading(true)
       const data = await materialsApi.list(projectId)
       setMaterials(data)
-    } catch {
-      showError('Failed to load materials. Please try again.')
+    } catch (error) {
+      console.error('Failed to load materials:', error)
+      showError(t('pages.materials.failedToLoadMaterials'))
     } finally {
       setLoading(false)
     }
   }
-
-  // Pull-to-refresh hook
-  const { onTouchStart, onTouchMove, onTouchEnd, isLoading: isPullLoading } = usePullToRefresh({
-    onRefresh: async () => {
-      await loadMaterials()
-    },
-    threshold: 80,
-  })
 
   const resetForm = () => {
     setFormData({ name: '', materialType: '', manufacturer: '', modelNumber: '', quantity: '', unit: '', expectedDelivery: '', storageLocation: '', notes: '' })
@@ -122,6 +115,8 @@ export default function MaterialsPage() {
       notes: formData.notes,
       quantity: formData.quantity ? parseFloat(formData.quantity) : undefined
     })
+    const dateWarning = validateFutureDate(formData.expectedDelivery, 'Expected Delivery Date')
+    validationErrors.expectedDelivery = dateWarning
     setErrors(validationErrors)
     if (hasErrors(validationErrors)) return
 
@@ -141,384 +136,234 @@ export default function MaterialsPage() {
 
       if (editingMaterial) {
         await materialsApi.update(projectId, editingMaterial.id, payload)
-        showSuccess('Material updated successfully!')
+        showSuccess(t('pages.materials.materialUpdatedSuccessfully'))
       } else {
         await materialsApi.create(projectId, payload)
-        showSuccess('Material created successfully!')
+        showSuccess(t('pages.materials.materialCreatedSuccessfully'))
       }
       handleCloseDialog()
       loadMaterials()
-    } catch {
-      showError(`Failed to ${editingMaterial ? 'update' : 'create'} material. Please try again.`)
+    } catch (error) {
+      console.error('Failed to save material:', error)
+      showError(editingMaterial ? t('pages.materials.failedToUpdateMaterial') : t('pages.materials.failedToCreateMaterial'))
     } finally {
       setSaving(false)
     }
   }
 
-  const handleDeleteClick = (material: Material, e?: React.MouseEvent) => {
-    if (e) e.stopPropagation()
+  const handleDeleteClick = (material: Material) => {
     setMaterialToDelete(material)
     setDeleteDialogOpen(true)
   }
 
   const handleConfirmDelete = async () => {
     if (!projectId || !materialToDelete) return
+
     try {
       await materialsApi.delete(projectId, materialToDelete.id)
-      showSuccess('Material deleted successfully!')
+      showSuccess(t('pages.materials.materialDeletedSuccessfully'))
       setDeleteDialogOpen(false)
       setMaterialToDelete(null)
       loadMaterials()
-    } catch {
-      showError('Failed to delete material. Please try again.')
+    } catch (error) {
+      console.error('Failed to delete material:', error)
+      showError(t('pages.materials.failedToDeleteMaterial'))
     }
   }
 
-  const filteredMaterials = materials.filter(m => {
-    const matchesSearch = m.name.toLowerCase().includes(search.toLowerCase()) ||
-      m.materialType?.toLowerCase().includes(search.toLowerCase())
-    const matchesTab = activeTab === 'all' || m.status === activeTab
-    return matchesSearch && matchesTab
-  })
-
-  const pendingMaterials = materials.filter(m => m.status === 'submitted' || m.status === 'under_review').length
-  const approvedMaterials = materials.filter(m => m.status === 'approved').length
-  const totalQuantity = materials.reduce((sum, m) => sum + (m.quantity || 0), 0)
-
-  const columns: Column<Material>[] = [
-    {
-      id: 'name',
-      label: 'Material',
-      minWidth: 250,
-      render: (row) => (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <Box
-            sx={{
-              width: 40,
-              height: 40,
-              borderRadius: 2,
-              bgcolor: 'warning.light',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <InventoryIcon sx={{ fontSize: 20, color: 'warning.main' }} />
-          </Box>
-          <Box>
-            <Typography variant="body2" fontWeight={500}>{row.name}</Typography>
-            <Typography variant="caption" color="text.secondary">
-              {row.materialType || 'No type specified'}
-            </Typography>
-          </Box>
-        </Box>
-      ),
-    },
-    {
-      id: 'manufacturer',
-      label: 'Manufacturer',
-      minWidth: 140,
-      render: (row) => (
-        <Typography variant="body2" color={row.manufacturer ? 'text.primary' : 'text.secondary'}>
-          {row.manufacturer || '-'}
-        </Typography>
-      ),
-    },
-    {
-      id: 'quantity',
-      label: 'Quantity',
-      minWidth: 120,
-      render: (row) => (
-        <Box>
-          <Typography variant="body2" fontWeight={500}>
-            {row.quantity ? `${row.quantity.toLocaleString()} ${row.unit || ''}` : '-'}
-          </Typography>
-          {row.storageLocation && (
-            <Typography variant="caption" color="text.secondary">
-              {row.storageLocation}
-            </Typography>
-          )}
-        </Box>
-      ),
-    },
-    {
-      id: 'expectedDelivery',
-      label: 'Delivery',
-      minWidth: 120,
-      render: (row) => (
-        <Typography variant="body2" color={row.expectedDelivery ? 'text.primary' : 'text.secondary'}>
-          {row.expectedDelivery
-            ? new Date(row.expectedDelivery).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-            : '-'}
-        </Typography>
-      ),
-    },
-    {
-      id: 'status',
-      label: 'Status',
-      minWidth: 130,
-      render: (row) => <StatusBadge status={row.status} />,
-    },
-    {
-      id: 'actions',
-      label: '',
-      minWidth: 100,
-      align: 'right',
-      render: (row) => (
-        <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
-          <IconButton size="small" onClick={() => handleOpenEdit(row)} title="Edit material">
-            <EditIcon fontSize="small" />
-          </IconButton>
-          <IconButton size="small" onClick={(e) => handleDeleteClick(row, e)} title="Delete material" color="error">
-            <DeleteIcon fontSize="small" />
-          </IconButton>
-        </Box>
-      ),
-    },
-  ]
+  const filteredMaterials = materials.filter(m =>
+    m.name.toLowerCase().includes(search.toLowerCase()) ||
+    m.materialType?.toLowerCase().includes(search.toLowerCase())
+  )
 
   if (loading) {
     return (
-      <Box sx={{ p: 3 }}>
-        <Skeleton variant="text" width={200} height={48} sx={{ mb: 1 }} />
-        <Skeleton variant="text" width={300} height={24} sx={{ mb: 4 }} />
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 2, mb: 4 }}>
-          {[...Array(4)].map((_, i) => (
-            <Skeleton key={i} variant="rounded" height={100} sx={{ borderRadius: 3 }} />
-          ))}
-        </Box>
-        <Skeleton variant="rounded" height={400} sx={{ borderRadius: 3 }} />
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 400 }}>
+        <CircularProgress />
       </Box>
     )
   }
 
   return (
-    <Box sx={{ p: 3 }}>
-      <PageHeader
-        title="Materials"
-        subtitle="Manage and track all material items"
-        breadcrumbs={[{ label: 'Projects', href: '/projects' }, { label: 'Materials' }]}
-        actions={
-          <Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>
-            Add Material
-          </Button>
-        }
-      />
-
-      <Box
-        sx={{
-          display: 'grid',
-          gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' },
-          gap: 2,
-          mb: 4,
-        }}
-      >
-        <KPICard
-          title="Total Materials"
-          value={materials.length}
-          icon={<InventoryIcon />}
-          color="warning"
-        />
-        <KPICard
-          title="Pending Approval"
-          value={pendingMaterials}
-          icon={<LocalShippingIcon />}
-          color="info"
-        />
-        <KPICard
-          title="Approved"
-          value={approvedMaterials}
-          icon={<InventoryIcon />}
-          color="success"
-        />
-        <KPICard
-          title="Total Quantity"
-          value={totalQuantity.toLocaleString()}
-          icon={<WarehouseIcon />}
-          color="primary"
-        />
+    <Box>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Typography variant="h5" fontWeight="bold">{t('pages.materials.title')}</Typography>
+        <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenCreate}>
+          {t('pages.materials.addMaterial')}
+        </Button>
       </Box>
 
+      <TextField
+        placeholder={t('pages.materials.searchMaterials')}
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        sx={{ mb: 3, width: 300 }}
+        size="small"
+        InputProps={{
+          startAdornment: <InputAdornment position="start"><SearchIcon /></InputAdornment>,
+        }}
+      />
+
       <Card>
-        <Box sx={{ p: 2.5 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-              <SearchField
-                placeholder="Search materials..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-              <Button variant="secondary" size="small" icon={<FilterListIcon />}>
-                Filters
-              </Button>
-            </Box>
-            <Chip label={`${filteredMaterials.length} items`} size="small" />
-          </Box>
-
-          <Tabs
-            items={[
-              { label: 'All', value: 'all', badge: materials.length },
-              { label: 'Draft', value: 'draft', badge: materials.filter(m => m.status === 'draft').length },
-              { label: 'Pending', value: 'pending', badge: pendingMaterials },
-              { label: 'Approved', value: 'approved', badge: approvedMaterials },
-            ]}
-            value={activeTab}
-            onChange={setActiveTab}
-            size="small"
-          />
-
-          <Box
-            onTouchStart={onTouchStart}
-            onTouchMove={onTouchMove}
-            onTouchEnd={onTouchEnd}
-            sx={{
-              mt: 2,
-              position: 'relative',
-              opacity: isPullLoading ? 0.6 : 1,
-              transition: 'opacity 200ms ease-out',
-            }}
-          >
-            {/* Pull-to-refresh overlay with spinner */}
-            {isPullLoading && (
-              <Box
-                sx={{
-                  position: 'absolute',
-                  top: -60,
-                  left: 0,
-                  right: 0,
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  height: 60,
-                  zIndex: 1,
-                }}
-              >
-                <CircularProgress size={32} />
-              </Box>
-            )}
-
-            {filteredMaterials.length === 0 ? (
-              <EmptyState
-                variant="no-results"
-                title="No materials found"
-                description="Try adjusting your search or add a new material"
-                action={{ label: 'Add Material', onClick: handleOpenCreate }}
-              />
-            ) : (
-              <DataTable
-                columns={columns}
-                rows={filteredMaterials}
-                getRowId={(row) => row.id}
-                emptyMessage="No materials found"
-              />
-            )}
-          </Box>
-        </Box>
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>{t('common.name', { defaultValue: 'Name' })}</TableCell>
+                <TableCell>{t('pages.materials.materialType')}</TableCell>
+                <TableCell>{t('pages.materials.manufacturer')}</TableCell>
+                <TableCell>{t('pages.materials.quantity')}</TableCell>
+                <TableCell>{t('pages.materials.status', { defaultValue: 'Status' })}</TableCell>
+                <TableCell align="right">{t('common.actions', { defaultValue: 'Actions' })}</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {filteredMaterials.map((material) => (
+                <TableRow key={material.id} hover>
+                  <TableCell>
+                    <Typography fontWeight="medium">{material.name}</Typography>
+                  </TableCell>
+                  <TableCell>{material.materialType || '-'}</TableCell>
+                  <TableCell>{material.manufacturer || '-'}</TableCell>
+                  <TableCell>
+                    {material.quantity ? `${material.quantity} ${material.unit || ''}` : '-'}
+                  </TableCell>
+                  <TableCell><StatusBadge status={material.status} /></TableCell>
+                  <TableCell align="right">
+                    <IconButton size="small" onClick={() => handleOpenEdit(material)} title={t('pages.materials.editMaterial')}>
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton size="small" onClick={() => handleDeleteClick(material)} title={t('pages.materials.deleteMaterial')} color="error">
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
       </Card>
 
-      <FormModal
-        open={dialogOpen}
-        onClose={handleCloseDialog}
-        onSubmit={handleSaveMaterial}
-        title={editingMaterial ? 'Edit Material' : 'Add New Material'}
-        submitLabel={editingMaterial ? 'Save Changes' : 'Add Material'}
-        loading={saving}
-      >
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
+      {filteredMaterials.length === 0 && (
+        <Box sx={{ textAlign: 'center', py: 8 }}>
+          <Typography color="text.secondary">{t('pages.materials.noMaterials')}</Typography>
+        </Box>
+      )}
+
+      <Dialog open={dialogOpen} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
+        <DialogTitle>{editingMaterial ? t('pages.materials.editMaterial') : t('pages.materials.addNewMaterial')}</DialogTitle>
+        <DialogContent>
           <TextField
             fullWidth
-            label="Material Name"
+            label={t('pages.materials.materialName')}
+            margin="normal"
             required
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            error={!!errors.name}
-            helperText={errors.name || `${formData.name.length}/${VALIDATION.MAX_NAME_LENGTH}`}
+            error={!!errors.name || formData.name.length >= VALIDATION.MAX_NAME_LENGTH}
+            helperText={errors.name || (formData.name.length > 0 ? `${formData.name.length}/${VALIDATION.MAX_NAME_LENGTH}${formData.name.length >= VALIDATION.MAX_NAME_LENGTH * 0.9 ? ' - ' + t('pages.projects.approachingLimit') : ''}` : undefined)}
             inputProps={{ maxLength: VALIDATION.MAX_NAME_LENGTH }}
           />
-          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
-            <MuiTextField
-              fullWidth
-              select
-              label="Material Type"
-              value={formData.materialType}
-              onChange={(e) => setFormData({ ...formData, materialType: e.target.value })}
-            >
-              <MenuItem value="">Select type...</MenuItem>
-              {materialTypes.map(type => <MenuItem key={type} value={type}>{type}</MenuItem>)}
-            </MuiTextField>
-            <TextField
-              fullWidth
-              label="Manufacturer"
-              value={formData.manufacturer}
-              onChange={(e) => setFormData({ ...formData, manufacturer: e.target.value })}
-            />
-          </Box>
           <TextField
             fullWidth
-            label="Model Number"
+            select
+            label={t('pages.materials.materialType')}
+            margin="normal"
+            value={formData.materialType}
+            onChange={(e) => setFormData({ ...formData, materialType: e.target.value })}
+          >
+            <MenuItem value="">{t('pages.materials.selectType')}</MenuItem>
+            {materialTypes.map(type => <MenuItem key={type} value={type}>{type}</MenuItem>)}
+          </TextField>
+          <TextField
+            fullWidth
+            label={t('pages.materials.manufacturer')}
+            margin="normal"
+            value={formData.manufacturer}
+            onChange={(e) => setFormData({ ...formData, manufacturer: e.target.value })}
+            inputProps={{ maxLength: VALIDATION.MAX_NAME_LENGTH }}
+          />
+          <TextField
+            fullWidth
+            label={t('pages.materials.modelNumber')}
+            margin="normal"
             value={formData.modelNumber}
             onChange={(e) => setFormData({ ...formData, modelNumber: e.target.value })}
+            inputProps={{ maxLength: 100 }}
           />
-          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+          <Box sx={{ display: 'flex', gap: 2 }}>
             <TextField
               fullWidth
-              label="Quantity"
+              label={t('pages.materials.quantity')}
               type="number"
+              margin="normal"
               value={formData.quantity}
               onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
               error={!!errors.quantity}
               helperText={errors.quantity}
-              inputProps={{ min: 0 }}
+              inputProps={{ min: 0, max: 999999999 }}
             />
-            <MuiTextField
+            <TextField
               fullWidth
               select
-              label="Unit"
+              label={t('pages.materials.unit')}
+              margin="normal"
               value={formData.unit}
               onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
             >
-              <MenuItem value="">Select unit...</MenuItem>
+              <MenuItem value="">{t('pages.materials.selectUnit')}</MenuItem>
               {unitOptions.map(unit => <MenuItem key={unit} value={unit}>{unit}</MenuItem>)}
-            </MuiTextField>
-          </Box>
-          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
-            <TextField
-              fullWidth
-              label="Expected Delivery"
-              type="date"
-              InputLabelProps={{ shrink: true }}
-              value={formData.expectedDelivery}
-              onChange={(e) => setFormData({ ...formData, expectedDelivery: e.target.value })}
-            />
-            <TextField
-              fullWidth
-              label="Storage Location"
-              value={formData.storageLocation}
-              onChange={(e) => setFormData({ ...formData, storageLocation: e.target.value })}
-            />
+            </TextField>
           </Box>
           <TextField
             fullWidth
-            label="Notes"
+            label={t('pages.materials.expectedDeliveryDate')}
+            type="date"
+            margin="normal"
+            InputLabelProps={{ shrink: true }}
+            value={formData.expectedDelivery}
+            onChange={(e) => setFormData({ ...formData, expectedDelivery: e.target.value })}
+            helperText={errors.expectedDelivery}
+          />
+          <TextField
+            fullWidth
+            label={t('pages.materials.storageLocation')}
+            margin="normal"
+            value={formData.storageLocation}
+            onChange={(e) => setFormData({ ...formData, storageLocation: e.target.value })}
+            inputProps={{ maxLength: VALIDATION.MAX_NAME_LENGTH }}
+          />
+          <TextField
+            fullWidth
+            label={t('pages.materials.notes', { defaultValue: 'Notes' })}
+            margin="normal"
             multiline
             rows={2}
             value={formData.notes}
             onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-            error={!!errors.notes}
-            helperText={errors.notes}
+            error={!!errors.notes || formData.notes.length >= VALIDATION.MAX_NOTES_LENGTH}
+            helperText={errors.notes || (formData.notes.length > 0 ? `${formData.notes.length}/${VALIDATION.MAX_NOTES_LENGTH}${formData.notes.length >= VALIDATION.MAX_NOTES_LENGTH * 0.9 ? ' - ' + t('pages.projects.approachingLimit') : ''}` : undefined)}
+            inputProps={{ maxLength: VALIDATION.MAX_NOTES_LENGTH }}
           />
-        </Box>
-      </FormModal>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog} disabled={saving}>{t('common.cancel')}</Button>
+          <Button variant="contained" onClick={handleSaveMaterial} disabled={saving}>
+            {saving ? <CircularProgress size={24} /> : (editingMaterial ? t('common.save') : t('pages.materials.addMaterial'))}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
-      <ConfirmModal
-        open={deleteDialogOpen}
-        onClose={() => setDeleteDialogOpen(false)}
-        onConfirm={handleConfirmDelete}
-        title="Delete Material"
-        message={`Are you sure you want to delete "${materialToDelete?.name}"? This action cannot be undone.`}
-        confirmLabel="Delete"
-        variant="danger"
-      />
+      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+        <DialogTitle>{t('pages.materials.deleteMaterial')}</DialogTitle>
+        <DialogContent>
+          <Typography dangerouslySetInnerHTML={{ __html: t('pages.materials.areYouSureYouWantToDeleteMaterial', { name: materialToDelete?.name || '' }) }} />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteDialogOpen(false)}>{t('common.cancel')}</Button>
+          <Button variant="contained" color="error" onClick={handleConfirmDelete}>{t('common.delete')}</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   )
 }

@@ -1,16 +1,18 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
+import { ThemeProvider } from '@mui/material/styles'
+import CssBaseline from '@mui/material/CssBaseline'
 import App from './App'
-import { ThemeProvider } from './theme'
+import theme from './theme'
 import { ToastProvider } from './components/common/ToastProvider'
-import './styles/index.css'
-import './styles/rtl.css'
+import i18n from './i18n/config'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <BrowserRouter>
-      <ThemeProvider>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
         <ToastProvider>
           <App />
         </ToastProvider>

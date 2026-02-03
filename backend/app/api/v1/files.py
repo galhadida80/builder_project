@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Optional
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File as FastAPIFile
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File as FastAPIFile, Request
 from fastapi.responses import Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -14,6 +14,7 @@ from app.services.audit_service import create_audit_log, get_model_dict
 from app.services.storage_service import get_storage_backend, generate_storage_path, StorageBackend
 from app.models.audit import AuditAction
 from app.core.security import get_current_user
+from app.utils.localization import get_language_from_request, translate_message
 
 router = APIRouter()
 
@@ -79,7 +80,7 @@ async def upload_file(
 
 
 @router.get("/projects/{project_id}/files/{file_id}", response_model=FileResponse)
-async def get_file(project_id: UUID, file_id: UUID, db: AsyncSession = Depends(get_db)):
+async def get_file(project_id: UUID, file_id: UUID, db: AsyncSession = Depends(get_db), request: Request = None):
     result = await db.execute(
         select(File)
         .where(File.id == file_id, File.project_id == project_id)
@@ -87,7 +88,9 @@ async def get_file(project_id: UUID, file_id: UUID, db: AsyncSession = Depends(g
     )
     file_record = result.scalar_one_or_none()
     if not file_record:
-        raise HTTPException(status_code=404, detail="File not found")
+        language = get_language_from_request(request)
+        error_message = translate_message('resources.file_not_found', language)
+        raise HTTPException(status_code=404, detail=error_message)
     return file_record
 
 
@@ -97,12 +100,15 @@ async def delete_file(
     file_id: UUID,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
-    storage: StorageBackend = Depends(get_storage_backend)
+    storage: StorageBackend = Depends(get_storage_backend),
+    request: Request = None
 ):
     result = await db.execute(select(File).where(File.id == file_id, File.project_id == project_id))
     file_record = result.scalar_one_or_none()
     if not file_record:
-        raise HTTPException(status_code=404, detail="File not found")
+        language = get_language_from_request(request)
+        error_message = translate_message('resources.file_not_found', language)
+        raise HTTPException(status_code=404, detail=error_message)
 
     # storage = get_storage_backend()  # No longer needed
     try:
@@ -125,14 +131,17 @@ async def download_file(
     project_id: UUID,
     file_id: UUID,
     db: AsyncSession = Depends(get_db),
-    storage: StorageBackend = Depends(get_storage_backend)
+    storage: StorageBackend = Depends(get_storage_backend),
+    request: Request = None
 ):
     result = await db.execute(
         select(File).where(File.id == file_id, File.project_id == project_id)
     )
     file_record = result.scalar_one_or_none()
     if not file_record:
-        raise HTTPException(status_code=404, detail="File not found")
+        language = get_language_from_request(request)
+        error_message = translate_message('resources.file_not_found', language)
+        raise HTTPException(status_code=404, detail=error_message)
 
     # storage = get_storage_backend()  # No longer needed
     download_url = storage.get_file_url(file_record.storage_path)
@@ -140,10 +149,12 @@ async def download_file(
 
 
 @router.get("/storage/{path:path}")
-async def serve_local_file(path: str, storage: StorageBackend = Depends(get_storage_backend)):
+async def serve_local_file(path: str, storage: StorageBackend = Depends(get_storage_backend), request: Request = None):
     # storage = get_storage_backend()  # No longer needed
     try:
         content = await storage.get_file_content(path)
         return Response(content=content, media_type="application/octet-stream")
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail="File not found")
+        language = get_language_from_request(request)
+        error_message = translate_message('resources.file_not_found', language)
+        raise HTTPException(status_code=404, detail=error_message)

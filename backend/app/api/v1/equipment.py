@@ -1,5 +1,5 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
@@ -11,6 +11,7 @@ from app.schemas.equipment import EquipmentCreate, EquipmentUpdate, EquipmentRes
 from app.services.audit_service import create_audit_log, get_model_dict
 from app.models.audit import AuditAction
 from app.core.security import get_current_user
+from app.utils.localization import get_language_from_request, translate_message
 
 router = APIRouter()
 
@@ -55,7 +56,7 @@ async def create_equipment(
 
 
 @router.get("/projects/{project_id}/equipment/{equipment_id}", response_model=EquipmentResponse)
-async def get_equipment(project_id: UUID, equipment_id: UUID, db: AsyncSession = Depends(get_db)):
+async def get_equipment(project_id: UUID, equipment_id: UUID, db: AsyncSession = Depends(get_db), request: Request = None):
     result = await db.execute(
         select(Equipment)
         .options(selectinload(Equipment.created_by), selectinload(Equipment.checklists))
@@ -63,7 +64,9 @@ async def get_equipment(project_id: UUID, equipment_id: UUID, db: AsyncSession =
     )
     equipment = result.scalar_one_or_none()
     if not equipment:
-        raise HTTPException(status_code=404, detail="Equipment not found")
+        language = get_language_from_request(request)
+        error_message = translate_message('resources.equipment_not_found', language)
+        raise HTTPException(status_code=404, detail=error_message)
     return equipment
 
 
@@ -73,12 +76,15 @@ async def update_equipment(
     equipment_id: UUID,
     data: EquipmentUpdate,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    request: Request = None
 ):
     result = await db.execute(select(Equipment).where(Equipment.id == equipment_id))
     equipment = result.scalar_one_or_none()
     if not equipment:
-        raise HTTPException(status_code=404, detail="Equipment not found")
+        language = get_language_from_request(request)
+        error_message = translate_message('resources.equipment_not_found', language)
+        raise HTTPException(status_code=404, detail=error_message)
 
     old_values = get_model_dict(equipment)
     for key, value in data.model_dump(exclude_unset=True).items():
@@ -96,12 +102,15 @@ async def delete_equipment(
     project_id: UUID,
     equipment_id: UUID,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    request: Request = None
 ):
     result = await db.execute(select(Equipment).where(Equipment.id == equipment_id))
     equipment = result.scalar_one_or_none()
     if not equipment:
-        raise HTTPException(status_code=404, detail="Equipment not found")
+        language = get_language_from_request(request)
+        error_message = translate_message('resources.equipment_not_found', language)
+        raise HTTPException(status_code=404, detail=error_message)
 
     await create_audit_log(db, current_user, "equipment", equipment.id, AuditAction.DELETE,
                           project_id=project_id, old_values=get_model_dict(equipment))
@@ -115,12 +124,15 @@ async def submit_equipment_for_approval(
     project_id: UUID,
     equipment_id: UUID,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    request: Request = None
 ):
     result = await db.execute(select(Equipment).where(Equipment.id == equipment_id))
     equipment = result.scalar_one_or_none()
     if not equipment:
-        raise HTTPException(status_code=404, detail="Equipment not found")
+        language = get_language_from_request(request)
+        error_message = translate_message('resources.equipment_not_found', language)
+        raise HTTPException(status_code=404, detail=error_message)
 
     old_status = equipment.status
     equipment.status = ApprovalStatus.SUBMITTED.value

@@ -1,4 +1,5 @@
 import axios from 'axios'
+import i18n from '../i18n/config'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
 
@@ -14,6 +15,11 @@ apiClient.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
+
+  // Add Accept-Language header based on current language preference
+  const currentLanguage = i18n.language || 'en'
+  config.headers['Accept-Language'] = currentLanguage
+
   return config
 })
 

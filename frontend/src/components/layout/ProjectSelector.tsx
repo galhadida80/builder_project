@@ -1,10 +1,10 @@
+import { useTranslation } from 'react-i18next'
 import FormControl from '@mui/material/FormControl'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
 import MenuItem from '@mui/material/MenuItem'
 import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
-import FolderOpenIcon from '@mui/icons-material/FolderOpen'
 import type { Project } from '../../types'
 
 interface ProjectSelectorProps {
@@ -14,6 +14,8 @@ interface ProjectSelectorProps {
 }
 
 export default function ProjectSelector({ projects, currentProject, onProjectChange }: ProjectSelectorProps) {
+  const { t } = useTranslation()
+
   const handleChange = (event: SelectChangeEvent<string>) => {
     onProjectChange(event.target.value)
   }
@@ -29,45 +31,35 @@ export default function ProjectSelector({ projects, currentProject, onProjectCha
   }
 
   return (
-    <FormControl size="small" sx={{ minWidth: 300 }}>
+    <FormControl size="small" sx={{ minWidth: 280 }}>
       <Select
         value={currentProject?.id || ''}
         onChange={handleChange}
         displayEmpty
         sx={{
-          bgcolor: (theme) => theme.palette.mode === 'dark' ? 'action.hover' : 'grey.100',
+          bgcolor: 'grey.100',
           '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
           borderRadius: 2,
-          transition: 'background-color 200ms ease',
-          '&:hover': {
-            bgcolor: (theme) => theme.palette.mode === 'dark' ? 'action.selected' : 'grey.200',
-          },
         }}
         renderValue={(selected) => {
           if (!selected) {
-            return (
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <FolderOpenIcon sx={{ fontSize: 20, color: 'text.secondary' }} />
-                <Typography color="text.secondary">Select a project</Typography>
-              </Box>
-            )
+            return <Typography color="text.secondary">{t('projectSelector.selectAProject')}</Typography>
           }
           const project = projects.find(p => p.id === selected)
           return (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-              <FolderOpenIcon sx={{ fontSize: 20, color: 'primary.main' }} />
-              <Typography fontWeight={500}>{project?.name}</Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Typography>{project?.name}</Typography>
               <Chip
                 label={project?.code}
                 size="small"
-                sx={{ height: 22, fontSize: '0.7rem', fontWeight: 600 }}
+                sx={{ height: 20, fontSize: '0.7rem' }}
               />
             </Box>
           )
         }}
       >
         <MenuItem value="" disabled>
-          <Typography color="text.secondary">Select a project</Typography>
+          <Typography color="text.secondary">{t('projectSelector.selectAProject')}</Typography>
         </MenuItem>
         {projects.map((project) => (
           <MenuItem key={project.id} value={project.id}>

@@ -1,4 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Drawer from '@mui/material/Drawer'
 import List from '@mui/material/List'
@@ -18,48 +19,48 @@ import AccountTreeIcon from '@mui/icons-material/AccountTree'
 import ContactsIcon from '@mui/icons-material/Contacts'
 import HistoryIcon from '@mui/icons-material/History'
 import SettingsIcon from '@mui/icons-material/Settings'
-import AssignmentIcon from '@mui/icons-material/Assignment'
-import ConstructionIcon from '@mui/icons-material/Construction'
-import EmailIcon from '@mui/icons-material/Email'
 
 const DRAWER_WIDTH = 260
 
 interface NavItem {
   label: string
+  translationKey: string
   path: string
   icon: React.ReactNode
 }
 
-const mainNavItems: NavItem[] = [
-  { label: 'Dashboard', path: '/dashboard', icon: <DashboardIcon /> },
-  { label: 'Projects', path: '/projects', icon: <FolderIcon /> },
-]
-
-const projectNavItems: NavItem[] = [
-  { label: 'Equipment', path: '/equipment', icon: <BuildIcon /> },
-  { label: 'Materials', path: '/materials', icon: <InventoryIcon /> },
-  { label: 'Meetings', path: '/meetings', icon: <EventIcon /> },
-  { label: 'Approvals', path: '/approvals', icon: <CheckCircleIcon /> },
-  { label: 'Areas', path: '/areas', icon: <AccountTreeIcon /> },
-  { label: 'Contacts', path: '/contacts', icon: <ContactsIcon /> },
-  { label: 'Inspections', path: '/inspections', icon: <AssignmentIcon /> },
-  { label: 'RFIs', path: '/rfis', icon: <EmailIcon /> },
-]
-
-const systemNavItems: NavItem[] = [
-  { label: 'Audit Log', path: '/audit', icon: <HistoryIcon /> },
-  { label: 'Settings', path: '/settings', icon: <SettingsIcon /> },
-]
+const getNavItems = (t: (key: string) => string): {
+  main: NavItem[]
+  project: NavItem[]
+  system: NavItem[]
+} => ({
+  main: [
+    { label: t('sidebar.dashboard'), translationKey: 'sidebar.dashboard', path: '/dashboard', icon: <DashboardIcon /> },
+    { label: t('sidebar.projects'), translationKey: 'sidebar.projects', path: '/projects', icon: <FolderIcon /> },
+  ],
+  project: [
+    { label: t('sidebar.equipment'), translationKey: 'sidebar.equipment', path: '/equipment', icon: <BuildIcon /> },
+    { label: t('sidebar.materials'), translationKey: 'sidebar.materials', path: '/materials', icon: <InventoryIcon /> },
+    { label: t('sidebar.meetings'), translationKey: 'sidebar.meetings', path: '/meetings', icon: <EventIcon /> },
+    { label: t('sidebar.approvals'), translationKey: 'sidebar.approvals', path: '/approvals', icon: <CheckCircleIcon /> },
+    { label: t('sidebar.areas'), translationKey: 'sidebar.areas', path: '/areas', icon: <AccountTreeIcon /> },
+    { label: t('sidebar.contacts'), translationKey: 'sidebar.contacts', path: '/contacts', icon: <ContactsIcon /> },
+  ],
+  system: [
+    { label: t('sidebar.auditLog'), translationKey: 'sidebar.auditLog', path: '/audit', icon: <HistoryIcon /> },
+    { label: t('sidebar.settings'), translationKey: 'sidebar.settings', path: '/settings', icon: <SettingsIcon /> },
+  ],
+})
 
 interface SidebarProps {
   projectId?: string
-  open?: boolean
-  onClose?: () => void
 }
 
-export default function Sidebar({ projectId, open = true, onClose }: SidebarProps) {
+export default function Sidebar({ projectId }: SidebarProps) {
+  const { t } = useTranslation()
   const location = useLocation()
   const navigate = useNavigate()
+  const { main: mainNavItems, project: projectNavItems, system: systemNavItems } = getNavItems(t)
 
   const isActive = (path: string) => {
     if (path === '/projects' && location.pathname.startsWith('/projects')) {
@@ -78,13 +79,7 @@ export default function Sidebar({ projectId, open = true, onClose }: SidebarProp
 
   return (
     <Drawer
-      variant="temporary"
-      anchor="left"
-      open={open}
-      onClose={onClose}
-      ModalProps={{
-        keepMounted: true, // Keep DOM mounted for better performance
-      }}
+      variant="permanent"
       sx={{
         width: DRAWER_WIDTH,
         flexShrink: 0,
@@ -92,90 +87,36 @@ export default function Sidebar({ projectId, open = true, onClose }: SidebarProp
           width: DRAWER_WIDTH,
           boxSizing: 'border-box',
           bgcolor: 'background.paper',
-          borderRight: '1px solid',
-          borderColor: 'divider',
         },
       }}
     >
-      <Box
-        sx={{
-          p: 2.5,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 1.5,
-        }}
-      >
-        <Box
-          sx={{
-            width: 40,
-            height: 40,
-            borderRadius: 2,
-            bgcolor: 'primary.main',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <ConstructionIcon sx={{ color: 'white', fontSize: 24 }} />
-        </Box>
-        <Box>
-          <Typography
-            variant="h6"
-            sx={{
-              fontWeight: 700,
-              fontSize: '1.125rem',
-              color: 'text.primary',
-              lineHeight: 1.2,
-            }}
-          >
-            BuilderOps
-          </Typography>
-          <Typography
-            variant="caption"
-            sx={{ color: 'text.secondary', fontSize: '0.7rem' }}
-          >
-            Construction Platform
-          </Typography>
-        </Box>
+      <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+        <BuildIcon color="primary" sx={{ fontSize: 32 }} />
+        <Typography variant="h6" color="primary" fontWeight="bold">
+          BuilderOps
+        </Typography>
       </Box>
 
       <Divider />
 
-      <List sx={{ px: 1.5, py: 1 }}>
+      <List>
         {mainNavItems.map((item) => (
-          <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }}>
+          <ListItem key={item.path} disablePadding>
             <ListItemButton
               selected={isActive(item.path)}
               onClick={() => handleNavigation(item.path, false)}
               sx={{
+                mx: 1,
                 borderRadius: 2,
-                py: 1,
-                transition: 'all 200ms ease-out',
-                '&:hover': {
-                  bgcolor: 'action.hover',
-                },
                 '&.Mui-selected': {
-                  bgcolor: 'primary.main',
+                  bgcolor: 'primary.light',
                   color: 'primary.contrastText',
-                  '&:hover': {
-                    bgcolor: 'primary.dark',
-                  },
-                  '& .MuiListItemIcon-root': {
-                    color: 'primary.contrastText',
-                  },
+                  '& .MuiListItemIcon-root': { color: 'primary.contrastText' },
                 },
               }}
             >
-              <ListItemIcon sx={{ minWidth: 40, color: 'text.secondary' }}>
-                {item.icon}
-              </ListItemIcon>
-              <ListItemText
-                primary={item.label}
-                primaryTypographyProps={{
-                  fontWeight: 500,
-                  fontSize: '0.875rem',
-                }}
-              />
+              <ListItemIcon sx={{ minWidth: 40 }}>{item.icon}</ListItemIcon>
+              <ListItemText primary={item.label} />
             </ListItemButton>
           </ListItem>
         ))}
@@ -183,59 +124,30 @@ export default function Sidebar({ projectId, open = true, onClose }: SidebarProp
 
       {projectId && (
         <>
-          <Divider sx={{ mx: 2 }} />
-          <Typography
-            variant="caption"
-            sx={{
-              px: 3,
-              py: 1.5,
-              display: 'block',
-              color: 'text.secondary',
-              fontWeight: 600,
-              fontSize: '0.65rem',
-              letterSpacing: '0.1em',
-              textTransform: 'uppercase',
-            }}
-          >
-            Current Project
+          <Divider sx={{ my: 1 }} />
+          <Typography variant="caption" sx={{ px: 3, py: 1, color: 'text.secondary', fontWeight: 500 }}>
+            {t('sidebar.projectSection')}
           </Typography>
-          <List sx={{ px: 1.5, py: 0 }}>
+          <List>
             {projectNavItems.map((item) => {
               const fullPath = `/projects/${projectId}${item.path}`
               return (
-                <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }}>
+                <ListItem key={item.path} disablePadding>
                   <ListItemButton
                     selected={location.pathname === fullPath}
                     onClick={() => handleNavigation(item.path, true)}
                     sx={{
+                      mx: 1,
                       borderRadius: 2,
-                      py: 1,
-                      transition: 'all 200ms ease-out',
-                      '&:hover': {
-                        bgcolor: 'action.hover',
-                      },
                       '&.Mui-selected': {
-                        bgcolor: 'primary.main',
+                        bgcolor: 'primary.light',
                         color: 'primary.contrastText',
-                        '&:hover': {
-                          bgcolor: 'primary.dark',
-                        },
-                        '& .MuiListItemIcon-root': {
-                          color: 'primary.contrastText',
-                        },
+                        '& .MuiListItemIcon-root': { color: 'primary.contrastText' },
                       },
                     }}
                   >
-                    <ListItemIcon sx={{ minWidth: 40, color: 'text.secondary' }}>
-                      {item.icon}
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={item.label}
-                      primaryTypographyProps={{
-                        fontWeight: 500,
-                        fontSize: '0.875rem',
-                      }}
-                    />
+                    <ListItemIcon sx={{ minWidth: 40 }}>{item.icon}</ListItemIcon>
+                    <ListItemText primary={item.label} />
                   </ListItemButton>
                 </ListItem>
               )
@@ -246,55 +158,21 @@ export default function Sidebar({ projectId, open = true, onClose }: SidebarProp
 
       <Box sx={{ flexGrow: 1 }} />
 
-      <Divider sx={{ mx: 2 }} />
-      <List sx={{ px: 1.5, py: 1 }}>
+      <Divider />
+      <List>
         {systemNavItems.map((item) => (
-          <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }}>
+          <ListItem key={item.path} disablePadding>
             <ListItemButton
               selected={isActive(item.path)}
               onClick={() => handleNavigation(item.path, false)}
-              sx={{
-                borderRadius: 2,
-                py: 1,
-                transition: 'all 200ms ease-out',
-                '&:hover': {
-                  bgcolor: 'action.hover',
-                },
-                '&.Mui-selected': {
-                  bgcolor: 'primary.main',
-                  color: 'primary.contrastText',
-                  '& .MuiListItemIcon-root': {
-                    color: 'primary.contrastText',
-                  },
-                },
-              }}
+              sx={{ mx: 1, borderRadius: 2 }}
             >
-              <ListItemIcon sx={{ minWidth: 40, color: 'text.secondary' }}>
-                {item.icon}
-              </ListItemIcon>
-              <ListItemText
-                primary={item.label}
-                primaryTypographyProps={{
-                  fontWeight: 500,
-                  fontSize: '0.875rem',
-                }}
-              />
+              <ListItemIcon sx={{ minWidth: 40 }}>{item.icon}</ListItemIcon>
+              <ListItemText primary={item.label} />
             </ListItemButton>
           </ListItem>
         ))}
       </List>
-
-      <Box sx={{ p: 2, pt: 0 }}>
-        <Typography
-          variant="caption"
-          sx={{
-            color: 'text.disabled',
-            fontSize: '0.65rem',
-          }}
-        >
-          v1.0.0
-        </Typography>
-      </Box>
     </Drawer>
   )
 }

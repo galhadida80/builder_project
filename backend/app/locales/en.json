@@ -1,0 +1,76 @@
+{
+  "auth": {
+    "email_already_registered": "Email already registered",
+    "invalid_credentials": "Invalid email or password",
+    "account_inactive": "Account is inactive",
+    "account_locked": "Account is locked",
+    "not_authenticated": "Not authenticated",
+    "invalid_or_expired_token": "Invalid or expired token",
+    "refresh_token_expired": "Refresh token has expired",
+    "token_generation_failed": "Failed to generate access token"
+  },
+  "users": {
+    "user_not_found": "User not found",
+    "user_inactive": "User is inactive",
+    "user_creation_failed": "Failed to create user",
+    "user_update_failed": "Failed to update user",
+    "profile_not_found": "User profile not found",
+    "language_preference_updated": "Language preference updated successfully"
+  },
+  "authorization": {
+    "access_denied": "Access denied",
+    "unauthorized_access": "Unauthorized access",
+    "insufficient_permissions": "Insufficient permissions",
+    "resource_access_forbidden": "You do not have permission to access this resource"
+  },
+  "resources": {
+    "resource_not_found": "Resource not found",
+    "project_not_found": "Project not found",
+    "equipment_not_found": "Equipment not found",
+    "material_not_found": "Material not found",
+    "meeting_not_found": "Meeting not found",
+    "approval_not_found": "Approval not found",
+    "area_not_found": "Area not found",
+    "contact_not_found": "Contact not found",
+    "file_not_found": "File not found",
+    "checklist_not_found": "Checklist not found",
+    "audit_log_not_found": "Audit log entry not found"
+  },
+  "validation": {
+    "invalid_input": "Invalid input provided",
+    "validation_error": "Validation error",
+    "missing_required_field": "Missing required field",
+    "invalid_email_format": "Invalid email format",
+    "password_too_short": "Password must be at least 8 characters",
+    "invalid_date_format": "Invalid date format",
+    "invalid_number_format": "Invalid number format"
+  },
+  "database": {
+    "conflict": "Resource conflict",
+    "duplicate_entry": "This entry already exists",
+    "constraint_violation": "Database constraint violation",
+    "transaction_failed": "Database transaction failed"
+  },
+  "files": {
+    "file_upload_failed": "File upload failed",
+    "file_too_large": "File size exceeds maximum allowed",
+    "invalid_file_type": "Invalid file type",
+    "file_not_readable": "File cannot be read"
+  },
+  "server": {
+    "server_error": "Internal server error occurred",
+    "method_not_allowed": "Method not allowed",
+    "not_found": "Endpoint not found",
+    "service_unavailable": "Service temporarily unavailable",
+    "database_connection_failed": "Database connection failed",
+    "external_service_error": "External service error"
+  },
+  "operations": {
+    "creation_successful": "Resource created successfully",
+    "update_successful": "Resource updated successfully",
+    "deletion_successful": "Resource deleted successfully",
+    "operation_pending": "Operation is pending",
+    "operation_completed": "Operation completed",
+    "operation_failed": "Operation failed"
+  }
+}
