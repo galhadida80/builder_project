@@ -5,6 +5,7 @@ import App from './App'
 import { ThemeProvider } from './theme'
 import { NetworkProvider } from './contexts/NetworkContext'
 import { ToastProvider } from './components/common/ToastProvider'
+import './styles/design-tokens.css'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
