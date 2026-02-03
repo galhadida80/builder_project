@@ -3,9 +3,9 @@ import { styled } from '@mui/material/styles'
 import CloseIcon from '@mui/icons-material/Close'
 import { TransitionProps } from '@mui/material/transitions'
 import { forwardRef } from 'react'
-import { Button } from './Button'
+import { Button } from '../ui/Button'
 
-interface ModalProps {
+interface AnimatedModalProps {
   open: boolean
   onClose: () => void
   title?: string
@@ -59,7 +59,7 @@ const FadeGrowTransition = forwardRef(function Transition(
   )
 })
 
-export function Modal({
+export function AnimatedModal({
   open,
   onClose,
   title,
@@ -68,7 +68,7 @@ export function Modal({
   maxWidth = 'sm',
   fullWidth = true,
   hideCloseButton = false,
-}: ModalProps) {
+}: AnimatedModalProps) {
   return (
     <StyledDialog
       open={open}
@@ -83,7 +83,7 @@ export function Modal({
             {title}
           </Typography>
           {!hideCloseButton && (
-            <IconButton onClick={onClose} size="medium" sx={{ ml: 2, minWidth: 44, minHeight: 44 }}>
+            <IconButton onClick={onClose} size="small" sx={{ ml: 2 }}>
               <CloseIcon fontSize="small" />
             </IconButton>
           )}
@@ -95,7 +95,7 @@ export function Modal({
   )
 }
 
-interface ConfirmModalProps {
+interface AnimatedConfirmModalProps {
   open: boolean
   onClose: () => void
   onConfirm: () => void
@@ -107,7 +107,7 @@ interface ConfirmModalProps {
   loading?: boolean
 }
 
-export function ConfirmModal({
+export function AnimatedConfirmModal({
   open,
   onClose,
   onConfirm,
@@ -117,9 +117,9 @@ export function ConfirmModal({
   cancelLabel = 'Cancel',
   variant = 'danger',
   loading = false,
-}: ConfirmModalProps) {
+}: AnimatedConfirmModalProps) {
   return (
-    <Modal
+    <AnimatedModal
       open={open}
       onClose={onClose}
       title={title}
@@ -136,11 +136,11 @@ export function ConfirmModal({
       }
     >
       <Typography color="text.secondary">{message}</Typography>
-    </Modal>
+    </AnimatedModal>
   )
 }
 
-interface FormModalProps {
+interface AnimatedFormModalProps {
   open: boolean
   onClose: () => void
   onSubmit: () => void
@@ -152,7 +152,7 @@ interface FormModalProps {
   submitDisabled?: boolean
 }
 
-export function FormModal({
+export function AnimatedFormModal({
   open,
   onClose,
   onSubmit,
@@ -162,9 +162,9 @@ export function FormModal({
   cancelLabel = 'Cancel',
   loading = false,
   submitDisabled = false,
-}: FormModalProps) {
+}: AnimatedFormModalProps) {
   return (
-    <Modal
+    <AnimatedModal
       open={open}
       onClose={onClose}
       title={title}
@@ -183,6 +183,6 @@ export function FormModal({
       <Box component="form" onSubmit={(e) => { e.preventDefault(); onSubmit(); }}>
         {children}
       </Box>
-    </Modal>
+    </AnimatedModal>
   )
 }
