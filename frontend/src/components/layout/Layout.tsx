@@ -5,10 +5,9 @@ import Toolbar from '@mui/material/Toolbar'
 import CircularProgress from '@mui/material/CircularProgress'
 import Sidebar from './Sidebar'
 import Header from './Header'
-import { OfflineBanner } from '../common/OfflineBanner'
 import { projectsApi } from '../../api/projects'
 import { authApi } from '../../api/auth'
-import { rfiApi } from '../../api/rfi'
+import { useProject } from '../../contexts/ProjectContext'
 import type { Project, User } from '../../types'
 
 const DRAWER_WIDTH = 260
@@ -16,23 +15,15 @@ const DRAWER_WIDTH = 260
 export default function Layout() {
   const { projectId } = useParams()
   const navigate = useNavigate()
-  const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>(projectId)
+  const { setSelectedProjectId } = useProject()
+  const [localProjectId, setLocalProjectId] = useState<string | undefined>(projectId)
   const [projects, setProjects] = useState<Project[]>([])
   const [currentUser, setCurrentUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
-  const [rfiCount, setRfiCount] = useState(0)
 
   useEffect(() => {
     loadUserAndProjects()
   }, [])
-
-  useEffect(() => {
-    if (selectedProjectId) {
-      loadRfiCount(selectedProjectId)
-    } else {
-      setRfiCount(0)
-    }
-  }, [selectedProjectId])
 
   const loadUserAndProjects = async () => {
     try {
@@ -58,20 +49,17 @@ export default function Layout() {
     }
   }
 
-  const loadRfiCount = async (projectId: string) => {
-    try {
-      const summary = await rfiApi.getSummary(projectId)
-      const pendingCount = summary.open_count + summary.waiting_response_count
-      setRfiCount(pendingCount)
-    } catch (error) {
-      console.error('Failed to load RFI count:', error)
-      setRfiCount(0)
+  useEffect(() => {
+    if (projectId) {
+      setLocalProjectId(projectId)
+      setSelectedProjectId(projectId)
     }
-  }
+  }, [projectId, setSelectedProjectId])
 
-  const currentProject = projects.find(p => p.id === selectedProjectId)
+  const currentProject = projects.find(p => p.id === localProjectId)
 
   const handleProjectChange = (newProjectId: string) => {
+    setLocalProjectId(newProjectId)
     setSelectedProjectId(newProjectId)
     navigate(`/projects/${newProjectId}`)
   }
@@ -92,7 +80,6 @@ export default function Layout() {
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
-      <OfflineBanner />
       <Header
         user={currentUser}
         currentProject={currentProject}
@@ -100,19 +87,19 @@ export default function Layout() {
         onProjectChange={handleProjectChange}
         onLogout={handleLogout}
       />
-      <Sidebar projectId={selectedProjectId} rfiBadgeCount={rfiCount} />
+      <Sidebar projectId={localProjectId} />
       <Box
         component="main"
         sx={{
           flexGrow: 1,
           p: 3,
-          marginInlineStart: `${DRAWER_WIDTH}px`,
+          ml: `${DRAWER_WIDTH}px`,
           bgcolor: 'background.default',
           minHeight: '100vh',
         }}
       >
         <Toolbar />
-        <Outlet context={{ projectId: selectedProjectId, project: currentProject }} />
+        <Outlet context={{ projectId: localProjectId, project: currentProject }} />
       </Box>
     </Box>
   )

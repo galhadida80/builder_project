@@ -32,10 +32,13 @@ import { meetingsApi } from '../api/meetings'
 import { approvalsApi } from '../api/approvals'
 import { auditApi } from '../api/audit'
 import { useToast } from '../components/common/ToastProvider'
+import { useProject } from '../contexts/ProjectContext'
+import RFIStatsWidget from '../components/dashboard/RFIStatsWidget'
 
 export default function DashboardPage() {
   const { t } = useTranslation()
   const { showError } = useToast()
+  const { selectedProjectId } = useProject()
   const [loading, setLoading] = useState(true)
   const [equipment, setEquipment] = useState<Equipment[]>([])
   const [materials, setMaterials] = useState<Material[]>([])
@@ -544,6 +547,10 @@ export default function DashboardPage() {
             </Box>
           </Box>
         </Card>
+      </Box>
+
+      <Box sx={{ mt: 3 }}>
+        <RFIStatsWidget projectId={selectedProjectId} />
       </Box>
     </Box>
   )
