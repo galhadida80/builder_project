@@ -13,7 +13,7 @@ import ContactsPage from './pages/ContactsPage'
 import AuditLogPage from './pages/AuditLogPage'
 import InspectionsPage from './pages/InspectionsPage'
 import RFIPage from './pages/RFIPage'
-import DocumentLibraryPage from './pages/DocumentLibraryPage'
+import GanttDemoPage from './pages/GanttDemoPage'
 
 function ProtectedRoute() {
   const token = localStorage.getItem('authToken')
@@ -43,11 +43,11 @@ export default function App() {
               <Route path="contacts" element={<ContactsPage />} />
               <Route path="inspections" element={<InspectionsPage />} />
               <Route path="rfis" element={<RFIPage />} />
-              <Route path="documents" element={<DocumentLibraryPage />} />
             </Route>
 
             <Route path="/approvals" element={<ApprovalsPage />} />
             <Route path="/audit" element={<AuditLogPage />} />
+            <Route path="/gantt" element={<GanttDemoPage />} />
           </Route>
         </Route>
 
