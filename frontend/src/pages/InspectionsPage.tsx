@@ -7,9 +7,6 @@ import Chip from '@mui/material/Chip'
 import Alert from '@mui/material/Alert'
 import MenuItem from '@mui/material/MenuItem'
 import MuiTextField from '@mui/material/TextField'
-import Drawer from '@mui/material/Drawer'
-import Divider from '@mui/material/Divider'
-import IconButton from '@mui/material/IconButton'
 import AddIcon from '@mui/icons-material/Add'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import WarningIcon from '@mui/icons-material/Warning'
@@ -18,8 +15,6 @@ import ScheduleIcon from '@mui/icons-material/Schedule'
 import AssignmentIcon from '@mui/icons-material/Assignment'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import FilterListIcon from '@mui/icons-material/FilterList'
-import CloseIcon from '@mui/icons-material/Close'
-import HistoryIcon from '@mui/icons-material/History'
 import { Card, KPICard } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { DataTable, Column } from '../components/ui/DataTable'
@@ -29,16 +24,14 @@ import { FormModal } from '../components/ui/Modal'
 import { PageHeader } from '../components/ui/Breadcrumbs'
 import { EmptyState } from '../components/ui/EmptyState'
 import { TextField, SearchField } from '../components/ui/TextField'
-import { InspectionHistoryTimeline } from '../components/InspectionHistoryTimeline'
+import { FindingDocumentationCard } from '../components/inspections/FindingDocumentationCard'
 import { inspectionsApi } from '../api/inspections'
-import { useToast } from '../components/common/ToastProvider'
 import type {
-  Inspection, InspectionConsultantType, InspectionStageTemplate, InspectionSummary, InspectionHistoryEvent
+  Inspection, InspectionConsultantType, InspectionStageTemplate, InspectionSummary, FindingSeverity
 } from '../types'
 
 export default function InspectionsPage() {
   const { projectId } = useParams()
-  const { showError } = useToast()
   const [inspections, setInspections] = useState<Inspection[]>([])
   const [consultantTypes, setConsultantTypes] = useState<InspectionConsultantType[]>([])
   const [summary, setSummary] = useState<InspectionSummary | null>(null)
@@ -50,9 +43,6 @@ export default function InspectionsPage() {
   const [activeTab, setActiveTab] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedInspection, setSelectedInspection] = useState<Inspection | null>(null)
-  const [detailsOpen, setDetailsOpen] = useState(false)
-  const [historyEvents, setHistoryEvents] = useState<InspectionHistoryEvent[]>([])
-  const [historyLoading, setHistoryLoading] = useState(false)
 
   useEffect(() => {
     if (projectId) loadData()
@@ -95,24 +85,18 @@ export default function InspectionsPage() {
     loadData()
   }
 
-  const loadHistory = async (inspection: Inspection) => {
-    if (!projectId) return
-    try {
-      setHistoryLoading(true)
-      const events = await inspectionsApi.getInspectionHistory(projectId, inspection.id)
-      setHistoryEvents(events)
-    } catch (error) {
-      showError('Failed to load inspection history. Please try again.')
-      setHistoryEvents([])
-    } finally {
-      setHistoryLoading(false)
-    }
+  const handleInspectionClick = (inspection: Inspection) => {
+    setSelectedInspection(selectedInspection?.id === inspection.id ? null : inspection)
   }
 
-  const handleViewDetails = (inspection: Inspection) => {
-    setSelectedInspection(inspection)
-    setDetailsOpen(true)
-    loadHistory(inspection)
+  const handleSeverityChange = async (findingId: string, severity: FindingSeverity) => {
+    try {
+      await inspectionsApi.updateFinding(findingId, { severity })
+      // Refresh data to get updated findings
+      loadData()
+    } catch (error) {
+      console.error('Failed to update severity:', error)
+    }
   }
 
   const filteredInspections = inspections.filter(inspection => {
@@ -236,13 +220,8 @@ export default function InspectionsPage() {
       label: '',
       minWidth: 100,
       align: 'right',
-      render: (row) => (
-        <Button
-          variant="tertiary"
-          size="small"
-          icon={<VisibilityIcon />}
-          onClick={() => handleViewDetails(row)}
-        >
+      render: () => (
+        <Button variant="tertiary" size="small" icon={<VisibilityIcon />}>
           View
         </Button>
       ),
@@ -499,9 +478,36 @@ export default function InspectionsPage() {
               rows={filteredInspections}
               getRowId={(row) => row.id}
               emptyMessage="No inspections found"
-              onRowClick={handleViewDetails}
+              onRowClick={handleInspectionClick}
             />
           </Box>
+
+          {/* Finding Cards for Selected Inspection */}
+          {selectedInspection && selectedInspection.findings && selectedInspection.findings.length > 0 && (
+            <Box sx={{ mt: 3 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Typography variant="h6" fontWeight={600}>
+                  Findings for {selectedInspection.consultantType?.name || 'Inspection'}
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {selectedInspection.findings.length} finding{selectedInspection.findings.length !== 1 ? 's' : ''}
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }, gap: 2 }}>
+                {selectedInspection.findings.map((finding) => (
+                  <FindingDocumentationCard
+                    key={finding.id}
+                    finding={finding}
+                    onSeverityChange={(severity) => handleSeverityChange(finding.id, severity)}
+                    onAssign={() => console.log('Assign finding:', finding.id)}
+                    onResolve={() => console.log('Resolve finding:', finding.id)}
+                    onAddPhoto={() => console.log('Add photo to finding:', finding.id)}
+                    onPhotoClick={(photoUrl) => console.log('View photo:', photoUrl)}
+                  />
+                ))}
+              </Box>
+            </Box>
+          )}
         </Box>
       </Card>
 
@@ -548,148 +554,6 @@ export default function InspectionsPage() {
           />
         </Box>
       </FormModal>
-
-      <Drawer
-        anchor="right"
-        open={detailsOpen}
-        onClose={() => setDetailsOpen(false)}
-        PaperProps={{
-          sx: {
-            width: { xs: '100%', sm: 520 },
-            borderTopLeftRadius: 16,
-            borderBottomLeftRadius: 16,
-          },
-        }}
-      >
-        {selectedInspection && (
-          <>
-            <Box
-              sx={{
-                p: 3,
-                display: 'flex',
-                alignItems: 'flex-start',
-                justifyContent: 'space-between',
-                borderBottom: '1px solid',
-                borderColor: 'divider',
-              }}
-            >
-              <Box sx={{ flex: 1 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
-                  <Box
-                    sx={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: 2,
-                      bgcolor: 'primary.light',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <AssignmentIcon sx={{ fontSize: 20, color: 'primary.main' }} />
-                  </Box>
-                  <Box>
-                    <Typography variant="h6" fontWeight={600}>
-                      {selectedInspection.consultantType?.name || 'Unknown'}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary" dir="rtl">
-                      {selectedInspection.consultantType?.nameHe}
-                    </Typography>
-                  </Box>
-                </Box>
-                <Box sx={{ display: 'flex', gap: 1, mt: 2 }}>
-                  <Chip
-                    size="small"
-                    label={selectedInspection.status.replace('_', ' ')}
-                    color={
-                      selectedInspection.status === 'completed'
-                        ? 'success'
-                        : selectedInspection.status === 'in_progress'
-                        ? 'warning'
-                        : selectedInspection.status === 'failed'
-                        ? 'error'
-                        : 'info'
-                    }
-                    sx={{ textTransform: 'capitalize' }}
-                  />
-                  {selectedInspection.currentStage && (
-                    <Chip size="small" label={selectedInspection.currentStage} variant="outlined" />
-                  )}
-                </Box>
-              </Box>
-              <IconButton onClick={() => setDetailsOpen(false)} size="small">
-                <CloseIcon />
-              </IconButton>
-            </Box>
-
-            <Box sx={{ p: 3 }}>
-              <Box sx={{ mb: 3 }}>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
-                  Scheduled Date
-                </Typography>
-                <Typography variant="body1" fontWeight={500}>
-                  {new Date(selectedInspection.scheduledDate).toLocaleDateString('en-US', {
-                    month: 'long',
-                    day: 'numeric',
-                    year: 'numeric',
-                  })}
-                  {' at '}
-                  {new Date(selectedInspection.scheduledDate).toLocaleTimeString('en-US', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}
-                </Typography>
-              </Box>
-
-              {selectedInspection.findings && selectedInspection.findings.length > 0 && (
-                <Box sx={{ mb: 3 }}>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                    Findings ({selectedInspection.findings.length})
-                  </Typography>
-                  <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
-                    {['critical', 'high', 'medium', 'low'].map((severity) => {
-                      const count = selectedInspection.findings?.filter(f => f.severity === severity).length || 0
-                      if (count > 0) {
-                        return (
-                          <Box key={severity} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                            <SeverityBadge severity={severity as 'critical' | 'high' | 'medium' | 'low'} />
-                            <Typography variant="caption" color="text.secondary">
-                              {count}
-                            </Typography>
-                          </Box>
-                        )
-                      }
-                      return null
-                    })}
-                  </Box>
-                </Box>
-              )}
-            </Box>
-
-            <Divider />
-
-            <Box
-              sx={{
-                p: 2.5,
-                bgcolor: 'background.default',
-                borderBottom: '1px solid',
-                borderColor: 'divider',
-              }}
-            >
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <HistoryIcon sx={{ fontSize: 20, color: 'text.secondary' }} />
-                <Typography variant="subtitle2" fontWeight={600}>
-                  Inspection History
-                </Typography>
-              </Box>
-            </Box>
-
-            <Box sx={{ overflowY: 'auto', flex: 1 }}>
-              <InspectionHistoryTimeline events={historyEvents} loading={historyLoading} />
-            </Box>
-          </>
-        )}
-      </Drawer>
     </Box>
   )
 }
