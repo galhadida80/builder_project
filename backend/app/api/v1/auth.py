@@ -7,6 +7,8 @@ from app.schemas.user import UserRegister, UserLogin, TokenResponse, UserRespons
 from app.core.security import (
     get_password_hash, verify_password, create_access_token, get_current_user
 )
+from app.core.validation import validate_email, validate_password, sanitize_string
+from app.core.csrf import csrf_manager
 from app.utils.localization import get_language_from_request, translate_message
 
 router = APIRouter()
@@ -14,7 +16,12 @@ router = APIRouter()
 
 @router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
 async def register(data: UserRegister, request: Request, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(User).where(User.email == data.email))
+    # Validate and sanitize input
+    email = validate_email(data.email)
+    password = validate_password(data.password)
+    full_name = sanitize_string(data.full_name)
+
+    result = await db.execute(select(User).where(User.email == email))
     existing_user = result.scalar_one_or_none()
 
     if existing_user:
@@ -26,9 +33,9 @@ async def register(data: UserRegister, request: Request, db: AsyncSession = Depe
         )
 
     user = User(
-        email=data.email,
-        password_hash=get_password_hash(data.password),
-        full_name=data.full_name,
+        email=email,
+        password_hash=get_password_hash(password),
+        full_name=full_name,
         is_active=True
     )
     db.add(user)
@@ -45,9 +52,11 @@ async def register(data: UserRegister, request: Request, db: AsyncSession = Depe
 
 @router.post("/login", response_model=TokenResponse)
 async def login(data: UserLogin, request: Request, db: AsyncSession = Depends(get_db)):
+    # Validate and sanitize input
+    email = validate_email(data.email)
     language = get_language_from_request(request)
 
-    result = await db.execute(select(User).where(User.email == data.email))
+    result = await db.execute(select(User).where(User.email == email))
     user = result.scalar_one_or_none()
 
     if not user or not user.password_hash:
