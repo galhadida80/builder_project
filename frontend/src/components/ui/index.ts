@@ -1,6 +1,8 @@
 export { Button, IconButton } from './Button'
 export type { ButtonProps } from './Button'
 
+export { ButtonVariants } from './ButtonVariants'
+
 export { Card, GlassCardComponent, KPICard, FeatureCard, ProjectCard, CardContent, CardHeader, CardActions } from './Card'
 
 export { StatusBadge, SeverityBadge, PriorityBadge } from './StatusBadge'

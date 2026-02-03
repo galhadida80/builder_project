@@ -31,6 +31,8 @@ from app.models.equipment_template import (
     EquipmentApprovalSubmission,
     EquipmentApprovalDecision,
 )
+from app.models.inspection import ProjectInspection, InspectionFinding
+from app.models.rfi import RFI, RFIResponse, RFIEmailLog, RFIStatus, RFIPriority, RFICategory
 
 __all__ = [
     "User",
@@ -56,15 +58,18 @@ __all__ = [
     "File",
     "InspectionConsultantType",
     "InspectionStageTemplate",
+    "ProjectInspection",
+    "InspectionFinding",
     "AuditLog",
     "ChecklistTemplate",
     "ChecklistSubSection",
     "ChecklistItemTemplate",
     "ChecklistInstance",
     "ChecklistItemResponse",
-    "ConsultantType",
-    "EquipmentTemplate",
-    "EquipmentTemplateConsultant",
-    "EquipmentApprovalSubmission",
-    "EquipmentApprovalDecision",
+    "RFI",
+    "RFIResponse",
+    "RFIEmailLog",
+    "RFIStatus",
+    "RFIPriority",
+    "RFICategory",
 ]

@@ -10,3 +10,4 @@ from app.schemas.file import FileResponse
 from app.schemas.audit import AuditLogResponse
 from app.schemas.inspection_template import InspectionConsultantTypeResponse, InspectionStageTemplateResponse, ProjectInspectionResponse, InspectionFindingResponse, InspectionConsultantTypeWithStages, ProjectInspectionWithFindings
 from app.schemas.analytics import MetricsResponse, ProjectTrendsResponse, TrendDataPoint, DistributionsResponse, DistributionItem
+from app.schemas.rfi import RFICreate, RFIUpdate, RFIStatusUpdate, RFIResponse, RFIListResponse, RFIResponseSchema, RFIEmailLogSchema, RFISummaryResponse, PaginatedRFIResponse, RFISendRequest
