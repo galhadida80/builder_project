@@ -218,7 +218,7 @@ export default function LoginPage() {
             </Box>
           </Box>
 
-          <Box sx={{ mb: 4, textAlign: { xs: 'center', md: 'left' } }}>
+          <Box sx={{ mb: 4, textAlign: { xs: 'center', md: 'start' } }}>
             <Typography variant="h4" fontWeight={700} color="text.primary" sx={{ mb: 1 }}>
               {tab === 'signin' ? t('welcomeBack') : t('createAccount')}
             </Typography>
