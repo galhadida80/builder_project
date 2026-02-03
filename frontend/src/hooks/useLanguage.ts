@@ -1,20 +1,27 @@
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next'
 
-export function useLanguage() {
-  const { i18n } = useTranslation();
+export type SupportedLanguage = 'en' | 'he' | 'es'
 
-  const changeLanguage = (lng: string) => {
-    i18n.changeLanguage(lng);
-    document.documentElement.dir = lng === 'he' ? 'rtl' : 'ltr';
-    document.documentElement.lang = lng;
-  };
+export interface UseLanguageReturn {
+  language: SupportedLanguage
+  changeLanguage: (lng: SupportedLanguage) => Promise<void>
+  t: (key: string) => string
+}
 
-  const currentLanguage = i18n.language;
-  const isRTL = currentLanguage === 'he';
+/**
+ * Custom hook for managing language selection and translation
+ * Wraps react-i18next with type-safe language options
+ */
+export function useLanguage(): UseLanguageReturn {
+  const { i18n, t } = useTranslation()
+
+  const changeLanguage = async (lng: SupportedLanguage): Promise<void> => {
+    await i18n.changeLanguage(lng)
+  }
 
   return {
-    currentLanguage,
+    language: i18n.language as SupportedLanguage,
     changeLanguage,
-    isRTL,
-  };
+    t,
+  }
 }

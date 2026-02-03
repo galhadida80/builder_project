@@ -5,7 +5,6 @@ import App from './App'
 import { ThemeProvider } from './theme'
 import { ToastProvider } from './components/common/ToastProvider'
 import './i18n/config'
-import './styles/rtl.css'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

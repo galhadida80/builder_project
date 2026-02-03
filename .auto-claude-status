@@ -1,15 +1,15 @@
 {
   "active": true,
-  "spec": "084-write-rfi-system-integration-tests",
+  "spec": "112-create-language-toggle-ui",
   "state": "building",
   "subtasks": {
-    "completed": 10,
-    "total": 11,
+    "completed": 4,
+    "total": 5,
     "in_progress": 1,
     "failed": 0
   },
   "phase": {
-    "current": "Verification & Integration",
+    "current": "Verification and Testing",
     "id": null,
     "total": 1
   },
@@ -18,8 +18,8 @@
     "max": 1
   },
   "session": {
-    "number": 4,
-    "started_at": "2026-02-02T14:31:22.998693"
+    "number": 5,
+    "started_at": "2026-02-01T01:27:11.742244"
   },
-  "last_update": "2026-02-02T14:42:40.212071"
+  "last_update": "2026-02-01T01:39:15.455701"
 }

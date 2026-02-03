@@ -1,11 +1,12 @@
-import { IconButton, Menu, MenuItem, ListItemText } from '@mui/material'
-import LanguageIcon from '@mui/icons-material/Language'
+import { IconButton, Tooltip, Menu, MenuItem, ListItemIcon, ListItemText } from '@mui/material'
 import { useState } from 'react'
-import { useLanguage } from '../../hooks/useLanguage'
+import LanguageIcon from '@mui/icons-material/Language'
+import { useTranslation } from 'react-i18next'
 
 export function LanguageToggle() {
-  const { currentLanguage, changeLanguage } = useLanguage()
+  const { i18n } = useTranslation()
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+  const open = Boolean(anchorEl)
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget)
@@ -15,32 +16,87 @@ export function LanguageToggle() {
     setAnchorEl(null)
   }
 
-  const handleLanguageChange = (lng: string) => {
-    changeLanguage(lng)
+  const handleSelect = (lng: 'en' | 'he' | 'es') => {
+    i18n.changeLanguage(lng)
     handleClose()
+  }
+
+  const getLanguageFlag = (lng: string) => {
+    switch (lng) {
+      case 'en':
+        return '🇺🇸'
+      case 'he':
+        return '🇮🇱'
+      case 'es':
+        return '🇪🇸'
+      default:
+        return '🌐'
+    }
+  }
+
+  const getLanguageName = (lng: string) => {
+    switch (lng) {
+      case 'en':
+        return 'English'
+      case 'he':
+        return 'עברית'
+      case 'es':
+        return 'Español'
+      default:
+        return lng.toUpperCase()
+    }
   }
 
   return (
     <>
-      <IconButton onClick={handleClick} color="inherit">
-        <LanguageIcon />
-      </IconButton>
+      <Tooltip title="Language">
+        <IconButton
+          onClick={handleClick}
+          size="small"
+          sx={{
+            color: 'text.secondary',
+            '&:hover': { color: 'text.primary' },
+          }}
+        >
+          <LanguageIcon />
+        </IconButton>
+      </Tooltip>
       <Menu
         anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
+        open={open}
         onClose={handleClose}
+        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+        PaperProps={{
+          sx: { mt: 1, minWidth: 160 },
+        }}
       >
         <MenuItem
-          selected={currentLanguage === 'en'}
-          onClick={() => handleLanguageChange('en')}
+          onClick={() => handleSelect('en')}
+          selected={i18n.language === 'en'}
         >
-          <ListItemText primary="English" />
+          <ListItemIcon sx={{ fontSize: '1.5rem' }}>
+            {getLanguageFlag('en')}
+          </ListItemIcon>
+          <ListItemText>{getLanguageName('en')}</ListItemText>
         </MenuItem>
         <MenuItem
-          selected={currentLanguage === 'he'}
-          onClick={() => handleLanguageChange('he')}
+          onClick={() => handleSelect('he')}
+          selected={i18n.language === 'he'}
         >
-          <ListItemText primary="עברית" />
+          <ListItemIcon sx={{ fontSize: '1.5rem' }}>
+            {getLanguageFlag('he')}
+          </ListItemIcon>
+          <ListItemText>{getLanguageName('he')}</ListItemText>
+        </MenuItem>
+        <MenuItem
+          onClick={() => handleSelect('es')}
+          selected={i18n.language === 'es'}
+        >
+          <ListItemIcon sx={{ fontSize: '1.5rem' }}>
+            {getLanguageFlag('es')}
+          </ListItemIcon>
+          <ListItemText>{getLanguageName('es')}</ListItemText>
         </MenuItem>
       </Menu>
     </>

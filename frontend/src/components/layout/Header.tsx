@@ -19,7 +19,6 @@ import ProjectSelector from './ProjectSelector'
 import { useToast } from '../common/ToastProvider'
 import { ThemeToggle } from '../common/ThemeToggle'
 import { LanguageToggle } from '../common/LanguageToggle'
-import { useTranslation } from 'react-i18next'
 
 interface HeaderProps {
   user: User
@@ -30,7 +29,6 @@ interface HeaderProps {
 }
 
 export default function Header({ user, currentProject, projects, onProjectChange, onLogout }: HeaderProps) {
-  const { t } = useTranslation()
   const { showInfo } = useToast()
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [notificationAnchor, setNotificationAnchor] = useState<null | HTMLElement>(null)
@@ -65,7 +63,7 @@ export default function Header({ user, currentProject, projects, onProjectChange
         borderBottom: '1px solid',
         borderColor: 'divider',
         bgcolor: 'background.paper',
-        marginInlineStart: '260px',
+        ml: '260px',
         width: 'calc(100% - 260px)',
       }}
     >
@@ -79,8 +77,8 @@ export default function Header({ user, currentProject, projects, onProjectChange
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <LanguageToggle />
           <ThemeToggle />
+          <LanguageToggle />
 
           <IconButton onClick={handleNotificationOpen}>
             <Badge badgeContent={3} color="error">
@@ -88,7 +86,7 @@ export default function Header({ user, currentProject, projects, onProjectChange
             </Badge>
           </IconButton>
 
-          <IconButton onClick={handleMenuOpen} sx={{ marginInlineStart: 1 }}>
+          <IconButton onClick={handleMenuOpen} sx={{ ml: 1 }}>
             <Avatar sx={{ width: 36, height: 36, bgcolor: 'primary.main' }}>
               {getInitials(user.fullName || user.email)}
             </Avatar>
@@ -102,30 +100,30 @@ export default function Header({ user, currentProject, projects, onProjectChange
           PaperProps={{ sx: { width: 320, maxHeight: 400 } }}
         >
           <Box sx={{ px: 2, py: 1 }}>
-            <Typography variant="subtitle1" fontWeight="bold">{t('notifications.title')}</Typography>
+            <Typography variant="subtitle1" fontWeight="bold">Notifications</Typography>
           </Box>
           <Divider />
           <MenuItem onClick={handleNotificationClose}>
             <Box>
-              <Typography variant="body2">{t('notifications.equipmentApprovalPending')}</Typography>
-              <Typography variant="caption" color="text.secondary">{t('notifications.equipmentApprovalPendingDetail')}</Typography>
+              <Typography variant="body2">Equipment approval pending</Typography>
+              <Typography variant="caption" color="text.secondary">Concrete Pump CP-200 requires review</Typography>
             </Box>
           </MenuItem>
           <MenuItem onClick={handleNotificationClose}>
             <Box>
-              <Typography variant="body2">{t('notifications.meetingScheduled')}</Typography>
-              <Typography variant="caption" color="text.secondary">{t('notifications.meetingScheduledDetail')}</Typography>
+              <Typography variant="body2">Meeting scheduled</Typography>
+              <Typography variant="caption" color="text.secondary">Weekly Site Coordination - Tomorrow 9:00 AM</Typography>
             </Box>
           </MenuItem>
           <MenuItem onClick={handleNotificationClose}>
             <Box>
-              <Typography variant="body2">{t('notifications.materialDeliveryUpdate')}</Typography>
-              <Typography variant="caption" color="text.secondary">{t('notifications.materialDeliveryUpdateDetail')}</Typography>
+              <Typography variant="body2">Material delivery update</Typography>
+              <Typography variant="caption" color="text.secondary">Reinforcement Steel - 150 tons received</Typography>
             </Box>
           </MenuItem>
           <Divider />
           <MenuItem sx={{ justifyContent: 'center' }}>
-            <Typography variant="body2" color="primary">{t('notifications.viewAll')}</Typography>
+            <Typography variant="body2" color="primary">View all notifications</Typography>
           </MenuItem>
         </Menu>
 
@@ -140,18 +138,18 @@ export default function Header({ user, currentProject, projects, onProjectChange
             <Typography variant="caption" color="text.secondary">{user.email}</Typography>
           </Box>
           <Divider />
-          <MenuItem onClick={() => { handleMenuClose(); showInfo(t('profile.profilePageComingSoon')); }}>
+          <MenuItem onClick={() => { handleMenuClose(); showInfo('Profile page coming soon!'); }}>
             <ListItemIcon><PersonIcon fontSize="small" /></ListItemIcon>
-            {t('profile.title')}
+            Profile
           </MenuItem>
-          <MenuItem onClick={() => { handleMenuClose(); showInfo(t('profile.settingsPageComingSoon')); }}>
+          <MenuItem onClick={() => { handleMenuClose(); showInfo('Settings page coming soon!'); }}>
             <ListItemIcon><SettingsIcon fontSize="small" /></ListItemIcon>
-            {t('profile.settings')}
+            Settings
           </MenuItem>
           <Divider />
           <MenuItem onClick={onLogout}>
             <ListItemIcon><LogoutIcon fontSize="small" /></ListItemIcon>
-            {t('profile.logout')}
+            Logout
           </MenuItem>
         </Menu>
       </Toolbar>
