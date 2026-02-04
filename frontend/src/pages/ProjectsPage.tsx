@@ -14,7 +14,6 @@ import MoreVertIcon from '@mui/icons-material/MoreVert'
 import FolderIcon from '@mui/icons-material/Folder'
 import GridViewIcon from '@mui/icons-material/GridView'
 import ViewListIcon from '@mui/icons-material/ViewList'
-import FilterListIcon from '@mui/icons-material/FilterList'
 import { Card, KPICard } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { StatusBadge } from '../components/ui/StatusBadge'
@@ -257,9 +256,6 @@ export default function ProjectsPage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
-              <Button variant="secondary" size="small" icon={<FilterListIcon />}>
-                Filters
-              </Button>
             </Box>
             <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
               <Chip label={`${filteredProjects.length} projects`} size="small" />
