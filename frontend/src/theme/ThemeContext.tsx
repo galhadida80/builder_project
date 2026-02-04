@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useMemo } from '
 import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles'
 import CssBaseline from '@mui/material/CssBaseline'
 import { createLightTheme, createDarkTheme } from './theme'
+import { useLanguage } from '../i18n/LanguageContext'
 
 type ThemeMode = 'light' | 'dark' | 'system'
 
@@ -27,6 +28,8 @@ interface ThemeProviderProps {
 }
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
+  const { direction } = useLanguage()
+
   const [mode, setMode] = useState<ThemeMode>(() => {
     const stored = localStorage.getItem('theme-mode')
     return (stored as ThemeMode) || 'system'
@@ -53,8 +56,12 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   }, [mode, systemPrefersDark])
 
   const theme = useMemo(() => {
-    return isDark ? createDarkTheme() : createLightTheme()
-  }, [isDark])
+    const baseTheme = isDark ? createDarkTheme() : createLightTheme()
+    return {
+      ...baseTheme,
+      direction,
+    }
+  }, [isDark, direction])
 
   const toggleTheme = () => {
     setMode(prev => {

@@ -5,3 +5,4 @@ export {
   DEFAULT_LANGUAGE,
   type LanguageCode,
 } from './config'
+export { LanguageProvider, useLanguage } from './LanguageContext'
