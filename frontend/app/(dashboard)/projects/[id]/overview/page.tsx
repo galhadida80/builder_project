@@ -59,7 +59,6 @@ export default function ProjectOverviewPage() {
       const response = await apiClient.get(`/projects/${projectId}/overview`)
       setOverviewData(response.data)
     } catch (error) {
-      console.error('Failed to load project overview:', error)
       showError('Failed to load project overview. Please try again.')
     } finally {
       setLoading(false)
