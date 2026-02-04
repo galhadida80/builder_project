@@ -277,6 +277,202 @@ describe('InspectionHistoryTimeline', () => {
       expect(screen.getByText('Old Inspection')).toBeInTheDocument()
       expect(screen.getByText('Recent Inspection')).toBeInTheDocument()
     })
+
+    it('should filter inspections for "Last 7 days" range', () => {
+      const now = new Date()
+      const fiveDaysAgo = new Date(now)
+      fiveDaysAgo.setDate(now.getDate() - 5)
+
+      const tenDaysAgo = new Date(now)
+      tenDaysAgo.setDate(now.getDate() - 10)
+
+      const recentInspection = createMockInspection({
+        id: 'recent-inspection',
+        scheduledDate: fiveDaysAgo.toISOString(),
+        consultantType: createMockConsultantType({ name: 'Recent Inspection' }),
+      })
+
+      const olderInspection = createMockInspection({
+        id: 'older-inspection',
+        scheduledDate: tenDaysAgo.toISOString(),
+        consultantType: createMockConsultantType({ name: 'Older Inspection' }),
+      })
+
+      renderWithRouter(
+        <InspectionHistoryTimeline
+          inspections={[recentInspection, olderInspection]}
+          loading={false}
+        />
+      )
+
+      // Change filter to "Last 7 days"
+      const select = screen.getByLabelText(/Date Range/i)
+      fireEvent.change(select, { target: { value: 'last_7_days' } })
+
+      // Only inspection within 7 days should be visible
+      expect(screen.getByText('Recent Inspection')).toBeInTheDocument()
+      expect(screen.queryByText('Older Inspection')).not.toBeInTheDocument()
+    })
+
+    it('should filter inspections for "Last 30 days" range', () => {
+      const now = new Date()
+      const twentyDaysAgo = new Date(now)
+      twentyDaysAgo.setDate(now.getDate() - 20)
+
+      const fortyDaysAgo = new Date(now)
+      fortyDaysAgo.setDate(now.getDate() - 40)
+
+      const recentInspection = createMockInspection({
+        id: 'recent-inspection',
+        scheduledDate: twentyDaysAgo.toISOString(),
+        consultantType: createMockConsultantType({ name: 'Twenty Days Ago' }),
+      })
+
+      const olderInspection = createMockInspection({
+        id: 'older-inspection',
+        scheduledDate: fortyDaysAgo.toISOString(),
+        consultantType: createMockConsultantType({ name: 'Forty Days Ago' }),
+      })
+
+      renderWithRouter(
+        <InspectionHistoryTimeline
+          inspections={[recentInspection, olderInspection]}
+          loading={false}
+        />
+      )
+
+      // Change filter to "Last 30 days"
+      const select = screen.getByLabelText(/Date Range/i)
+      fireEvent.change(select, { target: { value: 'last_30_days' } })
+
+      // Only inspection within 30 days should be visible
+      expect(screen.getByText('Twenty Days Ago')).toBeInTheDocument()
+      expect(screen.queryByText('Forty Days Ago')).not.toBeInTheDocument()
+    })
+
+    it('should filter inspections for "Last 6 months" range', () => {
+      const now = new Date()
+      const fourMonthsAgo = new Date(now)
+      fourMonthsAgo.setDate(now.getDate() - 120)
+
+      const eightMonthsAgo = new Date(now)
+      eightMonthsAgo.setDate(now.getDate() - 240)
+
+      const recentInspection = createMockInspection({
+        id: 'recent-inspection',
+        scheduledDate: fourMonthsAgo.toISOString(),
+        consultantType: createMockConsultantType({ name: 'Four Months Ago' }),
+      })
+
+      const olderInspection = createMockInspection({
+        id: 'older-inspection',
+        scheduledDate: eightMonthsAgo.toISOString(),
+        consultantType: createMockConsultantType({ name: 'Eight Months Ago' }),
+      })
+
+      renderWithRouter(
+        <InspectionHistoryTimeline
+          inspections={[recentInspection, olderInspection]}
+          loading={false}
+        />
+      )
+
+      // Change filter to "Last 6 months"
+      const select = screen.getByLabelText(/Date Range/i)
+      fireEvent.change(select, { target: { value: 'last_6_months' } })
+
+      // Only inspection within 6 months should be visible
+      expect(screen.getByText('Four Months Ago')).toBeInTheDocument()
+      expect(screen.queryByText('Eight Months Ago')).not.toBeInTheDocument()
+    })
+
+    it('should filter inspections for "Last year" range', () => {
+      const now = new Date()
+      const sixMonthsAgo = new Date(now)
+      sixMonthsAgo.setDate(now.getDate() - 180)
+
+      const twoYearsAgo = new Date(now)
+      twoYearsAgo.setDate(now.getDate() - 730)
+
+      const recentInspection = createMockInspection({
+        id: 'recent-inspection',
+        scheduledDate: sixMonthsAgo.toISOString(),
+        consultantType: createMockConsultantType({ name: 'Six Months Ago' }),
+      })
+
+      const olderInspection = createMockInspection({
+        id: 'older-inspection',
+        scheduledDate: twoYearsAgo.toISOString(),
+        consultantType: createMockConsultantType({ name: 'Two Years Ago' }),
+      })
+
+      renderWithRouter(
+        <InspectionHistoryTimeline
+          inspections={[recentInspection, olderInspection]}
+          loading={false}
+        />
+      )
+
+      // Change filter to "Last year"
+      const select = screen.getByLabelText(/Date Range/i)
+      fireEvent.change(select, { target: { value: 'last_year' } })
+
+      // Only inspection within last year should be visible
+      expect(screen.getByText('Six Months Ago')).toBeInTheDocument()
+      expect(screen.queryByText('Two Years Ago')).not.toBeInTheDocument()
+    })
+
+    it('should update filter selection when user changes date range', () => {
+      renderWithRouter(<InspectionHistoryTimeline inspections={mockInspections} loading={false} />)
+
+      const select = screen.getByLabelText(/Date Range/i)
+
+      // Initial value should be "Last 3 months"
+      expect(select).toHaveValue('last_3_months')
+
+      // Change to "Last 7 days"
+      fireEvent.change(select, { target: { value: 'last_7_days' } })
+      expect(select).toHaveValue('last_7_days')
+
+      // Change to "All time"
+      fireEvent.change(select, { target: { value: 'all_time' } })
+      expect(select).toHaveValue('all_time')
+    })
+
+    it('should show empty state when no inspections match the selected date range', () => {
+      const veryOldInspection = createMockInspection({
+        id: 'very-old',
+        scheduledDate: '2020-01-01T10:00:00Z',
+        consultantType: createMockConsultantType({ name: 'Very Old Inspection' }),
+      })
+
+      renderWithRouter(
+        <InspectionHistoryTimeline
+          inspections={[veryOldInspection]}
+          loading={false}
+        />
+      )
+
+      // With "Last 3 months" default, very old inspection should be filtered out
+      expect(screen.queryByText('Very Old Inspection')).not.toBeInTheDocument()
+      expect(screen.getByText(/no inspections found/i)).toBeInTheDocument()
+      expect(screen.getByText(/there are no inspections for this project in the selected date range/i)).toBeInTheDocument()
+    })
+
+    it('should include all available date range options', () => {
+      renderWithRouter(<InspectionHistoryTimeline inspections={mockInspections} loading={false} />)
+
+      const select = screen.getByLabelText(/Date Range/i)
+      fireEvent.mouseDown(select)
+
+      // Check that all options are available
+      expect(screen.getByText('Last 7 days')).toBeInTheDocument()
+      expect(screen.getByText('Last 30 days')).toBeInTheDocument()
+      expect(screen.getByText('Last 3 months')).toBeInTheDocument()
+      expect(screen.getByText('Last 6 months')).toBeInTheDocument()
+      expect(screen.getByText('Last year')).toBeInTheDocument()
+      expect(screen.getByText('All time')).toBeInTheDocument()
+    })
   })
 
   describe('Click Handler', () => {
