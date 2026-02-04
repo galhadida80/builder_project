@@ -7,7 +7,6 @@ export default function LandingPage() {
 
   const handleRequestDemo = () => {
     // TODO: Navigate to demo request page or open contact form
-    console.log('Request demo clicked')
   }
 
   const handleLogin = () => {
