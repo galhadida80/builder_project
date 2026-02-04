@@ -83,3 +83,4 @@ const getTheme = () => {
 }
 
 export default getTheme
+export { ThemeProvider, useThemeMode } from './theme/ThemeContext'
