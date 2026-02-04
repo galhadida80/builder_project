@@ -4,6 +4,7 @@ import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
 import ProjectsPage from './pages/ProjectsPage'
 import ProjectDetailPage from './pages/ProjectDetailPage'
+import ProjectOverviewPage from './pages/ProjectOverviewPage'
 import EquipmentPage from './pages/EquipmentPage'
 import MaterialsPage from './pages/MaterialsPage'
 import MeetingsPage from './pages/MeetingsPage'
@@ -34,6 +35,7 @@ export default function App() {
             <Route path="/projects" element={<ProjectsPage />} />
 
             <Route path="/projects/:projectId" element={<ProjectDetailPage />}>
+              <Route path="overview" element={<ProjectOverviewPage />} />
               <Route path="equipment" element={<EquipmentPage />} />
               <Route path="materials" element={<MaterialsPage />} />
               <Route path="meetings" element={<MeetingsPage />} />
