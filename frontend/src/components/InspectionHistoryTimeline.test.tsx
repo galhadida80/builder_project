@@ -188,6 +188,9 @@ describe('InspectionHistoryTimeline', () => {
       renderWithRouter(<InspectionHistoryTimeline inspections={[inspectionWithoutCreator]} loading={false} />)
 
       expect(screen.getByText('Unknown Inspector')).toBeInTheDocument()
+      // Avatar should show "U" for "Unknown Inspector"
+      const avatar = screen.getByText('U')
+      expect(avatar).toBeInTheDocument()
     })
 
     it('should handle null consultantType gracefully', () => {
