@@ -92,13 +92,22 @@ export default function Layout() {
         }}
       >
         <Toolbar />
-        <TransitionGroup>
-          <PageTransition key={location.pathname}>
-            <Box>
-              <Outlet context={{ projectId: selectedProjectId, project: currentProject }} />
-            </Box>
-          </PageTransition>
-        </TransitionGroup>
+        <Box sx={{ position: 'relative', minHeight: '500px' }}>
+          <TransitionGroup component={null}>
+            <PageTransition key={location.pathname}>
+              <Box
+                sx={{
+                  position: 'absolute',
+                  width: '100%',
+                  top: 0,
+                  left: 0,
+                }}
+              >
+                <Outlet context={{ projectId: selectedProjectId, project: currentProject }} />
+              </Box>
+            </PageTransition>
+          </TransitionGroup>
+        </Box>
       </Box>
     </Box>
   )
