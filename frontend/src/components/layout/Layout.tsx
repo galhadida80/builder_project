@@ -116,7 +116,7 @@ export default function Layout() {
         sx={{
           flexGrow: 1,
           p: 3,
-          ml: `${DRAWER_WIDTH}px`,
+          ml: { xs: 0, md: `${DRAWER_WIDTH}px` },
           bgcolor: 'background.default',
           minHeight: '100vh',
         }}
