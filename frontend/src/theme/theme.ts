@@ -100,6 +100,8 @@ const baseThemeOptions: ThemeOptions = {
           borderRadius: borderRadius.md,
           fontWeight: typography.fontWeight.semibold,
           padding: '10px 20px',
+          minHeight: 44,
+          minWidth: 44,
           transition: `all ${transitions.normal}`,
           '&:hover': {
             transform: 'translateY(-1px)',
@@ -117,14 +119,38 @@ const baseThemeOptions: ThemeOptions = {
         sizeSmall: {
           padding: '6px 12px',
           fontSize: typography.fontSize.tiny,
+          minHeight: 44,
+          minWidth: 44,
         },
         sizeLarge: {
           padding: '14px 28px',
           fontSize: typography.fontSize.body,
+          minHeight: 48,
+          minWidth: 48,
         },
       },
       defaultProps: {
         disableElevation: true,
+      },
+    },
+    MuiIconButton: {
+      styleOverrides: {
+        root: {
+          minHeight: 44,
+          minWidth: 44,
+        },
+        sizeSmall: {
+          minHeight: 44,
+          minWidth: 44,
+        },
+        sizeMedium: {
+          minHeight: 44,
+          minWidth: 44,
+        },
+        sizeLarge: {
+          minHeight: 48,
+          minWidth: 48,
+        },
       },
     },
     MuiCard: {
@@ -186,10 +212,50 @@ const baseThemeOptions: ThemeOptions = {
         root: {
           borderRadius: borderRadius.md,
           fontWeight: typography.fontWeight.medium,
+          '&.MuiChip-clickable': {
+            minHeight: 44,
+          },
         },
         sizeSmall: {
           height: 24,
           fontSize: typography.fontSize.tiny,
+          '&.MuiChip-clickable': {
+            minHeight: 44,
+          },
+        },
+      },
+    },
+    MuiListItemButton: {
+      styleOverrides: {
+        root: {
+          minHeight: 44,
+        },
+      },
+    },
+    MuiMenuItem: {
+      styleOverrides: {
+        root: {
+          minHeight: 44,
+        },
+      },
+    },
+    MuiFab: {
+      styleOverrides: {
+        root: {
+          minHeight: 44,
+          minWidth: 44,
+        },
+        sizeSmall: {
+          minHeight: 44,
+          minWidth: 44,
+        },
+        sizeMedium: {
+          minHeight: 48,
+          minWidth: 48,
+        },
+        sizeLarge: {
+          minHeight: 56,
+          minWidth: 56,
         },
       },
     },
@@ -231,6 +297,7 @@ const baseThemeOptions: ThemeOptions = {
           textTransform: 'none',
           fontWeight: typography.fontWeight.medium,
           minHeight: 48,
+          minWidth: 44,
         },
       },
     },
