@@ -1,25 +1,25 @@
 {
   "active": true,
-  "spec": "049-create-consultant-assignment-ui",
+  "spec": "056-create-material-inventory-grid",
   "state": "building",
   "subtasks": {
-    "completed": 14,
-    "total": 15,
+    "completed": 4,
+    "total": 7,
     "in_progress": 1,
     "failed": 0
   },
   "phase": {
-    "current": "Integration and Data Flow",
+    "current": "Visual Polish & States",
     "id": null,
-    "total": 4
+    "total": 3
   },
   "workers": {
     "active": 0,
     "max": 1
   },
   "session": {
-    "number": 15,
-    "started_at": "2026-02-05T00:32:51.776935"
+    "number": 5,
+    "started_at": "2026-02-04T17:37:36.323370"
   },
-  "last_update": "2026-02-05T01:22:27.068939"
+  "last_update": "2026-02-04T17:48:08.460503"
 }
