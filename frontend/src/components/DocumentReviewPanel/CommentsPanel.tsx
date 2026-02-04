@@ -1,31 +1,21 @@
-import { Box, Paper, Typography, Divider, List, ListItem, Skeleton } from '@mui/material'
+import { Box, Paper, Typography, Divider, List, Skeleton } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import { TextField } from '../ui/TextField'
 import { Button } from '../ui/Button'
 import { EmptyState } from '../ui/EmptyState'
-import { Avatar } from '../ui/Avatar'
 import CommentIcon from '@mui/icons-material/Comment'
 import SendIcon from '@mui/icons-material/Send'
 import { useState } from 'react'
-
-interface Comment {
-  id: string
-  userId: string
-  userName: string
-  userRole?: string
-  commentText: string
-  createdAt: string
-  updatedAt?: string
-  parentCommentId?: string | null
-  replies?: Comment[]
-}
+import { CommentThread, Comment } from './CommentThread'
 
 interface CommentsPanelProps {
   comments: Comment[]
   loading?: boolean
   onAddComment?: (text: string) => void | Promise<void>
+  onReplyComment?: (parentCommentId: string, text: string) => void | Promise<void>
   onEditComment?: (commentId: string, text: string) => void | Promise<void>
   onDeleteComment?: (commentId: string) => void | Promise<void>
+  onResolveComment?: (commentId: string, resolved: boolean) => void | Promise<void>
   currentUserId?: string
 }
 
@@ -69,107 +59,33 @@ const CommentForm = styled(Box)(({ theme }) => ({
   borderTop: `1px solid ${theme.palette.divider}`,
 }))
 
-const CommentItem = styled(ListItem)(({ theme }) => ({
-  padding: theme.spacing(2),
-  marginBottom: theme.spacing(1.5),
-  backgroundColor: theme.palette.background.paper,
-  borderRadius: 12,
-  border: `1px solid ${theme.palette.divider}`,
-  flexDirection: 'column',
-  alignItems: 'flex-start',
-  '&:last-child': {
-    marginBottom: 0,
-  },
-}))
-
-const CommentHeader = styled(Box)(() => ({
-  display: 'flex',
-  alignItems: 'flex-start',
-  gap: 12,
-  width: '100%',
-  marginBottom: 8,
-}))
-
-const CommentMeta = styled(Box)(() => ({
-  flex: 1,
-  minWidth: 0,
-}))
-
-const CommentText = styled(Typography)(({ theme }) => ({
-  color: theme.palette.text.primary,
-  fontSize: '0.875rem',
-  lineHeight: 1.6,
-  whiteSpace: 'pre-wrap',
-  wordBreak: 'break-word',
-  marginTop: theme.spacing(0.5),
-}))
-
-const TimeStamp = styled(Typography)(({ theme }) => ({
-  color: theme.palette.text.secondary,
-  fontSize: '0.75rem',
-  marginTop: 2,
-}))
-
-function formatTimestamp(dateString: string): string {
-  const date = new Date(dateString)
-  const now = new Date()
-  const diffMs = now.getTime() - date.getTime()
-  const diffMins = Math.floor(diffMs / 60000)
-  const diffHours = Math.floor(diffMins / 60)
-  const diffDays = Math.floor(diffHours / 24)
-
-  if (diffMins < 1) return 'Just now'
-  if (diffMins < 60) return `${diffMins}m ago`
-  if (diffHours < 24) return `${diffHours}h ago`
-  if (diffDays < 7) return `${diffDays}d ago`
-
-  return date.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
-  })
-}
-
-function CommentsList({ comments, currentUserId }: { comments: Comment[]; currentUserId?: string }) {
+function CommentsList({
+  comments,
+  currentUserId,
+  onReply,
+  onEdit,
+  onDelete,
+  onResolve,
+}: {
+  comments: Comment[]
+  currentUserId?: string
+  onReply?: (commentId: string, text: string) => void | Promise<void>
+  onEdit?: (commentId: string, text: string) => void | Promise<void>
+  onDelete?: (commentId: string) => void | Promise<void>
+  onResolve?: (commentId: string, resolved: boolean) => void | Promise<void>
+}) {
   return (
     <List sx={{ p: 0 }}>
       {comments.map((comment) => (
-        <CommentItem key={comment.id}>
-          <CommentHeader>
-            <Avatar name={comment.userName} size="medium" />
-            <CommentMeta>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Typography
-                  variant="body2"
-                  sx={{ fontWeight: 600, fontSize: '0.875rem' }}
-                >
-                  {comment.userName}
-                </Typography>
-                {comment.userRole && (
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      px: 1,
-                      py: 0.25,
-                      borderRadius: 1,
-                      bgcolor: 'action.hover',
-                      color: 'text.secondary',
-                      fontSize: '0.65rem',
-                      fontWeight: 500,
-                    }}
-                  >
-                    {comment.userRole}
-                  </Typography>
-                )}
-              </Box>
-              <TimeStamp>
-                {formatTimestamp(comment.createdAt)}
-                {comment.updatedAt && comment.updatedAt !== comment.createdAt && ' (edited)'}
-              </TimeStamp>
-            </CommentMeta>
-          </CommentHeader>
-          <CommentText>{comment.commentText}</CommentText>
-        </CommentItem>
+        <CommentThread
+          key={comment.id}
+          comment={comment}
+          currentUserId={currentUserId}
+          onReply={onReply}
+          onEdit={onEdit}
+          onDelete={onDelete}
+          onResolve={onResolve}
+        />
       ))}
     </List>
   )
@@ -209,6 +125,10 @@ export function CommentsPanel({
   comments,
   loading = false,
   onAddComment,
+  onReplyComment,
+  onEditComment,
+  onDeleteComment,
+  onResolveComment,
   currentUserId,
 }: CommentsPanelProps) {
   const [newComment, setNewComment] = useState('')
@@ -269,7 +189,14 @@ export function CommentsPanel({
             />
           </Box>
         ) : (
-          <CommentsList comments={comments} currentUserId={currentUserId} />
+          <CommentsList
+            comments={comments}
+            currentUserId={currentUserId}
+            onReply={onReplyComment}
+            onEdit={onEditComment}
+            onDelete={onDeleteComment}
+            onResolve={onResolveComment}
+          />
         )}
       </CommentsListContainer>
 
