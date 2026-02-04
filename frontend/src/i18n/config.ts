@@ -30,4 +30,18 @@ i18n
     },
   })
 
+// Set HTML dir attribute based on language
+const setHtmlDir = (language: string) => {
+  const isRTL = language === 'he'
+  document.documentElement.setAttribute('dir', isRTL ? 'rtl' : 'ltr')
+}
+
+// Set initial direction
+setHtmlDir(i18n.language)
+
+// Update direction when language changes
+i18n.on('languageChanged', (lng) => {
+  setHtmlDir(lng)
+})
+
 export default i18n
