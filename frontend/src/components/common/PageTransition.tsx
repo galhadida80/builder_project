@@ -1,48 +1,47 @@
+import { forwardRef, ReactElement, Ref } from 'react'
 import { Fade } from '@mui/material'
-import { ReactNode, useMemo } from 'react'
-import { transitions } from '../../theme/tokens'
 
 interface PageTransitionProps {
-  children: ReactNode
+  children: ReactElement
   in?: boolean
-  timeout?: number
 }
 
 /**
- * PageTransition component wraps page content with a fade transition.
- * Automatically respects user's prefers-reduced-motion preference.
+ * PageTransition component provides smooth fade transitions for page navigation.
+ *
+ * Uses MUI Fade component with standard animation duration (250ms) and easing.
+ * Automatically respects prefers-reduced-motion accessibility setting via global theme.
  *
  * @example
  * ```tsx
- * <PageTransition>
- *   <YourPageContent />
- * </PageTransition>
+ * <TransitionGroup>
+ *   <PageTransition key={pathname}>
+ *     <div>Page content</div>
+ *   </PageTransition>
+ * </TransitionGroup>
  * ```
  */
-export function PageTransition({
-  children,
-  in: inProp = true,
-  timeout
-}: PageTransitionProps) {
-  // Check if user prefers reduced motion
-  const prefersReducedMotion = useMemo(() => {
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  }, [])
+const PageTransition = forwardRef<HTMLDivElement, PageTransitionProps>(
+  ({ children, in: inProp = true }, ref: Ref<HTMLDivElement>) => {
+    // Use 250ms duration for page transitions as per design tokens
+    const timeout = 250
 
-  // Use 0 duration if reduced motion is preferred, otherwise use provided timeout or default
-  const duration = prefersReducedMotion
-    ? 0
-    : timeout ?? transitions.duration.enteringScreen
-
-  return (
-    <Fade
-      in={inProp}
-      timeout={duration}
-      appear
-    >
-      <div style={{ width: '100%', height: '100%' }}>
+    return (
+      <Fade
+        in={inProp}
+        timeout={timeout}
+        easing={{
+          enter: 'cubic-bezier(0.0, 0.0, 0.2, 1)', // decelerate curve for entrance
+          exit: 'cubic-bezier(0.4, 0.0, 1, 1)',     // accelerate curve for exit
+        }}
+        ref={ref}
+      >
         {children}
-      </div>
-    </Fade>
-  )
-}
+      </Fade>
+    )
+  }
+)
+
+PageTransition.displayName = 'PageTransition'
+
+export default PageTransition
