@@ -8,9 +8,21 @@ export interface ButtonProps extends Omit<MuiButtonProps, 'variant'> {
   iconPosition?: 'start' | 'end'
 }
 
-const StyledButton = styled(MuiButton)(() => ({
+const StyledButton = styled(MuiButton)(({ theme }) => ({
   fontWeight: 600,
   transition: 'all 200ms ease-out',
+  // Ensure touch target compliance on mobile (44x44px minimum)
+  minHeight: '44px',
+  minWidth: '44px',
+  // Responsive padding for better touch targets on mobile
+  padding: theme.spacing(1.5, 3),
+  [theme.breakpoints.down('sm')]: {
+    padding: theme.spacing(1.5, 2.5),
+    // Slightly larger font on mobile for better readability
+    fontSize: '0.9375rem', // 15px
+  },
+  // Prevent double-tap zoom on mobile
+  touchAction: 'manipulation',
   '&:hover': {
     transform: 'translateY(-1px)',
   },
@@ -92,7 +104,11 @@ export function IconButton({
       color="primary"
       disabled={props.disabled || loading}
       sx={{
-        minWidth: 'auto',
+        // Ensure touch target compliance (44x44px minimum)
+        minWidth: '44px',
+        minHeight: '44px',
+        width: '44px',
+        height: '44px',
         p: 1,
         ...props.sx,
       }}
