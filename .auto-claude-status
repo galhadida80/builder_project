@@ -3,7 +3,7 @@
   "spec": "046-add-hebrew-language-support",
   "state": "building",
   "subtasks": {
-    "completed": 0,
+    "completed": 1,
     "total": 6,
     "in_progress": 1,
     "failed": 0
@@ -18,8 +18,8 @@
     "max": 1
   },
   "session": {
-    "number": 1,
+    "number": 2,
     "started_at": "2026-02-04T17:34:11.951215"
   },
-  "last_update": "2026-02-04T17:34:12.012139"
+  "last_update": "2026-02-04T17:38:08.513660"
 }
