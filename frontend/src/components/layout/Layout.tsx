@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
-import { Outlet, useParams, useNavigate } from 'react-router-dom'
+import { Outlet, useParams, useNavigate, useLocation } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Toolbar from '@mui/material/Toolbar'
 import CircularProgress from '@mui/material/CircularProgress'
+import { TransitionGroup } from 'react-transition-group'
 import Sidebar from './Sidebar'
 import Header from './Header'
+import PageTransition from '../common/PageTransition'
 import { projectsApi } from '../../api/projects'
 import { authApi } from '../../api/auth'
 import type { Project, User } from '../../types'
@@ -14,6 +16,7 @@ const DRAWER_WIDTH = 260
 export default function Layout() {
   const { projectId } = useParams()
   const navigate = useNavigate()
+  const location = useLocation()
   const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>(projectId)
   const [projects, setProjects] = useState<Project[]>([])
   const [currentUser, setCurrentUser] = useState<User | null>(null)
@@ -89,7 +92,13 @@ export default function Layout() {
         }}
       >
         <Toolbar />
-        <Outlet context={{ projectId: selectedProjectId, project: currentProject }} />
+        <TransitionGroup>
+          <PageTransition key={location.pathname}>
+            <Box>
+              <Outlet context={{ projectId: selectedProjectId, project: currentProject }} />
+            </Box>
+          </PageTransition>
+        </TransitionGroup>
       </Box>
     </Box>
   )
