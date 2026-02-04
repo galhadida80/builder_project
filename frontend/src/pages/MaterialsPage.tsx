@@ -11,7 +11,6 @@ import AddIcon from '@mui/icons-material/Add'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import InventoryIcon from '@mui/icons-material/Inventory'
-import FilterListIcon from '@mui/icons-material/FilterList'
 import LocalShippingIcon from '@mui/icons-material/LocalShipping'
 import WarehouseIcon from '@mui/icons-material/Warehouse'
 import { Card, KPICard } from '../components/ui/Card'
@@ -332,16 +331,11 @@ export default function MaterialsPage() {
       <Card>
         <Box sx={{ p: 2.5 }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-              <SearchField
-                placeholder="Search materials..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-              <Button variant="secondary" size="small" icon={<FilterListIcon />}>
-                Filters
-              </Button>
-            </Box>
+            <SearchField
+              placeholder="Search materials..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
             <Chip label={`${filteredMaterials.length} items`} size="small" />
           </Box>
 
