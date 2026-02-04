@@ -6,6 +6,8 @@ import Chip from '@mui/material/Chip'
 import IconButton from '@mui/material/IconButton'
 import ToggleButton from '@mui/material/ToggleButton'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
+import MenuItem from '@mui/material/MenuItem'
+import MuiTextField from '@mui/material/TextField'
 import AddIcon from '@mui/icons-material/Add'
 import ViewListIcon from '@mui/icons-material/ViewList'
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth'
@@ -13,10 +15,12 @@ import AssignmentIcon from '@mui/icons-material/Assignment'
 import PeopleIcon from '@mui/icons-material/People'
 import WorkIcon from '@mui/icons-material/Work'
 import PendingActionsIcon from '@mui/icons-material/PendingActions'
+import FilterListIcon from '@mui/icons-material/FilterList'
 import { Card, KPICard } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { PageHeader } from '../components/ui/Breadcrumbs'
 import { ConfirmModal } from '../components/ui/Modal'
+import { SearchField } from '../components/ui/TextField'
 import { AssignmentList } from '../components/consultants/AssignmentList'
 import { AssignmentCalendar } from '../components/consultants/AssignmentCalendar'
 import { AssignmentForm, AssignmentFormData } from '../components/consultants/AssignmentForm'
@@ -50,6 +54,14 @@ export default function ConsultantAssignmentsPage() {
   const [consultants, setConsultants] = useState<User[]>([])
   const [projects, setProjects] = useState<Project[]>([])
   const [consultantTypes, setConsultantTypes] = useState<ConsultantType[]>([])
+
+  // Filter state
+  const [search, setSearch] = useState('')
+  const [selectedConsultant, setSelectedConsultant] = useState<string>('all')
+  const [selectedProject, setSelectedProject] = useState<string>('all')
+  const [selectedStatus, setSelectedStatus] = useState<string>('all')
+  const [startDateFilter, setStartDateFilter] = useState<string>('')
+  const [endDateFilter, setEndDateFilter] = useState<string>('')
 
   useEffect(() => {
     loadData()
@@ -177,11 +189,62 @@ export default function ConsultantAssignmentsPage() {
     }
   }
 
-  // Calculate KPIs
-  const activeAssignments = assignments.filter(a => a.status === 'active').length
-  const pendingAssignments = assignments.filter(a => a.status === 'pending').length
-  const uniqueConsultants = new Set(assignments.map(a => a.consultantId)).size
-  const uniqueProjects = new Set(assignments.map(a => a.projectId)).size
+  // Filter assignments
+  const filteredAssignments = assignments.filter((assignment) => {
+    // Search filter
+    const matchesSearch =
+      search === '' ||
+      assignment.consultant?.name?.toLowerCase().includes(search.toLowerCase()) ||
+      assignment.project?.name?.toLowerCase().includes(search.toLowerCase()) ||
+      assignment.consultantType?.name?.toLowerCase().includes(search.toLowerCase())
+
+    // Consultant filter
+    const matchesConsultant =
+      selectedConsultant === 'all' ||
+      assignment.consultantId === selectedConsultant
+
+    // Project filter
+    const matchesProject =
+      selectedProject === 'all' ||
+      assignment.projectId === selectedProject
+
+    // Status filter
+    const matchesStatus =
+      selectedStatus === 'all' ||
+      assignment.status === selectedStatus
+
+    // Date range filter
+    const matchesDateRange = (() => {
+      if (!startDateFilter && !endDateFilter) return true
+
+      const assignmentStart = new Date(assignment.startDate)
+      const assignmentEnd = new Date(assignment.endDate)
+
+      if (startDateFilter && endDateFilter) {
+        const filterStart = new Date(startDateFilter)
+        const filterEnd = new Date(endDateFilter)
+        // Assignment overlaps with filter range
+        return assignmentStart <= filterEnd && assignmentEnd >= filterStart
+      } else if (startDateFilter) {
+        const filterStart = new Date(startDateFilter)
+        // Assignment ends after filter start
+        return assignmentEnd >= filterStart
+      } else if (endDateFilter) {
+        const filterEnd = new Date(endDateFilter)
+        // Assignment starts before filter end
+        return assignmentStart <= filterEnd
+      }
+      return true
+    })()
+
+    return matchesSearch && matchesConsultant && matchesProject && matchesStatus && matchesDateRange
+  })
+
+  // Calculate KPIs (based on filtered assignments)
+  const activeAssignments = filteredAssignments.filter(a => a.status === 'active').length
+  const pendingAssignments = filteredAssignments.filter(a => a.status === 'pending').length
+  const uniqueConsultants = new Set(filteredAssignments.map(a => a.consultantId)).size
+  const uniqueProjects = new Set(filteredAssignments.map(a => a.projectId)).size
 
   if (loading) {
     return (
@@ -265,14 +328,106 @@ export default function ConsultantAssignmentsPage() {
                   <Typography variant="body2">Calendar</Typography>
                 </ToggleButton>
               </ToggleButtonGroup>
+              <SearchField
+                placeholder="Search assignments..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
             </Box>
-            <Chip label={`${assignments.length} assignments`} size="small" />
+            <Chip label={`${filteredAssignments.length} assignments`} size="small" />
+          </Box>
+
+          <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
+            <MuiTextField
+              select
+              size="small"
+              label="Consultant"
+              value={selectedConsultant}
+              onChange={(e) => setSelectedConsultant(e.target.value)}
+              sx={{ minWidth: 180 }}
+            >
+              <MenuItem value="all">All Consultants</MenuItem>
+              {consultants.map((consultant) => (
+                <MenuItem key={consultant.id} value={consultant.id}>
+                  {consultant.fullName || consultant.email}
+                </MenuItem>
+              ))}
+            </MuiTextField>
+
+            <MuiTextField
+              select
+              size="small"
+              label="Project"
+              value={selectedProject}
+              onChange={(e) => setSelectedProject(e.target.value)}
+              sx={{ minWidth: 180 }}
+            >
+              <MenuItem value="all">All Projects</MenuItem>
+              {projects.map((project) => (
+                <MenuItem key={project.id} value={project.id}>
+                  {project.name}
+                </MenuItem>
+              ))}
+            </MuiTextField>
+
+            <MuiTextField
+              select
+              size="small"
+              label="Status"
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value)}
+              sx={{ minWidth: 150 }}
+            >
+              <MenuItem value="all">All Statuses</MenuItem>
+              <MenuItem value="pending">Pending</MenuItem>
+              <MenuItem value="active">Active</MenuItem>
+              <MenuItem value="completed">Completed</MenuItem>
+              <MenuItem value="cancelled">Cancelled</MenuItem>
+            </MuiTextField>
+
+            <MuiTextField
+              type="date"
+              size="small"
+              label="Start Date From"
+              value={startDateFilter}
+              onChange={(e) => setStartDateFilter(e.target.value)}
+              InputLabelProps={{ shrink: true }}
+              sx={{ minWidth: 160 }}
+            />
+
+            <MuiTextField
+              type="date"
+              size="small"
+              label="End Date To"
+              value={endDateFilter}
+              onChange={(e) => setEndDateFilter(e.target.value)}
+              InputLabelProps={{ shrink: true }}
+              sx={{ minWidth: 160 }}
+            />
+
+            {(search || selectedConsultant !== 'all' || selectedProject !== 'all' ||
+              selectedStatus !== 'all' || startDateFilter || endDateFilter) && (
+              <Button
+                variant="secondary"
+                size="small"
+                onClick={() => {
+                  setSearch('')
+                  setSelectedConsultant('all')
+                  setSelectedProject('all')
+                  setSelectedStatus('all')
+                  setStartDateFilter('')
+                  setEndDateFilter('')
+                }}
+              >
+                Clear Filters
+              </Button>
+            )}
           </Box>
 
           <Box sx={{ mt: 2 }}>
             {viewMode === 'list' ? (
               <AssignmentList
-                assignments={assignments}
+                assignments={filteredAssignments}
                 loading={loading}
                 onEdit={handleOpenEdit}
                 onDelete={handleDeleteClick}
@@ -280,7 +435,7 @@ export default function ConsultantAssignmentsPage() {
               />
             ) : (
               <AssignmentCalendar
-                assignments={assignments}
+                assignments={filteredAssignments}
                 loading={loading}
                 onAssignmentClick={handleOpenEdit}
               />
