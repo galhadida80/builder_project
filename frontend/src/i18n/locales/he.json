@@ -1,0 +1,21 @@
+{
+  "app": {
+    "name": "BuilderOps",
+    "subtitle": "פלטפורמת בנייה"
+  },
+  "nav": {
+    "dashboard": "לוח בקרה",
+    "projects": "פרויקטים",
+    "currentProject": "פרויקט נוכחי",
+    "equipment": "ציוד",
+    "materials": "חומרים",
+    "meetings": "פגישות",
+    "approvals": "אישורים",
+    "areas": "אזורים",
+    "contacts": "אנשי קשר",
+    "inspections": "בדיקות",
+    "rfis": "בקשות למידע",
+    "auditLog": "יומן ביקורת",
+    "settings": "הגדרות"
+  }
+}
