@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
@@ -14,12 +14,9 @@ export default function EquipmentPage() {
   const { showError } = useToast()
   const [loading, setLoading] = useState(true)
   const [equipment, setEquipment] = useState<Equipment[]>([])
+  const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    loadEquipment()
-  }, [projectId])
-
-  const loadEquipment = async () => {
+  const loadEquipment = useCallback(async () => {
     if (!projectId) {
       setLoading(false)
       return
@@ -27,14 +24,21 @@ export default function EquipmentPage() {
 
     try {
       setLoading(true)
+      setError(null)
       const data = await equipmentApi.list(projectId)
       setEquipment(data)
     } catch (error) {
-      showError('Failed to load equipment. Please try again.')
+      const errorMsg = 'Failed to load equipment. Please try again.'
+      setError(errorMsg)
+      showError(errorMsg)
     } finally {
       setLoading(false)
     }
-  }
+  }, [projectId, showError])
+
+  useEffect(() => {
+    loadEquipment()
+  }, [loadEquipment])
 
   const handleRowClick = (equipmentItem: Equipment) => {
     // TODO: Navigate to equipment detail page or open drawer
@@ -59,6 +63,8 @@ export default function EquipmentPage() {
           <EquipmentTable
             equipment={equipment}
             loading={loading}
+            error={error}
+            onRetry={loadEquipment}
             onRowClick={handleRowClick}
           />
         </Box>
