@@ -3,7 +3,7 @@
   "spec": "049-create-consultant-assignment-ui",
   "state": "building",
   "subtasks": {
-    "completed": 12,
+    "completed": 14,
     "total": 15,
     "in_progress": 1,
     "failed": 0
@@ -18,8 +18,8 @@
     "max": 1
   },
   "session": {
-    "number": 13,
+    "number": 15,
     "started_at": "2026-02-05T00:32:51.776935"
   },
-  "last_update": "2026-02-05T01:15:44.474356"
+  "last_update": "2026-02-05T01:22:27.068939"
 }
