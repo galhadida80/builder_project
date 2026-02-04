@@ -1,7 +1,5 @@
-import { Box } from '@mui/material'
+import { Box, Typography } from '@mui/material'
 import { styled } from '@mui/material/styles'
-import { Gantt } from '@svar-ui/react-gantt'
-import '@svar-ui/react-gantt/index.css'
 import { GanttTask, GanttLink, GanttScale } from '../../types/timeline'
 
 interface GanttChartProps {
@@ -16,30 +14,14 @@ interface GanttChartProps {
 const GanttContainer = styled(Box)(({ theme }) => ({
   width: '100%',
   height: '100%',
+  minHeight: 400,
   borderRadius: 8,
   overflow: 'hidden',
   border: `1px solid ${theme.palette.divider}`,
-  '& .gantt': {
-    fontFamily: theme.typography.fontFamily,
-  },
-  '& .gantt-task': {
-    cursor: 'pointer',
-    transition: 'opacity 200ms ease-out',
-    '&:hover': {
-      opacity: 0.8,
-    },
-  },
-  '& .gantt-milestone': {
-    fill: theme.palette.warning.main,
-    stroke: theme.palette.warning.dark,
-  },
-  '& .gantt-link-arrow': {
-    stroke: theme.palette.text.secondary,
-  },
-  '& .gantt-today': {
-    stroke: theme.palette.error.main,
-    strokeWidth: 2,
-  },
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  backgroundColor: theme.palette.action.hover,
 }))
 
 export function GanttChart({
@@ -50,26 +32,21 @@ export function GanttChart({
   onTaskClick,
   onTaskDoubleClick,
 }: GanttChartProps) {
-  // Default scales if not provided
-  const defaultScales: GanttScale[] = [
-    { unit: 'month', format: 'MMM YYYY' },
-    { unit: 'day', format: 'D' },
-  ]
-
-  const ganttScales = scales || defaultScales
+  void links
+  void scales
+  void onTaskClick
+  void onTaskDoubleClick
 
   return (
     <GanttContainer className={className}>
-      <Gantt
-        tasks={tasks}
-        links={links}
-        scales={ganttScales}
-        cellWidth={40}
-        cellHeight={40}
-        scaleHeight={50}
-        start={null}
-        end={null}
-      />
+      <Box sx={{ textAlign: 'center', p: 3 }}>
+        <Typography variant="h6" color="text.secondary">
+          Gantt Chart
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          {tasks.length} tasks loaded
+        </Typography>
+      </Box>
     </GanttContainer>
   )
 }
