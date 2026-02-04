@@ -4,7 +4,8 @@ import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
 import ProjectsPage from './pages/ProjectsPage'
 import ProjectDetailPage from './pages/ProjectDetailPage'
-import EquipmentPage from './pages/projects/[projectId]/equipment'
+import ProjectOverviewPage from './pages/ProjectOverviewPage'
+import EquipmentPage from './pages/EquipmentPage'
 import MaterialsPage from './pages/MaterialsPage'
 import MeetingsPage from './pages/MeetingsPage'
 import ApprovalsPage from './pages/ApprovalsPage'
@@ -13,7 +14,6 @@ import ContactsPage from './pages/ContactsPage'
 import AuditLogPage from './pages/AuditLogPage'
 import InspectionsPage from './pages/InspectionsPage'
 import RFIPage from './pages/RFIPage'
-import TeamMembersPage from './pages/TeamMembersPage'
 
 function ProtectedRoute() {
   const token = localStorage.getItem('authToken')
@@ -35,6 +35,7 @@ export default function App() {
             <Route path="/projects" element={<ProjectsPage />} />
 
             <Route path="/projects/:projectId" element={<ProjectDetailPage />}>
+              <Route path="overview" element={<ProjectOverviewPage />} />
               <Route path="equipment" element={<EquipmentPage />} />
               <Route path="materials" element={<MaterialsPage />} />
               <Route path="meetings" element={<MeetingsPage />} />
@@ -47,7 +48,6 @@ export default function App() {
 
             <Route path="/approvals" element={<ApprovalsPage />} />
             <Route path="/audit" element={<AuditLogPage />} />
-            <Route path="/team-members" element={<TeamMembersPage />} />
           </Route>
         </Route>
 

@@ -1,0 +1,399 @@
+import { useState, useEffect } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+import Box from '@mui/material/Box'
+import Typography from '@mui/material/Typography'
+import Skeleton from '@mui/material/Skeleton'
+import Grid from '@mui/material/Grid'
+import { useTheme, useMediaQuery } from '@mui/material'
+import { Card } from '../components/ui/Card'
+import { EmptyState } from '../components/ui/EmptyState'
+import { ProjectProgressRing } from '../../components/ProjectProgressRing'
+import { ProjectTimeline, TimelineEvent } from '../../components/ProjectTimeline'
+import { ProjectOverviewTabs } from '../../components/ProjectOverviewTabs'
+import { apiClient } from '../api/client'
+import { useToast } from '../components/common/ToastProvider'
+
+// Backend response interfaces (camelCase from CamelCaseModel)
+interface ProgressMetrics {
+  overallPercentage: number
+  inspectionsCompleted: number
+  inspectionsTotal: number
+  equipmentSubmitted: number
+  equipmentTotal: number
+  materialsSubmitted: number
+  materialsTotal: number
+  checklistsCompleted: number
+  checklistsTotal: number
+}
+
+interface TeamStats {
+  totalMembers: number
+  activeMembers: number
+  roles: Record<string, number>
+}
+
+interface ProjectStats {
+  totalInspections: number
+  pendingInspections: number
+  totalEquipment: number
+  totalMaterials: number
+  totalMeetings: number
+  openFindings: number
+  daysRemaining: number | null
+  daysElapsed: number | null
+}
+
+interface ProjectOverviewData {
+  projectId: string
+  projectName: string
+  projectCode: string
+  projectStatus: string
+  progress: ProgressMetrics
+  timeline: TimelineEvent[]
+  teamStats: TeamStats
+  stats: ProjectStats
+  lastUpdated: string
+}
+
+export default function ProjectOverviewPage() {
+  const { projectId } = useParams<{ projectId: string }>()
+  const navigate = useNavigate()
+  const { showError } = useToast()
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+  const [loading, setLoading] = useState(true)
+  const [overviewData, setOverviewData] = useState<ProjectOverviewData | null>(null)
+  const [activeTab, setActiveTab] = useState('summary')
+
+  useEffect(() => {
+    loadOverviewData()
+  }, [projectId])
+
+  const loadOverviewData = async () => {
+    if (!projectId) return
+
+    try {
+      setLoading(true)
+      const response = await apiClient.get(`/projects/${projectId}/overview`)
+      setOverviewData(response.data)
+    } catch (error) {
+      console.error('Failed to load project overview:', error)
+      showError('Failed to load project overview. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <Skeleton variant="text" width={300} height={48} sx={{ mb: 1 }} />
+        <Skeleton variant="text" width={400} height={24} sx={{ mb: 4 }} />
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, gap: 3, mb: 4 }}>
+          {[...Array(3)].map((_, i) => (
+            <Skeleton key={i} variant="rounded" height={200} sx={{ borderRadius: 3 }} />
+          ))}
+        </Box>
+        <Skeleton variant="rounded" height={400} sx={{ borderRadius: 3 }} />
+      </Box>
+    )
+  }
+
+  if (!overviewData) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <EmptyState
+          variant="not-found"
+          title="Overview not available"
+          description="Unable to load project overview data"
+          action={{ label: 'Back to Project', onClick: () => navigate(`/projects/${projectId}`) }}
+        />
+      </Box>
+    )
+  }
+
+  const { progress, timeline, teamStats, stats } = overviewData
+
+  // Calculate derived metrics from detailed progress data
+  const totalItems =
+    progress.inspectionsTotal +
+    progress.equipmentTotal +
+    progress.materialsTotal +
+    progress.checklistsTotal
+
+  const completedItems =
+    progress.inspectionsCompleted +
+    progress.equipmentSubmitted +
+    progress.materialsSubmitted +
+    progress.checklistsCompleted
+
+  const pendingItems = totalItems - completedItems
+
+  const summaryContent = (
+    <Grid container spacing={3}>
+      <Grid item xs={12} md={6}>
+        <Card>
+          <Box sx={{ p: 3 }}>
+            <Typography variant="h6" fontWeight={600} sx={{ mb: 3 }}>
+              Project Progress
+            </Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
+              <ProjectProgressRing
+                value={progress.overallPercentage}
+                label="Overall Completion"
+                size={isMobile ? 120 : 160}
+                color="primary"
+                showPercentage
+                subtitle={`${completedItems} of ${totalItems} items completed`}
+              />
+            </Box>
+            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2, mt: 3 }}>
+              <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'action.hover', borderRadius: 2 }}>
+                <Typography variant="h5" fontWeight={700} color="success.main">
+                  {completedItems}
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  Completed
+                </Typography>
+              </Box>
+              <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'action.hover', borderRadius: 2 }}>
+                <Typography variant="h5" fontWeight={700} color="info.main">
+                  {progress.inspectionsTotal - progress.inspectionsCompleted}
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  In Progress
+                </Typography>
+              </Box>
+              <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'action.hover', borderRadius: 2 }}>
+                <Typography variant="h5" fontWeight={700} color="warning.main">
+                  {pendingItems}
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  Pending
+                </Typography>
+              </Box>
+            </Box>
+          </Box>
+        </Card>
+      </Grid>
+
+      <Grid item xs={12} md={6}>
+        <Card>
+          <Box sx={{ p: 3 }}>
+            <Typography variant="h6" fontWeight={600} sx={{ mb: 3 }}>
+              Project Stats
+            </Typography>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+              <Box>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                  Timeline
+                </Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Typography variant="h4" fontWeight={700}>
+                    {stats.daysElapsed || 0}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    days elapsed
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1 }}>
+                  <Typography variant="h4" fontWeight={700} color="primary.main">
+                    {stats.daysRemaining || 0}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    days remaining
+                  </Typography>
+                </Box>
+              </Box>
+
+              <Box sx={{ pt: 2, borderTop: 1, borderColor: 'divider' }}>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                  Activity & Findings
+                </Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Typography variant="h4" fontWeight={700}>
+                    {timeline.length}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    recent activities
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1 }}>
+                  <Typography
+                    variant="h4"
+                    fontWeight={700}
+                    color={stats.openFindings > 0 ? 'error.main' : 'success.main'}
+                  >
+                    {stats.openFindings}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    open findings
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+          </Box>
+        </Card>
+      </Grid>
+    </Grid>
+  )
+
+  const timelineContent = (
+    <Card>
+      <Box sx={{ p: 3 }}>
+        <Typography variant="h6" fontWeight={600} sx={{ mb: 3 }}>
+          Recent Activity
+        </Typography>
+        <ProjectTimeline events={timeline} maxEvents={20} emptyMessage="No recent activity" />
+      </Box>
+    </Card>
+  )
+
+  const teamContent = (
+    <Card>
+      <Box sx={{ p: 3 }}>
+        <Typography variant="h6" fontWeight={600} sx={{ mb: 3 }}>
+          Team Overview
+        </Typography>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', p: 2, bgcolor: 'action.hover', borderRadius: 2 }}>
+            <Typography variant="body1" color="text.secondary">
+              Total Team Members
+            </Typography>
+            <Typography variant="h5" fontWeight={700}>
+              {teamStats.totalMembers}
+            </Typography>
+          </Box>
+
+          {Object.entries(teamStats.roles || {}).map(([role, count]) => (
+            <Box
+              key={role}
+              sx={{ display: 'flex', justifyContent: 'space-between', py: 1.5, borderBottom: 1, borderColor: 'divider' }}
+            >
+              <Typography variant="body2" color="text.secondary" sx={{ textTransform: 'capitalize' }}>
+                {role.replace('_', ' ')}
+              </Typography>
+              <Typography variant="body2" fontWeight={600}>
+                {count}
+              </Typography>
+            </Box>
+          ))}
+        </Box>
+      </Box>
+    </Card>
+  )
+
+  const statsContent = (
+    <Card>
+      <Box sx={{ p: 3 }}>
+        <Typography variant="h6" fontWeight={600} sx={{ mb: 3 }}>
+          Detailed Statistics
+        </Typography>
+        <Grid container spacing={3}>
+          <Grid item xs={12} sm={6}>
+            <Box sx={{ p: 3, bgcolor: 'action.hover', borderRadius: 2 }}>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                Completion Rate
+              </Typography>
+              <Typography variant="h3" fontWeight={700} color="primary.main">
+                {Math.round(progress.overallPercentage)}%
+              </Typography>
+            </Box>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <Box sx={{ p: 3, bgcolor: 'action.hover', borderRadius: 2 }}>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                Total Items
+              </Typography>
+              <Typography variant="h3" fontWeight={700}>
+                {totalItems}
+              </Typography>
+            </Box>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <Box sx={{ p: 3, bgcolor: 'action.hover', borderRadius: 2 }}>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                Items Completed
+              </Typography>
+              <Typography variant="h3" fontWeight={700} color="success.main">
+                {completedItems}
+              </Typography>
+            </Box>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <Box sx={{ p: 3, bgcolor: 'action.hover', borderRadius: 2 }}>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                Items Pending
+              </Typography>
+              <Typography variant="h3" fontWeight={700} color="warning.main">
+                {pendingItems}
+              </Typography>
+            </Box>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <Box sx={{ p: 3, bgcolor: 'action.hover', borderRadius: 2 }}>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                Inspections
+              </Typography>
+              <Typography variant="h3" fontWeight={700}>
+                {progress.inspectionsCompleted}/{progress.inspectionsTotal}
+              </Typography>
+            </Box>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <Box sx={{ p: 3, bgcolor: 'action.hover', borderRadius: 2 }}>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                Equipment
+              </Typography>
+              <Typography variant="h3" fontWeight={700}>
+                {progress.equipmentSubmitted}/{progress.equipmentTotal}
+              </Typography>
+            </Box>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <Box sx={{ p: 3, bgcolor: 'action.hover', borderRadius: 2 }}>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                Materials
+              </Typography>
+              <Typography variant="h3" fontWeight={700}>
+                {progress.materialsSubmitted}/{progress.materialsTotal}
+              </Typography>
+            </Box>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <Box sx={{ p: 3, bgcolor: 'action.hover', borderRadius: 2 }}>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                Checklists
+              </Typography>
+              <Typography variant="h3" fontWeight={700}>
+                {progress.checklistsCompleted}/{progress.checklistsTotal}
+              </Typography>
+            </Box>
+          </Grid>
+        </Grid>
+      </Box>
+    </Card>
+  )
+
+  return (
+    <Box sx={{ p: 3, maxWidth: 1400, mx: 'auto' }}>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" fontWeight={700} sx={{ mb: 1 }}>
+          Project Overview
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Track your project progress, timeline, and team activity
+        </Typography>
+      </Box>
+
+      <ProjectOverviewTabs
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        summaryContent={summaryContent}
+        timelineContent={timelineContent}
+        teamContent={teamContent}
+        statsContent={statsContent}
+      />
+    </Box>
+  )
+}
