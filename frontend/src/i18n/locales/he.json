@@ -1,0 +1,39 @@
+{
+  "app": {
+    "name": "בילדרוֹפְּס",
+    "tagline": "פלטפורמת בנייה"
+  },
+  "nav": {
+    "dashboard": "לוח בקרה",
+    "projects": "פרויקטים",
+    "equipment": "ציוד",
+    "materials": "חומרים",
+    "meetings": "פגישות",
+    "approvals": "אישורים",
+    "areas": "אזורים",
+    "contacts": "אנשי קשר",
+    "inspections": "בדיקות",
+    "rfis": "בקשות למידע",
+    "auditLog": "יומן ביקורת",
+    "settings": "הגדרות",
+    "currentProject": "פרויקט נוכחי"
+  },
+  "header": {
+    "notifications": "התראות",
+    "viewAllNotifications": "הצג את כל ההתראות",
+    "profile": "פרופיל",
+    "logout": "התנתק"
+  },
+  "notifications": {
+    "equipmentApprovalPending": "אישור ציוד ממתין",
+    "equipmentApprovalDesc": "משאבת בטון CP-200 דורשת בדיקה",
+    "meetingScheduled": "פגישה נקבעה",
+    "meetingScheduledDesc": "תיאום אתר שבועי - מחר 9:00",
+    "materialDeliveryUpdate": "עדכון משלוח חומרים",
+    "materialDeliveryDesc": "פלדת זיון - התקבלו 150 טון"
+  },
+  "messages": {
+    "profileComingSoon": "דף הפרופיל יגיע בקרוב!",
+    "settingsComingSoon": "דף ההגדרות יגיע בקרוב!"
+  }
+}

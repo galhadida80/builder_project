@@ -2,6 +2,10 @@ import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import LanguageDetector from 'i18next-browser-languagedetector'
 
+// Import translation files
+import enTranslations from './locales/en.json'
+import heTranslations from './locales/he.json'
+
 // Supported languages
 export const SUPPORTED_LANGUAGES = {
   en: 'English',
@@ -30,10 +34,10 @@ i18n
   .init({
     resources: {
       en: {
-        translation: {},
+        translation: enTranslations,
       },
       he: {
-        translation: {},
+        translation: heTranslations,
       },
     },
     fallbackLng: DEFAULT_LANGUAGE,

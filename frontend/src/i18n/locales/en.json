@@ -1,0 +1,39 @@
+{
+  "app": {
+    "name": "BuilderOps",
+    "tagline": "Construction Platform"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "projects": "Projects",
+    "equipment": "Equipment",
+    "materials": "Materials",
+    "meetings": "Meetings",
+    "approvals": "Approvals",
+    "areas": "Areas",
+    "contacts": "Contacts",
+    "inspections": "Inspections",
+    "rfis": "RFIs",
+    "auditLog": "Audit Log",
+    "settings": "Settings",
+    "currentProject": "Current Project"
+  },
+  "header": {
+    "notifications": "Notifications",
+    "viewAllNotifications": "View all notifications",
+    "profile": "Profile",
+    "logout": "Logout"
+  },
+  "notifications": {
+    "equipmentApprovalPending": "Equipment approval pending",
+    "equipmentApprovalDesc": "Concrete Pump CP-200 requires review",
+    "meetingScheduled": "Meeting scheduled",
+    "meetingScheduledDesc": "Weekly Site Coordination - Tomorrow 9:00 AM",
+    "materialDeliveryUpdate": "Material delivery update",
+    "materialDeliveryDesc": "Reinforcement Steel - 150 tons received"
+  },
+  "messages": {
+    "profileComingSoon": "Profile page coming soon!",
+    "settingsComingSoon": "Settings page coming soon!"
+  }
+}
