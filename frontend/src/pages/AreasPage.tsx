@@ -334,7 +334,7 @@ export default function AreasPage() {
       <Box sx={{ p: 3 }}>
         <Skeleton variant="text" width={250} height={48} sx={{ mb: 1 }} />
         <Skeleton variant="text" width={350} height={24} sx={{ mb: 4 }} />
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 2, mb: 4 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 2, mb: 4 }}>
           {[...Array(4)].map((_, i) => (
             <Skeleton key={i} variant="rounded" height={100} sx={{ borderRadius: 3 }} />
           ))}
