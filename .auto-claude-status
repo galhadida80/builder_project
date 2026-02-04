@@ -1,25 +1,25 @@
 {
   "active": true,
-  "spec": "056-create-material-inventory-grid",
+  "spec": "057-build-equipment-tracking-table",
   "state": "building",
   "subtasks": {
-    "completed": 4,
-    "total": 7,
-    "in_progress": 1,
+    "completed": 6,
+    "total": 6,
+    "in_progress": 0,
     "failed": 0
   },
   "phase": {
-    "current": "Visual Polish & States",
+    "current": "Testing and Verification",
     "id": null,
-    "total": 3
+    "total": 1
   },
   "workers": {
     "active": 0,
     "max": 1
   },
   "session": {
-    "number": 5,
-    "started_at": "2026-02-04T17:37:36.323370"
+    "number": 6,
+    "started_at": "2026-02-05T00:30:21.329649"
   },
-  "last_update": "2026-02-04T17:48:08.460503"
+  "last_update": "2026-02-05T00:50:00.000000"
 }
