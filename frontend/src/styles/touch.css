@@ -1,0 +1,309 @@
+/**
+ * Touch Target Utilities
+ * Mobile-first responsive touch target system for accessibility compliance
+ * Follows WCAG 2.1 Level AAA guidelines (44x44px minimum)
+ */
+
+/* ============================================
+   CSS Custom Properties (Variables)
+   ============================================ */
+
+:root {
+  /* Touch target sizes */
+  --touch-target-min: 44px;
+  --touch-target-comfortable: 48px;
+  --touch-target-large: 56px;
+
+  /* Touch spacing (minimum spacing between touch targets) */
+  --touch-spacing-min: 8px;
+  --touch-spacing-comfortable: 12px;
+  --touch-spacing-large: 16px;
+
+  /* Focus ring styles for keyboard navigation */
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+  --focus-ring-color: #2196f3;
+  --focus-ring-color-dark: #90caf9;
+}
+
+/* Dark mode focus ring color */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --focus-ring-color: var(--focus-ring-color-dark);
+  }
+}
+
+/* ============================================
+   Touch Target Utility Classes
+   ============================================ */
+
+/* Minimum touch target (44x44px) */
+.touch-target-min {
+  min-width: var(--touch-target-min);
+  min-height: var(--touch-target-min);
+  touch-action: manipulation; /* Disable double-tap zoom */
+  -webkit-tap-highlight-color: transparent; /* Remove tap highlight on iOS */
+}
+
+/* Comfortable touch target (48x48px) */
+.touch-target-comfortable {
+  min-width: var(--touch-target-comfortable);
+  min-height: var(--touch-target-comfortable);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Large touch target (56x56px) */
+.touch-target-large {
+  min-width: var(--touch-target-large);
+  min-height: var(--touch-target-large);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Touch target with centered content */
+.touch-target-centered {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Full-width touch target (useful for mobile list items) */
+.touch-target-full-width {
+  width: 100%;
+  min-height: var(--touch-target-min);
+}
+
+/* ============================================
+   Touch Spacing Utilities
+   ============================================ */
+
+/* Minimum spacing between touch targets (8px) */
+.touch-spacing-min {
+  gap: var(--touch-spacing-min);
+}
+
+.touch-spacing-min > * + * {
+  margin-top: var(--touch-spacing-min);
+}
+
+.touch-spacing-min-horizontal > * + * {
+  margin-left: var(--touch-spacing-min);
+}
+
+/* Comfortable spacing (12px) */
+.touch-spacing-comfortable {
+  gap: var(--touch-spacing-comfortable);
+}
+
+.touch-spacing-comfortable > * + * {
+  margin-top: var(--touch-spacing-comfortable);
+}
+
+.touch-spacing-comfortable-horizontal > * + * {
+  margin-left: var(--touch-spacing-comfortable);
+}
+
+/* Large spacing (16px) */
+.touch-spacing-large {
+  gap: var(--touch-spacing-large);
+}
+
+.touch-spacing-large > * + * {
+  margin-top: var(--touch-spacing-large);
+}
+
+.touch-spacing-large-horizontal > * + * {
+  margin-left: var(--touch-spacing-large);
+}
+
+/* ============================================
+   Focus-Visible Styles for Keyboard Navigation
+   ============================================ */
+
+/* Enhanced focus styles for interactive elements */
+.touch-target-min:focus-visible,
+.touch-target-comfortable:focus-visible,
+.touch-target-large:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: 4px;
+}
+
+/* Focus visible utility for custom elements */
+.focus-enhanced:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: 4px;
+}
+
+/* Remove default outline (only when using custom focus styles) */
+.focus-enhanced:focus {
+  outline: none;
+}
+
+/* ============================================
+   Mobile-First Responsive Adjustments
+   ============================================ */
+
+/* Mobile (default) - All base styles above are mobile-first */
+
+/* Tablet and up (768px+) - Slightly reduce touch targets if needed */
+@media (min-width: 768px) {
+  :root {
+    /* On larger screens, we can optionally keep the same sizes or adjust */
+    /* For consistency, we'll keep touch targets the same across all devices */
+  }
+}
+
+/* Desktop (1024px+) */
+@media (min-width: 1024px) {
+  /* On desktop with mouse, we can provide hover feedback */
+  .touch-target-min:hover,
+  .touch-target-comfortable:hover,
+  .touch-target-large:hover {
+    /* Let individual components handle hover states */
+    cursor: pointer;
+  }
+}
+
+/* ============================================
+   Interactive Element Touch Target Helpers
+   ============================================ */
+
+/* For button groups on mobile - ensure adequate spacing */
+.touch-button-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--touch-spacing-min);
+}
+
+/* For mobile, buttons stack vertically by default */
+.touch-button-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--touch-spacing-min);
+}
+
+.touch-button-stack > * {
+  width: 100%;
+  min-height: var(--touch-target-min);
+}
+
+/* On tablet and above, buttons can be inline */
+@media (min-width: 768px) {
+  .touch-button-stack-responsive {
+    flex-direction: row;
+  }
+
+  .touch-button-stack-responsive > * {
+    width: auto;
+    flex: 0 0 auto;
+  }
+}
+
+/* ============================================
+   Touch-Friendly Form Elements
+   ============================================ */
+
+/* Ensure form inputs meet minimum touch target height */
+.touch-input {
+  min-height: var(--touch-target-min);
+  padding: 8px 12px;
+  touch-action: manipulation;
+}
+
+/* Touch-friendly checkbox and radio containers */
+.touch-checkbox-container,
+.touch-radio-container {
+  min-height: var(--touch-target-min);
+  display: inline-flex;
+  align-items: center;
+  padding: 8px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+/* Touch-friendly select dropdown */
+.touch-select {
+  min-height: var(--touch-target-min);
+  padding: 8px 12px;
+  touch-action: manipulation;
+}
+
+/* ============================================
+   Accessibility Helpers
+   ============================================ */
+
+/* Hide elements visually but keep them accessible to screen readers */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Skip to main content link for keyboard navigation */
+.skip-to-main {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  z-index: 9999;
+  padding: 12px 16px;
+  background: var(--focus-ring-color);
+  color: white;
+  text-decoration: none;
+  min-height: var(--touch-target-min);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.skip-to-main:focus {
+  top: 0;
+  outline: var(--focus-ring-width) solid white;
+  outline-offset: -4px;
+}
+
+/* ============================================
+   Touch Action Utilities
+   ============================================ */
+
+/* Disable double-tap zoom on interactive elements */
+.touch-no-zoom {
+  touch-action: manipulation;
+}
+
+/* Enable horizontal scrolling only */
+.touch-scroll-horizontal {
+  touch-action: pan-x;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+/* Enable vertical scrolling only */
+.touch-scroll-vertical {
+  touch-action: pan-y;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* ============================================
+   Reduced Motion Support
+   ============================================ */
+
+/* Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
