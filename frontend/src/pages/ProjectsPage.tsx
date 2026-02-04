@@ -184,15 +184,15 @@ export default function ProjectsPage() {
 
   if (loading) {
     return (
-      <Box sx={{ p: 3 }}>
+      <Box sx={{ p: { xs: 2, sm: 3 } }}>
         <Skeleton variant="text" width={200} height={48} sx={{ mb: 1 }} />
         <Skeleton variant="text" width={300} height={24} sx={{ mb: 4 }} />
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 2, mb: 4 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 2, mb: 4 }}>
           {[...Array(4)].map((_, i) => (
             <Skeleton key={i} variant="rounded" height={100} sx={{ borderRadius: 3 }} />
           ))}
         </Box>
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 3 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }, gap: 3 }}>
           {[...Array(6)].map((_, i) => (
             <Skeleton key={i} variant="rounded" height={200} sx={{ borderRadius: 3 }} />
           ))}
@@ -202,14 +202,15 @@ export default function ProjectsPage() {
   }
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: { xs: 2, sm: 3 } }}>
       <PageHeader
         title="Projects"
         subtitle="Manage your construction projects"
         breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Projects' }]}
         actions={
           <Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>
-            New Project
+            <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>New Project</Box>
+            <Box component="span" sx={{ display: { xs: 'inline', sm: 'none' } }}>New</Box>
           </Button>
         }
       />
@@ -249,19 +250,38 @@ export default function ProjectsPage() {
       </Box>
 
       <Card>
-        <Box sx={{ p: 2.5 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+        <Box sx={{ p: { xs: 2, sm: 2.5 } }}>
+          <Box sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', md: 'row' },
+            justifyContent: 'space-between',
+            alignItems: { xs: 'stretch', md: 'center' },
+            gap: 2,
+            mb: 3
+          }}>
+            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flex: { xs: 'none', md: 1 } }}>
               <SearchField
                 placeholder="Search projects..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
+                sx={{ flex: 1 }}
               />
-              <Button variant="secondary" size="small" icon={<FilterListIcon />}>
+              <Button
+                variant="secondary"
+                size="small"
+                icon={<FilterListIcon />}
+                sx={{ display: { xs: 'none', sm: 'flex' } }}
+              >
                 Filters
               </Button>
+              <IconButton
+                size="small"
+                sx={{ display: { xs: 'flex', sm: 'none' } }}
+              >
+                <FilterListIcon />
+              </IconButton>
             </Box>
-            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', justifyContent: { xs: 'space-between', md: 'flex-end' } }}>
               <Chip label={`${filteredProjects.length} projects`} size="small" />
               <SegmentedTabs
                 items={[
@@ -435,7 +455,7 @@ export default function ProjectsPage() {
             error={!!errors.address}
             helperText={errors.address}
           />
-          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
             <TextField
               fullWidth
               label="Start Date"
