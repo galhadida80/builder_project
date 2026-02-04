@@ -1,25 +1,25 @@
 {
   "active": true,
-  "spec": "060-build-document-review-interface",
+  "spec": "061-implement-approval-workflow-stepper",
   "state": "building",
   "subtasks": {
-    "completed": 13,
-    "total": 15,
+    "completed": 0,
+    "total": 6,
     "in_progress": 1,
     "failed": 0
   },
   "phase": {
-    "current": "Integration Testing",
+    "current": "Component Implementation",
     "id": null,
-    "total": 3
+    "total": 5
   },
   "workers": {
     "active": 0,
     "max": 1
   },
   "session": {
-    "number": 14,
-    "started_at": "2026-02-05T00:32:49.905778"
+    "number": 1,
+    "started_at": "2026-02-04T17:37:58.835966"
   },
-  "last_update": "2026-02-05T01:17:55.100842"
+  "last_update": "2026-02-04T17:37:58.923591"
 }

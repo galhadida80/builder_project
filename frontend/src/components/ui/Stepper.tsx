@@ -5,11 +5,53 @@ import {
   StepConnector,
   Box,
   Typography,
+  Card,
+  CardContent,
+  Divider,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material'
 import { styled } from '@mui/material/styles'
-import { keyframes } from '@emotion/react'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
-import { duration, easing, createTransition, scaleIn } from '../../utils/animations'
+import CancelIcon from '@mui/icons-material/Cancel'
+import ErrorIcon from '@mui/icons-material/Error'
+import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty'
+import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked'
+
+// Approval workflow interfaces
+export interface UserResponse {
+  id: string
+  email: string
+  name?: string
+}
+
+export interface ApprovalStepResponse {
+  id: string
+  approvalRequestId: string
+  stepOrder: number
+  approverId?: string
+  approver?: UserResponse
+  approverRole?: string
+  status: string
+  comments?: string
+  decidedAt?: string
+  createdAt: string
+}
+
+export interface ApprovalRequestResponse {
+  id: string
+  projectId: string
+  entityType: string
+  entityId: string
+  currentStatus: string
+  createdAt: string
+  createdBy?: UserResponse
+  steps: ApprovalStepResponse[]
+}
+
+export interface ApprovalAction {
+  comments?: string
+}
 
 interface StepItem {
   label: string
@@ -37,16 +79,13 @@ const CustomConnector = styled(StepConnector)(({ theme }) => ({
     borderColor: theme.palette.divider,
     borderTopWidth: 2,
     borderRadius: 1,
-    transition: createTransition('border-color', duration.normal, easing.standard),
   },
 }))
 
 const StepIconContainer = styled('div')<{ active: boolean; completed: boolean; error: boolean }>(
   ({ theme, active, completed, error }) => ({
-    width: 44,
-    height: 44,
-    minWidth: 44,
-    minHeight: 44,
+    width: 32,
+    height: 32,
     borderRadius: '50%',
     display: 'flex',
     alignItems: 'center',
@@ -61,21 +100,35 @@ const StepIconContainer = styled('div')<{ active: boolean; completed: boolean; e
     color: completed || active || error ? '#fff' : theme.palette.text.disabled,
     fontWeight: 600,
     fontSize: '0.875rem',
-    transition: createTransition(
-      ['background-color', 'color', 'transform'],
-      duration.normal,
-      easing.standard
-    ),
+    transition: 'all 200ms ease-out',
   })
 )
 
-const AnimatedCheckIcon = styled(CheckCircleIcon)({
+// Styled icon components for different step statuses
+const CompletedIcon = styled(CheckCircleIcon)(({ theme }) => ({
   fontSize: 18,
-  animation: `${scaleIn} ${duration.normal}ms ${easing.decelerate}`,
-})
+  color: 'inherit',
+}))
 
-const StepNumber = styled('span')<{ entering: boolean }>(({ entering }) => ({
-  animation: entering ? `${scaleIn} ${duration.normal}ms ${easing.decelerate}` : 'none',
+const RejectedIcon = styled(CancelIcon)(({ theme }) => ({
+  fontSize: 18,
+  color: 'inherit',
+}))
+
+const ErrorStepIcon = styled(ErrorIcon)(({ theme }) => ({
+  fontSize: 18,
+  color: 'inherit',
+}))
+
+const PendingIcon = styled(HourglassEmptyIcon)(({ theme }) => ({
+  fontSize: 18,
+  color: 'inherit',
+}))
+
+const InactiveIcon = styled(RadioButtonUncheckedIcon)(({ theme }) => ({
+  fontSize: 18,
+  color: 'inherit',
+  opacity: 0.5,
 }))
 
 function CustomStepIcon({
@@ -89,13 +142,15 @@ function CustomStepIcon({
   completed: boolean
   error: boolean
 }) {
+  const getIconComponent = () => {
+    if (completed) return <CompletedIcon />
+    if (error) return <RejectedIcon />
+    return icon
+  }
+
   return (
     <StepIconContainer active={active} completed={completed} error={error}>
-      {completed ? (
-        <AnimatedCheckIcon />
-      ) : (
-        <StepNumber entering={active}>{icon}</StepNumber>
-      )}
+      {getIconComponent()}
     </StepIconContainer>
   )
 }
@@ -106,15 +161,34 @@ export function Stepper({
   orientation = 'horizontal',
   alternativeLabel = true,
 }: StepperProps) {
+  // Handle edge case: empty steps array
+  if (!steps || steps.length === 0) {
+    return (
+      <Box
+        sx={{
+          width: '100%',
+          py: 2,
+          textAlign: 'center',
+          color: 'text.secondary',
+        }}
+      >
+        <Typography variant="body2">No steps available</Typography>
+      </Box>
+    )
+  }
+
+  // Clamp activeStep to valid range
+  const validActiveStep = Math.max(0, Math.min(activeStep, steps.length))
+
   return (
     <MuiStepper
-      activeStep={activeStep}
+      activeStep={validActiveStep}
       orientation={orientation}
       alternativeLabel={alternativeLabel && orientation === 'horizontal'}
       connector={<CustomConnector />}
     >
       {steps.map((step, index) => (
-        <Step key={step.label} completed={index < activeStep}>
+        <Step key={`${step.label}-${index}`} completed={index < validActiveStep}>
           <StepLabel
             error={step.error}
             optional={
@@ -123,7 +197,15 @@ export function Stepper({
                   Optional
                 </Typography>
               ) : step.description ? (
-                <Typography variant="caption" color="text.secondary">
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{
+                    // Ensure descriptions wrap properly
+                    wordBreak: 'break-word',
+                    overflowWrap: 'break-word',
+                  }}
+                >
                   {step.description}
                 </Typography>
               ) : undefined
@@ -140,13 +222,11 @@ export function Stepper({
             <Typography
               variant="body2"
               sx={{
-                fontWeight: index === activeStep ? 600 : 400,
-                color: index === activeStep ? 'text.primary' : 'text.secondary',
-                transition: createTransition(
-                  ['font-weight', 'color'],
-                  duration.normal,
-                  easing.standard
-                ),
+                fontWeight: index === validActiveStep ? 600 : 400,
+                color: index === validActiveStep ? 'text.primary' : 'text.secondary',
+                // Ensure labels wrap properly on small screens
+                wordBreak: 'break-word',
+                overflowWrap: 'break-word',
               }}
             >
               {step.label}
@@ -163,6 +243,9 @@ interface ApprovalStepperProps {
 }
 
 export function ApprovalStepper({ status }: ApprovalStepperProps) {
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+
   const steps: StepItem[] = [
     { label: 'Draft', description: 'Initial creation' },
     { label: 'Submitted', description: 'Awaiting review' },
@@ -178,6 +261,7 @@ export function ApprovalStepper({ status }: ApprovalStepperProps) {
     rejected: 3,
   }
 
+  // Handle unknown status gracefully
   const activeStep = statusToStep[status] ?? 0
 
   return (
@@ -188,6 +272,8 @@ export function ApprovalStepper({ status }: ApprovalStepperProps) {
           error: status === 'rejected' && index === 3,
         }))}
         activeStep={activeStep}
+        orientation={isMobile ? 'vertical' : 'horizontal'}
+        alternativeLabel={!isMobile}
       />
     </Box>
   )
@@ -200,9 +286,316 @@ interface ProgressStepperProps {
 }
 
 export function ProgressStepper({ currentStep, totalSteps, labels }: ProgressStepperProps) {
-  const steps: StepItem[] = Array.from({ length: totalSteps }, (_, i) => ({
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+
+  // Handle edge cases: invalid totalSteps
+  const validTotalSteps = Math.max(1, totalSteps)
+  const validCurrentStep = Math.max(0, Math.min(currentStep, validTotalSteps))
+
+  const steps: StepItem[] = Array.from({ length: validTotalSteps }, (_, i) => ({
     label: labels?.[i] || `Step ${i + 1}`,
   }))
 
-  return <Stepper steps={steps} activeStep={currentStep} />
+  return (
+    <Stepper
+      steps={steps}
+      activeStep={validCurrentStep}
+      orientation={isMobile ? 'vertical' : 'horizontal'}
+      alternativeLabel={!isMobile}
+    />
+  )
+}
+
+interface ApprovalWorkflowStepperProps {
+  approvalRequest: ApprovalRequestResponse
+  orientation?: 'horizontal' | 'vertical'
+}
+
+/**
+ * ApprovalWorkflowStepper - Enhanced stepper component that visualizes multi-step approval workflows
+ *
+ * Displays each approval step with:
+ * - Approver role and assignment details
+ * - Current status (pending, approved, rejected, revision_requested)
+ * - Completion details (approver name, timestamp, comments)
+ * - Visual status indicators with appropriate icons and colors
+ */
+export function ApprovalWorkflowStepper({
+  approvalRequest,
+  orientation: orientationProp = 'horizontal',
+}: ApprovalWorkflowStepperProps) {
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+  const isTablet = useMediaQuery(theme.breakpoints.down('md'))
+
+  // Use vertical orientation on mobile/tablet, or if explicitly set
+  const orientation = orientationProp === 'vertical' || isMobile ? 'vertical' : 'horizontal'
+
+  // Handle empty steps case
+  if (!approvalRequest.steps || approvalRequest.steps.length === 0) {
+    return (
+      <Box
+        sx={{
+          width: '100%',
+          py: 3,
+          textAlign: 'center',
+          color: 'text.secondary',
+        }}
+      >
+        <Typography variant="body2">No approval steps defined</Typography>
+      </Box>
+    )
+  }
+
+  // Sort steps by stepOrder to ensure correct sequence
+  const sortedSteps = [...approvalRequest.steps].sort((a, b) => a.stepOrder - b.stepOrder)
+
+  // Find current step (first pending step in sequence)
+  const currentStepIndex = sortedSteps.findIndex((step) => step.status === 'pending')
+  const activeStep = currentStepIndex >= 0 ? currentStepIndex : sortedSteps.length
+
+  // Check if all steps are complete
+  const allStepsComplete = sortedSteps.every((step) =>
+    step.status === 'approved' || step.status === 'rejected' || step.status === 'revision_requested'
+  )
+
+  // Map approval steps to stepper format
+  const steps: StepItem[] = sortedSteps.map((step) => ({
+    label: step.approverRole || `Step ${step.stepOrder}`,
+    description: getStepDescription(step),
+    error: step.status === 'rejected',
+  }))
+
+  return (
+    <Box sx={{ width: '100%', py: 2 }}>
+      <Stepper
+        steps={steps}
+        activeStep={activeStep}
+        orientation={orientation}
+        alternativeLabel={!isMobile && orientation === 'horizontal'}
+      />
+
+      {/* Completion status message */}
+      {allStepsComplete && (
+        <Box
+          sx={{
+            mt: 3,
+            p: 2,
+            borderRadius: 1,
+            bgcolor: approvalRequest.currentStatus === 'approved' ? 'success.light' : 'error.light',
+            color: approvalRequest.currentStatus === 'approved' ? 'success.dark' : 'error.dark',
+          }}
+        >
+          <Typography variant="body2" fontWeight={600}>
+            {approvalRequest.currentStatus === 'approved'
+              ? '✓ All approval steps completed successfully'
+              : approvalRequest.currentStatus === 'rejected'
+              ? '✗ Approval request has been rejected'
+              : '⚠ Approval request requires attention'}
+          </Typography>
+        </Box>
+      )}
+
+      {/* Step Details Panel - Shows approver info and comments for completed steps */}
+      {sortedSteps.some((step) =>
+        step.status !== 'pending' && (step.comments || step.approver || step.decidedAt)
+      ) && (
+        <Box sx={{ mt: 3 }}>
+          {sortedSteps
+            .filter((step) => step.status !== 'pending')
+            .map((step) => {
+              // Handle missing approver info gracefully
+              const approverName = step.approver?.name ||
+                step.approver?.email ||
+                (step.approverId ? `User ${step.approverId.slice(0, 8)}` : 'Unknown approver')
+
+              const formattedDate = step.decidedAt
+                ? new Date(step.decidedAt).toLocaleString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit',
+                  })
+                : null
+
+              return (
+                <Card
+                  key={step.id}
+                  sx={{
+                    mb: 2,
+                    borderLeft: 4,
+                    borderLeftColor:
+                      step.status === 'approved'
+                        ? 'success.main'
+                        : step.status === 'rejected'
+                        ? 'error.main'
+                        : 'warning.main',
+                  }}
+                >
+                  <CardContent
+                    sx={{
+                      // Responsive padding
+                      px: isMobile ? 2 : 3,
+                      py: isMobile ? 1.5 : 2,
+                    }}
+                  >
+                    <Typography
+                      variant="subtitle2"
+                      fontWeight={600}
+                      gutterBottom
+                      sx={{
+                        // Ensure text wraps on small screens
+                        wordBreak: 'break-word',
+                        overflowWrap: 'break-word',
+                      }}
+                    >
+                      {step.approverRole || `Step ${step.stepOrder}`}
+                    </Typography>
+
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: 1,
+                        mb: 1,
+                        // Stack vertically on very small screens if needed
+                        flexWrap: 'wrap',
+                      }}
+                    >
+                      {step.status === 'approved' && (
+                        <CompletedIcon
+                          sx={{
+                            fontSize: 16,
+                            color: 'success.main',
+                            flexShrink: 0,
+                            mt: 0.25,
+                          }}
+                        />
+                      )}
+                      {step.status === 'rejected' && (
+                        <RejectedIcon
+                          sx={{
+                            fontSize: 16,
+                            color: 'error.main',
+                            flexShrink: 0,
+                            mt: 0.25,
+                          }}
+                        />
+                      )}
+                      {step.status === 'revision_requested' && (
+                        <ErrorStepIcon
+                          sx={{
+                            fontSize: 16,
+                            color: 'warning.main',
+                            flexShrink: 0,
+                            mt: 0.25,
+                          }}
+                        />
+                      )}
+
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{
+                          // Ensure text wraps properly
+                          wordBreak: 'break-word',
+                          overflowWrap: 'break-word',
+                          flex: 1,
+                        }}
+                      >
+                        {step.status === 'approved' && 'Approved'}
+                        {step.status === 'rejected' && 'Rejected'}
+                        {step.status === 'revision_requested' && 'Revision Requested'}
+                        {' by '}
+                        <strong>{approverName}</strong>
+                        {formattedDate && ` on ${formattedDate}`}
+                      </Typography>
+                    </Box>
+
+                    {step.comments && (
+                      <>
+                        <Divider sx={{ my: 1.5 }} />
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          sx={{
+                            fontStyle: 'italic',
+                            // Handle long comments with proper wrapping
+                            wordBreak: 'break-word',
+                            overflowWrap: 'break-word',
+                            whiteSpace: 'pre-wrap',
+                            // Limit max height for very long comments
+                            maxHeight: isMobile ? '120px' : '200px',
+                            overflow: 'auto',
+                          }}
+                        >
+                          "{step.comments}"
+                        </Typography>
+                      </>
+                    )}
+                  </CardContent>
+                </Card>
+              )
+            })}
+        </Box>
+      )}
+    </Box>
+  )
+}
+
+/**
+ * Helper function to generate step description based on status and approver info
+ * Handles edge cases: missing approver data, missing dates, unknown statuses
+ */
+function getStepDescription(step: ApprovalStepResponse): string {
+  // Helper to get approver name with fallback for missing info
+  const getApproverName = (): string => {
+    if (step.approver?.name) return step.approver.name
+    if (step.approver?.email) return step.approver.email
+    if (step.approverId) return `User ${step.approverId.slice(0, 8)}`
+    return 'Unknown'
+  }
+
+  switch (step.status) {
+    case 'approved':
+      if (step.decidedAt) {
+        try {
+          const date = new Date(step.decidedAt).toLocaleDateString()
+          const approverName = getApproverName()
+          return `Approved by ${approverName} on ${date}`
+        } catch {
+          // Handle invalid date
+          return `Approved by ${getApproverName()}`
+        }
+      }
+      return 'Approved'
+
+    case 'rejected':
+      if (step.decidedAt) {
+        try {
+          const date = new Date(step.decidedAt).toLocaleDateString()
+          const approverName = getApproverName()
+          return `Rejected by ${approverName} on ${date}`
+        } catch {
+          // Handle invalid date
+          return `Rejected by ${getApproverName()}`
+        }
+      }
+      return 'Rejected'
+
+    case 'revision_requested':
+      return `Revision requested by ${getApproverName()}`
+
+    case 'pending':
+      if (step.approver || step.approverId) {
+        return `Assigned to ${getApproverName()}`
+      }
+      return 'Pending assignment'
+
+    default:
+      // Handle unknown status gracefully
+      return step.status ? `Status: ${step.status}` : 'Pending'
+  }
 }
