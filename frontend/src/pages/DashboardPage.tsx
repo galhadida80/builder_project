@@ -24,6 +24,7 @@ import { Avatar, AvatarGroup } from '../components/ui/Avatar'
 import { ProgressBar, CircularProgressDisplay } from '../components/ui/ProgressBar'
 import { EmptyState } from '../components/ui/EmptyState'
 import { Button } from '../components/ui/Button'
+import { ResponsiveGrid } from '../components/layout/ResponsiveContainer'
 import type { Equipment, Material, Meeting, ApprovalRequest, AuditLog } from '../types'
 import { equipmentApi } from '../api/equipment'
 import { materialsApi } from '../api/materials'
@@ -78,25 +79,25 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <Box sx={{ p: 3 }}>
+      <Box sx={{ p: { xs: 2, sm: 2.5, md: 3 } }}>
         <Skeleton variant="text" width={300} height={48} sx={{ mb: 1 }} />
         <Skeleton variant="text" width={400} height={24} sx={{ mb: 4 }} />
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 3, mb: 3 }}>
+        <ResponsiveGrid columns={{ xs: 1, sm: 2, md: 4 }} spacing={3} sx={{ mb: 3 }}>
           {[...Array(4)].map((_, i) => (
             <Skeleton key={i} variant="rounded" height={140} sx={{ borderRadius: 3 }} />
           ))}
-        </Box>
-        <Box sx={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 3 }}>
+        </ResponsiveGrid>
+        <ResponsiveGrid columns={{ xs: 1, lg: 2 }} spacing={3}>
           <Skeleton variant="rounded" height={400} sx={{ borderRadius: 3 }} />
           <Skeleton variant="rounded" height={400} sx={{ borderRadius: 3 }} />
-        </Box>
+        </ResponsiveGrid>
       </Box>
     )
   }
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Box sx={{ mb: 4 }}>
+    <Box sx={{ p: { xs: 2, sm: 2.5, md: 3 } }}>
+      <Box sx={{ mb: { xs: 3, md: 4 } }}>
         <Typography
           variant="h4"
           sx={{
@@ -112,13 +113,10 @@ export default function DashboardPage() {
         </Typography>
       </Box>
 
-      <Box
-        sx={{
-          display: 'grid',
-          gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' },
-          gap: 3,
-          mb: 3,
-        }}
+      <ResponsiveGrid
+        columns={{ xs: 1, sm: 2, md: 4 }}
+        spacing={{ xs: 2, md: 3 }}
+        sx={{ mb: { xs: 2, md: 3 } }}
       >
         <KPICard
           title="Equipment Items"
@@ -148,14 +146,14 @@ export default function DashboardPage() {
           icon={<EventIcon />}
           color="info"
         />
-      </Box>
+      </ResponsiveGrid>
 
       <Box
         sx={{
           display: 'grid',
           gridTemplateColumns: { xs: '1fr', lg: '2fr 1fr' },
-          gap: 3,
-          mb: 3,
+          gap: { xs: 2, md: 3 },
+          mb: { xs: 2, md: 3 },
         }}
       >
         <Card>
@@ -334,12 +332,9 @@ export default function DashboardPage() {
         </Box>
       </Box>
 
-      <Box
-        sx={{
-          display: 'grid',
-          gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' },
-          gap: 3,
-        }}
+      <ResponsiveGrid
+        columns={{ xs: 1, md: 2, lg: 3 }}
+        spacing={{ xs: 2, md: 3 }}
       >
         <Card>
           <Box sx={{ p: 2.5 }}>
@@ -542,7 +537,7 @@ export default function DashboardPage() {
             </Box>
           </Box>
         </Card>
-      </Box>
+      </ResponsiveGrid>
     </Box>
   )
 }
