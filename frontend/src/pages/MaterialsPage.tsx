@@ -14,6 +14,8 @@ import InventoryIcon from '@mui/icons-material/Inventory'
 import FilterListIcon from '@mui/icons-material/FilterList'
 import LocalShippingIcon from '@mui/icons-material/LocalShipping'
 import WarehouseIcon from '@mui/icons-material/Warehouse'
+import GridViewIcon from '@mui/icons-material/GridView'
+import ViewListIcon from '@mui/icons-material/ViewList'
 import { Card, KPICard } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { DataTable, Column } from '../components/ui/DataTable'
@@ -21,8 +23,9 @@ import { StatusBadge } from '../components/ui/StatusBadge'
 import { PageHeader } from '../components/ui/Breadcrumbs'
 import { SearchField, TextField } from '../components/ui/TextField'
 import { FormModal, ConfirmModal } from '../components/ui/Modal'
-import { Tabs } from '../components/ui/Tabs'
+import { Tabs, SegmentedTabs } from '../components/ui/Tabs'
 import { EmptyState } from '../components/ui/EmptyState'
+import { MaterialInventoryGrid } from '../components/materials/MaterialInventoryGrid'
 import { materialsApi } from '../api/materials'
 import type { Material } from '../types'
 import { validateMaterialForm, hasErrors, VALIDATION, type ValidationError } from '../utils/validation'
@@ -44,6 +47,7 @@ export default function MaterialsPage() {
   const [saving, setSaving] = useState(false)
   const [errors, setErrors] = useState<ValidationError>({})
   const [activeTab, setActiveTab] = useState('all')
+  const [viewMode, setViewMode] = useState<'table' | 'grid'>('table')
   const [formData, setFormData] = useState({
     name: '',
     materialType: '',
@@ -342,7 +346,17 @@ export default function MaterialsPage() {
                 Filters
               </Button>
             </Box>
-            <Chip label={`${filteredMaterials.length} items`} size="small" />
+            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+              <Chip label={`${filteredMaterials.length} items`} size="small" />
+              <SegmentedTabs
+                items={[
+                  { label: 'Table', value: 'table', icon: <ViewListIcon sx={{ fontSize: 18 }} /> },
+                  { label: 'Grid', value: 'grid', icon: <GridViewIcon sx={{ fontSize: 18 }} /> },
+                ]}
+                value={viewMode}
+                onChange={(v) => setViewMode(v as 'table' | 'grid')}
+              />
+            </Box>
           </Box>
 
           <Tabs
@@ -365,12 +379,18 @@ export default function MaterialsPage() {
                 description="Try adjusting your search or add a new material"
                 action={{ label: 'Add Material', onClick: handleOpenCreate }}
               />
-            ) : (
+            ) : viewMode === 'table' ? (
               <DataTable
                 columns={columns}
                 rows={filteredMaterials}
                 getRowId={(row) => row.id}
                 emptyMessage="No materials found"
+              />
+            ) : (
+              <MaterialInventoryGrid
+                materials={filteredMaterials}
+                loading={false}
+                onMaterialClick={handleOpenEdit}
               />
             )}
           </Box>
