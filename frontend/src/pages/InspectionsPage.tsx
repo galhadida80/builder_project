@@ -24,6 +24,7 @@ import { FormModal } from '../components/ui/Modal'
 import { PageHeader } from '../components/ui/Breadcrumbs'
 import { EmptyState } from '../components/ui/EmptyState'
 import { TextField, SearchField } from '../components/ui/TextField'
+import { InspectionHistoryTimeline } from '../components/InspectionHistoryTimeline'
 import { inspectionsApi } from '../api/inspections'
 import type {
   Inspection, InspectionConsultantType, InspectionStageTemplate, InspectionSummary
@@ -450,6 +451,7 @@ export default function InspectionsPage() {
               { label: 'Pending', value: 'pending', badge: inspections.filter(i => i.status === 'pending').length },
               { label: 'In Progress', value: 'in_progress', badge: inspections.filter(i => i.status === 'in_progress').length },
               { label: 'Completed', value: 'completed', badge: inspections.filter(i => i.status === 'completed').length },
+              { label: 'Timeline', value: 'timeline' },
             ]}
             value={activeTab}
             onChange={setActiveTab}
@@ -457,13 +459,20 @@ export default function InspectionsPage() {
           />
 
           <Box sx={{ mt: 2 }}>
-            <DataTable
-              columns={inspectionColumns}
-              rows={filteredInspections}
-              getRowId={(row) => row.id}
-              emptyMessage="No inspections found"
-              onRowClick={(row) => console.log('View inspection:', row.id)}
-            />
+            {activeTab === 'timeline' ? (
+              <InspectionHistoryTimeline
+                inspections={inspections}
+                loading={loading}
+              />
+            ) : (
+              <DataTable
+                columns={inspectionColumns}
+                rows={filteredInspections}
+                getRowId={(row) => row.id}
+                emptyMessage="No inspections found"
+                onRowClick={(row) => console.log('View inspection:', row.id)}
+              />
+            )}
           </Box>
         </Box>
       </Card>
