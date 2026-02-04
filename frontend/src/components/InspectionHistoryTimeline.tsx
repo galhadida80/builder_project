@@ -119,14 +119,23 @@ export function InspectionHistoryTimeline({
                 <Box
                   sx={{
                     width: 2,
-                    height: 80,
+                    height: 120,
                     bgcolor: 'grey.300',
                   }}
                 />
               )}
             </Box>
             <Box sx={{ flex: 1 }}>
-              <Skeleton variant="rectangular" width="100%" height={100} sx={{ borderRadius: 2 }} />
+              <Card>
+                <CardContent sx={{ display: 'flex', gap: 2, alignItems: 'flex-start', p: 2.5 }}>
+                  <Skeleton variant="circular" width={40} height={40} />
+                  <Box sx={{ flex: 1 }}>
+                    <Skeleton variant="text" width="60%" height={20} />
+                    <Skeleton variant="text" width="40%" height={16} sx={{ mt: 0.5 }} />
+                    <Skeleton variant="rectangular" width={100} height={24} sx={{ mt: 1, borderRadius: 4 }} />
+                  </Box>
+                </CardContent>
+              </Card>
             </Box>
           </Box>
         ))}
