@@ -1,5 +1,8 @@
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
+import enTranslations from './locales/en.json'
+import heTranslations from './locales/he.json'
+import esTranslations from './locales/es.json'
 
 // Initialize i18next
 i18n
@@ -7,13 +10,13 @@ i18n
   .init({
     resources: {
       en: {
-        translation: {},
+        translation: enTranslations,
       },
       he: {
-        translation: {},
+        translation: heTranslations,
       },
       es: {
-        translation: {},
+        translation: esTranslations,
       },
     },
     lng: 'en',
