@@ -4,6 +4,12 @@ import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Skeleton from '@mui/material/Skeleton'
 import IconButton from '@mui/material/IconButton'
+import Dialog from '@mui/material/Dialog'
+import DialogTitle from '@mui/material/DialogTitle'
+import DialogContent from '@mui/material/DialogContent'
+import DialogContentText from '@mui/material/DialogContentText'
+import DialogActions from '@mui/material/DialogActions'
+import Button from '@mui/material/Button'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { DocumentReviewPanel, type ReviewStatus, type Comment } from '../components/DocumentReviewPanel'
 import { EmptyState } from '../components/ui/EmptyState'
@@ -22,6 +28,17 @@ export default function DocumentReviewPage() {
   const [commentsLoading, setCommentsLoading] = useState(false)
   const [reviewStatus, setReviewStatus] = useState<ReviewStatus>('pending')
   const [currentUserId, setCurrentUserId] = useState<string | undefined>()
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean
+    status: ReviewStatus | null
+    title: string
+    message: string
+  }>({
+    open: false,
+    status: null,
+    title: '',
+    message: '',
+  })
 
   useEffect(() => {
     loadDocumentAndReview()
@@ -228,15 +245,64 @@ export default function DocumentReviewPage() {
     }
   }
 
-  const handleUpdateReviewStatus = async (status: ReviewStatus) => {
-    if (!projectId || !documentId) return
+  const handleRequestStatusChange = (status: ReviewStatus) => {
+    // Determine confirmation message based on status
+    const messages = {
+      approved: {
+        title: 'Approve Document?',
+        message: 'Are you sure you want to approve this document? This action will mark the document as approved.',
+      },
+      rejected: {
+        title: 'Reject Document?',
+        message: 'Are you sure you want to reject this document? This action will mark the document as rejected.',
+      },
+      changes_requested: {
+        title: 'Request Changes?',
+        message: 'Are you sure you want to request changes? The document owner will be notified to make revisions.',
+      },
+      pending: {
+        title: 'Reset Status?',
+        message: 'Are you sure you want to reset the document status to pending?',
+      },
+      in_review: {
+        title: 'Mark In Review?',
+        message: 'Are you sure you want to mark this document as in review?',
+      },
+    }
+
+    const config = messages[status]
+    setConfirmDialog({
+      open: true,
+      status,
+      title: config.title,
+      message: config.message,
+    })
+  }
+
+  const handleConfirmStatusChange = async () => {
+    const { status } = confirmDialog
+    if (!projectId || !documentId || !status) return
+
+    // Close dialog first
+    setConfirmDialog({ open: false, status: null, title: '', message: '' })
+
+    // Optimistic update - update UI immediately
+    const previousStatus = reviewStatus
+    setReviewStatus(status)
 
     try {
+      // Make API call in background
       await documentReviewsApi.updateReviewStatus(projectId, documentId, status)
-      setReviewStatus(status)
     } catch (err) {
-      console.error('Failed to update review status:', err)
+      // Rollback on error
+      setReviewStatus(previousStatus)
+      setError('Failed to update review status. Please try again.')
+      setTimeout(() => setError(null), 3000)
     }
+  }
+
+  const handleCancelStatusChange = () => {
+    setConfirmDialog({ open: false, status: null, title: '', message: '' })
   }
 
   const handleDownload = async () => {
@@ -352,11 +418,32 @@ export default function DocumentReviewPage() {
           onDeleteComment={handleDeleteComment}
           onResolveComment={handleResolveComment}
           reviewStatus={reviewStatus}
-          onApprove={() => handleUpdateReviewStatus('approved')}
-          onReject={() => handleUpdateReviewStatus('rejected')}
-          onRequestChanges={() => handleUpdateReviewStatus('changes_requested')}
+          onApprove={() => handleRequestStatusChange('approved')}
+          onReject={() => handleRequestStatusChange('rejected')}
+          onRequestChanges={() => handleRequestStatusChange('changes_requested')}
         />
       </Box>
+
+      {/* Confirmation Dialog */}
+      <Dialog
+        open={confirmDialog.open}
+        onClose={handleCancelStatusChange}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>{confirmDialog.title}</DialogTitle>
+        <DialogContent>
+          <DialogContentText>{confirmDialog.message}</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancelStatusChange} color="inherit">
+            Cancel
+          </Button>
+          <Button onClick={handleConfirmStatusChange} variant="contained" color="primary" autoFocus>
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   )
 }
