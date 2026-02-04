@@ -14,6 +14,7 @@ import ContactsPage from './pages/ContactsPage'
 import AuditLogPage from './pages/AuditLogPage'
 import InspectionsPage from './pages/InspectionsPage'
 import RFIPage from './pages/RFIPage'
+import DocumentReviewPage from './pages/DocumentReviewPage'
 
 function ProtectedRoute() {
   const token = localStorage.getItem('authToken')
@@ -49,6 +50,9 @@ export default function App() {
             <Route path="/approvals" element={<ApprovalsPage />} />
             <Route path="/audit" element={<AuditLogPage />} />
           </Route>
+
+          {/* Document review page - fullscreen layout without nested Layout */}
+          <Route path="/projects/:projectId/documents/:documentId/review" element={<DocumentReviewPage />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/login" replace />} />

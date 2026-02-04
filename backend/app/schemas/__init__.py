@@ -8,11 +8,5 @@ from app.schemas.approval import ApprovalRequestResponse, ApprovalStepResponse
 from app.schemas.area import AreaCreate, AreaUpdate, AreaResponse, AreaProgressCreate, AreaProgressResponse
 from app.schemas.file import FileResponse
 from app.schemas.audit import AuditLogResponse
-from app.schemas.inspection_template import (
-    InspectionConsultantTypeResponse, InspectionStageTemplateResponse, ProjectInspectionResponse,
-    InspectionFindingResponse, InspectionConsultantTypeWithStages, ProjectInspectionWithFindings,
-    InspectionStageTemplateCreate, InspectionStageTemplateUpdate, ProjectInspectionCreate,
-    ProjectInspectionUpdate, InspectionFindingCreate, InspectionFindingUpdate
-)
-from app.schemas.analytics import MetricsResponse, ProjectTrendsResponse, TrendDataPoint, DistributionsResponse, DistributionItem
-from app.schemas.rfi import RFICreate, RFIUpdate, RFIStatusUpdate, RFIResponse, RFIListResponse, RFIResponseSchema, RFIEmailLogSchema, RFISummaryResponse, PaginatedRFIResponse, RFISendRequest
+from app.schemas.inspection_template import InspectionConsultantTypeResponse, InspectionStageTemplateResponse, ProjectInspectionResponse, InspectionFindingResponse, InspectionConsultantTypeWithStages, ProjectInspectionWithFindings
+from app.schemas.document_review import DocumentReviewBase, DocumentReviewCreate, DocumentReviewUpdate, DocumentReviewResponse, DocumentCommentBase, DocumentCommentCreate, DocumentCommentUpdate, DocumentCommentResponse

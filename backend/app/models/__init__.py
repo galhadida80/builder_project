@@ -30,7 +30,7 @@ from app.models.equipment_template import (
     EquipmentApprovalSubmission,
     EquipmentApprovalDecision,
 )
-from app.models.consultant_assignment import ConsultantAssignment, AssignmentStatus
+from app.models.document_review import DocumentReview, DocumentComment, ReviewStatus
 
 __all__ = [
     "User",
@@ -65,6 +65,7 @@ __all__ = [
     "EquipmentTemplateConsultant",
     "EquipmentApprovalSubmission",
     "EquipmentApprovalDecision",
-    "ConsultantAssignment",
-    "AssignmentStatus",
+    "DocumentReview",
+    "DocumentComment",
+    "ReviewStatus",
 ]
