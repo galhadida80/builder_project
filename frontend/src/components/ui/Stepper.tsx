@@ -251,3 +251,98 @@ export function ProgressStepper({ currentStep, totalSteps, labels }: ProgressSte
 
   return <Stepper steps={steps} activeStep={currentStep} />
 }
+
+interface ApprovalWorkflowStepperProps {
+  approvalRequest: ApprovalRequestResponse
+  orientation?: 'horizontal' | 'vertical'
+}
+
+/**
+ * ApprovalWorkflowStepper - Enhanced stepper component that visualizes multi-step approval workflows
+ *
+ * Displays each approval step with:
+ * - Approver role and assignment details
+ * - Current status (pending, approved, rejected, revision_requested)
+ * - Completion details (approver name, timestamp, comments)
+ * - Visual status indicators with appropriate icons and colors
+ */
+export function ApprovalWorkflowStepper({
+  approvalRequest,
+  orientation = 'horizontal',
+}: ApprovalWorkflowStepperProps) {
+  // Handle empty steps case
+  if (!approvalRequest.steps || approvalRequest.steps.length === 0) {
+    return (
+      <Box
+        sx={{
+          width: '100%',
+          py: 3,
+          textAlign: 'center',
+          color: 'text.secondary',
+        }}
+      >
+        <Typography variant="body2">No approval steps defined</Typography>
+      </Box>
+    )
+  }
+
+  // Sort steps by stepOrder to ensure correct sequence
+  const sortedSteps = [...approvalRequest.steps].sort((a, b) => a.stepOrder - b.stepOrder)
+
+  // Find current step (first pending step in sequence)
+  const currentStepIndex = sortedSteps.findIndex((step) => step.status === 'pending')
+  const activeStep = currentStepIndex >= 0 ? currentStepIndex : sortedSteps.length
+
+  // Map approval steps to stepper format
+  const steps: StepItem[] = sortedSteps.map((step) => ({
+    label: step.approverRole || `Step ${step.stepOrder}`,
+    description: getStepDescription(step),
+    error: step.status === 'rejected',
+  }))
+
+  return (
+    <Box sx={{ width: '100%', py: 2 }}>
+      <Stepper steps={steps} activeStep={activeStep} orientation={orientation} />
+    </Box>
+  )
+}
+
+/**
+ * Helper function to generate step description based on status and approver info
+ */
+function getStepDescription(step: ApprovalStepResponse): string {
+  switch (step.status) {
+    case 'approved':
+      if (step.approver && step.decidedAt) {
+        const approverName = step.approver.name || step.approver.email
+        const date = new Date(step.decidedAt).toLocaleDateString()
+        return `Approved by ${approverName} on ${date}`
+      }
+      return 'Approved'
+
+    case 'rejected':
+      if (step.approver && step.decidedAt) {
+        const approverName = step.approver.name || step.approver.email
+        const date = new Date(step.decidedAt).toLocaleDateString()
+        return `Rejected by ${approverName} on ${date}`
+      }
+      return 'Rejected'
+
+    case 'revision_requested':
+      if (step.approver && step.decidedAt) {
+        const approverName = step.approver.name || step.approver.email
+        return `Revision requested by ${approverName}`
+      }
+      return 'Revision requested'
+
+    case 'pending':
+      if (step.approver) {
+        const approverName = step.approver.name || step.approver.email
+        return `Assigned to ${approverName}`
+      }
+      return 'Pending assignment'
+
+    default:
+      return ''
+  }
+}
