@@ -21,6 +21,7 @@ import SettingsIcon from '@mui/icons-material/Settings'
 import AssignmentIcon from '@mui/icons-material/Assignment'
 import ConstructionIcon from '@mui/icons-material/Construction'
 import EmailIcon from '@mui/icons-material/Email'
+import GroupIcon from '@mui/icons-material/Group'
 
 const DRAWER_WIDTH = 260
 
@@ -33,6 +34,7 @@ interface NavItem {
 const mainNavItems: NavItem[] = [
   { label: 'Dashboard', path: '/dashboard', icon: <DashboardIcon /> },
   { label: 'Projects', path: '/projects', icon: <FolderIcon /> },
+  { label: 'Team Members', path: '/team-members', icon: <GroupIcon /> },
 ]
 
 const projectNavItems: NavItem[] = [
