@@ -143,7 +143,7 @@ export default function RFIPage() {
         question: fullRfi.question,
         to_email: fullRfi.to_email,
         to_name: fullRfi.to_name || '',
-        cc_emails: fullRfi.cc_emails || [],
+        cc_emails: [],
         category: fullRfi.category,
         priority: fullRfi.priority,
         due_date: fullRfi.due_date || '',
@@ -573,7 +573,7 @@ export default function RFIPage() {
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                       <Typography variant="caption" fontWeight={600}>
                         {response.from_name || response.from_email}
-                        {response.is_internal && <Chip label="Internal" size="small" sx={{ marginInlineStart: 1, height: 16 }} />}
+                        {response.is_internal && <Chip label="Internal" size="small" sx={{ ml: 1, height: 16 }} />}
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
                         {formatDate(response.created_at)}
