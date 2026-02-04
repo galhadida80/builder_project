@@ -14,6 +14,7 @@ import NotificationsIcon from '@mui/icons-material/Notifications'
 import PersonIcon from '@mui/icons-material/Person'
 import SettingsIcon from '@mui/icons-material/Settings'
 import LogoutIcon from '@mui/icons-material/Logout'
+import MenuIcon from '@mui/icons-material/Menu'
 import type { User, Project } from '../../types'
 import ProjectSelector from './ProjectSelector'
 import { useToast } from '../common/ToastProvider'
@@ -31,6 +32,7 @@ export default function Header({ user, currentProject, projects, onProjectChange
   const { showInfo } = useToast()
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [notificationAnchor, setNotificationAnchor] = useState<null | HTMLElement>(null)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget)
@@ -46,6 +48,10 @@ export default function Header({ user, currentProject, projects, onProjectChange
 
   const handleNotificationClose = () => {
     setNotificationAnchor(null)
+  }
+
+  const handleMobileMenuToggle = () => {
+    setMobileMenuOpen(!mobileMenuOpen)
   }
 
   const getInitials = (name: string) => {
@@ -68,6 +74,17 @@ export default function Header({ user, currentProject, projects, onProjectChange
     >
       <Toolbar sx={{ justifyContent: 'space-between' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <IconButton
+            onClick={handleMobileMenuToggle}
+            sx={{
+              display: { xs: 'flex', md: 'none' },
+              width: 44,
+              height: 44,
+            }}
+            aria-label="open mobile menu"
+          >
+            <MenuIcon />
+          </IconButton>
           <ProjectSelector
             projects={projects}
             currentProject={currentProject}
