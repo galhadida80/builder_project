@@ -396,7 +396,7 @@ export default function MaterialsPage() {
             helperText={errors.name || `${formData.name.length}/${VALIDATION.MAX_NAME_LENGTH}`}
             inputProps={{ maxLength: VALIDATION.MAX_NAME_LENGTH }}
           />
-          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
             <MuiTextField
               fullWidth
               select
@@ -420,7 +420,7 @@ export default function MaterialsPage() {
             value={formData.modelNumber}
             onChange={(e) => setFormData({ ...formData, modelNumber: e.target.value })}
           />
-          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
             <TextField
               fullWidth
               label="Quantity"
@@ -442,7 +442,7 @@ export default function MaterialsPage() {
               {unitOptions.map(unit => <MenuItem key={unit} value={unit}>{unit}</MenuItem>)}
             </MuiTextField>
           </Box>
-          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
             <TextField
               fullWidth
               label="Expected Delivery"
