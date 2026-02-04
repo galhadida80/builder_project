@@ -1,25 +1,25 @@
 {
   "active": true,
-  "spec": "017-1-2-create-equipmentapprovalsubmission-model",
+  "spec": "056-create-material-inventory-grid",
   "state": "building",
   "subtasks": {
-    "completed": 7,
-    "total": 8,
+    "completed": 0,
+    "total": 7,
     "in_progress": 1,
     "failed": 0
   },
   "phase": {
-    "current": "Testing and Verification",
+    "current": "Component Implementation",
     "id": null,
-    "total": 3
+    "total": 2
   },
   "workers": {
     "active": 0,
     "max": 1
   },
   "session": {
-    "number": 8,
-    "started_at": "2026-01-29T19:15:36.394866"
+    "number": 1,
+    "started_at": "2026-02-04T17:37:36.323370"
   },
-  "last_update": "2026-01-29T19:39:04.614686"
+  "last_update": "2026-02-04T17:37:36.396391"
 }
