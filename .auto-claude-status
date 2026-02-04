@@ -3,23 +3,23 @@
   "spec": "075-build-landing-page-hero-section",
   "state": "building",
   "subtasks": {
-    "completed": 0,
+    "completed": 2,
     "total": 5,
     "in_progress": 1,
     "failed": 0
   },
   "phase": {
-    "current": "Trust Logo Assets Setup",
+    "current": "Landing Page Integration",
     "id": null,
-    "total": 1
+    "total": 2
   },
   "workers": {
     "active": 0,
     "max": 1
   },
   "session": {
-    "number": 1,
+    "number": 3,
     "started_at": "2026-02-04T17:37:51.638467"
   },
-  "last_update": "2026-02-04T17:37:51.707455"
+  "last_update": "2026-02-04T17:42:20.214901"
 }

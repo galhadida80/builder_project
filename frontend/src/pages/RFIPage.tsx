@@ -8,7 +8,6 @@ import MenuItem from '@mui/material/MenuItem'
 import MuiTextField from '@mui/material/TextField'
 import Skeleton from '@mui/material/Skeleton'
 import Chip from '@mui/material/Chip'
-import Autocomplete from '@mui/material/Autocomplete'
 import AddIcon from '@mui/icons-material/Add'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import EditIcon from '@mui/icons-material/Edit'
@@ -113,6 +112,7 @@ export default function RFIPage() {
       question: '',
       to_email: '',
       to_name: '',
+      cc_emails: [],
       category: 'design',
       priority: 'medium',
       due_date: '',
@@ -143,6 +143,7 @@ export default function RFIPage() {
         question: fullRfi.question,
         to_email: fullRfi.to_email,
         to_name: fullRfi.to_name || '',
+        cc_emails: [],
         category: fullRfi.category,
         priority: fullRfi.priority,
         due_date: fullRfi.due_date || '',
