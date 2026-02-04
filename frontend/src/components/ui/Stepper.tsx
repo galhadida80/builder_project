@@ -9,6 +9,41 @@ import {
 import { styled } from '@mui/material/styles'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 
+// Approval workflow interfaces
+export interface UserResponse {
+  id: string
+  email: string
+  name?: string
+}
+
+export interface ApprovalStepResponse {
+  id: string
+  approvalRequestId: string
+  stepOrder: number
+  approverId?: string
+  approver?: UserResponse
+  approverRole?: string
+  status: string
+  comments?: string
+  decidedAt?: string
+  createdAt: string
+}
+
+export interface ApprovalRequestResponse {
+  id: string
+  projectId: string
+  entityType: string
+  entityId: string
+  currentStatus: string
+  createdAt: string
+  createdBy?: UserResponse
+  steps: ApprovalStepResponse[]
+}
+
+export interface ApprovalAction {
+  comments?: string
+}
+
 interface StepItem {
   label: string
   description?: string
