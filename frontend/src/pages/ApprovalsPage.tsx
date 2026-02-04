@@ -8,7 +8,6 @@ import InventoryIcon from '@mui/icons-material/Inventory'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import CancelIcon from '@mui/icons-material/Cancel'
 import PendingIcon from '@mui/icons-material/Pending'
-import FilterListIcon from '@mui/icons-material/FilterList'
 import ThumbUpIcon from '@mui/icons-material/ThumbUp'
 import ThumbDownIcon from '@mui/icons-material/ThumbDown'
 import { Card, KPICard } from '../components/ui/Card'
@@ -188,16 +187,11 @@ export default function ApprovalsPage() {
       <Card>
         <Box sx={{ p: 2.5 }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-              <SearchField
-                placeholder="Search requests..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <Button variant="secondary" size="small" icon={<FilterListIcon />}>
-                Filters
-              </Button>
-            </Box>
+            <SearchField
+              placeholder="Search requests..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
             <Chip label={`${displayedApprovals.length} items`} size="small" />
           </Box>
 
