@@ -3,7 +3,7 @@
   "spec": "075-build-landing-page-hero-section",
   "state": "building",
   "subtasks": {
-    "completed": 2,
+    "completed": 3,
     "total": 5,
     "in_progress": 1,
     "failed": 0
@@ -18,8 +18,8 @@
     "max": 1
   },
   "session": {
-    "number": 3,
+    "number": 4,
     "started_at": "2026-02-04T17:37:51.638467"
   },
-  "last_update": "2026-02-04T17:42:20.214901"
+  "last_update": "2026-02-04T17:45:18.769626"
 }
