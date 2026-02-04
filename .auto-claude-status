@@ -1,25 +1,25 @@
 {
   "active": true,
-  "spec": "046-add-hebrew-language-support",
+  "spec": "048-build-inspection-history-timeline",
   "state": "building",
   "subtasks": {
-    "completed": 1,
-    "total": 6,
+    "completed": 14,
+    "total": 16,
     "in_progress": 1,
     "failed": 0
   },
   "phase": {
-    "current": "Hebrew Language Implementation",
-    "id": 1,
-    "total": 6
+    "current": "Polish and Edge Case Handling",
+    "id": null,
+    "total": 5
   },
   "workers": {
     "active": 0,
     "max": 1
   },
   "session": {
-    "number": 2,
-    "started_at": "2026-02-04T17:34:11.951215"
+    "number": 15,
+    "started_at": "2026-02-05T00:35:24.253605"
   },
-  "last_update": "2026-02-04T17:38:08.513660"
+  "last_update": "2026-02-05T01:13:50.794793"
 }

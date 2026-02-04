@@ -24,10 +24,10 @@ import { FormModal } from '../components/ui/Modal'
 import { PageHeader } from '../components/ui/Breadcrumbs'
 import { EmptyState } from '../components/ui/EmptyState'
 import { TextField, SearchField } from '../components/ui/TextField'
-import { FindingDocumentationCard } from '../components/inspections/FindingDocumentationCard'
+import { InspectionHistoryTimeline } from '../components/InspectionHistoryTimeline'
 import { inspectionsApi } from '../api/inspections'
 import type {
-  Inspection, InspectionConsultantType, InspectionStageTemplate, InspectionSummary, FindingSeverity
+  Inspection, InspectionConsultantType, InspectionStageTemplate, InspectionSummary
 } from '../types'
 
 export default function InspectionsPage() {
@@ -42,7 +42,6 @@ export default function InspectionsPage() {
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedInspection, setSelectedInspection] = useState<Inspection | null>(null)
 
   useEffect(() => {
     if (projectId) loadData()
@@ -83,20 +82,6 @@ export default function InspectionsPage() {
     setDialogOpen(false)
     setNewInspection({ consultantTypeId: '', scheduledDate: '', notes: '' })
     loadData()
-  }
-
-  const handleInspectionClick = (inspection: Inspection) => {
-    setSelectedInspection(selectedInspection?.id === inspection.id ? null : inspection)
-  }
-
-  const handleSeverityChange = async (findingId: string, severity: FindingSeverity) => {
-    try {
-      await inspectionsApi.updateFinding(findingId, { severity })
-      // Refresh data to get updated findings
-      loadData()
-    } catch (error) {
-      console.error('Failed to update severity:', error)
-    }
   }
 
   const filteredInspections = inspections.filter(inspection => {
@@ -466,6 +451,7 @@ export default function InspectionsPage() {
               { label: 'Pending', value: 'pending', badge: inspections.filter(i => i.status === 'pending').length },
               { label: 'In Progress', value: 'in_progress', badge: inspections.filter(i => i.status === 'in_progress').length },
               { label: 'Completed', value: 'completed', badge: inspections.filter(i => i.status === 'completed').length },
+              { label: 'Timeline', value: 'timeline' },
             ]}
             value={activeTab}
             onChange={setActiveTab}
@@ -473,41 +459,21 @@ export default function InspectionsPage() {
           />
 
           <Box sx={{ mt: 2 }}>
-            <DataTable
-              columns={inspectionColumns}
-              rows={filteredInspections}
-              getRowId={(row) => row.id}
-              emptyMessage="No inspections found"
-              onRowClick={handleInspectionClick}
-            />
+            {activeTab === 'timeline' ? (
+              <InspectionHistoryTimeline
+                inspections={inspections}
+                loading={loading}
+              />
+            ) : (
+              <DataTable
+                columns={inspectionColumns}
+                rows={filteredInspections}
+                getRowId={(row) => row.id}
+                emptyMessage="No inspections found"
+                onRowClick={(row) => console.log('View inspection:', row.id)}
+              />
+            )}
           </Box>
-
-          {/* Finding Cards for Selected Inspection */}
-          {selectedInspection && selectedInspection.findings && selectedInspection.findings.length > 0 && (
-            <Box sx={{ mt: 3 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Typography variant="h6" fontWeight={600}>
-                  Findings for {selectedInspection.consultantType?.name || 'Inspection'}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  {selectedInspection.findings.length} finding{selectedInspection.findings.length !== 1 ? 's' : ''}
-                </Typography>
-              </Box>
-              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }, gap: 2 }}>
-                {selectedInspection.findings.map((finding) => (
-                  <FindingDocumentationCard
-                    key={finding.id}
-                    finding={finding}
-                    onSeverityChange={(severity) => handleSeverityChange(finding.id, severity)}
-                    onAssign={() => console.log('Assign finding:', finding.id)}
-                    onResolve={() => console.log('Resolve finding:', finding.id)}
-                    onAddPhoto={() => console.log('Add photo to finding:', finding.id)}
-                    onPhotoClick={(photoUrl) => console.log('View photo:', photoUrl)}
-                  />
-                ))}
-              </Box>
-            </Box>
-          )}
         </Box>
       </Card>
 
