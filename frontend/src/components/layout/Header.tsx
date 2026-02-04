@@ -68,8 +68,8 @@ export default function Header({ user, currentProject, projects, onProjectChange
         borderBottom: '1px solid',
         borderColor: 'divider',
         bgcolor: 'background.paper',
-        ml: '260px',
-        width: 'calc(100% - 260px)',
+        ml: { xs: 0, md: '260px' },
+        width: { xs: '100%', md: 'calc(100% - 260px)' },
       }}
     >
       <Toolbar sx={{ justifyContent: 'space-between' }}>
