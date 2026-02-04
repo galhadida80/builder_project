@@ -3,7 +3,6 @@ import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Skeleton from '@mui/material/Skeleton'
 import Chip from '@mui/material/Chip'
-import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Avatar from '@mui/material/Avatar'
 import MuiTextField from '@mui/material/TextField'
@@ -12,6 +11,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import WarningIcon from '@mui/icons-material/Warning'
 import ErrorIcon from '@mui/icons-material/Error'
 import ScheduleIcon from '@mui/icons-material/Schedule'
+import { Card } from './ui/Card'
 import { EmptyState } from './ui/EmptyState'
 import type { Inspection, InspectionStatus } from '../types'
 
@@ -237,19 +237,10 @@ export function InspectionHistoryTimeline({
               {/* Card */}
               <Box sx={{ flex: 1 }}>
                 <Card
-                  sx={{
-                    cursor: onInspectionClick ? 'pointer' : 'default',
-                    transition: 'all 0.2s',
-                    '&:hover': onInspectionClick
-                      ? {
-                          boxShadow: 4,
-                          transform: 'translateY(-2px)',
-                        }
-                      : {},
-                  }}
+                  hoverable={!!onInspectionClick}
                   onClick={() => handleCardClick(inspection.id)}
                 >
-                  <CardContent sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
+                  <CardContent sx={{ display: 'flex', gap: 2, alignItems: 'flex-start', p: 2.5 }}>
                     <Avatar
                       sx={{
                         bgcolor: 'primary.light',
