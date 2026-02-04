@@ -28,6 +28,8 @@ class InspectionConsultantType(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     inspection_stages = relationship("InspectionStageTemplate", back_populates="consultant_type", cascade="all, delete-orphan")
+    stages = relationship("InspectionStage", back_populates="consultant_type", cascade="all, delete-orphan")
+    inspections = relationship("Inspection", back_populates="consultant_type")
 
 
 class InspectionStageTemplate(Base):

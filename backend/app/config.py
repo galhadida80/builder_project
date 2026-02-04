@@ -28,6 +28,12 @@ class Settings(BaseSettings):
 
     api_v1_prefix: str = "/api/v1"
 
+    email_provider: str = "fake"
+    rfi_email_address: str = "rfis@example.com"
+    sendgrid_api_key: str = ""
+    sendgrid_from_email: str = ""
+    sendgrid_from_name: str = "Construction Platform"
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"

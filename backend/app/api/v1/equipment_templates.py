@@ -22,9 +22,7 @@ router = APIRouter()
 @router.get("/equipment-templates", response_model=list[EquipmentTemplateResponse])
 async def list_equipment_templates(db: AsyncSession = Depends(get_db)):
     result = await db.execute(
-        select(EquipmentTemplate)
-        .options(selectinload(EquipmentTemplate.created_by))
-        .order_by(EquipmentTemplate.created_at.desc())
+        select(EquipmentTemplate).order_by(EquipmentTemplate.created_at.desc())
     )
     return result.scalars().all()
 

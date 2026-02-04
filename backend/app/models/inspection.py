@@ -5,6 +5,7 @@ from sqlalchemy import String, Text, DateTime, ForeignKey, Integer
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.session import Base
+from app.models.inspection_template import InspectionConsultantType
 
 
 class InspectionStatus(str, Enum):
@@ -24,19 +25,6 @@ class FindingSeverity(str, Enum):
 class FindingStatus(str, Enum):
     OPEN = "open"
     RESOLVED = "resolved"
-
-
-class InspectionConsultantType(Base):
-    __tablename__ = "inspection_consultant_types"
-
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    name: Mapped[str] = mapped_column(String(255), nullable=False)
-    description: Mapped[str | None] = mapped_column(Text)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    stages = relationship("InspectionStage", back_populates="consultant_type", cascade="all, delete-orphan")
-    inspections = relationship("Inspection", back_populates="consultant_type")
 
 
 class InspectionStage(Base):
