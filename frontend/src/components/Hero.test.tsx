@@ -1,3 +1,4 @@
+import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { Hero } from './Hero'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
@@ -41,8 +42,8 @@ describe('Hero Component', () => {
   })
 
   it('calls CTA handlers on click', () => {
-    const primaryHandler = jest.fn()
-    const secondaryHandler = jest.fn()
+    const primaryHandler = vi.fn()
+    const secondaryHandler = vi.fn()
 
     renderWithTheme(
       <Hero

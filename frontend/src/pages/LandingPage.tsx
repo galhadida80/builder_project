@@ -1,6 +1,12 @@
 import { useNavigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import { Hero } from '../components/Hero'
+// Import logo assets so Vite can bundle them correctly
+import turnerLogo from '../assets/logos/turner.svg'
+import bechtelLogo from '../assets/logos/bechtel.svg'
+import fluorLogo from '../assets/logos/fluor.svg'
+import kiewitLogo from '../assets/logos/kiewit.svg'
+import skanskaLogo from '../assets/logos/skanska.svg'
 
 export default function LandingPage() {
   const navigate = useNavigate()
@@ -8,27 +14,27 @@ export default function LandingPage() {
   const trustLogos = [
     {
       name: 'Turner Construction',
-      imageUrl: '/src/assets/logos/turner.svg',
+      imageUrl: turnerLogo,
       alt: 'Turner Construction logo',
     },
     {
       name: 'Bechtel',
-      imageUrl: '/src/assets/logos/bechtel.svg',
+      imageUrl: bechtelLogo,
       alt: 'Bechtel logo',
     },
     {
       name: 'Fluor',
-      imageUrl: '/src/assets/logos/fluor.svg',
+      imageUrl: fluorLogo,
       alt: 'Fluor logo',
     },
     {
       name: 'Kiewit',
-      imageUrl: '/src/assets/logos/kiewit.svg',
+      imageUrl: kiewitLogo,
       alt: 'Kiewit logo',
     },
     {
       name: 'Skanska',
-      imageUrl: '/src/assets/logos/skanska.svg',
+      imageUrl: skanskaLogo,
       alt: 'Skanska logo',
     },
   ]
