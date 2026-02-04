@@ -101,6 +101,42 @@ export const typography = {
     small: '0.875rem',
     tiny: '0.75rem',
   },
+  // Responsive font sizes (mobile-first)
+  responsiveFontSize: {
+    display: {
+      xs: '2rem',      // 32px on mobile
+      sm: '2.5rem',    // 40px on small screens
+      md: '3rem',      // 48px on medium+
+    },
+    h1: {
+      xs: '1.75rem',   // 28px on mobile
+      sm: '2rem',      // 32px on small screens
+      md: '2.25rem',   // 36px on medium+
+    },
+    h2: {
+      xs: '1.5rem',    // 24px on mobile
+      sm: '1.625rem',  // 26px on small screens
+      md: '1.75rem',   // 28px on medium+
+    },
+    h3: {
+      xs: '1.25rem',   // 20px on mobile
+      sm: '1.313rem',  // 21px on small screens
+      md: '1.375rem',  // 22px on medium+
+    },
+    h4: {
+      xs: '1.063rem',  // 17px on mobile
+      sm: '1.094rem',  // 17.5px on small screens
+      md: '1.125rem',  // 18px on medium+
+    },
+    body: {
+      xs: '0.938rem',  // 15px on mobile (slightly larger for readability)
+      sm: '1rem',      // 16px on small screens+
+    },
+    small: {
+      xs: '0.813rem',  // 13px on mobile
+      sm: '0.875rem',  // 14px on small screens+
+    },
+  },
   fontWeight: {
     light: 300,
     regular: 400,

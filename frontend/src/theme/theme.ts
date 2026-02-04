@@ -5,46 +5,82 @@ const baseThemeOptions: ThemeOptions = {
   typography: {
     fontFamily: typography.fontFamily.english,
     h1: {
-      fontSize: typography.fontSize.h1,
+      fontSize: typography.responsiveFontSize.h1.xs,
       fontWeight: typography.fontWeight.bold,
       lineHeight: typography.lineHeight.tight,
       letterSpacing: '-0.02em',
+      '@media (min-width:600px)': {
+        fontSize: typography.responsiveFontSize.h1.sm,
+      },
+      '@media (min-width:900px)': {
+        fontSize: typography.responsiveFontSize.h1.md,
+      },
     },
     h2: {
-      fontSize: typography.fontSize.h2,
+      fontSize: typography.responsiveFontSize.h2.xs,
       fontWeight: typography.fontWeight.semibold,
       lineHeight: typography.lineHeight.tight,
       letterSpacing: '-0.01em',
+      '@media (min-width:600px)': {
+        fontSize: typography.responsiveFontSize.h2.sm,
+      },
+      '@media (min-width:900px)': {
+        fontSize: typography.responsiveFontSize.h2.md,
+      },
     },
     h3: {
-      fontSize: typography.fontSize.h3,
+      fontSize: typography.responsiveFontSize.h3.xs,
       fontWeight: typography.fontWeight.semibold,
       lineHeight: 1.3,
+      '@media (min-width:600px)': {
+        fontSize: typography.responsiveFontSize.h3.sm,
+      },
+      '@media (min-width:900px)': {
+        fontSize: typography.responsiveFontSize.h3.md,
+      },
     },
     h4: {
-      fontSize: typography.fontSize.h4,
+      fontSize: typography.responsiveFontSize.h4.xs,
       fontWeight: typography.fontWeight.medium,
       lineHeight: 1.4,
+      '@media (min-width:600px)': {
+        fontSize: typography.responsiveFontSize.h4.sm,
+      },
+      '@media (min-width:900px)': {
+        fontSize: typography.responsiveFontSize.h4.md,
+      },
     },
     h5: {
-      fontSize: typography.fontSize.body,
+      fontSize: typography.responsiveFontSize.body.xs,
       fontWeight: typography.fontWeight.medium,
       lineHeight: 1.4,
+      '@media (min-width:600px)': {
+        fontSize: typography.responsiveFontSize.body.sm,
+      },
     },
     h6: {
-      fontSize: typography.fontSize.small,
+      fontSize: typography.responsiveFontSize.small.xs,
       fontWeight: typography.fontWeight.medium,
       lineHeight: 1.4,
+      '@media (min-width:600px)': {
+        fontSize: typography.responsiveFontSize.small.sm,
+      },
     },
     body1: {
-      fontSize: typography.fontSize.body,
+      fontSize: typography.responsiveFontSize.body.xs,
       fontWeight: typography.fontWeight.regular,
       lineHeight: typography.lineHeight.relaxed,
+      '@media (min-width:600px)': {
+        fontSize: typography.responsiveFontSize.body.sm,
+      },
     },
     body2: {
-      fontSize: typography.fontSize.small,
+      fontSize: typography.responsiveFontSize.small.xs,
       fontWeight: typography.fontWeight.regular,
       lineHeight: typography.lineHeight.normal,
+      '@media (min-width:600px)': {
+        fontSize: typography.responsiveFontSize.small.sm,
+      },
     },
     caption: {
       fontSize: typography.fontSize.tiny,
@@ -52,10 +88,13 @@ const baseThemeOptions: ThemeOptions = {
       lineHeight: 1.4,
     },
     button: {
-      fontSize: typography.fontSize.small,
+      fontSize: typography.responsiveFontSize.small.xs,
       fontWeight: typography.fontWeight.semibold,
       textTransform: 'none' as const,
       letterSpacing: '0.01em',
+      '@media (min-width:600px)': {
+        fontSize: typography.responsiveFontSize.small.sm,
+      },
     },
   },
   shape: {
@@ -78,12 +117,25 @@ const baseThemeOptions: ThemeOptions = {
         },
         html: {
           scrollBehavior: 'smooth',
+          overflowX: 'hidden',
         },
         body: {
           fontFamily: typography.fontFamily.english,
+          overflowX: 'hidden',
+          wordWrap: 'break-word',
+          overflowWrap: 'break-word',
         },
         '[dir="rtl"] body': {
           fontFamily: typography.fontFamily.hebrew,
+        },
+        'h1, h2, h3, h4, h5, h6': {
+          overflowWrap: 'break-word',
+          wordWrap: 'break-word',
+          hyphens: 'auto',
+        },
+        'p, span, div': {
+          maxWidth: '100%',
+          overflowWrap: 'break-word',
         },
         '@media (prefers-reduced-motion: reduce)': {
           '*': {
