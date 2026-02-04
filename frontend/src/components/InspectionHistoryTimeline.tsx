@@ -106,36 +106,53 @@ export function InspectionHistoryTimeline({
     return (
       <Box sx={{ width: '100%' }}>
         <Box sx={{ mb: 3, display: 'flex', justifyContent: 'flex-end' }}>
-          <Skeleton variant="rectangular" width={200} height={40} />
+          <Skeleton variant="rectangular" sx={{ width: { xs: '100%', sm: 200 } }} height={40} />
         </Box>
         {[1, 2, 3].map((i) => (
-          <Box key={i} sx={{ display: 'flex', gap: 2, mb: 3 }}>
-            <Box sx={{ minWidth: 120, pt: 1 }}>
+          <Box key={i} sx={{ mb: 3 }}>
+            {/* Date - Mobile */}
+            <Box sx={{ display: { xs: 'block', sm: 'none' }, mb: 1, pl: 3 }}>
               <Skeleton variant="text" width={100} />
             </Box>
-            <Box sx={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <Skeleton variant="circular" width={12} height={12} />
-              {i < 3 && (
-                <Box
-                  sx={{
-                    width: 2,
-                    height: 120,
-                    bgcolor: 'grey.300',
-                  }}
-                />
-              )}
-            </Box>
-            <Box sx={{ flex: 1 }}>
-              <Card>
-                <CardContent sx={{ display: 'flex', gap: 2, alignItems: 'flex-start', p: 2.5 }}>
-                  <Skeleton variant="circular" width={40} height={40} />
-                  <Box sx={{ flex: 1 }}>
-                    <Skeleton variant="text" width="60%" height={20} />
-                    <Skeleton variant="text" width="40%" height={16} sx={{ mt: 0.5 }} />
-                    <Skeleton variant="rectangular" width={100} height={24} sx={{ mt: 1, borderRadius: 4 }} />
-                  </Box>
-                </CardContent>
-              </Card>
+
+            {/* Desktop/Tablet Layout */}
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              {/* Date - Desktop */}
+              <Box sx={{ display: { xs: 'none', sm: 'block' }, minWidth: { sm: 100, md: 120 }, pt: 1 }}>
+                <Skeleton variant="text" width={100} />
+              </Box>
+              <Box sx={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <Skeleton variant="circular" width={12} height={12} />
+                {i < 3 && (
+                  <Box
+                    sx={{
+                      width: 2,
+                      height: 120,
+                      bgcolor: 'grey.300',
+                    }}
+                  />
+                )}
+              </Box>
+              <Box sx={{ flex: 1 }}>
+                <Card>
+                  <CardContent sx={{
+                    display: 'flex',
+                    gap: { xs: 1.5, sm: 2 },
+                    alignItems: 'flex-start',
+                    p: { xs: 2, sm: 2.5 },
+                    flexDirection: { xs: 'column', sm: 'row' },
+                  }}>
+                    <Box sx={{ display: 'flex', gap: { xs: 1.5, sm: 2 }, alignItems: 'center', width: { xs: '100%', sm: 'auto' } }}>
+                      <Skeleton variant="circular" width={40} height={40} />
+                      <Box sx={{ flex: { xs: 1, sm: 'initial' } }}>
+                        <Skeleton variant="text" width="60%" height={20} />
+                        <Skeleton variant="text" width="40%" height={16} sx={{ mt: 0.5 }} />
+                      </Box>
+                    </Box>
+                    <Skeleton variant="rectangular" width={100} height={24} sx={{ borderRadius: 4 }} />
+                  </CardContent>
+                </Card>
+              </Box>
             </Box>
           </Box>
         ))}
@@ -152,7 +169,7 @@ export function InspectionHistoryTimeline({
             size="small"
             value={dateRange}
             onChange={(e) => setDateRange(e.target.value as DateRangeFilter)}
-            sx={{ minWidth: 200 }}
+            sx={{ minWidth: { xs: '100%', sm: 200 } }}
           >
             {DATE_RANGE_OPTIONS.map((option) => (
               <MenuItem key={option.value} value={option.value}>
@@ -179,7 +196,7 @@ export function InspectionHistoryTimeline({
           size="small"
           value={dateRange}
           onChange={(e) => setDateRange(e.target.value as DateRangeFilter)}
-          sx={{ minWidth: 200 }}
+          sx={{ minWidth: { xs: '100%', sm: 200 } }}
           label="Date Range"
         >
           {DATE_RANGE_OPTIONS.map((option) => (
@@ -201,76 +218,110 @@ export function InspectionHistoryTimeline({
             <Box
               key={inspection.id}
               sx={{
-                display: 'flex',
-                gap: 2,
                 mb: index < sortedInspections.length - 1 ? 4 : 0,
               }}
             >
-              {/* Date */}
-              <Box sx={{ minWidth: 120, pt: 1 }}>
+              {/* Date - Shows above card on mobile, left side on desktop */}
+              <Box sx={{
+                display: { xs: 'block', sm: 'none' },
+                mb: 1,
+                pl: 3,
+              }}>
                 <Typography variant="body2" color="text.secondary">
                   {formatDate(inspection.scheduledDate)}
                 </Typography>
               </Box>
 
-              {/* Timeline Node */}
+              {/* Desktop/Tablet Layout */}
               <Box
                 sx={{
-                  position: 'relative',
                   display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
+                  gap: 2,
                 }}
               >
+                {/* Date - Desktop only */}
+                <Box sx={{
+                  display: { xs: 'none', sm: 'block' },
+                  minWidth: { sm: 100, md: 120 },
+                  pt: 1,
+                }}>
+                  <Typography variant="body2" color="text.secondary">
+                    {formatDate(inspection.scheduledDate)}
+                  </Typography>
+                </Box>
+
+                {/* Timeline Node */}
                 <Box
                   sx={{
-                    width: 12,
-                    height: 12,
-                    borderRadius: '50%',
-                    bgcolor: config.color === 'success' ? 'success.main' :
-                             config.color === 'warning' ? 'warning.main' :
-                             config.color === 'error' ? 'error.main' :
-                             config.color === 'info' ? 'info.main' : 'grey.400',
-                    mt: 1,
+                    position: 'relative',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
                   }}
-                />
-                {index < sortedInspections.length - 1 && (
+                >
                   <Box
                     sx={{
-                      width: 2,
-                      flex: 1,
-                      bgcolor: 'grey.300',
-                      minHeight: 60,
+                      width: 12,
+                      height: 12,
+                      borderRadius: '50%',
+                      bgcolor: config.color === 'success' ? 'success.main' :
+                               config.color === 'warning' ? 'warning.main' :
+                               config.color === 'error' ? 'error.main' :
+                               config.color === 'info' ? 'info.main' : 'grey.400',
+                      mt: 1,
                     }}
                   />
-                )}
-              </Box>
-
-              {/* Card */}
-              <Box sx={{ flex: 1 }}>
-                <Card
-                  hoverable
-                  onClick={() => handleCardClick(inspection)}
-                >
-                  <CardContent sx={{ display: 'flex', gap: 2, alignItems: 'flex-start', p: 2.5 }}>
-                    <Avatar
+                  {index < sortedInspections.length - 1 && (
+                    <Box
                       sx={{
-                        bgcolor: 'primary.light',
-                        color: 'primary.main',
-                        width: 40,
-                        height: 40,
+                        width: 2,
+                        flex: 1,
+                        bgcolor: 'grey.300',
+                        minHeight: 60,
                       }}
-                    >
-                      {inspectorName.charAt(0).toUpperCase()}
-                    </Avatar>
-                    <Box sx={{ flex: 1 }}>
-                      <Typography variant="body2" fontWeight={500} gutterBottom>
-                        {consultantTypeName}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
-                        Inspector: {inspectorName}
-                      </Typography>
-                      <Box sx={{ mt: 1 }}>
+                    />
+                  )}
+                </Box>
+
+                {/* Card */}
+                <Box sx={{ flex: 1 }}>
+                  <Card
+                    hoverable
+                    onClick={() => handleCardClick(inspection)}
+                  >
+                    <CardContent sx={{
+                      display: 'flex',
+                      gap: { xs: 1.5, sm: 2 },
+                      alignItems: 'flex-start',
+                      p: { xs: 2, sm: 2.5 },
+                      flexDirection: { xs: 'column', sm: 'row' },
+                    }}>
+                      <Box sx={{
+                        display: 'flex',
+                        gap: { xs: 1.5, sm: 2 },
+                        alignItems: 'center',
+                        width: { xs: '100%', sm: 'auto' },
+                      }}>
+                        <Avatar
+                          sx={{
+                            bgcolor: 'primary.light',
+                            color: 'primary.main',
+                            width: { xs: 36, sm: 40 },
+                            height: { xs: 36, sm: 40 },
+                          }}
+                        >
+                          {inspectorName.charAt(0).toUpperCase()}
+                        </Avatar>
+                        <Box sx={{ flex: { xs: 1, sm: 'initial' } }}>
+                          <Typography variant="body2" fontWeight={500} gutterBottom>
+                            {consultantTypeName}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary" display="block">
+                            Inspector: {inspectorName}
+                          </Typography>
+                        </Box>
+                      </Box>
+                      <Box sx={{ mt: { xs: 0, sm: 0 }, width: { xs: '100%', sm: 'auto' } }}>
                         <Chip
                           size="small"
                           icon={config.icon as React.ReactElement}
@@ -279,9 +330,9 @@ export function InspectionHistoryTimeline({
                           sx={{ textTransform: 'capitalize', fontWeight: 500 }}
                         />
                       </Box>
-                    </Box>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                </Box>
               </Box>
             </Box>
           )
