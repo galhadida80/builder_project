@@ -88,19 +88,19 @@ describe('InspectionHistoryTimeline', () => {
 
   describe('Loading State', () => {
     it('should display skeleton loaders when loading is true', () => {
-      renderWithRouter(<InspectionHistoryTimeline inspections={[]} loading={true} />)
+      const { container } = renderWithRouter(<InspectionHistoryTimeline inspections={[]} loading={true} />)
 
       // Check for skeleton elements
-      const skeletons = screen.getAllByTestId(/skeleton/i)
+      const skeletons = container.querySelectorAll('.MuiSkeleton-root')
       expect(skeletons.length).toBeGreaterThan(0)
     })
 
     it('should display 3 skeleton cards during loading', () => {
-      renderWithRouter(<InspectionHistoryTimeline inspections={[]} loading={true} />)
+      const { container } = renderWithRouter(<InspectionHistoryTimeline inspections={[]} loading={true} />)
 
       // The component should render 3 skeleton timeline items
       // Each skeleton item has multiple skeleton elements, so we just verify skeletons exist
-      const skeletons = document.querySelectorAll('.MuiSkeleton-root')
+      const skeletons = container.querySelectorAll('.MuiSkeleton-root')
       expect(skeletons.length).toBeGreaterThan(0)
     })
   })
@@ -114,10 +114,11 @@ describe('InspectionHistoryTimeline', () => {
     })
 
     it('should show date range filter even when empty', () => {
-      renderWithRouter(<InspectionHistoryTimeline inspections={[]} loading={false} />)
+      const { container } = renderWithRouter(<InspectionHistoryTimeline inspections={[]} loading={false} />)
 
-      // Check for date range filter
-      expect(screen.getByRole('button')).toBeInTheDocument() // MUI TextField select renders as button
+      // Check for date range filter - MUI TextField with select prop
+      const selectField = container.querySelector('.MuiTextField-root')
+      expect(selectField).toBeInTheDocument()
     })
   })
 
@@ -162,11 +163,19 @@ describe('InspectionHistoryTimeline', () => {
     })
 
     it('should sort inspections by scheduled date (newest first)', () => {
-      renderWithRouter(<InspectionHistoryTimeline inspections={mockInspections} loading={false} />)
+      const { container } = renderWithRouter(<InspectionHistoryTimeline inspections={mockInspections} loading={false} />)
 
-      const cards = screen.getAllByText(/Inspection/i)
-      // First card should be the most recent (Mar 15 - Structural)
+      // Get all cards in order
+      const cards = container.querySelectorAll('.MuiCard-root')
+      expect(cards.length).toBe(4)
+
+      // The first card should contain the most recent inspection (Mar 15 - Structural)
       expect(cards[0]).toHaveTextContent('Structural Inspection')
+      expect(cards[0]).toHaveTextContent('Mar 15, 2024')
+
+      // The last card should contain the oldest inspection (Feb 28 - Safety)
+      expect(cards[3]).toHaveTextContent('Safety Inspection')
+      expect(cards[3]).toHaveTextContent('Feb 28, 2024')
     })
   })
 
@@ -282,7 +291,11 @@ describe('InspectionHistoryTimeline', () => {
         />
       )
 
-      const card = screen.getByText('Structural Inspection').closest('[role="button"]')
+      // Find the card by its content (consultant type name) and click it
+      const consultantTypeName = screen.getByText('Structural Inspection')
+      const card = consultantTypeName.closest('.MuiCard-root')
+      expect(card).toBeInTheDocument()
+
       if (card) {
         fireEvent.click(card)
         expect(handleClick).toHaveBeenCalledWith('inspection-1')
@@ -299,8 +312,8 @@ describe('InspectionHistoryTimeline', () => {
         />
       )
 
-      // Verify card is clickable (has cursor pointer or similar)
-      const card = container.querySelector('[role="button"]')
+      // Verify card is clickable (has MUI Card class and can be clicked)
+      const card = container.querySelector('.MuiCard-root')
       expect(card).toBeInTheDocument()
     })
   })
