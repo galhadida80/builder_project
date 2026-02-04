@@ -5,6 +5,9 @@ import {
   StepConnector,
   Box,
   Typography,
+  Card,
+  CardContent,
+  Divider,
 } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
@@ -303,6 +306,80 @@ export function ApprovalWorkflowStepper({
   return (
     <Box sx={{ width: '100%', py: 2 }}>
       <Stepper steps={steps} activeStep={activeStep} orientation={orientation} />
+
+      {/* Step Details Panel - Shows approver info and comments for completed steps */}
+      {sortedSteps.some((step) =>
+        step.status !== 'pending' && (step.comments || step.approver || step.decidedAt)
+      ) && (
+        <Box sx={{ mt: 3 }}>
+          {sortedSteps
+            .filter((step) => step.status !== 'pending')
+            .map((step, index) => {
+              const approverName = step.approver?.name || step.approver?.email || 'Unknown'
+              const formattedDate = step.decidedAt
+                ? new Date(step.decidedAt).toLocaleString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit',
+                  })
+                : null
+
+              return (
+                <Card
+                  key={step.id}
+                  sx={{
+                    mb: 2,
+                    borderLeft: 4,
+                    borderLeftColor:
+                      step.status === 'approved'
+                        ? 'success.main'
+                        : step.status === 'rejected'
+                        ? 'error.main'
+                        : 'warning.main',
+                  }}
+                >
+                  <CardContent>
+                    <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+                      {step.approverRole || `Step ${step.stepOrder}`}
+                    </Typography>
+
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                      {step.status === 'approved' && (
+                        <CompletedIcon sx={{ fontSize: 16, color: 'success.main' }} />
+                      )}
+                      {step.status === 'rejected' && (
+                        <RejectedIcon sx={{ fontSize: 16, color: 'error.main' }} />
+                      )}
+                      {step.status === 'revision_requested' && (
+                        <ErrorStepIcon sx={{ fontSize: 16, color: 'warning.main' }} />
+                      )}
+
+                      <Typography variant="body2" color="text.secondary">
+                        {step.status === 'approved' && 'Approved'}
+                        {step.status === 'rejected' && 'Rejected'}
+                        {step.status === 'revision_requested' && 'Revision Requested'}
+                        {' by '}
+                        <strong>{approverName}</strong>
+                        {formattedDate && ` on ${formattedDate}`}
+                      </Typography>
+                    </Box>
+
+                    {step.comments && (
+                      <>
+                        <Divider sx={{ my: 1.5 }} />
+                        <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
+                          "{step.comments}"
+                        </Typography>
+                      </>
+                    )}
+                  </CardContent>
+                </Card>
+              )
+            })}
+        </Box>
+      )}
     </Box>
   )
 }
