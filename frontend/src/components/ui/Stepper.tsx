@@ -8,6 +8,10 @@ import {
 } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import CancelIcon from '@mui/icons-material/Cancel'
+import ErrorIcon from '@mui/icons-material/Error'
+import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty'
+import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked'
 
 // Approval workflow interfaces
 export interface UserResponse {
@@ -95,6 +99,33 @@ const StepIconContainer = styled('div')<{ active: boolean; completed: boolean; e
   })
 )
 
+// Styled icon components for different step statuses
+const CompletedIcon = styled(CheckCircleIcon)(({ theme }) => ({
+  fontSize: 18,
+  color: 'inherit',
+}))
+
+const RejectedIcon = styled(CancelIcon)(({ theme }) => ({
+  fontSize: 18,
+  color: 'inherit',
+}))
+
+const ErrorStepIcon = styled(ErrorIcon)(({ theme }) => ({
+  fontSize: 18,
+  color: 'inherit',
+}))
+
+const PendingIcon = styled(HourglassEmptyIcon)(({ theme }) => ({
+  fontSize: 18,
+  color: 'inherit',
+}))
+
+const InactiveIcon = styled(RadioButtonUncheckedIcon)(({ theme }) => ({
+  fontSize: 18,
+  color: 'inherit',
+  opacity: 0.5,
+}))
+
 function CustomStepIcon({
   icon,
   active,
@@ -106,9 +137,15 @@ function CustomStepIcon({
   completed: boolean
   error: boolean
 }) {
+  const getIconComponent = () => {
+    if (completed) return <CompletedIcon />
+    if (error) return <RejectedIcon />
+    return icon
+  }
+
   return (
     <StepIconContainer active={active} completed={completed} error={error}>
-      {completed ? <CheckCircleIcon sx={{ fontSize: 18 }} /> : icon}
+      {getIconComponent()}
     </StepIconContainer>
   )
 }
