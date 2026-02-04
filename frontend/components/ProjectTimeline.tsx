@@ -31,11 +31,14 @@ const TimelineContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   gap: theme.spacing(2),
-  paddingLeft: theme.spacing(3),
+  paddingLeft: theme.spacing(2),
+  [theme.breakpoints.up('sm')]: {
+    paddingLeft: theme.spacing(3),
+  },
   '&::before': {
     content: '""',
     position: 'absolute',
-    left: 19,
+    left: 21,
     top: 8,
     bottom: 8,
     width: 2,
@@ -55,7 +58,10 @@ const TimelineItem = styled(Box)(({ theme }) => ({
 
 const TimelineDot = styled(Box)(({ theme }) => ({
   position: 'absolute',
-  left: -24,
+  left: -16,
+  [theme.breakpoints.up('sm')]: {
+    left: -24,
+  },
   top: 0,
   zIndex: 1,
 }))
@@ -178,8 +184,8 @@ export function ProjectTimeline({
             <TimelineDot>
               <Avatar
                 sx={{
-                  width: 40,
-                  height: 40,
+                  width: 44,
+                  height: 44,
                   bgcolor: `${color}.main`,
                   color: `${color}.contrastText`,
                 }}

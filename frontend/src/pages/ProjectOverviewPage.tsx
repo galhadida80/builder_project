@@ -4,6 +4,7 @@ import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Skeleton from '@mui/material/Skeleton'
 import Grid from '@mui/material/Grid'
+import { useTheme, useMediaQuery } from '@mui/material'
 import { Card } from '../components/ui/Card'
 import { EmptyState } from '../components/ui/EmptyState'
 import { ProjectProgressRing } from '../../components/ProjectProgressRing'
@@ -43,6 +44,8 @@ export default function ProjectOverviewPage() {
   const { projectId } = useParams<{ projectId: string }>()
   const navigate = useNavigate()
   const { showError } = useToast()
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const [loading, setLoading] = useState(true)
   const [overviewData, setOverviewData] = useState<ProjectOverviewData | null>(null)
   const [activeTab, setActiveTab] = useState('summary')
@@ -108,7 +111,7 @@ export default function ProjectOverviewPage() {
               <ProjectProgressRing
                 value={progress.completion_percentage}
                 label="Overall Completion"
-                size={160}
+                size={isMobile ? 120 : 160}
                 color="primary"
                 showPercentage
                 subtitle={`${progress.completed_items} of ${progress.total_items} items completed`}
@@ -303,7 +306,7 @@ export default function ProjectOverviewPage() {
   )
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: 3, maxWidth: 1400, mx: 'auto' }}>
       <Box sx={{ mb: 4 }}>
         <Typography variant="h4" fontWeight={700} sx={{ mb: 1 }}>
           Project Overview

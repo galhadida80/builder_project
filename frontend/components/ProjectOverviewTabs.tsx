@@ -1,5 +1,5 @@
 import { ReactNode } from 'react'
-import { Box } from '@mui/material'
+import { Box, useTheme, useMediaQuery } from '@mui/material'
 import { Tabs, TabPanel } from '../src/components/ui/Tabs'
 import DashboardIcon from '@mui/icons-material/Dashboard'
 import TimelineIcon from '@mui/icons-material/Timeline'
@@ -46,13 +46,16 @@ export function ProjectOverviewTabs({
   teamContent,
   statsContent,
 }: ProjectOverviewTabsProps) {
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+
   return (
     <Box>
       <Tabs
         items={TAB_ITEMS}
         value={activeTab}
         onChange={onTabChange}
-        variant="standard"
+        variant={isMobile ? 'scrollable' : 'standard'}
         size="medium"
       />
 
