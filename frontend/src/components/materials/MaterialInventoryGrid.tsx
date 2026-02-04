@@ -44,12 +44,12 @@ export function MaterialInventoryGrid({
     return (
       <Box>
         <Box sx={{ mb: 3 }}>
-          <Skeleton variant="rectangular" height={44} sx={{ borderRadius: 1 }} />
+          <Skeleton variant="rectangular" height={44} sx={{ borderRadius: 2 }} />
         </Box>
         <Grid container spacing={3}>
           {[...Array(8)].map((_, index) => (
             <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
-              <Skeleton variant="rectangular" height={320} sx={{ borderRadius: 3 }} />
+              <Skeleton variant="rectangular" height={360} sx={{ borderRadius: 3 }} />
             </Grid>
           ))}
         </Grid>

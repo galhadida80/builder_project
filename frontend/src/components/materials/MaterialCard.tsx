@@ -18,37 +18,43 @@ const StyledCard = styled(Card)(({ theme }) => ({
   height: '100%',
   display: 'flex',
   flexDirection: 'column',
+  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
   '&:hover': {
     transform: 'translateY(-2px)',
-    boxShadow: theme.shadows[4],
+    boxShadow: '0 8px 16px rgba(0, 0, 0, 0.12)',
   },
 }))
 
 const MaterialImage = styled(CardMedia)(({ theme }) => ({
-  height: 160,
-  backgroundColor: theme.palette.grey[100],
+  height: 180,
+  backgroundColor: theme.palette.mode === 'light' ? '#F8FAFC' : theme.palette.grey[800],
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  color: theme.palette.grey[400],
+  color: theme.palette.mode === 'light' ? '#CBD5E1' : theme.palette.grey[600],
   position: 'relative',
 }))
 
 const LowStockBadge = styled(Chip)(({ theme }) => ({
   position: 'absolute',
-  top: 8,
-  right: 8,
-  backgroundColor: theme.palette.warning.main,
-  color: theme.palette.common.white,
+  top: 12,
+  right: 12,
+  backgroundColor: '#EAB308',
+  color: '#FFFFFF',
   fontWeight: 600,
   fontSize: '0.75rem',
-  height: 24,
+  height: 26,
+  '& .MuiChip-icon': {
+    color: '#FFFFFF',
+    fontSize: '1rem',
+    marginLeft: '6px',
+  },
 }))
 
 const InfoRow = styled(Box)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
-  gap: theme.spacing(0.5),
+  gap: theme.spacing(0.75),
   color: theme.palette.text.secondary,
   fontSize: '0.875rem',
 }))
@@ -63,7 +69,7 @@ export function MaterialCard({ material, onClick, lowStockThreshold = 10 }: Mate
         image={imageUrl}
         title={material.name}
       >
-        {!imageUrl && <InventoryIcon sx={{ fontSize: 64 }} />}
+        {!imageUrl && <InventoryIcon sx={{ fontSize: 72 }} />}
         {isLowStock && (
           <LowStockBadge
             icon={<WarningAmberIcon sx={{ fontSize: '1rem' }} />}
@@ -73,12 +79,12 @@ export function MaterialCard({ material, onClick, lowStockThreshold = 10 }: Mate
         )}
       </MaterialImage>
 
-      <CardContent sx={{ flexGrow: 1, p: 2 }}>
+      <CardContent sx={{ flexGrow: 1, p: 2.5 }}>
         <Typography
           variant="h6"
           sx={{
             fontWeight: 600,
-            mb: 1,
+            mb: 1.25,
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             display: '-webkit-box',
@@ -86,6 +92,7 @@ export function MaterialCard({ material, onClick, lowStockThreshold = 10 }: Mate
             WebkitBoxOrient: 'vertical',
             lineHeight: 1.3,
             minHeight: '2.6em',
+            fontSize: '1.125rem',
           }}
         >
           {material.name}
@@ -96,19 +103,21 @@ export function MaterialCard({ material, onClick, lowStockThreshold = 10 }: Mate
             label={material.materialType}
             size="small"
             sx={{
-              mb: 1.5,
-              bgcolor: 'primary.main',
-              color: 'white',
-              fontWeight: 500,
+              mb: 2,
+              bgcolor: '#0369A1',
+              color: '#FFFFFF',
+              fontWeight: 600,
               fontSize: '0.75rem',
+              height: 24,
+              borderRadius: 2,
             }}
           />
         )}
 
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}>
           <InfoRow>
-            <InventoryIcon sx={{ fontSize: '1rem' }} />
-            <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary' }}>
+            <InventoryIcon sx={{ fontSize: '1.125rem' }} />
+            <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary', fontSize: '0.875rem' }}>
               {material.quantity !== undefined ? (
                 <>
                   {material.quantity} {material.unit || 'units'}
@@ -121,13 +130,14 @@ export function MaterialCard({ material, onClick, lowStockThreshold = 10 }: Mate
 
           {material.storageLocation && (
             <InfoRow>
-              <LocationOnIcon sx={{ fontSize: '1rem' }} />
+              <LocationOnIcon sx={{ fontSize: '1.125rem' }} />
               <Typography
                 variant="body2"
                 sx={{
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap',
+                  fontSize: '0.875rem',
                 }}
               >
                 {material.storageLocation}
@@ -142,10 +152,12 @@ export function MaterialCard({ material, onClick, lowStockThreshold = 10 }: Mate
             color="text.secondary"
             sx={{
               display: 'block',
-              mt: 1.5,
-              pt: 1.5,
+              mt: 2,
+              pt: 2,
               borderTop: 1,
               borderColor: 'divider',
+              fontSize: '0.75rem',
+              fontWeight: 500,
             }}
           >
             {material.manufacturer}
