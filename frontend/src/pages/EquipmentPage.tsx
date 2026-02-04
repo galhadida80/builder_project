@@ -318,8 +318,8 @@ export default function EquipmentPage() {
   if (loading) {
     return (
       <Box sx={{ p: 3 }}>
-        <Skeleton variant="text" width={200} height={48} sx={{ mb: 1 }} />
-        <Skeleton variant="text" width={300} height={24} sx={{ mb: 4 }} />
+        <Skeleton variant="text" sx={{ maxWidth: 200, height: 48, mb: 1 }} />
+        <Skeleton variant="text" sx={{ maxWidth: 300, height: 24, mb: 4 }} />
         <Skeleton variant="rounded" height={500} sx={{ borderRadius: 3 }} />
       </Box>
     )
@@ -423,7 +423,7 @@ export default function EquipmentPage() {
             <Box
               sx={{
                 display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
+                gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' },
                 gap: 2,
                 mb: 3,
                 p: 2,
