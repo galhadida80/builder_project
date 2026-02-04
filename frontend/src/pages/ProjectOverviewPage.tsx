@@ -13,31 +13,46 @@ import { ProjectOverviewTabs } from '../../components/ProjectOverviewTabs'
 import { apiClient } from '../api/client'
 import { useToast } from '../components/common/ToastProvider'
 
+// Backend response interfaces (camelCase from CamelCaseModel)
 interface ProgressMetrics {
-  completion_percentage: number
-  total_items: number
-  completed_items: number
-  in_progress_items: number
-  pending_items: number
+  overallPercentage: number
+  inspectionsCompleted: number
+  inspectionsTotal: number
+  equipmentSubmitted: number
+  equipmentTotal: number
+  materialsSubmitted: number
+  materialsTotal: number
+  checklistsCompleted: number
+  checklistsTotal: number
 }
 
 interface TeamStats {
-  total_members: number
-  members_by_role: Record<string, number>
+  totalMembers: number
+  activeMembers: number
+  roles: Record<string, number>
 }
 
 interface ProjectStats {
-  days_remaining: number
-  days_elapsed: number
-  open_findings: number
-  recent_activity_count: number
+  totalInspections: number
+  pendingInspections: number
+  totalEquipment: number
+  totalMaterials: number
+  totalMeetings: number
+  openFindings: number
+  daysRemaining: number | null
+  daysElapsed: number | null
 }
 
 interface ProjectOverviewData {
+  projectId: string
+  projectName: string
+  projectCode: string
+  projectStatus: string
   progress: ProgressMetrics
   timeline: TimelineEvent[]
-  team_stats: TeamStats
-  project_stats: ProjectStats
+  teamStats: TeamStats
+  stats: ProjectStats
+  lastUpdated: string
 }
 
 export default function ProjectOverviewPage() {
@@ -97,7 +112,22 @@ export default function ProjectOverviewPage() {
     )
   }
 
-  const { progress, timeline, team_stats, project_stats } = overviewData
+  const { progress, timeline, teamStats, stats } = overviewData
+
+  // Calculate derived metrics from detailed progress data
+  const totalItems =
+    progress.inspectionsTotal +
+    progress.equipmentTotal +
+    progress.materialsTotal +
+    progress.checklistsTotal
+
+  const completedItems =
+    progress.inspectionsCompleted +
+    progress.equipmentSubmitted +
+    progress.materialsSubmitted +
+    progress.checklistsCompleted
+
+  const pendingItems = totalItems - completedItems
 
   const summaryContent = (
     <Grid container spacing={3}>
@@ -109,18 +139,18 @@ export default function ProjectOverviewPage() {
             </Typography>
             <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
               <ProjectProgressRing
-                value={progress.completion_percentage}
+                value={progress.overallPercentage}
                 label="Overall Completion"
                 size={isMobile ? 120 : 160}
                 color="primary"
                 showPercentage
-                subtitle={`${progress.completed_items} of ${progress.total_items} items completed`}
+                subtitle={`${completedItems} of ${totalItems} items completed`}
               />
             </Box>
             <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2, mt: 3 }}>
               <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'action.hover', borderRadius: 2 }}>
                 <Typography variant="h5" fontWeight={700} color="success.main">
-                  {progress.completed_items}
+                  {completedItems}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
                   Completed
@@ -128,7 +158,7 @@ export default function ProjectOverviewPage() {
               </Box>
               <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'action.hover', borderRadius: 2 }}>
                 <Typography variant="h5" fontWeight={700} color="info.main">
-                  {progress.in_progress_items}
+                  {progress.inspectionsTotal - progress.inspectionsCompleted}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
                   In Progress
@@ -136,7 +166,7 @@ export default function ProjectOverviewPage() {
               </Box>
               <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'action.hover', borderRadius: 2 }}>
                 <Typography variant="h5" fontWeight={700} color="warning.main">
-                  {progress.pending_items}
+                  {pendingItems}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
                   Pending
@@ -160,7 +190,7 @@ export default function ProjectOverviewPage() {
                 </Typography>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Typography variant="h4" fontWeight={700}>
-                    {project_stats.days_elapsed}
+                    {stats.daysElapsed || 0}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     days elapsed
@@ -168,7 +198,7 @@ export default function ProjectOverviewPage() {
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1 }}>
                   <Typography variant="h4" fontWeight={700} color="primary.main">
-                    {project_stats.days_remaining}
+                    {stats.daysRemaining || 0}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     days remaining
@@ -182,7 +212,7 @@ export default function ProjectOverviewPage() {
                 </Typography>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Typography variant="h4" fontWeight={700}>
-                    {project_stats.recent_activity_count}
+                    {timeline.length}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     recent activities
@@ -192,9 +222,9 @@ export default function ProjectOverviewPage() {
                   <Typography
                     variant="h4"
                     fontWeight={700}
-                    color={project_stats.open_findings > 0 ? 'error.main' : 'success.main'}
+                    color={stats.openFindings > 0 ? 'error.main' : 'success.main'}
                   >
-                    {project_stats.open_findings}
+                    {stats.openFindings}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     open findings
@@ -231,11 +261,11 @@ export default function ProjectOverviewPage() {
               Total Team Members
             </Typography>
             <Typography variant="h5" fontWeight={700}>
-              {team_stats.total_members}
+              {teamStats.totalMembers}
             </Typography>
           </Box>
 
-          {Object.entries(team_stats.members_by_role).map(([role, count]) => (
+          {Object.entries(teamStats.roles || {}).map(([role, count]) => (
             <Box
               key={role}
               sx={{ display: 'flex', justifyContent: 'space-between', py: 1.5, borderBottom: 1, borderColor: 'divider' }}
@@ -266,7 +296,7 @@ export default function ProjectOverviewPage() {
                 Completion Rate
               </Typography>
               <Typography variant="h3" fontWeight={700} color="primary.main">
-                {Math.round(progress.completion_percentage)}%
+                {Math.round(progress.overallPercentage)}%
               </Typography>
             </Box>
           </Grid>
@@ -276,7 +306,7 @@ export default function ProjectOverviewPage() {
                 Total Items
               </Typography>
               <Typography variant="h3" fontWeight={700}>
-                {progress.total_items}
+                {totalItems}
               </Typography>
             </Box>
           </Grid>
@@ -286,7 +316,7 @@ export default function ProjectOverviewPage() {
                 Items Completed
               </Typography>
               <Typography variant="h3" fontWeight={700} color="success.main">
-                {progress.completed_items}
+                {completedItems}
               </Typography>
             </Box>
           </Grid>
@@ -296,7 +326,47 @@ export default function ProjectOverviewPage() {
                 Items Pending
               </Typography>
               <Typography variant="h3" fontWeight={700} color="warning.main">
-                {progress.pending_items}
+                {pendingItems}
+              </Typography>
+            </Box>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <Box sx={{ p: 3, bgcolor: 'action.hover', borderRadius: 2 }}>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                Inspections
+              </Typography>
+              <Typography variant="h3" fontWeight={700}>
+                {progress.inspectionsCompleted}/{progress.inspectionsTotal}
+              </Typography>
+            </Box>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <Box sx={{ p: 3, bgcolor: 'action.hover', borderRadius: 2 }}>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                Equipment
+              </Typography>
+              <Typography variant="h3" fontWeight={700}>
+                {progress.equipmentSubmitted}/{progress.equipmentTotal}
+              </Typography>
+            </Box>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <Box sx={{ p: 3, bgcolor: 'action.hover', borderRadius: 2 }}>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                Materials
+              </Typography>
+              <Typography variant="h3" fontWeight={700}>
+                {progress.materialsSubmitted}/{progress.materialsTotal}
+              </Typography>
+            </Box>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <Box sx={{ p: 3, bgcolor: 'action.hover', borderRadius: 2 }}>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                Checklists
+              </Typography>
+              <Typography variant="h3" fontWeight={700}>
+                {progress.checklistsCompleted}/{progress.checklistsTotal}
               </Typography>
             </Box>
           </Grid>
