@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Menu from '@mui/material/Menu'
@@ -31,7 +30,6 @@ import { validateProjectForm, hasErrors, VALIDATION, type ValidationError } from
 import { useToast } from '../components/common/ToastProvider'
 
 export default function ProjectsPage() {
-  const { t } = useTranslation()
   const navigate = useNavigate()
   const { showError, showSuccess } = useToast()
   const [projects, setProjects] = useState<Project[]>([])
@@ -186,15 +184,15 @@ export default function ProjectsPage() {
 
   if (loading) {
     return (
-      <Box sx={{ p: 3 }}>
+      <Box sx={{ p: { xs: 2, sm: 3 } }}>
         <Skeleton variant="text" width={200} height={48} sx={{ mb: 1 }} />
         <Skeleton variant="text" width={300} height={24} sx={{ mb: 4 }} />
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 2, mb: 4 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 2, mb: 4 }}>
           {[...Array(4)].map((_, i) => (
             <Skeleton key={i} variant="rounded" height={100} sx={{ borderRadius: 3 }} />
           ))}
         </Box>
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 3 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }, gap: 3 }}>
           {[...Array(6)].map((_, i) => (
             <Skeleton key={i} variant="rounded" height={200} sx={{ borderRadius: 3 }} />
           ))}
@@ -204,14 +202,15 @@ export default function ProjectsPage() {
   }
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: { xs: 2, sm: 3 } }}>
       <PageHeader
-        title={t('projects.title')}
-        subtitle={t('nav.projects')}
-        breadcrumbs={[{ label: t('nav.dashboard'), href: '/dashboard' }, { label: t('projects.title') }]}
+        title="Projects"
+        subtitle="Manage your construction projects"
+        breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Projects' }]}
         actions={
           <Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>
-            {t('projects.createProject')}
+            <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>New Project</Box>
+            <Box component="span" sx={{ display: { xs: 'inline', sm: 'none' } }}>New</Box>
           </Button>
         }
       />
@@ -225,25 +224,25 @@ export default function ProjectsPage() {
         }}
       >
         <KPICard
-          title={t('projects.totalProjects')}
+          title="Total Projects"
           value={projects.length}
           icon={<FolderIcon />}
           color="primary"
         />
         <KPICard
-          title={t('projects.active')}
+          title="Active"
           value={activeProjects}
           icon={<FolderIcon />}
           color="success"
         />
         <KPICard
-          title={t('projects.onHold')}
+          title="On Hold"
           value={onHoldProjects}
           icon={<FolderIcon />}
           color="warning"
         />
         <KPICard
-          title={t('projects.completed')}
+          title="Completed"
           value={completedProjects}
           icon={<FolderIcon />}
           color="info"
@@ -251,24 +250,43 @@ export default function ProjectsPage() {
       </Box>
 
       <Card>
-        <Box sx={{ p: 2.5 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+        <Box sx={{ p: { xs: 2, sm: 2.5 } }}>
+          <Box sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', md: 'row' },
+            justifyContent: 'space-between',
+            alignItems: { xs: 'stretch', md: 'center' },
+            gap: 2,
+            mb: 3
+          }}>
+            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flex: { xs: 'none', md: 1 } }}>
               <SearchField
-                placeholder={t('common.search')}
+                placeholder="Search projects..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
+                sx={{ flex: 1 }}
               />
-              <Button variant="secondary" size="small" icon={<FilterListIcon />}>
-                {t('common.filter')}
+              <Button
+                variant="secondary"
+                size="small"
+                icon={<FilterListIcon />}
+                sx={{ display: { xs: 'none', sm: 'flex' } }}
+              >
+                Filters
               </Button>
+              <IconButton
+                size="small"
+                sx={{ display: { xs: 'flex', sm: 'none' } }}
+              >
+                <FilterListIcon />
+              </IconButton>
             </Box>
-            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', justifyContent: { xs: 'space-between', md: 'flex-end' } }}>
               <Chip label={`${filteredProjects.length} projects`} size="small" />
               <SegmentedTabs
                 items={[
-                  { label: t('common.gridView'), value: 'grid', icon: <GridViewIcon sx={{ fontSize: 18 }} /> },
-                  { label: t('common.listView'), value: 'list', icon: <ViewListIcon sx={{ fontSize: 18 }} /> },
+                  { label: 'Grid', value: 'grid', icon: <GridViewIcon sx={{ fontSize: 18 }} /> },
+                  { label: 'List', value: 'list', icon: <ViewListIcon sx={{ fontSize: 18 }} /> },
                 ]}
                 value={viewMode}
                 onChange={(v) => setViewMode(v as 'grid' | 'list')}
@@ -279,9 +297,9 @@ export default function ProjectsPage() {
           <Tabs
             items={[
               { label: 'All', value: 'all', badge: projects.length },
-              { label: t('projects.active'), value: 'active', badge: activeProjects },
-              { label: t('projects.onHold'), value: 'on_hold', badge: onHoldProjects },
-              { label: t('projects.completed'), value: 'completed', badge: completedProjects },
+              { label: 'Active', value: 'active', badge: activeProjects },
+              { label: 'On Hold', value: 'on_hold', badge: onHoldProjects },
+              { label: 'Completed', value: 'completed', badge: completedProjects },
             ]}
             value={statusFilter}
             onChange={setStatusFilter}
@@ -292,9 +310,9 @@ export default function ProjectsPage() {
             <Box sx={{ mt: 4 }}>
               <EmptyState
                 variant="no-results"
-                title={t('projects.noProjectsFound')}
-                description={t('projects.noProjectsMessage')}
-                action={{ label: t('projects.createProject'), onClick: handleOpenCreate }}
+                title="No projects found"
+                description="Try adjusting your search or create a new project"
+                action={{ label: 'Create Project', onClick: handleOpenCreate }}
               />
             </Box>
           ) : (
@@ -367,7 +385,7 @@ export default function ProjectsPage() {
 
                     <Box>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                        <Typography variant="caption" color="text.secondary">{t('common.status')}</Typography>
+                        <Typography variant="caption" color="text.secondary">Status</Typography>
                         <Typography variant="caption" fontWeight={600} sx={{ textTransform: 'capitalize' }}>
                           {project.status.replace('_', ' ')}
                         </Typography>
@@ -383,24 +401,24 @@ export default function ProjectsPage() {
       </Card>
 
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-        <MenuItem onClick={() => selectedProject && handleOpenEdit(selectedProject)}>{t('projects.editProject')}</MenuItem>
-        <MenuItem onClick={handleMenuClose}>{t('projects.viewTeam')}</MenuItem>
-        <MenuItem onClick={handleMenuClose}>{t('projects.exportReport')}</MenuItem>
-        <MenuItem onClick={handleDeleteClick} sx={{ color: 'error.main' }}>{t('projects.deleteProject')}</MenuItem>
+        <MenuItem onClick={() => selectedProject && handleOpenEdit(selectedProject)}>Edit Project</MenuItem>
+        <MenuItem onClick={handleMenuClose}>View Team</MenuItem>
+        <MenuItem onClick={handleMenuClose}>Export Report</MenuItem>
+        <MenuItem onClick={handleDeleteClick} sx={{ color: 'error.main' }}>Delete Project</MenuItem>
       </Menu>
 
       <FormModal
         open={openDialog}
         onClose={handleCloseDialog}
         onSubmit={handleSaveProject}
-        title={editingProject ? t('projects.editProjectTitle') : t('projects.createNewProject')}
-        submitLabel={editingProject ? t('common.saveChanges') : t('projects.createProject')}
+        title={editingProject ? 'Edit Project' : 'Create New Project'}
+        submitLabel={editingProject ? 'Save Changes' : 'Create Project'}
         loading={saving}
       >
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
           <TextField
             fullWidth
-            label={t('projects.projectName')}
+            label="Project Name"
             required
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -410,18 +428,18 @@ export default function ProjectsPage() {
           />
           <TextField
             fullWidth
-            label={t('projects.projectCode')}
+            label="Project Code"
             required
             disabled={!!editingProject}
             value={formData.code}
             onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
             error={!!errors.code}
-            helperText={editingProject ? t('projects.codeCannotBeChanged') : (errors.code || t('projects.codeHint'))}
+            helperText={editingProject ? 'Code cannot be changed' : (errors.code || 'Letters, numbers, hyphens only')}
             inputProps={{ maxLength: VALIDATION.MAX_CODE_LENGTH }}
           />
           <TextField
             fullWidth
-            label={t('common.description')}
+            label="Description"
             multiline
             rows={3}
             value={formData.description}
@@ -431,16 +449,16 @@ export default function ProjectsPage() {
           />
           <TextField
             fullWidth
-            label={t('projects.address')}
+            label="Address"
             value={formData.address}
             onChange={(e) => setFormData({ ...formData, address: e.target.value })}
             error={!!errors.address}
             helperText={errors.address}
           />
-          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
             <TextField
               fullWidth
-              label={t('projects.startDate')}
+              label="Start Date"
               type="date"
               InputLabelProps={{ shrink: true }}
               value={formData.startDate}
@@ -450,7 +468,7 @@ export default function ProjectsPage() {
             />
             <TextField
               fullWidth
-              label={t('projects.endDate')}
+              label="End Date"
               type="date"
               InputLabelProps={{ shrink: true }}
               value={formData.estimatedEndDate}
@@ -466,9 +484,9 @@ export default function ProjectsPage() {
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={handleConfirmDelete}
-        title={t('projects.deleteConfirmation')}
-        message={t('projects.deleteConfirmationMessage', { name: projectToDelete?.name })}
-        confirmLabel={t('projects.deleteProject')}
+        title="Delete Project"
+        message={`Are you sure you want to delete "${projectToDelete?.name}"? This will permanently remove the project and all associated data. This action cannot be undone.`}
+        confirmLabel="Delete Project"
         variant="danger"
       />
     </Box>

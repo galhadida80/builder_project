@@ -8,10 +8,10 @@ import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
 import Divider from '@mui/material/Divider'
 import Typography from '@mui/material/Typography'
-import Badge from '@mui/material/Badge'
+import useTheme from '@mui/material/styles/useTheme'
+import useMediaQuery from '@mui/material/useMediaQuery'
 import DashboardIcon from '@mui/icons-material/Dashboard'
 import FolderIcon from '@mui/icons-material/Folder'
-import GroupIcon from '@mui/icons-material/Group'
 import BuildIcon from '@mui/icons-material/Build'
 import InventoryIcon from '@mui/icons-material/Inventory'
 import EventIcon from '@mui/icons-material/Event'
@@ -35,7 +35,6 @@ interface NavItem {
 const mainNavItems: NavItem[] = [
   { label: 'Dashboard', path: '/dashboard', icon: <DashboardIcon /> },
   { label: 'Projects', path: '/projects', icon: <FolderIcon /> },
-  { label: 'Team Workload', path: '/team-workload', icon: <GroupIcon /> },
 ]
 
 const projectNavItems: NavItem[] = [
@@ -56,12 +55,15 @@ const systemNavItems: NavItem[] = [
 
 interface SidebarProps {
   projectId?: string
-  rfiBadgeCount?: number
+  mobileOpen?: boolean
+  onMobileClose?: () => void
 }
 
-export default function Sidebar({ projectId, rfiBadgeCount = 0 }: SidebarProps) {
+export default function Sidebar({ projectId, mobileOpen = false, onMobileClose }: SidebarProps) {
   const location = useLocation()
   const navigate = useNavigate()
+  const theme = useTheme()
+  const isDesktop = useMediaQuery(theme.breakpoints.up('md'))
 
   const isActive = (path: string) => {
     if (path === '/projects' && location.pathname.startsWith('/projects')) {
@@ -78,21 +80,7 @@ export default function Sidebar({ projectId, rfiBadgeCount = 0 }: SidebarProps) 
     }
   }
 
-  return (
-    <Drawer
-      variant="permanent"
-      sx={{
-        width: DRAWER_WIDTH,
-        flexShrink: 0,
-        '& .MuiDrawer-paper': {
-          width: DRAWER_WIDTH,
-          boxSizing: 'border-box',
-          bgcolor: 'background.paper',
-          borderInlineEnd: '1px solid',
-          borderColor: 'divider',
-        },
-      }}
-    >
+  const drawerContent = (
       <Box
         sx={{
           p: 2.5,
@@ -198,18 +186,6 @@ export default function Sidebar({ projectId, rfiBadgeCount = 0 }: SidebarProps) 
           <List sx={{ px: 1.5, py: 0 }}>
             {projectNavItems.map((item) => {
               const fullPath = `/projects/${projectId}${item.path}`
-              const isRFI = item.path === '/rfis'
-              const iconWithBadge = isRFI ? (
-                <Badge
-                  badgeContent={rfiBadgeCount}
-                  color="error"
-                  invisible={rfiBadgeCount === 0}
-                >
-                  {item.icon}
-                </Badge>
-              ) : (
-                item.icon
-              )
               return (
                 <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }}>
                   <ListItemButton
@@ -235,7 +211,7 @@ export default function Sidebar({ projectId, rfiBadgeCount = 0 }: SidebarProps) 
                     }}
                   >
                     <ListItemIcon sx={{ minWidth: 40, color: 'text.secondary' }}>
-                      {iconWithBadge}
+                      {item.icon}
                     </ListItemIcon>
                     <ListItemText
                       primary={item.label}
@@ -303,6 +279,56 @@ export default function Sidebar({ projectId, rfiBadgeCount = 0 }: SidebarProps) 
           v1.0.0
         </Typography>
       </Box>
-    </Drawer>
+    </>
+  )
+
+  return (
+    <Box
+      component="nav"
+      sx={{
+        width: { md: DRAWER_WIDTH },
+        flexShrink: { md: 0 },
+      }}
+    >
+      {/* Mobile drawer */}
+      <Drawer
+        variant="temporary"
+        open={mobileOpen}
+        onClose={onMobileClose}
+        ModalProps={{
+          keepMounted: true, // Better open performance on mobile
+        }}
+        sx={{
+          display: { xs: 'block', md: 'none' },
+          '& .MuiDrawer-paper': {
+            width: DRAWER_WIDTH,
+            boxSizing: 'border-box',
+            bgcolor: 'background.paper',
+            borderRight: '1px solid',
+            borderColor: 'divider',
+          },
+        }}
+      >
+        {drawerContent}
+      </Drawer>
+
+      {/* Desktop drawer */}
+      <Drawer
+        variant="permanent"
+        sx={{
+          display: { xs: 'none', md: 'block' },
+          '& .MuiDrawer-paper': {
+            width: DRAWER_WIDTH,
+            boxSizing: 'border-box',
+            bgcolor: 'background.paper',
+            borderRight: '1px solid',
+            borderColor: 'divider',
+          },
+        }}
+        open
+      >
+        {drawerContent}
+      </Drawer>
+    </Box>
   )
 }

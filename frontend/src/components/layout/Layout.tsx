@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react'
-import { Outlet, useParams, useNavigate } from 'react-router-dom'
+import { Outlet, useParams, useNavigate, useLocation } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Toolbar from '@mui/material/Toolbar'
 import CircularProgress from '@mui/material/CircularProgress'
+import useTheme from '@mui/material/styles/useTheme'
+import useMediaQuery from '@mui/material/useMediaQuery'
 import Sidebar from './Sidebar'
 import Header from './Header'
 import { projectsApi } from '../../api/projects'
 import { authApi } from '../../api/auth'
-import { useProject } from '../../contexts/ProjectContext'
 import type { Project, User } from '../../types'
 
 const DRAWER_WIDTH = 260
@@ -15,11 +16,14 @@ const DRAWER_WIDTH = 260
 export default function Layout() {
   const { projectId } = useParams()
   const navigate = useNavigate()
-  const { setSelectedProjectId } = useProject()
-  const [localProjectId, setLocalProjectId] = useState<string | undefined>(projectId)
+  const location = useLocation()
+  const theme = useTheme()
+  const isDesktop = useMediaQuery(theme.breakpoints.up('md'))
+  const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>(projectId)
   const [projects, setProjects] = useState<Project[]>([])
   const [currentUser, setCurrentUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false)
 
   useEffect(() => {
     loadUserAndProjects()
@@ -49,17 +53,9 @@ export default function Layout() {
     }
   }
 
-  useEffect(() => {
-    if (projectId) {
-      setLocalProjectId(projectId)
-      setSelectedProjectId(projectId)
-    }
-  }, [projectId, setSelectedProjectId])
-
-  const currentProject = projects.find(p => p.id === localProjectId)
+  const currentProject = projects.find(p => p.id === selectedProjectId)
 
   const handleProjectChange = (newProjectId: string) => {
-    setLocalProjectId(newProjectId)
     setSelectedProjectId(newProjectId)
     navigate(`/projects/${newProjectId}`)
   }
@@ -69,6 +65,28 @@ export default function Layout() {
     localStorage.removeItem('userId')
     navigate('/login')
   }
+
+  const handleMobileDrawerToggle = () => {
+    setMobileDrawerOpen(!mobileDrawerOpen)
+  }
+
+  const handleMobileDrawerClose = () => {
+    setMobileDrawerOpen(false)
+  }
+
+  // Close drawer when navigating on mobile
+  useEffect(() => {
+    if (!isDesktop) {
+      handleMobileDrawerClose()
+    }
+  }, [location.pathname, isDesktop])
+
+  // Close drawer when resizing to desktop
+  useEffect(() => {
+    if (isDesktop) {
+      handleMobileDrawerClose()
+    }
+  }, [isDesktop])
 
   if (loading || !currentUser) {
     return (
@@ -86,20 +104,25 @@ export default function Layout() {
         projects={projects}
         onProjectChange={handleProjectChange}
         onLogout={handleLogout}
+        onMobileMenuClick={handleMobileDrawerToggle}
       />
-      <Sidebar projectId={localProjectId} />
+      <Sidebar
+        projectId={selectedProjectId}
+        mobileOpen={mobileDrawerOpen}
+        onMobileClose={handleMobileDrawerClose}
+      />
       <Box
         component="main"
         sx={{
           flexGrow: 1,
           p: 3,
-          marginInlineStart: `${DRAWER_WIDTH}px`,
+          ml: { xs: 0, md: `${DRAWER_WIDTH}px` },
           bgcolor: 'background.default',
           minHeight: '100vh',
         }}
       >
         <Toolbar />
-        <Outlet context={{ projectId: localProjectId, project: currentProject }} />
+        <Outlet context={{ projectId: selectedProjectId, project: currentProject }} />
       </Box>
     </Box>
   )

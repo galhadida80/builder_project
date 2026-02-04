@@ -1,0 +1,477 @@
+'use client'
+
+import { useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useTranslations } from 'next-intl'
+import Box from '@mui/material/Box'
+import Typography from '@mui/material/Typography'
+import Alert from '@mui/material/Alert'
+import Link from '@mui/material/Link'
+import Divider from '@mui/material/Divider'
+import ConstructionIcon from '@mui/icons-material/Construction'
+import EmailIcon from '@mui/icons-material/Email'
+import LockIcon from '@mui/icons-material/Lock'
+import PersonIcon from '@mui/icons-material/Person'
+import VisibilityIcon from '@mui/icons-material/Visibility'
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff'
+import IconButton from '@mui/material/IconButton'
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import Button from '@mui/material/Button'
+import TextField from '@mui/material/TextField'
+import InputAdornment from '@mui/material/InputAdornment'
+import Tabs from '@mui/material/Tabs'
+import Tab from '@mui/material/Tab'
+import CircularProgress from '@mui/material/CircularProgress'
+import { apiClient } from '@/lib/api/client'
+
+interface LoginResponse {
+  accessToken: string
+  tokenType: string
+  user: {
+    id: string
+    email: string
+    fullName: string | null
+  }
+}
+
+export default function LoginPage() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const t = useTranslations()
+  const [tab, setTab] = useState(0)
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [fullName, setFullName] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
+  const [showPassword, setShowPassword] = useState(false)
+
+  const resetForm = () => {
+    setEmail('')
+    setPassword('')
+    setFullName('')
+    setConfirmPassword('')
+    setError(null)
+    setSuccess(null)
+  }
+
+  const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
+    setTab(newValue)
+    resetForm()
+  }
+
+  const setAuthCookie = (token: string) => {
+    document.cookie = `authToken=${token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`
+  }
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
+
+    try {
+      const response = await apiClient.post<LoginResponse>('/auth/login', { email, password })
+      const { accessToken, user } = response.data
+
+      localStorage.setItem('authToken', accessToken)
+      localStorage.setItem('userId', user.id)
+      setAuthCookie(accessToken)
+
+      const redirect = searchParams?.get('redirect') || '/dashboard'
+      router.push(redirect)
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { detail?: string } } }
+      setError(error.response?.data?.detail || t('invalidCredentials'))
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
+
+    if (password !== confirmPassword) {
+      setError(t('passwordsMismatch'))
+      setLoading(false)
+      return
+    }
+
+    if (password.length < 8) {
+      setError(t('passwordMinLength'))
+      setLoading(false)
+      return
+    }
+
+    try {
+      await apiClient.post('/auth/register', {
+        email,
+        password,
+        full_name: fullName,
+      })
+      setSuccess(t('accountCreated'))
+      setTab(0)
+      setPassword('')
+      setConfirmPassword('')
+      setFullName('')
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { detail?: string } } }
+      setError(error.response?.data?.detail || t('registrationFailed'))
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const isSignIn = tab === 0
+
+  return (
+    <Box
+      sx={{
+        minHeight: '100vh',
+        display: 'flex',
+        bgcolor: 'background.default',
+      }}
+    >
+      <Box
+        sx={{
+          flex: 1,
+          display: { xs: 'none', md: 'flex' },
+          flexDirection: 'column',
+          justifyContent: 'center',
+          p: 6,
+          background: (theme) =>
+            theme.palette.mode === 'dark'
+              ? 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)'
+              : 'linear-gradient(135deg, #0369A1 0%, #0F172A 100%)',
+          color: 'white',
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 0,
+            insetInlineStart: 0,
+            insetInlineEnd: 0,
+            bottom: 0,
+            opacity: 0.1,
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          }}
+        />
+
+        <Box sx={{ position: 'relative', zIndex: 1, maxWidth: 480 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
+            <Box
+              sx={{
+                width: 56,
+                height: 56,
+                borderRadius: 3,
+                bgcolor: 'rgba(255,255,255,0.1)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <ConstructionIcon sx={{ fontSize: 32 }} />
+            </Box>
+            <Box>
+              <Typography variant="h4" fontWeight={700}>
+                BuilderOps
+              </Typography>
+              <Typography variant="body2" sx={{ opacity: 0.8 }}>
+                {t('platformSubtitle')}
+              </Typography>
+            </Box>
+          </Box>
+
+          <Typography variant="h3" fontWeight={700} sx={{ mb: 3, lineHeight: 1.2 }}>
+            {t('buildSmarterTitle')}<br />
+            {t('inspectFasterTitle')}<br />
+            {t('deliverExcellenceTitle')}
+          </Typography>
+
+          <Typography variant="body1" sx={{ mb: 4, opacity: 0.9, lineHeight: 1.7 }}>
+            {t('platformDescription')}
+          </Typography>
+
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {[
+              t('realTimeTracking'),
+              t('equipmentManagement'),
+              t('inspectionSystem'),
+              t('approvalWorkflows'),
+            ].map((feature, index) => (
+              <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <CheckCircleIcon sx={{ fontSize: 20, color: '#22C55E' }} />
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                  {feature}
+                </Typography>
+              </Box>
+            ))}
+          </Box>
+        </Box>
+      </Box>
+
+      <Box
+        sx={{
+          flex: { xs: 1, md: '0 0 520px' },
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          p: { xs: 3, md: 6 },
+        }}
+      >
+        <Box sx={{ width: '100%', maxWidth: 400 }}>
+          <Box sx={{ display: { xs: 'flex', md: 'none' }, alignItems: 'center', gap: 1.5, mb: 4, justifyContent: 'center' }}>
+            <Box
+              sx={{
+                width: 48,
+                height: 48,
+                borderRadius: 2,
+                bgcolor: 'primary.main',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white',
+              }}
+            >
+              <ConstructionIcon sx={{ fontSize: 28 }} />
+            </Box>
+            <Box>
+              <Typography variant="h5" fontWeight={700} color="text.primary">
+                BuilderOps
+              </Typography>
+            </Box>
+          </Box>
+
+          <Box sx={{ mb: 4, textAlign: { xs: 'center', md: 'start' } }}>
+            <Typography variant="h4" fontWeight={700} color="text.primary" sx={{ mb: 1 }}>
+              {isSignIn ? t('welcomeBack') : t('createAccount')}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {isSignIn ? t('enterCredentials') : t('fillDetails')}
+            </Typography>
+          </Box>
+
+          <Tabs
+            value={tab}
+            onChange={handleTabChange}
+            variant="fullWidth"
+            sx={{
+              mb: 3,
+              '& .MuiTabs-indicator': {
+                height: 3,
+                borderRadius: 2,
+              },
+            }}
+          >
+            <Tab label={t('signIn')} />
+            <Tab label={t('signUp')} />
+          </Tabs>
+
+          <Box sx={{ mt: 2 }}>
+            {error && (
+              <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
+                {error}
+              </Alert>
+            )}
+
+            {success && (
+              <Alert severity="success" sx={{ mb: 3, borderRadius: 2 }}>
+                {success}
+              </Alert>
+            )}
+
+            {isSignIn ? (
+              <form onSubmit={handleLogin}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+                  <TextField
+                    fullWidth
+                    label={t('email')}
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    autoComplete="email"
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <EmailIcon sx={{ color: 'text.secondary' }} />
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                  <TextField
+                    fullWidth
+                    label={t('password')}
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    autoComplete="current-password"
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <LockIcon sx={{ color: 'text.secondary' }} />
+                        </InputAdornment>
+                      ),
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={() => setShowPassword(!showPassword)}
+                            edge="end"
+                            size="small"
+                          >
+                            {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+
+                  <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <Link href="#" underline="hover" sx={{ fontSize: '0.875rem' }}>
+                      {t('forgotPassword')}
+                    </Link>
+                  </Box>
+
+                  <Button
+                    fullWidth
+                    type="submit"
+                    variant="contained"
+                    disabled={loading}
+                    sx={{ py: 1.5, mt: 1 }}
+                  >
+                    {loading ? <CircularProgress size={24} /> : t('signIn')}
+                  </Button>
+                </Box>
+              </form>
+            ) : (
+              <form onSubmit={handleRegister}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+                  <TextField
+                    fullWidth
+                    label={t('fullName')}
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    required
+                    autoComplete="name"
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <PersonIcon sx={{ color: 'text.secondary' }} />
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                  <TextField
+                    fullWidth
+                    label={t('email')}
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    autoComplete="email"
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <EmailIcon sx={{ color: 'text.secondary' }} />
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                  <TextField
+                    fullWidth
+                    label={t('password')}
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    autoComplete="new-password"
+                    helperText={t('atLeast8Chars')}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <LockIcon sx={{ color: 'text.secondary' }} />
+                        </InputAdornment>
+                      ),
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={() => setShowPassword(!showPassword)}
+                            edge="end"
+                            size="small"
+                          >
+                            {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                  <TextField
+                    fullWidth
+                    label={t('confirmPassword')}
+                    type={showPassword ? 'text' : 'password'}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                    autoComplete="new-password"
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <LockIcon sx={{ color: 'text.secondary' }} />
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+
+                  <Button
+                    fullWidth
+                    type="submit"
+                    variant="contained"
+                    disabled={loading}
+                    sx={{ py: 1.5, mt: 1 }}
+                  >
+                    {loading ? <CircularProgress size={24} /> : t('createButton')}
+                  </Button>
+                </Box>
+              </form>
+            )}
+
+            <Divider sx={{ my: 3 }}>
+              <Typography variant="caption" color="text.secondary">
+                {t('or')}
+              </Typography>
+            </Divider>
+
+            <Box sx={{ textAlign: 'center' }}>
+              <Typography variant="body2" color="text.secondary">
+                {isSignIn ? t('noAccount') : t('haveAccount')}{' '}
+                <Link
+                  component="button"
+                  type="button"
+                  onClick={() => setTab(isSignIn ? 1 : 0)}
+                  underline="hover"
+                  sx={{ fontWeight: 600 }}
+                >
+                  {isSignIn ? t('signUpLink') : t('signInLink')}
+                </Link>
+              </Typography>
+            </Box>
+          </Box>
+
+          <Box sx={{ mt: 4, textAlign: 'center' }}>
+            <Typography variant="caption" color="text.disabled">
+              {t('terms')}
+            </Typography>
+          </Box>
+        </Box>
+      </Box>
+    </Box>
+  )
+}

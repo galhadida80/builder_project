@@ -41,6 +41,12 @@ interface DataTableProps<T> {
 
 const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
   borderRadius: 12,
+  // Enable horizontal scrolling on mobile
+  overflowX: 'auto',
+  // Smooth scrolling for better UX
+  scrollBehavior: 'smooth',
+  // Prevent scrollbar from taking up layout space on mobile
+  WebkitOverflowScrolling: 'touch',
   '& .MuiTableHead-root': {
     '& .MuiTableCell-head': {
       backgroundColor: theme.palette.mode === 'dark' ? theme.palette.grey[900] : theme.palette.grey[50],
@@ -49,6 +55,11 @@ const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
       textTransform: 'uppercase',
       letterSpacing: '0.05em',
       color: theme.palette.text.secondary,
+      // Touch-friendly padding on mobile
+      [theme.breakpoints.down('sm')]: {
+        padding: theme.spacing(1.5),
+        fontSize: '0.7rem',
+      },
     },
   },
   '& .MuiTableBody-root': {
@@ -62,8 +73,54 @@ const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
         borderBottom: 0,
       },
     },
+    // Touch-friendly cell padding on mobile
+    '& .MuiTableCell-root': {
+      [theme.breakpoints.down('sm')]: {
+        padding: theme.spacing(1.5),
+        fontSize: '0.875rem',
+      },
+    },
+  },
+  // Touch-friendly checkbox sizing
+  '& .MuiCheckbox-root': {
+    [theme.breakpoints.down('sm')]: {
+      padding: theme.spacing(1.5),
+      '& svg': {
+        fontSize: '1.5rem',
+      },
+    },
+  },
+  // Touch-friendly sort label
+  '& .MuiTableSortLabel-root': {
+    [theme.breakpoints.down('sm')]: {
+      '& .MuiTableSortLabel-icon': {
+        fontSize: '1.2rem',
+      },
+    },
   },
 })) as typeof TableContainer
+
+const StyledTablePagination = styled(TablePagination)(({ theme }) => ({
+  // Mobile-responsive pagination
+  [theme.breakpoints.down('sm')]: {
+    // Stack pagination controls on very small screens
+    '& .MuiTablePagination-toolbar': {
+      flexDirection: 'column',
+      alignItems: 'flex-start',
+      gap: theme.spacing(1),
+      padding: theme.spacing(2),
+    },
+    // Touch-friendly pagination buttons
+    '& .MuiIconButton-root': {
+      padding: theme.spacing(1.5),
+    },
+    // Adjust select dropdown for touch
+    '& .MuiTablePagination-select': {
+      paddingTop: theme.spacing(1),
+      paddingBottom: theme.spacing(1),
+    },
+  },
+})) as typeof TablePagination
 
 export function DataTable<T>({
   columns,
@@ -239,7 +296,7 @@ export function DataTable<T>({
         </TableBody>
       </Table>
       {pagination && (
-        <TablePagination
+        <StyledTablePagination
           rowsPerPageOptions={[5, 10, 25, 50]}
           component="div"
           count={rows.length}

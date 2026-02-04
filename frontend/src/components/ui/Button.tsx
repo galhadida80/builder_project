@@ -1,20 +1,27 @@
 import { Button as MuiButton, ButtonProps as MuiButtonProps, CircularProgress } from '@mui/material'
 import { styled } from '@mui/material/styles'
-import CheckCircleIcon from '@mui/icons-material/CheckCircle'
-import { scaleIn, duration, easing } from '@/utils/animations'
 
 export interface ButtonProps extends Omit<MuiButtonProps, 'variant'> {
   variant?: 'primary' | 'secondary' | 'tertiary' | 'danger' | 'success'
   loading?: boolean
-  success?: boolean
   icon?: React.ReactNode
   iconPosition?: 'start' | 'end'
 }
 
-const StyledButton = styled(MuiButton)(() => ({
+const StyledButton = styled(MuiButton)(({ theme }) => ({
   fontWeight: 600,
-  minHeight: 44,
   transition: 'all 200ms ease-out',
+  // Ensure touch target compliance on mobile (44x44px minimum)
+  minHeight: '44px',
+  minWidth: '44px',
+  // Responsive padding for better touch targets on mobile
+  padding: theme.spacing(1.5, 3),
+  [theme.breakpoints.down('sm')]: {
+    padding: theme.spacing(1.5, 2.5),
+    // Slightly larger font on mobile for better readability
+    fontSize: '0.9375rem', // 15px
+  },
+  // Prevent double-tap zoom on mobile
   touchAction: 'manipulation',
   '&:hover': {
     transform: 'translateY(-1px)',
@@ -25,34 +32,11 @@ const StyledButton = styled(MuiButton)(() => ({
   '&.Mui-disabled': {
     transform: 'none',
   },
-  '@media (hover: none) and (pointer: coarse)': {
-    '&:active': {
-      opacity: 0.85,
-    },
-  },
-}))
-
-const AnimatedCheckIcon = styled(CheckCircleIcon)(() => ({
-  animation: `${scaleIn} ${duration.normal}ms ${easing.decelerate}`,
-  '@keyframes draw-circle': {
-    from: {
-      strokeDashoffset: 1,
-    },
-    to: {
-      strokeDashoffset: 0,
-    },
-  },
-  '& path': {
-    strokeDasharray: '1',
-    strokeDashoffset: '0',
-    animation: `draw-circle ${duration.slow}ms ${easing.decelerate}`,
-  },
 }))
 
 export function Button({
   variant = 'primary',
   loading = false,
-  success = false,
   icon,
   iconPosition = 'start',
   children,
@@ -91,37 +75,16 @@ export function Button({
     }
   }
 
-  // Determine which icon to show based on state priority: success > loading > custom icon
-  const getStartIcon = () => {
-    if (success && iconPosition === 'start') {
-      return <AnimatedCheckIcon fontSize="small" />
-    }
-    if (loading) {
-      return <CircularProgress size={18} color="inherit" />
-    }
-    if (icon && iconPosition === 'start') {
-      return icon
-    }
-    return undefined
-  }
-
-  const getEndIcon = () => {
-    if (success && iconPosition === 'end') {
-      return <AnimatedCheckIcon fontSize="small" />
-    }
-    if (icon && iconPosition === 'end') {
-      return icon
-    }
-    return undefined
-  }
+  const startIcon = icon && iconPosition === 'start' ? icon : undefined
+  const endIcon = icon && iconPosition === 'end' ? icon : undefined
 
   return (
     <StyledButton
       variant={getMuiVariant()}
       color={getColor()}
       disabled={disabled || loading}
-      startIcon={getStartIcon()}
-      endIcon={getEndIcon()}
+      startIcon={loading ? <CircularProgress size={18} color="inherit" /> : startIcon}
+      endIcon={endIcon}
       {...props}
     >
       {children}
@@ -141,8 +104,11 @@ export function IconButton({
       color="primary"
       disabled={props.disabled || loading}
       sx={{
-        minWidth: 44,
-        minHeight: 44,
+        // Ensure touch target compliance (44x44px minimum)
+        minWidth: '44px',
+        minHeight: '44px',
+        width: '44px',
+        height: '44px',
         p: 1,
         ...props.sx,
       }}

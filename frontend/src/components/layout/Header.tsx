@@ -14,6 +14,7 @@ import NotificationsIcon from '@mui/icons-material/Notifications'
 import PersonIcon from '@mui/icons-material/Person'
 import SettingsIcon from '@mui/icons-material/Settings'
 import LogoutIcon from '@mui/icons-material/Logout'
+import MenuIcon from '@mui/icons-material/Menu'
 import type { User, Project } from '../../types'
 import ProjectSelector from './ProjectSelector'
 import { useToast } from '../common/ToastProvider'
@@ -28,9 +29,10 @@ interface HeaderProps {
   projects: Project[]
   onProjectChange: (projectId: string) => void
   onLogout: () => void
+  onMobileMenuClick?: () => void
 }
 
-export default function Header({ user, currentProject, projects, onProjectChange, onLogout }: HeaderProps) {
+export default function Header({ user, currentProject, projects, onProjectChange, onLogout, onMobileMenuClick }: HeaderProps) {
   const { showInfo } = useToast()
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [notificationsPanelOpen, setNotificationsPanelOpen] = useState(false)
@@ -83,12 +85,23 @@ export default function Header({ user, currentProject, projects, onProjectChange
         borderBottom: '1px solid',
         borderColor: 'divider',
         bgcolor: 'background.paper',
-        ml: '260px',
-        width: 'calc(100% - 260px)',
+        ml: { xs: 0, md: '260px' },
+        width: { xs: '100%', md: 'calc(100% - 260px)' },
       }}
     >
       <Toolbar sx={{ justifyContent: 'space-between' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <IconButton
+            onClick={onMobileMenuClick}
+            sx={{
+              display: { xs: 'flex', md: 'none' },
+              width: 44,
+              height: 44,
+            }}
+            aria-label="open mobile menu"
+          >
+            <MenuIcon />
+          </IconButton>
           <ProjectSelector
             projects={projects}
             currentProject={currentProject}

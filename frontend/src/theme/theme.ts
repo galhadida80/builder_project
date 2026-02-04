@@ -1,51 +1,86 @@
-import createTheme from '@mui/material/styles/createTheme'
-import type { ThemeOptions } from '@mui/material/styles'
-import { colors, shadows, borderRadius, typography, transitions, animations } from './tokens'
+import { createTheme, ThemeOptions } from '@mui/material/styles'
+import { colors, shadows, borderRadius, typography, transitions } from './tokens'
 
 const baseThemeOptions: ThemeOptions = {
   typography: {
     fontFamily: typography.fontFamily.english,
     h1: {
-      fontSize: typography.fontSize.h1,
+      fontSize: typography.responsiveFontSize.h1.xs,
       fontWeight: typography.fontWeight.bold,
       lineHeight: typography.lineHeight.tight,
       letterSpacing: '-0.02em',
+      '@media (min-width:600px)': {
+        fontSize: typography.responsiveFontSize.h1.sm,
+      },
+      '@media (min-width:900px)': {
+        fontSize: typography.responsiveFontSize.h1.md,
+      },
     },
     h2: {
-      fontSize: typography.fontSize.h2,
+      fontSize: typography.responsiveFontSize.h2.xs,
       fontWeight: typography.fontWeight.semibold,
       lineHeight: typography.lineHeight.tight,
       letterSpacing: '-0.01em',
+      '@media (min-width:600px)': {
+        fontSize: typography.responsiveFontSize.h2.sm,
+      },
+      '@media (min-width:900px)': {
+        fontSize: typography.responsiveFontSize.h2.md,
+      },
     },
     h3: {
-      fontSize: typography.fontSize.h3,
+      fontSize: typography.responsiveFontSize.h3.xs,
       fontWeight: typography.fontWeight.semibold,
       lineHeight: 1.3,
+      '@media (min-width:600px)': {
+        fontSize: typography.responsiveFontSize.h3.sm,
+      },
+      '@media (min-width:900px)': {
+        fontSize: typography.responsiveFontSize.h3.md,
+      },
     },
     h4: {
-      fontSize: typography.fontSize.h4,
+      fontSize: typography.responsiveFontSize.h4.xs,
       fontWeight: typography.fontWeight.medium,
       lineHeight: 1.4,
+      '@media (min-width:600px)': {
+        fontSize: typography.responsiveFontSize.h4.sm,
+      },
+      '@media (min-width:900px)': {
+        fontSize: typography.responsiveFontSize.h4.md,
+      },
     },
     h5: {
-      fontSize: typography.fontSize.body,
+      fontSize: typography.responsiveFontSize.body.xs,
       fontWeight: typography.fontWeight.medium,
       lineHeight: 1.4,
+      '@media (min-width:600px)': {
+        fontSize: typography.responsiveFontSize.body.sm,
+      },
     },
     h6: {
-      fontSize: typography.fontSize.small,
+      fontSize: typography.responsiveFontSize.small.xs,
       fontWeight: typography.fontWeight.medium,
       lineHeight: 1.4,
+      '@media (min-width:600px)': {
+        fontSize: typography.responsiveFontSize.small.sm,
+      },
     },
     body1: {
-      fontSize: typography.fontSize.body,
+      fontSize: typography.responsiveFontSize.body.xs,
       fontWeight: typography.fontWeight.regular,
       lineHeight: typography.lineHeight.relaxed,
+      '@media (min-width:600px)': {
+        fontSize: typography.responsiveFontSize.body.sm,
+      },
     },
     body2: {
-      fontSize: typography.fontSize.small,
+      fontSize: typography.responsiveFontSize.small.xs,
       fontWeight: typography.fontWeight.regular,
       lineHeight: typography.lineHeight.normal,
+      '@media (min-width:600px)': {
+        fontSize: typography.responsiveFontSize.small.sm,
+      },
     },
     caption: {
       fontSize: typography.fontSize.tiny,
@@ -53,14 +88,26 @@ const baseThemeOptions: ThemeOptions = {
       lineHeight: 1.4,
     },
     button: {
-      fontSize: typography.fontSize.small,
+      fontSize: typography.responsiveFontSize.small.xs,
       fontWeight: typography.fontWeight.semibold,
       textTransform: 'none' as const,
       letterSpacing: '0.01em',
+      '@media (min-width:600px)': {
+        fontSize: typography.responsiveFontSize.small.sm,
+      },
     },
   },
   shape: {
     borderRadius: borderRadius.md,
+  },
+  breakpoints: {
+    values: {
+      xs: 0,
+      sm: 600,
+      md: 900,
+      lg: 1200,
+      xl: 1536,
+    },
   },
   components: {
     MuiCssBaseline: {
@@ -70,12 +117,25 @@ const baseThemeOptions: ThemeOptions = {
         },
         html: {
           scrollBehavior: 'smooth',
+          overflowX: 'hidden',
         },
         body: {
           fontFamily: typography.fontFamily.english,
+          overflowX: 'hidden',
+          wordWrap: 'break-word',
+          overflowWrap: 'break-word',
         },
         '[dir="rtl"] body': {
           fontFamily: typography.fontFamily.hebrew,
+        },
+        'h1, h2, h3, h4, h5, h6': {
+          overflowWrap: 'break-word',
+          wordWrap: 'break-word',
+          hyphens: 'auto',
+        },
+        'p, span, div': {
+          maxWidth: '100%',
+          overflowWrap: 'break-word',
         },
         '@media (prefers-reduced-motion: reduce)': {
           '*': {
@@ -93,18 +153,13 @@ const baseThemeOptions: ThemeOptions = {
           fontWeight: typography.fontWeight.semibold,
           padding: '10px 20px',
           minHeight: 44,
-          touchAction: 'manipulation',
+          minWidth: 44,
           transition: `all ${transitions.normal}`,
           '&:hover': {
             transform: 'translateY(-1px)',
           },
           '&:active': {
             transform: 'scale(0.98)',
-          },
-          '@media (hover: none) and (pointer: coarse)': {
-            '&:active': {
-              opacity: 0.85,
-            },
           },
         },
         containedPrimary: {
@@ -116,12 +171,14 @@ const baseThemeOptions: ThemeOptions = {
         sizeSmall: {
           padding: '6px 12px',
           fontSize: typography.fontSize.tiny,
-          minHeight: 36,
+          minHeight: 44,
+          minWidth: 44,
         },
         sizeLarge: {
           padding: '14px 28px',
           fontSize: typography.fontSize.body,
-          minHeight: 52,
+          minHeight: 48,
+          minWidth: 48,
         },
       },
       defaultProps: {
@@ -131,23 +188,20 @@ const baseThemeOptions: ThemeOptions = {
     MuiIconButton: {
       styleOverrides: {
         root: {
-          minWidth: 44,
           minHeight: 44,
-          touchAction: 'manipulation',
-          transition: `all ${transitions.normal}`,
-          '@media (hover: none) and (pointer: coarse)': {
-            '&:active': {
-              opacity: 0.85,
-            },
-          },
+          minWidth: 44,
         },
         sizeSmall: {
-          minWidth: 36,
-          minHeight: 36,
+          minHeight: 44,
+          minWidth: 44,
+        },
+        sizeMedium: {
+          minHeight: 44,
+          minWidth: 44,
         },
         sizeLarge: {
-          minWidth: 52,
-          minHeight: 52,
+          minHeight: 48,
+          minWidth: 48,
         },
       },
     },
@@ -210,10 +264,50 @@ const baseThemeOptions: ThemeOptions = {
         root: {
           borderRadius: borderRadius.md,
           fontWeight: typography.fontWeight.medium,
+          '&.MuiChip-clickable': {
+            minHeight: 44,
+          },
         },
         sizeSmall: {
           height: 24,
           fontSize: typography.fontSize.tiny,
+          '&.MuiChip-clickable': {
+            minHeight: 44,
+          },
+        },
+      },
+    },
+    MuiListItemButton: {
+      styleOverrides: {
+        root: {
+          minHeight: 44,
+        },
+      },
+    },
+    MuiMenuItem: {
+      styleOverrides: {
+        root: {
+          minHeight: 44,
+        },
+      },
+    },
+    MuiFab: {
+      styleOverrides: {
+        root: {
+          minHeight: 44,
+          minWidth: 44,
+        },
+        sizeSmall: {
+          minHeight: 44,
+          minWidth: 44,
+        },
+        sizeMedium: {
+          minHeight: 48,
+          minWidth: 48,
+        },
+        sizeLarge: {
+          minHeight: 56,
+          minWidth: 56,
         },
       },
     },
@@ -255,6 +349,7 @@ const baseThemeOptions: ThemeOptions = {
           textTransform: 'none',
           fontWeight: typography.fontWeight.medium,
           minHeight: 48,
+          minWidth: 44,
         },
       },
     },
@@ -320,65 +415,12 @@ const baseThemeOptions: ThemeOptions = {
         },
       },
     },
-    MuiListItemButton: {
-      styleOverrides: {
-        root: {
-          minHeight: 48,
-          touchAction: 'manipulation',
-          transition: `all ${transitions.normal}`,
-          '@media (hover: none) and (pointer: coarse)': {
-            '&:active': {
-              opacity: 0.85,
-            },
-          },
-        },
-      },
-    },
-    MuiMenuItem: {
-      styleOverrides: {
-        root: {
-          minHeight: 48,
-          touchAction: 'manipulation',
-          '@media (hover: none) and (pointer: coarse)': {
-            '&:active': {
-              opacity: 0.85,
-            },
-          },
-        },
-      },
-    },
-    MuiLink: {
-      styleOverrides: {
-        root: {
-          touchAction: 'manipulation',
-        },
-      },
-    },
-    MuiFab: {
-      styleOverrides: {
-        root: {
-          minWidth: 56,
-          minHeight: 56,
-          touchAction: 'manipulation',
-          '@media (hover: none) and (pointer: coarse)': {
-            '&:active': {
-              opacity: 0.9,
-            },
-          },
-        },
-        sizeSmall: {
-          minWidth: 44,
-          minHeight: 44,
-        },
-      },
-    },
   },
 }
 
-export function createLightTheme(direction: 'ltr' | 'rtl' = 'ltr') {
+export function createLightTheme() {
   return createTheme({
     ...baseThemeOptions,
-    direction,
     palette: {
       mode: 'light',
       primary: {
@@ -442,10 +484,9 @@ export function createLightTheme(direction: 'ltr' | 'rtl' = 'ltr') {
   })
 }
 
-export function createDarkTheme(direction: 'ltr' | 'rtl' = 'ltr') {
+export function createDarkTheme() {
   return createTheme({
     ...baseThemeOptions,
-    direction,
     palette: {
       mode: 'dark',
       primary: {
@@ -553,4 +594,4 @@ export function createDarkTheme(direction: 'ltr' | 'rtl' = 'ltr') {
   })
 }
 
-export { colors, shadows, borderRadius, typography, transitions, animations }
+export { colors, shadows, borderRadius, typography, transitions }
