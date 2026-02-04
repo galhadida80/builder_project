@@ -1,4 +1,5 @@
-import { createTheme, ThemeOptions } from '@mui/material/styles'
+import createTheme from '@mui/material/styles/createTheme'
+import type { ThemeOptions } from '@mui/material/styles'
 import { colors, shadows, borderRadius, typography, transitions, animations } from './tokens'
 
 const baseThemeOptions: ThemeOptions = {
@@ -91,12 +92,19 @@ const baseThemeOptions: ThemeOptions = {
           borderRadius: borderRadius.md,
           fontWeight: typography.fontWeight.semibold,
           padding: '10px 20px',
+          minHeight: 44,
+          touchAction: 'manipulation',
           transition: `all ${transitions.normal}`,
           '&:hover': {
             transform: 'translateY(-1px)',
           },
           '&:active': {
             transform: 'scale(0.98)',
+          },
+          '@media (hover: none) and (pointer: coarse)': {
+            '&:active': {
+              opacity: 0.85,
+            },
           },
         },
         containedPrimary: {
@@ -108,14 +116,39 @@ const baseThemeOptions: ThemeOptions = {
         sizeSmall: {
           padding: '6px 12px',
           fontSize: typography.fontSize.tiny,
+          minHeight: 36,
         },
         sizeLarge: {
           padding: '14px 28px',
           fontSize: typography.fontSize.body,
+          minHeight: 52,
         },
       },
       defaultProps: {
         disableElevation: true,
+      },
+    },
+    MuiIconButton: {
+      styleOverrides: {
+        root: {
+          minWidth: 44,
+          minHeight: 44,
+          touchAction: 'manipulation',
+          transition: `all ${transitions.normal}`,
+          '@media (hover: none) and (pointer: coarse)': {
+            '&:active': {
+              opacity: 0.85,
+            },
+          },
+        },
+        sizeSmall: {
+          minWidth: 36,
+          minHeight: 36,
+        },
+        sizeLarge: {
+          minWidth: 52,
+          minHeight: 52,
+        },
       },
     },
     MuiCard: {
@@ -284,6 +317,58 @@ const baseThemeOptions: ThemeOptions = {
       styleOverrides: {
         rounded: {
           borderRadius: borderRadius.md,
+        },
+      },
+    },
+    MuiListItemButton: {
+      styleOverrides: {
+        root: {
+          minHeight: 48,
+          touchAction: 'manipulation',
+          transition: `all ${transitions.normal}`,
+          '@media (hover: none) and (pointer: coarse)': {
+            '&:active': {
+              opacity: 0.85,
+            },
+          },
+        },
+      },
+    },
+    MuiMenuItem: {
+      styleOverrides: {
+        root: {
+          minHeight: 48,
+          touchAction: 'manipulation',
+          '@media (hover: none) and (pointer: coarse)': {
+            '&:active': {
+              opacity: 0.85,
+            },
+          },
+        },
+      },
+    },
+    MuiLink: {
+      styleOverrides: {
+        root: {
+          touchAction: 'manipulation',
+        },
+      },
+    },
+    MuiFab: {
+      styleOverrides: {
+        root: {
+          minWidth: 56,
+          minHeight: 56,
+          touchAction: 'manipulation',
+          '@media (hover: none) and (pointer: coarse)': {
+            '&:active': {
+              opacity: 0.9,
+            },
+          },
+        },
+        sizeSmall: {
+          minWidth: 44,
+          minHeight: 44,
         },
       },
     },

@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import Layout from './components/layout/Layout'
+import { PWAInstallPrompt } from './components/common/PWAInstallPrompt'
 import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
 import ProjectsPage from './pages/ProjectsPage'
@@ -14,6 +15,13 @@ import AuditLogPage from './pages/AuditLogPage'
 import InspectionsPage from './pages/InspectionsPage'
 import RFIPage from './pages/RFIPage'
 import InspectorDashboardPage from './pages/InspectorDashboard'
+import TeamWorkloadPage from './pages/TeamWorkloadPage'
+import AnalyticsDashboard from './pages/Analytics/AnalyticsDashboard'
+import ApprovalQueuePage from './pages/ApprovalQueuePage'
+import DocumentLibraryPage from './pages/DocumentLibraryPage'
+import GanttTimelinePage from './pages/GanttTimelinePage'
+import MobileChecklistPage from './pages/MobileChecklistPage'
+import RFIDetailPage from './pages/RFIDetailPage'
 
 function ProtectedRoute() {
   const token = localStorage.getItem('authToken')
@@ -25,7 +33,9 @@ function ProtectedRoute() {
 
 export default function App() {
   return (
-    <Routes>
+    <>
+      <PWAInstallPrompt />
+      <Routes>
         <Route path="/login" element={<LoginPage />} />
 
         <Route element={<ProtectedRoute />}>
@@ -43,15 +53,23 @@ export default function App() {
               <Route path="contacts" element={<ContactsPage />} />
               <Route path="inspections" element={<InspectionsPage />} />
               <Route path="rfis" element={<RFIPage />} />
+              <Route path="documents" element={<DocumentLibraryPage />} />
+              <Route path="timeline" element={<GanttTimelinePage />} />
             </Route>
+            <Route path="/projects/:projectId/inspections/:inspectionId" element={<MobileChecklistPage />} />
+            <Route path="/projects/:projectId/rfis/:rfiId" element={<RFIDetailPage />} />
 
             <Route path="/approvals" element={<ApprovalsPage />} />
+            <Route path="/approval-queue" element={<ApprovalQueuePage />} />
             <Route path="/audit" element={<AuditLogPage />} />
+            <Route path="/analytics" element={<AnalyticsDashboard />} />
+            <Route path="/team-workload" element={<TeamWorkloadPage />} />
             <Route path="/inspector-dashboard" element={<InspectorDashboardPage />} />
           </Route>
         </Route>
 
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
+    </>
   )
 }
