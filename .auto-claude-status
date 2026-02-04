@@ -1,17 +1,17 @@
 {
   "active": true,
-  "spec": "048-build-inspection-history-timeline",
+  "spec": "049-create-consultant-assignment-ui",
   "state": "building",
   "subtasks": {
     "completed": 14,
-    "total": 16,
+    "total": 15,
     "in_progress": 1,
     "failed": 0
   },
   "phase": {
-    "current": "Polish and Edge Case Handling",
+    "current": "Integration and Data Flow",
     "id": null,
-    "total": 5
+    "total": 4
   },
   "workers": {
     "active": 0,
@@ -19,7 +19,7 @@
   },
   "session": {
     "number": 15,
-    "started_at": "2026-02-05T00:35:24.253605"
+    "started_at": "2026-02-05T00:32:51.776935"
   },
-  "last_update": "2026-02-05T01:13:50.794793"
+  "last_update": "2026-02-05T01:22:27.068939"
 }

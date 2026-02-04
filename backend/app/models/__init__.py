@@ -11,7 +11,6 @@ from app.models.equipment_template import (
 )
 from app.models.material import Material
 from app.models.meeting import Meeting, MeetingAttendee
-from app.models.notification import Notification, NotificationCategory
 from app.models.approval import ApprovalRequest, ApprovalStep
 from app.models.area import ConstructionArea, AreaProgress
 from app.models.file import File
@@ -31,8 +30,7 @@ from app.models.equipment_template import (
     EquipmentApprovalSubmission,
     EquipmentApprovalDecision,
 )
-from app.models.inspection import Inspection, Finding, InspectionStage
-from app.models.rfi import RFI, RFIResponse, RFIEmailLog, RFIStatus, RFIPriority, RFICategory
+from app.models.consultant_assignment import ConsultantAssignment, AssignmentStatus
 
 __all__ = [
     "User",
@@ -49,8 +47,6 @@ __all__ = [
     "Material",
     "Meeting",
     "MeetingAttendee",
-    "Notification",
-    "NotificationCategory",
     "ApprovalRequest",
     "ApprovalStep",
     "ConstructionArea",
@@ -58,19 +54,17 @@ __all__ = [
     "File",
     "InspectionConsultantType",
     "InspectionStageTemplate",
-    "Inspection",
-    "Finding",
-    "InspectionStage",
     "AuditLog",
     "ChecklistTemplate",
     "ChecklistSubSection",
     "ChecklistItemTemplate",
     "ChecklistInstance",
     "ChecklistItemResponse",
-    "RFI",
-    "RFIResponse",
-    "RFIEmailLog",
-    "RFIStatus",
-    "RFIPriority",
-    "RFICategory",
+    "ConsultantType",
+    "EquipmentTemplate",
+    "EquipmentTemplateConsultant",
+    "EquipmentApprovalSubmission",
+    "EquipmentApprovalDecision",
+    "ConsultantAssignment",
+    "AssignmentStatus",
 ]

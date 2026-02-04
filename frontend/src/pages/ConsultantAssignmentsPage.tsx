@@ -1,0 +1,469 @@
+import { useState, useEffect } from 'react'
+import Box from '@mui/material/Box'
+import Typography from '@mui/material/Typography'
+import Skeleton from '@mui/material/Skeleton'
+import Chip from '@mui/material/Chip'
+import IconButton from '@mui/material/IconButton'
+import ToggleButton from '@mui/material/ToggleButton'
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
+import MenuItem from '@mui/material/MenuItem'
+import MuiTextField from '@mui/material/TextField'
+import AddIcon from '@mui/icons-material/Add'
+import ViewListIcon from '@mui/icons-material/ViewList'
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth'
+import AssignmentIcon from '@mui/icons-material/Assignment'
+import PeopleIcon from '@mui/icons-material/People'
+import WorkIcon from '@mui/icons-material/Work'
+import PendingActionsIcon from '@mui/icons-material/PendingActions'
+import FilterListIcon from '@mui/icons-material/FilterList'
+import { Card, KPICard } from '../components/ui/Card'
+import { Button } from '../components/ui/Button'
+import { PageHeader } from '../components/ui/Breadcrumbs'
+import { ConfirmModal } from '../components/ui/Modal'
+import { SearchField } from '../components/ui/TextField'
+import { AssignmentList } from '../components/consultants/AssignmentList'
+import { AssignmentCalendar } from '../components/consultants/AssignmentCalendar'
+import { AssignmentForm, AssignmentFormData } from '../components/consultants/AssignmentForm'
+import { consultantAssignmentsApi } from '../api/consultantAssignments'
+import { projectsApi } from '../api/projects'
+import { inspectionsApi } from '../api/inspections'
+import { apiClient } from '../api/client'
+import type { ConsultantAssignment } from '../types/consultantAssignment'
+import type { User, Project } from '../types'
+import { useToast } from '../components/common/ToastProvider'
+
+type ViewMode = 'list' | 'calendar'
+
+interface ConsultantType {
+  id: string
+  name: string
+}
+
+export default function ConsultantAssignmentsPage() {
+  const { showError, showSuccess } = useToast()
+  const [loading, setLoading] = useState(true)
+  const [assignments, setAssignments] = useState<ConsultantAssignment[]>([])
+  const [viewMode, setViewMode] = useState<ViewMode>('list')
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [editingAssignment, setEditingAssignment] = useState<ConsultantAssignment | null>(null)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [assignmentToDelete, setAssignmentToDelete] = useState<ConsultantAssignment | null>(null)
+  const [saving, setSaving] = useState(false)
+
+  // Data for form dropdowns
+  const [consultants, setConsultants] = useState<User[]>([])
+  const [projects, setProjects] = useState<Project[]>([])
+  const [consultantTypes, setConsultantTypes] = useState<ConsultantType[]>([])
+
+  // Filter state
+  const [search, setSearch] = useState('')
+  const [selectedConsultant, setSelectedConsultant] = useState<string>('all')
+  const [selectedProject, setSelectedProject] = useState<string>('all')
+  const [selectedStatus, setSelectedStatus] = useState<string>('all')
+  const [startDateFilter, setStartDateFilter] = useState<string>('')
+  const [endDateFilter, setEndDateFilter] = useState<string>('')
+
+  useEffect(() => {
+    loadData()
+  }, [])
+
+  const loadData = async () => {
+    try {
+      setLoading(true)
+      await Promise.all([
+        loadAssignments(),
+        loadConsultants(),
+        loadProjects(),
+        loadConsultantTypes(),
+      ])
+    } catch (error) {
+      showError('Failed to load data. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const loadAssignments = async () => {
+    try {
+      const data = await consultantAssignmentsApi.list()
+      setAssignments(data)
+    } catch (error) {
+      throw error
+    }
+  }
+
+  const loadConsultants = async () => {
+    try {
+      const response = await apiClient.get('/users')
+      setConsultants(response.data)
+    } catch (error) {
+      setConsultants([])
+    }
+  }
+
+  const loadProjects = async () => {
+    try {
+      const data = await projectsApi.list()
+      setProjects(data)
+    } catch (error) {
+      setProjects([])
+    }
+  }
+
+  const loadConsultantTypes = async () => {
+    try {
+      const data = await inspectionsApi.getConsultantTypes()
+      setConsultantTypes(data as ConsultantType[])
+    } catch (error) {
+      setConsultantTypes([])
+    }
+  }
+
+  const handleOpenCreate = () => {
+    setEditingAssignment(null)
+    setDialogOpen(true)
+  }
+
+  const handleOpenEdit = (assignment: ConsultantAssignment) => {
+    setEditingAssignment(assignment)
+    setDialogOpen(true)
+  }
+
+  const handleCloseDialog = () => {
+    setDialogOpen(false)
+    setEditingAssignment(null)
+  }
+
+  const handleSaveAssignment = async (data: AssignmentFormData) => {
+    setSaving(true)
+    try {
+      const payload = {
+        consultant_id: data.consultantId,
+        project_id: data.projectId,
+        consultant_type_id: data.consultantTypeId || undefined,
+        start_date: data.startDate,
+        end_date: data.endDate,
+        status: data.status,
+        notes: data.notes || undefined,
+      }
+
+      if (editingAssignment) {
+        await consultantAssignmentsApi.update(editingAssignment.id, payload)
+        showSuccess('Assignment updated successfully!')
+      } else {
+        await consultantAssignmentsApi.create(payload)
+        showSuccess('Assignment created successfully!')
+      }
+
+      handleCloseDialog()
+      loadAssignments()
+    } catch (error) {
+      showError(`Failed to ${editingAssignment ? 'update' : 'create'} assignment. Please try again.`)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleDeleteClick = (assignment: ConsultantAssignment) => {
+    setAssignmentToDelete(assignment)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!assignmentToDelete) return
+
+    try {
+      await consultantAssignmentsApi.delete(assignmentToDelete.id)
+      showSuccess('Assignment deleted successfully!')
+      setDeleteDialogOpen(false)
+      setAssignmentToDelete(null)
+      loadAssignments()
+    } catch (error) {
+      showError('Failed to delete assignment. Please try again.')
+    }
+  }
+
+  const handleViewModeChange = (_: React.MouseEvent<HTMLElement>, newMode: ViewMode | null) => {
+    if (newMode !== null) {
+      setViewMode(newMode)
+    }
+  }
+
+  // Filter assignments
+  const filteredAssignments = assignments.filter((assignment) => {
+    // Search filter
+    const matchesSearch =
+      search === '' ||
+      assignment.consultant?.name?.toLowerCase().includes(search.toLowerCase()) ||
+      assignment.project?.name?.toLowerCase().includes(search.toLowerCase()) ||
+      assignment.consultantType?.name?.toLowerCase().includes(search.toLowerCase())
+
+    // Consultant filter
+    const matchesConsultant =
+      selectedConsultant === 'all' ||
+      assignment.consultantId === selectedConsultant
+
+    // Project filter
+    const matchesProject =
+      selectedProject === 'all' ||
+      assignment.projectId === selectedProject
+
+    // Status filter
+    const matchesStatus =
+      selectedStatus === 'all' ||
+      assignment.status === selectedStatus
+
+    // Date range filter
+    const matchesDateRange = (() => {
+      if (!startDateFilter && !endDateFilter) return true
+
+      const assignmentStart = new Date(assignment.startDate)
+      const assignmentEnd = new Date(assignment.endDate)
+
+      if (startDateFilter && endDateFilter) {
+        const filterStart = new Date(startDateFilter)
+        const filterEnd = new Date(endDateFilter)
+        // Assignment overlaps with filter range
+        return assignmentStart <= filterEnd && assignmentEnd >= filterStart
+      } else if (startDateFilter) {
+        const filterStart = new Date(startDateFilter)
+        // Assignment ends after filter start
+        return assignmentEnd >= filterStart
+      } else if (endDateFilter) {
+        const filterEnd = new Date(endDateFilter)
+        // Assignment starts before filter end
+        return assignmentStart <= filterEnd
+      }
+      return true
+    })()
+
+    return matchesSearch && matchesConsultant && matchesProject && matchesStatus && matchesDateRange
+  })
+
+  // Calculate KPIs (based on filtered assignments)
+  const activeAssignments = filteredAssignments.filter(a => a.status === 'active').length
+  const pendingAssignments = filteredAssignments.filter(a => a.status === 'pending').length
+  const uniqueConsultants = new Set(filteredAssignments.map(a => a.consultantId)).size
+  const uniqueProjects = new Set(filteredAssignments.map(a => a.projectId)).size
+
+  if (loading) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <Skeleton variant="text" width={250} height={48} sx={{ mb: 1 }} />
+        <Skeleton variant="text" width={350} height={24} sx={{ mb: 4 }} />
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 2, mb: 4 }}>
+          {[...Array(4)].map((_, i) => (
+            <Skeleton key={i} variant="rounded" height={100} sx={{ borderRadius: 3 }} />
+          ))}
+        </Box>
+        <Skeleton variant="rounded" height={500} sx={{ borderRadius: 3 }} />
+      </Box>
+    )
+  }
+
+  return (
+    <Box sx={{ p: 3 }}>
+      <PageHeader
+        title="Consultant Assignments"
+        subtitle="Manage consultant assignments across projects"
+        breadcrumbs={[{ label: 'Consultants' }, { label: 'Assignments' }]}
+        actions={
+          <Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>
+            New Assignment
+          </Button>
+        }
+      />
+
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' },
+          gap: 2,
+          mb: 4,
+        }}
+      >
+        <KPICard
+          title="Total Assignments"
+          value={assignments.length}
+          icon={<AssignmentIcon />}
+          color="primary"
+        />
+        <KPICard
+          title="Active"
+          value={activeAssignments}
+          icon={<WorkIcon />}
+          color="success"
+        />
+        <KPICard
+          title="Pending"
+          value={pendingAssignments}
+          icon={<PendingActionsIcon />}
+          color="warning"
+        />
+        <KPICard
+          title="Consultants"
+          value={uniqueConsultants}
+          icon={<PeopleIcon />}
+          color="info"
+        />
+      </Box>
+
+      <Card>
+        <Box sx={{ p: 2.5 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+              <ToggleButtonGroup
+                value={viewMode}
+                exclusive
+                onChange={handleViewModeChange}
+                size="small"
+                aria-label="view mode"
+              >
+                <ToggleButton value="list" aria-label="list view">
+                  <ViewListIcon sx={{ mr: 0.5, fontSize: 20 }} />
+                  <Typography variant="body2">List</Typography>
+                </ToggleButton>
+                <ToggleButton value="calendar" aria-label="calendar view">
+                  <CalendarMonthIcon sx={{ mr: 0.5, fontSize: 20 }} />
+                  <Typography variant="body2">Calendar</Typography>
+                </ToggleButton>
+              </ToggleButtonGroup>
+              <SearchField
+                placeholder="Search assignments..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </Box>
+            <Chip label={`${filteredAssignments.length} assignments`} size="small" />
+          </Box>
+
+          <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
+            <MuiTextField
+              select
+              size="small"
+              label="Consultant"
+              value={selectedConsultant}
+              onChange={(e) => setSelectedConsultant(e.target.value)}
+              sx={{ minWidth: 180 }}
+            >
+              <MenuItem value="all">All Consultants</MenuItem>
+              {consultants.map((consultant) => (
+                <MenuItem key={consultant.id} value={consultant.id}>
+                  {consultant.fullName || consultant.email}
+                </MenuItem>
+              ))}
+            </MuiTextField>
+
+            <MuiTextField
+              select
+              size="small"
+              label="Project"
+              value={selectedProject}
+              onChange={(e) => setSelectedProject(e.target.value)}
+              sx={{ minWidth: 180 }}
+            >
+              <MenuItem value="all">All Projects</MenuItem>
+              {projects.map((project) => (
+                <MenuItem key={project.id} value={project.id}>
+                  {project.name}
+                </MenuItem>
+              ))}
+            </MuiTextField>
+
+            <MuiTextField
+              select
+              size="small"
+              label="Status"
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value)}
+              sx={{ minWidth: 150 }}
+            >
+              <MenuItem value="all">All Statuses</MenuItem>
+              <MenuItem value="pending">Pending</MenuItem>
+              <MenuItem value="active">Active</MenuItem>
+              <MenuItem value="completed">Completed</MenuItem>
+              <MenuItem value="cancelled">Cancelled</MenuItem>
+            </MuiTextField>
+
+            <MuiTextField
+              type="date"
+              size="small"
+              label="Start Date From"
+              value={startDateFilter}
+              onChange={(e) => setStartDateFilter(e.target.value)}
+              InputLabelProps={{ shrink: true }}
+              sx={{ minWidth: 160 }}
+            />
+
+            <MuiTextField
+              type="date"
+              size="small"
+              label="End Date To"
+              value={endDateFilter}
+              onChange={(e) => setEndDateFilter(e.target.value)}
+              InputLabelProps={{ shrink: true }}
+              sx={{ minWidth: 160 }}
+            />
+
+            {(search || selectedConsultant !== 'all' || selectedProject !== 'all' ||
+              selectedStatus !== 'all' || startDateFilter || endDateFilter) && (
+              <Button
+                variant="secondary"
+                size="small"
+                onClick={() => {
+                  setSearch('')
+                  setSelectedConsultant('all')
+                  setSelectedProject('all')
+                  setSelectedStatus('all')
+                  setStartDateFilter('')
+                  setEndDateFilter('')
+                }}
+              >
+                Clear Filters
+              </Button>
+            )}
+          </Box>
+
+          <Box sx={{ mt: 2 }}>
+            {viewMode === 'list' ? (
+              <AssignmentList
+                assignments={filteredAssignments}
+                loading={loading}
+                onEdit={handleOpenEdit}
+                onDelete={handleDeleteClick}
+                onRowClick={handleOpenEdit}
+              />
+            ) : (
+              <AssignmentCalendar
+                assignments={filteredAssignments}
+                loading={loading}
+                onAssignmentClick={handleOpenEdit}
+              />
+            )}
+          </Box>
+        </Box>
+      </Card>
+
+      <AssignmentForm
+        open={dialogOpen}
+        onClose={handleCloseDialog}
+        onSubmit={handleSaveAssignment}
+        assignment={editingAssignment}
+        consultants={consultants}
+        projects={projects}
+        consultantTypes={consultantTypes}
+        loading={saving}
+      />
+
+      <ConfirmModal
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Assignment"
+        message={`Are you sure you want to delete this assignment? This action cannot be undone.`}
+        confirmLabel="Delete"
+        variant="danger"
+      />
+    </Box>
+  )
+}
