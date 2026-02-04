@@ -1,25 +1,25 @@
 {
   "active": true,
-  "spec": "044-implement-mobile-first-responsive-design",
+  "spec": "046-add-hebrew-language-support",
   "state": "building",
   "subtasks": {
-    "completed": 19,
-    "total": 22,
+    "completed": 1,
+    "total": 6,
     "in_progress": 1,
     "failed": 0
   },
   "phase": {
-    "current": "Integration and Cross-Browser Testing",
-    "id": null,
-    "total": 3
+    "current": "Hebrew Language Implementation",
+    "id": 1,
+    "total": 6
   },
   "workers": {
     "active": 0,
     "max": 1
   },
   "session": {
-    "number": 20,
-    "started_at": "2026-02-05T00:31:54.668773"
+    "number": 2,
+    "started_at": "2026-02-04T17:34:11.951215"
   },
-  "last_update": "2026-02-05T01:21:27.959594"
+  "last_update": "2026-02-04T17:38:08.513660"
 }

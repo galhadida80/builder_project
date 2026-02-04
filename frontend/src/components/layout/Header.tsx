@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import AppBar from '@mui/material/AppBar'
 import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
@@ -14,14 +15,11 @@ import NotificationsIcon from '@mui/icons-material/Notifications'
 import PersonIcon from '@mui/icons-material/Person'
 import SettingsIcon from '@mui/icons-material/Settings'
 import LogoutIcon from '@mui/icons-material/Logout'
-import MenuIcon from '@mui/icons-material/Menu'
 import type { User, Project } from '../../types'
 import ProjectSelector from './ProjectSelector'
 import { useToast } from '../common/ToastProvider'
 import { ThemeToggle } from '../common/ThemeToggle'
-import { LanguageToggle } from '../common/LanguageToggle'
-import { NotificationsPanel } from '../notifications/NotificationsPanel'
-import { useNotifications } from '../../hooks/useNotifications'
+import { LanguageSwitcher } from '../common/LanguageSwitcher'
 
 interface HeaderProps {
   user: User
@@ -29,24 +27,13 @@ interface HeaderProps {
   projects: Project[]
   onProjectChange: (projectId: string) => void
   onLogout: () => void
-  onMobileMenuClick?: () => void
 }
 
-export default function Header({ user, currentProject, projects, onProjectChange, onLogout, onMobileMenuClick }: HeaderProps) {
+export default function Header({ user, currentProject, projects, onProjectChange, onLogout }: HeaderProps) {
+  const { t } = useTranslation()
   const { showInfo } = useToast()
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
-  const [notificationsPanelOpen, setNotificationsPanelOpen] = useState(false)
-
-  const {
-    notifications,
-    unreadCount,
-    loading,
-    hasMore,
-    markAsRead,
-    markAllAsRead,
-    loadMore,
-    refresh,
-  } = useNotifications()
+  const [notificationAnchor, setNotificationAnchor] = useState<null | HTMLElement>(null)
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget)
@@ -56,20 +43,13 @@ export default function Header({ user, currentProject, projects, onProjectChange
     setAnchorEl(null)
   }
 
-  const handleNotificationOpen = () => {
-    setNotificationsPanelOpen(true)
+  const handleNotificationOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setNotificationAnchor(event.currentTarget)
   }
 
   const handleNotificationClose = () => {
-    setNotificationsPanelOpen(false)
+    setNotificationAnchor(null)
   }
-
-  // Refresh notifications when panel opens
-  useEffect(() => {
-    if (notificationsPanelOpen) {
-      refresh()
-    }
-  }, [notificationsPanelOpen, refresh])
 
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
@@ -85,23 +65,12 @@ export default function Header({ user, currentProject, projects, onProjectChange
         borderBottom: '1px solid',
         borderColor: 'divider',
         bgcolor: 'background.paper',
-        ml: { xs: 0, md: '260px' },
-        width: { xs: '100%', md: 'calc(100% - 260px)' },
+        ml: '260px',
+        width: 'calc(100% - 260px)',
       }}
     >
       <Toolbar sx={{ justifyContent: 'space-between' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <IconButton
-            onClick={onMobileMenuClick}
-            sx={{
-              display: { xs: 'flex', md: 'none' },
-              width: 44,
-              height: 44,
-            }}
-            aria-label="open mobile menu"
-          >
-            <MenuIcon />
-          </IconButton>
           <ProjectSelector
             projects={projects}
             currentProject={currentProject}
@@ -110,11 +79,11 @@ export default function Header({ user, currentProject, projects, onProjectChange
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <LanguageToggle />
           <ThemeToggle />
+          <LanguageSwitcher />
 
           <IconButton onClick={handleNotificationOpen}>
-            <Badge badgeContent={unreadCount} color="error">
+            <Badge badgeContent={3} color="error">
               <NotificationsIcon />
             </Badge>
           </IconButton>
@@ -126,17 +95,39 @@ export default function Header({ user, currentProject, projects, onProjectChange
           </IconButton>
         </Box>
 
-        <NotificationsPanel
-          open={notificationsPanelOpen}
+        <Menu
+          anchorEl={notificationAnchor}
+          open={Boolean(notificationAnchor)}
           onClose={handleNotificationClose}
-          notifications={notifications}
-          unreadCount={unreadCount}
-          onMarkAsRead={markAsRead}
-          onMarkAllAsRead={markAllAsRead}
-          onLoadMore={loadMore}
-          hasMore={hasMore}
-          loading={loading}
-        />
+          PaperProps={{ sx: { width: 320, maxHeight: 400 } }}
+        >
+          <Box sx={{ px: 2, py: 1 }}>
+            <Typography variant="subtitle1" fontWeight="bold">{t('header.notifications')}</Typography>
+          </Box>
+          <Divider />
+          <MenuItem onClick={handleNotificationClose}>
+            <Box>
+              <Typography variant="body2">{t('notifications.equipmentApprovalPending')}</Typography>
+              <Typography variant="caption" color="text.secondary">{t('notifications.equipmentApprovalDesc')}</Typography>
+            </Box>
+          </MenuItem>
+          <MenuItem onClick={handleNotificationClose}>
+            <Box>
+              <Typography variant="body2">{t('notifications.meetingScheduled')}</Typography>
+              <Typography variant="caption" color="text.secondary">{t('notifications.meetingScheduledDesc')}</Typography>
+            </Box>
+          </MenuItem>
+          <MenuItem onClick={handleNotificationClose}>
+            <Box>
+              <Typography variant="body2">{t('notifications.materialDeliveryUpdate')}</Typography>
+              <Typography variant="caption" color="text.secondary">{t('notifications.materialDeliveryDesc')}</Typography>
+            </Box>
+          </MenuItem>
+          <Divider />
+          <MenuItem sx={{ justifyContent: 'center' }}>
+            <Typography variant="body2" color="primary">{t('header.viewAllNotifications')}</Typography>
+          </MenuItem>
+        </Menu>
 
         <Menu
           anchorEl={anchorEl}
@@ -149,18 +140,18 @@ export default function Header({ user, currentProject, projects, onProjectChange
             <Typography variant="caption" color="text.secondary">{user.email}</Typography>
           </Box>
           <Divider />
-          <MenuItem onClick={() => { handleMenuClose(); showInfo('Profile page coming soon!'); }}>
+          <MenuItem onClick={() => { handleMenuClose(); showInfo(t('messages.profileComingSoon')); }}>
             <ListItemIcon><PersonIcon fontSize="small" /></ListItemIcon>
-            Profile
+            {t('header.profile')}
           </MenuItem>
-          <MenuItem onClick={() => { handleMenuClose(); showInfo('Settings page coming soon!'); }}>
+          <MenuItem onClick={() => { handleMenuClose(); showInfo(t('messages.settingsComingSoon')); }}>
             <ListItemIcon><SettingsIcon fontSize="small" /></ListItemIcon>
-            Settings
+            {t('nav.settings')}
           </MenuItem>
           <Divider />
           <MenuItem onClick={onLogout}>
             <ListItemIcon><LogoutIcon fontSize="small" /></ListItemIcon>
-            Logout
+            {t('header.logout')}
           </MenuItem>
         </Menu>
       </Toolbar>
