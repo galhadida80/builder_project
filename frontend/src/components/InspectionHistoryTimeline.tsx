@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Skeleton from '@mui/material/Skeleton'
@@ -63,6 +64,7 @@ export function InspectionHistoryTimeline({
   loading = false,
   onInspectionClick,
 }: InspectionHistoryTimelineProps) {
+  const navigate = useNavigate()
   const [dateRange, setDateRange] = useState<DateRangeFilter>('last_3_months')
 
   const filterInspectionsByDateRange = (inspections: Inspection[]): Inspection[] => {
@@ -93,10 +95,11 @@ export function InspectionHistoryTimeline({
     })
   }
 
-  const handleCardClick = (inspectionId: string) => {
+  const handleCardClick = (inspection: Inspection) => {
     if (onInspectionClick) {
-      onInspectionClick(inspectionId)
+      onInspectionClick(inspection.id)
     }
+    navigate(`/projects/${inspection.projectId}/inspections/${inspection.id}`)
   }
 
   if (loading) {
@@ -237,8 +240,8 @@ export function InspectionHistoryTimeline({
               {/* Card */}
               <Box sx={{ flex: 1 }}>
                 <Card
-                  hoverable={!!onInspectionClick}
-                  onClick={() => handleCardClick(inspection.id)}
+                  hoverable
+                  onClick={() => handleCardClick(inspection)}
                 >
                   <CardContent sx={{ display: 'flex', gap: 2, alignItems: 'flex-start', p: 2.5 }}>
                     <Avatar
