@@ -1,0 +1,21 @@
+{
+  "app": {
+    "name": "BuilderOps",
+    "subtitle": "Construction Platform"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "projects": "Projects",
+    "currentProject": "Current Project",
+    "equipment": "Equipment",
+    "materials": "Materials",
+    "meetings": "Meetings",
+    "approvals": "Approvals",
+    "areas": "Areas",
+    "contacts": "Contacts",
+    "inspections": "Inspections",
+    "rfis": "RFIs",
+    "auditLog": "Audit Log",
+    "settings": "Settings"
+  }
+}
