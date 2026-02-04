@@ -20,7 +20,6 @@ import CloseIcon from '@mui/icons-material/Close'
 import DescriptionIcon from '@mui/icons-material/Description'
 import SendIcon from '@mui/icons-material/Send'
 import BuildIcon from '@mui/icons-material/Build'
-import FilterListIcon from '@mui/icons-material/FilterList'
 import CircularProgress from '@mui/material/CircularProgress'
 import IconButton from '@mui/material/IconButton'
 import { Card } from '../components/ui/Card'
@@ -339,16 +338,11 @@ export default function EquipmentPage() {
       <Card>
         <Box sx={{ p: 2.5 }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-              <SearchField
-                placeholder="Search equipment..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-              <Button variant="secondary" size="small" icon={<FilterListIcon />}>
-                Filters
-              </Button>
-            </Box>
+            <SearchField
+              placeholder="Search equipment..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
             <Chip label={`${filteredEquipment.length} items`} size="small" />
           </Box>
 
