@@ -1,4 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Drawer from '@mui/material/Drawer'
 import List from '@mui/material/List'
@@ -56,6 +57,7 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ projectId }: SidebarProps) {
+  const { t } = useTranslation()
   const location = useLocation()
   const navigate = useNavigate()
 
