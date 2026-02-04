@@ -26,13 +26,13 @@ interface HeaderProps {
   projects: Project[]
   onProjectChange: (projectId: string) => void
   onLogout: () => void
+  onMobileMenuClick?: () => void
 }
 
-export default function Header({ user, currentProject, projects, onProjectChange, onLogout }: HeaderProps) {
+export default function Header({ user, currentProject, projects, onProjectChange, onLogout, onMobileMenuClick }: HeaderProps) {
   const { showInfo } = useToast()
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [notificationAnchor, setNotificationAnchor] = useState<null | HTMLElement>(null)
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget)
@@ -48,10 +48,6 @@ export default function Header({ user, currentProject, projects, onProjectChange
 
   const handleNotificationClose = () => {
     setNotificationAnchor(null)
-  }
-
-  const handleMobileMenuToggle = () => {
-    setMobileMenuOpen(!mobileMenuOpen)
   }
 
   const getInitials = (name: string) => {
@@ -75,7 +71,7 @@ export default function Header({ user, currentProject, projects, onProjectChange
       <Toolbar sx={{ justifyContent: 'space-between' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <IconButton
-            onClick={handleMobileMenuToggle}
+            onClick={onMobileMenuClick}
             sx={{
               display: { xs: 'flex', md: 'none' },
               width: 44,
