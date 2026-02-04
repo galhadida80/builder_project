@@ -5,6 +5,34 @@ import { Hero } from '../components/Hero'
 export default function LandingPage() {
   const navigate = useNavigate()
 
+  const trustLogos = [
+    {
+      name: 'Turner Construction',
+      imageUrl: '/src/assets/logos/turner.svg',
+      alt: 'Turner Construction logo',
+    },
+    {
+      name: 'Bechtel',
+      imageUrl: '/src/assets/logos/bechtel.svg',
+      alt: 'Bechtel logo',
+    },
+    {
+      name: 'Fluor',
+      imageUrl: '/src/assets/logos/fluor.svg',
+      alt: 'Fluor logo',
+    },
+    {
+      name: 'Kiewit',
+      imageUrl: '/src/assets/logos/kiewit.svg',
+      alt: 'Kiewit logo',
+    },
+    {
+      name: 'Skanska',
+      imageUrl: '/src/assets/logos/skanska.svg',
+      alt: 'Skanska logo',
+    },
+  ]
+
   const handleRequestDemo = () => {
     // TODO: Navigate to demo request page or open contact form
   }
@@ -29,7 +57,8 @@ export default function LandingPage() {
         ctaPrimaryAction={handleRequestDemo}
         ctaSecondaryText="Login"
         ctaSecondaryAction={handleLogin}
-        showTrustLogos={false}
+        trustLogos={trustLogos}
+        showTrustLogos={true}
       />
     </Box>
   )
