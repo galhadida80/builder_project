@@ -3,10 +3,14 @@ import EquipmentStatusBadge from './EquipmentStatusBadge'
 import type { Equipment } from '../../types'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
+import Paper from '@mui/material/Paper'
+import { LoadingError } from '../ui/EmptyState'
 
 interface EquipmentTableProps {
   equipment: Equipment[]
   loading?: boolean
+  error?: string | null
+  onRetry?: () => void
   onRowClick?: (equipment: Equipment) => void
   emptyMessage?: string
 }
@@ -14,6 +18,8 @@ interface EquipmentTableProps {
 export default function EquipmentTable({
   equipment,
   loading = false,
+  error = null,
+  onRetry,
   onRowClick,
   emptyMessage = 'No equipment found',
 }: EquipmentTableProps) {
@@ -101,6 +107,14 @@ export default function EquipmentTable({
       ),
     },
   ]
+
+  if (error) {
+    return (
+      <Paper elevation={0} sx={{ borderRadius: 3 }}>
+        <LoadingError message={error} onRetry={onRetry} />
+      </Paper>
+    )
+  }
 
   return (
     <DataTable
