@@ -1,35 +1,11 @@
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
-import LanguageDetector from 'i18next-browser-languagedetector'
-
-// Import translation files
 import enTranslations from './locales/en.json'
 import heTranslations from './locales/he.json'
+import esTranslations from './locales/es.json'
 
-// Supported languages
-export const SUPPORTED_LANGUAGES = {
-  en: 'English',
-  he: 'עברית',
-} as const
-
-export type LanguageCode = keyof typeof SUPPORTED_LANGUAGES
-
-// RTL languages
-export const RTL_LANGUAGES: LanguageCode[] = ['he']
-
-// Default language
-export const DEFAULT_LANGUAGE: LanguageCode = 'en'
-
-// Language detector configuration
-const detectorOptions = {
-  order: ['localStorage', 'navigator'],
-  lookupLocalStorage: 'language',
-  caches: ['localStorage'],
-}
-
-// i18next configuration
+// Initialize i18next
 i18n
-  .use(LanguageDetector)
   .use(initReactI18next)
   .init({
     resources: {
@@ -39,23 +15,33 @@ i18n
       he: {
         translation: heTranslations,
       },
+      es: {
+        translation: esTranslations,
+      },
     },
-    fallbackLng: DEFAULT_LANGUAGE,
-    supportedLngs: Object.keys(SUPPORTED_LANGUAGES),
-    debug: import.meta.env.DEV,
-
+    lng: 'en',
+    fallbackLng: 'en',
+    supportedLngs: ['en', 'he', 'es'],
     interpolation: {
-      escapeValue: false,
+      escapeValue: false, // React already handles escaping
     },
-
-    detection: detectorOptions,
-
     react: {
       useSuspense: false,
     },
   })
-  .catch((error) => {
-    console.error('Failed to initialize i18n:', error)
-  })
+
+// Set HTML dir attribute based on language
+const setHtmlDir = (language: string) => {
+  const isRTL = language === 'he'
+  document.documentElement.setAttribute('dir', isRTL ? 'rtl' : 'ltr')
+}
+
+// Set initial direction
+setHtmlDir(i18n.language)
+
+// Update direction when language changes
+i18n.on('languageChanged', (lng) => {
+  setHtmlDir(lng)
+})
 
 export default i18n

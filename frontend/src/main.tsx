@@ -4,16 +4,14 @@ import { BrowserRouter } from 'react-router-dom'
 import App from './App'
 import { ThemeProvider } from './theme'
 import { ToastProvider } from './components/common/ToastProvider'
-import { ErrorBoundary } from './components/common/ErrorBoundary'
+import './i18n/config'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <BrowserRouter>
       <ThemeProvider>
         <ToastProvider>
-          <ErrorBoundary>
-            <App />
-          </ErrorBoundary>
+          <App />
         </ToastProvider>
       </ThemeProvider>
     </BrowserRouter>

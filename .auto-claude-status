@@ -1,25 +1,25 @@
 {
   "active": true,
-  "spec": "137-remove-or-implement-non-functional-filter-buttons-",
+  "spec": "138-translate-sidebar-navigation-labels-using-i18n-ins",
   "state": "building",
   "subtasks": {
-    "completed": 4,
-    "total": 7,
+    "completed": 9,
+    "total": 11,
     "in_progress": 1,
     "failed": 0
   },
   "phase": {
-    "current": "Remove Filter Buttons",
+    "current": "Verify Translations",
     "id": null,
-    "total": 7
+    "total": 3
   },
   "workers": {
     "active": 0,
     "max": 1
   },
   "session": {
-    "number": 6,
-    "started_at": "2026-02-05T00:18:30.630393"
+    "number": 11,
+    "started_at": "2026-02-05T00:18:30.093853"
   },
-  "last_update": "2026-02-05T00:28:43.296513"
+  "last_update": "2026-02-05T00:52:05.926791"
 }
