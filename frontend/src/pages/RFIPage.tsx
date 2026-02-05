@@ -15,7 +15,6 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import CloseIcon from '@mui/icons-material/Close'
 import SendIcon from '@mui/icons-material/Send'
 import EmailIcon from '@mui/icons-material/Email'
-import FilterListIcon from '@mui/icons-material/FilterList'
 import AccessTimeIcon from '@mui/icons-material/AccessTime'
 import IconButton from '@mui/material/IconButton'
 import { Card } from '../components/ui/Card'
@@ -400,16 +399,11 @@ export default function RFIPage() {
       <Card>
         <Box sx={{ p: 2.5 }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-              <SearchField
-                placeholder="Search RFIs..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-              <Button variant="secondary" size="small" icon={<FilterListIcon />}>
-                Filters
-              </Button>
-            </Box>
+            <SearchField
+              placeholder="Search RFIs..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
             <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
               {summary && summary.overdue_count > 0 && (
                 <Chip label={`${summary.overdue_count} Overdue`} size="small" color="error" />

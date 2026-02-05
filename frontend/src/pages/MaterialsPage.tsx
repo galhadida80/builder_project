@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import MenuItem from '@mui/material/MenuItem'
@@ -12,11 +11,8 @@ import AddIcon from '@mui/icons-material/Add'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import InventoryIcon from '@mui/icons-material/Inventory'
-import FilterListIcon from '@mui/icons-material/FilterList'
 import LocalShippingIcon from '@mui/icons-material/LocalShipping'
 import WarehouseIcon from '@mui/icons-material/Warehouse'
-import GridViewIcon from '@mui/icons-material/GridView'
-import ViewListIcon from '@mui/icons-material/ViewList'
 import { Card, KPICard } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { DataTable, Column } from '../components/ui/DataTable'
@@ -24,9 +20,8 @@ import { StatusBadge } from '../components/ui/StatusBadge'
 import { PageHeader } from '../components/ui/Breadcrumbs'
 import { SearchField, TextField } from '../components/ui/TextField'
 import { FormModal, ConfirmModal } from '../components/ui/Modal'
-import { Tabs, SegmentedTabs } from '../components/ui/Tabs'
+import { Tabs } from '../components/ui/Tabs'
 import { EmptyState } from '../components/ui/EmptyState'
-import { MaterialInventoryGrid } from '../components/materials/MaterialInventoryGrid'
 import { materialsApi } from '../api/materials'
 import type { Material } from '../types'
 import { validateMaterialForm, hasErrors, VALIDATION, type ValidationError } from '../utils/validation'
@@ -37,7 +32,6 @@ const unitOptions = ['ton', 'm3', 'm2', 'm', 'kg', 'unit', 'box', 'pallet', 'rol
 
 export default function MaterialsPage() {
   const { projectId } = useParams()
-  const { t } = useTranslation()
   const { showError, showSuccess } = useToast()
   const [loading, setLoading] = useState(true)
   const [materials, setMaterials] = useState<Material[]>([])
@@ -49,7 +43,6 @@ export default function MaterialsPage() {
   const [saving, setSaving] = useState(false)
   const [errors, setErrors] = useState<ValidationError>({})
   const [activeTab, setActiveTab] = useState('all')
-  const [viewMode, setViewMode] = useState<'table' | 'grid'>('table')
   const [formData, setFormData] = useState({
     name: '',
     materialType: '',
@@ -72,7 +65,7 @@ export default function MaterialsPage() {
       const data = await materialsApi.list(projectId)
       setMaterials(data)
     } catch {
-      showError(t('materials.failedToLoadMaterials'))
+      showError('Failed to load materials. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -137,15 +130,15 @@ export default function MaterialsPage() {
 
       if (editingMaterial) {
         await materialsApi.update(projectId, editingMaterial.id, payload)
-        showSuccess(t('materials.materialUpdatedSuccessfully'))
+        showSuccess('Material updated successfully!')
       } else {
         await materialsApi.create(projectId, payload)
-        showSuccess(t('materials.materialCreatedSuccessfully'))
+        showSuccess('Material created successfully!')
       }
       handleCloseDialog()
       loadMaterials()
     } catch {
-      showError(editingMaterial ? t('materials.failedToUpdateMaterial') : t('materials.failedToCreateMaterial'))
+      showError(`Failed to ${editingMaterial ? 'update' : 'create'} material. Please try again.`)
     } finally {
       setSaving(false)
     }
@@ -161,12 +154,12 @@ export default function MaterialsPage() {
     if (!projectId || !materialToDelete) return
     try {
       await materialsApi.delete(projectId, materialToDelete.id)
-      showSuccess(t('materials.materialDeletedSuccessfully'))
+      showSuccess('Material deleted successfully!')
       setDeleteDialogOpen(false)
       setMaterialToDelete(null)
       loadMaterials()
     } catch {
-      showError(t('materials.failedToDeleteMaterial'))
+      showError('Failed to delete material. Please try again.')
     }
   }
 
@@ -184,7 +177,7 @@ export default function MaterialsPage() {
   const columns: Column<Material>[] = [
     {
       id: 'name',
-      label: t('materials.title'),
+      label: 'Material',
       minWidth: 250,
       render: (row) => (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
@@ -204,7 +197,7 @@ export default function MaterialsPage() {
           <Box>
             <Typography variant="body2" fontWeight={500}>{row.name}</Typography>
             <Typography variant="caption" color="text.secondary">
-              {row.materialType || t('materials.noTypeSpecified')}
+              {row.materialType || 'No type specified'}
             </Typography>
           </Box>
         </Box>
@@ -212,7 +205,7 @@ export default function MaterialsPage() {
     },
     {
       id: 'manufacturer',
-      label: t('equipment.manufacturer'),
+      label: 'Manufacturer',
       minWidth: 140,
       render: (row) => (
         <Typography variant="body2" color={row.manufacturer ? 'text.primary' : 'text.secondary'}>
@@ -222,7 +215,7 @@ export default function MaterialsPage() {
     },
     {
       id: 'quantity',
-      label: t('materials.quantity'),
+      label: 'Quantity',
       minWidth: 120,
       render: (row) => (
         <Box>
@@ -239,7 +232,7 @@ export default function MaterialsPage() {
     },
     {
       id: 'expectedDelivery',
-      label: t('materials.deliveryDate'),
+      label: 'Delivery',
       minWidth: 120,
       render: (row) => (
         <Typography variant="body2" color={row.expectedDelivery ? 'text.primary' : 'text.secondary'}>
@@ -251,7 +244,7 @@ export default function MaterialsPage() {
     },
     {
       id: 'status',
-      label: t('common.status'),
+      label: 'Status',
       minWidth: 130,
       render: (row) => <StatusBadge status={row.status} />,
     },
@@ -262,10 +255,10 @@ export default function MaterialsPage() {
       align: 'right',
       render: (row) => (
         <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
-          <IconButton size="small" onClick={() => handleOpenEdit(row)} title={t('materials.editMaterial')}>
+          <IconButton size="small" onClick={() => handleOpenEdit(row)} title="Edit material">
             <EditIcon fontSize="small" />
           </IconButton>
-          <IconButton size="small" onClick={(e) => handleDeleteClick(row, e)} title={t('common.delete')} color="error">
+          <IconButton size="small" onClick={(e) => handleDeleteClick(row, e)} title="Delete material" color="error">
             <DeleteIcon fontSize="small" />
           </IconButton>
         </Box>
@@ -278,7 +271,7 @@ export default function MaterialsPage() {
       <Box sx={{ p: 3 }}>
         <Skeleton variant="text" width={200} height={48} sx={{ mb: 1 }} />
         <Skeleton variant="text" width={300} height={24} sx={{ mb: 4 }} />
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 2, mb: 4 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 2, mb: 4 }}>
           {[...Array(4)].map((_, i) => (
             <Skeleton key={i} variant="rounded" height={100} sx={{ borderRadius: 3 }} />
           ))}
@@ -291,12 +284,12 @@ export default function MaterialsPage() {
   return (
     <Box sx={{ p: 3 }}>
       <PageHeader
-        title={t('materials.title')}
-        subtitle={t('materials.subtitle')}
-        breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('materials.title') }]}
+        title="Materials"
+        subtitle="Manage and track all material items"
+        breadcrumbs={[{ label: 'Projects', href: '/projects' }, { label: 'Materials' }]}
         actions={
           <Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>
-            {t('materials.addMaterial')}
+            Add Material
           </Button>
         }
       />
@@ -310,25 +303,25 @@ export default function MaterialsPage() {
         }}
       >
         <KPICard
-          title={t('materials.totalMaterials')}
+          title="Total Materials"
           value={materials.length}
           icon={<InventoryIcon />}
           color="warning"
         />
         <KPICard
-          title={t('materials.pendingApproval')}
+          title="Pending Approval"
           value={pendingMaterials}
           icon={<LocalShippingIcon />}
           color="info"
         />
         <KPICard
-          title={t('materials.approved')}
+          title="Approved"
           value={approvedMaterials}
           icon={<InventoryIcon />}
           color="success"
         />
         <KPICard
-          title={t('materials.totalQuantity')}
+          title="Total Quantity"
           value={totalQuantity.toLocaleString()}
           icon={<WarehouseIcon />}
           color="primary"
@@ -338,35 +331,20 @@ export default function MaterialsPage() {
       <Card>
         <Box sx={{ p: 2.5 }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-              <SearchField
-                placeholder={t('materials.searchPlaceholder')}
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-              <Button variant="secondary" size="small" icon={<FilterListIcon />}>
-                {t('common.filter')}
-              </Button>
-            </Box>
-            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-              <Chip label={`${filteredMaterials.length} items`} size="small" />
-              <SegmentedTabs
-                items={[
-                  { label: 'Table', value: 'table', icon: <ViewListIcon sx={{ fontSize: 18 }} /> },
-                  { label: 'Grid', value: 'grid', icon: <GridViewIcon sx={{ fontSize: 18 }} /> },
-                ]}
-                value={viewMode}
-                onChange={(v) => setViewMode(v as 'table' | 'grid')}
-              />
-            </Box>
+            <SearchField
+              placeholder="Search materials..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            <Chip label={`${filteredMaterials.length} items`} size="small" />
           </Box>
 
           <Tabs
             items={[
-              { label: t('common.status'), value: 'all', badge: materials.length },
-              { label: t('materials.draft'), value: 'draft', badge: materials.filter(m => m.status === 'draft').length },
-              { label: t('materials.pending'), value: 'pending', badge: pendingMaterials },
-              { label: t('materials.approved'), value: 'approved', badge: approvedMaterials },
+              { label: 'All', value: 'all', badge: materials.length },
+              { label: 'Draft', value: 'draft', badge: materials.filter(m => m.status === 'draft').length },
+              { label: 'Pending', value: 'pending', badge: pendingMaterials },
+              { label: 'Approved', value: 'approved', badge: approvedMaterials },
             ]}
             value={activeTab}
             onChange={setActiveTab}
@@ -377,22 +355,16 @@ export default function MaterialsPage() {
             {filteredMaterials.length === 0 ? (
               <EmptyState
                 variant="no-results"
-                title={t('materials.noMaterialsFound')}
-                description={t('materials.searchPlaceholder')}
-                action={{ label: t('materials.addMaterial'), onClick: handleOpenCreate }}
+                title="No materials found"
+                description="Try adjusting your search or add a new material"
+                action={{ label: 'Add Material', onClick: handleOpenCreate }}
               />
-            ) : viewMode === 'table' ? (
+            ) : (
               <DataTable
                 columns={columns}
                 rows={filteredMaterials}
                 getRowId={(row) => row.id}
-                emptyMessage={t('materials.noMaterialsFound')}
-              />
-            ) : (
-              <MaterialInventoryGrid
-                materials={filteredMaterials}
-                loading={false}
-                onMaterialClick={handleOpenEdit}
+                emptyMessage="No materials found"
               />
             )}
           </Box>
@@ -403,14 +375,14 @@ export default function MaterialsPage() {
         open={dialogOpen}
         onClose={handleCloseDialog}
         onSubmit={handleSaveMaterial}
-        title={editingMaterial ? t('materials.editMaterialTitle') : t('materials.addNewMaterial')}
-        submitLabel={editingMaterial ? t('common.saveChanges') : t('materials.addMaterial')}
+        title={editingMaterial ? 'Edit Material' : 'Add New Material'}
+        submitLabel={editingMaterial ? 'Save Changes' : 'Add Material'}
         loading={saving}
       >
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
           <TextField
             fullWidth
-            label={t('materials.materialName')}
+            label="Material Name"
             required
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -418,11 +390,11 @@ export default function MaterialsPage() {
             helperText={errors.name || `${formData.name.length}/${VALIDATION.MAX_NAME_LENGTH}`}
             inputProps={{ maxLength: VALIDATION.MAX_NAME_LENGTH }}
           />
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
             <MuiTextField
               fullWidth
               select
-              label={t('materials.type')}
+              label="Material Type"
               value={formData.materialType}
               onChange={(e) => setFormData({ ...formData, materialType: e.target.value })}
             >
@@ -431,21 +403,21 @@ export default function MaterialsPage() {
             </MuiTextField>
             <TextField
               fullWidth
-              label={t('equipment.manufacturer')}
+              label="Manufacturer"
               value={formData.manufacturer}
               onChange={(e) => setFormData({ ...formData, manufacturer: e.target.value })}
             />
           </Box>
           <TextField
             fullWidth
-            label={t('equipment.model')}
+            label="Model Number"
             value={formData.modelNumber}
             onChange={(e) => setFormData({ ...formData, modelNumber: e.target.value })}
           />
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
             <TextField
               fullWidth
-              label={t('materials.quantity')}
+              label="Quantity"
               type="number"
               value={formData.quantity}
               onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
@@ -456,7 +428,7 @@ export default function MaterialsPage() {
             <MuiTextField
               fullWidth
               select
-              label={t('materials.unit')}
+              label="Unit"
               value={formData.unit}
               onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
             >
@@ -464,10 +436,10 @@ export default function MaterialsPage() {
               {unitOptions.map(unit => <MenuItem key={unit} value={unit}>{unit}</MenuItem>)}
             </MuiTextField>
           </Box>
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
             <TextField
               fullWidth
-              label={t('materials.deliveryDate')}
+              label="Expected Delivery"
               type="date"
               InputLabelProps={{ shrink: true }}
               value={formData.expectedDelivery}
@@ -475,14 +447,14 @@ export default function MaterialsPage() {
             />
             <TextField
               fullWidth
-              label={t('materials.stockLevel')}
+              label="Storage Location"
               value={formData.storageLocation}
               onChange={(e) => setFormData({ ...formData, storageLocation: e.target.value })}
             />
           </Box>
           <TextField
             fullWidth
-            label={t('common.notes')}
+            label="Notes"
             multiline
             rows={2}
             value={formData.notes}
@@ -497,9 +469,9 @@ export default function MaterialsPage() {
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={handleConfirmDelete}
-        title={t('materials.deleteConfirmation')}
-        message={t('materials.deleteConfirmationMessage', { name: materialToDelete?.name })}
-        confirmLabel={t('common.delete')}
+        title="Delete Material"
+        message={`Are you sure you want to delete "${materialToDelete?.name}"? This action cannot be undone.`}
+        confirmLabel="Delete"
         variant="danger"
       />
     </Box>
