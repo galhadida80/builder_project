@@ -1,0 +1,4 @@
+{
+  "task_description": "# Build Data Display Components\n\n**Linear Issue:** [BUI-89](https://linear.app/builder-project/issue/BUI-89/build-data-display-components)\n**Priority:** High\n**Status:** Backlog\n\n\n## Description\n\nTable, badge, status, progress, avatar, empty state\n",
+  "workflow_type": "feature"
+}

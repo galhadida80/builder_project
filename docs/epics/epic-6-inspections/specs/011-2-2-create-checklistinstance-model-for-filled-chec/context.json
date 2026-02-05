@@ -1,0 +1,52 @@
+{
+  "task_description": "# 2.2 Create ChecklistInstance model for filled checklists\n\n**Linear Issue:** [BUI-26](https://linear.app/builder-project/issue/BUI-26/22-create-checklistinstance-model-for-filled-checklists)\n**Priority:** Medium\n**Status:** Backlog\n\n\n## Description\n\nCreate SQLAlchemy models for checklist instances (filled checklists).\n\n**Models to add to backend/app/models/checklist_template.py:**\n\n1. **ChecklistInstance:**\n\n* id: UUID\n* project_id: FK to Project\n* template_id: FK to ChecklistTemplate\n* area_id: Optional\\[FK to ConstructionArea\\] (apartment/unit)\n* unit_identifier: Optional\\[str\\] (apartment number)\n* status: enum (not_started, in_progress, completed, approved)\n* started_at: datetime\n* completed_at: Optional\\[datetime\\]\n* completed_by: FK to User\n* additional_data: JSONB (flexible extra data)\n* created_at, updated_at\n* responses: relationship\n\n2. **ChecklistItemResponse:**\n\n* id: UUID\n* instance_id: FK to ChecklistInstance\n* item_template_id: FK to ChecklistItemTemplate\n* status: enum (pending, passed, failed, na)\n* note: Optional\\[str\\]\n* image_file_ids: JSONB (list of file IDs)\n* signature_file_id: Optional\\[UUID\\]\n* responded_by: FK to User\n* responded_at: datetime\n* additional_data: JSONB (flexible extra data)\n",
+  "scoped_services": ["backend"],
+  "files_to_modify": [
+    "backend/app/models/checklist_template.py"
+  ],
+  "files_to_reference": [
+    "backend/app/models/user.py",
+    "backend/app/models/area.py",
+    "backend/app/models/approval.py",
+    ".auto-claude/worktrees/tasks/012-2-1-create-checklisttemplate-and-related-models/backend/app/models/checklist_template.py"
+  ],
+  "patterns": {
+    "uuid_pattern": "Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)",
+    "foreign_key_pattern": "Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey('table.id', ondelete='CASCADE'))",
+    "timestamp_pattern": "created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow), updated_at with onupdate=datetime.utcnow",
+    "enum_pattern": "class StatusEnum(str, Enum): VALUE = 'value_string'",
+    "jsonb_array_pattern": "Mapped[list | None] = mapped_column(JSONB, default=list)",
+    "jsonb_object_pattern": "Mapped[dict | None] = mapped_column(JSONB, default=dict)",
+    "relationship_pattern": "relationship('ModelName', back_populates='reverse_field')"
+  },
+  "existing_implementations": {
+    "description": "Found template models (ChecklistTemplate, ChecklistSubSection, ChecklistItemTemplate) in worktree task 012. Found enum patterns in area.py (AreaStatus). Found JSONB usage with default=list in area.py line 44.",
+    "relevant_files": [
+      "backend/app/models/user.py",
+      "backend/app/models/area.py",
+      ".auto-claude/worktrees/tasks/012-2-1-create-checklisttemplate-and-related-models/backend/app/models/checklist_template.py"
+    ],
+    "key_insights": [
+      "UUID primary keys use UUID(as_uuid=True) with uuid.uuid4 default",
+      "Enums defined as class inheriting from (str, Enum) with uppercase names and lowercase string values",
+      "JSONB fields must use default=list or default=dict (NOT [] or {}) to avoid mutable defaults",
+      "Foreign keys include ondelete='CASCADE' for cleanup",
+      "Timestamps use datetime.utcnow (not datetime.now)",
+      "Relationships use back_populates for bidirectional links",
+      "Existing template models: ChecklistTemplate, ChecklistSubSection, ChecklistItemTemplate"
+    ]
+  },
+  "models_to_add": {
+    "ChecklistInstance": {
+      "purpose": "Filled checklist instance linked to project and template",
+      "fields_count": 12,
+      "status_enum": "not_started, in_progress, completed, approved"
+    },
+    "ChecklistItemResponse": {
+      "purpose": "Individual item responses within checklist instance",
+      "fields_count": 10,
+      "status_enum": "pending, passed, failed, na"
+    }
+  },
+  "created_at": "2026-01-29T10:24:46.576081"
+}

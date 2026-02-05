@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Optional
+
 from uuid import UUID
 from datetime import datetime
 from decimal import Decimal
@@ -10,8 +12,6 @@ from app.core.validators import (
     MIN_NAME_LENGTH, MAX_NAME_LENGTH, MAX_CODE_LENGTH, MAX_NOTES_LENGTH,
     CamelCaseModel
 )
-
-
 class AreaProgressCreate(BaseModel):
     progress_percentage: Decimal = Field(ge=0, le=100)
     notes: Optional[str] = Field(default=None, max_length=MAX_NOTES_LENGTH)
@@ -21,8 +21,6 @@ class AreaProgressCreate(BaseModel):
     @classmethod
     def sanitize_text(cls, v: Optional[str]) -> Optional[str]:
         return sanitize_string(v)
-
-
 class AreaProgressResponse(CamelCaseModel):
     id: UUID
     area_id: UUID
@@ -31,8 +29,6 @@ class AreaProgressResponse(CamelCaseModel):
     photos: Optional[list[str]] = None
     reported_at: datetime
     reported_by: Optional[UserResponse] = None
-
-
 class AreaBase(BaseModel):
     name: str = Field(min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
     area_type: Optional[str] = Field(default=None, max_length=50)
@@ -51,12 +47,8 @@ class AreaBase(BaseModel):
         if v is None or v.strip() == '':
             return None
         return validate_code(v)
-
-
 class AreaCreate(AreaBase):
     parent_id: Optional[UUID] = None
-
-
 class AreaUpdate(BaseModel):
     name: Optional[str] = Field(default=None, min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
     area_type: Optional[str] = Field(default=None, max_length=50)
@@ -75,8 +67,6 @@ class AreaUpdate(BaseModel):
         if v is None or v.strip() == '':
             return None
         return validate_code(v)
-
-
 class AreaResponse(CamelCaseModel):
     id: UUID
     project_id: UUID

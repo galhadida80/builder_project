@@ -1,0 +1,4 @@
+{
+  "task_description": "# Implement RTL Layout Support\n\n**Linear Issue:** [BUI-79](https://linear.app/builder-project/issue/BUI-79/implement-rtl-layout-support)\n**Priority:** High\n**Status:** Backlog\n\n\n## Description\n\ndir=rtl, CSS logical properties - Ref: 29-hebrew-rtl.png\n",
+  "workflow_type": "feature"
+}

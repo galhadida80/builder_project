@@ -177,7 +177,7 @@ async def create_template_hierarchy(session: AsyncSession, template_data: dict) 
         template_data: Dictionary containing template, sections, and items data
     """
     # Import models here to avoid circular imports
-    from app.models.checklist_template import (
+    from app.models.checklist import (
         ChecklistTemplate,
         ChecklistSubSection,
         ChecklistItemTemplate
@@ -240,7 +240,7 @@ async def seed_checklist_templates() -> None:
         async with AsyncSessionLocal() as session:
             try:
                 # Import models here to avoid circular imports
-                from app.models.checklist_template import ChecklistTemplate
+                from app.models.checklist import ChecklistTemplate
 
                 # Check if data already exists (idempotency)
                 result = await session.execute(

@@ -1,0 +1,69 @@
+{
+  "complexity": "standard",
+  "workflow_type": "feature",
+  "confidence": 0.90,
+  "reasoning": "Well-defined task creating 5 schema groups (20+ classes) with nested relationships in a single file. Follows existing Pydantic patterns already established in the codebase. More complex than simple due to nested hierarchies (template → sections → items), but no external dependencies or infrastructure changes required.",
+
+  "analysis": {
+    "scope": {
+      "estimated_files": 1,
+      "estimated_services": 1,
+      "is_cross_cutting": false,
+      "notes": "Single file creation: backend/app/schemas/checklist_template.py. Follows established patterns from contact.py and equipment.py."
+    },
+    "integrations": {
+      "external_services": [],
+      "new_dependencies": [],
+      "research_needed": false,
+      "notes": "Uses existing CamelCaseModel base class from app.core.validators. Pydantic already in use throughout the codebase."
+    },
+    "infrastructure": {
+      "docker_changes": false,
+      "database_changes": false,
+      "config_changes": false,
+      "notes": "Schema definitions only - no database models, no infrastructure impact. Separate from SQLAlchemy models."
+    },
+    "knowledge": {
+      "patterns_exist": true,
+      "research_required": false,
+      "unfamiliar_tech": [],
+      "notes": "Clear examples exist in equipment.py (nested ChecklistResponse) and contact.py (Base/Create/Update/Response pattern). CamelCaseModel pattern is well-established for frontend compatibility."
+    },
+    "risk": {
+      "level": "low",
+      "concerns": [
+        "Nested relationships must be correctly ordered (define child schemas before parent schemas)",
+        "Consistency across Base/Create/Update/Response variants for each entity",
+        "Hebrew localization fields (name_he) must be included per requirements"
+      ],
+      "notes": "Low risk since schemas don't directly affect runtime behavior. Main concern is ensuring proper nesting structure for serialization."
+    }
+  },
+
+  "recommended_phases": [
+    "discovery",
+    "requirements",
+    "context",
+    "spec_writing",
+    "planning",
+    "validation"
+  ],
+
+  "flags": {
+    "needs_research": false,
+    "needs_self_critique": false,
+    "needs_infrastructure_setup": false
+  },
+
+  "validation_recommendations": {
+    "risk_level": "low",
+    "skip_validation": false,
+    "minimal_mode": true,
+    "test_types_required": ["unit"],
+    "security_scan_required": false,
+    "staging_deployment_required": false,
+    "reasoning": "Schema definitions with nested relationships warrant basic validation through unit tests to ensure serialization works correctly. Minimal mode appropriate since schemas don't directly affect runtime behavior and follow established patterns."
+  },
+
+  "created_at": "2026-01-29T00:00:00Z"
+}

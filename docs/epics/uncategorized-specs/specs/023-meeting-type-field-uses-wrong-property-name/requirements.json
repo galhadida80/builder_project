@@ -1,0 +1,4 @@
+{
+  "task_description": "# Meeting type field uses wrong property name\n\n**Linear Issue:** [BUI-14](https://linear.app/builder-project/issue/BUI-14/meeting-type-field-uses-wrong-property-name)\n**Priority:** High\n**Status:** Backlog\n\n\n## Description\n\n**Bug Description:**\nThe Meeting interface uses startTime/endTime but the backend returns scheduled_date.\n\n**Location:**\n\n* frontend/src/types/index.ts (Meeting interface)\n* frontend/src/pages/DashboardPage.tsx (line 211)\n\n**Issue:**\n\n```typescript\nnew Date(meeting.startTime).toLocaleString()\n```\n\nBut backend sends scheduled_date, not startTime.\n\n**Fix:**\n\n* Update Meeting type to match backend schema\n* Update all usages of startTime/endTime\n\n**Priority:** Medium\n",
+  "workflow_type": "feature"
+}

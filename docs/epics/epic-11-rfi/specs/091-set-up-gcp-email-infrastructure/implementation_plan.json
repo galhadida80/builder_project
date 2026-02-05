@@ -1,0 +1,9 @@
+{
+  "feature": "Set Up GCP Email Infrastructure",
+  "description": "# Set Up GCP Email Infrastructure\n\n**Linear Issue:** [BUI-102](https://linear.app/builder-project/issue/BUI-102/set-up-gcp-email-infrastructure)\n**Priority:** No priority\n**Status:** Backlog\n\n\n## Description\n\n## User Story\n\nAs a DevOps engineer, I need to configure GCP services so that the RFI email system works end-to-end.\n\n## Acceptance Criteria\n\n- [ ] Create GCP project: builder-rfi-system\n- [ ] Enable APIs: Gmail API, Pub/Sub API, Secret Manager\n- [ ] Create service account: rfi-email-processor\n- [ ] Configure domain-wide delegation in Google Admin\n- [ ] Create Pub/Sub topic: gmail-rfi-notifications\n- [ ] Grant Gmail publish permission to topic\n- [ ] Create Pub/Sub push subscription pointing to webhook\n- [ ] Store service account key in Secret Manager\n- [ ] Document all configuration steps\n\n## GCP CLI Commands\n\n```bash\ngcloud services enable gmail.googleapis.com pubsub.googleapis.com\ngcloud pubsub topics create gmail-rfi-notifications\ngcloud pubsub subscriptions create gmail-rfi-push \\\n  --topic=gmail-rfi-notifications \\\n  --push-endpoint=https://api.yourapp.com/webhooks/gmail/push\n```\n\n## Labels\n\ndevops, gcp, infrastructure, rfi\n",
+  "created_at": "2026-01-31T22:45:32.752Z",
+  "updated_at": "2026-01-31T22:46:11.117Z",
+  "status": "backlog",
+  "phases": [],
+  "planStatus": "pending"
+}

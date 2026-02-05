@@ -1,0 +1,9 @@
+{
+  "feature": "Create Button Component Variants",
+  "description": "# Create Button Component Variants\n\n**Linear Issue:** [BUI-86](https://linear.app/builder-project/issue/BUI-86/create-button-component-variants)\n**Priority:** High\n**Status:** Backlog\n\n\n## Description\n\nPrimary, secondary, danger, loading, icon buttons\n",
+  "created_at": "2026-01-30T10:39:00.405Z",
+  "updated_at": "2026-02-03T11:24:39.725Z",
+  "status": "done",
+  "phases": [],
+  "planStatus": "completed"
+}

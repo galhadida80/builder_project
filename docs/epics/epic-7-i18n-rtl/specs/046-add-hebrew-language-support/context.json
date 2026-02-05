@@ -1,0 +1,9 @@
+{
+  "task_description": "Add Hebrew language support including i18n framework, translations, and Hebrew fonts",
+  "scoped_services": ["main"],
+  "files_to_modify": [],
+  "files_to_reference": [],
+  "patterns": {},
+  "service_contexts": {},
+  "created_at": "2025-01-30T12:39:00Z"
+}

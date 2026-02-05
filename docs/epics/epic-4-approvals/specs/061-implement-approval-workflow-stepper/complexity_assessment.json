@@ -1,0 +1,68 @@
+{
+  "complexity": "standard",
+  "workflow_type": "feature",
+  "confidence": 0.85,
+  "reasoning": "Frontend-only UI component using existing MUI Stepper library. Backend approval system with steps already exists. Straightforward integration with known patterns, no external dependencies or infrastructure changes needed.",
+
+  "analysis": {
+    "scope": {
+      "estimated_files": 5,
+      "estimated_services": 1,
+      "is_cross_cutting": false,
+      "notes": "New stepper component, integration into approval detail view, styling, possibly tests. Backend approval steps API already exists at /projects/{project_id}/approvals/{approval_id}/steps/{step_id}/action"
+    },
+    "integrations": {
+      "external_services": [],
+      "new_dependencies": [],
+      "research_needed": false,
+      "notes": "MUI (@mui/material) already in dependencies. MUI provides Stepper component out of the box - no new packages needed."
+    },
+    "infrastructure": {
+      "docker_changes": false,
+      "database_changes": false,
+      "config_changes": false,
+      "notes": "Frontend component only, no infrastructure impact"
+    },
+    "knowledge": {
+      "patterns_exist": true,
+      "research_required": false,
+      "unfamiliar_tech": [],
+      "notes": "MUI Stepper is well-documented. Project already uses React + TypeScript + MUI. Standard component patterns exist in frontend/src."
+    },
+    "risk": {
+      "level": "low",
+      "concerns": [
+        "Design fidelity to 26-approval-stepper.png mockup",
+        "Integration with existing approval data structure"
+      ],
+      "notes": "Display component with no data mutations. Backend approval system already in place with steps support."
+    }
+  },
+
+  "recommended_phases": [
+    "discovery",
+    "requirements",
+    "context",
+    "spec_writing",
+    "planning",
+    "validation"
+  ],
+
+  "flags": {
+    "needs_research": false,
+    "needs_self_critique": false,
+    "needs_infrastructure_setup": false
+  },
+
+  "validation_recommendations": {
+    "risk_level": "low",
+    "skip_validation": false,
+    "minimal_mode": true,
+    "test_types_required": ["unit"],
+    "security_scan_required": false,
+    "staging_deployment_required": false,
+    "reasoning": "Single service UI component with less than 5 files. No database changes, no API signature changes, no security-sensitive areas. Minimal validation with unit tests if component tests exist."
+  },
+
+  "created_at": "2026-02-04T00:00:00Z"
+}

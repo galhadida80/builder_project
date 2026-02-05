@@ -1,0 +1,12 @@
+{
+  "sourceType": "ideation",
+  "ideationType": "ui_ux_improvements",
+  "ideaId": "uiux-009",
+  "rationale": "This is a broken interactive affordance that misleads users. Users click sort headers expecting data to reorder, see the arrow indicator change direction, but rows stay in their original order. This creates confusion and erodes trust in the data table interface. The sort functionality is half-implemented: state management (orderBy, order) works correctly but the sort logic was never connected to the data display pipeline.",
+  "category": "ui_ux",
+  "uiuxCategory": "usability",
+  "affectedFiles": [
+    "components/ui/DataTable.tsx"
+  ],
+  "problemSolved": "DataTable.tsx lines 108-125: handleSort() updates orderBy and order state correctly (lines 108-112). However, displayedRows (lines 123-125) only performs pagination slicing: `rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)`. It never sorts the rows array using orderBy or order. The TableSortLabel components (lines 193-199) render correctly with active={orderBy === column.id} and direction={orderBy === column.id ? order : 'asc'}, so the UI sort indicators respond to clicks, but data order is unchanged."
+}

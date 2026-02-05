@@ -1,0 +1,4 @@
+{
+  "task_description": "# Login form bypasses authentication - security issue\n\n**Linear Issue:** [BUI-8](https://linear.app/builder-project/issue/BUI-8/login-form-bypasses-authentication-security-issue)\n**Priority:** No priority\n**Status:** Backlog\n\n\n## Description\n\n**Bug Description:**\nThe login form does not actually authenticate users. It just waits 1 second and navigates to dashboard regardless of credentials entered.\n\n**Location:** frontend/src/pages/LoginPage.tsx (lines 22-35)\n\n**Current Behavior:**\n\n```typescript\nawait new Promise(resolve => setTimeout(resolve, 1000))\nnavigate(\"/dashboard\")\n```\n\n**Expected Behavior:**\n\n* Call backend auth API to validate credentials\n* Store JWT token on successful login\n* Redirect to login on 401 errors\n\n**Priority:** Critical\n",
+  "workflow_type": "feature"
+}

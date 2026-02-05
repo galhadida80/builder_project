@@ -1,0 +1,46 @@
+{
+  "files_to_modify": {
+    "frontend": [
+      "src/pages/ProjectsPage.tsx",
+      "src/pages/RFIPage.tsx",
+      "src/pages/EquipmentPage.tsx",
+      "src/pages/InspectionsPage.tsx",
+      "src/pages/MaterialsPage.tsx",
+      "src/pages/ApprovalsPage.tsx",
+      "src/pages/ContactsPage.tsx"
+    ]
+  },
+  "files_to_reference": [
+    "frontend/src/components/layout/Header.tsx"
+  ],
+  "patterns": {
+    "button_removal": "Remove the Button component with FilterListIcon from the search bar section. Each page has the button in a Box with SearchField and the Filters button side by side.",
+    "existing_filtering": "All pages already have functional filtering via search (SearchField) and tab-based filtering (Tabs or SegmentedTabs)",
+    "import_cleanup": "After removing the button, FilterListIcon import may no longer be needed if not used elsewhere in the file"
+  },
+  "existing_implementations": {
+    "description": "Found 7 list pages with non-functional Filter buttons. Each button has FilterListIcon but no onClick handler. Pages already have search + tab filtering.",
+    "relevant_files": [
+      "frontend/src/pages/ProjectsPage.tsx",
+      "frontend/src/pages/MaterialsPage.tsx",
+      "frontend/src/pages/ContactsPage.tsx"
+    ],
+    "key_insights": [
+      "Filter button appears in a Box container with SearchField",
+      "Button has variant='secondary', size='small', icon={<FilterListIcon />}",
+      "No onClick handler attached - completely non-functional",
+      "Each page has filteredItems variable that filters by search + tabs",
+      "FilterListIcon is imported from '@mui/icons-material/FilterList'"
+    ]
+  },
+  "decision_rationale": {
+    "approach": "Remove buttons rather than implement functionality",
+    "reasoning": [
+      "Pages already have sufficient filtering (search + tabs)",
+      "Simpler solution that addresses UX problem immediately",
+      "No backend changes required",
+      "Can add advanced filtering later if actually needed",
+      "Follows principle of not misleading users with non-functional UI"
+    ]
+  }
+}

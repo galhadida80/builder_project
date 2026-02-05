@@ -1,0 +1,653 @@
+{
+  "spec_id": "063-build-approval-queue-list-view",
+  "created_at": "2026-01-30T10:39:16.604264+00:00",
+  "updated_at": "2026-02-03T11:56:49.738323+00:00",
+  "phases": {
+    "planning": {
+      "phase": "planning",
+      "status": "failed",
+      "started_at": "2026-02-03T11:56:04.805595+00:00",
+      "completed_at": "2026-02-03T11:56:49.737374+00:00",
+      "entries": [
+        {
+          "timestamp": "2026-01-30T10:39:16.606739+00:00",
+          "type": "phase_start",
+          "content": "Starting spec creation process",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T12:58:31.766795+00:00",
+          "type": "phase_start",
+          "content": "Starting spec creation process",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T12:58:31.771858+00:00",
+          "type": "info",
+          "content": "Starting phase 1: PROJECT DISCOVERY",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T12:59:46.655586+00:00",
+          "type": "success",
+          "content": "Discovered 74 files in project",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T12:59:46.657299+00:00",
+          "type": "info",
+          "content": "Starting phase 2: REQUIREMENTS GATHERING",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T13:01:05.492627+00:00",
+          "type": "info",
+          "content": "Starting phase 3: COMPLEXITY ASSESSMENT",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T13:01:05.495057+00:00",
+          "type": "info",
+          "content": "Analyzing task complexity with AI...",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T13:01:20.048286+00:00",
+          "type": "text",
+          "content": "You've hit your limit · resets Feb 4 at 3pm (Asia/Jerusalem)",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T13:01:21.651934+00:00",
+          "type": "info",
+          "content": "Starting phase 4: HISTORICAL CONTEXT",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T13:01:21.658627+00:00",
+          "type": "info",
+          "content": "Searching knowledge graph for relevant context...",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T13:01:21.659433+00:00",
+          "type": "info",
+          "content": "Starting phase 5: INTEGRATION RESEARCH",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T13:01:33.552801+00:00",
+          "type": "text",
+          "content": "You've hit your limit · resets Feb 4 at 3pm (Asia/Jerusalem)",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T13:01:45.047320+00:00",
+          "type": "info",
+          "content": "Starting phase 6: CONTEXT DISCOVERY",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T13:01:52.634443+00:00",
+          "type": "info",
+          "content": "Starting phase 7: SPEC DOCUMENT CREATION",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T13:01:56.481488+00:00",
+          "type": "text",
+          "content": "You've hit your limit · resets Feb 4 at 3pm (Asia/Jerusalem)",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T13:02:01.715864+00:00",
+          "type": "text",
+          "content": "You've hit your limit · resets Feb 4 at 3pm (Asia/Jerusalem)",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T13:02:28.289705+00:00",
+          "type": "text",
+          "content": "You've hit your limit · resets Feb 4 at 3pm (Asia/Jerusalem)",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T13:02:29.212060+00:00",
+          "type": "error",
+          "content": "Phase 'spec_writing' failed: Attempt 1: Agent did not create spec.md; Attempt 2: Agent did not create spec.md; Attempt 3: Agent did not create spec.md",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T13:02:29.212612+00:00",
+          "type": "phase_end",
+          "content": "Phase spec_writing failed",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T14:40:04.081383+00:00",
+          "type": "phase_start",
+          "content": "Starting spec creation process",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T14:40:04.084126+00:00",
+          "type": "info",
+          "content": "Starting phase 1: PROJECT DISCOVERY",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T14:40:04.087070+00:00",
+          "type": "success",
+          "content": "Discovered 74 files in project",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T14:40:07.199827+00:00",
+          "type": "info",
+          "content": "Starting phase 2: REQUIREMENTS GATHERING",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T14:40:21.493092+00:00",
+          "type": "info",
+          "content": "Starting phase 3: COMPLEXITY ASSESSMENT",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T14:40:21.494592+00:00",
+          "type": "info",
+          "content": "Analyzing task complexity with AI...",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T14:40:26.438637+00:00",
+          "type": "text",
+          "content": "You've hit your limit · resets Feb 4 at 3pm (Asia/Jerusalem)",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T14:40:27.555936+00:00",
+          "type": "info",
+          "content": "Starting phase 4: HISTORICAL CONTEXT",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T14:40:27.565918+00:00",
+          "type": "success",
+          "content": "Historical context already available",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T14:40:27.566989+00:00",
+          "type": "info",
+          "content": "Starting phase 5: INTEGRATION RESEARCH",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T14:40:30.315308+00:00",
+          "type": "info",
+          "content": "Starting phase 6: CONTEXT DISCOVERY",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T14:40:32.610895+00:00",
+          "type": "info",
+          "content": "Starting phase 7: SPEC DOCUMENT CREATION",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T14:40:37.238230+00:00",
+          "type": "text",
+          "content": "You've hit your limit · resets Feb 4 at 3pm (Asia/Jerusalem)",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T14:40:43.882102+00:00",
+          "type": "text",
+          "content": "You've hit your limit · resets Feb 4 at 3pm (Asia/Jerusalem)",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T14:40:51.738316+00:00",
+          "type": "text",
+          "content": "You've hit your limit · resets Feb 4 at 3pm (Asia/Jerusalem)",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T14:40:53.655669+00:00",
+          "type": "error",
+          "content": "Phase 'spec_writing' failed: Attempt 1: Agent did not create spec.md; Attempt 2: Agent did not create spec.md; Attempt 3: Agent did not create spec.md",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T14:40:53.656369+00:00",
+          "type": "phase_end",
+          "content": "Phase spec_writing failed",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T15:09:46.503474+00:00",
+          "type": "phase_start",
+          "content": "Starting spec creation process",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T15:09:46.505139+00:00",
+          "type": "info",
+          "content": "Starting phase 1: PROJECT DISCOVERY",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T15:09:46.506730+00:00",
+          "type": "success",
+          "content": "Discovered 74 files in project",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T15:09:50.449953+00:00",
+          "type": "info",
+          "content": "Starting phase 2: REQUIREMENTS GATHERING",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T15:10:10.686366+00:00",
+          "type": "info",
+          "content": "Starting phase 3: COMPLEXITY ASSESSMENT",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T15:10:10.688769+00:00",
+          "type": "info",
+          "content": "Analyzing task complexity with AI...",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T15:10:21.680488+00:00",
+          "type": "text",
+          "content": "You've hit your limit · resets Feb 4 at 3pm (Asia/Jerusalem)",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T15:10:23.088510+00:00",
+          "type": "info",
+          "content": "Starting phase 4: HISTORICAL CONTEXT",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T15:10:23.102370+00:00",
+          "type": "success",
+          "content": "Historical context already available",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T15:10:23.103066+00:00",
+          "type": "info",
+          "content": "Starting phase 5: INTEGRATION RESEARCH",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T15:10:31.627729+00:00",
+          "type": "info",
+          "content": "Starting phase 6: CONTEXT DISCOVERY",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T15:10:41.098711+00:00",
+          "type": "info",
+          "content": "Starting phase 7: SPEC DOCUMENT CREATION",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T15:10:52.703757+00:00",
+          "type": "text",
+          "content": "You've hit your limit · resets Feb 4 at 3pm (Asia/Jerusalem)",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T15:11:02.064546+00:00",
+          "type": "text",
+          "content": "You've hit your limit · resets Feb 4 at 3pm (Asia/Jerusalem)",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T15:11:15.503241+00:00",
+          "type": "text",
+          "content": "You've hit your limit · resets Feb 4 at 3pm (Asia/Jerusalem)",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T15:11:17.197225+00:00",
+          "type": "error",
+          "content": "Phase 'spec_writing' failed: Attempt 1: Agent did not create spec.md; Attempt 2: Agent did not create spec.md; Attempt 3: Agent did not create spec.md",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T15:11:17.198000+00:00",
+          "type": "phase_end",
+          "content": "Phase spec_writing failed",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T15:31:20.032582+00:00",
+          "type": "phase_start",
+          "content": "Starting spec creation process",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T15:31:20.033817+00:00",
+          "type": "info",
+          "content": "Starting phase 1: PROJECT DISCOVERY",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T15:31:20.034679+00:00",
+          "type": "success",
+          "content": "Discovered 74 files in project",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T15:31:23.154350+00:00",
+          "type": "info",
+          "content": "Starting phase 2: REQUIREMENTS GATHERING",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T15:32:05.698997+00:00",
+          "type": "info",
+          "content": "Starting phase 3: COMPLEXITY ASSESSMENT",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T15:32:05.701033+00:00",
+          "type": "info",
+          "content": "Analyzing task complexity with AI...",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T15:32:37.615680+00:00",
+          "type": "text",
+          "content": "You've hit your limit · resets Feb 4 at 3pm (Asia/Jerusalem)",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T15:32:40.497653+00:00",
+          "type": "info",
+          "content": "Starting phase 4: HISTORICAL CONTEXT",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T15:32:40.642765+00:00",
+          "type": "success",
+          "content": "Historical context already available",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T15:32:40.647066+00:00",
+          "type": "info",
+          "content": "Starting phase 5: INTEGRATION RESEARCH",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T15:33:19.683415+00:00",
+          "type": "info",
+          "content": "Starting phase 6: CONTEXT DISCOVERY",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T15:33:53.871410+00:00",
+          "type": "info",
+          "content": "Starting phase 7: SPEC DOCUMENT CREATION",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T15:34:24.551574+00:00",
+          "type": "text",
+          "content": "You've hit your limit · resets Feb 4 at 3pm (Asia/Jerusalem)",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T15:34:56.396262+00:00",
+          "type": "text",
+          "content": "You've hit your limit · resets Feb 4 at 3pm (Asia/Jerusalem)",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T15:35:31.807677+00:00",
+          "type": "text",
+          "content": "You've hit your limit · resets Feb 4 at 3pm (Asia/Jerusalem)",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T15:35:33.844072+00:00",
+          "type": "error",
+          "content": "Phase 'spec_writing' failed: Attempt 1: Agent did not create spec.md; Attempt 2: Agent did not create spec.md; Attempt 3: Agent did not create spec.md",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-02T15:35:33.845295+00:00",
+          "type": "phase_end",
+          "content": "Phase spec_writing failed",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-03T11:22:07.268830+00:00",
+          "type": "phase_start",
+          "content": "Starting spec creation process",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-03T11:22:07.270794+00:00",
+          "type": "info",
+          "content": "Starting phase 1: PROJECT DISCOVERY",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-03T11:22:07.272256+00:00",
+          "type": "success",
+          "content": "Discovered 74 files in project",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-03T11:22:09.633149+00:00",
+          "type": "info",
+          "content": "Starting phase 2: REQUIREMENTS GATHERING",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-03T11:22:20.260467+00:00",
+          "type": "info",
+          "content": "Starting phase 3: COMPLEXITY ASSESSMENT",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-03T11:22:20.261716+00:00",
+          "type": "info",
+          "content": "Analyzing task complexity with AI...",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-03T11:22:24.851695+00:00",
+          "type": "text",
+          "content": "You've hit your limit · resets Feb 4 at 3pm (Asia/Jerusalem)",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-03T11:22:25.945865+00:00",
+          "type": "info",
+          "content": "Starting phase 4: HISTORICAL CONTEXT",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-03T11:22:25.955033+00:00",
+          "type": "success",
+          "content": "Historical context already available",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-03T11:22:25.956043+00:00",
+          "type": "info",
+          "content": "Starting phase 5: INTEGRATION RESEARCH",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-03T11:22:28.541105+00:00",
+          "type": "info",
+          "content": "Starting phase 6: CONTEXT DISCOVERY",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-03T11:22:30.819709+00:00",
+          "type": "info",
+          "content": "Starting phase 7: SPEC DOCUMENT CREATION",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-03T11:22:35.382265+00:00",
+          "type": "text",
+          "content": "You've hit your limit · resets Feb 4 at 3pm (Asia/Jerusalem)",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-03T11:22:41.639851+00:00",
+          "type": "text",
+          "content": "You've hit your limit · resets Feb 4 at 3pm (Asia/Jerusalem)",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-03T11:22:47.761895+00:00",
+          "type": "text",
+          "content": "You've hit your limit · resets Feb 4 at 3pm (Asia/Jerusalem)",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-03T11:22:48.842541+00:00",
+          "type": "error",
+          "content": "Phase 'spec_writing' failed: Attempt 1: Agent did not create spec.md; Attempt 2: Agent did not create spec.md; Attempt 3: Agent did not create spec.md",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-03T11:22:48.843402+00:00",
+          "type": "phase_end",
+          "content": "Phase spec_writing failed",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-03T11:56:04.805832+00:00",
+          "type": "phase_start",
+          "content": "Starting spec creation process",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-03T11:56:04.807220+00:00",
+          "type": "info",
+          "content": "Starting phase 1: PROJECT DISCOVERY",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-03T11:56:04.808548+00:00",
+          "type": "success",
+          "content": "Discovered 74 files in project",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-03T11:56:07.425424+00:00",
+          "type": "info",
+          "content": "Starting phase 2: REQUIREMENTS GATHERING",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-03T11:56:17.432227+00:00",
+          "type": "info",
+          "content": "Starting phase 3: COMPLEXITY ASSESSMENT",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-03T11:56:17.434032+00:00",
+          "type": "info",
+          "content": "Analyzing task complexity with AI...",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-03T11:56:22.763150+00:00",
+          "type": "text",
+          "content": "You've hit your limit · resets Feb 4 at 3pm (Asia/Jerusalem)",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-03T11:56:24.216388+00:00",
+          "type": "info",
+          "content": "Starting phase 4: HISTORICAL CONTEXT",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-03T11:56:24.224793+00:00",
+          "type": "success",
+          "content": "Historical context already available",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-03T11:56:24.226552+00:00",
+          "type": "info",
+          "content": "Starting phase 5: INTEGRATION RESEARCH",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-03T11:56:26.924183+00:00",
+          "type": "info",
+          "content": "Starting phase 6: CONTEXT DISCOVERY",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-03T11:56:29.647898+00:00",
+          "type": "info",
+          "content": "Starting phase 7: SPEC DOCUMENT CREATION",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-03T11:56:34.093255+00:00",
+          "type": "text",
+          "content": "You've hit your limit · resets Feb 4 at 3pm (Asia/Jerusalem)",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-03T11:56:42.394779+00:00",
+          "type": "text",
+          "content": "You've hit your limit · resets Feb 4 at 3pm (Asia/Jerusalem)",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-03T11:56:48.599120+00:00",
+          "type": "text",
+          "content": "You've hit your limit · resets Feb 4 at 3pm (Asia/Jerusalem)",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-03T11:56:49.736240+00:00",
+          "type": "error",
+          "content": "Phase 'spec_writing' failed: Attempt 1: Agent did not create spec.md; Attempt 2: Agent did not create spec.md; Attempt 3: Agent did not create spec.md",
+          "phase": "planning"
+        },
+        {
+          "timestamp": "2026-02-03T11:56:49.737387+00:00",
+          "type": "phase_end",
+          "content": "Phase spec_writing failed",
+          "phase": "planning"
+        }
+      ]
+    },
+    "coding": {
+      "phase": "coding",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "entries": []
+    },
+    "validation": {
+      "phase": "validation",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "entries": []
+    }
+  }
+}

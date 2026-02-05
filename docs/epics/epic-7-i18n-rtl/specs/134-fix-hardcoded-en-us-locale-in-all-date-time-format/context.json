@@ -1,0 +1,58 @@
+{
+  "files_to_modify": {
+    "frontend": [
+      "src/pages/ProjectsPage.tsx",
+      "src/pages/RFIPage.tsx",
+      "src/pages/MaterialsPage.tsx",
+      "src/pages/MeetingsPage.tsx",
+      "src/pages/ProjectDetailPage.tsx",
+      "src/pages/AuditLogPage.tsx",
+      "src/pages/DashboardPage.tsx",
+      "src/pages/InspectionsPage.tsx",
+      "package.json"
+    ]
+  },
+  "files_to_create": {
+    "frontend": [
+      "src/i18n/config.ts",
+      "src/i18n/locales/en.json",
+      "src/i18n/locales/he.json",
+      "src/i18n/locales/es.json",
+      "src/hooks/useLocale.ts"
+    ]
+  },
+  "files_to_reference": [
+    "frontend/src/main.tsx",
+    "frontend/src/theme/ThemeContext.tsx"
+  ],
+  "patterns": {
+    "react_context_pattern": "The app uses React Context for theme management (ThemeContext.tsx). Use similar pattern for i18n provider wrapping in main.tsx",
+    "hooks_pattern": "Custom hooks stored in src/hooks/, follow the pattern of importing and using them in page components",
+    "date_formatting_pattern": "Current pattern: new Date(dateString).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }). Replace 'en-US' with locale from useLocale hook",
+    "provider_wrapping": "Providers are nested in main.tsx: BrowserRouter > ThemeProvider > ToastProvider > App"
+  },
+  "existing_implementations": {
+    "description": "Found 17 instances of hardcoded 'en-US' locale across 8 frontend files. NO i18next setup exists yet (contrary to spec claim). App uses React Context pattern for theme, which we'll mirror for i18n.",
+    "relevant_files": [
+      "frontend/src/main.tsx",
+      "frontend/src/theme/ThemeContext.tsx",
+      "frontend/src/pages/MeetingsPage.tsx"
+    ],
+    "key_insights": [
+      "ThemeContext uses React.createContext with provider/consumer pattern",
+      "main.tsx already has nested provider structure - add I18nextProvider there",
+      "MeetingsPage has helper functions formatTime() and formatDate() that encapsulate date formatting - good pattern to preserve",
+      "All date formatting uses toLocaleDateString() and toLocaleTimeString() with options objects"
+    ]
+  },
+  "i18n_requirements": {
+    "languages": ["en", "he", "es"],
+    "locale_codes": {
+      "en": "en-US",
+      "he": "he-IL",
+      "es": "es-ES"
+    },
+    "persistence": "localStorage",
+    "detection_order": ["localStorage", "navigator.language", "default: en"]
+  }
+}

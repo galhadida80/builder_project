@@ -1,0 +1,70 @@
+{
+  "complexity": "standard",
+  "workflow_type": "feature",
+  "confidence": 0.85,
+  "reasoning": "Feature requires multiple UI components (banner, sync status) with state management for online/offline detection. Contained to frontend with no external integrations or infrastructure changes. Standard browser APIs make this straightforward.",
+
+  "analysis": {
+    "scope": {
+      "estimated_files": 6,
+      "estimated_services": 1,
+      "is_cross_cutting": true,
+      "notes": "Offline banner/sync status likely integrates into app layout. State management may need to be accessible across components. Estimate: 2 component files, 1 state/hook file, 1 integration file, 2 test files."
+    },
+    "integrations": {
+      "external_services": [],
+      "new_dependencies": [],
+      "research_needed": false,
+      "notes": "Uses browser native APIs (navigator.onLine, online/offline events). No external service integrations. May use existing state management library already in project."
+    },
+    "infrastructure": {
+      "docker_changes": false,
+      "database_changes": false,
+      "config_changes": false,
+      "notes": "Pure frontend UI feature. No infrastructure impact. Possible feature flag but not required."
+    },
+    "knowledge": {
+      "patterns_exist": true,
+      "research_required": false,
+      "unfamiliar_tech": [],
+      "notes": "Browser offline detection is well-documented. Likely follows existing component patterns in codebase. Design reference (30-offline-mode.png) provides visual spec."
+    },
+    "risk": {
+      "level": "medium",
+      "concerns": [
+        "State management correctness (online/offline transitions)",
+        "Component integration into existing layout without breaking UI",
+        "Edge cases: reconnection, intermittent connectivity",
+        "Design implementation accuracy vs reference PNG"
+      ],
+      "notes": "Medium risk due to state management and UX impact. Not high risk as no data loss, auth, or payment concerns. Testing offline/online transitions is important."
+    }
+  },
+
+  "recommended_phases": [
+    "discovery",
+    "requirements",
+    "context",
+    "spec_writing",
+    "planning",
+    "validation"
+  ],
+
+  "flags": {
+    "needs_research": false,
+    "needs_self_critique": false,
+    "needs_infrastructure_setup": false
+  },
+
+  "validation_recommendations": {
+    "risk_level": "medium",
+    "skip_validation": false,
+    "minimal_mode": false,
+    "test_types_required": ["unit", "integration"],
+    "security_scan_required": false,
+    "staging_deployment_required": false,
+    "reasoning": "UI feature with state management requires unit tests for offline detection logic and integration tests for component behavior and state updates. No security-sensitive areas involved."
+  },
+
+  "created_at": "2026-02-01T00:00:00Z"
+}

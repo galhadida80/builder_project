@@ -1,0 +1,9 @@
+{
+  "feature": "Create Notifications Panel",
+  "description": "# Create Notifications Panel\n\n**Linear Issue:** [BUI-64](https://linear.app/builder-project/issue/BUI-64/create-notifications-panel)\n**Priority:** High\n**Status:** Backlog\n\n\n## Description\n\nSlide-out with categories - Ref: 14-notifications.png\n",
+  "created_at": "2026-01-30T10:39:00.412Z",
+  "updated_at": "2026-02-03T11:57:06.978Z",
+  "status": "done",
+  "phases": [],
+  "planStatus": "completed"
+}

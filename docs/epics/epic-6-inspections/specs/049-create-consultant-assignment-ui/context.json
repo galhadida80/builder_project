@@ -1,0 +1,77 @@
+{
+  "files_to_modify": {
+    "frontend": [
+      "frontend/src/pages/index.tsx"
+    ],
+    "backend": [
+      "backend/app/api/v1/router.py"
+    ]
+  },
+  "files_to_create": {
+    "frontend": [
+      "frontend/src/components/consultants/AssignmentList.tsx",
+      "frontend/src/components/consultants/AssignmentCalendar.tsx",
+      "frontend/src/components/consultants/AssignmentForm.tsx",
+      "frontend/src/pages/ConsultantAssignmentsPage.tsx",
+      "frontend/src/api/consultantAssignments.ts",
+      "frontend/src/types/consultantAssignment.ts"
+    ],
+    "backend": [
+      "backend/app/api/v1/consultant_assignments.py",
+      "backend/app/schemas/consultant_assignment.py",
+      "backend/app/models/consultant_assignment.py"
+    ]
+  },
+  "files_to_reference": [
+    "frontend/src/components/ui/DataTable.tsx",
+    "frontend/src/components/WorkloadCalendar.tsx",
+    "frontend/src/pages/TeamWorkloadView.tsx",
+    "frontend/src/components/forms/DatePickerInput.tsx",
+    "backend/app/api/v1/consultant_types.py",
+    "backend/app/schemas/equipment_template.py",
+    "backend/app/models/equipment_template.py"
+  ],
+  "patterns": {
+    "frontend_component_pattern": "Create feature-specific directory under src/components/. Separate presentational components (List, Calendar, Form). Use TypeScript interfaces for props. Emotion for styled components. MUI components for UI elements.",
+    "frontend_data_table_pattern": "Custom DataTable component uses MUI Table, TableBody, TableHead with column definitions, sorting, pagination, row selection, loading skeletons, and empty states.",
+    "frontend_date_handling": "Use dayjs for all date operations. MUI DatePicker with LocalizationProvider and AdapterDayjs. Date range validation (end >= start).",
+    "frontend_api_pattern": "Create dedicated API client modules in src/api/. Use axios with async/await. Export typed functions for each endpoint. Handle errors with try/catch and toast notifications.",
+    "backend_crud_structure": "FastAPI router with APIRouter. Async endpoints with AsyncSession dependency. List GET, Create POST, Detail GET, Update PUT, Delete DELETE. UUID-based IDs. Response models from schemas.",
+    "backend_schema_pattern": "Base/Create/Update/Response pattern. BaseModel for input schemas, CamelCaseModel for Response (with from_attributes=True). Use field_validator for sanitization. Modern Type | None syntax.",
+    "backend_model_pattern": "SQLAlchemy async models. UUID primary keys. Timestamps (created_at, updated_at). Relationships with lazy='selectinload'. Foreign keys with ondelete cascade."
+  },
+  "existing_implementations": {
+    "description": "Frontend has custom DataTable component (not MUI DataGrid) with sorting/pagination. WorkloadCalendar shows date range picker with presets. TeamWorkloadView demonstrates page layout with calendar sidebar. Backend has consultant_types API with full CRUD. gantt-task-react library available for timeline visualization.",
+    "relevant_files": [
+      "frontend/src/components/ui/DataTable.tsx",
+      "frontend/src/components/WorkloadCalendar.tsx",
+      "frontend/src/pages/TeamWorkloadView.tsx",
+      "backend/app/api/v1/consultant_types.py"
+    ],
+    "key_insights": [
+      "Project uses custom DataTable, NOT MUI DataGrid - follow existing pattern",
+      "WorkloadCalendar provides date range selection with This Week/This Month presets",
+      "gantt-task-react is already in dependencies for timeline view",
+      "Consultant types API exists at /consultant-types with full CRUD operations",
+      "Backend follows async SQLAlchemy pattern with audit logging",
+      "Frontend uses useToast hook from ToastProvider for error messages"
+    ]
+  },
+  "tech_stack_notes": {
+    "frontend": "Next.js with App Router, but main app is Vite React in src/. TypeScript required. MUI v5 with Emotion. dayjs v1.11.10. axios for API calls.",
+    "backend": "FastAPI with async SQLAlchemy. PostgreSQL database. Alembic migrations. Pydantic v2 schemas. UUID IDs.",
+    "dependencies_available": [
+      "@mui/material",
+      "@mui/x-date-pickers",
+      "dayjs",
+      "gantt-task-react",
+      "axios",
+      "react-hook-form"
+    ]
+  },
+  "design_reference": {
+    "file": "design-assets/inspection/24-consultant-assignment.png",
+    "notes": "Reference image shows dual-view interface with list and calendar. Follow design system patterns from image for consistency."
+  },
+  "task_description": "Create Consultant Assignment UI with list and calendar views for managing consultant assignments (Linear issue BUI-77)"
+}

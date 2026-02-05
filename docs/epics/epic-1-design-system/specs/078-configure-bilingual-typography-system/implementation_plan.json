@@ -1,0 +1,9 @@
+{
+  "feature": "Configure Bilingual Typography System",
+  "description": "# Configure Bilingual Typography System\n\n**Linear Issue:** [BUI-48](https://linear.app/builder-project/issue/BUI-48/configure-bilingual-typography-system)\n**Priority:** High\n**Status:** Backlog\n\n\n## Description\n\nSet up Plus Jakarta Sans and Noto Sans Hebrew with type scale\n",
+  "created_at": "2026-01-30T10:39:00.416Z",
+  "updated_at": "2026-02-02T15:34:50.278Z",
+  "status": "done",
+  "phases": [],
+  "planStatus": "completed"
+}

@@ -1,0 +1,4 @@
+{
+  "task_description": "# Add Hebrew Language Support\n\n**Linear Issue:** [BUI-80](https://linear.app/builder-project/issue/BUI-80/add-hebrew-language-support)\n**Priority:** High\n**Status:** Backlog\n\n\n## Description\n\ni18n framework, translations, fonts\n",
+  "workflow_type": "feature"
+}

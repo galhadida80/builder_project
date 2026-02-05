@@ -1,0 +1,9 @@
+{
+  "feature": "Create Project Overview Page",
+  "description": "# Create Project Overview Page\n\n**Linear Issue:** [BUI-68](https://linear.app/builder-project/issue/BUI-68/create-project-overview-page)\n**Priority:** High\n**Status:** Backlog\n\n\n## Description\n\nProgress ring, timeline, tabs - Ref: 15-project-overview.png\n",
+  "created_at": "2026-01-31T22:45:32.763Z",
+  "updated_at": "2026-02-02T14:15:34.172Z",
+  "status": "done",
+  "phases": [],
+  "planStatus": "completed"
+}

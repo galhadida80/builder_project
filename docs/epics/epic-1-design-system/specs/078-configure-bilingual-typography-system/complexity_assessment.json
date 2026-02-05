@@ -1,0 +1,27 @@
+{
+  "complexity": "simple",
+  "confidence": 0.9,
+  "reasoning": "Single service, 2 file(s), no integrations",
+  "signals": {
+    "simple_keywords": 1,
+    "complex_keywords": 0,
+    "multi_service_keywords": 0,
+    "external_integrations": 0,
+    "infrastructure_changes": false,
+    "estimated_files": 2,
+    "estimated_services": 1
+  },
+  "estimated_files": 2,
+  "estimated_services": 1,
+  "external_integrations": [],
+  "infrastructure_changes": false,
+  "phases_to_run": [
+    "discovery",
+    "historical_context",
+    "quick_spec",
+    "validation"
+  ],
+  "needs_research": false,
+  "needs_self_critique": false,
+  "created_at": "2026-02-02T14:59:08.258875"
+}

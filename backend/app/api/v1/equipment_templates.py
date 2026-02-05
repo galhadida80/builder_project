@@ -9,7 +9,11 @@ from app.models.equipment_submission import EquipmentSubmission
 from app.models.approval_decision import ApprovalDecision
 from app.models.equipment import ApprovalStatus
 from app.models.user import User
-from app.schemas.equipment_template import EquipmentTemplateCreate, EquipmentTemplateUpdate, EquipmentTemplateResponse
+from app.models.equipment_template import EquipmentTemplateConsultant, ConsultantType
+from app.schemas.equipment_template import (
+    EquipmentTemplateCreate, EquipmentTemplateUpdate,
+    EquipmentTemplateResponse, EquipmentTemplateWithConsultantsResponse, ConsultantTypeResponse
+)
 from app.schemas.equipment_submission import EquipmentSubmissionCreate, EquipmentSubmissionUpdate, EquipmentSubmissionResponse
 from app.schemas.approval_decision import ApprovalDecisionCreate, ApprovalDecisionResponse
 from app.services.audit_service import create_audit_log, get_model_dict
@@ -19,12 +23,31 @@ from app.core.security import get_current_user, get_current_admin_user
 router = APIRouter()
 
 
-@router.get("/equipment-templates", response_model=list[EquipmentTemplateResponse])
+@router.get("/equipment-templates", response_model=list[EquipmentTemplateWithConsultantsResponse])
 async def list_equipment_templates(db: AsyncSession = Depends(get_db)):
     result = await db.execute(
-        select(EquipmentTemplate).order_by(EquipmentTemplate.created_at.desc())
+        select(EquipmentTemplate)
+        .options(
+            selectinload(EquipmentTemplate.approving_consultants)
+            .selectinload(EquipmentTemplateConsultant.consultant_type)
+        )
+        .order_by(EquipmentTemplate.created_at.desc())
     )
-    return result.scalars().all()
+    templates = result.scalars().all()
+    response = []
+    for tpl in templates:
+        base = EquipmentTemplateResponse.model_validate(tpl)
+        consultants = [
+            ConsultantTypeResponse.model_validate(tc.consultant_type)
+            for tc in tpl.approving_consultants
+            if tc.consultant_type
+        ]
+        data = EquipmentTemplateWithConsultantsResponse(
+            **base.model_dump(),
+            approving_consultants=consultants,
+        )
+        response.append(data)
+    return response
 
 
 @router.post("/equipment-templates", response_model=EquipmentTemplateResponse, status_code=201)

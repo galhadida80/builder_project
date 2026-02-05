@@ -1,0 +1,32 @@
+{
+  "complexity": "complex",
+  "confidence": 0.85,
+  "reasoning": "0 integrations, 1 services, 15 files",
+  "signals": {
+    "simple_keywords": 0,
+    "complex_keywords": 1,
+    "multi_service_keywords": 0,
+    "external_integrations": 0,
+    "infrastructure_changes": false,
+    "estimated_files": 15,
+    "estimated_services": 1
+  },
+  "estimated_files": 15,
+  "estimated_services": 1,
+  "external_integrations": [],
+  "infrastructure_changes": false,
+  "phases_to_run": [
+    "discovery",
+    "historical_context",
+    "requirements",
+    "research",
+    "context",
+    "spec_writing",
+    "self_critique",
+    "planning",
+    "validation"
+  ],
+  "needs_research": false,
+  "needs_self_critique": false,
+  "created_at": "2026-02-02T14:44:54.010558"
+}

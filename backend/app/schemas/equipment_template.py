@@ -70,9 +70,9 @@ class EquipmentTemplateBase(BaseModel):
     name_he: str = Field(min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
     category: str | None = Field(default=None, max_length=MAX_NAME_LENGTH)
     description: str | None = Field(default=None, max_length=MAX_DESCRIPTION_LENGTH)
-    documents: list[DocumentDefinition] = Field(default=[], max_length=100)
-    specifications: list[SpecificationDefinition] = Field(default=[], max_length=100)
-    checklist_items: list[ChecklistItemDefinition] = Field(default=[], max_length=100)
+    required_documents: list[DocumentDefinition] = Field(default=[], max_length=100)
+    required_specifications: list[SpecificationDefinition] = Field(default=[], max_length=100)
+    submission_checklist: list[ChecklistItemDefinition] = Field(default=[], max_length=100)
 
     @field_validator('name', 'name_he', 'category', 'description', mode='before')
     @classmethod
@@ -89,14 +89,52 @@ class EquipmentTemplateUpdate(BaseModel):
     name_he: str | None = Field(default=None, min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
     category: str | None = Field(default=None, max_length=MAX_NAME_LENGTH)
     description: str | None = Field(default=None, max_length=MAX_DESCRIPTION_LENGTH)
-    documents: list[DocumentDefinition] | None = Field(default=None, max_length=100)
-    specifications: list[SpecificationDefinition] | None = Field(default=None, max_length=100)
-    checklist_items: list[ChecklistItemDefinition] | None = Field(default=None, max_length=100)
+    required_documents: list[DocumentDefinition] | None = Field(default=None, max_length=100)
+    required_specifications: list[SpecificationDefinition] | None = Field(default=None, max_length=100)
+    submission_checklist: list[ChecklistItemDefinition] | None = Field(default=None, max_length=100)
 
     @field_validator('name', 'name_he', 'category', 'description', mode='before')
     @classmethod
     def sanitize_text(cls, v: str | None) -> str | None:
         return sanitize_string(v)
+
+
+class ConsultantTypeBase(BaseModel):
+    name: str = Field(min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
+    name_he: str = Field(min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
+    category: str = Field(min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
+
+    @field_validator('name', 'name_he', 'category', mode='before')
+    @classmethod
+    def sanitize_text(cls, v: str | None) -> str | None:
+        return sanitize_string(v)
+
+
+class ConsultantTypeCreate(ConsultantTypeBase):
+    pass
+
+
+class ConsultantTypeUpdate(BaseModel):
+    name: str | None = Field(default=None, min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
+    name_he: str | None = Field(default=None, min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
+    category: str | None = Field(default=None, min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
+
+    @field_validator('name', 'name_he', 'category', mode='before')
+    @classmethod
+    def sanitize_text(cls, v: str | None) -> str | None:
+        return sanitize_string(v)
+
+
+class ConsultantTypeResponse(BaseModel):
+    id: UUID
+    name: str
+    name_he: str
+    category: str
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
 
 
 class EquipmentTemplateResponse(BaseModel):
@@ -105,15 +143,19 @@ class EquipmentTemplateResponse(BaseModel):
     name_he: str
     category: str | None = None
     description: str | None = None
-    documents: list[DocumentDefinition] = []
-    specifications: list[SpecificationDefinition] = []
-    checklist_items: list[ChecklistItemDefinition] = []
+    required_documents: list = Field(default=[])
+    required_specifications: list = Field(default=[])
+    submission_checklist: list = Field(default=[])
     created_at: datetime
     updated_at: datetime
     created_by: UserResponse | None = None
 
     class Config:
         from_attributes = True
+
+
+class EquipmentTemplateWithConsultantsResponse(EquipmentTemplateResponse):
+    approving_consultants: list[ConsultantTypeResponse] = []
 
 
 class EquipmentApprovalSubmissionBase(BaseModel):
@@ -171,17 +213,6 @@ class EquipmentApprovalDecisionResponse(BaseModel):
     decided_at: datetime
     decided_by: UserResponse | None = None
     created_at: datetime
-
-    class Config:
-        from_attributes = True
-
-
-class ConsultantTypeResponse(BaseModel):
-    id: UUID
-    name: str
-    name_he: str
-    created_at: datetime
-    updated_at: datetime
 
     class Config:
         from_attributes = True

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Optional
+
 from uuid import UUID
 from datetime import datetime
 from pydantic import BaseModel, Field, field_validator
@@ -9,8 +11,6 @@ from app.core.validators import (
     MIN_NAME_LENGTH, MAX_NAME_LENGTH, MAX_DESCRIPTION_LENGTH, MAX_NOTES_LENGTH,
     CamelCaseModel
 )
-
-
 class ActionItem(BaseModel):
     id: str = Field(max_length=100)
     description: str = Field(min_length=1, max_length=MAX_DESCRIPTION_LENGTH)
@@ -22,8 +22,6 @@ class ActionItem(BaseModel):
     @classmethod
     def sanitize_text(cls, v: str) -> str:
         return sanitize_string(v) or ''
-
-
 class MeetingAttendeeCreate(BaseModel):
     user_id: UUID
     role: Optional[str] = Field(default=None, max_length=100)
@@ -32,8 +30,6 @@ class MeetingAttendeeCreate(BaseModel):
     @classmethod
     def sanitize_text(cls, v: Optional[str]) -> Optional[str]:
         return sanitize_string(v)
-
-
 class MeetingAttendeeResponse(CamelCaseModel):
     id: UUID
     meeting_id: UUID
@@ -41,8 +37,6 @@ class MeetingAttendeeResponse(CamelCaseModel):
     user: Optional[UserResponse] = None
     role: Optional[str] = None
     confirmed: bool = False
-
-
 class MeetingBase(BaseModel):
     title: str = Field(min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
     description: Optional[str] = Field(default=None, max_length=MAX_DESCRIPTION_LENGTH)
@@ -55,12 +49,8 @@ class MeetingBase(BaseModel):
     @classmethod
     def sanitize_text(cls, v: Optional[str]) -> Optional[str]:
         return sanitize_string(v)
-
-
 class MeetingCreate(MeetingBase):
     pass
-
-
 class MeetingUpdate(BaseModel):
     title: Optional[str] = Field(default=None, min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
     description: Optional[str] = Field(default=None, max_length=MAX_DESCRIPTION_LENGTH)
@@ -76,8 +66,6 @@ class MeetingUpdate(BaseModel):
     @classmethod
     def sanitize_text(cls, v: Optional[str]) -> Optional[str]:
         return sanitize_string(v)
-
-
 class MeetingResponse(CamelCaseModel):
     id: UUID
     project_id: UUID

@@ -1,0 +1,71 @@
+{
+  "complexity": "standard",
+  "workflow_type": "feature",
+  "confidence": 0.85,
+  "reasoning": "Cross-cutting CSS migration affecting 15-30+ files, but follows well-documented pattern (CSS logical properties). No external integrations or infrastructure changes. High file count but clear, systematic approach.",
+
+  "analysis": {
+    "scope": {
+      "estimated_files": 25,
+      "estimated_services": 1,
+      "is_cross_cutting": true,
+      "notes": "Will touch CSS/styles across many components: layout components (nav, sidebars), form components, directional UI elements. Frontend-only change but widespread impact."
+    },
+    "integrations": {
+      "external_services": [],
+      "new_dependencies": [],
+      "research_needed": false,
+      "notes": "CSS logical properties are native browser features. No external APIs or libraries required. Well-documented standard approach."
+    },
+    "infrastructure": {
+      "docker_changes": false,
+      "database_changes": false,
+      "config_changes": true,
+      "notes": "May need minimal config for language/direction setting. No Docker or database impact. Purely frontend CSS and HTML attribute changes."
+    },
+    "knowledge": {
+      "patterns_exist": false,
+      "research_required": false,
+      "unfamiliar_tech": [],
+      "notes": "CSS logical properties are well-documented web standards. Pattern likely doesn't exist in current codebase, but approach is standard. Systematic migration from physical to logical properties."
+    },
+    "risk": {
+      "level": "medium",
+      "concerns": [
+        "Breaking existing LTR layouts during migration",
+        "Missing components that need RTL treatment",
+        "Icon/image assets that need horizontal flipping",
+        "Hardcoded LTR assumptions in JS/TS",
+        "Visual consistency between LTR and RTL modes"
+      ],
+      "notes": "Medium risk due to cross-cutting nature and potential for layout regressions. Requires thorough testing in both directions. Main risk is execution (missing files) not design (approach is standard)."
+    }
+  },
+
+  "recommended_phases": [
+    "discovery",
+    "requirements",
+    "context",
+    "spec_writing",
+    "planning",
+    "validation"
+  ],
+
+  "flags": {
+    "needs_research": false,
+    "needs_self_critique": false,
+    "needs_infrastructure_setup": false
+  },
+
+  "validation_recommendations": {
+    "risk_level": "medium",
+    "skip_validation": false,
+    "minimal_mode": false,
+    "test_types_required": ["unit", "integration", "e2e"],
+    "security_scan_required": false,
+    "staging_deployment_required": false,
+    "reasoning": "Cross-cutting CSS changes require comprehensive testing. E2E tests essential for verifying visual layouts in both LTR and RTL modes. No security implications."
+  },
+
+  "created_at": "2025-02-01T00:00:00Z"
+}

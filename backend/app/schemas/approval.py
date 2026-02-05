@@ -1,16 +1,14 @@
 from __future__ import annotations
 
+from typing import Optional
+
 from uuid import UUID
 from datetime import datetime
 from pydantic import BaseModel
 from app.schemas.user import UserResponse
 from app.core.validators import CamelCaseModel
-
-
 class ApprovalAction(BaseModel):
     comments: Optional[str] = None
-
-
 class ApprovalStepResponse(CamelCaseModel):
     id: UUID
     approval_request_id: UUID
@@ -21,9 +19,7 @@ class ApprovalStepResponse(CamelCaseModel):
     status: str
     comments: Optional[str] = None
     decided_at: Optional[datetime] = None
-    created_at: datetime
-
-
+    created_at: Optional[datetime] = None
 class ApprovalRequestResponse(CamelCaseModel):
     id: UUID
     project_id: UUID

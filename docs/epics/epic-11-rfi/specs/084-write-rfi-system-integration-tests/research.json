@@ -1,0 +1,432 @@
+{
+  "integrations_researched": [
+    {
+      "name": "Google Gmail API Client",
+      "type": "library",
+      "verified_package": {
+        "name": "google-api-python-client",
+        "install_command": "pip install google-api-python-client",
+        "version": ">=2.188.0",
+        "verified": true,
+        "status": "MISSING from requirements.txt but USED in code"
+      },
+      "api_patterns": {
+        "imports": [
+          "from googleapiclient.discovery import build"
+        ],
+        "initialization": "service = build('gmail', 'v1', credentials=credentials)",
+        "key_functions": [
+          "users().messages().send(userId='me', body={'raw': message})",
+          "users().messages().get(userId='me', id=message_id, format='full')",
+          "users().threads().get(userId='me', id=thread_id)",
+          "users().watch(userId='me', body={'labelIds': ['INBOX'], 'topicName': topic})",
+          "users().history().list(userId='me', startHistoryId=history_id)"
+        ],
+        "verified_against": "Official Google Workspace Gmail API documentation + Project code in gmail_service.py"
+      },
+      "configuration": {
+        "env_vars": [
+          "GOOGLE_SERVICE_ACCOUNT_FILE",
+          "RFI_EMAIL_ADDRESS"
+        ],
+        "config_files": ["Service account JSON credentials file"],
+        "dependencies": ["google-auth", "google-auth-httplib2"]
+      },
+      "infrastructure": {
+        "requires_docker": false,
+        "authentication": "Service account with domain-wide delegation"
+      },
+      "gotchas": [
+        "Library is in maintenance mode - no new features but actively maintained for security",
+        "Requires service account credentials with domain-wide delegation for Gmail API",
+        "Must use credentials.with_subject() to impersonate the email account",
+        "Gmail watch() requires Pub/Sub topic to be configured and accessible",
+        "Message content is base64url encoded, not standard base64"
+      ],
+      "research_sources": [
+        "https://github.com/googleapis/google-api-python-client",
+        "https://pypi.org/project/google-api-python-client/",
+        "https://developers.google.com/gmail/api/quickstart/python",
+        "Project file: backend/app/services/gmail_service.py"
+      ]
+    },
+    {
+      "name": "Google Auth Libraries",
+      "type": "library",
+      "verified_package": {
+        "name": "google-auth",
+        "install_command": "pip install google-auth google-auth-httplib2 google-auth-oauthlib",
+        "version": ">=2.38.0",
+        "verified": true,
+        "status": "MISSING from requirements.txt but USED in code"
+      },
+      "api_patterns": {
+        "imports": [
+          "from google.oauth2 import service_account"
+        ],
+        "initialization": "credentials = service_account.Credentials.from_service_account_file(file_path, scopes=SCOPES)",
+        "key_functions": [
+          "Credentials.from_service_account_file(filename, scopes=[])",
+          "credentials.with_subject(email_address)"
+        ],
+        "verified_against": "Official Google Auth documentation + Project code"
+      },
+      "configuration": {
+        "env_vars": ["GOOGLE_SERVICE_ACCOUNT_FILE"],
+        "dependencies": ["google-auth-httplib2", "google-auth-oauthlib"]
+      },
+      "gotchas": [
+        "httplib2 has known security issues - Google recommends alternatives but still supports it",
+        "Service account must have domain-wide delegation enabled in Google Workspace",
+        "with_subject() is required for Gmail API to impersonate a user"
+      ],
+      "research_sources": [
+        "https://pypi.org/project/google-auth/",
+        "https://google-auth.readthedocs.io/",
+        "https://pypi.org/project/google-auth-httplib2/"
+      ]
+    },
+    {
+      "name": "Google Cloud Pub/Sub",
+      "type": "library",
+      "verified_package": {
+        "name": "google-cloud-pubsub",
+        "install_command": "pip install google-cloud-pubsub",
+        "version": ">=2.34.0",
+        "verified": true,
+        "status": "MISSING from requirements.txt but NEEDED for RFI webhooks"
+      },
+      "api_patterns": {
+        "imports": [
+          "from google.cloud import pubsub_v1"
+        ],
+        "initialization": "publisher = pubsub_v1.PublisherClient()",
+        "key_functions": [
+          "publisher.publish(topic_path, data, **attributes)",
+          "subscriber.subscribe(subscription_path, callback)"
+        ],
+        "verified_against": "Official Google Cloud Pub/Sub documentation"
+      },
+      "configuration": {
+        "env_vars": [
+          "GOOGLE_PUBSUB_TOPIC",
+          "PUBSUB_EMULATOR_HOST (for testing)",
+          "PUBSUB_PROJECT_ID (for testing)"
+        ],
+        "dependencies": ["google-auth"]
+      },
+      "infrastructure": {
+        "requires_docker": false,
+        "testing_emulator": "Available - gcloud beta emulators pubsub start"
+      },
+      "gotchas": [
+        "Gmail watch notifications are sent as base64-encoded JSON in Pub/Sub messages",
+        "Pub/Sub messages must be acknowledged or they will be redelivered",
+        "For testing, use PUBSUB_EMULATOR_HOST environment variable to mock locally",
+        "Over 43 million downloads/month - highly stable and popular"
+      ],
+      "research_sources": [
+        "https://pypi.org/project/google-cloud-pubsub/",
+        "https://docs.cloud.google.com/python/docs/reference/pubsub/latest",
+        "https://cloud.google.com/pubsub/docs/emulator",
+        "Project file: backend/app/api/v1/webhooks.py"
+      ]
+    },
+    {
+      "name": "pytest and pytest-asyncio",
+      "type": "library",
+      "verified_package": {
+        "name": "pytest",
+        "install_command": "pip install pytest pytest-asyncio",
+        "version": "pytest>=8.0.0, pytest-asyncio>=0.23.5",
+        "verified": true,
+        "status": "ALREADY INSTALLED in requirements.txt"
+      },
+      "api_patterns": {
+        "imports": [
+          "import pytest",
+          "from httpx import AsyncClient, ASGITransport"
+        ],
+        "initialization": "@pytest.mark.asyncio decorator for async tests",
+        "key_functions": [
+          "@pytest.fixture(scope='function')",
+          "@pytest.mark.asyncio",
+          "async with AsyncClient(...) as client",
+          "await client.get/post/put/delete(...)"
+        ],
+        "verified_against": "Project's existing test suite in backend/tests/"
+      },
+      "configuration": {
+        "config_files": ["pytest.ini", "pyproject.toml"],
+        "pytest_settings": {
+          "asyncio_mode": "auto",
+          "asyncio_default_fixture_loop_scope": "session"
+        }
+      },
+      "gotchas": [
+        "AsyncClient requires ASGITransport for FastAPI apps",
+        "Database fixtures should use function scope to ensure clean state",
+        "Must use 'async with' context manager for AsyncClient",
+        "FastAPI dependency overrides must be cleared after each test"
+      ],
+      "research_sources": [
+        "https://pytest-asyncio.readthedocs.io/",
+        "https://fastapi.tiangolo.com/advanced/async-tests/",
+        "Project file: backend/tests/conftest.py"
+      ]
+    },
+    {
+      "name": "pytest-mock (unittest.mock)",
+      "type": "library",
+      "verified_package": {
+        "name": "pytest-mock",
+        "install_command": "pip install pytest-mock",
+        "version": ">=3.15.1",
+        "verified": true,
+        "status": "NOT INSTALLED - Recommended for mocking Gmail/Pub/Sub"
+      },
+      "api_patterns": {
+        "imports": [
+          "from unittest.mock import Mock, MagicMock, patch, AsyncMock"
+        ],
+        "initialization": "Use mocker fixture in test functions",
+        "key_functions": [
+          "mocker.patch('module.path.ClassName')",
+          "mocker.patch.object(obj, 'method_name')",
+          "mock.return_value = value",
+          "mock.side_effect = [value1, value2]",
+          "mock.assert_called_once_with(...)"
+        ],
+        "verified_against": "pytest-mock official documentation + common Python testing patterns"
+      },
+      "configuration": {
+        "dependencies": ["pytest"],
+        "installation_note": "Can use built-in unittest.mock without installing pytest-mock"
+      },
+      "gotchas": [
+        "unittest.mock is built-in to Python - no installation needed",
+        "pytest-mock provides cleaner fixture-based interface",
+        "Use AsyncMock for async methods (Python 3.8+)",
+        "Mock patches are automatically undone after test completion",
+        "For Gmail API mocking, must patch the 'build' function and service methods"
+      ],
+      "research_sources": [
+        "https://pytest-mock.readthedocs.io/",
+        "https://docs.python.org/3/library/unittest.mock.html",
+        "https://pytest-with-eric.com/mocking/pytest-mocking/"
+      ]
+    },
+    {
+      "name": "FastAPI TestClient / httpx AsyncClient",
+      "type": "library",
+      "verified_package": {
+        "name": "httpx",
+        "install_command": "pip install httpx",
+        "version": ">=0.26.0",
+        "verified": true,
+        "status": "ALREADY INSTALLED (via FastAPI dependency)"
+      },
+      "api_patterns": {
+        "imports": [
+          "from httpx import AsyncClient, ASGITransport"
+        ],
+        "initialization": "async with AsyncClient(transport=ASGITransport(app=app), base_url='http://test') as client",
+        "key_functions": [
+          "await client.get(url, headers={}, params={})",
+          "await client.post(url, json={}, headers={})",
+          "await client.put(url, json={})",
+          "await client.delete(url)",
+          "response.status_code",
+          "response.json()"
+        ],
+        "verified_against": "Project's existing test files + FastAPI documentation"
+      },
+      "configuration": {
+        "dependencies": ["fastapi"],
+        "pattern": "Use dependency_overrides to inject test database and mock authentication"
+      },
+      "gotchas": [
+        "Must use AsyncClient (not TestClient) for async FastAPI routes",
+        "ASGITransport is required for FastAPI integration",
+        "Always use context manager (async with) to ensure proper cleanup",
+        "Dependency overrides must be cleared after each test to avoid pollution"
+      ],
+      "research_sources": [
+        "https://fastapi.tiangolo.com/advanced/async-tests/",
+        "https://www.httpx.org/",
+        "Project file: backend/tests/conftest.py"
+      ]
+    },
+    {
+      "name": "Python Email and MIME Libraries",
+      "type": "library",
+      "verified_package": {
+        "name": "email (standard library)",
+        "install_command": "Built-in - no installation needed",
+        "version": "Python 3.13+",
+        "verified": true,
+        "status": "ALREADY IN USE - Python standard library"
+      },
+      "api_patterns": {
+        "imports": [
+          "import base64",
+          "from email.mime.text import MIMEText",
+          "from email.mime.multipart import MIMEMultipart",
+          "from email.mime.base import MIMEBase",
+          "from email import encoders",
+          "from email.utils import parseaddr"
+        ],
+        "initialization": "message = MIMEMultipart('mixed')",
+        "key_functions": [
+          "MIMEText(content, 'html')",
+          "message.attach(part)",
+          "base64.urlsafe_b64encode(message.as_bytes())",
+          "parseaddr(email_string)",
+          "message['To'], message['From'], message['Subject']"
+        ],
+        "verified_against": "Project's existing email parsing code + Python documentation"
+      },
+      "gotchas": [
+        "Gmail API uses base64url encoding (urlsafe_b64encode), not standard base64",
+        "Must decode payload data from Gmail messages before parsing",
+        "Email headers are case-insensitive but returned in original case",
+        "Multipart messages require recursive parsing for nested parts"
+      ],
+      "research_sources": [
+        "https://docs.python.org/3/library/email.mime.html",
+        "https://docs.python.org/3/library/email.parser.html",
+        "Project file: backend/app/services/rfi_email_parser.py"
+      ]
+    },
+    {
+      "name": "SQLAlchemy Async with SQLite",
+      "type": "library",
+      "verified_package": {
+        "name": "sqlalchemy",
+        "install_command": "pip install sqlalchemy aiosqlite",
+        "version": "sqlalchemy>=2.0.25, aiosqlite>=0.19.0",
+        "verified": true,
+        "status": "ALREADY INSTALLED in requirements.txt"
+      },
+      "api_patterns": {
+        "imports": [
+          "from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker",
+          "from sqlalchemy.pool import StaticPool"
+        ],
+        "initialization": "engine = create_async_engine('sqlite+aiosqlite:///:memory:', poolclass=StaticPool)",
+        "key_functions": [
+          "async with engine.begin() as conn: await conn.run_sync(Base.metadata.create_all)",
+          "async with session_maker() as session: ...",
+          "await db.commit(), await db.rollback()",
+          "await db.execute(select(Model).where(...))"
+        ],
+        "verified_against": "Project's test database configuration"
+      },
+      "configuration": {
+        "test_database": "sqlite+aiosqlite:///:memory:",
+        "pool_settings": "StaticPool for in-memory SQLite",
+        "session_settings": "expire_on_commit=False for testing"
+      },
+      "gotchas": [
+        "SQLite in-memory database is destroyed when connection closes",
+        "StaticPool required for in-memory SQLite with multiple connections",
+        "Must set check_same_thread=False for SQLite async",
+        "Tables must be created/dropped for each test function",
+        "Production uses PostgreSQL but tests use SQLite - some SQL differences may exist"
+      ],
+      "research_sources": [
+        "https://docs.sqlalchemy.org/en/20/orm/extensions/asyncio.html",
+        "Project file: backend/tests/conftest.py"
+      ]
+    },
+    {
+      "name": "Factory Boy / Faker (Optional)",
+      "type": "library",
+      "verified_package": {
+        "name": "factory-boy",
+        "install_command": "pip install factory-boy faker pytest-factoryboy",
+        "version": ">=3.3.0",
+        "verified": true,
+        "status": "NOT INSTALLED - Optional for test data generation"
+      },
+      "api_patterns": {
+        "imports": [
+          "import factory",
+          "from factory import Factory, SubFactory, Faker"
+        ],
+        "initialization": "class ModelFactory(factory.Factory): class Meta: model = Model",
+        "key_functions": [
+          "factory.Faker('email')",
+          "factory.SubFactory(OtherFactory)",
+          "ModelFactory.create()",
+          "ModelFactory.build()"
+        ],
+        "verified_against": "factory-boy documentation"
+      },
+      "configuration": {
+        "optional": true,
+        "alternative": "Current project uses pytest fixtures directly"
+      },
+      "gotchas": [
+        "Not required - project already uses pytest fixtures pattern",
+        "Useful for generating large amounts of test data",
+        "Integrates with Faker for realistic test data",
+        "pytest-factoryboy provides automatic fixture registration"
+      ],
+      "research_sources": [
+        "https://factoryboy.readthedocs.io/",
+        "https://github.com/pytest-dev/pytest-factoryboy"
+      ]
+    }
+  ],
+  "unverified_claims": [
+    {
+      "claim": "Gmail API and Pub/Sub libraries are installed",
+      "reason": "google-api-python-client, google-auth, google-auth-httplib2, and google-cloud-pubsub are NOT in requirements.txt but ARE used in code (gmail_service.py, webhooks.py)",
+      "risk_level": "high",
+      "action_required": "Add these packages to requirements.txt before writing tests"
+    }
+  ],
+  "recommendations": [
+    "Add missing Google API packages to requirements.txt: google-api-python-client, google-auth, google-auth-httplib2, google-cloud-pubsub",
+    "Consider adding pytest-mock for cleaner mocking syntax (optional - unittest.mock works fine)",
+    "Use unittest.mock to mock Gmail API and Pub/Sub services - no need for actual API calls in integration tests",
+    "Create sample email fixtures (JSON files) with realistic Gmail API message payloads for email parsing tests",
+    "Follow existing test patterns in backend/tests/integration/ for consistency",
+    "Use FastAPI dependency overrides to inject mocked Gmail and Pub/Sub services",
+    "Create fixtures for RFI test data following the pattern in conftest.py",
+    "Mock the entire GmailService class rather than individual API calls for cleaner tests",
+    "Test RFI matching logic with various email thread scenarios (thread_id, In-Reply-To, subject matching)",
+    "Verify all RFI status transitions in integration tests",
+    "Test webhook processing with sample Pub/Sub message payloads",
+    "Consider using Pub/Sub emulator for more realistic webhook testing (optional)"
+  ],
+  "testing_strategy": {
+    "mocking_approach": "Mock external services at the service layer",
+    "services_to_mock": [
+      "GmailService (gmail_service.py)",
+      "Pub/Sub webhook processing"
+    ],
+    "fixture_needs": [
+      "Sample Gmail API message payloads (JSON)",
+      "Sample Pub/Sub notification payloads",
+      "RFI test data with various states",
+      "Email thread scenarios for matching tests"
+    ],
+    "test_organization": {
+      "location": "backend/tests/integration/test_rfi_system.py",
+      "fixtures_location": "backend/tests/fixtures/rfi_emails.json",
+      "pattern": "Follow existing integration test patterns"
+    }
+  },
+  "existing_project_patterns": {
+    "test_framework": "pytest with pytest-asyncio",
+    "test_database": "SQLite in-memory with StaticPool",
+    "http_client": "httpx AsyncClient with ASGITransport",
+    "fixture_pattern": "Function-scoped fixtures in conftest.py",
+    "authentication_mocking": "Override get_current_user dependency",
+    "test_structure": "Class-based test organization with descriptive test names",
+    "assertion_style": "Direct assertions with meaningful error messages"
+  },
+  "created_at": "2026-02-02T10:30:00Z"
+}

@@ -1,0 +1,50 @@
+{
+  "task_description": "Build Offline Mode Interface - Offline banner, sync status - Ref: 30-offline-mode.png (Linear Issue: BUI-83)",
+  "scoped_services": ["frontend"],
+  "files_to_modify": [
+    "frontend/src/main.tsx",
+    "frontend/src/components/layout/Layout.tsx",
+    "frontend/src/components/layout/Header.tsx"
+  ],
+  "files_to_create": [
+    "frontend/src/hooks/useNetworkStatus.ts",
+    "frontend/src/contexts/NetworkContext.tsx",
+    "frontend/src/components/common/OfflineBanner.tsx",
+    "frontend/src/components/common/SyncStatus.tsx"
+  ],
+  "files_to_reference": [
+    "frontend/src/components/common/ToastProvider.tsx",
+    "frontend/src/theme/ThemeContext.tsx",
+    "frontend/src/hooks/useLanguage.ts",
+    "frontend/src/components/layout/Layout.tsx",
+    "frontend/src/main.tsx",
+    "frontend/src/api/client.ts",
+    "frontend/src/theme/theme.ts"
+  ],
+  "patterns": {
+    "context_provider": "Use createContext + useState + useEffect pattern from ThemeContext.tsx",
+    "custom_hook": "Follow useLanguage.ts structure for hook with side effects",
+    "toast_notification": "Reference ToastProvider.tsx for MUI Snackbar + Alert pattern",
+    "styling": "Use MUI styled API with Emotion, leverage theme values",
+    "integration": "Add providers to main.tsx similar to ThemeProvider and ToastProvider"
+  },
+  "existing_implementations": {
+    "description": "No existing offline detection found. Project uses MUI + Emotion for styling, context providers for global state management, and custom hooks for reusable logic.",
+    "relevant_files": [
+      "frontend/src/components/common/ToastProvider.tsx",
+      "frontend/src/theme/ThemeContext.tsx",
+      "frontend/src/hooks/useLanguage.ts"
+    ]
+  },
+  "tech_stack": {
+    "framework": "React 18",
+    "language": "TypeScript",
+    "build_tool": "Vite",
+    "ui_library": "Material-UI (MUI) v5.15.6",
+    "styling": "Emotion (CSS-in-JS)",
+    "http_client": "Axios",
+    "router": "React Router v6"
+  },
+  "created_at": "2026-02-01T01:19:14.187644",
+  "updated_at": "2026-02-01T02:00:00.000000"
+}

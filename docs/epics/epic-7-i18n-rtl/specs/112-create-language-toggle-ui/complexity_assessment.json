@@ -1,0 +1,70 @@
+{
+  "complexity": "standard",
+  "workflow_type": "feature",
+  "confidence": 0.85,
+  "reasoning": "Well-defined UI component with state persistence. Scope is contained to frontend (3-5 files, single service). No external integrations or infrastructure changes. May need to integrate with existing i18n system patterns.",
+
+  "analysis": {
+    "scope": {
+      "estimated_files": 4,
+      "estimated_services": 1,
+      "is_cross_cutting": false,
+      "notes": "Toggle component file, persistence logic (hook or utility), styles, and possible i18n integration point. Localized to UI layer."
+    },
+    "integrations": {
+      "external_services": [],
+      "new_dependencies": [],
+      "research_needed": false,
+      "notes": "No external APIs or services. Likely uses existing i18n library (react-i18next, next-i18n, etc). Persistence via browser storage (localStorage/cookies)."
+    },
+    "infrastructure": {
+      "docker_changes": false,
+      "database_changes": false,
+      "config_changes": false,
+      "notes": "Client-side only feature. No backend infrastructure needed. Possible minor config for default language setting."
+    },
+    "knowledge": {
+      "patterns_exist": true,
+      "research_required": false,
+      "unfamiliar_tech": [],
+      "notes": "Standard patterns for toggle components and localStorage persistence. Need to discover existing i18n implementation to ensure consistent integration."
+    },
+    "risk": {
+      "level": "low",
+      "concerns": [
+        "Integration with existing i18n system",
+        "Accessibility requirements (ARIA labels, keyboard navigation)",
+        "Persistence edge cases (storage cleared, different browsers)",
+        "Default language selection logic"
+      ],
+      "notes": "Well-scoped UI feature with clear boundaries. Main risk is ensuring smooth integration with existing internationalization setup."
+    }
+  },
+
+  "recommended_phases": [
+    "discovery",
+    "requirements",
+    "context",
+    "spec_writing",
+    "planning",
+    "validation"
+  ],
+
+  "flags": {
+    "needs_research": false,
+    "needs_self_critique": false,
+    "needs_infrastructure_setup": false
+  },
+
+  "validation_recommendations": {
+    "risk_level": "low",
+    "skip_validation": false,
+    "minimal_mode": true,
+    "test_types_required": ["unit"],
+    "security_scan_required": false,
+    "staging_deployment_required": false,
+    "reasoning": "Single service UI component with no database, API, or security-sensitive changes. Minimal validation with unit tests for component logic and persistence behavior is sufficient."
+  },
+
+  "created_at": "2026-02-01T12:00:00Z"
+}

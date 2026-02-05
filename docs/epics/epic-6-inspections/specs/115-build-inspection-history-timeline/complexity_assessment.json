@@ -1,0 +1,69 @@
+{
+  "complexity": "standard",
+  "workflow_type": "feature",
+  "confidence": 0.85,
+  "reasoning": "New UI component and API endpoint following existing patterns. Touches both frontend and backend (2 services), estimated 6-8 files. No external integrations or infrastructure changes. Similar timeline pattern exists in AuditLogPage.",
+
+  "analysis": {
+    "scope": {
+      "estimated_files": 7,
+      "estimated_services": 2,
+      "is_cross_cutting": false,
+      "notes": "Frontend: Timeline component, InspectionHistoryPage/route, API integration. Backend: New endpoint to fetch inspection history with user/type details."
+    },
+    "integrations": {
+      "external_services": [],
+      "new_dependencies": [],
+      "research_needed": false,
+      "notes": "Using existing Material UI components. No new packages required. All patterns exist in codebase."
+    },
+    "infrastructure": {
+      "docker_changes": false,
+      "database_changes": false,
+      "config_changes": false,
+      "notes": "Existing Inspection table has all required data. No schema changes needed. No environment variables required."
+    },
+    "knowledge": {
+      "patterns_exist": true,
+      "research_required": false,
+      "unfamiliar_tech": [],
+      "notes": "AuditLogPage demonstrates similar timeline/history UI pattern. API patterns well-established in inspections.ts. MUI components already in use."
+    },
+    "risk": {
+      "level": "medium",
+      "concerns": [
+        "API endpoint needs to join inspections with users and consultant types",
+        "Timeline component should be reusable for future features",
+        "Date filtering logic needs proper implementation"
+      ],
+      "notes": "Well-defined scope with clear design reference. No breaking changes. Low risk of impacting existing features."
+    }
+  },
+
+  "recommended_phases": [
+    "discovery",
+    "requirements",
+    "context",
+    "spec_writing",
+    "planning",
+    "validation"
+  ],
+
+  "flags": {
+    "needs_research": false,
+    "needs_self_critique": false,
+    "needs_infrastructure_setup": false
+  },
+
+  "validation_recommendations": {
+    "risk_level": "medium",
+    "skip_validation": false,
+    "minimal_mode": false,
+    "test_types_required": ["unit", "integration"],
+    "security_scan_required": false,
+    "staging_deployment_required": false,
+    "reasoning": "New API endpoint and UI component require testing. Unit tests for component logic and timeline formatting. Integration tests for API endpoint. No security-sensitive operations involved."
+  },
+
+  "created_at": "2026-02-01T01:18:45Z"
+}

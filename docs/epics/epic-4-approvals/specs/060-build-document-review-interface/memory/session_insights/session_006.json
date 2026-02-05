@@ -1,0 +1,179 @@
+{
+  "session_number": 6,
+  "timestamp": "2026-02-04T22:49:52.064899+00:00",
+  "subtasks_completed": [
+    "subtask-4-1"
+  ],
+  "discoveries": {
+    "file_insights": [
+      {
+        "file_path": "frontend/src/components/DocumentReviewPanel/DocumentViewer.tsx",
+        "file_type": "TypeScript React Component",
+        "changes": "New file creation",
+        "lines_of_code": 264,
+        "key_features": [
+          "Multi-format document viewer (PDF, images, unsupported types)",
+          "Zoom controls (0.5x to 3x with 0.25 increments)",
+          "Document rotation (90-degree increments)",
+          "Fit-to-screen functionality",
+          "Download and print capabilities",
+          "Loading state with skeleton screens",
+          "Toolbar with document controls"
+        ],
+        "dependencies": [
+          "@mui/material (Box, Paper, IconButton, Toolbar, Typography, Skeleton)",
+          "@mui/material/styles (styled)",
+          "@mui/icons-material (ZoomInIcon, ZoomOutIcon, DownloadIcon, PrintIcon, RotateRightIcon, FitScreenIcon)",
+          "React (useState, useRef, useEffect)"
+        ],
+        "accessibility_considerations": [
+          "IconButton title attributes for hover tooltips",
+          "Disabled state management for controls based on content type",
+          "Semantic HTML structure",
+          "Proper alt text for images"
+        ]
+      }
+    ],
+    "patterns_discovered": [
+      {
+        "pattern_name": "Styled Components with MUI",
+        "description": "Uses MUI's styled() API to create custom styled components (ViewerContainer, StyledToolbar, ViewerContent, DocumentCanvas, StyledImage, StyledIframe) with theme integration",
+        "benefit": "Consistent theming, type safety, and encapsulated component styling"
+      },
+      {
+        "pattern_name": "Document Type Detection",
+        "description": "Dual approach to document type detection: explicit type prop and file extension regex matching",
+        "code_example": "isImage = documentType === 'image' || /\\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(documentName)",
+        "benefit": "Flexible document type handling with fallback detection"
+      },
+      {
+        "pattern_name": "Controlled State Management",
+        "description": "Uses React hooks (useState, useRef, useEffect) for managing zoom, rotation, and fit-to-screen state",
+        "benefit": "Simple, predictable state management without external libraries"
+      },
+      {
+        "pattern_name": "Default Behavior with Override Pattern",
+        "description": "Download and print handlers check for callback props first, then fall back to default browser implementations",
+        "benefit": "Flexible component API allowing parent customization while providing sensible defaults"
+      },
+      {
+        "pattern_name": "Conditional Rendering Based on File Type",
+        "description": "Component renders different UI (img tag, iframe, or error message) based on document type",
+        "benefit": "Single component handles multiple document formats"
+      }
+    ],
+    "gotchas_discovered": [
+      {
+        "gotcha_name": "PDF Controls Disabled for Zoom/Rotate",
+        "description": "Zoom, rotate, and fit-to-screen controls are disabled (disabled={isPdf}) for PDF documents, but the UI doesn't visually communicate why",
+        "impact": "Users may be confused about why controls are unavailable for PDFs",
+        "mitigation": "Could add tooltips explaining that PDF controls are handled by browser/PDF viewer"
+      },
+      {
+        "gotcha_name": "Transform Applied to Image Scaling",
+        "description": "Image zoom and rotation use CSS transforms on DocumentCanvas, which may not work properly with extremely large images or cause performance issues",
+        "impact": "Potential performance degradation with large image files",
+        "mitigation": "Consider canvas-based rendering or webGL for better performance with large images"
+      },
+      {
+        "gotcha_name": "PDF Rendering Method",
+        "description": "PDFs are rendered using an iframe with PDF.js parameters, but this relies on browser's PDF.js support which may have security implications",
+        "impact": "Cross-origin PDF loading may fail due to CORS, and security headers could block embedding",
+        "mitigation": "May need CORS headers configured on backend, or use dedicated PDF library like react-pdf"
+      },
+      {
+        "gotcha_name": "Print Window Timing",
+        "description": "Default print behavior opens new window and calls print() on load, but timing may be unreliable for large PDFs",
+        "impact": "Print dialog might appear before PDF is fully loaded",
+        "mitigation": "Could add error handling or timeout for print operation"
+      },
+      {
+        "gotcha_name": "No Error Handling for Failed Document Loads",
+        "description": "Component doesn't handle cases where document URL fails to load (404, network error, etc.)",
+        "impact": "Users may see blank viewer or iframe errors without feedback",
+        "mitigation": "Add error state and error callback prop"
+      }
+    ],
+    "approach_outcome": {
+      "status": "SUCCESS",
+      "summary": "Successfully created a comprehensive DocumentViewer component that supports PDF and image formats with a professional UI and feature-rich toolbar",
+      "key_accomplishments": [
+        "Implemented multi-format document viewing (PDF via iframe, images via img tag)",
+        "Created intuitive zoom controls with percentage display",
+        "Added document rotation capability for images",
+        "Implemented fit-to-screen functionality to reset view",
+        "Provided download and print functionality with customizable callbacks",
+        "Created loading state with skeleton screens",
+        "Used styled-components pattern for consistent theming",
+        "Properly disabled image-specific controls for PDFs"
+      ],
+      "architectural_decisions": [
+        "Used MUI styled() for component styling to match existing design system",
+        "Chose iframe for PDF rendering as lightweight browser-native solution",
+        "Implemented state-based zoom/rotation for reactive UI updates",
+        "Used prop-based configuration for flexibility"
+      ]
+    },
+    "recommendations": [
+      {
+        "category": "Error Handling",
+        "recommendation": "Add error state and error callback to handle failed document loads gracefully",
+        "priority": "HIGH",
+        "effort": "MEDIUM"
+      },
+      {
+        "category": "Security",
+        "recommendation": "Validate documentUrl to prevent XSS attacks and verify CORS headers for PDF embedding",
+        "priority": "HIGH",
+        "effort": "MEDIUM"
+      },
+      {
+        "category": "Performance",
+        "recommendation": "Consider replacing CSS transforms with canvas-based rendering for zoom/rotation of large images",
+        "priority": "MEDIUM",
+        "effort": "HIGH"
+      },
+      {
+        "category": "PDF Handling",
+        "recommendation": "Evaluate using dedicated PDF library (react-pdf, PDF.js) instead of iframe for better control and compatibility",
+        "priority": "MEDIUM",
+        "effort": "HIGH"
+      },
+      {
+        "category": "User Experience",
+        "recommendation": "Add keyboard shortcuts (e.g., +/- for zoom, R for rotate, arrow keys for page navigation)",
+        "priority": "LOW",
+        "effort": "MEDIUM"
+      },
+      {
+        "category": "Documentation",
+        "recommendation": "Add JSDoc comments documenting the component props, limitations (e.g., PDF controls disabled), and browser compatibility notes",
+        "priority": "LOW",
+        "effort": "LOW"
+      },
+      {
+        "category": "Testing",
+        "recommendation": "Create unit tests for zoom/rotation state management and integration tests for download/print functionality",
+        "priority": "MEDIUM",
+        "effort": "MEDIUM"
+      },
+      {
+        "category": "Accessibility",
+        "recommendation": "Add ARIA labels for icon buttons and consider keyboard navigation support for toolbar controls",
+        "priority": "MEDIUM",
+        "effort": "MEDIUM"
+      }
+    ],
+    "subtask_id": "subtask-4-1",
+    "session_num": 6,
+    "success": true,
+    "changed_files": [
+      "frontend/src/components/DocumentReviewPanel/DocumentViewer.tsx"
+    ]
+  },
+  "what_worked": [
+    "Implemented subtask: subtask-4-1"
+  ],
+  "what_failed": [],
+  "recommendations_for_next_session": []
+}

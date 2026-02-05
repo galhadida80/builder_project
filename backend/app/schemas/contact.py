@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Optional
+
 from uuid import UUID
 from datetime import datetime
 from pydantic import BaseModel, EmailStr, Field, field_validator
@@ -8,8 +10,6 @@ from app.core.validators import (
     MIN_NAME_LENGTH, MAX_NAME_LENGTH, MAX_PHONE_LENGTH, MAX_DESCRIPTION_LENGTH,
     CamelCaseModel
 )
-
-
 class ContactBase(BaseModel):
     contact_type: str = Field(min_length=1, max_length=50)
     company_name: Optional[str] = Field(default=None, max_length=MAX_NAME_LENGTH)
@@ -28,12 +28,8 @@ class ContactBase(BaseModel):
     @classmethod
     def validate_phone_format(cls, v: Optional[str]) -> Optional[str]:
         return validate_phone(v)
-
-
 class ContactCreate(ContactBase):
     pass
-
-
 class ContactUpdate(BaseModel):
     contact_type: Optional[str] = Field(default=None, min_length=1, max_length=50)
     company_name: Optional[str] = Field(default=None, max_length=MAX_NAME_LENGTH)
@@ -52,8 +48,6 @@ class ContactUpdate(BaseModel):
     @classmethod
     def validate_phone_format(cls, v: Optional[str]) -> Optional[str]:
         return validate_phone(v)
-
-
 class ContactResponse(CamelCaseModel):
     id: UUID
     project_id: UUID

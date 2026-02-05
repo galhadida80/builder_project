@@ -1,0 +1,93 @@
+{
+  "subtasks": {
+    "subtask-1-1": {
+      "attempts": [
+        {
+          "session": 1,
+          "timestamp": "2026-01-29T01:30:16.055708",
+          "approach": "Implemented: Create inspection_template.py with InspectionConsultantTypeResponse schema",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-1-2": {
+      "attempts": [
+        {
+          "session": 2,
+          "timestamp": "2026-01-29T01:32:42.816759",
+          "approach": "Implemented: Add InspectionStageTemplate CRUD schemas (Base/Create/Update/Response)",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-1-3": {
+      "attempts": [
+        {
+          "session": 3,
+          "timestamp": "2026-01-29T01:35:26.988743",
+          "approach": "Implemented: Add ProjectInspection schemas (Create/Update/Response)",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-1-4": {
+      "attempts": [
+        {
+          "session": 4,
+          "timestamp": "2026-01-29T01:37:58.001342",
+          "approach": "Implemented: Add InspectionFinding schemas (Create/Update/Response)",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-1-5": {
+      "attempts": [
+        {
+          "session": 5,
+          "timestamp": "2026-01-29T01:39:31.127008",
+          "approach": "Implemented: Add nested response models (InspectionConsultantTypeWithStages, ProjectInspectionWithFindings)",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-1-6": {
+      "attempts": [
+        {
+          "session": 6,
+          "timestamp": "2026-01-29T01:41:16.502927",
+          "approach": "Implemented: Add inspection schema imports to backend/app/schemas/__init__.py",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-2-1": {
+      "attempts": [
+        {
+          "session": 7,
+          "timestamp": "2026-01-29T01:45:32.749245",
+          "approach": "Implemented: Verify all schemas import and validate correctly",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    }
+  },
+  "stuck_subtasks": [],
+  "metadata": {
+    "created_at": "2026-01-29T01:28:09.643154",
+    "last_updated": "2026-01-29T01:45:32.749284"
+  }
+}

@@ -1,0 +1,677 @@
+{
+  "integrations_researched": [
+    {
+      "name": "@use-gesture/react",
+      "type": "library",
+      "category": "gesture-detection",
+      "verified_package": {
+        "name": "@use-gesture/react",
+        "install_command": "npm install @use-gesture/react",
+        "version": "latest",
+        "verified": true,
+        "note": "Modern replacement for deprecated react-use-gesture"
+      },
+      "api_patterns": {
+        "imports": [
+          "import { useDrag } from '@use-gesture/react'",
+          "import { usePinch } from '@use-gesture/react'",
+          "import { useWheel } from '@use-gesture/react'",
+          "import { useScroll } from '@use-gesture/react'",
+          "import { useHover } from '@use-gesture/react'"
+        ],
+        "key_functions": [
+          "useDrag({ down, movement, offset, velocity, direction, distance, cancel })",
+          "usePinch({ offset, scale, angle, origin })",
+          "useWheel({ movement, velocity, direction })",
+          "useScroll({ offset, direction })",
+          "useHover({ hovering })"
+        ],
+        "initialization": "const bind = useDrag(({ down, movement }) => { /* handle drag */ }); return <div {...bind()}>Drag me</div>",
+        "verified_against": "https://use-gesture.netlify.app/docs/, npm registry"
+      },
+      "configuration": {
+        "required_props": ["gesture handler function"],
+        "css_requirements": [
+          "Set touch-action: none or touch-action: manipulation on draggable elements to prevent browser defaults"
+        ],
+        "dependencies": []
+      },
+      "features": {
+        "supported_gestures": [
+          "Drag (mouse, touch, pen)",
+          "Pinch (multi-touch zoom)",
+          "Hover",
+          "Move",
+          "Scroll",
+          "Wheel"
+        ],
+        "multi_touch": true,
+        "mobile_support": true
+      },
+      "browser_compatibility": {
+        "chrome": "Full support",
+        "firefox": "Full support",
+        "safari": "Full support",
+        "edge": "Full support",
+        "ios_safari": "Full support",
+        "android": "Full support"
+      },
+      "gotchas": [
+        "Must set CSS touch-action property to prevent browser scroll conflicts",
+        "Requires user activation for some features",
+        "Uses React hooks - requires React 16.8+",
+        "Performance can degrade with many simultaneous gestures"
+      ],
+      "research_sources": [
+        "https://use-gesture.netlify.app/docs/",
+        "https://www.npmjs.com/package/@use-gesture/react",
+        "https://github.com/pmndrs/use-gesture"
+      ]
+    },
+    {
+      "name": "hammerjs",
+      "type": "library",
+      "category": "gesture-detection",
+      "verified_package": {
+        "name": "hammerjs",
+        "install_command": "npm install hammerjs",
+        "version": ">=2.0.8",
+        "verified": true,
+        "alt_package_for_react": "react-hammerjs"
+      },
+      "api_patterns": {
+        "imports": [
+          "import Hammer from 'hammerjs'",
+          "// For React: import Hammer from 'react-hammerjs'"
+        ],
+        "key_functions": [
+          "new Hammer(element, options)",
+          "hammer.on('tap', handler)",
+          "hammer.on('pan', handler)",
+          "hammer.on('swipe', handler)",
+          "hammer.on('pinch', handler)",
+          "hammer.on('rotate', handler)",
+          "hammer.get('pan').set({ direction: Hammer.DIRECTION_ALL })"
+        ],
+        "initialization": "const hammer = new Hammer(domElement); hammer.on('pan', (ev) => { console.log(ev); });",
+        "verified_against": "https://hammerjs.github.io/, npm registry"
+      },
+      "configuration": {
+        "default_gestures": [
+          "Tap",
+          "Double Tap",
+          "Press",
+          "Pan"
+        ],
+        "optional_gestures": [
+          "Pinch (must be enabled)",
+          "Rotate (must be enabled)"
+        ],
+        "enable_pinch": "hammer.get('pinch').set({ enable: true })",
+        "enable_rotate": "hammer.get('rotate').set({ enable: true })",
+        "dependencies": []
+      },
+      "features": {
+        "bundle_size": "7.34 kB minified + gzipped",
+        "multi_touch": true,
+        "mobile_support": true,
+        "requires_dependencies": false
+      },
+      "browser_compatibility": {
+        "chrome": "Full support",
+        "firefox": "Full support",
+        "safari": "Full support",
+        "edge": "Full support",
+        "ios_safari": "Full support",
+        "android": "Full support"
+      },
+      "gotchas": [
+        "Pinch and rotate are disabled by default - must explicitly enable",
+        "For React integration, consider using react-hammerjs wrapper",
+        "Must properly clean up event listeners on unmount",
+        "Touch events may interfere with scrolling if not configured properly"
+      ],
+      "typescript_support": {
+        "available": true,
+        "package": "@types/hammerjs"
+      },
+      "research_sources": [
+        "https://hammerjs.github.io/",
+        "https://github.com/hammerjs/hammer.js",
+        "https://www.npmjs.com/package/hammerjs",
+        "https://www.npmjs.com/package/@types/hammerjs"
+      ]
+    },
+    {
+      "name": "framer-motion",
+      "type": "library",
+      "category": "gesture-detection-and-animation",
+      "verified_package": {
+        "name": "framer-motion",
+        "install_command": "npm install framer-motion",
+        "version": "latest",
+        "verified": true,
+        "note": "Project already uses this for animations"
+      },
+      "api_patterns": {
+        "imports": [
+          "import { motion } from 'framer-motion'"
+        ],
+        "key_functions": [
+          "motion.div with drag prop",
+          "motion.div with whileHover, whileTap",
+          "onDrag, onDragStart, onDragEnd handlers",
+          "onHoverStart, onHoverEnd handlers",
+          "onTap, onTapStart, onTapCancel handlers"
+        ],
+        "initialization": "<motion.div drag onDrag={(event, info) => { console.log(info); }}>Drag me</motion.div>",
+        "verified_against": "https://motion.dev/docs/react, npm registry"
+      },
+      "configuration": {
+        "gesture_props": [
+          "drag: true | 'x' | 'y'",
+          "dragConstraints: { left, right, top, bottom }",
+          "dragElastic: number (0-1)",
+          "dragTransition: { type, stiffness, damping }",
+          "whileHover: animation object",
+          "whileTap: animation object"
+        ],
+        "dependencies": []
+      },
+      "features": {
+        "supported_gestures": [
+          "Drag (x, y, or both)",
+          "Hover (whileHover, onHoverStart/End)",
+          "Tap/Click (whileTap, onTap)",
+          "Pan detection via drag",
+          "Focus (whileFocus)",
+          "InView (whileInView)"
+        ],
+        "built_in_animation": true,
+        "multi_touch": true,
+        "mobile_support": true
+      },
+      "browser_compatibility": {
+        "chrome": "Full support",
+        "firefox": "Full support",
+        "safari": "Full support",
+        "edge": "Full support",
+        "ios_safari": "Full support",
+        "android": "Full support"
+      },
+      "gotchas": [
+        "dragConstraints require pixel values or refs to constraint elements",
+        "Momentum scrolling on iOS may conflict with drag if not carefully configured",
+        "Framer Motion handles animation internally - may have different behavior than custom implementations",
+        "Large number of animated elements can impact performance"
+      ],
+      "existing_in_project": true,
+      "research_sources": [
+        "https://motion.dev/docs/react",
+        "https://www.framer.com/motion/",
+        "https://www.npmjs.com/package/framer-motion"
+      ]
+    },
+    {
+      "name": "Pointer Events API",
+      "type": "native-api",
+      "category": "gesture-detection",
+      "verified_package": {
+        "name": "N/A (native browser API)",
+        "install_command": "No installation required",
+        "version": "W3C standard",
+        "verified": true,
+        "available_since": "Chrome 55+, Firefox 50+, Edge 12+, Safari 13+"
+      },
+      "api_patterns": {
+        "react_event_handlers": [
+          "onPointerDown",
+          "onPointerMove",
+          "onPointerUp",
+          "onPointerCancel",
+          "onPointerEnter",
+          "onPointerLeave",
+          "onGotPointerCapture",
+          "onLostPointerCapture"
+        ],
+        "event_properties": [
+          "pointerId: unique identifier",
+          "pointerType: 'mouse' | 'touch' | 'pen'",
+          "isPrimary: boolean",
+          "pressure: 0-1",
+          "width, height: contact surface",
+          "tangentialPressure, tiltX, tiltY, twist"
+        ],
+        "initialization": "<div onPointerDown={handlePointerDown} onPointerMove={handlePointerMove} onPointerUp={handlePointerUp}>Touch area</div>",
+        "verified_against": "https://developer.mozilla.org/en-US/docs/Web/API/Pointer_events, W3C spec"
+      },
+      "configuration": {
+        "css_requirements": [
+          "touch-action: none (to prevent browser defaults)",
+          "touch-action: manipulation (for basic interaction only)"
+        ],
+        "dependencies": []
+      },
+      "features": {
+        "multi_touch": true,
+        "multi_input_types": ["mouse", "touch", "pen"],
+        "pressure_sensitive": true,
+        "mobile_support": true,
+        "no_library_needed": true
+      },
+      "browser_compatibility": {
+        "chrome": "Full support since v55 (2017)",
+        "firefox": "Full support since v50 (2016)",
+        "safari": "Full support since v13 (2019)",
+        "edge": "Full support since v12 (2015)",
+        "ios_safari": "Full support",
+        "android": "Full support"
+      },
+      "gotchas": [
+        "Must handle touch-action CSS to prevent browser scroll interference",
+        "PointerEvent is a newer API - may need polyfill for very old browsers",
+        "Requires understanding of capture vs bubble phases",
+        "Multi-touch requires careful tracking of multiple pointerIds"
+      ],
+      "research_sources": [
+        "https://developer.mozilla.org/en-US/docs/Web/API/Pointer_events",
+        "https://developer.mozilla.org/en-US/docs/Web/API/PointerEvent",
+        "https://www.w3.org/TR/pointerevents3/",
+        "https://caniuse.com/pointer"
+      ]
+    },
+    {
+      "name": "react-simple-pull-to-refresh",
+      "type": "library",
+      "category": "pull-to-refresh",
+      "verified_package": {
+        "name": "react-simple-pull-to-refresh",
+        "install_command": "npm install react-simple-pull-to-refresh",
+        "version": "latest",
+        "verified": true
+      },
+      "api_patterns": {
+        "imports": [
+          "import PullToRefresh from 'react-simple-pull-to-refresh'"
+        ],
+        "key_functions": [
+          "PullToRefresh (component)"
+        ],
+        "initialization": "<PullToRefresh onRefresh={() => Promise.resolve()}><ListContent /></PullToRefresh>",
+        "verified_against": "https://github.com/thmsgbrt/react-simple-pull-to-refresh, npm registry"
+      },
+      "configuration": {
+        "required_props": {
+          "onRefresh": "async function returning Promise"
+        },
+        "optional_props": {
+          "canFetchMore": "boolean",
+          "onFetchMore": "callback for pagination",
+          "pullDownThreshold": "pixels to pull before refresh",
+          "maxPullDownDistance": "maximum pull distance",
+          "resistance": "pull resistance factor",
+          "triggerHeight": "trigger height in pixels",
+          "startInRefreshing": "boolean"
+        },
+        "dependencies": []
+      },
+      "features": {
+        "zero_dependencies": true,
+        "mobile_support": true,
+        "desktop_support": true,
+        "pagination_support": true,
+        "customizable_ui": true
+      },
+      "browser_compatibility": {
+        "chrome": "Full support",
+        "firefox": "Full support",
+        "safari": "Full support",
+        "ios_safari": "Full support",
+        "android": "Full support"
+      },
+      "gotchas": [
+        "onRefresh must return a Promise",
+        "Works best with scrollable content",
+        "May conflict with browser native pull-to-refresh on some devices",
+        "Requires careful CSS to prevent scroll issues"
+      ],
+      "research_sources": [
+        "https://github.com/thmsgbrt/react-simple-pull-to-refresh",
+        "https://www.npmjs.com/package/react-simple-pull-to-refresh"
+      ]
+    },
+    {
+      "name": "react-pull-to-refresh",
+      "type": "library",
+      "category": "pull-to-refresh",
+      "verified_package": {
+        "name": "react-pull-to-refresh",
+        "install_command": "npm install react-pull-to-refresh",
+        "version": "latest",
+        "verified": true
+      },
+      "api_patterns": {
+        "imports": [
+          "import PullToRefresh from 'react-pull-to-refresh'"
+        ],
+        "key_functions": [
+          "PullToRefresh (component)"
+        ],
+        "initialization": "<PullToRefresh onRefresh={() => Promise.resolve()}><Content /></PullToRefresh>",
+        "verified_against": "https://www.npmjs.com/package/react-pull-to-refresh, npm registry"
+      },
+      "configuration": {
+        "props": {
+          "onRefresh": "Promise-based callback",
+          "icon": "custom refresh icon",
+          "loading": "loading state boolean",
+          "disabled": "disable refresh boolean",
+          "distanceToRefresh": "distance threshold in pixels",
+          "resistance": "pull resistance multiplier",
+          "hammerOptions": "Hammer.js configuration object"
+        },
+        "dependencies": ["hammerjs (internally)"]
+      },
+      "features": {
+        "custom_icon_support": true,
+        "loading_state": true,
+        "hammer_integration": true,
+        "mobile_support": true
+      },
+      "browser_compatibility": {
+        "chrome": "Full support",
+        "firefox": "Full support",
+        "safari": "Full support",
+        "ios_safari": "Full support",
+        "android": "Full support"
+      },
+      "gotchas": [
+        "Uses Hammer.js internally - may conflict if you use Hammer.js directly",
+        "Requires Promise-based onRefresh callback",
+        "May have different behavior than react-simple-pull-to-refresh"
+      ],
+      "comparison_note": "Choose between this and react-simple-pull-to-refresh based on features needed",
+      "research_sources": [
+        "https://www.npmjs.com/package/react-pull-to-refresh",
+        "https://github.com/jemise111/react-pull-to-refresh"
+      ]
+    },
+    {
+      "name": "Vibration API",
+      "type": "native-api",
+      "category": "haptics",
+      "verified_package": {
+        "name": "N/A (native browser API)",
+        "install_command": "No installation required",
+        "version": "W3C standard",
+        "verified": true,
+        "available_since": "Chrome 32+, Firefox 16+, Android browser 4.4+"
+      },
+      "api_patterns": {
+        "imports": ["No import needed - available via navigator object"],
+        "key_functions": [
+          "navigator.vibrate(duration: number | number[])",
+          "navigator.vibrate(0) // to stop"
+        ],
+        "initialization": "// Simple vibration\nnavigator.vibrate(200);\n// Pattern vibration\nnavigator.vibrate([200, 100, 200]);\n// Check support\nif ('vibrate' in navigator) { /* supported */ }",
+        "verified_against": "https://developer.mozilla.org/en-US/docs/Web/API/Vibration_API, W3C spec"
+      },
+      "configuration": {
+        "parameters": {
+          "single_duration": "number in milliseconds",
+          "pattern_array": "array of vibration/pause durations",
+          "max_vibration": "typically 5000ms or more"
+        },
+        "dependencies": []
+      },
+      "features": {
+        "simple_vibration": true,
+        "pattern_vibration": true,
+        "stop_vibration": true,
+        "no_library_needed": true
+      },
+      "browser_compatibility": {
+        "chrome": "Full support",
+        "firefox": "Full support",
+        "safari": "NOT supported",
+        "edge": "Full support",
+        "ios_safari": "NOT supported",
+        "android": "Full support",
+        "desktop": "No effect (no vibration motor)"
+      },
+      "feature_detection": {
+        "check": "if ('vibrate' in navigator) { ... }",
+        "polyfill": "Not available - use feature detection instead"
+      },
+      "gotchas": [
+        "Safari and iOS not supported - use react-haptic for iOS compatibility",
+        "Desktop browsers have no effect (no vibration motor)",
+        "Requires user activation - cannot vibrate on page load",
+        "HTTPS required on many browsers",
+        "Some browsers may require user permission",
+        "Excessive vibration may drain battery quickly"
+      ],
+      "use_cases": [
+        "Form validation feedback",
+        "Button press feedback",
+        "Game interactions",
+        "Accessibility enhancements",
+        "Error notifications"
+      ],
+      "research_sources": [
+        "https://developer.mozilla.org/en-US/docs/Web/API/Vibration_API",
+        "https://developer.mozilla.org/en-US/docs/Web/API/Navigator/vibrate",
+        "https://www.w3.org/TR/vibration/",
+        "https://caniuse.com/vibration"
+      ]
+    },
+    {
+      "name": "react-haptic",
+      "type": "library",
+      "category": "haptics",
+      "verified_package": {
+        "name": "react-haptic",
+        "install_command": "npm install react-haptic",
+        "version": "latest",
+        "verified": true
+      },
+      "api_patterns": {
+        "imports": [
+          "import { useHaptic } from 'react-haptic'"
+        ],
+        "key_functions": [
+          "useHaptic() - returns vibrate function",
+          "vibrate(duration: number)",
+          "vibrate(pattern: number[])"
+        ],
+        "initialization": "const vibrate = useHaptic();\nreturn <button onClick={() => vibrate(200)}>Haptic Feedback</button>",
+        "verified_against": "https://github.com/ryotanakata/react-haptic, npm registry"
+      },
+      "configuration": {
+        "hook_params": {},
+        "return_value": "function(duration | pattern)",
+        "dependencies": []
+      },
+      "features": {
+        "react_hook_based": true,
+        "ios_support": true,
+        "android_support": true,
+        "fallback_to_vibration_api": true,
+        "pattern_support": true
+      },
+      "browser_compatibility": {
+        "ios": "Uses proprietary method for Taptic Engine",
+        "android": "Uses Vibration API",
+        "desktop": "No effect"
+      },
+      "ios_specific": {
+        "approach": "Uses hidden switch input element trick",
+        "note": "Provides haptic feedback on iOS where Vibration API is not available",
+        "ios_version": "iOS 13+"
+      },
+      "gotchas": [
+        "iOS support uses proprietary method - behavior may change",
+        "Still requires user interaction to trigger",
+        "Desktop browsers have no effect",
+        "Android uses Vibration API as fallback"
+      ],
+      "research_sources": [
+        "https://github.com/ryotanakata/react-haptic",
+        "https://www.npmjs.com/package/react-haptic"
+      ]
+    },
+    {
+      "name": "use-haptic",
+      "type": "library",
+      "category": "haptics",
+      "verified_package": {
+        "name": "use-haptic",
+        "install_command": "npm install use-haptic",
+        "version": "latest",
+        "verified": true
+      },
+      "api_patterns": {
+        "imports": [
+          "import { useHaptic } from 'use-haptic'"
+        ],
+        "key_functions": [
+          "useHaptic() - returns haptic feedback function"
+        ],
+        "initialization": "const haptic = useHaptic();\nreturn <button onClick={() => haptic('light')}>Haptic</button>",
+        "verified_against": "https://github.com/posaune0423/use-haptic, npm registry"
+      },
+      "configuration": {
+        "feedback_types": [
+          "'light' - light feedback",
+          "'medium' - medium feedback",
+          "'heavy' - heavy feedback",
+          "'success' - success pattern",
+          "'warning' - warning pattern",
+          "'error' - error pattern"
+        ],
+        "dependencies": []
+      },
+      "features": {
+        "react_hook_based": true,
+        "ios_taptic_support": true,
+        "android_vibration_support": true,
+        "feedback_patterns": true,
+        "modern_approach": true
+      },
+      "browser_compatibility": {
+        "ios": "Safari 18.0+ with Taptic Engine",
+        "android": "Vibration API support",
+        "desktop": "No effect"
+      },
+      "gotchas": [
+        "Newer alternative - may have less adoption than react-haptic",
+        "iOS requires Safari 18.0+",
+        "Requires user activation",
+        "Browser support may vary"
+      ],
+      "research_sources": [
+        "https://github.com/posaune0423/use-haptic",
+        "https://www.npmjs.com/package/use-haptic"
+      ]
+    }
+  ],
+  "unverified_claims": [],
+  "technology_stack_analysis": {
+    "current_frontend": {
+      "framework": "React + TypeScript",
+      "styling": "Emotion",
+      "ui_library": "MUI (Material-UI)",
+      "build_tool": "Vite",
+      "note": "MUI does not have native touch gesture or pull-to-refresh support"
+    },
+    "recommended_gesture_library": {
+      "primary": "@use-gesture/react",
+      "reason": "Modern, actively maintained, React hooks based, zero dependencies, excellent mobile support"
+    },
+    "recommended_pull_to_refresh": {
+      "primary": "react-simple-pull-to-refresh",
+      "reason": "Zero dependencies, simple API, works with MUI, actively maintained"
+    },
+    "recommended_haptics": {
+      "primary": "Native Vibration API with react-haptic for iOS fallback",
+      "reason": "No library overhead for Android, react-haptic provides iOS Taptic Engine support"
+    }
+  },
+  "implementation_recommendations": [
+    {
+      "feature": "Touch Gestures (drag, pan, pinch, swipe)",
+      "recommended_stack": [
+        "@use-gesture/react - for modern React hooks-based gesture handling",
+        "Optional: framer-motion - if complex animations needed (already in project)"
+      ],
+      "rationale": "Lightweight, zero dependencies, excellent mobile support, modern React patterns"
+    },
+    {
+      "feature": "Pull-to-Refresh",
+      "recommended_stack": [
+        "react-simple-pull-to-refresh - for simple, zero-dependency solution"
+      ],
+      "rationale": "No external dependencies, works seamlessly with React, customizable, mobile-optimized"
+    },
+    {
+      "feature": "Haptic Feedback",
+      "recommended_stack": [
+        "Native Vibration API for Android",
+        "react-haptic wrapper for cross-platform support including iOS"
+      ],
+      "rationale": "Native API has zero overhead, react-haptic provides iOS compatibility"
+    }
+  ],
+  "critical_considerations": [
+    {
+      "concern": "Browser Support for Gestures",
+      "status": "All recommended libraries support modern browsers (Chrome, Firefox, Safari, Edge, iOS Safari, Android)",
+      "note": "Ensure touch-action CSS property is set correctly to prevent browser scroll conflicts"
+    },
+    {
+      "concern": "Haptics on iOS",
+      "status": "Vibration API not supported on iOS Safari",
+      "solution": "Use react-haptic or use-haptic packages which provide iOS Taptic Engine support via proprietary methods"
+    },
+    {
+      "concern": "Performance",
+      "status": "Multiple simultaneous touch events can impact performance",
+      "solution": "Use native Pointer Events for simple cases, @use-gesture/react for complex interactions, avoid over-animating on low-end devices"
+    },
+    {
+      "concern": "User Activation Required",
+      "status": "Haptic feedback requires user interaction first - cannot be triggered on page load",
+      "solution": "Trigger haptics only on user-initiated events (click, touch, etc.)"
+    },
+    {
+      "concern": "HTTPS Requirement",
+      "status": "Some browsers require HTTPS for Vibration API",
+      "solution": "Ensure application is served over HTTPS in production"
+    }
+  ],
+  "package_installation_commands": {
+    "gesture_handling": {
+      "primary": "npm install @use-gesture/react",
+      "alternative": "npm install hammerjs",
+      "note": "framer-motion already in project"
+    },
+    "pull_to_refresh": {
+      "primary": "npm install react-simple-pull-to-refresh",
+      "alternative": "npm install react-pull-to-refresh"
+    },
+    "haptics": {
+      "primary": "npm install react-haptic",
+      "alternative": "npm install use-haptic",
+      "note": "Vibration API is native - no installation needed"
+    }
+  },
+  "research_completion_summary": {
+    "integrations_identified": 8,
+    "integrations_fully_verified": 8,
+    "external_packages_needed": 3,
+    "native_apis_identified": 2,
+    "technology_gaps": "None identified - all required technologies are available and actively maintained",
+    "risk_assessment": "Low risk - all recommended libraries are mature, actively maintained, and widely used in production"
+  },
+  "created_at": "2026-02-02T14:50:00Z"
+}

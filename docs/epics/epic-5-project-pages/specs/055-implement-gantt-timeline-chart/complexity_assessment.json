@@ -1,0 +1,84 @@
+{
+  "complexity": "complex",
+  "workflow_type": "feature",
+  "confidence": 0.9,
+  "reasoning": "This is a greenfield Gantt chart component requiring external library research, complex UI interactions, and significant frontend architecture decisions. Multiple integrations and unfamiliar patterns involved.",
+
+  "analysis": {
+    "scope": {
+      "estimated_files": 15,
+      "estimated_services": 1,
+      "is_cross_cutting": false,
+      "notes": "Frontend-only feature. Estimated files: GanttChart component, TaskList, TimelineHeader, DependencyRenderer, types, hooks (useZoom, useTaskDrag), utils (date calculations, dependency paths), integration with routing, potentially API endpoints for task data."
+    },
+    "integrations": {
+      "external_services": [],
+      "new_dependencies": [
+        "gantt-schedule-timeline-calendar OR frappe-gantt OR react-gantt-chart",
+        "d3-shape (for dependency curves)",
+        "react-dnd OR @dnd-kit/core (for drag-drop)",
+        "date-fns OR dayjs extensions"
+      ],
+      "research_needed": true,
+      "notes": "Need to research and select appropriate Gantt library. Options include: frappe-gantt (lightweight), gantt-schedule-timeline-calendar (feature-rich), or custom build with D3/SVG. Must evaluate each for: MUI integration, TypeScript support, dependency rendering, zoom/pan features, drag-drop capabilities."
+    },
+    "infrastructure": {
+      "docker_changes": false,
+      "database_changes": false,
+      "config_changes": false,
+      "notes": "No infrastructure changes needed. Frontend component only. May need backend API endpoints for task/timeline data but no schema changes."
+    },
+    "knowledge": {
+      "patterns_exist": false,
+      "research_required": true,
+      "unfamiliar_tech": [
+        "Gantt chart libraries",
+        "Complex drag-drop for timeline bars",
+        "SVG path rendering for dependencies",
+        "Timeline zoom/pan interactions"
+      ],
+      "notes": "No existing chart/timeline components in codebase. This is a greenfield feature requiring research on: (1) Gantt library selection and API patterns, (2) Dependency curve rendering (Bezier curves), (3) Timeline zoom/pan mechanics, (4) Task hierarchy/collapsible groups, (5) Date range calculations and viewport optimization."
+    },
+    "risk": {
+      "level": "medium",
+      "concerns": [
+        "Library choice impacts maintainability and customization ability",
+        "Complex drag-drop interactions may conflict with existing patterns",
+        "Performance with large task datasets (100+ tasks)",
+        "Dependency rendering complexity (curved connectors)",
+        "Responsive design for timeline on mobile/tablet",
+        "State management for zoom level, collapsed groups, filter state"
+      ],
+      "notes": "Primary risk is library selection - choosing wrong library could require rewrite. Need to ensure chosen solution supports: TypeScript, MUI theming, accessibility, responsive design, and handles 100+ tasks performantly."
+    }
+  },
+
+  "recommended_phases": [
+    "discovery",
+    "requirements",
+    "research",
+    "context",
+    "spec_writing",
+    "self_critique",
+    "planning",
+    "validation"
+  ],
+
+  "flags": {
+    "needs_research": true,
+    "needs_self_critique": true,
+    "needs_infrastructure_setup": false
+  },
+
+  "validation_recommendations": {
+    "risk_level": "medium",
+    "skip_validation": false,
+    "minimal_mode": false,
+    "test_types_required": ["unit", "integration", "e2e"],
+    "security_scan_required": false,
+    "staging_deployment_required": false,
+    "reasoning": "Complex UI component with many interactions (drag, zoom, collapse) requires comprehensive testing. E2E tests critical for verifying timeline rendering, dependency visualization, and zoom/pan behavior. No security-sensitive code involved."
+  },
+
+  "created_at": "2026-02-02T10:00:00Z"
+}

@@ -1,0 +1,42 @@
+{
+  "files_to_modify": {
+    "frontend": [
+      "src/main.tsx"
+    ]
+  },
+  "files_to_create": {
+    "frontend": [
+      "src/components/common/ErrorBoundary.tsx"
+    ]
+  },
+  "files_to_reference": [
+    "frontend/src/components/common/ToastProvider.tsx",
+    "frontend/src/theme/ThemeContext.tsx"
+  ],
+  "patterns": {
+    "provider_pattern": "Context providers wrap children and follow the pattern: create context, export custom hook, provide context value. See ToastProvider and ThemeProvider.",
+    "component_structure": "Named exports for components, TypeScript interfaces for props, functional components with hooks",
+    "mui_components": "Use Material-UI components (Alert, Button, Box, Typography) for consistent UI styling",
+    "error_handling": "Axios interceptors handle API errors, ToastProvider shows user notifications, but no Error Boundaries exist for React component errors"
+  },
+  "existing_implementations": {
+    "description": "Found comprehensive provider pattern in ToastProvider.tsx and ThemeContext.tsx. No existing Error Boundary implementations found (confirmed by grep search).",
+    "relevant_files": [
+      "frontend/src/components/common/ToastProvider.tsx",
+      "frontend/src/theme/ThemeContext.tsx",
+      "frontend/src/main.tsx"
+    ],
+    "key_insights": [
+      "ToastProvider demonstrates how to wrap app with context providers in main.tsx",
+      "Material-UI Alert and Snackbar components already in use for notifications",
+      "React 18.2.0 supports Error Boundaries via class components or react-error-boundary library",
+      "Main.tsx has provider hierarchy: BrowserRouter > ThemeProvider > ToastProvider > App"
+    ]
+  },
+  "error_boundary_requirements": {
+    "description": "Need to create Error Boundary that catches JavaScript errors in component tree and shows user-friendly fallback UI",
+    "placement": "Wrap the App component in main.tsx (after ToastProvider, before App)",
+    "fallback_ui": "User-friendly error message with recovery action (reload button)",
+    "implementation_approach": "Use class component with componentDidCatch and getDerivedStateFromError lifecycle methods, or use react-error-boundary library"
+  }
+}

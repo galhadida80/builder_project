@@ -1,0 +1,78 @@
+{
+  "complexity": "standard",
+  "workflow_type": "feature",
+  "confidence": 0.85,
+  "reasoning": "Mobile checklist UI requires new photo and signature capture integrations with well-documented libraries. Backend models and APIs already exist. Estimated 8-12 frontend files with 2 new library integrations requiring research.",
+
+  "analysis": {
+    "scope": {
+      "estimated_files": 10,
+      "estimated_services": 1,
+      "is_cross_cutting": false,
+      "notes": "Frontend-only feature. Main checklist component, section/item components, photo capture modal, signature modal, API service layer, TypeScript types. Backend checklist models and APIs already exist."
+    },
+    "integrations": {
+      "external_services": [],
+      "new_dependencies": [
+        "react-camera-pro or similar camera library",
+        "react-signature-canvas or similar signature library"
+      ],
+      "research_needed": true,
+      "notes": "Need to research and select appropriate libraries for: 1) Camera/photo capture with mobile device support, 2) Signature capture with touch support. react-dropzone already available for file handling. Firebase available for potential file storage."
+    },
+    "infrastructure": {
+      "docker_changes": false,
+      "database_changes": false,
+      "config_changes": false,
+      "notes": "Backend checklist models (ChecklistTemplate, ChecklistInstance, ChecklistItemResponse) already exist with support for image_urls and signature_url. File storage mechanism (local/S3/Firebase) needs clarification but no infrastructure changes required."
+    },
+    "knowledge": {
+      "patterns_exist": true,
+      "research_required": true,
+      "unfamiliar_tech": [
+        "camera/photo capture library",
+        "signature capture library"
+      ],
+      "notes": "Existing patterns for React components (MUI), API integration (axios), file handling (react-dropzone). New patterns needed for device camera access and signature capture. Design reference (21-checklist-mobile.png) shows clear UI requirements."
+    },
+    "risk": {
+      "level": "medium",
+      "concerns": [
+        "Device camera permissions handling",
+        "Photo upload and storage security",
+        "Signature capture validation and legal compliance",
+        "Mobile responsiveness and touch interactions",
+        "Offline mode shown in design but no existing PWA infrastructure"
+      ],
+      "notes": "Medium risk due to device permissions, file handling, and signature capture. Design shows 'OFFLINE MODE' but no existing service worker/PWA setup - may need to clarify if offline support is in scope or future enhancement."
+    }
+  },
+
+  "recommended_phases": [
+    "discovery",
+    "requirements",
+    "research",
+    "context",
+    "spec_writing",
+    "planning",
+    "validation"
+  ],
+
+  "flags": {
+    "needs_research": true,
+    "needs_self_critique": false,
+    "needs_infrastructure_setup": false
+  },
+
+  "validation_recommendations": {
+    "risk_level": "medium",
+    "skip_validation": false,
+    "minimal_mode": false,
+    "test_types_required": ["unit", "integration"],
+    "security_scan_required": false,
+    "staging_deployment_required": false,
+    "reasoning": "Mobile UI with file uploads requires unit tests for component logic and integration tests for camera/signature/upload flows. No security-critical code changes (auth/payments) but file handling should be tested thoroughly."
+  },
+
+  "created_at": "2026-02-01T09:30:00Z"
+}

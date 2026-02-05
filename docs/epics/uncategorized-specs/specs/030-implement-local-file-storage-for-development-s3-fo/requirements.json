@@ -1,0 +1,4 @@
+{
+  "task_description": "# Implement local file storage for development, S3 for production\n\n**Linear Issue:** [BUI-7](https://linear.app/builder-project/issue/BUI-7/implement-local-file-storage-for-development-s3-for-production)\n**Priority:** Urgent\n**Status:** Backlog\n\n\n## Description\n\n**Feature Request:**\nFile uploads currently only save metadata to database without actually storing the file content.\n\n**Location:** backend/app/api/v1/files.py\n\n**Requirements:**\n\n* LOCAL environment: Store files in local filesystem (e.g., /uploads/{user_id}/{project_id}/{entity_id}/{filename})\n* PRODUCTION environment: Upload to S3 bucket with path structure: s3://{bucket}/{user_id}/{project_id}/{entity_id}/{filename}\n* Add environment variable to switch between local and S3 storage\n* Implement file download endpoint that serves files from correct location\n\n**Priority:** High\n",
+  "workflow_type": "feature"
+}

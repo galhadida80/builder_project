@@ -1,0 +1,154 @@
+{
+  "session_number": 8,
+  "timestamp": "2026-02-02T10:34:12.855242+00:00",
+  "subtasks_completed": [
+    "subtask-3-2"
+  ],
+  "discoveries": {
+    "file_insights": [
+      {
+        "file": "frontend/src/utils/workloadCalculation.ts",
+        "type": "utility",
+        "purpose": "Centralized workload calculation and analysis for team member capacity management",
+        "key_exports": [
+          "estimateAssignmentHours",
+          "calculateTotalAssignedHours",
+          "calculateWorkloadPercentage",
+          "getWorkloadLevel",
+          "getWorkloadColor",
+          "calculateTeamMemberWorkload",
+          "calculateTeamWorkloadStats",
+          "filterAssignmentsByDateRange",
+          "groupMembersByTeam",
+          "sortMembersByWorkload",
+          "isOverCapacity",
+          "getAvailableCapacity"
+        ],
+        "constants_defined": [
+          "WORKLOAD_CONSTANTS",
+          "WORKLOAD_THRESHOLDS"
+        ],
+        "dependencies": [
+          "TeamMember type",
+          "WorkloadAssignment type"
+        ],
+        "lines_of_code": 291
+      }
+    ],
+    "patterns_discovered": [
+      {
+        "pattern": "Type-based estimation",
+        "description": "Uses assignment type to determine default hour estimates (meeting, inspection, approval, task)",
+        "location": "estimateAssignmentHours function"
+      },
+      {
+        "pattern": "Threshold-based categorization",
+        "description": "Workload categorized into 4 levels using percentage thresholds (under-utilized: 0-60%, optimal: 61-90%, high: 91-100%, over-allocated: 100%+)",
+        "location": "getWorkloadLevel, WORKLOAD_THRESHOLDS constants"
+      },
+      {
+        "pattern": "Color mapping for visualization",
+        "description": "Workload levels mapped to semantic colors (success=green, warning=orange, error=red) for UI rendering",
+        "location": "getWorkloadColor function"
+      },
+      {
+        "pattern": "Aggregation utilities",
+        "description": "Functions for calculating team-level statistics and grouping data (calculateTeamWorkloadStats, groupMembersByTeam)",
+        "location": "Multiple aggregate functions"
+      },
+      {
+        "pattern": "Data transformation with defaults",
+        "description": "Functions apply cascading defaults when data is missing (availableHours \u2192 DEFAULT_AVAILABLE_HOURS_PER_WEEK)",
+        "location": "calculateTeamMemberWorkload, calculateTeamWorkloadStats"
+      },
+      {
+        "pattern": "Defensive null/empty handling",
+        "description": "All functions check for null/undefined/empty arrays before processing",
+        "location": "Throughout all functions"
+      }
+    ],
+    "gotchas_discovered": [
+      {
+        "gotcha": "Date string handling",
+        "description": "filterAssignmentsByDateRange accepts both Date objects and ISO string formats, requires conversion before comparison",
+        "impact": "moderate",
+        "location": "filterAssignmentsByDateRange function"
+      },
+      {
+        "gotcha": "Percentage rounding precision",
+        "description": "Workload percentage is rounded to 1 decimal place to avoid floating-point precision issues",
+        "impact": "low",
+        "location": "calculateWorkloadPercentage function"
+      },
+      {
+        "gotcha": "Missing workload calculation cascade",
+        "description": "calculateTeamWorkloadStats uses member.workloadPercent which must be pre-calculated; doesn't recalculate if missing",
+        "impact": "moderate",
+        "location": "calculateTeamWorkloadStats function"
+      },
+      {
+        "gotcha": "Over-capacity threshold at 100%",
+        "description": "isOverCapacity uses > 100% threshold, meaning exactly 100% is not considered over capacity",
+        "impact": "low",
+        "location": "isOverCapacity function, WORKLOAD_THRESHOLDS.HIGH"
+      },
+      {
+        "gotcha": "Assignment without scheduled date handling",
+        "description": "filterAssignmentsByDateRange includes assignments without scheduledDate, which may not match user expectations",
+        "impact": "moderate",
+        "location": "filterAssignmentsByDateRange function"
+      }
+    ],
+    "approach_outcome": {
+      "status": "SUCCESS",
+      "objective": "Implement comprehensive workload calculation utility for team capacity management",
+      "deliverables_completed": [
+        "Core workload calculation functions",
+        "Threshold and color mapping system",
+        "Team-level aggregation and statistics",
+        "Data filtering and grouping utilities",
+        "Capacity checking and remaining hours calculation"
+      ],
+      "implementation_strategy": "Created a modular utility module with single-responsibility functions, clear type definitions, configurable constants, and sensible defaults",
+      "code_quality": "High - well-documented functions, consistent patterns, defensive programming, proper error handling"
+    },
+    "recommendations": [
+      {
+        "category": "testing",
+        "priority": "high",
+        "recommendation": "Add comprehensive unit tests for edge cases: zero available hours, empty assignments, negative scenarios, date boundary conditions"
+      },
+      {
+        "category": "documentation",
+        "priority": "medium",
+        "recommendation": "Document the assumptions and meanings of workload levels in a README or constants file, especially threshold rationale"
+      },
+      {
+        "category": "enhancement",
+        "priority": "medium",
+        "recommendation": "Add optional configuration object to allow custom thresholds instead of hardcoded WORKLOAD_CONSTANTS and WORKLOAD_THRESHOLDS"
+      },
+      {
+        "category": "data_flow",
+        "priority": "high",
+        "recommendation": "Ensure calculateTeamMemberWorkload is called on all members before calculateTeamWorkloadStats to guarantee workloadPercent is calculated"
+      },
+      {
+        "category": "usability",
+        "priority": "low",
+        "recommendation": "Consider adding a bulk processing function to calculate workload for multiple team members in a single call"
+      }
+    ],
+    "subtask_id": "subtask-3-2",
+    "session_num": 8,
+    "success": true,
+    "changed_files": [
+      "frontend/src/utils/workloadCalculation.ts"
+    ]
+  },
+  "what_worked": [
+    "Implemented subtask: subtask-3-2"
+  ],
+  "what_failed": [],
+  "recommendations_for_next_session": []
+}

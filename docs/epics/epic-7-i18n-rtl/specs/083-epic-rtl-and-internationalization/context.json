@@ -1,0 +1,67 @@
+{
+  "task_description": "Complete RTL and Internationalization implementation by migrating 24+ components from hardcoded strings to i18n system. Infrastructure (i18next, translations, LanguageToggle, RTL theme) already exists and works.",
+  "scoped_services": ["frontend"],
+  "files_to_modify": [
+    "src/components/ui/Button.tsx",
+    "src/components/ui/TextField.tsx",
+    "src/components/ui/Select.tsx",
+    "src/components/ui/Card.tsx",
+    "src/components/ui/Modal.tsx",
+    "src/components/ui/EmptyState.tsx",
+    "src/components/ui/StatusBadge.tsx",
+    "src/components/ui/Breadcrumbs.tsx",
+    "src/components/ui/ProgressBar.tsx",
+    "src/components/ui/Tabs.tsx",
+    "src/components/layout/Header.tsx",
+    "src/components/layout/Sidebar.tsx",
+    "src/components/layout/Layout.tsx",
+    "src/pages/DashboardPage.tsx",
+    "src/pages/ProjectsPage.tsx",
+    "src/pages/ProjectDetailPage.tsx",
+    "src/pages/EquipmentPage.tsx",
+    "src/pages/MaterialsPage.tsx",
+    "src/pages/MeetingsPage.tsx",
+    "src/pages/ApprovalsPage.tsx",
+    "src/pages/AreasPage.tsx",
+    "src/pages/ContactsPage.tsx",
+    "src/pages/InspectionsPage.tsx",
+    "src/pages/RFIPage.tsx",
+    "src/pages/LoginPage.tsx",
+    "src/pages/AuditLogPage.tsx",
+    "src/styles/rtl.css"
+  ],
+  "files_to_reference": [
+    "src/i18n/config.ts",
+    "src/i18n/locales/en.json",
+    "src/i18n/locales/he.json",
+    "src/hooks/useLanguage.ts",
+    "src/components/common/LanguageToggle.tsx",
+    "src/theme/ThemeContext.tsx",
+    "src/theme/rtl.ts",
+    "src/components/ui/DataTable.tsx"
+  ],
+  "patterns": {
+    "i18n_hook_pattern": "Use const { t } = useTranslation() to access translations. Call t('namespace.key') to get translated strings.",
+    "translation_key_pattern": "Translation files use nested structure: common.*, nav.*, dashboard.*, projects.*, etc. Keys match existing hardcoded text.",
+    "css_logical_properties": "Replace marginLeft/Right with marginInlineStart/End, paddingLeft/Right with paddingInlineStart/End. Use text-align: start instead of text-align: left.",
+    "rtl_icon_flipping": "Add className='flip-rtl' to directional icons (arrows, chevrons). DO NOT flip universal icons (settings, close, search).",
+    "mui_rtl_integration": "Material-UI theme automatically receives direction from i18n via ThemeContext. No additional MUI configuration needed."
+  },
+  "existing_implementations": {
+    "description": "i18n infrastructure is 100% complete. Config, translation files, LanguageToggle component, theme integration, and RTL CSS all exist and work.",
+    "relevant_files": [
+      "src/i18n/config.ts - i18next configuration with language detection",
+      "src/i18n/locales/en.json - 190+ English translations",
+      "src/i18n/locales/he.json - 190+ Hebrew translations",
+      "src/hooks/useLanguage.ts - Custom hook for language switching and RTL detection",
+      "src/components/common/LanguageToggle.tsx - Language switcher component in Header",
+      "src/theme/ThemeContext.tsx - Integrates i18n direction into MUI theme",
+      "src/theme/rtl.ts - getDirection() utility function",
+      "src/styles/rtl.css - RTL-specific CSS fixes (fonts, layout overrides, flip-rtl class)",
+      "src/main.tsx - Already imports i18n config and rtl.css"
+    ],
+    "what_works": "Language switching works, theme direction changes, Hebrew font loads, RTL CSS applies. LanguageToggle component in Header allows switching between English and Hebrew.",
+    "what_needs_work": "24+ components with hardcoded text need migration to use t() function. Many components use directional CSS (ml/mr) instead of logical properties (marginInlineStart/End). Comprehensive RTL testing needed."
+  },
+  "created_at": "2026-02-02T12:35:13.919289"
+}

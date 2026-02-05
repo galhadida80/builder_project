@@ -1,0 +1,57 @@
+{
+  "task_description": "# Add Hebrew Language Support\n\n**Linear Issue:** [BUI-80](https://linear.app/builder-project/issue/BUI-80/add-hebrew-language-support)\n**Priority:** High\n**Status:** Backlog\n\n## Description\n\nImplement proper MUI RTL support using Emotion cache for Hebrew language. Replace CSS-based RTL hacks with native MUI RTL support via @mui/stylis-plugin-rtl.\n",
+  "scoped_services": ["frontend"],
+  "files_to_modify": [
+    "frontend/package.json",
+    "frontend/src/theme/ThemeContext.tsx",
+    "frontend/src/main.tsx"
+  ],
+  "files_to_create": [
+    "frontend/src/theme/emotionCache.ts"
+  ],
+  "files_to_reference": [
+    "frontend/src/theme/ThemeContext.tsx",
+    "frontend/src/theme/theme.ts",
+    "frontend/src/hooks/useLanguage.ts",
+    "frontend/src/components/common/LanguageToggle.tsx",
+    "frontend/src/i18n/config.ts"
+  ],
+  "patterns": {
+    "theme_pattern": "Theme is created via factory functions (createLightTheme, createDarkTheme) that return theme objects with palette, typography, and component overrides",
+    "provider_pattern": "ThemeProvider wraps app with MuiThemeProvider, uses useMemo for theme recreation, tracks both dark/light mode and language direction",
+    "hook_pattern": "useLanguage hook handles language switching via i18n.changeLanguage(), updates HTML dir and lang attributes via useEffect",
+    "emotion_cache_pattern": "CacheProvider must wrap ThemeProvider, uses createCache with stylisPlugins array, separate caches for LTR and RTL"
+  },
+  "existing_implementations": {
+    "description": "Found complete i18n setup with i18next, Hebrew translations, LanguageToggle component, and theme direction support. However, proper MUI RTL via Emotion cache is missing - currently using CSS hacks in rtl.css instead",
+    "relevant_files": [
+      "frontend/src/theme/ThemeContext.tsx",
+      "frontend/src/theme/theme.ts",
+      "frontend/src/theme/rtl.ts",
+      "frontend/src/hooks/useLanguage.ts",
+      "frontend/src/components/common/LanguageToggle.tsx",
+      "frontend/src/i18n/config.ts",
+      "frontend/src/i18n/locales/he.json",
+      "frontend/src/styles/rtl.css"
+    ],
+    "key_insights": [
+      "ThemeContext already reads i18n.language and sets theme direction dynamically",
+      "useLanguage hook already updates document.documentElement.dir attribute",
+      "LanguageToggle component already exists and works",
+      "Hebrew translations are complete in he.json",
+      "Theme uses useMemo to recreate when isDark or i18n.language changes",
+      "Current RTL support uses CSS overrides (rtl.css) instead of proper MUI RTL cache",
+      "Missing: @mui/stylis-plugin-rtl and stylis packages",
+      "Missing: Emotion CacheProvider with RTL plugin setup"
+    ]
+  },
+  "rtl_requirements": {
+    "description": "MUI v5 requires Emotion cache with stylis-plugin-rtl for proper RTL component rendering",
+    "dependencies": [
+      "@mui/stylis-plugin-rtl",
+      "stylis"
+    ],
+    "implementation_approach": "Create dual Emotion caches (LTR/RTL), wrap app with CacheProvider that switches based on language direction, replace CSS hacks with native MUI RTL support"
+  },
+  "created_at": "2026-02-01T01:32:00.000000"
+}

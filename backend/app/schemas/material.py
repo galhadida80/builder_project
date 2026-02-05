@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Optional
+
 from uuid import UUID
 from datetime import datetime, date
 from decimal import Decimal
@@ -10,8 +12,6 @@ from app.core.validators import (
     MIN_NAME_LENGTH, MAX_NAME_LENGTH, MAX_NOTES_LENGTH,
     CamelCaseModel
 )
-
-
 class MaterialBase(BaseModel):
     name: str = Field(min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
     material_type: Optional[str] = Field(default=None, max_length=100)
@@ -29,12 +29,8 @@ class MaterialBase(BaseModel):
     @classmethod
     def sanitize_text(cls, v: Optional[str]) -> Optional[str]:
         return sanitize_string(v)
-
-
 class MaterialCreate(MaterialBase):
     pass
-
-
 class MaterialUpdate(BaseModel):
     name: Optional[str] = Field(default=None, min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
     material_type: Optional[str] = Field(default=None, max_length=100)
@@ -52,8 +48,6 @@ class MaterialUpdate(BaseModel):
     @classmethod
     def sanitize_text(cls, v: Optional[str]) -> Optional[str]:
         return sanitize_string(v)
-
-
 class MaterialReceive(BaseModel):
     quantity_received: Decimal = Field(gt=0, le=999999999)
     notes: Optional[str] = Field(default=None, max_length=MAX_NOTES_LENGTH)
@@ -62,8 +56,6 @@ class MaterialReceive(BaseModel):
     @classmethod
     def sanitize_text(cls, v: Optional[str]) -> Optional[str]:
         return sanitize_string(v)
-
-
 class MaterialResponse(CamelCaseModel):
     id: UUID
     project_id: UUID

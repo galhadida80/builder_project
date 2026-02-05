@@ -1,0 +1,34 @@
+{
+  "task_description": "# Add RFI Dashboard Widget\n\n**Linear Issue:** [BUI-107](https://linear.app/builder-project/issue/BUI-107/add-rfi-dashboard-widget)\n**Priority:** No priority\n**Status:** Backlog\n\n\n## Description\n\n## User Story\n\nAs a user, I want to see RFI statistics on my dashboard so that I can quickly assess outstanding items.\n\n## Acceptance Criteria\n\n- [ ] Create `RFIStatsWidget` component\n- [ ] Display counts:\n  - Open RFIs (awaiting response)\n  - Overdue RFIs (past due date)\n  - Answered today\n  - Total closed this month\n- [ ] Visual indicators (icons, colors)\n- [ ] Click to navigate to RFI list with filter\n- [ ] Add widget to main dashboard\n\n## Labels\n\nfrontend, dashboard, rfi\n",
+  "scoped_services": ["frontend"],
+  "files_to_modify": [
+    "frontend/src/pages/DashboardPage.tsx"
+  ],
+  "files_to_create": [
+    "frontend/src/components/dashboard/RFIStatsWidget.tsx"
+  ],
+  "files_to_reference": [
+    "frontend/src/pages/DashboardPage.tsx",
+    "frontend/src/components/ui/Card.tsx",
+    "frontend/src/api/rfi.ts",
+    "frontend/src/pages/RFIPage.tsx"
+  ],
+  "patterns": {
+    "api_service": "All API services use axios with apiClient from api/client.ts, return typed Promise responses",
+    "component_structure": "Functional components with TypeScript, React Hooks (useState, useEffect), MUI components",
+    "dashboard_widgets": "Dashboard uses KPICard components with title, value, icon, color props. Grid layout with responsive columns",
+    "navigation": "useNavigate from react-router-dom, nested routes under /projects/:projectId/",
+    "data_fetching": "API calls in useEffect, loading state with setLoading, error handling with try-catch and toast notifications",
+    "rfi_api": "rfiApi.getSummary(projectId) returns RFISummary interface with open_count, overdue_count, answered_count, closed_count"
+  },
+  "existing_implementations": {
+    "description": "RFI API service already exists with getSummary endpoint. Dashboard uses KPICard components for metrics. Navigation patterns established with useNavigate hook.",
+    "relevant_files": [
+      "frontend/src/api/rfi.ts - RFI API service with getSummary method and RFISummary interface",
+      "frontend/src/pages/DashboardPage.tsx - Dashboard using KPICard components for metrics display",
+      "frontend/src/components/ui/Card.tsx - KPICard component definition with icon, color, trend support",
+      "frontend/src/App.tsx - Routing configuration showing /projects/:projectId/rfis path"
+    ]
+  },
+  "created_at": "2026-02-02T12:33:31.588509"
+}

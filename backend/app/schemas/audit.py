@@ -1,12 +1,12 @@
 from __future__ import annotations
 
+from typing import Optional
+
 from uuid import UUID
 from datetime import datetime
 from pydantic import BaseModel
 from app.schemas.user import UserResponse
 from app.core.validators import CamelCaseModel
-
-
 class AuditLogResponse(CamelCaseModel):
     id: UUID
     project_id: Optional[UUID] = None

@@ -25,6 +25,10 @@ class ApprovalAction(BaseModel):
     comments: Optional[str] = None
 
 
+class ApprovalComments(BaseModel):
+    comments: Optional[str] = None
+
+
 @router.get("/approvals", response_model=list[ApprovalRequestResponse])
 async def list_all_approvals(db: AsyncSession = Depends(get_db)):
     result = await db.execute(
@@ -161,6 +165,116 @@ async def update_entity_status(db: AsyncSession, entity_type: str, entity_id: UU
 
     if entity:
         entity.status = status
+
+
+@router.post("/approvals/{approval_id}/approve", response_model=ApprovalRequestResponse)
+async def approve_request(
+    approval_id: UUID,
+    data: ApprovalComments = None,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    request: Request = None
+):
+    result = await db.execute(
+        select(ApprovalRequest)
+        .options(
+            selectinload(ApprovalRequest.created_by),
+            selectinload(ApprovalRequest.steps).selectinload(ApprovalStep.approved_by)
+        )
+        .where(ApprovalRequest.id == approval_id)
+    )
+    approval_request = result.scalar_one_or_none()
+    if not approval_request:
+        language = get_language_from_request(request)
+        error_message = translate_message('resources.approval_not_found', language)
+        raise HTTPException(status_code=404, detail=error_message)
+
+    pending_step_result = await db.execute(
+        select(ApprovalStep)
+        .where(
+            ApprovalStep.approval_request_id == approval_id,
+            ApprovalStep.status == "pending"
+        )
+        .order_by(ApprovalStep.step_order)
+        .limit(1)
+    )
+    step = pending_step_result.scalar_one_or_none()
+    if not step:
+        language = get_language_from_request(request)
+        raise HTTPException(status_code=400, detail="No pending steps")
+
+    step.status = "approved"
+    step.approved_by_id = current_user.id
+    if data:
+        step.comments = data.comments
+
+    next_step_result = await db.execute(
+        select(ApprovalStep)
+        .where(
+            ApprovalStep.approval_request_id == approval_id,
+            ApprovalStep.step_order == step.step_order + 1
+        )
+    )
+    next_step = next_step_result.scalar_one_or_none()
+
+    if next_step:
+        approval_request.current_step = next_step.step_order
+        approval_request.current_status = ApprovalStatus.UNDER_REVIEW.value
+    else:
+        approval_request.current_status = ApprovalStatus.APPROVED.value
+        await update_entity_status(db, approval_request.entity_type, approval_request.entity_id, ApprovalStatus.APPROVED.value)
+
+    await db.commit()
+    await db.refresh(approval_request, ["created_by", "steps"])
+    return approval_request
+
+
+@router.post("/approvals/{approval_id}/reject", response_model=ApprovalRequestResponse)
+async def reject_request(
+    approval_id: UUID,
+    data: ApprovalComments = None,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    request: Request = None
+):
+    result = await db.execute(
+        select(ApprovalRequest)
+        .options(
+            selectinload(ApprovalRequest.created_by),
+            selectinload(ApprovalRequest.steps).selectinload(ApprovalStep.approved_by)
+        )
+        .where(ApprovalRequest.id == approval_id)
+    )
+    approval_request = result.scalar_one_or_none()
+    if not approval_request:
+        language = get_language_from_request(request)
+        error_message = translate_message('resources.approval_not_found', language)
+        raise HTTPException(status_code=404, detail=error_message)
+
+    pending_step_result = await db.execute(
+        select(ApprovalStep)
+        .where(
+            ApprovalStep.approval_request_id == approval_id,
+            ApprovalStep.status == "pending"
+        )
+        .order_by(ApprovalStep.step_order)
+        .limit(1)
+    )
+    step = pending_step_result.scalar_one_or_none()
+    if not step:
+        language = get_language_from_request(request)
+        raise HTTPException(status_code=400, detail="No pending steps")
+
+    step.status = "rejected"
+    step.approved_by_id = current_user.id
+    if data:
+        step.comments = data.comments
+    approval_request.current_status = ApprovalStatus.REJECTED.value
+    await update_entity_status(db, approval_request.entity_type, approval_request.entity_id, ApprovalStatus.REJECTED.value)
+
+    await db.commit()
+    await db.refresh(approval_request, ["created_by", "steps"])
+    return approval_request
 
 
 @router.get("/my-approvals", response_model=list[ApprovalRequestResponse])

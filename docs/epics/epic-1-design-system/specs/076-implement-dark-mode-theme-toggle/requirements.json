@@ -1,0 +1,4 @@
+{
+  "task_description": "# Implement Dark Mode Theme Toggle\n\n**Linear Issue:** [BUI-50](https://linear.app/builder-project/issue/BUI-50/implement-dark-mode-theme-toggle)\n**Priority:** High\n**Status:** Backlog\n\n\n## Description\n\nCreate theme context, toggle, persist preference, prefers-color-scheme\n",
+  "workflow_type": "feature"
+}

@@ -1,0 +1,4 @@
+{
+  "task_description": "# Remove Google Sign-in button - feature not supported\n\n**Linear Issue:** [BUI-5](https://linear.app/builder-project/issue/BUI-5/remove-google-sign-in-button-feature-not-supported)\n**Priority:** Urgent\n**Status:** Backlog\n\n\n## Description\n\n**Bug Description:**\nThe login page shows a \"Continue with Google\" button but Google authentication is not implemented. The button currently just navigates to dashboard without actual authentication.\n\n**Location:** frontend/src/pages/LoginPage.tsx\n\n**Expected Behavior:**\nEither implement Google OAuth or remove the button entirely.\n\n**Priority:** High\n",
+  "workflow_type": "feature"
+}

@@ -1,0 +1,4 @@
+{
+  "task_description": "# 1.5 Create Alembic migration for Equipment Templates\n\n**Linear Issue:** [BUI-23](https://linear.app/builder-project/issue/BUI-23/15-create-alembic-migration-for-equipment-templates)\n**Priority:** Medium\n**Status:** Backlog\n\n\n## Description\n\nCreate database migration for equipment template tables.\n\n**Tables to create:**\n\n1. consultant_types\n2. equipment_templates\n3. equipment_template_consultants (junction)\n4. equipment_approval_submissions\n5. equipment_approval_decisions\n\n**Run:** alembic revision --autogenerate -m \"add equipment templates\"\n**Apply:** alembic upgrade head\n\n**Indexes to add:**\n\n* equipment_templates: name, category\n* equipment_approval_submissions: project_id, template_id, status\n* equipment_approval_decisions: submission_id\n",
+  "workflow_type": "feature"
+}

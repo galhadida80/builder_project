@@ -1,0 +1,71 @@
+{
+  "complexity": "standard",
+  "workflow_type": "feature",
+  "confidence": 0.85,
+  "reasoning": "Creating 6 form input components (text, textarea, select, checkbox, date, file upload) in a React/TypeScript/MUI project. All required dependencies already installed (@mui/material, @mui/x-date-pickers, react-dropzone). Estimated 6-12 files for component wrappers following project conventions. No research needed as MUI is well-documented and integrated. Requires context exploration to understand existing component patterns.",
+
+  "analysis": {
+    "scope": {
+      "estimated_files": 10,
+      "estimated_services": 1,
+      "is_cross_cutting": false,
+      "notes": "6 form components (text, textarea, select, checkbox, date picker, file upload). Each likely needs component file and possibly types. Frontend service only. May share common base pattern."
+    },
+    "integrations": {
+      "external_services": [],
+      "new_dependencies": [],
+      "research_needed": false,
+      "notes": "Project already has all required dependencies: @mui/material for standard inputs, @mui/x-date-pickers for date picker, react-dropzone for file upload. No new packages needed."
+    },
+    "infrastructure": {
+      "docker_changes": false,
+      "database_changes": false,
+      "config_changes": false,
+      "notes": "Frontend-only changes. No infrastructure modifications required."
+    },
+    "knowledge": {
+      "patterns_exist": true,
+      "research_required": false,
+      "unfamiliar_tech": [],
+      "notes": "Tech stack is standard (React, TypeScript, MUI). Need to explore codebase to identify existing component patterns, styling conventions (Emotion), and form validation approach. MUI provides comprehensive documentation."
+    },
+    "risk": {
+      "level": "medium",
+      "concerns": [
+        "Need to match existing component patterns",
+        "Form validation strategy unclear",
+        "Accessibility requirements (ARIA, keyboard nav)",
+        "i18n integration with existing i18next setup",
+        "File upload size limits and validation"
+      ],
+      "notes": "Medium risk due to user-facing nature of form inputs. MUI handles most accessibility concerns. Need to ensure consistency with project conventions and proper validation."
+    }
+  },
+
+  "recommended_phases": [
+    "discovery",
+    "requirements",
+    "context",
+    "spec_writing",
+    "planning",
+    "validation"
+  ],
+
+  "flags": {
+    "needs_research": false,
+    "needs_self_critique": false,
+    "needs_infrastructure_setup": false
+  },
+
+  "validation_recommendations": {
+    "risk_level": "medium",
+    "skip_validation": false,
+    "minimal_mode": false,
+    "test_types_required": ["unit", "integration"],
+    "security_scan_required": false,
+    "staging_deployment_required": false,
+    "reasoning": "Form inputs are user-facing components requiring proper validation and accessibility testing. Unit tests for individual component behavior and integration tests for form interactions. MUI handles security best practices. No auth or sensitive data processing in the components themselves."
+  },
+
+  "created_at": "2026-02-01T00:00:00Z"
+}

@@ -1,0 +1,223 @@
+{
+  "session_number": 5,
+  "timestamp": "2026-01-31T23:49:15.381024+00:00",
+  "subtasks_completed": [
+    "subtask-1-5"
+  ],
+  "discoveries": {
+    "file_insights": [
+      {
+        "file": "frontend/package.json",
+        "type": "dependency_addition",
+        "changes": [
+          "Added i18next (^25.8.0) for internationalization framework",
+          "Added react-i18next (^16.5.4) for React integration with i18next"
+        ],
+        "significance": "Core dependencies for implementing multi-language support with RTL capability"
+      },
+      {
+        "file": "frontend/src/i18n/config.ts",
+        "type": "new_file",
+        "changes": [
+          "Created i18n initialization configuration",
+          "Set up language resources for English and Hebrew",
+          "Configured localStorage persistence for language preference",
+          "Set fallback language to English"
+        ],
+        "significance": "Central configuration point for internationalization setup"
+      },
+      {
+        "file": "frontend/src/i18n/locales/en.json",
+        "type": "new_file",
+        "changes": [
+          "Created English translation strings",
+          "Included common terms and navigation labels",
+          "21 translation keys across common and nav namespaces"
+        ],
+        "significance": "English language resource bundle"
+      },
+      {
+        "file": "frontend/src/i18n/locales/he.json",
+        "type": "new_file",
+        "changes": [
+          "Created Hebrew translation strings",
+          "Mirrored structure of English translations",
+          "All content properly translated to Hebrew"
+        ],
+        "significance": "Hebrew language resource bundle with RTL-friendly content"
+      },
+      {
+        "file": "frontend/src/components/LanguageToggle.tsx",
+        "type": "new_component",
+        "changes": [
+          "Created language selector component with dropdown menu",
+          "Implements language switching with i18n.changeLanguage()",
+          "Sets document direction (dir attribute) and language dynamically",
+          "Persists language choice to localStorage"
+        ],
+        "significance": "User-facing language switcher component with RTL support"
+      },
+      {
+        "file": "frontend/src/theme/emotionCache.ts",
+        "type": "dependency_update",
+        "changes": [
+          "Changed RTL plugin import from 'stylis-plugin-rtl' to '@mui/stylis-plugin-rtl'"
+        ],
+        "significance": "Uses official MUI RTL plugin for better compatibility and support"
+      },
+      {
+        "file": "frontend/src/theme/theme.ts",
+        "type": "theme_enhancement",
+        "changes": [
+          "Updated createLightTheme() to accept direction parameter",
+          "Updated createDarkTheme() to accept direction parameter",
+          "Added direction property to MUI theme object",
+          "Default direction is 'ltr' with RTL support available"
+        ],
+        "significance": "Theme system now supports RTL direction for both light and dark modes"
+      },
+      {
+        "file": "frontend/src/theme/ThemeContext.tsx",
+        "type": "context_enhancement",
+        "changes": [
+          "Added useEffect hook to sync i18n language changes with document attributes",
+          "Sets document dir and lang attributes based on i18n state",
+          "Updated theme creation calls to pass direction parameter",
+          "Added direction to theme dependency array"
+        ],
+        "significance": "Ensures document and theme stay in sync with language/direction changes"
+      },
+      {
+        "file": "frontend/src/components/layout/Header.tsx",
+        "type": "component_integration",
+        "changes": [
+          "Imported LanguageToggle component",
+          "Added LanguageToggle to header UI before ThemeToggle"
+        ],
+        "significance": "Integrates language switching into main header for easy access"
+      },
+      {
+        "file": "frontend/src/main.tsx",
+        "type": "initialization",
+        "changes": [
+          "Added import for i18n/config module",
+          "Ensures i18n is initialized before app renders"
+        ],
+        "significance": "Guarantees i18n configuration runs at application startup"
+      }
+    ],
+    "patterns_discovered": [
+      {
+        "pattern": "i18next + react-i18next integration",
+        "description": "Standard industry pattern for React internationalization with language switching, resource loading, and persistence"
+      },
+      {
+        "pattern": "RTL support architecture",
+        "description": "Multi-layer RTL implementation: DOM direction attributes, MUI theme direction, Emotion cache with RTL plugin, and CSS-in-JS support"
+      },
+      {
+        "pattern": "Language persistence",
+        "description": "User language preference stored in localStorage, retrieved on app initialization, synchronized across context and document attributes"
+      },
+      {
+        "pattern": "Centralized theme management",
+        "description": "Theme created with direction parameter, dynamically updated in context based on i18n language, applied through MUI and Emotion"
+      },
+      {
+        "pattern": "Component-level translation",
+        "description": "Components use useTranslation hook from react-i18next for localized strings and language state"
+      }
+    ],
+    "gotchas_discovered": [
+      {
+        "gotcha": "RTL plugin dependency change",
+        "description": "Original code used 'stylis-plugin-rtl' but was changed to '@mui/stylis-plugin-rtl'. Official MUI plugin is more reliable and better supported.",
+        "impact": "Ensures compatibility with MUI's RTL requirements"
+      },
+      {
+        "gotcha": "Document attribute synchronization required",
+        "description": "Changing language in i18n doesn't automatically update HTML dir and lang attributes. Must explicitly set via document.documentElement.setAttribute() in both LanguageToggle and ThemeContext.",
+        "impact": "Critical for browser to render RTL text correctly and for assistive technologies"
+      },
+      {
+        "gotcha": "Theme direction parameter was missing",
+        "description": "createLightTheme() and createDarkTheme() didn't accept direction parameter initially. MUI theme needs direction prop to properly apply RTL styles.",
+        "impact": "Without this, MUI components wouldn't correctly flip layouts for RTL languages"
+      },
+      {
+        "gotcha": "Language change must update theme",
+        "description": "When language changes between LTR (English) and RTL (Hebrew), theme must be recreated with new direction. ThemeContext properly tracks i18n.language as dependency.",
+        "impact": "Prevents stale theme direction and ensures layout flips when switching languages"
+      }
+    ],
+    "approach_outcome": {
+      "success": true,
+      "summary": "Successfully implemented comprehensive RTL rendering support with Hebrew language",
+      "key_achievements": [
+        "Added i18next and react-i18next for professional-grade i18n",
+        "Created English and Hebrew translation files with 21+ keys",
+        "Implemented language toggle component with dropdown menu",
+        "Configured MUI RTL plugin for proper CSS handling",
+        "Synchronized theme direction with language selection",
+        "Set up document attributes for proper RTL browser rendering",
+        "Persisted user language preference to localStorage",
+        "Integrated language switching into main header"
+      ],
+      "technical_completeness": "All necessary layers implemented: i18n framework, translation resources, UI controls, theme system, DOM attributes, and CSS support",
+      "user_experience": "Seamless language switching with automatic RTL layout flipping and persistent preference"
+    },
+    "recommendations": [
+      {
+        "category": "expansion",
+        "suggestion": "Add more language translations beyond English/Hebrew",
+        "rationale": "The infrastructure is ready for additional languages; adding localization files is straightforward"
+      },
+      {
+        "category": "completeness",
+        "suggestion": "Translate remaining UI strings and update all components with i18next",
+        "rationale": "Only common and nav sections are translated; many other app strings still hardcoded in English"
+      },
+      {
+        "category": "feature_enhancement",
+        "suggestion": "Implement language auto-detection based on browser locale",
+        "rationale": "Could improve UX by defaulting to user's system language preference"
+      },
+      {
+        "category": "testing",
+        "suggestion": "Add automated tests for language switching and RTL rendering",
+        "rationale": "Ensures RTL layouts don't break with future changes, validates translations display correctly"
+      },
+      {
+        "category": "performance",
+        "suggestion": "Consider lazy-loading translation files for languages not immediately needed",
+        "rationale": "All translation bundles currently loaded upfront; could optimize for initial load time with lazy loading"
+      },
+      {
+        "category": "best_practice",
+        "suggestion": "Document language addition process for future developers",
+        "rationale": "Clear process documentation would help team add new languages consistently"
+      }
+    ],
+    "subtask_id": "subtask-1-5",
+    "session_num": 5,
+    "success": true,
+    "changed_files": [
+      "frontend/package-lock.json",
+      "frontend/package.json",
+      "frontend/src/components/LanguageToggle.tsx",
+      "frontend/src/components/layout/Header.tsx",
+      "frontend/src/i18n/config.ts",
+      "frontend/src/i18n/locales/en.json",
+      "frontend/src/i18n/locales/he.json",
+      "frontend/src/main.tsx",
+      "frontend/src/theme/ThemeContext.tsx",
+      "frontend/src/theme/emotionCache.ts",
+      "frontend/src/theme/theme.ts"
+    ]
+  },
+  "what_worked": [
+    "Implemented subtask: subtask-1-5"
+  ],
+  "what_failed": [],
+  "recommendations_for_next_session": []
+}

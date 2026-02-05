@@ -7,7 +7,11 @@ from app.db.session import get_db
 from app.models.material_template import MaterialTemplate, MaterialTemplateConsultant
 from app.models.equipment_template import ConsultantType
 from app.models.user import User
-from app.schemas.material_template import MaterialTemplateCreate, MaterialTemplateUpdate, MaterialTemplateResponse
+from app.schemas.material_template import (
+    MaterialTemplateCreate, MaterialTemplateUpdate,
+    MaterialTemplateResponse, MaterialTemplateWithConsultantsResponse
+)
+from app.schemas.equipment_template import ConsultantTypeResponse
 from app.services.audit_service import create_audit_log, get_model_dict
 from app.models.audit import AuditAction
 from app.core.security import get_current_user, get_current_admin_user
@@ -15,19 +19,36 @@ from app.core.security import get_current_user, get_current_admin_user
 router = APIRouter()
 
 
-@router.get("/material-templates", response_model=list[MaterialTemplateResponse])
+@router.get("/material-templates", response_model=list[MaterialTemplateWithConsultantsResponse])
 async def list_material_templates(
     category: str | None = None,
     is_active: bool | None = None,
     db: AsyncSession = Depends(get_db)
 ):
-    query = select(MaterialTemplate).order_by(MaterialTemplate.name_he)
+    query = select(MaterialTemplate).options(
+        selectinload(MaterialTemplate.approving_consultants)
+        .selectinload(MaterialTemplateConsultant.consultant_type)
+    ).order_by(MaterialTemplate.name_he)
     if category:
         query = query.where(MaterialTemplate.category == category)
     if is_active is not None:
         query = query.where(MaterialTemplate.is_active == is_active)
     result = await db.execute(query)
-    return result.scalars().all()
+    templates = result.scalars().all()
+    response = []
+    for tpl in templates:
+        base = MaterialTemplateResponse.model_validate(tpl)
+        consultants = [
+            ConsultantTypeResponse.model_validate(tc.consultant_type)
+            for tc in tpl.approving_consultants
+            if tc.consultant_type
+        ]
+        data = MaterialTemplateWithConsultantsResponse(
+            **base.model_dump(),
+            approving_consultants=consultants,
+        )
+        response.append(data)
+    return response
 
 
 @router.post("/material-templates", response_model=MaterialTemplateResponse, status_code=201)

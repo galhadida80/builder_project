@@ -1,0 +1,48 @@
+{
+  "task_description": "# Implement RTL Layout Support\n\n**Linear Issue:** [BUI-79](https://linear.app/builder-project/issue/BUI-79/implement-rtl-layout-support)\n**Priority:** High\n**Status:** Backlog\n\n## Description\n\ndir=rtl, CSS logical properties - Ref: 29-hebrew-rtl.png",
+  "scoped_services": ["frontend"],
+  "files_to_modify": {
+    "frontend": [
+      "package.json",
+      "src/theme/ThemeContext.tsx",
+      "src/styles/rtl.css",
+      "src/components/layout/Header.tsx",
+      "src/components/layout/Layout.tsx",
+      "src/components/common/LanguageToggle.tsx",
+      "src/pages/ApprovalsPage.tsx",
+      "src/pages/AreasPage.tsx",
+      "src/components/ui/Modal.tsx"
+    ]
+  },
+  "files_to_reference": [
+    "frontend/src/hooks/useLanguage.ts",
+    "frontend/src/components/common/LanguageToggle.tsx",
+    "frontend/src/theme/ThemeContext.tsx",
+    "frontend/src/theme/rtl.ts",
+    "frontend/src/i18n/config.ts"
+  ],
+  "patterns": {
+    "emotion_cache_pattern": "Material-UI requires CacheProvider above ThemeProvider with RTL plugin from stylis",
+    "logical_properties_pattern": "Replace margin-left/right with margin-inline-start/end, ml/mr with marginInlineStart/End",
+    "direction_detection": "Use i18n.language to detect RTL (language === 'he'), already handled by useLanguage hook",
+    "theme_integration": "Theme direction set via createTheme({ direction: 'rtl' | 'ltr' }), already implemented in ThemeContext"
+  },
+  "existing_implementations": {
+    "description": "Partial RTL support exists: document.dir attribute management via useLanguage hook, theme.direction via ThemeContext, but missing Emotion cache configuration for MUI RTL support",
+    "relevant_files": [
+      "frontend/src/hooks/useLanguage.ts (manages document.dir)",
+      "frontend/src/theme/ThemeContext.tsx (sets theme.direction)",
+      "frontend/src/theme/rtl.ts (getDirection helper)",
+      "frontend/src/styles/rtl.css (contains !important overrides - needs refactoring)"
+    ],
+    "missing_pieces": [
+      "@mui/stylis-plugin-rtl package not installed",
+      "@emotion/cache package not installed",
+      "stylis package not installed",
+      "CacheProvider wrapper not implemented in ThemeContext",
+      "Physical properties (ml, mr, pl, pr) in sx props need migration to logical properties",
+      "rtl.css uses !important overrides instead of logical properties"
+    ]
+  },
+  "created_at": "2026-02-01T00:00:00Z"
+}

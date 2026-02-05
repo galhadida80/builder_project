@@ -1,0 +1,24 @@
+{
+  "sourceType": "linear",
+  "linearIssueId": "bcadd466-ecbf-4a1d-a48e-cb8fa70dd5d0",
+  "linearIdentifier": "BUI-105",
+  "linearUrl": "https://linear.app/builder-project/issue/BUI-105/create-rfi-form-dialog-component",
+  "category": "feature",
+  "model": "haiku",
+  "thinkingLevel": "low",
+  "isAutoProfile": false,
+  "phaseModels": {
+    "spec": "haiku",
+    "planning": "haiku",
+    "coding": "haiku",
+    "qa": "haiku"
+  },
+  "phaseThinking": {
+    "spec": "low",
+    "planning": "low",
+    "coding": "low",
+    "qa": "low"
+  },
+  "attachedImages": [],
+  "requireReviewBeforeCoding": false
+}

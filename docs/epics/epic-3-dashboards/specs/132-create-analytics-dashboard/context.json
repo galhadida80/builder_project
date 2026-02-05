@@ -1,0 +1,49 @@
+{
+  "task_description": "# Create Analytics Dashboard\n\n**Linear Issue:** [BUI-61](https://linear.app/builder-project/issue/BUI-61/create-analytics-dashboard)\n**Priority:** High\n**Status:** Backlog\n\n\n## Description\n\nCharts, date selector, KPIs - Ref: 11-analytics.png\n",
+  "scoped_services": ["frontend", "backend"],
+  "files_to_modify": {
+    "frontend": [
+      "package.json",
+      "src/App.tsx"
+    ],
+    "backend": []
+  },
+  "files_to_create": {
+    "frontend": [
+      "src/pages/Analytics/AnalyticsDashboard.tsx",
+      "src/pages/Analytics/components/DateRangeSelector.tsx",
+      "src/pages/Analytics/components/KPICard.tsx",
+      "src/pages/Analytics/components/ProjectMetricsChart.tsx",
+      "src/pages/Analytics/components/DistributionChart.tsx",
+      "src/pages/Analytics/components/ExportButton.tsx",
+      "src/services/analyticsService.ts"
+    ],
+    "backend": [
+      "app/api/v1/analytics.py"
+    ]
+  },
+  "files_to_reference": [
+    "frontend/src/pages/DashboardPage.tsx",
+    "frontend/src/api/projects.ts",
+    "frontend/src/api/client.ts",
+    "frontend/src/components/ui/Card.tsx",
+    "backend/app/api/v1/projects.py"
+  ],
+  "patterns": {
+    "page_structure": "Pages use functional components with TypeScript, useState/useEffect hooks, Material-UI components, loading/error states with Skeleton components, responsive design with MUI Box/Grid",
+    "api_service": "API services use apiClient from './client' with environment variable VITE_API_URL, export object with async methods returning typed responses, handle errors in calling component",
+    "material_ui": "Consistent use of MUI components with theme.spacing(), sx prop for styling, responsive breakpoints in Grid (xs, sm, md, lg), Box for layout containers",
+    "routing": "Routes added to App.tsx inside ProtectedRoute and Layout wrappers, use <Route path='...' element={<Component />} /> pattern",
+    "kpi_display": "KPICard component exists in components/ui/Card.tsx with props: title, value, trend, trendLabel, icon, loading, color"
+  },
+  "existing_implementations": {
+    "description": "Found comprehensive dashboard page pattern in DashboardPage.tsx with KPI cards, loading states, error handling, and responsive grid layout. API service pattern established with axios client in api/client.ts. KPICard component already exists for metric display.",
+    "relevant_files": [
+      "frontend/src/pages/DashboardPage.tsx",
+      "frontend/src/api/client.ts",
+      "frontend/src/api/projects.ts",
+      "frontend/src/components/ui/Card.tsx"
+    ]
+  },
+  "created_at": "2026-02-01T16:49:19.591280"
+}

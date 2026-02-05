@@ -1,0 +1,18 @@
+{
+  "sourceType": "ideation",
+  "ideationType": "ui_ux_improvements",
+  "ideaId": "uiux-004",
+  "rationale": "Users expect clickable UI elements to do something. A visible 'Filter' button that is completely non-functional (no onClick, no dropdown, no menu) creates confusion and erodes trust in the application. Users on construction sites may repeatedly click the button thinking it's broken or slow, wasting time. This is a clear violation of the 'don't mislead users' UX principle.",
+  "category": "ui_ux",
+  "uiuxCategory": "usability",
+  "affectedFiles": [
+    "pages/MaterialsPage.tsx",
+    "pages/ContactsPage.tsx",
+    "pages/ProjectsPage.tsx",
+    "pages/EquipmentPage.tsx",
+    "pages/InspectionsPage.tsx",
+    "pages/ApprovalsPage.tsx",
+    "pages/RFIPage.tsx"
+  ],
+  "problemSolved": "All 7 pages render `<Button variant='secondary' size='small' icon={<FilterListIcon />}>{t('common.filter')}</Button>` with no onClick handler. The button renders and is visually styled as interactive (hover/active states via Button component), but clicking it does nothing. Found in: MaterialsPage (line 343), ContactsPage (line 250), ProjectsPage (line 262), EquipmentPage (line 385), InspectionsPage (line 457), ApprovalsPage (line 199), RFIPage (line 409)."
+}

@@ -1,0 +1,23 @@
+{
+  "sourceType": "ideation",
+  "ideationType": "ui_ux_improvements",
+  "ideaId": "uiux-001",
+  "rationale": "The app supports 3 languages (en, he, es) via i18next, but every date/time displayed in the UI is hardcoded to 'en-US' format. A Hebrew user sees 'Jan 15, 2026' instead of '15 בינו 2026'. This creates a jarring, inconsistent multilingual experience and undermines the i18n investment already made.",
+  "category": "ui_ux",
+  "uiuxCategory": "usability",
+  "affectedFiles": [
+    "pages/MeetingsPage.tsx",
+    "pages/MaterialsPage.tsx",
+    "pages/InspectionsPage.tsx",
+    "pages/DashboardPage.tsx",
+    "pages/AuditLogPage.tsx",
+    "pages/ProjectsPage.tsx",
+    "pages/ProjectDetailPage.tsx",
+    "pages/InspectorDashboard.tsx",
+    "components/ApprovalAuditTrail.tsx",
+    "components/InspectionHistoryTimeline.tsx",
+    "components/inspections/FindingCard.tsx",
+    "components/documents/FileList.tsx"
+  ],
+  "problemSolved": "All date/time formatting uses hardcoded 'en-US' locale: e.g., `new Date(dateString).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })`. Found 25+ instances across 12 files. When a user switches to Hebrew or Spanish, all dates remain in English format."
+}

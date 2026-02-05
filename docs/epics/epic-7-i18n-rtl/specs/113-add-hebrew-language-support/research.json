@@ -1,0 +1,441 @@
+{
+  "integrations_researched": [
+    {
+      "name": "i18next",
+      "type": "library",
+      "status": "already_installed",
+      "verified_package": {
+        "name": "i18next",
+        "install_command": "npm install i18next",
+        "current_version": "25.8.0",
+        "verified": true
+      },
+      "api_patterns": {
+        "imports": [
+          "import i18n from 'i18next';",
+          "import { useTranslation } from 'react-i18next';"
+        ],
+        "initialization": "i18n.use(LanguageDetector).use(initReactI18next).init({ resources, fallbackLng, supportedLngs, detection, interpolation })",
+        "key_functions": [
+          "i18n.init(options)",
+          "i18n.changeLanguage(lng)",
+          "i18n.t('translation.key')",
+          "i18n.dir() - returns 'ltr' or 'rtl'"
+        ],
+        "verified_against": "Project code and npm documentation"
+      },
+      "configuration": {
+        "existing_setup": true,
+        "config_file": "frontend/src/i18n/config.ts",
+        "translation_files": [
+          "frontend/src/i18n/locales/en.json",
+          "frontend/src/i18n/locales/he.json"
+        ],
+        "supported_languages": ["en", "he"],
+        "fallback_language": "en",
+        "detection_order": ["localStorage", "navigator"]
+      },
+      "rtl_support": {
+        "built_in_function": "i18n.dir()",
+        "returns": "'rtl' for Hebrew, 'ltr' for English",
+        "implementation": "Set dir attribute on HTML element dynamically"
+      },
+      "gotchas": [
+        "Must call i18n.dir() to get direction for current language",
+        "Direction changes require updating DOM dir attribute",
+        "Translation files must use exact same key structure for all languages"
+      ],
+      "research_sources": [
+        "https://www.i18next.com/overview/api",
+        "https://dev.to/ash_dubai/i18n-and-rtl-implementation-for-global-e-commerce-mastering-i18n-3jb1",
+        "Project: frontend/src/i18n/config.ts"
+      ]
+    },
+    {
+      "name": "react-i18next",
+      "type": "library",
+      "status": "already_installed",
+      "verified_package": {
+        "name": "react-i18next",
+        "install_command": "npm install react-i18next",
+        "current_version": "16.5.4",
+        "verified": true
+      },
+      "api_patterns": {
+        "imports": [
+          "import { useTranslation } from 'react-i18next';",
+          "import { initReactI18next } from 'react-i18next';",
+          "import { Trans } from 'react-i18next';"
+        ],
+        "initialization": "i18n.use(initReactI18next)",
+        "key_functions": [
+          "const { t, i18n } = useTranslation()",
+          "t('namespace:key')",
+          "i18n.changeLanguage('he')",
+          "i18n.language - current language code"
+        ],
+        "hooks": [
+          "useTranslation() - main hook for translations",
+          "useTranslation('namespace') - for specific namespace"
+        ],
+        "verified_against": "Project code and official documentation"
+      },
+      "configuration": {
+        "existing_setup": true,
+        "integration": "Already integrated with i18next in config.ts"
+      },
+      "gotchas": [
+        "Must wrap app with i18n provider (already done via i18n.use(initReactI18next))",
+        "useTranslation hook must be called inside React components",
+        "Translation keys must exist in all language files to avoid fallback warnings"
+      ],
+      "research_sources": [
+        "https://react.i18next.com/latest/using-with-hooks",
+        "https://phrase.com/blog/posts/localizing-react-apps-with-i18next/",
+        "Project: frontend/src/i18n/config.ts"
+      ]
+    },
+    {
+      "name": "i18next-browser-languagedetector",
+      "type": "library",
+      "status": "already_installed",
+      "verified_package": {
+        "name": "i18next-browser-languagedetector",
+        "install_command": "npm install i18next-browser-languagedetector",
+        "current_version": "8.2.0",
+        "verified": true
+      },
+      "api_patterns": {
+        "imports": [
+          "import LanguageDetector from 'i18next-browser-languagedetector';"
+        ],
+        "initialization": "i18n.use(LanguageDetector).init({ detection: { order, caches } })",
+        "key_functions": [
+          "Automatic language detection from multiple sources",
+          "Detection order configurable via options"
+        ],
+        "verified_against": "Project code and npm documentation"
+      },
+      "configuration": {
+        "existing_setup": true,
+        "detection_sources": [
+          "localStorage",
+          "navigator (browser language)"
+        ],
+        "cache_location": "localStorage",
+        "language_code_for_hebrew": "he"
+      },
+      "gotchas": [
+        "Hebrew language code is 'he' (not 'iw' which is deprecated)",
+        "Detection order matters - localStorage checked before navigator",
+        "Must configure supportedLngs to prevent unsupported language selection"
+      ],
+      "research_sources": [
+        "https://www.npmjs.com/package/i18next-browser-languagedetector",
+        "https://github.com/i18next/i18next-browser-languageDetector",
+        "Project: frontend/src/i18n/config.ts"
+      ]
+    },
+    {
+      "name": "@mui/stylis-plugin-rtl",
+      "type": "library",
+      "status": "not_installed",
+      "verified_package": {
+        "name": "@mui/stylis-plugin-rtl",
+        "install_command": "npm install @mui/stylis-plugin-rtl stylis",
+        "version": "latest",
+        "verified": true,
+        "additional_dependencies": [
+          "stylis - Required peer dependency",
+          "@emotion/cache - Required for CacheProvider"
+        ]
+      },
+      "api_patterns": {
+        "imports": [
+          "import rtlPlugin from '@mui/stylis-plugin-rtl';",
+          "import { CacheProvider } from '@emotion/react';",
+          "import createCache from '@emotion/cache';",
+          "import { prefixer } from 'stylis';"
+        ],
+        "initialization": "const cacheRtl = createCache({ key: 'muirtl', stylisPlugins: [prefixer, rtlPlugin] });",
+        "key_functions": [
+          "createCache({ key, stylisPlugins }) - Creates RTL-aware emotion cache",
+          "CacheProvider wraps app to provide RTL styles"
+        ],
+        "usage_pattern": "<CacheProvider value={cacheRtl}><ThemeProvider theme={theme}>...</ThemeProvider></CacheProvider>",
+        "verified_against": "MUI official documentation and npm package"
+      },
+      "configuration": {
+        "required": true,
+        "setup_steps": [
+          "1. Install @mui/stylis-plugin-rtl and stylis",
+          "2. Create RTL cache with rtlPlugin and prefixer",
+          "3. Wrap app with CacheProvider when RTL is needed",
+          "4. Set theme direction to 'rtl'",
+          "5. Set HTML dir attribute to 'rtl'"
+        ],
+        "cache_key": "muirtl",
+        "plugins_order": ["prefixer", "rtlPlugin"]
+      },
+      "integration_with_mui": {
+        "mui_version": "5.15.6",
+        "compatible": true,
+        "emotion_based": true,
+        "theme_direction": "Set via createTheme({ direction: 'rtl' })"
+      },
+      "gotchas": [
+        "Must include BOTH prefixer and rtlPlugin in stylisPlugins array",
+        "Cache must be created before app renders",
+        "CacheProvider must wrap ThemeProvider",
+        "Some MUI components need individual dir='rtl' attribute (Dialog, Drawer)",
+        "Body element must have dir='rtl' attribute for native elements",
+        "Compatible with Emotion only - different setup needed for styled-components"
+      ],
+      "research_sources": [
+        "https://mui.com/material-ui/customization/right-to-left/",
+        "https://www.npmjs.com/package/@mui/stylis-plugin-rtl",
+        "https://github.com/mui/material-ui/issues/25336"
+      ]
+    },
+    {
+      "name": "Material-UI (MUI) v5",
+      "type": "framework",
+      "status": "already_installed",
+      "verified_package": {
+        "name": "@mui/material",
+        "install_command": "npm install @mui/material @emotion/react @emotion/styled",
+        "current_version": "5.15.6",
+        "verified": true
+      },
+      "rtl_support": {
+        "built_in": true,
+        "requires_plugin": "@mui/stylis-plugin-rtl",
+        "theme_configuration": {
+          "direction_property": "direction: 'rtl' | 'ltr'",
+          "set_via": "createTheme({ direction: 'rtl' })"
+        },
+        "implementation_steps": [
+          "1. Set theme direction via createTheme()",
+          "2. Install and configure @mui/stylis-plugin-rtl",
+          "3. Wrap app with CacheProvider (for RTL) and ThemeProvider",
+          "4. Set dir='rtl' on HTML/body element"
+        ]
+      },
+      "mui_components_with_rtl": {
+        "supported": [
+          "All layout components (Box, Grid, Stack)",
+          "Typography",
+          "Buttons and inputs",
+          "Navigation (AppBar, Drawer, Tabs)",
+          "Data display (Table, List, Card)"
+        ],
+        "special_handling": [
+          "Drawer - May need custom styling for correct side positioning",
+          "Dialog - Needs dir='rtl' on component",
+          "Tooltips - Automatic positioning adjustment"
+        ]
+      },
+      "mui_localization": {
+        "data_grid": {
+          "package": "@mui/x-data-grid",
+          "current_version": "6.19.2",
+          "hebrew_locale": "Not available by default",
+          "custom_locale_required": true
+        },
+        "date_pickers": {
+          "package": "@mui/x-date-pickers",
+          "current_version": "6.19.2",
+          "hebrew_locale": "heIL locale available",
+          "import": "import { heIL } from '@mui/x-date-pickers/locales';"
+        }
+      },
+      "gotchas": [
+        "Theme direction must be set separately from i18n direction",
+        "Cannot simply wrap components in dir='rtl' Box - doesn't work for all components",
+        "Drawer position not automatically flipped - may need custom styling",
+        "Date picker locale separate from i18n translations",
+        "Must recreate theme when direction changes (not just update property)"
+      ],
+      "research_sources": [
+        "https://mui.com/material-ui/customization/right-to-left/",
+        "https://mui.com/material-ui/guides/localization/",
+        "https://github.com/mui/material-ui/issues/28741"
+      ]
+    },
+    {
+      "name": "Noto Sans Hebrew Font",
+      "type": "font",
+      "status": "defined_but_not_loaded",
+      "verified_package": {
+        "name": "Google Fonts - Noto Sans Hebrew",
+        "install_command": "Not applicable - loaded via @import or link",
+        "version": "v3",
+        "verified": true
+      },
+      "font_details": {
+        "family_name": "Noto Sans Hebrew",
+        "weights_available": [100, 200, 300, 400, 500, 600, 700, 800, 900],
+        "styles": ["normal"],
+        "character_support": "Full Hebrew Unicode support",
+        "fallback_fonts": "Plus Jakarta Sans, system-ui, sans-serif"
+      },
+      "loading_methods": {
+        "google_fonts_cdn": {
+          "recommended": true,
+          "url": "https://fonts.googleapis.com/css2?family=Noto+Sans+Hebrew:wght@100;200;300;400;500;600;700;800;900&display=swap",
+          "method": "Add @import in CSS or <link> in HTML"
+        },
+        "self_hosted": {
+          "recommended": false,
+          "complexity": "medium",
+          "benefits": "No external dependency, better privacy"
+        },
+        "npm_package": {
+          "package_name": "@expo-google-fonts/noto-sans-hebrew",
+          "for": "Expo/React Native only",
+          "not_applicable": true
+        }
+      },
+      "configuration": {
+        "existing_definition": "frontend/src/theme/tokens.ts",
+        "font_family_value": "'Noto Sans Hebrew', 'Plus Jakarta Sans', system-ui, sans-serif",
+        "usage": "Applied automatically when dir='rtl' on body element",
+        "css_rule": "[dir=\"rtl\"] body { fontFamily: typography.fontFamily.hebrew }"
+      },
+      "implementation": {
+        "required_action": "Load font from Google Fonts CDN",
+        "add_to": "index.html or main CSS file",
+        "code": "@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Hebrew:wght@100;200;300;400;500;600;700;800;900&display=swap');"
+      },
+      "gotchas": [
+        "Must load font BEFORE app renders to avoid FOUT (Flash of Unstyled Text)",
+        "display=swap parameter recommended for better performance",
+        "Should load all required weights upfront",
+        "Font already defined in theme but not loaded from external source",
+        "Noto Sans Hebrew v3 is major redesign - ensure it matches design requirements"
+      ],
+      "research_sources": [
+        "https://fonts.google.com/noto/specimen/Noto+Sans+Hebrew",
+        "https://github.com/notofonts/noto-sans-hebrew",
+        "Project: frontend/src/theme/tokens.ts"
+      ]
+    }
+  ],
+  "existing_infrastructure": {
+    "i18n_framework": {
+      "status": "fully_configured",
+      "libraries": ["i18next@25.8.0", "react-i18next@16.5.4", "i18next-browser-languagedetector@8.2.0"],
+      "config_file": "frontend/src/i18n/config.ts",
+      "supported_languages": ["en", "he"],
+      "translation_completeness": {
+        "english": "100% (194 keys)",
+        "hebrew": "100% (194 keys, all translated)"
+      }
+    },
+    "theme_system": {
+      "status": "partially_configured",
+      "rtl_helper": "frontend/src/theme/rtl.ts - getDirection() function exists",
+      "fonts_defined": true,
+      "hebrew_font": "Noto Sans Hebrew",
+      "rtl_css_rule": "Exists for [dir='rtl'] body",
+      "mui_rtl_setup": "Not yet implemented"
+    },
+    "missing_implementations": [
+      "MUI RTL plugin (@mui/stylis-plugin-rtl) - Not installed",
+      "CacheProvider setup for RTL - Not implemented",
+      "Dynamic theme direction switching - Not implemented",
+      "HTML dir attribute dynamic setting - Not implemented",
+      "Noto Sans Hebrew font loading - Not loaded from CDN",
+      "MUI DataGrid Hebrew localization - Custom locale needed",
+      "Language switcher UI component - May not exist"
+    ]
+  },
+  "implementation_requirements": {
+    "new_packages_needed": [
+      {
+        "name": "@mui/stylis-plugin-rtl",
+        "install": "npm install @mui/stylis-plugin-rtl",
+        "purpose": "MUI RTL style transformation"
+      },
+      {
+        "name": "stylis",
+        "install": "npm install stylis",
+        "purpose": "Peer dependency for @mui/stylis-plugin-rtl"
+      }
+    ],
+    "configuration_changes": [
+      {
+        "file": "frontend/src/App.tsx or theme provider",
+        "change": "Add CacheProvider with RTL plugin when language is Hebrew",
+        "complexity": "medium"
+      },
+      {
+        "file": "frontend/src/theme/ThemeContext.tsx or similar",
+        "change": "Dynamically set theme direction based on i18n language",
+        "complexity": "medium"
+      },
+      {
+        "file": "frontend/index.html or App.tsx",
+        "change": "Dynamically set dir attribute on html/body element",
+        "complexity": "low"
+      },
+      {
+        "file": "frontend/index.html",
+        "change": "Add Google Fonts link for Noto Sans Hebrew",
+        "complexity": "low"
+      }
+    ],
+    "optional_enhancements": [
+      "Create custom Hebrew locale for MUI DataGrid",
+      "Create language switcher UI component",
+      "Add Hebrew locale for MUI DatePickers (heIL available)",
+      "Test all components in RTL mode"
+    ]
+  },
+  "potential_issues": {
+    "high_priority": [
+      {
+        "issue": "MUI Drawer component may appear on wrong side in RTL",
+        "solution": "Add custom styling or use conditional anchor prop",
+        "reference": "https://github.com/mui/material-ui/issues/25336"
+      },
+      {
+        "issue": "Dialog and Modal components may need individual dir='rtl' attribute",
+        "solution": "Apply dir='rtl' directly to Dialog/Modal components",
+        "reference": "https://github.com/mui/material-ui/issues/28741"
+      }
+    ],
+    "medium_priority": [
+      {
+        "issue": "Theme must be recreated when switching languages (not just updated)",
+        "solution": "Create new theme instance when language changes",
+        "impact": "Performance - theme recreation on language switch"
+      },
+      {
+        "issue": "Custom CSS may not flip automatically",
+        "solution": "Use logical properties (start/end instead of left/right)",
+        "impact": "May need to audit custom styles"
+      }
+    ],
+    "low_priority": [
+      {
+        "issue": "Flash of unstyled text (FOUT) if font loads slowly",
+        "solution": "Preload font in HTML head or use font-display: swap",
+        "impact": "User experience during initial load"
+      }
+    ]
+  },
+  "recommendations": [
+    "Install @mui/stylis-plugin-rtl and stylis packages first",
+    "Load Noto Sans Hebrew font from Google Fonts CDN in index.html",
+    "Create RTL-aware theme provider that switches based on i18n language",
+    "Set HTML dir attribute dynamically based on current language",
+    "Test all major UI components (Drawer, Dialog, DataGrid) in Hebrew RTL mode",
+    "Consider creating a language switcher component for users",
+    "Use CSS logical properties (margin-inline-start) instead of directional (margin-left) for custom styles",
+    "Verify form layouts, especially inputs and buttons, work correctly in RTL"
+  ],
+  "unverified_claims": [],
+  "research_complete": true,
+  "created_at": "2026-02-01T12:00:00Z"
+}

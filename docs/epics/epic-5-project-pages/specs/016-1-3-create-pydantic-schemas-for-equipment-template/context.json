@@ -1,0 +1,105 @@
+{
+  "task_description": "Create Pydantic schemas for equipment template CRUD operations in backend/app/schemas/equipment_template.py",
+  "scoped_services": ["backend"],
+  "files_to_modify": {
+    "backend": []
+  },
+  "files_to_create": {
+    "backend": ["app/schemas/equipment_template.py"]
+  },
+  "files_to_reference": [
+    "backend/app/schemas/equipment.py",
+    "backend/app/schemas/material.py",
+    "backend/app/schemas/approval.py",
+    "backend/app/core/validators.py"
+  ],
+  "patterns": {
+    "crud_structure": "All schemas follow Base/Create/Update/Response pattern. Base contains shared fields with validation, Create inherits from Base, Update has all fields optional (Type | None with default=None), Response inherits from CamelCaseModel with id, timestamps, and created_by fields",
+    "validation_pattern": "Use @field_validator with mode='before' to apply sanitize_string to all user-facing text fields before Pydantic validation",
+    "base_classes": "BaseModel for Base/Create/Update schemas, CamelCaseModel for all Response schemas (converts snake_case to camelCase for JSON API responses)",
+    "type_system": "UUID for IDs, datetime for timestamps, Type | None for optionals (NOT Optional[Type]), list[Type] for collections (NOT List[Type]), Literal['a', 'b'] for enumerated values",
+    "field_constraints": "Import constants from validators (MIN_NAME_LENGTH, MAX_NAME_LENGTH, MAX_NOTES_LENGTH) and use Field(min_length=..., max_length=...) for length constraints",
+    "bilingual_support": "All user-facing schemas require both name (English) and name_he (Hebrew) fields for proper localization"
+  },
+  "existing_implementations": {
+    "description": "Found comprehensive CRUD schema patterns in equipment.py and material.py. CamelCaseModel base class in validators.py handles API serialization with camelCase conversion. ChecklistItem pattern in equipment.py shows nested schema structure.",
+    "relevant_files": [
+      "backend/app/schemas/equipment.py",
+      "backend/app/schemas/material.py",
+      "backend/app/schemas/approval.py",
+      "backend/app/core/validators.py"
+    ],
+    "key_insights": [
+      "CamelCaseModel uses ConfigDict with from_attributes=True, alias_generator=to_camel, populate_by_name=True",
+      "Field validators apply sanitize_string to multiple fields in single decorator: @field_validator('field1', 'field2', mode='before')",
+      "Modern Python 3.10+ union syntax used throughout: str | None instead of Optional[str]",
+      "Update schemas have ALL fields optional with default=None",
+      "Response schemas include id, created_at, updated_at, created_by (UserResponse | None)",
+      "Nested schemas like ChecklistItem are defined as separate BaseModel classes"
+    ]
+  },
+  "schema_definitions_required": {
+    "nested_definitions": [
+      {
+        "name": "DocumentDefinition",
+        "fields": {
+          "name": "str",
+          "name_he": "str (Hebrew translation)",
+          "description": "str | None",
+          "source": "Literal['consultant', 'project_manager', 'contractor']",
+          "required": "bool = True (default)"
+        }
+      },
+      {
+        "name": "SpecificationDefinition",
+        "fields": {
+          "name": "str",
+          "name_he": "str (Hebrew translation)",
+          "field_type": "Literal['text', 'number', 'boolean', 'select', 'file']",
+          "options": "list[str] | None (only valid when field_type='select')",
+          "unit": "str | None",
+          "required": "bool = True (default)"
+        },
+        "special_validation": "Add validator to ensure options field only present when field_type is 'select'"
+      },
+      {
+        "name": "ChecklistItemDefinition",
+        "fields": {
+          "name": "str",
+          "name_he": "str (Hebrew translation)",
+          "requires_file": "bool = False (default)"
+        }
+      }
+    ],
+    "crud_entities": [
+      {
+        "name": "EquipmentTemplate",
+        "schemas": ["Base", "Create", "Update", "Response"],
+        "notes": "Full CRUD support with Base/Create/Update/Response pattern"
+      },
+      {
+        "name": "EquipmentApprovalSubmission",
+        "schemas": ["Base", "Create", "Update", "Response"],
+        "notes": "Full CRUD support for approval submission workflow"
+      },
+      {
+        "name": "EquipmentApprovalDecision",
+        "schemas": ["Create", "Response"],
+        "notes": "No Update schema - decisions are immutable after creation"
+      },
+      {
+        "name": "ConsultantType",
+        "schemas": ["Response"],
+        "notes": "Response-only schema for consultant categorization"
+      }
+    ]
+  },
+  "validation_requirements": {
+    "text_sanitization": "Apply sanitize_string validator to ALL user-facing text fields (name, name_he, description, notes, etc.)",
+    "literal_validation": "Pydantic automatically validates Literal types - no custom validator needed",
+    "conditional_validation": "SpecificationDefinition.options should only be valid when field_type='select'",
+    "bilingual_fields": "Both name and name_he are required and must have minimum length validation",
+    "default_values": "Set explicit defaults: required=True, requires_file=False"
+  },
+  "created_at": "2026-01-29T16:40:08.990262"
+}

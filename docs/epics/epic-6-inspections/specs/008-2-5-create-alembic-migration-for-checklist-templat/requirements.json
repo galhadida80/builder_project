@@ -1,0 +1,4 @@
+{
+  "task_description": "# 2.5 Create Alembic migration for Checklist Templates\n\n**Linear Issue:** [BUI-29](https://linear.app/builder-project/issue/BUI-29/25-create-alembic-migration-for-checklist-templates)\n**Priority:** Medium\n**Status:** Backlog\n\n\n## Description\n\nCreate database migration for checklist template tables.\n\n**Tables to create:**\n\n1. checklist_templates\n2. checklist_sub_sections\n3. checklist_item_templates\n4. checklist_instances\n5. checklist_item_responses\n\n**Indexes:**\n\n* checklist_templates: level, group_name\n* checklist_sub_sections: template_id, order\n* checklist_item_templates: sub_section_id, order\n* checklist_instances: project_id, template_id, area_id, status\n* checklist_item_responses: instance_id, item_template_id\n\n**Run:** alembic revision --autogenerate -m \"add checklist templates\"\n",
+  "workflow_type": "feature"
+}

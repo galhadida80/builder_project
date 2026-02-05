@@ -1,0 +1,70 @@
+{
+  "complexity": "standard",
+  "workflow_type": "feature",
+  "confidence": 0.85,
+  "reasoning": "Writing integration tests for existing RFI system. Requires research for proper Gmail API and Pub/Sub mocking patterns. Well-defined scope with 9 acceptance criteria. Single service, 5-8 test files estimated.",
+
+  "analysis": {
+    "scope": {
+      "estimated_files": 7,
+      "estimated_services": 1,
+      "is_cross_cutting": false,
+      "notes": "Test files for CRUD, email, webhooks, matching, notifications, plus fixture files and mock utilities. Contained to backend RFI service."
+    },
+    "integrations": {
+      "external_services": ["Gmail API (mocked)", "Google Pub/Sub (mocked)"],
+      "new_dependencies": ["pytest-mock or similar testing libraries (if not present)"],
+      "research_needed": true,
+      "notes": "Need to research proper mocking strategies for Gmail API and Pub/Sub in integration tests. Not integrating real services, just creating effective test doubles."
+    },
+    "infrastructure": {
+      "docker_changes": false,
+      "database_changes": false,
+      "config_changes": true,
+      "notes": "Test configuration for mock services and test database setup. No production infrastructure changes."
+    },
+    "knowledge": {
+      "patterns_exist": true,
+      "research_required": true,
+      "unfamiliar_tech": ["Gmail API testing patterns", "Pub/Sub testing patterns"],
+      "notes": "Need to understand existing RFI system architecture and discover existing test patterns in codebase. Research external service mocking best practices."
+    },
+    "risk": {
+      "level": "low",
+      "concerns": [
+        "Tests that don't accurately reflect real behavior",
+        "Flaky tests if not properly isolated",
+        "Test fixture maintenance overhead"
+      ],
+      "notes": "Low production risk since this is test code. Main concern is test quality and maintainability."
+    }
+  },
+
+  "recommended_phases": [
+    "discovery",
+    "requirements",
+    "research",
+    "context",
+    "spec_writing",
+    "planning",
+    "validation"
+  ],
+
+  "flags": {
+    "needs_research": true,
+    "needs_self_critique": false,
+    "needs_infrastructure_setup": false
+  },
+
+  "validation_recommendations": {
+    "risk_level": "medium",
+    "skip_validation": false,
+    "minimal_mode": false,
+    "test_types_required": ["unit"],
+    "security_scan_required": false,
+    "staging_deployment_required": false,
+    "reasoning": "Integration tests themselves need validation to ensure they run correctly, cover intended scenarios, and properly mock external services. Medium risk because broken tests can give false confidence."
+  },
+
+  "created_at": "2026-02-02T00:00:00Z"
+}

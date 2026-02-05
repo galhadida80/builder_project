@@ -1,0 +1,213 @@
+{
+  "subtasks": {
+    "subtask-1-1": {
+      "attempts": [
+        {
+          "session": 1,
+          "timestamp": "2026-01-29T15:32:46.965350",
+          "approach": "Implemented: Create EquipmentTemplate model with admin-scoped fields",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-1-2": {
+      "attempts": [
+        {
+          "session": 2,
+          "timestamp": "2026-01-29T15:35:13.519178",
+          "approach": "Implemented: Create EquipmentSubmission model with project-scoped relationships",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-1-3": {
+      "attempts": [
+        {
+          "session": 3,
+          "timestamp": "2026-01-29T15:37:22.170515",
+          "approach": "Implemented: Create ApprovalDecision model for submission decisions",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-2-1": {
+      "attempts": [
+        {
+          "session": 4,
+          "timestamp": "2026-01-29T15:39:07.920081",
+          "approach": "Implemented: Create EquipmentTemplate schemas (Create/Update/Response)",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-2-2": {
+      "attempts": [
+        {
+          "session": 5,
+          "timestamp": "2026-01-29T15:41:29.847009",
+          "approach": "Implemented: Create EquipmentSubmission schemas (Create/Update/Response)",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-2-3": {
+      "attempts": [
+        {
+          "session": 6,
+          "timestamp": "2026-01-29T15:43:13.075209",
+          "approach": "Implemented: Create ApprovalDecision schemas (Create/Response)",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-3-1": {
+      "attempts": [
+        {
+          "session": 7,
+          "timestamp": "2026-01-29T15:45:19.581103",
+          "approach": "Implemented: Add get_current_admin_user dependency function to security.py",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-4-1": {
+      "attempts": [
+        {
+          "session": 8,
+          "timestamp": "2026-01-29T15:47:17.564551",
+          "approach": "Implemented: Create router file with template CRUD endpoints (5 endpoints)",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-4-2": {
+      "attempts": [
+        {
+          "session": 9,
+          "timestamp": "2026-01-29T15:49:42.931726",
+          "approach": "Implemented: Add submission CRUD endpoints (5 endpoints, project-scoped)",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-4-3": {
+      "attempts": [
+        {
+          "session": 10,
+          "timestamp": "2026-01-29T15:52:19.084333",
+          "approach": "Implemented: Add approval decision endpoints (2 endpoints)",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-4-4": {
+      "attempts": [
+        {
+          "session": 11,
+          "timestamp": "2026-01-29T15:53:51.475987",
+          "approach": "Implemented: Add audit logging to all CRUD operations in router",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-5-1": {
+      "attempts": [
+        {
+          "session": 12,
+          "timestamp": "2026-01-29T15:55:33.418217",
+          "approach": "Implemented: Create Alembic migration 004_add_equipment_templates",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-6-1": {
+      "attempts": [
+        {
+          "session": 13,
+          "timestamp": "2026-01-29T15:57:13.620077",
+          "approach": "Implemented: Register equipment_templates router in API v1 router.py",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-7-1": {
+      "attempts": [
+        {
+          "session": 14,
+          "timestamp": "2026-01-29T16:00:12.583084",
+          "approach": "Implemented: Apply migration and start backend server for manual testing",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-7-2": {
+      "attempts": [
+        {
+          "session": 15,
+          "timestamp": "2026-01-29T16:04:51.340997",
+          "approach": "Implemented: Test template CRUD operations via Swagger UI",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-7-3": {
+      "attempts": [
+        {
+          "session": 16,
+          "timestamp": "2026-01-29T16:09:45.955389",
+          "approach": "Implemented: Test submission workflow with template linkage",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-7-4": {
+      "attempts": [
+        {
+          "session": 17,
+          "timestamp": "2026-01-29T16:15:52.631670",
+          "approach": "Implemented: Test approval decision workflow",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    }
+  },
+  "stuck_subtasks": [],
+  "metadata": {
+    "created_at": "2026-01-29T15:31:03.623084",
+    "last_updated": "2026-01-29T16:15:52.631680"
+  }
+}

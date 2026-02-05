@@ -1,0 +1,52 @@
+{
+  "files_to_modify": {
+    "frontend": [
+      "frontend/src/pages/ProjectsPage.tsx",
+      "frontend/src/pages/ContactsPage.tsx",
+      "frontend/src/pages/DashboardPage.tsx",
+      "frontend/src/pages/ProjectDetailPage.tsx",
+      "frontend/src/pages/MaterialsPage.tsx",
+      "frontend/src/pages/RFIPage.tsx",
+      "frontend/src/pages/MeetingsPage.tsx",
+      "frontend/src/pages/InspectionsPage.tsx",
+      "frontend/src/pages/ApprovalsPage.tsx",
+      "frontend/src/pages/AreasPage.tsx",
+      "frontend/src/pages/AuditLogPage.tsx",
+      "frontend/src/pages/EquipmentPage.tsx"
+    ]
+  },
+  "files_to_create": {},
+  "files_to_reference": [
+    "frontend/src/pages/ProjectsPage.tsx",
+    "frontend/src/pages/ContactsPage.tsx",
+    "frontend/src/pages/DashboardPage.tsx"
+  ],
+  "patterns": {
+    "skeleton_loading_pattern": "Skeleton loading components are rendered in a loading state (if (loading) return ...) before data is loaded",
+    "grid_responsive_pattern": "MUI Box components use sx={{ gridTemplateColumns: { xs: '...', sm: '...', md: '...', lg: '...' } }} for responsive breakpoints",
+    "breakpoint_conventions": "xs (< 600px), sm (600-960px), md (960-1280px), lg (> 1280px)",
+    "common_kpi_grid": "KPI cards typically use { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' } or { xs: '1fr', md: 'repeat(3, 1fr)' }",
+    "common_content_grid": "Content cards typically use { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }"
+  },
+  "existing_implementations": {
+    "description": "Found 12 pages with skeleton loading states. Most use fixed gridTemplateColumns (e.g., 'repeat(4, 1fr)') in skeleton state while actual content uses responsive breakpoints. This causes layout shift on mobile devices when data loads.",
+    "relevant_files": [
+      "frontend/src/pages/ProjectsPage.tsx",
+      "frontend/src/pages/ContactsPage.tsx",
+      "frontend/src/pages/DashboardPage.tsx",
+      "frontend/src/pages/ProjectDetailPage.tsx"
+    ],
+    "key_insights": [
+      "Skeleton loading blocks are rendered inside 'if (loading)' conditional returns",
+      "Actual content uses Material-UI's sx prop with responsive gridTemplateColumns object",
+      "Pattern to follow: Copy gridTemplateColumns from actual content to skeleton loading Box",
+      "Common pattern: KPI cards use 2 columns on mobile, 4 on desktop",
+      "Common pattern: Content cards use 1 column on mobile, 2 on tablet, 3 on desktop"
+    ]
+  },
+  "problem_statement": {
+    "issue": "Skeleton loading grids use fixed column counts (e.g., repeat(4, 1fr)) while actual content uses responsive breakpoints (e.g., { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' })",
+    "impact": "On mobile devices, skeleton shows cramped 4-column grid that snaps to 1-2 columns when data loads, causing jarring Cumulative Layout Shift (CLS)",
+    "solution": "Update all skeleton loading Box components to use the same responsive gridTemplateColumns breakpoints as their corresponding actual content layouts"
+  }
+}

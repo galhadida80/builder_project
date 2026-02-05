@@ -1,0 +1,70 @@
+{
+  "complexity": "standard",
+  "workflow_type": "feature",
+  "confidence": 0.85,
+  "reasoning": "New document review interface with split view and comments requires multiple files across frontend and backend, plus database schema changes. However, the codebase has similar patterns (RFI comments, inspection findings) that can be followed, making this a standard feature implementation rather than complex greenfield work.",
+
+  "analysis": {
+    "scope": {
+      "estimated_files": 12,
+      "estimated_services": 2,
+      "is_cross_cutting": false,
+      "notes": "Frontend: page component, split view layout, comment components, API hooks, state management. Backend: comment API routes, models, database migration."
+    },
+    "integrations": {
+      "external_services": [],
+      "new_dependencies": [],
+      "research_needed": false,
+      "notes": "Uses existing stack (MUI, FastAPI, PostgreSQL). No external APIs needed. All dependencies already in place."
+    },
+    "infrastructure": {
+      "docker_changes": false,
+      "database_changes": true,
+      "config_changes": false,
+      "notes": "Requires database migration to add comments table/model. No Docker or environment variable changes needed."
+    },
+    "knowledge": {
+      "patterns_exist": true,
+      "research_required": false,
+      "unfamiliar_tech": [],
+      "notes": "Codebase has similar comment/response patterns in RFIs (app/api/v1/rfis.py) and inspection findings. Split view is standard UI pattern using MUI Grid/Box components."
+    },
+    "risk": {
+      "level": "medium",
+      "concerns": [
+        "Database migration must be correct",
+        "Comment access control needs proper scoping to documents",
+        "Split view must be responsive on different screen sizes",
+        "Real-time updates may be needed for collaborative commenting"
+      ],
+      "notes": "Standard CRUD operations with database changes. Main risks are schema design and UI responsiveness. Access control should follow existing project-scoped patterns."
+    }
+  },
+
+  "recommended_phases": [
+    "discovery",
+    "requirements",
+    "context",
+    "spec_writing",
+    "planning",
+    "validation"
+  ],
+
+  "flags": {
+    "needs_research": false,
+    "needs_self_critique": false,
+    "needs_infrastructure_setup": false
+  },
+
+  "validation_recommendations": {
+    "risk_level": "medium",
+    "skip_validation": false,
+    "minimal_mode": false,
+    "test_types_required": ["unit", "integration"],
+    "security_scan_required": false,
+    "staging_deployment_required": false,
+    "reasoning": "New feature with database changes requires unit tests for business logic and integration tests for API endpoints. No security scan needed as it follows existing authentication patterns. No staging deployment needed as there are no infrastructure changes."
+  },
+
+  "created_at": "2026-02-05T00:24:00Z"
+}

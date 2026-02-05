@@ -1,0 +1,123 @@
+{
+  "session_number": 4,
+  "timestamp": "2026-01-29T13:39:59.753916+00:00",
+  "subtasks_completed": [
+    "subtask-2-1"
+  ],
+  "discoveries": {
+    "file_insights": [
+      {
+        "file_path": "backend/app/api/v1/checklist_templates.py",
+        "changes_made": "Added two new endpoints for instance management",
+        "lines_added": 79,
+        "endpoints_added": [
+          {
+            "method": "GET",
+            "route": "/projects/{project_id}/checklist-instances",
+            "function_name": "list_project_instances",
+            "description": "List all checklist instances for a specific project"
+          },
+          {
+            "method": "POST",
+            "route": "/projects/{project_id}/checklist-instances",
+            "function_name": "create_instance",
+            "description": "Create a new checklist instance from a template for a project"
+          }
+        ],
+        "pattern": "Project-scoped endpoints with placeholder implementations"
+      }
+    ],
+    "patterns_discovered": [
+      {
+        "pattern_name": "Placeholder-Driven Development",
+        "description": "Endpoints are structured with TODO comments and placeholder returns, allowing endpoint signatures to be defined before models are available",
+        "evidence": "Both new endpoints return placeholder responses and include detailed TODO comments for future implementation"
+      },
+      {
+        "pattern_name": "Consistent Project-Scoped API Design",
+        "description": "Endpoints follow the pattern /projects/{project_id}/resource, establishing clear project-level scoping throughout the API",
+        "evidence": "Both endpoints use the route pattern /projects/{project_id}/checklist-instances"
+      },
+      {
+        "pattern_name": "Dependency Injection",
+        "description": "Consistent use of FastAPI Depends() for database session and authentication",
+        "evidence": "Both endpoints use db: AsyncSession = Depends(get_db) and current_user: User = Depends(get_current_user)"
+      },
+      {
+        "pattern_name": "Audit-Ready Architecture",
+        "description": "Code structure anticipates audit logging requirements with TODO comments for audit service integration",
+        "evidence": "POST endpoint includes TODO comments for create_audit_log and AuditAction imports"
+      }
+    ],
+    "gotchas_discovered": [
+      {
+        "gotcha": "Model Dependencies Not Yet Available",
+        "description": "Both endpoints have commented-out implementation code that depends on ChecklistInstance model which doesn't exist yet",
+        "impact": "Implementation is blocked until ChecklistInstance model is created; endpoints currently return placeholder values",
+        "mitigation": "TODO comments clearly document what needs to be uncommented when models are available"
+      },
+      {
+        "gotcha": "No Request Body Schema Defined",
+        "description": "The POST /projects/{project_id}/checklist-instances endpoint has no request body parameter or validation schema",
+        "impact": "Endpoint signature is incomplete; unable to validate incoming data when implementation is complete",
+        "mitigation": "TODO comment indicates ChecklistInstanceCreate schema should be imported when available"
+      },
+      {
+        "gotcha": "Missing Database Operations",
+        "description": "List endpoint lacks selectinload optimization and ordering logic; create endpoint has no actual database persistence",
+        "impact": "Performance and functionality will be suboptimal until full implementation is added",
+        "mitigation": "Detailed TODO comments provide the implementation structure needed"
+      }
+    ],
+    "approach_outcome": {
+      "status": "SUCCESS",
+      "summary": "Successfully added endpoint scaffolding for project-scoped checklist instance management",
+      "completion_details": {
+        "endpoints_created": 2,
+        "implementation_completeness": "Signature and documentation complete; logic deferred",
+        "approach_strategy": "Define API contract first, implement when dependencies become available",
+        "code_quality": "Well-documented with clear TODO comments for future implementation"
+      }
+    },
+    "recommendations": [
+      {
+        "priority": "HIGH",
+        "recommendation": "Create ChecklistInstance model definition",
+        "rationale": "Critical dependency for both new endpoints; enables actual implementation"
+      },
+      {
+        "priority": "HIGH",
+        "recommendation": "Add ChecklistInstanceCreate and ChecklistInstanceResponse schemas",
+        "rationale": "Required for request validation and response serialization in POST endpoint"
+      },
+      {
+        "priority": "MEDIUM",
+        "recommendation": "Add request body parameter to POST endpoint",
+        "rationale": "Currently missing; needed to define what data is required to create an instance",
+        "suggested_implementation": "Add 'data: ChecklistInstanceCreate' parameter"
+      },
+      {
+        "priority": "MEDIUM",
+        "recommendation": "Add query parameters for filtering in GET endpoint",
+        "rationale": "List endpoints typically support pagination, filtering, and sorting",
+        "suggested_implementation": "Consider adding skip, limit, status_filter, created_by_filter parameters"
+      },
+      {
+        "priority": "LOW",
+        "recommendation": "Consider adding response status codes documentation",
+        "rationale": "FastAPI can auto-generate OpenAPI docs with explicit status codes via status_code parameter"
+      }
+    ],
+    "subtask_id": "subtask-2-1",
+    "session_num": 4,
+    "success": true,
+    "changed_files": [
+      "backend/app/api/v1/checklist_templates.py"
+    ]
+  },
+  "what_worked": [
+    "Implemented subtask: subtask-2-1"
+  ],
+  "what_failed": [],
+  "recommendations_for_next_session": []
+}

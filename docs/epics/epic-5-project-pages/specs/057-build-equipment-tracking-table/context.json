@@ -1,0 +1,41 @@
+{
+  "task_description": "Build Equipment Tracking Table - Sortable table with badges (Ref: 16-equipment-list.png)",
+  "scoped_services": ["frontend"],
+  "files_to_modify": [
+    "frontend/src/components/equipment/EquipmentTable.tsx",
+    "frontend/src/components/equipment/EquipmentStatusBadge.tsx",
+    "frontend/src/types/equipment.ts",
+    "frontend/src/pages/projects/[projectId]/equipment.tsx"
+  ],
+  "files_to_reference": [
+    "frontend/src/components/ui/DataTable.tsx",
+    "frontend/src/components/common/StatusBadge.tsx",
+    "frontend/src/api/equipment.ts",
+    "frontend/src/types/index.ts",
+    "frontend/src/pages/EquipmentPage.tsx"
+  ],
+  "patterns": {
+    "table_pattern": "DataTable component at frontend/src/components/ui/DataTable.tsx provides reusable table with sorting, pagination, loading states, and column configuration via Column<T> interface",
+    "badge_pattern": "StatusBadge uses MUI Chip with color mapping: draft=default, submitted=info, under_review=warning, approved=success, rejected=error",
+    "api_pattern": "API client at frontend/src/api/client.ts uses axios with baseURL from VITE_API_URL, auto-adds auth token and Accept-Language headers",
+    "equipment_api": "equipmentApi.list(projectId) fetches equipment array from /projects/{projectId}/equipment endpoint",
+    "styling": "Emotion CSS-in-JS with MUI styled() for custom component styling",
+    "page_pattern": "Pages use PageHeader component for breadcrumbs, SearchField for search, Tabs for filtering, Card wrapper for content"
+  },
+  "existing_implementations": {
+    "description": "Existing EquipmentPage.tsx already uses DataTable with equipment display, but this task creates a new simplified table view per design mockup 16-equipment-list.png",
+    "relevant_files": [
+      "frontend/src/pages/EquipmentPage.tsx - Full equipment page with CRUD operations",
+      "frontend/src/components/ui/DataTable.tsx - Reusable table component",
+      "frontend/src/api/equipment.ts - Equipment API service",
+      "frontend/src/types/index.ts - Equipment type definition (lines 56-75)"
+    ],
+    "key_dependencies": [
+      "@mui/material - UI components",
+      "@mui/x-data-grid - Advanced DataGrid (available but DataTable preferred)",
+      "axios - HTTP client",
+      "react-i18next - Internationalization"
+    ]
+  },
+  "created_at": "2026-02-05T00:00:00Z"
+}

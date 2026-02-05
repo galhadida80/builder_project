@@ -1,0 +1,73 @@
+{
+  "complexity": "standard",
+  "workflow_type": "feature",
+  "confidence": 0.85,
+  "reasoning": "Gantt chart implementation requires adding a new charting library dependency that needs research to select and implement correctly. Scope is contained (8-12 files) but requires learning unfamiliar library APIs. No infrastructure changes, but new data models and components needed.",
+
+  "analysis": {
+    "scope": {
+      "estimated_files": 10,
+      "estimated_services": 2,
+      "is_cross_cutting": false,
+      "notes": "Frontend: GanttChart component + 4-5 subcomponents (timeline, task bars, dependencies, controls, milestones). Backend: Task/Timeline models + API endpoints. Update ProjectDetailPage to add tab."
+    },
+    "integrations": {
+      "external_services": [],
+      "new_dependencies": ["gantt-library-tbd"],
+      "research_needed": true,
+      "notes": "Need to research and select appropriate Gantt library (gantt-task-react, dhtmlx-gantt, frappe-gantt, or custom SVG with d3). Each has different APIs, features, and complexity. This is a critical architectural decision requiring evaluation."
+    },
+    "infrastructure": {
+      "docker_changes": false,
+      "database_changes": true,
+      "config_changes": false,
+      "notes": "Will need new database tables/collections for tasks, milestones, and dependencies if they don't exist. No Docker or environment config changes needed."
+    },
+    "knowledge": {
+      "patterns_exist": true,
+      "research_required": true,
+      "unfamiliar_tech": ["gantt-chart-library"],
+      "notes": "Codebase uses React + TypeScript + MUI patterns that we can follow. However, Gantt chart libraries are unfamiliar and require research for correct implementation. Complex rendering logic for dependencies (SVG paths) and timeline calculations."
+    },
+    "risk": {
+      "level": "medium",
+      "concerns": [
+        "Gantt charts are complex UI components with many edge cases",
+        "Dependency arrow rendering can be tricky (SVG positioning, curved paths)",
+        "Performance concerns with large numbers of tasks (100+ items)",
+        "Responsive design challenges (horizontal scrolling, mobile view)",
+        "Data modeling complexity (tasks, dependencies, milestones, hierarchies)",
+        "Library selection risk - wrong choice could require refactoring"
+      ],
+      "notes": "Primary risk is choosing the wrong Gantt library or underestimating rendering complexity. Need thorough research phase to evaluate options."
+    }
+  },
+
+  "recommended_phases": [
+    "discovery",
+    "requirements",
+    "research",
+    "context",
+    "spec_writing",
+    "planning",
+    "validation"
+  ],
+
+  "flags": {
+    "needs_research": true,
+    "needs_self_critique": false,
+    "needs_infrastructure_setup": false
+  },
+
+  "validation_recommendations": {
+    "risk_level": "medium",
+    "skip_validation": false,
+    "minimal_mode": false,
+    "test_types_required": ["unit", "integration"],
+    "security_scan_required": false,
+    "staging_deployment_required": false,
+    "reasoning": "New feature with complex UI interactions requires unit tests for component logic and integration tests for data flow. No security-sensitive areas involved (no auth, payments, or data deletion). Medium complexity warrants standard validation depth."
+  },
+
+  "created_at": "2026-02-01T09:30:00Z"
+}

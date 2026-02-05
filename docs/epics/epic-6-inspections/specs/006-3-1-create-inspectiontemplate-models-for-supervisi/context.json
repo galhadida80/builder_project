@@ -1,0 +1,7 @@
+{
+  "task_description": "# 3.1 Create InspectionTemplate models for supervision\n\n**Linear Issue:** [BUI-31](https://linear.app/builder-project/issue/BUI-31/31-create-inspectiontemplate-models-for-supervision)\n**Priority:** Medium\n**Status:** Backlog\n\n\n## Description\n\nCreate SQLAlchemy models for senior supervision inspection templates.\n\n**Models to create in backend/app/models/inspection_template.py:**\n\n1. **InspectionConsultantType** (or extend ConsultantType):\n\n* id: UUID\n* name: str\n* name_he: str (\u05d0\u05d3\u05e8\u05d9\u05db\u05dc, \u05e7\u05d5\u05e0\u05e1\u05d8\u05e8\u05d5\u05e7\u05d8\u05d5\u05e8, \u05d7\u05e9\u05de\u05dc, etc.)\n* category: str (structural, mep, safety, finishing, etc.)\n* is_active: bool\n* inspection_stages: relationship\n\n2. **InspectionStageTemplate:**\n\n* id: UUID\n* consultant_type_id: FK to InspectionConsultantType\n* name: str\n* name_he: str (e.g., \u05e7\u05d9\u05d3\u05d5\u05d7\u05d9\u05dd - \u05e7\u05d9\u05d3\u05d5\u05d7 \u05e8\u05d0\u05e9\u05d5\u05df)\n* description: Optional\\[str\\]\n* stage_order: int\n* trigger_conditions: JSONB (when this inspection should happen)\n* required_documents: JSONB (documents needed for inspection)\n* is_active: bool\n\n**21 consultant types with their stages from the Excel.**\n",
+  "scoped_services": [],
+  "files_to_modify": [],
+  "files_to_reference": [],
+  "created_at": "2026-01-29T01:20:41.829506"
+}

@@ -1,0 +1,306 @@
+{
+  "integrations_researched": [
+    {
+      "name": "SQLAlchemy JSONB Support",
+      "type": "library",
+      "verified_package": {
+        "name": "sqlalchemy",
+        "install_command": "pip install sqlalchemy==2.0.25",
+        "version": "2.0.25",
+        "verified": true,
+        "status": "already_installed"
+      },
+      "api_patterns": {
+        "imports": [
+          "from sqlalchemy.dialects.postgresql import JSONB",
+          "from sqlalchemy import Column, Integer, String",
+          "from sqlalchemy.ext.mutable import MutableDict"
+        ],
+        "initialization": "N/A - used in model definitions",
+        "key_functions": [
+          "Column(JSONB) - Define JSONB column",
+          "JSONB.contains() - Check if contains values",
+          "JSONB.has_key() - Test for key presence",
+          "JSONB.has_any() / has_all() - Check for keys",
+          "MutableDict.as_mutable(JSONB) - Enable mutation tracking"
+        ],
+        "column_definition_example": "inspection_stages: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)",
+        "verified_against": "https://docs.sqlalchemy.org/en/20/dialects/postgresql.html"
+      },
+      "configuration": {
+        "env_vars": [],
+        "config_files": [],
+        "dependencies": [
+          "PostgreSQL database with JSONB support",
+          "asyncpg or psycopg2 driver (both already installed)"
+        ]
+      },
+      "infrastructure": {
+        "requires_docker": false,
+        "database_requirement": "PostgreSQL 9.4+ (for JSONB support)"
+      },
+      "gotchas": [
+        "JSONB does NOT auto-track in-place mutations (dict updates, list appends) - use MutableDict or flag_modified()",
+        "Mutation tracking is shallow - only tracks first level changes",
+        "For deep nested mutations, consider sqlalchemy-json or SQLAlchemy-Nested-Mutable packages",
+        "Alembic autogenerate may not detect indexes on JSONB columns",
+        "When converting TEXT to JSONB in migration, use postgresql_using parameter: op.alter_column(..., postgresql_using='column::jsonb')"
+      ],
+      "research_sources": [
+        "https://docs.sqlalchemy.org/en/20/dialects/postgresql.html",
+        "https://www.geeksforgeeks.org/python/jsonb-sqlalchemy/",
+        "https://github.com/sqlalchemy/sqlalchemy/discussions/11050",
+        "https://github.com/wonderbeyond/SQLAlchemy-Nested-Mutable"
+      ]
+    },
+    {
+      "name": "Pydantic JSONB Validation",
+      "type": "library",
+      "verified_package": {
+        "name": "pydantic",
+        "install_command": "pip install pydantic[email]==2.5.3",
+        "version": "2.5.3",
+        "verified": true,
+        "status": "already_installed"
+      },
+      "api_patterns": {
+        "imports": [
+          "from pydantic import BaseModel, Field",
+          "from typing import Dict, Any"
+        ],
+        "initialization": "N/A - used in schema definitions",
+        "key_functions": [
+          "Dict[str, Any] - Accept any JSON object",
+          "Json[MyType] - Validate JSON string against schema",
+          "model_validate() - Validate dict data",
+          "model_dump() - Convert to dict"
+        ],
+        "validation_patterns": [
+          "Use Dict[str, Any] for flexible JSONB fields in schemas",
+          "Use nested BaseModel for structured JSONB validation",
+          "Use field_validator for custom JSONB content validation"
+        ],
+        "verified_against": "https://docs.pydantic.dev/2.0/usage/types/json/"
+      },
+      "configuration": {
+        "env_vars": [],
+        "config_files": [],
+        "dependencies": []
+      },
+      "infrastructure": {
+        "requires_docker": false
+      },
+      "gotchas": [
+        "Pydantic does NOT validate arbitrary JSON schemas - only validates against Python types",
+        "When using JSONB with SQLAlchemy models, from_orm() may fail - use Dict[str, Any] or custom validators",
+        "Pydantic 2.x uses jiter JSON parser (supports inf/NaN, almost compatible with serde)",
+        "For dynamic JSONB content, use Dict[str, Any] instead of strict typed models",
+        "Consider using flag_modified() when updating JSONB fields through Pydantic models"
+      ],
+      "research_sources": [
+        "https://docs.pydantic.dev/2.0/usage/types/json/",
+        "https://github.com/pydantic/pydantic/discussions/6354",
+        "https://github.com/tiangolo/fastapi/issues/2284",
+        "https://gist.github.com/imankulov/4051b7805ad737ace7d8de3d3f934d6b"
+      ]
+    },
+    {
+      "name": "Alembic JSONB Migrations",
+      "type": "library",
+      "verified_package": {
+        "name": "alembic",
+        "install_command": "pip install alembic==1.13.1",
+        "version": "1.13.1",
+        "verified": true,
+        "status": "already_installed"
+      },
+      "api_patterns": {
+        "imports": [
+          "import sqlalchemy as sa",
+          "from sqlalchemy.dialects import postgresql",
+          "from alembic import op"
+        ],
+        "initialization": "N/A - used in migration scripts",
+        "key_functions": [
+          "op.create_table() - Create table with JSONB columns",
+          "op.alter_column() - Modify column to JSONB type",
+          "op.add_column() - Add JSONB column to existing table"
+        ],
+        "migration_examples": [
+          "sa.Column('data', postgresql.JSONB(astext_type=sa.Text()), nullable=True)",
+          "op.alter_column(table, column, type_=postgresql.JSONB, postgresql_using='column::jsonb')"
+        ],
+        "verified_against": "https://alembic.sqlalchemy.org/en/latest/ops.html"
+      },
+      "configuration": {
+        "env_vars": [],
+        "config_files": ["alembic.ini", "alembic/env.py"],
+        "dependencies": ["SQLAlchemy models"]
+      },
+      "infrastructure": {
+        "requires_docker": false
+      },
+      "gotchas": [
+        "Autogenerate may NOT detect indexes on JSONB column fields - create indexes manually",
+        "When converting TEXT to JSONB, MUST use postgresql_using parameter or migration will fail",
+        "server_default on JSONB columns can break automigration - set defaults in Python instead",
+        "JSONB columns appear as 'type_=postgresql.JSONB()' in migrations, not as generic JSON"
+      ],
+      "research_sources": [
+        "https://alembic.sqlalchemy.org/en/latest/ops.html",
+        "https://github.com/sqlalchemy/alembic/discussions/984",
+        "https://medium.com/@tejpal.abhyuday/alembic-database-migrations-the-complete-developers-guide-d3fc852a6a9e",
+        "https://github.com/alembic/alembic/issues/428"
+      ]
+    },
+    {
+      "name": "openpyxl - Excel File Reading",
+      "type": "library",
+      "verified_package": {
+        "name": "openpyxl",
+        "install_command": "pip install openpyxl==3.1.5",
+        "version": "3.1.5",
+        "verified": true,
+        "status": "needs_installation"
+      },
+      "api_patterns": {
+        "imports": [
+          "from openpyxl import load_workbook",
+          "from openpyxl import Workbook"
+        ],
+        "initialization": "wb = load_workbook(filename='file.xlsx')",
+        "key_functions": [
+          "load_workbook(filename) - Open existing workbook",
+          "wb.sheetnames - List all sheet names",
+          "wb['SheetName'] - Access worksheet by name",
+          "ws.cell(row=1, column=1).value - Read cell value",
+          "ws.iter_rows(min_row, max_row, min_col, max_col) - Iterate rows",
+          "ws.values - Get all values as generator"
+        ],
+        "usage_example": "wb = load_workbook('פיקוחים עליונים - כמות בדיקות.xlsx')\nws = wb.active\nfor row in ws.iter_rows(min_row=2, values_only=True):\n    consultant_type, stages = row[0], row[1]",
+        "verified_against": "https://openpyxl.readthedocs.io/en/3.1/tutorial.html"
+      },
+      "configuration": {
+        "env_vars": [],
+        "config_files": [],
+        "dependencies": []
+      },
+      "infrastructure": {
+        "requires_docker": false
+      },
+      "gotchas": [
+        "XLSX files use Unicode internally - openpyxl automatically handles Hebrew text (no encoding needed)",
+        "Cell values are returned as Python types (str, int, datetime) - no manual conversion needed",
+        "For Hebrew filenames, ensure filesystem supports UTF-8",
+        "Use values_only=True in iter_rows() to get values directly instead of Cell objects",
+        "Workbooks stay in memory - call wb.close() or use context manager for large files",
+        "For data analysis (filtering, aggregating), pandas.read_excel() is faster but has higher memory overhead",
+        "openpyxl requires Python 3.8+"
+      ],
+      "research_sources": [
+        "https://pypi.org/project/openpyxl/",
+        "https://openpyxl.readthedocs.io/en/3.1/tutorial.html",
+        "https://www.statology.org/how-to-effectively-work-with-excel-files-in-python-pandas-vs-openpyxl-guide/",
+        "https://medium.com/@amit25173/pandas-vs-openpyxl-which-one-you-should-choose-d498ef62cad6"
+      ]
+    },
+    {
+      "name": "FastAPI",
+      "type": "framework",
+      "verified_package": {
+        "name": "fastapi",
+        "install_command": "pip install fastapi==0.109.0",
+        "version": "0.109.0",
+        "verified": true,
+        "status": "already_installed"
+      },
+      "api_patterns": {
+        "imports": [
+          "from fastapi import APIRouter, Depends, HTTPException, status",
+          "from sqlalchemy.orm import Session"
+        ],
+        "initialization": "router = APIRouter(prefix='/api/v1/inspections', tags=['inspections'])",
+        "key_functions": [
+          "@router.post() - Create endpoint",
+          "@router.get() - Read endpoint",
+          "@router.put() - Update endpoint",
+          "@router.delete() - Delete endpoint",
+          "Depends(get_db) - Dependency injection for DB session"
+        ],
+        "verified_against": "Existing project structure"
+      },
+      "configuration": {
+        "env_vars": [],
+        "config_files": [],
+        "dependencies": ["Pydantic schemas", "SQLAlchemy models"]
+      },
+      "infrastructure": {
+        "requires_docker": false
+      },
+      "gotchas": [
+        "Follow existing project patterns in backend/app/api/v1/",
+        "Use CamelCaseModel from app.core.validators for response schemas",
+        "Implement proper error handling with HTTPException"
+      ],
+      "research_sources": [
+        "Existing codebase patterns"
+      ]
+    }
+  ],
+  "unverified_claims": [],
+  "recommendations": [
+    "Add openpyxl==3.1.5 to backend/requirements.txt before implementation",
+    "Use MutableDict.as_mutable(JSONB) for inspection_stages columns to enable automatic change tracking",
+    "Create a data migration script to parse פיקוחים עליונים - כמות בדיקות.xlsx and populate ConsultantType and InspectionStageTemplate tables",
+    "Use Dict[str, Any] in Pydantic schemas for JSONB fields to maintain flexibility",
+    "Consider creating a custom Pydantic validator for inspection stage structure validation",
+    "Follow existing project patterns: models in backend/app/models/, schemas in backend/app/schemas/, API routes in backend/app/api/v1/",
+    "Create Alembic migration for new tables with JSONB columns",
+    "Test Hebrew text handling in openpyxl before implementation",
+    "Document JSONB structure in code comments for future maintainability"
+  ],
+  "excel_data_source": {
+    "filename": "פיקוחים עליונים - כמות בדיקות.xlsx",
+    "description": "Contains 21 consultant types with 1-7 inspection stages each",
+    "consultant_types": [
+      "Agronomist",
+      "Soil",
+      "Hydrologist",
+      "Waterproofing",
+      "Structural Engineer",
+      "Architect",
+      "Electrical",
+      "Plumbing",
+      "HVAC",
+      "Safety",
+      "Accessibility",
+      "Traffic",
+      "Lighting",
+      "Signage",
+      "Radiation",
+      "Aluminum",
+      "Acoustics",
+      "Green Building",
+      "Development",
+      "Interior Design"
+    ],
+    "reading_strategy": "Use openpyxl to parse Excel file and create initial ConsultantType and InspectionStageTemplate records"
+  },
+  "integration_summary": {
+    "already_available": [
+      "SQLAlchemy 2.0.25 with JSONB support",
+      "Pydantic 2.5.3 for validation",
+      "Alembic 1.13.1 for migrations",
+      "FastAPI 0.109.0 framework",
+      "PostgreSQL with asyncpg and psycopg2 drivers"
+    ],
+    "needs_installation": [
+      "openpyxl==3.1.5 for Excel file reading"
+    ],
+    "optional_packages": [
+      "sqlalchemy-json (if deep mutation tracking needed)",
+      "SQLAlchemy-Nested-Mutable (for complex nested JSONB structures)"
+    ]
+  },
+  "created_at": "2026-01-29T12:00:00Z"
+}

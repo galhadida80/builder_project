@@ -1,0 +1,114 @@
+{
+  "task_description": "# Implement local file storage for development, S3 for production\n\n**Linear Issue:** [BUI-7](https://linear.app/builder-project/issue/BUI-7/implement-local-file-storage-for-development-s3-for-production)\n**Priority:** Urgent\n**Status:** Backlog\n\n## Description\n\n**Feature Request:**\nFile uploads currently only save metadata to database without actually storing the file content.\n\n**Location:** backend/app/api/v1/files.py\n\n**Requirements:**\n\n* LOCAL environment: Store files in local filesystem (e.g., /uploads/{user_id}/{project_id}/{entity_id}/{filename})\n* PRODUCTION environment: Upload to S3 bucket with path structure: s3://{bucket}/{user_id}/{project_id}/{entity_id}/{filename}\n* Add environment variable to switch between local and S3 storage\n* Implement file download endpoint that serves files from correct location\n\n**Priority:** High\n",
+
+  "scoped_services": ["backend"],
+
+  "files_to_modify": [
+    "backend/app/services/storage_service.py",
+    "backend/app/api/v1/files.py",
+    "backend/requirements.txt"
+  ],
+
+  "files_to_reference": [
+    "backend/app/services/storage_service.py",
+    "backend/app/api/v1/files.py",
+    "backend/app/config.py",
+    "backend/app/models/file.py"
+  ],
+
+  "files_to_create": [
+    "backend/.env.example",
+    "backend/tests/__init__.py",
+    "backend/tests/conftest.py",
+    "backend/tests/test_storage_service.py",
+    "backend/tests/integration/__init__.py",
+    "backend/tests/integration/test_files_api.py"
+  ],
+
+  "patterns": {
+    "storage_abstraction": "Abstract base class StorageBackend with LocalStorageBackend and S3StorageBackend implementations",
+    "factory_pattern": "get_storage_backend() factory function switches between backends based on settings.storage_type",
+    "path_generation": "generate_storage_path() creates hierarchical paths: {user_id}/{project_id}/{entity_type}/{entity_id}/{prefix}_{filename}",
+    "configuration": "Pydantic Settings with .env file support for environment-based configuration",
+    "async_file_operations": "Uses aiofiles for non-blocking file I/O in LocalStorageBackend",
+    "s3_presigned_urls": "S3StorageBackend returns presigned URLs (1hr validity) for downloads, not proxied content"
+  },
+
+  "existing_implementations": {
+    "description": "Storage abstraction layer fully implemented in backend/app/services/storage_service.py",
+    "relevant_files": [
+      "backend/app/services/storage_service.py",
+      "backend/app/api/v1/files.py",
+      "backend/app/config.py"
+    ],
+    "key_classes": [
+      "StorageBackend (abstract base class)",
+      "LocalStorageBackend (filesystem implementation)",
+      "S3StorageBackend (AWS S3 implementation)"
+    ],
+    "key_functions": [
+      "get_storage_backend() - factory function",
+      "generate_storage_path() - path generation utility"
+    ],
+    "status": "Implementation exists but needs verification and testing"
+  },
+
+  "investigation_findings": {
+    "storage_abstraction_exists": true,
+    "upload_endpoint_uses_storage": true,
+    "download_endpoints_exist": true,
+    "configuration_exists": true,
+    "dependencies_installed": true,
+    "missing_components": [
+      ".env.example file for documentation",
+      "tests directory and test files",
+      "verification that implementation works"
+    ],
+    "notes": "The code implementation is complete. This task is primarily about testing, verification, and documentation."
+  },
+
+  "tech_stack": {
+    "language": "Python 3.11+",
+    "framework": "FastAPI",
+    "orm": "SQLAlchemy (async)",
+    "storage_libraries": ["boto3", "aiofiles"],
+    "testing": "pytest (to be added)",
+    "database": "PostgreSQL"
+  },
+
+  "environment_variables": {
+    "STORAGE_TYPE": "Toggle between 'local' and 's3' storage backends",
+    "LOCAL_STORAGE_PATH": "Base path for local filesystem storage (default: ./uploads)",
+    "S3_BUCKET_NAME": "AWS S3 bucket name (required when storage_type=s3)",
+    "S3_REGION": "AWS region (default: us-east-1)",
+    "S3_ACCESS_KEY_ID": "AWS access key ID (required for S3)",
+    "S3_SECRET_ACCESS_KEY": "AWS secret access key (required for S3)"
+  },
+
+  "testing_requirements": {
+    "unit_tests": [
+      "LocalStorageBackend.save_file()",
+      "LocalStorageBackend.delete_file()",
+      "LocalStorageBackend.get_file_url()",
+      "LocalStorageBackend.get_file_content()",
+      "S3StorageBackend (mocked boto3 client)",
+      "generate_storage_path()",
+      "get_storage_backend() factory"
+    ],
+    "integration_tests": [
+      "POST /projects/{project_id}/files (upload)",
+      "GET /projects/{project_id}/files/{file_id}/download",
+      "GET /storage/{path} (serve local file)",
+      "DELETE /projects/{project_id}/files/{file_id}"
+    ],
+    "manual_verification": [
+      "Upload file via API docs interface",
+      "Verify file exists on disk at ./uploads/...",
+      "Download file and verify content matches",
+      "Delete file and verify removal from storage + database"
+    ]
+  },
+
+  "created_at": "2026-01-29T01:15:42.380517",
+  "updated_at": "2026-01-29T09:00:00.000000"
+}

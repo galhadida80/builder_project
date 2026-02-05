@@ -1,0 +1,393 @@
+{
+  "feature": "Remove non-functional Filter buttons from 7 list pages",
+  "workflow_type": "simple",
+  "workflow_rationale": "Single-service quick task - removing non-functional UI elements from 7 frontend pages. No backend changes, no complex dependencies, minimal overhead.",
+  "phases": [
+    {
+      "id": "phase-1-cleanup",
+      "name": "Remove Filter Buttons",
+      "type": "cleanup",
+      "description": "Remove non-functional Filter buttons from all 7 list pages",
+      "depends_on": [],
+      "parallel_safe": true,
+      "subtasks": [
+        {
+          "id": "subtask-1-1",
+          "description": "Remove Filter button from ProjectsPage",
+          "service": "frontend",
+          "files_to_modify": [
+            "frontend/src/pages/ProjectsPage.tsx"
+          ],
+          "files_to_create": [],
+          "patterns_from": [],
+          "verification": {
+            "type": "browser",
+            "url": "http://localhost:3000/projects",
+            "checks": [
+              "Filter button no longer visible",
+              "SearchField still present and functional",
+              "SegmentedTabs still present and functional",
+              "No console errors"
+            ]
+          },
+          "status": "completed",
+          "notes": "Successfully removed Filter button and FilterListIcon import from ProjectsPage. SearchField and SegmentedTabs remain functional. Changes committed in 1a53f81.",
+          "updated_at": "2026-02-04T22:24:16.631730+00:00"
+        },
+        {
+          "id": "subtask-1-2",
+          "description": "Remove Filter button from RFIPage",
+          "service": "frontend",
+          "files_to_modify": [
+            "frontend/src/pages/RFIPage.tsx"
+          ],
+          "files_to_create": [],
+          "patterns_from": [],
+          "verification": {
+            "type": "browser",
+            "url": "http://localhost:3000/rfi",
+            "checks": [
+              "Filter button no longer visible",
+              "SearchField still present and functional",
+              "Tabs still present and functional",
+              "No console errors"
+            ]
+          },
+          "status": "completed",
+          "notes": "Successfully removed Filter button from RFIPage. Removed the Button component and unused FilterListIcon import. SearchField and Tabs remain functional.",
+          "updated_at": "2026-02-04T22:25:53.082682+00:00"
+        },
+        {
+          "id": "subtask-1-3",
+          "description": "Remove Filter button from EquipmentPage",
+          "service": "frontend",
+          "files_to_modify": [
+            "frontend/src/pages/EquipmentPage.tsx"
+          ],
+          "files_to_create": [],
+          "patterns_from": [],
+          "verification": {
+            "type": "browser",
+            "url": "http://localhost:3000/equipment",
+            "checks": [
+              "Filter button no longer visible",
+              "SearchField still present and functional",
+              "Tabs still present and functional",
+              "No console errors"
+            ]
+          },
+          "status": "completed",
+          "notes": "Successfully removed Filter button from EquipmentPage. Removed the Button component with FilterListIcon (lines 348-350) and cleaned up the unused FilterListIcon import (line 23). SearchField and Tabs remain functional. Changes committed in d9138fa.",
+          "updated_at": "2026-02-04T22:26:55.105525+00:00"
+        },
+        {
+          "id": "subtask-1-4",
+          "description": "Remove Filter button from InspectionsPage",
+          "service": "frontend",
+          "files_to_modify": [
+            "frontend/src/pages/InspectionsPage.tsx"
+          ],
+          "files_to_create": [],
+          "patterns_from": [],
+          "verification": {
+            "type": "browser",
+            "url": "http://localhost:3000/inspections",
+            "checks": [
+              "Filter button no longer visible",
+              "SearchField still present and functional",
+              "Tabs still present and functional",
+              "No console errors"
+            ]
+          },
+          "status": "completed",
+          "notes": "Successfully removed Filter button from InspectionsPage. Removed the Button component with FilterListIcon (lines 441-443) and cleaned up the unused FilterListIcon import (line 17). SearchField and Tabs remain functional. Changes committed in ec1ea6f.",
+          "updated_at": "2026-02-04T22:28:09.719085+00:00"
+        },
+        {
+          "id": "subtask-1-5",
+          "description": "Remove Filter button from MaterialsPage",
+          "service": "frontend",
+          "files_to_modify": [
+            "frontend/src/pages/MaterialsPage.tsx"
+          ],
+          "files_to_create": [],
+          "patterns_from": [],
+          "verification": {
+            "type": "browser",
+            "url": "http://localhost:3000/materials",
+            "checks": [
+              "Filter button no longer visible",
+              "SearchField still present and functional",
+              "Tabs still present and functional",
+              "No console errors"
+            ]
+          },
+          "status": "completed",
+          "notes": "Successfully removed Filter button from MaterialsPage. Removed the Button component with FilterListIcon (lines 341-343) and cleaned up the unused FilterListIcon import (line 14). SearchField and Tabs remain functional. Changes committed in 8698fb6.",
+          "updated_at": "2026-02-04T22:29:44.317471+00:00"
+        },
+        {
+          "id": "subtask-1-6",
+          "description": "Remove Filter button from ApprovalsPage",
+          "service": "frontend",
+          "files_to_modify": [
+            "frontend/src/pages/ApprovalsPage.tsx"
+          ],
+          "files_to_create": [],
+          "patterns_from": [],
+          "verification": {
+            "type": "browser",
+            "url": "http://localhost:3000/approvals",
+            "checks": [
+              "Filter button no longer visible",
+              "SearchField still present and functional",
+              "Tabs still present and functional",
+              "No console errors"
+            ]
+          },
+          "status": "completed",
+          "notes": "Successfully removed Filter button from ApprovalsPage. Removed the Button component with FilterListIcon (lines 197-199) and cleaned up the unused FilterListIcon import (line 11). SearchField and Tabs remain functional. Changes committed in d300eca.",
+          "updated_at": "2026-02-04T22:31:07.452284+00:00"
+        },
+        {
+          "id": "subtask-1-7",
+          "description": "Remove Filter button from ContactsPage",
+          "service": "frontend",
+          "files_to_modify": [
+            "frontend/src/pages/ContactsPage.tsx"
+          ],
+          "files_to_create": [],
+          "patterns_from": [],
+          "verification": {
+            "type": "browser",
+            "url": "http://localhost:3000/contacts",
+            "checks": [
+              "Filter button no longer visible",
+              "SearchField still present and functional",
+              "Tabs still present and functional",
+              "No console errors"
+            ]
+          },
+          "status": "completed",
+          "notes": "Successfully removed Filter button from ContactsPage. Removed the Button component with FilterListIcon (lines 248-250) and cleaned up the unused FilterListIcon import (line 19). SearchField and Tabs remain functional. Changes committed in 742cfcd.",
+          "updated_at": "2026-02-04T22:33:01.840688+00:00"
+        }
+      ]
+    }
+  ],
+  "verification_strategy": {
+    "risk_level": "trivial",
+    "skip_validation": false,
+    "test_creation_phase": "none",
+    "test_types_required": [],
+    "security_scanning_required": false,
+    "staging_deployment_required": false,
+    "acceptance_criteria": [
+      "All 7 Filter buttons removed from UI",
+      "Search and tab filtering still functional on all pages",
+      "No console errors on any page",
+      "No unused imports left behind"
+    ],
+    "verification_steps": [
+      {
+        "name": "Visual Verification",
+        "command": "npm run dev",
+        "expected_outcome": "All 7 pages load without Filter button, search and tabs still work",
+        "type": "manual",
+        "required": true,
+        "blocking": false
+      },
+      {
+        "name": "Build Check",
+        "command": "cd frontend && npm run build",
+        "expected_outcome": "Build succeeds with no errors",
+        "type": "test",
+        "required": true,
+        "blocking": true
+      },
+      {
+        "name": "Lint Check",
+        "command": "cd frontend && npm run lint",
+        "expected_outcome": "No linting errors",
+        "type": "test",
+        "required": true,
+        "blocking": false
+      }
+    ],
+    "reasoning": "Trivial risk - removing non-functional UI elements. No logic changes, no data changes, no API changes. Visual verification sufficient."
+  },
+  "summary": {
+    "total_phases": 1,
+    "total_subtasks": 7,
+    "services_involved": [
+      "frontend"
+    ],
+    "parallelism": {
+      "max_parallel_phases": 1,
+      "parallel_groups": [],
+      "recommended_workers": 1,
+      "speedup_estimate": "N/A - sequential execution preferred for simple cleanup"
+    },
+    "startup_command": "cd frontend && npm run dev"
+  },
+  "qa_acceptance": {
+    "unit_tests": {
+      "required": false,
+      "commands": [],
+      "minimum_coverage": null
+    },
+    "integration_tests": {
+      "required": false,
+      "commands": [],
+      "services_to_test": []
+    },
+    "e2e_tests": {
+      "required": false,
+      "commands": [],
+      "flows": []
+    },
+    "browser_verification": {
+      "required": true,
+      "pages": [
+        {
+          "url": "http://localhost:3000/projects",
+          "checks": [
+            "Filter button removed",
+            "Search works",
+            "Tabs work",
+            "No console errors"
+          ]
+        },
+        {
+          "url": "http://localhost:3000/rfi",
+          "checks": [
+            "Filter button removed",
+            "Search works",
+            "Tabs work",
+            "No console errors"
+          ]
+        },
+        {
+          "url": "http://localhost:3000/equipment",
+          "checks": [
+            "Filter button removed",
+            "Search works",
+            "Tabs work",
+            "No console errors"
+          ]
+        },
+        {
+          "url": "http://localhost:3000/inspections",
+          "checks": [
+            "Filter button removed",
+            "Search works",
+            "Tabs work",
+            "No console errors"
+          ]
+        },
+        {
+          "url": "http://localhost:3000/materials",
+          "checks": [
+            "Filter button removed",
+            "Search works",
+            "Tabs work",
+            "No console errors"
+          ]
+        },
+        {
+          "url": "http://localhost:3000/approvals",
+          "checks": [
+            "Filter button removed",
+            "Search works",
+            "Tabs work",
+            "No console errors"
+          ]
+        },
+        {
+          "url": "http://localhost:3000/contacts",
+          "checks": [
+            "Filter button removed",
+            "Search works",
+            "Tabs work",
+            "No console errors"
+          ]
+        }
+      ]
+    },
+    "database_verification": {
+      "required": false,
+      "checks": []
+    }
+  },
+  "qa_signoff": {
+    "status": "rejected",
+    "timestamp": "2026-02-05T00:00:00Z",
+    "qa_session": 1,
+    "issues_found": [
+      {
+        "type": "critical",
+        "title": "Build Check Failure - TypeScript Compilation Errors",
+        "location": "frontend/src/pages/RFIPage.tsx",
+        "fix_required": "Rebase branch on latest main to pick up build fixes from commit e214eee",
+        "details": "Pre-existing TypeScript errors in branch base: unused Autocomplete import (line 11) and missing cc_emails field (lines 110-121). These are NOT introduced by Filter button removal work."
+      },
+      {
+        "type": "critical",
+        "title": "Lint Check Failure - Missing ESLint Configuration",
+        "location": "frontend/",
+        "fix_required": "Copy ESLint configuration from main branch OR confirm lint check can be skipped",
+        "details": "ESLint configuration file not found in worktree"
+      }
+    ],
+    "fix_request_file": "QA_FIX_REQUEST.md",
+    "notes": "Filter button removal work is excellent and complete. Rejection is due to pre-existing build issues in branch base, not implementation quality. Branch needs rebase/merge with latest main."
+  },
+  "status": "human_review",
+  "planStatus": "review",
+  "updated_at": "2026-02-04T22:41:08.297Z",
+  "last_updated": "2026-02-05T00:00:00Z",
+  "qa_iteration_history": [
+    {
+      "iteration": 1,
+      "status": "rejected",
+      "timestamp": "2026-02-04T22:41:03.262038+00:00",
+      "issues": [
+        {
+          "type": "critical",
+          "title": "Build Check Failure - TypeScript Compilation Errors",
+          "location": "frontend/src/pages/RFIPage.tsx",
+          "fix_required": "Rebase branch on latest main to pick up build fixes from commit e214eee",
+          "details": "Pre-existing TypeScript errors in branch base: unused Autocomplete import (line 11) and missing cc_emails field (lines 110-121). These are NOT introduced by Filter button removal work."
+        },
+        {
+          "type": "critical",
+          "title": "Lint Check Failure - Missing ESLint Configuration",
+          "location": "frontend/",
+          "fix_required": "Copy ESLint configuration from main branch OR confirm lint check can be skipped",
+          "details": "ESLint configuration file not found in worktree"
+        }
+      ],
+      "duration_seconds": 444.03
+    },
+    {
+      "iteration": 1,
+      "status": "error",
+      "timestamp": "2026-02-04T22:41:08.295745+00:00",
+      "issues": [
+        {
+          "title": "Fixer error",
+          "description": "QA_FIX_REQUEST.md not found"
+        }
+      ]
+    }
+  ],
+  "qa_stats": {
+    "total_iterations": 2,
+    "last_iteration": 1,
+    "last_status": "error",
+    "issues_by_type": {
+      "critical": 2,
+      "unknown": 1
+    }
+  }
+}

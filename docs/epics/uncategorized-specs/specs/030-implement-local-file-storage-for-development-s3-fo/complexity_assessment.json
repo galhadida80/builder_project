@@ -1,0 +1,71 @@
+{
+  "complexity": "standard",
+  "workflow_type": "feature",
+  "confidence": 0.85,
+  "reasoning": "Dual-backend storage implementation (local filesystem + S3) with environment-based switching. Touches 4-6 files in backend service. boto3 already installed, so minimal research needed. Standard feature following common dev/prod storage pattern.",
+
+  "analysis": {
+    "scope": {
+      "estimated_files": 5,
+      "estimated_services": 1,
+      "is_cross_cutting": false,
+      "notes": "Backend-only changes: files.py endpoint modifications, new storage abstraction layer, environment config, possible minor database metadata updates"
+    },
+    "integrations": {
+      "external_services": ["AWS S3"],
+      "new_dependencies": [],
+      "research_needed": false,
+      "notes": "boto3 already in dependencies (project_index.json confirms). S3 integration is well-documented and common. No new dependencies required."
+    },
+    "infrastructure": {
+      "docker_changes": false,
+      "database_changes": false,
+      "config_changes": true,
+      "notes": "Only environment variable needed to toggle storage mode. Local filesystem in dev, S3 in production. No Docker or database schema changes required."
+    },
+    "knowledge": {
+      "patterns_exist": true,
+      "research_required": false,
+      "unfamiliar_tech": [],
+      "notes": "boto3 is standard Python S3 client, already present in codebase. Local filesystem storage is straightforward. This is a common dual-storage pattern."
+    },
+    "risk": {
+      "level": "medium",
+      "concerns": [
+        "File path security (prevent path traversal attacks)",
+        "Dual-backend logic must handle both storage types correctly",
+        "Download endpoint needs to determine correct storage location",
+        "Local filesystem permissions and directory creation",
+        "Consistent path structure across both backends"
+      ],
+      "notes": "Medium risk due to file handling with dual backends. Requires careful abstraction design and proper path validation."
+    }
+  },
+
+  "recommended_phases": [
+    "discovery",
+    "requirements",
+    "context",
+    "spec_writing",
+    "planning",
+    "validation"
+  ],
+
+  "flags": {
+    "needs_research": false,
+    "needs_self_critique": false,
+    "needs_infrastructure_setup": false
+  },
+
+  "validation_recommendations": {
+    "risk_level": "medium",
+    "skip_validation": false,
+    "minimal_mode": false,
+    "test_types_required": ["unit", "integration"],
+    "security_scan_required": false,
+    "staging_deployment_required": false,
+    "reasoning": "File storage with dual backends requires unit tests for storage abstraction layer and integration tests for upload/download endpoints. No auth or payment changes, so security scan not required."
+  },
+
+  "created_at": "2026-01-29T00:00:00Z"
+}

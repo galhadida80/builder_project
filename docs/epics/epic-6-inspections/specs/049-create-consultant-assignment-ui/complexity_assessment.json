@@ -1,0 +1,71 @@
+{
+  "complexity": "standard",
+  "workflow_type": "feature",
+  "confidence": 0.85,
+  "reasoning": "UI feature with list and calendar views. Multiple components needed but uses existing tech stack (Next.js, TypeScript, MUI). Backend APIs for consultants exist. Custom calendar grid adds moderate complexity but follows known patterns.",
+
+  "analysis": {
+    "scope": {
+      "estimated_files": 8,
+      "estimated_services": 1,
+      "is_cross_cutting": false,
+      "notes": "Frontend-only feature. Main page component, consultant list panel, weekly calendar grid, list items, time slot components, types, hooks for state management, and API integration layer."
+    },
+    "integrations": {
+      "external_services": [],
+      "new_dependencies": [],
+      "research_needed": false,
+      "notes": "Backend APIs for consultants and assignments already exist (/consultant-types, /team-members, /workload endpoints). No new external dependencies required. Project already has MUI components, dayjs for date handling."
+    },
+    "infrastructure": {
+      "docker_changes": false,
+      "database_changes": false,
+      "config_changes": false,
+      "notes": "Pure frontend UI feature. No infrastructure or database schema changes needed. Backend models and APIs likely already exist based on existing consultant-related endpoints."
+    },
+    "knowledge": {
+      "patterns_exist": true,
+      "research_required": false,
+      "unfamiliar_tech": [],
+      "notes": "Codebase uses Next.js, TypeScript, MUI components, and Emotion styling. Similar list/grid patterns exist. Custom calendar grid is moderate complexity but follows standard time-slot UI patterns."
+    },
+    "risk": {
+      "level": "medium",
+      "concerns": [
+        "Custom calendar grid implementation with time slots",
+        "State synchronization between consultant list and calendar views",
+        "Interactive time slot selection UX",
+        "Real-time or near-real-time availability status updates",
+        "Assignment logic and validation"
+      ],
+      "notes": "Primary risks are UI/UX implementation details. No backend or infrastructure risks. Calendar grid interaction requires careful state management but is a well-understood pattern."
+    }
+  },
+
+  "recommended_phases": [
+    "discovery",
+    "requirements",
+    "context",
+    "spec_writing",
+    "planning",
+    "validation"
+  ],
+
+  "flags": {
+    "needs_research": false,
+    "needs_self_critique": false,
+    "needs_infrastructure_setup": false
+  },
+
+  "validation_recommendations": {
+    "risk_level": "medium",
+    "skip_validation": false,
+    "minimal_mode": false,
+    "test_types_required": ["unit", "integration"],
+    "security_scan_required": false,
+    "staging_deployment_required": false,
+    "reasoning": "New UI feature with multiple components and state management requires unit tests for components and integration tests for API interactions. No auth changes or sensitive data handling. Medium complexity justifies thorough testing but not security scanning."
+  },
+
+  "created_at": "2026-02-05T00:00:00Z"
+}

@@ -1,0 +1,538 @@
+{
+  "subtasks": {
+    "subtask-1-1": {
+      "attempts": [
+        {
+          "session": 1,
+          "timestamp": "2026-01-30T10:24:40.340830",
+          "approach": "Session ended without progress",
+          "success": false,
+          "error": "Subtask status is pending"
+        },
+        {
+          "session": 2,
+          "timestamp": "2026-01-30T10:25:16.838977",
+          "approach": "Session ended without progress",
+          "success": false,
+          "error": "Subtask status is pending"
+        },
+        {
+          "session": 3,
+          "timestamp": "2026-01-30T10:25:53.190581",
+          "approach": "Session ended without progress",
+          "success": false,
+          "error": "Subtask status is pending"
+        },
+        {
+          "session": 4,
+          "timestamp": "2026-01-30T10:26:29.589373",
+          "approach": "Session ended without progress",
+          "success": false,
+          "error": "Subtask status is pending"
+        },
+        {
+          "session": 5,
+          "timestamp": "2026-01-30T10:27:06.270730",
+          "approach": "Session ended without progress",
+          "success": false,
+          "error": "Subtask status is pending"
+        },
+        {
+          "session": 6,
+          "timestamp": "2026-01-30T10:27:42.579550",
+          "approach": "Session ended without progress",
+          "success": false,
+          "error": "Subtask status is pending"
+        },
+        {
+          "session": 7,
+          "timestamp": "2026-01-30T10:28:19.105113",
+          "approach": "Session ended without progress",
+          "success": false,
+          "error": "Subtask status is pending"
+        },
+        {
+          "session": 8,
+          "timestamp": "2026-01-30T10:28:55.450936",
+          "approach": "Session ended without progress",
+          "success": false,
+          "error": "Subtask status is pending"
+        },
+        {
+          "session": 9,
+          "timestamp": "2026-01-30T10:29:32.020846",
+          "approach": "Session ended without progress",
+          "success": false,
+          "error": "Subtask status is pending"
+        },
+        {
+          "session": 10,
+          "timestamp": "2026-01-30T10:30:08.904690",
+          "approach": "Session ended without progress",
+          "success": false,
+          "error": "Subtask status is pending"
+        },
+        {
+          "session": 11,
+          "timestamp": "2026-01-30T10:30:45.267825",
+          "approach": "Session ended without progress",
+          "success": false,
+          "error": "Subtask status is pending"
+        },
+        {
+          "session": 12,
+          "timestamp": "2026-01-30T10:31:21.619956",
+          "approach": "Session ended without progress",
+          "success": false,
+          "error": "Subtask status is pending"
+        },
+        {
+          "session": 13,
+          "timestamp": "2026-01-30T10:31:58.057751",
+          "approach": "Session ended without progress",
+          "success": false,
+          "error": "Subtask status is pending"
+        },
+        {
+          "session": 14,
+          "timestamp": "2026-01-30T10:32:34.427133",
+          "approach": "Session ended without progress",
+          "success": false,
+          "error": "Subtask status is pending"
+        },
+        {
+          "session": 15,
+          "timestamp": "2026-01-30T10:33:11.352909",
+          "approach": "Session ended without progress",
+          "success": false,
+          "error": "Subtask status is pending"
+        },
+        {
+          "session": 16,
+          "timestamp": "2026-01-30T10:33:47.700866",
+          "approach": "Session ended without progress",
+          "success": false,
+          "error": "Subtask status is pending"
+        },
+        {
+          "session": 17,
+          "timestamp": "2026-01-30T10:34:24.061951",
+          "approach": "Session ended without progress",
+          "success": false,
+          "error": "Subtask status is pending"
+        },
+        {
+          "session": 18,
+          "timestamp": "2026-01-30T10:35:00.224540",
+          "approach": "Session ended without progress",
+          "success": false,
+          "error": "Subtask status is pending"
+        },
+        {
+          "session": 19,
+          "timestamp": "2026-01-30T10:35:36.645184",
+          "approach": "Session ended without progress",
+          "success": false,
+          "error": "Subtask status is pending"
+        },
+        {
+          "session": 20,
+          "timestamp": "2026-01-30T10:36:13.253650",
+          "approach": "Session ended without progress",
+          "success": false,
+          "error": "Subtask status is pending"
+        },
+        {
+          "session": 21,
+          "timestamp": "2026-01-30T10:36:49.648522",
+          "approach": "Session ended without progress",
+          "success": false,
+          "error": "Subtask status is pending"
+        },
+        {
+          "session": 22,
+          "timestamp": "2026-01-30T10:37:26.021593",
+          "approach": "Session ended without progress",
+          "success": false,
+          "error": "Subtask status is pending"
+        },
+        {
+          "session": 23,
+          "timestamp": "2026-01-30T10:38:02.438566",
+          "approach": "Session ended without progress",
+          "success": false,
+          "error": "Subtask status is pending"
+        },
+        {
+          "session": 24,
+          "timestamp": "2026-01-30T10:38:38.986893",
+          "approach": "Session ended without progress",
+          "success": false,
+          "error": "Subtask status is pending"
+        },
+        {
+          "session": 25,
+          "timestamp": "2026-01-30T10:39:15.363990",
+          "approach": "Session ended without progress",
+          "success": false,
+          "error": "Subtask status is pending"
+        },
+        {
+          "session": 26,
+          "timestamp": "2026-01-30T10:39:52.017929",
+          "approach": "Session ended without progress",
+          "success": false,
+          "error": "Subtask status is pending"
+        },
+        {
+          "session": 1,
+          "timestamp": "2026-01-30T10:41:22.634217",
+          "approach": "Session ended without progress",
+          "success": false,
+          "error": "Subtask status is pending"
+        },
+        {
+          "session": 2,
+          "timestamp": "2026-01-30T10:41:59.101174",
+          "approach": "Session ended without progress",
+          "success": false,
+          "error": "Subtask status is pending"
+        },
+        {
+          "session": 3,
+          "timestamp": "2026-01-30T10:42:35.797328",
+          "approach": "Session ended without progress",
+          "success": false,
+          "error": "Subtask status is pending"
+        },
+        {
+          "session": 1,
+          "timestamp": "2026-01-30T10:45:29.818934",
+          "approach": "Implemented: Install i18next dependencies in frontend",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-1-2": {
+      "attempts": [
+        {
+          "session": 2,
+          "timestamp": "2026-01-30T10:47:22.502635",
+          "approach": "Implemented: Create i18n config file with initialization logic",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-1-3": {
+      "attempts": [
+        {
+          "session": 3,
+          "timestamp": "2026-01-30T10:50:42.731217",
+          "approach": "Implemented: Create translation directory structure and base English translation file",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-1-4": {
+      "attempts": [
+        {
+          "session": 4,
+          "timestamp": "2026-01-30T10:52:39.337691",
+          "approach": "Implemented: Create Hebrew translation file with all entries from English",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-1-5": {
+      "attempts": [
+        {
+          "session": 5,
+          "timestamp": "2026-01-30T10:54:14.241614",
+          "approach": "Session ended without progress",
+          "success": false,
+          "error": "Subtask status is pending"
+        },
+        {
+          "session": 6,
+          "timestamp": "2026-01-30T10:56:35.619755",
+          "approach": "Implemented: Update frontend main.tsx to initialize i18next before app renders",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-1-6": {
+      "attempts": [
+        {
+          "session": 7,
+          "timestamp": "2026-01-30T10:57:55.361486",
+          "approach": "Implemented: Modify theme.ts to support dynamic RTL direction based on language",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-2-1": {
+      "attempts": [
+        {
+          "session": 8,
+          "timestamp": "2026-01-30T11:00:09.567973",
+          "approach": "Implemented: Extract and translate Header component strings (Notifications, Profile, Settings, Logout, etc.)",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-2-2": {
+      "attempts": [
+        {
+          "session": 9,
+          "timestamp": "2026-01-30T11:02:46.440327",
+          "approach": "Implemented: Extract and translate LoginPage strings (Email, Password, Login, Register, etc.)",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-2-3": {
+      "attempts": [
+        {
+          "session": 10,
+          "timestamp": "2026-01-30T11:06:44.438304",
+          "approach": "Implemented: Extract and translate ProjectsPage strings (Add Project, Edit, Delete, Search, etc.)",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-2-4": {
+      "attempts": [
+        {
+          "session": 11,
+          "timestamp": "2026-01-30T11:16:37.633306",
+          "approach": "Implemented: Extract and translate all remaining page components (Equipment, Materials, Meetings, Approvals, Area",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-2-5": {
+      "attempts": [
+        {
+          "session": 12,
+          "timestamp": "2026-01-30T11:20:07.737665",
+          "approach": "Implemented: Extract and translate layout components (Layout, Sidebar, ProjectSelector, common components)",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-2-6": {
+      "attempts": [
+        {
+          "session": 13,
+          "timestamp": "2026-01-30T11:23:05.029751",
+          "approach": "Implemented: Add language selector component to Header for switching between English and Hebrew",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-3-1": {
+      "attempts": [
+        {
+          "session": 14,
+          "timestamp": "2026-01-30T11:25:50.361985",
+          "approach": "Implemented: Create backend localization utility module with message translation functions",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-3-2": {
+      "attempts": [
+        {
+          "session": 15,
+          "timestamp": "2026-01-30T11:27:44.984569",
+          "approach": "Implemented: Create translation dictionaries for backend error messages and API responses",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-3-3": {
+      "attempts": [
+        {
+          "session": 16,
+          "timestamp": "2026-01-30T11:30:53.887314",
+          "approach": "Implemented: Add Accept-Language middleware to FastAPI app for language detection",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-3-4": {
+      "attempts": [
+        {
+          "session": 17,
+          "timestamp": "2026-01-30T11:36:17.722829",
+          "approach": "Implemented: Update auth routes (register, login) to return localized error messages based on Accept-Language hea",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-3-5": {
+      "attempts": [
+        {
+          "session": 18,
+          "timestamp": "2026-01-30T11:38:45.533215",
+          "approach": "Implemented: Add language preference field to User model and update user response schema",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-3-6": {
+      "attempts": [
+        {
+          "session": 19,
+          "timestamp": "2026-01-30T11:43:58.305636",
+          "approach": "Implemented: Update all API routes to use localized error messages from translation dictionaries",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-4-1": {
+      "attempts": [
+        {
+          "session": 20,
+          "timestamp": "2026-01-30T11:47:22.006182",
+          "approach": "Implemented: Update App.tsx to set document.dir based on current language and apply RTL theme",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-4-2": {
+      "attempts": [
+        {
+          "session": 21,
+          "timestamp": "2026-01-30T11:50:11.935855",
+          "approach": "Implemented: Configure Material-UI theme factory to create theme with correct direction dynamically",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-4-3": {
+      "attempts": [
+        {
+          "session": 22,
+          "timestamp": "2026-01-30T11:52:10.343959",
+          "approach": "Implemented: Add dayjs Hebrew locale configuration for date/time formatting",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-4-4": {
+      "attempts": [
+        {
+          "session": 23,
+          "timestamp": "2026-01-30T11:55:45.384903",
+          "approach": "Implemented: Verify and test RTL rendering on all page layouts (no broken layouts, proper margins/padding reversa",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-5-1": {
+      "attempts": [
+        {
+          "session": 24,
+          "timestamp": "2026-01-30T11:59:50.579426",
+          "approach": "Implemented: Verify language preference persists across page reloads and API calls",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-5-2": {
+      "attempts": [
+        {
+          "session": 25,
+          "timestamp": "2026-01-30T12:04:51.955178",
+          "approach": "Implemented: Test end-to-end flows in both English and Hebrew (login, create project, navigate, etc.)",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-5-3": {
+      "attempts": [
+        {
+          "session": 26,
+          "timestamp": "2026-01-30T12:09:52.209176",
+          "approach": "Implemented: Verify backend API returns localized messages based on Accept-Language header for all error scenario",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-5-4": {
+      "attempts": [
+        {
+          "session": 27,
+          "timestamp": "2026-01-30T12:14:10.593388",
+          "approach": "Implemented: Run all existing tests to ensure no regressions and new i18n functionality works correctly",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    }
+  },
+  "stuck_subtasks": [
+    {
+      "subtask_id": "subtask-1-1",
+      "reason": "Failed after 3 attempts",
+      "escalated_at": "2026-01-30T10:25:53.191327",
+      "attempt_count": 3
+    }
+  ],
+  "metadata": {
+    "created_at": "2026-01-30T10:24:06.255334",
+    "last_updated": "2026-01-30T12:14:10.593401"
+  }
+}

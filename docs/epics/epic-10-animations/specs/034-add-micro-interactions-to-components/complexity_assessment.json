@@ -1,0 +1,71 @@
+{
+  "complexity": "standard",
+  "workflow_type": "feature",
+  "confidence": 0.80,
+  "reasoning": "Adding micro-interactions across multiple components is a cross-cutting frontend feature affecting 8-12 files. While it involves no external integrations or infrastructure, it requires establishing consistent animation patterns and careful consideration of performance and accessibility.",
+
+  "analysis": {
+    "scope": {
+      "estimated_files": 10,
+      "estimated_services": 1,
+      "is_cross_cutting": true,
+      "notes": "Multiple components will need hover states, loading, and feedback animations. This affects various parts of the UI but is contained to the frontend."
+    },
+    "integrations": {
+      "external_services": [],
+      "new_dependencies": [],
+      "research_needed": false,
+      "notes": "May use existing animation approach (CSS, Framer Motion, React Spring) already in codebase. Context phase will identify current patterns to follow. No external service integrations required."
+    },
+    "infrastructure": {
+      "docker_changes": false,
+      "database_changes": false,
+      "config_changes": false,
+      "notes": "Pure frontend UI enhancement with no infrastructure impact."
+    },
+    "knowledge": {
+      "patterns_exist": true,
+      "research_required": false,
+      "unfamiliar_tech": [],
+      "notes": "Codebase likely has existing styling approach (CSS modules, styled-components, Tailwind, etc.) and possibly animation patterns to follow. Context phase will discover these patterns."
+    },
+    "risk": {
+      "level": "medium",
+      "concerns": [
+        "Performance impact of multiple animations",
+        "Accessibility (prefers-reduced-motion support)",
+        "Consistency across different component types",
+        "Browser compatibility for complex animations",
+        "Potential re-render performance issues"
+      ],
+      "notes": "Animations can degrade UX if not implemented thoughtfully. Need to balance visual polish with performance and accessibility requirements."
+    }
+  },
+
+  "recommended_phases": [
+    "discovery",
+    "requirements",
+    "context",
+    "spec_writing",
+    "planning",
+    "validation"
+  ],
+
+  "flags": {
+    "needs_research": false,
+    "needs_self_critique": false,
+    "needs_infrastructure_setup": false
+  },
+
+  "validation_recommendations": {
+    "risk_level": "medium",
+    "skip_validation": false,
+    "minimal_mode": false,
+    "test_types_required": ["unit", "integration"],
+    "security_scan_required": false,
+    "staging_deployment_required": false,
+    "reasoning": "Multiple component modifications require unit tests for animation behavior and integration tests for user interactions. Accessibility testing (prefers-reduced-motion) should be included to ensure animations don't degrade UX for users with motion sensitivity."
+  },
+
+  "created_at": "2026-02-01T00:00:00Z"
+}

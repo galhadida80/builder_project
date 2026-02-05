@@ -1,0 +1,4 @@
+{
+  "task_description": "# Write RFI System Integration Tests\n\n**Linear Issue:** [BUI-109](https://linear.app/builder-project/issue/BUI-109/write-rfi-system-integration-tests)\n**Priority:** No priority\n**Status:** Backlog\n\n\n## Description\n\n## User Story\n\nAs a developer, I need integration tests for the RFI system so that I can ensure it works correctly.\n\n## Acceptance Criteria\n\n- [ ] Test RFI CRUD operations\n- [ ] Test RFI number generation (uniqueness)\n- [ ] Test email sending (mock Gmail API)\n- [ ] Test webhook processing (mock Pub/Sub)\n- [ ] Test email parsing with sample emails\n- [ ] Test RFI matching logic (thread_id, subject, In-Reply-To)\n- [ ] Test status transitions\n- [ ] Test notification triggers\n- [ ] Add fixtures for test data\n\n## Labels\n\nbackend, testing, rfi",
+  "workflow_type": "feature"
+}

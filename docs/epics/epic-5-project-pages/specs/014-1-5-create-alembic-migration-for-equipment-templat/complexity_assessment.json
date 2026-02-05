@@ -1,0 +1,70 @@
+{
+  "complexity": "standard",
+  "workflow_type": "feature",
+  "confidence": 0.85,
+  "reasoning": "Standard database migration task using well-configured Alembic tooling. Five new tables with indexes is non-trivial but follows existing patterns. No external integrations or research needed. Medium risk due to database changes but additive nature (new tables) reduces complexity.",
+
+  "analysis": {
+    "scope": {
+      "estimated_files": 4,
+      "estimated_services": 1,
+      "is_cross_cutting": false,
+      "notes": "Will create 1 new migration file, potentially touch SQLAlchemy models (if they don't exist yet), and may need to verify existing migration patterns. Contained to backend service database layer."
+    },
+    "integrations": {
+      "external_services": [],
+      "new_dependencies": [],
+      "research_needed": false,
+      "notes": "Alembic is already configured in the project (confirmed in project_index.json line 75). Standard PostgreSQL + SQLAlchemy stack. No external APIs or services involved."
+    },
+    "infrastructure": {
+      "docker_changes": false,
+      "database_changes": true,
+      "config_changes": false,
+      "notes": "Database schema changes (5 new tables + indexes). Alembic already configured with alembic.ini and migrations directory at alembic/versions. No Docker or environment config changes needed."
+    },
+    "knowledge": {
+      "patterns_exist": true,
+      "research_required": false,
+      "unfamiliar_tech": [],
+      "notes": "Alembic is standard Python migration tool. Project already uses it (migration commands documented in project_index). Should have existing migration files to follow as patterns."
+    },
+    "risk": {
+      "level": "medium",
+      "concerns": [
+        "Database schema changes are not easily reversible",
+        "Need to ensure proper index creation for performance",
+        "Migration must run cleanly on existing database",
+        "Junction table relationships must be correctly defined"
+      ],
+      "notes": "Risk is medium but manageable. These are new tables (additive), not modifying existing data. Proper testing of migration up/down is critical."
+    }
+  },
+
+  "recommended_phases": [
+    "discovery",
+    "requirements",
+    "context",
+    "spec_writing",
+    "planning",
+    "validation"
+  ],
+
+  "flags": {
+    "needs_research": false,
+    "needs_self_critique": false,
+    "needs_infrastructure_setup": false
+  },
+
+  "validation_recommendations": {
+    "risk_level": "medium",
+    "skip_validation": false,
+    "minimal_mode": false,
+    "test_types_required": ["unit", "integration"],
+    "security_scan_required": false,
+    "staging_deployment_required": false,
+    "reasoning": "Database migrations require validation to ensure they run cleanly. Unit tests for model definitions and integration tests to verify migration up/down work correctly. No security-sensitive data or auth changes involved."
+  },
+
+  "created_at": "2026-01-29T00:00:00Z"
+}

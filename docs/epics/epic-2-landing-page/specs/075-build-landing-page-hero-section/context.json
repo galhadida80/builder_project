@@ -1,0 +1,35 @@
+{
+  "task_description": "# Build Landing Page Hero Section\n\n**Linear Issue:** [BUI-51](https://linear.app/builder-project/issue/BUI-51/build-landing-page-hero-section)\n**Priority:** High\n**Status:** Backlog\n\n## Description\n\nDark hero with CTAs and trust logos - Ref: 01-hero-dark.png",
+  "scoped_services": ["frontend"],
+  "files_to_modify": [
+    "frontend/src/App.tsx"
+  ],
+  "files_to_create": [
+    "frontend/src/pages/LandingPage.tsx",
+    "frontend/src/components/Hero.tsx",
+    "frontend/src/assets/logos/turner.png",
+    "frontend/src/assets/logos/bechtel.png",
+    "frontend/src/assets/logos/fluor.png",
+    "frontend/src/assets/logos/kiewit.png",
+    "frontend/src/assets/logos/skanska.png"
+  ],
+  "files_to_reference": [
+    "frontend/src/components/CTASection.tsx",
+    "frontend/src/components/FeaturesBentoGrid.tsx",
+    "design-assets/landing/01-hero-dark.png"
+  ],
+  "patterns": {
+    "styling": "Uses MUI's styled() API from @mui/material/styles, NOT Emotion directly",
+    "component_structure": "Single .tsx files with inline styled components (not separate .styles.ts files)",
+    "responsive": "Uses MUI breakpoints with sx prop and useMediaQuery hook",
+    "buttons": "Custom Button components from ./ui/Button with variant props"
+  },
+  "existing_implementations": {
+    "description": "Found existing landing page components (CTASection, FeaturesBentoGrid) that follow MUI + styled() pattern",
+    "relevant_files": [
+      "frontend/src/components/CTASection.tsx",
+      "frontend/src/components/FeaturesBentoGrid.tsx"
+    ]
+  },
+  "created_at": "2026-02-04T17:25:16.259558"
+}

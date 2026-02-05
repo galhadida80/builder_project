@@ -1,0 +1,12 @@
+{
+  "sourceType": "ideation",
+  "ideationType": "ui_ux_improvements",
+  "ideaId": "uiux-005",
+  "rationale": "The Sidebar.tsx component hardcodes all navigation labels in English ('Dashboard', 'Projects', 'Team Workload', 'Equipment', 'Materials', 'Meetings', 'Approvals', 'Areas', 'Contacts', 'Inspections', 'RFIs', 'Audit Log', 'Settings') and the section header 'Current Project'. Meanwhile, every other page in the app uses `t()` translation functions. This means switching to Hebrew or Spanish changes all page content but the sidebar navigation remains in English, creating a broken bilingual interface.",
+  "category": "ui_ux",
+  "uiuxCategory": "usability",
+  "affectedFiles": [
+    "components/layout/Sidebar.tsx"
+  ],
+  "problemSolved": "Sidebar.tsx defines navigation items with hardcoded English labels: `const mainNavItems: NavItem[] = [{ label: 'Dashboard', path: '/dashboard', icon: <DashboardIcon /> }, { label: 'Projects', path: '/projects', icon: <FolderIcon /> }, { label: 'Team Workload', path: '/team-workload', icon: <GroupIcon /> }]` and similarly for projectNavItems and systemNavItems. The section header 'Current Project' (line 197) is also hardcoded. The component does not import or use `useTranslation`."
+}

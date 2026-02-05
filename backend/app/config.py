@@ -24,7 +24,7 @@ class Settings(BaseSettings):
 
     redis_url: str = "redis://localhost:6379/0"
 
-    cors_origins: list[str] = ["http://localhost:5173", "http://localhost:3000"]
+    cors_origins: list[str] = ["http://localhost:5173", "http://localhost:4173", "http://localhost:4174", "http://localhost:4175", "http://localhost:3000"]
 
     api_v1_prefix: str = "/api/v1"
 

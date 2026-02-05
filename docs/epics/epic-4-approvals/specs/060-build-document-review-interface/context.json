@@ -1,0 +1,73 @@
+{
+  "task_description": "# Build Document Review Interface\n\n**Linear Issue:** [BUI-66](https://linear.app/builder-project/issue/BUI-66/build-document-review-interface)\n**Priority:** High\n**Status:** Backlog\n\n## Description\n\nSplit view with comments - Ref: 27-document-review.png",
+  "scoped_services": ["backend", "frontend"],
+  "files_to_modify": {
+    "backend": [
+      "backend/app/models/__init__.py",
+      "backend/app/schemas/__init__.py",
+      "backend/app/api/v1/router.py"
+    ],
+    "frontend": []
+  },
+  "files_to_create": {
+    "backend": [
+      "backend/app/models/document_review.py",
+      "backend/app/schemas/document_review.py",
+      "backend/app/api/v1/document_reviews.py",
+      "backend/alembic/versions/XXXX_add_document_reviews.py"
+    ],
+    "frontend": [
+      "frontend/components/DocumentReviewPanel/DocumentReviewPanel.tsx",
+      "frontend/components/DocumentReviewPanel/DocumentViewer.tsx",
+      "frontend/components/DocumentReviewPanel/CommentsPanel.tsx",
+      "frontend/components/DocumentReviewPanel/CommentThread.tsx",
+      "frontend/app/(dashboard)/projects/[id]/documents/[documentId]/review/page.tsx"
+    ]
+  },
+  "files_to_reference": [
+    "backend/app/api/v1/files.py",
+    "backend/app/api/v1/rfis.py",
+    "backend/app/models/rfi.py",
+    "backend/app/models/file.py",
+    "backend/app/schemas/rfi.py",
+    "design-assets/approval/27-document-review.png"
+  ],
+  "patterns": {
+    "backend_api_pattern": "Use APIRouter with async/await, Depends() for dependency injection, project-scoped routes (/projects/{project_id}/...), get_current_user for authentication",
+    "backend_model_pattern": "SQLAlchemy models with Mapped types, UUID primary keys, ForeignKey with CASCADE, created_at/updated_at timestamps, relationship() with back_populates",
+    "backend_schema_pattern": "Base/Create/Update/Response pattern, field_validator for sanitization, Type | None for optionals, Field() with constraints",
+    "comment_response_pattern": "Main entity (RFI) has one-to-many relationship with responses (RFIResponse), stored in separate table with foreign key CASCADE",
+    "frontend_component_pattern": "MUI components with styled() for theming, TypeScript for type safety, Flexbox layouts with Box and Grid",
+    "frontend_routing": "Next.js App Router with (dashboard) group, dynamic routes with [id] and [documentId] params"
+  },
+  "existing_implementations": {
+    "description": "Found comprehensive comment/response pattern in RFI system (rfis.py, rfi.py models), file handling in files.py, MUI component patterns throughout frontend",
+    "relevant_files": [
+      "backend/app/api/v1/files.py",
+      "backend/app/api/v1/rfis.py",
+      "backend/app/models/rfi.py",
+      "backend/app/schemas/rfi.py"
+    ],
+    "key_insights": [
+      "RFI model has responses relationship with cascade='all, delete-orphan'",
+      "Files use entity_type and entity_id for generic association to any entity",
+      "Storage backend abstraction supports both local and S3 storage",
+      "RFI responses include attachments as JSONB field",
+      "Indexes on foreign keys (project_id, document_id) for performance",
+      "Async SQLAlchemy pattern with AsyncSession throughout",
+      "Authentication via get_current_user dependency",
+      "Audit logging with create_audit_log service"
+    ]
+  },
+  "design_reference": {
+    "file": "design-assets/approval/27-document-review.png",
+    "ui_elements": [
+      "Split view: Document viewer (left) + Comments panel (right)",
+      "Document viewer: PDF with zoom/pan controls, page navigation",
+      "Comments panel: Header 'COMMENTS & APPROVALS', comment list with avatars/timestamps/actions",
+      "Comment actions: Reply, Resolve buttons",
+      "Bottom actions: APPROVE (green), REJECT (red), REQUEST CHANGES (blue) buttons"
+    ]
+  },
+  "created_at": "2026-02-05T00:22:44.476684"
+}

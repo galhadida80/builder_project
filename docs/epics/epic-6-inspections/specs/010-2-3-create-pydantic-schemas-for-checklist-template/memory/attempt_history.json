@@ -1,0 +1,81 @@
+{
+  "subtasks": {
+    "subtask-1-1": {
+      "attempts": [
+        {
+          "session": 1,
+          "timestamp": "2026-01-29T10:37:19.418044",
+          "approach": "Implemented: Create checklist_template.py file with imports and ChecklistItemTemplate schemas (Base/Create/Update",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-1-2": {
+      "attempts": [
+        {
+          "session": 2,
+          "timestamp": "2026-01-29T10:39:21.364747",
+          "approach": "Implemented: Add ChecklistSubSection schemas (Base/Create/Update/Response) with nested items relationship",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-1-3": {
+      "attempts": [
+        {
+          "session": 3,
+          "timestamp": "2026-01-29T10:42:12.992774",
+          "approach": "Implemented: Add ChecklistTemplate schemas (Base/Create/Update/Response) with nested sub_sections relationship",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-1-4": {
+      "attempts": [
+        {
+          "session": 4,
+          "timestamp": "2026-01-29T10:45:31.479417",
+          "approach": "Implemented: Add ChecklistInstance schemas (Create/Update/Response) for runtime instances",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-1-5": {
+      "attempts": [
+        {
+          "session": 5,
+          "timestamp": "2026-01-29T10:47:54.967480",
+          "approach": "Implemented: Add ChecklistItemResponse schemas (Create/Update/Response) for user responses to checklist items",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-1-6": {
+      "attempts": [
+        {
+          "session": 6,
+          "timestamp": "2026-01-29T10:53:00.127242",
+          "approach": "Implemented: Verify nested serialization works correctly (Template \u2192 SubSections \u2192 Items)",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    }
+  },
+  "stuck_subtasks": [],
+  "metadata": {
+    "created_at": "2026-01-29T10:34:31.233413",
+    "last_updated": "2026-01-29T10:53:00.127264"
+  }
+}

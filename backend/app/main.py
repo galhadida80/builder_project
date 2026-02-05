@@ -37,7 +37,6 @@ app = FastAPI(
     docs_url=f"{settings.api_v1_prefix}/docs",
 )
 
-app.add_middleware(LanguageDetectionMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
@@ -45,6 +44,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(LanguageDetectionMiddleware)
 
 app.include_router(api_router, prefix=settings.api_v1_prefix)
 

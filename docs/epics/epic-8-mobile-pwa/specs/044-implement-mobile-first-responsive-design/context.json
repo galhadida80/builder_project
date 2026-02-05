@@ -1,0 +1,42 @@
+{
+  "task_description": "# Implement Mobile-First Responsive Design\n\n**Linear Issue:** [BUI-82](https://linear.app/builder-project/issue/BUI-82/implement-mobile-first-responsive-design)\n**Priority:** High\n**Status:** Backlog\n\n## Description\n\nBreakpoints, touch targets, mobile nav\n",
+  "scoped_services": ["frontend"],
+  "files_to_modify": [
+    "frontend/src/theme/theme.ts",
+    "frontend/src/components/layout/Header.tsx",
+    "frontend/src/components/layout/Sidebar.tsx",
+    "frontend/src/components/layout/Layout.tsx",
+    "frontend/src/styles/index.css",
+    "frontend/src/styles/touch.css"
+  ],
+  "files_to_reference": [
+    "frontend/src/theme/theme.ts",
+    "frontend/src/theme/tokens.ts",
+    "frontend/src/components/CTASection.tsx",
+    "frontend/src/components/ui/Button.tsx",
+    "frontend/src/components/ui/Card.tsx"
+  ],
+  "patterns": {
+    "theme_pattern": "MUI theme with createLightTheme/createDarkTheme functions, uses tokens from separate file",
+    "styling_pattern": "Emotion CSS-in-JS with MUI sx prop for responsive styling",
+    "component_pattern": "Functional React components with TypeScript, Material-UI components",
+    "touch_targets": "Already have minHeight: 44px for buttons and touch elements in theme",
+    "existing_responsive": "useMediaQuery hook used in CTASection.tsx, breakpoints.down('sm') pattern"
+  },
+  "existing_implementations": {
+    "description": "Found existing touch target standards (44px minimum) in theme, touch.css file with touch-action styles, and some responsive patterns using useMediaQuery",
+    "relevant_files": [
+      "frontend/src/theme/theme.ts",
+      "frontend/src/styles/touch.css",
+      "frontend/src/components/CTASection.tsx"
+    ],
+    "observations": {
+      "breakpoints": "No custom breakpoints defined yet - using MUI defaults",
+      "touch_targets": "Good foundation with 44px minimums in Button/IconButton theme overrides",
+      "responsive_patterns": "Limited responsive implementation - only CTASection uses useMediaQuery",
+      "navigation": "Header and Sidebar are fixed width (260px) with no mobile responsiveness",
+      "layout": "Layout.tsx uses fixed drawer width with no responsive behavior"
+    }
+  },
+  "created_at": "2026-02-05T00:22:08.014806"
+}

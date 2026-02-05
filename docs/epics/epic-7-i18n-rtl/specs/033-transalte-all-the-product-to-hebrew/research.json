@@ -1,0 +1,163 @@
+{
+  "summary": {
+    "task": "Translate entire product to Hebrew",
+    "explicit_integrations_specified": 0,
+    "implicit_integrations_likely_needed": 3,
+    "status": "REQUIREMENTS INCOMPLETE - No external integrations specified"
+  },
+  "integrations_researched": [],
+  "unverified_claims": [
+    {
+      "claim": "Task title contains typo: 'transalte' should be 'translate'",
+      "reason": "Spelling error in requirements.json",
+      "risk_level": "low",
+      "recommended_action": "Clarify intended task name with user"
+    }
+  ],
+  "implicit_dependencies_likely_needed": [
+    {
+      "name": "i18n Framework",
+      "type": "library",
+      "reason": "Required for internationalization implementation",
+      "examples": [
+        "i18next (JavaScript/React)",
+        "react-i18next (React specific)",
+        "next-i18next (Next.js specific)",
+        "Python i18n libraries (for backend if needed)"
+      ],
+      "note": "Not specified in requirements - should be selected during implementation planning"
+    },
+    {
+      "name": "RTL Support Library",
+      "type": "library",
+      "reason": "Hebrew is right-to-left language, may need CSS/layout support",
+      "examples": [
+        "rtlcss (CSS automation for RTL)",
+        "react-rtl (React RTL utilities)",
+        "CSS logical properties (modern browser support)"
+      ],
+      "note": "Not specified in requirements - architectural decision needed"
+    },
+    {
+      "name": "Translation Source/Storage",
+      "type": "service_or_library",
+      "reason": "Need to store and manage translation strings",
+      "examples": [
+        "JSON-based translation files (simple, self-hosted)",
+        "Translation management SaaS (Crowdin, Lokalise, Phrase)",
+        "gettext/PO files (standard i18n format)",
+        "Spreadsheet-based (Google Sheets integration)"
+      ],
+      "note": "Not specified in requirements - infrastructure decision needed"
+    }
+  ],
+  "missing_specification_details": [
+    {
+      "category": "Scope",
+      "missing": [
+        "What constitutes 'all the product'?",
+        "Which UI components need translation?",
+        "Should documentation be translated?",
+        "Should error messages be translated?",
+        "Should marketing/landing page copy be translated?"
+      ]
+    },
+    {
+      "category": "Technical Approach",
+      "missing": [
+        "Which i18n framework should be used?",
+        "What translation file format? (JSON, YAML, PO, etc.)",
+        "How to handle RTL layout for Hebrew?",
+        "Should backend also support Hebrew?",
+        "Database/API requirements for multi-language support?"
+      ]
+    },
+    {
+      "category": "Translation Source",
+      "missing": [
+        "Will use professional translator?",
+        "Machine translation acceptable?",
+        "Existing Hebrew translations available?",
+        "Translation management tool required?",
+        "Who is responsible for maintaining translations?"
+      ]
+    },
+    {
+      "category": "Quality/Constraints",
+      "missing": [
+        "Translation quality standards?",
+        "Deadline/timeline?",
+        "Browser/platform support requirements?",
+        "Performance requirements for multi-language setup?",
+        "Accessibility requirements for RTL content?"
+      ]
+    }
+  ],
+  "research_findings": {
+    "context": "No external integrations were specified in requirements.json. Research phase can only document what was specified.",
+    "next_step_requirement": "Implementation Planning phase MUST clarify technical approach before external dependencies can be selected and researched."
+  },
+  "recommendations": [
+    {
+      "priority": "CRITICAL",
+      "action": "Clarify requirements before proceeding",
+      "details": "The requirements are too sparse for implementation planning. Please specify:",
+      "items": [
+        "Exact scope of translation (UI, docs, error messages, etc.)",
+        "Preferred i18n framework/library",
+        "RTL layout requirements and approach",
+        "Translation source and quality standards",
+        "Target browsers/platforms"
+      ]
+    },
+    {
+      "priority": "HIGH",
+      "action": "Decide on i18n framework early",
+      "details": "The choice of i18n framework will drive:",
+      "items": [
+        "How translation strings are organized",
+        "File format for translations",
+        "Integration points in codebase",
+        "Performance and bundle size impact"
+      ]
+    },
+    {
+      "priority": "HIGH",
+      "action": "Address RTL requirements",
+      "details": "Hebrew is RTL language - requires:",
+      "items": [
+        "CSS layout changes (direction: rtl, text-align, margins/padding)",
+        "Icon/image direction consideration",
+        "Date/number format localization",
+        "Form input direction handling"
+      ]
+    },
+    {
+      "priority": "MEDIUM",
+      "action": "Set up translation workflow",
+      "details": "Plan for:",
+      "items": [
+        "How to extract translatable strings from codebase",
+        "How to manage translation files",
+        "How to deploy new translations",
+        "How to handle missing translations"
+      ]
+    }
+  ],
+  "context_from_requirements_phase": {
+    "noted_gaps": [
+      "Scope undefined",
+      "No technical approach specified",
+      "No files/components identified",
+      "No constraints documented"
+    ],
+    "noted_task_structure_issue": "Task title contains typo: 'transalte' vs 'translate'"
+  },
+  "research_quality": {
+    "completeness": "MINIMAL - No external integrations were specified to research",
+    "validation_status": "N/A - Nothing to validate",
+    "sources_used": []
+  },
+  "created_at": "2026-01-30T00:00:00Z",
+  "research_agent_notes": "This research phase demonstrates that research can only validate explicitly mentioned integrations. The requirements.json contains no external dependencies, libraries, or services to research. The implementation planning phase will need to specify these before development can begin. No research was needed for external sources in this case, as none were mentioned."
+}

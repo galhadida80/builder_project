@@ -1,0 +1,70 @@
+{
+  "complexity": "standard",
+  "workflow_type": "feature",
+  "confidence": 0.85,
+  "reasoning": "Bug fix that replaces hardcoded mock data with real API integration. Touches 2-4 files (component + API hook/service), single service (frontend), no external integrations. Requires standard React data fetching patterns that likely exist in codebase.",
+
+  "analysis": {
+    "scope": {
+      "estimated_files": 3,
+      "estimated_services": 1,
+      "is_cross_cutting": false,
+      "notes": "Localized to Equipment drawer component (EquipmentPage.tsx). May also touch shared API hooks/services and possibly a types file."
+    },
+    "integrations": {
+      "external_services": [],
+      "new_dependencies": [],
+      "research_needed": false,
+      "notes": "Uses existing internal API endpoint /projects/{id}/files. No new external services or dependencies required."
+    },
+    "infrastructure": {
+      "docker_changes": false,
+      "database_changes": false,
+      "config_changes": false,
+      "notes": "No infrastructure changes. API endpoint already exists, just need to consume it."
+    },
+    "knowledge": {
+      "patterns_exist": true,
+      "research_required": false,
+      "unfamiliar_tech": [],
+      "notes": "Standard React data fetching pattern. Need to identify existing API client patterns in codebase, but no external documentation research required."
+    },
+    "risk": {
+      "level": "medium",
+      "concerns": [
+        "Need to verify API response structure",
+        "Must handle loading/error/empty states properly",
+        "File size formatting needs to match existing mock format",
+        "Project ID context availability in component"
+      ],
+      "notes": "Medium risk due to API integration requiring proper state management. However, contained scope and existing patterns reduce risk significantly."
+    }
+  },
+
+  "recommended_phases": [
+    "discovery",
+    "requirements",
+    "context",
+    "spec_writing",
+    "planning",
+    "validation"
+  ],
+
+  "flags": {
+    "needs_research": false,
+    "needs_self_critique": false,
+    "needs_infrastructure_setup": false
+  },
+
+  "validation_recommendations": {
+    "risk_level": "medium",
+    "skip_validation": false,
+    "minimal_mode": false,
+    "test_types_required": ["unit", "integration"],
+    "security_scan_required": false,
+    "staging_deployment_required": false,
+    "reasoning": "API integration requires unit tests for component logic and integration tests for API fetching. No security-sensitive areas or infrastructure changes involved."
+  },
+
+  "created_at": "2026-01-29T00:00:00Z"
+}

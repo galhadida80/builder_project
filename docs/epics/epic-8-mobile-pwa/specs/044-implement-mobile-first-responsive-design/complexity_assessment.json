@@ -1,0 +1,70 @@
+{
+  "complexity": "standard",
+  "workflow_type": "feature",
+  "confidence": 0.75,
+  "reasoning": "Mobile-first responsive design is cross-cutting across many frontend components but follows well-established patterns. No external integrations or infrastructure changes needed. Primary complexity is scope (many files) rather than technical difficulty.",
+
+  "analysis": {
+    "scope": {
+      "estimated_files": 20,
+      "estimated_services": 1,
+      "is_cross_cutting": true,
+      "notes": "Responsive design affects layout, navigation, and touch interactions across multiple components. Frontend-only changes using existing Emotion styling and Material UI utilities."
+    },
+    "integrations": {
+      "external_services": [],
+      "new_dependencies": [],
+      "research_needed": false,
+      "notes": "All required libraries already installed (Emotion, Material UI). Standard responsive design patterns with no external dependencies."
+    },
+    "infrastructure": {
+      "docker_changes": false,
+      "database_changes": false,
+      "config_changes": false,
+      "notes": "Pure frontend styling changes with no infrastructure impact."
+    },
+    "knowledge": {
+      "patterns_exist": true,
+      "research_required": false,
+      "unfamiliar_tech": [],
+      "notes": "Material UI provides responsive utilities and breakpoint helpers. Emotion supports media queries. Standard mobile-first CSS patterns apply."
+    },
+    "risk": {
+      "level": "medium",
+      "concerns": [
+        "Existing layouts may break at different screen sizes",
+        "Touch target sizing may affect existing click/tap handlers",
+        "Mobile navigation pattern may require state management changes",
+        "User experience changes across all devices"
+      ],
+      "notes": "Comprehensive testing needed across multiple viewport sizes to ensure no regressions."
+    }
+  },
+
+  "recommended_phases": [
+    "discovery",
+    "requirements",
+    "context",
+    "spec_writing",
+    "planning",
+    "validation"
+  ],
+
+  "flags": {
+    "needs_research": false,
+    "needs_self_critique": false,
+    "needs_infrastructure_setup": false
+  },
+
+  "validation_recommendations": {
+    "risk_level": "medium",
+    "skip_validation": false,
+    "minimal_mode": false,
+    "test_types_required": ["unit", "integration", "e2e"],
+    "security_scan_required": false,
+    "staging_deployment_required": false,
+    "reasoning": "Responsive design changes affect user experience across all devices and screen sizes. Requires unit tests for responsive utilities, integration tests for component behavior, and E2E tests to verify layouts at different breakpoints. No security or infrastructure concerns."
+  },
+
+  "created_at": "2026-02-05T00:00:00Z"
+}

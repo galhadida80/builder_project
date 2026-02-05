@@ -1,0 +1,70 @@
+{
+  "complexity": "standard",
+  "workflow_type": "feature",
+  "confidence": 0.75,
+  "reasoning": "New equipment tracking table following design mockup. Existing DataTable and StatusBadge components can be reused, but design differs from current EquipmentPage implementation. Location field and approval status display need clarification.",
+
+  "analysis": {
+    "scope": {
+      "estimated_files": 6,
+      "estimated_services": 1,
+      "is_cross_cutting": false,
+      "notes": "Frontend-only change. May need to modify EquipmentPage.tsx or create new component, add location field support, update filters to match design. Existing Equipment type and API already present."
+    },
+    "integrations": {
+      "external_services": [],
+      "new_dependencies": [],
+      "research_needed": false,
+      "notes": "All patterns exist in codebase. DataTable component supports sorting, StatusBadge exists for badges, Material-UI provides filter components."
+    },
+    "infrastructure": {
+      "docker_changes": false,
+      "database_changes": false,
+      "config_changes": false,
+      "notes": "Frontend-only feature. No database schema changes anticipated (Location might be existing field or derived data). No Docker or config changes needed."
+    },
+    "knowledge": {
+      "patterns_exist": true,
+      "research_required": false,
+      "unfamiliar_tech": [],
+      "notes": "Codebase has existing EquipmentPage with DataTable, StatusBadge, filters, and pagination. Design shows different column structure and filter approach but uses same UI patterns."
+    },
+    "risk": {
+      "level": "medium",
+      "concerns": [
+        "Design differs from existing EquipmentPage - unclear if this replaces or augments",
+        "Location field shown in design but not in current Equipment type",
+        "Approval Status column shows descriptive text (e.g., 'Approved by John Doe') - data source unclear",
+        "Need to clarify relationship to existing equipment functionality"
+      ],
+      "notes": "Main risk is ambiguous requirements. Design mockup shows features not in current implementation. Requirements phase captured minimal detail."
+    }
+  },
+
+  "recommended_phases": [
+    "discovery",
+    "requirements",
+    "context",
+    "spec_writing",
+    "planning",
+    "validation"
+  ],
+
+  "flags": {
+    "needs_research": false,
+    "needs_self_critique": false,
+    "needs_infrastructure_setup": false
+  },
+
+  "validation_recommendations": {
+    "risk_level": "medium",
+    "skip_validation": false,
+    "minimal_mode": false,
+    "test_types_required": ["unit", "integration"],
+    "security_scan_required": false,
+    "staging_deployment_required": false,
+    "reasoning": "New table component with sorting and filtering requires unit tests for logic and integration tests for rendering/interactions. No security-sensitive operations. Frontend-only change requires no staging deployment."
+  },
+
+  "created_at": "2026-02-05T00:00:00Z"
+}

@@ -1,0 +1,14 @@
+{
+  "task_description": "Fix API field name mismatch in project creation endpoint where frontend sends 'location' and 'expectedEndDate' but backend expects 'address' and 'estimated_end_date'",
+  "scoped_services": ["frontend"],
+  "files_to_modify": ["frontend/src/pages/ProjectsPage.tsx"],
+  "files_to_reference": [],
+  "patterns": {},
+  "service_contexts": {
+    "frontend": {
+      "description": "React frontend with TypeScript",
+      "key_files": ["frontend/src/pages/ProjectsPage.tsx"]
+    }
+  },
+  "created_at": "2026-01-29T00:00:00Z"
+}

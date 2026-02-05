@@ -1,0 +1,69 @@
+{
+  "complexity": "standard",
+  "workflow_type": "feature",
+  "confidence": 0.85,
+  "reasoning": "Form validation is a well-understood pattern requiring 2-4 files (form component, validation logic, error display). Single service, no external integrations, but requires thoughtful implementation to avoid breaking existing form functionality.",
+
+  "analysis": {
+    "scope": {
+      "estimated_files": 3,
+      "estimated_services": 1,
+      "is_cross_cutting": false,
+      "notes": "Primary target is MaterialsPage.tsx. Will likely create validation utilities/hooks and possibly error display components for clean code organization."
+    },
+    "integrations": {
+      "external_services": [],
+      "new_dependencies": [],
+      "research_needed": false,
+      "notes": "May add a validation library (yup, zod, react-hook-form) or implement custom validation. Either approach is well-documented and commonly used in React applications."
+    },
+    "infrastructure": {
+      "docker_changes": false,
+      "database_changes": false,
+      "config_changes": false,
+      "notes": "Frontend-only change. No infrastructure or configuration modifications required."
+    },
+    "knowledge": {
+      "patterns_exist": true,
+      "research_required": false,
+      "unfamiliar_tech": [],
+      "notes": "Form validation is a standard React pattern. Need to check existing codebase for validation patterns to maintain consistency, but the concept is well-understood."
+    },
+    "risk": {
+      "level": "medium",
+      "concerns": [
+        "Could break existing form submission if validation logic is too strict",
+        "Need to ensure inline errors don't disrupt existing UI layout",
+        "Must validate that legitimate use cases aren't blocked"
+      ],
+      "notes": "Medium risk due to modifying an existing form that's likely in production use. Requires careful testing of both valid and invalid submission scenarios."
+    }
+  },
+
+  "recommended_phases": [
+    "discovery",
+    "requirements",
+    "context",
+    "spec_writing",
+    "planning",
+    "validation"
+  ],
+
+  "flags": {
+    "needs_research": false,
+    "needs_self_critique": false,
+    "needs_infrastructure_setup": false
+  },
+
+  "validation_recommendations": {
+    "risk_level": "medium",
+    "skip_validation": false,
+    "minimal_mode": false,
+    "test_types_required": ["unit", "integration"],
+    "security_scan_required": false,
+    "staging_deployment_required": false,
+    "reasoning": "Form validation changes require unit tests for validation logic and integration tests to verify form submission behavior with both valid and invalid inputs. Medium risk due to potential for breaking existing material creation functionality."
+  },
+
+  "created_at": "2026-01-29T12:00:00Z"
+}

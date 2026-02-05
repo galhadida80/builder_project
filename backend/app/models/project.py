@@ -49,7 +49,7 @@ class Project(Base):
     areas = relationship("ConstructionArea", back_populates="project", cascade="all, delete-orphan")
     inspections = relationship("Inspection", back_populates="project", cascade="all, delete-orphan")
     rfis = relationship("RFI", back_populates="project", cascade="all, delete-orphan")
-    equipment_submissions = relationship("EquipmentSubmission", back_populates="project", cascade="all, delete-orphan")
+    checklist_templates = relationship("ChecklistTemplate", back_populates="project", cascade="all, delete-orphan")
 
 
 class ProjectMember(Base):

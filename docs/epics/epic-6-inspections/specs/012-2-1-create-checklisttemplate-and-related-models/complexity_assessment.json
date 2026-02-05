@@ -1,0 +1,71 @@
+{
+  "complexity": "standard",
+  "workflow_type": "feature",
+  "confidence": 0.85,
+  "reasoning": "Three related SQLAlchemy models with relationships, bilingual fields, and JSONB columns. Contained to 1-2 files in backend service with no external integrations. Standard ORM work but requires careful relationship design.",
+
+  "analysis": {
+    "scope": {
+      "estimated_files": 2,
+      "estimated_services": 1,
+      "is_cross_cutting": false,
+      "notes": "Primary file: backend/app/models/checklist_template.py (new). May need to update backend/app/models/__init__.py to import new models. Contained to backend service only."
+    },
+    "integrations": {
+      "external_services": [],
+      "new_dependencies": [],
+      "research_needed": false,
+      "notes": "Pure internal model work using existing SQLAlchemy. No external APIs or services involved."
+    },
+    "infrastructure": {
+      "docker_changes": false,
+      "database_changes": true,
+      "config_changes": false,
+      "notes": "Will create new PostgreSQL tables via Alembic migration. Uses JSONB datatype (PostgreSQL-specific). No Docker/compose changes or new environment variables needed."
+    },
+    "knowledge": {
+      "patterns_exist": true,
+      "research_required": false,
+      "unfamiliar_tech": [],
+      "notes": "SQLAlchemy is standard ORM technology. Need to check existing model patterns in codebase for consistency (UUID primary keys, relationship setup, timestamp fields)."
+    },
+    "risk": {
+      "level": "medium",
+      "concerns": [
+        "Data model correctness - relationships must be properly bidirectional",
+        "JSONB field handling (file_names array, additional_config dict)",
+        "UUID primary key pattern consistency",
+        "Bilingual field pattern (_he suffix) correctness",
+        "Cascade delete behavior for hierarchical relationships"
+      ],
+      "notes": "Models form foundation for checklist features. Incorrect relationships or field types would require future migrations. Medium risk due to foundational nature, but no security/payment concerns."
+    }
+  },
+
+  "recommended_phases": [
+    "discovery",
+    "requirements",
+    "context",
+    "spec_writing",
+    "planning",
+    "validation"
+  ],
+
+  "flags": {
+    "needs_research": false,
+    "needs_self_critique": false,
+    "needs_infrastructure_setup": false
+  },
+
+  "validation_recommendations": {
+    "risk_level": "medium",
+    "skip_validation": false,
+    "minimal_mode": false,
+    "test_types_required": ["unit", "integration"],
+    "security_scan_required": false,
+    "staging_deployment_required": false,
+    "reasoning": "New database models with relationships and JSONB fields require both unit tests for field behavior and integration tests for database operations and relationship queries."
+  },
+
+  "created_at": "2026-01-29T12:00:00Z"
+}

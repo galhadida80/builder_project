@@ -1,0 +1,71 @@
+{
+  "complexity": "standard",
+  "workflow_type": "feature",
+  "confidence": 0.85,
+  "reasoning": "Adding two SQLAlchemy models with multiple relationships, enums, and JSONB fields. Well-defined scope (1-2 files, single service) with existing patterns to follow, but requires careful relationship configuration and understanding of FK constraints.",
+
+  "analysis": {
+    "scope": {
+      "estimated_files": 2,
+      "estimated_services": 1,
+      "is_cross_cutting": false,
+      "notes": "Primary file: backend/app/models/checklist_template.py. May need to update model exports. Localized to backend model layer."
+    },
+    "integrations": {
+      "external_services": [],
+      "new_dependencies": [],
+      "research_needed": false,
+      "notes": "No external integrations. Using existing SQLAlchemy ORM. Standard Python packages only."
+    },
+    "infrastructure": {
+      "docker_changes": false,
+      "database_changes": true,
+      "config_changes": false,
+      "notes": "New database tables via model definitions. JSONB fields require PostgreSQL. Migrations are separate task. No Docker or config changes needed."
+    },
+    "knowledge": {
+      "patterns_exist": true,
+      "research_required": false,
+      "unfamiliar_tech": [],
+      "notes": "Target file already exists with similar models (ChecklistTemplate, ChecklistItemTemplate). Can follow existing patterns for UUIDs, timestamps, relationships, and JSONB fields."
+    },
+    "risk": {
+      "level": "medium",
+      "concerns": [
+        "Foreign key relationships must reference correct models (5 FKs total)",
+        "JSONB field type hints and handling (3 JSONB fields)",
+        "Two enum definitions need proper SQLAlchemy configuration",
+        "Relationship configurations (one-to-many, back_populates)",
+        "Optional fields (area_id, unit_identifier, completed_at, note, signature_file_id) need proper nullable handling"
+      ],
+      "notes": "Medium risk because models are foundational - incorrect relationships or FK constraints could break queries across the application. However, requirements are well-defined and testable."
+    }
+  },
+
+  "recommended_phases": [
+    "discovery",
+    "requirements",
+    "context",
+    "spec_writing",
+    "planning",
+    "validation"
+  ],
+
+  "flags": {
+    "needs_research": false,
+    "needs_self_critique": false,
+    "needs_infrastructure_setup": false
+  },
+
+  "validation_recommendations": {
+    "risk_level": "medium",
+    "skip_validation": false,
+    "minimal_mode": false,
+    "test_types_required": ["unit", "integration"],
+    "security_scan_required": false,
+    "staging_deployment_required": false,
+    "reasoning": "Database models are foundational and require testing. Unit tests for model instantiation and field validation. Integration tests for FK constraints and relationship queries. No security scan needed (no auth/payment logic). No staging deployment needed (models only, no runtime changes)."
+  },
+
+  "created_at": "2026-01-29T10:00:00Z"
+}

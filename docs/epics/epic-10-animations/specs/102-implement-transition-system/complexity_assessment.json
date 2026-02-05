@@ -1,0 +1,120 @@
+{
+  "complexity": "standard",
+  "workflow_type": "feature",
+  "confidence": 0.85,
+  "reasoning": "Task involves extending existing animation system to add page transitions and modal animations. Moderate scope (6-8 files) with existing patterns and dependencies already in place. Requires integration of React Router v6 transitions which needs some research, but overall well-defined scope within single service.",
+
+  "analysis": {
+    "scope": {
+      "estimated_files": 7,
+      "estimated_services": 1,
+      "is_cross_cutting": true,
+      "notes": "Will modify existing animation utilities, Modal component, and add page transition wrapper. Affects routing in App.tsx and requires new transition components. Estimated files: animations.ts, tokens.ts, design-tokens.css, Modal.tsx, new PageTransition component, App.tsx, and tests."
+    },
+    "integrations": {
+      "external_services": [],
+      "new_dependencies": [],
+      "research_needed": true,
+      "notes": "All required libraries already installed (react-transition-group, MUI, emotion). Research needed for React Router v6 transition best practices and choosing optimal approach (CSS Transitions vs React Transition Group vs Framer Motion patterns)."
+    },
+    "infrastructure": {
+      "docker_changes": false,
+      "database_changes": false,
+      "config_changes": false,
+      "notes": "No infrastructure changes needed. All dependencies already available in package.json."
+    },
+    "knowledge": {
+      "patterns_exist": true,
+      "research_required": true,
+      "unfamiliar_tech": [],
+      "notes": "Strong foundation exists with comprehensive animation utilities (animations.ts) and theme tokens. Need to research React Router v6 transition patterns as there are multiple valid approaches. Modal animations straightforward with MUI Dialog transition props."
+    },
+    "risk": {
+      "level": "medium",
+      "concerns": [
+        "Animation performance - must maintain 60fps for smooth UX",
+        "Page transition timing - avoid blocking navigation",
+        "Modal animation coordination with backdrop",
+        "Reduced motion preference support",
+        "Consistency across different route types (nested routes, dynamic segments)",
+        "Potential layout shift or flicker during transitions"
+      ],
+      "notes": "Primary risk is poor animation performance affecting user experience. Need to ensure transitions are smooth, non-blocking, and respect accessibility preferences. Testing on lower-end devices recommended."
+    }
+  },
+
+  "recommended_phases": [
+    "discovery",
+    "requirements",
+    "research",
+    "context",
+    "spec_writing",
+    "planning",
+    "validation"
+  ],
+
+  "flags": {
+    "needs_research": true,
+    "needs_self_critique": false,
+    "needs_infrastructure_setup": false
+  },
+
+  "validation_recommendations": {
+    "risk_level": "medium",
+    "skip_validation": false,
+    "minimal_mode": false,
+    "test_types_required": ["unit", "integration"],
+    "security_scan_required": false,
+    "staging_deployment_required": false,
+    "reasoning": "Animation changes affect UX across the application. Requires unit tests for animation utility functions and integration tests to verify transitions work correctly in routing and modal contexts. No security implications, but visual regression testing recommended."
+  },
+
+  "research_topics": [
+    "React Router v6 transition best practices and patterns",
+    "Performance optimization for page transitions",
+    "Coordinating enter/exit animations with React Router",
+    "MUI Dialog/Modal transition configuration options",
+    "Accessibility considerations for animated transitions",
+    "Reduced motion preference handling"
+  ],
+
+  "existing_assets": {
+    "animation_utilities": "/frontend/src/utils/animations.ts",
+    "theme_tokens": "/frontend/src/theme/tokens.ts",
+    "design_tokens_css": "/frontend/src/styles/design-tokens.css",
+    "modal_component": "/frontend/src/components/ui/Modal.tsx",
+    "routing_setup": "/frontend/src/App.tsx",
+    "dependencies": {
+      "react_router_dom": "^6.21.3",
+      "react_transition_group": "installed",
+      "mui_material": "installed",
+      "emotion_react": "installed"
+    }
+  },
+
+  "key_findings": {
+    "strengths": [
+      "Comprehensive animation utilities already exist with duration tokens, easing functions, and keyframe animations",
+      "Theme tokens already include transition and animation sections",
+      "React Router v6 properly configured in App.tsx",
+      "Modal component built with MUI Dialog ready for transition props",
+      "All required dependencies already installed"
+    ],
+    "gaps": [
+      "No page transition wrapper or animation logic in routing",
+      "Modal component has no enter/exit animations configured",
+      "CSS custom properties for transitions not in design-tokens.css",
+      "No transition utilities or hooks for route changes",
+      "No reduced motion preference handling visible"
+    ],
+    "opportunities": [
+      "Leverage existing comprehensive animation system",
+      "Extend tokens to CSS variables for broader usage",
+      "Add transition configuration to MUI Dialog transitionDuration and TransitionComponent props",
+      "Create reusable PageTransition component wrapping routes",
+      "Implement accessibility-aware animations respecting prefers-reduced-motion"
+    ]
+  },
+
+  "created_at": "2026-02-04T10:30:00Z"
+}

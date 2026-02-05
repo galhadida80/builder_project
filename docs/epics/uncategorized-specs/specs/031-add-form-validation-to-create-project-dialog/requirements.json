@@ -1,0 +1,4 @@
+{
+  "task_description": "# Add form validation to Create Project dialog\n\n**Linear Issue:** [BUI-6](https://linear.app/builder-project/issue/BUI-6/add-form-validation-to-create-project-dialog)\n**Priority:** Urgent\n**Status:** Backlog\n\n\n## Description\n\n**Bug Description:**\nThe Create Project form has no validation. Users can submit empty forms or invalid data.\n\n**Location:** frontend/src/pages/ProjectsPage.tsx\n\n**Issues:**\n\n* No minimum length check for project name\n* No format validation for project code\n* End date can be before start date\n* No error messages shown to user\n* Submit button is always enabled\n\n**Expected Behavior:**\n\n* Validate required fields (name, code)\n* Validate date logic (end >= start)\n* Show inline error messages\n* Disable submit until valid\n\n**Priority:** High\n",
+  "workflow_type": "feature"
+}

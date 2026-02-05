@@ -1,0 +1,71 @@
+{
+  "complexity": "standard",
+  "workflow_type": "feature",
+  "confidence": 0.85,
+  "reasoning": "Fixing authentication requires modifying 3-5 files in the frontend service. No external integrations involved - just connecting to existing backend API. Standard JWT auth pattern with known security considerations.",
+
+  "analysis": {
+    "scope": {
+      "estimated_files": 4,
+      "estimated_services": 1,
+      "is_cross_cutting": false,
+      "notes": "Primary change in LoginPage.tsx. Likely needs auth service/API client, token storage utility, and potentially auth context. Frontend-only changes."
+    },
+    "integrations": {
+      "external_services": [],
+      "new_dependencies": [],
+      "research_needed": false,
+      "notes": "Connects to existing backend auth API (internal, not external). Will use existing HTTP client (fetch/axios). No new external dependencies. JWT is a standard pattern, not an external integration."
+    },
+    "infrastructure": {
+      "docker_changes": false,
+      "database_changes": false,
+      "config_changes": false,
+      "notes": "Frontend-only change. Backend auth API already exists. May need to reference API endpoint from config/env but no new infrastructure."
+    },
+    "knowledge": {
+      "patterns_exist": true,
+      "research_required": true,
+      "unfamiliar_tech": [],
+      "notes": "Standard JWT authentication pattern. Need to discover existing auth API patterns in codebase (how other components make authenticated requests). Context phase will find these patterns."
+    },
+    "risk": {
+      "level": "high",
+      "concerns": [
+        "Critical security vulnerability - currently allows unauthorized access",
+        "Token storage security (XSS/CSRF concerns)",
+        "Must not break existing valid user login flows",
+        "Proper error handling for failed authentication required",
+        "401 redirect logic must work correctly"
+      ],
+      "notes": "High-impact security fix. Clear requirements but must be implemented carefully. Standard JWT auth reduces risk compared to custom auth schemes."
+    }
+  },
+
+  "recommended_phases": [
+    "discovery",
+    "requirements",
+    "context",
+    "spec_writing",
+    "planning",
+    "validation"
+  ],
+
+  "flags": {
+    "needs_research": false,
+    "needs_self_critique": false,
+    "needs_infrastructure_setup": false
+  },
+
+  "validation_recommendations": {
+    "risk_level": "high",
+    "skip_validation": false,
+    "minimal_mode": false,
+    "test_types_required": ["unit", "integration", "e2e"],
+    "security_scan_required": true,
+    "staging_deployment_required": false,
+    "reasoning": "Authentication is security-critical and requires comprehensive testing including E2E to verify login flows work correctly. Security scan needed to catch auth-related vulnerabilities like XSS in token storage."
+  },
+
+  "created_at": "2026-01-30T10:30:00Z"
+}

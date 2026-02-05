@@ -1,0 +1,4 @@
+{
+  "task_description": "# Add RFI to Project Navigation\n\n**Linear Issue:** [BUI-108](https://linear.app/builder-project/issue/BUI-108/add-rfi-to-project-navigation)\n**Priority:** No priority\n**Status:** Backlog\n\n\n## Description\n\n## User Story\n\nAs a user, I want to access RFIs from the project navigation so that I can easily manage them.\n\n## Acceptance Criteria\n\n- [ ] Add \"RFIs\" tab to project detail page navigation\n- [ ] Add RFI icon (MessageSquare or similar)\n- [ ] Show unread/pending count badge on tab\n- [ ] Update router with /projects/:projectId/rfis route\n- [ ] Add RFI link to sidebar navigation\n\n## Labels\n\nfrontend, navigation, rfi\n",
+  "workflow_type": "feature"
+}

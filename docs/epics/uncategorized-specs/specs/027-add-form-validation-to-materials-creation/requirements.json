@@ -1,0 +1,4 @@
+{
+  "task_description": "# Add form validation to Materials creation\n\n**Linear Issue:** [BUI-10](https://linear.app/builder-project/issue/BUI-10/add-form-validation-to-materials-creation)\n**Priority:** High\n**Status:** Backlog\n\n\n## Description\n\n**Bug Description:**\nThe Materials creation form lacks proper validation.\n\n**Location:** frontend/src/pages/MaterialsPage.tsx\n\n**Issues:**\n\n* No validation for material name (required)\n* Quantity can be negative\n* Delivery date in past not warned\n* No error feedback to user\n\n**Expected Behavior:**\n\n* Validate required fields\n* Validate quantity is positive\n* Warn on past delivery dates\n* Show inline validation errors\n\n**Priority:** Medium\n",
+  "workflow_type": "feature"
+}

@@ -1,0 +1,93 @@
+{
+  "complexity": "standard",
+  "workflow_type": "feature",
+  "confidence": 0.82,
+  "reasoning": "Full-stack translation project affecting both frontend (36+ React components) and backend (58+ API routes). Requires i18n infrastructure setup and RTL layout considerations for Hebrew. Scope is clear but multi-service.",
+
+  "analysis": {
+    "scope": {
+      "estimated_files": 45,
+      "estimated_services": 2,
+      "is_cross_cutting": true,
+      "notes": "Frontend React components (~36 files) + backend API routes/responses (~20+ files). Cross-cutting because translation strings appear throughout both services. Primarily UI and API response text, not data models."
+    },
+    "integrations": {
+      "external_services": [],
+      "new_dependencies": [
+        "i18next (or similar i18n library)",
+        "react-i18next (for React integration)",
+        "i18next-backend (for loading translation files)"
+      ],
+      "research_needed": true,
+      "notes": "i18n library selection needs research. Must evaluate options (i18next, FormatJS, etc.) for best fit with React + FastAPI architecture. RTL support verification needed."
+    },
+    "infrastructure": {
+      "docker_changes": false,
+      "database_changes": false,
+      "config_changes": true,
+      "notes": "Need to add .env variables for language selection, translation file paths. No database or Docker changes. May need configuration for loading Hebrew language pack."
+    },
+    "knowledge": {
+      "patterns_exist": false,
+      "research_required": true,
+      "unfamiliar_tech": [
+        "i18n setup for React",
+        "RTL (right-to-left) layout in CSS for Hebrew",
+        "Backend internationalization approach",
+        "Plural forms handling for Hebrew"
+      ],
+      "notes": "No existing i18n infrastructure in codebase. Need to research: React i18n patterns, CSS RTL implementation, Hebrew-specific language considerations (plurals, gender agreements). This is greenfield i18n setup."
+    },
+    "risk": {
+      "level": "medium",
+      "concerns": [
+        "RTL layout breaking existing CSS styles",
+        "Incomplete translation causing mixed language display",
+        "Performance impact of loading translation files",
+        "Plural rules and grammatical forms differ between English and Hebrew",
+        "Third-party component (MUI) RTL compatibility",
+        "Date/number formatting for Hebrew locale"
+      ],
+      "notes": "RTL introduces visual risk. MUI has RTL support but must be configured properly. Hebrew has complex plural rules. Missing strings could create poor UX."
+    }
+  },
+
+  "recommended_phases": [
+    "discovery",
+    "requirements",
+    "research",
+    "context",
+    "spec_writing",
+    "planning",
+    "validation"
+  ],
+
+  "flags": {
+    "needs_research": true,
+    "needs_self_critique": false,
+    "needs_infrastructure_setup": false
+  },
+
+  "validation_recommendations": {
+    "risk_level": "medium",
+    "skip_validation": false,
+    "minimal_mode": false,
+    "test_types_required": ["unit", "integration"],
+    "security_scan_required": false,
+    "staging_deployment_required": false,
+    "reasoning": "UI language changes require visual testing for RTL layout and unit tests for i18n configuration. Integration testing needed to verify frontend-backend language consistency. No security concerns or staging deployment needed since this is UI configuration, not infrastructure change."
+  },
+
+  "critical_considerations": {
+    "rtl_requirements": "Hebrew requires right-to-left layout. CSS properties like text-align, margin-left/right must be direction-aware. MUI provides RTL support via direction prop.",
+    "scope_clarification_needed": [
+      "Does 'all the product' include user-generated content in database?",
+      "Should backend return Hebrew strings or always English with frontend translation?",
+      "Are there hardcoded strings in Python backend that need translation?",
+      "Should documentation/README be translated?"
+    ],
+    "technical_approach": "Two main strategies to evaluate: (1) Client-side translation (i18next) with frontend-only translation files, or (2) Server-driven translation where backend returns localized strings. Hybrid approach may be best."
+  },
+
+  "created_at": "2026-01-30T00:00:00Z"
+}

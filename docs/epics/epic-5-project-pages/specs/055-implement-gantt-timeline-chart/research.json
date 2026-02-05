@@ -1,0 +1,347 @@
+{
+  "integrations_researched": [
+    {
+      "name": "gantt-task-react",
+      "type": "library",
+      "verified_package": {
+        "name": "gantt-task-react",
+        "install_command": "npm install gantt-task-react",
+        "version": "latest (actively maintained)",
+        "verified": true
+      },
+      "api_patterns": {
+        "imports": [
+          "import { Gantt, Task, EventOption, StylingOption, ViewMode, DisplayOption } from 'gantt-task-react';",
+          "import \"gantt-task-react/dist/index.css\";"
+        ],
+        "initialization": "Task data structure with id, name, type, start, end, progress, and dependencies properties",
+        "key_functions": [
+          "onDateChange(task: Task): void - Handles task date changes via drag",
+          "onProgressChange(task: Task, progress: number): void - Updates task completion",
+          "onDelete(task: Task): void - Handles task deletion",
+          "onExpanderClick(task: Task): void - Toggles project/group expansion"
+        ],
+        "task_types": [
+          "task - Regular task bar",
+          "milestone - Point marker (similar to orange diamonds in design)",
+          "project - Grouping/parent task with collapsible children"
+        ],
+        "view_modes": [
+          "Hour",
+          "Quarter Day",
+          "Half Day",
+          "Day",
+          "Week",
+          "Month",
+          "QuarterYear",
+          "Year"
+        ],
+        "verified_against": "GitHub README at https://github.com/MaTeMaTuK/gantt-task-react"
+      },
+      "configuration": {
+        "env_vars": [],
+        "css_imports": [
+          "gantt-task-react/dist/index.css - Required for proper styling"
+        ],
+        "dependencies": [
+          "React ^18.2.0 (already in project)",
+          "TypeScript support built-in"
+        ],
+        "styling_options": {
+          "barProgressColor": "Task bar fill color",
+          "barBackgroundColor": "Task bar background",
+          "headerHeight": "Timeline header height in pixels",
+          "rowHeight": "Task row height in pixels",
+          "columnWidth": "Timeline column width",
+          "fontFamily": "Typography",
+          "fontSize": "Text size",
+          "custom_components": [
+            "TooltipContent - Custom tooltip renderer",
+            "TaskListHeader - Custom task list header"
+          ]
+        }
+      },
+      "features": {
+        "hierarchical_tasks": true,
+        "task_dependencies": true,
+        "dependency_arrows": true,
+        "milestones": true,
+        "drag_and_drop": true,
+        "progress_tracking": true,
+        "collapsible_groups": true,
+        "custom_styling": true,
+        "rtl_support": true
+      },
+      "infrastructure": {
+        "requires_docker": false,
+        "embedded_rendering": true,
+        "svg_based": true
+      },
+      "gotchas": [
+        "Requires importing CSS file for proper styling",
+        "Dependencies are defined as string array of task IDs",
+        "Task type must be one of: 'task', 'milestone', or 'project'",
+        "Start and end dates must be JavaScript Date objects",
+        "Progress is a number from 0-100 (not 0-1)"
+      ],
+      "research_sources": [
+        "https://github.com/MaTeMaTuK/gantt-task-react",
+        "https://www.npmjs.com/package/gantt-task-react",
+        "https://svar.dev/blog/top-react-gantt-charts/"
+      ],
+      "recommendation_score": 9,
+      "recommendation_reason": "Well-maintained, TypeScript-native, MIT licensed, has all required features (dependencies, milestones, hierarchy), simple API"
+    },
+    {
+      "name": "SVAR React Gantt",
+      "type": "library",
+      "verified_package": {
+        "name": "@svar-ui/react-gantt",
+        "install_command": "npm install @svar-ui/react-gantt",
+        "version": "v2.3+ (React 19 compatible)",
+        "verified": true,
+        "license": "MIT (open-source) / GPLv3, with PRO edition available"
+      },
+      "api_patterns": {
+        "imports": [
+          "import { Gantt } from \"@svar-ui/react-gantt\";"
+        ],
+        "initialization": "<Gantt tasks={tasks} links={links} />",
+        "key_functions": [
+          "tasks - Array of task objects with id, text, start, end, duration, progress",
+          "links - Array of dependency objects with id, source, target, type",
+          "scales - Custom timescale configuration",
+          "columns - Grid column customization"
+        ],
+        "task_structure": {
+          "id": "unique identifier",
+          "text": "task name",
+          "start": "Date object",
+          "end": "Date object",
+          "duration": "task length",
+          "progress": "completion percentage",
+          "type": "task or summary",
+          "parent": "parent task ID for hierarchy",
+          "lazy": "optional lazy loading flag"
+        },
+        "link_structure": {
+          "id": "unique identifier",
+          "source": "source task ID",
+          "target": "target task ID",
+          "type": "e2e (or other dependency types)"
+        },
+        "verified_against": "Official docs at https://docs.svar.dev/react/gantt/getting_started/"
+      },
+      "configuration": {
+        "env_vars": [],
+        "themes": [
+          "Willow (light theme)",
+          "WillowDark (dark theme)"
+        ],
+        "dependencies": [
+          "React ^18.2.0 (already in project)"
+        ]
+      },
+      "features": {
+        "hierarchical_tasks": true,
+        "task_dependencies": true,
+        "dependency_arrows": true,
+        "milestones": "not explicitly documented",
+        "drag_and_drop": "available in PRO edition",
+        "custom_timescales": true,
+        "custom_columns": true,
+        "theming": true
+      },
+      "infrastructure": {
+        "requires_docker": false,
+        "embedded_rendering": true
+      },
+      "gotchas": [
+        "Package name changed from @svar-react/gantt to @svar-ui/react-gantt",
+        "Dependencies (links) are managed separately from tasks array",
+        "Some advanced features require PRO edition",
+        "Link types not fully documented in free version"
+      ],
+      "research_sources": [
+        "https://docs.svar.dev/react/gantt/getting_started/",
+        "https://www.npmjs.com/package/@svar-ui/react-gantt",
+        "https://github.com/svar-widgets/react-gantt",
+        "https://svar.dev/react/gantt/"
+      ],
+      "recommendation_score": 7,
+      "recommendation_reason": "Modern library with good documentation, but less GitHub activity than gantt-task-react, and some features require PRO edition"
+    },
+    {
+      "name": "Frappe Gantt (React wrappers)",
+      "type": "library",
+      "verified_package": {
+        "name": "frappe-gantt-react",
+        "alternatives": [
+          "react-frappe-gantt",
+          "@toyokoh/frappe-gantt-react",
+          "@artemostapov/frappe-gantt-react"
+        ],
+        "install_command": "npm install frappe-gantt-react",
+        "version": "Multiple forks available",
+        "verified": true,
+        "license": "MIT"
+      },
+      "api_patterns": {
+        "imports": [
+          "import FrappeGantt from 'frappe-gantt-react';"
+        ],
+        "initialization": "React wrapper around vanilla frappe-gantt library",
+        "key_functions": [
+          "tasks - Task array",
+          "viewMode - Timeline granularity",
+          "onClick - Task click handler",
+          "onDateChange - Date change handler",
+          "onProgressChange - Progress change handler"
+        ],
+        "verified_against": "Multiple GitHub repositories and npm packages"
+      },
+      "features": {
+        "hierarchical_tasks": "limited",
+        "task_dependencies": true,
+        "dependency_arrows": true,
+        "milestones": "limited",
+        "drag_and_drop": true
+      },
+      "gotchas": [
+        "Multiple unmaintained forks - no clear canonical version",
+        "Some packages published 5-7 years ago with infrequent updates",
+        "Framework-agnostic core means React integration may be less seamless",
+        "Limited TypeScript support in some wrappers"
+      ],
+      "research_sources": [
+        "https://github.com/mohammed-io/frappe-gantt-react",
+        "https://www.npmjs.com/package/frappe-gantt-react",
+        "https://github.com/Soremwar/react-frappe-gantt"
+      ],
+      "recommendation_score": 4,
+      "recommendation_reason": "Multiple unmaintained forks, unclear which version to use, less feature-rich than alternatives"
+    },
+    {
+      "name": "Material-UI (MUI)",
+      "type": "ui-framework",
+      "verified_package": {
+        "name": "@mui/material",
+        "install_command": "Already installed in project",
+        "version": "^5.15.6",
+        "verified": true
+      },
+      "api_patterns": {
+        "imports": [
+          "import { Box, Typography, IconButton } from '@mui/material';"
+        ],
+        "usage": "Will be used for Gantt chart wrapper UI (zoom controls, filters, today indicator)"
+      },
+      "features": {
+        "icons_available": true,
+        "theming": true,
+        "responsive_grid": true
+      },
+      "gotchas": [
+        "Gantt library styling may need to be customized to match MUI theme",
+        "Consider using MUI's theme colors for consistency"
+      ],
+      "research_sources": [
+        "Project package.json"
+      ]
+    },
+    {
+      "name": "dayjs",
+      "type": "library",
+      "verified_package": {
+        "name": "dayjs",
+        "install_command": "Already installed in project",
+        "version": "^1.11.10",
+        "verified": true
+      },
+      "api_patterns": {
+        "imports": [
+          "import dayjs from 'dayjs';"
+        ],
+        "usage": "Date manipulation for timeline calculations, today indicator positioning"
+      },
+      "features": {
+        "lightweight": true,
+        "immutable": true,
+        "chainable_api": true
+      },
+      "research_sources": [
+        "Project package.json"
+      ]
+    }
+  ],
+  "unverified_claims": [],
+  "recommendations": [
+    "PRIMARY RECOMMENDATION: Use 'gantt-task-react' for implementation",
+    "REASONING: Best balance of features, maintenance, and ease of use. Has all required features from design (hierarchy, dependencies, milestones). TypeScript-native with excellent docs.",
+    "Use MUI components for UI controls (zoom buttons, filter button, today indicator label)",
+    "Use dayjs for date calculations and today indicator positioning",
+    "Consider creating a wrapper component that combines gantt-task-react with MUI styling for consistency",
+    "The task data structure should map to project construction phases (Foundation, Framing, etc.)",
+    "Implement custom styling to match the blue color scheme from the reference design",
+    "Use 'project' type for groups (Foundation, Framing, etc.), 'task' for sub-tasks, and 'milestone' for completion markers"
+  ],
+  "design_requirements_from_reference": {
+    "task_hierarchy": {
+      "required": true,
+      "description": "Collapsible groups like Foundation, Framing, Electrical, Plumbing",
+      "supported_by": "gantt-task-react (project type with children)"
+    },
+    "task_bars": {
+      "required": true,
+      "description": "Blue horizontal bars representing task duration",
+      "supported_by": "gantt-task-react (task type with custom colors)"
+    },
+    "dependencies": {
+      "required": true,
+      "description": "Gray curved arrows connecting related tasks",
+      "supported_by": "gantt-task-react (dependencies property + built-in arrow rendering)"
+    },
+    "milestones": {
+      "required": true,
+      "description": "Orange diamond markers for key events (Foundation Complete, Roof Tight, Inspections)",
+      "supported_by": "gantt-task-react (milestone type)"
+    },
+    "today_indicator": {
+      "required": true,
+      "description": "Red vertical line with 'TODAY - Jan 15, 2024' label",
+      "supported_by": "Custom implementation using SVG overlay or CSS"
+    },
+    "timeline_axis": {
+      "required": true,
+      "description": "Monthly columns from Oct 2023 to Mar 2024",
+      "supported_by": "gantt-task-react (ViewMode.Month)"
+    },
+    "zoom_controls": {
+      "required": true,
+      "description": "Zoom label with - and + buttons",
+      "supported_by": "Custom implementation using MUI IconButtons to switch ViewMode"
+    },
+    "filter_button": {
+      "required": true,
+      "description": "Filter dropdown button in header",
+      "supported_by": "Custom implementation using MUI Button/Menu"
+    }
+  },
+  "implementation_approach": {
+    "step_1": "Install gantt-task-react package",
+    "step_2": "Create GanttTimeline component wrapper with MUI layout",
+    "step_3": "Define task data structure matching construction project phases",
+    "step_4": "Implement custom styling to match blue/orange color scheme",
+    "step_5": "Add today indicator overlay using custom SVG or absolute positioned div",
+    "step_6": "Add zoom controls using MUI buttons that change ViewMode",
+    "step_7": "Add filter functionality using MUI Menu component",
+    "step_8": "Customize dependency arrow styling if needed"
+  },
+  "potential_challenges": [
+    "Today indicator line may need custom implementation as an overlay",
+    "Dependency arrow styling may need customization to match gray curved arrows in design",
+    "Color customization to match exact blue shades from reference design",
+    "Ensuring proper TypeScript types for all task and event handlers"
+  ],
+  "created_at": "2026-02-01T20:30:00Z"
+}

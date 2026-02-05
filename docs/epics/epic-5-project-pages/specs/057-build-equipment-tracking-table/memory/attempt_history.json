@@ -1,0 +1,81 @@
+{
+  "subtasks": {
+    "subtask-1-1": {
+      "attempts": [
+        {
+          "session": 1,
+          "timestamp": "2026-02-05T00:32:29.373984",
+          "approach": "Implemented: Create equipment type definitions file",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-2-1": {
+      "attempts": [
+        {
+          "session": 2,
+          "timestamp": "2026-02-05T00:34:06.419799",
+          "approach": "Implemented: Create EquipmentStatusBadge component for status display",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-2-2": {
+      "attempts": [
+        {
+          "session": 3,
+          "timestamp": "2026-02-05T00:35:51.949053",
+          "approach": "Implemented: Create EquipmentTable component with sorting and badge integration",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-3-1": {
+      "attempts": [
+        {
+          "session": 4,
+          "timestamp": "2026-02-05T00:40:15.086455",
+          "approach": "Implemented: Create or update equipment page to render EquipmentTable with API data",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-3-2": {
+      "attempts": [
+        {
+          "session": 5,
+          "timestamp": "2026-02-05T00:42:29.767187",
+          "approach": "Implemented: Implement loading, error, and empty states for table",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    },
+    "subtask-4-1": {
+      "attempts": [
+        {
+          "session": 6,
+          "timestamp": "2026-02-05T00:46:59.126000",
+          "approach": "Implemented: End-to-end verification of equipment table functionality",
+          "success": true,
+          "error": null
+        }
+      ],
+      "status": "completed"
+    }
+  },
+  "stuck_subtasks": [],
+  "metadata": {
+    "created_at": "2026-02-05T00:30:21.328812",
+    "last_updated": "2026-02-05T00:46:59.126012"
+  }
+}

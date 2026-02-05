@@ -1,0 +1,64 @@
+{
+  "files_to_modify": {
+    "frontend": [
+      "package.json",
+      "src/App.tsx"
+    ]
+  },
+  "files_to_create": {
+    "frontend": [
+      "src/pages/MobileChecklistPage.tsx",
+      "src/components/checklist/ChecklistSection.tsx",
+      "src/components/checklist/PhotoCapture.tsx",
+      "src/components/checklist/SignaturePad.tsx",
+      "src/hooks/useChecklistInstance.ts",
+      "src/api/checklists.ts"
+    ]
+  },
+  "files_to_reference": {
+    "frontend": [
+      "src/api/client.ts",
+      "src/api/inspections.ts",
+      "src/api/files.ts",
+      "src/pages/InspectionsPage.tsx",
+      "src/types/index.ts"
+    ],
+    "backend": [
+      "app/api/v1/checklists.py",
+      "app/schemas/checklist.py"
+    ]
+  },
+  "patterns": {
+    "api_pattern": "Use apiClient from './client.ts' with typed async methods. Import axios, define TypeScript interfaces, extract response.data",
+    "file_upload_pattern": "Use FormData with multipart/form-data headers via filesApi.upload(projectId, entityType, entityId, file)",
+    "component_pattern": "Material-UI components + custom UI components from '../components/ui/*', state with useState/useEffect, type-safe with TypeScript",
+    "route_pattern": "React Router nested routes under ProtectedRoute and Layout components"
+  },
+  "existing_implementations": {
+    "description": "Complete checklist infrastructure exists in backend with templates, subsections, items, instances, and responses APIs",
+    "relevant_files": [
+      "backend/app/api/v1/checklists.py - Full CRUD for checklist-templates, subsections, items, instances, responses",
+      "backend/app/schemas/checklist.py - Pydantic schemas for all checklist models",
+      "frontend/src/api/files.ts - File upload API client with FormData handling"
+    ],
+    "api_endpoints": [
+      "GET /projects/{project_id}/checklist-instances - List checklist instances",
+      "POST /projects/{project_id}/checklist-instances - Create new instance",
+      "GET /checklist-instances/{instance_id} - Get instance with subsections and items",
+      "POST /checklist-instances/{instance_id}/responses - Submit item response",
+      "PUT /checklist-instances/{instance_id}/responses/{response_id} - Update response",
+      "POST /projects/{project_id}/files - Upload files (photos)",
+      "POST /projects/{project_id}/inspections/{inspection_id}/complete - Complete inspection"
+    ],
+    "data_models": {
+      "ChecklistItemResponse": {
+        "fields": "item_template_id, status, notes, image_urls (array), signature_url (string), completed_at",
+        "must_fields": "ChecklistItemTemplate has must_image, must_note, must_signature boolean flags"
+      }
+    }
+  },
+  "dependencies": {
+    "already_installed": ["react-dropzone@14.2.3", "axios", "react-router-dom", "@mui/material"],
+    "to_install": ["react-signature-canvas", "@types/react-signature-canvas"]
+  }
+}

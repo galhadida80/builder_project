@@ -1,0 +1,41 @@
+{
+  "task_description": "Create Alembic database migration for Equipment Templates feature with 5 new tables",
+  "scoped_services": ["backend"],
+  "files_to_modify": [
+    "backend/app/models/__init__.py"
+  ],
+  "files_to_create": [
+    "backend/app/models/equipment_template.py",
+    "backend/alembic/versions/004_add_equipment_templates.py"
+  ],
+  "files_to_reference": [
+    "backend/app/models/equipment.py",
+    "backend/app/models/approval.py",
+    "backend/alembic/versions/003_add_inspection_models.py",
+    "backend/app/db/session.py"
+  ],
+  "patterns": {
+    "model_structure": "Use SQLAlchemy 2.0 style with Mapped[] type hints and mapped_column(). All models inherit from Base (app.db.session). UUID primary keys with default=uuid.uuid4. Include created_at and updated_at timestamps.",
+    "foreign_keys": "Use ForeignKey with ondelete='CASCADE' for parent-child relationships (template->consultants, submission->decisions). Use ondelete='SET NULL' for soft references to users.",
+    "junction_tables": "Many-to-many relationships use junction tables with own UUID primary key, foreign keys to both parent tables, and CASCADE deletes.",
+    "migration_pattern": "Use alembic revision --autogenerate. Set revision='004', down_revision='003'. Use postgresql.UUID(as_uuid=True) for UUIDs, server_default=sa.func.now() for timestamps. Create indexes after tables, drop before tables in downgrade.",
+    "indexes": "Create indexes on frequently queried columns: template name/category, submission project_id/template_id/status, decision submission_id"
+  },
+  "existing_implementations": {
+    "description": "Found comprehensive SQLAlchemy model patterns in equipment.py (UUID PKs, JSONB columns, relationships), approval workflow patterns in approval.py (status tracking, timestamps, comments), and recent migration structure in 003_add_inspection_models.py",
+    "relevant_files": [
+      "backend/app/models/equipment.py",
+      "backend/app/models/approval.py",
+      "backend/alembic/versions/003_add_inspection_models.py"
+    ],
+    "key_insights": [
+      "All models use UUID(as_uuid=True) primary keys with default=uuid.uuid4",
+      "Timestamps use DateTime with default=datetime.utcnow and onupdate for updated_at",
+      "JSONB columns used for flexible specifications storage",
+      "Foreign keys use ondelete parameter for cascade behavior",
+      "Migrations use server_default=sa.func.now() for timestamp columns",
+      "Models define relationships for ORM navigation"
+    ]
+  },
+  "created_at": "2026-01-29T15:30:00.000Z"
+}

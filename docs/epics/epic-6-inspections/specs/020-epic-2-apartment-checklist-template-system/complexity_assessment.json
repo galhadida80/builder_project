@@ -1,0 +1,71 @@
+{
+  "complexity": "standard",
+  "workflow_type": "feature",
+  "confidence": 0.80,
+  "reasoning": "This is a substantial CRUD feature with 5 interrelated models following well-established patterns in the codebase. While it involves database schema changes and ~15-20 files, all patterns already exist (Equipment, Materials, Contacts models provide templates). No external integrations or unfamiliar technologies. Database migration via Alembic is standard operation.",
+
+  "analysis": {
+    "scope": {
+      "estimated_files": 18,
+      "estimated_services": 1,
+      "is_cross_cutting": false,
+      "notes": "Backend only: 5 SQLAlchemy models, 5 Pydantic schema sets (~15 schema files with Create/Update/Response variants), 5 API route files, 1 Alembic migration, plus tests. Contained to backend service."
+    },
+    "integrations": {
+      "external_services": [],
+      "new_dependencies": [],
+      "research_needed": false,
+      "notes": "No external integrations. Uses existing stack: FastAPI, SQLAlchemy, Pydantic, Alembic. All libraries already in requirements.txt."
+    },
+    "infrastructure": {
+      "docker_changes": false,
+      "database_changes": true,
+      "config_changes": false,
+      "notes": "Database migration required for 5 new tables with relationships. Standard Alembic migration pattern (6 existing migrations in codebase). No Docker, env vars, or deployment changes needed."
+    },
+    "knowledge": {
+      "patterns_exist": true,
+      "research_required": false,
+      "unfamiliar_tech": [],
+      "notes": "Strong existing patterns: Equipment model (approval workflow), Materials model (CRUD), Areas model (hierarchical data), Meetings model (many-to-many relationships). JSONB usage in Project model provides template for flexible attributes."
+    },
+    "risk": {
+      "level": "medium",
+      "concerns": [
+        "5 interrelated tables with foreign key dependencies",
+        "JSONB field correctness for flexible attributes",
+        "Hebrew text handling (should work with UTF-8)",
+        "Cascade delete behavior for hierarchical data",
+        "Performance of queries across 5 joined tables"
+      ],
+      "notes": "Primary risk is relational complexity. Need careful migration ordering and cascade rules. Hebrew text is low risk (UTF-8 standard). Performance risk mitigated by proper indexing."
+    }
+  },
+
+  "recommended_phases": [
+    "discovery",
+    "requirements",
+    "context",
+    "spec_writing",
+    "planning",
+    "validation"
+  ],
+
+  "flags": {
+    "needs_research": false,
+    "needs_self_critique": false,
+    "needs_infrastructure_setup": false
+  },
+
+  "validation_recommendations": {
+    "risk_level": "medium",
+    "skip_validation": false,
+    "minimal_mode": false,
+    "test_types_required": ["unit", "integration"],
+    "security_scan_required": false,
+    "staging_deployment_required": false,
+    "reasoning": "Database schema changes with 5 related tables require unit tests for model logic and integration tests for API endpoints. No auth/security changes or sensitive data handling. Hebrew text support should be verified in tests."
+  },
+
+  "created_at": "2026-01-29T09:55:00Z"
+}

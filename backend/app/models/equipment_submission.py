@@ -22,7 +22,7 @@ class EquipmentSubmission(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     created_by_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
 
-    project = relationship("Project", back_populates="equipment_submissions")
+    project = relationship("Project")
     template = relationship("EquipmentTemplate")
     created_by = relationship("User", foreign_keys=[created_by_id])
     decisions = relationship("ApprovalDecision", back_populates="submission", cascade="all, delete-orphan")

@@ -1,0 +1,54 @@
+{
+  "task_description": "Add RFI badge counts to existing navigation elements (tab and sidebar). Navigation structure already exists, only need to add count display.",
+  "scoped_services": ["frontend"],
+  "files_to_modify": [
+    "frontend/src/pages/ProjectDetailPage.tsx",
+    "frontend/src/components/layout/Sidebar.tsx",
+    "frontend/src/components/layout/Layout.tsx"
+  ],
+  "files_to_reference": [
+    "frontend/src/api/rfi.ts",
+    "frontend/src/components/ui/Tabs.tsx",
+    "frontend/src/pages/RFIPage.tsx"
+  ],
+  "patterns": {
+    "badge_pattern": "Use MUI Badge component with badgeContent prop for counts. Badge wraps tab label or icon.",
+    "data_fetching": "Use useEffect with async/await to fetch data. Handle loading, error, and empty states.",
+    "sidebar_navigation": "ListItem with ListItemButton, selected state based on location.pathname, navigate with useNavigate hook",
+    "tab_navigation": "Custom Tabs component from components/ui/Tabs.tsx, pass items array with label/value/icon/badge"
+  },
+  "existing_implementations": {
+    "description": "RFI navigation elements already exist! Route, tab, and sidebar link are implemented. Only badges are missing.",
+    "relevant_files": [
+      "frontend/src/App.tsx (line 44: route exists)",
+      "frontend/src/pages/ProjectDetailPage.tsx (line 44: tab exists, lines 117-118: pendingApprovals badge example)",
+      "frontend/src/components/layout/Sidebar.tsx (line 46: sidebar link exists)",
+      "frontend/src/api/rfi.ts (line 209-212: getSummary API exists)",
+      "frontend/src/pages/RFIPage.tsx (lines 94-102: loadSummary implementation example)"
+    ],
+    "key_insights": [
+      "RFISummary interface has open_count, waiting_response_count, overdue_count fields",
+      "pendingApprovals calculation in ProjectDetailPage shows pattern for badge counts (lines 117-118)",
+      "RFIPage already loads summary data - we can follow same pattern (lines 94-102)",
+      "Custom Tabs component from ui/Tabs.tsx accepts badge in items array",
+      "Sidebar uses projectId from props, tabs get projectId from useParams"
+    ]
+  },
+  "task_simplification": {
+    "description": "Task is simpler than spec suggests - navigation already exists, only need to add badges",
+    "what_exists": [
+      "Route definition for /projects/:projectId/rfis",
+      "RFI tab in project detail navigation",
+      "RFI sidebar link",
+      "RFI API with getSummary endpoint",
+      "RFIPage component that displays RFIs"
+    ],
+    "what_needs_adding": [
+      "Badge count display on RFI tab (ProjectDetailPage)",
+      "Badge count display on RFI sidebar link (Sidebar)",
+      "Fetch RFI summary in ProjectDetailPage",
+      "Pass count to Sidebar component"
+    ]
+  },
+  "created_at": "2026-02-02T12:33:19.051801"
+}

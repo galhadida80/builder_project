@@ -1,0 +1,241 @@
+{
+  "feature": "Add form validation to Equipment creation",
+  "workflow_type": "simple",
+  "workflow_rationale": "Frontend-only task affecting 2 files with low complexity. Minimal overhead - extend existing validation infrastructure to serial number field.",
+  "created_at": "2026-01-28T23:14:23.064Z",
+  "updated_at": "2026-01-29T09:03:44.873Z",
+  "status": "done",
+  "planStatus": "completed",
+  "phases": [
+    {
+      "id": "phase-1-validation",
+      "name": "Serial Number Validation",
+      "type": "implementation",
+      "description": "Add serial number format validation to equipment form",
+      "depends_on": [],
+      "parallel_safe": false,
+      "subtasks": [
+        {
+          "id": "subtask-1-1",
+          "description": "Add validateSerialNumber helper and update validateEquipmentForm",
+          "service": "frontend",
+          "files_to_modify": [
+            "frontend/src/utils/validation.ts"
+          ],
+          "files_to_create": [],
+          "patterns_from": [
+            "frontend/src/utils/validation.ts (validateCode lines 48-55)"
+          ],
+          "implementation_notes": [
+            "Add validateSerialNumber helper function following validateCode pattern",
+            "Return null for empty values (field is optional)",
+            "Trim whitespace before validation",
+            "Use regex: /^[A-Za-z0-9][A-Za-z0-9\\-_]*[A-Za-z0-9]?$/",
+            "Error message: 'Serial Number must contain only letters, numbers, hyphens, and underscores'",
+            "Update validateEquipmentForm data type to include serialNumber?: string",
+            "Add validation chain: errors.serialNumber = validateSerialNumber(data.serialNumber, 'Serial Number') || validateMaxLength(data.serialNumber, 100, 'Serial Number')"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "cd frontend && npm run build",
+            "expected": "Build succeeds with no TypeScript errors"
+          },
+          "status": "done",
+          "notes": "Successfully added validateSerialNumber helper function and updated validateEquipmentForm. The function follows the validateCode pattern exactly, validating alphanumeric characters with hyphens and underscores. Added MAX_SERIAL_NUMBER_LENGTH constant set to 100 characters per backend schema. TypeScript compilation succeeds with no errors for validation.ts.",
+          "updated_at": "2026-01-29T08:51:33.930927+00:00"
+        },
+        {
+          "id": "subtask-1-2",
+          "description": "Add error and helperText props to serial number TextField",
+          "service": "frontend",
+          "files_to_modify": [
+            "frontend/src/pages/EquipmentPage.tsx"
+          ],
+          "files_to_create": [],
+          "patterns_from": [
+            "frontend/src/pages/EquipmentPage.tsx (equipment name field lines 343-353)"
+          ],
+          "implementation_notes": [
+            "Locate serial number TextField (around line 381-388)",
+            "Add error={!!errors.serialNumber} prop",
+            "Add helperText={errors.serialNumber || (formData.serialNumber.length > 0 ? `${formData.serialNumber.length}/100` : undefined)} prop",
+            "Ensure inputProps={{ maxLength: 100 }} exists",
+            "Validation will automatically run via existing handleSaveEquipment function"
+          ],
+          "verification": {
+            "type": "browser",
+            "url": "http://localhost:3000/projects/{project-id}",
+            "checks": [
+              "Navigate to Equipment tab",
+              "Click Add Equipment",
+              "Enter invalid serial number 'SN@123' → see red border and error message",
+              "Enter valid serial number 'SN-2024-001' → see character count '11/100'",
+              "Leave serial number empty → no error",
+              "Try to submit with invalid serial → form blocked with error visible",
+              "Submit with valid serial or empty → form submits successfully"
+            ]
+          },
+          "status": "done",
+          "notes": "Added error and helperText props to serial number TextField following the pattern from equipment name field. The field now displays validation errors (if any) or character count (x/100).",
+          "updated_at": "2026-01-29T08:52:35.271273+00:00"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total_phases": 1,
+    "total_subtasks": 2,
+    "services_involved": [
+      "frontend"
+    ],
+    "parallelism": {
+      "max_parallel_phases": 1,
+      "parallel_groups": [],
+      "recommended_workers": 1,
+      "speedup_estimate": "Sequential execution (subtask 1-2 depends on 1-1)"
+    },
+    "startup_command": "cd frontend && npm run dev"
+  },
+  "verification_strategy": {
+    "risk_level": "low",
+    "skip_validation": false,
+    "test_creation_phase": "skip",
+    "test_types_required": [],
+    "security_scanning_required": false,
+    "staging_deployment_required": false,
+    "acceptance_criteria": [
+      "Serial number field validates format (alphanumeric + hyphens/underscores only)",
+      "Invalid serial numbers display error message and red border",
+      "Valid serial numbers show character count",
+      "Empty serial numbers are accepted (optional field)",
+      "Form submission blocked when serial number is invalid",
+      "No console errors in browser DevTools",
+      "Code follows existing validation patterns"
+    ],
+    "verification_steps": [
+      {
+        "name": "TypeScript Build Check",
+        "command": "cd frontend && npm run build",
+        "expected_outcome": "Build succeeds with no errors",
+        "type": "build",
+        "required": true,
+        "blocking": true
+      },
+      {
+        "name": "Browser Verification - Create Form",
+        "type": "manual",
+        "required": true,
+        "blocking": true,
+        "steps": [
+          "Navigate to http://localhost:3000/projects/{project-id}",
+          "Click Equipment tab",
+          "Click Add Equipment button",
+          "Test invalid serial: Enter 'SN@123' → verify red border and error message appears",
+          "Test valid serial: Enter 'SN-2024-001' → verify character count '11/100' shows",
+          "Test empty serial: Clear field → verify no error appears",
+          "Test form blocking: Enter invalid serial 'ABC 123' (with space) → click Save → verify form does not submit and error is visible",
+          "Test successful submit: Enter valid serial 'EQUIP-001' → click Save → verify equipment is created"
+        ]
+      },
+      {
+        "name": "Browser Verification - Edit Form",
+        "type": "manual",
+        "required": true,
+        "blocking": false,
+        "steps": [
+          "Click edit on existing equipment",
+          "Verify existing serial number displays correctly",
+          "Test changing serial number to invalid format",
+          "Verify validation works same as create form"
+        ]
+      }
+    ],
+    "reasoning": "Low-risk frontend-only change. No unit tests exist for validation utils per spec. Manual browser testing sufficient."
+  },
+  "qa_acceptance": {
+    "unit_tests": {
+      "required": false,
+      "commands": [],
+      "minimum_coverage": null,
+      "notes": "No existing unit tests for validation utils per spec (line 232)"
+    },
+    "integration_tests": {
+      "required": false,
+      "commands": [],
+      "services_to_test": [],
+      "notes": "Frontend-only validation, no integration needed"
+    },
+    "e2e_tests": {
+      "required": false,
+      "commands": [],
+      "flows": [],
+      "notes": "Manual browser testing sufficient for low-risk validation change"
+    },
+    "browser_verification": {
+      "required": true,
+      "pages": [
+        {
+          "url": "http://localhost:3000/projects/{project-id}",
+          "navigation": "Equipment tab → Add Equipment",
+          "checks": [
+            "Invalid format 'SN@123' shows error and red border",
+            "Valid format 'SN-2024-001' shows character count",
+            "Empty serial number passes validation",
+            "Form blocked on invalid serial number",
+            "Valid serial numbers allow form submission"
+          ]
+        }
+      ]
+    },
+    "database_verification": {
+      "required": false,
+      "checks": [],
+      "notes": "No database changes"
+    }
+  },
+  "qa_signoff": {
+    "status": "done",
+    "qa_session": 1,
+    "issues_found": [
+      {
+        "description": "None - All critical issues from Session 1 resolved"
+      }
+    ],
+    "tests_passed": {},
+    "timestamp": "2026-01-29T09:03:04.195432+00:00",
+    "ready_for_qa_revalidation": false
+  },
+  "last_updated": "2026-01-29T09:03:04.195461+00:00",
+  "qa_iteration_history": [
+    {
+      "iteration": 1,
+      "status": "rejected",
+      "timestamp": "2026-01-29T08:57:34.399617+00:00",
+      "issues": [
+        {
+          "type": "critical",
+          "title": "Field Name Mismatch Between formData and Validation Function",
+          "location": "frontend/src/utils/validation.ts:95-103",
+          "description": "The validateEquipmentForm function uses 'serial_number' (snake_case) but formData uses 'serialNumber' (camelCase), causing validation to never run",
+          "fix_required": "Change 'serial_number' to 'serialNumber' in validation function parameter (line 95) and error assignment (line 102)"
+        }
+      ],
+      "duration_seconds": 281.74
+    },
+    {
+      "iteration": 2,
+      "status": "done",
+      "timestamp": "2026-01-29T09:03:44.863058+00:00",
+      "issues": [],
+      "duration_seconds": 267.98
+    }
+  ],
+  "qa_stats": {
+    "total_iterations": 2,
+    "last_iteration": 2,
+    "last_status": "approved",
+    "issues_by_type": {
+      "critical": 1
+    }
+  }
+}

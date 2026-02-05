@@ -1,0 +1,124 @@
+{
+  "complexity": "standard",
+  "workflow_type": "feature",
+  "confidence": 0.85,
+  "reasoning": "Multi-component UI feature requiring frontend (8-10 files) and backend API work. Uses existing MUI patterns, no new external dependencies. Moderate complexity from data visualization (workload bars) and calendar component, but well within standard scope.",
+
+  "analysis": {
+    "scope": {
+      "estimated_files": 10,
+      "estimated_services": 2,
+      "is_cross_cutting": true,
+      "notes": "Frontend: Main view, team overview, member cards, workload distribution, workload bars, weekly calendar, availability components, types, styles. Backend: API endpoints for team workload data."
+    },
+    "integrations": {
+      "external_services": [],
+      "new_dependencies": [],
+      "research_needed": false,
+      "notes": "All components can be built with existing Material-UI library. No new external dependencies required. Workload bars and calendar can be custom-built with MUI primitives."
+    },
+    "infrastructure": {
+      "docker_changes": false,
+      "database_changes": false,
+      "config_changes": false,
+      "notes": "Pure application code. May need to verify existing data models support workload/availability data, but no schema changes expected."
+    },
+    "knowledge": {
+      "patterns_exist": true,
+      "research_required": false,
+      "unfamiliar_tech": [],
+      "notes": "Codebase already uses React, TypeScript, MUI, dayjs. Standard component patterns apply. Workload visualization can use CSS gradients or MUI Box components."
+    },
+    "risk": {
+      "level": "medium",
+      "concerns": [
+        "Workload calculation logic needs clear definition",
+        "Data model for team availability needs verification",
+        "Calendar component UI complexity",
+        "Department filtering integration",
+        "Performance with large team datasets"
+      ],
+      "notes": "Primary risks are around data modeling and calculation accuracy. UI complexity is moderate but manageable with MUI."
+    }
+  },
+
+  "recommended_phases": [
+    "discovery",
+    "requirements",
+    "context",
+    "spec_writing",
+    "planning",
+    "validation"
+  ],
+
+  "flags": {
+    "needs_research": false,
+    "needs_self_critique": false,
+    "needs_infrastructure_setup": false
+  },
+
+  "validation_recommendations": {
+    "risk_level": "medium",
+    "skip_validation": false,
+    "minimal_mode": false,
+    "test_types_required": ["unit", "integration"],
+    "security_scan_required": false,
+    "staging_deployment_required": false,
+    "reasoning": "Multi-component UI feature with data visualization and filtering requires unit tests for each component and integration tests for API interactions and filtering logic. No security concerns or infrastructure changes."
+  },
+
+  "design_analysis": {
+    "components_identified": [
+      "TeamWorkloadView (main page)",
+      "TeamOverview (left panel with member cards)",
+      "TeamMemberCard (individual member with avatar, name, role, tasks)",
+      "WorkloadDistribution (center panel with stacked bars)",
+      "WorkloadBar (individual horizontal stacked bar chart)",
+      "WeeklyAvailabilityCalendar (right panel grid)",
+      "AvailabilityDay (individual day cell with member initials)",
+      "DepartmentFilter (dropdown in header)"
+    ],
+    "data_requirements": [
+      "Team members (name, role, avatar, task count)",
+      "Workload capacity by member (percentage breakdown by project)",
+      "Project assignments per member",
+      "Weekly availability schedule (which members available which days)",
+      "Department list for filtering"
+    ],
+    "ui_features": [
+      "Three-panel layout (Team Overview | Workload Distribution | Calendar)",
+      "Color-coded workload bars (green=available, yellow=moderate, red=overloaded)",
+      "Project tags below workload bars",
+      "Week date range display",
+      "Department filter dropdown",
+      "Responsive grid layout for calendar"
+    ]
+  },
+
+  "signals": {
+    "simple_keywords": 0,
+    "complex_keywords": 0,
+    "multi_service_keywords": 1,
+    "external_integrations": 0,
+    "infrastructure_changes": false,
+    "estimated_files": 10,
+    "estimated_services": 2
+  },
+
+  "estimated_files": 10,
+  "estimated_services": 2,
+  "external_integrations": [],
+  "infrastructure_changes": false,
+  "phases_to_run": [
+    "discovery",
+    "requirements",
+    "context",
+    "spec_writing",
+    "planning",
+    "validation"
+  ],
+  "needs_research": false,
+  "needs_self_critique": false,
+
+  "created_at": "2026-02-02T00:00:00Z"
+}

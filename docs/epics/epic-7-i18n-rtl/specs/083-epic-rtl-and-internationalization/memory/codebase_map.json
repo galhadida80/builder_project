@@ -1,0 +1,10 @@
+{
+  "discovered_files": {
+    "frontend/src/i18n/config.ts": {
+      "description": "Complete i18n infrastructure created with i18next, react-i18next, and i18next-browser-languagedetector. Configuration includes language detection (localStorage first, then navigator), fallback to English, and translation resources for en and he. Translation files (en.json, he.json) contain 190+ keys organized by namespace (common, nav, notifications, profile, dashboard, projects, equipment, materials, meetings, approvals, areas, contacts, inspections, rfis, audit, login). ThemeContext updated to set document direction and lang attribute based on i18n.language. LanguageToggle component provides UI for switching languages.",
+      "category": "i18n_infrastructure",
+      "discovered_at": "2026-02-02T11:03:05.576612+00:00"
+    }
+  },
+  "last_updated": "2026-02-02T11:03:05.576626+00:00"
+}

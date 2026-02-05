@@ -1,0 +1,4 @@
+{
+  "task_description": "# Add RFI Dashboard Widget\n\n**Linear Issue:** [BUI-107](https://linear.app/builder-project/issue/BUI-107/add-rfi-dashboard-widget)\n**Priority:** No priority\n**Status:** Backlog\n\n\n## Description\n\n## User Story\n\nAs a user, I want to see RFI statistics on my dashboard so that I can quickly assess outstanding items.\n\n## Acceptance Criteria\n\n- [ ] Create `RFIStatsWidget` component\n- [ ] Display counts:\n  - Open RFIs (awaiting response)\n  - Overdue RFIs (past due date)\n  - Answered today\n  - Total closed this month\n- [ ] Visual indicators (icons, colors)\n- [ ] Click to navigate to RFI list with filter\n- [ ] Add widget to main dashboard\n\n## Labels\n\nfrontend, dashboard, rfi\n",
+  "workflow_type": "feature"
+}

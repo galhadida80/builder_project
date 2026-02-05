@@ -1,0 +1,4 @@
+{
+  "task_description": "# Implement Design System Color Palette\n\n**Linear Issue:** [BUI-47](https://linear.app/builder-project/issue/BUI-47/implement-design-system-color-palette)\n**Priority:** High\n**Status:** Backlog\n\n\n## Description\n\nDefine CSS custom properties for Construction Navy palette and semantic colors\n",
+  "workflow_type": "feature"
+}

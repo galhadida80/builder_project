@@ -1,0 +1,7 @@
+{
+  "task_description": "# 1.4 Create Equipment Template API endpoints\n\n**Linear Issue:** [BUI-22](https://linear.app/builder-project/issue/BUI-22/14-create-equipment-template-api-endpoints)\n**Priority:** Medium\n**Status:** Backlog\n\n\n## Description\n\nCreate FastAPI endpoints for equipment templates.\n\n**File:** backend/app/api/v1/equipment_templates.py\n\n**Template Endpoints (Admin):**\n\n* GET /equipment-templates - List all templates\n* POST /equipment-templates - Create template\n* GET /equipment-templates/{id} - Get template details\n* PUT /equipment-templates/{id} - Update template\n* DELETE /equipment-templates/{id} - Delete template\n\n**Submissions:**\n\n* GET /projects/{project_id}/equipment-submissions - List submissions\n* POST /projects/{project_id}/equipment-submissions - Create submission\n* GET /projects/{project_id}/equipment-submissions/{id} - Get submission\n* PUT /projects/{project_id}/equipment-submissions/{id} - Update submission\n* DELETE /projects/{project_id}/equipment-submissions/{id} - Delete submission\n\n**Approvals:**\n\n* POST /equipment-submissions/{id}/decisions - Add approval decision\n* GET /equipment-submissions/{id}/decisions - Get all decisions\n\n**Register in router:** backend/app/api/v1/**init**.py\n",
+  "scoped_services": [],
+  "files_to_modify": [],
+  "files_to_reference": [],
+  "created_at": "2026-01-29T15:21:05.569909"
+}

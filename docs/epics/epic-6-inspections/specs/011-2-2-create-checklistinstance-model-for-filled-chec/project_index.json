@@ -1,0 +1,698 @@
+{
+  "project_root": "/Users/galhadida/projects/builder_project/builder_program",
+  "project_type": "monorepo",
+  "services": {
+    "frontend": {
+      "name": "frontend",
+      "path": "/Users/galhadida/projects/builder_project/builder_program/frontend",
+      "language": "TypeScript",
+      "framework": "React",
+      "type": "frontend",
+      "package_manager": "npm",
+      "default_port": 3000,
+      "build_tool": "Vite",
+      "styling": "Emotion",
+      "dev_command": "npm run dev",
+      "key_directories": {
+        "src": {
+          "path": "src",
+          "purpose": "Source code"
+        }
+      },
+      "entry_point": "src/App.tsx",
+      "dependencies": [
+        "@emotion/react",
+        "@emotion/styled",
+        "@mui/icons-material",
+        "@mui/material",
+        "@mui/x-data-grid",
+        "@mui/x-date-pickers",
+        "axios",
+        "dayjs",
+        "firebase",
+        "react",
+        "react-dom",
+        "react-dropzone",
+        "react-router-dom"
+      ],
+      "dev_dependencies": [
+        "@types/react",
+        "@types/react-dom",
+        "@typescript-eslint/eslint-plugin",
+        "@typescript-eslint/parser",
+        "@vitejs/plugin-react",
+        "eslint",
+        "eslint-plugin-react-hooks",
+        "eslint-plugin-react-refresh",
+        "typescript",
+        "vite"
+      ],
+      "dockerfile": "Dockerfile",
+      "consumes": [
+        "backend.api"
+      ]
+    },
+    "backend": {
+      "name": "backend",
+      "path": "/Users/galhadida/projects/builder_project/builder_program/backend",
+      "language": "Python",
+      "framework": "FastAPI",
+      "type": "backend",
+      "package_manager": "pip",
+      "default_port": 8000,
+      "task_queue": "Celery",
+      "orm": "SQLAlchemy",
+      "key_directories": {
+        "app": {
+          "path": "app",
+          "purpose": "Application code"
+        }
+      },
+      "dependencies": [
+        "fastapi",
+        "uvicorn",
+        "sqlalchemy",
+        "alembic",
+        "asyncpg",
+        "psycopg2-binary",
+        "python-dotenv",
+        "pydantic",
+        "pydantic-settings",
+        "firebase-admin",
+        "python-multipart",
+        "google-cloud-storage",
+        "httpx",
+        "python-jose",
+        "passlib",
+        "bcrypt",
+        "celery",
+        "jinja2",
+        "aiofiles",
+        "boto3"
+      ],
+      "dockerfile": "Dockerfile",
+      "api": {
+        "routes": [
+          {
+            "path": "/health",
+            "methods": [
+              "GET"
+            ],
+            "file": "app/main.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/equipment",
+            "methods": [
+              "GET"
+            ],
+            "file": "app/api/v1/equipment.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/projects/{project_id}/equipment",
+            "methods": [
+              "GET"
+            ],
+            "file": "app/api/v1/equipment.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/projects/{project_id}/equipment",
+            "methods": [
+              "POST"
+            ],
+            "file": "app/api/v1/equipment.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/projects/{project_id}/equipment/{equipment_id}",
+            "methods": [
+              "GET"
+            ],
+            "file": "app/api/v1/equipment.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/projects/{project_id}/equipment/{equipment_id}",
+            "methods": [
+              "PUT"
+            ],
+            "file": "app/api/v1/equipment.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/projects/{project_id}/equipment/{equipment_id}",
+            "methods": [
+              "DELETE"
+            ],
+            "file": "app/api/v1/equipment.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/projects/{project_id}/equipment/{equipment_id}/submit",
+            "methods": [
+              "POST"
+            ],
+            "file": "app/api/v1/equipment.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/projects/{project_id}/equipment/{equipment_id}/checklists",
+            "methods": [
+              "POST"
+            ],
+            "file": "app/api/v1/equipment.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/register",
+            "methods": [
+              "POST"
+            ],
+            "file": "app/api/v1/auth.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/login",
+            "methods": [
+              "POST"
+            ],
+            "file": "app/api/v1/auth.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/me",
+            "methods": [
+              "GET"
+            ],
+            "file": "app/api/v1/auth.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/projects/{project_id}/files",
+            "methods": [
+              "GET"
+            ],
+            "file": "app/api/v1/files.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/projects/{project_id}/files",
+            "methods": [
+              "POST"
+            ],
+            "file": "app/api/v1/files.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/projects/{project_id}/files/{file_id}",
+            "methods": [
+              "GET"
+            ],
+            "file": "app/api/v1/files.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/projects/{project_id}/files/{file_id}",
+            "methods": [
+              "DELETE"
+            ],
+            "file": "app/api/v1/files.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/projects/{project_id}/files/{file_id}/download",
+            "methods": [
+              "GET"
+            ],
+            "file": "app/api/v1/files.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/storage/{path:path}",
+            "methods": [
+              "GET"
+            ],
+            "file": "app/api/v1/files.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/projects/{project_id}/contacts",
+            "methods": [
+              "GET"
+            ],
+            "file": "app/api/v1/contacts.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/projects/{project_id}/contacts",
+            "methods": [
+              "POST"
+            ],
+            "file": "app/api/v1/contacts.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/projects/{project_id}/contacts/{contact_id}",
+            "methods": [
+              "GET"
+            ],
+            "file": "app/api/v1/contacts.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/projects/{project_id}/contacts/{contact_id}",
+            "methods": [
+              "PUT"
+            ],
+            "file": "app/api/v1/contacts.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/projects/{project_id}/contacts/{contact_id}",
+            "methods": [
+              "DELETE"
+            ],
+            "file": "app/api/v1/contacts.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/projects/{project_id}/audit",
+            "methods": [
+              "GET"
+            ],
+            "file": "app/api/v1/audit.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/audit",
+            "methods": [
+              "GET"
+            ],
+            "file": "app/api/v1/audit.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/approvals",
+            "methods": [
+              "GET"
+            ],
+            "file": "app/api/v1/approvals.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/projects/{project_id}/approvals",
+            "methods": [
+              "GET"
+            ],
+            "file": "app/api/v1/approvals.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/projects/{project_id}/approvals/{approval_id}",
+            "methods": [
+              "GET"
+            ],
+            "file": "app/api/v1/approvals.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/projects/{project_id}/approvals/{approval_id}/steps/{step_id}/action",
+            "methods": [
+              "POST"
+            ],
+            "file": "app/api/v1/approvals.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/my-approvals",
+            "methods": [
+              "GET"
+            ],
+            "file": "app/api/v1/approvals.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/meetings",
+            "methods": [
+              "GET"
+            ],
+            "file": "app/api/v1/meetings.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/projects/{project_id}/meetings",
+            "methods": [
+              "GET"
+            ],
+            "file": "app/api/v1/meetings.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/projects/{project_id}/meetings",
+            "methods": [
+              "POST"
+            ],
+            "file": "app/api/v1/meetings.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/projects/{project_id}/meetings/{meeting_id}",
+            "methods": [
+              "GET"
+            ],
+            "file": "app/api/v1/meetings.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/projects/{project_id}/meetings/{meeting_id}",
+            "methods": [
+              "PUT"
+            ],
+            "file": "app/api/v1/meetings.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/projects/{project_id}/meetings/{meeting_id}",
+            "methods": [
+              "DELETE"
+            ],
+            "file": "app/api/v1/meetings.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/projects/{project_id}/meetings/{meeting_id}/attendees",
+            "methods": [
+              "POST"
+            ],
+            "file": "app/api/v1/meetings.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/projects/{project_id}/meetings/{meeting_id}/attendees/{user_id}",
+            "methods": [
+              "DELETE"
+            ],
+            "file": "app/api/v1/meetings.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/projects/{project_id}/meetings/{meeting_id}/attendees/{user_id}/confirm",
+            "methods": [
+              "PUT"
+            ],
+            "file": "app/api/v1/meetings.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/materials",
+            "methods": [
+              "GET"
+            ],
+            "file": "app/api/v1/materials.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/projects/{project_id}/materials",
+            "methods": [
+              "GET"
+            ],
+            "file": "app/api/v1/materials.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/projects/{project_id}/materials",
+            "methods": [
+              "POST"
+            ],
+            "file": "app/api/v1/materials.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/projects/{project_id}/materials/{material_id}",
+            "methods": [
+              "GET"
+            ],
+            "file": "app/api/v1/materials.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/projects/{project_id}/materials/{material_id}",
+            "methods": [
+              "PUT"
+            ],
+            "file": "app/api/v1/materials.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/projects/{project_id}/materials/{material_id}",
+            "methods": [
+              "DELETE"
+            ],
+            "file": "app/api/v1/materials.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/projects/{project_id}/materials/{material_id}/submit",
+            "methods": [
+              "POST"
+            ],
+            "file": "app/api/v1/materials.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/projects/{project_id}/areas",
+            "methods": [
+              "GET"
+            ],
+            "file": "app/api/v1/areas.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/projects/{project_id}/areas",
+            "methods": [
+              "POST"
+            ],
+            "file": "app/api/v1/areas.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/projects/{project_id}/areas/{area_id}",
+            "methods": [
+              "GET"
+            ],
+            "file": "app/api/v1/areas.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/projects/{project_id}/areas/{area_id}",
+            "methods": [
+              "PUT"
+            ],
+            "file": "app/api/v1/areas.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/projects/{project_id}/areas/{area_id}",
+            "methods": [
+              "DELETE"
+            ],
+            "file": "app/api/v1/areas.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/projects/{project_id}/areas/{area_id}/progress",
+            "methods": [
+              "POST"
+            ],
+            "file": "app/api/v1/areas.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/projects/{project_id}/areas/{area_id}/progress",
+            "methods": [
+              "GET"
+            ],
+            "file": "app/api/v1/areas.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/{project_id}",
+            "methods": [
+              "GET"
+            ],
+            "file": "app/api/v1/projects.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/{project_id}",
+            "methods": [
+              "PUT"
+            ],
+            "file": "app/api/v1/projects.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/{project_id}",
+            "methods": [
+              "DELETE"
+            ],
+            "file": "app/api/v1/projects.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/{project_id}/members",
+            "methods": [
+              "POST"
+            ],
+            "file": "app/api/v1/projects.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/{project_id}/members/{user_id}",
+            "methods": [
+              "DELETE"
+            ],
+            "file": "app/api/v1/projects.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          }
+        ],
+        "total_routes": 58,
+        "methods": [
+          "PUT",
+          "GET",
+          "POST",
+          "DELETE"
+        ],
+        "protected_routes": []
+      },
+      "services": {
+        "databases": [
+          {
+            "type": "postgresql",
+            "client": "psycopg2-binary"
+          }
+        ],
+        "message_queues": [
+          {
+            "type": "celery",
+            "client": "celery"
+          }
+        ],
+        "storage": [
+          {
+            "provider": "aws_s3",
+            "client": "boto3"
+          }
+        ],
+        "auth_providers": [
+          {
+            "type": "jwt",
+            "client": "python-jose"
+          }
+        ]
+      },
+      "auth": {
+        "strategies": [
+          "jwt"
+        ],
+        "libraries": [
+          "python-jose"
+        ],
+        "user_model": "app/models/user.py",
+        "middleware": []
+      },
+      "migrations": {
+        "tool": "alembic",
+        "directory": "alembic/versions",
+        "config_file": "alembic.ini",
+        "commands": {
+          "upgrade": "alembic upgrade head",
+          "downgrade": "alembic downgrade -1",
+          "create": "alembic revision --autogenerate -m 'message'"
+        }
+      },
+      "api_documentation": {
+        "type": "openapi",
+        "auto_generated": true,
+        "docs_url": "/docs",
+        "redoc_url": "/redoc",
+        "openapi_url": "/openapi.json"
+      },
+      "monitoring": {
+        "health_checks": [
+          "/health"
+        ]
+      }
+    }
+  },
+  "infrastructure": {
+    "docker_compose": "docker-compose.yml",
+    "docker_services": [
+      "db",
+      "redis",
+      "backend",
+      "frontend"
+    ]
+  },
+  "conventions": {}
+}

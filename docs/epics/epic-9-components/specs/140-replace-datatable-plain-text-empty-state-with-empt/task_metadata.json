@@ -1,0 +1,12 @@
+{
+  "sourceType": "ideation",
+  "ideationType": "ui_ux_improvements",
+  "ideaId": "uiux-007",
+  "rationale": "The DataTable is used across many pages (Equipment, Materials, Contacts, Meetings, etc.). Its empty state currently renders a bare <Typography> in a <Box>, which looks sparse and unhelpful compared to the polished EmptyState component used elsewhere. This creates visual inconsistency and misses the opportunity to guide users with contextual CTAs like 'Add Equipment' or 'Create Contact'.",
+  "category": "ui_ux",
+  "uiuxCategory": "visual",
+  "affectedFiles": [
+    "components/ui/DataTable.tsx"
+  ],
+  "problemSolved": "DataTable.tsx lines 162-169: When rows.length === 0, renders: <Box sx={{ py: 8, textAlign: 'center' }}><Typography color='text.secondary'>{emptyMessage}</Typography></Box>. This is a plain gray text string ('No data available') centered in whitespace. No icon, no description, no action button, no animation. The existing EmptyState component (components/ui/EmptyState.tsx) provides: a circular icon container (80x80px), title typography, description text, primary/secondary action buttons, fade-in animation, and 5 variants (empty, no-results, error, no-data, not-found)."
+}

@@ -1,0 +1,4 @@
+{
+  "task_description": "# Add form validation to Areas creation\n\n**Linear Issue:** [BUI-11](https://linear.app/builder-project/issue/BUI-11/add-form-validation-to-areas-creation)\n**Priority:** High\n**Status:** Backlog\n\n\n## Description\n\n**Bug Description:**\nThe Areas creation form lacks proper validation.\n\n**Location:** frontend/src/pages/AreasPage.tsx\n\n**Issues:**\n\n* No validation for area name (required)\n* Area code not validated for format/uniqueness\n* Floor number can be invalid\n* Total units can be negative\n\n**Expected Behavior:**\n\n* Validate required fields\n* Validate floor number is integer\n* Validate total units is positive\n* Show inline validation errors\n\n**Priority:** Medium\n",
+  "workflow_type": "feature"
+}
