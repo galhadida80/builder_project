@@ -97,7 +97,7 @@ export default function RFIFormDialogTestPage() {
 
       setLastSubmittedData(data)
       setActionType(action || null)
-      setApiResponse(response)
+      setApiResponse(response as unknown as Record<string, unknown>)
       setDialogOpen(false)
 
       // Show success message

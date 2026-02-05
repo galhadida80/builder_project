@@ -100,24 +100,17 @@ export default function DistributionChart({
               outerRadius,
               paddingAngle: 2,
               cornerRadius: 4,
-              highlightScope: { faded: 'global', highlighted: 'item' },
-              faded: { innerRadius: 30, additionalRadius: -10, color: 'gray' },
+              highlightScope: { fade: 'global', highlight: 'item' },
             },
           ]}
           height={height}
+          hideLegend={!showLegend}
           margin={{ top: 10, right: 20, bottom: 30, left: 20 }}
           slotProps={{
-            legend: showLegend
-              ? {
-                  direction: 'column',
-                  position: { vertical: 'middle', horizontal: 'right' },
-                  padding: 0,
-                  itemMarkWidth: 12,
-                  itemMarkHeight: 12,
-                  markGap: 8,
-                  itemGap: 8,
-                }
-              : { hidden: true },
+            legend: {
+              direction: 'vertical' as const,
+              position: { vertical: 'middle' as const, horizontal: 'end' as const },
+            },
           }}
           sx={{
             width: '100%',

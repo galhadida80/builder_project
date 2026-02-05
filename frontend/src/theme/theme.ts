@@ -1,5 +1,6 @@
-import { createTheme, ThemeOptions } from '@mui/material/styles'
-import { colors, shadows, borderRadius, typography, transitions } from './tokens'
+import { createTheme } from '@mui/material/styles'
+import type { ThemeOptions } from '@mui/material/styles'
+import { colors, shadows, borderRadius, typography, transitions, animations } from './tokens'
 
 const baseThemeOptions: ThemeOptions = {
   typography: {
@@ -304,10 +305,6 @@ const baseThemeOptions: ThemeOptions = {
         sizeMedium: {
           minHeight: 48,
           minWidth: 48,
-        },
-        sizeLarge: {
-          minHeight: 56,
-          minWidth: 56,
         },
       },
     },

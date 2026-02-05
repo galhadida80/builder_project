@@ -4,6 +4,17 @@ import enTranslations from './locales/en.json'
 import heTranslations from './locales/he.json'
 import esTranslations from './locales/es.json'
 
+export type LanguageCode = 'en' | 'he' | 'es'
+
+export const SUPPORTED_LANGUAGES: { code: LanguageCode; name: string; flag: string }[] = [
+  { code: 'en', name: 'English', flag: '🇺🇸' },
+  { code: 'he', name: 'עברית', flag: '🇮🇱' },
+  { code: 'es', name: 'Español', flag: '🇪🇸' },
+]
+
+export const RTL_LANGUAGES: LanguageCode[] = ['he']
+export const DEFAULT_LANGUAGE: LanguageCode = 'en'
+
 // Initialize i18next
 i18n
   .use(initReactI18next)

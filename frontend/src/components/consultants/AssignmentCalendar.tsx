@@ -86,8 +86,8 @@ const AssignmentBar = styled(Box, {
   position: 'absolute',
   height: 40,
   borderRadius: 6,
-  backgroundColor: alpha(theme.palette[statusColor as keyof typeof theme.palette].main as string, 0.2),
-  border: `2px solid ${theme.palette[statusColor as keyof typeof theme.palette].main}`,
+  backgroundColor: alpha((theme.palette[statusColor as keyof typeof theme.palette] as any).main as string, 0.2),
+  border: `2px solid ${(theme.palette[statusColor as keyof typeof theme.palette] as any).main}`,
   padding: theme.spacing(0.5, 1),
   cursor: 'pointer',
   transition: 'all 200ms ease-out',
@@ -151,7 +151,7 @@ export function AssignmentCalendar({
       if (assignment.consultant && !consultantMap.has(assignment.consultantId)) {
         consultantMap.set(assignment.consultantId, {
           id: assignment.consultantId,
-          name: assignment.consultant.name || 'Unknown Consultant',
+          name: assignment.consultant.fullName || assignment.consultant.email || 'Unknown Consultant',
         })
       }
     })

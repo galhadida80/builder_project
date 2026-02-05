@@ -76,7 +76,7 @@ export function useLongPress(options: UseLongPressOptions = {}) {
   })
 
   // Track timeout ID for cleanup
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Track if long press has been triggered (to prevent multiple triggers)
   const triggeredRef = useRef(false)

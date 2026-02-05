@@ -68,7 +68,7 @@ export function AssignmentList({
           </Box>
           <Box>
             <Typography variant="body2" fontWeight={500}>
-              {row.consultant?.name || 'Unknown Consultant'}
+              {row.consultant?.fullName || row.consultant?.email || 'Unknown Consultant'}
             </Typography>
             <Typography variant="caption" color="text.secondary">
               {row.consultantType?.name || 'No type specified'}

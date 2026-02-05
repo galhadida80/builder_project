@@ -229,7 +229,9 @@
     "total": "Total",
     "amount": "Amount",
     "price": "Price",
-    "cost": "Cost"
+    "cost": "Cost",
+    "create": "Create",
+    "creating": "Creating..."
   },
   "buttons": {
     "save": "Save",
@@ -268,6 +270,107 @@
     "inspections": "Inspections",
     "rfis": "RFIs",
     "audit": "Audit Log"
+  },
+  "projects": {
+    "title": "Projects",
+    "subtitle": "Manage your construction projects",
+    "create": "New Project",
+    "noProjects": "No projects yet",
+    "createFirst": "Create your first project to get started",
+    "code": "Code",
+    "started": "Started",
+    "createProject": "Create New Project",
+    "name": "Project Name",
+    "codeLabel": "Project Code",
+    "description": "Description",
+    "address": "Address",
+    "startDate": "Start Date",
+    "endDate": "Estimated End Date"
+  },
+  "approvals": {
+    "title": "Approvals",
+    "subtitle": "Track approval workflows for equipment and materials"
+  },
+  "areas": {
+    "title": "Areas",
+    "subtitle": "Manage construction areas",
+    "addArea": "Add Area",
+    "total": "Total Areas",
+    "inProgress": "In Progress",
+    "completed": "Completed",
+    "name": "Name",
+    "description": "Description",
+    "floor": "Floor",
+    "areaType": "Area Type"
+  },
+  "contacts": {
+    "title": "Contacts",
+    "subtitle": "Project contacts directory",
+    "addContact": "Add Contact",
+    "search": "Search contacts...",
+    "name": "Name",
+    "role": "Role",
+    "company": "Company",
+    "email": "Email",
+    "phone": "Phone",
+    "notes": "Notes"
+  },
+  "inspections": {
+    "title": "Inspections",
+    "subtitle": "Track site inspections",
+    "addInspection": "Add Inspection",
+    "total": "Total",
+    "scheduled": "Scheduled",
+    "completed": "Completed"
+  },
+  "rfis": {
+    "title": "RFIs",
+    "subtitle": "Requests for Information",
+    "addRfi": "New RFI",
+    "total": "Total",
+    "open": "Open",
+    "answered": "Answered"
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Manage your account and preferences",
+    "profile": "Profile",
+    "noName": "No name set",
+    "fullName": "Full Name",
+    "email": "Email",
+    "role": "Role",
+    "userId": "User ID",
+    "preferences": "Preferences",
+    "language": "Language",
+    "languageDescription": "Select your preferred language",
+    "theme": "Theme",
+    "darkMode": "Dark mode is enabled",
+    "lightMode": "Light mode is enabled",
+    "signOut": "Sign Out",
+    "signOutDescription": "Sign out of your account on this device"
+  },
+  "audit": {
+    "title": "Audit Log",
+    "subtitle": "Track all system activities and changes",
+    "noEntries": "No audit entries yet",
+    "noEntriesDescription": "Activity will appear here as changes are made",
+    "action": "Action",
+    "entityType": "Entity Type",
+    "user": "User",
+    "date": "Date",
+    "system": "System",
+    "page": "Page"
+  },
+  "teamWorkload": {
+    "title": "Team Workload",
+    "subtitle": "Monitor team assignments and capacity",
+    "comingSoon": "Coming Soon",
+    "comingSoonDescription": "Team workload tracking is currently under development. Check back soon for real-time team capacity monitoring.",
+    "members": "Members",
+    "teamMember": "Team Member",
+    "progress": "Progress",
+    "active": "Active",
+    "done": "Done"
   },
   "pages": {
     "login": {

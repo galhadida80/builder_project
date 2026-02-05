@@ -61,8 +61,6 @@ export function CheckboxInput({
       required={required}
       disabled={disabled}
       className={className}
-      component="fieldset"
-      variant="standard"
     >
       <FormControlLabel
         control={

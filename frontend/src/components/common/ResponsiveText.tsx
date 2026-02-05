@@ -170,7 +170,7 @@ export const ResponsiveText = forwardRef<HTMLElement, ResponsiveTextProps>(
     return (
       <StyledTypography
         ref={ref}
-        variant={muiVariant}
+        variant={muiVariant as any}
         component={defaultComponent}
         color={color}
         align={align}

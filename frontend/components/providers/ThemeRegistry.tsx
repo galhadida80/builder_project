@@ -80,7 +80,7 @@ export default function ThemeRegistry({ children, initialDirection = 'ltr' }: Th
   }
 
   const theme = useMemo(() => {
-    return mode === 'light' ? createLightTheme(direction) : createDarkTheme(direction)
+    return mode === 'light' ? createLightTheme() : createDarkTheme()
   }, [mode, direction])
 
   const emotionCache = useMemo(() => createEmotionCache(direction), [direction])

@@ -19,21 +19,27 @@ import { EmptyState } from '../components/ui/EmptyState'
 import MobileBottomNav from '../components/layout/MobileBottomNav'
 import type { Inspection } from '../types'
 import { inspectionsApi } from '../api/inspections'
+import { useProject } from '../contexts/ProjectContext'
 
 export default function InspectorDashboard() {
   const [loading, setLoading] = useState(true)
   const [inspections, setInspections] = useState<Inspection[]>([])
   const [isOffline] = useState(true)
+  const { selectedProjectId } = useProject()
 
-  // For demo purposes, using a hardcoded project ID
-  // In production, this would come from user context or route params
-  const projectId = '1'
+  const projectId = selectedProjectId || ''
 
   useEffect(() => {
-    loadTodayInspections()
-  }, [])
+    if (projectId) {
+      loadTodayInspections()
+    } else {
+      setLoading(false)
+      setInspections([])
+    }
+  }, [projectId])
 
   const loadTodayInspections = async () => {
+    if (!projectId) return
     try {
       setLoading(true)
       const allInspections = await inspectionsApi.getProjectInspections(projectId)

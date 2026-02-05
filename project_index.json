@@ -3,7 +3,7 @@
   "services": {
     "backend": {
       "path": "./backend",
-      "tech_stack": ["python", "fastapi", "sqlalchemy", "pydantic", "alembic"],
+      "tech_stack": ["python", "fastapi", "sqlalchemy", "pydantic", "alembic", "postgresql"],
       "port": 8000,
       "dev_command": "uvicorn app.main:app --reload --port 8000",
       "test_command": "pytest",
@@ -11,11 +11,11 @@
     },
     "frontend": {
       "path": "./frontend",
-      "tech_stack": ["typescript", "react", "vite"],
+      "tech_stack": ["typescript", "nextjs", "react", "material-ui", "emotion", "next-intl"],
       "port": 3000,
       "dev_command": "npm run dev",
       "test_command": "npm test",
-      "entry_point": "src/main.tsx"
+      "entry_point": "app/layout.tsx"
     }
   },
   "infrastructure": {
@@ -31,6 +31,9 @@
     "formatter": "black",
     "testing": "pytest",
     "schema_validation": "pydantic v2",
-    "type_hints": "python 3.10+ (Type | None syntax)"
+    "type_hints": "python 3.10+ (Type | None syntax)",
+    "frontend_routing": "Next.js App Router (file-based routing)",
+    "frontend_components": "Material-UI with TypeScript",
+    "i18n": "next-intl for frontend localization"
   }
 }

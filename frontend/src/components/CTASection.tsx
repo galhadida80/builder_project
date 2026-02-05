@@ -1,5 +1,5 @@
 import { Box, Typography, Container, SxProps, Theme, useMediaQuery, useTheme } from '@mui/material'
-import { styled, alpha } from '@mui/material/styles'
+import { alpha } from '@mui/material/styles'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import { Button } from './ui/Button'
 
@@ -18,19 +18,22 @@ interface CTASectionProps {
   align?: 'left' | 'center' | 'right'
 }
 
-const StyledCTAContainer = styled(Box, {
-  shouldForwardProp: (prop) => !['variant', 'backgroundImage'].includes(prop as string),
-})<{ variant: string; backgroundImage?: string }>(({ theme, variant, backgroundImage }) => {
-  const baseStyles = {
+function getContainerStyles(
+  theme: Theme,
+  variant: 'primary' | 'secondary' | 'dark',
+  backgroundImage?: string
+): SxProps<Theme> {
+  const baseStyles: SxProps<Theme> = {
     position: 'relative',
     overflow: 'hidden',
-    borderRadius: 16,
+    borderRadius: 4,
     py: { xs: 4, sm: 6, md: 8 },
     px: { xs: 2, sm: 3, md: 4 },
   }
 
-  const variantStyles = {
-    primary: {
+  if (variant === 'primary') {
+    return {
+      ...baseStyles,
       background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
       color: '#fff',
       '&::before': {
@@ -44,43 +47,37 @@ const StyledCTAContainer = styled(Box, {
         background: alpha('#fff', 0.05),
         transform: 'translate(100px, -50px)',
       },
-    },
-    secondary: {
+    }
+  }
+
+  if (variant === 'secondary') {
+    return {
+      ...baseStyles,
       background: alpha(theme.palette.primary.main, 0.05),
       border: `2px solid ${alpha(theme.palette.primary.main, 0.2)}`,
       color: theme.palette.text.primary,
-    },
-    dark: {
-      background: theme.palette.mode === 'dark' ? theme.palette.grey[900] : theme.palette.grey[800],
-      color: '#fff',
-      '&::before': {
-        content: '""',
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: backgroundImage ? `url(${backgroundImage})` : 'none',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        opacity: 0.1,
-        borderRadius: 16,
-      },
-    },
+    }
   }
 
   return {
     ...baseStyles,
-    ...(variantStyles[variant as keyof typeof variantStyles] || variantStyles.primary),
+    background: theme.palette.mode === 'dark' ? theme.palette.grey[900] : theme.palette.grey[800],
+    color: '#fff',
+    '&::before': {
+      content: '""',
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: backgroundImage ? `url(${backgroundImage})` : 'none',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      opacity: 0.1,
+      borderRadius: 4,
+    },
   }
-})
-
-const GradientText = styled(Typography)(({ theme }) => ({
-  background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.light} 100%)`,
-  WebkitBackgroundClip: 'text',
-  WebkitTextFillColor: 'transparent',
-  backgroundClip: 'text',
-}))
+}
 
 export function CTASection({
   title = 'Ready to streamline your construction projects?',
@@ -104,6 +101,8 @@ export function CTASection({
     center: { alignItems: 'center', textAlign: 'center' as const },
     right: { alignItems: 'flex-end', textAlign: 'right' as const },
   }
+
+  const containerStyles = getContainerStyles(theme, variant, backgroundImage)
 
   const containerContent = (
     <Box
@@ -200,26 +199,19 @@ export function CTASection({
 
   if (fullWidth) {
     return (
-      <StyledCTAContainer
-        variant={variant}
-        backgroundImage={backgroundImage}
-        sx={sx}
-      >
+      <Box sx={[containerStyles as object, ...(Array.isArray(sx) ? sx : [sx])]}>
         <Container maxWidth="lg">
           {containerContent}
         </Container>
-      </StyledCTAContainer>
+      </Box>
     )
   }
 
   return (
     <Container maxWidth="lg" sx={sx}>
-      <StyledCTAContainer
-        variant={variant}
-        backgroundImage={backgroundImage}
-      >
+      <Box sx={containerStyles}>
         {containerContent}
-      </StyledCTAContainer>
+      </Box>
     </Container>
   )
 }

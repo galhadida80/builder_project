@@ -220,7 +220,7 @@ export function FolderTree({
             />
           </StyledListItemButton>
         </StyledListItem>
-        {hasChildren && (
+        {hasChildren && folder.children && (
           <Collapse in={isExpanded} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
               {folder.children.map((child) => renderFolder(child, level + 1))}
@@ -244,7 +244,7 @@ export function FolderTree({
     const childFolders = folder.children?.length || 0
     const filesInFolder = files.filter(f => f.entityId === folder.id).length
 
-    const parts = []
+    const parts: string[] = []
     if (childFolders > 0) parts.push(`${childFolders} subfolder${childFolders > 1 ? 's' : ''}`)
     if (filesInFolder > 0) parts.push(`${filesInFolder} file${filesInFolder > 1 ? 's' : ''}`)
 

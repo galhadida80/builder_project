@@ -128,6 +128,7 @@ interface FormModalProps {
   cancelLabel?: string
   loading?: boolean
   submitDisabled?: boolean
+  maxWidth?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 }
 
 export function FormModal({
@@ -140,13 +141,14 @@ export function FormModal({
   cancelLabel = 'Cancel',
   loading = false,
   submitDisabled = false,
+  maxWidth = 'sm',
 }: FormModalProps) {
   return (
     <Modal
       open={open}
       onClose={onClose}
       title={title}
-      maxWidth="sm"
+      maxWidth={maxWidth}
       actions={
         <>
           <Button variant="tertiary" onClick={onClose} disabled={loading}>

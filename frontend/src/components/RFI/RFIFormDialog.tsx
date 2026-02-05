@@ -7,7 +7,7 @@ import { Delete as DeleteIcon, CloudUpload as CloudUploadIcon } from '@mui/icons
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
-import { RichTextEditor, useEditor } from 'mui-tiptap'
+import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { useDropzone } from 'react-dropzone'
 import { Modal } from '../ui/Modal'
@@ -51,7 +51,7 @@ const rfiFormSchema = z.object({
   location: z.string().optional(),
   drawingReference: z.string().optional(),
   specificationReference: z.string().optional(),
-  attachments: z.array(z.record(z.unknown())).optional(),
+  attachments: z.array(z.record(z.string(), z.unknown())).optional(),
   assignedToId: z.string().optional(),
 })
 
@@ -90,6 +90,9 @@ export function RFIFormDialog({
   const editor = useEditor({
     extensions: [StarterKit],
     content: initialData?.question || '<p></p>',
+    onUpdate: ({ editor: ed }) => {
+      setValue('question', ed.getHTML())
+    },
   })
 
   // File upload state management
@@ -281,10 +284,11 @@ export function RFIFormDialog({
             control={control}
             render={({ field, fieldState }) => (
               <Box>
-                <RichTextEditor
-                  editor={editor}
-                  onUpdate={({ editor }) => field.onChange(editor.getHTML())}
-                />
+                {editor && (
+                  <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 1, minHeight: 150 }}>
+                    <EditorContent editor={editor} />
+                  </Box>
+                )}
                 {fieldState.error && (
                   <Box sx={{ color: 'error.main', fontSize: '0.75rem', mt: 0.5, ml: 1.75 }}>
                     {fieldState.error.message}

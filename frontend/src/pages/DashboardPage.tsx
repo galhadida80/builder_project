@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Skeleton from '@mui/material/Skeleton'
@@ -24,22 +26,28 @@ import { Avatar, AvatarGroup } from '../components/ui/Avatar'
 import { ProgressBar, CircularProgressDisplay } from '../components/ui/ProgressBar'
 import { EmptyState } from '../components/ui/EmptyState'
 import { Button } from '../components/ui/Button'
-import type { Equipment, Material, Meeting, ApprovalRequest, AuditLog } from '../types'
+import type { Equipment, Material, Meeting, ApprovalRequest, AuditLog, TeamMember } from '../types'
 import { equipmentApi } from '../api/equipment'
 import { materialsApi } from '../api/materials'
 import { meetingsApi } from '../api/meetings'
 import { approvalsApi } from '../api/approvals'
 import { auditApi } from '../api/audit'
+import { workloadApi } from '../api/workload'
 import { useToast } from '../components/common/ToastProvider'
+import { useProject } from '../contexts/ProjectContext'
 
 export default function DashboardPage() {
-  const { showError } = useToast()
+  const { t } = useTranslation()
+  const navigate = useNavigate()
+  const { showError, showWarning } = useToast()
+  const { selectedProjectId } = useProject()
   const [loading, setLoading] = useState(true)
   const [equipment, setEquipment] = useState<Equipment[]>([])
   const [materials, setMaterials] = useState<Material[]>([])
   const [meetings, setMeetings] = useState<Meeting[]>([])
   const [approvals, setApprovals] = useState<ApprovalRequest[]>([])
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([])
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([])
 
   useEffect(() => {
     loadDashboardData()
@@ -48,18 +56,20 @@ export default function DashboardPage() {
   const loadDashboardData = async () => {
     try {
       setLoading(true)
-      const [equipmentData, materialsData, meetingsData, approvalsData, auditData] = await Promise.all([
+      const [equipmentData, materialsData, meetingsData, approvalsData, auditData, teamData] = await Promise.all([
         equipmentApi.list(),
         materialsApi.list(),
         meetingsApi.list(),
         approvalsApi.list(),
-        auditApi.listAll({ limit: 10 })
+        auditApi.listAll({ limit: 10 }),
+        workloadApi.getTeamMembers()
       ])
       setEquipment(equipmentData)
       setMaterials(materialsData)
       setMeetings(meetingsData)
       setApprovals(approvalsData)
       setAuditLogs(auditData)
+      setTeamMembers(teamData)
     } catch (error) {
       console.error('Failed to load dashboard data:', error)
       showError('Failed to load dashboard data. Please refresh the page.')
@@ -298,6 +308,13 @@ export default function DashboardPage() {
                   icon={<BuildIcon />}
                   fullWidth
                   sx={{ justifyContent: 'flex-start', px: 2 }}
+                  onClick={() => {
+                    if (selectedProjectId) {
+                      navigate(`/projects/${selectedProjectId}/equipment?action=add`)
+                    } else {
+                      showWarning('Please select a project first')
+                    }
+                  }}
                 >
                   Add Equipment
                 </Button>
@@ -307,6 +324,13 @@ export default function DashboardPage() {
                   icon={<InventoryIcon />}
                   fullWidth
                   sx={{ justifyContent: 'flex-start', px: 2 }}
+                  onClick={() => {
+                    if (selectedProjectId) {
+                      navigate(`/projects/${selectedProjectId}/materials?action=add`)
+                    } else {
+                      showWarning('Please select a project first')
+                    }
+                  }}
                 >
                   Add Material
                 </Button>
@@ -316,6 +340,13 @@ export default function DashboardPage() {
                   icon={<EventIcon />}
                   fullWidth
                   sx={{ justifyContent: 'flex-start', px: 2 }}
+                  onClick={() => {
+                    if (selectedProjectId) {
+                      navigate(`/projects/${selectedProjectId}/meetings?action=add`)
+                    } else {
+                      showWarning('Please select a project first')
+                    }
+                  }}
                 >
                   Schedule Meeting
                 </Button>
@@ -325,6 +356,13 @@ export default function DashboardPage() {
                   icon={<AssignmentIcon />}
                   fullWidth
                   sx={{ justifyContent: 'flex-start', px: 2 }}
+                  onClick={() => {
+                    if (selectedProjectId) {
+                      navigate(`/projects/${selectedProjectId}/inspections?action=add`)
+                    } else {
+                      showWarning('Please select a project first')
+                    }
+                  }}
                 >
                   New Inspection
                 </Button>
@@ -504,40 +542,56 @@ export default function DashboardPage() {
               <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
                 Active Team Members
               </Typography>
-              <AvatarGroup
-                users={[
-                  { name: 'John Smith' },
-                  { name: 'Sarah Johnson' },
-                  { name: 'Mike Wilson' },
-                  { name: 'Emily Brown' },
-                  { name: 'David Lee' },
-                ]}
-                max={5}
-                size="medium"
-              />
+              {teamMembers.length > 0 ? (
+                <AvatarGroup
+                  users={teamMembers.map(member => ({
+                    name: member.user?.fullName || member.user?.email || 'Unknown'
+                  }))}
+                  max={5}
+                  size="medium"
+                />
+              ) : (
+                <Typography variant="body2" color="text.secondary">
+                  {t('dashboard.noTeamMembers')}
+                </Typography>
+              )}
             </Box>
 
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               <Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                  <Typography variant="caption" color="text.secondary">Tasks Completed</Typography>
-                  <Typography variant="caption" fontWeight={600}>78%</Typography>
+                  <Typography variant="caption" color="text.secondary">{t('dashboard.tasksCompleted')}</Typography>
+                  <Typography variant="caption" fontWeight={600}>{completionRate}%</Typography>
                 </Box>
-                <ProgressBar value={78} showValue={false} size="small" color="success" />
+                <ProgressBar value={completionRate} showValue={false} size="small" color="success" />
               </Box>
               <Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                  <Typography variant="caption" color="text.secondary">Inspections Done</Typography>
-                  <Typography variant="caption" fontWeight={600}>65%</Typography>
+                  <Typography variant="caption" color="text.secondary">{t('dashboard.inspectionsDone')}</Typography>
+                  <Typography variant="caption" fontWeight={600}>
+                    {materials.length > 0 ? Math.round((materials.filter(m => m.status === 'approved').length / materials.length) * 100) : 0}%
+                  </Typography>
                 </Box>
-                <ProgressBar value={65} showValue={false} size="small" color="info" />
+                <ProgressBar
+                  value={materials.length > 0 ? Math.round((materials.filter(m => m.status === 'approved').length / materials.length) * 100) : 0}
+                  showValue={false}
+                  size="small"
+                  color="info"
+                />
               </Box>
               <Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                  <Typography variant="caption" color="text.secondary">Approvals Pending</Typography>
-                  <Typography variant="caption" fontWeight={600}>23%</Typography>
+                  <Typography variant="caption" color="text.secondary">{t('dashboard.approvalsPending')}</Typography>
+                  <Typography variant="caption" fontWeight={600}>
+                    {approvals.length > 0 ? Math.round((pendingApprovals.length / approvals.length) * 100) : 0}%
+                  </Typography>
                 </Box>
-                <ProgressBar value={23} showValue={false} size="small" color="warning" />
+                <ProgressBar
+                  value={approvals.length > 0 ? Math.round((pendingApprovals.length / approvals.length) * 100) : 0}
+                  showValue={false}
+                  size="small"
+                  color="warning"
+                />
               </Box>
             </Box>
           </Box>

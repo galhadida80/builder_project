@@ -1,5 +1,7 @@
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import Layout from './components/layout/Layout'
+import { PWAInstallPrompt } from './components/common/PWAInstallPrompt'
+import { ProjectProvider } from './contexts/ProjectContext'
 import LandingPage from './pages/LandingPage'
 import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
@@ -16,6 +18,15 @@ import AuditLogPage from './pages/AuditLogPage'
 import InspectionsPage from './pages/InspectionsPage'
 import RFIPage from './pages/RFIPage'
 import DocumentReviewPage from './pages/DocumentReviewPage'
+import InspectorDashboardPage from './pages/InspectorDashboard'
+import TeamWorkloadPage from './pages/TeamWorkloadPage'
+import AnalyticsDashboard from './pages/Analytics/AnalyticsDashboard'
+import ApprovalQueuePage from './pages/ApprovalQueuePage'
+import DocumentLibraryPage from './pages/DocumentLibraryPage'
+import GanttTimelinePage from './pages/GanttTimelinePage'
+import MobileChecklistPage from './pages/MobileChecklistPage'
+import RFIDetailPage from './pages/RFIDetailPage'
+import SettingsPage from './pages/SettingsPage'
 
 function ProtectedRoute() {
   const token = localStorage.getItem('authToken')
@@ -27,7 +38,9 @@ function ProtectedRoute() {
 
 export default function App() {
   return (
-    <Routes>
+    <ProjectProvider>
+      <PWAInstallPrompt />
+      <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
 
@@ -50,6 +63,10 @@ export default function App() {
 
             <Route path="/approvals" element={<ApprovalsPage />} />
             <Route path="/audit" element={<AuditLogPage />} />
+            <Route path="/analytics" element={<AnalyticsDashboard />} />
+            <Route path="/team-workload" element={<TeamWorkloadPage />} />
+            <Route path="/inspector-dashboard" element={<InspectorDashboardPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
           </Route>
 
           {/* Document review page - fullscreen layout without nested Layout */}
@@ -58,5 +75,6 @@ export default function App() {
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+    </ProjectProvider>
   )
 }

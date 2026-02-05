@@ -93,18 +93,10 @@ export const analyticsService = {
     return {
       totalProjects: data.total_projects,
       activeInspections: data.pending_inspections,
-      pendingRFIs: data.total_materials - data.approved_materials, // Pending materials as proxy for RFIs
+      pendingRFIs: data.total_materials - data.approved_materials,
       approvalRate: data.approval_rate,
-      equipmentUtilization: data.total_equipment > 0 ? (data.approved_equipment / data.total_equipment) * 100 : 0,
-      budgetStatus: 85.5, // Placeholder - would need budget data from backend
-      trends: {
-        totalProjects: 12.5,
-        activeInspections: 8.2,
-        pendingRFIs: -5.3,
-        approvalRate: 2.1,
-        equipmentUtilization: 15.7,
-        budgetStatus: -3.2,
-      },
+      equipmentUtilization: data.total_equipment > 0 ? Math.round((data.approved_equipment / data.total_equipment) * 100) : 0,
+      budgetStatus: 0,
     }
   },
 

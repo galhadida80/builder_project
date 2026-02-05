@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
@@ -12,6 +12,10 @@ import MenuItem from '@mui/material/MenuItem'
 import MuiTextField from '@mui/material/TextField'
 import Skeleton from '@mui/material/Skeleton'
 import Chip from '@mui/material/Chip'
+import Checkbox from '@mui/material/Checkbox'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import Alert from '@mui/material/Alert'
+import Collapse from '@mui/material/Collapse'
 import AddIcon from '@mui/icons-material/Add'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import EditIcon from '@mui/icons-material/Edit'
@@ -20,6 +24,10 @@ import CloseIcon from '@mui/icons-material/Close'
 import DescriptionIcon from '@mui/icons-material/Description'
 import SendIcon from '@mui/icons-material/Send'
 import BuildIcon from '@mui/icons-material/Build'
+import FilterListIcon from '@mui/icons-material/FilterList'
+import CloudUploadIcon from '@mui/icons-material/CloudUpload'
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import PersonIcon from '@mui/icons-material/Person'
 import CircularProgress from '@mui/material/CircularProgress'
 import IconButton from '@mui/material/IconButton'
 import { Card } from '../components/ui/Card'
@@ -32,20 +40,22 @@ import { FormModal, ConfirmModal } from '../components/ui/Modal'
 import { Tabs } from '../components/ui/Tabs'
 import { ApprovalStepper } from '../components/ui/Stepper'
 import { equipmentApi } from '../api/equipment'
+import { equipmentTemplatesApi, type EquipmentTemplate } from '../api/equipmentTemplates'
 import { filesApi } from '../api/files'
 import { formatFileSize } from '../utils/fileUtils'
 import type { Equipment } from '../types'
 import type { FileRecord } from '../api/files'
 import { validateEquipmentForm, hasErrors, VALIDATION, type ValidationError } from '../utils/validation'
 import { useToast } from '../components/common/ToastProvider'
-
-const equipmentTypes = ['Heavy Machinery', 'Lifting Equipment', 'Power Equipment', 'Safety Equipment', 'Tools']
+import { useTranslation } from 'react-i18next'
 
 export default function EquipmentPage() {
   const { projectId } = useParams()
+  const { t } = useTranslation()
   const { showError, showSuccess } = useToast()
   const [loading, setLoading] = useState(true)
   const [equipment, setEquipment] = useState<Equipment[]>([])
+  const [equipmentTemplates, setEquipmentTemplates] = useState<EquipmentTemplate[]>([])
   const [search, setSearch] = useState('')
   const [selectedEquipment, setSelectedEquipment] = useState<Equipment | null>(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
@@ -59,19 +69,36 @@ export default function EquipmentPage() {
   const [activeTab, setActiveTab] = useState('all')
   const [formData, setFormData] = useState({
     name: '',
-    equipmentType: '',
+    templateId: '',
     manufacturer: '',
     modelNumber: '',
     serialNumber: '',
     notes: ''
   })
+  const [specificationValues, setSpecificationValues] = useState<Record<string, string | number | boolean>>({})
+  const [documentFiles, setDocumentFiles] = useState<Record<string, File | null>>({})
+  const [checklistResponses, setChecklistResponses] = useState<Record<string, boolean>>({})
   const [files, setFiles] = useState<FileRecord[]>([])
   const [filesLoading, setFilesLoading] = useState(false)
   const [filesError, setFilesError] = useState<string | null>(null)
 
+  const selectedTemplate = useMemo(() => {
+    return equipmentTemplates.find(t => t.id === formData.templateId) || null
+  }, [equipmentTemplates, formData.templateId])
+
   useEffect(() => {
     loadEquipment()
+    loadTemplates()
   }, [projectId])
+
+  const loadTemplates = async () => {
+    try {
+      const templates = await equipmentTemplatesApi.list()
+      setEquipmentTemplates(templates)
+    } catch {
+      console.error('Failed to load equipment templates')
+    }
+  }
 
   useEffect(() => {
     const loadFiles = async () => {
@@ -107,7 +134,10 @@ export default function EquipmentPage() {
   }
 
   const resetForm = () => {
-    setFormData({ name: '', equipmentType: '', manufacturer: '', modelNumber: '', serialNumber: '', notes: '' })
+    setFormData({ name: '', templateId: '', manufacturer: '', modelNumber: '', serialNumber: '', notes: '' })
+    setSpecificationValues({})
+    setDocumentFiles({})
+    setChecklistResponses({})
     setErrors({})
     setEditingEquipment(null)
   }
@@ -125,14 +155,18 @@ export default function EquipmentPage() {
   const handleOpenEdit = (eq: Equipment, e?: React.MouseEvent) => {
     if (e) e.stopPropagation()
     setEditingEquipment(eq)
+    const matchingTemplate = equipmentTemplates.find(t => t.name_he === eq.equipmentType)
     setFormData({
       name: eq.name,
-      equipmentType: eq.equipmentType || '',
+      templateId: matchingTemplate?.id || '',
       manufacturer: eq.manufacturer || '',
       modelNumber: eq.modelNumber || '',
       serialNumber: eq.serialNumber || '',
       notes: eq.notes || ''
     })
+    setSpecificationValues({})
+    setDocumentFiles({})
+    setChecklistResponses({})
     setErrors({})
     setDialogOpen(true)
     setDrawerOpen(false)
@@ -140,7 +174,11 @@ export default function EquipmentPage() {
 
   const handleSaveEquipment = async () => {
     if (!projectId) return
-    const validationErrors = validateEquipmentForm(formData)
+    const validationData = {
+      ...formData,
+      equipmentType: selectedTemplate?.name_he || ''
+    }
+    const validationErrors = validateEquipmentForm(validationData)
     setErrors(validationErrors)
     if (hasErrors(validationErrors)) return
 
@@ -148,7 +186,7 @@ export default function EquipmentPage() {
     try {
       const payload = {
         name: formData.name,
-        equipment_type: formData.equipmentType || undefined,
+        equipment_type: selectedTemplate?.name_he || undefined,
         manufacturer: formData.manufacturer || undefined,
         model_number: formData.modelNumber || undefined,
         serial_number: formData.serialNumber || undefined,
@@ -513,6 +551,7 @@ export default function EquipmentPage() {
         title={editingEquipment ? 'Edit Equipment' : 'Add New Equipment'}
         submitLabel={editingEquipment ? 'Save Changes' : 'Add Equipment'}
         loading={saving}
+        maxWidth="md"
       >
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
           <TextField
@@ -528,13 +567,182 @@ export default function EquipmentPage() {
           <MuiTextField
             fullWidth
             select
-            label="Equipment Type"
-            value={formData.equipmentType}
-            onChange={(e) => setFormData({ ...formData, equipmentType: e.target.value })}
+            label={t('equipment.type')}
+            value={formData.templateId}
+            onChange={(e) => {
+              setFormData({ ...formData, templateId: e.target.value })
+              setSpecificationValues({})
+              setDocumentFiles({})
+              setChecklistResponses({})
+            }}
           >
-            <MenuItem value="">Select type...</MenuItem>
-            {equipmentTypes.map(type => <MenuItem key={type} value={type}>{type}</MenuItem>)}
+            <MenuItem value="">{t('equipment.selectTemplate')}</MenuItem>
+            {equipmentTemplates.map(template => (
+              <MenuItem key={template.id} value={template.id}>
+                {template.name_he} ({template.category})
+              </MenuItem>
+            ))}
           </MuiTextField>
+
+          <Collapse in={!!selectedTemplate}>
+            {selectedTemplate && (
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                {selectedTemplate.description && (
+                  <Alert severity="info" sx={{ mt: 1 }}>
+                    {selectedTemplate.description}
+                  </Alert>
+                )}
+
+                {selectedTemplate.specifications.length > 0 && (
+                  <Box sx={{ mt: 2 }}>
+                    <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <BuildIcon fontSize="small" color="primary" />
+                      {t('equipment.specifications')}
+                    </Typography>
+                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2, p: 2, bgcolor: 'action.hover', borderRadius: 2 }}>
+                      {selectedTemplate.specifications.map((spec) => (
+                        <Box key={spec.name}>
+                          {spec.field_type === 'boolean' ? (
+                            <FormControlLabel
+                              control={
+                                <Checkbox
+                                  checked={!!specificationValues[spec.name]}
+                                  onChange={(e) => setSpecificationValues({ ...specificationValues, [spec.name]: e.target.checked })}
+                                />
+                              }
+                              label={
+                                <Typography variant="body2">
+                                  {spec.name_he}
+                                  {spec.required && <span style={{ color: 'red' }}> *</span>}
+                                </Typography>
+                              }
+                            />
+                          ) : spec.field_type === 'select' ? (
+                            <MuiTextField
+                              fullWidth
+                              select
+                              size="small"
+                              label={spec.name_he}
+                              required={spec.required}
+                              value={specificationValues[spec.name] || ''}
+                              onChange={(e) => setSpecificationValues({ ...specificationValues, [spec.name]: e.target.value })}
+                            >
+                              <MenuItem value="">{t('common.select')}</MenuItem>
+                              {spec.options?.map((option) => (
+                                <MenuItem key={option} value={option}>{option}</MenuItem>
+                              ))}
+                            </MuiTextField>
+                          ) : (
+                            <TextField
+                              fullWidth
+                              size="small"
+                              type={spec.field_type === 'number' ? 'number' : 'text'}
+                              label={`${spec.name_he}${spec.unit ? ` (${spec.unit})` : ''}`}
+                              required={spec.required}
+                              value={specificationValues[spec.name] || ''}
+                              onChange={(e) => setSpecificationValues({ ...specificationValues, [spec.name]: e.target.value })}
+                            />
+                          )}
+                        </Box>
+                      ))}
+                    </Box>
+                  </Box>
+                )}
+
+                {selectedTemplate.documents.length > 0 && (
+                  <Box sx={{ mt: 2 }}>
+                    <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <DescriptionIcon fontSize="small" color="primary" />
+                      {t('equipment.requiredDocuments')}
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, p: 2, bgcolor: 'action.hover', borderRadius: 2 }}>
+                      {selectedTemplate.documents.map((doc) => (
+                        <Box key={doc.name} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 1.5, bgcolor: 'background.paper', borderRadius: 1, border: '1px solid', borderColor: 'divider' }}>
+                          <Box>
+                            <Typography variant="body2" fontWeight={500}>
+                              {doc.name_he}
+                              {doc.required && <Chip label={t('common.required')} size="small" color="error" sx={{ ml: 1, height: 20 }} />}
+                            </Typography>
+                            {doc.description && (
+                              <Typography variant="caption" color="text.secondary">{doc.description}</Typography>
+                            )}
+                            <Typography variant="caption" display="block" color="text.secondary">
+                              <PersonIcon sx={{ fontSize: 12, mr: 0.5, verticalAlign: 'middle' }} />
+                              {t(`equipment.source.${doc.source}`)}
+                            </Typography>
+                          </Box>
+                          <Box>
+                            {documentFiles[doc.name] ? (
+                              <Chip
+                                icon={<CheckCircleIcon />}
+                                label={documentFiles[doc.name]?.name}
+                                color="success"
+                                size="small"
+                                onDelete={() => setDocumentFiles({ ...documentFiles, [doc.name]: null })}
+                              />
+                            ) : (
+                              <Button
+                                variant="secondary"
+                                size="small"
+                                icon={<CloudUploadIcon />}
+                                onClick={() => {
+                                  const input = document.createElement('input')
+                                  input.type = 'file'
+                                  input.onchange = (e) => {
+                                    const file = (e.target as HTMLInputElement).files?.[0]
+                                    if (file) setDocumentFiles({ ...documentFiles, [doc.name]: file })
+                                  }
+                                  input.click()
+                                }}
+                              >
+                                {t('common.upload')}
+                              </Button>
+                            )}
+                          </Box>
+                        </Box>
+                      ))}
+                    </Box>
+                  </Box>
+                )}
+
+                {selectedTemplate.checklist_items.length > 0 && (
+                  <Box sx={{ mt: 2 }}>
+                    <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <CheckCircleIcon fontSize="small" color="primary" />
+                      {t('equipment.checklist')}
+                    </Typography>
+                    <Box sx={{ p: 2, bgcolor: 'action.hover', borderRadius: 2 }}>
+                      {selectedTemplate.checklist_items.map((item) => (
+                        <FormControlLabel
+                          key={item.name}
+                          sx={{ display: 'flex', mb: 1 }}
+                          control={
+                            <Checkbox
+                              checked={!!checklistResponses[item.name]}
+                              onChange={(e) => setChecklistResponses({ ...checklistResponses, [item.name]: e.target.checked })}
+                            />
+                          }
+                          label={
+                            <Box>
+                              <Typography variant="body2">{item.name_he}</Typography>
+                              {item.requires_file && (
+                                <Typography variant="caption" color="text.secondary">
+                                  ({t('equipment.requiresFile')})
+                                </Typography>
+                              )}
+                            </Box>
+                          }
+                        />
+                      ))}
+                    </Box>
+                  </Box>
+                )}
+              </Box>
+            )}
+          </Collapse>
+
+          <Divider sx={{ my: 1 }} />
+
           <TextField
             fullWidth
             label="Manufacturer"

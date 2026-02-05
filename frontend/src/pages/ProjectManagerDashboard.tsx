@@ -16,6 +16,10 @@ import { PageHeader } from '../components/ui/Breadcrumbs'
 import { StatusBadge } from '../components/ui/StatusBadge'
 import { ProgressBar } from '../components/ui/ProgressBar'
 import { EmptyState } from '../components/ui/EmptyState'
+import { projectsApi } from '../api/projects'
+import { workloadApi } from '../api/workload'
+import type { Project, TeamMember as TeamMemberType } from '../types'
+import { useToast } from '../components/common/ToastProvider'
 
 interface ProjectMetrics {
   id: string
@@ -43,6 +47,7 @@ interface TeamMember {
 export default function ProjectManagerDashboard() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const { showError } = useToast()
   const [projects, setProjects] = useState<ProjectMetrics[]>([])
   const [team, setTeam] = useState<TeamMember[]>([])
   const [loading, setLoading] = useState(true)
@@ -52,108 +57,39 @@ export default function ProjectManagerDashboard() {
     const loadDashboardData = async () => {
       try {
         setLoading(true)
-        await new Promise(resolve => setTimeout(resolve, 800))
+        const [projectsData, teamData] = await Promise.all([
+          projectsApi.list(),
+          workloadApi.getTeamMembers()
+        ])
 
-        const mockProjects: ProjectMetrics[] = [
-          {
-            id: '1',
-            name: 'Downtown Office Tower',
-            code: 'DOT-001',
-            status: 'active',
-            progress: 65,
-            budget: { spent: 2500000, total: 4000000 },
-            team: { assigned: 12, total: 15 },
-            startDate: '2024-01-15',
-            endDate: '2024-12-31',
-            tasksCompleted: 45,
-            tasksPending: 24,
-          },
-          {
-            id: '2',
-            name: 'Residential Complex',
-            code: 'RES-002',
-            status: 'active',
-            progress: 42,
-            budget: { spent: 1800000, total: 3500000 },
-            team: { assigned: 8, total: 12 },
-            startDate: '2024-03-01',
-            endDate: '2025-06-30',
-            tasksCompleted: 28,
-            tasksPending: 38,
-          },
-          {
-            id: '3',
-            name: 'Shopping Mall Renovation',
-            code: 'SHOP-003',
-            status: 'on_hold',
-            progress: 25,
-            budget: { spent: 450000, total: 1200000 },
-            team: { assigned: 5, total: 10 },
-            startDate: '2024-06-01',
-            endDate: '2025-09-01',
-            tasksCompleted: 12,
-            tasksPending: 35,
-          },
-          {
-            id: '4',
-            name: 'Bridge Expansion',
-            code: 'BRG-004',
-            status: 'completed',
-            progress: 100,
-            budget: { spent: 5200000, total: 5200000 },
-            team: { assigned: 20, total: 20 },
-            startDate: '2023-01-01',
-            endDate: '2024-01-31',
-            tasksCompleted: 89,
-            tasksPending: 0,
-          },
-        ]
+        const mappedProjects: ProjectMetrics[] = projectsData.map((p: Project) => ({
+          id: p.id,
+          name: p.name,
+          code: p.code || p.id.substring(0, 8),
+          status: (p.status as ProjectMetrics['status']) || 'active',
+          progress: p.completionPercentage || 0,
+          budget: { spent: 0, total: 0 },
+          team: { assigned: 0, total: 0 },
+          startDate: p.startDate || '',
+          endDate: p.estimatedEndDate || '',
+          tasksCompleted: 0,
+          tasksPending: 0,
+        }))
 
-        const mockTeam: TeamMember[] = [
-          {
-            id: '1',
-            name: 'Sarah Johnson',
-            email: 'sarah@buildersops.com',
-            role: 'Senior Project Manager',
-            assignedProjects: 3,
-            workload: 'high',
-          },
-          {
-            id: '2',
-            name: 'Michael Chen',
-            email: 'michael@buildersops.com',
-            role: 'Project Coordinator',
-            assignedProjects: 2,
-            workload: 'moderate',
-          },
-          {
-            id: '3',
-            name: 'Emily Rodriguez',
-            email: 'emily@buildersops.com',
-            role: 'Site Manager',
-            assignedProjects: 2,
-            workload: 'high',
-          },
-          {
-            id: '4',
-            name: 'David Kim',
-            email: 'david@buildersops.com',
-            role: 'Quality Inspector',
-            assignedProjects: 4,
-            workload: 'overload',
-          },
-          {
-            id: '5',
-            name: 'Lisa Thompson',
-            email: 'lisa@buildersops.com',
-            role: 'Budget Analyst',
-            assignedProjects: 1,
-            workload: 'low',
-          },
-        ]
+        const mappedTeam: TeamMember[] = teamData.map((t: TeamMemberType) => ({
+          id: t.id,
+          name: t.user?.fullName || t.user?.email || 'Unknown',
+          email: t.user?.email || '',
+          role: t.role || 'Team Member',
+          assignedProjects: 1,
+          workload: t.workloadPercent > 90 ? 'overload' : t.workloadPercent > 70 ? 'high' : t.workloadPercent > 40 ? 'moderate' : 'low',
+        }))
 
-        setProjects(mockProjects)
-        setTeam(mockTeam)
+        setProjects(mappedProjects)
+        setTeam(mappedTeam)
+      } catch (error) {
+        console.error('Failed to load dashboard data:', error)
+        showError('Failed to load dashboard data')
       } finally {
         setLoading(false)
       }
@@ -179,7 +115,7 @@ export default function ProjectManagerDashboard() {
 
   return (
     <Box sx={{ pb: 4 }}>
-      <PageHeader title="Project Manager Dashboard" breadcrumbs={['Dashboard', 'Projects']} />
+      <PageHeader title="Project Manager Dashboard" breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Projects' }]} />
 
       <Box sx={{ mt: 3, mb: 4 }}>
         <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>

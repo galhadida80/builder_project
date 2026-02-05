@@ -80,9 +80,8 @@ export default function ProjectMetricsChart({
           margin={{ top: 10, right: 20, bottom: 30, left: 50 }}
           slotProps={{
             legend: {
-              direction: 'row',
-              position: { vertical: 'top', horizontal: 'middle' },
-              padding: 0,
+              direction: 'horizontal' as const,
+              position: { vertical: 'top' as const, horizontal: 'center' as const },
             },
           }}
           sx={{

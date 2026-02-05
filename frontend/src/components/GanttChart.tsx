@@ -259,7 +259,7 @@ const viewModeMap: Record<GanttViewMode, ViewMode> = {
   Day: ViewMode.Day,
   Week: ViewMode.Week,
   Month: ViewMode.Month,
-  QuarterYear: ViewMode.QuarterYear,
+  QuarterYear: ViewMode.Month, // QuarterYear not available, fallback to Month
   Year: ViewMode.Year,
 }
 

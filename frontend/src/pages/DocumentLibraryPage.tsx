@@ -94,7 +94,7 @@ export default function DocumentLibraryPage() {
   const totalFiles = files.length
   const totalFolders = folders.reduce((count, folder) => {
     const countChildren = (f: typeof folders[0]): number => {
-      return 1 + f.children.reduce((sum, child) => sum + countChildren(child), 0)
+      return 1 + (f.children?.reduce((sum, child) => sum + countChildren(child), 0) || 0)
     }
     return count + countChildren(folder)
   }, 0)

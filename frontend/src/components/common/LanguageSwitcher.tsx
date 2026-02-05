@@ -46,16 +46,16 @@ export function LanguageSwitcher() {
           sx: { mt: 1, minWidth: 160 },
         }}
       >
-        {(Object.entries(SUPPORTED_LANGUAGES) as [LanguageCode, string][]).map(([code, name]) => (
+        {SUPPORTED_LANGUAGES.map((lang) => (
           <MenuItem
-            key={code}
-            onClick={() => handleSelect(code)}
-            selected={language === code}
+            key={lang.code}
+            onClick={() => handleSelect(lang.code)}
+            selected={language === lang.code}
           >
             <ListItemIcon>
-              <LanguageIcon fontSize="small" />
+              <span style={{ fontSize: '1.2em' }}>{lang.flag}</span>
             </ListItemIcon>
-            <ListItemText>{name}</ListItemText>
+            <ListItemText>{lang.name}</ListItemText>
           </MenuItem>
         ))}
       </Menu>

@@ -34,6 +34,7 @@ export interface Project {
   startDate?: string
   estimatedEndDate?: string
   status: 'active' | 'on_hold' | 'completed' | 'archived'
+  completionPercentage?: number
   createdAt: string
   updatedAt: string
   members?: ProjectMember[]
@@ -338,4 +339,139 @@ export interface WorkloadAssignment {
   estimatedHours: number
   scheduledDate?: string
   status: string
+}
+
+export interface FileRecord {
+  id: string
+  projectId: string
+  entityType: string
+  entityId: string
+  filename: string
+  fileType: string
+  fileSize: number
+  storagePath: string
+  uploadedBy?: User
+  uploadedAt: string
+  folderId?: string
+}
+
+export interface Folder {
+  id: string
+  projectId: string
+  name: string
+  parentId?: string
+  children?: Folder[]
+  createdAt: string
+  updatedAt: string
+}
+
+export interface ChecklistInstance {
+  id: string
+  templateId: string
+  projectId: string
+  entityType: string
+  entityId: string
+  status: string
+  createdAt: string
+  updatedAt: string
+  items: ChecklistItemResponse[]
+  responses: ChecklistItemResponse[]
+}
+
+export interface ChecklistItemTemplate {
+  id: string
+  templateId: string
+  name: string
+  label: string
+  description?: string
+  required: boolean
+  order: number
+  mustImage?: boolean
+  mustNote?: boolean
+  mustSignature?: boolean
+}
+
+export interface ChecklistItemResponse {
+  id: string
+  instanceId: string
+  templateItemId: string
+  itemTemplateId: string
+  label: string
+  description?: string
+  required: boolean
+  completed: boolean
+  status: 'pending' | 'completed' | 'skipped' | 'pass' | 'fail' | 'na'
+  notes?: string
+  imageUrls?: string[]
+  completedAt?: string
+  completedBy?: User
+}
+
+export interface ChecklistItemResponseCreate {
+  templateItemId?: string
+  itemTemplateId: string
+  completed?: boolean
+  status?: string
+  notes?: string
+  imageUrls?: string[]
+}
+
+export interface ChecklistItemResponseUpdate {
+  completed?: boolean
+  status?: string
+  notes?: string
+  imageUrls?: string[]
+}
+
+export interface ChecklistTemplate {
+  id: string
+  projectId: string
+  name: string
+  description?: string
+  entityType: string
+  items: ChecklistItemTemplate[]
+  createdAt: string
+  updatedAt: string
+}
+
+export interface ChecklistTemplateCreate {
+  name: string
+  description?: string
+  entityType: string
+  items?: Omit<ChecklistItemTemplate, 'id' | 'templateId'>[]
+}
+
+export interface ChecklistTemplateUpdate {
+  name?: string
+  description?: string
+  items?: Omit<ChecklistItemTemplate, 'id' | 'templateId'>[]
+}
+
+export interface ChecklistInstanceCreate {
+  templateId: string
+  entityType: string
+  entityId: string
+}
+
+export interface ChecklistInstanceUpdate {
+  status?: string
+}
+
+export interface ChecklistSubSection {
+  id: string
+  name: string
+  order: number
+  items: ChecklistItemTemplate[]
+}
+
+export interface InspectionHistoryEvent {
+  id: string
+  inspectionId: string
+  action: string
+  description: string
+  userId?: string
+  user?: User
+  oldValues?: Record<string, unknown>
+  newValues?: Record<string, unknown>
+  createdAt: string
 }

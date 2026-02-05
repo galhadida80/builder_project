@@ -1,4 +1,4 @@
-import { Box, Typography } from '@mui/material'
+import { Box, Typography, SxProps, Theme } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import InboxIcon from '@mui/icons-material/Inbox'
 import SearchOffIcon from '@mui/icons-material/SearchOff'
@@ -22,6 +22,7 @@ interface EmptyStateProps {
     label: string
     onClick: () => void
   }
+  sx?: SxProps<Theme>
 }
 
 const Container = styled(Box)(({ theme }) => ({
@@ -84,11 +85,12 @@ export function EmptyState({
   icon,
   action,
   secondaryAction,
+  sx,
 }: EmptyStateProps) {
   const content = defaultContent[variant]
 
   return (
-    <Container>
+    <Container sx={sx}>
       <IconContainer>{icon || content.icon}</IconContainer>
       <Typography
         variant="h6"

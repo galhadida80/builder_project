@@ -138,11 +138,11 @@ export default function ConsultantAssignmentsPage() {
     setSaving(true)
     try {
       const payload = {
-        consultant_id: data.consultantId,
-        project_id: data.projectId,
-        consultant_type_id: data.consultantTypeId || undefined,
-        start_date: data.startDate,
-        end_date: data.endDate,
+        consultantId: data.consultantId,
+        projectId: data.projectId,
+        consultantTypeId: data.consultantTypeId || undefined,
+        startDate: data.startDate,
+        endDate: data.endDate,
         status: data.status,
         notes: data.notes || undefined,
       }
@@ -194,7 +194,8 @@ export default function ConsultantAssignmentsPage() {
     // Search filter
     const matchesSearch =
       search === '' ||
-      assignment.consultant?.name?.toLowerCase().includes(search.toLowerCase()) ||
+      assignment.consultant?.fullName?.toLowerCase().includes(search.toLowerCase()) ||
+      assignment.consultant?.email?.toLowerCase().includes(search.toLowerCase()) ||
       assignment.project?.name?.toLowerCase().includes(search.toLowerCase()) ||
       assignment.consultantType?.name?.toLowerCase().includes(search.toLowerCase())
 

@@ -25,8 +25,11 @@ const createDefaultFolders = (): Folder[] => [
   {
     id: 'root',
     name: 'Documents',
-    parentId: null,
+    parentId: undefined,
     children: [],
+    projectId: '',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   },
 ]
 
@@ -98,7 +101,7 @@ export function useDocuments(projectId: string | undefined): UseDocumentsReturn 
   const findFolder = (folders: Folder[], id: string): Folder | null => {
     for (const folder of folders) {
       if (folder.id === id) return folder
-      if (folder.children.length > 0) {
+      if (folder.children && folder.children.length > 0) {
         const found = findFolder(folder.children, id)
         if (found) return found
       }
@@ -116,7 +119,7 @@ export function useDocuments(projectId: string | undefined): UseDocumentsReturn 
       if (folder.id === targetId) {
         return updateFn(folder)
       }
-      if (folder.children.length > 0) {
+      if (folder.children && folder.children.length > 0) {
         return {
           ...folder,
           children: updateFolderTree(folder.children, targetId, updateFn),
@@ -132,7 +135,7 @@ export function useDocuments(projectId: string | undefined): UseDocumentsReturn 
       .filter((folder) => folder.id !== targetId)
       .map((folder) => ({
         ...folder,
-        children: removeFolderFromTree(folder.children, targetId),
+        children: folder.children ? removeFolderFromTree(folder.children, targetId) : [],
       }))
   }
 
@@ -140,18 +143,21 @@ export function useDocuments(projectId: string | undefined): UseDocumentsReturn 
     const newFolder: Folder = {
       id: `folder_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       name,
-      parentId,
+      parentId: parentId || undefined,
       children: [],
+      projectId: projectId || '',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     }
 
-    if (parentId === null || parentId === 'root') {
+    if (parentId === undefined || parentId === 'root') {
       // Add to root level
       setFolders((prev) => [
         ...prev.map((folder) => {
           if (folder.id === 'root') {
             return {
               ...folder,
-              children: [...folder.children, newFolder],
+              children: [...(folder.children || []), newFolder],
             }
           }
           return folder
@@ -160,9 +166,9 @@ export function useDocuments(projectId: string | undefined): UseDocumentsReturn 
     } else {
       // Add to specific parent folder
       setFolders((prev) =>
-        updateFolderTree(prev, parentId, (folder) => ({
+        updateFolderTree(prev, parentId!, (folder) => ({
           ...folder,
-          children: [...folder.children, newFolder],
+          children: [...(folder.children || []), newFolder],
         }))
       )
     }

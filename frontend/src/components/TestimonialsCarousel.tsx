@@ -139,9 +139,9 @@ export default function TestimonialsCarousel({
     setTimeout(() => setIsAutoPlayPaused(false), autoPlayInterval)
   }
 
-  const getVisibleTestimonials = () => {
+  const getVisibleTestimonials = (): Testimonial[] => {
     const visibleCount = 3
-    const result = []
+    const result: Testimonial[] = []
     for (let i = 0; i < visibleCount; i++) {
       result.push(testimonials[(currentIndex + i) % testimonials.length])
     }

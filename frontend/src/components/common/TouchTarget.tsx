@@ -25,6 +25,16 @@ export interface TouchTargetProps extends BoxProps {
    * Whether to show focus ring for keyboard navigation
    */
   showFocusRing?: boolean
+
+  /**
+   * Link href for TouchTargetLink
+   */
+  href?: string
+
+  /**
+   * Button type for TouchTargetButton
+   */
+  type?: 'button' | 'submit' | 'reset'
 }
 
 const sizeMap = {

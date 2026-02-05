@@ -49,8 +49,8 @@ export default function EquipmentPage() {
       <PageHeader
         title="Equipment"
         breadcrumbs={[
-          { label: 'Projects', to: '/projects' },
-          { label: 'Project Details', to: `/projects/${projectId}` },
+          { label: 'Projects', href: '/projects' },
+          { label: 'Project Details', href: `/projects/${projectId}` },
           { label: 'Equipment' },
         ]}
       />
