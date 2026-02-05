@@ -4,10 +4,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from app.db.session import get_db
-from app.models.inspection import ConsultantType, InspectionStageTemplate
+from app.models.equipment_template import ConsultantType
+from app.models.consultant_assignment import ConsultantAssignment
+from app.models.inspection_template import InspectionStageTemplate
 from app.models.user import User
-from app.schemas.inspection import (
-    ConsultantTypeCreate, ConsultantTypeUpdate, ConsultantTypeResponse,
+from app.schemas.equipment_template import ConsultantTypeCreate, ConsultantTypeUpdate, ConsultantTypeResponse
+from app.schemas.inspection_template import (
     InspectionStageTemplateCreate, InspectionStageTemplateUpdate, InspectionStageTemplateResponse
 )
 from app.services.audit_service import create_audit_log, get_model_dict
@@ -205,3 +207,36 @@ async def delete_template(
 
     await db.delete(template)
     return {"message": "Template deleted"}
+
+
+@router.get("/projects/{project_id}/consultant-assignments")
+async def list_project_consultant_assignments(
+    project_id: UUID,
+    db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(
+        select(ConsultantAssignment)
+        .options(
+            selectinload(ConsultantAssignment.consultant),
+            selectinload(ConsultantAssignment.consultant_type),
+        )
+        .where(
+            ConsultantAssignment.project_id == project_id,
+            ConsultantAssignment.status.in_(["active", "pending"]),
+        )
+        .order_by(ConsultantAssignment.created_at.desc())
+    )
+    assignments = result.scalars().all()
+    return [
+        {
+            "id": str(a.id),
+            "consultant_id": str(a.consultant_id),
+            "consultant_type_id": str(a.consultant_type_id) if a.consultant_type_id else None,
+            "consultant_name": a.consultant.full_name if a.consultant else None,
+            "consultant_email": a.consultant.email if a.consultant else None,
+            "consultant_type_name": a.consultant_type.name if a.consultant_type else None,
+            "consultant_type_name_he": a.consultant_type.name_he if a.consultant_type else None,
+            "status": a.status,
+        }
+        for a in assignments
+    ]
