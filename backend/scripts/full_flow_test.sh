@@ -188,7 +188,8 @@ echo ""
 # Step 18: Create consultant assignment
 echo "=== STEP 18: Create Consultant Assignment ==="
 if [ "$FIRST_CT_ID" != "NONE" ]; then
-  source venv/bin/activate 2>/dev/null
+  pushd backend > /dev/null
+  source venv/bin/activate 2>/dev/null || true
   python3 -c "
 import asyncio
 from app.db.session import engine
@@ -205,6 +206,7 @@ async def create():
         print(f'  Assignment: {aid}')
 asyncio.run(create())
 "
+  popd > /dev/null
 else
   echo "  Skipped (no consultant types)"
 fi
