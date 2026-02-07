@@ -205,7 +205,11 @@ export default function EquipmentPage() {
 
   const handleTemplateSelect = (tpl: EquipmentTemplate) => {
     setSelectedTemplate(tpl)
-    setForm({ ...INITIAL_FORM, name: tpl.name, equipment_type: tpl.category || '' })
+    const prefilledSpecs = (tpl.required_specifications || []).map((spec) => ({
+      key: getItemName(spec),
+      value: '',
+    }))
+    setForm({ ...INITIAL_FORM, name: tpl.name, equipment_type: tpl.category || '', specifications: prefilledSpecs })
     setDialogStep('form')
     const docs = (tpl.required_documents || []).map((d) => ({
       docName: getItemName(d),
@@ -740,62 +744,40 @@ export default function EquipmentPage() {
                 <TextField label="Notes" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} multiline rows={2} fullWidth size="small" />
               </Box>
 
-              <Divider sx={{ my: 2 }} />
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
-                <Typography variant="subtitle2" fontWeight={700}>Custom Specifications</Typography>
-                <Button
-                  size="small"
-                  startIcon={<AddIcon />}
-                  onClick={() => setForm({ ...form, specifications: [...form.specifications, { key: '', value: '' }] })}
-                  sx={{ textTransform: 'none', fontSize: '0.8rem' }}
-                >
-                  Add Field
-                </Button>
-              </Box>
-              {form.specifications.length === 0 ? (
-                <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
-                  No custom specifications. Click "Add Field" to add key-value pairs.
-                </Typography>
-              ) : (
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                  {form.specifications.map((spec, i) => (
-                    <Box key={i} sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                      <TextField
-                        label="Key"
-                        value={spec.key}
-                        onChange={(e) => {
-                          const updated = [...form.specifications]
-                          updated[i] = { ...updated[i], key: e.target.value }
-                          setForm({ ...form, specifications: updated })
-                        }}
-                        size="small"
-                        sx={{ flex: 1 }}
-                      />
-                      <TextField
-                        label="Value"
-                        value={spec.value}
-                        onChange={(e) => {
-                          const updated = [...form.specifications]
-                          updated[i] = { ...updated[i], value: e.target.value }
-                          setForm({ ...form, specifications: updated })
-                        }}
-                        size="small"
-                        sx={{ flex: 1 }}
-                      />
-                      <IconButton
-                        size="small"
-                        onClick={() => {
-                          const updated = form.specifications.filter((_, idx) => idx !== i)
-                          setForm({ ...form, specifications: updated })
-                        }}
-                        color="error"
-                      >
-                        <DeleteOutlineIcon fontSize="small" />
-                      </IconButton>
-                    </Box>
-                  ))}
+              <Box sx={{ mt: 3, border: '1px solid', borderColor: 'divider', borderRadius: 2, overflow: 'hidden' }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', px: 2, py: 1.2, bgcolor: 'rgba(99,102,241,0.08)' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <TuneIcon sx={{ fontSize: 18, color: '#6366f1' }} />
+                    <Typography variant="subtitle2" fontWeight={700}>Custom Specifications</Typography>
+                    <Chip label={form.specifications.length} size="small" sx={{ height: 20, fontSize: '0.7rem', bgcolor: '#6366f1', color: '#fff', fontWeight: 700 }} />
+                  </Box>
+                  <Button size="small" startIcon={<AddIcon />} onClick={() => setForm({ ...form, specifications: [...form.specifications, { key: '', value: '' }] })} sx={{ textTransform: 'none', fontSize: '0.8rem', color: '#6366f1' }}>
+                    Add Field
+                  </Button>
                 </Box>
-              )}
+                <Box sx={{ p: 2 }}>
+                  {form.specifications.length === 0 ? (
+                    <Box onClick={() => setForm({ ...form, specifications: [...form.specifications, { key: '', value: '' }] })} sx={{ border: '2px dashed', borderColor: 'divider', borderRadius: 1.5, p: 3, textAlign: 'center', cursor: 'pointer', '&:hover': { borderColor: '#6366f1', bgcolor: 'rgba(99,102,241,0.04)' }, transition: 'all 0.2s' }}>
+                      <TuneIcon sx={{ fontSize: 28, color: 'text.disabled', mb: 0.5 }} />
+                      <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>Click to add custom specifications</Typography>
+                      <Typography variant="caption" color="text.disabled">e.g., Weight = 150 kg, Voltage = 220V</Typography>
+                    </Box>
+                  ) : (
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                      {form.specifications.map((spec, i) => (
+                        <Box key={i} sx={{ display: 'flex', gap: 1, alignItems: 'center', p: 1, borderRadius: 1, border: '1px solid', borderColor: spec.key && spec.value ? 'success.main' : 'divider', bgcolor: spec.key && spec.value ? 'rgba(16,185,129,0.04)' : 'transparent', transition: 'all 0.2s' }}>
+                          <Chip label={i + 1} size="small" sx={{ height: 22, width: 22, fontSize: '0.7rem', bgcolor: '#6366f1', color: '#fff', fontWeight: 700, '& .MuiChip-label': { p: 0 } }} />
+                          <TextField placeholder="e.g., Weight, Voltage" value={spec.key} onChange={(e) => { const updated = [...form.specifications]; updated[i] = { ...updated[i], key: e.target.value }; setForm({ ...form, specifications: updated }) }} size="small" sx={{ flex: 1 }} />
+                          <TextField placeholder="e.g., 150 kg, 220V" value={spec.value} onChange={(e) => { const updated = [...form.specifications]; updated[i] = { ...updated[i], value: e.target.value }; setForm({ ...form, specifications: updated }) }} size="small" sx={{ flex: 1 }} />
+                          <IconButton size="small" onClick={() => { const updated = form.specifications.filter((_, idx) => idx !== i); setForm({ ...form, specifications: updated }) }} sx={{ color: 'text.disabled', '&:hover': { color: '#fff', bgcolor: '#ef4444' }, transition: 'all 0.2s' }}>
+                            <DeleteOutlineIcon fontSize="small" />
+                          </IconButton>
+                        </Box>
+                      ))}
+                    </Box>
+                  )}
+                </Box>
+              </Box>
             </DialogContent>
             <DialogActions sx={{ px: 3, pb: 2 }}>
               <Button onClick={handleCloseDialog}>{t('common.cancel')}</Button>

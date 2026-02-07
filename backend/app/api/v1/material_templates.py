@@ -93,6 +93,7 @@ async def update_material_template(
         setattr(template, key, value)
     await create_audit_log(db, current_user, "material_template", template.id, AuditAction.UPDATE,
                           old_values=old_values, new_values=get_model_dict(template))
+    await db.flush()
     await db.refresh(template)
     return template
 

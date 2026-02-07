@@ -6,6 +6,9 @@ import pytest
 from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from sqlalchemy.pool import StaticPool
+from sqlalchemy import JSON, String, event
+from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
+from sqlalchemy.ext.compiler import compiles
 from app.db.session import Base, get_db
 from app.main import app
 from app.models.user import User
@@ -13,6 +16,9 @@ from app.models.project import Project
 from app.models.equipment_template import EquipmentTemplate
 from app.models.equipment_submission import EquipmentSubmission
 from app.models.approval_decision import ApprovalDecision
+
+compiles(JSONB, "sqlite")(lambda element, compiler, **kw: compiler.visit_JSON(element, **kw))
+compiles(PG_UUID, "sqlite")(lambda element, compiler, **kw: "VARCHAR(36)")
 
 # Test database URL (using SQLite in-memory for tests)
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
@@ -195,10 +201,8 @@ async def equipment_template(db: AsyncSession, admin_user: User) -> EquipmentTem
     template = EquipmentTemplate(
         id=uuid.uuid4(),
         name="Test Equipment Template",
+        name_he="תבנית ציוד בדיקה",
         category="Heavy Machinery",
-        description="Test template for equipment",
-        specifications={"capacity": "10 tons", "model": "CAT-320"},
-        created_by_id=admin_user.id
     )
     db.add(template)
     await db.commit()
