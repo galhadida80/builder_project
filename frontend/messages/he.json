@@ -105,7 +105,7 @@
     "download": "הורד",
     "upload": "העלה",
     "confirm": "אשר",
-    "viewAll": "צפה בכל {{count}} הפריטים",
+    "viewAll": "צפה בכל {count}} הפריטים",
     "saveAsDraft": "שמור כטיוטה",
     "sendNow": "שלח עכשיו",
     "tryAgain": "נסה שוב",
@@ -151,7 +151,7 @@
     "submitForApproval": "שלח לאישור",
     "searchPlaceholder": "חיפוש ציוד...",
     "deleteConfirmation": "מחיקת ציוד",
-    "deleteConfirmationMessage": "האם אתה בטוח שברצונך למחוק את \"{{name}}\"? פעולה זו לא ניתנת לביטול.",
+    "deleteConfirmationMessage": "האם אתה בטוח שברצונך למחוק את \"{name}}\"? פעולה זו לא ניתנת לביטול.",
     "equipmentCreatedSuccessfully": "הציוד נוצר בהצלחה!",
     "equipmentUpdatedSuccessfully": "הציוד עודכן בהצלחה!",
     "equipmentDeletedSuccessfully": "הציוד נמחק בהצלחה!",
@@ -209,7 +209,7 @@
     "failedToUpdateMaterial": "נכשל בעדכון חומר",
     "failedToDeleteMaterial": "נכשל במחיקת חומר",
     "deleteConfirmation": "מחיקת חומר",
-    "deleteConfirmationMessage": "האם אתה בטוח שברצונך למחוק את \"{{name}}\"? פעולה זו לא ניתנת לביטול."
+    "deleteConfirmationMessage": "האם אתה בטוח שברצונך למחוק את \"{name}}\"? פעולה זו לא ניתנת לביטול."
   },
   "meetings": {
     "title": "פגישות",
@@ -245,9 +245,9 @@
     "upcomingMeetings": "פגישות קרובות",
     "itemsAwaitingReview": "פריטים הממתינים לבדיקה",
     "pending": "ממתין",
-    "stepOfTotal": "שלב {{current}} מתוך {{total}}",
+    "stepOfTotal": "שלב {current}} מתוך {total}",
     "review": "בדוק",
-    "viewAllApprovals": "צפה בכל {{count}} האישורים",
+    "viewAllApprovals": "צפה בכל {count}} האישורים",
     "allCaughtUp": "הכל עדכני!",
     "noPendingApprovals": "אין אישורים ממתינים כרגע",
     "completionRate": "אחוז השלמה",
@@ -306,7 +306,7 @@
     },
     "dashboard": {
       "title": "לוח בקרה",
-      "welcome": "שלום, {{name}}",
+      "welcome": "שלום, {name}",
       "recentActivity": "פעילות אחרונה",
       "stats": "סטטיסטיקות",
       "subtitle": "סקירה כללית של הפרויקט",
@@ -338,7 +338,7 @@
       "failedToDelete": "נכשל במחיקת פרויקט. אנא נסה שוב.",
       "deleteConfirm": "האם אתה בטוח שברצונך למחוק פרויקט זה?",
       "deleteConfirmation": "מחיקת פרויקט",
-      "deleteConfirmationMessage": "האם אתה בטוח שברצונך למחוק את \"{{name}}\"? פעולה זו אינה ניתנת לביטול.",
+      "deleteConfirmationMessage": "האם אתה בטוח שברצונך למחוק את \"{name}}\"? פעולה זו אינה ניתנת לביטול.",
       "noDescription": "אין תיאור",
       "location": "מיקום",
       "codeCannotBeChanged": "לא ניתן לשנות את הקוד לאחר יצירה",
@@ -387,7 +387,7 @@
       "submitForApproval": "שלח לאישור",
       "searchPlaceholder": "חיפוש ציוד...",
       "deleteConfirmation": "מחיקת ציוד",
-      "deleteConfirmationMessage": "האם אתה בטוח שברצונך למחוק את \"{{name}}\"? פעולה זו לא ניתנת לביטול.",
+      "deleteConfirmationMessage": "האם אתה בטוח שברצונך למחוק את \"{name}}\"? פעולה זו לא ניתנת לביטול.",
       "equipmentCreatedSuccessfully": "הציוד נוצר בהצלחה!",
       "equipmentUpdatedSuccessfully": "הציוד עודכן בהצלחה!",
       "equipmentDeletedSuccessfully": "הציוד נמחק בהצלחה!",
@@ -568,11 +568,11 @@
     "logout": "התנתק",
     "viewAllNotifications": "צפה בכל ההתראות",
     "notifications_equipment_pending": "אישור ציוד ממתין",
-    "notifications_equipment_detail": "{{name}} דורש בדיקה",
+    "notifications_equipment_detail": "{name}} דורש בדיקה",
     "notifications_meeting_scheduled": "פגישה תוזמנה",
-    "notifications_meeting_detail": "{{name}} - {{date}} {{time}}",
+    "notifications_meeting_detail": "{name}} - {date}} {time}",
     "notifications_material_delivery": "עדכון אספקת חומרים",
-    "notifications_material_detail": "{{material}} - {{quantity}} יחידות התקבלו",
+    "notifications_material_detail": "{material}} - {quantity}} יחידות התקבלו",
     "profileComingSoon": "דף פרופיל בקרוב!",
     "settingsComingSoon": "דף הגדרות בקרוב!"
   },
@@ -630,8 +630,8 @@
   "validation": {
     "required": "שדה זה הוא חובה",
     "invalid": "ערך לא תקין",
-    "minLength": "נדרשים לפחות {{min}} תווים",
-    "maxLength": "מותרים מקסימום {{max}} תווים",
+    "minLength": "נדרשים לפחות {min}} תווים",
+    "maxLength": "מותרים מקסימום {max}} תווים",
     "email": "כתובת דואר אלקטרוני לא תקינה",
     "url": "כתובת URL לא תקינה",
     "date": "פורמט תאריך לא תקין",
@@ -639,8 +639,8 @@
     "phone": "מספר טלפון לא תקין"
   },
   "confirmations": {
-    "deleteItem": "האם אתה בטוח שברצונך למחוק {{type}} זה?",
-    "deleteMultiple": "האם אתה בטוח שברצונך למחוק {{count}} פריטים?",
+    "deleteItem": "האם אתה בטוח שברצונך למחוק {type}} זה?",
+    "deleteMultiple": "האם אתה בטוח שברצונך למחוק {count}} פריטים?",
     "confirmAction": "האם אתה בטוח?"
   },
   "forms": {

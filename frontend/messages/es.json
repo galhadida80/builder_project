@@ -39,7 +39,7 @@
     "download": "Descargar",
     "upload": "Subir",
     "confirm": "Confirmar",
-    "viewAll": "Ver todos los {{count}} elementos"
+    "viewAll": "Ver todos los {count}} elementos"
   },
   "pages": {
     "login": {
@@ -59,7 +59,7 @@
     },
     "dashboard": {
       "title": "Panel de Control",
-      "welcome": "Bienvenido, {{name}}",
+      "welcome": "Bienvenido, {name}",
       "recentActivity": "Actividad Reciente",
       "stats": "Estadísticas"
     },
@@ -182,11 +182,11 @@
     "logout": "Cerrar Sesión",
     "viewAllNotifications": "Ver todas las notificaciones",
     "notifications_equipment_pending": "Aprobación de equipo pendiente",
-    "notifications_equipment_detail": "{{name}} requiere revisión",
+    "notifications_equipment_detail": "{name}} requiere revisión",
     "notifications_meeting_scheduled": "Reunión programada",
-    "notifications_meeting_detail": "{{name}} - {{date}} {{time}}",
+    "notifications_meeting_detail": "{name}} - {date}} {time}",
     "notifications_material_delivery": "Actualización de entrega de material",
-    "notifications_material_detail": "{{material}} - {{quantity}} unidades recibidas",
+    "notifications_material_detail": "{material}} - {quantity}} unidades recibidas",
     "profileComingSoon": "¡Página de perfil próximamente!",
     "settingsComingSoon": "¡Página de configuración próximamente!"
   },
@@ -242,8 +242,8 @@
   "validation": {
     "required": "Este campo es obligatorio",
     "invalid": "Valor inválido",
-    "minLength": "Se requieren mínimo {{min}} caracteres",
-    "maxLength": "Máximo {{max}} caracteres permitidos",
+    "minLength": "Se requieren mínimo {min}} caracteres",
+    "maxLength": "Máximo {max}} caracteres permitidos",
     "email": "Dirección de correo electrónico inválida",
     "url": "URL inválida",
     "date": "Formato de fecha inválido",
@@ -251,8 +251,8 @@
     "phone": "Número de teléfono inválido"
   },
   "confirmations": {
-    "deleteItem": "¿Estás seguro de que deseas eliminar este {{type}}?",
-    "deleteMultiple": "¿Estás seguro de que deseas eliminar {{count}} elementos?",
+    "deleteItem": "¿Estás seguro de que deseas eliminar este {type}}?",
+    "deleteMultiple": "¿Estás seguro de que deseas eliminar {count}} elementos?",
     "confirmAction": "¿Estás seguro?"
   },
   "forms": {
