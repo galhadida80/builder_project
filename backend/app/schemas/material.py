@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field, field_validator
 from app.schemas.user import UserResponse
 from app.core.validators import (
     sanitize_string,
+    validate_specifications,
     MIN_NAME_LENGTH, MAX_NAME_LENGTH, MAX_NOTES_LENGTH,
     CamelCaseModel
 )
@@ -29,6 +30,11 @@ class MaterialBase(BaseModel):
     @classmethod
     def sanitize_text(cls, v: Optional[str]) -> Optional[str]:
         return sanitize_string(v)
+
+    @field_validator('specifications', mode='before')
+    @classmethod
+    def sanitize_specs(cls, v: Optional[dict]) -> Optional[dict]:
+        return validate_specifications(v)
 class MaterialCreate(MaterialBase):
     pass
 class MaterialUpdate(BaseModel):
@@ -48,6 +54,11 @@ class MaterialUpdate(BaseModel):
     @classmethod
     def sanitize_text(cls, v: Optional[str]) -> Optional[str]:
         return sanitize_string(v)
+
+    @field_validator('specifications', mode='before')
+    @classmethod
+    def sanitize_specs(cls, v: Optional[dict]) -> Optional[dict]:
+        return validate_specifications(v)
 class MaterialReceive(BaseModel):
     quantity_received: Decimal = Field(gt=0, le=999999999)
     notes: Optional[str] = Field(default=None, max_length=MAX_NOTES_LENGTH)

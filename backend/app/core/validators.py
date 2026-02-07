@@ -68,6 +68,45 @@ PhoneField = Annotated[str | None, Field(max_length=MAX_PHONE_LENGTH)]
 ShortTextField = Annotated[str | None, Field(max_length=MAX_NAME_LENGTH)]
 
 
+MAX_SPEC_KEYS = 50
+MAX_SPEC_KEY_LENGTH = 100
+MAX_SPEC_VALUE_LENGTH = 500
+
+
+def validate_specifications(value: Optional[dict]) -> Optional[dict]:
+    if value is None:
+        return None
+    if not isinstance(value, dict):
+        raise ValueError('Specifications must be a JSON object')
+    if len(value) > MAX_SPEC_KEYS:
+        raise ValueError(f'Specifications cannot have more than {MAX_SPEC_KEYS} keys')
+    sanitized = {}
+    for key, val in value.items():
+        if not isinstance(key, str):
+            raise ValueError('Specification keys must be strings')
+        if len(key) > MAX_SPEC_KEY_LENGTH:
+            raise ValueError(f'Specification key cannot exceed {MAX_SPEC_KEY_LENGTH} characters')
+        clean_key = sanitize_string(key) or ''
+        if not clean_key:
+            continue
+        if val is None:
+            sanitized[clean_key] = None
+            continue
+        if isinstance(val, bool):
+            sanitized[clean_key] = val
+            continue
+        if isinstance(val, (int, float)):
+            sanitized[clean_key] = val
+            continue
+        if isinstance(val, str):
+            if len(val) > MAX_SPEC_VALUE_LENGTH:
+                raise ValueError(f'Specification value cannot exceed {MAX_SPEC_VALUE_LENGTH} characters')
+            sanitized[clean_key] = sanitize_string(val)
+            continue
+        raise ValueError('Specification values must be string, number, boolean, or null')
+    return sanitized
+
+
 class CamelCaseModel(BaseModel):
     model_config = ConfigDict(
         from_attributes=True,

@@ -57,7 +57,7 @@ export default function AuditPage() {
       setHasMore(data.length >= PAGE_SIZE)
     } catch (err) {
       console.error('Failed to load audit logs:', err)
-      setError('Failed to load audit logs')
+      setError(t('errors.serverError'))
     } finally {
       setLoading(false)
     }
@@ -101,10 +101,10 @@ export default function AuditPage() {
     <Box sx={{ p: 3, width: '100%' }}>
       <Box sx={{ mb: 4 }}>
         <Typography variant="h4" fontWeight={700} color="text.primary" sx={{ mb: 0.5 }}>
-          {t('audit.title', { defaultValue: 'Audit Log' })}
+          {t('audit.title')}
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          {t('audit.subtitle', { defaultValue: 'Track all system activities and changes' })}
+          {t('audit.subtitle')}
         </Typography>
       </Box>
 
@@ -115,10 +115,10 @@ export default function AuditPage() {
           <CardContent sx={{ textAlign: 'center', py: 8 }}>
             <HistoryIcon sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
             <Typography variant="h6" fontWeight={600} sx={{ mb: 1 }}>
-              {t('audit.noEntries', { defaultValue: 'No audit entries yet' })}
+              {t('audit.noEntries')}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              {t('audit.noEntriesDescription', { defaultValue: 'Activity will appear here as changes are made' })}
+              {t('audit.noEntriesDescription')}
             </Typography>
           </CardContent>
         </Card>
@@ -128,10 +128,10 @@ export default function AuditPage() {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 600 }}>{t('audit.action', { defaultValue: 'Action' })}</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>{t('audit.entityType', { defaultValue: 'Entity Type' })}</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>{t('audit.user', { defaultValue: 'User' })}</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>{t('audit.date', { defaultValue: 'Date' })}</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>{t('audit.action')}</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>{t('audit.entityType')}</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>{t('audit.user')}</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>{t('audit.date')}</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -152,7 +152,7 @@ export default function AuditPage() {
                     </TableCell>
                     <TableCell>
                       <Typography variant="body2">
-                        {entry.user?.fullName || t('audit.system', { defaultValue: 'System' })}
+                        {entry.user?.fullName || t('audit.system')}
                       </Typography>
                     </TableCell>
                     <TableCell>
@@ -168,7 +168,7 @@ export default function AuditPage() {
 
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', px: 2, py: 1.5, borderTop: 1, borderColor: 'divider' }}>
             <Typography variant="body2" color="text.secondary">
-              {t('audit.page', { defaultValue: 'Page' })} {currentPage}
+              {t('audit.page')} {currentPage}
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <IconButton size="small" onClick={handlePrev} disabled={offset === 0}>

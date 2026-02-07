@@ -87,7 +87,7 @@ export default function RFIsPage() {
       const res = await apiClient.get(`/projects/${projectId}/rfis`)
       setRfis(res.data?.items || res.data || [])
     } catch {
-      setError('Failed to load RFIs')
+      setError(t('pages.rfis.messages.failedToLoad'))
     } finally {
       setLoading(false)
     }
@@ -114,7 +114,7 @@ export default function RFIsPage() {
       setForm(INITIAL_FORM)
       await loadRFIs()
     } catch {
-      setSubmitError('Failed to create RFI')
+      setSubmitError(t('pages.rfis.messages.failedToSend'))
     } finally {
       setSubmitting(false)
     }

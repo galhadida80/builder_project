@@ -1,5 +1,6 @@
+from typing import Optional
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
@@ -17,12 +18,14 @@ router = APIRouter()
 
 
 @router.get("/materials", response_model=list[MaterialResponse])
-async def list_all_materials(db: AsyncSession = Depends(get_db)):
-    result = await db.execute(
-        select(Material)
-        .options(selectinload(Material.created_by))
-        .order_by(Material.created_at.desc())
-    )
+async def list_all_materials(
+    project_id: Optional[UUID] = Query(None),
+    db: AsyncSession = Depends(get_db),
+):
+    query = select(Material).options(selectinload(Material.created_by))
+    if project_id:
+        query = query.where(Material.project_id == project_id)
+    result = await db.execute(query.order_by(Material.created_at.desc()))
     return result.scalars().all()
 
 
