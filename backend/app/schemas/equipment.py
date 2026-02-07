@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field, field_validator
 from app.schemas.user import UserResponse
 from app.core.validators import (
     sanitize_string,
+    validate_specifications,
     MIN_NAME_LENGTH, MAX_NAME_LENGTH, MAX_NOTES_LENGTH,
     CamelCaseModel
 )
@@ -59,6 +60,11 @@ class EquipmentBase(BaseModel):
     def sanitize_text(cls, v: Optional[str]) -> Optional[str]:
         return sanitize_string(v)
 
+    @field_validator('specifications', mode='before')
+    @classmethod
+    def sanitize_specs(cls, v: Optional[dict]) -> Optional[dict]:
+        return validate_specifications(v)
+
 
 class EquipmentCreate(EquipmentBase):
     pass
@@ -79,6 +85,11 @@ class EquipmentUpdate(BaseModel):
     @classmethod
     def sanitize_text(cls, v: Optional[str]) -> Optional[str]:
         return sanitize_string(v)
+
+    @field_validator('specifications', mode='before')
+    @classmethod
+    def sanitize_specs(cls, v: Optional[dict]) -> Optional[dict]:
+        return validate_specifications(v)
 
 
 class EquipmentResponse(CamelCaseModel):

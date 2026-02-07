@@ -61,6 +61,7 @@ interface Material {
   modelNumber?: string
   quantity: number
   unit: string
+  specifications?: Record<string, string | number | boolean | null>
   status: string
   notes?: string
 }
@@ -128,7 +129,7 @@ const UNITS = ['ton', 'cum', 'sqm', 'meter', 'kg', 'unit', 'box', 'pallet', 'rol
 
 const INITIAL_FORM = {
   name: '', material_type: '', manufacturer: '', model_number: '',
-  quantity: '', unit: '', notes: '',
+  quantity: '', unit: '', notes: '', specifications: [] as { key: string; value: string }[],
 }
 
 function getItemName(item: string | { name?: string }): string {
@@ -168,6 +169,7 @@ export default function MaterialsPage() {
   const [approverSelections, setApproverSelections] = useState<ApproverSelection[]>([])
   const [assignments, setAssignments] = useState<ConsultantAssignment[]>([])
   const [uploadProgress, setUploadProgress] = useState(false)
+  const [editingItem, setEditingItem] = useState<Material | null>(null)
 
   const loadData = useCallback(async () => {
     try {
@@ -181,7 +183,7 @@ export default function MaterialsPage() {
       if (tplRes.status === 'fulfilled') setTemplates(tplRes.value.data || [])
       if (assignRes.status === 'fulfilled') setAssignments(assignRes.value.data || [])
     } catch {
-      setError('Failed to load materials')
+      setError(t('materials.failedToLoadMaterials'))
     } finally {
       setLoading(false)
     }
@@ -242,18 +244,23 @@ export default function MaterialsPage() {
   }
 
   const handleCreate = async () => {
-    if (!form.name || !form.materialType) return
+    if (!form.name || !form.material_type) return
     try {
       setSubmitting(true)
       setSubmitError('')
+      const specsObj: Record<string, string> = {}
+      for (const row of form.specifications) {
+        if (row.key.trim()) specsObj[row.key.trim()] = row.value
+      }
       const res = await apiClient.post(`/projects/${projectId}/materials`, {
         name: form.name,
-        material_type: form.materialType,
+        material_type: form.material_type,
         manufacturer: form.manufacturer || undefined,
         model_number: form.model_number || undefined,
         quantity: form.quantity ? Number(form.quantity) : undefined,
         unit: form.unit || undefined,
         notes: form.notes || undefined,
+        specifications: Object.keys(specsObj).length > 0 ? specsObj : undefined,
       })
       const createdId = res.data?.id
       if (createdId) {
@@ -275,11 +282,73 @@ export default function MaterialsPage() {
       setApproverSelections([])
       await loadData()
     } catch {
-      setSubmitError('Failed to create material')
+      setSubmitError(t('materials.failedToCreateMaterial'))
     } finally {
       setSubmitting(false)
       setUploadProgress(false)
     }
+  }
+
+  const handleEdit = (item: Material) => {
+    setEditingItem(item)
+    const specs = item.specifications
+      ? Object.entries(item.specifications).map(([key, value]) => ({ key, value: String(value ?? '') }))
+      : []
+    setForm({
+      name: item.name,
+      material_type: item.materialType || '',
+      manufacturer: item.manufacturer || '',
+      model_number: item.modelNumber || '',
+      quantity: item.quantity ? String(item.quantity) : '',
+      unit: item.unit || '',
+      notes: item.notes || '',
+      specifications: specs,
+    })
+    setSelectedTemplate(null)
+    setDialogStep('form')
+    setSubmitError('')
+    setDocUploads([])
+    setApproverSelections([])
+    setDialogOpen(true)
+  }
+
+  const handleUpdate = async () => {
+    if (!editingItem || !form.name) return
+    try {
+      setSubmitting(true)
+      setSubmitError('')
+      const specsObj: Record<string, string> = {}
+      for (const row of form.specifications) {
+        if (row.key.trim()) specsObj[row.key.trim()] = row.value
+      }
+      await apiClient.put(`/projects/${projectId}/materials/${editingItem.id}`, {
+        name: form.name,
+        material_type: form.material_type || undefined,
+        manufacturer: form.manufacturer || undefined,
+        model_number: form.model_number || undefined,
+        quantity: form.quantity ? Number(form.quantity) : undefined,
+        unit: form.unit || undefined,
+        notes: form.notes || undefined,
+        specifications: Object.keys(specsObj).length > 0 ? specsObj : undefined,
+      })
+      setDialogOpen(false)
+      setEditingItem(null)
+      setForm(INITIAL_FORM)
+      await loadData()
+    } catch {
+      setSubmitError(t('materials.failedToUpdateMaterial'))
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const handleCloseDialog = () => {
+    setDialogOpen(false)
+    setEditingItem(null)
+    setForm(INITIAL_FORM)
+    setSelectedTemplate(null)
+    setDocUploads([])
+    setApproverSelections([])
   }
 
   const filtered = useMemo(() => {
@@ -401,7 +470,7 @@ export default function MaterialsPage() {
                 </TableRow>
               ) : (
                 filtered.map((mat) => (
-                  <TableRow key={mat.id} hover>
+                  <TableRow key={mat.id} hover onClick={() => handleEdit(mat)} sx={{ cursor: 'pointer' }}>
                     <TableCell><Typography variant="body2" fontWeight={500}>{mat.name}</Typography></TableCell>
                     <TableCell>
                       <Chip
@@ -440,7 +509,7 @@ export default function MaterialsPage() {
             </Box>
           ) : (
             filtered.map((mat) => (
-              <Card key={mat.id} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', transition: 'all 200ms', '&:hover': { boxShadow: 3, borderColor: 'primary.main' } }}>
+              <Card key={mat.id} onClick={() => handleEdit(mat)} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', cursor: 'pointer', transition: 'all 200ms', '&:hover': { boxShadow: 3, borderColor: 'primary.main' } }}>
                 <CardContent sx={{ p: 2.5, '&:last-child': { pb: 2.5 } }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
                     <Typography variant="body1" fontWeight={700} noWrap sx={{ flex: 1, mr: 1 }}>{mat.name}</Typography>
@@ -477,8 +546,8 @@ export default function MaterialsPage() {
         </Box>
       )}
 
-      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="md" fullWidth>
-        {dialogStep === 'select' ? (
+      <Dialog open={dialogOpen} onClose={handleCloseDialog} maxWidth="md" fullWidth>
+        {dialogStep === 'select' && !editingItem ? (
           <>
             <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 1 }}>
               <Typography variant="h6" fontWeight={700}>Select Material Template</Typography>
@@ -486,7 +555,7 @@ export default function MaterialsPage() {
                 <Button size="small" onClick={() => { setSelectedTemplate(null); setDialogStep('form') }}>
                   Skip Template
                 </Button>
-                <IconButton size="small" onClick={() => setDialogOpen(false)}>
+                <IconButton size="small" onClick={handleCloseDialog}>
                   <CloseIcon fontSize="small" />
                 </IconButton>
               </Box>
@@ -622,20 +691,20 @@ export default function MaterialsPage() {
         ) : (
           <>
             <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1, pb: 1 }}>
-              {templates.length > 0 && (
+              {!editingItem && templates.length > 0 && (
                 <IconButton size="small" onClick={() => setDialogStep('select')} sx={{ mr: 0.5 }}>
                   <ArrowBackIcon fontSize="small" />
                 </IconButton>
               )}
               <Box sx={{ flex: 1 }}>
                 <Typography variant="h6" fontWeight={700}>
-                  {selectedTemplate ? selectedTemplate.name : t('materials.addMaterial')}
+                  {editingItem ? 'Edit Material' : selectedTemplate ? selectedTemplate.name : t('materials.addMaterial')}
                 </Typography>
-                {selectedTemplate?.name_he && (
+                {!editingItem && selectedTemplate?.name_he && (
                   <Typography variant="caption" color="text.secondary">{selectedTemplate.name_he}</Typography>
                 )}
               </Box>
-              <IconButton size="small" onClick={() => setDialogOpen(false)}>
+              <IconButton size="small" onClick={handleCloseDialog}>
                 <CloseIcon fontSize="small" />
               </IconButton>
             </DialogTitle>
@@ -643,7 +712,7 @@ export default function MaterialsPage() {
               {submitError && <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>{submitError}</Alert>}
               {uploadProgress && <LinearProgress sx={{ mb: 2, borderRadius: 1 }} />}
 
-              {selectedTemplate && (
+              {!editingItem && selectedTemplate && (
                 <TemplateDetailsPanel
                   template={selectedTemplate}
                   docUploads={docUploads}
@@ -660,12 +729,12 @@ export default function MaterialsPage() {
                 <TextField label="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required fullWidth size="small" />
                 <TextField
                   label="Material Type"
-                  value={form.materialType}
+                  value={form.material_type}
                   onChange={(e) => setForm({ ...form, material_type: e.target.value })}
                   required
                   fullWidth
                   size="small"
-                  helperText={!selectedTemplate ? "Enter any custom type" : undefined}
+                  helperText={!selectedTemplate && !editingItem ? "Enter any custom type" : undefined}
                 />
                 <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
                   <TextField label="Manufacturer" value={form.manufacturer} onChange={(e) => setForm({ ...form, manufacturer: e.target.value })} fullWidth size="small" />
@@ -682,12 +751,75 @@ export default function MaterialsPage() {
                 </Box>
                 <TextField label="Notes" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} multiline rows={2} fullWidth size="small" />
               </Box>
+
+              <Divider sx={{ my: 2 }} />
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
+                <Typography variant="subtitle2" fontWeight={700}>Custom Specifications</Typography>
+                <Button
+                  size="small"
+                  startIcon={<AddIcon />}
+                  onClick={() => setForm({ ...form, specifications: [...form.specifications, { key: '', value: '' }] })}
+                  sx={{ textTransform: 'none', fontSize: '0.8rem' }}
+                >
+                  Add Field
+                </Button>
+              </Box>
+              {form.specifications.length === 0 ? (
+                <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
+                  No custom specifications. Click "Add Field" to add key-value pairs.
+                </Typography>
+              ) : (
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                  {form.specifications.map((spec, i) => (
+                    <Box key={i} sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                      <TextField
+                        label="Key"
+                        value={spec.key}
+                        onChange={(e) => {
+                          const updated = [...form.specifications]
+                          updated[i] = { ...updated[i], key: e.target.value }
+                          setForm({ ...form, specifications: updated })
+                        }}
+                        size="small"
+                        sx={{ flex: 1 }}
+                      />
+                      <TextField
+                        label="Value"
+                        value={spec.value}
+                        onChange={(e) => {
+                          const updated = [...form.specifications]
+                          updated[i] = { ...updated[i], value: e.target.value }
+                          setForm({ ...form, specifications: updated })
+                        }}
+                        size="small"
+                        sx={{ flex: 1 }}
+                      />
+                      <IconButton
+                        size="small"
+                        onClick={() => {
+                          const updated = form.specifications.filter((_, idx) => idx !== i)
+                          setForm({ ...form, specifications: updated })
+                        }}
+                        color="error"
+                      >
+                        <DeleteOutlineIcon fontSize="small" />
+                      </IconButton>
+                    </Box>
+                  ))}
+                </Box>
+              )}
             </DialogContent>
             <DialogActions sx={{ px: 3, pb: 2 }}>
-              <Button onClick={() => setDialogOpen(false)}>{t('common.cancel')}</Button>
-              <Button variant="contained" onClick={handleCreate} disabled={submitting || !form.name || !form.materialType}>
-                {submitting ? (uploadProgress ? 'Uploading...' : t('common.creating')) : t('common.create')}
-              </Button>
+              <Button onClick={handleCloseDialog}>{t('common.cancel')}</Button>
+              {editingItem ? (
+                <Button variant="contained" onClick={handleUpdate} disabled={submitting || !form.name}>
+                  {submitting ? 'Saving...' : 'Save'}
+                </Button>
+              ) : (
+                <Button variant="contained" onClick={handleCreate} disabled={submitting || !form.name || !form.material_type}>
+                  {submitting ? (uploadProgress ? 'Uploading...' : t('common.creating')) : t('common.create')}
+                </Button>
+              )}
             </DialogActions>
           </>
         )}

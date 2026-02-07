@@ -72,10 +72,10 @@ export default function TeamWorkloadPage() {
       <Box sx={{ p: 3, width: '100%' }}>
         <Box sx={{ mb: 4 }}>
           <Typography variant="h4" fontWeight={700} color="text.primary" sx={{ mb: 0.5 }}>
-            {t('teamWorkload.title', { defaultValue: 'Team Workload' })}
+            {t('teamWorkload.title')}
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            {t('teamWorkload.subtitle', { defaultValue: 'Monitor team assignments and capacity' })}
+            {t('teamWorkload.subtitle')}
           </Typography>
         </Box>
         <Card sx={{ borderRadius: 3 }}>
@@ -84,10 +84,10 @@ export default function TeamWorkloadPage() {
               <ConstructionIcon sx={{ fontSize: 40, color: 'primary.main' }} />
             </Box>
             <Typography variant="h5" fontWeight={700} sx={{ mb: 1 }}>
-              {t('teamWorkload.comingSoon', { defaultValue: 'Coming Soon' })}
+              {t('teamWorkload.comingSoon')}
             </Typography>
             <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 400, mx: 'auto' }}>
-              {t('teamWorkload.comingSoonDescription', { defaultValue: 'Team workload tracking is currently under development. Check back soon for real-time team capacity monitoring.' })}
+              {t('teamWorkload.comingSoonDescription')}
             </Typography>
           </CardContent>
         </Card>
@@ -100,13 +100,13 @@ export default function TeamWorkloadPage() {
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 4 }}>
         <Box>
           <Typography variant="h4" fontWeight={700} color="text.primary" sx={{ mb: 0.5 }}>
-            {t('teamWorkload.title', { defaultValue: 'Team Workload' })}
+            {t('teamWorkload.title')}
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            {t('teamWorkload.subtitle', { defaultValue: 'Monitor team assignments and capacity' })}
+            {t('teamWorkload.subtitle')}
           </Typography>
         </Box>
-        <Chip icon={<GroupIcon />} label={`${members.length} ${t('teamWorkload.members', { defaultValue: 'Members' })}`} color="primary" />
+        <Chip icon={<GroupIcon />} label={`${members.length} ${t('teamWorkload.members')}`} color="primary" />
       </Box>
 
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 3 }}>
@@ -127,22 +127,22 @@ export default function TeamWorkloadPage() {
                       {name}
                     </Typography>
                     <Typography variant="caption" color="text.secondary" noWrap>
-                      {member.role || member.user?.role || t('teamWorkload.teamMember', { defaultValue: 'Team Member' })}
+                      {member.role || member.user?.role || t('teamWorkload.teamMember')}
                     </Typography>
                   </Box>
                 </Box>
                 <Box sx={{ mb: 1.5 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
                     <Typography variant="caption" color="text.secondary">
-                      {t('teamWorkload.progress', { defaultValue: 'Progress' })}
+                      {t('teamWorkload.progress')}
                     </Typography>
                     <Typography variant="caption" fontWeight={600}>{progress}%</Typography>
                   </Box>
                   <LinearProgress variant="determinate" value={progress} sx={{ height: 6, borderRadius: 3 }} />
                 </Box>
                 <Box sx={{ display: 'flex', gap: 1 }}>
-                  <Chip label={`${member.activeTasks || 0} ${t('teamWorkload.active', { defaultValue: 'Active' })}`} size="small" color="warning" variant="outlined" />
-                  <Chip label={`${member.completedTasks || 0} ${t('teamWorkload.done', { defaultValue: 'Done' })}`} size="small" color="success" variant="outlined" />
+                  <Chip label={`${member.activeTasks || 0} ${t('teamWorkload.active')}`} size="small" color="warning" variant="outlined" />
+                  <Chip label={`${member.completedTasks || 0} ${t('teamWorkload.done')}`} size="small" color="success" variant="outlined" />
                 </Box>
               </CardContent>
             </Card>

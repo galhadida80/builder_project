@@ -60,10 +60,10 @@ export default function SettingsPage() {
     <Box sx={{ p: 3, width: '100%', maxWidth: 800 }}>
       <Box sx={{ mb: 4 }}>
         <Typography variant="h4" fontWeight={700} color="text.primary" sx={{ mb: 0.5 }}>
-          {t('settings.title', { defaultValue: 'Settings' })}
+          {t('settings.title')}
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          {t('settings.subtitle', { defaultValue: 'Manage your account and preferences' })}
+          {t('settings.subtitle')}
         </Typography>
       </Box>
 
@@ -72,7 +72,7 @@ export default function SettingsPage() {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2.5 }}>
             <PersonIcon color="primary" />
             <Typography variant="h6" fontWeight={600}>
-              {t('settings.profile', { defaultValue: 'Profile' })}
+              {t('settings.profile')}
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
@@ -81,7 +81,7 @@ export default function SettingsPage() {
             </Avatar>
             <Box sx={{ flex: 1 }}>
               <Typography variant="h6" fontWeight={600}>
-                {user?.fullName || t('settings.noName', { defaultValue: 'No name set' })}
+                {user?.fullName || t('settings.noName')}
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
                 {user?.email || ''}
@@ -97,7 +97,7 @@ export default function SettingsPage() {
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
             <Box>
               <Typography variant="caption" color="text.secondary">
-                {t('settings.fullName', { defaultValue: 'Full Name' })}
+                {t('settings.fullName')}
               </Typography>
               <Typography variant="body1" fontWeight={500}>
                 {user?.fullName || '-'}
@@ -105,7 +105,7 @@ export default function SettingsPage() {
             </Box>
             <Box>
               <Typography variant="caption" color="text.secondary">
-                {t('settings.email', { defaultValue: 'Email' })}
+                {t('settings.email')}
               </Typography>
               <Typography variant="body1" fontWeight={500}>
                 {user?.email || '-'}
@@ -113,7 +113,7 @@ export default function SettingsPage() {
             </Box>
             <Box>
               <Typography variant="caption" color="text.secondary">
-                {t('settings.role', { defaultValue: 'Role' })}
+                {t('settings.role')}
               </Typography>
               <Typography variant="body1" fontWeight={500} sx={{ textTransform: 'capitalize' }}>
                 {user?.role || '-'}
@@ -121,7 +121,7 @@ export default function SettingsPage() {
             </Box>
             <Box>
               <Typography variant="caption" color="text.secondary">
-                {t('settings.userId', { defaultValue: 'User ID' })}
+                {t('settings.userId')}
               </Typography>
               <Typography variant="body2" fontWeight={500} sx={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>
                 {user?.id || '-'}
@@ -136,7 +136,7 @@ export default function SettingsPage() {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2.5 }}>
             <PaletteIcon color="primary" />
             <Typography variant="h6" fontWeight={600}>
-              {t('settings.preferences', { defaultValue: 'Preferences' })}
+              {t('settings.preferences')}
             </Typography>
           </Box>
 
@@ -147,18 +147,18 @@ export default function SettingsPage() {
               </Box>
               <Box>
                 <Typography variant="subtitle2" fontWeight={600}>
-                  {t('settings.language', { defaultValue: 'Language' })}
+                  {t('settings.language')}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  {t('settings.languageDescription', { defaultValue: 'Select your preferred language' })}
+                  {t('settings.languageDescription')}
                 </Typography>
               </Box>
             </Box>
             <FormControl size="small" sx={{ minWidth: 140 }}>
-              <InputLabel>{t('settings.language', { defaultValue: 'Language' })}</InputLabel>
-              <Select value={language} label={t('settings.language', { defaultValue: 'Language' })} onChange={(e) => handleLanguageChange(e.target.value)}>
-                <MenuItem value="en">English</MenuItem>
-                <MenuItem value="he">Hebrew</MenuItem>
+              <InputLabel>{t('settings.language')}</InputLabel>
+              <Select value={language} label={t('settings.language')} onChange={(e) => handleLanguageChange(e.target.value)}>
+                <MenuItem value="en">{t('language.english')}</MenuItem>
+                <MenuItem value="he">{t('language.hebrew')}</MenuItem>
               </Select>
             </FormControl>
           </Box>
@@ -172,12 +172,12 @@ export default function SettingsPage() {
               </Box>
               <Box>
                 <Typography variant="subtitle2" fontWeight={600}>
-                  {t('settings.theme', { defaultValue: 'Theme' })}
+                  {t('settings.theme')}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
                   {darkMode
-                    ? t('settings.darkMode', { defaultValue: 'Dark mode is enabled' })
-                    : t('settings.lightMode', { defaultValue: 'Light mode is enabled' })}
+                    ? t('settings.darkMode')
+                    : t('settings.lightMode')}
                 </Typography>
               </Box>
             </Box>
@@ -191,14 +191,14 @@ export default function SettingsPage() {
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Box>
               <Typography variant="subtitle1" fontWeight={600} color="error.main">
-                {t('settings.signOut', { defaultValue: 'Sign Out' })}
+                {t('settings.signOut')}
               </Typography>
               <Typography variant="caption" color="text.secondary">
-                {t('settings.signOutDescription', { defaultValue: 'Sign out of your account on this device' })}
+                {t('settings.signOutDescription')}
               </Typography>
             </Box>
             <Button variant="outlined" color="error" startIcon={<LogoutIcon />} onClick={logout}>
-              {t('settings.signOut', { defaultValue: 'Sign Out' })}
+              {t('settings.signOut')}
             </Button>
           </Box>
         </CardContent>
