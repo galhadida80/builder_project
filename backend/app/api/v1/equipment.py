@@ -1,5 +1,6 @@
+from typing import Optional
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
@@ -17,12 +18,16 @@ router = APIRouter()
 
 
 @router.get("/equipment", response_model=list[EquipmentResponse])
-async def list_all_equipment(db: AsyncSession = Depends(get_db)):
-    result = await db.execute(
-        select(Equipment)
-        .options(selectinload(Equipment.created_by), selectinload(Equipment.checklists))
-        .order_by(Equipment.created_at.desc())
+async def list_all_equipment(
+    project_id: Optional[UUID] = Query(None),
+    db: AsyncSession = Depends(get_db),
+):
+    query = select(Equipment).options(
+        selectinload(Equipment.created_by), selectinload(Equipment.checklists)
     )
+    if project_id:
+        query = query.where(Equipment.project_id == project_id)
+    result = await db.execute(query.order_by(Equipment.created_at.desc()))
     return result.scalars().all()
 
 

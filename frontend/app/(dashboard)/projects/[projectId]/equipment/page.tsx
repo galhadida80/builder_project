@@ -59,6 +59,7 @@ interface Equipment {
   manufacturer: string
   modelNumber: string
   serialNumber?: string
+  specifications?: Record<string, string | number | boolean | null>
   status: string
   notes?: string
 }
@@ -117,7 +118,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   other: '#64748b',
 }
 
-const INITIAL_FORM = { name: '', equipment_type: '', manufacturer: '', model_number: '', serial_number: '', notes: '' }
+const INITIAL_FORM = { name: '', equipment_type: '', manufacturer: '', model_number: '', serial_number: '', notes: '', specifications: [] as { key: string; value: string }[] }
 
 function getItemName(item: string | { name?: string }): string {
   return typeof item === 'string' ? item : item.name || ''
@@ -156,6 +157,7 @@ export default function EquipmentPage() {
   const [approverSelections, setApproverSelections] = useState<ApproverSelection[]>([])
   const [assignments, setAssignments] = useState<ConsultantAssignment[]>([])
   const [uploadProgress, setUploadProgress] = useState(false)
+  const [editingItem, setEditingItem] = useState<Equipment | null>(null)
 
   const loadData = useCallback(async () => {
     try {
@@ -169,7 +171,7 @@ export default function EquipmentPage() {
       if (tplRes.status === 'fulfilled') setTemplates(tplRes.value.data || [])
       if (assignRes.status === 'fulfilled') setAssignments(assignRes.value.data || [])
     } catch {
-      setError('Failed to load equipment')
+      setError(t('equipment.failedToLoadEquipment'))
     } finally {
       setLoading(false)
     }
@@ -235,6 +237,10 @@ export default function EquipmentPage() {
     try {
       setSubmitting(true)
       setSubmitError('')
+      const specsObj: Record<string, string> = {}
+      for (const row of form.specifications) {
+        if (row.key.trim()) specsObj[row.key.trim()] = row.value
+      }
       const res = await apiClient.post(`/projects/${projectId}/equipment`, {
         name: form.name,
         equipment_type: form.equipment_type || undefined,
@@ -242,6 +248,7 @@ export default function EquipmentPage() {
         model_number: form.model_number || undefined,
         serial_number: form.serial_number || undefined,
         notes: form.notes || undefined,
+        specifications: Object.keys(specsObj).length > 0 ? specsObj : undefined,
       })
       const createdId = res.data?.id
       if (createdId) {
@@ -263,11 +270,71 @@ export default function EquipmentPage() {
       setApproverSelections([])
       await loadData()
     } catch {
-      setSubmitError('Failed to create equipment')
+      setSubmitError(t('equipment.failedToCreateEquipment'))
     } finally {
       setSubmitting(false)
       setUploadProgress(false)
     }
+  }
+
+  const handleEdit = (item: Equipment) => {
+    setEditingItem(item)
+    const specs = item.specifications
+      ? Object.entries(item.specifications).map(([key, value]) => ({ key, value: String(value ?? '') }))
+      : []
+    setForm({
+      name: item.name,
+      equipment_type: item.equipmentType || '',
+      manufacturer: item.manufacturer || '',
+      model_number: item.modelNumber || '',
+      serial_number: item.serialNumber || '',
+      notes: item.notes || '',
+      specifications: specs,
+    })
+    setSelectedTemplate(null)
+    setDialogStep('form')
+    setSubmitError('')
+    setDocUploads([])
+    setApproverSelections([])
+    setDialogOpen(true)
+  }
+
+  const handleUpdate = async () => {
+    if (!editingItem || !form.name) return
+    try {
+      setSubmitting(true)
+      setSubmitError('')
+      const specsObj: Record<string, string> = {}
+      for (const row of form.specifications) {
+        if (row.key.trim()) specsObj[row.key.trim()] = row.value
+      }
+      await apiClient.put(`/projects/${projectId}/equipment/${editingItem.id}`, {
+        name: form.name,
+        equipment_type: form.equipment_type || undefined,
+        manufacturer: form.manufacturer || undefined,
+        model_number: form.model_number || undefined,
+        serial_number: form.serial_number || undefined,
+        notes: form.notes || undefined,
+        specifications: Object.keys(specsObj).length > 0 ? specsObj : undefined,
+      })
+      setDialogOpen(false)
+      setEditingItem(null)
+      setForm(INITIAL_FORM)
+      await loadData()
+    } catch {
+      setSubmitError(t('equipment.failedToUpdateEquipment'))
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const handleCloseDialog = () => {
+    setDialogOpen(false)
+    setEditingItem(null)
+    setForm(INITIAL_FORM)
+    setSelectedTemplate(null)
+    setDocUploads([])
+    setApproverSelections([])
   }
 
   const filtered = useMemo(() => {
@@ -312,7 +379,7 @@ export default function EquipmentPage() {
             <BuildIcon color="primary" />
             <Box>
               <Typography variant="h5" fontWeight={700}>{items.length}</Typography>
-              <Typography variant="body2" color="text.secondary">Total Equipment</Typography>
+              <Typography variant="body2" color="text.secondary">{t('equipment.totalEquipment')}</Typography>
             </Box>
           </CardContent>
         </Card>
@@ -321,7 +388,7 @@ export default function EquipmentPage() {
             <CheckCircleIcon color="success" />
             <Box>
               <Typography variant="h5" fontWeight={700}>{approved}</Typography>
-              <Typography variant="body2" color="text.secondary">Approved</Typography>
+              <Typography variant="body2" color="text.secondary">{t('equipment.approved')}</Typography>
             </Box>
           </CardContent>
         </Card>
@@ -330,7 +397,7 @@ export default function EquipmentPage() {
             <HourglassEmptyIcon color="warning" />
             <Box>
               <Typography variant="h5" fontWeight={700}>{pending}</Typography>
-              <Typography variant="body2" color="text.secondary">Pending Review</Typography>
+              <Typography variant="body2" color="text.secondary">{t('equipment.pendingReview')}</Typography>
             </Box>
           </CardContent>
         </Card>
@@ -346,7 +413,7 @@ export default function EquipmentPage() {
         />
         <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', flex: 1 }}>
           <Chip
-            label="All"
+            label={t('common.all')}
             size="small"
             onClick={() => setFilterType(null)}
             variant={filterType === null ? 'filled' : 'outlined'}
@@ -387,23 +454,23 @@ export default function EquipmentPage() {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Name</TableCell>
-                <TableCell>Type</TableCell>
-                <TableCell>Manufacturer</TableCell>
-                <TableCell>Model</TableCell>
-                <TableCell>Status</TableCell>
+                <TableCell>{t('common.name')}</TableCell>
+                <TableCell>{t('equipment.type')}</TableCell>
+                <TableCell>{t('equipment.manufacturer')}</TableCell>
+                <TableCell>{t('equipment.model')}</TableCell>
+                <TableCell>{t('common.status')}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {filtered.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} align="center" sx={{ py: 6 }}>
-                    <Typography color="text.secondary">No equipment found</Typography>
+                    <Typography color="text.secondary">{t('equipment.noEquipmentFound')}</Typography>
                   </TableCell>
                 </TableRow>
               ) : (
                 filtered.map((eq) => (
-                  <TableRow key={eq.id} hover>
+                  <TableRow key={eq.id} hover onClick={() => handleEdit(eq)} sx={{ cursor: 'pointer' }}>
                     <TableCell><Typography variant="body2" fontWeight={500}>{eq.name}</Typography></TableCell>
                     <TableCell>
                       <Chip
@@ -441,7 +508,7 @@ export default function EquipmentPage() {
             </Box>
           ) : (
             filtered.map((eq) => (
-              <Card key={eq.id} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', transition: 'all 200ms', '&:hover': { boxShadow: 3, borderColor: 'primary.main' } }}>
+              <Card key={eq.id} onClick={() => handleEdit(eq)} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', cursor: 'pointer', transition: 'all 200ms', '&:hover': { boxShadow: 3, borderColor: 'primary.main' } }}>
                 <CardContent sx={{ p: 2.5, '&:last-child': { pb: 2.5 } }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
                     <Typography variant="body1" fontWeight={700} noWrap sx={{ flex: 1, mr: 1 }}>{eq.name}</Typography>
@@ -467,7 +534,7 @@ export default function EquipmentPage() {
                     </Typography>
                   )}
                   {eq.serialNumber && (
-                    <Typography variant="caption" color="text.disabled">SN: {eq.serialNumber}</Typography>
+                    <Typography variant="caption" color="text.disabled">{t('equipment.sn')}: {eq.serialNumber}</Typography>
                   )}
                 </CardContent>
               </Card>
@@ -476,23 +543,23 @@ export default function EquipmentPage() {
         </Box>
       )}
 
-      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="md" fullWidth>
-        {dialogStep === 'select' ? (
+      <Dialog open={dialogOpen} onClose={handleCloseDialog} maxWidth="md" fullWidth>
+        {dialogStep === 'select' && !editingItem ? (
           <>
             <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 1 }}>
-              <Typography variant="h6" fontWeight={700}>Select Equipment Template</Typography>
+              <Typography variant="h6" fontWeight={700}>{t('equipment.selectTemplate')}</Typography>
               <Box sx={{ display: 'flex', gap: 1 }}>
                 <Button size="small" onClick={() => { setSelectedTemplate(null); setDialogStep('form') }}>
-                  Skip Template
+                  {t('equipment.skipTemplate')}
                 </Button>
-                <IconButton size="small" onClick={() => setDialogOpen(false)}>
+                <IconButton size="small" onClick={handleCloseDialog}>
                   <CloseIcon fontSize="small" />
                 </IconButton>
               </Box>
             </DialogTitle>
             <DialogContent sx={{ pt: '8px !important' }}>
               <TextField
-                placeholder="Search templates..."
+                placeholder={t('equipment.searchTemplates')}
                 size="small"
                 fullWidth
                 value={templateSearch}
@@ -509,7 +576,7 @@ export default function EquipmentPage() {
 
               <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2.5 }}>
                 <Chip
-                  label="All"
+                  label={t('common.all')}
                   size="small"
                   onClick={() => setActiveCategory(null)}
                   variant={activeCategory === null ? 'filled' : 'outlined'}
@@ -545,7 +612,7 @@ export default function EquipmentPage() {
               }}>
                 {filteredTemplates.length === 0 ? (
                   <Box sx={{ gridColumn: '1 / -1', textAlign: 'center', py: 6 }}>
-                    <Typography color="text.secondary">No templates match your search</Typography>
+                    <Typography color="text.secondary">{t('equipment.noTemplatesMatch')}</Typography>
                   </Box>
                 ) : (
                   filteredTemplates.map((tpl) => {
@@ -588,25 +655,25 @@ export default function EquipmentPage() {
                             {docCount > 0 && (
                               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.3 }}>
                                 <DescriptionIcon sx={{ fontSize: 14, color: 'info.main' }} />
-                                <Typography variant="caption" color="text.secondary">{docCount} docs</Typography>
+                                <Typography variant="caption" color="text.secondary">{docCount} {t('equipment.documents')}</Typography>
                               </Box>
                             )}
                             {specCount > 0 && (
                               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.3 }}>
                                 <TuneIcon sx={{ fontSize: 14, color: 'warning.main' }} />
-                                <Typography variant="caption" color="text.secondary">{specCount} specs</Typography>
+                                <Typography variant="caption" color="text.secondary">{specCount} {t('equipment.specifications')}</Typography>
                               </Box>
                             )}
                             {checkCount > 0 && (
                               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.3 }}>
                                 <FactCheckIcon sx={{ fontSize: 14, color: 'success.main' }} />
-                                <Typography variant="caption" color="text.secondary">{checkCount} checks</Typography>
+                                <Typography variant="caption" color="text.secondary">{checkCount} {t('equipment.checklist')}</Typography>
                               </Box>
                             )}
                             {consultantCount > 0 && (
                               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.3 }}>
                                 <PersonIcon sx={{ fontSize: 14, color: 'secondary.main' }} />
-                                <Typography variant="caption" color="text.secondary">{consultantCount} approvers</Typography>
+                                <Typography variant="caption" color="text.secondary">{consultantCount} {t('equipment.approvingConsultants')}</Typography>
                               </Box>
                             )}
                           </Box>
@@ -621,20 +688,20 @@ export default function EquipmentPage() {
         ) : (
           <>
             <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1, pb: 1 }}>
-              {templates.length > 0 && (
+              {!editingItem && templates.length > 0 && (
                 <IconButton size="small" onClick={() => setDialogStep('select')} sx={{ mr: 0.5 }}>
                   <ArrowBackIcon fontSize="small" />
                 </IconButton>
               )}
               <Box sx={{ flex: 1 }}>
                 <Typography variant="h6" fontWeight={700}>
-                  {selectedTemplate ? selectedTemplate.name : t('equipment.addEquipment')}
+                  {editingItem ? t('equipment.editEquipment') : selectedTemplate ? selectedTemplate.name : t('equipment.addEquipment')}
                 </Typography>
-                {selectedTemplate?.name_he && (
+                {!editingItem && selectedTemplate?.name_he && (
                   <Typography variant="caption" color="text.secondary">{selectedTemplate.name_he}</Typography>
                 )}
               </Box>
-              <IconButton size="small" onClick={() => setDialogOpen(false)}>
+              <IconButton size="small" onClick={handleCloseDialog}>
                 <CloseIcon fontSize="small" />
               </IconButton>
             </DialogTitle>
@@ -642,7 +709,7 @@ export default function EquipmentPage() {
               {submitError && <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>{submitError}</Alert>}
               {uploadProgress && <LinearProgress sx={{ mb: 2, borderRadius: 1 }} />}
 
-              {selectedTemplate && (
+              {!editingItem && selectedTemplate && (
                 <TemplateDetailsPanel
                   template={selectedTemplate}
                   docUploads={docUploads}
@@ -654,7 +721,7 @@ export default function EquipmentPage() {
               )}
 
               <Divider sx={{ my: 2 }} />
-              <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1.5 }}>Equipment Details</Typography>
+              <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1.5 }}>{t('equipment.details')}</Typography>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 <TextField label="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required fullWidth size="small" />
                 <TextField
@@ -672,12 +739,75 @@ export default function EquipmentPage() {
                 <TextField label="Serial Number" value={form.serial_number} onChange={(e) => setForm({ ...form, serial_number: e.target.value })} fullWidth size="small" />
                 <TextField label="Notes" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} multiline rows={2} fullWidth size="small" />
               </Box>
+
+              <Divider sx={{ my: 2 }} />
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
+                <Typography variant="subtitle2" fontWeight={700}>Custom Specifications</Typography>
+                <Button
+                  size="small"
+                  startIcon={<AddIcon />}
+                  onClick={() => setForm({ ...form, specifications: [...form.specifications, { key: '', value: '' }] })}
+                  sx={{ textTransform: 'none', fontSize: '0.8rem' }}
+                >
+                  Add Field
+                </Button>
+              </Box>
+              {form.specifications.length === 0 ? (
+                <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
+                  No custom specifications. Click "Add Field" to add key-value pairs.
+                </Typography>
+              ) : (
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                  {form.specifications.map((spec, i) => (
+                    <Box key={i} sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                      <TextField
+                        label="Key"
+                        value={spec.key}
+                        onChange={(e) => {
+                          const updated = [...form.specifications]
+                          updated[i] = { ...updated[i], key: e.target.value }
+                          setForm({ ...form, specifications: updated })
+                        }}
+                        size="small"
+                        sx={{ flex: 1 }}
+                      />
+                      <TextField
+                        label="Value"
+                        value={spec.value}
+                        onChange={(e) => {
+                          const updated = [...form.specifications]
+                          updated[i] = { ...updated[i], value: e.target.value }
+                          setForm({ ...form, specifications: updated })
+                        }}
+                        size="small"
+                        sx={{ flex: 1 }}
+                      />
+                      <IconButton
+                        size="small"
+                        onClick={() => {
+                          const updated = form.specifications.filter((_, idx) => idx !== i)
+                          setForm({ ...form, specifications: updated })
+                        }}
+                        color="error"
+                      >
+                        <DeleteOutlineIcon fontSize="small" />
+                      </IconButton>
+                    </Box>
+                  ))}
+                </Box>
+              )}
             </DialogContent>
             <DialogActions sx={{ px: 3, pb: 2 }}>
-              <Button onClick={() => setDialogOpen(false)}>{t('common.cancel')}</Button>
-              <Button variant="contained" onClick={handleCreate} disabled={submitting || !form.name}>
-                {submitting ? (uploadProgress ? 'Uploading...' : t('common.creating')) : t('common.create')}
-              </Button>
+              <Button onClick={handleCloseDialog}>{t('common.cancel')}</Button>
+              {editingItem ? (
+                <Button variant="contained" onClick={handleUpdate} disabled={submitting || !form.name}>
+                  {submitting ? 'Saving...' : 'Save'}
+                </Button>
+              ) : (
+                <Button variant="contained" onClick={handleCreate} disabled={submitting || !form.name}>
+                  {submitting ? (uploadProgress ? 'Uploading...' : t('common.creating')) : t('common.create')}
+                </Button>
+              )}
             </DialogActions>
           </>
         )}
