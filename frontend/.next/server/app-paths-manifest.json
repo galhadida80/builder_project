@@ -1,8 +1,0 @@
-{
-  "/(auth)/login/page": "app/(auth)/login/page.js",
-  "/(dashboard)/projects/[projectId]/equipment/page": "app/(dashboard)/projects/[projectId]/equipment/page.js",
-  "/(dashboard)/projects/[projectId]/materials/page": "app/(dashboard)/projects/[projectId]/materials/page.js",
-  "/(dashboard)/projects/[projectId]/contacts/page": "app/(dashboard)/projects/[projectId]/contacts/page.js",
-  "/(dashboard)/projects/[projectId]/areas/page": "app/(dashboard)/projects/[projectId]/areas/page.js",
-  "/(dashboard)/projects/[projectId]/rfis/page": "app/(dashboard)/projects/[projectId]/rfis/page.js"
-}
