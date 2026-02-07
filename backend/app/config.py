@@ -28,6 +28,9 @@ class Settings(BaseSettings):
 
     api_v1_prefix: str = "/api/v1"
 
+    gemini_api_key: str = ""
+    gemini_model: str = "gemini-2.0-flash"
+
     email_provider: str = "fake"
     rfi_email_address: str = "rfis@example.com"
     sendgrid_api_key: str = ""

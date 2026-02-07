@@ -2,15 +2,30 @@ import { apiClient } from './client'
 
 export interface FileRecord {
   id: string
-  project_id: string
-  entity_type: string
-  entity_id: string
+  projectId: string
+  entityType: string
+  entityId: string
   filename: string
-  file_type: string
-  file_size: number
-  storage_path: string
-  uploaded_at: string
-  uploaded_by_id?: string
+  fileType: string
+  fileSize: number
+  storagePath: string
+  uploadedAt: string
+  uploadedById?: string
+  uploadedBy?: { id: string; email: string; fullName?: string }
+}
+
+export interface DocumentAnalysis {
+  id: string
+  fileId: string
+  projectId: string
+  analysisType: string
+  result: Record<string, unknown> | null
+  modelUsed: string
+  status: string
+  errorMessage: string | null
+  processingTimeMs: number | null
+  createdAt: string
+  updatedAt: string
 }
 
 export const filesApi = {
@@ -41,5 +56,18 @@ export const filesApi = {
   getDownloadUrl: async (projectId: string, fileId: string): Promise<string> => {
     const response = await apiClient.get(`/projects/${projectId}/files/${fileId}/download`)
     return response.data.download_url
+  },
+
+  analyze: async (projectId: string, fileId: string, analysisType: string): Promise<DocumentAnalysis> => {
+    const response = await apiClient.post(`/projects/${projectId}/files/${fileId}/analyze`, {
+      file_id: fileId,
+      analysis_type: analysisType,
+    })
+    return response.data
+  },
+
+  getAnalysis: async (projectId: string, fileId: string): Promise<DocumentAnalysis[]> => {
+    const response = await apiClient.get(`/projects/${projectId}/files/${fileId}/analysis`)
+    return response.data
   },
 }

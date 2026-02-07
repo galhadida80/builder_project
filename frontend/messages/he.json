@@ -357,7 +357,18 @@
     "addRfi": "בקשה חדשה",
     "total": "סה\"כ",
     "open": "פתוחות",
-    "answered": "נענו"
+    "answered": "נענו",
+    "backToList": "חזרה לבקשות מידע",
+    "communication": "תקשורת",
+    "addResponse": "הוסף תגובה",
+    "internalNote": "הערה פנימית",
+    "responseType": "סוג תגובה",
+    "emailSent": "אימייל נשלח",
+    "emailReceived": "אימייל התקבל",
+    "changeStatus": "שנה סטטוס",
+    "noResponses": "אין תגובות עדיין",
+    "replyPlaceholder": "כתוב את התגובה שלך...",
+    "failedToAddResponse": "שליחת התגובה נכשלה"
   },
   "settings": {
     "title": "הגדרות",
@@ -880,6 +891,18 @@
     "syncing": "מסנכרן",
     "synced": "מסונכרן",
     "error": "שגיאת סנכרון"
+  },
+  "documents": {
+    "analyze": "נתח",
+    "analysisResult": "ניתוח מסמך",
+    "extractedText": "טקסט שחולץ",
+    "keyFindings": "ממצאים עיקריים",
+    "analyzing": "מנתח מסמך...",
+    "ocr": "OCR",
+    "summary": "סיכום",
+    "extraction": "חילוץ נתונים",
+    "selectAnalysisType": "בחר סוג ניתוח",
+    "newAnalysis": "ניתוח חדש"
   },
   "filePreview": {
     "failedToLoad": "נכשל בטעינת תצוגה מקדימה",

@@ -391,7 +391,18 @@
     "addRfi": "New RFI",
     "total": "Total",
     "open": "Open",
-    "answered": "Answered"
+    "answered": "Answered",
+    "backToList": "Back to RFIs",
+    "communication": "Communication",
+    "addResponse": "Add Response",
+    "internalNote": "Internal Note",
+    "responseType": "Response Type",
+    "emailSent": "Email sent",
+    "emailReceived": "Email received",
+    "changeStatus": "Change Status",
+    "noResponses": "No responses yet",
+    "replyPlaceholder": "Type your response...",
+    "failedToAddResponse": "Failed to add response"
   },
   "settings": {
     "title": "Settings",
@@ -852,6 +863,18 @@
     "syncing": "Syncing",
     "synced": "Synced",
     "error": "Sync Error"
+  },
+  "documents": {
+    "analyze": "Analyze",
+    "analysisResult": "Document Analysis",
+    "extractedText": "Extracted Text",
+    "keyFindings": "Key Findings",
+    "analyzing": "Analyzing document...",
+    "ocr": "OCR",
+    "summary": "Summary",
+    "extraction": "Extraction",
+    "selectAnalysisType": "Select analysis type",
+    "newAnalysis": "New Analysis"
   },
   "filePreview": {
     "failedToLoad": "Failed to load preview",

@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1 import projects, equipment, equipment_templates, material_templates, materials, meetings, approvals, areas, contacts, files, audit, auth, checklist_templates, analytics, rfis, webhooks, notifications, workload, consultant_types, document_reviews
+from app.api.v1 import projects, equipment, equipment_templates, material_templates, materials, meetings, approvals, areas, contacts, files, audit, auth, checklist_templates, analytics, rfis, webhooks, notifications, workload, consultant_types, document_reviews, document_analysis
 
 api_router = APIRouter()
 
@@ -23,3 +23,4 @@ api_router.include_router(notifications.router, prefix="/notifications", tags=["
 api_router.include_router(workload.router, tags=["workload"])
 api_router.include_router(consultant_types.router, tags=["consultant_types"])
 api_router.include_router(document_reviews.router, tags=["document_reviews"])
+api_router.include_router(document_analysis.router, tags=["document_analysis"])

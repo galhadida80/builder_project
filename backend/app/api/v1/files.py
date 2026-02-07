@@ -1,4 +1,5 @@
 from __future__ import annotations
+import mimetypes
 from typing import Optional
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File as FastAPIFile, Request
@@ -153,7 +154,8 @@ async def serve_local_file(path: str, storage: StorageBackend = Depends(get_stor
     # storage = get_storage_backend()  # No longer needed
     try:
         content = await storage.get_file_content(path)
-        return Response(content=content, media_type="application/octet-stream")
+        mime_type, _ = mimetypes.guess_type(path)
+        return Response(content=content, media_type=mime_type or "application/octet-stream")
     except FileNotFoundError:
         language = get_language_from_request(request)
         error_message = translate_message('resources.file_not_found', language)

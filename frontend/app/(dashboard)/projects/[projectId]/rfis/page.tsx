@@ -78,9 +78,6 @@ export default function RFIsPage() {
   const [form, setForm] = useState(INITIAL_FORM)
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState('')
-  const [selectedRfi, setSelectedRfi] = useState<RFI | null>(null)
-  const [detailDialogOpen, setDetailDialogOpen] = useState(false)
-
   const loadRFIs = useCallback(async () => {
     try {
       setLoading(true)
@@ -190,7 +187,7 @@ export default function RFIsPage() {
                 <TableRow
                   key={rfi.id}
                   hover
-                  onClick={() => { setSelectedRfi(rfi); setDetailDialogOpen(true) }}
+                  onClick={() => router.push(`/projects/${projectId}/rfis/${rfi.id}`)}
                   sx={{ cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' } }}
                 >
                   <TableCell><Typography variant="body2" color="text.secondary">{rfi.rfiNumber || '-'}</Typography></TableCell>
@@ -260,72 +257,6 @@ export default function RFIsPage() {
         </DialogActions>
       </Dialog>
 
-      <Dialog open={detailDialogOpen} onClose={() => setDetailDialogOpen(false)} maxWidth="md" fullWidth>
-        {selectedRfi && (
-          <>
-            <DialogTitle sx={{ pb: 1 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Box>
-                  <Typography variant="h6" fontWeight={700}>
-                    {selectedRfi.rfiNumber ? `RFI #${selectedRfi.rfiNumber}` : 'RFI Details'}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">{selectedRfi.subject}</Typography>
-                </Box>
-                <Box sx={{ display: 'flex', gap: 1 }}>
-                  <Chip
-                    label={selectedRfi.priority || 'medium'}
-                    size="small"
-                    color={PRIORITY_CHIP[selectedRfi.priority || ''] || 'default'}
-                    sx={{ textTransform: 'capitalize', fontWeight: 600 }}
-                  />
-                  <Chip
-                    label={(selectedRfi.status || 'draft').replace('_', ' ')}
-                    size="small"
-                    color={STATUS_CHIP[selectedRfi.status || ''] || 'default'}
-                    sx={{ textTransform: 'capitalize', fontWeight: 600 }}
-                  />
-                </Box>
-              </Box>
-            </DialogTitle>
-            <DialogContent dividers>
-              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2, mb: 3 }}>
-                <Box>
-                  <Typography variant="caption" color="text.secondary">To</Typography>
-                  <Typography variant="body2" fontWeight={500}>
-                    {selectedRfi.toName || selectedRfi.toEmail || '-'}
-                  </Typography>
-                  {selectedRfi.toName && selectedRfi.toEmail && (
-                    <Typography variant="caption" color="text.secondary">{selectedRfi.toEmail}</Typography>
-                  )}
-                </Box>
-                <Box>
-                  <Typography variant="caption" color="text.secondary">Category</Typography>
-                  <Typography variant="body2" fontWeight={500} sx={{ textTransform: 'capitalize' }}>
-                    {selectedRfi.category || '-'}
-                  </Typography>
-                </Box>
-                <Box>
-                  <Typography variant="caption" color="text.secondary">Created</Typography>
-                  <Typography variant="body2">{formatDate(selectedRfi.createdAt)}</Typography>
-                </Box>
-                <Box>
-                  <Typography variant="caption" color="text.secondary">Due Date</Typography>
-                  <Typography variant="body2">{formatDate(selectedRfi.dueDate)}</Typography>
-                </Box>
-              </Box>
-              <Box sx={{ bgcolor: 'action.hover', borderRadius: 2, p: 2 }}>
-                <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1 }}>Question</Typography>
-                <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
-                  {selectedRfi.question || 'No question provided'}
-                </Typography>
-              </Box>
-            </DialogContent>
-            <DialogActions sx={{ px: 3, py: 2 }}>
-              <Button onClick={() => setDetailDialogOpen(false)}>Close</Button>
-            </DialogActions>
-          </>
-        )}
-      </Dialog>
     </Box>
   )
 }

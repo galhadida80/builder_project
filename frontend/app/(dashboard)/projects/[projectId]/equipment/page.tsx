@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
@@ -136,6 +136,7 @@ function formatFileSize(bytes: number): string {
 
 export default function EquipmentPage() {
   const t = useTranslations()
+  const router = useRouter()
   const params = useParams()!
   const projectId = params.projectId as string
   const [items, setItems] = useState<Equipment[]>([])
@@ -474,7 +475,7 @@ export default function EquipmentPage() {
                 </TableRow>
               ) : (
                 filtered.map((eq) => (
-                  <TableRow key={eq.id} hover onClick={() => handleEdit(eq)} sx={{ cursor: 'pointer' }}>
+                  <TableRow key={eq.id} hover onClick={() => router.push(`/projects/${projectId}/equipment/${eq.id}`)} sx={{ cursor: 'pointer' }}>
                     <TableCell><Typography variant="body2" fontWeight={500}>{eq.name}</Typography></TableCell>
                     <TableCell>
                       <Chip
@@ -512,7 +513,7 @@ export default function EquipmentPage() {
             </Box>
           ) : (
             filtered.map((eq) => (
-              <Card key={eq.id} onClick={() => handleEdit(eq)} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', cursor: 'pointer', transition: 'all 200ms', '&:hover': { boxShadow: 3, borderColor: 'primary.main' } }}>
+              <Card key={eq.id} onClick={() => router.push(`/projects/${projectId}/equipment/${eq.id}`)} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', cursor: 'pointer', transition: 'all 200ms', '&:hover': { boxShadow: 3, borderColor: 'primary.main' } }}>
                 <CardContent sx={{ p: 2.5, '&:last-child': { pb: 2.5 } }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
                     <Typography variant="body1" fontWeight={700} noWrap sx={{ flex: 1, mr: 1 }}>{eq.name}</Typography>
