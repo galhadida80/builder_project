@@ -32,6 +32,7 @@
   "passwordMinLength": "Password must be at least 8 characters",
   "accountCreated": "Account created successfully! Please sign in.",
   "registrationFailed": "Registration failed. Please try again.",
+  "comingSoon": "Coming soon",
   "dashboard": {
     "title": "Dashboard",
     "subtitle": "Project Overview",
@@ -162,10 +163,19 @@
     "location": "Location",
     "attendees": "Attendees",
     "agenda": "Agenda",
+    "description": "Description",
     "notes": "Notes",
     "type": "Meeting Type",
     "status": "Status",
+    "totalMeetings": "Total Meetings",
+    "upcoming": "Upcoming",
+    "completed": "Completed",
     "noMeetingsFound": "No meetings found",
+    "noMeetingsScheduled": "No meetings scheduled",
+    "scheduleFirst": "Schedule your first meeting to get started",
+    "scheduledDateTime": "Scheduled Date & Time",
+    "scheduling": "Scheduling...",
+    "schedule": "Schedule",
     "searchPlaceholder": "Search meetings...",
     "meetingCreatedSuccessfully": "Meeting created successfully!",
     "meetingUpdatedSuccessfully": "Meeting updated successfully!",
@@ -289,7 +299,14 @@
   },
   "approvals": {
     "title": "Approvals",
-    "subtitle": "Track approval workflows for equipment and materials"
+    "subtitle": "Track approval workflows for equipment and materials",
+    "total": "Total",
+    "pending": "Pending",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "noApprovalRequests": "No approval requests",
+    "approvalsAutoCreated": "Approvals are created automatically from equipment and material submissions",
+    "stepOfCompleted": "Step {{completed}} of {{total}} completed"
   },
   "areas": {
     "title": "Areas",
@@ -301,7 +318,13 @@
     "name": "Name",
     "description": "Description",
     "floor": "Floor",
-    "areaType": "Area Type"
+    "areaType": "Area Type",
+    "floorNumber": "Floor Number",
+    "areaCode": "Area Code",
+    "totalUnits": "Total Units",
+    "progress": "Progress",
+    "noAreasYet": "No areas yet",
+    "createFirstArea": "Create your first area to start tracking construction zones"
   },
   "contacts": {
     "title": "Contacts",
@@ -309,11 +332,18 @@
     "addContact": "Add Contact",
     "search": "Search contacts...",
     "name": "Name",
+    "type": "Type",
+    "contactName": "Contact Name",
+    "contactType": "Contact Type",
     "role": "Role",
+    "roleDescription": "Role Description",
     "company": "Company",
     "email": "Email",
     "phone": "Phone",
-    "notes": "Notes"
+    "notes": "Notes",
+    "noContactsYet": "No contacts yet",
+    "noSearchResults": "No contacts match your search",
+    "emailOrPhoneRequired": "Email or phone is required"
   },
   "inspections": {
     "title": "Inspections",
@@ -321,7 +351,13 @@
     "addInspection": "Add Inspection",
     "total": "Total",
     "scheduled": "Scheduled",
-    "completed": "Completed"
+    "completed": "Completed",
+    "consultantType": "Consultant Type",
+    "status": "Status",
+    "scheduledDate": "Scheduled Date",
+    "stage": "Stage",
+    "notes": "Notes",
+    "noInspectionsYet": "No inspections yet"
   },
   "rfis": {
     "title": "RFIs",
@@ -637,6 +673,9 @@
     }
   },
   "header": {
+    "selectProject": "Select a project",
+    "language": "Language",
+    "theme": "Theme",
     "notifications": "Notifications",
     "profile": "Profile",
     "settings": "Settings",
@@ -654,17 +693,23 @@
   "sidebar": {
     "dashboard": "Dashboard",
     "projects": "Projects",
+    "teamWorkload": "Team Workload",
     "equipment": "Equipment",
     "materials": "Materials",
     "meetings": "Meetings",
     "approvals": "Approvals",
     "areas": "Areas",
     "contacts": "Contacts",
+    "inspections": "Inspections",
+    "rfis": "RFIs",
     "auditLog": "Audit Log",
     "settings": "Settings",
     "projectSection": "PROJECT",
-    "inspections": "Inspections",
-    "rfis": "RFIs"
+    "currentProject": "Current Project",
+    "appName": "BuilderOps",
+    "appSubtitle": "Construction Platform",
+    "version": "v1.0.0",
+    "selectProjectFirst": "Select a project to access these features"
   },
   "errors": {
     "notFound": "Page not found",

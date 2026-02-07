@@ -59,7 +59,7 @@ export default function AreasPage() {
       const res = await apiClient.get(`/projects/${projectId}/areas`)
       setAreas(res.data || [])
     } catch {
-      setError('Failed to load areas')
+      setError(t('errors.serverError'))
     } finally {
       setLoading(false)
     }
@@ -83,7 +83,7 @@ export default function AreasPage() {
       setForm(INITIAL_FORM)
       await loadAreas()
     } catch {
-      setSubmitError('Failed to create area')
+      setSubmitError(t('errors.serverError'))
     } finally {
       setSubmitting(false)
     }
@@ -111,11 +111,11 @@ export default function AreasPage() {
     <Box sx={{ p: 3, width: '100%' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 4 }}>
         <Box>
-          <Typography variant="h4" fontWeight={700}>{t('areas.title', { defaultValue: 'Areas' })}</Typography>
-          <Typography variant="body1" color="text.secondary">{t('areas.subtitle', { defaultValue: 'Manage construction areas' })}</Typography>
+          <Typography variant="h4" fontWeight={700}>{t('areas.title')}</Typography>
+          <Typography variant="body1" color="text.secondary">{t('areas.subtitle')}</Typography>
         </Box>
         <Button variant="contained" startIcon={<AddIcon />} onClick={() => setDialogOpen(true)}>
-          {t('areas.addArea', { defaultValue: 'Add Area' })}
+          {t('areas.addArea')}
         </Button>
       </Box>
 
@@ -123,9 +123,9 @@ export default function AreasPage() {
 
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' }, gap: 3, mb: 3 }}>
         {[
-          { label: t('areas.total', { defaultValue: 'Total Areas' }), value: totalAreas, color: 'primary.main' },
-          { label: t('areas.inProgress', { defaultValue: 'In Progress' }), value: inProgress, color: 'warning.main' },
-          { label: t('areas.completed', { defaultValue: 'Completed' }), value: completed, color: 'success.main' },
+          { label: t('areas.total'), value: totalAreas, color: 'primary.main' },
+          { label: t('areas.inProgress'), value: inProgress, color: 'warning.main' },
+          { label: t('areas.completed'), value: completed, color: 'success.main' },
         ].map((kpi) => (
           <Card key={kpi.label} sx={{ borderRadius: 3 }}>
             <CardContent sx={{ p: 2.5 }}>
@@ -136,8 +136,17 @@ export default function AreasPage() {
         ))}
       </Box>
 
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 3 }}>
-        {areas.map((area) => (
+      {areas.length === 0 ? (
+        <Card sx={{ borderRadius: 3 }}>
+          <CardContent sx={{ textAlign: 'center', py: 8 }}>
+            <AddIcon sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
+            <Typography variant="h6" fontWeight={600} sx={{ mb: 1 }}>{t('areas.noAreasYet')}</Typography>
+            <Typography variant="body2" color="text.secondary">{t('areas.createFirstArea')}</Typography>
+          </CardContent>
+        </Card>
+      ) : (
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 3 }}>
+          {areas.map((area) => (
           <Card key={area.id} sx={{ borderRadius: 3 }}>
             <CardContent sx={{ p: 2.5 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
@@ -155,7 +164,7 @@ export default function AreasPage() {
                 </Typography>
               )}
               <Box sx={{ display: 'flex', gap: 2, mb: 1.5 }}>
-                {area.floor && <Typography variant="caption" color="text.secondary">Floor: {area.floor}</Typography>}
+                {area.floor && <Typography variant="caption" color="text.secondary">{t('areas.floor')}: {area.floor}</Typography>}
                 {area.area_type && (
                   <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'capitalize' }}>
                     {area.area_type.replace('_', ' ')}
@@ -164,34 +173,35 @@ export default function AreasPage() {
               </Box>
               <Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                  <Typography variant="caption" color="text.secondary">Progress</Typography>
+                  <Typography variant="caption" color="text.secondary">{t('areas.progress')}</Typography>
                   <Typography variant="caption" fontWeight={600}>{area.progress ?? 0}%</Typography>
                 </Box>
                 <LinearProgress variant="determinate" value={area.progress ?? 0} sx={{ height: 6, borderRadius: 3 }} />
               </Box>
             </CardContent>
           </Card>
-        ))}
-      </Box>
+          ))}
+        </Box>
+      )}
 
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>{t('areas.addArea', { defaultValue: 'Add Area' })}</DialogTitle>
+        <DialogTitle>{t('areas.addArea')}</DialogTitle>
         <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '16px !important' }}>
           {submitError && <Alert severity="error" sx={{ borderRadius: 2 }}>{submitError}</Alert>}
-          <TextField label="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required fullWidth />
-          <TextField label="Area Type" value={form.area_type} onChange={(e) => setForm({ ...form, area_type: e.target.value })} select fullWidth>
+          <TextField label={t('areas.name')} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required fullWidth />
+          <TextField label={t('areas.areaType')} value={form.area_type} onChange={(e) => setForm({ ...form, area_type: e.target.value })} select fullWidth>
             {AREA_TYPES.map((type) => (
               <MenuItem key={type} value={type} sx={{ textTransform: 'capitalize' }}>{type.replace('_', ' ')}</MenuItem>
             ))}
           </TextField>
-          <TextField label="Floor Number" value={form.floor_number} onChange={(e) => setForm({ ...form, floor_number: e.target.value })} type="number" fullWidth />
-          <TextField label="Area Code" value={form.area_code} onChange={(e) => setForm({ ...form, area_code: e.target.value })} fullWidth />
-          <TextField label="Total Units" value={form.total_units} onChange={(e) => setForm({ ...form, total_units: e.target.value })} type="number" fullWidth />
+          <TextField label={t('areas.floorNumber')} value={form.floor_number} onChange={(e) => setForm({ ...form, floor_number: e.target.value })} type="number" fullWidth />
+          <TextField label={t('areas.areaCode')} value={form.area_code} onChange={(e) => setForm({ ...form, area_code: e.target.value })} fullWidth />
+          <TextField label={t('areas.totalUnits')} value={form.total_units} onChange={(e) => setForm({ ...form, total_units: e.target.value })} type="number" fullWidth />
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={() => setDialogOpen(false)}>{t('common.cancel', { defaultValue: 'Cancel' })}</Button>
+          <Button onClick={() => setDialogOpen(false)}>{t('common.cancel')}</Button>
           <Button variant="contained" onClick={handleCreate} disabled={submitting || !form.name}>
-            {submitting ? t('common.creating', { defaultValue: 'Creating...' }) : t('common.create', { defaultValue: 'Create' })}
+            {submitting ? t('common.creating') : t('common.create')}
           </Button>
         </DialogActions>
       </Dialog>

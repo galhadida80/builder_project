@@ -14,7 +14,7 @@ import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
 import ListItemAvatar from '@mui/material/ListItemAvatar'
 import Avatar from '@mui/material/Avatar'
-import IconButton from '@mui/material/IconButton'
+
 import LinearProgress from '@mui/material/LinearProgress'
 import Button from '@mui/material/Button'
 import BuildIcon from '@mui/icons-material/Build'
@@ -25,7 +25,7 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp'
 import WarningAmberIcon from '@mui/icons-material/WarningAmber'
 import AssignmentIcon from '@mui/icons-material/Assignment'
 import GroupIcon from '@mui/icons-material/Group'
-import MoreVertIcon from '@mui/icons-material/MoreVert'
+
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import { useProject } from '@/lib/contexts/ProjectContext'
 import { useAuth } from '@/lib/contexts/AuthContext'
@@ -86,18 +86,18 @@ export default function DashboardPage() {
 
   useEffect(() => {
     loadDashboardData()
-  }, [])
+  }, [selectedProjectId])
 
   const loadDashboardData = async () => {
     try {
       setLoading(true)
       const [equipmentRes, materialsRes, meetingsRes, approvalsRes, auditRes, teamRes] = await Promise.allSettled([
-        apiClient.get('/equipment'),
-        apiClient.get('/materials'),
-        apiClient.get('/meetings'),
-        apiClient.get('/approvals'),
-        apiClient.get('/audit?limit=10'),
-        apiClient.get('/workload/team'),
+        apiClient.get(selectedProjectId ? `/equipment?project_id=${selectedProjectId}` : '/equipment'),
+        apiClient.get(selectedProjectId ? `/materials?project_id=${selectedProjectId}` : '/materials'),
+        apiClient.get(selectedProjectId ? `/meetings?project_id=${selectedProjectId}` : '/meetings'),
+        apiClient.get(selectedProjectId ? `/approvals?project_id=${selectedProjectId}` : '/approvals'),
+        apiClient.get('/audit?limit=10' + (selectedProjectId ? `&project_id=${selectedProjectId}` : '')),
+        apiClient.get('/team-members'),
       ])
 
       if (equipmentRes.status === 'fulfilled') setEquipment(equipmentRes.value.data || [])
@@ -210,16 +210,12 @@ export default function DashboardPage() {
         <KPICard
           title={t('dashboard.equipmentItems')}
           value={equipment.length}
-          trend={12}
-          trendLabel={t('dashboard.vsLastMonth')}
           icon={<BuildIcon />}
           color="primary"
         />
         <KPICard
           title={t('materials.title')}
           value={materials.length}
-          trend={-3}
-          trendLabel={t('dashboard.vsLastMonth')}
           icon={<InventoryIcon />}
           color="warning"
         />
@@ -261,9 +257,6 @@ export default function DashboardPage() {
                   color="warning"
                   sx={{ fontWeight: 600 }}
                 />
-                <IconButton size="small">
-                  <MoreVertIcon fontSize="small" />
-                </IconButton>
               </Box>
             </Box>
 
@@ -310,7 +303,7 @@ export default function DashboardPage() {
                           </Box>
                         }
                       />
-                      <Button size="small" endIcon={<ArrowForwardIcon />}>
+                      <Button size="small" endIcon={<ArrowForwardIcon />} onClick={() => { if (selectedProjectId) router.push(`/projects/${selectedProjectId}/approvals`) }}>
                         {t('dashboard.review')}
                       </Button>
                     </ListItem>
@@ -389,6 +382,7 @@ export default function DashboardPage() {
                   size="small"
                   startIcon={<BuildIcon />}
                   fullWidth
+                  disabled={!selectedProjectId}
                   sx={{ justifyContent: 'flex-start', px: 2 }}
                   onClick={() => {
                     if (selectedProjectId) {
@@ -403,6 +397,7 @@ export default function DashboardPage() {
                   size="small"
                   startIcon={<InventoryIcon />}
                   fullWidth
+                  disabled={!selectedProjectId}
                   sx={{ justifyContent: 'flex-start', px: 2 }}
                   onClick={() => {
                     if (selectedProjectId) {
@@ -417,6 +412,7 @@ export default function DashboardPage() {
                   size="small"
                   startIcon={<EventIcon />}
                   fullWidth
+                  disabled={!selectedProjectId}
                   sx={{ justifyContent: 'flex-start', px: 2 }}
                   onClick={() => {
                     if (selectedProjectId) {
@@ -431,6 +427,7 @@ export default function DashboardPage() {
                   size="small"
                   startIcon={<AssignmentIcon />}
                   fullWidth
+                  disabled={!selectedProjectId}
                   sx={{ justifyContent: 'flex-start', px: 2 }}
                   onClick={() => {
                     if (selectedProjectId) {
@@ -541,9 +538,6 @@ export default function DashboardPage() {
           <CardContent sx={{ p: 2.5 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
               <Typography variant="h6" fontWeight={600}>{t('dashboard.recentActivity')}</Typography>
-              <IconButton size="small">
-                <MoreVertIcon fontSize="small" />
-              </IconButton>
             </Box>
 
             {auditLogs.length > 0 ? (
@@ -614,7 +608,7 @@ export default function DashboardPage() {
           <CardContent sx={{ p: 2.5 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
               <Typography variant="h6" fontWeight={600}>{t('dashboard.teamOverview')}</Typography>
-              <Button size="small" startIcon={<GroupIcon />}>
+              <Button size="small" startIcon={<GroupIcon />} onClick={() => router.push('/team-workload')}>
                 {t('dashboard.viewAll')}
               </Button>
             </Box>

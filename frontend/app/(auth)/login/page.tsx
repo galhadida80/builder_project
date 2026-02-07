@@ -335,9 +335,9 @@ export default function LoginPage() {
                   />
 
                   <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                    <Link href="#" underline="hover" sx={{ fontSize: '0.875rem' }}>
-                      {t('forgotPassword')}
-                    </Link>
+                    <Typography variant="body2" color="text.disabled" sx={{ fontSize: '0.875rem' }}>
+                      {t('forgotPassword')} (Coming soon)
+                    </Typography>
                   </Box>
 
                   <Button

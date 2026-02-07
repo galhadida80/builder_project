@@ -73,7 +73,7 @@ export default function ContactsPage() {
       const res = await apiClient.get(`/projects/${projectId}/contacts`)
       setContacts(res.data || [])
     } catch {
-      setError('Failed to load contacts')
+      setError(t('errors.serverError'))
     } finally {
       setLoading(false)
     }
@@ -84,7 +84,7 @@ export default function ContactsPage() {
   const handleCreate = async () => {
     if (!form.contact_name || !form.contact_type) return
     if (!form.email && !form.phone) {
-      setSubmitError('Email or phone is required')
+      setSubmitError(t('errors.requiredField'))
       return
     }
     try {
@@ -95,7 +95,7 @@ export default function ContactsPage() {
       setForm(INITIAL_FORM)
       await loadContacts()
     } catch {
-      setSubmitError('Failed to create contact')
+      setSubmitError(t('errors.serverError'))
     } finally {
       setSubmitting(false)
     }
@@ -155,7 +155,7 @@ export default function ContactsPage() {
           <TableHead>
             <TableRow>
               <TableCell>{t('contacts.name')}</TableCell>
-              <TableCell>Type</TableCell>
+              <TableCell>{t('contacts.type')}</TableCell>
               <TableCell>{t('contacts.company')}</TableCell>
               <TableCell>{t('contacts.email')}</TableCell>
               <TableCell>{t('contacts.phone')}</TableCell>
@@ -166,13 +166,13 @@ export default function ContactsPage() {
               <TableRow>
                 <TableCell colSpan={5} sx={{ textAlign: 'center', py: 6 }}>
                   <Typography variant="body2" color="text.secondary">
-                    {search ? 'No contacts match your search' : 'No contacts yet'}
+                    {search ? t('contacts.noSearchResults') : t('contacts.noContactsYet')}
                   </Typography>
                 </TableCell>
               </TableRow>
             ) : (
               filtered.map((contact) => (
-                <TableRow key={contact.id} hover sx={{ cursor: 'pointer' }}>
+                <TableRow key={contact.id} hover>
                   <TableCell>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                       <Avatar sx={{ bgcolor: getAvatarColor(contact.contactName), width: 36, height: 36, fontSize: '0.85rem' }}>
@@ -196,31 +196,31 @@ export default function ContactsPage() {
         <DialogTitle>{t('contacts.addContact')}</DialogTitle>
         <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '16px !important' }}>
           {submitError && <Alert severity="error" sx={{ borderRadius: 2 }}>{submitError}</Alert>}
-          <TextField label="Contact Name" value={form.contact_name} onChange={(e) => setForm({ ...form, contact_name: e.target.value })} required fullWidth />
-          <TextField label="Contact Type" value={form.contact_type} onChange={(e) => setForm({ ...form, contact_type: e.target.value })} select required fullWidth>
+          <TextField label={t('contacts.contactName')} value={form.contact_name} onChange={(e) => setForm({ ...form, contact_name: e.target.value })} required fullWidth />
+          <TextField label={t('contacts.contactType')} value={form.contact_type} onChange={(e) => setForm({ ...form, contact_type: e.target.value })} select required fullWidth>
             {CONTACT_TYPES.map((type) => (
               <MenuItem key={type} value={type} sx={{ textTransform: 'capitalize' }}>{type}</MenuItem>
             ))}
           </TextField>
-          <TextField label="Company" value={form.company_name} onChange={(e) => setForm({ ...form, company_name: e.target.value })} fullWidth />
+          <TextField label={t('contacts.company')} value={form.company_name} onChange={(e) => setForm({ ...form, company_name: e.target.value })} fullWidth />
           <TextField
-            label="Email"
+            label={t('contacts.email')}
             value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
             type="email"
             fullWidth
             required={!form.phone}
-            helperText={!form.email && !form.phone ? "Email or phone is required" : ""}
+            helperText={!form.email && !form.phone ? t('contacts.emailOrPhoneRequired') : ""}
             error={!form.email && !form.phone && (form.contact_name.length > 0)}
           />
           <TextField
-            label="Phone"
+            label={t('contacts.phone')}
             value={form.phone}
             onChange={(e) => setForm({ ...form, phone: e.target.value })}
             fullWidth
             required={!form.email}
           />
-          <TextField label="Role Description" value={form.role_description} onChange={(e) => setForm({ ...form, role_description: e.target.value })} multiline rows={2} fullWidth />
+          <TextField label={t('contacts.roleDescription')} value={form.role_description} onChange={(e) => setForm({ ...form, role_description: e.target.value })} multiline rows={2} fullWidth />
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
           <Button onClick={() => setDialogOpen(false)}>{t('common.cancel')}</Button>

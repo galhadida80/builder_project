@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import Box from '@mui/material/Box'
@@ -46,7 +46,7 @@ const STATUS_CHIP: Record<string, 'default' | 'warning' | 'success' | 'info'> = 
   invitations_sent: 'warning',
 }
 
-const INITIAL_FORM = { title: '', meeting_type: '', scheduled_date: '', location: '', agenda: '' }
+const INITIAL_FORM = { title: '', meeting_type: '', scheduled_date: '', location: '', description: '' }
 
 export default function MeetingsPage() {
   const t = useTranslations()
@@ -60,21 +60,21 @@ export default function MeetingsPage() {
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState('')
 
-  useEffect(() => {
-    loadData()
-  }, [projectId])
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true)
       const res = await apiClient.get(`/meetings?project_id=${projectId}`)
       setItems(res.data || [])
     } catch {
-      setError('Failed to load meetings')
+      setError(t('meetings.failedToLoadMeetings'))
     } finally {
       setLoading(false)
     }
-  }
+  }, [projectId])
+
+  useEffect(() => {
+    loadData()
+  }, [loadData])
 
   const handleCreate = async () => {
     if (!form.title || !form.meeting_type || !form.scheduled_date) return
@@ -86,13 +86,13 @@ export default function MeetingsPage() {
         meeting_type: form.meeting_type,
         scheduled_date: new Date(form.scheduled_date).toISOString(),
         location: form.location || undefined,
-        description: form.agenda || undefined,
+        description: form.description || undefined,
       })
       setDialogOpen(false)
       setForm(INITIAL_FORM)
       await loadData()
     } catch {
-      setSubmitError('Failed to create meeting')
+      setSubmitError(t('meetings.failedToCreateMeeting'))
     } finally {
       setSubmitting(false)
     }
@@ -122,13 +122,13 @@ export default function MeetingsPage() {
     <Box sx={{ p: 3, width: '100%' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
         <Box>
-          <Typography variant="h4" fontWeight={700}>{t('meetings.title', { defaultValue: 'Meetings' })}</Typography>
+          <Typography variant="h4" fontWeight={700}>{t('meetings.title')}</Typography>
           <Typography variant="body1" color="text.secondary">
-            {t('meetings.subtitle', { defaultValue: 'Schedule and manage project meetings' })}
+            {t('meetings.subtitle')}
           </Typography>
         </Box>
         <Button variant="contained" startIcon={<AddIcon />} onClick={() => setDialogOpen(true)}>
-          {t('meetings.scheduleMeeting', { defaultValue: 'Schedule Meeting' })}
+          {t('meetings.scheduleMeeting')}
         </Button>
       </Box>
 
@@ -140,7 +140,7 @@ export default function MeetingsPage() {
             <EventIcon color="primary" />
             <Box>
               <Typography variant="h5" fontWeight={700}>{items.length}</Typography>
-              <Typography variant="body2" color="text.secondary">Total Meetings</Typography>
+              <Typography variant="body2" color="text.secondary">{t('meetings.totalMeetings')}</Typography>
             </Box>
           </CardContent>
         </Card>
@@ -149,7 +149,7 @@ export default function MeetingsPage() {
             <ScheduleIcon color="info" />
             <Box>
               <Typography variant="h5" fontWeight={700}>{upcoming}</Typography>
-              <Typography variant="body2" color="text.secondary">Upcoming</Typography>
+              <Typography variant="body2" color="text.secondary">{t('meetings.upcoming')}</Typography>
             </Box>
           </CardContent>
         </Card>
@@ -158,7 +158,7 @@ export default function MeetingsPage() {
             <CheckCircleIcon color="success" />
             <Box>
               <Typography variant="h5" fontWeight={700}>{completed}</Typography>
-              <Typography variant="body2" color="text.secondary">Completed</Typography>
+              <Typography variant="body2" color="text.secondary">{t('meetings.completed')}</Typography>
             </Box>
           </CardContent>
         </Card>
@@ -168,8 +168,8 @@ export default function MeetingsPage() {
         <Card sx={{ borderRadius: 3 }}>
           <CardContent sx={{ textAlign: 'center', py: 8 }}>
             <EventIcon sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
-            <Typography variant="h6" fontWeight={600} sx={{ mb: 1 }}>No meetings scheduled</Typography>
-            <Typography variant="body2" color="text.secondary">Schedule your first meeting to get started</Typography>
+            <Typography variant="h6" fontWeight={600} sx={{ mb: 1 }}>{t('meetings.noMeetingsScheduled')}</Typography>
+            <Typography variant="body2" color="text.secondary">{t('meetings.scheduleFirst')}</Typography>
           </CardContent>
         </Card>
       ) : (
@@ -211,13 +211,13 @@ export default function MeetingsPage() {
       )}
 
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>{t('meetings.scheduleMeeting', { defaultValue: 'Schedule Meeting' })}</DialogTitle>
+        <DialogTitle>{t('meetings.scheduleMeeting')}</DialogTitle>
         <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '16px !important' }}>
           {submitError && <Alert severity="error" sx={{ borderRadius: 2 }}>{submitError}</Alert>}
-          <TextField label="Title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required fullWidth />
+          <TextField label={t('meetings.meetingTitle')} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required fullWidth />
           <FormControl fullWidth required>
-            <InputLabel>Meeting Type</InputLabel>
-            <Select value={form.meeting_type} label="Meeting Type" onChange={(e) => setForm({ ...form, meeting_type: e.target.value })}>
+            <InputLabel>{t('meetings.type')}</InputLabel>
+            <Select value={form.meeting_type} label={t('meetings.type')} onChange={(e) => setForm({ ...form, meeting_type: e.target.value })}>
               {MEETING_TYPES.map((type) => (
                 <MenuItem key={type} value={type} sx={{ textTransform: 'capitalize' }}>
                   {type.replace('_', ' ')}
@@ -226,7 +226,7 @@ export default function MeetingsPage() {
             </Select>
           </FormControl>
           <TextField
-            label="Scheduled Date & Time"
+            label={t('meetings.scheduledDateTime')}
             type="datetime-local"
             value={form.scheduled_date}
             onChange={(e) => setForm({ ...form, scheduled_date: e.target.value })}
@@ -234,13 +234,13 @@ export default function MeetingsPage() {
             required
             fullWidth
           />
-          <TextField label="Location" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} fullWidth />
-          <TextField label="Agenda" value={form.agenda} onChange={(e) => setForm({ ...form, agenda: e.target.value })} multiline rows={3} fullWidth />
+          <TextField label={t('meetings.location')} value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} fullWidth />
+          <TextField label={t('meetings.description')} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} multiline rows={3} fullWidth />
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={() => setDialogOpen(false)}>{t('common.cancel', { defaultValue: 'Cancel' })}</Button>
+          <Button onClick={() => setDialogOpen(false)}>{t('common.cancel')}</Button>
           <Button variant="contained" onClick={handleCreate} disabled={submitting || !form.title || !form.meeting_type || !form.scheduled_date}>
-            {submitting ? 'Scheduling...' : 'Schedule'}
+            {submitting ? t('meetings.scheduling') : t('meetings.schedule')}
           </Button>
         </DialogActions>
       </Dialog>

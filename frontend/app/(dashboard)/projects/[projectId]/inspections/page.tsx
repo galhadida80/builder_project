@@ -30,16 +30,16 @@ import { apiClient } from '@/lib/api/client'
 interface ConsultantType {
   id: string
   name: string
-  name_en?: string
+  nameEn?: string
 }
 
 interface Inspection {
   id: string
-  consultant_type_id?: string
-  consultant_type?: ConsultantType
+  consultantTypeId?: string
+  consultantType?: ConsultantType
   status?: string
-  scheduled_date?: string
-  current_stage?: string
+  scheduledDate?: string
+  currentStage?: string
   notes?: string
 }
 
@@ -82,7 +82,7 @@ export default function InspectionsPage() {
       if (inspRes.status === 'fulfilled') setInspections(inspRes.value.data || [])
       if (typesRes.status === 'fulfilled') setConsultantTypes(typesRes.value.data || [])
     } catch {
-      setError('Failed to load inspections')
+      setError(t('errors.serverError'))
     } finally {
       setLoading(false)
     }
@@ -104,17 +104,17 @@ export default function InspectionsPage() {
       setForm(INITIAL_FORM)
       await loadData()
     } catch {
-      setSubmitError('Failed to create inspection')
+      setSubmitError(t('errors.serverError'))
     } finally {
       setSubmitting(false)
     }
   }
 
   const getConsultantName = (inspection: Inspection) => {
-    if (inspection.consultant_type?.name_en) return inspection.consultant_type.name_en
-    if (inspection.consultant_type?.name) return inspection.consultant_type.name
-    const ct = consultantTypes.find(t => t.id === inspection.consultant_type_id)
-    return ct?.name_en || ct?.name || '-'
+    if (inspection.consultantType?.nameEn) return inspection.consultantType.nameEn
+    if (inspection.consultantType?.name) return inspection.consultantType.name
+    const ct = consultantTypes.find(t => t.id === inspection.consultantTypeId)
+    return ct?.nameEn || ct?.name || '-'
   }
 
   const total = inspections.length
@@ -166,18 +166,18 @@ export default function InspectionsPage() {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Consultant Type</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Scheduled Date</TableCell>
-              <TableCell>Stage</TableCell>
-              <TableCell>Notes</TableCell>
+              <TableCell>{t('inspections.consultantType')}</TableCell>
+              <TableCell>{t('inspections.status')}</TableCell>
+              <TableCell>{t('inspections.scheduledDate')}</TableCell>
+              <TableCell>{t('inspections.stage')}</TableCell>
+              <TableCell>{t('inspections.notes')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {inspections.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} sx={{ textAlign: 'center', py: 6 }}>
-                  <Typography variant="body2" color="text.secondary">No inspections yet</Typography>
+                  <Typography variant="body2" color="text.secondary">{t('inspections.noInspectionsYet')}</Typography>
                 </TableCell>
               </TableRow>
             ) : (
@@ -192,8 +192,8 @@ export default function InspectionsPage() {
                       sx={{ textTransform: 'capitalize', fontWeight: 600, fontSize: '0.7rem' }}
                     />
                   </TableCell>
-                  <TableCell><Typography variant="body2" color="text.secondary">{formatDate(ins.scheduled_date)}</Typography></TableCell>
-                  <TableCell><Typography variant="body2" color="text.secondary">{ins.current_stage || '-'}</Typography></TableCell>
+                  <TableCell><Typography variant="body2" color="text.secondary">{formatDate(ins.scheduledDate)}</Typography></TableCell>
+                  <TableCell><Typography variant="body2" color="text.secondary">{ins.currentStage || '-'}</Typography></TableCell>
                   <TableCell><Typography variant="body2" color="text.secondary" noWrap sx={{ maxWidth: 200 }}>{ins.notes || '-'}</Typography></TableCell>
                 </TableRow>
               ))
@@ -207,7 +207,7 @@ export default function InspectionsPage() {
         <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '16px !important' }}>
           {submitError && <Alert severity="error" sx={{ borderRadius: 2 }}>{submitError}</Alert>}
           <TextField
-            label="Consultant Type"
+            label={t('inspections.consultantType')}
             value={form.consultant_type_id}
             onChange={(e) => setForm({ ...form, consultant_type_id: e.target.value })}
             select
@@ -215,11 +215,11 @@ export default function InspectionsPage() {
             fullWidth
           >
             {consultantTypes.map((ct) => (
-              <MenuItem key={ct.id} value={ct.id}>{ct.name_en || ct.name}</MenuItem>
+              <MenuItem key={ct.id} value={ct.id}>{ct.nameEn || ct.name}</MenuItem>
             ))}
           </TextField>
           <TextField
-            label="Scheduled Date"
+            label={t('inspections.scheduledDate')}
             type="date"
             value={form.scheduled_date}
             onChange={(e) => setForm({ ...form, scheduled_date: e.target.value })}
@@ -227,7 +227,7 @@ export default function InspectionsPage() {
             required
             fullWidth
           />
-          <TextField label="Notes" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} multiline rows={3} fullWidth />
+          <TextField label={t('inspections.notes')} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} multiline rows={3} fullWidth />
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
           <Button onClick={() => setDialogOpen(false)}>{t('common.cancel')}</Button>

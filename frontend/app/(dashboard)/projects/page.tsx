@@ -70,7 +70,7 @@ export default function ProjectsPage() {
       setProjects(response.data || [])
     } catch (err) {
       console.error('Failed to load projects:', err)
-      setError('Failed to load projects')
+      setError(t('pages.projects.failedToLoad'))
     } finally {
       setLoading(false)
     }
@@ -94,7 +94,7 @@ export default function ProjectsPage() {
       await loadProjects()
     } catch (err) {
       console.error('Failed to create project:', err)
-      setSubmitError('Failed to create project. Please try again.')
+      setSubmitError(t('pages.projects.failedToCreate'))
     } finally {
       setSubmitting(false)
     }
@@ -102,7 +102,7 @@ export default function ProjectsPage() {
 
   const handleCardClick = (projectId: string) => {
     setSelectedProjectId(projectId)
-    router.push('/dashboard')
+    router.push(`/projects/${projectId}/equipment`)
   }
 
   const formatDate = (dateStr?: string) => {
@@ -133,14 +133,14 @@ export default function ProjectsPage() {
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 4 }}>
         <Box>
           <Typography variant="h4" fontWeight={700} color="text.primary" sx={{ mb: 0.5 }}>
-            {t('projects.title', { defaultValue: 'Projects' })}
+            {t('projects.title')}
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            {t('projects.subtitle', { defaultValue: 'Manage your construction projects' })}
+            {t('projects.subtitle')}
           </Typography>
         </Box>
         <Button variant="contained" startIcon={<AddIcon />} onClick={() => setDialogOpen(true)}>
-          {t('projects.create', { defaultValue: 'New Project' })}
+          {t('projects.create')}
         </Button>
       </Box>
 
@@ -151,13 +151,13 @@ export default function ProjectsPage() {
           <CardContent sx={{ textAlign: 'center', py: 8 }}>
             <FolderIcon sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
             <Typography variant="h6" fontWeight={600} sx={{ mb: 1 }}>
-              {t('projects.noProjects', { defaultValue: 'No projects yet' })}
+              {t('projects.noProjects')}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-              {t('projects.createFirst', { defaultValue: 'Create your first project to get started' })}
+              {t('projects.createFirst')}
             </Typography>
             <Button variant="contained" startIcon={<AddIcon />} onClick={() => setDialogOpen(true)}>
-              {t('projects.create', { defaultValue: 'New Project' })}
+              {t('projects.create')}
             </Button>
           </CardContent>
         </Card>
@@ -179,7 +179,7 @@ export default function ProjectsPage() {
                     />
                   </Box>
                   <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                    {t('projects.code', { defaultValue: 'Code' })}: {project.code}
+                    {t('projects.code')}: {project.code}
                   </Typography>
                   {project.description && (
                     <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
@@ -188,7 +188,7 @@ export default function ProjectsPage() {
                   )}
                   {project.startDate && (
                     <Typography variant="caption" color="text.disabled">
-                      {t('projects.started', { defaultValue: 'Started' })}: {formatDate(project.startDate)}
+                      {t('projects.started')}: {formatDate(project.startDate)}
                     </Typography>
                   )}
                 </CardContent>
@@ -199,22 +199,22 @@ export default function ProjectsPage() {
       )}
 
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>{t('projects.createProject', { defaultValue: 'Create New Project' })}</DialogTitle>
+        <DialogTitle>{t('projects.createProject')}</DialogTitle>
         <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '16px !important' }}>
           {submitError && <Alert severity="error" sx={{ borderRadius: 2 }}>{submitError}</Alert>}
-          <TextField label={t('projects.name', { defaultValue: 'Project Name' })} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required fullWidth />
-          <TextField label={t('projects.codeLabel', { defaultValue: 'Project Code' })} value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} required fullWidth />
-          <TextField label={t('projects.description', { defaultValue: 'Description' })} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} multiline rows={3} fullWidth />
-          <TextField label={t('projects.address', { defaultValue: 'Address' })} value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} fullWidth />
+          <TextField label={t('projects.name')} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required fullWidth />
+          <TextField label={t('projects.codeLabel')} value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} required fullWidth />
+          <TextField label={t('projects.description')} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} multiline rows={3} fullWidth />
+          <TextField label={t('projects.address')} value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} fullWidth />
           <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
-            <TextField label={t('projects.startDate', { defaultValue: 'Start Date' })} type="date" value={form.startDate} onChange={(e) => setForm({ ...form, startDate: e.target.value })} InputLabelProps={{ shrink: true }} fullWidth />
-            <TextField label={t('projects.endDate', { defaultValue: 'Estimated End Date' })} type="date" value={form.estimatedEndDate} onChange={(e) => setForm({ ...form, estimatedEndDate: e.target.value })} InputLabelProps={{ shrink: true }} fullWidth />
+            <TextField label={t('projects.startDate')} type="date" value={form.startDate} onChange={(e) => setForm({ ...form, startDate: e.target.value })} InputLabelProps={{ shrink: true }} fullWidth />
+            <TextField label={t('projects.endDate')} type="date" value={form.estimatedEndDate} onChange={(e) => setForm({ ...form, estimatedEndDate: e.target.value })} InputLabelProps={{ shrink: true }} fullWidth />
           </Box>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={() => setDialogOpen(false)}>{t('common.cancel', { defaultValue: 'Cancel' })}</Button>
+          <Button onClick={() => setDialogOpen(false)}>{t('common.cancel')}</Button>
           <Button variant="contained" onClick={handleCreate} disabled={submitting || !form.name || !form.code}>
-            {submitting ? t('common.creating', { defaultValue: 'Creating...' }) : t('projects.create', { defaultValue: 'Create' })}
+            {submitting ? t('common.creating') : t('projects.create')}
           </Button>
         </DialogActions>
       </Dialog>

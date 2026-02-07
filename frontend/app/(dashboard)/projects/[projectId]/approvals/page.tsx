@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import Box from '@mui/material/Box'
@@ -19,18 +19,18 @@ import { apiClient } from '@/lib/api/client'
 
 interface ApprovalStep {
   id: string
-  step_order: number
+  stepOrder: number
   status: string
-  reviewer_role?: string
+  reviewerRole?: string
 }
 
 interface Approval {
   id: string
-  entity_type: string
-  entity_id: string
-  current_status: string
+  entityType: string
+  entityId: string
+  currentStatus: string
   steps: ApprovalStep[]
-  created_at?: string
+  createdAt?: string
 }
 
 const STATUS_CHIP: Record<string, 'warning' | 'success' | 'error' | 'default'> = {
@@ -48,25 +48,25 @@ export default function ApprovalsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  useEffect(() => {
-    loadData()
-  }, [projectId])
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true)
       const res = await apiClient.get(`/approvals?project_id=${projectId}`)
       setItems(res.data || [])
     } catch {
-      setError('Failed to load approvals')
+      setError(t('pages.approvals.failedToLoad'))
     } finally {
       setLoading(false)
     }
-  }
+  }, [projectId])
 
-  const pendingCount = items.filter((a) => a.current_status === 'pending').length
-  const approvedCount = items.filter((a) => a.current_status === 'approved').length
-  const rejectedCount = items.filter((a) => a.current_status === 'rejected').length
+  useEffect(() => {
+    loadData()
+  }, [loadData])
+
+  const pendingCount = items.filter((a) => a.currentStatus === 'pending').length
+  const approvedCount = items.filter((a) => a.currentStatus === 'approved').length
+  const rejectedCount = items.filter((a) => a.currentStatus === 'rejected').length
 
   if (loading) {
     return (
@@ -83,9 +83,9 @@ export default function ApprovalsPage() {
   return (
     <Box sx={{ p: 3, width: '100%' }}>
       <Box sx={{ mb: 3 }}>
-        <Typography variant="h4" fontWeight={700}>{t('approvals.title', { defaultValue: 'Approvals' })}</Typography>
+        <Typography variant="h4" fontWeight={700}>{t('approvals.title')}</Typography>
         <Typography variant="body1" color="text.secondary">
-          {t('approvals.subtitle', { defaultValue: 'Track approval workflows for equipment and materials' })}
+          {t('approvals.subtitle')}
         </Typography>
       </Box>
 
@@ -97,7 +97,7 @@ export default function ApprovalsPage() {
             <AssignmentTurnedInIcon color="primary" />
             <Box>
               <Typography variant="h5" fontWeight={700}>{items.length}</Typography>
-              <Typography variant="body2" color="text.secondary">Total</Typography>
+              <Typography variant="body2" color="text.secondary">{t('approvals.total')}</Typography>
             </Box>
           </CardContent>
         </Card>
@@ -106,7 +106,7 @@ export default function ApprovalsPage() {
             <HourglassEmptyIcon color="warning" />
             <Box>
               <Typography variant="h5" fontWeight={700}>{pendingCount}</Typography>
-              <Typography variant="body2" color="text.secondary">Pending</Typography>
+              <Typography variant="body2" color="text.secondary">{t('approvals.pending')}</Typography>
             </Box>
           </CardContent>
         </Card>
@@ -115,7 +115,7 @@ export default function ApprovalsPage() {
             <CheckCircleIcon color="success" />
             <Box>
               <Typography variant="h5" fontWeight={700}>{approvedCount}</Typography>
-              <Typography variant="body2" color="text.secondary">Approved</Typography>
+              <Typography variant="body2" color="text.secondary">{t('approvals.approved')}</Typography>
             </Box>
           </CardContent>
         </Card>
@@ -124,7 +124,7 @@ export default function ApprovalsPage() {
             <CancelIcon color="error" />
             <Box>
               <Typography variant="h5" fontWeight={700}>{rejectedCount}</Typography>
-              <Typography variant="body2" color="text.secondary">Rejected</Typography>
+              <Typography variant="body2" color="text.secondary">{t('approvals.rejected')}</Typography>
             </Box>
           </CardContent>
         </Card>
@@ -134,9 +134,9 @@ export default function ApprovalsPage() {
         <Card sx={{ borderRadius: 3 }}>
           <CardContent sx={{ textAlign: 'center', py: 8 }}>
             <AssignmentTurnedInIcon sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
-            <Typography variant="h6" fontWeight={600} sx={{ mb: 1 }}>No approval requests</Typography>
+            <Typography variant="h6" fontWeight={600} sx={{ mb: 1 }}>{t('approvals.noApprovalRequests')}</Typography>
             <Typography variant="body2" color="text.secondary">
-              Approvals are created automatically from equipment and material submissions
+              {t('approvals.approvalsAutoCreated')}
             </Typography>
           </CardContent>
         </Card>
@@ -153,42 +153,42 @@ export default function ApprovalsPage() {
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                       <Chip
-                        label={approval.entity_type}
+                        label={approval.entityType}
                         size="small"
                         variant="outlined"
                         sx={{ textTransform: 'capitalize', fontWeight: 600 }}
                       />
                       <Typography variant="body2" color="text.secondary">
-                        ID: {approval.entity_id?.slice(0, 8)}...
+                        ID: {approval.entityId?.slice(0, 8)}...
                       </Typography>
                     </Box>
                     <Chip
-                      label={approval.current_status}
+                      label={approval.currentStatus}
                       size="small"
-                      color={STATUS_CHIP[approval.current_status] || 'default'}
+                      color={STATUS_CHIP[approval.currentStatus] || 'default'}
                       sx={{ textTransform: 'capitalize', fontWeight: 600 }}
                     />
                   </Box>
                   <Box sx={{ mb: 0.5 }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
                       <Typography variant="caption" color="text.secondary">
-                        Step {completedSteps} of {totalSteps} completed
+                        {t('approvals.stepOfCompleted', { completed: completedSteps, total: totalSteps })}
                       </Typography>
                       <Typography variant="caption" fontWeight={600}>{progress}%</Typography>
                     </Box>
                     <LinearProgress
                       variant="determinate"
                       value={progress}
-                      color={approval.current_status === 'rejected' ? 'error' : approval.current_status === 'approved' ? 'success' : 'primary'}
+                      color={approval.currentStatus === 'rejected' ? 'error' : approval.currentStatus === 'approved' ? 'success' : 'primary'}
                       sx={{ height: 8, borderRadius: 4 }}
                     />
                   </Box>
                   {approval.steps && approval.steps.length > 0 && (
                     <Box sx={{ display: 'flex', gap: 1, mt: 1.5, flexWrap: 'wrap' }}>
-                      {approval.steps.map((step) => (
+                      {approval.steps.map((step, index) => (
                         <Chip
                           key={step.id}
-                          label={step.reviewer_role || `Step ${step.step_order}`}
+                          label={step.reviewerRole || `Step ${index + 1}`}
                           size="small"
                           variant={step.status === 'approved' ? 'filled' : 'outlined'}
                           color={step.status === 'approved' ? 'success' : step.status === 'rejected' ? 'error' : 'default'}

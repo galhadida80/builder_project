@@ -6,7 +6,7 @@ import AppBar from '@mui/material/AppBar'
 import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
-import Badge from '@mui/material/Badge'
+
 import Avatar from '@mui/material/Avatar'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
@@ -25,6 +25,7 @@ import LogoutIcon from '@mui/icons-material/Logout'
 import LightModeIcon from '@mui/icons-material/LightMode'
 import DarkModeIcon from '@mui/icons-material/DarkMode'
 import LanguageIcon from '@mui/icons-material/Language'
+import { useTranslations } from 'next-intl'
 import { useThemeContext } from '@/components/providers/ThemeRegistry'
 import { DRAWER_WIDTH } from './AppSidebar'
 
@@ -52,6 +53,7 @@ interface AppHeaderProps {
 
 export default function AppHeader({ user, projects, currentProject, onProjectChange, onLogout }: AppHeaderProps) {
   const router = useRouter()
+  const t = useTranslations()
   const { mode, toggleMode, direction, setDirection } = useThemeContext()
   const [userMenuAnchor, setUserMenuAnchor] = useState<null | HTMLElement>(null)
   const [langMenuAnchor, setLangMenuAnchor] = useState<null | HTMLElement>(null)
@@ -112,7 +114,7 @@ export default function AppHeader({ user, projects, currentProject, onProjectCha
               }}
               renderValue={(selected) => {
                 if (!selected) {
-                  return <Typography color="text.secondary">Select a project</Typography>
+                  return <Typography color="text.secondary">{t('header.selectProject')}</Typography>
                 }
                 const project = projects.find(p => p.id === selected)
                 return (
@@ -124,7 +126,7 @@ export default function AppHeader({ user, projects, currentProject, onProjectCha
               }}
             >
               <MenuItem value="" disabled>
-                <Typography color="text.secondary">Select a project</Typography>
+                <Typography color="text.secondary">{t('header.selectProject')}</Typography>
               </MenuItem>
               {projects.map((project) => (
                 <MenuItem key={project.id} value={project.id}>
@@ -147,7 +149,7 @@ export default function AppHeader({ user, projects, currentProject, onProjectCha
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Tooltip title="Language">
+          <Tooltip title={t('header.language')}>
             <IconButton
               onClick={(e) => setLangMenuAnchor(e.currentTarget)}
               size="small"
@@ -157,7 +159,7 @@ export default function AppHeader({ user, projects, currentProject, onProjectCha
             </IconButton>
           </Tooltip>
 
-          <Tooltip title="Theme">
+          <Tooltip title={t('header.theme')}>
             <IconButton
               onClick={toggleMode}
               size="small"
@@ -167,11 +169,11 @@ export default function AppHeader({ user, projects, currentProject, onProjectCha
             </IconButton>
           </Tooltip>
 
-          <IconButton size="small">
-            <Badge badgeContent={0} color="error">
+          <Tooltip title={t('header.notifications')}>
+            <IconButton size="small" disabled>
               <NotificationsIcon />
-            </Badge>
-          </IconButton>
+            </IconButton>
+          </Tooltip>
 
           <IconButton onClick={(e) => setUserMenuAnchor(e.currentTarget)} sx={{ ml: 1 }}>
             <Avatar sx={{ width: 36, height: 36, bgcolor: 'primary.main' }}>
@@ -190,15 +192,15 @@ export default function AppHeader({ user, projects, currentProject, onProjectCha
         >
           <MenuItem onClick={() => handleLanguageChange('en')}>
             <ListItemIcon sx={{ fontSize: '1.5rem' }}>🇺🇸</ListItemIcon>
-            <ListItemText>English</ListItemText>
+            <ListItemText>{t('language.english')}</ListItemText>
           </MenuItem>
           <MenuItem onClick={() => handleLanguageChange('he')}>
             <ListItemIcon sx={{ fontSize: '1.5rem' }}>🇮🇱</ListItemIcon>
-            <ListItemText>עברית</ListItemText>
+            <ListItemText>{t('language.hebrew')}</ListItemText>
           </MenuItem>
           <MenuItem onClick={() => handleLanguageChange('es')}>
             <ListItemIcon sx={{ fontSize: '1.5rem' }}>🇪🇸</ListItemIcon>
-            <ListItemText>Español</ListItemText>
+            <ListItemText>{t('language.spanish')}</ListItemText>
           </MenuItem>
         </Menu>
 
@@ -213,18 +215,18 @@ export default function AppHeader({ user, projects, currentProject, onProjectCha
             <Typography variant="caption" color="text.secondary">{user?.email}</Typography>
           </Box>
           <Divider />
-          <MenuItem onClick={() => { setUserMenuAnchor(null) }}>
+          <MenuItem onClick={() => { setUserMenuAnchor(null); router.push('/settings') }}>
             <ListItemIcon><PersonIcon fontSize="small" /></ListItemIcon>
-            Profile
+            {t('header.profile')}
           </MenuItem>
           <MenuItem onClick={() => { setUserMenuAnchor(null); router.push('/settings') }}>
             <ListItemIcon><SettingsIcon fontSize="small" /></ListItemIcon>
-            Settings
+            {t('header.settings')}
           </MenuItem>
           <Divider />
           <MenuItem onClick={onLogout}>
             <ListItemIcon><LogoutIcon fontSize="small" /></ListItemIcon>
-            Logout
+            {t('header.logout')}
           </MenuItem>
         </Menu>
       </Toolbar>
