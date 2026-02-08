@@ -12,8 +12,12 @@ import Chip from '@mui/material/Chip'
 import Divider from '@mui/material/Divider'
 import Skeleton from '@mui/material/Skeleton'
 import Alert from '@mui/material/Alert'
+import TextField from '@mui/material/TextField'
+import CircularProgress from '@mui/material/CircularProgress'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import EditIcon from '@mui/icons-material/Edit'
+import SaveIcon from '@mui/icons-material/Save'
+import CloseIcon from '@mui/icons-material/Close'
 import InventoryIcon from '@mui/icons-material/Inventory'
 import TuneIcon from '@mui/icons-material/Tune'
 import FolderIcon from '@mui/icons-material/Folder'
@@ -61,6 +65,9 @@ export default function MaterialDetailPage() {
   const [viewerOpen, setViewerOpen] = useState(false)
   const [analysisFile, setAnalysisFile] = useState<FileRecord | null>(null)
   const [analysisOpen, setAnalysisOpen] = useState(false)
+  const [editing, setEditing] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [editForm, setEditForm] = useState({ name: '', manufacturer: '', modelNumber: '', quantity: '', unit: '', notes: '' })
 
   const loadData = useCallback(async () => {
     try {
@@ -107,6 +114,41 @@ export default function MaterialDetailPage() {
 
   const handleUploadComplete = (uploaded: FileRecord) => {
     setFiles((prev) => [uploaded, ...prev])
+  }
+
+  const startEditing = () => {
+    if (!material) return
+    setEditForm({
+      name: material.name || '',
+      manufacturer: material.manufacturer || '',
+      modelNumber: material.modelNumber || '',
+      quantity: String(material.quantity || ''),
+      unit: material.unit || '',
+      notes: material.notes || '',
+    })
+    setEditing(true)
+  }
+
+  const cancelEditing = () => { setEditing(false) }
+
+  const saveEditing = async () => {
+    try {
+      setSaving(true)
+      await apiClient.put(`/projects/${projectId}/materials/${materialId}`, {
+        name: editForm.name,
+        manufacturer: editForm.manufacturer,
+        model_number: editForm.modelNumber || undefined,
+        quantity: Number(editForm.quantity) || 0,
+        unit: editForm.unit,
+        notes: editForm.notes || undefined,
+      })
+      await loadData()
+      setEditing(false)
+    } catch {
+      setError(t('common.saveFailed'))
+    } finally {
+      setSaving(false)
+    }
   }
 
   if (loading) {
@@ -163,14 +205,20 @@ export default function MaterialDetailPage() {
             </Box>
           </Box>
         </Box>
-        <Button
-          variant="outlined"
-          startIcon={<EditIcon />}
-          onClick={() => router.push(`/projects/${projectId}/materials`)}
-          sx={{ textTransform: 'none' }}
-        >
-          {t('common.edit')}
-        </Button>
+        {editing ? (
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Button variant="contained" startIcon={saving ? <CircularProgress size={16} /> : <SaveIcon />} onClick={saveEditing} disabled={saving} sx={{ textTransform: 'none' }}>
+              {t('common.save')}
+            </Button>
+            <Button variant="outlined" startIcon={<CloseIcon />} onClick={cancelEditing} disabled={saving} sx={{ textTransform: 'none' }}>
+              {t('common.cancel')}
+            </Button>
+          </Box>
+        ) : (
+          <Button variant="outlined" startIcon={<EditIcon />} onClick={startEditing} sx={{ textTransform: 'none' }}>
+            {t('common.edit')}
+          </Button>
+        )}
       </Box>
 
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '2fr 1fr' }, gap: 3 }}>
@@ -178,19 +226,32 @@ export default function MaterialDetailPage() {
           <Card sx={{ borderRadius: 3 }}>
             <CardContent>
               <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 2 }}>{t('common.details')}</Typography>
-              <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
-                <InfoField label={t('materials.manufacturer')} value={material.manufacturer} />
-                <InfoField label={t('materials.model')} value={material.modelNumber} />
-                <InfoField label={t('materials.quantity')} value={material.quantity ? String(material.quantity) : undefined} />
-                <InfoField label={t('materials.unit')} value={material.unit} />
-                <InfoField label={t('materials.type')} value={material.materialType} />
-                <InfoField label={t('common.status')} value={(material.status || 'draft').replace('_', ' ')} />
-              </Box>
-              {material.notes && (
-                <Box sx={{ mt: 2 }}>
-                  <Typography variant="caption" color="text.secondary" fontWeight={600}>{t('common.notes')}</Typography>
-                  <Typography variant="body2" sx={{ mt: 0.5 }}>{material.notes}</Typography>
+              {editing ? (
+                <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                  <TextField label={t('materials.name')} size="small" fullWidth value={editForm.name} onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))} />
+                  <TextField label={t('materials.manufacturer')} size="small" fullWidth value={editForm.manufacturer} onChange={(e) => setEditForm((f) => ({ ...f, manufacturer: e.target.value }))} />
+                  <TextField label={t('materials.model')} size="small" fullWidth value={editForm.modelNumber} onChange={(e) => setEditForm((f) => ({ ...f, modelNumber: e.target.value }))} />
+                  <TextField label={t('materials.quantity')} size="small" fullWidth type="number" value={editForm.quantity} onChange={(e) => setEditForm((f) => ({ ...f, quantity: e.target.value }))} />
+                  <TextField label={t('materials.unit')} size="small" fullWidth value={editForm.unit} onChange={(e) => setEditForm((f) => ({ ...f, unit: e.target.value }))} />
+                  <TextField label={t('common.notes')} size="small" fullWidth multiline rows={3} value={editForm.notes} onChange={(e) => setEditForm((f) => ({ ...f, notes: e.target.value }))} sx={{ gridColumn: '1 / -1' }} />
                 </Box>
+              ) : (
+                <>
+                  <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                    <InfoField label={t('materials.manufacturer')} value={material.manufacturer} />
+                    <InfoField label={t('materials.model')} value={material.modelNumber} />
+                    <InfoField label={t('materials.quantity')} value={material.quantity ? String(material.quantity) : undefined} />
+                    <InfoField label={t('materials.unit')} value={material.unit} />
+                    <InfoField label={t('materials.type')} value={material.materialType} />
+                    <InfoField label={t('common.status')} value={(material.status || 'draft').replace('_', ' ')} />
+                  </Box>
+                  {material.notes && (
+                    <Box sx={{ mt: 2 }}>
+                      <Typography variant="caption" color="text.secondary" fontWeight={600}>{t('common.notes')}</Typography>
+                      <Typography variant="body2" sx={{ mt: 0.5 }}>{material.notes}</Typography>
+                    </Box>
+                  )}
+                </>
               )}
             </CardContent>
           </Card>

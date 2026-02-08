@@ -51,7 +51,7 @@ class LocalStorageBackend(StorageBackend):
             full_path.unlink()
 
     def get_file_url(self, storage_path: str) -> str:
-        return f"/api/v1/storage/{storage_path}"
+        return f"/api/storage/{storage_path}"
 
     async def get_file_content(self, storage_path: str) -> bytes:
         full_path = self.base_path / storage_path

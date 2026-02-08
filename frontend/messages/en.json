@@ -217,6 +217,7 @@
     "submit": "Submit",
     "cancel": "Cancel",
     "save": "Save",
+    "saveFailed": "Failed to save changes",
     "delete": "Delete",
     "edit": "Edit",
     "search": "Search",
