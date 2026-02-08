@@ -184,7 +184,7 @@ export default function EquipmentDetailPage() {
         {t('equipment.title')}
       </Button>
 
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 2, mb: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <Box sx={{ width: 48, height: 48, borderRadius: 2, bgcolor: 'primary.main', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <BuildIcon sx={{ color: '#fff' }} />
@@ -226,7 +226,7 @@ export default function EquipmentDetailPage() {
             <CardContent>
               <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 2 }}>{t('equipment.details')}</Typography>
               {editing ? (
-                <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
                   <TextField label={t('equipment.name')} size="small" fullWidth value={editForm.name} onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))} />
                   <TextField label={t('equipment.manufacturer')} size="small" fullWidth value={editForm.manufacturer} onChange={(e) => setEditForm((f) => ({ ...f, manufacturer: e.target.value }))} />
                   <TextField label={t('equipment.modelNumber')} size="small" fullWidth value={editForm.modelNumber} onChange={(e) => setEditForm((f) => ({ ...f, modelNumber: e.target.value }))} />
@@ -235,7 +235,7 @@ export default function EquipmentDetailPage() {
                 </Box>
               ) : (
                 <>
-                  <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                  <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
                     <InfoField label={t('equipment.manufacturer')} value={equipment.manufacturer} />
                     <InfoField label={t('equipment.modelNumber')} value={equipment.modelNumber} />
                     <InfoField label={t('equipment.serialNumber')} value={equipment.serialNumber} />

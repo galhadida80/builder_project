@@ -135,7 +135,7 @@ export default function RFIsPage() {
 
   return (
     <Box sx={{ p: 3, width: '100%' }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 4 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 2, mb: 4 }}>
         <Box>
           <Typography variant="h4" fontWeight={700}>{t('rfis.title')}</Typography>
           <Typography variant="body1" color="text.secondary">{t('rfis.subtitle')}</Typography>
@@ -162,7 +162,7 @@ export default function RFIsPage() {
         ))}
       </Box>
 
-      <TableContainer component={Paper} sx={{ borderRadius: 3 }}>
+      <TableContainer component={Paper} sx={{ borderRadius: 3, overflowX: 'auto' }}>
         <Table>
           <TableHead>
             <TableRow>

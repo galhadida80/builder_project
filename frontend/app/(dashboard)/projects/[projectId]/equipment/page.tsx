@@ -356,7 +356,7 @@ export default function EquipmentPage() {
     return (
       <Box sx={{ p: 3, width: '100%' }}>
         <Skeleton variant="text" width={250} height={48} sx={{ mb: 2 }} />
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 3, mb: 3 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 3, mb: 3 }}>
           {[0, 1, 2].map((i) => <Skeleton key={i} variant="rounded" height={100} sx={{ borderRadius: 3 }} />)}
         </Box>
         <Skeleton variant="rounded" height={300} sx={{ borderRadius: 3 }} />
@@ -366,7 +366,7 @@ export default function EquipmentPage() {
 
   return (
     <Box sx={{ p: 3, width: '100%' }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3, flexWrap: 'wrap', gap: 2 }}>
         <Box>
           <Typography variant="h4" fontWeight={700}>{t('equipment.title')}</Typography>
           <Typography variant="body1" color="text.secondary">{t('equipment.subtitle')}</Typography>
@@ -414,7 +414,7 @@ export default function EquipmentPage() {
           size="small"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          sx={{ width: 260 }}
+          sx={{ width: { xs: '100%', sm: 260 } }}
         />
         <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', flex: 1 }}>
           <Chip
@@ -455,7 +455,7 @@ export default function EquipmentPage() {
       </Box>
 
       {viewMode === 'table' ? (
-        <TableContainer component={Paper} sx={{ borderRadius: 3 }}>
+        <TableContainer component={Paper} sx={{ borderRadius: 3, overflowX: 'auto' }}>
           <Table>
             <TableHead>
               <TableRow>
@@ -737,7 +737,7 @@ export default function EquipmentPage() {
                   size="small"
                   helperText={!selectedTemplate ? "Enter any custom type" : undefined}
                 />
-                <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
                   <TextField label="Manufacturer" value={form.manufacturer} onChange={(e) => setForm({ ...form, manufacturer: e.target.value })} fullWidth size="small" />
                   <TextField label="Model Number" value={form.model_number} onChange={(e) => setForm({ ...form, model_number: e.target.value })} fullWidth size="small" />
                 </Box>

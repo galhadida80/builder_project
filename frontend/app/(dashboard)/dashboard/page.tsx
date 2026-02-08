@@ -126,7 +126,7 @@ export default function DashboardPage() {
       <Box sx={{ p: 3, width: '100%' }}>
         <Skeleton variant="text" width={300} height={48} sx={{ mb: 1 }} />
         <Skeleton variant="text" width={400} height={24} sx={{ mb: 4 }} />
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 3, mb: 3 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 3, mb: 3 }}>
           {[...Array(4)].map((_, i) => (
             <Skeleton key={i} variant="rounded" height={140} sx={{ borderRadius: 3 }} />
           ))}

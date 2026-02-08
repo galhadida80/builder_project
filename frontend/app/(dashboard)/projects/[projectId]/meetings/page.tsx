@@ -108,10 +108,10 @@ export default function MeetingsPage() {
     return (
       <Box sx={{ p: 3, width: '100%' }}>
         <Skeleton variant="text" width={250} height={48} sx={{ mb: 2 }} />
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 3, mb: 3 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 3, mb: 3 }}>
           {[0, 1, 2].map((i) => <Skeleton key={i} variant="rounded" height={100} sx={{ borderRadius: 3 }} />)}
         </Box>
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 3 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 3 }}>
           {[0, 1, 2, 3].map((i) => <Skeleton key={i} variant="rounded" height={160} sx={{ borderRadius: 3 }} />)}
         </Box>
       </Box>
@@ -120,7 +120,7 @@ export default function MeetingsPage() {
 
   return (
     <Box sx={{ p: 3, width: '100%' }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3, flexWrap: 'wrap', gap: 2 }}>
         <Box>
           <Typography variant="h4" fontWeight={700}>{t('meetings.title')}</Typography>
           <Typography variant="body1" color="text.secondary">
@@ -175,7 +175,7 @@ export default function MeetingsPage() {
       ) : (
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 3 }}>
           {items.map((meeting) => (
-            <Card key={meeting.id} sx={{ borderRadius: 3 }}>
+            <Card key={meeting.id} sx={{ borderRadius: 3, cursor: 'pointer', transition: 'all 200ms', '&:hover': { boxShadow: 3 } }}>
               <CardContent sx={{ p: 2.5 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1.5 }}>
                   <Typography variant="h6" fontWeight={600} noWrap sx={{ flex: 1, mr: 1 }}>

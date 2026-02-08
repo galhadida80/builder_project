@@ -185,7 +185,7 @@ export default function MaterialDetailPage() {
         {t('materials.title')}
       </Button>
 
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 2, mb: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <Box sx={{ width: 48, height: 48, borderRadius: 2, bgcolor: 'primary.main', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <InventoryIcon sx={{ color: '#fff' }} />
@@ -227,7 +227,7 @@ export default function MaterialDetailPage() {
             <CardContent>
               <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 2 }}>{t('common.details')}</Typography>
               {editing ? (
-                <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
                   <TextField label={t('materials.name')} size="small" fullWidth value={editForm.name} onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))} />
                   <TextField label={t('materials.manufacturer')} size="small" fullWidth value={editForm.manufacturer} onChange={(e) => setEditForm((f) => ({ ...f, manufacturer: e.target.value }))} />
                   <TextField label={t('materials.model')} size="small" fullWidth value={editForm.modelNumber} onChange={(e) => setEditForm((f) => ({ ...f, modelNumber: e.target.value }))} />
@@ -237,7 +237,7 @@ export default function MaterialDetailPage() {
                 </Box>
               ) : (
                 <>
-                  <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                  <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
                     <InfoField label={t('materials.manufacturer')} value={material.manufacturer} />
                     <InfoField label={t('materials.model')} value={material.modelNumber} />
                     <InfoField label={t('materials.quantity')} value={material.quantity ? String(material.quantity) : undefined} />

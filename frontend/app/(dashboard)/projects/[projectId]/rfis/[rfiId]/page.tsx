@@ -198,7 +198,7 @@ export default function RFIDetailPage() {
         {t('rfis.backToList')}
       </Button>
 
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 2, mb: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <Box sx={{ width: 48, height: 48, borderRadius: 2, bgcolor: 'primary.main', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <QuestionAnswerIcon sx={{ color: '#fff' }} />
@@ -208,7 +208,7 @@ export default function RFIDetailPage() {
             <Typography variant="body1" color="text.secondary">{rfi.subject}</Typography>
           </Box>
         </Box>
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
           <Chip label={rfi.category} size="small" sx={{ textTransform: 'capitalize', fontWeight: 600 }} />
           <Chip label={rfi.priority} size="small" color={PRIORITY_CHIP[rfi.priority] || 'default'} sx={{ textTransform: 'capitalize', fontWeight: 600 }} />
           <Chip label={rfi.status.replace('_', ' ')} size="small" color={STATUS_CHIP[rfi.status] || 'default'} sx={{ textTransform: 'capitalize', fontWeight: 600 }} />
@@ -223,7 +223,7 @@ export default function RFIDetailPage() {
               <Box sx={{ bgcolor: 'action.hover', borderRadius: 2, p: 2, mb: 2 }}>
                 <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>{rfi.question}</Typography>
               </Box>
-              <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
                 <InfoField label="To" value={rfi.to_name ? `${rfi.to_name} (${rfi.to_email})` : rfi.to_email} />
                 <InfoField label="Created By" value={rfi.created_by?.full_name || rfi.created_by?.email || '-'} />
                 <InfoField label="Due Date" value={formatDate(rfi.due_date)} />

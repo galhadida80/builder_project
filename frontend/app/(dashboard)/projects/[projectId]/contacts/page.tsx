@@ -126,7 +126,7 @@ export default function ContactsPage() {
 
   return (
     <Box sx={{ p: 3, width: '100%' }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 4 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 2, mb: 4 }}>
         <Box>
           <Typography variant="h4" fontWeight={700}>{t('contacts.title')}</Typography>
           <Typography variant="body1" color="text.secondary">{t('contacts.subtitle')}</Typography>
@@ -150,7 +150,7 @@ export default function ContactsPage() {
         }}
       />
 
-      <TableContainer component={Paper} sx={{ borderRadius: 3 }}>
+      <TableContainer component={Paper} sx={{ borderRadius: 3, overflowX: 'auto' }}>
         <Table>
           <TableHead>
             <TableRow>
@@ -196,30 +196,34 @@ export default function ContactsPage() {
         <DialogTitle>{t('contacts.addContact')}</DialogTitle>
         <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '16px !important' }}>
           {submitError && <Alert severity="error" sx={{ borderRadius: 2 }}>{submitError}</Alert>}
-          <TextField label={t('contacts.contactName')} value={form.contact_name} onChange={(e) => setForm({ ...form, contact_name: e.target.value })} required fullWidth />
-          <TextField label={t('contacts.contactType')} value={form.contact_type} onChange={(e) => setForm({ ...form, contact_type: e.target.value })} select required fullWidth>
-            {CONTACT_TYPES.map((type) => (
-              <MenuItem key={type} value={type} sx={{ textTransform: 'capitalize' }}>{type}</MenuItem>
-            ))}
-          </TextField>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+            <TextField label={t('contacts.contactName')} value={form.contact_name} onChange={(e) => setForm({ ...form, contact_name: e.target.value })} required fullWidth />
+            <TextField label={t('contacts.contactType')} value={form.contact_type} onChange={(e) => setForm({ ...form, contact_type: e.target.value })} select required fullWidth>
+              {CONTACT_TYPES.map((type) => (
+                <MenuItem key={type} value={type} sx={{ textTransform: 'capitalize' }}>{type}</MenuItem>
+              ))}
+            </TextField>
+          </Box>
           <TextField label={t('contacts.company')} value={form.company_name} onChange={(e) => setForm({ ...form, company_name: e.target.value })} fullWidth />
-          <TextField
-            label={t('contacts.email')}
-            value={form.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-            type="email"
-            fullWidth
-            required={!form.phone}
-            helperText={!form.email && !form.phone ? t('contacts.emailOrPhoneRequired') : ""}
-            error={!form.email && !form.phone && (form.contact_name.length > 0)}
-          />
-          <TextField
-            label={t('contacts.phone')}
-            value={form.phone}
-            onChange={(e) => setForm({ ...form, phone: e.target.value })}
-            fullWidth
-            required={!form.email}
-          />
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+            <TextField
+              label={t('contacts.email')}
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              type="email"
+              fullWidth
+              required={!form.phone}
+              helperText={!form.email && !form.phone ? t('contacts.emailOrPhoneRequired') : ""}
+              error={!form.email && !form.phone && (form.contact_name.length > 0)}
+            />
+            <TextField
+              label={t('contacts.phone')}
+              value={form.phone}
+              onChange={(e) => setForm({ ...form, phone: e.target.value })}
+              fullWidth
+              required={!form.email}
+            />
+          </Box>
           <TextField label={t('contacts.roleDescription')} value={form.role_description} onChange={(e) => setForm({ ...form, role_description: e.target.value })} multiline rows={2} fullWidth />
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
