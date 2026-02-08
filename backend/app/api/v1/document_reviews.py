@@ -17,7 +17,7 @@ from app.schemas.document_review import (
 )
 from app.services.audit_service import create_audit_log, get_model_dict
 from app.models.audit import AuditAction
-from app.core.security import get_current_user
+from app.core.security import get_current_user, verify_project_access
 
 router = APIRouter()
 
@@ -27,9 +27,11 @@ router = APIRouter()
 async def get_document_review(
     project_id: UUID,
     document_id: UUID,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     """Get or create a document review for a specific document"""
+    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(DocumentReview)
         .options(
@@ -58,6 +60,7 @@ async def create_document_review(
     current_user: User = Depends(get_current_user)
 ):
     """Create a new document review"""
+    await verify_project_access(project_id, current_user, db)
     # Check if review already exists
     existing = await db.execute(
         select(DocumentReview)
@@ -98,6 +101,7 @@ async def update_document_review(
     current_user: User = Depends(get_current_user)
 ):
     """Update a document review status"""
+    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(DocumentReview)
         .where(
@@ -131,9 +135,11 @@ async def update_document_review(
 async def list_document_comments(
     project_id: UUID,
     document_id: UUID,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     """List all comments for a document"""
+    await verify_project_access(project_id, current_user, db)
     # First get the review
     review_result = await db.execute(
         select(DocumentReview)
@@ -171,6 +177,7 @@ async def create_document_comment(
     current_user: User = Depends(get_current_user)
 ):
     """Create a new comment on a document"""
+    await verify_project_access(project_id, current_user, db)
     # Get or create review
     review_result = await db.execute(
         select(DocumentReview)

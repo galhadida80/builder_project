@@ -9,27 +9,40 @@ from app.models.user import User
 from app.schemas.meeting import MeetingCreate, MeetingUpdate, MeetingResponse, MeetingAttendeeCreate, MeetingAttendeeResponse
 from app.services.audit_service import create_audit_log, get_model_dict
 from app.models.audit import AuditAction
-from app.core.security import get_current_user
+from app.core.security import get_current_user, verify_project_access
+from app.models.project import ProjectMember
 from app.utils.localization import get_language_from_request, translate_message
 
 router = APIRouter()
 
 
 @router.get("/meetings", response_model=list[MeetingResponse])
-async def list_all_meetings(db: AsyncSession = Depends(get_db)):
+async def list_all_meetings(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    user_project_ids = select(ProjectMember.project_id).where(
+        ProjectMember.user_id == current_user.id
+    )
     result = await db.execute(
         select(Meeting)
         .options(
             selectinload(Meeting.created_by),
             selectinload(Meeting.attendees).selectinload(MeetingAttendee.user)
         )
+        .where(Meeting.project_id.in_(user_project_ids))
         .order_by(Meeting.scheduled_date.desc())
     )
     return result.scalars().all()
 
 
 @router.get("/projects/{project_id}/meetings", response_model=list[MeetingResponse])
-async def list_meetings(project_id: UUID, db: AsyncSession = Depends(get_db)):
+async def list_meetings(
+    project_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(Meeting)
         .options(
@@ -49,6 +62,7 @@ async def create_meeting(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    await verify_project_access(project_id, current_user, db)
     meeting = Meeting(**data.model_dump(), project_id=project_id, created_by_id=current_user.id)
     db.add(meeting)
     await db.flush()
@@ -61,7 +75,14 @@ async def create_meeting(
 
 
 @router.get("/projects/{project_id}/meetings/{meeting_id}", response_model=MeetingResponse)
-async def get_meeting(project_id: UUID, meeting_id: UUID, db: AsyncSession = Depends(get_db), request: Request = None):
+async def get_meeting(
+    project_id: UUID,
+    meeting_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    request: Request = None
+):
+    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(Meeting)
         .options(
@@ -87,7 +108,10 @@ async def update_meeting(
     current_user: User = Depends(get_current_user),
     request: Request = None
 ):
-    result = await db.execute(select(Meeting).where(Meeting.id == meeting_id))
+    await verify_project_access(project_id, current_user, db)
+    result = await db.execute(
+        select(Meeting).where(Meeting.id == meeting_id, Meeting.project_id == project_id)
+    )
     meeting = result.scalar_one_or_none()
     if not meeting:
         language = get_language_from_request(request)
@@ -113,7 +137,10 @@ async def delete_meeting(
     current_user: User = Depends(get_current_user),
     request: Request = None
 ):
-    result = await db.execute(select(Meeting).where(Meeting.id == meeting_id))
+    await verify_project_access(project_id, current_user, db)
+    result = await db.execute(
+        select(Meeting).where(Meeting.id == meeting_id, Meeting.project_id == project_id)
+    )
     meeting = result.scalar_one_or_none()
     if not meeting:
         language = get_language_from_request(request)
@@ -132,8 +159,10 @@ async def add_attendee(
     project_id: UUID,
     meeting_id: UUID,
     data: MeetingAttendeeCreate,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
+    await verify_project_access(project_id, current_user, db)
     attendee = MeetingAttendee(meeting_id=meeting_id, user_id=data.user_id, role=data.role)
     db.add(attendee)
     await db.flush()
@@ -146,8 +175,10 @@ async def remove_attendee(
     project_id: UUID,
     meeting_id: UUID,
     user_id: UUID,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
+    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(MeetingAttendee).where(
             MeetingAttendee.meeting_id == meeting_id,
@@ -167,8 +198,10 @@ async def confirm_attendance(
     project_id: UUID,
     meeting_id: UUID,
     user_id: UUID,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
+    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(MeetingAttendee).where(
             MeetingAttendee.meeting_id == meeting_id,

@@ -9,14 +9,20 @@ from app.models.user import User
 from app.schemas.area import AreaCreate, AreaUpdate, AreaResponse, AreaProgressCreate, AreaProgressResponse
 from app.services.audit_service import create_audit_log, get_model_dict
 from app.models.audit import AuditAction
-from app.core.security import get_current_user
+from app.core.security import get_current_user, verify_project_access
+from app.models.project import ProjectMember
 from app.utils.localization import get_language_from_request, translate_message
 
 router = APIRouter()
 
 
 @router.get("/projects/{project_id}/areas", response_model=list[AreaResponse])
-async def list_areas(project_id: UUID, db: AsyncSession = Depends(get_db)):
+async def list_areas(
+    project_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(ConstructionArea)
         .options(
@@ -36,6 +42,7 @@ async def create_area(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    await verify_project_access(project_id, current_user, db)
     area = ConstructionArea(**data.model_dump(), project_id=project_id)
     db.add(area)
     await db.flush()
@@ -48,7 +55,14 @@ async def create_area(
 
 
 @router.get("/projects/{project_id}/areas/{area_id}", response_model=AreaResponse)
-async def get_area(project_id: UUID, area_id: UUID, db: AsyncSession = Depends(get_db), request: Request = None):
+async def get_area(
+    project_id: UUID,
+    area_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    request: Request = None
+):
+    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(ConstructionArea)
         .options(
@@ -74,7 +88,10 @@ async def update_area(
     current_user: User = Depends(get_current_user),
     request: Request = None
 ):
-    result = await db.execute(select(ConstructionArea).where(ConstructionArea.id == area_id))
+    await verify_project_access(project_id, current_user, db)
+    result = await db.execute(
+        select(ConstructionArea).where(ConstructionArea.id == area_id, ConstructionArea.project_id == project_id)
+    )
     area = result.scalar_one_or_none()
     if not area:
         language = get_language_from_request(request)
@@ -100,7 +117,10 @@ async def delete_area(
     current_user: User = Depends(get_current_user),
     request: Request = None
 ):
-    result = await db.execute(select(ConstructionArea).where(ConstructionArea.id == area_id))
+    await verify_project_access(project_id, current_user, db)
+    result = await db.execute(
+        select(ConstructionArea).where(ConstructionArea.id == area_id, ConstructionArea.project_id == project_id)
+    )
     area = result.scalar_one_or_none()
     if not area:
         language = get_language_from_request(request)
@@ -123,7 +143,10 @@ async def add_progress_update(
     current_user: User = Depends(get_current_user),
     request: Request = None
 ):
-    result = await db.execute(select(ConstructionArea).where(ConstructionArea.id == area_id))
+    await verify_project_access(project_id, current_user, db)
+    result = await db.execute(
+        select(ConstructionArea).where(ConstructionArea.id == area_id, ConstructionArea.project_id == project_id)
+    )
     area = result.scalar_one_or_none()
     if not area:
         language = get_language_from_request(request)
@@ -156,8 +179,10 @@ async def add_progress_update(
 async def list_area_progress(
     project_id: UUID,
     area_id: UUID,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
+    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(AreaProgress)
         .options(selectinload(AreaProgress.reported_by))

@@ -24,7 +24,7 @@ from app.schemas.inspection import (
 from app.services.audit_service import create_audit_log, get_model_dict
 from app.models.audit import AuditAction, AuditLog
 from app.schemas.audit import AuditLogResponse
-from app.core.security import get_current_user
+from app.core.security import get_current_user, verify_project_access
 
 router = APIRouter()
 
@@ -116,8 +116,13 @@ async def add_stage_to_consultant_type(
 # Project Inspection Endpoints
 
 @router.get("/projects/{project_id}/inspections", response_model=list[InspectionResponse])
-async def list_inspections(project_id: UUID, db: AsyncSession = Depends(get_db)):
+async def list_inspections(
+    project_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     """List all inspections for a project"""
+    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(Inspection)
         .options(
@@ -139,6 +144,7 @@ async def create_inspection(
     current_user: User = Depends(get_current_user)
 ):
     """Create a new inspection for a project"""
+    await verify_project_access(project_id, current_user, db)
     inspection = Inspection(**data.model_dump(), project_id=project_id, created_by_id=current_user.id)
     db.add(inspection)
     await db.flush()
@@ -151,8 +157,13 @@ async def create_inspection(
 
 
 @router.get("/projects/{project_id}/inspections/summary", response_model=InspectionSummaryResponse)
-async def get_inspection_summary(project_id: UUID, db: AsyncSession = Depends(get_db)):
+async def get_inspection_summary(
+    project_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     """Get dashboard summary of inspection progress and findings"""
+    await verify_project_access(project_id, current_user, db)
     # Get inspection counts by status
     status_result = await db.execute(
         select(
@@ -192,8 +203,13 @@ async def get_inspection_summary(project_id: UUID, db: AsyncSession = Depends(ge
 
 
 @router.get("/projects/{project_id}/inspections/pending", response_model=list[InspectionResponse])
-async def list_pending_inspections(project_id: UUID, db: AsyncSession = Depends(get_db)):
+async def list_pending_inspections(
+    project_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     """List only pending inspections for a project"""
+    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(Inspection)
         .options(
@@ -208,8 +224,14 @@ async def list_pending_inspections(project_id: UUID, db: AsyncSession = Depends(
 
 
 @router.get("/projects/{project_id}/inspections/{inspection_id}", response_model=InspectionResponse)
-async def get_inspection(project_id: UUID, inspection_id: UUID, db: AsyncSession = Depends(get_db)):
+async def get_inspection(
+    project_id: UUID,
+    inspection_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     """Get a specific inspection"""
+    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(Inspection)
         .options(
@@ -235,9 +257,11 @@ async def get_inspection_history(
     end_date: Optional[datetime] = None,
     limit: int = 100,
     offset: int = 0,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     """Get audit history for a specific inspection"""
+    await verify_project_access(project_id, current_user, db)
     query = (
         select(AuditLog)
         .options(selectinload(AuditLog.user))
@@ -272,7 +296,10 @@ async def update_inspection(
     current_user: User = Depends(get_current_user)
 ):
     """Update an inspection"""
-    result = await db.execute(select(Inspection).where(Inspection.id == inspection_id))
+    await verify_project_access(project_id, current_user, db)
+    result = await db.execute(
+        select(Inspection).where(Inspection.id == inspection_id, Inspection.project_id == project_id)
+    )
     inspection = result.scalar_one_or_none()
     if not inspection:
         raise HTTPException(status_code=404, detail="Inspection not found")
@@ -296,7 +323,10 @@ async def complete_inspection(
     current_user: User = Depends(get_current_user)
 ):
     """Mark an inspection as complete"""
-    result = await db.execute(select(Inspection).where(Inspection.id == inspection_id))
+    await verify_project_access(project_id, current_user, db)
+    result = await db.execute(
+        select(Inspection).where(Inspection.id == inspection_id, Inspection.project_id == project_id)
+    )
     inspection = result.scalar_one_or_none()
     if not inspection:
         raise HTTPException(status_code=404, detail="Inspection not found")
@@ -320,7 +350,10 @@ async def delete_inspection(
     current_user: User = Depends(get_current_user)
 ):
     """Delete an inspection"""
-    result = await db.execute(select(Inspection).where(Inspection.id == inspection_id))
+    await verify_project_access(project_id, current_user, db)
+    result = await db.execute(
+        select(Inspection).where(Inspection.id == inspection_id, Inspection.project_id == project_id)
+    )
     inspection = result.scalar_one_or_none()
     if not inspection:
         raise HTTPException(status_code=404, detail="Inspection not found")
@@ -343,7 +376,7 @@ async def add_finding_to_inspection(
     current_user: User = Depends(get_current_user)
 ):
     """Add a finding to an inspection"""
-    # Verify inspection exists
+    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(Inspection)
         .where(Inspection.id == inspection_id, Inspection.project_id == project_id)
@@ -376,12 +409,14 @@ async def update_finding(
     if not finding:
         raise HTTPException(status_code=404, detail="Finding not found")
 
-    # Get inspection for project_id (for audit logging)
     result = await db.execute(
-        select(Inspection)
-        .where(Inspection.id == finding.inspection_id)
+        select(Inspection).where(Inspection.id == finding.inspection_id)
     )
     inspection = result.scalar_one_or_none()
+    if not inspection:
+        raise HTTPException(status_code=404, detail="Parent inspection not found")
+
+    await verify_project_access(inspection.project_id, current_user, db)
 
     old_values = get_model_dict(finding)
     for key, value in data.model_dump(exclude_unset=True).items():

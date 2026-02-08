@@ -8,7 +8,10 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from app.db.session import get_db
 from app.models.audit import AuditLog
+from app.models.user import User
+from app.models.project import ProjectMember
 from app.schemas.audit import AuditLogResponse
+from app.core.security import get_current_user, verify_project_access
 
 router = APIRouter()
 
@@ -24,8 +27,10 @@ async def list_audit_logs(
     end_date: Optional[datetime] = None,
     limit: int = 100,
     offset: int = 0,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
+    await verify_project_access(project_id, current_user, db)
     query = (
         select(AuditLog)
         .options(selectinload(AuditLog.user))
@@ -60,9 +65,17 @@ async def list_all_audit_logs(
     end_date: Optional[datetime] = None,
     limit: int = 100,
     offset: int = 0,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
-    query = select(AuditLog).options(selectinload(AuditLog.user))
+    accessible_projects = select(ProjectMember.project_id).where(
+        ProjectMember.user_id == current_user.id
+    )
+    query = (
+        select(AuditLog)
+        .options(selectinload(AuditLog.user))
+        .where(AuditLog.project_id.in_(accessible_projects))
+    )
 
     if entity_type:
         query = query.where(AuditLog.entity_type == entity_type)

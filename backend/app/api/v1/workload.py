@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 from typing import Optional
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -7,7 +8,7 @@ from app.db.session import get_db
 from app.models.user import User
 from app.models.project import ProjectMember
 from app.schemas.workload import TeamMemberResponse, WorkloadResponse, UserInfo
-from app.core.security import get_current_user
+from app.core.security import get_current_user, verify_project_access
 
 router = APIRouter()
 
@@ -18,8 +19,8 @@ async def get_team_members(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    from datetime import datetime
     if project_id:
+        await verify_project_access(project_id, current_user, db)
         result = await db.execute(
             select(ProjectMember, User)
             .join(User, ProjectMember.user_id == User.id)
@@ -77,7 +78,7 @@ async def get_project_members(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    from datetime import datetime
+    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(ProjectMember, User)
         .join(User, ProjectMember.user_id == User.id)

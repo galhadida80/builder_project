@@ -81,7 +81,7 @@ export default function ProjectsPage() {
     try {
       setSubmitting(true)
       setSubmitError('')
-      await apiClient.post('/projects', {
+      const response = await apiClient.post('/projects', {
         name: form.name,
         code: form.code,
         description: form.description || undefined,
@@ -89,9 +89,12 @@ export default function ProjectsPage() {
         startDate: form.startDate || undefined,
         estimatedEndDate: form.estimatedEndDate || undefined,
       })
+      const newProject = response.data
       setDialogOpen(false)
       setForm(INITIAL_FORM)
       await loadProjects()
+      setSelectedProjectId(newProject.id)
+      router.push(`/projects/${newProject.id}/equipment`)
     } catch (err) {
       console.error('Failed to create project:', err)
       setSubmitError(t('pages.projects.failedToCreate'))

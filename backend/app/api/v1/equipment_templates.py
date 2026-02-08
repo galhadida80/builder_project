@@ -18,7 +18,7 @@ from app.schemas.equipment_submission import EquipmentSubmissionCreate, Equipmen
 from app.schemas.approval_decision import ApprovalDecisionCreate, ApprovalDecisionResponse
 from app.services.audit_service import create_audit_log, get_model_dict
 from app.models.audit import AuditAction
-from app.core.security import get_current_user, get_current_admin_user
+from app.core.security import get_current_user, get_current_admin_user, verify_project_access
 
 router = APIRouter()
 
@@ -130,7 +130,12 @@ async def delete_equipment_template(
 
 
 @router.get("/projects/{project_id}/equipment-submissions", response_model=list[EquipmentSubmissionResponse])
-async def list_equipment_submissions(project_id: UUID, db: AsyncSession = Depends(get_db)):
+async def list_equipment_submissions(
+    project_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(EquipmentSubmission)
         .options(selectinload(EquipmentSubmission.created_by))
@@ -147,6 +152,7 @@ async def create_equipment_submission(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    await verify_project_access(project_id, current_user, db)
     submission = EquipmentSubmission(**data.model_dump(), project_id=project_id, created_by_id=current_user.id)
     db.add(submission)
     await db.flush()
@@ -159,7 +165,13 @@ async def create_equipment_submission(
 
 
 @router.get("/projects/{project_id}/equipment-submissions/{submission_id}", response_model=EquipmentSubmissionResponse)
-async def get_equipment_submission(project_id: UUID, submission_id: UUID, db: AsyncSession = Depends(get_db)):
+async def get_equipment_submission(
+    project_id: UUID,
+    submission_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(EquipmentSubmission)
         .options(selectinload(EquipmentSubmission.created_by))
@@ -179,7 +191,13 @@ async def update_equipment_submission(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    result = await db.execute(select(EquipmentSubmission).where(EquipmentSubmission.id == submission_id))
+    await verify_project_access(project_id, current_user, db)
+    result = await db.execute(
+        select(EquipmentSubmission).where(
+            EquipmentSubmission.id == submission_id,
+            EquipmentSubmission.project_id == project_id
+        )
+    )
     submission = result.scalar_one_or_none()
     if not submission:
         raise HTTPException(status_code=404, detail="Equipment submission not found")
@@ -206,7 +224,13 @@ async def delete_equipment_submission(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    result = await db.execute(select(EquipmentSubmission).where(EquipmentSubmission.id == submission_id))
+    await verify_project_access(project_id, current_user, db)
+    result = await db.execute(
+        select(EquipmentSubmission).where(
+            EquipmentSubmission.id == submission_id,
+            EquipmentSubmission.project_id == project_id
+        )
+    )
     submission = result.scalar_one_or_none()
     if not submission:
         raise HTTPException(status_code=404, detail="Equipment submission not found")
@@ -232,6 +256,8 @@ async def create_approval_decision(
     submission = result.scalar_one_or_none()
     if not submission:
         raise HTTPException(status_code=404, detail="Equipment submission not found")
+
+    await verify_project_access(submission.project_id, current_user, db)
 
     decision = ApprovalDecision(
         submission_id=submission_id,
@@ -272,7 +298,8 @@ async def create_approval_decision(
 @router.get("/equipment-submissions/{submission_id}/decisions", response_model=list[ApprovalDecisionResponse])
 async def list_approval_decisions(
     submission_id: UUID,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     result = await db.execute(
         select(EquipmentSubmission).where(EquipmentSubmission.id == submission_id)
@@ -280,6 +307,8 @@ async def list_approval_decisions(
     submission = result.scalar_one_or_none()
     if not submission:
         raise HTTPException(status_code=404, detail="Equipment submission not found")
+
+    await verify_project_access(submission.project_id, current_user, db)
 
     result = await db.execute(
         select(ApprovalDecision)

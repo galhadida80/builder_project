@@ -11,13 +11,16 @@ from app.schemas.consultant_assignment import (
 )
 from app.services.audit_service import create_audit_log, get_model_dict
 from app.models.audit import AuditAction
-from app.core.security import get_current_user
+from app.core.security import get_current_user, verify_project_access
 
 router = APIRouter()
 
 
 @router.get("/consultant-assignments", response_model=list[ConsultantAssignmentResponse])
-async def list_consultant_assignments(db: AsyncSession = Depends(get_db)):
+async def list_consultant_assignments(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     result = await db.execute(
         select(ConsultantAssignment)
         .options(
@@ -36,6 +39,7 @@ async def create_consultant_assignment(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    await verify_project_access(data.project_id, current_user, db)
     assignment = ConsultantAssignment(**data.model_dump())
     db.add(assignment)
     await db.flush()
@@ -48,7 +52,11 @@ async def create_consultant_assignment(
 
 
 @router.get("/consultant-assignments/{assignment_id}", response_model=ConsultantAssignmentResponse)
-async def get_consultant_assignment(assignment_id: UUID, db: AsyncSession = Depends(get_db)):
+async def get_consultant_assignment(
+    assignment_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     result = await db.execute(
         select(ConsultantAssignment)
         .options(
@@ -61,6 +69,7 @@ async def get_consultant_assignment(assignment_id: UUID, db: AsyncSession = Depe
     assignment = result.scalar_one_or_none()
     if not assignment:
         raise HTTPException(status_code=404, detail="Consultant assignment not found")
+    await verify_project_access(assignment.project_id, current_user, db)
     return assignment
 
 
@@ -75,6 +84,8 @@ async def update_consultant_assignment(
     assignment = result.scalar_one_or_none()
     if not assignment:
         raise HTTPException(status_code=404, detail="Consultant assignment not found")
+
+    await verify_project_access(assignment.project_id, current_user, db)
 
     old_values = get_model_dict(assignment)
     for key, value in data.model_dump(exclude_unset=True).items():
@@ -97,6 +108,8 @@ async def delete_consultant_assignment(
     assignment = result.scalar_one_or_none()
     if not assignment:
         raise HTTPException(status_code=404, detail="Consultant assignment not found")
+
+    await verify_project_access(assignment.project_id, current_user, db)
 
     await create_audit_log(db, current_user, "consultant_assignment", assignment.id, AuditAction.DELETE,
                           old_values=get_model_dict(assignment))

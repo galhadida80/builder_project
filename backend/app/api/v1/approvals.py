@@ -11,10 +11,11 @@ from app.models.approval import ApprovalRequest, ApprovalStep
 from app.models.equipment import Equipment, ApprovalStatus
 from app.models.material import Material
 from app.models.user import User
+from app.models.project import ProjectMember
 from app.schemas.approval import ApprovalRequestResponse, ApprovalStepResponse
 from app.services.audit_service import create_audit_log
 from app.models.audit import AuditAction
-from app.core.security import get_current_user
+from app.core.security import get_current_user, verify_project_access
 from app.utils.localization import get_language_from_request, translate_message
 
 router = APIRouter()
@@ -30,20 +31,32 @@ class ApprovalComments(BaseModel):
 
 
 @router.get("/approvals", response_model=list[ApprovalRequestResponse])
-async def list_all_approvals(db: AsyncSession = Depends(get_db)):
+async def list_all_approvals(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    accessible_projects = select(ProjectMember.project_id).where(
+        ProjectMember.user_id == current_user.id
+    )
     result = await db.execute(
         select(ApprovalRequest)
         .options(
             selectinload(ApprovalRequest.created_by),
             selectinload(ApprovalRequest.steps).selectinload(ApprovalStep.approved_by)
         )
+        .where(ApprovalRequest.project_id.in_(accessible_projects))
         .order_by(ApprovalRequest.created_at.desc())
     )
     return result.scalars().all()
 
 
 @router.get("/projects/{project_id}/approvals", response_model=list[ApprovalRequestResponse])
-async def list_approvals(project_id: UUID, db: AsyncSession = Depends(get_db)):
+async def list_approvals(
+    project_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(ApprovalRequest)
         .options(
@@ -57,7 +70,14 @@ async def list_approvals(project_id: UUID, db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/projects/{project_id}/approvals/{approval_id}", response_model=ApprovalRequestResponse)
-async def get_approval(project_id: UUID, approval_id: UUID, db: AsyncSession = Depends(get_db), request: Request = None):
+async def get_approval(
+    project_id: UUID,
+    approval_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    request: Request = None
+):
+    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(ApprovalRequest)
         .options(
@@ -84,6 +104,7 @@ async def process_approval_step(
     current_user: User = Depends(get_current_user),
     request: Request = None
 ):
+    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(ApprovalStep)
         .options(selectinload(ApprovalStep.approval_request))
@@ -189,6 +210,8 @@ async def approve_request(
         error_message = translate_message('resources.approval_not_found', language)
         raise HTTPException(status_code=404, detail=error_message)
 
+    await verify_project_access(approval_request.project_id, current_user, db)
+
     pending_step_result = await db.execute(
         select(ApprovalStep)
         .where(
@@ -251,6 +274,8 @@ async def reject_request(
         error_message = translate_message('resources.approval_not_found', language)
         raise HTTPException(status_code=404, detail=error_message)
 
+    await verify_project_access(approval_request.project_id, current_user, db)
+
     pending_step_result = await db.execute(
         select(ApprovalStep)
         .where(
@@ -282,6 +307,9 @@ async def list_my_pending_approvals(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    accessible_projects = select(ProjectMember.project_id).where(
+        ProjectMember.user_id == current_user.id
+    )
     result = await db.execute(
         select(ApprovalRequest)
         .options(
@@ -290,6 +318,7 @@ async def list_my_pending_approvals(
         )
         .join(ApprovalStep)
         .where(
+            ApprovalRequest.project_id.in_(accessible_projects),
             ApprovalStep.status == "pending",
             ApprovalRequest.current_status.in_([ApprovalStatus.SUBMITTED.value, ApprovalStatus.UNDER_REVIEW.value])
         )

@@ -12,7 +12,7 @@ from sqlalchemy.ext.compiler import compiles
 from app.db.session import Base, get_db
 from app.main import app
 from app.models.user import User
-from app.models.project import Project
+from app.models.project import Project, ProjectMember
 from app.models.equipment_template import EquipmentTemplate
 from app.models.equipment_submission import EquipmentSubmission
 from app.models.approval_decision import ApprovalDecision
@@ -164,7 +164,7 @@ async def regular_user(db: AsyncSession) -> User:
 
 @pytest.fixture(scope="function")
 async def project(db: AsyncSession, admin_user: User) -> Project:
-    """Fixture that creates a test project."""
+    """Fixture that creates a test project with admin_user as a member."""
     proj = Project(
         id=uuid.uuid4(),
         name="Test Project",
@@ -174,6 +174,13 @@ async def project(db: AsyncSession, admin_user: User) -> Project:
         created_by_id=admin_user.id
     )
     db.add(proj)
+    await db.flush()
+    member = ProjectMember(
+        project_id=proj.id,
+        user_id=admin_user.id,
+        role="project_admin",
+    )
+    db.add(member)
     await db.commit()
     await db.refresh(proj)
     return proj
@@ -424,6 +431,13 @@ async def sample_project(db: AsyncSession, admin_user: User) -> Project:
         created_by_id=admin_user.id
     )
     db.add(proj)
+    await db.flush()
+    member = ProjectMember(
+        project_id=proj.id,
+        user_id=admin_user.id,
+        role="project_admin",
+    )
+    db.add(member)
     await db.commit()
     await db.refresh(proj)
     return proj

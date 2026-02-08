@@ -21,7 +21,7 @@ from app.schemas.rfi import (
 )
 from app.services.rfi_service import RFIService
 from app.services.email_service import EmailService
-from app.core.security import get_current_user
+from app.core.security import get_current_user, verify_project_access
 from app.models.user import User
 from app.config import get_settings
 
@@ -39,6 +39,7 @@ async def get_project_rfis(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    await verify_project_access(project_id, current_user, db)
     service = RFIService(db)
     rfis, total = await service.get_rfis_by_project(
         project_id=project_id,
@@ -93,6 +94,7 @@ async def create_rfi(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    await verify_project_access(project_id, current_user, db)
     service = RFIService(db)
     rfi = await service.create_rfi(
         project_id=project_id,
@@ -120,6 +122,7 @@ async def get_rfi_summary(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    await verify_project_access(project_id, current_user, db)
     service = RFIService(db)
     return await service.get_rfi_summary(project_id)
 
@@ -134,6 +137,7 @@ async def get_rfi(
     rfi = await service.get_rfi(rfi_id)
     if not rfi:
         raise HTTPException(status_code=404, detail="RFI not found")
+    await verify_project_access(rfi.project_id, current_user, db)
     return rfi
 
 
@@ -149,6 +153,8 @@ async def update_rfi(
 
     if not rfi:
         raise HTTPException(status_code=404, detail="RFI not found")
+
+    await verify_project_access(rfi.project_id, current_user, db)
 
     update_data = rfi_data.model_dump(exclude_unset=True)
     for field, value in update_data.items():
@@ -166,6 +172,12 @@ async def send_rfi(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    result = await db.execute(select(RFI).where(RFI.id == rfi_id))
+    rfi = result.scalar_one_or_none()
+    if not rfi:
+        raise HTTPException(status_code=404, detail="RFI not found")
+    await verify_project_access(rfi.project_id, current_user, db)
+
     service = RFIService(db)
     try:
         rfi = await service.send_rfi(rfi_id)
@@ -181,6 +193,12 @@ async def update_rfi_status(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    result = await db.execute(select(RFI).where(RFI.id == rfi_id))
+    rfi = result.scalar_one_or_none()
+    if not rfi:
+        raise HTTPException(status_code=404, detail="RFI not found")
+    await verify_project_access(rfi.project_id, current_user, db)
+
     service = RFIService(db)
     try:
         await service.update_status(rfi_id, status_data.status)
@@ -197,6 +215,12 @@ async def add_rfi_response(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    result = await db.execute(select(RFI).where(RFI.id == rfi_id))
+    rfi = result.scalar_one_or_none()
+    if not rfi:
+        raise HTTPException(status_code=404, detail="RFI not found")
+    await verify_project_access(rfi.project_id, current_user, db)
+
     service = RFIService(db)
     try:
         response = await service.add_internal_response(
@@ -221,6 +245,7 @@ async def get_rfi_responses(
     rfi = await service.get_rfi(rfi_id)
     if not rfi:
         raise HTTPException(status_code=404, detail="RFI not found")
+    await verify_project_access(rfi.project_id, current_user, db)
     return rfi.responses
 
 
@@ -230,6 +255,12 @@ async def get_rfi_email_log(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    rfi_result = await db.execute(select(RFI).where(RFI.id == rfi_id))
+    rfi = rfi_result.scalar_one_or_none()
+    if not rfi:
+        raise HTTPException(status_code=404, detail="RFI not found")
+    await verify_project_access(rfi.project_id, current_user, db)
+
     result = await db.execute(
         select(RFIEmailLog)
         .where(RFIEmailLog.rfi_id == rfi_id)
@@ -249,6 +280,8 @@ async def delete_rfi(
 
     if not rfi:
         raise HTTPException(status_code=404, detail="RFI not found")
+
+    await verify_project_access(rfi.project_id, current_user, db)
 
     if rfi.status not in ['draft', 'cancelled']:
         raise HTTPException(

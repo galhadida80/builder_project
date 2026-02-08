@@ -14,7 +14,7 @@ from app.schemas.file import FileResponse
 from app.services.audit_service import create_audit_log, get_model_dict
 from app.services.storage_service import get_storage_backend, generate_storage_path, StorageBackend
 from app.models.audit import AuditAction
-from app.core.security import get_current_user
+from app.core.security import get_current_user, verify_project_access
 from app.utils.localization import get_language_from_request, translate_message
 
 router = APIRouter()
@@ -25,8 +25,10 @@ async def list_files(
     project_id: UUID,
     entity_type: Optional[str] = None,
     entity_id: Optional[UUID] = None,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
+    await verify_project_access(project_id, current_user, db)
     query = select(File).where(File.project_id == project_id).options(selectinload(File.uploaded_by))
     if entity_type:
         query = query.where(File.entity_type == entity_type)
@@ -47,7 +49,7 @@ async def upload_file(
     current_user: User = Depends(get_current_user),
     storage: StorageBackend = Depends(get_storage_backend)
 ):
-    # storage = get_storage_backend()  # No longer needed
+    await verify_project_access(project_id, current_user, db)
     storage_path = generate_storage_path(
         user_id=current_user.id,
         project_id=project_id,
@@ -81,7 +83,14 @@ async def upload_file(
 
 
 @router.get("/projects/{project_id}/files/{file_id}", response_model=FileResponse)
-async def get_file(project_id: UUID, file_id: UUID, db: AsyncSession = Depends(get_db), request: Request = None):
+async def get_file(
+    project_id: UUID,
+    file_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    request: Request = None
+):
+    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(File)
         .where(File.id == file_id, File.project_id == project_id)
@@ -104,14 +113,13 @@ async def delete_file(
     storage: StorageBackend = Depends(get_storage_backend),
     request: Request = None
 ):
+    await verify_project_access(project_id, current_user, db)
     result = await db.execute(select(File).where(File.id == file_id, File.project_id == project_id))
     file_record = result.scalar_one_or_none()
     if not file_record:
         language = get_language_from_request(request)
         error_message = translate_message('resources.file_not_found', language)
         raise HTTPException(status_code=404, detail=error_message)
-
-    # storage = get_storage_backend()  # No longer needed
     try:
         await storage.delete_file(file_record.storage_path)
     except Exception:
@@ -132,9 +140,11 @@ async def download_file(
     project_id: UUID,
     file_id: UUID,
     db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
     storage: StorageBackend = Depends(get_storage_backend),
     request: Request = None
 ):
+    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(File).where(File.id == file_id, File.project_id == project_id)
     )
@@ -150,8 +160,12 @@ async def download_file(
 
 
 @router.get("/storage/{path:path}")
-async def serve_local_file(path: str, storage: StorageBackend = Depends(get_storage_backend), request: Request = None):
-    # storage = get_storage_backend()  # No longer needed
+async def serve_local_file(
+    path: str,
+    storage: StorageBackend = Depends(get_storage_backend),
+    current_user: User = Depends(get_current_user),
+    request: Request = None
+):
     try:
         content = await storage.get_file_content(path)
         mime_type, _ = mimetypes.guess_type(path)

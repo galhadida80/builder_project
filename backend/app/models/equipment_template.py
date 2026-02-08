@@ -45,14 +45,11 @@ class EquipmentTemplate(Base):
     required_documents: Mapped[list] = mapped_column(JSONB, default=list)
     required_specifications: Mapped[list] = mapped_column(JSONB, default=list)
     submission_checklist: Mapped[list] = mapped_column(JSONB, default=list)
-    description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    created_by_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
 
     approving_consultants = relationship("EquipmentTemplateConsultant", back_populates="template", cascade="all, delete-orphan")
     approval_submissions = relationship("EquipmentApprovalSubmission", back_populates="template")
-    created_by = relationship("User", foreign_keys=[created_by_id])
 
 
 class EquipmentTemplateConsultant(Base):

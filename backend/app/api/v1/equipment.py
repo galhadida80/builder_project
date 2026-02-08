@@ -11,7 +11,8 @@ from app.models.approval import ApprovalRequest, ApprovalStep
 from app.schemas.equipment import EquipmentCreate, EquipmentUpdate, EquipmentResponse, ChecklistCreate, ChecklistResponse
 from app.services.audit_service import create_audit_log, get_model_dict
 from app.models.audit import AuditAction
-from app.core.security import get_current_user
+from app.core.security import get_current_user, verify_project_access
+from app.models.project import ProjectMember
 from app.utils.localization import get_language_from_request, translate_message
 
 router = APIRouter()
@@ -21,10 +22,12 @@ router = APIRouter()
 async def list_all_equipment(
     project_id: Optional[UUID] = Query(None),
     db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
+    user_project_ids = select(ProjectMember.project_id).where(ProjectMember.user_id == current_user.id)
     query = select(Equipment).options(
         selectinload(Equipment.created_by), selectinload(Equipment.checklists)
-    )
+    ).where(Equipment.project_id.in_(user_project_ids))
     if project_id:
         query = query.where(Equipment.project_id == project_id)
     result = await db.execute(query.order_by(Equipment.created_at.desc()))
@@ -32,7 +35,12 @@ async def list_all_equipment(
 
 
 @router.get("/projects/{project_id}/equipment", response_model=list[EquipmentResponse])
-async def list_equipment(project_id: UUID, db: AsyncSession = Depends(get_db)):
+async def list_equipment(
+    project_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(Equipment)
         .options(selectinload(Equipment.created_by), selectinload(Equipment.checklists))
@@ -47,8 +55,9 @@ async def create_equipment(
     project_id: UUID,
     data: EquipmentCreate,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
+    await verify_project_access(project_id, current_user, db)
     equipment = Equipment(**data.model_dump(), project_id=project_id, created_by_id=current_user.id)
     db.add(equipment)
     await db.flush()
@@ -61,7 +70,14 @@ async def create_equipment(
 
 
 @router.get("/projects/{project_id}/equipment/{equipment_id}", response_model=EquipmentResponse)
-async def get_equipment(project_id: UUID, equipment_id: UUID, db: AsyncSession = Depends(get_db), request: Request = None):
+async def get_equipment(
+    project_id: UUID,
+    equipment_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    request: Request = None,
+):
+    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(Equipment)
         .options(selectinload(Equipment.created_by), selectinload(Equipment.checklists))
@@ -82,9 +98,12 @@ async def update_equipment(
     data: EquipmentUpdate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
-    request: Request = None
+    request: Request = None,
 ):
-    result = await db.execute(select(Equipment).where(Equipment.id == equipment_id))
+    await verify_project_access(project_id, current_user, db)
+    result = await db.execute(
+        select(Equipment).where(Equipment.id == equipment_id, Equipment.project_id == project_id)
+    )
     equipment = result.scalar_one_or_none()
     if not equipment:
         language = get_language_from_request(request)
@@ -108,9 +127,12 @@ async def delete_equipment(
     equipment_id: UUID,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
-    request: Request = None
+    request: Request = None,
 ):
-    result = await db.execute(select(Equipment).where(Equipment.id == equipment_id))
+    await verify_project_access(project_id, current_user, db)
+    result = await db.execute(
+        select(Equipment).where(Equipment.id == equipment_id, Equipment.project_id == project_id)
+    )
     equipment = result.scalar_one_or_none()
     if not equipment:
         language = get_language_from_request(request)
@@ -130,9 +152,12 @@ async def submit_equipment_for_approval(
     equipment_id: UUID,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
-    request: Request = None
+    request: Request = None,
 ):
-    result = await db.execute(select(Equipment).where(Equipment.id == equipment_id))
+    await verify_project_access(project_id, current_user, db)
+    result = await db.execute(
+        select(Equipment).where(Equipment.id == equipment_id, Equipment.project_id == project_id)
+    )
     equipment = result.scalar_one_or_none()
     if not equipment:
         language = get_language_from_request(request)
@@ -169,8 +194,10 @@ async def create_checklist(
     project_id: UUID,
     equipment_id: UUID,
     data: ChecklistCreate,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
+    await verify_project_access(project_id, current_user, db)
     checklist = EquipmentChecklist(
         equipment_id=equipment_id,
         checklist_name=data.checklist_name,

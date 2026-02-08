@@ -11,7 +11,8 @@ from app.models.approval import ApprovalRequest, ApprovalStep
 from app.schemas.material import MaterialCreate, MaterialUpdate, MaterialResponse
 from app.services.audit_service import create_audit_log, get_model_dict
 from app.models.audit import AuditAction
-from app.core.security import get_current_user
+from app.core.security import get_current_user, verify_project_access
+from app.models.project import ProjectMember
 from app.utils.localization import get_language_from_request, translate_message
 
 router = APIRouter()
@@ -21,8 +22,12 @@ router = APIRouter()
 async def list_all_materials(
     project_id: Optional[UUID] = Query(None),
     db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
-    query = select(Material).options(selectinload(Material.created_by))
+    user_project_ids = select(ProjectMember.project_id).where(ProjectMember.user_id == current_user.id)
+    query = select(Material).options(
+        selectinload(Material.created_by)
+    ).where(Material.project_id.in_(user_project_ids))
     if project_id:
         query = query.where(Material.project_id == project_id)
     result = await db.execute(query.order_by(Material.created_at.desc()))
@@ -30,7 +35,12 @@ async def list_all_materials(
 
 
 @router.get("/projects/{project_id}/materials", response_model=list[MaterialResponse])
-async def list_materials(project_id: UUID, db: AsyncSession = Depends(get_db)):
+async def list_materials(
+    project_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(Material)
         .options(selectinload(Material.created_by))
@@ -45,8 +55,9 @@ async def create_material(
     project_id: UUID,
     data: MaterialCreate,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
+    await verify_project_access(project_id, current_user, db)
     material = Material(**data.model_dump(), project_id=project_id, created_by_id=current_user.id)
     db.add(material)
     await db.flush()
@@ -59,7 +70,14 @@ async def create_material(
 
 
 @router.get("/projects/{project_id}/materials/{material_id}", response_model=MaterialResponse)
-async def get_material(project_id: UUID, material_id: UUID, db: AsyncSession = Depends(get_db), request: Request = None):
+async def get_material(
+    project_id: UUID,
+    material_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    request: Request = None,
+):
+    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(Material)
         .options(selectinload(Material.created_by))
@@ -80,9 +98,12 @@ async def update_material(
     data: MaterialUpdate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
-    request: Request = None
+    request: Request = None,
 ):
-    result = await db.execute(select(Material).where(Material.id == material_id))
+    await verify_project_access(project_id, current_user, db)
+    result = await db.execute(
+        select(Material).where(Material.id == material_id, Material.project_id == project_id)
+    )
     material = result.scalar_one_or_none()
     if not material:
         language = get_language_from_request(request)
@@ -106,9 +127,12 @@ async def delete_material(
     material_id: UUID,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
-    request: Request = None
+    request: Request = None,
 ):
-    result = await db.execute(select(Material).where(Material.id == material_id))
+    await verify_project_access(project_id, current_user, db)
+    result = await db.execute(
+        select(Material).where(Material.id == material_id, Material.project_id == project_id)
+    )
     material = result.scalar_one_or_none()
     if not material:
         language = get_language_from_request(request)
@@ -128,9 +152,12 @@ async def submit_material_for_approval(
     material_id: UUID,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
-    request: Request = None
+    request: Request = None,
 ):
-    result = await db.execute(select(Material).where(Material.id == material_id))
+    await verify_project_access(project_id, current_user, db)
+    result = await db.execute(
+        select(Material).where(Material.id == material_id, Material.project_id == project_id)
+    )
     material = result.scalar_one_or_none()
     if not material:
         language = get_language_from_request(request)

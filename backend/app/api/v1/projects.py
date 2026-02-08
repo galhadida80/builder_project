@@ -17,7 +17,7 @@ from app.schemas.project import ProjectCreate, ProjectUpdate, ProjectResponse, P
 from app.schemas.project_overview import ProjectOverviewResponse, ProgressMetrics, TimelineEvent, TeamStats, ProjectStats
 from app.services.audit_service import create_audit_log, get_model_dict
 from app.models.audit import AuditAction
-from app.core.security import get_current_user
+from app.core.security import get_current_user, verify_project_access
 
 router = APIRouter()
 
@@ -285,6 +285,7 @@ async def add_project_member(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    await verify_project_access(project_id, current_user, db)
     member = ProjectMember(project_id=project_id, user_id=data.user_id, role=data.role)
     db.add(member)
     await db.flush()
@@ -296,8 +297,10 @@ async def add_project_member(
 async def remove_project_member(
     project_id: UUID,
     user_id: UUID,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
+    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(ProjectMember).where(ProjectMember.project_id == project_id, ProjectMember.user_id == user_id)
     )

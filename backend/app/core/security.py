@@ -6,13 +6,13 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from jose import JWTError, jwt
-from passlib.context import CryptContext
+import bcrypt
 from app.db.session import get_db
 from app.models.user import User
+from app.models.project import ProjectMember
 from app.config import get_settings
 
 security = HTTPBearer(auto_error=False)
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 settings = get_settings()
 SECRET_KEY = settings.secret_key
@@ -21,11 +21,17 @@ ACCESS_TOKEN_EXPIRE_DAYS = 7
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
+    return bcrypt.checkpw(
+        plain_password.encode("utf-8"),
+        hashed_password.encode("utf-8"),
+    )
 
 
 def get_password_hash(password: str) -> str:
-    return pwd_context.hash(password)
+    return bcrypt.hashpw(
+        password.encode("utf-8"),
+        bcrypt.gensalt(),
+    ).decode("utf-8")
 
 
 def create_access_token(user_id: UUID) -> str:
@@ -101,3 +107,23 @@ async def get_current_admin_user(
             detail="Admin access required"
         )
     return current_user
+
+
+async def verify_project_access(
+    project_id: UUID,
+    current_user: User,
+    db: AsyncSession,
+) -> ProjectMember:
+    result = await db.execute(
+        select(ProjectMember).where(
+            ProjectMember.project_id == project_id,
+            ProjectMember.user_id == current_user.id,
+        )
+    )
+    member = result.scalar_one_or_none()
+    if not member:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have access to this project",
+        )
+    return member

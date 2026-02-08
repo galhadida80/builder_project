@@ -9,6 +9,7 @@ from app.models.equipment import Equipment, ApprovalStatus
 from app.models.material import Material
 from app.models.meeting import Meeting
 from app.models.user import User
+from app.models.project import ProjectMember
 from app.schemas.analytics import (
     MetricsResponse,
     ProjectTrendsResponse,
@@ -38,11 +39,15 @@ async def get_analytics_metrics(
     if end_date:
         date_filter_end = datetime.fromisoformat(end_date)
 
+    accessible_projects = select(ProjectMember.project_id).where(
+        ProjectMember.user_id == current_user.id
+    ).scalar_subquery()
+
     # Get project counts
     project_query = select(
         func.count().label('total'),
         func.sum(case((Project.status == ProjectStatus.ACTIVE.value, 1), else_=0)).label('active')
-    )
+    ).where(Project.id.in_(accessible_projects))
     if date_filter_start:
         project_query = project_query.where(Project.created_at >= date_filter_start)
     if date_filter_end:
@@ -56,7 +61,7 @@ async def get_analytics_metrics(
         func.count().label('total'),
         func.sum(case((Inspection.status == InspectionStatus.PENDING.value, 1), else_=0)).label('pending'),
         func.sum(case((Inspection.status == InspectionStatus.COMPLETED.value, 1), else_=0)).label('completed')
-    )
+    ).where(Inspection.project_id.in_(accessible_projects))
     if date_filter_start:
         inspection_query = inspection_query.where(Inspection.created_at >= date_filter_start)
     if date_filter_end:
@@ -69,7 +74,7 @@ async def get_analytics_metrics(
     equipment_query = select(
         func.count().label('total'),
         func.sum(case((Equipment.status == ApprovalStatus.APPROVED.value, 1), else_=0)).label('approved')
-    )
+    ).where(Equipment.project_id.in_(accessible_projects))
     if date_filter_start:
         equipment_query = equipment_query.where(Equipment.created_at >= date_filter_start)
     if date_filter_end:
@@ -82,7 +87,7 @@ async def get_analytics_metrics(
     material_query = select(
         func.count().label('total'),
         func.sum(case((Material.status == ApprovalStatus.APPROVED.value, 1), else_=0)).label('approved')
-    )
+    ).where(Material.project_id.in_(accessible_projects))
     if date_filter_start:
         material_query = material_query.where(Material.created_at >= date_filter_start)
     if date_filter_end:
@@ -92,7 +97,7 @@ async def get_analytics_metrics(
     material_counts = material_result.first()
 
     # Get meeting counts
-    meeting_query = select(func.count())
+    meeting_query = select(func.count()).where(Meeting.project_id.in_(accessible_projects))
     if date_filter_start:
         meeting_query = meeting_query.where(Meeting.created_at >= date_filter_start)
     if date_filter_end:
@@ -141,6 +146,10 @@ async def get_project_trends(
     else:
         start_datetime = datetime.fromisoformat(start_date)
 
+    accessible_projects = select(ProjectMember.project_id).where(
+        ProjectMember.user_id == current_user.id
+    ).scalar_subquery()
+
     # Generate daily data points
     data_points = []
     current_date = start_datetime
@@ -152,6 +161,7 @@ async def get_project_trends(
         inspection_count = await db.execute(
             select(func.count())
             .select_from(Inspection)
+            .where(Inspection.project_id.in_(accessible_projects))
             .where(Inspection.created_at >= current_date)
             .where(Inspection.created_at < next_date)
         )
@@ -161,6 +171,7 @@ async def get_project_trends(
         equipment_count = await db.execute(
             select(func.count())
             .select_from(Equipment)
+            .where(Equipment.project_id.in_(accessible_projects))
             .where(Equipment.created_at >= current_date)
             .where(Equipment.created_at < next_date)
         )
@@ -170,6 +181,7 @@ async def get_project_trends(
         material_count = await db.execute(
             select(func.count())
             .select_from(Material)
+            .where(Material.project_id.in_(accessible_projects))
             .where(Material.created_at >= current_date)
             .where(Material.created_at < next_date)
         )
@@ -204,8 +216,14 @@ async def get_distributions(
     if end_date:
         date_filter_end = datetime.fromisoformat(end_date)
 
+    accessible_projects = select(ProjectMember.project_id).where(
+        ProjectMember.user_id == current_user.id
+    ).scalar_subquery()
+
     # Get inspection status distribution
-    inspection_query = select(Inspection.status, func.count(Inspection.id).label('count'))
+    inspection_query = select(Inspection.status, func.count(Inspection.id).label('count')).where(
+        Inspection.project_id.in_(accessible_projects)
+    )
     if date_filter_start:
         inspection_query = inspection_query.where(Inspection.created_at >= date_filter_start)
     if date_filter_end:
@@ -219,7 +237,9 @@ async def get_distributions(
     ]
 
     # Get equipment status distribution
-    equipment_query = select(Equipment.status, func.count(Equipment.id).label('count'))
+    equipment_query = select(Equipment.status, func.count(Equipment.id).label('count')).where(
+        Equipment.project_id.in_(accessible_projects)
+    )
     if date_filter_start:
         equipment_query = equipment_query.where(Equipment.created_at >= date_filter_start)
     if date_filter_end:
@@ -233,7 +253,9 @@ async def get_distributions(
     ]
 
     # Get material status distribution
-    material_query = select(Material.status, func.count(Material.id).label('count'))
+    material_query = select(Material.status, func.count(Material.id).label('count')).where(
+        Material.project_id.in_(accessible_projects)
+    )
     if date_filter_start:
         material_query = material_query.where(Material.created_at >= date_filter_start)
     if date_filter_end:
@@ -247,7 +269,9 @@ async def get_distributions(
     ]
 
     # Get project status distribution
-    project_query = select(Project.status, func.count(Project.id).label('count'))
+    project_query = select(Project.status, func.count(Project.id).label('count')).where(
+        Project.id.in_(accessible_projects)
+    )
     if date_filter_start:
         project_query = project_query.where(Project.created_at >= date_filter_start)
     if date_filter_end:

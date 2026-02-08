@@ -142,13 +142,11 @@ class EquipmentTemplateResponse(BaseModel):
     name: str
     name_he: str
     category: str | None = None
-    description: str | None = None
     required_documents: list = Field(default=[])
     required_specifications: list = Field(default=[])
     submission_checklist: list = Field(default=[])
     created_at: datetime
     updated_at: datetime
-    created_by: UserResponse | None = None
 
     class Config:
         from_attributes = True

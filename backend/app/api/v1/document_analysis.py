@@ -9,7 +9,7 @@ from app.models.user import User
 from app.schemas.document_analysis import DocumentAnalysisCreate, DocumentAnalysisResponse, DocumentAnalysisListResponse
 from app.services.ai_service import analyze_document
 from app.services.storage_service import get_storage_backend, StorageBackend
-from app.core.security import get_current_user
+from app.core.security import get_current_user, verify_project_access
 
 router = APIRouter()
 
@@ -27,6 +27,7 @@ async def trigger_analysis(
     storage: StorageBackend = Depends(get_storage_backend),
     current_user: User = Depends(get_current_user),
 ):
+    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(File).where(File.id == file_id, File.project_id == project_id)
     )
@@ -79,6 +80,7 @@ async def get_file_analyses(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(DocumentAnalysis)
         .where(DocumentAnalysis.file_id == file_id, DocumentAnalysis.project_id == project_id)
@@ -96,6 +98,7 @@ async def list_project_analyses(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(DocumentAnalysis)
         .where(DocumentAnalysis.project_id == project_id)
