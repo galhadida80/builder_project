@@ -1,5 +1,6 @@
+import { useState } from 'react'
 import { Box, FormControl, FormHelperText, Typography, IconButton, Chip } from '@mui/material'
-import { styled } from '@mui/material/styles'
+import { styled } from '@mui/material'
 import { useDropzone, FileRejection, Accept } from 'react-dropzone'
 import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -27,7 +28,7 @@ const DropzoneContainer = styled(Box, {
   padding: theme.spacing(3),
   textAlign: 'center',
   cursor: disabled ? 'not-allowed' : 'pointer',
-  transition: 'all 200ms ease-out',
+  transition: 'border-color 200ms ease-out, background-color 200ms ease-out',
   backgroundColor: isDragActive
     ? theme.palette.action.hover
     : disabled
@@ -54,7 +55,7 @@ const FileItem = styled(Box)(({ theme }) => ({
   padding: theme.spacing(1),
   borderRadius: 8,
   backgroundColor: theme.palette.action.hover,
-  transition: 'all 200ms ease-out',
+  transition: 'background-color 200ms ease-out',
 }))
 
 /**
@@ -85,12 +86,17 @@ export function FileUploadInput({
       : accept.reduce((acc, curr) => ({ ...acc, [curr]: [] }), {})
     : undefined
 
+  const [rejectionError, setRejectionError] = useState<string | null>(null)
+
   const onDrop = (acceptedFiles: File[], fileRejections: FileRejection[]) => {
     if (disabled) return
+    setRejectionError(null)
 
-    // Handle file rejections (size/type validation failures)
     if (fileRejections.length > 0) {
-      // You could add more sophisticated error handling here
+      const messages = fileRejections.map((r) =>
+        r.errors.map((e) => `${r.file.name}: ${e.message}`).join(', ')
+      )
+      setRejectionError(messages.join('; '))
       return
     }
 
@@ -211,6 +217,7 @@ export function FileUploadInput({
               </Box>
               <IconButton
                 size="small"
+                aria-label={`Remove ${file.name}`}
                 onClick={(e) => {
                   e.stopPropagation()
                   removeFile(index)
@@ -225,8 +232,8 @@ export function FileUploadInput({
         </FileList>
       )}
 
-      {(error || helperText) && (
-        <FormHelperText error={!!error}>{error || helperText}</FormHelperText>
+      {(error || rejectionError || helperText) && (
+        <FormHelperText error={!!(error || rejectionError)}>{error || rejectionError || helperText}</FormHelperText>
       )}
     </StyledFormControl>
   )

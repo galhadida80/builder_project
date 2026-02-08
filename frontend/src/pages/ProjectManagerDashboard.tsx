@@ -162,7 +162,7 @@ export default function ProjectManagerDashboard() {
             <Grid item xs={12} sm={6} md={3}>
               <KPICard
                 title="Budget Used"
-                value={`${Math.round((totalBudgetSpent / totalBudget) * 100)}%`}
+                value={`${totalBudget > 0 ? Math.round((totalBudgetSpent / totalBudget) * 100) : 0}%`}
                 icon={<WarningIcon />}
                 color="warning"
               />

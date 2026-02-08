@@ -1,6 +1,6 @@
 import { Box, Typography, Skeleton, Paper } from '@mui/material'
 import { PieChart } from '@mui/x-charts/PieChart'
-import { styled } from '@mui/material/styles'
+import { styled } from '@mui/material'
 
 interface DistributionChartProps {
   title: string
@@ -68,7 +68,7 @@ export default function DistributionChart({
   // Format data for PieChart with percentages in labels
   const formattedData = chartData.map((item) => ({
     ...item,
-    label: showLabels ? `${item.label} (${((item.value / total) * 100).toFixed(1)}%)` : item.label,
+    label: showLabels && total > 0 ? `${item.label} (${((item.value / total) * 100).toFixed(1)}%)` : item.label,
   }))
 
   return (

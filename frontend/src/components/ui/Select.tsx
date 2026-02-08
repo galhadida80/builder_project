@@ -7,7 +7,7 @@ import {
   FormHelperText,
   Fade,
 } from '@mui/material'
-import { styled } from '@mui/material/styles'
+import { styled } from '@mui/material'
 import { transitions, animations, borderRadius } from '../../theme/tokens'
 
 export interface SelectOption {
@@ -51,13 +51,9 @@ const StyledFormControl = styled(FormControl)(({ theme }) => ({
 const StyledMenuItem = styled(MenuItem)(({ theme }) => ({
   fontSize: '0.875rem',
   padding: '10px 16px',
-  transition: `all ${transitions.fast}`,
+  transition: `background-color ${transitions.fast}`,
   '&:hover': {
     backgroundColor: theme.palette.action.hover,
-    transform: 'translateX(2px)',
-  },
-  '&:active': {
-    transform: animations.transforms.activePress,
   },
   '&.Mui-selected': {
     backgroundColor: theme.palette.action.selected,

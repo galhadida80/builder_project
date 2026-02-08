@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Tabs as MuiTabs, Tab as MuiTab, Box } from '@mui/material'
-import { styled } from '@mui/material/styles'
+import { styled } from '@mui/material'
 
 interface TabItem {
   label: string
@@ -42,7 +42,7 @@ const StyledTabs = styled(MuiTabs)(({ theme }) => ({
 }))
 
 const PillTabs = styled(MuiTabs)(({ theme }) => ({
-  minHeight: 40,
+  minHeight: 44,
   padding: 4,
   backgroundColor: theme.palette.action.hover,
   borderRadius: 10,
@@ -53,9 +53,9 @@ const PillTabs = styled(MuiTabs)(({ theme }) => ({
     textTransform: 'none',
     fontWeight: 500,
     fontSize: '0.8rem',
-    minHeight: 32,
+    minHeight: 36,
     borderRadius: 6,
-    transition: 'all 150ms ease-out',
+    transition: 'background-color 150ms ease-out, box-shadow 150ms ease-out',
     '&.Mui-selected': {
       backgroundColor: theme.palette.background.paper,
       boxShadow: theme.shadows[1],

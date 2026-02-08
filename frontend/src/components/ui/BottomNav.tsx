@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { BottomNavigation, BottomNavigationAction, Paper, Box } from '@mui/material'
-import { styled } from '@mui/material/styles'
+import { styled } from '@mui/material'
 
 export interface BottomNavItem {
   label: string
@@ -21,7 +21,7 @@ const StyledBottomNavigation = styled(BottomNavigation)(({ theme }) => ({
     minWidth: 64,
     maxWidth: 120,
     padding: '6px 12px 8px',
-    transition: 'all 200ms ease-out',
+    transition: 'background-color 200ms ease-out, color 200ms ease-out',
     '&:hover': {
       backgroundColor: theme.palette.action.hover,
     },

@@ -1,5 +1,5 @@
 import { Avatar as MuiAvatar, AvatarGroup as MuiAvatarGroup, Box, Typography, Tooltip } from '@mui/material'
-import { styled } from '@mui/material/styles'
+import { styled } from '@mui/material'
 
 interface AvatarProps {
   name?: string
@@ -32,14 +32,7 @@ const StyledAvatar = styled(MuiAvatar, {
   backgroundColor: avatarColor || theme.palette.primary.main,
   color: theme.palette.primary.contrastText,
   fontWeight: 600,
-  transition: 'all 200ms ease-out',
-  cursor: 'pointer',
-  '&:hover': {
-    transform: 'scale(1.05)',
-  },
-  '&:active': {
-    transform: 'scale(0.98)',
-  },
+  transition: 'box-shadow 200ms ease-out',
 }))
 
 function getInitials(name: string): string {
@@ -74,6 +67,7 @@ export function Avatar({
   const avatar = (
     <StyledAvatar
       src={src}
+      alt={name || ''}
       variant={variant}
       avatarSize={avatarSize}
       avatarColor={bgColor}
@@ -105,7 +99,7 @@ export function AvatarGroup({ users, max = 4, size = 'medium', showTooltip = tru
     <MuiAvatarGroup max={max} sx={{ '& .MuiAvatar-root': { width: sizeMap[size], height: sizeMap[size] } }}>
       {users.map((user, index) => (
         <Avatar
-          key={index}
+          key={user.name || index}
           name={user.name}
           src={user.src}
           size={size}

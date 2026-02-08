@@ -78,7 +78,7 @@ export function PWAInstallPrompt(): React.ReactElement | null {
                 3. Tap "Add" to install
               </Typography>
             </Box>
-            <IconButton size="small" onClick={() => setShowIOSGuide(false)}>
+            <IconButton size="small" aria-label="Close iOS install guide" onClick={() => setShowIOSGuide(false)}>
               <CloseIcon fontSize="small" />
             </IconButton>
           </Box>
@@ -104,7 +104,7 @@ export function PWAInstallPrompt(): React.ReactElement | null {
               Add to your home screen for quick access and offline use
             </Typography>
           </Box>
-          <IconButton size="small" onClick={handleDismiss}>
+          <IconButton size="small" aria-label="Dismiss install prompt" onClick={handleDismiss}>
             <CloseIcon fontSize="small" />
           </IconButton>
         </Box>

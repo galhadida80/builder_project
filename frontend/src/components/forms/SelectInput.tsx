@@ -1,12 +1,14 @@
+import { useId } from 'react'
 import {
   FormControl,
   InputLabel,
   Select as MuiSelect,
   SelectProps as MuiSelectProps,
+  SelectChangeEvent,
   MenuItem,
   FormHelperText,
 } from '@mui/material'
-import { styled } from '@mui/material/styles'
+import { styled } from '@mui/material'
 import { SelectInputBaseProps, SelectOption } from './types'
 
 export interface SelectInputProps<T = string> extends SelectInputBaseProps<T> {
@@ -19,7 +21,7 @@ export interface SelectInputProps<T = string> extends SelectInputBaseProps<T> {
 const StyledFormControl = styled(FormControl)(({ theme }) => ({
   '& .MuiOutlinedInput-root': {
     borderRadius: 8,
-    transition: 'all 200ms ease-out',
+    transition: 'border-color 200ms ease-out',
     '&:hover': {
       '& .MuiOutlinedInput-notchedOutline': {
         borderColor: theme.palette.primary.main,
@@ -60,7 +62,11 @@ export function SelectInput<T = string>({
   className,
   SelectProps,
 }: SelectInputProps<T>) {
-  const handleChange = (event: any) => {
+  const fallbackId = useId()
+  const selectId = id || fallbackId
+  const labelId = `${selectId}-label`
+
+  const handleChange = (event: SelectChangeEvent<T | T[]>) => {
     onChange(event.target.value as T | T[])
   }
 
@@ -73,11 +79,11 @@ export function SelectInput<T = string>({
       className={className}
       variant="outlined"
     >
-      {label && <InputLabel id={id ? `${id}-label` : undefined}>{label}</InputLabel>}
+      {label && <InputLabel id={labelId}>{label}</InputLabel>}
       <MuiSelect
-        id={id}
+        id={selectId}
         name={name}
-        labelId={id ? `${id}-label` : undefined}
+        labelId={labelId}
         label={label}
         value={value}
         onChange={handleChange}

@@ -86,8 +86,8 @@ export function useDocuments(projectId: string | undefined): UseDocumentsReturn 
         selectedFolderId || undefined
       )
       setFiles(data)
-    } catch (error) {
-      throw error
+    } catch {
+      setFiles([])
     } finally {
       setLoading(false)
     }

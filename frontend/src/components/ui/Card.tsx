@@ -1,5 +1,5 @@
 import { Card as MuiCard, CardContent, CardHeader, CardActions, Box, Typography, Skeleton, SxProps, Theme } from '@mui/material'
-import { styled, alpha } from '@mui/material/styles'
+import { styled, alpha } from '@mui/material'
 import TrendingUpIcon from '@mui/icons-material/TrendingUp'
 import TrendingDownIcon from '@mui/icons-material/TrendingDown'
 import TrendingFlatIcon from '@mui/icons-material/TrendingFlat'
@@ -16,14 +16,13 @@ const StyledCard = styled(MuiCard, {
   shouldForwardProp: (prop) => prop !== 'hoverable',
 })<{ hoverable?: boolean }>(({ theme, hoverable }) => ({
   borderRadius: 8,
-  transition: 'all 200ms ease-out',
+  transition: 'box-shadow 200ms ease-out',
   cursor: hoverable ? 'pointer' : 'default',
   [theme.breakpoints.up('sm')]: {
     borderRadius: 12,
   },
   ...(hoverable && {
     '&:hover': {
-      transform: 'translateY(-2px)',
       boxShadow: theme.shadows[4],
     },
   }),
@@ -42,7 +41,7 @@ const GlassCard = styled(MuiCard)(({ theme }) => ({
   backdropFilter: 'blur(12px)',
   border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
   borderRadius: 12,
-  transition: 'all 200ms ease-out',
+  transition: 'box-shadow 200ms ease-out',
   [theme.breakpoints.up('sm')]: {
     borderRadius: 16,
   },
@@ -190,7 +189,7 @@ interface FeatureCardProps {
 
 export function FeatureCard({ icon, title, description, onClick }: FeatureCardProps) {
   return (
-    <StyledCard hoverable onClick={onClick}>
+    <StyledCard hoverable={!!onClick} onClick={onClick}>
       <CardContent sx={{ p: { xs: 2, sm: 2.5, md: 3 } }}>
         <Box
           sx={{
@@ -250,8 +249,8 @@ export function ProjectCard({ name, code, progress, status, imageUrl, onClick }:
       case 'active': return 'success'
       case 'on_hold': return 'warning'
       case 'completed': return 'info'
-      case 'archived': return 'default'
-      default: return 'default'
+      case 'archived': return 'grey'
+      default: return 'grey'
     }
   }
 
@@ -259,6 +258,8 @@ export function ProjectCard({ name, code, progress, status, imageUrl, onClick }:
     <StyledCard hoverable onClick={onClick}>
       {imageUrl && (
         <Box
+          role="img"
+          aria-label={`${name} project image`}
           sx={{
             height: { xs: 120, sm: 140 },
             backgroundImage: `url(${imageUrl})`,
@@ -293,7 +294,7 @@ export function ProjectCard({ name, code, progress, status, imageUrl, onClick }:
               px: { xs: 0.75, sm: 1 },
               py: 0.25,
               borderRadius: 1,
-              bgcolor: `${getStatusColor()}.main`,
+              bgcolor: getStatusColor() === 'grey' ? 'grey.500' : `${getStatusColor()}.main`,
               color: 'white',
               fontSize: { xs: '0.625rem', sm: '0.65rem' },
               fontWeight: 600,
@@ -320,6 +321,11 @@ export function ProjectCard({ name, code, progress, status, imageUrl, onClick }:
         )}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.75, sm: 1 } }}>
           <Box
+            role="progressbar"
+            aria-valuenow={progress}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label={`${name} progress`}
             sx={{
               flex: 1,
               height: { xs: 5, sm: 6 },

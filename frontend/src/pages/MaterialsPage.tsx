@@ -166,7 +166,8 @@ export default function MaterialsPage() {
   const filteredMaterials = materials.filter(m => {
     const matchesSearch = m.name.toLowerCase().includes(search.toLowerCase()) ||
       m.materialType?.toLowerCase().includes(search.toLowerCase())
-    const matchesTab = activeTab === 'all' || m.status === activeTab
+    const matchesTab = activeTab === 'all' ||
+      (activeTab === 'pending' ? (m.status === 'submitted' || m.status === 'under_review') : m.status === activeTab)
     return matchesSearch && matchesTab
   })
 

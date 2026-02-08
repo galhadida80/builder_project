@@ -1,5 +1,5 @@
 import { Button as MuiButton, ButtonProps as MuiButtonProps, CircularProgress } from '@mui/material'
-import { styled } from '@mui/material/styles'
+import { styled } from '@mui/material'
 
 export interface ButtonProps extends Omit<MuiButtonProps, 'variant'> {
   variant?: 'primary' | 'secondary' | 'tertiary' | 'danger' | 'success'
@@ -13,28 +13,8 @@ export interface ButtonProps extends Omit<MuiButtonProps, 'variant'> {
 
 const StyledButton = styled(MuiButton)(({ theme }) => ({
   fontWeight: 600,
-  transition: 'all 200ms ease-out',
-  // Ensure touch target compliance on mobile (44x44px minimum)
-  minHeight: '44px',
-  minWidth: '44px',
-  // Responsive padding for better touch targets on mobile
-  padding: theme.spacing(1.5, 3),
-  [theme.breakpoints.down('sm')]: {
-    padding: theme.spacing(1.5, 2.5),
-    // Slightly larger font on mobile for better readability
-    fontSize: '0.9375rem', // 15px
-  },
-  // Prevent double-tap zoom on mobile
+  transition: 'background-color 200ms ease-out, box-shadow 200ms ease-out, border-color 200ms ease-out',
   touchAction: 'manipulation',
-  '&:hover': {
-    transform: 'translateY(-1px)',
-  },
-  '&:active': {
-    transform: 'scale(0.98)',
-  },
-  '&.Mui-disabled': {
-    transform: 'none',
-  },
 }))
 
 export function Button({
@@ -106,16 +86,14 @@ export function IconButton({
       variant="contained"
       color="primary"
       disabled={props.disabled || loading}
+      {...props}
       sx={{
-        // Ensure touch target compliance (44x44px minimum)
-        minWidth: '44px',
-        minHeight: '44px',
-        width: '44px',
-        height: '44px',
-        p: 1,
+        minWidth: '36px',
+        width: '36px',
+        height: '36px',
+        p: 0.75,
         ...props.sx,
       }}
-      {...props}
     >
       {loading ? <CircularProgress size={20} color="inherit" /> : children}
     </StyledButton>

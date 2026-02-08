@@ -1,12 +1,19 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Outlet, useParams, useNavigate, useLocation } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Toolbar from '@mui/material/Toolbar'
 import CircularProgress from '@mui/material/CircularProgress'
+import Fab from '@mui/material/Fab'
+import SmartToyIcon from '@mui/icons-material/SmartToy'
 import { TransitionGroup } from 'react-transition-group'
+import useMediaQuery from '@mui/material/useMediaQuery'
+import { useTheme } from '@mui/material/styles'
+import IconButton from '@mui/material/IconButton'
+import MenuIcon from '@mui/icons-material/Menu'
 import Sidebar from './Sidebar'
 import Header from './Header'
 import PageTransition from '../common/PageTransition'
+import ChatDrawer from '../chat/ChatDrawer'
 import { projectsApi } from '../../api/projects'
 import { authApi } from '../../api/auth'
 import type { Project, User } from '../../types'
@@ -21,6 +28,14 @@ export default function Layout() {
   const [projects, setProjects] = useState<Project[]>([])
   const [currentUser, setCurrentUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const [chatOpen, setChatOpen] = useState(false)
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false)
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'))
+
+  const handleDrawerToggle = useCallback(() => {
+    setMobileDrawerOpen(prev => !prev)
+  }, [])
 
   useEffect(() => {
     loadUserAndProjects()
@@ -79,14 +94,21 @@ export default function Layout() {
         projects={projects}
         onProjectChange={handleProjectChange}
         onLogout={handleLogout}
+        onMenuToggle={handleDrawerToggle}
+        isMobile={isMobile}
       />
-      <Sidebar projectId={selectedProjectId} />
+      <Sidebar
+        projectId={selectedProjectId}
+        mobileOpen={mobileDrawerOpen}
+        onMobileClose={() => setMobileDrawerOpen(false)}
+        isMobile={isMobile}
+      />
       <Box
         component="main"
         sx={{
           flexGrow: 1,
           p: 3,
-          ml: `${DRAWER_WIDTH}px`,
+          ml: { xs: 0, md: `${DRAWER_WIDTH}px` },
           bgcolor: 'background.default',
           minHeight: '100vh',
         }}
@@ -109,6 +131,30 @@ export default function Layout() {
           </TransitionGroup>
         </Box>
       </Box>
+
+      {selectedProjectId && (
+        <>
+          <Fab
+            color="primary"
+            aria-label="Open AI assistant chat"
+            onClick={() => setChatOpen(true)}
+            sx={{
+              position: 'fixed',
+              bottom: 24,
+              right: 24,
+              zIndex: 1100,
+              display: chatOpen ? 'none' : 'flex',
+            }}
+          >
+            <SmartToyIcon />
+          </Fab>
+          <ChatDrawer
+            open={chatOpen}
+            onClose={() => setChatOpen(false)}
+            projectId={selectedProjectId}
+          />
+        </>
+      )}
     </Box>
   )
 }

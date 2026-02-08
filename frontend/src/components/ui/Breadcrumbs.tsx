@@ -1,5 +1,5 @@
 import { Breadcrumbs as MuiBreadcrumbs, Link, Typography, Box } from '@mui/material'
-import { styled } from '@mui/material/styles'
+import { styled } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 import NavigateNextIcon from '@mui/icons-material/NavigateNext'
 import HomeIcon from '@mui/icons-material/Home'
@@ -40,12 +40,12 @@ const StyledLink = styled(Link)(({ theme }) => ({
     content: '""',
     position: 'absolute',
     bottom: -2,
-    left: 0,
+    insetInlineStart: 0,
     width: '100%',
     height: 2,
     backgroundColor: theme.palette.primary.main,
     transform: 'scaleX(0)',
-    transformOrigin: 'left',
+    transformOrigin: 'start',
     transition: 'transform 200ms ease-out',
   },
   '&:hover': {
@@ -95,7 +95,7 @@ export function Breadcrumbs({ items, showHome = true }: BreadcrumbsProps) {
 
         if (isLast) {
           return (
-            <CurrentItem key={item.label}>
+            <CurrentItem key={item.label} aria-current="page">
               {item.icon}
               {item.label}
             </CurrentItem>
@@ -103,7 +103,14 @@ export function Breadcrumbs({ items, showHome = true }: BreadcrumbsProps) {
         }
 
         return (
-          <StyledLink key={item.label} onClick={() => handleClick(item.href)}>
+          <StyledLink
+            key={`${item.label}-${item.href}`}
+            href={item.href || '#'}
+            onClick={(e: React.MouseEvent) => {
+              e.preventDefault()
+              handleClick(item.href)
+            }}
+          >
             {item.icon}
             {item.label}
           </StyledLink>

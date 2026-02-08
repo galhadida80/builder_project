@@ -51,7 +51,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     loadDashboardData()
-  }, [])
+  }, [selectedProjectId])
 
   const loadDashboardData = async () => {
     try {
@@ -133,16 +133,12 @@ export default function DashboardPage() {
         <KPICard
           title="Equipment Items"
           value={equipment.length}
-          trend={12}
-          trendLabel="vs last month"
           icon={<BuildIcon />}
           color="primary"
         />
         <KPICard
           title="Materials"
           value={materials.length}
-          trend={-3}
-          trendLabel="vs last month"
           icon={<InventoryIcon />}
           color="warning"
         />

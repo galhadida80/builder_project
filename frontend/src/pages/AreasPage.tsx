@@ -67,7 +67,8 @@ function AreaNode({ area, level, onEdit, onDelete, t }: AreaNodeProps) {
     ? Math.round(area.progress.reduce((sum, p) => sum + p.progressPercent, 0) / area.progress.length)
     : 0
   const areaType = areaTypes.find(t => t.value === area.areaType)
-  const statusConfig = getStatusConfig('in_progress')
+  const derivedStatus: AreaStatus = overallProgress === 100 ? 'completed' : overallProgress > 0 ? 'in_progress' : 'not_started'
+  const statusConfig = getStatusConfig(derivedStatus)
 
   return (
     <Box sx={{ marginInlineStart: level * 3 }}>

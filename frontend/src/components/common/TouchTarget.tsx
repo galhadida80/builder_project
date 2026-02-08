@@ -1,6 +1,6 @@
 import { Box, BoxProps } from '@mui/material'
-import { styled } from '@mui/material/styles'
-import { forwardRef } from 'react'
+import { styled } from '@mui/material'
+import { forwardRef, useCallback, KeyboardEvent } from 'react'
 
 export interface TouchTargetProps extends BoxProps {
   /**
@@ -84,7 +84,7 @@ const StyledTouchTarget = styled(Box, {
 
     // Active state feedback
     '&:active': {
-      transform: 'scale(0.98)',
+      opacity: 0.85,
     },
 
     // Disabled state
@@ -138,9 +138,22 @@ export const TouchTarget = forwardRef<HTMLDivElement, TouchTargetProps>(
       showFocusRing = true,
       role = 'button',
       tabIndex = 0,
+      onClick,
+      onKeyDown,
       children,
       ...rest
     } = props
+
+    const handleKeyDown = useCallback((e: KeyboardEvent<HTMLDivElement>) => {
+      if (onKeyDown) {
+        onKeyDown(e)
+        return
+      }
+      if (role === 'button' && (e.key === 'Enter' || e.key === ' ')) {
+        e.preventDefault()
+        ;(e.currentTarget as HTMLElement).click()
+      }
+    }, [onKeyDown, role])
 
     return (
       <StyledTouchTarget
@@ -151,6 +164,8 @@ export const TouchTarget = forwardRef<HTMLDivElement, TouchTargetProps>(
         centered={centered}
         inline={inline}
         showFocusRing={showFocusRing}
+        onClick={onClick}
+        onKeyDown={handleKeyDown}
         {...rest}
       >
         {children}

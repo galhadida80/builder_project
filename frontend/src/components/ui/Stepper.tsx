@@ -11,7 +11,7 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material'
-import { styled } from '@mui/material/styles'
+import { styled } from '@mui/material'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import CancelIcon from '@mui/icons-material/Cancel'
 import ErrorIcon from '@mui/icons-material/Error'
@@ -105,31 +105,31 @@ const StepIconContainer = styled('div')<{ active: boolean; completed: boolean; e
 )
 
 // Styled icon components for different step statuses
-const CompletedIcon = styled(CheckCircleIcon)(({ theme }) => ({
+const CompletedIcon = styled(CheckCircleIcon)({
   fontSize: 18,
   color: 'inherit',
-}))
+})
 
-const RejectedIcon = styled(CancelIcon)(({ theme }) => ({
+const RejectedIcon = styled(CancelIcon)({
   fontSize: 18,
   color: 'inherit',
-}))
+})
 
-const ErrorStepIcon = styled(ErrorIcon)(({ theme }) => ({
+const ErrorStepIcon = styled(ErrorIcon)({
   fontSize: 18,
   color: 'inherit',
-}))
+})
 
-const PendingIcon = styled(HourglassEmptyIcon)(({ theme }) => ({
+const PendingIcon = styled(HourglassEmptyIcon)({
   fontSize: 18,
   color: 'inherit',
-}))
+})
 
-const InactiveIcon = styled(RadioButtonUncheckedIcon)(({ theme }) => ({
+const InactiveIcon = styled(RadioButtonUncheckedIcon)({
   fontSize: 18,
   color: 'inherit',
   opacity: 0.5,
-}))
+})
 
 function CustomStepIcon({
   icon,
@@ -327,7 +327,6 @@ export function ApprovalWorkflowStepper({
 }: ApprovalWorkflowStepperProps) {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
-  const isTablet = useMediaQuery(theme.breakpoints.down('md'))
 
   // Use vertical orientation on mobile/tablet, or if explicitly set
   const orientation = orientationProp === 'vertical' || isMobile ? 'vertical' : 'horizontal'

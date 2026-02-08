@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Container from '@mui/material/Container'
@@ -11,7 +11,7 @@ import Rating from '@mui/material/Rating'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import FormatQuoteIcon from '@mui/icons-material/FormatQuote'
-import { styled } from '@mui/material/styles'
+import { styled } from '@mui/material'
 
 const TestimonialCard = styled(Card)(({ theme }) => ({
   borderRadius: theme.spacing(2),
@@ -20,11 +20,7 @@ const TestimonialCard = styled(Card)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   justifyContent: 'space-between',
-  transition: 'all 300ms ease-out',
-  cursor: 'grab',
-  '&:active': {
-    cursor: 'grabbing',
-  },
+  transition: 'box-shadow 300ms ease-out',
 }))
 
 const CarouselContainer = styled(Box)(({ theme }) => ({
@@ -116,6 +112,7 @@ export default function TestimonialsCarousel({
   const { t } = useTranslation()
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isAutoPlayPaused, setIsAutoPlayPaused] = useState(false)
+  const pauseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     if (!autoPlay || isAutoPlayPaused) return
@@ -127,16 +124,24 @@ export default function TestimonialsCarousel({
     return () => clearInterval(timer)
   }, [autoPlay, autoPlayInterval, isAutoPlayPaused])
 
+  useEffect(() => {
+    return () => {
+      if (pauseTimerRef.current) clearTimeout(pauseTimerRef.current)
+    }
+  }, [])
+
   const handlePrevious = () => {
     setCurrentIndex((prev) => (prev === 0 ? testimonials.length - 1 : prev - 1))
     setIsAutoPlayPaused(true)
-    setTimeout(() => setIsAutoPlayPaused(false), autoPlayInterval)
+    if (pauseTimerRef.current) clearTimeout(pauseTimerRef.current)
+    pauseTimerRef.current = setTimeout(() => setIsAutoPlayPaused(false), autoPlayInterval)
   }
 
   const handleNext = () => {
     setCurrentIndex((prev) => (prev === testimonials.length - 1 ? 0 : prev + 1))
     setIsAutoPlayPaused(true)
-    setTimeout(() => setIsAutoPlayPaused(false), autoPlayInterval)
+    if (pauseTimerRef.current) clearTimeout(pauseTimerRef.current)
+    pauseTimerRef.current = setTimeout(() => setIsAutoPlayPaused(false), autoPlayInterval)
   }
 
   const getVisibleTestimonials = (): Testimonial[] => {
@@ -151,7 +156,7 @@ export default function TestimonialsCarousel({
   const visibleTestimonials = getVisibleTestimonials()
 
   return (
-    <Box sx={{ py: { xs: 6, md: 10 }, bgcolor: '#ffffff' }}>
+    <Box sx={{ py: { xs: 6, md: 10 }, bgcolor: 'background.paper' }}>
       <Container maxWidth="lg">
         <Box sx={{ textAlign: 'center', mb: 6 }}>
           <Typography
@@ -159,7 +164,7 @@ export default function TestimonialsCarousel({
             sx={{
               fontWeight: 700,
               mb: 2,
-              color: '#1e293b',
+              color: 'text.primary',
             }}
           >
             What Our Clients Say
@@ -167,7 +172,7 @@ export default function TestimonialsCarousel({
           <Typography
             variant="body1"
             sx={{
-              color: '#64748b',
+              color: 'text.secondary',
               maxWidth: 600,
               mx: 'auto',
             }}
@@ -216,10 +221,10 @@ export default function TestimonialsCarousel({
                       {testimonial.avatar}
                     </Avatar>
                     <Box>
-                      <Typography variant="h6" sx={{ fontWeight: 600, color: '#1e293b' }}>
+                      <Typography variant="h6" sx={{ fontWeight: 600, color: 'text.primary' }}>
                         {testimonial.name}
                       </Typography>
-                      <Typography variant="caption" sx={{ color: '#64748b' }}>
+                      <Typography variant="caption" sx={{ color: 'text.secondary' }}>
                         {testimonial.title}
                       </Typography>
                     </Box>
@@ -241,7 +246,7 @@ export default function TestimonialsCarousel({
                     <Typography
                       variant="body2"
                       sx={{
-                        color: '#475569',
+                        color: 'text.secondary',
                         fontStyle: 'italic',
                         lineHeight: 1.6,
                       }}
@@ -254,7 +259,7 @@ export default function TestimonialsCarousel({
                     variant="caption"
                     sx={{
                       display: 'block',
-                      color: '#94a3b8',
+                      color: 'text.secondary',
                       fontWeight: 500,
                     }}
                   >
@@ -276,8 +281,8 @@ export default function TestimonialsCarousel({
             <IconButton
               onClick={handlePrevious}
               sx={{
-                bgcolor: '#e2e8f0',
-                '&:hover': { bgcolor: '#cbd5e1' },
+                bgcolor: 'action.hover',
+                '&:hover': { bgcolor: 'action.selected' },
               }}
             >
               <ChevronLeftIcon />
@@ -291,11 +296,11 @@ export default function TestimonialsCarousel({
                     width: 8,
                     height: 8,
                     borderRadius: '50%',
-                    bgcolor: idx === currentIndex ? '#0369a1' : '#cbd5e1',
+                    bgcolor: idx === currentIndex ? 'primary.main' : 'action.disabled',
                     cursor: 'pointer',
                     transition: 'all 200ms ease-out',
                     '&:hover': {
-                      bgcolor: idx === currentIndex ? '#0284c7' : '#a1aab5',
+                      bgcolor: idx === currentIndex ? 'primary.dark' : 'action.selected',
                     },
                   }}
                   onClick={() => {
@@ -310,8 +315,8 @@ export default function TestimonialsCarousel({
             <IconButton
               onClick={handleNext}
               sx={{
-                bgcolor: '#e2e8f0',
-                '&:hover': { bgcolor: '#cbd5e1' },
+                bgcolor: 'action.hover',
+                '&:hover': { bgcolor: 'action.selected' },
               }}
             >
               <ChevronRightIcon />
@@ -327,10 +332,10 @@ export default function TestimonialsCarousel({
             <Typography
               variant="caption"
               sx={{
-                color: '#94a3b8',
+                color: 'text.secondary',
               }}
             >
-              Showing {currentIndex + 1} - {currentIndex + Math.min(3, testimonials.length)} of {testimonials.length} testimonials
+              Showing {currentIndex + 1} - {Math.min(currentIndex + 3, testimonials.length)} of {testimonials.length} testimonials
             </Typography>
           </Box>
         </CarouselContainer>

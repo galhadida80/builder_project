@@ -54,9 +54,12 @@ const systemNavItems: NavItem[] = [
 
 interface SidebarProps {
   projectId?: string
+  mobileOpen?: boolean
+  onMobileClose?: () => void
+  isMobile?: boolean
 }
 
-export default function Sidebar({ projectId }: SidebarProps) {
+export default function Sidebar({ projectId, mobileOpen = false, onMobileClose, isMobile = false }: SidebarProps) {
   const { t } = useTranslation()
   const location = useLocation()
   const navigate = useNavigate()
@@ -76,21 +79,8 @@ export default function Sidebar({ projectId }: SidebarProps) {
     }
   }
 
-  return (
-    <Drawer
-      variant="permanent"
-      sx={{
-        width: DRAWER_WIDTH,
-        flexShrink: 0,
-        '& .MuiDrawer-paper': {
-          width: DRAWER_WIDTH,
-          boxSizing: 'border-box',
-          bgcolor: 'background.paper',
-          borderRight: '1px solid',
-          borderColor: 'divider',
-        },
-      }}
-    >
+  const drawerContent = (
+    <>
       <Box
         sx={{
           p: 2.5,
@@ -204,7 +194,7 @@ export default function Sidebar({ projectId }: SidebarProps) {
                     sx={{
                       borderRadius: 2,
                       py: 1,
-                      transition: 'all 200ms ease-out',
+                      transition: 'background-color 200ms ease-out',
                       '&:hover': {
                         bgcolor: 'action.hover',
                       },
@@ -289,6 +279,47 @@ export default function Sidebar({ projectId }: SidebarProps) {
           v1.0.0
         </Typography>
       </Box>
+    </>
+  )
+
+  if (isMobile) {
+    return (
+      <Drawer
+        variant="temporary"
+        open={mobileOpen}
+        onClose={onMobileClose}
+        ModalProps={{ keepMounted: true }}
+        sx={{
+          display: { xs: 'block', md: 'none' },
+          '& .MuiDrawer-paper': {
+            width: DRAWER_WIDTH,
+            boxSizing: 'border-box',
+            bgcolor: 'background.paper',
+          },
+        }}
+      >
+        {drawerContent}
+      </Drawer>
+    )
+  }
+
+  return (
+    <Drawer
+      variant="permanent"
+      sx={{
+        display: { xs: 'none', md: 'block' },
+        width: DRAWER_WIDTH,
+        flexShrink: 0,
+        '& .MuiDrawer-paper': {
+          width: DRAWER_WIDTH,
+          boxSizing: 'border-box',
+          bgcolor: 'background.paper',
+          borderRight: '1px solid',
+          borderColor: 'divider',
+        },
+      }}
+    >
+      {drawerContent}
     </Drawer>
   )
 }

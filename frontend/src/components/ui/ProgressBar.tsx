@@ -1,5 +1,5 @@
 import { Box, Typography, LinearProgress } from '@mui/material'
-import { styled } from '@mui/material/styles'
+import { styled } from '@mui/material'
 
 interface ProgressBarProps {
   value: number
@@ -84,7 +84,15 @@ export function CircularProgressDisplay({
           height: size,
         }}
       >
-        <svg viewBox="0 0 100 100" style={{ transform: 'rotate(-90deg)' }}>
+        <svg
+          viewBox="0 0 100 100"
+          style={{ transform: 'rotate(-90deg)' }}
+          role="progressbar"
+          aria-valuenow={normalizedValue}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label={`${normalizedValue}% progress`}
+        >
           <circle
             cx="50"
             cy="50"
@@ -99,14 +107,13 @@ export function CircularProgressDisplay({
             cy="50"
             r={50 - thickness}
             fill="none"
-            stroke="currentColor"
             strokeWidth={thickness}
             strokeLinecap="round"
             strokeDasharray={`${2 * Math.PI * (50 - thickness)}`}
             strokeDashoffset={`${2 * Math.PI * (50 - thickness) * (1 - normalizedValue / 100)}`}
             style={{
               transition: 'stroke-dashoffset 500ms ease-out',
-              color: `var(--mui-palette-${color}-main)`,
+              stroke: 'currentColor',
             }}
           />
         </svg>

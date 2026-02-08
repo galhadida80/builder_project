@@ -245,7 +245,13 @@ export default function EquipmentPage() {
   }
 
   const filteredEquipment = equipment.filter(e => {
-    if (activeTab !== 'all' && e.status !== activeTab) return false
+    if (activeTab !== 'all') {
+      if (activeTab === 'under_review') {
+        if (e.status !== 'submitted' && e.status !== 'under_review') return false
+      } else if (e.status !== activeTab) {
+        return false
+      }
+    }
     if (search && !e.name.toLowerCase().includes(search.toLowerCase()) &&
         !e.equipmentType?.toLowerCase().includes(search.toLowerCase())) return false
     return true

@@ -31,8 +31,7 @@ export function useNotifications(
   const [unreadCount, setUnreadCount] = useState<number>(0)
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<Error | null>(null)
-  const [offset, setOffset] = useState<number>(0)
-  const [hasMore, setHasMore] = useState<boolean>(true)
+  const [hasMore, setHasMore] = useState<boolean>(false)
 
   const fetchNotifications = useCallback(
     async (reset = false) => {
@@ -40,26 +39,18 @@ export function useNotifications(
         setLoading(true)
         setError(null)
 
-        const currentOffset = reset ? 0 : offset
         const data = await notificationsApi.getAll(category)
 
-        if (reset) {
-          setNotifications(data)
-          setOffset(data.length)
-        } else {
-          setNotifications((prev) => [...prev, ...data])
-          setOffset((prev) => prev + data.length)
-        }
-
-        // If we received fewer items than requested, there are no more
-        setHasMore(data.length >= limit)
+        setNotifications(data)
+        // API returns all notifications at once (no server-side pagination)
+        setHasMore(false)
       } catch (err) {
         setError(err instanceof Error ? err : new Error('Failed to fetch notifications'))
       } finally {
         setLoading(false)
       }
     },
-    [category, limit, offset]
+    [category, limit]
   )
 
   const fetchUnreadCount = useCallback(async () => {
@@ -121,7 +112,6 @@ export function useNotifications(
   // Fetch notifications and unread count on mount and when category changes
   useEffect(() => {
     if (autoFetch) {
-      setOffset(0)
       fetchNotifications(true)
       fetchUnreadCount()
     }

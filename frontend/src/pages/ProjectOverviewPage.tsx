@@ -7,11 +7,19 @@ import Grid from '@mui/material/Grid'
 import { useTheme, useMediaQuery } from '@mui/material'
 import { Card } from '../components/ui/Card'
 import { EmptyState } from '../components/ui/EmptyState'
-import { ProjectProgressRing } from '../../components/ProjectProgressRing'
-import { ProjectTimeline, TimelineEvent } from '../../components/ProjectTimeline'
-import { ProjectOverviewTabs } from '../../components/ProjectOverviewTabs'
+import { Tabs } from '../components/ui/Tabs'
+import { CircularProgressDisplay } from '../components/ui/ProgressBar'
 import { apiClient } from '../api/client'
 import { useToast } from '../components/common/ToastProvider'
+
+interface TimelineEvent {
+  id: string
+  type: string
+  title: string
+  description?: string
+  date: string
+  user?: string
+}
 
 // Backend response interfaces (camelCase from CamelCaseModel)
 interface ProgressMetrics {
@@ -137,15 +145,16 @@ export default function ProjectOverviewPage() {
             <Typography variant="h6" fontWeight={600} sx={{ mb: 3 }}>
               Project Progress
             </Typography>
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
-              <ProjectProgressRing
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 3, gap: 1 }}>
+              <CircularProgressDisplay
                 value={progress.overallPercentage}
-                label="Overall Completion"
                 size={isMobile ? 120 : 160}
-                color="primary"
-                showPercentage
-                subtitle={`${completedItems} of ${totalItems} items completed`}
+                thickness={6}
+                showLabel
               />
+              <Typography variant="body2" color="text.secondary">
+                {completedItems} of {totalItems} items completed
+              </Typography>
             </Box>
             <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2, mt: 3 }}>
               <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'action.hover', borderRadius: 2 }}>
@@ -244,7 +253,36 @@ export default function ProjectOverviewPage() {
         <Typography variant="h6" fontWeight={600} sx={{ mb: 3 }}>
           Recent Activity
         </Typography>
-        <ProjectTimeline events={timeline} maxEvents={20} emptyMessage="No recent activity" />
+        {timeline.length === 0 ? (
+          <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
+            No recent activity
+          </Typography>
+        ) : (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {timeline.slice(0, 20).map((event) => (
+              <Box
+                key={event.id}
+                sx={{
+                  display: 'flex',
+                  gap: 2,
+                  p: 2,
+                  bgcolor: 'action.hover',
+                  borderRadius: 2,
+                }}
+              >
+                <Box sx={{ flex: 1 }}>
+                  <Typography variant="body2" fontWeight={600}>{event.title}</Typography>
+                  {event.description && (
+                    <Typography variant="caption" color="text.secondary">{event.description}</Typography>
+                  )}
+                </Box>
+                <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap' }}>
+                  {new Date(event.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                </Typography>
+              </Box>
+            ))}
+          </Box>
+        )}
       </Box>
     </Card>
   )
@@ -386,14 +424,22 @@ export default function ProjectOverviewPage() {
         </Typography>
       </Box>
 
-      <ProjectOverviewTabs
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-        summaryContent={summaryContent}
-        timelineContent={timelineContent}
-        teamContent={teamContent}
-        statsContent={statsContent}
+      <Tabs
+        items={[
+          { label: 'Summary', value: 'summary' },
+          { label: 'Timeline', value: 'timeline' },
+          { label: 'Team', value: 'team' },
+          { label: 'Statistics', value: 'stats' },
+        ]}
+        value={activeTab}
+        onChange={setActiveTab}
       />
+      <Box sx={{ mt: 3 }}>
+        {activeTab === 'summary' && summaryContent}
+        {activeTab === 'timeline' && timelineContent}
+        {activeTab === 'team' && teamContent}
+        {activeTab === 'stats' && statsContent}
+      </Box>
     </Box>
   )
 }

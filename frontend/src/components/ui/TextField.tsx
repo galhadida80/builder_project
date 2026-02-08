@@ -1,5 +1,5 @@
 import { TextField as MuiTextField, TextFieldProps as MuiTextFieldProps, InputAdornment } from '@mui/material'
-import { styled } from '@mui/material/styles'
+import { styled } from '@mui/material'
 
 export interface TextFieldProps extends Omit<MuiTextFieldProps, 'variant'> {
   variant?: 'outlined' | 'filled'
@@ -10,7 +10,7 @@ export interface TextFieldProps extends Omit<MuiTextFieldProps, 'variant'> {
 const StyledTextField = styled(MuiTextField)(({ theme }) => ({
   '& .MuiOutlinedInput-root': {
     borderRadius: 8,
-    transition: 'all 200ms ease-out',
+    transition: 'border-color 200ms ease-out',
     '&:hover': {
       '& .MuiOutlinedInput-notchedOutline': {
         borderColor: theme.palette.primary.main,
@@ -56,11 +56,13 @@ export function TextField({
 }
 
 export function SearchField(props: Omit<TextFieldProps, 'type'>) {
+  const { sx, inputProps, ...rest } = props
   return (
     <TextField
       type="search"
       placeholder="Search..."
       size="small"
+      inputProps={{ 'aria-label': 'Search', ...inputProps }}
       sx={{
         minWidth: 200,
         '& .MuiOutlinedInput-root': {
@@ -69,9 +71,9 @@ export function SearchField(props: Omit<TextFieldProps, 'type'>) {
             bgcolor: 'action.selected',
           },
         },
-        ...props.sx,
+        ...sx,
       }}
-      {...props}
+      {...rest}
     />
   )
 }

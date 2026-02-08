@@ -4,13 +4,14 @@ import AppBar from '@mui/material/AppBar'
 import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
-import Badge from '@mui/material/Badge'
+
 import Avatar from '@mui/material/Avatar'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
 import Divider from '@mui/material/Divider'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import Box from '@mui/material/Box'
+import MenuIcon from '@mui/icons-material/Menu'
 import NotificationsIcon from '@mui/icons-material/Notifications'
 import PersonIcon from '@mui/icons-material/Person'
 import SettingsIcon from '@mui/icons-material/Settings'
@@ -27,9 +28,11 @@ interface HeaderProps {
   projects: Project[]
   onProjectChange: (projectId: string) => void
   onLogout: () => void
+  onMenuToggle?: () => void
+  isMobile?: boolean
 }
 
-export default function Header({ user, currentProject, projects, onProjectChange, onLogout }: HeaderProps) {
+export default function Header({ user, currentProject, projects, onProjectChange, onLogout, onMenuToggle, isMobile }: HeaderProps) {
   const { t } = useTranslation()
   const { showInfo } = useToast()
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
@@ -65,12 +68,17 @@ export default function Header({ user, currentProject, projects, onProjectChange
         borderBottom: '1px solid',
         borderColor: 'divider',
         bgcolor: 'background.paper',
-        ml: '260px',
-        width: 'calc(100% - 260px)',
+        ml: { xs: 0, md: '260px' },
+        width: { xs: '100%', md: 'calc(100% - 260px)' },
       }}
     >
       <Toolbar sx={{ justifyContent: 'space-between' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          {isMobile && (
+            <IconButton aria-label="Open navigation menu" onClick={onMenuToggle} edge="start">
+              <MenuIcon />
+            </IconButton>
+          )}
           <ProjectSelector
             projects={projects}
             currentProject={currentProject}
@@ -82,13 +90,11 @@ export default function Header({ user, currentProject, projects, onProjectChange
           <ThemeToggle />
           <LanguageSwitcher />
 
-          <IconButton onClick={handleNotificationOpen}>
-            <Badge badgeContent={3} color="error">
-              <NotificationsIcon />
-            </Badge>
+          <IconButton aria-label="Notifications" onClick={handleNotificationOpen}>
+            <NotificationsIcon />
           </IconButton>
 
-          <IconButton onClick={handleMenuOpen} sx={{ ml: 1 }}>
+          <IconButton aria-label="User menu" onClick={handleMenuOpen} sx={{ ml: 1 }}>
             <Avatar sx={{ width: 36, height: 36, bgcolor: 'primary.main' }}>
               {getInitials(user.fullName || user.email)}
             </Avatar>
@@ -101,32 +107,9 @@ export default function Header({ user, currentProject, projects, onProjectChange
           onClose={handleNotificationClose}
           PaperProps={{ sx: { width: 320, maxHeight: 400 } }}
         >
-          <Box sx={{ px: 2, py: 1 }}>
-            <Typography variant="subtitle1" fontWeight="bold">{t('header.notifications')}</Typography>
+          <Box sx={{ px: 2, py: 1.5 }}>
+            <Typography variant="body2" color="text.secondary">No new notifications</Typography>
           </Box>
-          <Divider />
-          <MenuItem onClick={handleNotificationClose}>
-            <Box>
-              <Typography variant="body2">{t('notifications.equipmentApprovalPending')}</Typography>
-              <Typography variant="caption" color="text.secondary">{t('notifications.equipmentApprovalDesc')}</Typography>
-            </Box>
-          </MenuItem>
-          <MenuItem onClick={handleNotificationClose}>
-            <Box>
-              <Typography variant="body2">{t('notifications.meetingScheduled')}</Typography>
-              <Typography variant="caption" color="text.secondary">{t('notifications.meetingScheduledDesc')}</Typography>
-            </Box>
-          </MenuItem>
-          <MenuItem onClick={handleNotificationClose}>
-            <Box>
-              <Typography variant="body2">{t('notifications.materialDeliveryUpdate')}</Typography>
-              <Typography variant="caption" color="text.secondary">{t('notifications.materialDeliveryDesc')}</Typography>
-            </Box>
-          </MenuItem>
-          <Divider />
-          <MenuItem sx={{ justifyContent: 'center' }}>
-            <Typography variant="body2" color="primary">{t('header.viewAllNotifications')}</Typography>
-          </MenuItem>
         </Menu>
 
         <Menu

@@ -1,5 +1,5 @@
 import { Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Box, Typography } from '@mui/material'
-import { styled } from '@mui/material/styles'
+import { styled } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import { Button } from './Button'
 
@@ -61,7 +61,7 @@ export function Modal({
             {title}
           </Typography>
           {!hideCloseButton && (
-            <IconButton onClick={onClose} size="small" sx={{ marginInlineStart: 2 }}>
+            <IconButton onClick={onClose} size="small" aria-label="Close dialog" sx={{ marginInlineStart: 2 }}>
               <CloseIcon fontSize="small" />
             </IconButton>
           )}

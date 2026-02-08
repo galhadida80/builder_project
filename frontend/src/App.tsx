@@ -51,6 +51,7 @@ export default function App() {
 
             <Route path="/projects/:projectId" element={<ProjectDetailPage />}>
               <Route path="overview" element={<ProjectOverviewPage />} />
+              <Route path="timeline" element={<GanttTimelinePage />} />
               <Route path="equipment" element={<EquipmentPage />} />
               <Route path="materials" element={<MaterialsPage />} />
               <Route path="meetings" element={<MeetingsPage />} />

@@ -1,5 +1,5 @@
 import { Box, Typography, Container, SxProps, Theme, useMediaQuery, useTheme } from '@mui/material'
-import { alpha } from '@mui/material/styles'
+import { alpha } from '@mui/material'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import { Button } from './ui/Button'
 
@@ -235,15 +235,22 @@ export function CTASectionGrid({ items, sx }: CTASectionGridProps) {
           <Box
             key={item.id}
             onClick={item.onClick}
+            role={item.onClick ? 'button' : undefined}
+            tabIndex={item.onClick ? 0 : undefined}
+            onKeyDown={item.onClick ? (e: React.KeyboardEvent) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                item.onClick?.()
+              }
+            } : undefined}
             sx={{
               p: 3,
               border: '1px solid',
               borderColor: 'divider',
               borderRadius: 2,
               cursor: item.onClick ? 'pointer' : 'default',
-              transition: 'all 200ms ease-out',
+              transition: 'box-shadow 200ms ease-out, border-color 200ms ease-out',
               '&:hover': item.onClick ? {
-                transform: 'translateY(-4px)',
                 boxShadow: (theme) => theme.shadows[4],
                 borderColor: 'primary.main',
               } : {},

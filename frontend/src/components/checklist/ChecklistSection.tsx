@@ -9,7 +9,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked'
-import { styled } from '@mui/material/styles'
+import { styled } from '@mui/material'
 import type { ChecklistSubSection, ChecklistItemTemplate, ChecklistItemResponse } from '../../types'
 
 interface ChecklistSectionProps {
@@ -41,6 +41,10 @@ const SectionHeader = styled(Box)(({ theme }) => ({
   '&:hover': {
     backgroundColor: theme.palette.action.hover,
   },
+  '&:focus-visible': {
+    outline: `2px solid ${theme.palette.primary.main}`,
+    outlineOffset: -2,
+  },
 }))
 
 const ItemRow = styled(Box)(({ theme }) => ({
@@ -53,6 +57,10 @@ const ItemRow = styled(Box)(({ theme }) => ({
   transition: 'background-color 150ms ease-out',
   '&:hover': {
     backgroundColor: theme.palette.action.hover,
+  },
+  '&:focus-visible': {
+    outline: `2px solid ${theme.palette.primary.main}`,
+    outlineOffset: -2,
   },
 }))
 
@@ -95,7 +103,15 @@ export function ChecklistSection({
 
   return (
     <SectionContainer>
-      <SectionHeader onClick={handleToggle}>
+      <SectionHeader
+        role="button"
+        tabIndex={0}
+        aria-expanded={expanded}
+        onClick={handleToggle}
+        onKeyDown={(e: React.KeyboardEvent) => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleToggle() }
+        }}
+      >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flex: 1 }}>
           <Box
             sx={{
@@ -179,7 +195,15 @@ export function ChecklistSection({
               const response = getItemStatus(item.id)
 
               return (
-                <ItemRow key={item.id} onClick={() => handleItemClick(item)}>
+                <ItemRow
+                  key={item.id}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => handleItemClick(item)}
+                  onKeyDown={(e: React.KeyboardEvent) => {
+                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleItemClick(item) }
+                  }}
+                >
                   <Box>
                     {itemComplete ? (
                       <CheckCircleIcon

@@ -13,7 +13,7 @@ import {
   Typography,
   Skeleton,
 } from '@mui/material'
-import { styled } from '@mui/material/styles'
+import { styled } from '@mui/material'
 import { useState } from 'react'
 
 export interface Column<T> {
@@ -65,7 +65,6 @@ const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
   '& .MuiTableBody-root': {
     '& .MuiTableRow-root': {
       transition: 'background-color 150ms ease-out',
-      cursor: 'pointer',
       '&:hover': {
         backgroundColor: theme.palette.action.hover,
       },
@@ -177,9 +176,20 @@ export function DataTable<T>({
     setPage(0)
   }
 
-  const displayedRows = pagination
-    ? rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+  const sortedRows = orderBy
+    ? [...rows].sort((a, b) => {
+        const aVal = (a as Record<string, unknown>)[orderBy]
+        const bVal = (b as Record<string, unknown>)[orderBy]
+        if (aVal == null) return 1
+        if (bVal == null) return -1
+        const cmp = String(aVal).localeCompare(String(bVal), undefined, { numeric: true })
+        return order === 'asc' ? cmp : -cmp
+      })
     : rows
+
+  const displayedRows = pagination
+    ? sortedRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+    : sortedRows
 
   if (loading) {
     return (
@@ -237,6 +247,7 @@ export function DataTable<T>({
                   indeterminate={selectedIds.length > 0 && selectedIds.length < rows.length}
                   checked={rows.length > 0 && selectedIds.length === rows.length}
                   onChange={handleSelectAll}
+                  inputProps={{ 'aria-label': 'Select all rows' } as React.InputHTMLAttributes<HTMLInputElement>}
                 />
               </TableCell>
             )}
@@ -271,6 +282,7 @@ export function DataTable<T>({
                 key={rowId}
                 selected={isSelected}
                 onClick={() => onRowClick?.(row)}
+                sx={{ cursor: onRowClick ? 'pointer' : 'default' }}
               >
                 {selectable && (
                   <TableCell padding="checkbox">

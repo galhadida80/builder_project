@@ -3,7 +3,6 @@ import Box from '@mui/material/Box'
 import Container from '@mui/material/Container'
 import Typography from '@mui/material/Typography'
 import Paper from '@mui/material/Paper'
-import Grid from '@mui/material/Grid'
 import DashboardIcon from '@mui/icons-material/Dashboard'
 import PeopleIcon from '@mui/icons-material/People'
 import DescriptionIcon from '@mui/icons-material/Description'
@@ -13,7 +12,8 @@ import AnalyticsIcon from '@mui/icons-material/Analytics'
 import SecurityIcon from '@mui/icons-material/Security'
 import CloudSyncIcon from '@mui/icons-material/CloudSync'
 import NotificationsIcon from '@mui/icons-material/Notifications'
-import { styled } from '@mui/material/styles'
+import { styled } from '@mui/material'
+import { Button } from './ui/Button'
 
 const BentoCard = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -24,9 +24,8 @@ const BentoCard = styled(Paper)(({ theme }) => ({
   minHeight: 280,
   background: theme.palette.background.paper,
   boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-  transition: 'all 300ms ease-out',
+  transition: 'box-shadow 300ms ease-out, transform 300ms ease-out',
   border: `1px solid ${theme.palette.divider}`,
-  cursor: 'pointer',
   position: 'relative',
   overflow: 'hidden',
   '&:before': {
@@ -42,8 +41,8 @@ const BentoCard = styled(Paper)(({ theme }) => ({
     pointerEvents: 'none',
   },
   '&:hover': {
-    transform: 'translateY(-8px)',
-    boxShadow: '0 12px 24px rgba(0,0,0,0.15)',
+    transform: 'translateY(-2px)',
+    boxShadow: '0 8px 16px rgba(0,0,0,0.12)',
     '&:before': {
       opacity: 1,
     },
@@ -58,7 +57,6 @@ const IconContainer = styled(Box)(({ theme }) => ({
   alignItems: 'center',
   justifyContent: 'center',
   marginBottom: theme.spacing(2),
-  transition: 'all 300ms ease-out',
 }))
 
 interface Feature {
@@ -141,7 +139,7 @@ export default function FeaturesBentoGrid() {
   const { t } = useTranslation()
 
   return (
-    <Box sx={{ py: { xs: 6, md: 10 }, bgcolor: '#f5f5f5' }}>
+    <Box sx={{ py: { xs: 6, md: 10 }, bgcolor: 'background.default' }}>
       <Container maxWidth="lg">
         <Box sx={{ textAlign: 'center', mb: 6 }}>
           <Typography
@@ -149,7 +147,7 @@ export default function FeaturesBentoGrid() {
             sx={{
               fontWeight: 700,
               mb: 2,
-              color: '#1e293b',
+              color: 'text.primary',
             }}
           >
             Powerful Features
@@ -157,7 +155,7 @@ export default function FeaturesBentoGrid() {
           <Typography
             variant="body1"
             sx={{
-              color: '#64748b',
+              color: 'text.secondary',
               maxWidth: 600,
               mx: 'auto',
             }}
@@ -166,9 +164,7 @@ export default function FeaturesBentoGrid() {
           </Typography>
         </Box>
 
-        <Grid
-          container
-          spacing={3}
+        <Box
           sx={{
             display: 'grid',
             gridTemplateColumns: {
@@ -180,14 +176,10 @@ export default function FeaturesBentoGrid() {
           }}
         >
           {features.map((feature) => (
-            <Grid
-              item
+            <Box
               key={feature.id}
               sx={{
                 gridColumn: feature.fullWidth ? { md: '1 / -1' } : 'auto',
-                xs: 12,
-                sm: 6,
-                md: feature.fullWidth ? 12 : 4,
               }}
             >
               <BentoCard>
@@ -200,7 +192,7 @@ export default function FeaturesBentoGrid() {
                     sx={{
                       fontWeight: 600,
                       mb: 1,
-                      color: '#1e293b',
+                      color: 'text.primary',
                     }}
                   >
                     {feature.title}
@@ -208,7 +200,7 @@ export default function FeaturesBentoGrid() {
                   <Typography
                     variant="body2"
                     sx={{
-                      color: '#64748b',
+                      color: 'text.secondary',
                       lineHeight: 1.6,
                     }}
                   >
@@ -219,19 +211,20 @@ export default function FeaturesBentoGrid() {
                   sx={{
                     mt: 2,
                     pt: 2,
-                    borderTop: '1px solid #e2e8f0',
+                    borderTop: '1px solid',
+                    borderTopColor: 'divider',
                   }}
                 >
                   <Typography
                     variant="caption"
                     sx={{
-                      color: '#0369a1',
+                      color: 'primary.main',
                       fontWeight: 600,
                       cursor: 'pointer',
-                      transition: 'all 200ms ease-out',
+                      transition: 'color 200ms ease-out',
                       display: 'inline-block',
                       '&:hover': {
-                        transform: 'translateX(4px)',
+                        color: 'primary.dark',
                       },
                     }}
                   >
@@ -239,67 +232,33 @@ export default function FeaturesBentoGrid() {
                   </Typography>
                 </Box>
               </BentoCard>
-            </Grid>
+            </Box>
           ))}
-        </Grid>
+        </Box>
 
         <Box
           sx={{
             mt: 8,
             p: 4,
-            bgcolor: 'white',
+            bgcolor: 'background.paper',
             borderRadius: 2,
             boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
             textAlign: 'center',
           }}
         >
-          <Typography variant="h5" sx={{ fontWeight: 600, mb: 2, color: '#1e293b' }}>
+          <Typography variant="h5" sx={{ fontWeight: 600, mb: 2, color: 'text.primary' }}>
             Ready to transform your construction projects?
           </Typography>
-          <Typography variant="body2" sx={{ color: '#64748b', mb: 3 }}>
+          <Typography variant="body2" sx={{ color: 'text.secondary', mb: 3 }}>
             Join thousands of construction teams using BuilderOps to streamline operations and increase productivity
           </Typography>
           <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Box
-              component="button"
-              sx={{
-                px: 3,
-                py: 1.5,
-                borderRadius: 1,
-                border: 'none',
-                background: '#0369a1',
-                color: 'white',
-                fontWeight: 600,
-                cursor: 'pointer',
-                transition: 'all 200ms ease-out',
-                '&:hover': {
-                  background: '#0284c7',
-                  transform: 'translateY(-2px)',
-                },
-              }}
-            >
+            <Button variant="primary">
               Get Started Free
-            </Box>
-            <Box
-              component="button"
-              sx={{
-                px: 3,
-                py: 1.5,
-                borderRadius: 1,
-                border: '2px solid #cbd5e1',
-                background: 'transparent',
-                color: '#1e293b',
-                fontWeight: 600,
-                cursor: 'pointer',
-                transition: 'all 200ms ease-out',
-                '&:hover': {
-                  borderColor: '#0369a1',
-                  color: '#0369a1',
-                },
-              }}
-            >
+            </Button>
+            <Button variant="secondary">
               Schedule Demo
-            </Box>
+            </Button>
           </Box>
         </Box>
       </Container>

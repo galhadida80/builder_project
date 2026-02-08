@@ -1,5 +1,5 @@
-import { createTheme } from '@mui/material/styles'
-import type { ThemeOptions } from '@mui/material/styles'
+import { createTheme } from '@mui/material'
+import type { ThemeOptions } from '@mui/material'
 import { colors, shadows, borderRadius, typography, transitions, animations } from './tokens'
 
 const baseThemeOptions: ThemeOptions = {
@@ -152,16 +152,9 @@ const baseThemeOptions: ThemeOptions = {
           textTransform: 'none',
           borderRadius: borderRadius.md,
           fontWeight: typography.fontWeight.semibold,
-          padding: '10px 20px',
-          minHeight: 44,
-          minWidth: 44,
-          transition: `all ${transitions.normal}`,
-          '&:hover': {
-            transform: 'translateY(-1px)',
-          },
-          '&:active': {
-            transform: 'scale(0.98)',
-          },
+          padding: '8px 16px',
+          minHeight: 36,
+          transition: `background-color ${transitions.normal}, box-shadow ${transitions.normal}, border-color ${transitions.normal}`,
         },
         containedPrimary: {
           backgroundColor: colors.accent.primary,
@@ -170,16 +163,14 @@ const baseThemeOptions: ThemeOptions = {
           },
         },
         sizeSmall: {
-          padding: '6px 12px',
+          padding: '4px 10px',
           fontSize: typography.fontSize.tiny,
-          minHeight: 44,
-          minWidth: 44,
+          minHeight: 32,
         },
         sizeLarge: {
-          padding: '14px 28px',
+          padding: '10px 24px',
           fontSize: typography.fontSize.body,
-          minHeight: 48,
-          minWidth: 48,
+          minHeight: 44,
         },
       },
       defaultProps: {
@@ -188,21 +179,11 @@ const baseThemeOptions: ThemeOptions = {
     },
     MuiIconButton: {
       styleOverrides: {
-        root: {
-          minHeight: 44,
-          minWidth: 44,
-        },
         sizeSmall: {
-          minHeight: 44,
-          minWidth: 44,
-        },
-        sizeMedium: {
-          minHeight: 44,
-          minWidth: 44,
+          padding: 6,
         },
         sizeLarge: {
-          minHeight: 48,
-          minWidth: 48,
+          padding: 12,
         },
       },
     },
@@ -211,7 +192,7 @@ const baseThemeOptions: ThemeOptions = {
         root: {
           borderRadius: borderRadius.lg,
           boxShadow: shadows.card,
-          transition: `all ${transitions.normal}`,
+          transition: `box-shadow ${transitions.normal}`,
           '&:hover': {
             boxShadow: shadows.cardHover,
           },
@@ -239,7 +220,7 @@ const baseThemeOptions: ThemeOptions = {
         root: {
           '& .MuiOutlinedInput-root': {
             borderRadius: borderRadius.md,
-            transition: `all ${transitions.normal}`,
+            transition: `border-color ${transitions.normal}`,
             '&:hover .MuiOutlinedInput-notchedOutline': {
               borderWidth: 2,
             },
@@ -265,43 +246,15 @@ const baseThemeOptions: ThemeOptions = {
         root: {
           borderRadius: borderRadius.md,
           fontWeight: typography.fontWeight.medium,
-          '&.MuiChip-clickable': {
-            minHeight: 44,
-          },
         },
         sizeSmall: {
           height: 24,
           fontSize: typography.fontSize.tiny,
-          '&.MuiChip-clickable': {
-            minHeight: 44,
-          },
-        },
-      },
-    },
-    MuiListItemButton: {
-      styleOverrides: {
-        root: {
-          minHeight: 44,
-        },
-      },
-    },
-    MuiMenuItem: {
-      styleOverrides: {
-        root: {
-          minHeight: 44,
         },
       },
     },
     MuiFab: {
       styleOverrides: {
-        root: {
-          minHeight: 44,
-          minWidth: 44,
-        },
-        sizeSmall: {
-          minHeight: 44,
-          minWidth: 44,
-        },
         sizeMedium: {
           minHeight: 48,
           minWidth: 48,
@@ -345,8 +298,7 @@ const baseThemeOptions: ThemeOptions = {
         root: {
           textTransform: 'none',
           fontWeight: typography.fontWeight.medium,
-          minHeight: 48,
-          minWidth: 44,
+          minHeight: 40,
         },
       },
     },

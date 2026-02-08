@@ -1,5 +1,5 @@
 import { Chip, ChipProps } from '@mui/material'
-import { styled } from '@mui/material/styles'
+import { styled } from '@mui/material'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import PendingIcon from '@mui/icons-material/Pending'
 import CancelIcon from '@mui/icons-material/Cancel'
@@ -43,15 +43,10 @@ interface StatusBadgeProps {
   showIcon?: boolean
 }
 
-// Statuses that should have pulse animation (active/ongoing states)
+// Only statuses that genuinely need attention should pulse
 const activeStatuses: StatusType[] = [
-  'active',
-  'in_progress',
-  'open',
-  'pending',
-  'waiting_response',
-  'submitted',
-  'under_review',
+  'urgent',
+  'critical',
 ]
 
 const statusConfig: Record<StatusType, { label: string; color: ChipProps['color']; icon: React.ReactNode }> = {
@@ -86,14 +81,9 @@ const StyledChip = styled(Chip)(() => ({
   fontWeight: 600,
   fontSize: '0.75rem',
   letterSpacing: '0.02em',
-  transition: createTransition('transform', duration.fast, easing.standard),
-  '&:hover': {
-    transform: 'scale(1.05)',
-  },
   '& .MuiChip-icon': {
     fontSize: '1rem',
   },
-  // RTL-safe: MUI Chip handles icon positioning automatically
 }))
 
 export function StatusBadge({ status, size = 'small', showIcon = false }: StatusBadgeProps) {
@@ -110,8 +100,8 @@ export function StatusBadge({ status, size = 'small', showIcon = false }: Status
         borderRadius: 1.5,
         ...(shouldPulse && {
           animation: createAnimation(keyframeAnimations.pulse, 2000, easing.easeInOut, 'infinite'),
-          '& .MuiChip-icon': {
-            animation: createAnimation(keyframeAnimations.pulse, 2000, easing.easeInOut, 'infinite'),
+          '@media (prefers-reduced-motion: reduce)': {
+            animation: 'none',
           },
         }),
       }}
@@ -144,7 +134,7 @@ export function SeverityBadge({ severity, size = 'small' }: SeverityBadgeProps) 
         fontWeight: 600,
         fontSize: '0.7rem',
         borderRadius: 1,
-        height: size === 'small' ? 20 : 24,
+        height: size === 'small' ? 24 : 28,
       }}
     />
   )

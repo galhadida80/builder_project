@@ -12,7 +12,7 @@ import PhoneIphoneIcon from '@mui/icons-material/PhoneIphone'
 import TouchAppIcon from '@mui/icons-material/TouchApp'
 import CameraIcon from '@mui/icons-material/CameraAlt'
 import ShareIcon from '@mui/icons-material/Share'
-import { styled } from '@mui/material/styles'
+import { styled } from '@mui/material'
 
 const MobileFrame = styled(Paper)(({ theme }) => ({
   position: 'relative',
@@ -184,7 +184,7 @@ export default function MobileAppPreviewSection() {
   }
 
   return (
-    <Box sx={{ py: { xs: 6, md: 10 }, bgcolor: '#f5f5f5' }}>
+    <Box sx={{ py: { xs: 6, md: 10 }, bgcolor: 'background.default' }}>
       <Container maxWidth="lg">
         <Box sx={{ textAlign: 'center', mb: 6 }}>
           <Typography
@@ -192,7 +192,7 @@ export default function MobileAppPreviewSection() {
             sx={{
               fontWeight: 700,
               mb: 2,
-              color: '#1e293b',
+              color: 'text.primary',
             }}
           >
             Mobile App Preview
@@ -200,7 +200,7 @@ export default function MobileAppPreviewSection() {
           <Typography
             variant="body1"
             sx={{
-              color: '#64748b',
+              color: 'text.secondary',
               maxWidth: 600,
               mx: 'auto',
             }}
@@ -227,9 +227,10 @@ export default function MobileAppPreviewSection() {
               >
                 <IconButton
                   onClick={handlePrevious}
+                  aria-label="Previous screen"
                   sx={{
-                    bgcolor: '#e2e8f0',
-                    '&:hover': { bgcolor: '#cbd5e1' },
+                    bgcolor: 'action.hover',
+                    '&:hover': { bgcolor: 'action.selected' },
                   }}
                 >
                   <ChevronLeftIcon />
@@ -250,9 +251,10 @@ export default function MobileAppPreviewSection() {
                 </Box>
                 <IconButton
                   onClick={handleNext}
+                  aria-label="Next screen"
                   sx={{
-                    bgcolor: '#e2e8f0',
-                    '&:hover': { bgcolor: '#cbd5e1' },
+                    bgcolor: 'action.hover',
+                    '&:hover': { bgcolor: 'action.selected' },
                   }}
                 >
                   <ChevronRightIcon />
@@ -264,10 +266,10 @@ export default function MobileAppPreviewSection() {
           <Grid item xs={12} md={6}>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
               <Box>
-                <Typography variant="h5" sx={{ fontWeight: 600, mb: 1, color: '#1e293b' }}>
+                <Typography variant="h5" sx={{ fontWeight: 600, mb: 1, color: 'text.primary' }}>
                   {currentScreen.title}
                 </Typography>
-                <Typography variant="body2" sx={{ color: '#64748b' }}>
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                   Navigate through different app sections to explore all features and capabilities
                 </Typography>
               </Box>
@@ -290,10 +292,10 @@ export default function MobileAppPreviewSection() {
                     {feature.icon}
                   </Box>
                   <Box>
-                    <Typography variant="h6" sx={{ fontWeight: 600, mb: 0.5, color: '#1e293b' }}>
+                    <Typography variant="h6" sx={{ fontWeight: 600, mb: 0.5, color: 'text.primary' }}>
                       {feature.title}
                     </Typography>
-                    <Typography variant="body2" sx={{ color: '#64748b' }}>
+                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                       {feature.description}
                     </Typography>
                   </Box>

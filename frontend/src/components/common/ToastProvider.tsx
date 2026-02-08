@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, ReactNode } from 'react'
+import { createContext, useContext, useState, useCallback, useRef, ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import Snackbar from '@mui/material/Snackbar'
 import Alert from '@mui/material/Alert'
@@ -34,8 +34,13 @@ export function ToastProvider({ children }: ToastProviderProps) {
   const [message, setMessage] = useState('')
   const [severity, setSeverity] = useState<ToastSeverity>('info')
   const [isExiting, setIsExiting] = useState(false)
+  const exitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const showToast = useCallback((msg: string, sev: ToastSeverity = 'info') => {
+    if (exitTimerRef.current) {
+      clearTimeout(exitTimerRef.current)
+      exitTimerRef.current = null
+    }
     setMessage(msg)
     setSeverity(sev)
     setIsExiting(false)
@@ -60,10 +65,13 @@ export function ToastProvider({ children }: ToastProviderProps) {
 
   const handleClose = () => {
     setIsExiting(true)
-    // Wait for fade-out animation to complete before closing
-    setTimeout(() => {
+    if (exitTimerRef.current) {
+      clearTimeout(exitTimerRef.current)
+    }
+    exitTimerRef.current = setTimeout(() => {
       setOpen(false)
       setIsExiting(false)
+      exitTimerRef.current = null
     }, duration.normal)
   }
 

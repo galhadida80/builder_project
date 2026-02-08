@@ -14,6 +14,7 @@ import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
 import { useTranslation } from 'react-i18next'
 import { useToast } from '../components/common/ToastProvider'
+import { useThemeMode } from '../theme'
 
 export default function SettingsPage() {
   const { t, i18n } = useTranslation()
@@ -26,7 +27,7 @@ export default function SettingsPage() {
     approvals: true,
   })
 
-  const [theme, setTheme] = useState('system')
+  const { mode, setMode } = useThemeMode()
 
   const handleNotificationChange = (key: keyof typeof notifications) => {
     setNotifications(prev => ({ ...prev, [key]: !prev[key] }))
@@ -78,6 +79,7 @@ export default function SettingsPage() {
                   >
                     <MenuItem value="en">English</MenuItem>
                     <MenuItem value="he">Hebrew</MenuItem>
+                    <MenuItem value="es">Spanish</MenuItem>
                   </Select>
                 </FormControl>
               </ListItemSecondaryAction>
@@ -91,8 +93,11 @@ export default function SettingsPage() {
               <ListItemSecondaryAction>
                 <FormControl size="small" sx={{ minWidth: 120 }}>
                   <Select
-                    value={theme}
-                    onChange={(e) => setTheme(e.target.value)}
+                    value={mode}
+                    onChange={(e) => {
+                      setMode(e.target.value as 'light' | 'dark' | 'system')
+                      showSuccess('Theme updated')
+                    }}
                   >
                     <MenuItem value="system">System</MenuItem>
                     <MenuItem value="light">Light</MenuItem>
@@ -120,6 +125,7 @@ export default function SettingsPage() {
                 <Switch
                   checked={notifications.email}
                   onChange={() => handleNotificationChange('email')}
+                  inputProps={{ 'aria-label': 'Email notifications' }}
                 />
               </ListItemSecondaryAction>
             </ListItem>
@@ -133,6 +139,7 @@ export default function SettingsPage() {
                 <Switch
                   checked={notifications.push}
                   onChange={() => handleNotificationChange('push')}
+                  inputProps={{ 'aria-label': 'Push notifications' }}
                 />
               </ListItemSecondaryAction>
             </ListItem>
@@ -146,6 +153,7 @@ export default function SettingsPage() {
                 <Switch
                   checked={notifications.rfis}
                   onChange={() => handleNotificationChange('rfis')}
+                  inputProps={{ 'aria-label': 'RFI update notifications' }}
                 />
               </ListItemSecondaryAction>
             </ListItem>
@@ -159,6 +167,7 @@ export default function SettingsPage() {
                 <Switch
                   checked={notifications.approvals}
                   onChange={() => handleNotificationChange('approvals')}
+                  inputProps={{ 'aria-label': 'Approval request notifications' }}
                 />
               </ListItemSecondaryAction>
             </ListItem>
@@ -179,10 +188,16 @@ export default function SettingsPage() {
               />
               <ListItemSecondaryAction>
                 <Typography
+                  component="button"
                   variant="body2"
+                  onClick={() => showSuccess('Export started')}
                   sx={{
                     color: 'primary.main',
                     cursor: 'pointer',
+                    background: 'none',
+                    border: 'none',
+                    padding: 0,
+                    font: 'inherit',
                     '&:hover': { textDecoration: 'underline' }
                   }}
                 >

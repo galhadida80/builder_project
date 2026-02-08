@@ -345,12 +345,28 @@ export default function RFIDetailPage() {
       {/* Action Buttons */}
       <Box sx={{ display: 'flex', gap: 2 }}>
         {rfi.status === 'draft' && (
-          <Button variant="primary" icon={<SendIcon />}>
+          <Button
+            variant="primary"
+            icon={<SendIcon />}
+            onClick={async () => {
+              try {
+                await rfiApi.send(rfi.id)
+                showSuccess('RFI sent successfully!')
+                await loadRfiDetail()
+              } catch {
+                showError('Failed to send RFI')
+              }
+            }}
+          >
             Send RFI
           </Button>
         )}
         {rfi.status === 'draft' && (
-          <Button variant="secondary" icon={<EditIcon />}>
+          <Button
+            variant="secondary"
+            icon={<EditIcon />}
+            onClick={() => navigate(`/projects/${rfi.project_id}/rfis/${rfi.id}/edit`)}
+          >
             Edit RFI
           </Button>
         )}

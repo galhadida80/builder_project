@@ -1,5 +1,5 @@
 import { Box, Typography, LinearProgress } from '@mui/material'
-import { styled } from '@mui/material/styles'
+import { styled } from '@mui/material'
 import { getWorkloadColor } from '../utils/workloadCalculation'
 
 interface WorkloadBarProps {
@@ -88,7 +88,7 @@ export function WorkloadBar({
             fontWeight: 500,
           }}
         >
-          ⚠️ {workloadLabel} - {Math.round(value - 100)}% over capacity
+          {workloadLabel} - {Math.round(value - 100)}% over capacity
         </Typography>
       )}
     </Box>

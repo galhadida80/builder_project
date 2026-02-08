@@ -1,5 +1,5 @@
 import { Card as MuiCard, CardContent, Box, Typography, Grid, SxProps, Theme } from '@mui/material'
-import { styled, alpha } from '@mui/material/styles'
+import { styled, alpha } from '@mui/material'
 import { Button } from './Button'
 
 interface PricingCardProps {
@@ -55,7 +55,7 @@ export function PricingCard({
               px: 1.5,
               py: 0.5,
               borderRadius: 2,
-              bgcolor: alpha('#2196F3', 0.1),
+              bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1),
               mb: 1.5,
             }}
           >
