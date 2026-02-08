@@ -24,14 +24,16 @@ class Settings(BaseSettings):
 
     redis_url: str = "redis://localhost:6379/0"
 
-    cors_origins: list[str] = ["http://localhost:5173", "http://localhost:4173", "http://localhost:4174", "http://localhost:4175", "http://localhost:3000"]
+    cors_origins: list[str] = ["http://localhost:5173"]
 
     api_v1_prefix: str = "/api/v1"
 
     gemini_api_key: str = ""
     gemini_model: str = "gemini-2.0-flash"
+    chat_max_history: int = 20
 
     email_provider: str = "fake"
+    rfi_email_domain: str = "builderops.co.il"
     rfi_email_address: str = "rfis@example.com"
     sendgrid_api_key: str = ""
     sendgrid_from_email: str = ""

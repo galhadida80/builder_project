@@ -12,6 +12,8 @@ from app.db.session import Base
 if TYPE_CHECKING:
     from app.models.project import Project
     from app.models.user import User
+    from app.models.equipment import Equipment
+    from app.models.material import Material
 
 
 class RFIStatus(str, Enum):
@@ -77,6 +79,13 @@ class RFI(Base):
         UUID(as_uuid=True), ForeignKey("users.id")
     )
 
+    related_equipment_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("equipment.id", ondelete="SET NULL")
+    )
+    related_material_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("materials.id", ondelete="SET NULL")
+    )
+
     to_email: Mapped[str] = mapped_column(String(255), nullable=False)
     to_name: Mapped[Optional[str]] = mapped_column(String(255))
     cc_emails: Mapped[Optional[list]] = mapped_column(JSONB, default=list)
@@ -104,6 +113,12 @@ class RFI(Base):
     created_by: Mapped["User"] = relationship("User", foreign_keys=[created_by_id])
     assigned_to: Mapped[Optional["User"]] = relationship(
         "User", foreign_keys=[assigned_to_id]
+    )
+    related_equipment: Mapped[Optional["Equipment"]] = relationship(
+        "Equipment", foreign_keys=[related_equipment_id]
+    )
+    related_material: Mapped[Optional["Material"]] = relationship(
+        "Material", foreign_keys=[related_material_id]
     )
     responses: Mapped[list["RFIResponse"]] = relationship(
         "RFIResponse",

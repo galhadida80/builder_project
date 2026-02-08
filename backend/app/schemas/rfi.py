@@ -55,6 +55,8 @@ class RFIBase(BaseModel):
 
 class RFICreate(RFIBase):
     assigned_to_id: UUID | None = None
+    related_equipment_id: UUID | None = None
+    related_material_id: UUID | None = None
 
 
 class RFIUpdate(BaseModel):
@@ -71,6 +73,8 @@ class RFIUpdate(BaseModel):
     specification_reference: str | None = Field(default=None, max_length=MAX_NAME_LENGTH)
     attachments: list[dict] | None = None
     assigned_to_id: UUID | None = None
+    related_equipment_id: UUID | None = None
+    related_material_id: UUID | None = None
 
     @field_validator("subject", "question", "to_name", "location", mode="before")
     @classmethod
@@ -156,6 +160,8 @@ class RFIListResponse(BaseModel):
     sent_at: datetime | None = None
     responded_at: datetime | None = None
     response_count: int = 0
+    related_equipment_id: UUID | None = None
+    related_material_id: UUID | None = None
 
     class Config:
         from_attributes = True
@@ -187,6 +193,8 @@ class RFIResponse(BaseModel):
     sent_at: datetime | None = None
     created_by: UserResponse | None = None
     assigned_to: UserResponse | None = None
+    related_equipment_id: UUID | None = None
+    related_material_id: UUID | None = None
     responses: list[RFIResponseSchema] = []
 
     class Config:

@@ -35,6 +35,7 @@ from app.models.inspection import Inspection, Finding, InspectionStage
 from app.models.rfi import RFI, RFIResponse, RFIEmailLog, RFIStatus, RFIPriority, RFICategory
 from app.models.document_review import DocumentReview, DocumentComment, ReviewStatus
 from app.models.document_analysis import DocumentAnalysis
+from app.models.chat import ChatConversation, ChatMessage
 
 __all__ = [
     "User",
@@ -81,4 +82,6 @@ __all__ = [
     "DocumentComment",
     "ReviewStatus",
     "DocumentAnalysis",
+    "ChatConversation",
+    "ChatMessage",
 ]

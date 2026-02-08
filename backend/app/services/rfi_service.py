@@ -7,6 +7,7 @@ from sqlalchemy import select, func, or_
 from sqlalchemy.orm import selectinload
 from app.models.rfi import RFI, RFIResponse, RFIEmailLog, RFIStatus
 from app.models.user import User
+from app.models.project import Project
 from app.services.email_service import EmailService
 from app.services.rfi_email_parser import RFIEmailParser, ParsedEmail
 from app.config import get_settings
@@ -20,6 +21,15 @@ class RFIService:
         self.email_service = EmailService()
         self.email_parser = RFIEmailParser()
         self.settings = get_settings()
+
+    async def generate_rfi_from_email(self, project_id: uuid.UUID, rfi_number: str) -> str:
+        result = await self.db.execute(
+            select(Project.code).where(Project.id == project_id)
+        )
+        project_code = result.scalar_one()
+        seq = rfi_number.split("-")[-1]
+        local_part = f"RFI-{project_code}-{seq}".lower()
+        return f"{local_part}@{self.settings.rfi_email_domain}"
 
     async def generate_rfi_number(self) -> str:
         year = datetime.utcnow().year
@@ -47,7 +57,9 @@ class RFIService:
         drawing_reference: Optional[str] = None,
         specification_reference: Optional[str] = None,
         attachments: Optional[list[dict]] = None,
-        assigned_to_id: Optional[uuid.UUID] = None
+        assigned_to_id: Optional[uuid.UUID] = None,
+        related_equipment_id: Optional[uuid.UUID] = None,
+        related_material_id: Optional[uuid.UUID] = None
     ) -> RFI:
         rfi_number = await self.generate_rfi_number()
 
@@ -60,6 +72,8 @@ class RFIService:
             priority=priority,
             created_by_id=created_by_id,
             assigned_to_id=assigned_to_id,
+            related_equipment_id=related_equipment_id,
+            related_material_id=related_material_id,
             to_email=to_email.lower(),
             to_name=to_name,
             cc_emails=cc_emails or [],
@@ -91,6 +105,7 @@ class RFIService:
             raise ValueError(f"Cannot send RFI with status: {rfi.status}")
 
         email_html = self._build_rfi_email_html(rfi)
+        rfi_from_email = await self.generate_rfi_from_email(rfi.project_id, rfi.rfi_number)
 
         try:
             email_result = self.email_service.send_rfi_email(
@@ -98,7 +113,8 @@ class RFIService:
                 to_email=rfi.to_email,
                 subject=rfi.subject,
                 body_html=email_html,
-                cc_emails=rfi.cc_emails
+                cc_emails=rfi.cc_emails,
+                from_email=rfi_from_email
             )
 
             rfi.email_thread_id = email_result['thread_id']
@@ -110,7 +126,7 @@ class RFIService:
                 rfi_id=rfi.id,
                 event_type='sent',
                 email_message_id=email_result.get('email_message_id'),
-                from_email=self.settings.rfi_email_address,
+                from_email=rfi_from_email,
                 to_email=rfi.to_email,
                 subject=f"[{rfi.rfi_number}] {rfi.subject}"
             )
@@ -122,7 +138,7 @@ class RFIService:
             email_log = RFIEmailLog(
                 rfi_id=rfi.id,
                 event_type='send_failed',
-                from_email=self.settings.rfi_email_address,
+                from_email=rfi_from_email,
                 to_email=rfi.to_email,
                 subject=f"[{rfi.rfi_number}] {rfi.subject}",
                 error_message=str(e)
@@ -284,13 +300,15 @@ class RFIService:
 
         if send_email and self.email_service.enabled:
             try:
+                rfi_from_email = await self.generate_rfi_from_email(rfi.project_id, rfi.rfi_number)
                 email_result = self.email_service.send_rfi_email(
                     rfi_number=rfi.rfi_number,
                     to_email=rfi.to_email,
                     subject=f"Re: {rfi.subject}",
                     body_html=self._build_response_email_html(rfi, response_text),
                     in_reply_to=rfi.email_message_id,
-                    references=rfi.email_message_id
+                    references=rfi.email_message_id,
+                    from_email=rfi_from_email
                 )
                 response.email_message_id = email_result.get('email_message_id')
 
@@ -298,7 +316,7 @@ class RFIService:
                     rfi_id=rfi.id,
                     event_type='response_sent',
                     email_message_id=email_result.get('email_message_id'),
-                    from_email=self.settings.rfi_email_address,
+                    from_email=rfi_from_email,
                     to_email=rfi.to_email,
                     subject=f"Re: [{rfi.rfi_number}] {rfi.subject}"
                 )

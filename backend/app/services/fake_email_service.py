@@ -26,14 +26,15 @@ class FakeEmailService:
         cc_emails: Optional[list[str]] = None,
         attachments: Optional[list[dict]] = None,
         in_reply_to: Optional[str] = None,
-        references: Optional[str] = None
+        references: Optional[str] = None,
+        from_email: Optional[str] = None
     ) -> dict:
         message_id = f"fake-{uuid.uuid4().hex[:12]}@dev.local"
 
         email_data = {
             'message_id': message_id,
             'rfi_number': rfi_number,
-            'from_email': self.settings.rfi_email_address or 'noreply@construction-platform.dev',
+            'from_email': from_email or self.settings.rfi_email_address or 'noreply@construction-platform.dev',
             'to_email': to_email,
             'cc_emails': cc_emails or [],
             'subject': f"[{rfi_number}] {subject}",
