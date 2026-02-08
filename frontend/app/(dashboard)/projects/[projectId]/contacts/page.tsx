@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import Box from '@mui/material/Box'
@@ -23,8 +23,16 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Paper from '@mui/material/Paper'
 import InputAdornment from '@mui/material/InputAdornment'
+import Checkbox from '@mui/material/Checkbox'
+import Tabs from '@mui/material/Tabs'
+import Tab from '@mui/material/Tab'
+import Chip from '@mui/material/Chip'
+import CircularProgress from '@mui/material/CircularProgress'
 import AddIcon from '@mui/icons-material/Add'
 import SearchIcon from '@mui/icons-material/Search'
+import FileDownloadIcon from '@mui/icons-material/FileDownload'
+import FileUploadIcon from '@mui/icons-material/FileUpload'
+import UploadFileIcon from '@mui/icons-material/UploadFile'
 import { apiClient } from '@/lib/api/client'
 
 interface Contact {
@@ -36,6 +44,22 @@ interface Contact {
   phone?: string
   roleDescription?: string
   isPrimary?: boolean
+}
+
+interface CsvRow {
+  contact_name: string
+  contact_type: string
+  company_name: string
+  email: string
+  phone: string
+  role_description: string
+  notes: string
+}
+
+interface Project {
+  id: string
+  name: string
+  code: string
 }
 
 const CONTACT_TYPES = ['contractor', 'subcontractor', 'supplier', 'consultant', 'architect', 'engineer', 'inspector', 'client', 'other']
@@ -54,6 +78,26 @@ function getAvatarColor(name: string): string {
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length]
 }
 
+function parseCsv(text: string): CsvRow[] {
+  const lines = text.trim().split('\n')
+  if (lines.length < 2) return []
+  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''))
+  return lines.slice(1).map(line => {
+    const values: string[] = []
+    let current = ''
+    let inQuotes = false
+    for (const char of line) {
+      if (char === '"') { inQuotes = !inQuotes; continue }
+      if (char === ',' && !inQuotes) { values.push(current.trim()); current = ''; continue }
+      current += char
+    }
+    values.push(current.trim())
+    const row: Record<string, string> = {}
+    headers.forEach((h, i) => { row[h] = values[i] || '' })
+    return row as unknown as CsvRow
+  }).filter(r => r.contact_name && r.contact_type)
+}
+
 export default function ContactsPage() {
   const t = useTranslations()
   const params = useParams()!
@@ -66,6 +110,19 @@ export default function ContactsPage() {
   const [form, setForm] = useState(INITIAL_FORM)
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState('')
+
+  // Import dialog state
+  const [importOpen, setImportOpen] = useState(false)
+  const [importTab, setImportTab] = useState(0)
+  const [csvRows, setCsvRows] = useState<CsvRow[]>([])
+  const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set())
+  const [importing, setImporting] = useState(false)
+  const [importError, setImportError] = useState('')
+  const [importSuccess, setImportSuccess] = useState('')
+  const [projects, setProjects] = useState<Project[]>([])
+  const [selectedProjectId, setSelectedProjectId] = useState('')
+  const [loadingProjectContacts, setLoadingProjectContacts] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const loadContacts = useCallback(async () => {
     try {
@@ -114,6 +171,114 @@ export default function ContactsPage() {
     )
   }, [contacts, search])
 
+  // Export CSV
+  const handleExport = async () => {
+    try {
+      const res = await apiClient.get(`/projects/${projectId}/contacts/export`, { responseType: 'blob' })
+      const url = URL.createObjectURL(new Blob([res.data]))
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `contacts_${projectId}.csv`
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch { /* noop */ }
+  }
+
+  // Open import dialog
+  const openImport = async () => {
+    setImportOpen(true)
+    setImportTab(0)
+    setCsvRows([])
+    setSelectedRows(new Set())
+    setImportError('')
+    setImportSuccess('')
+    setSelectedProjectId('')
+    try {
+      const res = await apiClient.get('/projects')
+      const allProjects = (res.data || []) as Project[]
+      setProjects(allProjects.filter((p: Project) => p.id !== projectId))
+    } catch { /* noop */ }
+  }
+
+  // Handle CSV file upload
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      const text = ev.target?.result as string
+      const rows = parseCsv(text)
+      setCsvRows(rows)
+      setSelectedRows(new Set(rows.map((_, i) => i)))
+      setImportError(rows.length === 0 ? t('contacts.noContactsToImport') : '')
+    }
+    reader.readAsText(file)
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
+  // Load contacts from another project
+  const handleLoadFromProject = async () => {
+    if (!selectedProjectId) return
+    try {
+      setLoadingProjectContacts(true)
+      setImportError('')
+      const res = await apiClient.get(`/projects/${selectedProjectId}/contacts/export`, { responseType: 'text' })
+      const text = typeof res.data === 'string' ? res.data : await (res.data as Blob).text()
+      const rows = parseCsv(text)
+      setCsvRows(rows)
+      setSelectedRows(new Set(rows.map((_, i) => i)))
+      if (rows.length === 0) setImportError(t('contacts.noContactsToImport'))
+    } catch {
+      setImportError(t('errors.serverError'))
+    } finally {
+      setLoadingProjectContacts(false)
+    }
+  }
+
+  // Toggle row selection
+  const toggleRow = (idx: number) => {
+    setSelectedRows(prev => {
+      const next = new Set(prev)
+      if (next.has(idx)) next.delete(idx)
+      else next.add(idx)
+      return next
+    })
+  }
+
+  const toggleAll = () => {
+    if (selectedRows.size === csvRows.length) setSelectedRows(new Set())
+    else setSelectedRows(new Set(csvRows.map((_, i) => i)))
+  }
+
+  // Import selected contacts
+  const handleImportSelected = async () => {
+    const selected = csvRows.filter((_, i) => selectedRows.has(i))
+    if (selected.length === 0) return
+    try {
+      setImporting(true)
+      setImportError('')
+      const csvHeader = 'contact_name,contact_type,company_name,role_description,email,phone,notes'
+      const csvBody = selected.map(r =>
+        `"${r.contact_name}","${r.contact_type}","${r.company_name || ''}","${r.role_description || ''}","${r.email || ''}","${r.phone || ''}","${r.notes || ''}"`
+      ).join('\n')
+      const csvContent = csvHeader + '\n' + csvBody
+      const blob = new Blob([csvContent], { type: 'text/csv' })
+      const formData = new FormData()
+      formData.append('file', blob, 'import.csv')
+      await apiClient.post(`/projects/${projectId}/contacts/import`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      setImportSuccess(t('contacts.importSuccess', { count: selected.length }))
+      setCsvRows([])
+      setSelectedRows(new Set())
+      await loadContacts()
+    } catch {
+      setImportError(t('errors.serverError'))
+    } finally {
+      setImporting(false)
+    }
+  }
+
   if (loading) {
     return (
       <Box sx={{ p: 3, width: '100%' }}>
@@ -131,9 +296,17 @@ export default function ContactsPage() {
           <Typography variant="h4" fontWeight={700}>{t('contacts.title')}</Typography>
           <Typography variant="body1" color="text.secondary">{t('contacts.subtitle')}</Typography>
         </Box>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={() => setDialogOpen(true)}>
-          {t('contacts.addContact')}
-        </Button>
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+          <Button variant="outlined" startIcon={<FileDownloadIcon />} onClick={handleExport} disabled={contacts.length === 0} sx={{ textTransform: 'none' }}>
+            {t('contacts.exportCsv')}
+          </Button>
+          <Button variant="outlined" startIcon={<FileUploadIcon />} onClick={openImport} sx={{ textTransform: 'none' }}>
+            {t('contacts.importCsv')}
+          </Button>
+          <Button variant="contained" startIcon={<AddIcon />} onClick={() => setDialogOpen(true)}>
+            {t('contacts.addContact')}
+          </Button>
+        </Box>
       </Box>
 
       {error && <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>{error}</Alert>}
@@ -192,6 +365,7 @@ export default function ContactsPage() {
         </Table>
       </TableContainer>
 
+      {/* Add Contact Dialog */}
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
         <DialogTitle>{t('contacts.addContact')}</DialogTitle>
         <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '16px !important' }}>
@@ -231,6 +405,132 @@ export default function ContactsPage() {
           <Button variant="contained" onClick={handleCreate} disabled={submitting || !isFormValid}>
             {submitting ? t('common.creating') : t('common.create')}
           </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Import Dialog */}
+      <Dialog open={importOpen} onClose={() => setImportOpen(false)} maxWidth="md" fullWidth>
+        <DialogTitle>{t('contacts.importContacts')}</DialogTitle>
+        <DialogContent sx={{ pt: '8px !important' }}>
+          {importSuccess && <Alert severity="success" sx={{ mb: 2, borderRadius: 2 }}>{importSuccess}</Alert>}
+          {importError && <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>{importError}</Alert>}
+
+          <Tabs value={importTab} onChange={(_, v) => { setImportTab(v); setCsvRows([]); setSelectedRows(new Set()); setImportError(''); setImportSuccess('') }} sx={{ mb: 2, borderBottom: 1, borderColor: 'divider' }}>
+            <Tab label={t('contacts.importFromFile')} sx={{ textTransform: 'none' }} />
+            <Tab label={t('contacts.importFromProject')} sx={{ textTransform: 'none' }} />
+          </Tabs>
+
+          {importTab === 0 && (
+            <Box>
+              <input ref={fileInputRef} type="file" accept=".csv" onChange={handleFileSelect} style={{ display: 'none' }} />
+              <Box
+                onClick={() => fileInputRef.current?.click()}
+                sx={{
+                  border: '2px dashed',
+                  borderColor: 'divider',
+                  borderRadius: 3,
+                  p: 4,
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  transition: 'border-color 0.2s',
+                  '&:hover': { borderColor: 'primary.main' },
+                  mb: 2,
+                }}
+              >
+                <UploadFileIcon sx={{ fontSize: 40, color: 'text.secondary', mb: 1 }} />
+                <Typography variant="body1" fontWeight={500}>{t('contacts.dragOrClick')}</Typography>
+                <Typography variant="caption" color="text.secondary">{t('contacts.csvFormat')}</Typography>
+              </Box>
+            </Box>
+          )}
+
+          {importTab === 1 && (
+            <Box sx={{ display: 'flex', gap: 2, mb: 2, flexWrap: 'wrap' }}>
+              <TextField
+                select
+                label={t('contacts.selectProject')}
+                value={selectedProjectId}
+                onChange={(e) => setSelectedProjectId(e.target.value)}
+                sx={{ minWidth: 250, flex: 1 }}
+                size="small"
+              >
+                {projects.map((p) => (
+                  <MenuItem key={p.id} value={p.id}>{p.name} ({p.code})</MenuItem>
+                ))}
+              </TextField>
+              <Button
+                variant="contained"
+                onClick={handleLoadFromProject}
+                disabled={!selectedProjectId || loadingProjectContacts}
+                startIcon={loadingProjectContacts ? <CircularProgress size={16} /> : undefined}
+                sx={{ textTransform: 'none' }}
+              >
+                {t('contacts.loadContacts')}
+              </Button>
+            </Box>
+          )}
+
+          {csvRows.length > 0 && (
+            <Box>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1, flexWrap: 'wrap', gap: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Chip label={t('contacts.selectedCount', { count: selectedRows.size })} size="small" color="primary" />
+                  <Typography variant="body2" color="text.secondary">/ {csvRows.length}</Typography>
+                </Box>
+                <Button size="small" onClick={toggleAll} sx={{ textTransform: 'none' }}>
+                  {selectedRows.size === csvRows.length ? t('contacts.deselectAll') : t('contacts.selectAll')}
+                </Button>
+              </Box>
+              <TableContainer component={Paper} sx={{ maxHeight: 350, borderRadius: 2, overflowX: 'auto' }}>
+                <Table size="small" stickyHeader>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell padding="checkbox">
+                        <Checkbox
+                          checked={selectedRows.size === csvRows.length}
+                          indeterminate={selectedRows.size > 0 && selectedRows.size < csvRows.length}
+                          onChange={toggleAll}
+                        />
+                      </TableCell>
+                      <TableCell>{t('contacts.name')}</TableCell>
+                      <TableCell>{t('contacts.type')}</TableCell>
+                      <TableCell>{t('contacts.company')}</TableCell>
+                      <TableCell>{t('contacts.email')}</TableCell>
+                      <TableCell>{t('contacts.phone')}</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {csvRows.map((row, idx) => (
+                      <TableRow key={idx} hover onClick={() => toggleRow(idx)} sx={{ cursor: 'pointer' }}>
+                        <TableCell padding="checkbox">
+                          <Checkbox checked={selectedRows.has(idx)} />
+                        </TableCell>
+                        <TableCell>{row.contact_name}</TableCell>
+                        <TableCell sx={{ textTransform: 'capitalize' }}>{row.contact_type}</TableCell>
+                        <TableCell>{row.company_name || '-'}</TableCell>
+                        <TableCell>{row.email || '-'}</TableCell>
+                        <TableCell>{row.phone || '-'}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button onClick={() => setImportOpen(false)}>{t('common.cancel')}</Button>
+          {csvRows.length > 0 && (
+            <Button
+              variant="contained"
+              onClick={handleImportSelected}
+              disabled={importing || selectedRows.size === 0}
+              startIcon={importing ? <CircularProgress size={16} /> : <FileUploadIcon />}
+              sx={{ textTransform: 'none' }}
+            >
+              {importing ? t('contacts.importing') : t('contacts.importSelected')} ({selectedRows.size})
+            </Button>
+          )}
         </DialogActions>
       </Dialog>
     </Box>
