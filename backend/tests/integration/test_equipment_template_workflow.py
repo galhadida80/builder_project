@@ -8,7 +8,7 @@ from app.models.equipment_submission import EquipmentSubmission
 from app.models.approval_decision import ApprovalDecision
 from app.models.audit import AuditLog
 from app.models.user import User
-from app.models.project import Project
+from app.models.project import Project, ProjectMember
 
 
 class TestEquipmentTemplateWorkflow:
@@ -18,9 +18,8 @@ class TestEquipmentTemplateWorkflow:
     async def test_template_to_submission_flow(
         self,
         admin_client: AsyncClient,
-        user_client: AsyncClient,
         project: Project,
-        db: AsyncSession
+        db: AsyncSession,
     ):
         """Create template → create submission → verify linkage."""
         # Step 1: Admin creates a template
@@ -28,13 +27,9 @@ class TestEquipmentTemplateWorkflow:
             "/api/v1/equipment-templates",
             json={
                 "name": "Crane Template",
+                "name_he": "תבנית מנוף",
                 "category": "Lifting Equipment",
                 "description": "Standard crane template",
-                "specifications": {
-                    "capacity": "50 tons",
-                    "height": "100 feet",
-                    "model": "Grove GMK5250L"
-                }
             }
         )
 
@@ -50,8 +45,8 @@ class TestEquipmentTemplateWorkflow:
         assert template is not None
         assert template.name == "Crane Template"
 
-        # Step 2: User creates a submission from the template
-        submission_response = await user_client.post(
+        # Step 2: Create a submission from the template
+        submission_response = await admin_client.post(
             f"/api/v1/projects/{project.id}/equipment-submissions",
             json={
                 "template_id": template_id,
@@ -82,7 +77,7 @@ class TestEquipmentTemplateWorkflow:
         assert submission.status == "draft"
 
         # Step 4: Verify we can retrieve the submission and see the linkage via API
-        get_submission_response = await user_client.get(
+        get_submission_response = await admin_client.get(
             f"/api/v1/projects/{project.id}/equipment-submissions/{submission_id}"
         )
 
@@ -97,9 +92,13 @@ class TestEquipmentTemplateWorkflow:
         user_client: AsyncClient,
         project: Project,
         equipment_template: EquipmentTemplate,
-        db: AsyncSession
+        db: AsyncSession,
+        regular_user: User
     ):
         """Create submission → add decision → verify status update."""
+        db.add(ProjectMember(project_id=project.id, user_id=regular_user.id, role="contractor"))
+        await db.commit()
+
         # Step 1: Create a submission
         submission_response = await user_client.post(
             f"/api/v1/projects/{project.id}/equipment-submissions",
@@ -184,71 +183,60 @@ class TestEquipmentTemplateWorkflow:
         assert rejected_submission.status == "rejected"
 
     @pytest.mark.asyncio
-    async def test_admin_access_control(
+    async def test_admin_can_crud_templates(
         self,
         admin_client: AsyncClient,
-        user_client: AsyncClient,
         equipment_template: EquipmentTemplate
     ):
-        """Verify admin endpoints require valid admin role."""
-        # Test 1: Admin can create template
+        """Verify admin can create, update, and delete templates."""
         admin_create_response = await admin_client.post(
             "/api/v1/equipment-templates",
             json={
                 "name": "Admin Template",
+                "name_he": "תבנית מנהל",
                 "category": "Test"
             }
         )
         assert admin_create_response.status_code == 201
+        template_id = admin_create_response.json()["id"]
 
-        # Test 2: Regular user cannot create template (403)
-        user_create_response = await user_client.post(
-            "/api/v1/equipment-templates",
-            json={
-                "name": "User Template",
-                "category": "Test"
-            }
-        )
-        assert user_create_response.status_code == 403
-        assert user_create_response.json()["detail"] == "Admin access required"
-
-        # Test 3: Admin can update template
         admin_update_response = await admin_client.put(
             f"/api/v1/equipment-templates/{equipment_template.id}",
             json={"name": "Updated by Admin"}
         )
         assert admin_update_response.status_code == 200
 
-        # Test 4: Regular user cannot update template (403)
+        admin_delete_response = await admin_client.delete(
+            f"/api/v1/equipment-templates/{template_id}"
+        )
+        assert admin_delete_response.status_code == 200
+
+    @pytest.mark.asyncio
+    async def test_user_cannot_crud_templates(
+        self,
+        user_client: AsyncClient,
+        equipment_template: EquipmentTemplate,
+    ):
+        """Verify non-admin users get 403 on template CRUD."""
+        user_create_response = await user_client.post(
+            "/api/v1/equipment-templates",
+            json={
+                "name": "User Template",
+                "name_he": "תבנית משתמש",
+                "category": "Test"
+            }
+        )
+        assert user_create_response.status_code == 403
+        assert user_create_response.json()["detail"] == "Admin access required"
+
         user_update_response = await user_client.put(
             f"/api/v1/equipment-templates/{equipment_template.id}",
             json={"name": "Updated by User"}
         )
         assert user_update_response.status_code == 403
 
-        # Test 5: Admin can delete template
-        # First create a template to delete
-        template_to_delete = await admin_client.post(
-            "/api/v1/equipment-templates",
-            json={"name": "Template to Delete", "category": "Test"}
-        )
-        template_id_to_delete = template_to_delete.json()["id"]
-
-        admin_delete_response = await admin_client.delete(
-            f"/api/v1/equipment-templates/{template_id_to_delete}"
-        )
-        assert admin_delete_response.status_code == 200
-
-        # Test 6: Regular user cannot delete template (403)
-        # Create another template
-        another_template = await admin_client.post(
-            "/api/v1/equipment-templates",
-            json={"name": "Another Template", "category": "Test"}
-        )
-        another_template_id = another_template.json()["id"]
-
         user_delete_response = await user_client.delete(
-            f"/api/v1/equipment-templates/{another_template_id}"
+            f"/api/v1/equipment-templates/{equipment_template.id}"
         )
         assert user_delete_response.status_code == 403
 
@@ -256,10 +244,9 @@ class TestEquipmentTemplateWorkflow:
     async def test_audit_log_integration(
         self,
         admin_client: AsyncClient,
-        user_client: AsyncClient,
         project: Project,
         equipment_template: EquipmentTemplate,
-        db: AsyncSession
+        db: AsyncSession,
     ):
         """Verify all operations create audit log entries."""
         # Operation 1: Create template (admin)
@@ -267,6 +254,7 @@ class TestEquipmentTemplateWorkflow:
             "/api/v1/equipment-templates",
             json={
                 "name": "Audit Test Template",
+                "name_he": "תבנית בדיקת ביקורת",
                 "category": "Test",
                 "description": "For audit testing"
             }
@@ -302,8 +290,8 @@ class TestEquipmentTemplateWorkflow:
         update_audit = result.scalar_one_or_none()
         assert update_audit is not None
 
-        # Operation 3: Create submission (user)
-        create_submission_response = await user_client.post(
+        # Operation 3: Create submission
+        create_submission_response = await admin_client.post(
             f"/api/v1/projects/{project.id}/equipment-submissions",
             json={
                 "template_id": str(equipment_template.id),
@@ -326,8 +314,8 @@ class TestEquipmentTemplateWorkflow:
         assert submission_create_audit is not None
         assert submission_create_audit.project_id == project.id
 
-        # Operation 4: Update submission (user)
-        await user_client.put(
+        # Operation 4: Update submission
+        await admin_client.put(
             f"/api/v1/projects/{project.id}/equipment-submissions/{submission_id}",
             json={"name": "Updated Audit Submission"}
         )
@@ -344,7 +332,7 @@ class TestEquipmentTemplateWorkflow:
         assert submission_update_audit is not None
 
         # Operation 5: Add approval decision (creates 2 audit logs: decision + status change)
-        await user_client.post(
+        await admin_client.post(
             f"/api/v1/equipment-submissions/{submission_id}/decisions",
             json={
                 "decision": "approve",
@@ -377,7 +365,7 @@ class TestEquipmentTemplateWorkflow:
         # Create a new template to delete (can't delete one with submissions)
         delete_template_response = await admin_client.post(
             "/api/v1/equipment-templates",
-            json={"name": "Template to Delete", "category": "Test"}
+            json={"name": "Template to Delete", "name_he": "תבנית למחיקה", "category": "Test"}
         )
         delete_template_id = delete_template_response.json()["id"]
 

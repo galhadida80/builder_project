@@ -7,7 +7,7 @@ from app.models.equipment_template import EquipmentTemplate
 from app.models.equipment_submission import EquipmentSubmission
 from app.models.approval_decision import ApprovalDecision
 from app.models.user import User
-from app.models.project import Project
+from app.models.project import Project, ProjectMember
 from app.core.validators import MAX_NAME_LENGTH, MAX_DESCRIPTION_LENGTH, MAX_NOTES_LENGTH
 
 BASE = "/api/v1"
@@ -36,6 +36,13 @@ async def make_project(db: AsyncSession, user: User) -> Project:
         created_by_id=user.id,
     )
     db.add(proj)
+    await db.flush()
+    member = ProjectMember(
+        project_id=proj.id,
+        user_id=user.id,
+        role="project_admin",
+    )
+    db.add(member)
     await db.flush()
     return proj
 
@@ -115,10 +122,9 @@ class TestSubmissionListEndpoint:
         assert len(data) == 1
         assert data[0]["name"] == "Proj1 Sub"
 
-    async def test_list_nonexistent_project_returns_empty(self, admin_client: AsyncClient):
+    async def test_list_nonexistent_project_returns_403(self, admin_client: AsyncClient):
         resp = await admin_client.get(f"{BASE}/projects/{FAKE_UUID}/equipment-submissions")
-        assert resp.status_code == 200
-        assert resp.json() == []
+        assert resp.status_code == 403
 
     @pytest.mark.parametrize("count", [1, 3, 5])
     async def test_list_multiple_counts(self, admin_client: AsyncClient, db: AsyncSession, admin_user: User, count: int):
@@ -428,7 +434,7 @@ class TestSubmissionGetEndpoint:
         sub = await make_submission(db, proj, tpl, admin_user)
         await db.commit()
         resp = await admin_client.get(f"{BASE}/projects/{FAKE_UUID}/equipment-submissions/{sub.id}")
-        assert resp.status_code == 404
+        assert resp.status_code == 403
 
     async def test_get_wrong_project(self, admin_client: AsyncClient, db: AsyncSession, admin_user: User):
         proj1 = await make_project(db, admin_user)
@@ -1413,7 +1419,7 @@ class TestAuthEndpoints:
         ],
         ids=["list_no_auth", "get_no_auth", "list_decisions_no_auth"],
     )
-    async def test_get_endpoints_no_auth_required(
+    async def test_get_endpoints_require_auth(
         self, client: AsyncClient, db: AsyncSession, admin_user: User, method: str, path_suffix: str
     ):
         proj = await make_project(db, admin_user)
@@ -1422,7 +1428,7 @@ class TestAuthEndpoints:
         await db.commit()
         path = f"{BASE}" + path_suffix.format(pid=proj.id, sid=sub.id)
         resp = await client.get(path)
-        assert resp.status_code == 200
+        assert resp.status_code == 401
 
     async def test_regular_user_can_create(self, user_client: AsyncClient, db: AsyncSession, regular_user: User):
         proj = await make_project(db, regular_user)
@@ -1446,22 +1452,25 @@ class TestAuthEndpoints:
 
 class TestNotFoundResponses:
 
-    @pytest.mark.parametrize(
-        "endpoint",
-        [
-            "/projects/{fake}/equipment-submissions/{sid}",
-            "/projects/{pid}/equipment-submissions/{fake}",
-        ],
-        ids=["fake_project_get", "fake_submission_get"],
-    )
-    async def test_get_submission_404(
-        self, admin_client: AsyncClient, db: AsyncSession, admin_user: User, endpoint: str
+    async def test_get_submission_fake_project_returns_403(
+        self, admin_client: AsyncClient, db: AsyncSession, admin_user: User
     ):
         proj = await make_project(db, admin_user)
         tpl = await make_template(db)
         sub = await make_submission(db, proj, tpl, admin_user)
         await db.commit()
-        path = f"{BASE}" + endpoint.format(pid=proj.id, sid=sub.id, fake=FAKE_UUID)
+        path = f"{BASE}/projects/{FAKE_UUID}/equipment-submissions/{sub.id}"
+        resp = await admin_client.get(path)
+        assert resp.status_code == 403
+
+    async def test_get_submission_fake_submission_returns_404(
+        self, admin_client: AsyncClient, db: AsyncSession, admin_user: User
+    ):
+        proj = await make_project(db, admin_user)
+        tpl = await make_template(db)
+        sub = await make_submission(db, proj, tpl, admin_user)
+        await db.commit()
+        path = f"{BASE}/projects/{proj.id}/equipment-submissions/{FAKE_UUID}"
         resp = await admin_client.get(path)
         assert resp.status_code == 404
 

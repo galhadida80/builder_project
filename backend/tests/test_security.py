@@ -22,9 +22,9 @@ class TestInputSanitization:
         assert sanitize_string(malicious) == 'Hello'
 
     def test_sanitize_string_removes_event_handlers(self):
-        """Test that event handlers are removed."""
+        """Test that event handlers are removed (default strips all HTML)."""
         malicious = '<div onclick="alert(1)">Click</div>'
-        assert sanitize_string(malicious) == '<div>Click</div>'
+        assert sanitize_string(malicious) == 'Click'
 
     def test_sanitize_string_removes_html_tags(self):
         """Test that HTML tags are removed when not allowed."""

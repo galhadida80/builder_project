@@ -22,6 +22,46 @@ from app.services.storage_service import (
 )
 
 
+@pytest.fixture
+def temp_storage_dir(tmp_path):
+    storage_dir = tmp_path / "test_storage"
+    storage_dir.mkdir()
+    return storage_dir
+
+
+@pytest.fixture
+def sample_file_content():
+    return b"Hello, this is test file content for storage tests."
+
+
+@pytest.fixture
+def sample_image_content():
+    return b"\x89PNG\r\n\x1a\n" + b"\x00" * 100
+
+
+@pytest.fixture
+def mock_upload_file():
+    def factory(content: bytes, filename: str, content_type: str = None):
+        file = MagicMock(spec=UploadFile)
+        file.filename = filename
+        file.content_type = content_type
+        file.size = len(content)
+        buffer = BytesIO(content)
+        file.read = lambda: buffer.read() if buffer.seek(0) is None else buffer.read()
+
+        async def async_read():
+            buffer.seek(0)
+            return buffer.read()
+
+        async def async_seek(pos):
+            buffer.seek(pos)
+
+        file.read = async_read
+        file.seek = async_seek
+        return file
+    return factory
+
+
 class TestLocalStorageBackend:
     """Test suite for LocalStorageBackend operations."""
 
@@ -162,7 +202,7 @@ class TestLocalStorageBackend:
         url = backend.get_file_url(storage_path)
 
         # Verify URL format
-        assert url == f"/api/v1/storage/{storage_path}"
+        assert url == f"/api/storage/{storage_path}"
         assert storage_path in url
 
     @pytest.mark.asyncio

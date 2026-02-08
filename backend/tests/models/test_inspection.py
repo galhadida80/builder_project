@@ -4,10 +4,10 @@ from app.models.inspection import InspectionConsultantType, InspectionStage, Ins
 
 
 @pytest.mark.asyncio
-async def test_cascade_delete_consultant_type_stages(db_session, test_project):
+async def test_cascade_delete_consultant_type_stages(db_session, project):
     """Test that deleting consultant type cascades to stages"""
     # Create consultant type with stages
-    consultant_type = InspectionConsultantType(name="Structural Engineer")
+    consultant_type = InspectionConsultantType(name="Structural Engineer", name_he="מהנדס מבנים")
     db_session.add(consultant_type)
     await db_session.flush()
 
@@ -27,16 +27,16 @@ async def test_cascade_delete_consultant_type_stages(db_session, test_project):
 
 
 @pytest.mark.asyncio
-async def test_cascade_delete_inspection_findings(db_session, test_project):
+async def test_cascade_delete_inspection_findings(db_session, project):
     """Test that deleting inspection cascades to findings"""
     # Create consultant type
-    consultant_type = InspectionConsultantType(name="MEP Inspector")
+    consultant_type = InspectionConsultantType(name="MEP Inspector", name_he="מפקח מע\"מ")
     db_session.add(consultant_type)
     await db_session.flush()
 
     # Create inspection with finding
     inspection = Inspection(
-        project_id=test_project.id,
+        project_id=project.id,
         consultant_type_id=consultant_type.id,
         scheduled_date=datetime.utcnow(),
         status=InspectionStatus.PENDING.value

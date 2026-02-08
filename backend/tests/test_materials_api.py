@@ -8,7 +8,7 @@ from sqlalchemy import select
 
 from app.models.material import Material
 from app.models.approval import ApprovalRequest, ApprovalStep
-from app.models.project import Project
+from app.models.project import Project, ProjectMember
 from app.models.user import User
 
 
@@ -605,7 +605,7 @@ class TestNotFoundResponses:
         mat = await create_material_in_db(db, project.id, admin_user.id)
         fake_project_id = uuid.uuid4()
         response = await admin_client.get(f"/api/v1/projects/{fake_project_id}/materials/{mat.id}")
-        assert response.status_code == 404
+        assert response.status_code == 403
 
     @pytest.mark.parametrize("method,path_suffix", [
         ("GET", ""),
@@ -642,18 +642,18 @@ class TestAuthenticationRequired:
         response = await getattr(client, method.lower())(path, **kwargs)
         assert response.status_code in (401, 403)
 
-    async def test_get_material_does_not_require_auth(self, client: AsyncClient, project: Project, db: AsyncSession, admin_user: User):
+    async def test_get_material_requires_auth(self, client: AsyncClient, project: Project, db: AsyncSession, admin_user: User):
         mat = await create_material_in_db(db, project.id, admin_user.id)
         response = await client.get(f"/api/v1/projects/{project.id}/materials/{mat.id}")
-        assert response.status_code == 200
+        assert response.status_code == 401
 
-    async def test_list_materials_does_not_require_auth(self, client: AsyncClient, project: Project):
+    async def test_list_materials_requires_auth(self, client: AsyncClient, project: Project):
         response = await client.get(f"/api/v1/projects/{project.id}/materials")
-        assert response.status_code == 200
+        assert response.status_code == 401
 
-    async def test_flat_list_does_not_require_auth(self, client: AsyncClient):
+    async def test_flat_list_requires_auth(self, client: AsyncClient):
         response = await client.get("/api/v1/materials")
-        assert response.status_code == 200
+        assert response.status_code == 401
 
 
 class TestSubmitWorkflow:
@@ -755,6 +755,11 @@ class TestListOperations:
         proj1 = Project(id=uuid.uuid4(), name="Project 1", code="P1", status="active", created_by_id=admin_user.id)
         proj2 = Project(id=uuid.uuid4(), name="Project 2", code="P2", status="active", created_by_id=admin_user.id)
         db.add_all([proj1, proj2])
+        await db.flush()
+        db.add_all([
+            ProjectMember(project_id=proj1.id, user_id=admin_user.id, role="project_admin"),
+            ProjectMember(project_id=proj2.id, user_id=admin_user.id, role="project_admin"),
+        ])
         await db.commit()
         await create_material_in_db(db, proj1.id, admin_user.id, name="P1 Material")
         await create_material_in_db(db, proj2.id, admin_user.id, name="P2 Material")
@@ -1082,7 +1087,9 @@ class TestEdgeCases:
 
 class TestUserClientAccess:
 
-    async def test_regular_user_can_create_material(self, user_client: AsyncClient, project: Project):
+    async def test_regular_user_can_create_material(self, user_client: AsyncClient, project: Project, db: AsyncSession, regular_user: User):
+        db.add(ProjectMember(project_id=project.id, user_id=regular_user.id, role="contractor"))
+        await db.commit()
         response = await user_client.post(
             f"/api/v1/projects/{project.id}/materials",
             json={"name": "User Created Material"},
@@ -1090,6 +1097,8 @@ class TestUserClientAccess:
         assert response.status_code == 200
 
     async def test_regular_user_can_update_material(self, user_client: AsyncClient, project: Project, db: AsyncSession, regular_user: User):
+        db.add(ProjectMember(project_id=project.id, user_id=regular_user.id, role="contractor"))
+        await db.commit()
         mat = await create_material_in_db(db, project.id, regular_user.id)
         response = await user_client.put(
             f"/api/v1/projects/{project.id}/materials/{mat.id}",
@@ -1098,11 +1107,15 @@ class TestUserClientAccess:
         assert response.status_code == 200
 
     async def test_regular_user_can_delete_material(self, user_client: AsyncClient, project: Project, db: AsyncSession, regular_user: User):
+        db.add(ProjectMember(project_id=project.id, user_id=regular_user.id, role="contractor"))
+        await db.commit()
         mat = await create_material_in_db(db, project.id, regular_user.id)
         response = await user_client.delete(f"/api/v1/projects/{project.id}/materials/{mat.id}")
         assert response.status_code == 200
 
     async def test_regular_user_can_submit_material(self, user_client: AsyncClient, project: Project, db: AsyncSession, regular_user: User):
+        db.add(ProjectMember(project_id=project.id, user_id=regular_user.id, role="contractor"))
+        await db.commit()
         mat = await create_material_in_db(db, project.id, regular_user.id)
         response = await user_client.post(f"/api/v1/projects/{project.id}/materials/{mat.id}/submit")
         assert response.status_code == 200
@@ -1130,6 +1143,11 @@ class TestFlatListEndpoint:
         proj1 = Project(id=uuid.uuid4(), name="Proj A", code="PA", status="active", created_by_id=admin_user.id)
         proj2 = Project(id=uuid.uuid4(), name="Proj B", code="PB", status="active", created_by_id=admin_user.id)
         db.add_all([proj1, proj2])
+        await db.flush()
+        db.add_all([
+            ProjectMember(project_id=proj1.id, user_id=admin_user.id, role="project_admin"),
+            ProjectMember(project_id=proj2.id, user_id=admin_user.id, role="project_admin"),
+        ])
         await db.commit()
         await create_material_in_db(db, proj1.id, admin_user.id, name="From Proj A")
         await create_material_in_db(db, proj2.id, admin_user.id, name="From Proj B")
@@ -1143,6 +1161,11 @@ class TestFlatListEndpoint:
         proj1 = Project(id=uuid.uuid4(), name="Isolated A", code="IA", status="active", created_by_id=admin_user.id)
         proj2 = Project(id=uuid.uuid4(), name="Isolated B", code="IB", status="active", created_by_id=admin_user.id)
         db.add_all([proj1, proj2])
+        await db.flush()
+        db.add_all([
+            ProjectMember(project_id=proj1.id, user_id=admin_user.id, role="project_admin"),
+            ProjectMember(project_id=proj2.id, user_id=admin_user.id, role="project_admin"),
+        ])
         await db.commit()
         await create_material_in_db(db, proj1.id, admin_user.id, name="Isolated Mat 1")
         await create_material_in_db(db, proj2.id, admin_user.id, name="Isolated Mat 2")

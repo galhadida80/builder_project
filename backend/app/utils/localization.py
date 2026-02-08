@@ -183,47 +183,41 @@ def translate_message(message_key: str, language: str, messages: Optional[Dict[s
     Returns:
         Translated message string, or the key itself if translation not found
     """
-    # Use loaded messages from JSON files as primary source, fall back to DEFAULT_MESSAGES
-    if messages is None:
-        # Prefer JSON-loaded messages over defaults
-        if _LOADED_MESSAGES and _LOADED_MESSAGES.get('en'):
-            messages = _LOADED_MESSAGES
-        else:
-            messages = DEFAULT_MESSAGES
-
     # Normalize language to supported languages
     if language not in SUPPORTED_LANGUAGES:
         language = DEFAULT_LANGUAGE
 
-    # Try to get translation in requested language
-    if language in messages:
-        lang_msgs = messages[language]
+    # Build ordered list of message sources to try
+    sources = []
+    if messages is not None:
+        sources.append(messages)
+    else:
+        if _LOADED_MESSAGES and _LOADED_MESSAGES.get('en'):
+            sources.append(_LOADED_MESSAGES)
+        sources.append(DEFAULT_MESSAGES)
 
-        # Try hierarchical lookup first (e.g., 'auth.invalid_credentials')
-        if '.' in message_key:
-            result = _get_nested_value(lang_msgs, message_key)
-            if result:
-                return result
+    for msgs in sources:
+        # Try to get translation in requested language
+        if language in msgs:
+            lang_msgs = msgs[language]
+            if '.' in message_key:
+                result = _get_nested_value(lang_msgs, message_key)
+                if result:
+                    return result
+            if isinstance(lang_msgs, dict) and message_key in lang_msgs:
+                value = lang_msgs[message_key]
+                return str(value) if value is not None else message_key
 
-        # Try flat lookup (e.g., 'invalid_credentials')
-        if isinstance(lang_msgs, dict) and message_key in lang_msgs:
-            value = lang_msgs[message_key]
-            return str(value) if value is not None else message_key
-
-    # Fallback to English if key not found in requested language
-    if DEFAULT_LANGUAGE in messages:
-        en_msgs = messages[DEFAULT_LANGUAGE]
-
-        # Try hierarchical lookup in English
-        if '.' in message_key:
-            result = _get_nested_value(en_msgs, message_key)
-            if result:
-                return result
-
-        # Try flat lookup in English
-        if isinstance(en_msgs, dict) and message_key in en_msgs:
-            value = en_msgs[message_key]
-            return str(value) if value is not None else message_key
+        # Fallback to English if key not found in requested language
+        if DEFAULT_LANGUAGE in msgs:
+            en_msgs = msgs[DEFAULT_LANGUAGE]
+            if '.' in message_key:
+                result = _get_nested_value(en_msgs, message_key)
+                if result:
+                    return result
+            if isinstance(en_msgs, dict) and message_key in en_msgs:
+                value = en_msgs[message_key]
+                return str(value) if value is not None else message_key
 
     # Return the key itself if no translation found
     return message_key

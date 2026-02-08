@@ -8,7 +8,7 @@ from app.models.equipment_submission import EquipmentSubmission
 from app.models.approval_decision import ApprovalDecision
 from app.models.audit import AuditLog
 from app.models.user import User
-from app.models.project import Project
+from app.models.project import Project, ProjectMember
 
 
 class TestEquipmentTemplates:
@@ -23,9 +23,9 @@ class TestEquipmentTemplates:
             "/api/v1/equipment-templates",
             json={
                 "name": "Excavator Template",
+                "name_he": "תבנית מחפרון",
                 "category": "Heavy Machinery",
                 "description": "Standard excavator template",
-                "specifications": {"capacity": "20 tons", "model": "CAT-330"}
             }
         )
 
@@ -34,7 +34,7 @@ class TestEquipmentTemplates:
         assert data["name"] == "Excavator Template"
         assert data["category"] == "Heavy Machinery"
         assert "id" in data
-        assert "createdAt" in data
+        assert "created_at" in data
 
         # Verify template was created in database
         result = await db.execute(
@@ -53,6 +53,7 @@ class TestEquipmentTemplates:
             "/api/v1/equipment-templates",
             json={
                 "name": "Test Template",
+                "name_he": "תבנית בדיקה",
                 "category": "Test Category"
             }
         )
@@ -76,8 +77,8 @@ class TestEquipmentTemplates:
         template = data[0]
         assert "id" in template
         assert "name" in template
-        assert "createdAt" in template
-        assert "updatedAt" in template
+        assert "created_at" in template
+        assert "updated_at" in template
 
     @pytest.mark.asyncio
     async def test_get_template_by_id(
@@ -141,6 +142,7 @@ class TestEquipmentTemplates:
         template = EquipmentTemplate(
             id=uuid.uuid4(),
             name="Template to Delete",
+            name_he="תבנית למחיקה",
             category="Test",
             created_by_id=admin_user.id
         )
@@ -169,9 +171,13 @@ class TestEquipmentTemplates:
         user_client: AsyncClient,
         project: Project,
         equipment_template: EquipmentTemplate,
-        db: AsyncSession
+        db: AsyncSession,
+        regular_user: User
     ):
         """Test creates submission linked to template and project."""
+        db.add(ProjectMember(project_id=project.id, user_id=regular_user.id, role="contractor"))
+        await db.commit()
+
         response = await user_client.post(
             f"/api/v1/projects/{project.id}/equipment-submissions",
             json={
@@ -203,9 +209,14 @@ class TestEquipmentTemplates:
         self,
         user_client: AsyncClient,
         project: Project,
-        equipment_submission: EquipmentSubmission
+        equipment_submission: EquipmentSubmission,
+        db: AsyncSession,
+        regular_user: User
     ):
         """Test returns only submissions for specified project."""
+        db.add(ProjectMember(project_id=project.id, user_id=regular_user.id, role="contractor"))
+        await db.commit()
+
         response = await user_client.get(
             f"/api/v1/projects/{project.id}/equipment-submissions"
         )
@@ -225,9 +236,13 @@ class TestEquipmentTemplates:
         user_client: AsyncClient,
         project: Project,
         equipment_submission: EquipmentSubmission,
-        db: AsyncSession
+        db: AsyncSession,
+        regular_user: User
     ):
         """Test allows update when status is draft."""
+        db.add(ProjectMember(project_id=project.id, user_id=regular_user.id, role="contractor"))
+        await db.commit()
+
         # Ensure submission is in draft status
         equipment_submission.status = "draft"
         await db.commit()
@@ -251,9 +266,13 @@ class TestEquipmentTemplates:
         user_client: AsyncClient,
         project: Project,
         equipment_submission: EquipmentSubmission,
-        db: AsyncSession
+        db: AsyncSession,
+        regular_user: User
     ):
         """Test prevents update when status is approved."""
+        db.add(ProjectMember(project_id=project.id, user_id=regular_user.id, role="contractor"))
+        await db.commit()
+
         # Set submission status to approved
         equipment_submission.status = "approved"
         await db.commit()
@@ -276,9 +295,14 @@ class TestEquipmentTemplates:
         self,
         user_client: AsyncClient,
         equipment_submission: EquipmentSubmission,
-        db: AsyncSession
+        db: AsyncSession,
+        regular_user: User,
+        project: Project
     ):
         """Test creates decision and updates submission status."""
+        db.add(ProjectMember(project_id=project.id, user_id=regular_user.id, role="contractor"))
+        await db.commit()
+
         # Ensure submission is in draft status
         equipment_submission.status = "draft"
         await db.commit()
@@ -317,9 +341,13 @@ class TestEquipmentTemplates:
         user_client: AsyncClient,
         equipment_submission: EquipmentSubmission,
         db: AsyncSession,
-        regular_user: User
+        regular_user: User,
+        project: Project
     ):
         """Test returns all decisions for submission."""
+        db.add(ProjectMember(project_id=project.id, user_id=regular_user.id, role="contractor"))
+        await db.commit()
+
         # Create a decision
         decision = ApprovalDecision(
             id=uuid.uuid4(),

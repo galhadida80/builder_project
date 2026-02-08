@@ -10,7 +10,7 @@ from sqlalchemy import select
 from app.models.equipment import Equipment, EquipmentChecklist, ApprovalStatus
 from app.models.approval import ApprovalRequest, ApprovalStep
 from app.models.user import User
-from app.models.project import Project
+from app.models.project import Project, ProjectMember
 
 
 API_V1 = "/api/v1"
@@ -351,7 +351,7 @@ class TestGetEquipment:
 
     async def test_get_equipment_nonexistent_project(self, admin_client: AsyncClient):
         resp = await admin_client.get(equipment_detail_url(FAKE_PROJECT_ID, FAKE_EQUIPMENT_ID))
-        assert resp.status_code == 404
+        assert resp.status_code == 403
 
     async def test_get_equipment_wrong_project(self, admin_client: AsyncClient, project: Project, db: AsyncSession, admin_user: User):
         created = await create_equipment_via_api(admin_client, str(project.id))
@@ -360,6 +360,8 @@ class TestGetEquipment:
             status="active", created_by_id=admin_user.id,
         )
         db.add(other_project)
+        await db.flush()
+        db.add(ProjectMember(project_id=other_project.id, user_id=admin_user.id, role="project_admin"))
         await db.commit()
         resp = await admin_client.get(equipment_detail_url(str(other_project.id), created["id"]))
         assert resp.status_code == 404
@@ -406,6 +408,8 @@ class TestListEquipment:
             status="active", created_by_id=admin_user.id,
         )
         db.add(other_project)
+        await db.flush()
+        db.add(ProjectMember(project_id=other_project.id, user_id=admin_user.id, role="project_admin"))
         await db.commit()
         resp = await admin_client.get(equipment_url(str(other_project.id)))
         assert resp.status_code == 200
@@ -449,14 +453,16 @@ class TestFlatListEquipment:
             status="active", created_by_id=admin_user.id,
         )
         db.add(other_project)
+        await db.flush()
+        db.add(ProjectMember(project_id=other_project.id, user_id=admin_user.id, role="project_admin"))
         await db.commit()
         await create_equipment_via_api(admin_client, str(other_project.id), {"name": "Equip B"})
         resp = await admin_client.get(f"{API_V1}/equipment")
         assert resp.status_code == 200
         assert len(resp.json()) >= 2
 
-    async def test_flat_list_empty(self, client: AsyncClient):
-        resp = await client.get(f"{API_V1}/equipment")
+    async def test_flat_list_empty(self, admin_client: AsyncClient):
+        resp = await admin_client.get(f"{API_V1}/equipment")
         assert resp.status_code == 200
         assert resp.json() == []
 
@@ -671,24 +677,27 @@ class TestAuthRequirements:
         resp = await client.request(method, url, **kwargs)
         assert resp.status_code == 401
 
-    async def test_list_does_not_require_auth(self, client: AsyncClient, project: Project):
+    async def test_list_requires_auth(self, client: AsyncClient, project: Project):
         resp = await client.get(equipment_url(str(project.id)))
-        assert resp.status_code == 200
+        assert resp.status_code == 401
 
-    async def test_flat_list_does_not_require_auth(self, client: AsyncClient):
+    async def test_flat_list_requires_auth(self, client: AsyncClient):
         resp = await client.get(f"{API_V1}/equipment")
-        assert resp.status_code == 200
+        assert resp.status_code == 401
 
-    async def test_get_detail_does_not_require_auth(self, admin_client: AsyncClient, client: AsyncClient, project: Project):
-        created = await create_equipment_via_api(admin_client, str(project.id))
-        resp = await client.get(equipment_detail_url(str(project.id), created["id"]))
-        assert resp.status_code == 200
+    async def test_get_detail_requires_auth(self, client: AsyncClient, project: Project):
+        resp = await client.get(equipment_detail_url(str(project.id), FAKE_EQUIPMENT_ID))
+        assert resp.status_code == 401
 
-    async def test_create_with_user_client(self, user_client: AsyncClient, project: Project):
+    async def test_create_with_user_client(self, user_client: AsyncClient, project: Project, db: AsyncSession, regular_user: User):
+        db.add(ProjectMember(project_id=project.id, user_id=regular_user.id, role="contractor"))
+        await db.commit()
         resp = await user_client.post(equipment_url(str(project.id)), json=valid_equipment_payload())
         assert resp.status_code == 200
 
-    async def test_update_with_user_client(self, user_client: AsyncClient, admin_client: AsyncClient, project: Project):
+    async def test_update_with_user_client(self, user_client: AsyncClient, admin_client: AsyncClient, project: Project, db: AsyncSession, regular_user: User):
+        db.add(ProjectMember(project_id=project.id, user_id=regular_user.id, role="contractor"))
+        await db.commit()
         created = await create_equipment_via_api(admin_client, str(project.id))
         resp = await user_client.put(
             equipment_detail_url(str(project.id), created["id"]),
@@ -696,7 +705,9 @@ class TestAuthRequirements:
         )
         assert resp.status_code == 200
 
-    async def test_delete_with_user_client(self, user_client: AsyncClient, admin_client: AsyncClient, project: Project):
+    async def test_delete_with_user_client(self, user_client: AsyncClient, admin_client: AsyncClient, project: Project, db: AsyncSession, regular_user: User):
+        db.add(ProjectMember(project_id=project.id, user_id=regular_user.id, role="contractor"))
+        await db.commit()
         created = await create_equipment_via_api(admin_client, str(project.id))
         resp = await user_client.delete(equipment_detail_url(str(project.id), created["id"]))
         assert resp.status_code == 200
@@ -1050,8 +1061,8 @@ class TestResponseFormat:
         resp = await admin_client.get(equipment_url(str(project.id)))
         assert isinstance(resp.json(), list)
 
-    async def test_flat_list_response_is_array(self, client: AsyncClient):
-        resp = await client.get(f"{API_V1}/equipment")
+    async def test_flat_list_response_is_array(self, admin_client: AsyncClient):
+        resp = await admin_client.get(f"{API_V1}/equipment")
         assert isinstance(resp.json(), list)
 
 
@@ -1109,14 +1120,14 @@ class TestNotFoundResponses:
         ("DELETE", lambda: equipment_detail_url(FAKE_PROJECT_ID, FAKE_EQUIPMENT_ID), None),
         ("POST", lambda: equipment_submit_url(FAKE_PROJECT_ID, FAKE_EQUIPMENT_ID), None),
     ])
-    async def test_404_for_nonexistent_resources(
+    async def test_403_for_nonexistent_project(
         self, admin_client: AsyncClient, method, path_func, body
     ):
         kwargs = {}
         if body:
             kwargs["json"] = body
         resp = await admin_client.request(method, path_func(), **kwargs)
-        assert resp.status_code == 404
+        assert resp.status_code == 403
 
     async def test_get_invalid_uuid_format(self, admin_client: AsyncClient, project: Project):
         resp = await admin_client.get(
@@ -1377,19 +1388,17 @@ class TestParametrizedAuthEndpoints:
         resp = await client.post(equipment_submit_url(str(project.id), FAKE_EQUIPMENT_ID))
         assert resp.status_code == 401
 
-    @pytest.mark.parametrize("endpoint", ["list", "flat_list", "detail"])
-    async def test_read_endpoints_no_auth_required(
-        self, client: AsyncClient, admin_client: AsyncClient, project: Project, endpoint
+    @pytest.mark.parametrize("endpoint,path", [
+        ("list", "/api/v1/projects/{project_id}/equipment"),
+        ("flat_list", "/api/v1/equipment"),
+        ("detail", "/api/v1/projects/{project_id}/equipment/00000000-0000-0000-0000-000000000099"),
+    ])
+    async def test_read_endpoints_require_auth(
+        self, client: AsyncClient, project: Project, endpoint, path
     ):
-        if endpoint == "detail":
-            created = await create_equipment_via_api(admin_client, str(project.id))
-            url = equipment_detail_url(str(project.id), created["id"])
-        elif endpoint == "list":
-            url = equipment_url(str(project.id))
-        else:
-            url = f"{API_V1}/equipment"
+        url = path.format(project_id=project.id)
         resp = await client.get(url)
-        assert resp.status_code == 200
+        assert resp.status_code == 401
 
 
 class TestParametrizedMultipleEquipment:

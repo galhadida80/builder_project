@@ -9,6 +9,7 @@ from sqlalchemy.pool import StaticPool
 from sqlalchemy import JSON, String, event
 from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
 from sqlalchemy.ext.compiler import compiles
+from fastapi import HTTPException
 from app.db.session import Base, get_db
 from app.main import app
 from app.models.user import User
@@ -81,7 +82,7 @@ async def client(db: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
 @pytest.fixture(scope="function")
 async def admin_client(db: AsyncSession, admin_user: User) -> AsyncGenerator[AsyncClient, None]:
     """Fixture that provides an async HTTP client authenticated as an admin user."""
-    from app.core.security import get_current_user
+    from app.core.security import get_current_user, get_current_admin_user
 
     async def override_get_db():
         yield db
@@ -89,8 +90,12 @@ async def admin_client(db: AsyncSession, admin_user: User) -> AsyncGenerator[Asy
     async def override_get_current_user():
         return admin_user
 
+    async def override_get_current_admin_user():
+        return admin_user
+
     app.dependency_overrides[get_db] = override_get_db
     app.dependency_overrides[get_current_user] = override_get_current_user
+    app.dependency_overrides[get_current_admin_user] = override_get_current_admin_user
 
     transport = ASGITransport(app=app)
     async with AsyncClient(
@@ -106,7 +111,7 @@ async def admin_client(db: AsyncSession, admin_user: User) -> AsyncGenerator[Asy
 @pytest.fixture(scope="function")
 async def user_client(db: AsyncSession, regular_user: User) -> AsyncGenerator[AsyncClient, None]:
     """Fixture that provides an async HTTP client authenticated as a regular user."""
-    from app.core.security import get_current_user
+    from app.core.security import get_current_user, get_current_admin_user
 
     async def override_get_db():
         yield db
@@ -114,8 +119,12 @@ async def user_client(db: AsyncSession, regular_user: User) -> AsyncGenerator[As
     async def override_get_current_user():
         return regular_user
 
+    async def override_get_current_admin_user():
+        raise HTTPException(status_code=403, detail="Admin access required")
+
     app.dependency_overrides[get_db] = override_get_db
     app.dependency_overrides[get_current_user] = override_get_current_user
+    app.dependency_overrides[get_current_admin_user] = override_get_current_admin_user
 
     transport = ASGITransport(app=app)
     async with AsyncClient(
@@ -164,7 +173,7 @@ async def regular_user(db: AsyncSession) -> User:
 
 @pytest.fixture(scope="function")
 async def project(db: AsyncSession, admin_user: User) -> Project:
-    """Fixture that creates a test project with admin_user as a member."""
+    """Fixture that creates a test project with admin_user as member."""
     proj = Project(
         id=uuid.uuid4(),
         name="Test Project",
@@ -175,12 +184,12 @@ async def project(db: AsyncSession, admin_user: User) -> Project:
     )
     db.add(proj)
     await db.flush()
-    member = ProjectMember(
+    admin_member = ProjectMember(
         project_id=proj.id,
         user_id=admin_user.id,
         role="project_admin",
     )
-    db.add(member)
+    db.add(admin_member)
     await db.commit()
     await db.refresh(proj)
     return proj
@@ -239,6 +248,18 @@ async def equipment_submission(
     await db.commit()
     await db.refresh(submission)
     return submission
+
+
+@pytest.fixture(scope="function")
+async def async_session(db: AsyncSession) -> AsyncSession:
+    """Alias for db fixture (used by some test files)."""
+    return db
+
+
+@pytest.fixture(scope="function")
+async def db_session(db: AsyncSession) -> AsyncSession:
+    """Alias for db fixture (used by some test files)."""
+    return db
 
 
 # ===== RFI Test Fixtures =====
