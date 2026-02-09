@@ -162,7 +162,30 @@
     "storageLocation": "Ubicación de Almacenamiento",
     "selectType": "Seleccionar tipo...",
     "selectUnit": "Seleccionar unidad...",
-    "noResultsDescription": "Intenta ajustar tu búsqueda o agrega un nuevo material"
+    "noResultsDescription": "Intenta ajustar tu búsqueda o agrega un nuevo material",
+    "details": "Detalles del Material",
+    "documents": "Documentos",
+    "noDocumentsAttached": "Sin documentos adjuntos",
+    "uploadDocument": "Subir Documento",
+    "approvalTimeline": "Línea de Tiempo de Aprobación",
+    "submitForApproval": "Enviar para Aprobación",
+    "materialSubmittedSuccessfully": "¡Material enviado para aprobación!",
+    "failedToSubmitMaterial": "Error al enviar material para aprobación",
+    "failedToLoadFiles": "Error al cargar archivos",
+    "failedToDownloadFile": "Error al descargar archivo",
+    "failedToOpenFile": "Error al abrir archivo",
+    "failedToUploadFile": "Error al subir archivo",
+    "fileUploadedSuccessfully": "¡Archivo subido exitosamente!",
+    "selectTemplate": "Seleccionar plantilla de material...",
+    "specifications": "Especificaciones",
+    "requiredDocuments": "Documentos Requeridos",
+    "checklist": "Lista de Verificación",
+    "requiresFile": "requiere archivo adjunto",
+    "source": {
+      "consultant": "Proporcionado por Consultor",
+      "project_manager": "Proporcionado por Gerente de Proyecto",
+      "contractor": "Proporcionado por Contratista"
+    }
   },
   "meetings": {
     "title": "Reuniones",

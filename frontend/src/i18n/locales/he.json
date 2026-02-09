@@ -94,7 +94,9 @@
     "total": "סה\"כ",
     "amount": "כמות",
     "price": "מחיר",
-    "cost": "עלות"
+    "cost": "עלות",
+    "required": "נדרש",
+    "upload": "העלה"
   },
   "buttons": {
     "save": "שמור",
@@ -228,7 +230,30 @@
     "storageLocation": "מיקום אחסון",
     "selectType": "בחר סוג...",
     "selectUnit": "בחר יחידה...",
-    "noResultsDescription": "נסה לשנות את החיפוש או הוסף חומר חדש"
+    "noResultsDescription": "נסה לשנות את החיפוש או הוסף חומר חדש",
+    "details": "פרטי החומר",
+    "documents": "מסמכים",
+    "noDocumentsAttached": "אין מסמכים מצורפים",
+    "uploadDocument": "העלה מסמך",
+    "approvalTimeline": "ציר זמן אישור",
+    "submitForApproval": "שלח לאישור",
+    "materialSubmittedSuccessfully": "החומר נשלח לאישור!",
+    "failedToSubmitMaterial": "נכשל בשליחת חומר לאישור",
+    "failedToLoadFiles": "נכשל בטעינת קבצים",
+    "failedToDownloadFile": "נכשל בהורדת הקובץ",
+    "failedToOpenFile": "נכשל בפתיחת הקובץ",
+    "failedToUploadFile": "נכשל בהעלאת הקובץ",
+    "fileUploadedSuccessfully": "הקובץ הועלה בהצלחה!",
+    "selectTemplate": "בחר תבנית חומר...",
+    "specifications": "מפרטים",
+    "requiredDocuments": "מסמכים נדרשים",
+    "checklist": "רשימת בדיקה",
+    "requiresFile": "דורש קובץ מצורף",
+    "source": {
+      "consultant": "מסופק על ידי יועץ",
+      "project_manager": "מסופק על ידי מנהל פרויקט",
+      "contractor": "מסופק על ידי קבלן"
+    }
   },
   "meetings": {
     "title": "פגישות",

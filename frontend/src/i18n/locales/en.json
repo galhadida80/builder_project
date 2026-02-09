@@ -162,7 +162,30 @@
     "storageLocation": "Storage Location",
     "selectType": "Select type...",
     "selectUnit": "Select unit...",
-    "noResultsDescription": "Try adjusting your search or add a new material"
+    "noResultsDescription": "Try adjusting your search or add a new material",
+    "details": "Material Details",
+    "documents": "Documents",
+    "noDocumentsAttached": "No documents attached",
+    "uploadDocument": "Upload Document",
+    "approvalTimeline": "Approval Timeline",
+    "submitForApproval": "Submit for Approval",
+    "materialSubmittedSuccessfully": "Material submitted for approval!",
+    "failedToSubmitMaterial": "Failed to submit material",
+    "failedToLoadFiles": "Failed to load files",
+    "failedToDownloadFile": "Failed to download file",
+    "failedToOpenFile": "Failed to open file",
+    "failedToUploadFile": "Failed to upload file",
+    "fileUploadedSuccessfully": "File uploaded successfully!",
+    "selectTemplate": "Select material template...",
+    "specifications": "Specifications",
+    "requiredDocuments": "Required Documents",
+    "checklist": "Checklist",
+    "requiresFile": "requires file attachment",
+    "source": {
+      "consultant": "Provided by Consultant",
+      "project_manager": "Provided by Project Manager",
+      "contractor": "Provided by Contractor"
+    }
   },
   "meetings": {
     "title": "Meetings",
@@ -244,7 +267,9 @@
     "total": "Total",
     "amount": "Amount",
     "price": "Price",
-    "cost": "Cost"
+    "cost": "Cost",
+    "required": "Required",
+    "upload": "Upload"
   },
   "buttons": {
     "save": "Save",
