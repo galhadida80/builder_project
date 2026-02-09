@@ -20,9 +20,16 @@ EXPECTED_EQUIPMENT_TEMPLATES = 44
 EXPECTED_MATERIAL_TEMPLATES = 28
 
 
-async def seed_one_per_template():
+async def seed_one_per_template(project_code=None):
     async with AsyncSessionLocal() as session:
-        result = await session.execute(select(Project).limit(1))
+        if project_code:
+            result = await session.execute(
+                select(Project).where(Project.code == project_code)
+            )
+        else:
+            result = await session.execute(
+                select(Project).order_by(Project.created_at.desc()).limit(1)
+            )
         project = result.scalar_one_or_none()
         if not project:
             print("ERROR: No project found. Create a project first.")
@@ -117,5 +124,6 @@ async def seed_one_per_template():
 
 
 if __name__ == "__main__":
-    success = asyncio.run(seed_one_per_template())
+    code = sys.argv[1] if len(sys.argv) > 1 else None
+    success = asyncio.run(seed_one_per_template(project_code=code))
     sys.exit(0 if success else 1)
