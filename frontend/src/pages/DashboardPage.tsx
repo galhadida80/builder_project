@@ -36,6 +36,10 @@ import { workloadApi } from '../api/workload'
 import { useToast } from '../components/common/ToastProvider'
 import { useProject } from '../contexts/ProjectContext'
 
+function safePercentage(numerator: number, denominator: number): number {
+  return denominator > 0 ? Math.round((numerator / denominator) * 100) : 0
+}
+
 export default function DashboardPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -82,9 +86,16 @@ export default function DashboardPage() {
   const upcomingMeetings = meetings.filter(m => m.status === 'scheduled' || m.status === 'invitations_sent')
   const equipmentPending = equipment.filter(e => e.status !== 'approved' && e.status !== 'draft')
   const materialsPending = materials.filter(m => m.status !== 'approved' && m.status !== 'draft')
-  const completionRate = equipment.length > 0
-    ? Math.round((equipment.filter(e => e.status === 'approved').length / equipment.length) * 100)
-    : 0
+  const approvedEquipmentCount = equipment.filter(e => e.status === 'approved').length
+  const completionRate = safePercentage(approvedEquipmentCount, equipment.length)
+
+  const navigateToProjectPage = (path: string) => {
+    if (selectedProjectId) {
+      navigate(`/projects/${selectedProjectId}/${path}`)
+    } else {
+      showWarning('Please select a project first')
+    }
+  }
 
   if (loading) {
     return (
@@ -271,7 +282,7 @@ export default function DashboardPage() {
                 />
                 <Box>
                   <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                    {equipment.filter(e => e.status === 'approved').length} of {equipment.length} approved
+                    {approvedEquipmentCount} of {equipment.length} approved
                   </Typography>
                   <Box sx={{ display: 'flex', gap: 2 }}>
                     <Box>
@@ -304,13 +315,7 @@ export default function DashboardPage() {
                   icon={<BuildIcon />}
                   fullWidth
                   sx={{ justifyContent: 'flex-start', px: 2 }}
-                  onClick={() => {
-                    if (selectedProjectId) {
-                      navigate(`/projects/${selectedProjectId}/equipment?action=add`)
-                    } else {
-                      showWarning('Please select a project first')
-                    }
-                  }}
+                  onClick={() => navigateToProjectPage('equipment?action=add')}
                 >
                   Add Equipment
                 </Button>
@@ -320,13 +325,7 @@ export default function DashboardPage() {
                   icon={<InventoryIcon />}
                   fullWidth
                   sx={{ justifyContent: 'flex-start', px: 2 }}
-                  onClick={() => {
-                    if (selectedProjectId) {
-                      navigate(`/projects/${selectedProjectId}/materials?action=add`)
-                    } else {
-                      showWarning('Please select a project first')
-                    }
-                  }}
+                  onClick={() => navigateToProjectPage('materials?action=add')}
                 >
                   Add Material
                 </Button>
@@ -336,13 +335,7 @@ export default function DashboardPage() {
                   icon={<EventIcon />}
                   fullWidth
                   sx={{ justifyContent: 'flex-start', px: 2 }}
-                  onClick={() => {
-                    if (selectedProjectId) {
-                      navigate(`/projects/${selectedProjectId}/meetings?action=add`)
-                    } else {
-                      showWarning('Please select a project first')
-                    }
-                  }}
+                  onClick={() => navigateToProjectPage('meetings?action=add')}
                 >
                   Schedule Meeting
                 </Button>
@@ -352,13 +345,7 @@ export default function DashboardPage() {
                   icon={<AssignmentIcon />}
                   fullWidth
                   sx={{ justifyContent: 'flex-start', px: 2 }}
-                  onClick={() => {
-                    if (selectedProjectId) {
-                      navigate(`/projects/${selectedProjectId}/inspections?action=add`)
-                    } else {
-                      showWarning('Please select a project first')
-                    }
-                  }}
+                  onClick={() => navigateToProjectPage('inspections?action=add')}
                 >
                   New Inspection
                 </Button>
@@ -565,11 +552,11 @@ export default function DashboardPage() {
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
                   <Typography variant="caption" color="text.secondary">{t('dashboard.inspectionsDone')}</Typography>
                   <Typography variant="caption" fontWeight={600}>
-                    {materials.length > 0 ? Math.round((materials.filter(m => m.status === 'approved').length / materials.length) * 100) : 0}%
+                    {safePercentage(materials.filter(m => m.status === 'approved').length, materials.length)}%
                   </Typography>
                 </Box>
                 <ProgressBar
-                  value={materials.length > 0 ? Math.round((materials.filter(m => m.status === 'approved').length / materials.length) * 100) : 0}
+                  value={safePercentage(materials.filter(m => m.status === 'approved').length, materials.length)}
                   showValue={false}
                   size="small"
                   color="info"
@@ -579,11 +566,11 @@ export default function DashboardPage() {
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
                   <Typography variant="caption" color="text.secondary">{t('dashboard.approvalsPending')}</Typography>
                   <Typography variant="caption" fontWeight={600}>
-                    {approvals.length > 0 ? Math.round((pendingApprovals.length / approvals.length) * 100) : 0}%
+                    {safePercentage(pendingApprovals.length, approvals.length)}%
                   </Typography>
                 </Box>
                 <ProgressBar
-                  value={approvals.length > 0 ? Math.round((pendingApprovals.length / approvals.length) * 100) : 0}
+                  value={safePercentage(pendingApprovals.length, approvals.length)}
                   showValue={false}
                   size="small"
                   color="warning"

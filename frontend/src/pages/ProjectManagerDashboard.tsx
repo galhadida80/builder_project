@@ -35,6 +35,10 @@ interface ProjectMetrics {
   tasksPending: number
 }
 
+const WORKLOAD_THRESHOLD_OVERLOAD = 90
+const WORKLOAD_THRESHOLD_HIGH = 70
+const WORKLOAD_THRESHOLD_MODERATE = 40
+
 interface TeamMember {
   id: string
   name: string
@@ -82,7 +86,7 @@ export default function ProjectManagerDashboard() {
           email: t.user?.email || '',
           role: t.role || 'Team Member',
           assignedProjects: 1,
-          workload: t.workloadPercent > 90 ? 'overload' : t.workloadPercent > 70 ? 'high' : t.workloadPercent > 40 ? 'moderate' : 'low',
+          workload: t.workloadPercent > WORKLOAD_THRESHOLD_OVERLOAD ? 'overload' : t.workloadPercent > WORKLOAD_THRESHOLD_HIGH ? 'high' : t.workloadPercent > WORKLOAD_THRESHOLD_MODERATE ? 'moderate' : 'low',
         }))
 
         setProjects(mappedProjects)

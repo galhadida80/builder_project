@@ -27,7 +27,11 @@ import type {
   ChecklistItemResponse,
   ChecklistItemResponseCreate,
   ChecklistItemResponseUpdate,
+  ChecklistSubSection,
 } from '../types'
+
+const SUBMIT_REDIRECT_DELAY_MS = 2000
+const MAX_PREVIEW_INCOMPLETE_ITEMS = 3
 
 const MobileContainer = styled(Box)(({ theme }) => ({
   minHeight: '100vh',
@@ -115,16 +119,19 @@ export default function MobileChecklistPage() {
   }, [projectId, inspectionId])
 
   // Calculate progress
+  const getSubsections = (): ChecklistSubSection[] => {
+    const template = instance as unknown as { subsections?: ChecklistSubSection[] }
+    return template?.subsections || []
+  }
+
   const calculateProgress = () => {
     if (!instance?.responses) return { completed: 0, total: 0, percentage: 0 }
 
-    const template = instance as any
-    const subsections = template?.subsections || []
-
+    const subsections = getSubsections()
     let totalItems = 0
     let completedItems = 0
 
-    subsections.forEach((section: any) => {
+    subsections.forEach((section: ChecklistSubSection) => {
       const items = section.items || []
       totalItems += items.length
 
@@ -228,11 +235,10 @@ export default function MobileChecklistPage() {
     if (!instance || !projectId || !inspectionId) return
 
     // Validate that all required items are completed
-    const template = instance as any
-    const subsections = template?.subsections || []
+    const subsections = getSubsections()
     const incompleteItems: string[] = []
 
-    subsections.forEach((section: any) => {
+    subsections.forEach((section: ChecklistSubSection) => {
       const items = section.items || []
       items.forEach((item: ChecklistItemTemplate) => {
         const response = instance.responses.find((r) => r.itemTemplateId === item.id)
@@ -253,7 +259,7 @@ export default function MobileChecklistPage() {
     })
 
     // Check for signature requirement
-    const hasSignatureRequirement = subsections.some((section: any) =>
+    const hasSignatureRequirement = subsections.some((section: ChecklistSubSection) =>
       section.items?.some((item: ChecklistItemTemplate) => item.mustSignature)
     )
 
@@ -270,8 +276,8 @@ export default function MobileChecklistPage() {
     if (incompleteItems.length > 0) {
       setSnackbar({
         open: true,
-        message: `Please complete all required items: ${incompleteItems.slice(0, 3).join(', ')}${
-          incompleteItems.length > 3 ? '...' : ''
+        message: `Please complete all required items: ${incompleteItems.slice(0, MAX_PREVIEW_INCOMPLETE_ITEMS).join(', ')}${
+          incompleteItems.length > MAX_PREVIEW_INCOMPLETE_ITEMS ? '...' : ''
         }`,
         severity: 'error',
       })
@@ -293,7 +299,7 @@ export default function MobileChecklistPage() {
       // Navigate back after a short delay
       setTimeout(() => {
         navigate(`/projects/${projectId}/inspections`)
-      }, 2000)
+      }, SUBMIT_REDIRECT_DELAY_MS)
     } catch (err) {
       console.error('Failed to submit checklist:', err)
       setSnackbar({
@@ -372,8 +378,8 @@ export default function MobileChecklistPage() {
     )
   }
 
-  const template = instance as any
-  const subsections = template?.subsections || []
+  const subsections = getSubsections()
+  const templateName = (instance as unknown as { name?: string })?.name || 'Checklist'
 
   return (
     <MobileContainer>
@@ -393,7 +399,7 @@ export default function MobileChecklistPage() {
               Inspection Checklist
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              {template?.name || 'Checklist'}
+              {templateName}
             </Typography>
           </Box>
         </Box>
@@ -433,7 +439,7 @@ export default function MobileChecklistPage() {
         </ProgressContainer>
 
         {/* Sections */}
-        {subsections.map((section: any) => (
+        {subsections.map((section: ChecklistSubSection) => (
           <ChecklistSection
             key={section.id}
             section={section}
@@ -444,7 +450,7 @@ export default function MobileChecklistPage() {
         ))}
 
         {/* Signature Section */}
-        {subsections.some((section: any) =>
+        {subsections.some((section: ChecklistSubSection) =>
           section.items?.some((item: ChecklistItemTemplate) => item.mustSignature)
         ) && (
           <Box sx={{ mt: 3 }}>

@@ -1,11 +1,13 @@
 import { useState } from 'react'
-import { useDropzone } from 'react-dropzone'
+import { useDropzone, FileRejection } from 'react-dropzone'
 import { Box, Typography, Paper, CircularProgress } from '@mui/material'
 import { styled, alpha } from '@mui/material'
 import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 import { useToast } from '../common/ToastProvider'
 import { ProgressBar } from '../ui/ProgressBar'
 import { formatFileSize } from '../../utils/fileUtils'
+
+const BYTES_PER_MB = 1024 * 1024
 
 interface UploadZoneProps {
   onUpload: (file: File) => Promise<void>
@@ -47,7 +49,7 @@ const IconWrapper = styled(Box)(({ theme }) => ({
 export function UploadZone({
   onUpload,
   disabled = false,
-  maxSize = 100 * 1024 * 1024, // 100MB default
+  maxSize = 100 * BYTES_PER_MB, // 100MB default
   accept,
 }: UploadZoneProps) {
   const { showError } = useToast()
@@ -57,16 +59,16 @@ export function UploadZone({
   const [uploadQueue, setUploadQueue] = useState<File[]>([])
   const [uploadedCount, setUploadedCount] = useState(0)
 
-  const handleDrop = async (acceptedFiles: File[], rejectedFiles: any[]) => {
+  const handleDrop = async (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
     // Handle rejected files
     if (rejectedFiles.length > 0) {
       rejectedFiles.forEach((rejection) => {
         const file = rejection.file
         const errors = rejection.errors
 
-        if (errors.some((e: any) => e.code === 'file-too-large')) {
-          showError(`${file.name} is too large. Maximum size is ${maxSize / (1024 * 1024)}MB`)
-        } else if (errors.some((e: any) => e.code === 'file-invalid-type')) {
+        if (errors.some((e) => e.code === 'file-too-large')) {
+          showError(`${file.name} is too large. Maximum size is ${maxSize / BYTES_PER_MB}MB`)
+        } else if (errors.some((e) => e.code === 'file-invalid-type')) {
           showError(`${file.name} has an unsupported file type`)
         } else {
           showError(`${file.name} could not be uploaded`)
