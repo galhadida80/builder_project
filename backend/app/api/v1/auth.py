@@ -9,6 +9,7 @@ from app.core.security import (
 )
 from app.core.validation import validate_email, validate_password, sanitize_string
 from app.core.csrf import csrf_manager
+from app.core.security_middleware import check_rate_limit
 from app.utils.localization import get_language_from_request, translate_message
 
 router = APIRouter()
@@ -16,7 +17,8 @@ router = APIRouter()
 
 @router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
 async def register(data: UserRegister, request: Request, db: AsyncSession = Depends(get_db)):
-    # Validate and sanitize input
+    check_rate_limit(request)
+
     email = validate_email(data.email)
     password = validate_password(data.password)
     full_name = sanitize_string(data.full_name)
@@ -52,7 +54,8 @@ async def register(data: UserRegister, request: Request, db: AsyncSession = Depe
 
 @router.post("/login", response_model=TokenResponse)
 async def login(data: UserLogin, request: Request, db: AsyncSession = Depends(get_db)):
-    # Validate and sanitize input
+    check_rate_limit(request)
+
     email = validate_email(data.email)
     language = get_language_from_request(request)
 
