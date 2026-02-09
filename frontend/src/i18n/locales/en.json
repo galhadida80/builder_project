@@ -333,6 +333,11 @@
     "entity": "Entity",
     "changes": "Changes"
   },
+  "templatePicker": {
+    "specs": "Specs",
+    "docs": "Docs",
+    "checks": "Checks"
+  },
   "chat": {
     "title": "AI Assistant",
     "placeholder": "Ask about your project data...",

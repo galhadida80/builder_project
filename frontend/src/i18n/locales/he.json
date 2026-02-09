@@ -652,6 +652,11 @@
     "entity": "ישות",
     "changes": "שינויים"
   },
+  "templatePicker": {
+    "specs": "מפרטים",
+    "docs": "מסמכים",
+    "checks": "בדיקות"
+  },
   "chat": {
     "title": "עוזר AI",
     "placeholder": "שאל על נתוני הפרויקט שלך...",

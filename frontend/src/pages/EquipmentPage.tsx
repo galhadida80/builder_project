@@ -49,6 +49,7 @@ import type { FileRecord } from '../api/files'
 import { validateEquipmentForm, hasErrors, VALIDATION, type ValidationError } from '../utils/validation'
 import { useToast } from '../components/common/ToastProvider'
 import { useTranslation } from 'react-i18next'
+import TemplatePicker from '../components/ui/TemplatePicker'
 
 export default function EquipmentPage() {
   const { projectId } = useParams()
@@ -605,25 +606,18 @@ export default function EquipmentPage() {
             helperText={errors.name || (formData.name.length > 0 ? `${formData.name.length}/${VALIDATION.MAX_NAME_LENGTH}` : undefined)}
             inputProps={{ maxLength: VALIDATION.MAX_NAME_LENGTH }}
           />
-          <MuiTextField
-            fullWidth
-            select
-            label={t('equipment.type')}
-            value={formData.templateId}
-            onChange={(e) => {
-              setFormData({ ...formData, templateId: e.target.value })
+          <TemplatePicker
+            templates={equipmentTemplates}
+            value={selectedTemplate}
+            onChange={(template) => {
+              setFormData({ ...formData, templateId: template?.id || '' })
               setSpecificationValues({})
               setDocumentFiles({})
               setChecklistResponses({})
             }}
-          >
-            <MenuItem value="">{t('equipment.selectTemplate')}</MenuItem>
-            {equipmentTemplates.map(template => (
-              <MenuItem key={template.id} value={template.id}>
-                {template.name_he} ({template.category})
-              </MenuItem>
-            ))}
-          </MuiTextField>
+            label={t('equipment.type')}
+            placeholder={t('equipment.selectTemplate')}
+          />
 
           <Collapse in={!!selectedTemplate}>
             {selectedTemplate && (

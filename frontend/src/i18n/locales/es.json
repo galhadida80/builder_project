@@ -332,6 +332,11 @@
     "entity": "Entidad",
     "changes": "Cambios"
   },
+  "templatePicker": {
+    "specs": "Espec.",
+    "docs": "Docs",
+    "checks": "Lista"
+  },
   "chat": {
     "title": "Asistente AI",
     "placeholder": "Pregunta sobre los datos de tu proyecto...",

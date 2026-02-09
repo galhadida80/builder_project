@@ -50,6 +50,7 @@ import { validateMaterialForm, hasErrors, VALIDATION, type ValidationError } fro
 import { useToast } from '../components/common/ToastProvider'
 import { useTranslation } from 'react-i18next'
 import { EmptyState } from '../components/ui/EmptyState'
+import TemplatePicker from '../components/ui/TemplatePicker'
 
 const unitOptions = ['ton', 'm3', 'm2', 'm', 'kg', 'unit', 'box', 'pallet', 'roll']
 
@@ -720,25 +721,18 @@ export default function MaterialsPage() {
             inputProps={{ maxLength: VALIDATION.MAX_NAME_LENGTH }}
           />
 
-          <MuiTextField
-            fullWidth
-            select
-            label={t('materials.type')}
-            value={formData.templateId}
-            onChange={(e) => {
-              setFormData({ ...formData, templateId: e.target.value })
+          <TemplatePicker
+            templates={materialTemplates}
+            value={selectedTemplate}
+            onChange={(template) => {
+              setFormData({ ...formData, templateId: template?.id || '' })
               setSpecificationValues({})
               setDocumentFiles({})
               setChecklistResponses({})
             }}
-          >
-            <MenuItem value="">{t('materials.selectTemplate')}</MenuItem>
-            {materialTemplates.map(template => (
-              <MenuItem key={template.id} value={template.id}>
-                {template.name_he} ({template.category})
-              </MenuItem>
-            ))}
-          </MuiTextField>
+            label={t('materials.type')}
+            placeholder={t('materials.selectTemplate')}
+          />
 
           <Collapse in={!!selectedTemplate}>
             {selectedTemplate && (
