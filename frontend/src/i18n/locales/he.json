@@ -652,6 +652,16 @@
     "entity": "ישות",
     "changes": "שינויים"
   },
+  "keyValueEditor": {
+    "title": "מאפיינים מותאמים",
+    "key": "מפתח",
+    "valuePlaceholder": "הזן ערך...",
+    "keyPlaceholder": "שם המאפיין...",
+    "addField": "הוסף שדה",
+    "typeText": "טקסט",
+    "typeNumber": "מספר",
+    "typeBoolean": "כן/לא"
+  },
   "templatePicker": {
     "specs": "מפרטים",
     "docs": "מסמכים",

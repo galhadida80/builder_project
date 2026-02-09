@@ -50,6 +50,7 @@ import { validateEquipmentForm, hasErrors, VALIDATION, type ValidationError } fr
 import { useToast } from '../components/common/ToastProvider'
 import { useTranslation } from 'react-i18next'
 import TemplatePicker from '../components/ui/TemplatePicker'
+import KeyValueEditor, { type KeyValuePair } from '../components/ui/KeyValueEditor'
 
 export default function EquipmentPage() {
   const { projectId } = useParams()
@@ -80,6 +81,7 @@ export default function EquipmentPage() {
   const [specificationValues, setSpecificationValues] = useState<Record<string, string | number | boolean>>({})
   const [documentFiles, setDocumentFiles] = useState<Record<string, File | null>>({})
   const [checklistResponses, setChecklistResponses] = useState<Record<string, boolean>>({})
+  const [customFields, setCustomFields] = useState<KeyValuePair[]>([])
   const [files, setFiles] = useState<FileRecord[]>([])
   const [filesLoading, setFilesLoading] = useState(false)
   const [filesError, setFilesError] = useState<string | null>(null)
@@ -140,6 +142,7 @@ export default function EquipmentPage() {
     setSpecificationValues({})
     setDocumentFiles({})
     setChecklistResponses({})
+    setCustomFields([])
     setErrors({})
     setEditingEquipment(null)
   }
@@ -169,6 +172,14 @@ export default function EquipmentPage() {
     setSpecificationValues({})
     setDocumentFiles({})
     setChecklistResponses({})
+    const existingSpecs = eq.specifications || {}
+    setCustomFields(
+      Object.entries(existingSpecs).map(([key, value]) => ({
+        key,
+        value: value as string | number | boolean,
+        type: typeof value === 'number' ? 'number' as const : typeof value === 'boolean' ? 'boolean' as const : 'text' as const,
+      }))
+    )
     setErrors({})
     setDialogOpen(true)
     setDrawerOpen(false)
@@ -186,12 +197,15 @@ export default function EquipmentPage() {
 
     setSaving(true)
     try {
+      const specs: Record<string, unknown> = { ...specificationValues }
+      customFields.forEach(f => { specs[f.key] = f.value })
       const payload = {
         name: formData.name,
         equipment_type: selectedTemplate?.name_he || undefined,
         manufacturer: formData.manufacturer || undefined,
         model_number: formData.modelNumber || undefined,
         serial_number: formData.serialNumber || undefined,
+        specifications: Object.keys(specs).length > 0 ? specs : undefined,
         notes: formData.notes || undefined
       }
 
@@ -492,6 +506,26 @@ export default function EquipmentPage() {
                 </Box>
               )}
             </Box>
+
+            {selectedEquipment.specifications && Object.keys(selectedEquipment.specifications).length > 0 && (
+              <>
+                <Divider sx={{ my: 2 }} />
+                <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1.5, fontWeight: 600 }}>
+                  {t('keyValueEditor.title')}
+                </Typography>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                  {Object.entries(selectedEquipment.specifications).map(([key, value]) => (
+                    <Chip
+                      key={key}
+                      label={`${key}: ${value}`}
+                      size="small"
+                      variant="outlined"
+                      sx={{ fontWeight: 500 }}
+                    />
+                  ))}
+                </Box>
+              </>
+            )}
 
             <Divider sx={{ my: 2 }} />
 
@@ -809,6 +843,13 @@ export default function EquipmentPage() {
             onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
             error={!!errors.notes || formData.notes.length >= VALIDATION.MAX_NOTES_LENGTH}
             helperText={errors.notes || (formData.notes.length > 0 ? `${formData.notes.length}/${VALIDATION.MAX_NOTES_LENGTH}` : undefined)}
+          />
+
+          <Divider sx={{ my: 1 }} />
+
+          <KeyValueEditor
+            entries={customFields}
+            onChange={setCustomFields}
           />
         </Box>
       </FormModal>

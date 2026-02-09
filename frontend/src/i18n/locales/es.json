@@ -332,6 +332,16 @@
     "entity": "Entidad",
     "changes": "Cambios"
   },
+  "keyValueEditor": {
+    "title": "Propiedades Personalizadas",
+    "key": "Clave",
+    "valuePlaceholder": "Ingrese valor...",
+    "keyPlaceholder": "Nombre de propiedad...",
+    "addField": "Agregar Campo",
+    "typeText": "Texto",
+    "typeNumber": "Numero",
+    "typeBoolean": "Si/No"
+  },
   "templatePicker": {
     "specs": "Espec.",
     "docs": "Docs",

@@ -333,6 +333,16 @@
     "entity": "Entity",
     "changes": "Changes"
   },
+  "keyValueEditor": {
+    "title": "Custom Properties",
+    "key": "Key",
+    "valuePlaceholder": "Enter value...",
+    "keyPlaceholder": "Property name...",
+    "addField": "Add Field",
+    "typeText": "Text",
+    "typeNumber": "Number",
+    "typeBoolean": "Yes/No"
+  },
   "templatePicker": {
     "specs": "Specs",
     "docs": "Docs",

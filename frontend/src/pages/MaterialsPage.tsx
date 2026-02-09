@@ -51,6 +51,7 @@ import { useToast } from '../components/common/ToastProvider'
 import { useTranslation } from 'react-i18next'
 import { EmptyState } from '../components/ui/EmptyState'
 import TemplatePicker from '../components/ui/TemplatePicker'
+import KeyValueEditor, { type KeyValuePair } from '../components/ui/KeyValueEditor'
 
 const unitOptions = ['ton', 'm3', 'm2', 'm', 'kg', 'unit', 'box', 'pallet', 'roll']
 
@@ -86,6 +87,7 @@ export default function MaterialsPage() {
   const [specificationValues, setSpecificationValues] = useState<Record<string, string | number | boolean>>({})
   const [documentFiles, setDocumentFiles] = useState<Record<string, File | null>>({})
   const [checklistResponses, setChecklistResponses] = useState<Record<string, boolean>>({})
+  const [customFields, setCustomFields] = useState<KeyValuePair[]>([])
   const [files, setFiles] = useState<FileRecord[]>([])
   const [filesLoading, setFilesLoading] = useState(false)
   const [filesError, setFilesError] = useState<string | null>(null)
@@ -147,6 +149,7 @@ export default function MaterialsPage() {
     setSpecificationValues({})
     setDocumentFiles({})
     setChecklistResponses({})
+    setCustomFields([])
     setErrors({})
     setEditingMaterial(null)
   }
@@ -179,6 +182,14 @@ export default function MaterialsPage() {
     setSpecificationValues({})
     setDocumentFiles({})
     setChecklistResponses({})
+    const existingSpecs = material.specifications || {}
+    setCustomFields(
+      Object.entries(existingSpecs).map(([key, value]) => ({
+        key,
+        value: value as string | number | boolean,
+        type: typeof value === 'number' ? 'number' as const : typeof value === 'boolean' ? 'boolean' as const : 'text' as const,
+      }))
+    )
     setErrors({})
     setDialogOpen(true)
     setDrawerOpen(false)
@@ -196,6 +207,8 @@ export default function MaterialsPage() {
 
     setSaving(true)
     try {
+      const specs: Record<string, unknown> = { ...specificationValues }
+      customFields.forEach(f => { specs[f.key] = f.value })
       const payload = {
         name: formData.name,
         material_type: selectedTemplate?.name_he || undefined,
@@ -203,6 +216,7 @@ export default function MaterialsPage() {
         model_number: formData.modelNumber || undefined,
         quantity: formData.quantity ? parseFloat(formData.quantity) : undefined,
         unit: formData.unit || undefined,
+        specifications: Object.keys(specs).length > 0 ? specs : undefined,
         expected_delivery: formData.expectedDelivery || undefined,
         storage_location: formData.storageLocation || undefined,
         notes: formData.notes || undefined
@@ -599,6 +613,26 @@ export default function MaterialsPage() {
               )}
             </Box>
 
+            {selectedMaterial.specifications && Object.keys(selectedMaterial.specifications).length > 0 && (
+              <>
+                <Divider sx={{ my: 2 }} />
+                <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1.5, fontWeight: 600 }}>
+                  {t('keyValueEditor.title')}
+                </Typography>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                  {Object.entries(selectedMaterial.specifications).map(([key, value]) => (
+                    <Chip
+                      key={key}
+                      label={`${key}: ${value}`}
+                      size="small"
+                      variant="outlined"
+                      sx={{ fontWeight: 500 }}
+                    />
+                  ))}
+                </Box>
+              </>
+            )}
+
             <Divider sx={{ my: 2 }} />
 
             <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1.5, fontWeight: 600 }}>
@@ -946,6 +980,13 @@ export default function MaterialsPage() {
             onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
             error={!!errors.notes || formData.notes.length >= VALIDATION.MAX_NOTES_LENGTH}
             helperText={errors.notes || (formData.notes.length > 0 ? `${formData.notes.length}/${VALIDATION.MAX_NOTES_LENGTH}` : undefined)}
+          />
+
+          <Divider sx={{ my: 1 }} />
+
+          <KeyValueEditor
+            entries={customFields}
+            onChange={setCustomFields}
           />
         </Box>
       </FormModal>
