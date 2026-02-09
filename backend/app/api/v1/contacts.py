@@ -100,7 +100,7 @@ async def import_contacts_csv(
     return {"imported_count": imported_count}
 
 
-@router.post("/projects/{project_id}/contacts", response_model=ContactResponse)
+@router.post("/projects/{project_id}/contacts", response_model=ContactResponse, status_code=201)
 async def create_contact(
     project_id: UUID,
     data: ContactCreate,

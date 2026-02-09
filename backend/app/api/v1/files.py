@@ -39,7 +39,7 @@ async def list_files(
     return result.scalars().all()
 
 
-@router.post("/projects/{project_id}/files", response_model=FileResponse)
+@router.post("/projects/{project_id}/files", response_model=FileResponse, status_code=201)
 async def upload_file(
     project_id: UUID,
     entity_type: str,

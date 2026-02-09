@@ -50,7 +50,7 @@ async def list_materials(
     return result.scalars().all()
 
 
-@router.post("/projects/{project_id}/materials", response_model=MaterialResponse)
+@router.post("/projects/{project_id}/materials", response_model=MaterialResponse, status_code=201)
 async def create_material(
     project_id: UUID,
     data: MaterialCreate,

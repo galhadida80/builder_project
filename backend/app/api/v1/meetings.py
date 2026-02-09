@@ -55,7 +55,7 @@ async def list_meetings(
     return result.scalars().all()
 
 
-@router.post("/projects/{project_id}/meetings", response_model=MeetingResponse)
+@router.post("/projects/{project_id}/meetings", response_model=MeetingResponse, status_code=201)
 async def create_meeting(
     project_id: UUID,
     data: MeetingCreate,
@@ -154,7 +154,7 @@ async def delete_meeting(
     return {"message": "Meeting deleted"}
 
 
-@router.post("/projects/{project_id}/meetings/{meeting_id}/attendees", response_model=MeetingAttendeeResponse)
+@router.post("/projects/{project_id}/meetings/{meeting_id}/attendees", response_model=MeetingAttendeeResponse, status_code=201)
 async def add_attendee(
     project_id: UUID,
     meeting_id: UUID,

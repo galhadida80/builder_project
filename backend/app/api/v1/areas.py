@@ -35,7 +35,7 @@ async def list_areas(
     return result.scalars().all()
 
 
-@router.post("/projects/{project_id}/areas", response_model=AreaResponse)
+@router.post("/projects/{project_id}/areas", response_model=AreaResponse, status_code=201)
 async def create_area(
     project_id: UUID,
     data: AreaCreate,
@@ -134,7 +134,7 @@ async def delete_area(
     return {"message": "Area deleted"}
 
 
-@router.post("/projects/{project_id}/areas/{area_id}/progress", response_model=AreaProgressResponse)
+@router.post("/projects/{project_id}/areas/{area_id}/progress", response_model=AreaProgressResponse, status_code=201)
 async def add_progress_update(
     project_id: UUID,
     area_id: UUID,

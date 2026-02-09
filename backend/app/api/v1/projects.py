@@ -37,7 +37,7 @@ async def list_projects(
     return result.scalars().all()
 
 
-@router.post("", response_model=ProjectResponse)
+@router.post("", response_model=ProjectResponse, status_code=201)
 async def create_project(
     data: ProjectCreate,
     db: AsyncSession = Depends(get_db),
@@ -278,7 +278,7 @@ async def get_project_overview(
     )
 
 
-@router.post("/{project_id}/members", response_model=ProjectMemberResponse)
+@router.post("/{project_id}/members", response_model=ProjectMemberResponse, status_code=201)
 async def add_project_member(
     project_id: UUID,
     data: ProjectMemberCreate,

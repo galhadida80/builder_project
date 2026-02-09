@@ -34,7 +34,7 @@ async def list_consultant_assignments(
     return result.scalars().all()
 
 
-@router.post("/consultant-assignments", response_model=ConsultantAssignmentResponse)
+@router.post("/consultant-assignments", response_model=ConsultantAssignmentResponse, status_code=201)
 async def create_consultant_assignment(
     data: ConsultantAssignmentCreate,
     db: AsyncSession = Depends(get_db),

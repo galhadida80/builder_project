@@ -28,7 +28,7 @@ async def list_consultant_types(db: AsyncSession = Depends(get_db)):
     return result.scalars().all()
 
 
-@router.post("/consultant-types", response_model=ConsultantTypeResponse)
+@router.post("/consultant-types", response_model=ConsultantTypeResponse, status_code=201)
 async def create_consultant_type(
     data: ConsultantTypeCreate,
     db: AsyncSession = Depends(get_db),
@@ -111,7 +111,7 @@ async def list_templates(
     return result.scalars().all()
 
 
-@router.post("/consultant-types/{consultant_type_id}/templates", response_model=InspectionStageTemplateResponse)
+@router.post("/consultant-types/{consultant_type_id}/templates", response_model=InspectionStageTemplateResponse, status_code=201)
 async def create_template(
     consultant_type_id: UUID,
     data: InspectionStageTemplateCreate,

@@ -50,7 +50,7 @@ async def list_equipment(
     return result.scalars().all()
 
 
-@router.post("/projects/{project_id}/equipment", response_model=EquipmentResponse)
+@router.post("/projects/{project_id}/equipment", response_model=EquipmentResponse, status_code=201)
 async def create_equipment(
     project_id: UUID,
     data: EquipmentCreate,
@@ -189,7 +189,7 @@ async def submit_equipment_for_approval(
     return equipment
 
 
-@router.post("/projects/{project_id}/equipment/{equipment_id}/checklists", response_model=ChecklistResponse)
+@router.post("/projects/{project_id}/equipment/{equipment_id}/checklists", response_model=ChecklistResponse, status_code=201)
 async def create_checklist(
     project_id: UUID,
     equipment_id: UUID,

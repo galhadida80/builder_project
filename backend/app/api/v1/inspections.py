@@ -42,7 +42,7 @@ async def list_consultant_types(db: AsyncSession = Depends(get_db)):
     return result.scalars().all()
 
 
-@router.post("/inspection-consultant-types", response_model=InspectionConsultantTypeResponse)
+@router.post("/inspection-consultant-types", response_model=InspectionConsultantTypeResponse, status_code=201)
 async def create_consultant_type(
     data: InspectionConsultantTypeCreate,
     db: AsyncSession = Depends(get_db),
@@ -79,7 +79,7 @@ async def get_consultant_type(
     return consultant_type
 
 
-@router.post("/inspection-consultant-types/{consultant_type_id}/stages", response_model=InspectionStageResponse)
+@router.post("/inspection-consultant-types/{consultant_type_id}/stages", response_model=InspectionStageResponse, status_code=201)
 async def add_stage_to_consultant_type(
     consultant_type_id: UUID,
     data: InspectionStageCreate,
@@ -136,7 +136,7 @@ async def list_inspections(
     return result.scalars().all()
 
 
-@router.post("/projects/{project_id}/inspections", response_model=InspectionResponse)
+@router.post("/projects/{project_id}/inspections", response_model=InspectionResponse, status_code=201)
 async def create_inspection(
     project_id: UUID,
     data: InspectionCreate,
@@ -391,7 +391,7 @@ async def delete_inspection(
 
 # Findings Management Endpoints
 
-@router.post("/projects/{project_id}/inspections/{inspection_id}/findings", response_model=FindingResponse)
+@router.post("/projects/{project_id}/inspections/{inspection_id}/findings", response_model=FindingResponse, status_code=201)
 async def add_finding_to_inspection(
     project_id: UUID,
     inspection_id: UUID,

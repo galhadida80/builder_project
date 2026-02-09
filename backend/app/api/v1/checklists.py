@@ -46,7 +46,7 @@ async def list_checklist_templates(
     return result.scalars().all()
 
 
-@router.post("/projects/{project_id}/checklist-templates", response_model=ChecklistTemplateResponse)
+@router.post("/projects/{project_id}/checklist-templates", response_model=ChecklistTemplateResponse, status_code=201)
 async def create_checklist_template(
     project_id: UUID,
     data: ChecklistTemplateCreate,
@@ -133,7 +133,7 @@ async def delete_checklist_template(
     return {"message": "Checklist template deleted"}
 
 
-@router.post("/checklist-templates/{template_id}/subsections", response_model=ChecklistSubSectionResponse)
+@router.post("/checklist-templates/{template_id}/subsections", response_model=ChecklistSubSectionResponse, status_code=201)
 async def create_checklist_subsection(
     template_id: UUID,
     data: ChecklistSubSectionCreate,

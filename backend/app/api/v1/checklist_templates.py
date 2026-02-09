@@ -51,7 +51,7 @@ async def list_templates(
     return []
 
 
-@router.post("/checklist-templates")
+@router.post("/checklist-templates", status_code=201)
 async def create_template(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
@@ -203,7 +203,7 @@ async def delete_template(
     raise HTTPException(status_code=404, detail="Template not found")
 
 
-@router.post("/checklist-templates/{template_id}/sections")
+@router.post("/checklist-templates/{template_id}/sections", status_code=201)
 async def add_section(
     template_id: UUID,
     db: AsyncSession = Depends(get_db),
@@ -285,7 +285,7 @@ async def update_section(
     raise HTTPException(status_code=404, detail="Section not found")
 
 
-@router.post("/checklist-templates/sections/{section_id}/items")
+@router.post("/checklist-templates/sections/{section_id}/items", status_code=201)
 async def add_item(
     section_id: UUID,
     db: AsyncSession = Depends(get_db),
@@ -361,7 +361,7 @@ async def list_project_instances(
     return []
 
 
-@router.post("/projects/{project_id}/checklist-instances")
+@router.post("/projects/{project_id}/checklist-instances", status_code=201)
 async def create_instance(
     project_id: UUID,
     db: AsyncSession = Depends(get_db),
@@ -478,7 +478,7 @@ async def update_instance(
     raise HTTPException(status_code=404, detail="Instance not found")
 
 
-@router.post("/checklist-instances/{instance_id}/responses")
+@router.post("/checklist-instances/{instance_id}/responses", status_code=201)
 async def upsert_response(
     instance_id: UUID,
     db: AsyncSession = Depends(get_db),
