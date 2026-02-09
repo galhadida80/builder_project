@@ -1,3 +1,4 @@
+import React from 'react'
 import { ListItem, ListItemAvatar, ListItemText, Box, Typography, IconButton, Avatar as MuiAvatar } from '@mui/material'
 import { styled } from '@mui/material'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
@@ -103,7 +104,7 @@ function getInitials(title: string): string {
     .slice(0, 2)
 }
 
-export function NotificationItem({ notification, onClick, onActionClick }: NotificationItemProps) {
+export const NotificationItem = React.memo(function NotificationItem({ notification, onClick, onActionClick }: NotificationItemProps) {
   const config = categoryConfig[notification.category]
 
   const handleClick = () => {
@@ -211,4 +212,4 @@ export function NotificationItem({ notification, onClick, onActionClick }: Notif
       )}
     </StyledListItem>
   )
-}
+})

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useTransition, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
@@ -50,6 +50,7 @@ export default function AuditLogPage() {
   const [actionFilter, setActionFilter] = useState('')
   const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null)
   const [detailsOpen, setDetailsOpen] = useState(false)
+  const [isPending, startTransition] = useTransition()
 
   useEffect(() => {
     loadLogs()
@@ -67,13 +68,13 @@ export default function AuditLogPage() {
     }
   }
 
-  const filteredLogs = logs.filter(log => {
+  const filteredLogs = useMemo(() => logs.filter(log => {
     const matchesSearch = log.user?.fullName?.toLowerCase().includes(search.toLowerCase()) ||
       log.entityType.toLowerCase().includes(search.toLowerCase())
     const matchesEntity = !entityFilter || log.entityType === entityFilter
     const matchesAction = !actionFilter || log.action === actionFilter
     return matchesSearch && matchesEntity && matchesAction
-  })
+  }), [logs, search, entityFilter, actionFilter])
 
   const handleViewDetails = (log: AuditLog) => {
     setSelectedLog(log)
@@ -258,12 +259,18 @@ export default function AuditLogPage() {
               <SearchField
                 placeholder={t('auditLog.searchPlaceholder')}
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value
+                  startTransition(() => setSearch(value))
+                }}
               />
               <MuiTextField
                 select
                 value={entityFilter}
-                onChange={(e) => setEntityFilter(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value
+                  startTransition(() => setEntityFilter(value))
+                }}
                 size="small"
                 sx={{ minWidth: 140 }}
               >
@@ -275,7 +282,10 @@ export default function AuditLogPage() {
               <MuiTextField
                 select
                 value={actionFilter}
-                onChange={(e) => setActionFilter(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value
+                  startTransition(() => setActionFilter(value))
+                }}
                 size="small"
                 sx={{ minWidth: 140 }}
               >
@@ -288,7 +298,7 @@ export default function AuditLogPage() {
             <Chip label={t('auditLog.entriesLabel', { count: filteredLogs.length })} size="small" />
           </Box>
 
-          {filteredLogs.length === 0 ? (
+          {filteredLogs.length === 0 && !isPending ? (
             <EmptyState
               variant="no-results"
               title={t('auditLog.noLogsFound')}

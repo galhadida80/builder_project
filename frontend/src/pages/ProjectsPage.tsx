@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useTransition, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
@@ -52,6 +52,7 @@ export default function ProjectsPage() {
     startDate: '',
     estimatedEndDate: ''
   })
+  const [isPending, startTransition] = useTransition()
 
   useEffect(() => {
     loadProjects()
@@ -155,12 +156,12 @@ export default function ProjectsPage() {
     }
   }
 
-  const filteredProjects = projects.filter(p => {
+  const filteredProjects = useMemo(() => projects.filter(p => {
     const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) ||
       p.code.toLowerCase().includes(search.toLowerCase())
     const matchesStatus = statusFilter === 'all' || p.status === statusFilter
     return matchesSearch && matchesStatus
-  })
+  }), [projects, search, statusFilter])
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, project: Project) => {
     event.stopPropagation()
@@ -254,7 +255,10 @@ export default function ProjectsPage() {
               <SearchField
                 placeholder="Search projects..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value
+                  startTransition(() => setSearch(value))
+                }}
               />
             </Box>
             <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>

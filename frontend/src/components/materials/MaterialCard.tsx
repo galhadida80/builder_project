@@ -1,3 +1,4 @@
+import React from 'react'
 import { Card, CardContent, CardMedia, Box, Typography, Chip } from '@mui/material'
 import { styled } from '@mui/material'
 import InventoryIcon from '@mui/icons-material/Inventory'
@@ -59,7 +60,7 @@ const InfoRow = styled(Box)(({ theme }) => ({
   fontSize: '0.875rem',
 }))
 
-export function MaterialCard({ material, onClick, lowStockThreshold = 10 }: MaterialCardProps) {
+export const MaterialCard = React.memo(function MaterialCard({ material, onClick, lowStockThreshold = 10 }: MaterialCardProps) {
   const isLowStock = material.quantity !== undefined && material.quantity < lowStockThreshold
   const imageUrl = material.documents?.[0]?.storagePath
 
@@ -166,4 +167,4 @@ export function MaterialCard({ material, onClick, lowStockThreshold = 10 }: Mate
       </CardContent>
     </StyledCard>
   )
-}
+})
