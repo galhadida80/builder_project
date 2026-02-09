@@ -3,6 +3,9 @@
     "name": "BuilderOps",
     "subtitle": "Plataforma de Construcción"
   },
+  "projectSelector": {
+    "selectAProject": "Seleccionar un Proyecto"
+  },
   "nav": {
     "dashboard": "Panel de Control",
     "projects": "Proyectos",

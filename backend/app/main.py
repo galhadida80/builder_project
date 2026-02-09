@@ -1,11 +1,29 @@
+import logging
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from app.config import get_settings
 from app.api.v1.router import api_router
 from app.utils.localization import get_language_from_request
+from app.db.seeds.consultant_types import seed_consultant_types
+from app.db.seeds.equipment_templates import seed_equipment_templates
+from app.db.seeds.material_templates import seed_material_templates
 
+logger = logging.getLogger(__name__)
 settings = get_settings()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    try:
+        await seed_consultant_types()
+        await seed_equipment_templates()
+        await seed_material_templates()
+        logger.info("Database seeds completed successfully")
+    except Exception as e:
+        logger.error(f"Error running database seeds: {e}")
+    yield
 
 
 class LanguageDetectionMiddleware(BaseHTTPMiddleware):
@@ -35,6 +53,7 @@ app = FastAPI(
     title=settings.app_name,
     openapi_url=f"{settings.api_v1_prefix}/openapi.json",
     docs_url=f"{settings.api_v1_prefix}/docs",
+    lifespan=lifespan,
 )
 
 app.add_middleware(LanguageDetectionMiddleware)

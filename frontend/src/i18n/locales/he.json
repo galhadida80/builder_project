@@ -3,6 +3,9 @@
     "name": "BuilderOps",
     "subtitle": "פלטפורמת בנייה"
   },
+  "projectSelector": {
+    "selectAProject": "בחר פרויקט"
+  },
   "welcomeBack": "ברוך שובך",
   "createAccount": "צור חשבון",
   "enterCredentials": "הזן את פרטי ההתחברות שלך",

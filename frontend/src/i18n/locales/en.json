@@ -3,6 +3,9 @@
     "name": "BuilderOps",
     "subtitle": "Construction Platform"
   },
+  "projectSelector": {
+    "selectAProject": "Select a Project"
+  },
   "welcomeBack": "Welcome Back",
   "createAccount": "Create Account",
   "enterCredentials": "Enter your credentials to sign in",

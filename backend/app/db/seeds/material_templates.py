@@ -236,6 +236,43 @@ MATERIAL_TEMPLATES = [
         "submission_checklist": ["דוגמה מאושרת", "אישור אדריכל"],
         "consultants": ["אדריכל", "יועץ חשמל"]
     },
+    # === ADHESIVES & SEALANTS ===
+    {
+        "name": "Tile Adhesive",
+        "name_he": "דבק אריחים",
+        "category": "finishes",
+        "required_documents": ["מפרט טכני", "תעודת תקן", "הוראות יישום"],
+        "required_specifications": ["סוג", "חוזק הצמדה", "זמן ייבוש", "תאימות לחומר"],
+        "submission_checklist": ["תעודת יצרן", "אישור תקן ישראלי"],
+        "consultants": ["אדריכל"]
+    },
+    {
+        "name": "Grout",
+        "name_he": "רובה",
+        "category": "finishes",
+        "required_documents": ["מפרט טכני", "קטלוג צבעים"],
+        "required_specifications": ["סוג", "צבע", "רוחב מרווח", "עמידות למים"],
+        "submission_checklist": ["דוגמה מאושרת", "אישור אדריכל"],
+        "consultants": ["אדריכל"]
+    },
+    {
+        "name": "Sealant",
+        "name_he": "חומרי אטימה",
+        "category": "waterproofing",
+        "required_documents": ["מפרט טכני", "תעודת תקן", "הוראות יישום"],
+        "required_specifications": ["סוג", "גמישות", "עמידות UV", "תאימות למשטח"],
+        "submission_checklist": ["תעודת יצרן", "אישור קונסטרוקטור"],
+        "consultants": ["קונסטרוקטור"]
+    },
+    {
+        "name": "Mortar",
+        "name_he": "מלט",
+        "category": "concrete",
+        "required_documents": ["מפרט טכני", "תעודת יצרן"],
+        "required_specifications": ["סוג", "חוזק", "יחס ערבוב", "זמן התקשות"],
+        "submission_checklist": ["תעודת יצרן", "אישור תקן", "אישור קונסטרוקטור"],
+        "consultants": ["קונסטרוקטור"]
+    },
 ]
 
 

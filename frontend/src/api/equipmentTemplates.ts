@@ -36,6 +36,36 @@ export interface EquipmentTemplate {
   updated_at: string
 }
 
+function normalizeDoc(item: string | DocumentDefinition): DocumentDefinition {
+  if (typeof item === 'string') {
+    return { name: item, name_he: item, source: 'contractor', required: true }
+  }
+  return item
+}
+
+function normalizeSpec(item: string | SpecificationDefinition): SpecificationDefinition {
+  if (typeof item === 'string') {
+    return { name: item, name_he: item, field_type: 'text', required: true }
+  }
+  return item
+}
+
+function normalizeChecklist(item: string | ChecklistItemDefinition): ChecklistItemDefinition {
+  if (typeof item === 'string') {
+    return { name: item, name_he: item, requires_file: false }
+  }
+  return item
+}
+
+function normalizeTemplate(t: EquipmentTemplate): EquipmentTemplate {
+  return {
+    ...t,
+    required_documents: (t.required_documents || []).map(normalizeDoc),
+    required_specifications: (t.required_specifications || []).map(normalizeSpec),
+    submission_checklist: (t.submission_checklist || []).map(normalizeChecklist),
+  }
+}
+
 export interface EquipmentSubmission {
   id: string
   project_id: string
@@ -86,12 +116,12 @@ interface ApprovalDecisionCreate {
 export const equipmentTemplatesApi = {
   list: async (): Promise<EquipmentTemplate[]> => {
     const response = await apiClient.get('/equipment-templates')
-    return response.data
+    return (response.data as EquipmentTemplate[]).map(normalizeTemplate)
   },
 
   get: async (id: string): Promise<EquipmentTemplate> => {
     const response = await apiClient.get(`/equipment-templates/${id}`)
-    return response.data
+    return normalizeTemplate(response.data)
   },
 
   create: async (data: EquipmentTemplateCreate): Promise<EquipmentTemplate> => {

@@ -9,7 +9,7 @@ from app.models.equipment_template import EquipmentTemplate, EquipmentTemplateCo
 
 
 # Equipment template data based on רשימת ציוד לאישור.xlsx
-# All 37 equipment categories from the Excel file
+# All 44 equipment categories from the Excel file
 EQUIPMENT_TEMPLATES = [
     # === STRUCTURAL ===
     {
@@ -356,6 +356,76 @@ EQUIPMENT_TEMPLATES = [
         "required_specifications": ["תכולה", "פורמט"],
         "submission_checklist": ["אישור פיקוח", "אישור קבלן"],
         "consultants": ["מנהל פרויקט"]
+    },
+    # === SOLAR WATER ===
+    {
+        "name": "דוד שמש",
+        "name_en": "Solar Water Heater",
+        "category": "plumbing",
+        "required_documents": ["מפרט טכני", "תעודת תקן ישראלי", "תכנית העמדה על גג"],
+        "required_specifications": ["נפח", "שטח קולט", "סוג קולט", "חומר מיכל"],
+        "submission_checklist": ["אישור קונסטרוקטור להעמסה", "אישור בניה ירוקה", "תעודת יצרן"],
+        "consultants": ["יועץ אינסטלציה", "בניה ירוקה", "קונסטרוקטור"]
+    },
+    # === GAS ===
+    {
+        "name": "מערכת גז",
+        "name_en": "Gas System",
+        "category": "plumbing",
+        "required_documents": ["מפרט טכני", "תכנית גז", "אישור בטיחות"],
+        "required_specifications": ["סוג גז", "לחץ עבודה", "קוטר צנרת", "סוג ווסת"],
+        "submission_checklist": ["תכניות מאושרות", "אישור מהנדס גז", "אישור כיבוי אש"],
+        "consultants": ["יועץ אינסטלציה", "יועץ בטיחות אש"]
+    },
+    # === SPRINKLER SYSTEM ===
+    {
+        "name": "מערכת ספרינקלרים",
+        "name_en": "Sprinkler System",
+        "category": "fire_safety",
+        "required_documents": ["מפרט טכני", "תכנית ספרינקלרים", "חישוב הידראולי"],
+        "required_specifications": ["סוג ראשים", "צפיפות התקנה", "קוטר צנרת", "לחץ עבודה"],
+        "submission_checklist": ["תכניות מאושרות", "אישור רשות הכבאות", "חישוב הידראולי מאושר"],
+        "consultants": ["יועץ בטיחות אש", "יועץ אינסטלציה"]
+    },
+    # === SECURITY ===
+    {
+        "name": "מערכת אזעקה ואבטחה",
+        "name_en": "Alarm & Security System",
+        "category": "smart_home",
+        "required_documents": ["מפרט טכני", "תכנית מערכת", "מפרט דיירים"],
+        "required_specifications": ["סוג מערכת", "מספר אזורים", "סוג גלאים", "חיבור מוקד"],
+        "submission_checklist": ["תכניות מאושרות", "אישור יועץ חשמל", "תעודת יצרן"],
+        "consultants": ["יועץ חשמל", "יועץ תקשורת"]
+    },
+    # === CEILINGS ===
+    {
+        "name": "תקרות אקוסטיות",
+        "name_en": "Acoustic Ceilings",
+        "category": "finishes",
+        "required_documents": ["מפרט טכני", "תכניות תקרה", "דוגמאות"],
+        "required_specifications": ["סוג", "מידות", "מקדם ספיגה אקוסטי", "עמידות אש"],
+        "submission_checklist": ["דוגמה מאושרת", "אישור אדריכל", "אישור יועץ אקוסטיקה"],
+        "consultants": ["אדריכל", "יועץ אקוסטיקה"]
+    },
+    # === WINDOWS ===
+    {
+        "name": "חלונות",
+        "name_en": "Windows",
+        "category": "aluminum",
+        "required_documents": ["מפרט טכני", "תכניות ייצור", "פרט חיתוך", "מפרט דיירים"],
+        "required_specifications": ["סוג פרופיל", "סוג זיגוג", "מידות", "צבע", "מקדם U"],
+        "submission_checklist": ["תכניות מאושרות", "אישור אדריכל", "אישור בניה ירוקה", "אישור קונסטרוקטור"],
+        "consultants": ["אדריכל", "קונסטרוקטור", "בניה ירוקה"]
+    },
+    # === INTERIOR DOORS ===
+    {
+        "name": "דלתות פנים",
+        "name_en": "Interior Doors",
+        "category": "doors",
+        "required_documents": ["מפרט טכני", "מפרט דיירים", "דוגמאות גמר"],
+        "required_specifications": ["רוחב", "גובה", "סוג חומר", "סוג משקוף", "גמר"],
+        "submission_checklist": ["SD מלא", "אישור אדריכל", "דוגמה מאושרת"],
+        "consultants": ["אדריכל"]
     },
 ]
 
