@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Skeleton from '@mui/material/Skeleton'
@@ -51,22 +51,21 @@ export default function TeamWorkloadView() {
     setEndDate(newEndDate)
   }
 
-  // Group team members by team
-  const teamGroups = teamMembers.reduce<TeamGroup[]>((groups, member) => {
-    const teamName = member.teamName || 'Unassigned'
-    const existingGroup = groups.find(g => g.teamName === teamName)
-
-    if (existingGroup) {
-      existingGroup.members.push(member)
-    } else {
-      groups.push({ teamName, members: [member] })
+  const teamGroups = useMemo(() => {
+    const groupMap = new Map<string, TeamMember[]>()
+    for (const member of teamMembers) {
+      const teamName = member.teamName || 'Unassigned'
+      const existing = groupMap.get(teamName)
+      if (existing) {
+        groupMap.set(teamName, [...existing, member])
+      } else {
+        groupMap.set(teamName, [member])
+      }
     }
-
-    return groups
-  }, [])
-
-  // Sort teams by name
-  teamGroups.sort((a, b) => a.teamName.localeCompare(b.teamName))
+    return Array.from(groupMap.entries())
+      .map(([teamName, members]) => ({ teamName, members }))
+      .sort((a, b) => a.teamName.localeCompare(b.teamName))
+  }, [teamMembers])
 
   // Calculate KPIs
   const totalMembers = teamMembers.length

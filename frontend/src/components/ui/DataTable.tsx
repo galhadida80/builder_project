@@ -207,7 +207,7 @@ export function DataTable<T>({
           </TableHead>
           <TableBody>
             {[...Array(5)].map((_, index) => (
-              <TableRow key={index}>
+              <TableRow key={`skeleton-${index}`}>
                 {selectable && (
                   <TableCell padding="checkbox">
                     <Skeleton variant="rectangular" width={20} height={20} />

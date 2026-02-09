@@ -146,8 +146,8 @@ export default function LandingPage() {
       <Box sx={{ bgcolor: '#075985', py: { xs: 5, md: 6 } }}>
         <Container maxWidth="lg">
           <Grid container spacing={3}>
-            {STATS.map((stat, index) => (
-              <Grid item xs={6} md={3} key={index}>
+            {STATS.map((stat) => (
+              <Grid item xs={6} md={3} key={stat.label}>
                 <Box sx={{ textAlign: 'center' }}>
                   <Typography
                     sx={{
@@ -211,8 +211,8 @@ export default function LandingPage() {
           </Box>
 
           <Grid container spacing={3}>
-            {FEATURES.map((feature, index) => (
-              <Grid item xs={12} sm={6} md={4} key={index}>
+            {FEATURES.map((feature) => (
+              <Grid item xs={12} sm={6} md={4} key={feature.title}>
                 <Box
                   sx={{
                     p: 3.5,

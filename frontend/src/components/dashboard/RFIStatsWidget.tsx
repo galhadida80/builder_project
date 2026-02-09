@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Skeleton from '@mui/material/Skeleton'
@@ -23,7 +23,7 @@ export default function RFIStatsWidget({ projectId }: RFIStatsWidgetProps) {
   const navigate = useNavigate()
   const { showError } = useToast()
 
-  const loadRFIStats = async () => {
+  const loadRFIStats = useCallback(async () => {
     if (!projectId) return
 
     try {
@@ -38,7 +38,7 @@ export default function RFIStatsWidget({ projectId }: RFIStatsWidgetProps) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [projectId, showError])
 
   useEffect(() => {
     if (projectId) {
@@ -47,8 +47,7 @@ export default function RFIStatsWidget({ projectId }: RFIStatsWidgetProps) {
       setLoading(false)
       setError('No project selected')
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [projectId])
+  }, [projectId, loadRFIStats])
 
   const handleStatClick = (status: string) => {
     if (!projectId) return
