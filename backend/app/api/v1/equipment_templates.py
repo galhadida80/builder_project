@@ -34,20 +34,17 @@ async def list_equipment_templates(db: AsyncSession = Depends(get_db)):
         .order_by(EquipmentTemplate.created_at.desc())
     )
     templates = result.scalars().all()
-    response = []
-    for tpl in templates:
-        base = EquipmentTemplateResponse.model_validate(tpl)
-        consultants = [
-            ConsultantTypeResponse.model_validate(tc.consultant_type)
-            for tc in tpl.approving_consultants
-            if tc.consultant_type
-        ]
-        data = EquipmentTemplateWithConsultantsResponse(
-            **base.model_dump(),
-            approving_consultants=consultants,
+    return [
+        EquipmentTemplateWithConsultantsResponse(
+            **EquipmentTemplateResponse.model_validate(tpl).model_dump(),
+            approving_consultants=[
+                ConsultantTypeResponse.model_validate(tc.consultant_type)
+                for tc in tpl.approving_consultants
+                if tc.consultant_type
+            ],
         )
-        response.append(data)
-    return response
+        for tpl in templates
+    ]
 
 
 @router.post("/equipment-templates", response_model=EquipmentTemplateResponse, status_code=201)

@@ -2,7 +2,7 @@ from uuid import UUID
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy import select, func, update
 from app.db.session import get_db
 from app.models.notification import Notification, NotificationCategory
 from app.models.user import User
@@ -71,15 +71,12 @@ async def mark_all_notifications_read(
     current_user: User = Depends(get_current_user)
 ):
     result = await db.execute(
-        select(Notification).where(
+        update(Notification)
+        .where(
             Notification.user_id == current_user.id,
             Notification.is_read == False
         )
+        .values(is_read=True)
     )
-    notifications = result.scalars().all()
-
-    for notification in notifications:
-        notification.is_read = True
-
     await db.commit()
-    return {"message": f"Marked {len(notifications)} notifications as read"}
+    return {"message": f"Marked {result.rowcount} notifications as read"}

@@ -150,51 +150,48 @@ async def get_project_trends(
         ProjectMember.user_id == current_user.id
     ).scalar_subquery()
 
-    # Generate daily data points
+    # Batch queries: get all daily counts in 3 queries instead of 3*N
+    date_trunc = func.date_trunc('day', Inspection.created_at)
+    inspection_daily = await db.execute(
+        select(date_trunc.label('day'), func.count().label('count'))
+        .where(Inspection.project_id.in_(accessible_projects))
+        .where(Inspection.created_at >= start_datetime)
+        .where(Inspection.created_at <= end_datetime + timedelta(days=1))
+        .group_by(date_trunc)
+    )
+    inspection_by_day = {row.day.strftime('%Y-%m-%d'): row.count for row in inspection_daily.all()}
+
+    equip_date_trunc = func.date_trunc('day', Equipment.created_at)
+    equipment_daily = await db.execute(
+        select(equip_date_trunc.label('day'), func.count().label('count'))
+        .where(Equipment.project_id.in_(accessible_projects))
+        .where(Equipment.created_at >= start_datetime)
+        .where(Equipment.created_at <= end_datetime + timedelta(days=1))
+        .group_by(equip_date_trunc)
+    )
+    equipment_by_day = {row.day.strftime('%Y-%m-%d'): row.count for row in equipment_daily.all()}
+
+    mat_date_trunc = func.date_trunc('day', Material.created_at)
+    material_daily = await db.execute(
+        select(mat_date_trunc.label('day'), func.count().label('count'))
+        .where(Material.project_id.in_(accessible_projects))
+        .where(Material.created_at >= start_datetime)
+        .where(Material.created_at <= end_datetime + timedelta(days=1))
+        .group_by(mat_date_trunc)
+    )
+    material_by_day = {row.day.strftime('%Y-%m-%d'): row.count for row in material_daily.all()}
+
     data_points = []
     current_date = start_datetime
-
     while current_date <= end_datetime:
-        next_date = current_date + timedelta(days=1)
-
-        # Count inspections created on this day
-        inspection_count = await db.execute(
-            select(func.count())
-            .select_from(Inspection)
-            .where(Inspection.project_id.in_(accessible_projects))
-            .where(Inspection.created_at >= current_date)
-            .where(Inspection.created_at < next_date)
-        )
-        inspections = inspection_count.scalar() or 0
-
-        # Count equipment submissions on this day
-        equipment_count = await db.execute(
-            select(func.count())
-            .select_from(Equipment)
-            .where(Equipment.project_id.in_(accessible_projects))
-            .where(Equipment.created_at >= current_date)
-            .where(Equipment.created_at < next_date)
-        )
-        equipment_submissions = equipment_count.scalar() or 0
-
-        # Count material submissions on this day
-        material_count = await db.execute(
-            select(func.count())
-            .select_from(Material)
-            .where(Material.project_id.in_(accessible_projects))
-            .where(Material.created_at >= current_date)
-            .where(Material.created_at < next_date)
-        )
-        material_submissions = material_count.scalar() or 0
-
+        day_str = current_date.strftime('%Y-%m-%d')
         data_points.append(TrendDataPoint(
-            date=current_date.strftime('%Y-%m-%d'),
-            inspections=inspections,
-            equipment_submissions=equipment_submissions,
-            material_submissions=material_submissions
+            date=day_str,
+            inspections=inspection_by_day.get(day_str, 0),
+            equipment_submissions=equipment_by_day.get(day_str, 0),
+            material_submissions=material_by_day.get(day_str, 0)
         ))
-
-        current_date = next_date
+        current_date += timedelta(days=1)
 
     return ProjectTrendsResponse(data_points=data_points)
 

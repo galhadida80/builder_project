@@ -222,7 +222,7 @@ class RFIService:
         if not rfi.cc_emails:
             return False
         normalized_email = email.lower()
-        return normalized_email in [cc.lower() for cc in rfi.cc_emails]
+        return normalized_email in {cc.lower() for cc in rfi.cc_emails}
 
     async def _create_response_from_email(self, rfi: RFI, parsed: ParsedEmail) -> RFIResponse:
         response_text = self.email_parser.extract_reply_content(parsed.body_text)
@@ -397,21 +397,13 @@ class RFIService:
         return list(rfis), total
 
     async def get_rfi_summary(self, project_id: uuid.UUID) -> dict:
-        base_query = select(RFI).where(RFI.project_id == project_id)
-
-        total = await self.db.execute(
-            select(func.count()).select_from(base_query.subquery())
+        status_result = await self.db.execute(
+            select(RFI.status, func.count(RFI.id).label("count"))
+            .where(RFI.project_id == project_id)
+            .group_by(RFI.status)
         )
-
-        status_counts = {}
-        for status in RFIStatus:
-            result = await self.db.execute(
-                select(func.count(RFI.id)).where(
-                    RFI.project_id == project_id,
-                    RFI.status == status.value
-                )
-            )
-            status_counts[status.value] = result.scalar()
+        status_counts = {row.status: row.count for row in status_result.all()}
+        total_rfis = sum(status_counts.values())
 
         overdue_result = await self.db.execute(
             select(func.count(RFI.id)).where(
@@ -436,7 +428,7 @@ class RFIService:
         by_category = {row[0]: row[1] for row in category_result.all()}
 
         return {
-            'total_rfis': total.scalar(),
+            'total_rfis': total_rfis,
             'draft_count': status_counts.get(RFIStatus.DRAFT.value, 0),
             'open_count': status_counts.get(RFIStatus.OPEN.value, 0),
             'waiting_response_count': status_counts.get(RFIStatus.WAITING_RESPONSE.value, 0),
