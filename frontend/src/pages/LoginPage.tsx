@@ -343,25 +343,27 @@ export default function LoginPage() {
 
             {/* Form */}
             <Box sx={{ mt: 3.5 }}>
-              {error && (
-                <Alert
-                  severity="error"
-                  sx={{ mb: 2.5, borderRadius: 2 }}
-                  onClose={() => setError(null)}
-                >
-                  {error}
-                </Alert>
-              )}
+              <Box aria-live="polite" aria-atomic="true">
+                {error && (
+                  <Alert
+                    severity="error"
+                    sx={{ mb: 2.5, borderRadius: 2 }}
+                    onClose={() => setError(null)}
+                  >
+                    {error}
+                  </Alert>
+                )}
 
-              {success && (
-                <Alert
-                  severity="success"
-                  sx={{ mb: 2.5, borderRadius: 2 }}
-                  onClose={() => setSuccess(null)}
-                >
-                  {success}
-                </Alert>
-              )}
+                {success && (
+                  <Alert
+                    severity="success"
+                    sx={{ mb: 2.5, borderRadius: 2 }}
+                    onClose={() => setSuccess(null)}
+                  >
+                    {success}
+                  </Alert>
+                )}
+              </Box>
 
               {tab === 'signin' ? (
                 <form onSubmit={handleLogin}>

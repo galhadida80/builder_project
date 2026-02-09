@@ -180,7 +180,7 @@ export default function DashboardPage() {
                   color="warning"
                   sx={{ fontWeight: 600 }}
                 />
-                <IconButton size="small">
+                <IconButton size="small" aria-label="Approval actions menu">
                   <MoreVertIcon fontSize="small" />
                 </IconButton>
               </Box>
@@ -459,7 +459,7 @@ export default function DashboardPage() {
           <Box sx={{ p: 2.5 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
               <Typography variant="h6" fontWeight={600}>Recent Activity</Typography>
-              <IconButton size="small">
+              <IconButton size="small" aria-label="Activity actions menu">
                 <MoreVertIcon fontSize="small" />
               </IconButton>
             </Box>

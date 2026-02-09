@@ -333,21 +333,21 @@ export default function EquipmentPage() {
           <IconButton
             size="small"
             onClick={(e) => { e.stopPropagation(); handleViewDetails(row); }}
-            title="View details"
+            aria-label="View details"
           >
             <VisibilityIcon fontSize="small" />
           </IconButton>
           <IconButton
             size="small"
             onClick={(e) => handleOpenEdit(row, e)}
-            title="Edit equipment"
+            aria-label="Edit equipment"
           >
             <EditIcon fontSize="small" />
           </IconButton>
           <IconButton
             size="small"
             onClick={(e) => handleDeleteClick(row, e)}
-            title="Delete equipment"
+            aria-label="Delete equipment"
             color="error"
           >
             <DeleteIcon fontSize="small" />
@@ -425,7 +425,7 @@ export default function EquipmentPage() {
           <Box sx={{ p: 3 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
               <Typography variant="h6" fontWeight={600}>Equipment Details</Typography>
-              <IconButton onClick={handleCloseDrawer} size="small">
+              <IconButton onClick={handleCloseDrawer} size="small" aria-label="Close details">
                 <CloseIcon />
               </IconButton>
             </Box>
@@ -516,7 +516,7 @@ export default function EquipmentPage() {
                       <IconButton
                         edge="end"
                         size="small"
-                        title="Download file"
+                        aria-label="Download file"
                         onClick={async () => {
                           try {
                             const blobUrl = await filesApi.getFileBlob(projectId!, file.id)
