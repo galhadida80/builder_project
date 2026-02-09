@@ -76,10 +76,10 @@ export function usePullToRefresh(options: UsePullToRefreshOptions = {}) {
   })
 
   // Track if we can pull (only from top of scrollable container)
-  const scrollPositionRef = useRef(0)
+  const scrollPositionRef = useRef<number>(0)
 
   // Track if refresh is in progress (prevent simultaneous refreshes)
-  const isRefreshingRef = useRef(false)
+  const isRefreshingRef = useRef<boolean>(false)
 
   // State for loading and progress
   const [isLoading, setIsLoading] = useState(false)

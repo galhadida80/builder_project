@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useDropzone } from 'react-dropzone'
+import { useDropzone, FileRejection } from 'react-dropzone'
 import { Box, Typography, Paper, CircularProgress } from '@mui/material'
 import { styled, alpha } from '@mui/material'
 import CloudUploadIcon from '@mui/icons-material/CloudUpload'
@@ -57,16 +57,15 @@ export function UploadZone({
   const [uploadQueue, setUploadQueue] = useState<File[]>([])
   const [uploadedCount, setUploadedCount] = useState(0)
 
-  const handleDrop = async (acceptedFiles: File[], rejectedFiles: any[]) => {
-    // Handle rejected files
+  const handleDrop = async (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
     if (rejectedFiles.length > 0) {
       rejectedFiles.forEach((rejection) => {
         const file = rejection.file
         const errors = rejection.errors
 
-        if (errors.some((e: any) => e.code === 'file-too-large')) {
+        if (errors.some((e) => e.code === 'file-too-large')) {
           showError(`${file.name} is too large. Maximum size is ${maxSize / (1024 * 1024)}MB`)
-        } else if (errors.some((e: any) => e.code === 'file-invalid-type')) {
+        } else if (errors.some((e) => e.code === 'file-invalid-type')) {
           showError(`${file.name} has an unsupported file type`)
         } else {
           showError(`${file.name} could not be uploaded`)

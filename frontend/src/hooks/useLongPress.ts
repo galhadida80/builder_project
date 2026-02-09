@@ -79,7 +79,7 @@ export function useLongPress(options: UseLongPressOptions = {}) {
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Track if long press has been triggered (to prevent multiple triggers)
-  const triggeredRef = useRef(false)
+  const triggeredRef = useRef<boolean>(false)
 
   // State to expose whether currently pressed
   const [isPressed, setIsPressed] = useState(false)

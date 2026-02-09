@@ -56,7 +56,7 @@ export function useNavigationGestures(options: UseNavigationGesturesOptions = {}
   const navigate = useNavigate()
 
   // Track if we should process swipes (not during text input, etc.)
-  const canNavigateRef = useRef(true)
+  const canNavigateRef = useRef<boolean>(true)
 
   // Handle swipe gestures for navigation
   const handleSwipe = useCallback(

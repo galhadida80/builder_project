@@ -94,7 +94,7 @@ export function useSwipeGesture(options: UseSwipeGestureOptions = {}) {
   })
 
   // Track if we're in a vertical scroll (to ignore as swipe)
-  const isVerticalScrollRef = useRef(false)
+  const isVerticalScrollRef = useRef<boolean>(false)
 
   // State to track RTL mode
   const [isRTL, setIsRTL] = useState(() => {
