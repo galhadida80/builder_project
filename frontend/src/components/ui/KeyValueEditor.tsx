@@ -9,14 +9,18 @@ import Tooltip from '@mui/material/Tooltip'
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
 import TuneIcon from '@mui/icons-material/Tune'
+import LockIcon from '@mui/icons-material/Lock'
 import { useTranslation } from 'react-i18next'
 
-type ValueType = 'text' | 'number' | 'boolean'
+type ValueType = 'text' | 'number' | 'boolean' | 'date' | 'select'
 
 interface KeyValuePair {
   key: string
   value: string | number | boolean
   type: ValueType
+  locked?: boolean
+  isTemplate?: boolean
+  options?: string[]
 }
 
 interface KeyValueEditorProps {
@@ -58,6 +62,64 @@ export default function KeyValueEditor({ entries, onChange, label }: KeyValueEdi
     }
   }
 
+  const renderValueField = (entry: KeyValuePair, index: number) => {
+    if (entry.type === 'boolean') {
+      return (
+        <MuiTextField
+          fullWidth
+          select
+          size="small"
+          value={entry.value ? 'true' : 'false'}
+          onChange={(e) => handleValueChange(index, e.target.value === 'true')}
+        >
+          <MenuItem value="true">{t('common.yes')}</MenuItem>
+          <MenuItem value="false">{t('common.no')}</MenuItem>
+        </MuiTextField>
+      )
+    }
+    if (entry.type === 'date') {
+      return (
+        <MuiTextField
+          fullWidth
+          size="small"
+          type="date"
+          InputLabelProps={{ shrink: true }}
+          value={entry.value || ''}
+          onChange={(e) => handleValueChange(index, e.target.value)}
+        />
+      )
+    }
+    if (entry.type === 'select' && entry.options) {
+      return (
+        <MuiTextField
+          fullWidth
+          select
+          size="small"
+          value={entry.value || ''}
+          onChange={(e) => handleValueChange(index, e.target.value)}
+        >
+          <MenuItem value="">{t('common.select')}</MenuItem>
+          {entry.options.map((opt) => (
+            <MenuItem key={opt} value={opt}>{opt}</MenuItem>
+          ))}
+        </MuiTextField>
+      )
+    }
+    return (
+      <MuiTextField
+        fullWidth
+        size="small"
+        type={entry.type === 'number' ? 'number' : 'text'}
+        placeholder={t('keyValueEditor.valuePlaceholder')}
+        value={entry.value}
+        onChange={(e) => {
+          const val = entry.type === 'number' ? Number(e.target.value) : e.target.value
+          handleValueChange(index, val)
+        }}
+      />
+    )
+  }
+
   return (
     <Box>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
@@ -68,7 +130,6 @@ export default function KeyValueEditor({ entries, onChange, label }: KeyValueEdi
         <Chip label={entries.length} size="small" color="default" sx={{ height: 20, fontSize: 11 }} />
       </Box>
 
-      {/* Existing entries */}
       {entries.length > 0 && (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 1.5 }}>
           {entries.map((entry, index) => (
@@ -79,66 +140,53 @@ export default function KeyValueEditor({ entries, onChange, label }: KeyValueEdi
                 alignItems: 'center',
                 gap: 1,
                 p: 1,
-                bgcolor: 'action.hover',
+                bgcolor: entry.isTemplate ? 'primary.50' : 'action.hover',
                 borderRadius: 1.5,
                 border: '1px solid',
-                borderColor: 'divider',
+                borderColor: entry.isTemplate ? 'primary.200' : 'divider',
               }}
             >
               <Box sx={{ flex: '0 0 auto', minWidth: 100, maxWidth: 160 }}>
                 <Typography variant="caption" color="text.secondary" fontSize={10}>
                   {t('keyValueEditor.key')}
                 </Typography>
-                <Typography variant="body2" fontWeight={600} noWrap>
-                  {entry.key}
-                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <Typography variant="body2" fontWeight={600} noWrap>
+                    {entry.key}
+                  </Typography>
+                  {entry.isTemplate && (
+                    <Tooltip title={t('keyValueEditor.templateField')}>
+                      <LockIcon sx={{ fontSize: 12, color: 'primary.main' }} />
+                    </Tooltip>
+                  )}
+                </Box>
               </Box>
 
               <Box sx={{ flex: 1 }}>
-                {entry.type === 'boolean' ? (
-                  <MuiTextField
-                    fullWidth
-                    select
-                    size="small"
-                    value={entry.value ? 'true' : 'false'}
-                    onChange={(e) => handleValueChange(index, e.target.value === 'true')}
-                  >
-                    <MenuItem value="true">{t('common.yes')}</MenuItem>
-                    <MenuItem value="false">{t('common.no')}</MenuItem>
-                  </MuiTextField>
-                ) : (
-                  <MuiTextField
-                    fullWidth
-                    size="small"
-                    type={entry.type === 'number' ? 'number' : 'text'}
-                    placeholder={t('keyValueEditor.valuePlaceholder')}
-                    value={entry.value}
-                    onChange={(e) => {
-                      const val = entry.type === 'number' ? Number(e.target.value) : e.target.value
-                      handleValueChange(index, val)
-                    }}
-                  />
-                )}
+                {renderValueField(entry, index)}
               </Box>
 
               <Chip
                 label={entry.type}
                 size="small"
                 variant="outlined"
+                color={entry.isTemplate ? 'primary' : 'default'}
                 sx={{ height: 20, fontSize: 10, minWidth: 45 }}
               />
 
-              <Tooltip title={t('common.delete')}>
-                <IconButton size="small" color="error" onClick={() => handleRemove(index)}>
-                  <DeleteOutlineIcon fontSize="small" />
-                </IconButton>
-              </Tooltip>
+              {!entry.locked && (
+                <Tooltip title={t('common.delete')}>
+                  <IconButton size="small" color="error" onClick={() => handleRemove(index)}>
+                    <DeleteOutlineIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              )}
+              {entry.locked && <Box sx={{ width: 28 }} />}
             </Box>
           ))}
         </Box>
       )}
 
-      {/* Add new entry row */}
       <Box
         sx={{
           display: 'flex',
@@ -169,6 +217,7 @@ export default function KeyValueEditor({ entries, onChange, label }: KeyValueEdi
           <MenuItem value="text">{t('keyValueEditor.typeText')}</MenuItem>
           <MenuItem value="number">{t('keyValueEditor.typeNumber')}</MenuItem>
           <MenuItem value="boolean">{t('keyValueEditor.typeBoolean')}</MenuItem>
+          <MenuItem value="date">{t('keyValueEditor.typeDate')}</MenuItem>
         </MuiTextField>
         <Tooltip title={t('keyValueEditor.addField')}>
           <span>

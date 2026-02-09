@@ -14,7 +14,6 @@ import Skeleton from '@mui/material/Skeleton'
 import Chip from '@mui/material/Chip'
 import Checkbox from '@mui/material/Checkbox'
 import FormControlLabel from '@mui/material/FormControlLabel'
-import Collapse from '@mui/material/Collapse'
 import AddIcon from '@mui/icons-material/Add'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import EditIcon from '@mui/icons-material/Edit'
@@ -52,12 +51,20 @@ import { useTranslation } from 'react-i18next'
 import { EmptyState } from '../components/ui/EmptyState'
 import TemplatePicker from '../components/ui/TemplatePicker'
 import KeyValueEditor, { type KeyValuePair } from '../components/ui/KeyValueEditor'
+import ContactSelectorDialog from '../components/ui/ContactSelectorDialog'
 
-const unitOptions = ['ton', 'm3', 'm2', 'm', 'kg', 'unit', 'box', 'pallet', 'roll']
+const UNIT_KEYS = ['ton', 'm3', 'm2', 'm', 'kg', 'unit', 'box', 'pallet', 'roll'] as const
 
 export default function MaterialsPage() {
   const { projectId } = useParams()
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+
+  const dateLocale = useMemo(() => {
+    const lang = i18n.language
+    if (lang === 'he') return 'he-IL'
+    if (lang === 'es') return 'es-ES'
+    return 'en-US'
+  }, [i18n.language])
   const { showError, showSuccess } = useToast()
   const [loading, setLoading] = useState(true)
   const [materials, setMaterials] = useState<Material[]>([])
@@ -92,6 +99,7 @@ export default function MaterialsPage() {
   const [filesLoading, setFilesLoading] = useState(false)
   const [filesError, setFilesError] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
+  const [contactDialogOpen, setContactDialogOpen] = useState(false)
 
   const selectedTemplate = useMemo(() => {
     return materialTemplates.find(t => t.id === formData.templateId) || null
@@ -179,17 +187,27 @@ export default function MaterialsPage() {
       storageLocation: material.storageLocation || '',
       notes: material.notes || ''
     })
-    setSpecificationValues({})
     setDocumentFiles({})
     setChecklistResponses({})
     const existingSpecs = material.specifications || {}
-    setCustomFields(
-      Object.entries(existingSpecs).map(([key, value]) => ({
-        key,
-        value: value as string | number | boolean,
-        type: typeof value === 'number' ? 'number' as const : typeof value === 'boolean' ? 'boolean' as const : 'text' as const,
-      }))
+    const templateSpecKeys = new Set(
+      matchingTemplate?.required_specifications?.map(s => s.name) || []
     )
+    const templateValues: Record<string, string | number | boolean> = {}
+    const customEntries: KeyValuePair[] = []
+    Object.entries(existingSpecs).forEach(([key, value]) => {
+      if (templateSpecKeys.has(key)) {
+        templateValues[key] = value as string | number | boolean
+      } else {
+        customEntries.push({
+          key,
+          value: value as string | number | boolean,
+          type: typeof value === 'number' ? 'number' as const : typeof value === 'boolean' ? 'boolean' as const : 'text' as const,
+        })
+      }
+    })
+    setSpecificationValues(templateValues)
+    setCustomFields(customEntries)
     setErrors({})
     setDialogOpen(true)
     setDrawerOpen(false)
@@ -222,13 +240,22 @@ export default function MaterialsPage() {
         notes: formData.notes || undefined
       }
 
+      let entityId: string
       if (editingMaterial) {
-        await materialsApi.update(projectId, editingMaterial.id, payload)
+        const updated = await materialsApi.update(projectId, editingMaterial.id, payload)
+        entityId = updated.id
         showSuccess(t('materials.materialUpdatedSuccessfully'))
       } else {
-        await materialsApi.create(projectId, payload)
+        const created = await materialsApi.create(projectId, payload)
+        entityId = created.id
         showSuccess(t('materials.materialCreatedSuccessfully'))
       }
+
+      const filesToUpload = Object.values(documentFiles).filter((f): f is File => f !== null)
+      if (filesToUpload.length > 0) {
+        await Promise.all(filesToUpload.map(file => filesApi.upload(projectId, 'material', entityId, file)))
+      }
+
       handleCloseDialog()
       loadMaterials()
     } catch {
@@ -258,12 +285,21 @@ export default function MaterialsPage() {
     }
   }
 
-  const handleSubmitForApproval = async () => {
+  const handleSubmitForApproval = () => {
+    if (!projectId || !selectedMaterial) return
+    setContactDialogOpen(true)
+  }
+
+  const handleConfirmSubmit = async (consultantContactId?: string, inspectorContactId?: string) => {
     if (!projectId || !selectedMaterial) return
     setSubmitting(true)
     try {
-      await materialsApi.submit(projectId, selectedMaterial.id)
+      const body: { consultant_contact_id?: string; inspector_contact_id?: string } = {}
+      if (consultantContactId) body.consultant_contact_id = consultantContactId
+      if (inspectorContactId) body.inspector_contact_id = inspectorContactId
+      await materialsApi.submit(projectId, selectedMaterial.id, body)
       showSuccess(t('materials.materialSubmittedSuccessfully'))
+      setContactDialogOpen(false)
       loadMaterials()
       setDrawerOpen(false)
     } catch {
@@ -595,7 +631,7 @@ export default function MaterialsPage() {
                 <Box>
                   <Typography variant="caption" color="text.secondary">{t('materials.deliveryDate')}</Typography>
                   <Typography variant="body2" fontWeight={500}>
-                    {new Date(selectedMaterial.expectedDelivery).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    {new Date(selectedMaterial.expectedDelivery).toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' })}
                   </Typography>
                 </Box>
               )}
@@ -768,8 +804,7 @@ export default function MaterialsPage() {
             placeholder={t('materials.selectTemplate')}
           />
 
-          <Collapse in={!!selectedTemplate}>
-            {selectedTemplate && (
+          {selectedTemplate && (
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 {selectedTemplate.required_specifications?.length > 0 && (
                   <Box sx={{ mt: 2 }}>
@@ -917,7 +952,6 @@ export default function MaterialsPage() {
                 )}
               </Box>
             )}
-          </Collapse>
 
           <Divider sx={{ my: 1 }} />
 
@@ -952,7 +986,7 @@ export default function MaterialsPage() {
               onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
             >
               <MenuItem value="">{t('materials.selectUnit')}</MenuItem>
-              {unitOptions.map(unit => <MenuItem key={unit} value={unit}>{unit}</MenuItem>)}
+              {UNIT_KEYS.map(unit => <MenuItem key={unit} value={unit}>{t(`materials.units.${unit}`)}</MenuItem>)}
             </MuiTextField>
           </Box>
           <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
@@ -999,6 +1033,14 @@ export default function MaterialsPage() {
         message={t('materials.deleteConfirmationMessage', { name: materialToDelete?.name })}
         confirmLabel={t('common.delete')}
         variant="danger"
+      />
+
+      <ContactSelectorDialog
+        open={contactDialogOpen}
+        onClose={() => setContactDialogOpen(false)}
+        onConfirm={handleConfirmSubmit}
+        projectId={projectId!}
+        loading={submitting}
       />
     </Box>
   )

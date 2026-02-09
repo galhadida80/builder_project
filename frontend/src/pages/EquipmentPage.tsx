@@ -15,7 +15,6 @@ import Chip from '@mui/material/Chip'
 import Checkbox from '@mui/material/Checkbox'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import Alert from '@mui/material/Alert'
-import Collapse from '@mui/material/Collapse'
 import AddIcon from '@mui/icons-material/Add'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import EditIcon from '@mui/icons-material/Edit'
@@ -51,6 +50,7 @@ import { useToast } from '../components/common/ToastProvider'
 import { useTranslation } from 'react-i18next'
 import TemplatePicker from '../components/ui/TemplatePicker'
 import KeyValueEditor, { type KeyValuePair } from '../components/ui/KeyValueEditor'
+import ContactSelectorDialog from '../components/ui/ContactSelectorDialog'
 
 export default function EquipmentPage() {
   const { projectId } = useParams()
@@ -85,6 +85,8 @@ export default function EquipmentPage() {
   const [files, setFiles] = useState<FileRecord[]>([])
   const [filesLoading, setFilesLoading] = useState(false)
   const [filesError, setFilesError] = useState<string | null>(null)
+  const [uploading, setUploading] = useState(false)
+  const [contactDialogOpen, setContactDialogOpen] = useState(false)
 
   const selectedTemplate = useMemo(() => {
     return equipmentTemplates.find(t => t.id === formData.templateId) || null
@@ -169,17 +171,27 @@ export default function EquipmentPage() {
       serialNumber: eq.serialNumber || '',
       notes: eq.notes || ''
     })
-    setSpecificationValues({})
     setDocumentFiles({})
     setChecklistResponses({})
     const existingSpecs = eq.specifications || {}
-    setCustomFields(
-      Object.entries(existingSpecs).map(([key, value]) => ({
-        key,
-        value: value as string | number | boolean,
-        type: typeof value === 'number' ? 'number' as const : typeof value === 'boolean' ? 'boolean' as const : 'text' as const,
-      }))
+    const templateSpecKeys = new Set(
+      matchingTemplate?.required_specifications?.map(s => s.name) || []
     )
+    const templateValues: Record<string, string | number | boolean> = {}
+    const customEntries: KeyValuePair[] = []
+    Object.entries(existingSpecs).forEach(([key, value]) => {
+      if (templateSpecKeys.has(key)) {
+        templateValues[key] = value as string | number | boolean
+      } else {
+        customEntries.push({
+          key,
+          value: value as string | number | boolean,
+          type: typeof value === 'number' ? 'number' as const : typeof value === 'boolean' ? 'boolean' as const : 'text' as const,
+        })
+      }
+    })
+    setSpecificationValues(templateValues)
+    setCustomFields(customEntries)
     setErrors({})
     setDialogOpen(true)
     setDrawerOpen(false)
@@ -209,13 +221,22 @@ export default function EquipmentPage() {
         notes: formData.notes || undefined
       }
 
+      let entityId: string
       if (editingEquipment) {
-        await equipmentApi.update(projectId, editingEquipment.id, payload)
+        const updated = await equipmentApi.update(projectId, editingEquipment.id, payload)
+        entityId = updated.id
         showSuccess(t('equipment.equipmentUpdatedSuccessfully'))
       } else {
-        await equipmentApi.create(projectId, payload)
+        const created = await equipmentApi.create(projectId, payload)
+        entityId = created.id
         showSuccess(t('equipment.equipmentCreatedSuccessfully'))
       }
+
+      const filesToUpload = Object.values(documentFiles).filter((f): f is File => f !== null)
+      if (filesToUpload.length > 0) {
+        await Promise.all(filesToUpload.map(file => filesApi.upload(projectId, 'equipment', entityId, file)))
+      }
+
       handleCloseDialog()
       loadEquipment()
     } catch {
@@ -245,12 +266,21 @@ export default function EquipmentPage() {
     }
   }
 
-  const handleSubmitForApproval = async () => {
+  const handleSubmitForApproval = () => {
+    if (!projectId || !selectedEquipment) return
+    setContactDialogOpen(true)
+  }
+
+  const handleConfirmSubmit = async (consultantContactId?: string, inspectorContactId?: string) => {
     if (!projectId || !selectedEquipment) return
     setSubmitting(true)
     try {
-      await equipmentApi.submit(projectId, selectedEquipment.id)
+      const body: { consultant_contact_id?: string; inspector_contact_id?: string } = {}
+      if (consultantContactId) body.consultant_contact_id = consultantContactId
+      if (inspectorContactId) body.inspector_contact_id = inspectorContactId
+      await equipmentApi.submit(projectId, selectedEquipment.id, body)
       showSuccess(t('equipment.equipmentSubmittedSuccessfully'))
+      setContactDialogOpen(false)
       loadEquipment()
       setDrawerOpen(false)
     } catch {
@@ -258,6 +288,28 @@ export default function EquipmentPage() {
     } finally {
       setSubmitting(false)
     }
+  }
+
+  const handleFileUpload = async () => {
+    if (!projectId || !selectedEquipment) return
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0]
+      if (!file) return
+      setUploading(true)
+      try {
+        await filesApi.upload(projectId, 'equipment', selectedEquipment.id, file)
+        const data = await filesApi.list(projectId, 'equipment', selectedEquipment.id)
+        setFiles(data)
+        showSuccess(t('equipment.fileUploadedSuccessfully'))
+      } catch {
+        showError(t('equipment.failedToUploadFile'))
+      } finally {
+        setUploading(false)
+      }
+    }
+    input.click()
   }
 
   const filteredEquipment = equipment.filter(e => {
@@ -589,7 +641,14 @@ export default function EquipmentPage() {
                 ))}
               </List>
             )}
-            <Button variant="tertiary" size="small" icon={<AddIcon />} sx={{ mt: 1 }}>
+            <Button
+              variant="tertiary"
+              size="small"
+              icon={uploading ? undefined : <CloudUploadIcon />}
+              loading={uploading}
+              sx={{ mt: 1 }}
+              onClick={handleFileUpload}
+            >
               {t('equipment.addDocument')}
             </Button>
 
@@ -653,8 +712,7 @@ export default function EquipmentPage() {
             placeholder={t('equipment.selectTemplate')}
           />
 
-          <Collapse in={!!selectedTemplate}>
-            {selectedTemplate && (
+          {selectedTemplate && (
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 {selectedTemplate.description && (
                   <Alert severity="info" sx={{ mt: 1 }}>
@@ -808,7 +866,6 @@ export default function EquipmentPage() {
                 )}
               </Box>
             )}
-          </Collapse>
 
           <Divider sx={{ my: 1 }} />
 
@@ -862,6 +919,14 @@ export default function EquipmentPage() {
         message={t('equipment.deleteConfirmationMessage', { name: equipmentToDelete?.name })}
         confirmLabel={t('common.delete')}
         variant="danger"
+      />
+
+      <ContactSelectorDialog
+        open={contactDialogOpen}
+        onClose={() => setContactDialogOpen(false)}
+        onConfirm={handleConfirmSubmit}
+        projectId={projectId!}
+        loading={submitting}
       />
     </Box>
   )

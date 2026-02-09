@@ -9,6 +9,7 @@ from app.models.material import Material, ApprovalStatus
 from app.models.user import User
 from app.models.approval import ApprovalRequest, ApprovalStep
 from app.schemas.material import MaterialCreate, MaterialUpdate, MaterialResponse
+from app.schemas.approval import SubmitForApprovalRequest
 from app.services.audit_service import create_audit_log, get_model_dict
 from app.models.audit import AuditAction
 from app.core.security import get_current_user, verify_project_access
@@ -150,6 +151,7 @@ async def delete_material(
 async def submit_material_for_approval(
     project_id: UUID,
     material_id: UUID,
+    body: SubmitForApprovalRequest = SubmitForApprovalRequest(),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
     request: Request = None,
@@ -177,8 +179,14 @@ async def submit_material_for_approval(
     db.add(approval_request)
     await db.flush()
 
-    step1 = ApprovalStep(approval_request_id=approval_request.id, step_order=1, approver_role="consultant")
-    step2 = ApprovalStep(approval_request_id=approval_request.id, step_order=2, approver_role="inspector")
+    step1 = ApprovalStep(
+        approval_request_id=approval_request.id, step_order=1,
+        approver_role="consultant", contact_id=body.consultant_contact_id
+    )
+    step2 = ApprovalStep(
+        approval_request_id=approval_request.id, step_order=2,
+        approver_role="inspector", contact_id=body.inspector_contact_id
+    )
     db.add_all([step1, step2])
 
     await create_audit_log(db, current_user, "material", material.id, AuditAction.STATUS_CHANGE,

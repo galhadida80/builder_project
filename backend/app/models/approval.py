@@ -37,7 +37,9 @@ class ApprovalStep(Base):
     status: Mapped[str] = mapped_column(String(50), default="pending")
     approved_by_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
     approved_at: Mapped[Optional[datetime]] = mapped_column(DateTime)
+    contact_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("contacts.id", ondelete="SET NULL"))
     comments: Mapped[Optional[str]] = mapped_column(Text)
 
     approval_request = relationship("ApprovalRequest", back_populates="steps")
     approved_by = relationship("User", foreign_keys=[approved_by_id])
+    contact = relationship("Contact", foreign_keys=[contact_id])

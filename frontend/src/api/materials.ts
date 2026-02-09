@@ -54,8 +54,8 @@ export const materialsApi = {
     await apiClient.delete(`/projects/${projectId}/materials/${id}`)
   },
 
-  submit: async (projectId: string, id: string): Promise<Material> => {
-    const response = await apiClient.post(`/projects/${projectId}/materials/${id}/submit`)
+  submit: async (projectId: string, id: string, body?: { consultant_contact_id?: string; inspector_contact_id?: string }): Promise<Material> => {
+    const response = await apiClient.post(`/projects/${projectId}/materials/${id}/submit`, body || {})
     return response.data
   },
 }

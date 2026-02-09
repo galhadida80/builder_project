@@ -56,8 +56,8 @@ export const equipmentApi = {
     await apiClient.delete(`/projects/${projectId}/equipment/${id}`)
   },
 
-  submit: async (projectId: string, id: string): Promise<Equipment> => {
-    const response = await apiClient.post(`/projects/${projectId}/equipment/${id}/submit`)
+  submit: async (projectId: string, id: string, body?: { consultant_contact_id?: string; inspector_contact_id?: string }): Promise<Equipment> => {
+    const response = await apiClient.post(`/projects/${projectId}/equipment/${id}/submit`, body || {})
     return response.data
   },
 
