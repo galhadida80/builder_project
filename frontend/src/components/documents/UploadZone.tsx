@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { Box, Typography, Paper, CircularProgress } from '@mui/material'
-import { styled, alpha } from '@mui/material/styles'
+import { styled, alpha } from '@mui/material'
 import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 import { useToast } from '../common/ToastProvider'
 import { ProgressBar } from '../ui/ProgressBar'

@@ -1,5 +1,5 @@
 import { Box, Paper, IconButton, Toolbar, Typography, Skeleton } from '@mui/material'
-import { styled } from '@mui/material/styles'
+import { styled } from '@mui/material'
 import ZoomInIcon from '@mui/icons-material/ZoomIn'
 import ZoomOutIcon from '@mui/icons-material/ZoomOut'
 import DownloadIcon from '@mui/icons-material/Download'

@@ -99,7 +99,7 @@ export function AvatarGroup({ users, max = 4, size = 'medium', showTooltip = tru
     <MuiAvatarGroup max={max} sx={{ '& .MuiAvatar-root': { width: sizeMap[size], height: sizeMap[size] } }}>
       {users.map((user, index) => (
         <Avatar
-          key={user.name || index}
+          key={`${index}-${user.name}`}
           name={user.name}
           src={user.src}
           size={size}

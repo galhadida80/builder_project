@@ -1,5 +1,5 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import { ThemeProvider, createTheme } from '@mui/material/styles'
+import { ThemeProvider, createTheme } from '@mui/material'
 import { NotificationsPanel } from '../NotificationsPanel'
 import { Notification, NotificationCategory } from '../../../types/notification'
 

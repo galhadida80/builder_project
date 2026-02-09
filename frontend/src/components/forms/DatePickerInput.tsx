@@ -2,7 +2,7 @@ import { DatePicker, DatePickerProps as MuiDatePickerProps } from '@mui/x-date-p
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { FormControl, FormHelperText } from '@mui/material'
-import { styled } from '@mui/material/styles'
+import { styled } from '@mui/material'
 import { DatePickerInputBaseProps } from './types'
 import dayjs, { Dayjs } from 'dayjs'
 

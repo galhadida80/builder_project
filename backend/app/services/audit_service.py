@@ -3,6 +3,7 @@ from __future__ import annotations
 from uuid import UUID
 from decimal import Decimal
 from typing import Optional
+from sqlalchemy import inspect as sa_inspect
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.audit import AuditLog, AuditAction
 from app.models.user import User
@@ -38,14 +39,16 @@ async def create_audit_log(
 def get_model_dict(model, exclude: Optional[set] = None) -> dict:
     exclude = exclude or set()
     result = {}
-    for column in model.__table__.columns:
-        if column.name not in exclude:
-            value = getattr(model, column.name)
+    mapper = sa_inspect(type(model))
+    for attr in mapper.column_attrs:
+        col_name = attr.columns[0].name
+        if col_name not in exclude:
+            value = getattr(model, attr.key)
             if hasattr(value, 'isoformat'):
                 value = value.isoformat()
             elif isinstance(value, UUID):
                 value = str(value)
             elif isinstance(value, Decimal):
                 value = float(value)
-            result[column.name] = value
+            result[col_name] = value
     return result

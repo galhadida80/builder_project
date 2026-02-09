@@ -1,5 +1,5 @@
 import { ListItem, ListItemAvatar, ListItemText, Box, Typography, IconButton, Avatar as MuiAvatar } from '@mui/material'
-import { styled } from '@mui/material/styles'
+import { styled } from '@mui/material'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import WarningIcon from '@mui/icons-material/Warning'
 import UpdateIcon from '@mui/icons-material/Update'

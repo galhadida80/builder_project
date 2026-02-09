@@ -47,4 +47,11 @@ export const filesApi = {
     const response = await apiClient.get(`/projects/${projectId}/files/${id}/download`)
     return response.data.download_url
   },
+
+  getFileBlob: async (projectId: string, id: string): Promise<string> => {
+    const response = await apiClient.get(`/projects/${projectId}/files/${id}/content`, {
+      responseType: 'blob',
+    })
+    return URL.createObjectURL(response.data)
+  },
 }

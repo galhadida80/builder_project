@@ -39,6 +39,7 @@ services:
       DEBUG: "true"
       STORAGE_TYPE: local
       LOCAL_STORAGE_PATH: ./uploads
+      EMAIL_PROVIDER: fake
     ports:
       - "8000:8000"
     depends_on:

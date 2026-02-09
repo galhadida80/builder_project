@@ -594,5 +594,25 @@
     "contacts": "אנשי קשר",
     "auditLog": "יומן ביקורת",
     "settings": "הגדרות"
+  },
+  "chat": {
+    "title": "עוזר AI",
+    "placeholder": "שאל על נתוני הפרויקט שלך...",
+    "history": "היסטוריית שיחות",
+    "newChat": "שיחה חדשה",
+    "noConversations": "אין שיחות עדיין",
+    "untitledChat": "שיחה ללא כותרת",
+    "messages": "הודעות",
+    "welcomeMessage": "שאל אותי כל דבר על נתוני הפרויקט שלך",
+    "suggestionsTitle": "הצעות מהירות",
+    "error": "מצטער, משהו השתבש. נסה שוב.",
+    "suggestions": {
+      "projectSummary": "תן לי סיכום פרויקט",
+      "openRfis": "כמה RFIs פתוחים?",
+      "equipmentStatus": "סקירת סטטוס ציוד",
+      "upcomingMeetings": "פגישות קרובות",
+      "areaProgress": "דוח התקדמות אזורים",
+      "pendingApprovals": "אישורים ממתינים"
+    }
   }
 }

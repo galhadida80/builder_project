@@ -276,5 +276,25 @@
     "rfis": "RFIs",
     "auditLog": "Audit Log",
     "settings": "Settings"
+  },
+  "chat": {
+    "title": "AI Assistant",
+    "placeholder": "Ask about your project data...",
+    "history": "Chat History",
+    "newChat": "New Chat",
+    "noConversations": "No conversations yet",
+    "untitledChat": "Untitled Chat",
+    "messages": "messages",
+    "welcomeMessage": "Ask me anything about your project data",
+    "suggestionsTitle": "Quick suggestions",
+    "error": "Sorry, something went wrong. Please try again.",
+    "suggestions": {
+      "projectSummary": "Give me a project summary",
+      "openRfis": "How many open RFIs?",
+      "equipmentStatus": "Equipment status overview",
+      "upcomingMeetings": "Upcoming meetings",
+      "areaProgress": "Area progress report",
+      "pendingApprovals": "Pending approvals"
+    }
   }
 }

@@ -1,6 +1,7 @@
 import json
 import time
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 from app.config import get_settings
 
 
@@ -35,22 +36,20 @@ def analyze_document(file_content: bytes, file_type: str, analysis_type: str, mo
         raise ValueError("GEMINI_API_KEY is not configured")
 
     model_name = model or settings.gemini_model
-    genai.configure(api_key=api_key)
+    client = genai.Client(api_key=api_key)
 
     prompt = PROMPTS.get(analysis_type)
     if not prompt:
         raise ValueError(f"Unknown analysis type: {analysis_type}. Must be one of: {list(PROMPTS.keys())}")
 
-    gen_model = genai.GenerativeModel(model_name)
-
     mime_type = file_type or "application/octet-stream"
-    parts = [
-        {"mime_type": mime_type, "data": file_content},
+    contents = [
+        types.Part.from_bytes(data=file_content, mime_type=mime_type),
         prompt + "\n\nRespond ONLY with valid JSON, no markdown formatting.",
     ]
 
     start = time.time()
-    response = gen_model.generate_content(parts)
+    response = client.models.generate_content(model=model_name, contents=contents)
     elapsed_ms = int((time.time() - start) * 1000)
 
     text = response.text.strip()

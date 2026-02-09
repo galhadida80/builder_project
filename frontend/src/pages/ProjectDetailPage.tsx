@@ -120,8 +120,16 @@ export default function ProjectDetailPage() {
     navigate(`/projects/${projectId}${value ? `/${value}` : ''}`)
   }
 
-  const pendingApprovals = equipment.filter(e => e.status !== 'approved' && e.status !== 'draft').length +
-    materials.filter(m => m.status !== 'approved' && m.status !== 'draft').length
+  const approvedItems = equipment.filter(e => e.status === 'approved').length +
+    materials.filter(m => m.status === 'approved').length
+  const inProgressItems = equipment.filter(e => e.status === 'under_review' || e.status === 'submitted').length +
+    materials.filter(m => m.status === 'under_review' || m.status === 'submitted').length
+  const pendingItems = equipment.filter(e => e.status === 'draft').length +
+    materials.filter(m => m.status === 'draft').length
+  const totalItems = equipment.length + materials.length
+  const completionPercent = totalItems > 0 ? Math.round((approvedItems / totalItems) * 100) : 0
+
+  const pendingApprovals = inProgressItems
 
   const rfiBadgeCount = rfiSummary ? (rfiSummary.open_count + rfiSummary.waiting_response_count) : 0
 
@@ -260,7 +268,7 @@ export default function ProjectDetailPage() {
                 </Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', py: 4 }}>
                   <Box sx={{ textAlign: 'center' }}>
-                    <CircularProgressDisplay value={67} size={140} thickness={8} showLabel />
+                    <CircularProgressDisplay value={completionPercent} size={140} thickness={8} showLabel />
                     <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
                       Overall Completion
                     </Typography>
@@ -268,16 +276,16 @@ export default function ProjectDetailPage() {
                 </Box>
                 <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2, mt: 2 }}>
                   <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'action.hover', borderRadius: 2 }}>
-                    <Typography variant="h5" fontWeight={700} color="success.main">45</Typography>
-                    <Typography variant="caption" color="text.secondary">Completed Tasks</Typography>
+                    <Typography variant="h5" fontWeight={700} color="success.main">{approvedItems}</Typography>
+                    <Typography variant="caption" color="text.secondary">Approved</Typography>
                   </Box>
                   <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'action.hover', borderRadius: 2 }}>
-                    <Typography variant="h5" fontWeight={700} color="info.main">12</Typography>
-                    <Typography variant="caption" color="text.secondary">In Progress</Typography>
+                    <Typography variant="h5" fontWeight={700} color="info.main">{inProgressItems}</Typography>
+                    <Typography variant="caption" color="text.secondary">In Review</Typography>
                   </Box>
                   <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'action.hover', borderRadius: 2 }}>
-                    <Typography variant="h5" fontWeight={700} color="warning.main">8</Typography>
-                    <Typography variant="caption" color="text.secondary">Pending</Typography>
+                    <Typography variant="h5" fontWeight={700} color="warning.main">{pendingItems}</Typography>
+                    <Typography variant="caption" color="text.secondary">Draft</Typography>
                   </Box>
                 </Box>
               </Box>

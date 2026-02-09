@@ -6,6 +6,7 @@ import Typography from '@mui/material/Typography'
 import Alert from '@mui/material/Alert'
 import Link from '@mui/material/Link'
 import Divider from '@mui/material/Divider'
+import Fade from '@mui/material/Fade'
 import ConstructionIcon from '@mui/icons-material/Construction'
 import EmailIcon from '@mui/icons-material/Email'
 import LockIcon from '@mui/icons-material/Lock'
@@ -13,7 +14,10 @@ import PersonIcon from '@mui/icons-material/Person'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff'
 import IconButton from '@mui/material/IconButton'
-import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'
+import SecurityIcon from '@mui/icons-material/Security'
+import SpeedIcon from '@mui/icons-material/Speed'
+import GroupsIcon from '@mui/icons-material/Groups'
 import { Button } from '../components/ui/Button'
 import { TextField } from '../components/ui/TextField'
 import { SegmentedTabs } from '../components/ui/Tabs'
@@ -21,7 +25,7 @@ import { authApi } from '../api/auth'
 
 export default function LoginPage() {
   const navigate = useNavigate()
-  const { t } = useTranslation('login')
+  const { t } = useTranslation()
   const [tab, setTab] = useState('signin')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -96,6 +100,13 @@ export default function LoginPage() {
     }
   }
 
+  const features = [
+    { icon: <SpeedIcon sx={{ fontSize: 20 }} />, text: t('realTimeTracking') },
+    { icon: <ConstructionIcon sx={{ fontSize: 20 }} />, text: t('equipmentManagement') },
+    { icon: <SecurityIcon sx={{ fontSize: 20 }} />, text: t('inspectionSystem') },
+    { icon: <GroupsIcon sx={{ fontSize: 20 }} />, text: t('approvalWorkflows') },
+  ]
+
   return (
     <Box
       sx={{
@@ -104,87 +115,165 @@ export default function LoginPage() {
         bgcolor: 'background.default',
       }}
     >
+      {/* Left Panel - Branding & Features */}
       <Box
         sx={{
           flex: 1,
           display: { xs: 'none', md: 'flex' },
           flexDirection: 'column',
           justifyContent: 'center',
-          p: 6,
-          background: (theme) =>
-            theme.palette.mode === 'dark'
-              ? 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)'
-              : 'linear-gradient(135deg, #0369A1 0%, #0F172A 100%)',
+          alignItems: 'center',
+          p: { md: 6, lg: 8 },
+          background: 'linear-gradient(160deg, #075985 0%, #0369A1 40%, #0284C7 100%)',
           color: 'white',
           position: 'relative',
           overflow: 'hidden',
         }}
       >
+        {/* Background pattern */}
         <Box
           sx={{
             position: 'absolute',
-            top: 0,
-            insetInlineStart: 0,
-            insetInlineEnd: 0,
-            bottom: 0,
-            opacity: 0.1,
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            inset: 0,
+            opacity: 0.06,
+            backgroundImage: `radial-gradient(circle at 1px 1px, rgba(255,255,255,0.8) 1px, transparent 0)`,
+            backgroundSize: '32px 32px',
           }}
         />
 
-        <Box sx={{ position: 'relative', zIndex: 1, maxWidth: 480 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
-            <Box
-              sx={{
-                width: 56,
-                height: 56,
-                borderRadius: 3,
-                bgcolor: 'rgba(255,255,255,0.1)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <ConstructionIcon sx={{ fontSize: 32 }} />
-            </Box>
-            <Box>
-              <Typography variant="h4" fontWeight={700}>
-                BuilderOps
-              </Typography>
-              <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                {t('platformSubtitle')}
-              </Typography>
-            </Box>
-          </Box>
+        {/* Decorative glow */}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '-20%',
+            right: '-10%',
+            width: '60%',
+            height: '60%',
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%)',
+          }}
+        />
+        <Box
+          sx={{
+            position: 'absolute',
+            bottom: '-15%',
+            left: '-5%',
+            width: '40%',
+            height: '40%',
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%)',
+          }}
+        />
 
-          <Typography variant="h3" fontWeight={700} sx={{ mb: 3, lineHeight: 1.2 }}>
-            {t('buildSmarterTitle')}<br />
-            {t('inspectFasterTitle')}<br />
-            {t('deliverExcellenceTitle')}
-          </Typography>
-
-          <Typography variant="body1" sx={{ mb: 4, opacity: 0.9, lineHeight: 1.7 }}>
-            {t('platformDescription')}
-          </Typography>
-
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            {[
-              t('realTimeTracking'),
-              t('equipmentManagement'),
-              t('inspectionSystem'),
-              t('approvalWorkflows'),
-            ].map((feature, index) => (
-              <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                <CheckCircleIcon sx={{ fontSize: 20, color: '#22C55E' }} />
-                <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                  {feature}
+        <Fade in timeout={600}>
+          <Box sx={{ position: 'relative', zIndex: 1, maxWidth: 440 }}>
+            {/* Logo */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 5 }}>
+              <Box
+                sx={{
+                  width: 52,
+                  height: 52,
+                  borderRadius: 2.5,
+                  bgcolor: 'rgba(255,255,255,0.15)',
+                  backdropFilter: 'blur(10px)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                }}
+              >
+                <ConstructionIcon sx={{ fontSize: 28 }} />
+              </Box>
+              <Box>
+                <Typography variant="h5" fontWeight={700} letterSpacing="-0.02em">
+                  BuilderOps
+                </Typography>
+                <Typography variant="caption" sx={{ opacity: 0.7, letterSpacing: '0.05em', textTransform: 'uppercase', fontSize: '0.65rem' }}>
+                  {t('platformSubtitle')}
                 </Typography>
               </Box>
-            ))}
+            </Box>
+
+            {/* Hero text */}
+            <Typography
+              variant="h3"
+              fontWeight={700}
+              sx={{
+                mb: 2,
+                lineHeight: 1.25,
+                letterSpacing: '-0.02em',
+                fontSize: { md: '1.75rem', lg: '2.125rem' },
+              }}
+            >
+              {t('buildSmarterTitle')}
+              <br />
+              {t('inspectFasterTitle')}
+              <br />
+              {t('deliverExcellenceTitle')}
+            </Typography>
+
+            <Typography
+              variant="body2"
+              sx={{ mb: 5, opacity: 0.75, lineHeight: 1.7, maxWidth: 380 }}
+            >
+              {t('platformDescription')}
+            </Typography>
+
+            {/* Features */}
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              {features.map((feature, index) => (
+                <Box
+                  key={index}
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 2,
+                    p: 1.5,
+                    borderRadius: 2,
+                    bgcolor: 'rgba(255,255,255,0.08)',
+                    backdropFilter: 'blur(4px)',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    transition: 'all 200ms ease-out',
+                    '&:hover': {
+                      bgcolor: 'rgba(255,255,255,0.12)',
+                    },
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: 1.5,
+                      bgcolor: 'rgba(255,255,255,0.12)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                    }}
+                  >
+                    {feature.icon}
+                  </Box>
+                  <Typography variant="body2" fontWeight={500}>
+                    {feature.text}
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
+
+            {/* Trust badge */}
+            <Box sx={{ mt: 5, pt: 4, borderTop: '1px solid rgba(255,255,255,0.12)' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <CheckCircleOutlineIcon sx={{ fontSize: 16, opacity: 0.6 }} />
+                <Typography variant="caption" sx={{ opacity: 0.6 }}>
+                  {t('terms').includes('Terms') ? 'Trusted by 500+ construction teams worldwide' : t('terms')}
+                </Typography>
+              </Box>
+            </Box>
           </Box>
-        </Box>
+        </Fade>
       </Box>
 
+      {/* Right Panel - Auth Form */}
       <Box
         sx={{
           flex: { xs: 1, md: '0 0 520px' },
@@ -192,209 +281,276 @@ export default function LoginPage() {
           flexDirection: 'column',
           justifyContent: 'center',
           alignItems: 'center',
-          p: { xs: 3, md: 6 },
+          p: { xs: 3, sm: 4, md: 6 },
+          position: 'relative',
         }}
       >
-        <Box sx={{ width: '100%', maxWidth: 400 }}>
-          <Box sx={{ display: { xs: 'flex', md: 'none' }, alignItems: 'center', gap: 1.5, mb: 4, justifyContent: 'center' }}>
+        <Fade in timeout={400}>
+          <Box sx={{ width: '100%', maxWidth: 400 }}>
+            {/* Mobile logo */}
             <Box
               sx={{
-                width: 48,
-                height: 48,
-                borderRadius: 2,
-                bgcolor: 'primary.main',
-                display: 'flex',
+                display: { xs: 'flex', md: 'none' },
                 alignItems: 'center',
+                gap: 1.5,
+                mb: 4,
                 justifyContent: 'center',
-                color: 'white',
               }}
             >
-              <ConstructionIcon sx={{ fontSize: 28 }} />
-            </Box>
-            <Box>
+              <Box
+                sx={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: 2,
+                  bgcolor: 'primary.main',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                }}
+              >
+                <ConstructionIcon sx={{ fontSize: 24 }} />
+              </Box>
               <Typography variant="h5" fontWeight={700} color="text.primary">
                 BuilderOps
               </Typography>
             </Box>
-          </Box>
 
-          <Box sx={{ mb: 4, textAlign: { xs: 'center', md: 'start' } }}>
-            <Typography variant="h4" fontWeight={700} color="text.primary" sx={{ mb: 1 }}>
-              {tab === 'signin' ? t('welcomeBack') : t('createAccount')}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {tab === 'signin'
-                ? t('enterCredentials')
-                : t('fillDetails')}
-            </Typography>
-          </Box>
-
-          <SegmentedTabs
-            items={[
-              { label: t('signIn'), value: 'signin' },
-              { label: t('signUp'), value: 'signup' },
-            ]}
-            value={tab}
-            onChange={handleTabChange}
-          />
-
-          <Box sx={{ mt: 4 }}>
-            {error && (
-              <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
-                {error}
-              </Alert>
-            )}
-
-            {success && (
-              <Alert severity="success" sx={{ mb: 3, borderRadius: 2 }}>
-                {success}
-              </Alert>
-            )}
-
-            {tab === 'signin' ? (
-              <form onSubmit={handleLogin}>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-                  <TextField
-                    fullWidth
-                    label={t('email')}
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    autoComplete="email"
-                    startIcon={<EmailIcon sx={{ color: 'text.secondary' }} />}
-                  />
-                  <TextField
-                    fullWidth
-                    label={t('password')}
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    autoComplete="current-password"
-                    startIcon={<LockIcon sx={{ color: 'text.secondary' }} />}
-                    endIcon={
-                      <IconButton
-                        onClick={() => setShowPassword(!showPassword)}
-                        edge="end"
-                        size="small"
-                      >
-                        {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                      </IconButton>
-                    }
-                  />
-
-                  <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                    <Link href="#" underline="hover" sx={{ fontSize: '0.875rem' }}>
-                      {t('forgotPassword')}
-                    </Link>
-                  </Box>
-
-                  <Button
-                    fullWidth
-                    type="submit"
-                    variant="primary"
-                    loading={loading}
-                    sx={{ py: 1.5, mt: 1 }}
-                  >
-                    {t('signIn')}
-                  </Button>
-                </Box>
-              </form>
-            ) : (
-              <form onSubmit={handleRegister}>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-                  <TextField
-                    fullWidth
-                    label={t('fullName')}
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    required
-                    autoComplete="name"
-                    startIcon={<PersonIcon sx={{ color: 'text.secondary' }} />}
-                  />
-                  <TextField
-                    fullWidth
-                    label={t('email')}
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    autoComplete="email"
-                    startIcon={<EmailIcon sx={{ color: 'text.secondary' }} />}
-                  />
-                  <TextField
-                    fullWidth
-                    label={t('password')}
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    autoComplete="new-password"
-                    helperText={t('atLeast8Chars')}
-                    startIcon={<LockIcon sx={{ color: 'text.secondary' }} />}
-                    endIcon={
-                      <IconButton
-                        onClick={() => setShowPassword(!showPassword)}
-                        edge="end"
-                        size="small"
-                      >
-                        {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                      </IconButton>
-                    }
-                  />
-                  <TextField
-                    fullWidth
-                    label={t('confirmPassword')}
-                    type={showPassword ? 'text' : 'password'}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    required
-                    autoComplete="new-password"
-                    startIcon={<LockIcon sx={{ color: 'text.secondary' }} />}
-                  />
-
-                  <Button
-                    fullWidth
-                    type="submit"
-                    variant="primary"
-                    loading={loading}
-                    sx={{ py: 1.5, mt: 1 }}
-                  >
-                    {t('createButton')}
-                  </Button>
-                </Box>
-              </form>
-            )}
-
-            <Divider sx={{ my: 3 }}>
-              <Typography variant="caption" color="text.secondary">
-                {t('or')}
+            {/* Header */}
+            <Box sx={{ mb: 3.5, textAlign: { xs: 'center', md: 'start' } }}>
+              <Typography
+                variant="h4"
+                fontWeight={700}
+                color="text.primary"
+                sx={{ mb: 0.5, letterSpacing: '-0.01em' }}
+              >
+                {tab === 'signin' ? t('welcomeBack') : t('createAccount')}
               </Typography>
-            </Divider>
-
-            <Box sx={{ textAlign: 'center' }}>
               <Typography variant="body2" color="text.secondary">
-                {tab === 'signin' ? t('noAccount') : t('haveAccount')}
-                <Link
-                  component="button"
-                  type="button"
-                  onClick={() => handleTabChange(tab === 'signin' ? 'signup' : 'signin')}
-                  underline="hover"
-                  sx={{ fontWeight: 600 }}
+                {tab === 'signin' ? t('enterCredentials') : t('fillDetails')}
+              </Typography>
+            </Box>
+
+            {/* Tabs */}
+            <SegmentedTabs
+              items={[
+                { label: t('signIn'), value: 'signin' },
+                { label: t('signUp'), value: 'signup' },
+              ]}
+              value={tab}
+              onChange={handleTabChange}
+            />
+
+            {/* Form */}
+            <Box sx={{ mt: 3.5 }}>
+              {error && (
+                <Alert
+                  severity="error"
+                  sx={{ mb: 2.5, borderRadius: 2 }}
+                  onClose={() => setError(null)}
                 >
-                  {tab === 'signin' ? t('signUpLink') : t('signInLink')}
-                </Link>
+                  {error}
+                </Alert>
+              )}
+
+              {success && (
+                <Alert
+                  severity="success"
+                  sx={{ mb: 2.5, borderRadius: 2 }}
+                  onClose={() => setSuccess(null)}
+                >
+                  {success}
+                </Alert>
+              )}
+
+              {tab === 'signin' ? (
+                <form onSubmit={handleLogin}>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+                    <TextField
+                      fullWidth
+                      label={t('email')}
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      autoComplete="email"
+                      autoFocus
+                      startIcon={<EmailIcon sx={{ color: 'text.disabled', fontSize: 20 }} />}
+                    />
+                    <TextField
+                      fullWidth
+                      label={t('password')}
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      autoComplete="current-password"
+                      startIcon={<LockIcon sx={{ color: 'text.disabled', fontSize: 20 }} />}
+                      endIcon={
+                        <IconButton
+                          onClick={() => setShowPassword(!showPassword)}
+                          edge="end"
+                          size="small"
+                          aria-label={showPassword ? 'Hide password' : 'Show password'}
+                          sx={{ color: 'text.disabled' }}
+                        >
+                          {showPassword ? (
+                            <VisibilityOffIcon sx={{ fontSize: 20 }} />
+                          ) : (
+                            <VisibilityIcon sx={{ fontSize: 20 }} />
+                          )}
+                        </IconButton>
+                      }
+                    />
+
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: -1 }}>
+                      <Link
+                        href="#"
+                        underline="hover"
+                        sx={{
+                          fontSize: '0.8125rem',
+                          fontWeight: 500,
+                          color: 'primary.main',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        {t('forgotPassword')}
+                      </Link>
+                    </Box>
+
+                    <Button
+                      fullWidth
+                      type="submit"
+                      variant="primary"
+                      loading={loading}
+                      sx={{
+                        py: 1.5,
+                        mt: 0.5,
+                        fontSize: '0.9375rem',
+                        fontWeight: 600,
+                        borderRadius: 2,
+                        boxShadow: '0 2px 8px rgba(3, 105, 161, 0.3)',
+                        '&:hover': {
+                          boxShadow: '0 4px 16px rgba(3, 105, 161, 0.4)',
+                        },
+                      }}
+                    >
+                      {t('signIn')}
+                    </Button>
+                  </Box>
+                </form>
+              ) : (
+                <form onSubmit={handleRegister}>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+                    <TextField
+                      fullWidth
+                      label={t('fullName')}
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      required
+                      autoComplete="name"
+                      autoFocus
+                      startIcon={<PersonIcon sx={{ color: 'text.disabled', fontSize: 20 }} />}
+                    />
+                    <TextField
+                      fullWidth
+                      label={t('email')}
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      autoComplete="email"
+                      startIcon={<EmailIcon sx={{ color: 'text.disabled', fontSize: 20 }} />}
+                    />
+                    <TextField
+                      fullWidth
+                      label={t('password')}
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      autoComplete="new-password"
+                      helperText={t('atLeast8Chars')}
+                      startIcon={<LockIcon sx={{ color: 'text.disabled', fontSize: 20 }} />}
+                      endIcon={
+                        <IconButton
+                          onClick={() => setShowPassword(!showPassword)}
+                          edge="end"
+                          size="small"
+                          aria-label={showPassword ? 'Hide password' : 'Show password'}
+                          sx={{ color: 'text.disabled' }}
+                        >
+                          {showPassword ? (
+                            <VisibilityOffIcon sx={{ fontSize: 20 }} />
+                          ) : (
+                            <VisibilityIcon sx={{ fontSize: 20 }} />
+                          )}
+                        </IconButton>
+                      }
+                    />
+                    <TextField
+                      fullWidth
+                      label={t('confirmPassword')}
+                      type={showPassword ? 'text' : 'password'}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      required
+                      autoComplete="new-password"
+                      startIcon={<LockIcon sx={{ color: 'text.disabled', fontSize: 20 }} />}
+                    />
+
+                    <Button
+                      fullWidth
+                      type="submit"
+                      variant="primary"
+                      loading={loading}
+                      sx={{
+                        py: 1.5,
+                        mt: 0.5,
+                        fontSize: '0.9375rem',
+                        fontWeight: 600,
+                        borderRadius: 2,
+                        boxShadow: '0 2px 8px rgba(3, 105, 161, 0.3)',
+                        '&:hover': {
+                          boxShadow: '0 4px 16px rgba(3, 105, 161, 0.4)',
+                        },
+                      }}
+                    >
+                      {t('createButton')}
+                    </Button>
+                  </Box>
+                </form>
+              )}
+
+              <Divider sx={{ my: 3 }}>
+                <Typography variant="caption" color="text.disabled" sx={{ px: 1 }}>
+                  {t('or')}
+                </Typography>
+              </Divider>
+
+              <Box sx={{ textAlign: 'center' }}>
+                <Typography variant="body2" color="text.secondary">
+                  {tab === 'signin' ? t('noAccount') : t('haveAccount')}
+                  <Link
+                    component="button"
+                    type="button"
+                    onClick={() => handleTabChange(tab === 'signin' ? 'signup' : 'signin')}
+                    underline="hover"
+                    sx={{ fontWeight: 600, ml: 0.5, cursor: 'pointer' }}
+                  >
+                    {tab === 'signin' ? t('signUpLink') : t('signInLink')}
+                  </Link>
+                </Typography>
+              </Box>
+            </Box>
+
+            <Box sx={{ mt: 4, textAlign: 'center' }}>
+              <Typography variant="caption" color="text.disabled" sx={{ fontSize: '0.7rem' }}>
+                {t('terms')}
               </Typography>
             </Box>
           </Box>
-
-          <Box sx={{ mt: 4, textAlign: 'center' }}>
-            <Typography variant="caption" color="text.disabled">
-              {t('terms')}
-            </Typography>
-          </Box>
-        </Box>
+        </Fade>
       </Box>
     </Box>
   )

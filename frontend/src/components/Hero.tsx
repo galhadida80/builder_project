@@ -1,179 +1,8 @@
-import { Box, Container, Typography } from '@mui/material'
-import { styled } from '@mui/material/styles'
+import Box from '@mui/material/Box'
+import Container from '@mui/material/Container'
+import Typography from '@mui/material/Typography'
 import { Button } from './ui/Button'
 
-// Styled Components
-const HeroSection = styled(Box)(({ theme }) => ({
-  position: 'relative',
-  minHeight: '600px',
-  backgroundColor: theme.palette.mode === 'dark' ? theme.palette.primary.dark : '#1a1a1a',
-  color: theme.palette.mode === 'dark' ? theme.palette.text.primary : '#ffffff',
-  display: 'flex',
-  alignItems: 'center',
-  overflow: 'hidden',
-  paddingTop: theme.spacing(10),
-  paddingBottom: theme.spacing(10),
-  [theme.breakpoints.down('md')]: {
-    minHeight: '500px',
-    paddingTop: theme.spacing(8),
-    paddingBottom: theme.spacing(8),
-  },
-  [theme.breakpoints.down('sm')]: {
-    minHeight: '400px',
-    paddingTop: theme.spacing(6),
-    paddingBottom: theme.spacing(6),
-  },
-}))
-
-const BackgroundOverlay = styled(Box)(() => ({
-  position: 'absolute',
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-  backgroundImage: 'linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.6) 100%)',
-  zIndex: 1,
-}))
-
-const BackgroundImage = styled(Box)<{ imageUrl?: string }>(({ imageUrl }) => ({
-  position: 'absolute',
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-  backgroundImage: imageUrl ? `url(${imageUrl})` : 'none',
-  backgroundSize: 'cover',
-  backgroundPosition: 'center',
-  opacity: 0.3,
-  zIndex: 0,
-}))
-
-const HeroContent = styled(Box)(({ theme }) => ({
-  position: 'relative',
-  zIndex: 2,
-  textAlign: 'center',
-  maxWidth: '900px',
-  margin: '0 auto',
-  [theme.breakpoints.down('sm')]: {
-    maxWidth: '100%',
-  },
-}))
-
-const HeroTitle = styled(Typography)(({ theme }) => ({
-  fontWeight: 700,
-  fontSize: '3.5rem',
-  lineHeight: 1.2,
-  marginBottom: theme.spacing(3),
-  color: '#ffffff',
-  textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
-  [theme.breakpoints.down('md')]: {
-    fontSize: '2.5rem',
-  },
-  [theme.breakpoints.down('sm')]: {
-    fontSize: '2rem',
-    marginBottom: theme.spacing(2),
-  },
-}))
-
-const HeroSubtitle = styled(Typography)(({ theme }) => ({
-  fontSize: '1.25rem',
-  lineHeight: 1.6,
-  marginBottom: theme.spacing(5),
-  color: 'rgba(255, 255, 255, 0.9)',
-  fontWeight: 400,
-  [theme.breakpoints.down('md')]: {
-    fontSize: '1.1rem',
-    marginBottom: theme.spacing(4),
-  },
-  [theme.breakpoints.down('sm')]: {
-    fontSize: '1rem',
-    marginBottom: theme.spacing(3),
-  },
-}))
-
-const CTAContainer = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  gap: theme.spacing(2),
-  justifyContent: 'center',
-  marginBottom: theme.spacing(8),
-  flexWrap: 'wrap',
-  [theme.breakpoints.down('sm')]: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: theme.spacing(1.5),
-    marginBottom: theme.spacing(6),
-    '& button': {
-      width: '100%',
-      maxWidth: '300px',
-    },
-  },
-}))
-
-const TrustLogosSection = styled(Box)(({ theme }) => ({
-  position: 'relative',
-  zIndex: 2,
-  borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-  paddingTop: theme.spacing(5),
-  marginTop: theme.spacing(5),
-  [theme.breakpoints.down('sm')]: {
-    paddingTop: theme.spacing(4),
-    marginTop: theme.spacing(4),
-  },
-}))
-
-const TrustLogosTitle = styled(Typography)(({ theme }) => ({
-  fontSize: '0.875rem',
-  fontWeight: 600,
-  textTransform: 'uppercase',
-  letterSpacing: '0.1em',
-  color: 'rgba(255, 255, 255, 0.6)',
-  marginBottom: theme.spacing(3),
-  textAlign: 'center',
-  [theme.breakpoints.down('sm')]: {
-    fontSize: '0.75rem',
-    marginBottom: theme.spacing(2),
-  },
-}))
-
-const LogosGrid = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  gap: theme.spacing(6),
-  flexWrap: 'wrap',
-  [theme.breakpoints.down('md')]: {
-    gap: theme.spacing(4),
-  },
-  [theme.breakpoints.down('sm')]: {
-    gap: theme.spacing(3),
-  },
-}))
-
-const LogoBox = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  height: '40px',
-  opacity: 0.7,
-  transition: 'opacity 200ms ease-out',
-  filter: 'grayscale(100%) brightness(200%)',
-  '&:hover': {
-    opacity: 1,
-  },
-  '& img': {
-    maxHeight: '100%',
-    maxWidth: '120px',
-    objectFit: 'contain',
-  },
-  [theme.breakpoints.down('sm')]: {
-    height: '30px',
-    '& img': {
-      maxWidth: '100px',
-    },
-  },
-}))
-
-// Component Props
 export interface HeroProps {
   title?: string
   subtitle?: string
@@ -191,36 +20,130 @@ export interface HeroProps {
 }
 
 export function Hero({
-  title = 'Build Smarter Inspect Faster Deliver Excellence',
+  title = 'Build Smarter\nInspect Faster\nDeliver Excellence',
   subtitle = 'Streamline your construction management with our comprehensive platform. From project planning to final inspection, we\'ve got you covered.',
   ctaPrimaryText = 'Request Demo',
   ctaPrimaryAction,
   ctaSecondaryText = 'Login',
   ctaSecondaryAction,
-  backgroundImageUrl,
   trustLogos = [],
   showTrustLogos = true,
 }: HeroProps) {
   return (
-    <HeroSection>
-      <BackgroundImage imageUrl={backgroundImageUrl} />
-      <BackgroundOverlay />
+    <Box
+      sx={{
+        position: 'relative',
+        minHeight: { xs: '100vh', md: '100vh' },
+        display: 'flex',
+        alignItems: 'center',
+        overflow: 'hidden',
+        background: 'linear-gradient(160deg, #075985 0%, #0369A1 35%, #0284C7 65%, #0EA5E9 100%)',
+        color: 'white',
+      }}
+    >
+      {/* Dot pattern */}
+      <Box
+        sx={{
+          position: 'absolute',
+          inset: 0,
+          opacity: 0.05,
+          backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.8) 1px, transparent 0)',
+          backgroundSize: '32px 32px',
+        }}
+      />
 
-      <Container maxWidth="lg">
-        <HeroContent>
-          <HeroTitle variant="h1">{title}</HeroTitle>
-          <HeroSubtitle variant="h5">{subtitle}</HeroSubtitle>
+      {/* Decorative glows */}
+      <Box
+        sx={{
+          position: 'absolute',
+          top: '-25%',
+          right: '-10%',
+          width: '50%',
+          height: '70%',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%)',
+        }}
+      />
+      <Box
+        sx={{
+          position: 'absolute',
+          bottom: '-20%',
+          left: '-8%',
+          width: '40%',
+          height: '50%',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(255,255,255,0.04) 0%, transparent 70%)',
+        }}
+      />
 
-          <CTAContainer>
+      <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1, py: { xs: 8, md: 0 } }}>
+        <Box
+          sx={{
+            textAlign: 'center',
+            maxWidth: 780,
+            mx: 'auto',
+          }}
+        >
+          {/* Title */}
+          <Typography
+            variant="h1"
+            sx={{
+              fontWeight: 700,
+              fontSize: { xs: '2.25rem', sm: '3rem', md: '3.75rem', lg: '4.25rem' },
+              lineHeight: 1.15,
+              letterSpacing: '-0.03em',
+              mb: 3,
+              whiteSpace: 'pre-line',
+            }}
+          >
+            {title}
+          </Typography>
+
+          {/* Subtitle */}
+          <Typography
+            variant="h5"
+            sx={{
+              fontSize: { xs: '1rem', sm: '1.125rem', md: '1.25rem' },
+              lineHeight: 1.7,
+              fontWeight: 400,
+              opacity: 0.85,
+              mb: 5,
+              maxWidth: 600,
+              mx: 'auto',
+            }}
+          >
+            {subtitle}
+          </Typography>
+
+          {/* CTA Buttons */}
+          <Box
+            sx={{
+              display: 'flex',
+              gap: 2,
+              justifyContent: 'center',
+              flexWrap: 'wrap',
+              mb: { xs: 6, md: 8 },
+            }}
+          >
             <Button
               variant="primary"
               size="large"
               onClick={ctaPrimaryAction}
               sx={{
-                px: 4,
-                py: 1.5,
-                fontSize: '1.1rem',
-                minWidth: '180px',
+                px: 5,
+                py: 1.75,
+                fontSize: '1.05rem',
+                minWidth: 200,
+                bgcolor: 'white',
+                color: '#0369A1',
+                fontWeight: 700,
+                borderRadius: 2.5,
+                boxShadow: '0 4px 14px rgba(0,0,0,0.15)',
+                '&:hover': {
+                  bgcolor: 'rgba(255,255,255,0.92)',
+                  boxShadow: '0 6px 20px rgba(0,0,0,0.2)',
+                  transform: 'translateY(-2px)',
+                },
               }}
             >
               {ctaPrimaryText}
@@ -230,30 +153,75 @@ export function Hero({
               size="large"
               onClick={ctaSecondaryAction}
               sx={{
-                px: 4,
-                py: 1.5,
-                fontSize: '1.1rem',
-                minWidth: '180px',
+                px: 5,
+                py: 1.75,
+                fontSize: '1.05rem',
+                minWidth: 200,
+                borderColor: 'rgba(255,255,255,0.5)',
+                color: 'white',
+                fontWeight: 600,
+                borderRadius: 2.5,
+                backdropFilter: 'blur(4px)',
+                bgcolor: 'rgba(255,255,255,0.08)',
+                '&:hover': {
+                  borderColor: 'white',
+                  bgcolor: 'rgba(255,255,255,0.15)',
+                  transform: 'translateY(-2px)',
+                },
               }}
             >
               {ctaSecondaryText}
             </Button>
-          </CTAContainer>
+          </Box>
 
+          {/* Trust Logos */}
           {showTrustLogos && trustLogos.length > 0 && (
-            <TrustLogosSection>
-              <TrustLogosTitle>Trusted by Industry Leaders</TrustLogosTitle>
-              <LogosGrid>
+            <Box sx={{ borderTop: '1px solid rgba(255,255,255,0.12)', pt: 4 }}>
+              <Typography
+                sx={{
+                  fontSize: '0.75rem',
+                  fontWeight: 600,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.12em',
+                  opacity: 0.5,
+                  mb: 3,
+                }}
+              >
+                Trusted by Industry Leaders
+              </Typography>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  gap: { xs: 3, md: 6 },
+                  flexWrap: 'wrap',
+                }}
+              >
                 {trustLogos.map((logo, index) => (
-                  <LogoBox key={index}>
+                  <Box
+                    key={index}
+                    sx={{
+                      height: 32,
+                      opacity: 0.5,
+                      transition: 'opacity 200ms ease-out',
+                      filter: 'brightness(0) invert(1)',
+                      '&:hover': { opacity: 0.9 },
+                      '& img': {
+                        maxHeight: '100%',
+                        maxWidth: 110,
+                        objectFit: 'contain',
+                      },
+                    }}
+                  >
                     <img src={logo.imageUrl} alt={logo.alt} />
-                  </LogoBox>
+                  </Box>
                 ))}
-              </LogosGrid>
-            </TrustLogosSection>
+              </Box>
+            </Box>
           )}
-        </HeroContent>
+        </Box>
       </Container>
-    </HeroSection>
+    </Box>
   )
 }

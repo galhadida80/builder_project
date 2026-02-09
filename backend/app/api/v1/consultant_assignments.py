@@ -5,6 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from app.db.session import get_db
 from app.models.consultant_assignment import ConsultantAssignment
+from app.models.project import Project
 from app.models.user import User
 from app.schemas.consultant_assignment import (
     ConsultantAssignmentCreate, ConsultantAssignmentUpdate, ConsultantAssignmentResponse
@@ -25,7 +26,7 @@ async def list_consultant_assignments(
         select(ConsultantAssignment)
         .options(
             selectinload(ConsultantAssignment.consultant),
-            selectinload(ConsultantAssignment.project),
+            selectinload(ConsultantAssignment.project).selectinload(Project.members),
             selectinload(ConsultantAssignment.consultant_type)
         )
         .order_by(ConsultantAssignment.start_date.desc())
@@ -47,8 +48,16 @@ async def create_consultant_assignment(
     await create_audit_log(db, current_user, "consultant_assignment", assignment.id, AuditAction.CREATE,
                           new_values=get_model_dict(assignment))
 
-    await db.refresh(assignment, ["consultant", "project", "consultant_type"])
-    return assignment
+    result = await db.execute(
+        select(ConsultantAssignment)
+        .options(
+            selectinload(ConsultantAssignment.consultant),
+            selectinload(ConsultantAssignment.project).selectinload(Project.members),
+            selectinload(ConsultantAssignment.consultant_type)
+        )
+        .where(ConsultantAssignment.id == assignment.id)
+    )
+    return result.scalar_one()
 
 
 @router.get("/consultant-assignments/{assignment_id}", response_model=ConsultantAssignmentResponse)
@@ -61,7 +70,7 @@ async def get_consultant_assignment(
         select(ConsultantAssignment)
         .options(
             selectinload(ConsultantAssignment.consultant),
-            selectinload(ConsultantAssignment.project),
+            selectinload(ConsultantAssignment.project).selectinload(Project.members),
             selectinload(ConsultantAssignment.consultant_type)
         )
         .where(ConsultantAssignment.id == assignment_id)
@@ -94,8 +103,16 @@ async def update_consultant_assignment(
     await create_audit_log(db, current_user, "consultant_assignment", assignment.id, AuditAction.UPDATE,
                           old_values=old_values, new_values=get_model_dict(assignment))
 
-    await db.refresh(assignment, ["consultant", "project", "consultant_type"])
-    return assignment
+    result = await db.execute(
+        select(ConsultantAssignment)
+        .options(
+            selectinload(ConsultantAssignment.consultant),
+            selectinload(ConsultantAssignment.project).selectinload(Project.members),
+            selectinload(ConsultantAssignment.consultant_type)
+        )
+        .where(ConsultantAssignment.id == assignment.id)
+    )
+    return result.scalar_one()
 
 
 @router.delete("/consultant-assignments/{assignment_id}")

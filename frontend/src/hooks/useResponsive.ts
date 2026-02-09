@@ -1,4 +1,4 @@
-import { useTheme } from '@mui/material/styles'
+import { useTheme } from '@mui/material'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { useMemo } from 'react'
 

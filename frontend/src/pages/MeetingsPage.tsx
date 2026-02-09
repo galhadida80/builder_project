@@ -44,7 +44,7 @@ const meetingTypes = [
 export default function MeetingsPage() {
   const { projectId } = useParams()
   const { showError, showSuccess } = useToast()
-  const { t } = useTranslation('common')
+  const { t } = useTranslation()
   const [loading, setLoading] = useState(true)
   const [meetings, setMeetings] = useState<Meeting[]>([])
   const [tabValue, setTabValue] = useState('upcoming')

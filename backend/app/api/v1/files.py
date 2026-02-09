@@ -135,6 +135,33 @@ async def delete_file(
     return {"message": "File deleted"}
 
 
+@router.get("/projects/{project_id}/files/{file_id}/content")
+async def serve_file_content(
+    project_id: UUID,
+    file_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    storage: StorageBackend = Depends(get_storage_backend),
+    request: Request = None
+):
+    await verify_project_access(project_id, current_user, db)
+    result = await db.execute(
+        select(File).where(File.id == file_id, File.project_id == project_id)
+    )
+    file_record = result.scalar_one_or_none()
+    if not file_record:
+        language = get_language_from_request(request)
+        error_message = translate_message('resources.file_not_found', language)
+        raise HTTPException(status_code=404, detail=error_message)
+
+    content = await storage.get_file_content(file_record.storage_path)
+    return Response(
+        content=content,
+        media_type=file_record.file_type or "application/octet-stream",
+        headers={"Content-Disposition": f'inline; filename="{file_record.filename}"'}
+    )
+
+
 @router.get("/projects/{project_id}/files/{file_id}/download")
 async def download_file(
     project_id: UUID,

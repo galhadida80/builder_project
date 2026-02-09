@@ -41,6 +41,7 @@ class ChecklistTemplate(Base):
     instances = relationship("ChecklistInstance", back_populates="template", cascade="all, delete-orphan")
 
 
+
 class ChecklistSubSection(Base):
     __tablename__ = "checklist_subsections"
 
@@ -54,6 +55,7 @@ class ChecklistSubSection(Base):
 
     template = relationship("ChecklistTemplate", back_populates="subsections")
     items = relationship("ChecklistItemTemplate", back_populates="subsection", cascade="all, delete-orphan")
+
 
 
 class ChecklistItemTemplate(Base):
@@ -74,6 +76,7 @@ class ChecklistItemTemplate(Base):
     subsection = relationship("ChecklistSubSection", back_populates="items")
 
 
+
 class ChecklistInstance(Base):
     __tablename__ = "checklist_instances"
 
@@ -91,6 +94,7 @@ class ChecklistInstance(Base):
     project = relationship("Project")
     created_by = relationship("User", foreign_keys=[created_by_id])
     responses = relationship("ChecklistItemResponse", back_populates="instance", cascade="all, delete-orphan")
+
 
 
 class ChecklistItemResponse(Base):

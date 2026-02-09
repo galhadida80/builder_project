@@ -54,7 +54,10 @@ async def create_checklist_template(
     current_user: User = Depends(get_current_user)
 ):
     await verify_project_access(project_id, current_user, db)
-    checklist_template = ChecklistTemplate(**data.model_dump(), project_id=project_id, created_by_id=current_user.id)
+    dump = data.model_dump()
+    if "metadata" in dump:
+        dump["extra_data"] = dump.pop("metadata")
+    checklist_template = ChecklistTemplate(**dump, project_id=project_id, created_by_id=current_user.id)
     db.add(checklist_template)
     await db.flush()
 
@@ -100,7 +103,8 @@ async def update_checklist_template(
 
     old_values = get_model_dict(checklist_template)
     for key, value in data.model_dump(exclude_unset=True).items():
-        setattr(checklist_template, key, value)
+        attr = "extra_data" if key == "metadata" else key
+        setattr(checklist_template, attr, value)
 
     await create_audit_log(db, current_user, "checklist_template", checklist_template.id, AuditAction.UPDATE,
                           project_id=project_id, old_values=old_values, new_values=get_model_dict(checklist_template))
@@ -143,7 +147,10 @@ async def create_checklist_subsection(
 
     await verify_project_access(template.project_id, current_user, db)
 
-    subsection = ChecklistSubSection(**data.model_dump(), template_id=template_id)
+    dump = data.model_dump()
+    if "metadata" in dump:
+        dump["extra_data"] = dump.pop("metadata")
+    subsection = ChecklistSubSection(**dump, template_id=template_id)
     db.add(subsection)
     await db.flush()
 
@@ -223,7 +230,8 @@ async def update_checklist_subsection(
     old_values = get_model_dict(subsection)
 
     for key, value in data.model_dump(exclude_unset=True).items():
-        setattr(subsection, key, value)
+        attr = "extra_data" if key == "metadata" else key
+        setattr(subsection, attr, value)
 
     await create_audit_log(db, current_user, "checklist_subsection", subsection.id, AuditAction.UPDATE,
                           project_id=template.project_id, old_values=old_values, new_values=get_model_dict(subsection))
@@ -278,7 +286,10 @@ async def create_checklist_item_template(
 
     await verify_project_access(subsection.template.project_id, current_user, db)
 
-    item = ChecklistItemTemplate(**data.model_dump(), subsection_id=subsection_id)
+    dump = data.model_dump()
+    if "metadata" in dump:
+        dump["extra_data"] = dump.pop("metadata")
+    item = ChecklistItemTemplate(**dump, subsection_id=subsection_id)
     db.add(item)
     await db.flush()
 
@@ -359,7 +370,8 @@ async def update_checklist_item_template(
     old_values = get_model_dict(item)
 
     for key, value in data.model_dump(exclude_unset=True).items():
-        setattr(item, key, value)
+        attr = "extra_data" if key == "metadata" else key
+        setattr(item, attr, value)
 
     # Get subsection and template for project_id and verify access
     subsection_result = await db.execute(
@@ -442,7 +454,10 @@ async def create_checklist_instance(
     current_user: User = Depends(get_current_user)
 ):
     await verify_project_access(project_id, current_user, db)
-    checklist_instance = ChecklistInstance(**data.model_dump(), project_id=project_id, created_by_id=current_user.id)
+    dump = data.model_dump()
+    if "metadata" in dump:
+        dump["extra_data"] = dump.pop("metadata")
+    checklist_instance = ChecklistInstance(**dump, project_id=project_id, created_by_id=current_user.id)
     db.add(checklist_instance)
     await db.flush()
 
@@ -488,7 +503,8 @@ async def update_checklist_instance(
 
     old_values = get_model_dict(checklist_instance)
     for key, value in data.model_dump(exclude_unset=True).items():
-        setattr(checklist_instance, key, value)
+        attr = "extra_data" if key == "metadata" else key
+        setattr(checklist_instance, attr, value)
 
     await create_audit_log(db, current_user, "checklist_instance", checklist_instance.id, AuditAction.UPDATE,
                           project_id=project_id, old_values=old_values, new_values=get_model_dict(checklist_instance))

@@ -42,7 +42,7 @@ const actionTypes = ['create', 'update', 'delete', 'status_change', 'approval', 
 
 export default function AuditLogPage() {
   const { showError } = useToast()
-  const { t } = useTranslation('audit')
+  const { t } = useTranslation()
   const [loading, setLoading] = useState(true)
   const [logs, setLogs] = useState<AuditLog[]>([])
   const [search, setSearch] = useState('')

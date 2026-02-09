@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Box, Typography, IconButton, Grid, Button as MuiButton, Skeleton } from '@mui/material'
-import { styled } from '@mui/material/styles'
+import { styled } from '@mui/material'
 import LocationOnIcon from '@mui/icons-material/LocationOn'
 import PersonIcon from '@mui/icons-material/Person'
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd'

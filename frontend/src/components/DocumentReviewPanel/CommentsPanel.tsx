@@ -1,5 +1,5 @@
 import { Box, Paper, Typography, Divider, List, Skeleton } from '@mui/material'
-import { styled } from '@mui/material/styles'
+import { styled } from '@mui/material'
 import { TextField } from '../ui/TextField'
 import { Button } from '../ui/Button'
 import { EmptyState } from '../ui/EmptyState'

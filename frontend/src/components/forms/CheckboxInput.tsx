@@ -5,7 +5,7 @@ import {
   FormControl,
   FormHelperText,
 } from '@mui/material'
-import { styled } from '@mui/material/styles'
+import { styled } from '@mui/material'
 import { CheckboxInputBaseProps } from './types'
 
 export interface CheckboxInputProps extends CheckboxInputBaseProps {

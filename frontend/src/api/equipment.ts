@@ -26,8 +26,8 @@ interface EquipmentUpdate {
 }
 
 interface ChecklistCreate {
-  checklistName: string
-  items: Array<{ name: string; completed: boolean }>
+  checklist_name: string
+  items: Array<{ id: string; label: string; is_completed: boolean }>
 }
 
 export const equipmentApi = {

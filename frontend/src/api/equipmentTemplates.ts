@@ -29,9 +29,9 @@ export interface EquipmentTemplate {
   name_he: string
   category: string | null
   description: string | null
-  documents: DocumentDefinition[]
-  specifications: SpecificationDefinition[]
-  checklist_items: ChecklistItemDefinition[]
+  required_documents: DocumentDefinition[]
+  required_specifications: SpecificationDefinition[]
+  submission_checklist: ChecklistItemDefinition[]
   created_at: string
   updated_at: string
 }
@@ -64,9 +64,9 @@ interface EquipmentTemplateCreate {
   name_he: string
   category?: string
   description?: string
-  documents?: DocumentDefinition[]
-  specifications?: SpecificationDefinition[]
-  checklist_items?: ChecklistItemDefinition[]
+  required_documents?: DocumentDefinition[]
+  required_specifications?: SpecificationDefinition[]
+  submission_checklist?: ChecklistItemDefinition[]
 }
 
 interface EquipmentSubmissionCreate {

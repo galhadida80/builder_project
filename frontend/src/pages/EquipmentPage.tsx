@@ -26,6 +26,7 @@ import SendIcon from '@mui/icons-material/Send'
 import BuildIcon from '@mui/icons-material/Build'
 import FilterListIcon from '@mui/icons-material/FilterList'
 import CloudUploadIcon from '@mui/icons-material/CloudUpload'
+import DownloadIcon from '@mui/icons-material/Download'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import PersonIcon from '@mui/icons-material/Person'
 import CircularProgress from '@mui/material/CircularProgress'
@@ -509,7 +510,41 @@ export default function EquipmentPage() {
             ) : (
               <List dense sx={{ bgcolor: 'action.hover', borderRadius: 2 }}>
                 {files.map((file) => (
-                  <ListItem key={file.id}>
+                  <ListItem
+                    key={file.id}
+                    secondaryAction={
+                      <IconButton
+                        edge="end"
+                        size="small"
+                        title="Download file"
+                        onClick={async () => {
+                          try {
+                            const blobUrl = await filesApi.getFileBlob(projectId!, file.id)
+                            const link = document.createElement('a')
+                            link.href = blobUrl
+                            link.download = file.filename
+                            document.body.appendChild(link)
+                            link.click()
+                            document.body.removeChild(link)
+                            URL.revokeObjectURL(blobUrl)
+                          } catch {
+                            showError('Failed to download file')
+                          }
+                        }}
+                      >
+                        <DownloadIcon fontSize="small" />
+                      </IconButton>
+                    }
+                    sx={{ cursor: 'pointer', '&:hover': { bgcolor: 'action.selected' }, borderRadius: 1 }}
+                    onClick={async () => {
+                      try {
+                        const blobUrl = await filesApi.getFileBlob(projectId!, file.id)
+                        window.open(blobUrl, '_blank')
+                      } catch {
+                        showError('Failed to open file')
+                      }
+                    }}
+                  >
                     <ListItemIcon><DescriptionIcon color="primary" /></ListItemIcon>
                     <ListItemText
                       primary={<Typography variant="body2" fontWeight={500}>{file.filename}</Typography>}
@@ -599,14 +634,14 @@ export default function EquipmentPage() {
                   </Alert>
                 )}
 
-                {selectedTemplate.specifications.length > 0 && (
+                {selectedTemplate.required_specifications?.length > 0 && (
                   <Box sx={{ mt: 2 }}>
                     <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1 }}>
                       <BuildIcon fontSize="small" color="primary" />
                       {t('equipment.specifications')}
                     </Typography>
                     <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2, p: 2, bgcolor: 'action.hover', borderRadius: 2 }}>
-                      {selectedTemplate.specifications.map((spec) => (
+                      {selectedTemplate.required_specifications.map((spec) => (
                         <Box key={spec.name}>
                           {spec.field_type === 'boolean' ? (
                             <FormControlLabel
@@ -655,14 +690,14 @@ export default function EquipmentPage() {
                   </Box>
                 )}
 
-                {selectedTemplate.documents.length > 0 && (
+                {selectedTemplate.required_documents?.length > 0 && (
                   <Box sx={{ mt: 2 }}>
                     <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1 }}>
                       <DescriptionIcon fontSize="small" color="primary" />
                       {t('equipment.requiredDocuments')}
                     </Typography>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, p: 2, bgcolor: 'action.hover', borderRadius: 2 }}>
-                      {selectedTemplate.documents.map((doc) => (
+                      {selectedTemplate.required_documents.map((doc) => (
                         <Box key={doc.name} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 1.5, bgcolor: 'background.paper', borderRadius: 1, border: '1px solid', borderColor: 'divider' }}>
                           <Box>
                             <Typography variant="body2" fontWeight={500}>
@@ -711,14 +746,14 @@ export default function EquipmentPage() {
                   </Box>
                 )}
 
-                {selectedTemplate.checklist_items.length > 0 && (
+                {selectedTemplate.submission_checklist?.length > 0 && (
                   <Box sx={{ mt: 2 }}>
                     <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1 }}>
                       <CheckCircleIcon fontSize="small" color="primary" />
                       {t('equipment.checklist')}
                     </Typography>
                     <Box sx={{ p: 2, bgcolor: 'action.hover', borderRadius: 2 }}>
-                      {selectedTemplate.checklist_items.map((item) => (
+                      {selectedTemplate.submission_checklist.map((item) => (
                         <FormControlLabel
                           key={item.name}
                           sx={{ display: 'flex', mb: 1 }}

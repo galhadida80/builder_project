@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from 'react'
 import SignatureCanvas from 'react-signature-canvas'
 import { Box, Typography, Alert } from '@mui/material'
-import { styled } from '@mui/material/styles'
+import { styled } from '@mui/material'
 import CreateIcon from '@mui/icons-material/Create'
 import DeleteIcon from '@mui/icons-material/Delete'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'

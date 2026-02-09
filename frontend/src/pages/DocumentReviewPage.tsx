@@ -24,6 +24,7 @@ export default function DocumentReviewPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [document, setDocument] = useState<FileRecord | null>(null)
+  const [blobUrl, setBlobUrl] = useState<string>('')
   const [comments, setComments] = useState<Comment[]>([])
   const [commentsLoading, setCommentsLoading] = useState(false)
   const [reviewStatus, setReviewStatus] = useState<ReviewStatus>('pending')
@@ -42,6 +43,9 @@ export default function DocumentReviewPage() {
 
   useEffect(() => {
     loadDocumentAndReview()
+    return () => {
+      if (blobUrl) URL.revokeObjectURL(blobUrl)
+    }
   }, [projectId, documentId])
 
   const loadDocumentAndReview = async () => {
@@ -62,6 +66,14 @@ export default function DocumentReviewPage() {
       ])
 
       setDocument(documentData)
+
+      // Fetch file content as blob for viewer
+      try {
+        const url = await filesApi.getFileBlob(projectId, documentId)
+        setBlobUrl(url)
+      } catch {
+        // Fall back to storage path
+      }
 
       if (reviewData) {
         setReviewStatus(reviewData.status)
@@ -358,10 +370,8 @@ export default function DocumentReviewPage() {
     )
   }
 
-  // Generate document URL for viewing
-  const documentUrl = document.storagePath.startsWith('http')
-    ? document.storagePath
-    : `${import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'}/projects/${projectId}/files/${documentId}/download`
+  // Use blob URL for authenticated viewing, fall back to storage path for external URLs
+  const documentUrl = blobUrl || (document.storagePath.startsWith('http') ? document.storagePath : '')
 
   // Determine document type
   const documentType = document.fileType.toLowerCase().includes('pdf')

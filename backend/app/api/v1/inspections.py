@@ -152,8 +152,16 @@ async def create_inspection(
     await create_audit_log(db, current_user, "inspection", inspection.id, AuditAction.CREATE,
                           project_id=project_id, new_values=get_model_dict(inspection))
 
-    await db.refresh(inspection, ["created_by", "consultant_type", "findings"])
-    return inspection
+    result = await db.execute(
+        select(Inspection)
+        .options(
+            selectinload(Inspection.created_by),
+            selectinload(Inspection.consultant_type).selectinload(InspectionConsultantType.stages),
+            selectinload(Inspection.findings)
+        )
+        .where(Inspection.id == inspection.id)
+    )
+    return result.scalar_one()
 
 
 @router.get("/projects/{project_id}/inspections/summary", response_model=InspectionSummaryResponse)
@@ -311,8 +319,16 @@ async def update_inspection(
     await create_audit_log(db, current_user, "inspection", inspection.id, AuditAction.UPDATE,
                           project_id=project_id, old_values=old_values, new_values=get_model_dict(inspection))
 
-    await db.refresh(inspection, ["created_by", "consultant_type", "findings"])
-    return inspection
+    result = await db.execute(
+        select(Inspection)
+        .options(
+            selectinload(Inspection.created_by),
+            selectinload(Inspection.consultant_type).selectinload(InspectionConsultantType.stages),
+            selectinload(Inspection.findings)
+        )
+        .where(Inspection.id == inspection.id)
+    )
+    return result.scalar_one()
 
 
 @router.post("/projects/{project_id}/inspections/{inspection_id}/complete", response_model=InspectionResponse)
@@ -338,8 +354,16 @@ async def complete_inspection(
     await create_audit_log(db, current_user, "inspection", inspection.id, AuditAction.UPDATE,
                           project_id=project_id, old_values=old_values, new_values=get_model_dict(inspection))
 
-    await db.refresh(inspection, ["created_by", "consultant_type", "findings"])
-    return inspection
+    result = await db.execute(
+        select(Inspection)
+        .options(
+            selectinload(Inspection.created_by),
+            selectinload(Inspection.consultant_type).selectinload(InspectionConsultantType.stages),
+            selectinload(Inspection.findings)
+        )
+        .where(Inspection.id == inspection.id)
+    )
+    return result.scalar_one()
 
 
 @router.delete("/projects/{project_id}/inspections/{inspection_id}")

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Box, Typography, IconButton, CircularProgress, Paper } from '@mui/material'
-import { styled } from '@mui/material/styles'
+import { styled } from '@mui/material'
 import DownloadIcon from '@mui/icons-material/Download'
 import CloseIcon from '@mui/icons-material/Close'
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf'
@@ -96,10 +96,10 @@ export function FilePreview({ file, projectId, onClose, onDownload }: FilePrevie
       try {
         setLoading(true)
         setError(false)
-        const url = await filesApi.getDownloadUrl(projectId, file.id)
+        const blobUrl = await filesApi.getFileBlob(projectId, file.id)
         if (mounted) {
-          currentUrl = url
-          setPreviewUrl(url)
+          currentUrl = blobUrl
+          setPreviewUrl(blobUrl)
         }
       } catch (err) {
         if (mounted) {
@@ -141,9 +141,9 @@ export function FilePreview({ file, projectId, onClose, onDownload }: FilePrevie
     setError(false)
     setLoading(true)
 
-    filesApi.getDownloadUrl(projectId, file.id)
-      .then(url => {
-        setPreviewUrl(url)
+    filesApi.getFileBlob(projectId, file.id)
+      .then(blobUrl => {
+        setPreviewUrl(blobUrl)
         setError(false)
       })
       .catch(() => {

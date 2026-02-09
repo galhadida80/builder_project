@@ -1,5 +1,5 @@
 import { Typography, TypographyProps } from '@mui/material'
-import { styled } from '@mui/material/styles'
+import { styled } from '@mui/material'
 import { forwardRef, ElementType } from 'react'
 import { typography } from '../../theme/tokens'
 

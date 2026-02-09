@@ -1,5 +1,5 @@
 import { Card, CardContent, CardMedia, Box, Typography, Chip } from '@mui/material'
-import { styled } from '@mui/material/styles'
+import { styled } from '@mui/material'
 import InventoryIcon from '@mui/icons-material/Inventory'
 import LocationOnIcon from '@mui/icons-material/LocationOn'
 import WarningAmberIcon from '@mui/icons-material/WarningAmber'

@@ -1,4 +1,4 @@
-import { styled } from '@mui/material/styles'
+import { styled } from '@mui/material'
 import Alert from '@mui/material/Alert'
 import Slide from '@mui/material/Slide'
 import { useNetwork } from '../../contexts/NetworkContext'

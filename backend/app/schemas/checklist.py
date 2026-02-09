@@ -1,6 +1,6 @@
 from uuid import UUID
 from datetime import datetime
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, AliasPath
 from app.schemas.user import UserResponse
 from app.core.validators import (
     sanitize_string,
@@ -45,7 +45,7 @@ class ChecklistTemplateResponse(BaseModel):
     level: str
     group: str
     category: str | None = None
-    metadata: dict | None = None
+    metadata: dict | None = Field(default=None, validation_alias="extra_data")
     created_at: datetime
     updated_at: datetime
     created_by: UserResponse | None = None
@@ -86,7 +86,7 @@ class ChecklistSubSectionResponse(BaseModel):
     template_id: UUID
     name: str
     order: int
-    metadata: dict | None = None
+    metadata: dict | None = Field(default=None, validation_alias="extra_data")
     created_at: datetime
     updated_at: datetime
     items: list["ChecklistItemTemplateResponse"] = []
@@ -138,7 +138,7 @@ class ChecklistItemTemplateResponse(BaseModel):
     must_image: bool
     must_note: bool
     must_signature: bool
-    metadata: dict | None = None
+    metadata: dict | None = Field(default=None, validation_alias="extra_data")
     created_at: datetime
     updated_at: datetime
 
@@ -178,7 +178,7 @@ class ChecklistInstanceResponse(BaseModel):
     project_id: UUID
     unit_identifier: str
     status: str
-    metadata: dict | None = None
+    metadata: dict | None = Field(default=None, validation_alias="extra_data")
     created_at: datetime
     updated_at: datetime
     created_by: UserResponse | None = None

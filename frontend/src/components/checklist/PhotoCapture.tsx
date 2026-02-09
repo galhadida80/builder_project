@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { Box, Typography, IconButton, Grid, Card, CardMedia, CardActions } from '@mui/material'
-import { styled } from '@mui/material/styles'
+import { styled } from '@mui/material'
 import CameraAltIcon from '@mui/icons-material/CameraAlt'
 import DeleteIcon from '@mui/icons-material/Delete'
 import CloudUploadIcon from '@mui/icons-material/CloudUpload'

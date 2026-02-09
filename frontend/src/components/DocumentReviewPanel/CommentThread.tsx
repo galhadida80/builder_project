@@ -1,5 +1,5 @@
 import { Box, Typography, IconButton, Menu, MenuItem, Divider } from '@mui/material'
-import { styled } from '@mui/material/styles'
+import { styled } from '@mui/material'
 import { Avatar } from '../ui/Avatar'
 import { Button } from '../ui/Button'
 import { TextField } from '../ui/TextField'

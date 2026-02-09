@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Drawer, Box, Typography, IconButton, List, Divider, Button as MuiButton } from '@mui/material'
-import { styled } from '@mui/material/styles'
+import { styled } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import { Tabs } from '../ui/Tabs'
 import { NotificationItem } from './NotificationItem'

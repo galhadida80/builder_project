@@ -1,5 +1,5 @@
 import { Card, CardContent, CardMedia, Box, Typography, Chip } from '@mui/material'
-import { styled } from '@mui/material/styles'
+import { styled } from '@mui/material'
 import { Finding } from '../../types'
 import { SeverityBadge } from '../ui/StatusBadge'
 import LocationOnIcon from '@mui/icons-material/LocationOn'

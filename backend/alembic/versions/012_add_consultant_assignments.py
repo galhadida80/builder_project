@@ -1,7 +1,7 @@
-"""Add consultant_types and consultant_assignments tables
+"""Add consultant_assignments table
 
-Revision ID: 004
-Revises: 003
+Revision ID: 012
+Revises: 011
 Create Date: 2026-02-05
 
 """
@@ -10,27 +10,14 @@ from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
-revision: str = '004'
-down_revision: Union[str, None] = '003'
+revision: str = '012'
+down_revision: Union[str, None] = '011'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    # Create consultant_types table
-    op.create_table(
-        'consultant_types',
-        sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True),
-        sa.Column('name', sa.String(255), nullable=False),
-        sa.Column('name_he', sa.String(255), nullable=False),
-        sa.Column('category', sa.String(100), nullable=False),
-        sa.Column('created_at', sa.DateTime(), server_default=sa.func.now()),
-        sa.Column('updated_at', sa.DateTime(), server_default=sa.func.now(), onupdate=sa.func.now()),
-    )
-
-    # Create index on category for consultant_types
-    op.create_index('ix_consultant_types_category', 'consultant_types', ['category'])
-
+    # consultant_types already created by b348f02ac109 migration
     # Create consultant_assignments table
     op.create_table(
         'consultant_assignments',
@@ -49,5 +36,3 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     op.drop_table('consultant_assignments')
-    op.drop_index('ix_consultant_types_category')
-    op.drop_table('consultant_types')

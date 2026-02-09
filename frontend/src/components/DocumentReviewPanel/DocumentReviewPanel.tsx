@@ -1,5 +1,5 @@
 import { Box, Divider, Paper } from '@mui/material'
-import { styled } from '@mui/material/styles'
+import { styled } from '@mui/material'
 import { DocumentViewer } from './DocumentViewer'
 import { CommentsPanel } from './CommentsPanel'
 import { Button } from '../ui/Button'

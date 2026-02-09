@@ -1,6 +1,6 @@
 import { Box, Typography, Skeleton, Paper } from '@mui/material'
 import { LineChart } from '@mui/x-charts/LineChart'
-import { styled } from '@mui/material/styles'
+import { styled } from '@mui/material'
 
 interface ProjectMetricsChartProps {
   title: string

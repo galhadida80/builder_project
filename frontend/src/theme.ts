@@ -1,4 +1,4 @@
-import { createTheme } from '@mui/material/styles'
+import { createTheme } from '@mui/material'
 import i18n from './i18n/config'
 
 const getTheme = () => {

@@ -1,5 +1,5 @@
 import { Card as MuiCard, CardContent, CardHeader, Box, Typography, Chip } from '@mui/material'
-import { styled } from '@mui/material/styles'
+import { styled } from '@mui/material'
 import { Avatar, AvatarGroup } from './ui/Avatar'
 import { TeamMember } from '../types'
 import { getWorkloadColor } from '../utils/workloadCalculation'

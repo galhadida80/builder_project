@@ -17,5 +17,25 @@
     "rfis": "RFIs",
     "auditLog": "Registro de Auditoría",
     "settings": "Configuración"
+  },
+  "chat": {
+    "title": "Asistente AI",
+    "placeholder": "Pregunta sobre los datos de tu proyecto...",
+    "history": "Historial de Chat",
+    "newChat": "Nuevo Chat",
+    "noConversations": "No hay conversaciones aún",
+    "untitledChat": "Chat sin título",
+    "messages": "mensajes",
+    "welcomeMessage": "Pregúntame cualquier cosa sobre los datos de tu proyecto",
+    "suggestionsTitle": "Sugerencias rápidas",
+    "error": "Lo siento, algo salió mal. Por favor, inténtalo de nuevo.",
+    "suggestions": {
+      "projectSummary": "Dame un resumen del proyecto",
+      "openRfis": "¿Cuántos RFIs abiertos hay?",
+      "equipmentStatus": "Resumen del estado de equipos",
+      "upcomingMeetings": "Próximas reuniones",
+      "areaProgress": "Informe de progreso de áreas",
+      "pendingApprovals": "Aprobaciones pendientes"
+    }
   }
 }

@@ -1,5 +1,5 @@
 import { Box, Typography, SxProps, Theme } from '@mui/material'
-import { styled } from '@mui/material/styles'
+import { styled } from '@mui/material'
 import InboxIcon from '@mui/icons-material/Inbox'
 import SearchOffIcon from '@mui/icons-material/SearchOff'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
