@@ -73,6 +73,7 @@
     "actions": "פעולות",
     "details": "פרטים",
     "all": "הכל",
+    "items": "פריטים",
     "none": "ללא",
     "select": "בחר",
     "selectAll": "בחר הכל",
@@ -134,7 +135,8 @@
     "contacts": "אנשי קשר",
     "inspections": "בדיקות",
     "rfis": "בקשות מידע",
-    "audit": "יומן ביקורת"
+    "auditLog": "יומן ביקורת",
+    "settings": "הגדרות"
   },
   "equipment": {
     "title": "ציוד",
@@ -181,7 +183,10 @@
       "project_manager": "מסופק על ידי מנהל פרויקט",
       "contractor": "מסופק על ידי קבלן"
     },
-    "consultantApprovals": "אישורי יועצים נדרשים"
+    "consultantApprovals": "אישורי יועצים נדרשים",
+    "failedToLoadFiles": "נכשל בטעינת קבצים",
+    "failedToDownloadFile": "נכשל בהורדת הקובץ",
+    "failedToOpenFile": "נכשל בפתיחת הקובץ"
   },
   "materials": {
     "title": "חומרים",
@@ -219,7 +224,11 @@
     "failedToUpdateMaterial": "נכשל בעדכון חומר",
     "failedToDeleteMaterial": "נכשל במחיקת חומר",
     "deleteConfirmation": "מחיקת חומר",
-    "deleteConfirmationMessage": "האם אתה בטוח שברצונך למחוק את \"{{name}}\"? פעולה זו לא ניתנת לביטול."
+    "deleteConfirmationMessage": "האם אתה בטוח שברצונך למחוק את \"{{name}}\"? פעולה זו לא ניתנת לביטול.",
+    "storageLocation": "מיקום אחסון",
+    "selectType": "בחר סוג...",
+    "selectUnit": "בחר יחידה...",
+    "noResultsDescription": "נסה לשנות את החיפוש או הוסף חומר חדש"
   },
   "meetings": {
     "title": "פגישות",

@@ -117,7 +117,10 @@
       "project_manager": "Provided by Project Manager",
       "contractor": "Provided by Contractor"
     },
-    "consultantApprovals": "Consultant Approvals Required"
+    "consultantApprovals": "Consultant Approvals Required",
+    "failedToLoadFiles": "Failed to load files",
+    "failedToDownloadFile": "Failed to download file",
+    "failedToOpenFile": "Failed to open file"
   },
   "materials": {
     "title": "Materials",
@@ -155,7 +158,11 @@
     "failedToUpdateMaterial": "Failed to update material",
     "failedToDeleteMaterial": "Failed to delete material",
     "deleteConfirmation": "Delete Material",
-    "deleteConfirmationMessage": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone."
+    "deleteConfirmationMessage": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
+    "storageLocation": "Storage Location",
+    "selectType": "Select type...",
+    "selectUnit": "Select unit...",
+    "noResultsDescription": "Try adjusting your search or add a new material"
   },
   "meetings": {
     "title": "Meetings",
@@ -216,6 +223,7 @@
     "actions": "Actions",
     "details": "Details",
     "all": "All",
+    "items": "items",
     "none": "None",
     "select": "Select",
     "selectAll": "Select All",

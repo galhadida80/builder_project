@@ -114,7 +114,7 @@ export default function EquipmentPage() {
         const data = await filesApi.list(projectId, 'equipment', selectedEquipment.id)
         setFiles(data)
       } catch {
-        setFilesError('Failed to load files')
+        setFilesError(t('equipment.failedToLoadFiles'))
       } finally {
         setFilesLoading(false)
       }
@@ -128,7 +128,7 @@ export default function EquipmentPage() {
       const data = await equipmentApi.list(projectId!)
       setEquipment(data)
     } catch {
-      showError('Failed to load equipment. Please try again.')
+      showError(t('equipment.failedToLoadEquipment'))
     } finally {
       setLoading(false)
     }
@@ -196,15 +196,15 @@ export default function EquipmentPage() {
 
       if (editingEquipment) {
         await equipmentApi.update(projectId, editingEquipment.id, payload)
-        showSuccess('Equipment updated successfully!')
+        showSuccess(t('equipment.equipmentUpdatedSuccessfully'))
       } else {
         await equipmentApi.create(projectId, payload)
-        showSuccess('Equipment created successfully!')
+        showSuccess(t('equipment.equipmentCreatedSuccessfully'))
       }
       handleCloseDialog()
       loadEquipment()
     } catch {
-      showError(`Failed to ${editingEquipment ? 'update' : 'create'} equipment. Please try again.`)
+      showError(editingEquipment ? t('equipment.failedToUpdateEquipment') : t('equipment.failedToCreateEquipment'))
     } finally {
       setSaving(false)
     }
@@ -220,13 +220,13 @@ export default function EquipmentPage() {
     if (!projectId || !equipmentToDelete) return
     try {
       await equipmentApi.delete(projectId, equipmentToDelete.id)
-      showSuccess('Equipment deleted successfully!')
+      showSuccess(t('equipment.equipmentDeletedSuccessfully'))
       setDeleteDialogOpen(false)
       setEquipmentToDelete(null)
       setDrawerOpen(false)
       loadEquipment()
     } catch {
-      showError('Failed to delete equipment. Please try again.')
+      showError(t('equipment.failedToDeleteEquipment'))
     }
   }
 
@@ -235,11 +235,11 @@ export default function EquipmentPage() {
     setSubmitting(true)
     try {
       await equipmentApi.submit(projectId, selectedEquipment.id)
-      showSuccess('Equipment submitted for approval!')
+      showSuccess(t('equipment.equipmentSubmittedSuccessfully'))
       loadEquipment()
       setDrawerOpen(false)
     } catch {
-      showError('Failed to submit equipment for approval. Please try again.')
+      showError(t('equipment.failedToSubmitEquipment'))
     } finally {
       setSubmitting(false)
     }
@@ -271,7 +271,7 @@ export default function EquipmentPage() {
   const columns: Column<Equipment>[] = [
     {
       id: 'name',
-      label: 'Equipment',
+      label: t('equipment.title'),
       minWidth: 250,
       render: (row) => (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
@@ -291,7 +291,7 @@ export default function EquipmentPage() {
           <Box>
             <Typography variant="body2" fontWeight={500}>{row.name}</Typography>
             <Typography variant="caption" color="text.secondary">
-              {row.equipmentType || 'No type specified'}
+              {row.equipmentType || t('equipment.noTypeSpecified')}
             </Typography>
           </Box>
         </Box>
@@ -299,7 +299,7 @@ export default function EquipmentPage() {
     },
     {
       id: 'manufacturer',
-      label: 'Manufacturer',
+      label: t('equipment.manufacturer'),
       minWidth: 140,
       render: (row) => (
         <Typography variant="body2" color={row.manufacturer ? 'text.primary' : 'text.secondary'}>
@@ -309,7 +309,7 @@ export default function EquipmentPage() {
     },
     {
       id: 'modelNumber',
-      label: 'Model',
+      label: t('equipment.model'),
       minWidth: 120,
       render: (row) => (
         <Typography variant="body2" color={row.modelNumber ? 'text.primary' : 'text.secondary'}>
@@ -319,7 +319,7 @@ export default function EquipmentPage() {
     },
     {
       id: 'status',
-      label: 'Status',
+      label: t('common.status'),
       minWidth: 130,
       render: (row) => <StatusBadge status={row.status} />,
     },
@@ -333,21 +333,21 @@ export default function EquipmentPage() {
           <IconButton
             size="small"
             onClick={(e) => { e.stopPropagation(); handleViewDetails(row); }}
-            title="View details"
+            title={t('common.details')}
           >
             <VisibilityIcon fontSize="small" />
           </IconButton>
           <IconButton
             size="small"
             onClick={(e) => handleOpenEdit(row, e)}
-            title="Edit equipment"
+            title={t('equipment.editEquipment')}
           >
             <EditIcon fontSize="small" />
           </IconButton>
           <IconButton
             size="small"
             onClick={(e) => handleDeleteClick(row, e)}
-            title="Delete equipment"
+            title={t('common.delete')}
             color="error"
           >
             <DeleteIcon fontSize="small" />
@@ -370,12 +370,12 @@ export default function EquipmentPage() {
   return (
     <Box sx={{ p: 3 }}>
       <PageHeader
-        title="Equipment"
-        subtitle="Manage and track all equipment items"
-        breadcrumbs={[{ label: 'Projects', href: '/projects' }, { label: 'Equipment' }]}
+        title={t('equipment.title')}
+        subtitle={t('equipment.subtitle')}
+        breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('equipment.title') }]}
         actions={
           <Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>
-            Add Equipment
+            {t('equipment.addEquipment')}
           </Button>
         }
       />
@@ -384,19 +384,19 @@ export default function EquipmentPage() {
         <Box sx={{ p: 2.5 }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
             <SearchField
-              placeholder="Search equipment..."
+              placeholder={t('equipment.searchPlaceholder')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-            <Chip label={`${filteredEquipment.length} items`} size="small" />
+            <Chip label={`${filteredEquipment.length} ${t('common.items')}`} size="small" />
           </Box>
 
           <Tabs
             items={[
-              { label: 'All', value: 'all', badge: equipment.length },
-              { label: 'Draft', value: 'draft', badge: equipment.filter(e => e.status === 'draft').length },
-              { label: 'Under Review', value: 'under_review', badge: equipment.filter(e => e.status === 'submitted' || e.status === 'under_review').length },
-              { label: 'Approved', value: 'approved', badge: equipment.filter(e => e.status === 'approved').length },
+              { label: t('common.all'), value: 'all', badge: equipment.length },
+              { label: t('equipment.draft'), value: 'draft', badge: equipment.filter(e => e.status === 'draft').length },
+              { label: t('equipment.underReview'), value: 'under_review', badge: equipment.filter(e => e.status === 'submitted' || e.status === 'under_review').length },
+              { label: t('equipment.approved'), value: 'approved', badge: equipment.filter(e => e.status === 'approved').length },
             ]}
             value={activeTab}
             onChange={setActiveTab}
@@ -409,7 +409,7 @@ export default function EquipmentPage() {
               rows={filteredEquipment}
               getRowId={(row) => row.id}
               onRowClick={handleViewDetails}
-              emptyMessage="No equipment found"
+              emptyMessage={t('equipment.noEquipmentFound')}
             />
           </Box>
         </Box>
@@ -424,7 +424,7 @@ export default function EquipmentPage() {
         {selectedEquipment && (
           <Box sx={{ p: 3 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-              <Typography variant="h6" fontWeight={600}>Equipment Details</Typography>
+              <Typography variant="h6" fontWeight={600}>{t('equipment.details')}</Typography>
               <IconButton onClick={handleCloseDrawer} size="small">
                 <CloseIcon />
               </IconButton>
@@ -455,7 +455,7 @@ export default function EquipmentPage() {
             <Divider sx={{ my: 2 }} />
 
             <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1.5, fontWeight: 600 }}>
-              Details
+              {t('equipment.details')}
             </Typography>
             <Box
               sx={{
@@ -469,24 +469,24 @@ export default function EquipmentPage() {
               }}
             >
               <Box>
-                <Typography variant="caption" color="text.secondary">Type</Typography>
+                <Typography variant="caption" color="text.secondary">{t('equipment.type')}</Typography>
                 <Typography variant="body2" fontWeight={500}>{selectedEquipment.equipmentType || '-'}</Typography>
               </Box>
               <Box>
-                <Typography variant="caption" color="text.secondary">Manufacturer</Typography>
+                <Typography variant="caption" color="text.secondary">{t('equipment.manufacturer')}</Typography>
                 <Typography variant="body2" fontWeight={500}>{selectedEquipment.manufacturer || '-'}</Typography>
               </Box>
               <Box>
-                <Typography variant="caption" color="text.secondary">Model</Typography>
+                <Typography variant="caption" color="text.secondary">{t('equipment.model')}</Typography>
                 <Typography variant="body2" fontWeight={500}>{selectedEquipment.modelNumber || '-'}</Typography>
               </Box>
               <Box>
-                <Typography variant="caption" color="text.secondary">Serial Number</Typography>
+                <Typography variant="caption" color="text.secondary">{t('equipment.serialNumber')}</Typography>
                 <Typography variant="body2" fontWeight={500}>{selectedEquipment.serialNumber || '-'}</Typography>
               </Box>
               {selectedEquipment.notes && (
                 <Box sx={{ gridColumn: '1 / -1' }}>
-                  <Typography variant="caption" color="text.secondary">Notes</Typography>
+                  <Typography variant="caption" color="text.secondary">{t('common.notes')}</Typography>
                   <Typography variant="body2">{selectedEquipment.notes}</Typography>
                 </Box>
               )}
@@ -495,7 +495,7 @@ export default function EquipmentPage() {
             <Divider sx={{ my: 2 }} />
 
             <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1.5, fontWeight: 600 }}>
-              Documents
+              {t('equipment.documents')}
             </Typography>
             {filesLoading ? (
               <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
@@ -505,7 +505,7 @@ export default function EquipmentPage() {
               <Typography color="error" variant="body2">{filesError}</Typography>
             ) : files.length === 0 ? (
               <Box sx={{ py: 2, px: 2, bgcolor: 'action.hover', borderRadius: 2, textAlign: 'center' }}>
-                <Typography color="text.secondary" variant="body2">No documents attached</Typography>
+                <Typography color="text.secondary" variant="body2">{t('equipment.noDocumentsAttached')}</Typography>
               </Box>
             ) : (
               <List dense sx={{ bgcolor: 'action.hover', borderRadius: 2 }}>
@@ -516,7 +516,7 @@ export default function EquipmentPage() {
                       <IconButton
                         edge="end"
                         size="small"
-                        title="Download file"
+                        title={t('buttons.download')}
                         onClick={async () => {
                           try {
                             const blobUrl = await filesApi.getFileBlob(projectId!, file.id)
@@ -528,7 +528,7 @@ export default function EquipmentPage() {
                             document.body.removeChild(link)
                             URL.revokeObjectURL(blobUrl)
                           } catch {
-                            showError('Failed to download file')
+                            showError(t('equipment.failedToDownloadFile'))
                           }
                         }}
                       >
@@ -541,7 +541,7 @@ export default function EquipmentPage() {
                         const blobUrl = await filesApi.getFileBlob(projectId!, file.id)
                         window.open(blobUrl, '_blank')
                       } catch {
-                        showError('Failed to open file')
+                        showError(t('equipment.failedToOpenFile'))
                       }
                     }}
                   >
@@ -555,13 +555,13 @@ export default function EquipmentPage() {
               </List>
             )}
             <Button variant="tertiary" size="small" icon={<AddIcon />} sx={{ mt: 1 }}>
-              Add Document
+              {t('equipment.addDocument')}
             </Button>
 
             <Divider sx={{ my: 2 }} />
 
             <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1.5, fontWeight: 600 }}>
-              Approval Timeline
+              {t('equipment.approvalTimeline')}
             </Typography>
             <ApprovalStepper status={selectedEquipment.status as 'draft' | 'submitted' | 'under_review' | 'approved' | 'rejected'} />
 
@@ -574,11 +574,11 @@ export default function EquipmentPage() {
                   fullWidth
                   onClick={handleSubmitForApproval}
                 >
-                  Submit for Approval
+                  {t('equipment.submitForApproval')}
                 </Button>
               )}
               <Button variant="secondary" fullWidth onClick={() => handleOpenEdit(selectedEquipment)}>
-                Edit Equipment
+                {t('equipment.editEquipment')}
               </Button>
             </Box>
           </Box>
@@ -589,15 +589,15 @@ export default function EquipmentPage() {
         open={dialogOpen}
         onClose={handleCloseDialog}
         onSubmit={handleSaveEquipment}
-        title={editingEquipment ? 'Edit Equipment' : 'Add New Equipment'}
-        submitLabel={editingEquipment ? 'Save Changes' : 'Add Equipment'}
+        title={editingEquipment ? t('equipment.editEquipmentTitle') : t('equipment.addNewEquipment')}
+        submitLabel={editingEquipment ? t('common.save') : t('equipment.addEquipment')}
         loading={saving}
         maxWidth="md"
       >
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
           <TextField
             fullWidth
-            label="Equipment Name"
+            label={t('equipment.equipmentName')}
             required
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -786,20 +786,20 @@ export default function EquipmentPage() {
 
           <TextField
             fullWidth
-            label="Manufacturer"
+            label={t('equipment.manufacturer')}
             value={formData.manufacturer}
             onChange={(e) => setFormData({ ...formData, manufacturer: e.target.value })}
           />
           <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
             <TextField
               fullWidth
-              label="Model Number"
+              label={t('equipment.model')}
               value={formData.modelNumber}
               onChange={(e) => setFormData({ ...formData, modelNumber: e.target.value })}
             />
             <TextField
               fullWidth
-              label="Serial Number"
+              label={t('equipment.serialNumber')}
               value={formData.serialNumber}
               onChange={(e) => setFormData({ ...formData, serialNumber: e.target.value })}
               error={!!errors.serialNumber}
@@ -808,7 +808,7 @@ export default function EquipmentPage() {
           </Box>
           <TextField
             fullWidth
-            label="Notes"
+            label={t('common.notes')}
             multiline
             rows={3}
             value={formData.notes}
@@ -823,9 +823,9 @@ export default function EquipmentPage() {
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={handleConfirmDelete}
-        title="Delete Equipment"
-        message={`Are you sure you want to delete "${equipmentToDelete?.name}"? This action cannot be undone.`}
-        confirmLabel="Delete"
+        title={t('equipment.deleteConfirmation')}
+        message={t('equipment.deleteConfirmationMessage', { name: equipmentToDelete?.name })}
+        confirmLabel={t('common.delete')}
         variant="danger"
       />
     </Box>
