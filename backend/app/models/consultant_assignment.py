@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime, date
 from enum import Enum
 from typing import Optional
-from sqlalchemy import String, Text, Date, DateTime, ForeignKey
+from sqlalchemy import String, Text, Date, DateTime, ForeignKey, Index
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.session import Base
@@ -19,6 +19,11 @@ class AssignmentStatus(str, Enum):
 
 class ConsultantAssignment(Base):
     __tablename__ = "consultant_assignments"
+    __table_args__ = (
+        Index("ix_consultant_assignments_project_id", "project_id"),
+        Index("ix_consultant_assignments_consultant_id", "consultant_id"),
+        Index("ix_consultant_assignments_status", "status"),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     consultant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"))

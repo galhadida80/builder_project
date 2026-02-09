@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from enum import Enum
 from typing import Optional
-from sqlalchemy import String, Text, DateTime, Boolean, ForeignKey
+from sqlalchemy import String, Text, DateTime, Boolean, ForeignKey, Index
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.session import Base
@@ -68,6 +68,10 @@ class EquipmentTemplateConsultant(Base):
 
 class EquipmentApprovalSubmission(Base):
     __tablename__ = "equipment_approval_submissions"
+    __table_args__ = (
+        Index("ix_equip_approval_subs_project_id", "project_id"),
+        Index("ix_equip_approval_subs_status", "status"),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     project_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("projects.id", ondelete="CASCADE"))

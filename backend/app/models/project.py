@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime, date
 from enum import Enum
 from typing import Optional
-from sqlalchemy import String, Text, Date, DateTime, ForeignKey
+from sqlalchemy import String, Text, Date, DateTime, ForeignKey, Index
 from sqlalchemy.dialects.postgresql import UUID, ENUM
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.session import Base
@@ -54,6 +54,11 @@ class Project(Base):
 
 class ProjectMember(Base):
     __tablename__ = "project_members"
+    __table_args__ = (
+        Index("ix_project_members_user_id", "user_id"),
+        Index("ix_project_members_project_id", "project_id"),
+        Index("ix_project_members_project_user", "project_id", "user_id", unique=True),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     project_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("projects.id", ondelete="CASCADE"))

@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 from enum import Enum
-from sqlalchemy import String, Integer, Boolean, Text, DateTime, ForeignKey
+from sqlalchemy import String, Integer, Boolean, Text, DateTime, ForeignKey, Index
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.session import Base
@@ -79,6 +79,11 @@ class ChecklistItemTemplate(Base):
 
 class ChecklistInstance(Base):
     __tablename__ = "checklist_instances"
+    __table_args__ = (
+        Index("ix_checklist_instances_project_id", "project_id"),
+        Index("ix_checklist_instances_template_id", "template_id"),
+        Index("ix_checklist_instances_status", "status"),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     template_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("checklist_templates.id", ondelete="CASCADE"))

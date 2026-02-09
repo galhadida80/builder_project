@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime
 from enum import Enum
 from typing import Optional
-from sqlalchemy import String, Text, DateTime, ForeignKey, Boolean
+from sqlalchemy import String, Text, DateTime, ForeignKey, Boolean, Index
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.session import Base
@@ -19,6 +19,11 @@ class MeetingStatus(str, Enum):
 
 class Meeting(Base):
     __tablename__ = "meetings"
+    __table_args__ = (
+        Index("ix_meetings_project_id", "project_id"),
+        Index("ix_meetings_scheduled_date", "scheduled_date"),
+        Index("ix_meetings_created_at", "created_at"),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     project_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("projects.id", ondelete="CASCADE"))

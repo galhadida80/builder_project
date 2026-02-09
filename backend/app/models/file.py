@@ -3,7 +3,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 from typing import Optional
-from sqlalchemy import String, DateTime, ForeignKey, Integer
+from sqlalchemy import String, DateTime, ForeignKey, Integer, Index
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.session import Base
@@ -11,6 +11,10 @@ from app.db.session import Base
 
 class File(Base):
     __tablename__ = "files"
+    __table_args__ = (
+        Index("ix_files_project_id", "project_id"),
+        Index("ix_files_entity_type_entity_id", "entity_type", "entity_id"),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     project_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("projects.id", ondelete="CASCADE"))

@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime
 from enum import Enum
 from typing import Optional
-from sqlalchemy import String, Text, DateTime, ForeignKey, Boolean
+from sqlalchemy import String, Text, DateTime, ForeignKey, Boolean, Index
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.session import Base
@@ -19,6 +19,11 @@ class NotificationCategory(str, Enum):
 
 class Notification(Base):
     __tablename__ = "notifications"
+    __table_args__ = (
+        Index("ix_notifications_user_id", "user_id"),
+        Index("ix_notifications_user_unread", "user_id", "is_read"),
+        Index("ix_notifications_created_at", "created_at"),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"))

@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime
 from enum import Enum
 from typing import Optional
-from sqlalchemy import String, Text, DateTime, ForeignKey
+from sqlalchemy import String, Text, DateTime, ForeignKey, Index
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.session import Base
@@ -21,6 +21,12 @@ class ApprovalStatus(str, Enum):
 
 class Equipment(Base):
     __tablename__ = "equipment"
+    __table_args__ = (
+        Index("ix_equipment_project_id", "project_id"),
+        Index("ix_equipment_status", "status"),
+        Index("ix_equipment_created_at", "created_at"),
+        Index("ix_equipment_project_status", "project_id", "status"),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     project_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("projects.id", ondelete="CASCADE"))

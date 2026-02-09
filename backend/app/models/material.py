@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime, date
 from decimal import Decimal
 from typing import Optional
-from sqlalchemy import String, Text, DateTime, Date, ForeignKey, Numeric
+from sqlalchemy import String, Text, DateTime, Date, ForeignKey, Numeric, Index
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.session import Base
@@ -13,6 +13,12 @@ from app.models.equipment import ApprovalStatus
 
 class Material(Base):
     __tablename__ = "materials"
+    __table_args__ = (
+        Index("ix_materials_project_id", "project_id"),
+        Index("ix_materials_status", "status"),
+        Index("ix_materials_created_at", "created_at"),
+        Index("ix_materials_project_status", "project_id", "status"),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     project_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("projects.id", ondelete="CASCADE"))

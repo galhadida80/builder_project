@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 from enum import Enum
-from sqlalchemy import String, Text, DateTime, ForeignKey, Integer
+from sqlalchemy import String, Text, DateTime, ForeignKey, Integer, Index
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.session import Base
@@ -43,6 +43,13 @@ class InspectionStage(Base):
 
 class Inspection(Base):
     __tablename__ = "inspections"
+    __table_args__ = (
+        Index("ix_inspections_project_id", "project_id"),
+        Index("ix_inspections_status", "status"),
+        Index("ix_inspections_project_status", "project_id", "status"),
+        Index("ix_inspections_scheduled_date", "scheduled_date"),
+        Index("ix_inspections_created_at", "created_at"),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     project_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("projects.id", ondelete="CASCADE"))
@@ -64,6 +71,11 @@ class Inspection(Base):
 
 class Finding(Base):
     __tablename__ = "findings"
+    __table_args__ = (
+        Index("ix_findings_inspection_id", "inspection_id"),
+        Index("ix_findings_severity", "severity"),
+        Index("ix_findings_status", "status"),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     inspection_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("inspections.id", ondelete="CASCADE"))
