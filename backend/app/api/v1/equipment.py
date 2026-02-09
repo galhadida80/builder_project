@@ -1,6 +1,5 @@
-from typing import Optional
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
@@ -20,7 +19,7 @@ router = APIRouter()
 
 @router.get("/equipment", response_model=list[EquipmentResponse])
 async def list_all_equipment(
-    project_id: Optional[UUID] = Query(None),
+    project_id: UUID | None = Query(None),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -50,7 +49,7 @@ async def list_equipment(
     return result.scalars().all()
 
 
-@router.post("/projects/{project_id}/equipment", response_model=EquipmentResponse)
+@router.post("/projects/{project_id}/equipment", response_model=EquipmentResponse, status_code=status.HTTP_201_CREATED)
 async def create_equipment(
     project_id: UUID,
     data: EquipmentCreate,
@@ -121,7 +120,7 @@ async def update_equipment(
     return equipment
 
 
-@router.delete("/projects/{project_id}/equipment/{equipment_id}")
+@router.delete("/projects/{project_id}/equipment/{equipment_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_equipment(
     project_id: UUID,
     equipment_id: UUID,
@@ -143,7 +142,7 @@ async def delete_equipment(
                           project_id=project_id, old_values=get_model_dict(equipment))
 
     await db.delete(equipment)
-    return {"message": "Equipment deleted"}
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.post("/projects/{project_id}/equipment/{equipment_id}/submit", response_model=EquipmentResponse)
@@ -189,7 +188,7 @@ async def submit_equipment_for_approval(
     return equipment
 
 
-@router.post("/projects/{project_id}/equipment/{equipment_id}/checklists", response_model=ChecklistResponse)
+@router.post("/projects/{project_id}/equipment/{equipment_id}/checklists", response_model=ChecklistResponse, status_code=status.HTTP_201_CREATED)
 async def create_checklist(
     project_id: UUID,
     equipment_id: UUID,

@@ -1,6 +1,5 @@
-from typing import Optional
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
@@ -20,7 +19,7 @@ router = APIRouter()
 
 @router.get("/materials", response_model=list[MaterialResponse])
 async def list_all_materials(
-    project_id: Optional[UUID] = Query(None),
+    project_id: UUID | None = Query(None),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -50,7 +49,7 @@ async def list_materials(
     return result.scalars().all()
 
 
-@router.post("/projects/{project_id}/materials", response_model=MaterialResponse)
+@router.post("/projects/{project_id}/materials", response_model=MaterialResponse, status_code=status.HTTP_201_CREATED)
 async def create_material(
     project_id: UUID,
     data: MaterialCreate,
@@ -121,7 +120,7 @@ async def update_material(
     return material
 
 
-@router.delete("/projects/{project_id}/materials/{material_id}")
+@router.delete("/projects/{project_id}/materials/{material_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_material(
     project_id: UUID,
     material_id: UUID,
@@ -143,7 +142,7 @@ async def delete_material(
                           project_id=project_id, old_values=get_model_dict(material))
 
     await db.delete(material)
-    return {"message": "Material deleted"}
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.post("/projects/{project_id}/materials/{material_id}/submit", response_model=MaterialResponse)

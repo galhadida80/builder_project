@@ -1,5 +1,5 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
@@ -55,7 +55,7 @@ async def list_meetings(
     return result.scalars().all()
 
 
-@router.post("/projects/{project_id}/meetings", response_model=MeetingResponse)
+@router.post("/projects/{project_id}/meetings", response_model=MeetingResponse, status_code=status.HTTP_201_CREATED)
 async def create_meeting(
     project_id: UUID,
     data: MeetingCreate,
@@ -129,7 +129,7 @@ async def update_meeting(
     return meeting
 
 
-@router.delete("/projects/{project_id}/meetings/{meeting_id}")
+@router.delete("/projects/{project_id}/meetings/{meeting_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_meeting(
     project_id: UUID,
     meeting_id: UUID,
@@ -151,10 +151,10 @@ async def delete_meeting(
                           project_id=project_id, old_values=get_model_dict(meeting))
 
     await db.delete(meeting)
-    return {"message": "Meeting deleted"}
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@router.post("/projects/{project_id}/meetings/{meeting_id}/attendees", response_model=MeetingAttendeeResponse)
+@router.post("/projects/{project_id}/meetings/{meeting_id}/attendees", response_model=MeetingAttendeeResponse, status_code=status.HTTP_201_CREATED)
 async def add_attendee(
     project_id: UUID,
     meeting_id: UUID,
@@ -170,7 +170,7 @@ async def add_attendee(
     return attendee
 
 
-@router.delete("/projects/{project_id}/meetings/{meeting_id}/attendees/{user_id}")
+@router.delete("/projects/{project_id}/meetings/{meeting_id}/attendees/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def remove_attendee(
     project_id: UUID,
     meeting_id: UUID,
@@ -190,7 +190,7 @@ async def remove_attendee(
         raise HTTPException(status_code=404, detail="Attendee not found")
 
     await db.delete(attendee)
-    return {"message": "Attendee removed"}
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.put("/projects/{project_id}/meetings/{meeting_id}/attendees/{user_id}/confirm")

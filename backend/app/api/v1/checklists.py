@@ -1,5 +1,5 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
@@ -46,7 +46,7 @@ async def list_checklist_templates(
     return result.scalars().all()
 
 
-@router.post("/projects/{project_id}/checklist-templates", response_model=ChecklistTemplateResponse)
+@router.post("/projects/{project_id}/checklist-templates", response_model=ChecklistTemplateResponse, status_code=status.HTTP_201_CREATED)
 async def create_checklist_template(
     project_id: UUID,
     data: ChecklistTemplateCreate,
@@ -113,7 +113,7 @@ async def update_checklist_template(
     return checklist_template
 
 
-@router.delete("/projects/{project_id}/checklist-templates/{template_id}")
+@router.delete("/projects/{project_id}/checklist-templates/{template_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_checklist_template(
     project_id: UUID,
     template_id: UUID,
@@ -130,10 +130,10 @@ async def delete_checklist_template(
                           project_id=project_id, old_values=get_model_dict(checklist_template))
 
     await db.delete(checklist_template)
-    return {"message": "Checklist template deleted"}
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@router.post("/checklist-templates/{template_id}/subsections", response_model=ChecklistSubSectionResponse)
+@router.post("/checklist-templates/{template_id}/subsections", response_model=ChecklistSubSectionResponse, status_code=status.HTTP_201_CREATED)
 async def create_checklist_subsection(
     template_id: UUID,
     data: ChecklistSubSectionCreate,
@@ -240,7 +240,7 @@ async def update_checklist_subsection(
     return subsection
 
 
-@router.delete("/checklist-templates/{template_id}/subsections/{subsection_id}")
+@router.delete("/checklist-templates/{template_id}/subsections/{subsection_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_checklist_subsection(
     template_id: UUID,
     subsection_id: UUID,
@@ -255,7 +255,6 @@ async def delete_checklist_subsection(
     if not subsection:
         raise HTTPException(status_code=404, detail="Checklist subsection not found")
 
-    # Get template for project_id and verify access
     template_result = await db.execute(select(ChecklistTemplate).where(ChecklistTemplate.id == template_id))
     template = template_result.scalar_one()
     await verify_project_access(template.project_id, current_user, db)
@@ -264,7 +263,7 @@ async def delete_checklist_subsection(
                           project_id=template.project_id, old_values=get_model_dict(subsection))
 
     await db.delete(subsection)
-    return {"message": "Checklist subsection deleted"}
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.post("/subsections/{subsection_id}/items", response_model=ChecklistItemTemplateResponse, status_code=201)
@@ -389,7 +388,7 @@ async def update_checklist_item_template(
     return item
 
 
-@router.delete("/subsections/{subsection_id}/items/{item_id}")
+@router.delete("/subsections/{subsection_id}/items/{item_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_checklist_item_template(
     subsection_id: UUID,
     item_id: UUID,
@@ -404,7 +403,6 @@ async def delete_checklist_item_template(
     if not item:
         raise HTTPException(status_code=404, detail="Checklist item template not found")
 
-    # Get subsection and template for project_id and verify access
     subsection_result = await db.execute(
         select(ChecklistSubSection)
         .options(selectinload(ChecklistSubSection.template))
@@ -417,7 +415,7 @@ async def delete_checklist_item_template(
                           project_id=subsection.template.project_id, old_values=get_model_dict(item))
 
     await db.delete(item)
-    return {"message": "Checklist item template deleted"}
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.get("/checklist-instances", response_model=list[ChecklistInstanceResponse])
@@ -513,7 +511,7 @@ async def update_checklist_instance(
     return checklist_instance
 
 
-@router.delete("/projects/{project_id}/checklist-instances/{instance_id}")
+@router.delete("/projects/{project_id}/checklist-instances/{instance_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_checklist_instance(
     project_id: UUID,
     instance_id: UUID,
@@ -530,7 +528,7 @@ async def delete_checklist_instance(
                           project_id=project_id, old_values=get_model_dict(checklist_instance))
 
     await db.delete(checklist_instance)
-    return {"message": "Checklist instance deleted"}
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.post("/checklist-instances/{instance_id}/responses", response_model=ChecklistItemResponseResponse, status_code=201)
@@ -638,7 +636,7 @@ async def update_checklist_item_response(
     return response
 
 
-@router.delete("/checklist-instances/{instance_id}/responses/{response_id}")
+@router.delete("/checklist-instances/{instance_id}/responses/{response_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_checklist_item_response(
     instance_id: UUID,
     response_id: UUID,
@@ -653,7 +651,6 @@ async def delete_checklist_item_response(
     if not response:
         raise HTTPException(status_code=404, detail="Checklist item response not found")
 
-    # Get instance for project_id and verify access
     instance_result = await db.execute(select(ChecklistInstance).where(ChecklistInstance.id == instance_id))
     instance = instance_result.scalar_one()
     await verify_project_access(instance.project_id, current_user, db)
@@ -662,4 +659,4 @@ async def delete_checklist_item_response(
                           project_id=instance.project_id, old_values=get_model_dict(response))
 
     await db.delete(response)
-    return {"message": "Checklist item response deleted"}
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

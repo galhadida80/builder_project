@@ -1,6 +1,6 @@
 from uuid import UUID
 from datetime import datetime
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, case
 from sqlalchemy.orm import selectinload
@@ -37,7 +37,7 @@ async def list_projects(
     return result.scalars().all()
 
 
-@router.post("", response_model=ProjectResponse)
+@router.post("", response_model=ProjectResponse, status_code=status.HTTP_201_CREATED)
 async def create_project(
     data: ProjectCreate,
     db: AsyncSession = Depends(get_db),
@@ -102,7 +102,7 @@ async def update_project(
     return project
 
 
-@router.delete("/{project_id}")
+@router.delete("/{project_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_project(
     project_id: UUID,
     db: AsyncSession = Depends(get_db),
@@ -121,7 +121,7 @@ async def delete_project(
                           project_id=project.id, old_values=get_model_dict(project))
 
     await db.delete(project)
-    return {"message": "Project deleted"}
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.get("/{project_id}/overview", response_model=ProjectOverviewResponse)
@@ -278,7 +278,7 @@ async def get_project_overview(
     )
 
 
-@router.post("/{project_id}/members", response_model=ProjectMemberResponse)
+@router.post("/{project_id}/members", response_model=ProjectMemberResponse, status_code=status.HTTP_201_CREATED)
 async def add_project_member(
     project_id: UUID,
     data: ProjectMemberCreate,
@@ -293,7 +293,7 @@ async def add_project_member(
     return member
 
 
-@router.delete("/{project_id}/members/{user_id}")
+@router.delete("/{project_id}/members/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def remove_project_member(
     project_id: UUID,
     user_id: UUID,
@@ -309,4 +309,4 @@ async def remove_project_member(
         raise HTTPException(status_code=404, detail="Member not found")
 
     await db.delete(member)
-    return {"message": "Member removed"}
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

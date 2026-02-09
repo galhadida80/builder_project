@@ -1,5 +1,5 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
@@ -35,7 +35,7 @@ async def list_areas(
     return result.scalars().all()
 
 
-@router.post("/projects/{project_id}/areas", response_model=AreaResponse)
+@router.post("/projects/{project_id}/areas", response_model=AreaResponse, status_code=status.HTTP_201_CREATED)
 async def create_area(
     project_id: UUID,
     data: AreaCreate,
@@ -109,7 +109,7 @@ async def update_area(
     return area
 
 
-@router.delete("/projects/{project_id}/areas/{area_id}")
+@router.delete("/projects/{project_id}/areas/{area_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_area(
     project_id: UUID,
     area_id: UUID,
@@ -131,10 +131,10 @@ async def delete_area(
                           project_id=project_id, old_values=get_model_dict(area))
 
     await db.delete(area)
-    return {"message": "Area deleted"}
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@router.post("/projects/{project_id}/areas/{area_id}/progress", response_model=AreaProgressResponse)
+@router.post("/projects/{project_id}/areas/{area_id}/progress", response_model=AreaProgressResponse, status_code=status.HTTP_201_CREATED)
 async def add_progress_update(
     project_id: UUID,
     area_id: UUID,

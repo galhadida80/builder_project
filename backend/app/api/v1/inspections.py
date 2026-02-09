@@ -1,7 +1,6 @@
 from uuid import UUID
-from typing import Optional
 from datetime import datetime
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, case
 from sqlalchemy.orm import selectinload
@@ -42,7 +41,7 @@ async def list_consultant_types(db: AsyncSession = Depends(get_db)):
     return result.scalars().all()
 
 
-@router.post("/inspection-consultant-types", response_model=InspectionConsultantTypeResponse)
+@router.post("/inspection-consultant-types", response_model=InspectionConsultantTypeResponse, status_code=status.HTTP_201_CREATED)
 async def create_consultant_type(
     data: InspectionConsultantTypeCreate,
     db: AsyncSession = Depends(get_db),
@@ -79,7 +78,7 @@ async def get_consultant_type(
     return consultant_type
 
 
-@router.post("/inspection-consultant-types/{consultant_type_id}/stages", response_model=InspectionStageResponse)
+@router.post("/inspection-consultant-types/{consultant_type_id}/stages", response_model=InspectionStageResponse, status_code=status.HTTP_201_CREATED)
 async def add_stage_to_consultant_type(
     consultant_type_id: UUID,
     data: InspectionStageCreate,
@@ -136,7 +135,7 @@ async def list_inspections(
     return result.scalars().all()
 
 
-@router.post("/projects/{project_id}/inspections", response_model=InspectionResponse)
+@router.post("/projects/{project_id}/inspections", response_model=InspectionResponse, status_code=status.HTTP_201_CREATED)
 async def create_inspection(
     project_id: UUID,
     data: InspectionCreate,
@@ -259,10 +258,10 @@ async def get_inspection(
 async def get_inspection_history(
     project_id: UUID,
     inspection_id: UUID,
-    action: Optional[str] = None,
-    user_id: Optional[UUID] = None,
-    start_date: Optional[datetime] = None,
-    end_date: Optional[datetime] = None,
+    action: str | None = None,
+    user_id: UUID | None = None,
+    start_date: datetime | None = None,
+    end_date: datetime | None = None,
     limit: int = 100,
     offset: int = 0,
     db: AsyncSession = Depends(get_db),
@@ -366,7 +365,7 @@ async def complete_inspection(
     return result.scalar_one()
 
 
-@router.delete("/projects/{project_id}/inspections/{inspection_id}")
+@router.delete("/projects/{project_id}/inspections/{inspection_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_inspection(
     project_id: UUID,
     inspection_id: UUID,
@@ -386,12 +385,12 @@ async def delete_inspection(
                           project_id=project_id, old_values=get_model_dict(inspection))
 
     await db.delete(inspection)
-    return {"message": "Inspection deleted"}
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 # Findings Management Endpoints
 
-@router.post("/projects/{project_id}/inspections/{inspection_id}/findings", response_model=FindingResponse)
+@router.post("/projects/{project_id}/inspections/{inspection_id}/findings", response_model=FindingResponse, status_code=status.HTTP_201_CREATED)
 async def add_finding_to_inspection(
     project_id: UUID,
     inspection_id: UUID,

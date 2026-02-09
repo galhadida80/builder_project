@@ -1,5 +1,4 @@
 from __future__ import annotations
-from typing import Optional
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -23,11 +22,11 @@ router = APIRouter()
 
 class ApprovalAction(BaseModel):
     action: str
-    comments: Optional[str] = None
+    comments: str | None = None
 
 
 class ApprovalComments(BaseModel):
-    comments: Optional[str] = None
+    comments: str | None = None
 
 
 @router.get("/approvals", response_model=list[ApprovalRequestResponse])

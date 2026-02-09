@@ -2,7 +2,7 @@ import csv
 import io
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, Request, Response, UploadFile, status
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -100,7 +100,7 @@ async def import_contacts_csv(
     return {"imported_count": imported_count}
 
 
-@router.post("/projects/{project_id}/contacts", response_model=ContactResponse)
+@router.post("/projects/{project_id}/contacts", response_model=ContactResponse, status_code=status.HTTP_201_CREATED)
 async def create_contact(
     project_id: UUID,
     data: ContactCreate,
@@ -169,7 +169,7 @@ async def update_contact(
     return contact
 
 
-@router.delete("/projects/{project_id}/contacts/{contact_id}")
+@router.delete("/projects/{project_id}/contacts/{contact_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_contact(
     project_id: UUID,
     contact_id: UUID,
@@ -191,4 +191,4 @@ async def delete_contact(
                           project_id=project_id, old_values=get_model_dict(contact))
 
     await db.delete(contact)
-    return {"message": "Contact deleted"}
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

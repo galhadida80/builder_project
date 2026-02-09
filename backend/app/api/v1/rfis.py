@@ -1,5 +1,4 @@
 import uuid
-from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -31,9 +30,9 @@ router = APIRouter(tags=["rfis"])
 @router.get("/projects/{project_id}/rfis", response_model=PaginatedRFIResponse)
 async def get_project_rfis(
     project_id: uuid.UUID,
-    status: Optional[str] = Query(None),
-    priority: Optional[str] = Query(None),
-    search: Optional[str] = Query(None),
+    status: str | None = Query(None),
+    priority: str | None = Query(None),
+    search: str | None = Query(None),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
