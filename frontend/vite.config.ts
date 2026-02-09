@@ -39,9 +39,10 @@ export default defineConfig({
       registerType: 'prompt',
       includeAssets: ['favicon.ico', 'robots.txt'],
       manifest: false,
-      selfDestroying: true,
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        navigateFallback: '/offline.html',
+        navigateFallbackDenylist: [/^\/api\//],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -72,18 +73,59 @@ export default defineConfig({
             }
           },
           {
-            urlPattern: /\/api\/.*/i,
+            urlPattern: /\/api\/.*$/i,
+            method: 'GET',
             handler: 'NetworkFirst',
             options: {
               cacheName: 'api-cache',
               expiration: {
-                maxEntries: 100,
+                maxEntries: 200,
                 maxAgeSeconds: 60 * 60
               },
               cacheableResponse: {
                 statuses: [0, 200]
               },
               networkTimeoutSeconds: 10
+            }
+          },
+          {
+            urlPattern: /\/api\/.*$/i,
+            method: 'POST',
+            handler: 'NetworkOnly',
+            options: {
+              backgroundSync: {
+                name: 'api-post-queue',
+                options: {
+                  maxRetentionTime: 24 * 60
+                }
+              }
+            }
+          },
+          {
+            urlPattern: /\/api\/.*$/i,
+            method: 'PUT',
+            handler: 'NetworkOnly',
+            options: {
+              backgroundSync: {
+                name: 'api-put-queue',
+                options: {
+                  maxRetentionTime: 24 * 60
+                }
+              }
+            }
+          },
+          {
+            urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'images-cache',
+              expiration: {
+                maxEntries: 60,
+                maxAgeSeconds: 60 * 60 * 24 * 30
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
             }
           }
         ]
