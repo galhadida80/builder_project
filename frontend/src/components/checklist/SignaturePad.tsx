@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react'
+import { useRef, useState, useEffect, useCallback } from 'react'
 import SignatureCanvas from 'react-signature-canvas'
 import { Box, Typography, Alert } from '@mui/material'
 import { styled } from '@mui/material'
@@ -59,21 +59,27 @@ export function SignaturePad({
   const [isSigned, setIsSigned] = useState(false)
   const [canvasSize, setCanvasSize] = useState({ width: 500, height: 200 })
 
-  // Handle responsive canvas sizing
-  useEffect(() => {
-    const updateSize = () => {
-      // Get container width, but ensure minimum size
-      const containerWidth = Math.min(window.innerWidth - 64, 600)
-      const width = Math.max(containerWidth, 320)
-      const height = Math.min(Math.max(width * 0.4, 150), 250)
-
-      setCanvasSize({ width, height })
-    }
-
-    updateSize()
-    window.addEventListener('resize', updateSize)
-    return () => window.removeEventListener('resize', updateSize)
+  // Handle responsive canvas sizing with debounced resize
+  const updateSize = useCallback(() => {
+    const containerWidth = Math.min(window.innerWidth - 64, 600)
+    const width = Math.max(containerWidth, 320)
+    const height = Math.min(Math.max(width * 0.4, 150), 250)
+    setCanvasSize({ width, height })
   }, [])
+
+  useEffect(() => {
+    updateSize()
+    let timeoutId: ReturnType<typeof setTimeout>
+    const debouncedResize = () => {
+      clearTimeout(timeoutId)
+      timeoutId = setTimeout(updateSize, 150)
+    }
+    window.addEventListener('resize', debouncedResize)
+    return () => {
+      window.removeEventListener('resize', debouncedResize)
+      clearTimeout(timeoutId)
+    }
+  }, [updateSize])
 
   const handleEnd = () => {
     if (sigCanvas.current && !sigCanvas.current.isEmpty()) {

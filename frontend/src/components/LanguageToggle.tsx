@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { Button, Menu, MenuItem } from '@mui/material'
-import { Language as LanguageIcon } from '@mui/icons-material'
+import LanguageIcon from '@mui/icons-material/Language'
 import { useState } from 'react'
 
 export default function LanguageToggle() {

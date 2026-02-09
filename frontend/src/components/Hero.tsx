@@ -214,7 +214,7 @@ export function Hero({
                       },
                     }}
                   >
-                    <img src={logo.imageUrl} alt={logo.alt} />
+                    <img src={logo.imageUrl} alt={logo.alt} loading="lazy" />
                   </Box>
                 ))}
               </Box>
