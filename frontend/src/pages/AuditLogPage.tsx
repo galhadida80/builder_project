@@ -61,7 +61,7 @@ export default function AuditLogPage() {
       const data = await auditApi.listAll()
       setLogs(data)
     } catch {
-      showError(t('failedToLoad'))
+      showError(t('auditLog.failedToLoad'))
     } finally {
       setLoading(false)
     }
@@ -102,7 +102,7 @@ export default function AuditLogPage() {
   const columns: Column<AuditLog>[] = [
     {
       id: 'createdAt',
-      label: t('timestamp'),
+      label: t('auditLog.timestamp'),
       minWidth: 160,
       render: (row) => (
         <Box>
@@ -117,7 +117,7 @@ export default function AuditLogPage() {
     },
     {
       id: 'user',
-      label: t('user'),
+      label: t('auditLog.user'),
       minWidth: 180,
       render: (row) => (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
@@ -130,7 +130,7 @@ export default function AuditLogPage() {
     },
     {
       id: 'action',
-      label: t('action'),
+      label: t('auditLog.action'),
       minWidth: 150,
       render: (row) => {
         const config = actionConfig[row.action] || actionConfig.update
@@ -162,7 +162,7 @@ export default function AuditLogPage() {
     },
     {
       id: 'entityType',
-      label: t('entity'),
+      label: t('auditLog.entity'),
       minWidth: 120,
       render: (row) => (
         <Chip
@@ -175,7 +175,7 @@ export default function AuditLogPage() {
     },
     {
       id: 'changes',
-      label: t('changes'),
+      label: t('auditLog.changes'),
       minWidth: 120,
       render: (row) => {
         const changes = formatChanges(row.oldValues, row.newValues)
@@ -218,9 +218,9 @@ export default function AuditLogPage() {
   return (
     <Box sx={{ p: 3 }}>
       <PageHeader
-        title={t('pageTitle')}
-        subtitle={t('subtitle')}
-        breadcrumbs={[{ label: t('nav.dashboard', { ns: 'common' }), href: '/dashboard' }, { label: t('pageTitle') }]}
+        title={t('auditLog.pageTitle')}
+        subtitle={t('auditLog.subtitle')}
+        breadcrumbs={[{ label: t('nav.dashboard', { ns: 'common' }), href: '/dashboard' }, { label: t('auditLog.pageTitle') }]}
       />
 
       <Box
@@ -232,19 +232,19 @@ export default function AuditLogPage() {
         }}
       >
         <KPICard
-          title={t('totalEntries')}
+          title={t('auditLog.totalEntries')}
           value={logs.length}
           icon={<HistoryIcon />}
           color="primary"
         />
         <KPICard
-          title={t('todayActivity')}
+          title={t('auditLog.todayActivity')}
           value={todayLogs}
           icon={<EditIcon />}
           color="info"
         />
         <KPICard
-          title={t('usersActive')}
+          title={t('auditLog.usersActive')}
           value={new Set(logs.map(l => l.user?.id)).size}
           icon={<CheckCircleIcon />}
           color="success"
@@ -256,7 +256,7 @@ export default function AuditLogPage() {
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
             <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
               <SearchField
-                placeholder={t('searchPlaceholder')}
+                placeholder={t('auditLog.searchPlaceholder')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
@@ -267,7 +267,7 @@ export default function AuditLogPage() {
                 size="small"
                 sx={{ minWidth: 140 }}
               >
-                <MenuItem value="">{t('allEntities')}</MenuItem>
+                <MenuItem value="">{t('auditLog.allEntities')}</MenuItem>
                 {entityTypes.map(type => (
                   <MenuItem key={type} value={type} sx={{ textTransform: 'capitalize' }}>{type}</MenuItem>
                 ))}
@@ -279,20 +279,20 @@ export default function AuditLogPage() {
                 size="small"
                 sx={{ minWidth: 140 }}
               >
-                <MenuItem value="">{t('allActions')}</MenuItem>
+                <MenuItem value="">{t('auditLog.allActions')}</MenuItem>
                 {actionTypes.map(type => (
                   <MenuItem key={type} value={type} sx={{ textTransform: 'capitalize' }}>{type.replace('_', ' ')}</MenuItem>
                 ))}
               </MuiTextField>
             </Box>
-            <Chip label={t('entriesLabel', { count: filteredLogs.length })} size="small" />
+            <Chip label={t('auditLog.entriesLabel', { count: filteredLogs.length })} size="small" />
           </Box>
 
           {filteredLogs.length === 0 ? (
             <EmptyState
               variant="no-results"
-              title={t('noLogsFound')}
-              description={t('tryAdjustingSearch')}
+              title={t('auditLog.noLogsFound')}
+              description={t('auditLog.tryAdjustingSearch')}
             />
           ) : (
             <DataTable
@@ -300,7 +300,7 @@ export default function AuditLogPage() {
               rows={filteredLogs}
               getRowId={(row) => row.id}
               onRowClick={handleViewDetails}
-              emptyMessage={t('noLogsFound')}
+              emptyMessage={t('auditLog.noLogsFound')}
             />
           )}
         </Box>
@@ -315,7 +315,7 @@ export default function AuditLogPage() {
         {selectedLog && (
           <Box sx={{ p: 3 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-              <Typography variant="h6" fontWeight={600}>{t('auditDetails')}</Typography>
+              <Typography variant="h6" fontWeight={600}>{t('auditLog.auditDetails')}</Typography>
               <IconButton onClick={() => setDetailsOpen(false)} size="small">
                 <CloseIcon />
               </IconButton>
@@ -358,11 +358,11 @@ export default function AuditLogPage() {
 
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 3 }}>
               <Box>
-                <Typography variant="caption" color="text.secondary" fontWeight={600}>{t('timestamp').toUpperCase()}</Typography>
+                <Typography variant="caption" color="text.secondary" fontWeight={600}>{t('auditLog.timestamp').toUpperCase()}</Typography>
                 <Typography variant="body2">{new Date(selectedLog.createdAt).toLocaleString()}</Typography>
               </Box>
               <Box>
-                <Typography variant="caption" color="text.secondary" fontWeight={600}>{t('user').toUpperCase()}</Typography>
+                <Typography variant="caption" color="text.secondary" fontWeight={600}>{t('auditLog.user').toUpperCase()}</Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
                   <Avatar name={selectedLog.user?.fullName || 'Unknown'} size="small" />
                   <Typography variant="body2">{selectedLog.user?.fullName || 'Unknown'}</Typography>
@@ -380,7 +380,7 @@ export default function AuditLogPage() {
               <>
                 <Divider sx={{ my: 2 }} />
                 <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ mb: 1.5, display: 'block' }}>
-                  {t('changes').toUpperCase()}
+                  {t('auditLog.changes').toUpperCase()}
                 </Typography>
                 {formatChanges(selectedLog.oldValues, selectedLog.newValues).map(change => (
                   <Box

@@ -277,6 +277,26 @@
     "auditLog": "Audit Log",
     "settings": "Settings"
   },
+  "auditLog": {
+    "pageTitle": "Audit Log",
+    "subtitle": "Track all changes and activity across your projects",
+    "totalEntries": "Total Entries",
+    "todayActivity": "Today's Activity",
+    "usersActive": "Active Users",
+    "searchPlaceholder": "Search audit logs...",
+    "entriesLabel": "{{count}} entries",
+    "allEntities": "All Entities",
+    "allActions": "All Actions",
+    "noLogsFound": "No audit logs found",
+    "tryAdjustingSearch": "Try adjusting your search or filters",
+    "auditDetails": "Audit Details",
+    "failedToLoad": "Failed to load audit logs",
+    "timestamp": "Timestamp",
+    "user": "User",
+    "action": "Action",
+    "entity": "Entity",
+    "changes": "Changes"
+  },
   "chat": {
     "title": "AI Assistant",
     "placeholder": "Ask about your project data...",

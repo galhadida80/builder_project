@@ -18,6 +18,26 @@
     "auditLog": "Registro de Auditoría",
     "settings": "Configuración"
   },
+  "auditLog": {
+    "pageTitle": "Registro de Auditoría",
+    "subtitle": "Seguimiento de todos los cambios y actividad en sus proyectos",
+    "totalEntries": "Total de Entradas",
+    "todayActivity": "Actividad de Hoy",
+    "usersActive": "Usuarios Activos",
+    "searchPlaceholder": "Buscar registros de auditoría...",
+    "entriesLabel": "{{count}} entradas",
+    "allEntities": "Todas las Entidades",
+    "allActions": "Todas las Acciones",
+    "noLogsFound": "No se encontraron registros de auditoría",
+    "tryAdjustingSearch": "Intente ajustar su búsqueda o filtros",
+    "auditDetails": "Detalles de Auditoría",
+    "failedToLoad": "Error al cargar los registros de auditoría",
+    "timestamp": "Marca de Tiempo",
+    "user": "Usuario",
+    "action": "Acción",
+    "entity": "Entidad",
+    "changes": "Cambios"
+  },
   "chat": {
     "title": "Asistente AI",
     "placeholder": "Pregunta sobre los datos de tu proyecto...",

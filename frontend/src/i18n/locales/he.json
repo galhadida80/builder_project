@@ -595,6 +595,26 @@
     "auditLog": "יומן ביקורת",
     "settings": "הגדרות"
   },
+  "auditLog": {
+    "pageTitle": "יומן ביקורת",
+    "subtitle": "מעקב אחר כל השינויים והפעילות בפרויקטים",
+    "totalEntries": "סה\"כ רשומות",
+    "todayActivity": "פעילות היום",
+    "usersActive": "משתמשים פעילים",
+    "searchPlaceholder": "חפש ביומן ביקורת...",
+    "entriesLabel": "{{count}} רשומות",
+    "allEntities": "כל הישויות",
+    "allActions": "כל הפעולות",
+    "noLogsFound": "לא נמצאו רשומות ביקורת",
+    "tryAdjustingSearch": "נסה לשנות את החיפוש או המסננים",
+    "auditDetails": "פרטי ביקורת",
+    "failedToLoad": "נכשל בטעינת יומן ביקורת",
+    "timestamp": "חותמת זמן",
+    "user": "משתמש",
+    "action": "פעולה",
+    "entity": "ישות",
+    "changes": "שינויים"
+  },
   "chat": {
     "title": "עוזר AI",
     "placeholder": "שאל על נתוני הפרויקט שלך...",
