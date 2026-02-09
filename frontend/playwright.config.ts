@@ -1,14 +1,12 @@
 import { defineConfig, devices } from '@playwright/test'
+import { fileURLToPath } from 'url'
+import path from 'path'
 
-/**
- * Playwright configuration for Hebrew localization E2E tests
- * Run tests with: npx playwright test
- * Run specific test: npx playwright test hebrew-localization.spec.ts
- */
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const AUTH_FILE = path.join(__dirname, '.auth', 'user.json')
 
 export default defineConfig({
   testDir: './e2e',
-  // Maximum time one test can run
   timeout: 30 * 1000,
   expect: {
     timeout: 5000,
@@ -27,16 +25,32 @@ export default defineConfig({
 
   projects: [
     {
+      name: 'setup',
+      testMatch: /auth\.setup\.ts/,
+    },
+    {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: AUTH_FILE,
+      },
+      dependencies: ['setup'],
     },
     {
       name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
+      use: {
+        ...devices['Desktop Firefox'],
+        storageState: AUTH_FILE,
+      },
+      dependencies: ['setup'],
     },
     {
       name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
+      use: {
+        ...devices['Desktop Safari'],
+        storageState: AUTH_FILE,
+      },
+      dependencies: ['setup'],
     },
   ],
 

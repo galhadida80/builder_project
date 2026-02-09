@@ -29,6 +29,8 @@ tests/e2e/test-results/
 tests/e2e/playwright-report/
 tests/e2e/.auth/
 tests/e2e/node_modules/
+frontend/.auth/
+frontend/test-results/
 
 # Auto Claude data directory
 .auto-claude/
