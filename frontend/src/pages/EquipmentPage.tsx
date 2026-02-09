@@ -196,15 +196,15 @@ export default function EquipmentPage() {
 
       if (editingEquipment) {
         await equipmentApi.update(projectId, editingEquipment.id, payload)
-        showSuccess('Equipment updated successfully!')
+        showSuccess(t('equipment.equipmentUpdatedSuccessfully'))
       } else {
         await equipmentApi.create(projectId, payload)
-        showSuccess('Equipment created successfully!')
+        showSuccess(t('equipment.equipmentCreatedSuccessfully'))
       }
       handleCloseDialog()
       loadEquipment()
     } catch {
-      showError(`Failed to ${editingEquipment ? 'update' : 'create'} equipment. Please try again.`)
+      showError(editingEquipment ? t('equipment.failedToUpdateEquipment') : t('equipment.failedToCreateEquipment'))
     } finally {
       setSaving(false)
     }
@@ -388,15 +388,15 @@ export default function EquipmentPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-            <Chip label={`${filteredEquipment.length} items`} size="small" />
+            <Chip label={t('equipment.itemCount', { count: filteredEquipment.length })} size="small" />
           </Box>
 
           <Tabs
             items={[
-              { label: 'All', value: 'all', badge: equipment.length },
-              { label: 'Draft', value: 'draft', badge: equipment.filter(e => e.status === 'draft').length },
-              { label: 'Under Review', value: 'under_review', badge: equipment.filter(e => e.status === 'submitted' || e.status === 'under_review').length },
-              { label: 'Approved', value: 'approved', badge: equipment.filter(e => e.status === 'approved').length },
+              { label: t('common.all'), value: 'all', badge: equipment.length },
+              { label: t('equipment.draft'), value: 'draft', badge: equipment.filter(e => e.status === 'draft').length },
+              { label: t('equipment.underReview'), value: 'under_review', badge: equipment.filter(e => e.status === 'submitted' || e.status === 'under_review').length },
+              { label: t('equipment.approved'), value: 'approved', badge: equipment.filter(e => e.status === 'approved').length },
             ]}
             value={activeTab}
             onChange={setActiveTab}
@@ -505,7 +505,7 @@ export default function EquipmentPage() {
               <Typography color="error" variant="body2">{filesError}</Typography>
             ) : files.length === 0 ? (
               <Box sx={{ py: 2, px: 2, bgcolor: 'action.hover', borderRadius: 2, textAlign: 'center' }}>
-                <Typography color="text.secondary" variant="body2">No documents attached</Typography>
+                <Typography color="text.secondary" variant="body2">{t('equipment.noDocumentsAttached')}</Typography>
               </Box>
             ) : (
               <List dense sx={{ bgcolor: 'action.hover', borderRadius: 2 }}>
@@ -823,9 +823,9 @@ export default function EquipmentPage() {
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={handleConfirmDelete}
-        title="Delete Equipment"
-        message={`Are you sure you want to delete "${equipmentToDelete?.name}"? This action cannot be undone.`}
-        confirmLabel="Delete"
+        title={t('equipment.deleteConfirmation')}
+        message={t('equipment.deleteConfirmationMessage', { name: equipmentToDelete?.name })}
+        confirmLabel={t('common.delete')}
         variant="danger"
       />
     </Box>

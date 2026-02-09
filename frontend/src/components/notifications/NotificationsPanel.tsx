@@ -84,7 +84,7 @@ const UnreadBadge = styled(Box)(({ theme }) => ({
   alignItems: 'center',
   justifyContent: 'center',
   padding: theme.spacing(0, 0.75),
-  marginLeft: theme.spacing(1),
+  marginInlineStart: theme.spacing(1),
 }))
 
 export function NotificationsPanel({

@@ -114,7 +114,8 @@
       "project_manager": "Provided by Project Manager",
       "contractor": "Provided by Contractor"
     },
-    "consultantApprovals": "Consultant Approvals Required"
+    "consultantApprovals": "Consultant Approvals Required",
+    "itemCount": "{{count}} items"
   },
   "materials": {
     "title": "Materials",
@@ -296,6 +297,25 @@
     "action": "Action",
     "entity": "Entity",
     "changes": "Changes"
+  },
+  "projects": {
+    "editProject": "Edit Project",
+    "viewTeam": "View Team",
+    "exportReport": "Export Report",
+    "deleteProject": "Delete Project",
+    "createNewProject": "Create New Project",
+    "createProject": "Create Project",
+    "projectName": "Project Name",
+    "projectCode": "Project Code",
+    "codeCannotBeChanged": "Code cannot be changed",
+    "codeHint": "Letters, numbers, hyphens only",
+    "address": "Address",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "deleteConfirmationMessage": "Are you sure you want to delete \"{{name}}\"? This will permanently remove the project and all associated data. This action cannot be undone."
+  },
+  "header": {
+    "noNewNotifications": "No new notifications"
   },
   "chat": {
     "title": "AI Assistant",

@@ -30,8 +30,8 @@ const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
   borderBottom: `1px solid ${theme.palette.divider}`,
   minHeight: 56,
-  paddingLeft: theme.spacing(2),
-  paddingRight: theme.spacing(2),
+  paddingInlineStart: theme.spacing(2),
+  paddingInlineEnd: theme.spacing(2),
   gap: theme.spacing(1),
 }))
 

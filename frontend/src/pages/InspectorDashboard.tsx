@@ -175,7 +175,7 @@ export default function InspectorDashboard() {
                   px: 1,
                   '& .MuiChip-icon': {
                     color: 'white',
-                    marginLeft: '4px',
+                    marginInlineStart: '4px',
                   },
                   '& .MuiChip-label': {
                     px: '6px',

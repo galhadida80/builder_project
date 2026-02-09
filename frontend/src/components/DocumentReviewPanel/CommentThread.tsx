@@ -39,7 +39,7 @@ const ThreadContainer = styled(Box, {
   shouldForwardProp: (prop) => prop !== 'depth' && prop !== 'isResolved',
 })<{ depth: number; isResolved?: boolean }>(({ theme, depth, isResolved }) => ({
   marginBottom: theme.spacing(1.5),
-  marginLeft: depth > 0 ? theme.spacing(4) : 0,
+  marginInlineStart: depth > 0 ? theme.spacing(4) : 0,
   opacity: isResolved ? 0.7 : 1,
 }))
 

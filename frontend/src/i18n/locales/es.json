@@ -38,6 +38,44 @@
     "entity": "Entidad",
     "changes": "Cambios"
   },
+  "common": {
+    "all": "Todos",
+    "delete": "Eliminar",
+    "description": "Descripción",
+    "saveChanges": "Guardar Cambios"
+  },
+  "projects": {
+    "editProject": "Editar Proyecto",
+    "viewTeam": "Ver Equipo",
+    "exportReport": "Exportar Informe",
+    "deleteProject": "Eliminar Proyecto",
+    "createNewProject": "Crear Nuevo Proyecto",
+    "createProject": "Crear Proyecto",
+    "projectName": "Nombre del Proyecto",
+    "projectCode": "Código del Proyecto",
+    "codeCannotBeChanged": "El código no se puede cambiar",
+    "codeHint": "Solo letras, números y guiones",
+    "address": "Dirección",
+    "startDate": "Fecha de Inicio",
+    "endDate": "Fecha de Fin",
+    "deleteConfirmationMessage": "¿Está seguro de que desea eliminar \"{{name}}\"? Esto eliminará permanentemente el proyecto y todos los datos asociados. Esta acción no se puede deshacer."
+  },
+  "equipment": {
+    "draft": "Borrador",
+    "underReview": "En Revisión",
+    "approved": "Aprobado",
+    "deleteConfirmation": "Eliminar Equipo",
+    "deleteConfirmationMessage": "¿Está seguro de que desea eliminar \"{{name}}\"? Esta acción no se puede deshacer.",
+    "noDocumentsAttached": "Sin documentos adjuntos",
+    "equipmentCreatedSuccessfully": "¡Equipo creado exitosamente!",
+    "equipmentUpdatedSuccessfully": "¡Equipo actualizado exitosamente!",
+    "failedToCreateEquipment": "Error al crear el equipo",
+    "failedToUpdateEquipment": "Error al actualizar el equipo",
+    "itemCount": "{{count}} elementos"
+  },
+  "header": {
+    "noNewNotifications": "No hay nuevas notificaciones"
+  },
   "chat": {
     "title": "Asistente AI",
     "placeholder": "Pregunta sobre los datos de tu proyecto...",

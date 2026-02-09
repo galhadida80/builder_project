@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Menu from '@mui/material/Menu'
@@ -30,6 +31,7 @@ import { useToast } from '../components/common/ToastProvider'
 
 export default function ProjectsPage() {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const { showError, showSuccess } = useToast()
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
@@ -377,24 +379,24 @@ export default function ProjectsPage() {
       </Card>
 
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-        <MenuItem onClick={() => selectedProject && handleOpenEdit(selectedProject)}>Edit Project</MenuItem>
-        <MenuItem onClick={handleMenuClose}>View Team</MenuItem>
-        <MenuItem onClick={handleMenuClose}>Export Report</MenuItem>
-        <MenuItem onClick={handleDeleteClick} sx={{ color: 'error.main' }}>Delete Project</MenuItem>
+        <MenuItem onClick={() => selectedProject && handleOpenEdit(selectedProject)}>{t('projects.editProject')}</MenuItem>
+        <MenuItem onClick={handleMenuClose}>{t('projects.viewTeam')}</MenuItem>
+        <MenuItem onClick={handleMenuClose}>{t('projects.exportReport')}</MenuItem>
+        <MenuItem onClick={handleDeleteClick} sx={{ color: 'error.main' }}>{t('projects.deleteProject')}</MenuItem>
       </Menu>
 
       <FormModal
         open={openDialog}
         onClose={handleCloseDialog}
         onSubmit={handleSaveProject}
-        title={editingProject ? 'Edit Project' : 'Create New Project'}
-        submitLabel={editingProject ? 'Save Changes' : 'Create Project'}
+        title={editingProject ? t('projects.editProject') : t('projects.createNewProject')}
+        submitLabel={editingProject ? t('common.saveChanges') : t('projects.createProject')}
         loading={saving}
       >
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
           <TextField
             fullWidth
-            label="Project Name"
+            label={t('projects.projectName')}
             required
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -404,18 +406,18 @@ export default function ProjectsPage() {
           />
           <TextField
             fullWidth
-            label="Project Code"
+            label={t('projects.projectCode')}
             required
             disabled={!!editingProject}
             value={formData.code}
             onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
             error={!!errors.code}
-            helperText={editingProject ? 'Code cannot be changed' : (errors.code || 'Letters, numbers, hyphens only')}
+            helperText={editingProject ? t('projects.codeCannotBeChanged') : (errors.code || t('projects.codeHint'))}
             inputProps={{ maxLength: VALIDATION.MAX_CODE_LENGTH }}
           />
           <TextField
             fullWidth
-            label="Description"
+            label={t('common.description')}
             multiline
             rows={3}
             value={formData.description}
@@ -425,7 +427,7 @@ export default function ProjectsPage() {
           />
           <TextField
             fullWidth
-            label="Address"
+            label={t('projects.address')}
             value={formData.address}
             onChange={(e) => setFormData({ ...formData, address: e.target.value })}
             error={!!errors.address}
@@ -434,7 +436,7 @@ export default function ProjectsPage() {
           <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
             <TextField
               fullWidth
-              label="Start Date"
+              label={t('projects.startDate')}
               type="date"
               InputLabelProps={{ shrink: true }}
               value={formData.startDate}
@@ -444,7 +446,7 @@ export default function ProjectsPage() {
             />
             <TextField
               fullWidth
-              label="End Date"
+              label={t('projects.endDate')}
               type="date"
               InputLabelProps={{ shrink: true }}
               value={formData.estimatedEndDate}
@@ -460,9 +462,9 @@ export default function ProjectsPage() {
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={handleConfirmDelete}
-        title="Delete Project"
-        message={`Are you sure you want to delete "${projectToDelete?.name}"? This will permanently remove the project and all associated data. This action cannot be undone.`}
-        confirmLabel="Delete Project"
+        title={t('projects.deleteProject')}
+        message={t('projects.deleteConfirmationMessage', { name: projectToDelete?.name })}
+        confirmLabel={t('projects.deleteProject')}
         variant="danger"
       />
     </Box>

@@ -178,7 +178,8 @@
       "project_manager": "מסופק על ידי מנהל פרויקט",
       "contractor": "מסופק על ידי קבלן"
     },
-    "consultantApprovals": "אישורי יועצים נדרשים"
+    "consultantApprovals": "אישורי יועצים נדרשים",
+    "itemCount": "{{count}} פריטים"
   },
   "materials": {
     "title": "חומרים",
@@ -568,21 +569,6 @@
       }
     }
   },
-  "header": {
-    "notifications": "התראות",
-    "profile": "פרופיל",
-    "settings": "הגדרות",
-    "logout": "התנתק",
-    "viewAllNotifications": "צפה בכל ההתראות",
-    "notifications_equipment_pending": "אישור ציוד ממתין",
-    "notifications_equipment_detail": "{{name}} דורש בדיקה",
-    "notifications_meeting_scheduled": "פגישה תוזמנה",
-    "notifications_meeting_detail": "{{name}} - {{date}} {{time}}",
-    "notifications_material_delivery": "עדכון אספקת חומרים",
-    "notifications_material_detail": "{{material}} - {{quantity}} יחידות התקבלו",
-    "profileComingSoon": "דף פרופיל בקרוב!",
-    "settingsComingSoon": "דף הגדרות בקרוב!"
-  },
   "sidebar": {
     "dashboard": "לוח בקרה",
     "projects": "פרויקטים",
@@ -614,6 +600,38 @@
     "action": "פעולה",
     "entity": "ישות",
     "changes": "שינויים"
+  },
+  "projects": {
+    "editProject": "ערוך פרויקט",
+    "viewTeam": "צפה בצוות",
+    "exportReport": "ייצוא דוח",
+    "deleteProject": "מחק פרויקט",
+    "createNewProject": "צור פרויקט חדש",
+    "createProject": "צור פרויקט",
+    "projectName": "שם הפרויקט",
+    "projectCode": "קוד הפרויקט",
+    "codeCannotBeChanged": "לא ניתן לשנות את הקוד",
+    "codeHint": "אותיות, מספרים ומקפים בלבד",
+    "address": "כתובת",
+    "startDate": "תאריך התחלה",
+    "endDate": "תאריך סיום",
+    "deleteConfirmationMessage": "האם אתה בטוח שברצונך למחוק את \"{{name}}\"? פעולה זו תסיר לצמיתות את הפרויקט וכל הנתונים המשויכים אליו. לא ניתן לבטל פעולה זו."
+  },
+  "header": {
+    "notifications": "התראות",
+    "profile": "פרופיל",
+    "settings": "הגדרות",
+    "logout": "התנתק",
+    "viewAllNotifications": "צפה בכל ההתראות",
+    "noNewNotifications": "אין התראות חדשות",
+    "notifications_equipment_pending": "אישור ציוד ממתין",
+    "notifications_equipment_detail": "{{name}} דורש בדיקה",
+    "notifications_meeting_scheduled": "פגישה תוזמנה",
+    "notifications_meeting_detail": "{{name}} - {{date}} {{time}}",
+    "notifications_material_delivery": "עדכון אספקת חומרים",
+    "notifications_material_detail": "{{material}} - {{quantity}} יחידות התקבלו",
+    "profileComingSoon": "דף פרופיל בקרוב!",
+    "settingsComingSoon": "דף הגדרות בקרוב!"
   },
   "chat": {
     "title": "עוזר AI",

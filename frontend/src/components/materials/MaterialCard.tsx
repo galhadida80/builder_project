@@ -47,7 +47,7 @@ const LowStockBadge = styled(Chip)(({ theme }) => ({
   '& .MuiChip-icon': {
     color: '#FFFFFF',
     fontSize: '1rem',
-    marginLeft: '6px',
+    marginInlineStart: '6px',
   },
 }))
 
