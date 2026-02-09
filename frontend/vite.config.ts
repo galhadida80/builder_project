@@ -131,6 +131,7 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+    strictPort: true,
     proxy: {
       '/api': {
         target: 'http://localhost:8000',
@@ -140,6 +141,7 @@ export default defineConfig({
   },
   preview: {
     port: 5173,
+    strictPort: true,
   },
   test: {
     globals: true,
