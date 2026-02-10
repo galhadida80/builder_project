@@ -183,7 +183,14 @@ export default function RFIPage() {
         })
         showSuccess(t('rfis.updateSuccess'))
       } else {
-        await rfiApi.create(projectId, formData)
+        await rfiApi.create(projectId, {
+          ...formData,
+          due_date: formData.due_date || undefined,
+          to_name: formData.to_name || undefined,
+          location: formData.location || undefined,
+          drawing_reference: formData.drawing_reference || undefined,
+          specification_reference: formData.specification_reference || undefined,
+        })
         showSuccess(t('rfis.createSuccess'))
       }
       handleCloseDialog()

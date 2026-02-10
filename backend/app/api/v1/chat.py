@@ -84,6 +84,9 @@ async def chat_send(
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         logger.error(f"Chat error: {e}", exc_info=True)
+        error_str = str(e)
+        if "429" in error_str or "RESOURCE_EXHAUSTED" in error_str:
+            raise HTTPException(status_code=429, detail="AI service is busy. Please try again in a few seconds.")
         raise HTTPException(status_code=500, detail="Failed to process chat message")
 
 

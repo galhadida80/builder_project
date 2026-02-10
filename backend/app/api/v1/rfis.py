@@ -192,6 +192,8 @@ async def send_rfi(
         return await service.get_rfi(rfi.id)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Failed to send email: {str(e)}")
 
 
 @router.patch("/rfis/{rfi_id}/status", response_model=RFIResponse)
