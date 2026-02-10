@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Skeleton from '@mui/material/Skeleton'
@@ -24,13 +25,13 @@ interface InspectionHistoryTimelineProps {
 
 type DateRangeFilter = 'last_7_days' | 'last_30_days' | 'last_3_months' | 'last_6_months' | 'last_year' | 'all_time'
 
-const DATE_RANGE_OPTIONS: Array<{ value: DateRangeFilter; label: string }> = [
-  { value: 'last_7_days', label: 'Last 7 days' },
-  { value: 'last_30_days', label: 'Last 30 days' },
-  { value: 'last_3_months', label: 'Last 3 months' },
-  { value: 'last_6_months', label: 'Last 6 months' },
-  { value: 'last_year', label: 'Last year' },
-  { value: 'all_time', label: 'All time' },
+const DATE_RANGE_OPTIONS: Array<{ value: DateRangeFilter; labelKey: string }> = [
+  { value: 'last_7_days', labelKey: 'inspections.last7Days' },
+  { value: 'last_30_days', labelKey: 'inspections.last30Days' },
+  { value: 'last_3_months', labelKey: 'inspections.last3Months' },
+  { value: 'last_6_months', labelKey: 'inspections.last6Months' },
+  { value: 'last_year', labelKey: 'inspections.lastYear' },
+  { value: 'all_time', labelKey: 'inspections.allTime' },
 ]
 
 const getDateRangeDaysAgo = (range: DateRangeFilter): number | null => {
@@ -65,6 +66,7 @@ export function InspectionHistoryTimeline({
   onInspectionClick,
 }: InspectionHistoryTimelineProps) {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const [dateRange, setDateRange] = useState<DateRangeFilter>('last_3_months')
 
   const filterInspectionsByDateRange = (inspections: Inspection[]): Inspection[] => {
@@ -173,14 +175,14 @@ export function InspectionHistoryTimeline({
           >
             {DATE_RANGE_OPTIONS.map((option) => (
               <MenuItem key={option.value} value={option.value}>
-                {option.label}
+                {t(option.labelKey)}
               </MenuItem>
             ))}
           </MuiTextField>
         </Box>
         <EmptyState
-          title="No inspections found"
-          description="There are no inspections for this project in the selected date range."
+          title={t('inspections.noInspectionsInRange')}
+          description={t('inspections.noInspectionsInRangeDescription')}
           icon={<ScheduleIcon sx={{ fontSize: 48, color: 'text.secondary' }} />}
         />
       </Box>
@@ -197,11 +199,11 @@ export function InspectionHistoryTimeline({
           value={dateRange}
           onChange={(e) => setDateRange(e.target.value as DateRangeFilter)}
           sx={{ minWidth: { xs: '100%', sm: 200 } }}
-          label="Date Range"
+          label={t('inspections.dateRange')}
         >
           {DATE_RANGE_OPTIONS.map((option) => (
             <MenuItem key={option.value} value={option.value}>
-              {option.label}
+              {t(option.labelKey)}
             </MenuItem>
           ))}
         </MuiTextField>
@@ -317,7 +319,7 @@ export function InspectionHistoryTimeline({
                             {consultantTypeName}
                           </Typography>
                           <Typography variant="caption" color="text.secondary" display="block">
-                            Inspector: {inspectorName}
+                            {t('inspections.inspector')}: {inspectorName}
                           </Typography>
                         </Box>
                       </Box>
@@ -325,7 +327,7 @@ export function InspectionHistoryTimeline({
                         <Chip
                           size="small"
                           icon={config.icon as React.ReactElement}
-                          label={inspection.status.replace('_', ' ')}
+                          label={t(`common.statuses.${inspection.status}`, { defaultValue: inspection.status.replace('_', ' ') })}
                           color={config.color}
                           sx={{ textTransform: 'capitalize', fontWeight: 500 }}
                         />

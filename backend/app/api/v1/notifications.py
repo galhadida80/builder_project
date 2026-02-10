@@ -1,13 +1,15 @@
-from uuid import UUID
 from typing import Optional
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+
+from app.core.security import get_current_user
 from app.db.session import get_db
-from app.models.notification import Notification, NotificationCategory
+from app.models.notification import Notification
 from app.models.user import User
 from app.schemas.notification import NotificationResponse, UnreadCountResponse
-from app.core.security import get_current_user
 
 router = APIRouter()
 

@@ -1,16 +1,25 @@
 from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException, Request
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
-from app.db.session import get_db
-from app.models.meeting import Meeting, MeetingAttendee
-from app.models.user import User
-from app.schemas.meeting import MeetingCreate, MeetingUpdate, MeetingResponse, MeetingAttendeeCreate, MeetingAttendeeResponse
-from app.services.audit_service import create_audit_log, get_model_dict
-from app.models.audit import AuditAction
+
+from app.core.permissions import Permission, require_permission
 from app.core.security import get_current_user, verify_project_access
+from app.db.session import get_db
+from app.models.audit import AuditAction
+from app.models.meeting import Meeting, MeetingAttendee
 from app.models.project import ProjectMember
+from app.models.user import User
+from app.schemas.meeting import (
+    MeetingAttendeeCreate,
+    MeetingAttendeeResponse,
+    MeetingCreate,
+    MeetingResponse,
+    MeetingUpdate,
+)
+from app.services.audit_service import create_audit_log, get_model_dict
 from app.utils.localization import get_language_from_request, translate_message
 
 router = APIRouter()
@@ -59,10 +68,10 @@ async def list_meetings(
 async def create_meeting(
     project_id: UUID,
     data: MeetingCreate,
+    member: ProjectMember = require_permission(Permission.CREATE),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    await verify_project_access(project_id, current_user, db)
     meeting = Meeting(**data.model_dump(), project_id=project_id, created_by_id=current_user.id)
     db.add(meeting)
     await db.flush()
@@ -104,11 +113,11 @@ async def update_meeting(
     project_id: UUID,
     meeting_id: UUID,
     data: MeetingUpdate,
+    member: ProjectMember = require_permission(Permission.EDIT),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
     request: Request = None
 ):
-    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(Meeting).where(Meeting.id == meeting_id, Meeting.project_id == project_id)
     )
@@ -133,11 +142,11 @@ async def update_meeting(
 async def delete_meeting(
     project_id: UUID,
     meeting_id: UUID,
+    member: ProjectMember = require_permission(Permission.DELETE),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
     request: Request = None
 ):
-    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(Meeting).where(Meeting.id == meeting_id, Meeting.project_id == project_id)
     )
@@ -159,10 +168,10 @@ async def add_attendee(
     project_id: UUID,
     meeting_id: UUID,
     data: MeetingAttendeeCreate,
+    member: ProjectMember = require_permission(Permission.EDIT),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    await verify_project_access(project_id, current_user, db)
     attendee = MeetingAttendee(meeting_id=meeting_id, user_id=data.user_id, role=data.role)
     db.add(attendee)
     await db.flush()
@@ -175,10 +184,10 @@ async def remove_attendee(
     project_id: UUID,
     meeting_id: UUID,
     user_id: UUID,
+    member: ProjectMember = require_permission(Permission.DELETE),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(MeetingAttendee).where(
             MeetingAttendee.meeting_id == meeting_id,

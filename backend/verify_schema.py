@@ -2,14 +2,15 @@
 """
 Database schema verification script for equipment approval models
 """
-import sys
 import os
+import sys
 
 # Add backend to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'backend'))
 
 try:
     from sqlalchemy import create_engine, inspect, text
+
     from app.config import get_settings
 
     print("=" * 70)

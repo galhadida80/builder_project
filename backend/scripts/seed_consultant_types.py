@@ -7,7 +7,6 @@ Usage:
     python backend/scripts/seed_consultant_types.py            # Insert into database
 """
 import argparse
-import asyncio
 import sys
 from pathlib import Path
 
@@ -16,9 +15,9 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
+
 from app.config import get_settings
 from app.models.inspection import ConsultantType
-
 
 # Hardcoded consultant types as fallback or primary data source
 # Based on specification: 21 consultant types with 1-7 inspection stages
@@ -216,7 +215,7 @@ def seed_database(consultant_types: list[dict], dry_run: bool = False):
             session.commit()
 
             print(f"\n{'='*80}")
-            print(f"Seeding completed:")
+            print("Seeding completed:")
             print(f"  - Inserted: {inserted_count}")
             print(f"  - Skipped:  {skipped_count}")
             print(f"  - Total:    {inserted_count + skipped_count}")

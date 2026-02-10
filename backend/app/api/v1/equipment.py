@@ -1,19 +1,28 @@
 from typing import Optional
 from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
-from app.db.session import get_db
-from app.models.equipment import Equipment, EquipmentChecklist, ApprovalStatus
-from app.models.user import User
-from app.models.approval import ApprovalRequest, ApprovalStep
-from app.schemas.equipment import EquipmentCreate, EquipmentUpdate, EquipmentResponse, ChecklistCreate, ChecklistResponse
-from app.schemas.approval import SubmitForApprovalRequest
-from app.services.audit_service import create_audit_log, get_model_dict
-from app.models.audit import AuditAction
+
+from app.core.permissions import Permission, require_permission
 from app.core.security import get_current_user, verify_project_access
+from app.db.session import get_db
+from app.models.approval import ApprovalRequest, ApprovalStep
+from app.models.audit import AuditAction
+from app.models.equipment import ApprovalStatus, Equipment, EquipmentChecklist
 from app.models.project import ProjectMember
+from app.models.user import User
+from app.schemas.approval import SubmitForApprovalRequest
+from app.schemas.equipment import (
+    ChecklistCreate,
+    ChecklistResponse,
+    EquipmentCreate,
+    EquipmentResponse,
+    EquipmentUpdate,
+)
+from app.services.audit_service import create_audit_log, get_model_dict
 from app.utils.localization import get_language_from_request, translate_message
 
 router = APIRouter()
@@ -55,10 +64,10 @@ async def list_equipment(
 async def create_equipment(
     project_id: UUID,
     data: EquipmentCreate,
+    member: ProjectMember = require_permission(Permission.CREATE),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    await verify_project_access(project_id, current_user, db)
     equipment = Equipment(**data.model_dump(), project_id=project_id, created_by_id=current_user.id)
     db.add(equipment)
     await db.flush()
@@ -97,11 +106,11 @@ async def update_equipment(
     project_id: UUID,
     equipment_id: UUID,
     data: EquipmentUpdate,
+    member: ProjectMember = require_permission(Permission.EDIT),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
     request: Request = None,
 ):
-    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(Equipment).where(Equipment.id == equipment_id, Equipment.project_id == project_id)
     )
@@ -126,11 +135,11 @@ async def update_equipment(
 async def delete_equipment(
     project_id: UUID,
     equipment_id: UUID,
+    member: ProjectMember = require_permission(Permission.DELETE),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
     request: Request = None,
 ):
-    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(Equipment).where(Equipment.id == equipment_id, Equipment.project_id == project_id)
     )
@@ -152,11 +161,11 @@ async def submit_equipment_for_approval(
     project_id: UUID,
     equipment_id: UUID,
     body: SubmitForApprovalRequest = SubmitForApprovalRequest(),
+    member: ProjectMember = require_permission(Permission.APPROVE),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
     request: Request = None,
 ):
-    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(Equipment).where(Equipment.id == equipment_id, Equipment.project_id == project_id)
     )
@@ -202,10 +211,10 @@ async def create_checklist(
     project_id: UUID,
     equipment_id: UUID,
     data: ChecklistCreate,
+    member: ProjectMember = require_permission(Permission.CREATE),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    await verify_project_access(project_id, current_user, db)
     checklist = EquipmentChecklist(
         equipment_id=equipment_id,
         checklist_name=data.checklist_name,

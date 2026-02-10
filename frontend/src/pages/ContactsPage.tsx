@@ -16,6 +16,7 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import StarIcon from '@mui/icons-material/Star'
 import PersonIcon from '@mui/icons-material/Person'
 import GroupIcon from '@mui/icons-material/Group'
+import { useTranslation } from 'react-i18next'
 import { Card, KPICard } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { Avatar } from '../components/ui/Avatar'
@@ -29,16 +30,8 @@ import type { Contact } from '../types'
 import { useToast } from '../components/common/ToastProvider'
 import { validateContactForm, hasErrors,  type ValidationError } from '../utils/validation'
 
-const contactTypes = [
-  { value: 'contractor', label: 'Contractor', color: '#1976d2' },
-  { value: 'consultant', label: 'Consultant', color: '#9c27b0' },
-  { value: 'supervisor', label: 'Supervisor', color: '#2e7d32' },
-  { value: 'inspector', label: 'Inspector', color: '#ed6c02' },
-  { value: 'engineer', label: 'Engineer', color: '#0288d1' },
-  { value: 'manager', label: 'Manager', color: '#d32f2f' },
-]
-
 export default function ContactsPage() {
+  const { t } = useTranslation()
   const { projectId } = useParams()
   const { showError, showSuccess } = useToast()
   const [loading, setLoading] = useState(true)
@@ -60,6 +53,15 @@ export default function ContactsPage() {
     roleDescription: ''
   })
 
+  const contactTypes = [
+    { value: 'contractor', label: t('contacts.types.contractor'), color: '#1976d2' },
+    { value: 'consultant', label: t('contacts.types.consultant'), color: '#9c27b0' },
+    { value: 'supervisor', label: t('contacts.types.supervisor'), color: '#2e7d32' },
+    { value: 'inspector', label: t('contacts.types.inspector'), color: '#ed6c02' },
+    { value: 'engineer', label: t('contacts.types.engineer'), color: '#0288d1' },
+    { value: 'manager', label: t('contacts.types.manager'), color: '#d32f2f' },
+  ]
+
   useEffect(() => {
     loadContacts()
   }, [projectId])
@@ -70,7 +72,7 @@ export default function ContactsPage() {
       const data = await contactsApi.list(projectId!)
       setContacts(data)
     } catch {
-      showError('Failed to load contacts. Please try again.')
+      showError(t('contacts.failedToLoad'))
     } finally {
       setLoading(false)
     }
@@ -113,7 +115,7 @@ export default function ContactsPage() {
       email: formData.email,
       phone: formData.phone
     })
-    if (!formData.contactType) validationErrors.contactType = 'Contact type is required'
+    if (!formData.contactType) validationErrors.contactType = t('contacts.typeRequired')
     setErrors(validationErrors)
     if (hasErrors(validationErrors)) return
 
@@ -129,15 +131,15 @@ export default function ContactsPage() {
       }
       if (editingContact) {
         await contactsApi.update(projectId, editingContact.id, payload)
-        showSuccess('Contact updated successfully!')
+        showSuccess(t('contacts.updateSuccess'))
       } else {
         await contactsApi.create(projectId, payload)
-        showSuccess('Contact created successfully!')
+        showSuccess(t('contacts.createSuccess'))
       }
       handleCloseDialog()
       loadContacts()
     } catch {
-      showError(`Failed to ${editingContact ? 'update' : 'create'} contact. Please try again.`)
+      showError(editingContact ? t('contacts.failedToUpdate') : t('contacts.failedToCreate'))
     } finally {
       setSaving(false)
     }
@@ -152,12 +154,12 @@ export default function ContactsPage() {
     if (!projectId || !contactToDelete) return
     try {
       await contactsApi.delete(projectId, contactToDelete.id)
-      showSuccess('Contact deleted successfully!')
+      showSuccess(t('contacts.deleteSuccess'))
       setDeleteDialogOpen(false)
       setContactToDelete(null)
       loadContacts()
     } catch {
-      showError('Failed to delete contact. Please try again.')
+      showError(t('contacts.failedToDelete'))
     }
   }
 
@@ -197,12 +199,12 @@ export default function ContactsPage() {
   return (
     <Box sx={{ p: 3 }}>
       <PageHeader
-        title="Contacts"
-        subtitle="Manage project contacts and stakeholders"
-        breadcrumbs={[{ label: 'Projects', href: '/projects' }, { label: 'Contacts' }]}
+        title={t('contacts.title')}
+        subtitle={t('contacts.subtitle')}
+        breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('nav.contacts') }]}
         actions={
           <Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>
-            Add Contact
+            {t('contacts.addContact')}
           </Button>
         }
       />
@@ -216,19 +218,19 @@ export default function ContactsPage() {
         }}
       >
         <KPICard
-          title="Total Contacts"
+          title={t('contacts.totalContacts')}
           value={contacts.length}
           icon={<GroupIcon />}
           color="primary"
         />
         <KPICard
-          title="Contractors"
+          title={t('contacts.types.contractor')}
           value={typeCount('contractor')}
           icon={<PersonIcon />}
           color="info"
         />
         <KPICard
-          title="Consultants"
+          title={t('contacts.types.consultant')}
           value={typeCount('consultant')}
           icon={<PersonIcon />}
           color="warning"
@@ -239,16 +241,16 @@ export default function ContactsPage() {
         <Box sx={{ p: 2.5 }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
             <SearchField
-              placeholder="Search contacts..."
+              placeholder={t('contacts.searchPlaceholder')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-            <Chip label={`${filteredContacts.length} contacts`} size="small" />
+            <Chip label={`${filteredContacts.length} ${t('nav.contacts').toLowerCase()}`} size="small" />
           </Box>
 
           <Tabs
             items={[
-              { label: 'All', value: 'all', badge: contacts.length },
+              { label: t('common.all'), value: 'all', badge: contacts.length },
               ...contactTypes.map(type => ({
                 label: type.label,
                 value: type.value,
@@ -265,9 +267,9 @@ export default function ContactsPage() {
             <Box sx={{ mt: 4 }}>
               <EmptyState
                 variant="no-results"
-                title="No contacts found"
-                description="Try adjusting your search or add a new contact"
-                action={{ label: 'Add Contact', onClick: handleOpenCreate }}
+                title={t('contacts.noContacts')}
+                description={t('contacts.noContactsDescription')}
+                action={{ label: t('contacts.addContact'), onClick: handleOpenCreate }}
               />
             </Box>
           ) : (
@@ -351,10 +353,10 @@ export default function ContactsPage() {
                       )}
 
                       <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2, gap: 0.5 }}>
-                        <IconButton size="small" onClick={() => handleOpenEdit(contact)} title="Edit contact">
+                        <IconButton size="small" onClick={() => handleOpenEdit(contact)}>
                           <EditIcon fontSize="small" />
                         </IconButton>
-                        <IconButton size="small" onClick={() => handleDeleteClick(contact)} title="Delete contact" color="error">
+                        <IconButton size="small" onClick={() => handleDeleteClick(contact)} color="error">
                           <DeleteIcon fontSize="small" />
                         </IconButton>
                       </Box>
@@ -371,14 +373,14 @@ export default function ContactsPage() {
         open={dialogOpen}
         onClose={handleCloseDialog}
         onSubmit={handleSaveContact}
-        title={editingContact ? 'Edit Contact' : 'Add Contact'}
-        submitLabel={editingContact ? 'Save Changes' : 'Add Contact'}
+        title={editingContact ? t('contacts.editContact') : t('contacts.addContact')}
+        submitLabel={editingContact ? t('common.saveChanges') : t('contacts.addContact')}
         loading={saving}
       >
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
           <TextField
             fullWidth
-            label="Contact Name"
+            label={t('contacts.contactName')}
             required
             value={formData.contactName}
             onChange={(e) => setFormData({ ...formData, contactName: e.target.value })}
@@ -388,7 +390,7 @@ export default function ContactsPage() {
           <MuiTextField
             fullWidth
             select
-            label="Contact Type"
+            label={t('contacts.contactType')}
             required
             value={formData.contactType}
             onChange={(e) => setFormData({ ...formData, contactType: e.target.value })}
@@ -401,14 +403,14 @@ export default function ContactsPage() {
           </MuiTextField>
           <TextField
             fullWidth
-            label="Company Name"
+            label={t('contacts.companyName')}
             value={formData.companyName}
             onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
           />
           <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
             <TextField
               fullWidth
-              label="Email"
+              label={t('contacts.email')}
               type="email"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -417,7 +419,7 @@ export default function ContactsPage() {
             />
             <TextField
               fullWidth
-              label="Phone"
+              label={t('contacts.phone')}
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
               error={!!errors.phone}
@@ -426,7 +428,7 @@ export default function ContactsPage() {
           </Box>
           <TextField
             fullWidth
-            label="Role Description"
+            label={t('contacts.roleDescription')}
             multiline
             rows={2}
             value={formData.roleDescription}
@@ -439,9 +441,9 @@ export default function ContactsPage() {
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={handleConfirmDelete}
-        title="Delete Contact"
-        message={`Are you sure you want to delete "${contactToDelete?.contactName}"? This action cannot be undone.`}
-        confirmLabel="Delete"
+        title={t('contacts.deleteContact')}
+        message={t('contacts.deleteConfirmationMessage', { name: contactToDelete?.contactName })}
+        confirmLabel={t('common.delete')}
         variant="danger"
       />
     </Box>

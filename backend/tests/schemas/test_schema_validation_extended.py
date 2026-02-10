@@ -1,14 +1,19 @@
 import uuid
+
 import pytest
 from pydantic import ValidationError
+
 from app.schemas.chat import ChatMessageRequest
 from app.schemas.document_review import (
-    DocumentCommentCreate, DocumentCommentUpdate, DocumentReviewUpdate,
-)
-from app.schemas.inspection_template import (
-    InspectionStageTemplateCreate, InspectionFindingCreate,
+    DocumentCommentCreate,
+    DocumentCommentUpdate,
+    DocumentReviewUpdate,
 )
 from app.schemas.equipment_template import ConsultantTypeCreate
+from app.schemas.inspection_template import (
+    InspectionFindingCreate,
+    InspectionStageTemplateCreate,
+)
 
 UID = str(uuid.uuid4())
 XSS = [

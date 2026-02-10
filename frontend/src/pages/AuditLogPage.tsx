@@ -121,9 +121,9 @@ export default function AuditLogPage() {
       minWidth: 180,
       render: (row) => (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <Avatar name={row.user?.fullName || 'Unknown'} size="small" />
+          <Avatar name={row.user?.fullName || t('common.unknown')} size="small" />
           <Typography variant="body2" fontWeight={500}>
-            {row.user?.fullName || 'Unknown'}
+            {row.user?.fullName || t('common.unknown')}
           </Typography>
         </Box>
       ),
@@ -151,7 +151,7 @@ export default function AuditLogPage() {
               {config.icon}
             </Box>
             <Chip
-              label={row.action.replace('_', ' ')}
+              label={t(`auditLog.actions.${row.action}`, { defaultValue: row.action.replace('_', ' ') })}
               size="small"
               color={config.color}
               sx={{ textTransform: 'capitalize', fontWeight: 500 }}
@@ -166,7 +166,7 @@ export default function AuditLogPage() {
       minWidth: 120,
       render: (row) => (
         <Chip
-          label={row.entityType}
+          label={t(`auditLog.entities.${row.entityType}`, { defaultValue: row.entityType })}
           size="small"
           variant="outlined"
           sx={{ textTransform: 'capitalize' }}
@@ -281,7 +281,7 @@ export default function AuditLogPage() {
               >
                 <MenuItem value="">{t('auditLog.allActions')}</MenuItem>
                 {actionTypes.map(type => (
-                  <MenuItem key={type} value={type} sx={{ textTransform: 'capitalize' }}>{type.replace('_', ' ')}</MenuItem>
+                  <MenuItem key={type} value={type} sx={{ textTransform: 'capitalize' }}>{t(`auditLog.actions.${type}`, { defaultValue: type.replace('_', ' ') })}</MenuItem>
                 ))}
               </MuiTextField>
             </Box>
@@ -343,7 +343,7 @@ export default function AuditLogPage() {
               })()}
               <Box>
                 <Typography variant="h6" fontWeight={600} sx={{ textTransform: 'capitalize' }}>
-                  {selectedLog.action.replace('_', ' ')} {selectedLog.entityType}
+                  {t(`auditLog.actions.${selectedLog.action}`, { defaultValue: selectedLog.action.replace('_', ' ') })} {t(`auditLog.entities.${selectedLog.entityType}`, { defaultValue: selectedLog.entityType })}
                 </Typography>
                 <Chip
                   label={selectedLog.entityType}
@@ -364,12 +364,12 @@ export default function AuditLogPage() {
               <Box>
                 <Typography variant="caption" color="text.secondary" fontWeight={600}>{t('auditLog.user').toUpperCase()}</Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
-                  <Avatar name={selectedLog.user?.fullName || 'Unknown'} size="small" />
-                  <Typography variant="body2">{selectedLog.user?.fullName || 'Unknown'}</Typography>
+                  <Avatar name={selectedLog.user?.fullName || t('common.unknown')} size="small" />
+                  <Typography variant="body2">{selectedLog.user?.fullName || t('common.unknown')}</Typography>
                 </Box>
               </Box>
               <Box>
-                <Typography variant="caption" color="text.secondary" fontWeight={600}>ENTITY ID</Typography>
+                <Typography variant="caption" color="text.secondary" fontWeight={600}>{t('auditLog.entityId').toUpperCase()}</Typography>
                 <Typography variant="body2" sx={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>
                   {selectedLog.entityId}
                 </Typography>

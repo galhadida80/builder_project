@@ -1,17 +1,24 @@
 from __future__ import annotations
 
-from typing import Optional
-
-from uuid import UUID
 from datetime import datetime
 from decimal import Decimal
+from typing import Optional
+from uuid import UUID
+
 from pydantic import BaseModel, Field, field_validator
-from app.schemas.user import UserResponse
+
 from app.core.validators import (
-    sanitize_string, validate_code,
-    MIN_NAME_LENGTH, MAX_NAME_LENGTH, MAX_CODE_LENGTH, MAX_NOTES_LENGTH,
-    CamelCaseModel
+    MAX_CODE_LENGTH,
+    MAX_NAME_LENGTH,
+    MAX_NOTES_LENGTH,
+    MIN_NAME_LENGTH,
+    CamelCaseModel,
+    sanitize_string,
+    validate_code,
 )
+from app.schemas.user import UserResponse
+
+
 class AreaProgressCreate(BaseModel):
     progress_percentage: Decimal = Field(ge=0, le=100)
     notes: Optional[str] = Field(default=None, max_length=MAX_NOTES_LENGTH)

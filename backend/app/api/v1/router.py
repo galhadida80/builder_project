@@ -1,5 +1,33 @@
 from fastapi import APIRouter
-from app.api.v1 import projects, equipment, equipment_templates, material_templates, materials, meetings, approvals, areas, contacts, files, audit, auth, checklist_templates, checklists, analytics, rfis, webhooks, notifications, workload, consultant_types, consultant_assignments, document_reviews, document_analysis, chat, inspections
+
+from app.api.v1 import (
+    admin,
+    analytics,
+    approvals,
+    areas,
+    audit,
+    auth,
+    chat,
+    checklists,
+    consultant_assignments,
+    consultant_types,
+    contacts,
+    document_analysis,
+    document_reviews,
+    equipment,
+    equipment_templates,
+    files,
+    inspections,
+    invitations,
+    material_templates,
+    materials,
+    meetings,
+    notifications,
+    projects,
+    rfis,
+    webhooks,
+    workload,
+)
 
 api_router = APIRouter()
 
@@ -27,3 +55,5 @@ api_router.include_router(document_reviews.router, tags=["document_reviews"])
 api_router.include_router(document_analysis.router, tags=["document_analysis"])
 api_router.include_router(chat.router, tags=["chat"])
 api_router.include_router(inspections.router, tags=["inspections"])
+api_router.include_router(invitations.router, tags=["invitations"])
+api_router.include_router(admin.router, prefix="/admin", tags=["admin"])

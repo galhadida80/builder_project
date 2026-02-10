@@ -1,16 +1,17 @@
 """Security tests for validation, CSRF protection, and input sanitization."""
 
 import pytest
+from fastapi import HTTPException
+
+from app.core.csrf import CSRFTokenManager
 from app.core.validation import (
+    detect_sql_injection_attempt,
+    prevent_sql_injection,
     sanitize_string,
     validate_email,
     validate_password,
     validate_string_length,
-    detect_sql_injection_attempt,
-    prevent_sql_injection,
 )
-from app.core.csrf import CSRFTokenManager, csrf_manager
-from fastapi import HTTPException
 
 
 class TestInputSanitization:

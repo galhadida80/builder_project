@@ -1,12 +1,9 @@
 """Unit tests for EquipmentApprovalSubmission and EquipmentApprovalDecision models."""
-import uuid
-from datetime import datetime
-import pytest
 from app.models.equipment_template import (
-    EquipmentApprovalSubmission,
-    EquipmentApprovalDecision,
-    SubmissionStatus,
     DecisionType,
+    EquipmentApprovalDecision,
+    EquipmentApprovalSubmission,
+    SubmissionStatus,
 )
 
 

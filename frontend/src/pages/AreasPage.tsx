@@ -34,22 +34,22 @@ import type { ConstructionArea, AreaStatus } from '../types'
 import { validateAreaForm, hasErrors, VALIDATION, type ValidationError } from '../utils/validation'
 import { useToast } from '../components/common/ToastProvider'
 
-const areaTypes = [
-  { value: 'apartment', label: 'Apartment', icon: <ApartmentIcon /> },
-  { value: 'parking', label: 'Parking', icon: <LocalParkingIcon /> },
-  { value: 'roof', label: 'Roof', icon: <RoofingIcon /> },
-  { value: 'basement', label: 'Basement', icon: <FoundationIcon /> },
-  { value: 'facade', label: 'Facade', icon: <ApartmentIcon /> },
-  { value: 'common_area', label: 'Common Area', icon: <ApartmentIcon /> },
-]
+const AREA_TYPE_ICONS: Record<string, React.ReactNode> = {
+  apartment: <ApartmentIcon />,
+  parking: <LocalParkingIcon />,
+  roof: <RoofingIcon />,
+  basement: <FoundationIcon />,
+  facade: <ApartmentIcon />,
+  common_area: <ApartmentIcon />,
+}
 
-const getStatusConfig = (status: AreaStatus) => {
-  switch (status) {
-    case 'completed': return { color: 'success' as const, label: 'Completed', bg: 'success.light' }
-    case 'in_progress': return { color: 'info' as const, label: 'In Progress', bg: 'info.light' }
-    case 'awaiting_approval': return { color: 'warning' as const, label: 'Awaiting Approval', bg: 'warning.light' }
-    default: return { color: 'default' as const, label: 'Not Started', bg: 'action.hover' }
-  }
+const AREA_TYPE_KEYS = ['apartment', 'parking', 'roof', 'basement', 'facade', 'common_area'] as const
+
+const STATUS_COLORS: Record<string, 'success' | 'info' | 'warning' | 'default'> = {
+  completed: 'success',
+  in_progress: 'info',
+  awaiting_approval: 'warning',
+  not_started: 'default',
 }
 
 interface AreaNodeProps {
@@ -66,9 +66,9 @@ function AreaNode({ area, level, onEdit, onDelete, t }: AreaNodeProps) {
   const overallProgress: number = area.progress && area.progress.length > 0
     ? Math.round(area.progress.reduce((sum, p) => sum + p.progressPercent, 0) / area.progress.length)
     : 0
-  const areaType = areaTypes.find(t => t.value === area.areaType)
+  const areaTypeIcon = AREA_TYPE_ICONS[area.areaType || ''] || <ApartmentIcon />
   const derivedStatus: AreaStatus = overallProgress === 100 ? 'completed' : overallProgress > 0 ? 'in_progress' : 'not_started'
-  const statusConfig = getStatusConfig(derivedStatus)
+  const statusColor = STATUS_COLORS[derivedStatus] || 'default'
 
   return (
     <Box sx={{ marginInlineStart: level * 3 }}>
@@ -101,7 +101,7 @@ function AreaNode({ area, level, onEdit, onDelete, t }: AreaNodeProps) {
                   color: 'primary.main',
                 }}
               >
-                {areaType?.icon || <ApartmentIcon />}
+                {areaTypeIcon}
               </Box>
 
               <Box>
@@ -142,9 +142,9 @@ function AreaNode({ area, level, onEdit, onDelete, t }: AreaNodeProps) {
               </Box>
 
               <Chip
-                label={statusConfig.label}
+                label={t(`areas.statuses.${derivedStatus}`)}
                 size="small"
-                color={statusConfig.color}
+                color={statusColor}
                 sx={{ fontWeight: 500, minWidth: 100 }}
               />
 
@@ -527,7 +527,7 @@ export default function AreasPage() {
               onChange={(e) => setFormData({ ...formData, areaType: e.target.value })}
             >
               <MenuItem value="">{t('areas.selectType')}</MenuItem>
-              {areaTypes.map(type => <MenuItem key={type.value} value={type.value}>{type.label}</MenuItem>)}
+              {AREA_TYPE_KEYS.map(key => <MenuItem key={key} value={key}>{t(`areas.types.${key}`)}</MenuItem>)}
             </MuiTextField>
             <MuiTextField
               fullWidth

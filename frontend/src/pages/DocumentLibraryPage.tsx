@@ -5,6 +5,7 @@ import FolderIcon from '@mui/icons-material/Folder'
 import DescriptionIcon from '@mui/icons-material/Description'
 import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile'
+import { useTranslation } from 'react-i18next'
 import { Card, KPICard } from '../components/ui/Card'
 import { PageHeader } from '../components/ui/Breadcrumbs'
 import { SearchField } from '../components/ui/TextField'
@@ -19,6 +20,7 @@ import { filesApi } from '../api/files'
 import type { FileRecord } from '../types'
 
 export default function DocumentLibraryPage() {
+  const { t } = useTranslation()
   const { projectId } = useParams()
   const { showError, showSuccess } = useToast()
   const [search, setSearch] = useState('')
@@ -45,9 +47,9 @@ export default function DocumentLibraryPage() {
   const handleUpload = async (file: File) => {
     try {
       await uploadFile(file)
-      showSuccess(`${file.name} uploaded successfully`)
+      showSuccess(t('documents.uploadSuccess', { name: file.name }))
     } catch (error) {
-      showError(`Failed to upload ${file.name}`)
+      showError(t('documents.uploadFailed', { name: file.name }))
       throw error
     }
   }
@@ -62,9 +64,9 @@ export default function DocumentLibraryPage() {
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
-      showSuccess(`Downloading ${file.filename}`)
+      showSuccess(t('documents.downloading', { name: file.filename }))
     } catch (error) {
-      showError(`Failed to download ${file.filename}`)
+      showError(t('documents.downloadFailed', { name: file.filename }))
     }
   }
 
@@ -77,20 +79,18 @@ export default function DocumentLibraryPage() {
     if (!fileToDelete) return
     try {
       await deleteFile(fileToDelete.id)
-      showSuccess(`${fileToDelete.filename} deleted successfully`)
+      showSuccess(t('documents.deleteSuccess', { name: fileToDelete.filename }))
       setDeleteModalOpen(false)
       setFileToDelete(null)
     } catch (error) {
-      showError(`Failed to delete ${fileToDelete.filename}`)
+      showError(t('documents.deleteFailed', { name: fileToDelete.filename }))
     }
   }
 
-  // Filter files by search query
   const filteredFiles = files.filter((file) =>
     file.filename.toLowerCase().includes(search.toLowerCase())
   )
 
-  // Calculate KPI stats
   const totalFiles = files.length
   const totalFolders = folders.reduce((count, folder) => {
     const countChildren = (f: typeof folders[0]): number => {
@@ -127,12 +127,11 @@ export default function DocumentLibraryPage() {
   return (
     <Box sx={{ p: 3 }}>
       <PageHeader
-        title="Documents"
-        subtitle="Manage and organize project documents with folders and file uploads"
-        breadcrumbs={[{ label: 'Projects', href: '/projects' }, { label: 'Documents' }]}
+        title={t('documents.title')}
+        subtitle={t('documents.subtitle')}
+        breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('documents.title') }]}
       />
 
-      {/* KPI Cards */}
       <Box
         sx={{
           display: 'grid',
@@ -141,26 +140,11 @@ export default function DocumentLibraryPage() {
           mb: 4,
         }}
       >
+        <KPICard title={t('documents.totalFiles')} value={totalFiles} icon={<DescriptionIcon />} color="primary" />
+        <KPICard title={t('documents.totalFolders')} value={totalFolders} icon={<FolderIcon />} color="warning" />
+        <KPICard title={t('documents.totalSize')} value={formatTotalSize(totalSize)} icon={<CloudUploadIcon />} color="info" />
         <KPICard
-          title="Total Files"
-          value={totalFiles}
-          icon={<DescriptionIcon />}
-          color="primary"
-        />
-        <KPICard
-          title="Total Folders"
-          value={totalFolders}
-          icon={<FolderIcon />}
-          color="warning"
-        />
-        <KPICard
-          title="Total Size"
-          value={formatTotalSize(totalSize)}
-          icon={<CloudUploadIcon />}
-          color="info"
-        />
-        <KPICard
-          title="Recent Uploads"
+          title={t('documents.recentUploads')}
           value={files.filter((f) => {
             const dayAgo = new Date()
             dayAgo.setDate(dayAgo.getDate() - 1)
@@ -171,9 +155,7 @@ export default function DocumentLibraryPage() {
         />
       </Box>
 
-      {/* Three-panel layout */}
       <Grid container spacing={3}>
-        {/* Left Sidebar - Folder Tree */}
         <Grid item xs={12} md={3}>
           <Card>
             <Box sx={{ p: 2.5 }}>
@@ -190,24 +172,21 @@ export default function DocumentLibraryPage() {
           </Card>
         </Grid>
 
-        {/* Center Panel - File List & Upload */}
         <Grid item xs={12} md={6}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            {/* Upload Zone */}
             <UploadZone onUpload={handleUpload} disabled={uploading} />
 
-            {/* File List */}
             <Card>
               <Box sx={{ p: 2.5 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
                   <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flex: 1 }}>
                     <SearchField
-                      placeholder="Search files..."
+                      placeholder={t('documents.searchPlaceholder')}
                       value={search}
                       onChange={(e) => setSearch(e.target.value)}
                     />
                   </Box>
-                  <Chip label={`${filteredFiles.length} files`} size="small" />
+                  <Chip label={`${filteredFiles.length} ${t('documents.files')}`} size="small" />
                 </Box>
 
                 <FileList
@@ -218,8 +197,8 @@ export default function DocumentLibraryPage() {
                   onDelete={handleDeleteClick}
                   emptyMessage={
                     search
-                      ? 'No files match your search'
-                      : 'No files in this folder. Upload files to get started.'
+                      ? t('documents.noSearchResults')
+                      : t('documents.noFiles')
                   }
                 />
               </Box>
@@ -227,7 +206,6 @@ export default function DocumentLibraryPage() {
           </Box>
         </Grid>
 
-        {/* Right Panel - File Preview */}
         <Grid item xs={12} md={3}>
           <Box sx={{ position: 'sticky', top: 24 }}>
             {projectId && (
@@ -242,7 +220,6 @@ export default function DocumentLibraryPage() {
         </Grid>
       </Grid>
 
-      {/* Delete Confirmation Modal */}
       <ConfirmModal
         open={deleteModalOpen}
         onClose={() => {
@@ -250,9 +227,9 @@ export default function DocumentLibraryPage() {
           setFileToDelete(null)
         }}
         onConfirm={handleConfirmDelete}
-        title="Delete File"
-        message={`Are you sure you want to delete "${fileToDelete?.filename}"? This action cannot be undone.`}
-        confirmLabel="Delete"
+        title={t('documents.deleteFile')}
+        message={t('documents.deleteConfirmation', { name: fileToDelete?.filename })}
+        confirmLabel={t('common.delete')}
         variant="danger"
       />
     </Box>

@@ -1,23 +1,22 @@
 import Box from '@mui/material/Box'
+import { useTranslation } from 'react-i18next'
 import { PageHeader } from '../components/ui/Breadcrumbs'
 import { Card } from '../components/ui/Card'
 import { ApprovalQueueList } from '../components/ApprovalQueueList'
 import type { ApprovalRequest } from '../types'
 
 export default function ApprovalQueuePage() {
+  const { t } = useTranslation()
   const handleViewDetails = (approval: ApprovalRequest) => {
-    // Navigate to approval details page when implemented
-    // Future implementation: Use react-router-dom's useNavigate to navigate to detail page
-    // e.g., navigate(`/approvals/${approval.id}`)
-    void approval // Prevent unused parameter warning
+    void approval
   }
 
   return (
     <Box sx={{ p: 3 }}>
       <PageHeader
-        title="Approval Queue"
-        subtitle="Review and manage pending approvals"
-        breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Approval Queue' }]}
+        title={t('approvalQueue.title')}
+        subtitle={t('approvalQueue.subtitle')}
+        breadcrumbs={[{ label: t('nav.dashboard'), href: '/dashboard' }, { label: t('approvalQueue.title') }]}
       />
 
       <Card>

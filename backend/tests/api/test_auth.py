@@ -1,18 +1,26 @@
 import uuid
-import pytest
 from datetime import datetime, timedelta
-from jose import jwt
+
+import pytest
 from httpx import AsyncClient
+from jose import jwt
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.models.user import User
+
 from app.core.security import (
-    get_password_hash, verify_password, create_access_token,
-    decode_access_token, SECRET_KEY, ALGORITHM,
+    ALGORITHM,
+    SECRET_KEY,
+    create_access_token,
+    decode_access_token,
+    get_password_hash,
+    verify_password,
 )
 from app.core.validation import (
-    validate_email, validate_password, sanitize_string,
     detect_sql_injection_attempt,
+    sanitize_string,
+    validate_email,
+    validate_password,
 )
+from app.models.user import User
 
 API = "/api/v1/auth"
 
@@ -465,7 +473,7 @@ class TestLoginFailure:
     @pytest.mark.asyncio
     async def test_login_inactive_user(self, client: AsyncClient, db: AsyncSession):
         await client.post(f"{API}/register", json=_reg())
-        from sqlalchemy import select, update
+        from sqlalchemy import update
         await db.execute(update(User).where(User.email == "new@test.com").values(is_active=False))
         await db.commit()
         resp = await client.post(f"{API}/login", json=_login())

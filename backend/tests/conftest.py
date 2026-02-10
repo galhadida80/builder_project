@@ -1,22 +1,22 @@
-import os
-import uuid
 import asyncio
+import uuid
 from typing import AsyncGenerator, Generator
+
 import pytest
-from httpx import AsyncClient, ASGITransport
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
-from sqlalchemy.pool import StaticPool
-from sqlalchemy import JSON, String, event
-from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
-from sqlalchemy.ext.compiler import compiles
 from fastapi import HTTPException
+from httpx import ASGITransport, AsyncClient
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.compiler import compiles
+from sqlalchemy.pool import StaticPool
+
 from app.db.session import Base, get_db
 from app.main import app
-from app.models.user import User
-from app.models.project import Project, ProjectMember
-from app.models.equipment_template import EquipmentTemplate
 from app.models.equipment_submission import EquipmentSubmission
-from app.models.approval_decision import ApprovalDecision
+from app.models.equipment_template import EquipmentTemplate
+from app.models.project import Project, ProjectMember
+from app.models.user import User
 
 compiles(JSONB, "sqlite")(lambda element, compiler, **kw: compiler.visit_JSON(element, **kw))
 compiles(PG_UUID, "sqlite")(lambda element, compiler, **kw: "VARCHAR(36)")
@@ -82,7 +82,7 @@ async def client(db: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
 @pytest.fixture(scope="function")
 async def admin_client(db: AsyncSession, admin_user: User) -> AsyncGenerator[AsyncClient, None]:
     """Fixture that provides an async HTTP client authenticated as an admin user."""
-    from app.core.security import get_current_user, get_current_admin_user
+    from app.core.security import get_current_admin_user, get_current_user
 
     async def override_get_db():
         yield db
@@ -111,7 +111,7 @@ async def admin_client(db: AsyncSession, admin_user: User) -> AsyncGenerator[Asy
 @pytest.fixture(scope="function")
 async def user_client(db: AsyncSession, regular_user: User) -> AsyncGenerator[AsyncClient, None]:
     """Fixture that provides an async HTTP client authenticated as a regular user."""
-    from app.core.security import get_current_user, get_current_admin_user
+    from app.core.security import get_current_admin_user, get_current_user
 
     async def override_get_db():
         yield db

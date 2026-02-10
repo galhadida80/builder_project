@@ -6,9 +6,11 @@ Create Date: 2026-01-30 12:19:41.373028
 
 """
 from typing import Sequence, Union
-from alembic import op
+
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
+
+from alembic import op
 
 revision: str = 'b348f02ac109'
 down_revision: Union[str, None] = '003'

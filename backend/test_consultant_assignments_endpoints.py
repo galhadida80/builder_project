@@ -5,7 +5,6 @@ This script verifies the endpoint definitions are correct.
 """
 
 import sys
-import inspect
 
 # Add the app directory to the path
 sys.path.insert(0, 'app')
@@ -69,8 +68,8 @@ def test_schema_definitions():
     try:
         from app.schemas.consultant_assignment import (
             ConsultantAssignmentCreate,
+            ConsultantAssignmentResponse,
             ConsultantAssignmentUpdate,
-            ConsultantAssignmentResponse
         )
         print("✓ Successfully imported all required schemas")
         print("  - ConsultantAssignmentCreate")

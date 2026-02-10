@@ -2,10 +2,7 @@
 Seed equipment templates based on רשימת ציוד לאישור.xlsx
 Run this script to populate the database with equipment templates
 """
-import asyncio
 import uuid
-from datetime import datetime
-
 
 EQUIPMENT_TEMPLATES = [
     {

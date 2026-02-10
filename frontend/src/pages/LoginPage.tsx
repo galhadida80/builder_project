@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
@@ -21,12 +21,17 @@ import GroupsIcon from '@mui/icons-material/Groups'
 import { Button } from '../components/ui/Button'
 import { TextField } from '../components/ui/TextField'
 import { SegmentedTabs } from '../components/ui/Tabs'
-import { authApi } from '../api/auth'
+import { useAuth } from '../contexts/AuthContext'
+import { invitationsApi } from '../api/invitations'
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const { t } = useTranslation()
-  const [tab, setTab] = useState('signin')
+  const { login, register } = useAuth()
+  const inviteToken = searchParams.get('invite')
+  const initialTab = searchParams.get('tab') || 'signin'
+  const [tab, setTab] = useState(initialTab)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [fullName, setFullName] = useState('')
@@ -56,9 +61,16 @@ export default function LoginPage() {
     setError(null)
 
     try {
-      const response = await authApi.login(email, password)
-      localStorage.setItem('authToken', response.access_token)
-      localStorage.setItem('userId', response.user.id)
+      await login(email, password)
+      if (inviteToken) {
+        try {
+          const result = await invitationsApi.accept(inviteToken)
+          if (result.projectId) {
+            navigate(`/projects/${result.projectId}/overview`)
+            return
+          }
+        } catch { /* ignore invite accept errors */ }
+      }
       navigate('/dashboard')
     } catch (err: unknown) {
       const error = err as { response?: { data?: { detail?: string } } }
@@ -86,12 +98,8 @@ export default function LoginPage() {
     }
 
     try {
-      await authApi.register(email, password, fullName)
-      setSuccess(t('accountCreated'))
-      setTab('signin')
-      setPassword('')
-      setConfirmPassword('')
-      setFullName('')
+      await register(email, password, fullName, inviteToken || undefined)
+      navigate('/dashboard')
     } catch (err: unknown) {
       const error = err as { response?: { data?: { detail?: string } } }
       setError(error.response?.data?.detail || t('registrationFailed'))
@@ -265,7 +273,7 @@ export default function LoginPage() {
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <CheckCircleOutlineIcon sx={{ fontSize: 16, opacity: 0.6 }} />
                 <Typography variant="caption" sx={{ opacity: 0.6 }}>
-                  {t('terms').includes('Terms') ? 'Trusted by 500+ construction teams worldwide' : t('terms')}
+                  {t('trustBadge')}
                 </Typography>
               </Box>
             </Box>
@@ -391,7 +399,7 @@ export default function LoginPage() {
                           onClick={() => setShowPassword(!showPassword)}
                           edge="end"
                           size="small"
-                          aria-label={showPassword ? 'Hide password' : 'Show password'}
+                          aria-label={showPassword ? t('hidePassword') : t('showPassword')}
                           sx={{ color: 'text.disabled' }}
                         >
                           {showPassword ? (
@@ -477,7 +485,7 @@ export default function LoginPage() {
                           onClick={() => setShowPassword(!showPassword)}
                           edge="end"
                           size="small"
-                          aria-label={showPassword ? 'Hide password' : 'Show password'}
+                          aria-label={showPassword ? t('hidePassword') : t('showPassword')}
                           sx={{ color: 'text.disabled' }}
                         >
                           {showPassword ? (

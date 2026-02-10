@@ -5,6 +5,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { Dayjs } from 'dayjs'
+import { useTranslation } from 'react-i18next'
 
 interface DateRangeSelectorProps {
   startDate: Dayjs | null
@@ -13,6 +14,7 @@ interface DateRangeSelectorProps {
 }
 
 export default function DateRangeSelector({ startDate, endDate, onDateChange }: DateRangeSelectorProps) {
+  const { t } = useTranslation()
   const [localStartDate, setLocalStartDate] = useState<Dayjs | null>(startDate)
   const [localEndDate, setLocalEndDate] = useState<Dayjs | null>(endDate)
   const [endDateError, setEndDateError] = useState<string | null>(null)
@@ -28,9 +30,8 @@ export default function DateRangeSelector({ startDate, endDate, onDateChange }: 
   const handleStartDateChange = (newValue: Dayjs | null) => {
     setLocalStartDate(newValue)
 
-    // Validate that end date is after start date
     if (newValue && localEndDate && newValue.isAfter(localEndDate)) {
-      setEndDateError('End date must be after start date')
+      setEndDateError(t('analytics.endDateError'))
     } else {
       setEndDateError(null)
       onDateChange(newValue, localEndDate)
@@ -40,9 +41,8 @@ export default function DateRangeSelector({ startDate, endDate, onDateChange }: 
   const handleEndDateChange = (newValue: Dayjs | null) => {
     setLocalEndDate(newValue)
 
-    // Validate that end date is after start date
     if (localStartDate && newValue && newValue.isBefore(localStartDate)) {
-      setEndDateError('End date must be after start date')
+      setEndDateError(t('analytics.endDateError'))
     } else {
       setEndDateError(null)
       onDateChange(localStartDate, newValue)
@@ -61,7 +61,7 @@ export default function DateRangeSelector({ startDate, endDate, onDateChange }: 
       >
         <Box sx={{ flex: 1, minWidth: { xs: '100%', sm: '200px' } }}>
           <DatePicker
-            label="Start Date"
+            label={t('analytics.startDate')}
             value={localStartDate}
             onChange={handleStartDateChange}
             slotProps={{
@@ -75,7 +75,7 @@ export default function DateRangeSelector({ startDate, endDate, onDateChange }: 
 
         <Box sx={{ flex: 1, minWidth: { xs: '100%', sm: '200px' } }}>
           <DatePicker
-            label="End Date"
+            label={t('analytics.endDate')}
             value={localEndDate}
             onChange={handleEndDateChange}
             minDate={localStartDate || undefined}

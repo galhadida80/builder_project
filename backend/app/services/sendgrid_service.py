@@ -1,12 +1,22 @@
 import logging
 from typing import Optional
+
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import (
-    Mail, Email, To, Cc, Content, Attachment,
-    FileContent, FileName, FileType, Disposition,
-    Header, CustomArg
+    Attachment,
+    Cc,
+    Content,
+    CustomArg,
+    Disposition,
+    Email,
+    FileContent,
+    FileName,
+    FileType,
+    Header,
+    Mail,
+    To,
 )
-import base64
+
 from app.config import get_settings
 
 logger = logging.getLogger(__name__)

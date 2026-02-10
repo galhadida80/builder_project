@@ -1,11 +1,10 @@
 import uuid
-from decimal import Decimal
 
 import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.equipment import Equipment, ApprovalStatus
+from app.models.equipment import ApprovalStatus, Equipment
 from app.models.material import Material
 from app.models.project import Project, ProjectMember
 from app.models.user import User

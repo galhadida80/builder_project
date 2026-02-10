@@ -1,21 +1,18 @@
-import uuid
 import base64
 import json
+import uuid
 from datetime import datetime, timedelta
 
 import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.user import User
-from app.models.project import Project, ProjectMember
-from app.models.inspection_template import InspectionConsultantType
-from app.models.equipment_template import ConsultantType
-from app.models.notification import Notification
-from app.models.file import File
 from app.models.document_analysis import DocumentAnalysis
-from app.models.document_review import DocumentReview, ReviewStatus
-
+from app.models.document_review import ReviewStatus
+from app.models.file import File
+from app.models.notification import Notification
+from app.models.project import Project
+from app.models.user import User
 
 # =====================================================================
 # Helpers

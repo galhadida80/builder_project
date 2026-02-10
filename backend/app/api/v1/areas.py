@@ -1,16 +1,19 @@
 from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException, Request
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
-from app.db.session import get_db
-from app.models.area import ConstructionArea, AreaProgress
-from app.models.user import User
-from app.schemas.area import AreaCreate, AreaUpdate, AreaResponse, AreaProgressCreate, AreaProgressResponse
-from app.services.audit_service import create_audit_log, get_model_dict
-from app.models.audit import AuditAction
+
+from app.core.permissions import Permission, require_permission
 from app.core.security import get_current_user, verify_project_access
+from app.db.session import get_db
+from app.models.area import AreaProgress, ConstructionArea
+from app.models.audit import AuditAction
 from app.models.project import ProjectMember
+from app.models.user import User
+from app.schemas.area import AreaCreate, AreaProgressCreate, AreaProgressResponse, AreaResponse, AreaUpdate
+from app.services.audit_service import create_audit_log, get_model_dict
 from app.utils.localization import get_language_from_request, translate_message
 
 router = APIRouter()
@@ -39,10 +42,10 @@ async def list_areas(
 async def create_area(
     project_id: UUID,
     data: AreaCreate,
+    member: ProjectMember = require_permission(Permission.CREATE),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    await verify_project_access(project_id, current_user, db)
     area = ConstructionArea(**data.model_dump(), project_id=project_id)
     db.add(area)
     await db.flush()
@@ -84,11 +87,11 @@ async def update_area(
     project_id: UUID,
     area_id: UUID,
     data: AreaUpdate,
+    member: ProjectMember = require_permission(Permission.EDIT),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
     request: Request = None
 ):
-    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(ConstructionArea).where(ConstructionArea.id == area_id, ConstructionArea.project_id == project_id)
     )
@@ -113,11 +116,11 @@ async def update_area(
 async def delete_area(
     project_id: UUID,
     area_id: UUID,
+    member: ProjectMember = require_permission(Permission.DELETE),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
     request: Request = None
 ):
-    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(ConstructionArea).where(ConstructionArea.id == area_id, ConstructionArea.project_id == project_id)
     )
@@ -139,11 +142,11 @@ async def add_progress_update(
     project_id: UUID,
     area_id: UUID,
     data: AreaProgressCreate,
+    member: ProjectMember = require_permission(Permission.CREATE),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
     request: Request = None
 ):
-    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(ConstructionArea).where(ConstructionArea.id == area_id, ConstructionArea.project_id == project_id)
     )

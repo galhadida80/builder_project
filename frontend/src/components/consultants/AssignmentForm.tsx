@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import Box from '@mui/material/Box'
 import MenuItem from '@mui/material/MenuItem'
 import MuiTextField from '@mui/material/TextField'
+import { useTranslation } from 'react-i18next'
 import { TextField } from '../ui/TextField'
 import { FormModal } from '../ui/Modal'
 import type { ConsultantAssignment, AssignmentStatus } from '../../types/consultantAssignment'
@@ -33,13 +34,6 @@ export interface AssignmentFormData {
   notes?: string
 }
 
-const statusOptions: { value: AssignmentStatus; label: string }[] = [
-  { value: 'pending', label: 'Pending' },
-  { value: 'active', label: 'Active' },
-  { value: 'completed', label: 'Completed' },
-  { value: 'cancelled', label: 'Cancelled' },
-]
-
 export function AssignmentForm({
   open,
   onClose,
@@ -50,6 +44,15 @@ export function AssignmentForm({
   consultantTypes = [],
   loading = false,
 }: AssignmentFormProps) {
+  const { t } = useTranslation()
+
+  const statusOptions: { value: AssignmentStatus; label: string }[] = [
+    { value: 'pending', label: t('common.pending') },
+    { value: 'active', label: t('common.active') },
+    { value: 'completed', label: t('common.completed') },
+    { value: 'cancelled', label: t('consultantAssignments.cancelled') },
+  ]
+
   const [formData, setFormData] = useState<AssignmentFormData>({
     consultantId: '',
     projectId: '',
@@ -93,31 +96,31 @@ export function AssignmentForm({
     const newErrors: Record<string, string> = {}
 
     if (!formData.consultantId) {
-      newErrors.consultantId = 'Consultant is required'
+      newErrors.consultantId = t('consultantAssignments.consultantRequired')
     }
 
     if (!formData.projectId) {
-      newErrors.projectId = 'Project is required'
+      newErrors.projectId = t('consultantAssignments.projectRequired')
     }
 
     if (!formData.startDate) {
-      newErrors.startDate = 'Start date is required'
+      newErrors.startDate = t('consultantAssignments.startDateRequired')
     }
 
     if (!formData.endDate) {
-      newErrors.endDate = 'End date is required'
+      newErrors.endDate = t('consultantAssignments.endDateRequired')
     }
 
     if (formData.startDate && formData.endDate) {
       const start = new Date(formData.startDate)
       const end = new Date(formData.endDate)
       if (end < start) {
-        newErrors.endDate = 'End date must be after start date'
+        newErrors.endDate = t('consultantAssignments.endDateAfterStart')
       }
     }
 
     if (formData.notes && formData.notes.length > 500) {
-      newErrors.notes = 'Notes must be less than 500 characters'
+      newErrors.notes = t('consultantAssignments.notesMaxLength')
     }
 
     setErrors(newErrors)
@@ -158,8 +161,8 @@ export function AssignmentForm({
       open={open}
       onClose={handleClose}
       onSubmit={handleSubmit}
-      title={assignment ? 'Edit Assignment' : 'Create New Assignment'}
-      submitLabel={assignment ? 'Save Changes' : 'Create Assignment'}
+      title={assignment ? t('consultantAssignments.editAssignment') : t('consultantAssignments.createNewAssignment')}
+      submitLabel={assignment ? t('consultantAssignments.saveChanges') : t('consultantAssignments.createAssignment')}
       loading={loading}
       submitDisabled={loading}
     >
@@ -168,7 +171,7 @@ export function AssignmentForm({
         <MuiTextField
           fullWidth
           select
-          label="Consultant"
+          label={t('consultantAssignments.consultant')}
           required
           value={formData.consultantId}
           onChange={(e) => setFormData({ ...formData, consultantId: e.target.value })}
@@ -176,7 +179,7 @@ export function AssignmentForm({
           helperText={errors.consultantId}
           disabled={loading}
         >
-          <MenuItem value="">Select consultant...</MenuItem>
+          <MenuItem value="">{t('consultantAssignments.selectConsultant')}</MenuItem>
           {consultants.map((consultant) => (
             <MenuItem key={consultant.id} value={consultant.id}>
               {consultant.fullName || consultant.email}
@@ -188,7 +191,7 @@ export function AssignmentForm({
         <MuiTextField
           fullWidth
           select
-          label="Project"
+          label={t('consultantAssignments.project')}
           required
           value={formData.projectId}
           onChange={(e) => setFormData({ ...formData, projectId: e.target.value })}
@@ -196,7 +199,7 @@ export function AssignmentForm({
           helperText={errors.projectId}
           disabled={loading}
         >
-          <MenuItem value="">Select project...</MenuItem>
+          <MenuItem value="">{t('consultantAssignments.selectProject')}</MenuItem>
           {projects.map((project) => (
             <MenuItem key={project.id} value={project.id}>
               {project.name}
@@ -208,12 +211,12 @@ export function AssignmentForm({
         <MuiTextField
           fullWidth
           select
-          label="Consultant Type"
+          label={t('consultantAssignments.consultantType')}
           value={formData.consultantTypeId}
           onChange={(e) => setFormData({ ...formData, consultantTypeId: e.target.value })}
           disabled={loading}
         >
-          <MenuItem value="">None</MenuItem>
+          <MenuItem value="">{t('consultantAssignments.noneType')}</MenuItem>
           {consultantTypes.map((type) => (
             <MenuItem key={type.id} value={type.id}>
               {type.name}
@@ -225,7 +228,7 @@ export function AssignmentForm({
         <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
           <TextField
             fullWidth
-            label="Start Date"
+            label={t('consultantAssignments.startDate')}
             type="date"
             required
             InputLabelProps={{ shrink: true }}
@@ -237,7 +240,7 @@ export function AssignmentForm({
           />
           <TextField
             fullWidth
-            label="End Date"
+            label={t('consultantAssignments.endDate')}
             type="date"
             required
             InputLabelProps={{ shrink: true }}
@@ -253,7 +256,7 @@ export function AssignmentForm({
         <MuiTextField
           fullWidth
           select
-          label="Status"
+          label={t('consultantAssignments.status')}
           required
           value={formData.status}
           onChange={(e) => setFormData({ ...formData, status: e.target.value as AssignmentStatus })}
@@ -269,7 +272,7 @@ export function AssignmentForm({
         {/* Notes */}
         <TextField
           fullWidth
-          label="Notes"
+          label={t('consultantAssignments.notes')}
           multiline
           rows={3}
           value={formData.notes}

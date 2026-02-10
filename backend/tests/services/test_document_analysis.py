@@ -1,15 +1,15 @@
 """Tests for document analysis schema validation and model."""
 import uuid
 from datetime import datetime
-from unittest.mock import patch, MagicMock, AsyncMock
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from pydantic import ValidationError
 
 from app.schemas.document_analysis import (
     DocumentAnalysisCreate,
-    DocumentAnalysisResponse,
     DocumentAnalysisListResponse,
+    DocumentAnalysisResponse,
 )
 
 
@@ -140,9 +140,9 @@ class TestDocumentAnalysisModel:
     @pytest.mark.asyncio
     async def test_model_creation(self, db):
         from app.models.document_analysis import DocumentAnalysis
+        from app.models.file import File
         from app.models.project import Project
         from app.models.user import User
-        from app.models.file import File
 
         user = User(
             id=uuid.uuid4(),
@@ -285,8 +285,8 @@ class TestDocumentAnalysisAPI:
             mock_storage = MagicMock(spec=StorageBackend)
             mock_storage.get_file_content = AsyncMock(return_value=b"fake pdf content")
 
-            from app.services.storage_service import get_storage_backend
             from app.main import app
+            from app.services.storage_service import get_storage_backend
 
             app.dependency_overrides[get_storage_backend] = lambda: mock_storage
 
@@ -325,8 +325,8 @@ class TestDocumentAnalysisAPI:
         with patch("app.api.v1.document_analysis.analyze_document") as mock_analyze:
             mock_analyze.side_effect = ValueError("GEMINI_API_KEY is not configured")
 
-            from app.services.storage_service import StorageBackend, get_storage_backend
             from app.main import app
+            from app.services.storage_service import StorageBackend, get_storage_backend
             mock_storage = MagicMock(spec=StorageBackend)
             mock_storage.get_file_content = AsyncMock(return_value=b"fake")
             app.dependency_overrides[get_storage_backend] = lambda: mock_storage

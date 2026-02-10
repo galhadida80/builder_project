@@ -1,12 +1,16 @@
 import pytest
 from pydantic import ValidationError
+
 from app.schemas.checklist import (
-    ChecklistTemplateCreate, ChecklistTemplateUpdate, ChecklistTemplateResponse,
-    ChecklistSubSectionCreate, ChecklistSubSectionUpdate,
-    ChecklistItemTemplateCreate, ChecklistItemTemplateUpdate,
-    ChecklistInstanceCreate, ChecklistInstanceUpdate,
-    ChecklistItemResponseCreate, ChecklistItemResponseUpdate
+    ChecklistInstanceCreate,
+    ChecklistItemResponseCreate,
+    ChecklistItemResponseUpdate,
+    ChecklistItemTemplateCreate,
+    ChecklistSubSectionCreate,
+    ChecklistTemplateCreate,
+    ChecklistTemplateUpdate,
 )
+
 
 # Template Schema Tests
 def test_template_create_validates_hebrew_text():

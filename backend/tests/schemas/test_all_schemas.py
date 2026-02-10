@@ -1,76 +1,114 @@
 import uuid
-from datetime import datetime, date
+from datetime import date, datetime
 from decimal import Decimal
 
 import pytest
 from pydantic import ValidationError
 
-from app.schemas.user import UserRegister, UserLogin, UserCreate, UserResponse, TokenResponse
-from app.schemas.project import (
-    ProjectCreate, ProjectUpdate, ProjectMemberCreate, ProjectResponse, ProjectMemberResponse,
+from app.schemas.analytics import (
+    DistributionItem,
+    DistributionsResponse,
+    MetricsResponse,
+    TrendDataPoint,
 )
-from app.schemas.equipment import (
-    EquipmentCreate, EquipmentUpdate, EquipmentResponse,
-    ChecklistItem, ChecklistCreate, ChecklistResponse,
+from app.schemas.approval import ApprovalAction, ApprovalRequestResponse, ApprovalStepResponse
+from app.schemas.area import AreaCreate, AreaProgressCreate, AreaResponse
+from app.schemas.chat import (
+    ChatMessageRequest,
+    ChatMessageResponse,
+    ChatSendResponse,
+    ConversationDetailResponse,
+    ConversationListResponse,
 )
-from app.schemas.material import MaterialCreate, MaterialUpdate, MaterialReceive, MaterialResponse
-from app.schemas.meeting import (
-    MeetingCreate, MeetingUpdate, MeetingResponse,
-    ActionItem, MeetingAttendeeCreate, MeetingAttendeeResponse,
+from app.schemas.checklist import (
+    ChecklistInstanceCreate as CLInstanceCreate,
 )
-from app.schemas.contact import ContactCreate, ContactUpdate, ContactResponse
-from app.schemas.area import AreaCreate, AreaUpdate, AreaProgressCreate, AreaResponse, AreaProgressResponse
-from app.schemas.rfi import (
-    RFICreate, RFIUpdate, RFIStatusUpdate, RFIResponseCreate,
-    RFIResponse as RFIResponseSchema, RFISummaryResponse, PaginatedRFIResponse,
+from app.schemas.checklist import (
+    ChecklistItemResponseCreate as CLItemRespCreate,
 )
-from app.schemas.approval import ApprovalAction, ApprovalStepResponse, ApprovalRequestResponse
-from app.schemas.inspection import (
-    InspectionCreate, InspectionUpdate, InspectionResponse,
-    InspectionConsultantTypeCreate, InspectionConsultantTypeUpdate,
-    InspectionStageCreate, InspectionStageUpdate,
-    FindingCreate, FindingUpdate, FindingResponse,
-    InspectionSummaryResponse, InspectionHistoryEventResponse,
+from app.schemas.checklist import (
+    ChecklistItemTemplateCreate as CLItemCreate,
+)
+from app.schemas.checklist import (
+    ChecklistSubSectionCreate as CLSubCreate,
 )
 from app.schemas.checklist import (
     ChecklistTemplateCreate as CLTemplateCreate,
-    ChecklistTemplateUpdate as CLTemplateUpdate,
-    ChecklistSubSectionCreate as CLSubCreate,
-    ChecklistSubSectionUpdate as CLSubUpdate,
-    ChecklistItemTemplateCreate as CLItemCreate,
-    ChecklistItemTemplateUpdate as CLItemUpdate,
-    ChecklistInstanceCreate as CLInstanceCreate,
-    ChecklistInstanceUpdate as CLInstanceUpdate,
-    ChecklistItemResponseCreate as CLItemRespCreate,
-    ChecklistItemResponseUpdate as CLItemRespUpdate,
+)
+from app.schemas.checklist_template import (
+    ChecklistInstanceCreate as CTplInstanceCreate,
+)
+from app.schemas.checklist_template import (
+    ChecklistItemResponseCreate as CTplItemRespCreate,
+)
+from app.schemas.checklist_template import (
+    ChecklistItemTemplateCreate as CTplItemCreate,
+)
+from app.schemas.checklist_template import (
+    ChecklistSubSectionCreate as CTplSubCreate,
 )
 from app.schemas.checklist_template import (
     ChecklistTemplateCreate as CTplCreate,
-    ChecklistTemplateUpdate as CTplUpdate,
-    ChecklistSubSectionCreate as CTplSubCreate,
-    ChecklistItemTemplateCreate as CTplItemCreate,
-    ChecklistInstanceCreate as CTplInstanceCreate,
-    ChecklistItemResponseCreate as CTplItemRespCreate,
-)
-from app.schemas.analytics import (
-    MetricsResponse, TrendDataPoint, ProjectTrendsResponse,
-    DistributionItem, DistributionsResponse,
-)
-from app.schemas.chat import (
-    ChatMessageRequest, ChatMessageResponse, ChatSendResponse,
-    ConversationListResponse, ConversationDetailResponse,
-)
-from app.schemas.document_analysis import (
-    DocumentAnalysisCreate, DocumentAnalysisResponse, DocumentAnalysisListResponse,
-)
-from app.schemas.document_review import (
-    DocumentCommentCreate, DocumentCommentUpdate, DocumentCommentResponse,
-    DocumentReviewCreate, DocumentReviewUpdate, DocumentReviewResponse,
 )
 from app.schemas.consultant_assignment import (
-    ConsultantAssignmentCreate, ConsultantAssignmentUpdate, ConsultantAssignmentResponse,
+    ConsultantAssignmentCreate,
+    ConsultantAssignmentResponse,
+    ConsultantAssignmentUpdate,
 )
-
+from app.schemas.contact import ContactCreate, ContactResponse, ContactUpdate
+from app.schemas.document_analysis import (
+    DocumentAnalysisCreate,
+    DocumentAnalysisListResponse,
+    DocumentAnalysisResponse,
+)
+from app.schemas.document_review import (
+    DocumentCommentCreate,
+    DocumentCommentResponse,
+    DocumentCommentUpdate,
+    DocumentReviewCreate,
+    DocumentReviewResponse,
+    DocumentReviewUpdate,
+)
+from app.schemas.equipment import (
+    ChecklistCreate,
+    ChecklistItem,
+    EquipmentCreate,
+    EquipmentResponse,
+    EquipmentUpdate,
+)
+from app.schemas.inspection import (
+    FindingCreate,
+    FindingUpdate,
+    InspectionConsultantTypeCreate,
+    InspectionCreate,
+    InspectionHistoryEventResponse,
+    InspectionStageCreate,
+    InspectionSummaryResponse,
+    InspectionUpdate,
+)
+from app.schemas.material import MaterialCreate, MaterialReceive, MaterialResponse, MaterialUpdate
+from app.schemas.meeting import (
+    ActionItem,
+    MeetingAttendeeCreate,
+    MeetingCreate,
+    MeetingResponse,
+    MeetingUpdate,
+)
+from app.schemas.project import (
+    ProjectCreate,
+    ProjectMemberCreate,
+    ProjectResponse,
+    ProjectUpdate,
+)
+from app.schemas.rfi import (
+    PaginatedRFIResponse,
+    RFICreate,
+    RFIResponseCreate,
+    RFIStatusUpdate,
+    RFISummaryResponse,
+    RFIUpdate,
+)
+from app.schemas.user import TokenResponse, UserCreate, UserLogin, UserRegister, UserResponse
 
 VALID_UUID = uuid.uuid4()
 VALID_UUID_STR = str(VALID_UUID)

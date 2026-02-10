@@ -5,17 +5,17 @@ Run this from the backend directory with: python test_document_review_e2e.py
 """
 import asyncio
 import sys
-from uuid import uuid4
 from datetime import datetime
+from uuid import uuid4
 
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import async_session_maker
-from app.models.document_review import DocumentReview, DocumentComment, ReviewStatus
-from app.models.user import User
+from app.models.document_review import DocumentComment, DocumentReview, ReviewStatus
 from app.models.file import File
 from app.models.project import Project
+from app.models.user import User
 
 
 async def get_or_create_test_data(db: AsyncSession):
@@ -144,7 +144,7 @@ async def run_e2e_test():
             comments = result.scalars().all()
             assert len(comments) == 1, f"Expected 1 comment, got {len(comments)}"
             assert comments[0].id == comment1.id, "Comment ID mismatch"
-            print(f"✅ Comment found in list")
+            print("✅ Comment found in list")
             print(f"   Created at: {comments[0].created_at}")
 
             # Step 5: Edit comment
@@ -155,7 +155,7 @@ async def run_e2e_test():
             comment1.updated_at = datetime.utcnow()
             await db.commit()
             await db.refresh(comment1)
-            print(f"✅ Comment edited")
+            print("✅ Comment edited")
             print(f"   Old: '{old_text}'")
             print(f"   New: '{comment1.comment_text}'")
 
@@ -194,7 +194,7 @@ async def run_e2e_test():
             )
             replies = result.scalars().all()
             assert len(replies) == 1, f"Expected 1 reply, got {len(replies)}"
-            print(f"✅ Reply linked correctly")
+            print("✅ Reply linked correctly")
 
             # Step 9: Update review status
             print("\n📋 Step 9: Updating review status to APPROVED...")
@@ -221,7 +221,7 @@ async def run_e2e_test():
             print("\n📋 Step 11: Deleting reply comment...")
             await db.delete(reply)
             await db.commit()
-            print(f"✅ Reply deleted")
+            print("✅ Reply deleted")
 
             # Step 12: Verify reply deleted
             print("\n📋 Step 12: Verifying reply deleted...")
@@ -231,13 +231,13 @@ async def run_e2e_test():
             )
             deleted = result.scalar_one_or_none()
             assert deleted is None, "Reply still exists"
-            print(f"✅ Reply removed from database")
+            print("✅ Reply removed from database")
 
             # Step 13: Delete parent comment
             print("\n📋 Step 13: Deleting parent comment...")
             await db.delete(comment1)
             await db.commit()
-            print(f"✅ Parent comment deleted")
+            print("✅ Parent comment deleted")
 
             # Step 14: Verify all comments removed
             print("\n📋 Step 14: Verifying comments removed...")
@@ -247,13 +247,13 @@ async def run_e2e_test():
             )
             remaining = result.scalars().all()
             assert len(remaining) == 0, f"Expected 0 comments, got {len(remaining)}"
-            print(f"✅ All comments removed")
+            print("✅ All comments removed")
 
             # Cleanup
             print("\n🧹 Cleaning up test review...")
             await db.delete(review)
             await db.commit()
-            print(f"✅ Test review deleted")
+            print("✅ Test review deleted")
 
             print("\n" + "="*60)
             print("✅ ALL E2E TESTS PASSED!")

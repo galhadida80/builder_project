@@ -12,6 +12,7 @@ import {
   useTheme,
 } from '@mui/material'
 import { styled } from '@mui/material'
+import { useTranslation } from 'react-i18next'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import CancelIcon from '@mui/icons-material/Cancel'
 import ErrorIcon from '@mui/icons-material/Error'
@@ -161,6 +162,8 @@ export function Stepper({
   orientation = 'horizontal',
   alternativeLabel = true,
 }: StepperProps) {
+  const { t } = useTranslation()
+
   // Handle edge case: empty steps array
   if (!steps || steps.length === 0) {
     return (
@@ -172,7 +175,7 @@ export function Stepper({
           color: 'text.secondary',
         }}
       >
-        <Typography variant="body2">No steps available</Typography>
+        <Typography variant="body2">{t('stepper.noSteps')}</Typography>
       </Box>
     )
   }
@@ -194,7 +197,7 @@ export function Stepper({
             optional={
               step.optional ? (
                 <Typography variant="caption" color="text.secondary">
-                  Optional
+                  {t('stepper.optional')}
                 </Typography>
               ) : step.description ? (
                 <Typography
@@ -243,14 +246,15 @@ interface ApprovalStepperProps {
 }
 
 export function ApprovalStepper({ status }: ApprovalStepperProps) {
+  const { t } = useTranslation()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
 
   const steps: StepItem[] = [
-    { label: 'Draft', description: 'Initial creation' },
-    { label: 'Submitted', description: 'Awaiting review' },
-    { label: 'Under Review', description: 'Being evaluated' },
-    { label: status === 'rejected' ? 'Rejected' : 'Approved', description: 'Final decision' },
+    { label: t('stepper.draft'), description: t('stepper.initialCreation') },
+    { label: t('stepper.submitted'), description: t('stepper.awaitingReview') },
+    { label: t('stepper.underReview'), description: t('stepper.beingEvaluated') },
+    { label: status === 'rejected' ? t('approvals.rejected') : t('approvals.approved'), description: t('stepper.finalDecision') },
   ]
 
   const statusToStep: Record<string, number> = {
@@ -325,6 +329,7 @@ export function ApprovalWorkflowStepper({
   approvalRequest,
   orientation: orientationProp = 'horizontal',
 }: ApprovalWorkflowStepperProps) {
+  const { t } = useTranslation()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
 
@@ -342,7 +347,7 @@ export function ApprovalWorkflowStepper({
           color: 'text.secondary',
         }}
       >
-        <Typography variant="body2">No approval steps defined</Typography>
+        <Typography variant="body2">{t('stepper.noApprovalSteps')}</Typography>
       </Box>
     )
   }
@@ -388,10 +393,10 @@ export function ApprovalWorkflowStepper({
         >
           <Typography variant="body2" fontWeight={600}>
             {approvalRequest.currentStatus === 'approved'
-              ? '✓ All approval steps completed successfully'
+              ? `✓ ${t('stepper.allStepsCompleted')}`
               : approvalRequest.currentStatus === 'rejected'
-              ? '✗ Approval request has been rejected'
-              : '⚠ Approval request requires attention'}
+              ? `✗ ${t('stepper.requestRejected')}`
+              : `⚠ ${t('stepper.requiresAttention')}`}
           </Typography>
         </Box>
       )}
@@ -504,12 +509,12 @@ export function ApprovalWorkflowStepper({
                           flex: 1,
                         }}
                       >
-                        {step.status === 'approved' && 'Approved'}
-                        {step.status === 'rejected' && 'Rejected'}
-                        {step.status === 'revision_requested' && 'Revision Requested'}
-                        {' by '}
+                        {step.status === 'approved' && t('approvals.approved')}
+                        {step.status === 'rejected' && t('approvals.rejected')}
+                        {step.status === 'revision_requested' && t('stepper.revisionRequested')}
+                        {` ${t('stepper.by')} `}
                         <strong>{approverName}</strong>
-                        {formattedDate && ` on ${formattedDate}`}
+                        {formattedDate && ` ${t('stepper.on')} ${formattedDate}`}
                       </Typography>
                     </Box>
 

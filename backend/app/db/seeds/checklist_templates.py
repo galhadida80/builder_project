@@ -8,6 +8,7 @@ import asyncio
 import logging
 from pathlib import Path
 from typing import Any
+
 from openpyxl import load_workbook
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -177,11 +178,7 @@ async def create_template_hierarchy(session: AsyncSession, template_data: dict) 
         template_data: Dictionary containing template, sections, and items data
     """
     # Import models here to avoid circular imports
-    from app.models.checklist import (
-        ChecklistTemplate,
-        ChecklistSubSection,
-        ChecklistItemTemplate
-    )
+    from app.models.checklist import ChecklistItemTemplate, ChecklistSubSection, ChecklistTemplate
 
     logger.info(f"Creating template: {template_data['name_he']}")
 

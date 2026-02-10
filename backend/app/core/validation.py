@@ -2,6 +2,7 @@
 
 import re
 from typing import Any, Dict
+
 from fastapi import HTTPException, status
 
 HTML_TAG_PATTERN = re.compile(r'<[^>]+>')

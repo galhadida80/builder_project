@@ -1,17 +1,20 @@
 from __future__ import annotations
+
+from datetime import datetime
 from typing import Optional
 from uuid import UUID
-from datetime import datetime
+
 from fastapi import APIRouter, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
+
+from app.core.security import get_current_user, verify_project_access
 from app.db.session import get_db
 from app.models.audit import AuditLog
-from app.models.user import User
 from app.models.project import ProjectMember
+from app.models.user import User
 from app.schemas.audit import AuditLogResponse
-from app.core.security import get_current_user, verify_project_access
 
 router = APIRouter()
 

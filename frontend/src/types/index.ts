@@ -6,6 +6,8 @@ export type MeetingStatus = 'scheduled' | 'invitations_sent' | 'completed' | 'ca
 
 export type AreaStatus = 'not_started' | 'in_progress' | 'awaiting_approval' | 'completed'
 
+export type Permission = 'create' | 'edit' | 'delete' | 'approve' | 'view_all' | 'manage_members' | 'manage_settings'
+
 export interface User {
   id: string
   email: string
@@ -14,6 +16,20 @@ export interface User {
   company?: string
   role?: string
   isActive: boolean
+  isSuperAdmin?: boolean
+  createdAt: string
+}
+
+export interface Invitation {
+  id: string
+  projectId: string
+  email: string
+  role: string
+  token: string
+  status: 'pending' | 'accepted' | 'expired' | 'revoked'
+  inviteUrl: string
+  invitedById: string
+  expiresAt: string
   createdAt: string
 }
 

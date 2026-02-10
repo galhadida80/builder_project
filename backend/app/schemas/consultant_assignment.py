@@ -1,15 +1,13 @@
-from uuid import UUID
-from datetime import datetime, date
+from datetime import date, datetime
 from typing import Literal
+from uuid import UUID
+
 from pydantic import BaseModel, Field, field_validator, model_validator
-from app.schemas.user import UserResponse
-from app.schemas.project import ProjectResponse
+
+from app.core.validators import MAX_NOTES_LENGTH, CamelCaseModel, sanitize_string
 from app.schemas.equipment_template import ConsultantTypeResponse
-from app.core.validators import (
-    sanitize_string,
-    MAX_NOTES_LENGTH,
-    CamelCaseModel
-)
+from app.schemas.project import ProjectResponse
+from app.schemas.user import UserResponse
 
 
 class ConsultantAssignmentBase(BaseModel):

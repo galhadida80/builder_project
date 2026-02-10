@@ -173,7 +173,7 @@ def verify_directory_structure():
     if init_file.exists():
         print(f"✓ Package initializer exists: {init_file}")
     else:
-        print(f"✗ Missing __init__.py in seeds directory")
+        print("✗ Missing __init__.py in seeds directory")
         return False
 
     seed_script = seeds_dir / "checklist_templates.py"
@@ -187,7 +187,7 @@ def verify_directory_structure():
         else:
             print("  ⚠ Warning: File seems small")
     else:
-        print(f"✗ Seed script not found")
+        print("✗ Seed script not found")
         return False
 
     return True

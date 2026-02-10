@@ -10,6 +10,7 @@ import GroupsIcon from '@mui/icons-material/Groups'
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn'
 import BarChartIcon from '@mui/icons-material/BarChart'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
+import { useTranslation } from 'react-i18next'
 import { Hero } from '../components/Hero'
 import { Button } from '../components/ui/Button'
 import turnerLogo from '../assets/logos/turner.svg'
@@ -18,48 +19,49 @@ import fluorLogo from '../assets/logos/fluor.svg'
 import kiewitLogo from '../assets/logos/kiewit.svg'
 import skanskaLogo from '../assets/logos/skanska.svg'
 
-const FEATURES = [
-  {
-    icon: <SpeedIcon sx={{ fontSize: 28 }} />,
-    title: 'Real-time Tracking',
-    description: 'Monitor project progress, equipment status, and team activities with live dashboards and instant notifications.',
-  },
-  {
-    icon: <ConstructionIcon sx={{ fontSize: 28 }} />,
-    title: 'Equipment Management',
-    description: 'Track equipment approvals, submissions, and compliance documents across all your active projects.',
-  },
-  {
-    icon: <SecurityIcon sx={{ fontSize: 28 }} />,
-    title: 'Inspection System',
-    description: 'Schedule inspections, assign consultants, and manage compliance checklists with full audit trails.',
-  },
-  {
-    icon: <GroupsIcon sx={{ fontSize: 28 }} />,
-    title: 'Team Collaboration',
-    description: 'Coordinate between project managers, inspectors, and contractors with role-based access control.',
-  },
-  {
-    icon: <AssignmentTurnedInIcon sx={{ fontSize: 28 }} />,
-    title: 'Approval Workflows',
-    description: 'Streamline multi-step approval processes for equipment, materials, and RFIs with automated routing.',
-  },
-  {
-    icon: <BarChartIcon sx={{ fontSize: 28 }} />,
-    title: 'Analytics & Reports',
-    description: 'Generate insights with project analytics, workload tracking, and exportable reports for stakeholders.',
-  },
-]
-
-const STATS = [
-  { value: '500+', label: 'Construction Teams' },
-  { value: '12K+', label: 'Projects Managed' },
-  { value: '98%', label: 'On-time Delivery' },
-  { value: '3.2M', label: 'Inspections Completed' },
-]
-
 export default function LandingPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
+
+  const FEATURES = [
+    {
+      icon: <SpeedIcon sx={{ fontSize: 28 }} />,
+      title: t('landing.features.realTimeTracking'),
+      description: t('landing.features.realTimeTrackingDesc'),
+    },
+    {
+      icon: <ConstructionIcon sx={{ fontSize: 28 }} />,
+      title: t('landing.features.equipmentManagement'),
+      description: t('landing.features.equipmentManagementDesc'),
+    },
+    {
+      icon: <SecurityIcon sx={{ fontSize: 28 }} />,
+      title: t('landing.features.inspectionSystem'),
+      description: t('landing.features.inspectionSystemDesc'),
+    },
+    {
+      icon: <GroupsIcon sx={{ fontSize: 28 }} />,
+      title: t('landing.features.teamCollaboration'),
+      description: t('landing.features.teamCollaborationDesc'),
+    },
+    {
+      icon: <AssignmentTurnedInIcon sx={{ fontSize: 28 }} />,
+      title: t('landing.features.approvalWorkflows'),
+      description: t('landing.features.approvalWorkflowsDesc'),
+    },
+    {
+      icon: <BarChartIcon sx={{ fontSize: 28 }} />,
+      title: t('landing.features.analyticsReports'),
+      description: t('landing.features.analyticsReportsDesc'),
+    },
+  ]
+
+  const STATS = [
+    { value: '500+', label: t('landing.stats.constructionTeams') },
+    { value: '12K+', label: t('landing.stats.projectsManaged') },
+    { value: '98%', label: t('landing.stats.onTimeDelivery') },
+    { value: '3.2M', label: t('landing.stats.inspectionsCompleted') },
+  ]
 
   const trustLogos = [
     { name: 'Turner Construction', imageUrl: turnerLogo, alt: 'Turner Construction logo' },
@@ -124,7 +126,7 @@ export default function LandingPage() {
                 },
               }}
             >
-              Sign In
+              {t('landing.signIn')}
             </Button>
           </Box>
         </Container>
@@ -132,11 +134,11 @@ export default function LandingPage() {
 
       {/* Hero */}
       <Hero
-        title={'Build Smarter\nInspect Faster\nDeliver Excellence'}
-        subtitle="Streamline your construction management with our comprehensive platform. From project planning to final inspection, we've got you covered."
-        ctaPrimaryText="Get Started Free"
+        title={t('landing.heroTitle')}
+        subtitle={t('landing.heroSubtitle')}
+        ctaPrimaryText={t('landing.getStarted')}
         ctaPrimaryAction={() => navigate('/login')}
-        ctaSecondaryText="Request Demo"
+        ctaSecondaryText={t('landing.requestDemo')}
         ctaSecondaryAction={() => {}}
         trustLogos={trustLogos}
         showTrustLogos={true}
@@ -191,7 +193,7 @@ export default function LandingPage() {
                 mb: 1.5,
               }}
             >
-              Features
+              {t('landing.featuresLabel')}
             </Typography>
             <Typography
               variant="h3"
@@ -203,10 +205,10 @@ export default function LandingPage() {
                 fontSize: { xs: '1.5rem', md: '2rem' },
               }}
             >
-              Everything you need to manage construction projects
+              {t('landing.featuresTitle')}
             </Typography>
             <Typography variant="body1" color="text.secondary">
-              From equipment tracking to inspection management, BuilderOps provides the tools your team needs to deliver projects on time and on budget.
+              {t('landing.featuresSubtitle')}
             </Typography>
           </Box>
 
@@ -291,7 +293,7 @@ export default function LandingPage() {
                 fontSize: { xs: '1.5rem', md: '2.25rem' },
               }}
             >
-              Ready to streamline your construction operations?
+              {t('landing.ctaTitle')}
             </Typography>
             <Typography
               sx={{
@@ -302,7 +304,7 @@ export default function LandingPage() {
                 mx: 'auto',
               }}
             >
-              Join 500+ construction teams already using BuilderOps to deliver projects on time.
+              {t('landing.ctaSubtitle')}
             </Typography>
             <Button
               variant="primary"
@@ -325,7 +327,7 @@ export default function LandingPage() {
               icon={<ArrowForwardIcon />}
               iconPosition="end"
             >
-              Get Started Free
+              {t('landing.getStarted')}
             </Button>
           </Box>
         </Container>
@@ -350,7 +352,7 @@ export default function LandingPage() {
               </Typography>
             </Box>
             <Typography sx={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.75rem' }}>
-              &copy; {new Date().getFullYear()} BuilderOps. All rights reserved.
+              &copy; {new Date().getFullYear()} BuilderOps. {t('landing.allRightsReserved')}
             </Typography>
           </Box>
         </Container>

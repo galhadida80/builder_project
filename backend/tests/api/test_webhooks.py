@@ -1,5 +1,7 @@
-import base64, json
-from unittest.mock import patch, MagicMock, AsyncMock
+import base64
+import json
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import pytest
 from httpx import AsyncClient
 

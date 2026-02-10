@@ -1,5 +1,6 @@
 import logging
 from typing import Optional, Protocol
+
 from app.config import get_settings
 
 logger = logging.getLogger(__name__)

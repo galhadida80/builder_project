@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from uuid import UUID
 from datetime import datetime
 from typing import Optional
+from uuid import UUID
+
 from pydantic import BaseModel, Field, field_validator
-from app.core.validators import (
-    sanitize_string, MAX_NAME_LENGTH, MAX_DESCRIPTION_LENGTH, CamelCaseModel
-)
+
+from app.core.validators import MAX_DESCRIPTION_LENGTH, MAX_NAME_LENGTH, CamelCaseModel, sanitize_string
 from app.models.notification import NotificationCategory
 
 

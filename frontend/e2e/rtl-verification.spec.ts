@@ -88,7 +88,7 @@ test.describe('RTL and Hebrew Language Verification', () => {
     await page.goto(`${BASE_URL}/login`, { waitUntil: 'networkidle' })
 
     // Verify initial direction is LTR
-    let dir = await page.evaluate(() => document.documentElement.getAttribute('dir'))
+    const dir = await page.evaluate(() => document.documentElement.getAttribute('dir'))
     expect(dir).toBe('ltr')
 
     // Switch to Hebrew using localStorage (alternative method)

@@ -1,5 +1,6 @@
-from pydantic_settings import BaseSettings
 from functools import lru_cache
+
+from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
@@ -38,6 +39,8 @@ class Settings(BaseSettings):
     gemini_api_key: str = ""
     gemini_model: str = "gemini-2.0-flash"
     chat_max_history: int = 20
+
+    frontend_base_url: str = "http://localhost:5173"
 
     email_provider: str = "fake"
     rfi_email_domain: str = "builderops.co.il"

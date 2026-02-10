@@ -12,7 +12,9 @@ backend_dir = Path(__file__).parent
 sys.path.insert(0, str(backend_dir))
 
 from alembic.config import Config
+
 from alembic import command
+
 
 def run_migration_upgrade():
     """Run alembic upgrade head using the Python API."""

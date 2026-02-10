@@ -16,10 +16,11 @@
 #
 import argparse
 import os
-import libcst as cst
 import pathlib
 import sys
-from typing import (Any, Callable, Dict, List, Sequence, Tuple)
+from typing import Any, Callable, Dict, List, Sequence, Tuple
+
+import libcst as cst
 
 
 def partition(

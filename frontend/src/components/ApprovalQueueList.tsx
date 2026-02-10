@@ -3,6 +3,7 @@ import { Box, Chip, IconButton, Tooltip } from '@mui/material'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import CancelIcon from '@mui/icons-material/Cancel'
 import VisibilityIcon from '@mui/icons-material/Visibility'
+import { useTranslation } from 'react-i18next'
 import { DataTable, Column } from './ui/DataTable'
 import { StatusBadge } from './ui/StatusBadge'
 import { Tabs } from './ui/Tabs'
@@ -24,6 +25,7 @@ interface ApprovalRow extends ApprovalRequest {
 }
 
 export function ApprovalQueueList({ onViewDetails }: ApprovalQueueListProps) {
+  const { t } = useTranslation()
   const { showError, showSuccess } = useToast()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
@@ -57,7 +59,7 @@ export function ApprovalQueueList({ onViewDetails }: ApprovalQueueListProps) {
       setApprovals(transformedData)
     } catch {
       setError(true)
-      showError('Failed to load approvals. Please try again.')
+      showError(t('approvalQueue.failedToLoad'))
     } finally {
       setLoading(false)
     }
@@ -99,10 +101,10 @@ export function ApprovalQueueList({ onViewDetails }: ApprovalQueueListProps) {
     try {
       if (actionType === 'approve') {
         await approvalsApi.approve(selectedApproval.id, comment || undefined)
-        showSuccess('Request approved successfully!')
+        showSuccess(t('approvalQueue.approvedSuccess'))
       } else {
         await approvalsApi.reject(selectedApproval.id, comment)
-        showSuccess('Request rejected.')
+        showSuccess(t('approvalQueue.rejectedSuccess'))
       }
       setDialogOpen(false)
       setSelectedApproval(null)
@@ -110,7 +112,7 @@ export function ApprovalQueueList({ onViewDetails }: ApprovalQueueListProps) {
       setComment('')
       loadData()
     } catch {
-      showError(`Failed to ${actionType} request. Please try again.`)
+      showError(t('approvalQueue.failedToAction', { action: actionType }))
     } finally {
       setSubmitting(false)
     }
@@ -120,8 +122,8 @@ export function ApprovalQueueList({ onViewDetails }: ApprovalQueueListProps) {
     return (
       <EmptyState
         variant="error"
-        description="Failed to load approvals. Please try again."
-        action={{ label: 'Retry', onClick: loadData }}
+        description={t('approvalQueue.failedToLoad')}
+        action={{ label: t('approvalQueue.retry'), onClick: loadData }}
       />
     )
   }
@@ -129,7 +131,7 @@ export function ApprovalQueueList({ onViewDetails }: ApprovalQueueListProps) {
   const columns: Column<ApprovalRow>[] = [
     {
       id: 'id',
-      label: 'ID',
+      label: t('approvalQueue.columnId'),
       minWidth: 80,
       sortable: true,
       render: (row) => (
@@ -140,7 +142,7 @@ export function ApprovalQueueList({ onViewDetails }: ApprovalQueueListProps) {
     },
     {
       id: 'entityName',
-      label: 'Title',
+      label: t('approvalQueue.columnTitle'),
       minWidth: 200,
       sortable: true,
       render: (row) => (
@@ -154,7 +156,7 @@ export function ApprovalQueueList({ onViewDetails }: ApprovalQueueListProps) {
     },
     {
       id: 'projectName',
-      label: 'Project',
+      label: t('approvalQueue.columnProject'),
       minWidth: 120,
       sortable: true,
       render: (row) => (
@@ -165,13 +167,13 @@ export function ApprovalQueueList({ onViewDetails }: ApprovalQueueListProps) {
     },
     {
       id: 'requesterName',
-      label: 'Requester',
+      label: t('approvalQueue.columnRequester'),
       minWidth: 150,
       sortable: true,
     },
     {
       id: 'currentStatus',
-      label: 'Status',
+      label: t('approvalQueue.columnStatus'),
       minWidth: 120,
       sortable: true,
       align: 'center',
@@ -179,7 +181,7 @@ export function ApprovalQueueList({ onViewDetails }: ApprovalQueueListProps) {
     },
     {
       id: 'createdAt',
-      label: 'Created Date',
+      label: t('approvalQueue.columnCreatedDate'),
       minWidth: 120,
       sortable: true,
       render: (row) => (
@@ -190,7 +192,7 @@ export function ApprovalQueueList({ onViewDetails }: ApprovalQueueListProps) {
     },
     {
       id: 'actions',
-      label: 'Actions',
+      label: t('approvalQueue.columnActions'),
       minWidth: 180,
       align: 'center',
       render: (row) => (
@@ -200,7 +202,7 @@ export function ApprovalQueueList({ onViewDetails }: ApprovalQueueListProps) {
         >
           {tabValue === 'pending' && (
             <>
-              <Tooltip title="Approve">
+              <Tooltip title={t('approvals.approve')}>
                 <IconButton
                   size="small"
                   color="success"
@@ -209,7 +211,7 @@ export function ApprovalQueueList({ onViewDetails }: ApprovalQueueListProps) {
                   <CheckCircleIcon fontSize="small" />
                 </IconButton>
               </Tooltip>
-              <Tooltip title="Reject">
+              <Tooltip title={t('approvals.reject')}>
                 <IconButton
                   size="small"
                   color="error"
@@ -221,7 +223,7 @@ export function ApprovalQueueList({ onViewDetails }: ApprovalQueueListProps) {
             </>
           )}
           {onViewDetails && (
-            <Tooltip title="View Details">
+            <Tooltip title={t('approvals.viewDetails')}>
               <IconButton
                 size="small"
                 onClick={() => onViewDetails(row)}
@@ -240,21 +242,21 @@ export function ApprovalQueueList({ onViewDetails }: ApprovalQueueListProps) {
       <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flex: 1 }}>
           <SearchField
-            placeholder="Search approvals..."
+            placeholder={t('approvalQueue.searchPlaceholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             sx={{ maxWidth: 400 }}
           />
         </Box>
-        <Chip label={`${displayedApprovals.length} items`} size="small" />
+        <Chip label={t('approvalQueue.itemsCount', { count: displayedApprovals.length })} size="small" />
       </Box>
 
       <Tabs
         items={[
-          { label: 'Pending', value: 'pending', badge: pendingApprovals.length },
-          { label: 'Approved', value: 'approved', badge: approvedApprovals.length },
-          { label: 'Rejected', value: 'rejected', badge: rejectedApprovals.length },
-          { label: 'All', value: 'all', badge: approvals.length },
+          { label: t('approvals.pending'), value: 'pending', badge: pendingApprovals.length },
+          { label: t('approvals.approved'), value: 'approved', badge: approvedApprovals.length },
+          { label: t('approvals.rejected'), value: 'rejected', badge: rejectedApprovals.length },
+          { label: t('common.all'), value: 'all', badge: approvals.length },
         ]}
         value={tabValue}
         onChange={setTabValue}
@@ -267,21 +269,21 @@ export function ApprovalQueueList({ onViewDetails }: ApprovalQueueListProps) {
             icon={<CheckCircleIcon sx={{ color: 'success.main' }} />}
             title={
               tabValue === 'pending'
-                ? 'No pending approvals'
+                ? t('approvalQueue.noPendingApprovals')
                 : searchQuery
-                ? 'No approvals found'
+                ? t('approvalQueue.noApprovalsFound')
                 : tabValue === 'approved'
-                ? 'No approved requests'
+                ? t('approvalQueue.noApprovedRequests')
                 : tabValue === 'rejected'
-                ? 'No rejected requests'
-                : 'No approvals found'
+                ? t('approvalQueue.noRejectedRequests')
+                : t('approvalQueue.noApprovalsFound')
             }
             description={
               tabValue === 'pending'
-                ? 'All requests have been processed.'
+                ? t('approvalQueue.allProcessed')
                 : searchQuery
-                ? 'Try adjusting your search criteria.'
-                : 'No approval requests in this category yet.'
+                ? t('approvalQueue.adjustSearch')
+                : t('approvalQueue.noRequestsInCategory')
             }
           />
         ) : (
@@ -293,7 +295,7 @@ export function ApprovalQueueList({ onViewDetails }: ApprovalQueueListProps) {
             onRowClick={onViewDetails}
             pagination
             pageSize={25}
-            emptyMessage="No data available"
+            emptyMessage={t('approvalQueue.noDataAvailable')}
           />
         )}
       </Box>
@@ -302,8 +304,8 @@ export function ApprovalQueueList({ onViewDetails }: ApprovalQueueListProps) {
         open={dialogOpen}
         onClose={() => !submitting && setDialogOpen(false)}
         onSubmit={handleSubmitAction}
-        title={actionType === 'approve' ? 'Approve Request' : 'Reject Request'}
-        submitLabel={actionType === 'approve' ? 'Confirm Approval' : 'Confirm Rejection'}
+        title={actionType === 'approve' ? t('approvalQueue.approveRequest') : t('approvalQueue.rejectRequest')}
+        submitLabel={actionType === 'approve' ? t('approvalQueue.confirmApproval') : t('approvalQueue.confirmRejection')}
         loading={submitting}
         submitDisabled={actionType === 'reject' && !comment}
       >
@@ -311,7 +313,7 @@ export function ApprovalQueueList({ onViewDetails }: ApprovalQueueListProps) {
           {selectedApproval && (
             <Box sx={{ mb: 3, p: 2, bgcolor: 'action.hover', borderRadius: 2 }}>
               <Box sx={{ fontSize: '0.875rem', color: 'text.secondary', mb: 0.5 }}>
-                You are about to {actionType} the request for:
+                {t('approvalQueue.aboutToAction', { action: actionType })}
               </Box>
               <Box sx={{ fontWeight: 600 }}>{selectedApproval.entityName}</Box>
             </Box>
@@ -320,14 +322,14 @@ export function ApprovalQueueList({ onViewDetails }: ApprovalQueueListProps) {
             fullWidth
             multiline
             rows={4}
-            label={actionType === 'approve' ? 'Comments (optional)' : 'Rejection Reason'}
+            label={actionType === 'approve' ? t('approvalQueue.commentsOptional') : t('approvalQueue.rejectionReason')}
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             required={actionType === 'reject'}
             placeholder={
               actionType === 'approve'
-                ? 'Add any comments for this approval...'
-                : 'Please provide a reason for rejection...'
+                ? t('approvalQueue.approvalCommentPlaceholder')
+                : t('approvalQueue.rejectionPlaceholder')
             }
           />
         </Box>

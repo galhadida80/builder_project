@@ -1,12 +1,46 @@
-from app.schemas.user import UserCreate, UserResponse, UserBase
-from app.schemas.project import ProjectCreate, ProjectUpdate, ProjectResponse, ProjectMemberCreate, ProjectMemberResponse
-from app.schemas.contact import ContactCreate, ContactUpdate, ContactResponse
-from app.schemas.equipment import EquipmentCreate, EquipmentUpdate, EquipmentResponse, ChecklistCreate, ChecklistResponse
-from app.schemas.material import MaterialCreate, MaterialUpdate, MaterialResponse, MaterialReceive
-from app.schemas.meeting import MeetingCreate, MeetingUpdate, MeetingResponse, MeetingAttendeeCreate, MeetingAttendeeResponse
 from app.schemas.approval import ApprovalRequestResponse, ApprovalStepResponse
-from app.schemas.area import AreaCreate, AreaUpdate, AreaResponse, AreaProgressCreate, AreaProgressResponse
-from app.schemas.file import FileResponse
+from app.schemas.area import AreaCreate, AreaProgressCreate, AreaProgressResponse, AreaResponse, AreaUpdate
 from app.schemas.audit import AuditLogResponse
-from app.schemas.inspection_template import InspectionConsultantTypeResponse, InspectionStageTemplateResponse, ProjectInspectionResponse, InspectionFindingResponse, InspectionConsultantTypeWithStages, ProjectInspectionWithFindings
-from app.schemas.document_review import DocumentReviewBase, DocumentReviewCreate, DocumentReviewUpdate, DocumentReviewResponse, DocumentCommentBase, DocumentCommentCreate, DocumentCommentUpdate, DocumentCommentResponse
+from app.schemas.contact import ContactCreate, ContactResponse, ContactUpdate
+from app.schemas.document_review import (
+    DocumentCommentBase,
+    DocumentCommentCreate,
+    DocumentCommentResponse,
+    DocumentCommentUpdate,
+    DocumentReviewBase,
+    DocumentReviewCreate,
+    DocumentReviewResponse,
+    DocumentReviewUpdate,
+)
+from app.schemas.equipment import (
+    ChecklistCreate,
+    ChecklistResponse,
+    EquipmentCreate,
+    EquipmentResponse,
+    EquipmentUpdate,
+)
+from app.schemas.file import FileResponse
+from app.schemas.inspection_template import (
+    InspectionConsultantTypeResponse,
+    InspectionConsultantTypeWithStages,
+    InspectionFindingResponse,
+    InspectionStageTemplateResponse,
+    ProjectInspectionResponse,
+    ProjectInspectionWithFindings,
+)
+from app.schemas.material import MaterialCreate, MaterialReceive, MaterialResponse, MaterialUpdate
+from app.schemas.meeting import (
+    MeetingAttendeeCreate,
+    MeetingAttendeeResponse,
+    MeetingCreate,
+    MeetingResponse,
+    MeetingUpdate,
+)
+from app.schemas.project import (
+    ProjectCreate,
+    ProjectMemberCreate,
+    ProjectMemberResponse,
+    ProjectResponse,
+    ProjectUpdate,
+)
+from app.schemas.user import UserBase, UserCreate, UserResponse

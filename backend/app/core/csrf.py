@@ -1,9 +1,8 @@
 """CSRF token generation and validation for defense-in-depth."""
 
-import secrets
 import hashlib
+import secrets
 from datetime import datetime, timedelta
-from typing import Optional, Tuple
 
 
 class CSRFTokenManager:

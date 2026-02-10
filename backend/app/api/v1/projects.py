@@ -1,23 +1,39 @@
-from uuid import UUID
 from datetime import datetime
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import case, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, case
 from sqlalchemy.orm import selectinload
+
+from app.core.permissions import ROLE_PERMISSIONS, Permission, get_effective_permissions, require_permission
+from app.core.security import get_current_user, verify_project_access
 from app.db.session import get_db
+from app.models.audit import AuditAction, AuditLog
+from app.models.checklist import ChecklistInstance, ChecklistStatus
+from app.models.equipment import ApprovalStatus, Equipment
+from app.models.inspection import Finding, FindingStatus, Inspection, InspectionStatus
+from app.models.material import Material
+from app.models.meeting import Meeting
+from app.models.permission_override import PermissionOverride
 from app.models.project import Project, ProjectMember
 from app.models.user import User
-from app.models.equipment import Equipment, ApprovalStatus
-from app.models.material import Material
-from app.models.inspection import Inspection, Finding, InspectionStatus, FindingStatus
-from app.models.checklist import ChecklistInstance, ChecklistItemResponse, ChecklistStatus, ItemResponseStatus
-from app.models.meeting import Meeting
-from app.models.audit import AuditLog
-from app.schemas.project import ProjectCreate, ProjectUpdate, ProjectResponse, ProjectMemberCreate, ProjectMemberResponse
-from app.schemas.project_overview import ProjectOverviewResponse, ProgressMetrics, TimelineEvent, TeamStats, ProjectStats
+from app.schemas.permission import EffectivePermissionsResponse, PermissionOverrideRequest, PermissionOverrideResponse
+from app.schemas.project import (
+    ProjectCreate,
+    ProjectMemberCreate,
+    ProjectMemberResponse,
+    ProjectResponse,
+    ProjectUpdate,
+)
+from app.schemas.project_overview import (
+    ProgressMetrics,
+    ProjectOverviewResponse,
+    ProjectStats,
+    TeamStats,
+    TimelineEvent,
+)
 from app.services.audit_service import create_audit_log, get_model_dict
-from app.models.audit import AuditAction
-from app.core.security import get_current_user, verify_project_access
 
 router = APIRouter()
 
@@ -282,10 +298,9 @@ async def get_project_overview(
 async def add_project_member(
     project_id: UUID,
     data: ProjectMemberCreate,
+    caller: ProjectMember = require_permission(Permission.MANAGE_MEMBERS),
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
 ):
-    await verify_project_access(project_id, current_user, db)
     member = ProjectMember(project_id=project_id, user_id=data.user_id, role=data.role)
     db.add(member)
     await db.flush()
@@ -297,10 +312,9 @@ async def add_project_member(
 async def remove_project_member(
     project_id: UUID,
     user_id: UUID,
+    caller: ProjectMember = require_permission(Permission.MANAGE_MEMBERS),
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
 ):
-    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(ProjectMember).where(ProjectMember.project_id == project_id, ProjectMember.user_id == user_id)
     )
@@ -310,3 +324,77 @@ async def remove_project_member(
 
     await db.delete(member)
     return {"message": "Member removed"}
+
+
+@router.get("/{project_id}/members/{member_id}/permissions", response_model=EffectivePermissionsResponse)
+async def get_member_permissions(
+    project_id: UUID,
+    member_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    await verify_project_access(project_id, current_user, db)
+    result = await db.execute(
+        select(ProjectMember).where(ProjectMember.id == member_id, ProjectMember.project_id == project_id)
+    )
+    member = result.scalar_one_or_none()
+    if not member:
+        raise HTTPException(status_code=404, detail="Member not found")
+
+    effective = await get_effective_permissions(member, db)
+
+    override_result = await db.execute(
+        select(PermissionOverride).where(PermissionOverride.project_member_id == member.id)
+    )
+    overrides = [
+        PermissionOverrideResponse(
+            id=o.id, permission=o.permission, granted=o.granted,
+            granted_by_id=o.granted_by_id, created_at=o.created_at,
+        )
+        for o in override_result.scalars().all()
+    ]
+
+    return EffectivePermissionsResponse(
+        role=member.role,
+        permissions=sorted(effective),
+        overrides=overrides,
+    )
+
+
+@router.put("/{project_id}/members/{member_id}/permissions")
+async def set_member_permissions(
+    project_id: UUID,
+    member_id: UUID,
+    data: list[PermissionOverrideRequest],
+    caller: ProjectMember = require_permission(Permission.MANAGE_MEMBERS),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(ProjectMember).where(ProjectMember.id == member_id, ProjectMember.project_id == project_id)
+    )
+    member = result.scalar_one_or_none()
+    if not member:
+        raise HTTPException(status_code=404, detail="Member not found")
+
+    existing = await db.execute(
+        select(PermissionOverride).where(PermissionOverride.project_member_id == member.id)
+    )
+    for override in existing.scalars().all():
+        await db.delete(override)
+
+    role_defaults = ROLE_PERMISSIONS.get(member.role, set())
+    for item in data:
+        is_default = item.permission in role_defaults
+        if (item.granted and is_default) or (not item.granted and not is_default):
+            continue
+        override = PermissionOverride(
+            project_member_id=member.id,
+            permission=item.permission,
+            granted=item.granted,
+            granted_by_id=current_user.id,
+        )
+        db.add(override)
+
+    await db.commit()
+    return {"message": "Permissions updated"}

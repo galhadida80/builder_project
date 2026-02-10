@@ -1,6 +1,8 @@
-import pytest
 from datetime import datetime
-from app.models.inspection import InspectionConsultantType, InspectionStage, Inspection, Finding, InspectionStatus
+
+import pytest
+
+from app.models.inspection import Finding, Inspection, InspectionConsultantType, InspectionStage, InspectionStatus
 
 
 @pytest.mark.asyncio

@@ -22,14 +22,15 @@ RECIPIENT_EMAIL = "galhadida80@gmail.com"
 # ============================================
 
 async def run_test():
-    from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-    from sqlalchemy.orm import sessionmaker
     from sqlalchemy import select
+    from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+    from sqlalchemy.orm import sessionmaker
+
     from app.config import get_settings
-    from app.models.user import User
     from app.models.project import Project
-    from app.services.rfi_service import RFIService
+    from app.models.user import User
     from app.services.email_service import EmailService
+    from app.services.rfi_service import RFIService
 
     settings = get_settings()
     print(f"\n{'='*60}")
@@ -123,7 +124,7 @@ Project Team""",
 
         try:
             rfi = await service.send_rfi(rfi.id)
-            print(f"RFI Sent Successfully!")
+            print("RFI Sent Successfully!")
             print(f"Status updated to: {rfi.status}")
             print(f"Message ID: {rfi.email_message_id}")
             print(f"Thread ID: {rfi.email_thread_id}\n")
@@ -237,11 +238,11 @@ John""",
         print("TEST COMPLETE - SUMMARY")
         print("=" * 60)
         print(f"RFI Number: {rfi.rfi_number}")
-        print(f"Total Emails Sent: 4")
-        print(f"  - Initial RFI")
-        print(f"  - Architect Response")
-        print(f"  - PM Follow-up")
-        print(f"  - Final Response")
+        print("Total Emails Sent: 4")
+        print("  - Initial RFI")
+        print("  - Architect Response")
+        print("  - PM Follow-up")
+        print("  - Final Response")
         print(f"\nCheck your inbox at: {RECIPIENT_EMAIL}")
         print("=" * 60)
 

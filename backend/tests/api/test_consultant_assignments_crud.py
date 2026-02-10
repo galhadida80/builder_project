@@ -1,6 +1,8 @@
 import uuid
-from datetime import date, datetime
+from datetime import date
+
 import pytest
+
 from app.models.consultant_assignment import ConsultantAssignment
 from app.models.project import ProjectMember
 

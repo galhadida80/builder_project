@@ -19,7 +19,7 @@ import { useTranslation } from 'react-i18next'
 import ChatMessage from './ChatMessage'
 import ChatInput from './ChatInput'
 import { chatApi } from '../../api/chat'
-import type { ChatMessage as ChatMessageType, Conversation } from '../../api/chat'
+import type { ChatMessage as ChatMessageType, ChatAction, Conversation } from '../../api/chat'
 
 const DRAWER_WIDTH = 420
 
@@ -62,7 +62,36 @@ export default function ChatDrawer({ open, onClose, projectId }: ChatDrawerProps
     setShowHistory(false)
   }, [projectId, open])
 
-  const handleSend = async (message: string) => {
+  const updateActionInMessages = useCallback((actionId: string, updatedAction: ChatAction) => {
+    setMessages((prev) =>
+      prev.map((msg) => ({
+        ...msg,
+        pendingActions: (msg.pendingActions || []).map((a) =>
+          a.id === actionId ? updatedAction : a
+        ),
+      }))
+    )
+  }, [])
+
+  const handleActionExecute = useCallback(async (actionId: string) => {
+    try {
+      const updated = await chatApi.executeAction(projectId, actionId)
+      updateActionInMessages(actionId, updated)
+    } catch {
+      /* error handling via UI state */
+    }
+  }, [projectId, updateActionInMessages])
+
+  const handleActionReject = useCallback(async (actionId: string) => {
+    try {
+      const updated = await chatApi.rejectAction(projectId, actionId)
+      updateActionInMessages(actionId, updated)
+    } catch {
+      /* error handling via UI state */
+    }
+  }, [projectId, updateActionInMessages])
+
+  const handleSend = useCallback(async (message: string) => {
     const optimisticMsg: ChatMessageType = {
       id: `temp-${Date.now()}`,
       conversationId: conversationId || '',
@@ -70,6 +99,7 @@ export default function ChatDrawer({ open, onClose, projectId }: ChatDrawerProps
       content: message,
       toolCalls: null,
       createdAt: new Date().toISOString(),
+      pendingActions: [],
     }
     setMessages((prev) => [...prev, optimisticMsg])
     setLoading(true)
@@ -91,32 +121,33 @@ export default function ChatDrawer({ open, onClose, projectId }: ChatDrawerProps
           content: t('chat.error'),
           toolCalls: null,
           createdAt: new Date().toISOString(),
+          pendingActions: [],
         },
       ])
     } finally {
       setLoading(false)
     }
-  }
+  }, [projectId, conversationId, t])
 
-  const handleSuggestionClick = (key: string) => {
+  const handleSuggestionClick = useCallback((key: string) => {
     handleSend(t(key))
-  }
+  }, [handleSend, t])
 
-  const loadConversations = async () => {
+  const loadConversations = useCallback(async () => {
     try {
       const data = await chatApi.listConversations(projectId)
       setConversations(data)
     } catch {
       setConversations([])
     }
-  }
+  }, [projectId])
 
-  const handleShowHistory = () => {
+  const handleShowHistory = useCallback(() => {
     setShowHistory(true)
     loadConversations()
-  }
+  }, [loadConversations])
 
-  const handleLoadConversation = async (convId: string) => {
+  const handleLoadConversation = useCallback(async (convId: string) => {
     try {
       const data = await chatApi.getConversation(projectId, convId)
       setMessages(data.messages)
@@ -125,26 +156,29 @@ export default function ChatDrawer({ open, onClose, projectId }: ChatDrawerProps
     } catch {
       /* ignore */
     }
-  }
+  }, [projectId])
 
-  const handleDeleteConversation = async (convId: string) => {
+  const handleDeleteConversation = useCallback(async (convId: string) => {
     try {
       await chatApi.deleteConversation(projectId, convId)
       setConversations((prev) => prev.filter((c) => c.id !== convId))
-      if (conversationId === convId) {
-        setMessages([])
-        setConversationId(null)
-      }
+      setConversationId((prev) => {
+        if (prev === convId) {
+          setMessages([])
+          return null
+        }
+        return prev
+      })
     } catch {
       /* ignore */
     }
-  }
+  }, [projectId])
 
-  const handleNewChat = () => {
+  const handleNewChat = useCallback(() => {
     setMessages([])
     setConversationId(null)
     setShowHistory(false)
-  }
+  }, [])
 
   return (
     <Drawer
@@ -224,7 +258,7 @@ export default function ChatDrawer({ open, onClose, projectId }: ChatDrawerProps
           <>
             {/* Messages Area */}
             <Box sx={{ flex: 1, overflow: 'auto', p: 2 }}>
-              {messages.length === 0 ? (
+              {messages.length === 0 && !loading ? (
                 <Box sx={{ textAlign: 'center', mt: 4 }}>
                   <SmartToyIcon sx={{ fontSize: 48, color: 'primary.light', mb: 2 }} />
                   <Typography variant="body1" color="text.secondary" gutterBottom>
@@ -249,7 +283,64 @@ export default function ChatDrawer({ open, onClose, projectId }: ChatDrawerProps
                   </Stack>
                 </Box>
               ) : (
-                messages.map((msg) => <ChatMessage key={msg.id} message={msg} />)
+                messages.map((msg) => (
+                  <ChatMessage
+                    key={msg.id}
+                    message={msg}
+                    onActionExecute={handleActionExecute}
+                    onActionReject={handleActionReject}
+                    onSuggestionClick={handleSend}
+                  />
+                ))
+              )}
+              {loading && (
+                <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start', mb: 1.5 }}>
+                  <Box
+                    sx={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: '50%',
+                      bgcolor: 'primary.main',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                      mt: 0.5,
+                    }}
+                  >
+                    <SmartToyIcon sx={{ fontSize: 18, color: 'white' }} />
+                  </Box>
+                  <Box
+                    sx={{
+                      px: 2,
+                      py: 1.5,
+                      borderRadius: '16px 16px 16px 4px',
+                      bgcolor: 'action.hover',
+                      display: 'flex',
+                      gap: 0.5,
+                      alignItems: 'center',
+                    }}
+                  >
+                    {[0, 1, 2].map((i) => (
+                      <Box
+                        key={i}
+                        sx={{
+                          width: 8,
+                          height: 8,
+                          borderRadius: '50%',
+                          bgcolor: 'text.secondary',
+                          opacity: 0.5,
+                          animation: 'typing-dot 1.4s infinite',
+                          animationDelay: `${i * 0.2}s`,
+                          '@keyframes typing-dot': {
+                            '0%, 60%, 100%': { transform: 'translateY(0)', opacity: 0.3 },
+                            '30%': { transform: 'translateY(-6px)', opacity: 0.8 },
+                          },
+                        }}
+                      />
+                    ))}
+                  </Box>
+                </Box>
               )}
               <div ref={messagesEndRef} />
             </Box>

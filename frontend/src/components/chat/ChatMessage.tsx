@@ -1,16 +1,55 @@
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Paper from '@mui/material/Paper'
+import Chip from '@mui/material/Chip'
+import Stack from '@mui/material/Stack'
 import SmartToyIcon from '@mui/icons-material/SmartToy'
 import PersonIcon from '@mui/icons-material/Person'
+import ReactMarkdown from 'react-markdown'
+import ChatActionCard from './ChatActionCard'
 import type { ChatMessage as ChatMessageType } from '../../api/chat'
+
+function parseSuggestions(content: string): { cleanContent: string; suggestions: string[] } {
+  const lines = content.split('\n')
+  const suggestions: string[] = []
+  let separatorIdx = -1
+
+  for (let i = lines.length - 1; i >= 0; i--) {
+    const trimmed = lines[i].trim()
+    const match = trimmed.match(/^[-*]\s*\[(.+)\]\s*$/)
+    if (match) {
+      suggestions.unshift(match[1])
+    } else if (trimmed === '---' && suggestions.length > 0) {
+      separatorIdx = i
+      break
+    } else if (trimmed === '' || trimmed.startsWith('**')) {
+      continue
+    } else {
+      break
+    }
+  }
+
+  if (suggestions.length === 0) return { cleanContent: content, suggestions: [] }
+
+  const cutIdx = separatorIdx >= 0 ? separatorIdx : lines.length - suggestions.length
+  const cleanContent = lines.slice(0, cutIdx).join('\n').trimEnd()
+  return { cleanContent, suggestions }
+}
 
 interface ChatMessageProps {
   message: ChatMessageType
+  onActionExecute?: (actionId: string) => Promise<void>
+  onActionReject?: (actionId: string) => Promise<void>
+  onSuggestionClick?: (text: string) => void
 }
 
-export default function ChatMessage({ message }: ChatMessageProps) {
+export default function ChatMessage({ message, onActionExecute, onActionReject, onSuggestionClick }: ChatMessageProps) {
   const isUser = message.role === 'user'
+  const actions = message.pendingActions || []
+
+  const { cleanContent, suggestions } = !isUser && message.content
+    ? parseSuggestions(message.content)
+    : { cleanContent: message.content, suggestions: [] }
 
   return (
     <Box
@@ -39,29 +78,107 @@ export default function ChatMessage({ message }: ChatMessageProps) {
           <SmartToyIcon sx={{ fontSize: 18, color: 'white' }} />
         </Box>
       )}
-      <Paper
-        elevation={0}
-        sx={{
-          px: 2,
-          py: 1.5,
-          maxWidth: '80%',
-          borderRadius: isUser ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
-          bgcolor: isUser ? 'primary.main' : 'action.hover',
-          color: isUser ? 'primary.contrastText' : 'text.primary',
-        }}
-      >
-        <Typography
-          variant="body2"
+      <Box sx={{ maxWidth: '80%' }}>
+        <Paper
+          elevation={0}
           sx={{
-            whiteSpace: 'pre-wrap',
-            wordBreak: 'break-word',
-            lineHeight: 1.6,
-            '& ul, & ol': { pl: 2, my: 0.5 },
+            px: 2,
+            py: 1.5,
+            borderRadius: isUser ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
+            bgcolor: isUser ? 'primary.main' : 'action.hover',
+            color: isUser ? 'primary.contrastText' : 'text.primary',
           }}
         >
-          {message.content}
-        </Typography>
-      </Paper>
+          {isUser ? (
+            <Typography
+              variant="body2"
+              sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: 1.6 }}
+            >
+              {message.content}
+            </Typography>
+          ) : (
+            <Box
+              sx={{
+                '& p': { m: 0, mb: 1, lineHeight: 1.6, fontSize: '0.875rem', '&:last-child': { mb: 0 } },
+                '& ul, & ol': { pl: 2.5, my: 0.5, fontSize: '0.875rem' },
+                '& li': { mb: 0.3, lineHeight: 1.5 },
+                '& strong': { fontWeight: 600 },
+                '& h1, & h2, & h3, & h4': { mt: 1, mb: 0.5, fontWeight: 600 },
+                '& h3': { fontSize: '1rem' },
+                '& h4': { fontSize: '0.9rem' },
+                '& code': {
+                  bgcolor: 'rgba(0,0,0,0.06)',
+                  px: 0.5,
+                  py: 0.25,
+                  borderRadius: 0.5,
+                  fontSize: '0.8rem',
+                  fontFamily: 'monospace',
+                },
+                '& pre': {
+                  bgcolor: 'rgba(0,0,0,0.06)',
+                  p: 1.5,
+                  borderRadius: 1,
+                  overflow: 'auto',
+                  my: 1,
+                  '& code': { bgcolor: 'transparent', p: 0 },
+                },
+                '& table': {
+                  width: '100%',
+                  borderCollapse: 'collapse',
+                  fontSize: '0.8rem',
+                  my: 1,
+                },
+                '& th, & td': {
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  px: 1,
+                  py: 0.5,
+                  textAlign: 'start',
+                },
+                '& th': { fontWeight: 600, bgcolor: 'rgba(0,0,0,0.04)' },
+                '& hr': { my: 1, borderColor: 'divider' },
+                '& blockquote': {
+                  borderInlineStart: '3px solid',
+                  borderColor: 'primary.main',
+                  pl: 1.5,
+                  ml: 0,
+                  my: 1,
+                  color: 'text.secondary',
+                },
+              }}
+            >
+              <ReactMarkdown>{cleanContent}</ReactMarkdown>
+            </Box>
+          )}
+        </Paper>
+        {actions.length > 0 && onActionExecute && onActionReject && (
+          <Box sx={{ mt: 0.5 }}>
+            {actions.map((action) => (
+              <ChatActionCard
+                key={action.id}
+                action={action}
+                onExecute={onActionExecute}
+                onReject={onActionReject}
+              />
+            ))}
+          </Box>
+        )}
+        {suggestions.length > 0 && onSuggestionClick && (
+          <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap sx={{ mt: 1 }}>
+            {suggestions.map((text, idx) => (
+              <Chip
+                key={idx}
+                label={text}
+                onClick={() => onSuggestionClick(text)}
+                variant="outlined"
+                color="primary"
+                size="small"
+                sx={{ mb: 0.5 }}
+              />
+            ))}
+          </Stack>
+        )}
+      </Box>
       {isUser && (
         <Box
           sx={{

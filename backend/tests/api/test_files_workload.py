@@ -1,16 +1,14 @@
 import uuid
 from datetime import datetime
-from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.file import File
-from app.models.user import User
 from app.models.project import Project, ProjectMember
+from app.models.user import User
 from app.services.storage_service import StorageBackend, get_storage_backend
-
 
 API_V1 = "/api/v1"
 FAKE_PROJECT_ID = str(uuid.uuid4())
@@ -98,7 +96,7 @@ def mock_storage():
 
 @pytest.fixture
 async def file_admin_client(db: AsyncSession, admin_user: User, mock_storage: MockStorageBackend):
-    from app.core.security import get_current_user, get_current_admin_user
+    from app.core.security import get_current_admin_user, get_current_user
     from app.main import app
 
     async def override_get_db():
@@ -134,9 +132,10 @@ async def file_admin_client(db: AsyncSession, admin_user: User, mock_storage: Mo
 
 @pytest.fixture
 async def file_user_client(db: AsyncSession, regular_user: User, mock_storage: MockStorageBackend):
-    from app.core.security import get_current_user, get_current_admin_user
-    from app.main import app
     from fastapi import HTTPException
+
+    from app.core.security import get_current_admin_user, get_current_user
+    from app.main import app
 
     async def override_get_db():
         yield db

@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, date
+from datetime import date, datetime
 from enum import Enum
 from typing import Optional
-from sqlalchemy import String, Text, Date, DateTime, ForeignKey
+
+from sqlalchemy import Date, DateTime, ForeignKey, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from app.db.session import Base
 
 

@@ -2,13 +2,10 @@ import uuid
 from decimal import Decimal
 
 import pytest
-from httpx import AsyncClient
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
-from app.models.material import Material, ApprovalStatus
 from app.models.approval import ApprovalRequest, ApprovalStep
-from app.models.user import User
+from app.models.material import ApprovalStatus, Material
 from app.models.project import Project, ProjectMember
 
 API = "/api/v1"

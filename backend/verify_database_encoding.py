@@ -6,7 +6,9 @@ Run with: python verify_database_encoding.py
 """
 import asyncio
 import json
-from sqlalchemy import select, func
+
+from sqlalchemy import func, select
+
 from app.db.session import AsyncSessionLocal
 from app.models.equipment_template import EquipmentTemplate, TemplateConsultant
 
@@ -162,7 +164,7 @@ async def main():
         success = await verify_database()
         exit(0 if success else 1)
     except Exception as e:
-        print(f"\n✗ ERROR: Database verification failed with exception:")
+        print("\n✗ ERROR: Database verification failed with exception:")
         print(f"  {type(e).__name__}: {e}")
         print("\nThis is expected if the database hasn't been set up yet.")
         print("To set up the database, run:")

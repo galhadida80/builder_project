@@ -1,30 +1,35 @@
-from uuid import UUID
-from typing import Optional
 from datetime import datetime
+from typing import Optional
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import case, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, case
 from sqlalchemy.orm import selectinload
+
+from app.core.permissions import Permission, check_permission, require_permission
+from app.core.security import get_current_user, verify_project_access
 from app.db.session import get_db
-from app.models.inspection import InspectionConsultantType, InspectionStage, Inspection, Finding, InspectionStatus
+from app.models.audit import AuditAction, AuditLog
+from app.models.inspection import Finding, Inspection, InspectionStage, InspectionStatus
+from app.models.inspection_template import InspectionConsultantType
+from app.models.project import ProjectMember
 from app.models.user import User
+from app.schemas.audit import AuditLogResponse
 from app.schemas.inspection import (
+    FindingCreate,
+    FindingResponse,
+    FindingUpdate,
     InspectionConsultantTypeCreate,
     InspectionConsultantTypeResponse,
+    InspectionCreate,
+    InspectionResponse,
     InspectionStageCreate,
     InspectionStageResponse,
-    InspectionCreate,
-    InspectionUpdate,
-    InspectionResponse,
     InspectionSummaryResponse,
-    FindingCreate,
-    FindingUpdate,
-    FindingResponse
+    InspectionUpdate,
 )
 from app.services.audit_service import create_audit_log, get_model_dict
-from app.models.audit import AuditAction, AuditLog
-from app.schemas.audit import AuditLogResponse
-from app.core.security import get_current_user, verify_project_access
 
 router = APIRouter()
 
@@ -48,7 +53,7 @@ async def create_consultant_type(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Create a new inspection consultant type"""
+    """Create a new inspection consultant type (admin-level, no project-specific permission check)"""
     consultant_type = InspectionConsultantType(**data.model_dump())
     db.add(consultant_type)
     await db.flush()
@@ -86,7 +91,7 @@ async def add_stage_to_consultant_type(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Add a stage template to a consultant type"""
+    """Add a stage template to a consultant type (admin-level, no project-specific permission check)"""
     # Verify consultant type exists
     result = await db.execute(
         select(InspectionConsultantType)
@@ -140,11 +145,11 @@ async def list_inspections(
 async def create_inspection(
     project_id: UUID,
     data: InspectionCreate,
+    member: ProjectMember = require_permission(Permission.CREATE),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     """Create a new inspection for a project"""
-    await verify_project_access(project_id, current_user, db)
     inspection = Inspection(**data.model_dump(), project_id=project_id, created_by_id=current_user.id)
     db.add(inspection)
     await db.flush()
@@ -300,11 +305,11 @@ async def update_inspection(
     project_id: UUID,
     inspection_id: UUID,
     data: InspectionUpdate,
+    member: ProjectMember = require_permission(Permission.EDIT),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     """Update an inspection"""
-    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(Inspection).where(Inspection.id == inspection_id, Inspection.project_id == project_id)
     )
@@ -335,11 +340,11 @@ async def update_inspection(
 async def complete_inspection(
     project_id: UUID,
     inspection_id: UUID,
+    member: ProjectMember = require_permission(Permission.APPROVE),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     """Mark an inspection as complete"""
-    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(Inspection).where(Inspection.id == inspection_id, Inspection.project_id == project_id)
     )
@@ -370,11 +375,11 @@ async def complete_inspection(
 async def delete_inspection(
     project_id: UUID,
     inspection_id: UUID,
+    member: ProjectMember = require_permission(Permission.DELETE),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     """Delete an inspection"""
-    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(Inspection).where(Inspection.id == inspection_id, Inspection.project_id == project_id)
     )
@@ -396,11 +401,11 @@ async def add_finding_to_inspection(
     project_id: UUID,
     inspection_id: UUID,
     data: FindingCreate,
+    member: ProjectMember = require_permission(Permission.CREATE),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     """Add a finding to an inspection"""
-    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(Inspection)
         .where(Inspection.id == inspection_id, Inspection.project_id == project_id)
@@ -440,7 +445,7 @@ async def update_finding(
     if not inspection:
         raise HTTPException(status_code=404, detail="Parent inspection not found")
 
-    await verify_project_access(inspection.project_id, current_user, db)
+    await check_permission(Permission.EDIT, inspection.project_id, current_user.id, db)
 
     old_values = get_model_dict(finding)
     for key, value in data.model_dump(exclude_unset=True).items():

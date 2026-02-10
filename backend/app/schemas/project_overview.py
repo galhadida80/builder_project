@@ -1,9 +1,11 @@
 from __future__ import annotations
 
-from uuid import UUID
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel, Field
+from uuid import UUID
+
+from pydantic import Field
+
 from app.core.validators import CamelCaseModel
 
 

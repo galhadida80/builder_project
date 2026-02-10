@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Box, Grid, Skeleton } from '@mui/material'
 import { Tabs } from '../ui/Tabs'
 import { EmptyState } from '../ui/EmptyState'
@@ -21,6 +22,7 @@ export function MaterialInventoryGrid({
   onMaterialClick,
   lowStockThreshold = 10,
 }: MaterialInventoryGridProps) {
+  const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState('All')
 
   const filteredMaterials = materials.filter((material) => {
@@ -62,8 +64,8 @@ export function MaterialInventoryGrid({
       <EmptyState
         variant="empty"
         icon={<InventoryIcon />}
-        title="No materials yet"
-        description="Materials will appear here once they are added to the project."
+        title={t('materials.noMaterialsYet')}
+        description={t('materials.noMaterialsYetDescription')}
       />
     )
   }
@@ -82,8 +84,8 @@ export function MaterialInventoryGrid({
       {filteredMaterials.length === 0 ? (
         <EmptyState
           variant="no-results"
-          title="No materials found"
-          description={`No materials found in the ${activeTab} category.`}
+          title={t('materials.noMaterialsFound')}
+          description={t('materials.noMaterialsFoundInCategory')}
         />
       ) : (
         <Grid container spacing={3}>

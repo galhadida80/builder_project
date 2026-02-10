@@ -1,10 +1,12 @@
 import uuid
-import pytest
 from datetime import date, timedelta
+
+import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.models.user import User
+
 from app.models.project import Project, ProjectMember
+from app.models.user import User
 
 API = "/api/v1/projects"
 

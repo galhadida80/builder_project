@@ -1,14 +1,16 @@
 import logging
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
-from app.config import get_settings
+
 from app.api.v1.router import api_router
-from app.utils.localization import get_language_from_request
+from app.config import get_settings
 from app.db.seeds.consultant_types import seed_consultant_types
 from app.db.seeds.equipment_templates import seed_equipment_templates
 from app.db.seeds.material_templates import seed_material_templates
+from app.utils.localization import get_language_from_request
 
 logger = logging.getLogger(__name__)
 settings = get_settings()

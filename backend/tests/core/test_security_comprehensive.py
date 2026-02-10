@@ -1,21 +1,19 @@
 import uuid
-import time
 from datetime import datetime, timedelta
-from unittest.mock import patch
 
 import pytest
 from jose import jwt
 
+from app.core.csrf import CSRFTokenManager
 from app.core.security import (
-    get_password_hash,
-    verify_password,
+    ACCESS_TOKEN_EXPIRE_DAYS,
+    ALGORITHM,
+    SECRET_KEY,
     create_access_token,
     decode_access_token,
-    SECRET_KEY,
-    ALGORITHM,
-    ACCESS_TOKEN_EXPIRE_DAYS,
+    get_password_hash,
+    verify_password,
 )
-from app.core.csrf import CSRFTokenManager
 
 
 class TestGetPasswordHash:

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Box, Typography, Grid, Skeleton } from '@mui/material'
 import dayjs, { Dayjs } from 'dayjs'
+import { useTranslation } from 'react-i18next'
 import DateRangeSelector from './components/DateRangeSelector'
 import AnalyticsKPICard from './components/KPICard'
 import ProjectMetricsChart from './components/ProjectMetricsChart'
@@ -14,6 +15,7 @@ import { analyticsService, MetricsData, TrendData, DistributionData } from '../.
 import { useToast } from '../../components/common/ToastProvider'
 
 export default function AnalyticsDashboard() {
+  const { t } = useTranslation()
   const { showError } = useToast()
   const [startDate, setStartDate] = useState<Dayjs | null>(dayjs().subtract(30, 'day'))
   const [endDate, setEndDate] = useState<Dayjs | null>(dayjs())
@@ -48,7 +50,7 @@ export default function AnalyticsDashboard() {
       setTrendsData(trends)
       setDistributionsData(distributions)
     } catch (error) {
-      showError('Failed to load analytics data. Please try again.')
+      showError(t('analytics.failedToLoad'))
     } finally {
       setLoading(false)
     }
@@ -59,7 +61,6 @@ export default function AnalyticsDashboard() {
     setEndDate(newEndDate)
   }
 
-  // Transform trends data for the chart
   const getTrendsChartData = () => {
     if (!trendsData || trendsData.length === 0) {
       return {
@@ -71,15 +72,15 @@ export default function AnalyticsDashboard() {
     return {
       data: [
         {
-          label: 'Inspections Completed',
-          values: trendsData.map((t) => t.inspectionsCompleted),
+          label: t('analytics.inspectionsCompleted'),
+          values: trendsData.map((td) => td.inspectionsCompleted),
         },
         {
-          label: 'RFIs Submitted',
-          values: trendsData.map((t) => t.rfisSubmitted),
+          label: t('analytics.rfisSubmitted'),
+          values: trendsData.map((td) => td.rfisSubmitted),
         },
       ],
-      xAxisLabels: trendsData.map((t) => dayjs(t.date).format('MMM DD')),
+      xAxisLabels: trendsData.map((td) => dayjs(td.date).format('MMM DD')),
     }
   }
 
@@ -118,10 +119,10 @@ export default function AnalyticsDashboard() {
               mb: 0.5,
             }}
           >
-            Analytics Dashboard
+            {t('analytics.title')}
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            Comprehensive analytics and insights for your projects
+            {t('analytics.subtitle')}
           </Typography>
         </Box>
         <ExportButton />
@@ -130,7 +131,7 @@ export default function AnalyticsDashboard() {
       <Box id="dashboard-content">
         <Box sx={{ mb: 4 }}>
           <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-            Date Range
+            {t('analytics.dateRange')}
           </Typography>
           <DateRangeSelector
             startDate={startDate}
@@ -141,15 +142,15 @@ export default function AnalyticsDashboard() {
 
         <Box sx={{ mb: 4 }}>
           <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-            Key Metrics
+            {t('analytics.keyMetrics')}
           </Typography>
           <Grid container spacing={3}>
             <Grid item xs={12} sm={6} md={3}>
               <AnalyticsKPICard
-                title="Total Projects"
+                title={t('analytics.totalProjects')}
                 value={metricsData?.totalProjects ?? 0}
                 trend={metricsData?.trends?.totalProjects}
-                trendLabel="vs last period"
+                trendLabel={t('analytics.vsLastPeriod')}
                 icon={<AssessmentIcon />}
                 color="primary"
                 loading={loading}
@@ -157,10 +158,10 @@ export default function AnalyticsDashboard() {
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
               <AnalyticsKPICard
-                title="Active Inspections"
+                title={t('analytics.activeInspections')}
                 value={metricsData?.activeInspections ?? 0}
                 trend={metricsData?.trends?.activeInspections}
-                trendLabel="vs last period"
+                trendLabel={t('analytics.vsLastPeriod')}
                 icon={<CheckCircleIcon />}
                 color="success"
                 loading={loading}
@@ -168,10 +169,10 @@ export default function AnalyticsDashboard() {
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
               <AnalyticsKPICard
-                title="Pending RFIs"
+                title={t('analytics.pendingRFIs')}
                 value={metricsData?.pendingRFIs ?? 0}
                 trend={metricsData?.trends?.pendingRFIs}
-                trendLabel="vs last period"
+                trendLabel={t('analytics.vsLastPeriod')}
                 icon={<PendingActionsIcon />}
                 color="warning"
                 loading={loading}
@@ -179,10 +180,10 @@ export default function AnalyticsDashboard() {
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
               <AnalyticsKPICard
-                title="Approval Rate"
+                title={t('analytics.approvalRate')}
                 value={metricsData?.approvalRate ? `${metricsData.approvalRate.toFixed(1)}%` : '0%'}
                 trend={metricsData?.trends?.approvalRate}
-                trendLabel="vs last period"
+                trendLabel={t('analytics.vsLastPeriod')}
                 icon={<TrendingUpIcon />}
                 color="info"
                 loading={loading}
@@ -193,12 +194,12 @@ export default function AnalyticsDashboard() {
 
         <Box sx={{ mb: 4 }}>
           <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-            Project Metrics Over Time
+            {t('analytics.metricsOverTime')}
           </Typography>
           <Grid container spacing={3}>
             <Grid item xs={12}>
               <ProjectMetricsChart
-                title="Inspections & RFIs"
+                title={t('analytics.inspectionsAndRfis')}
                 data={trendsChartData.data}
                 xAxisLabels={trendsChartData.xAxisLabels}
                 height={350}
@@ -210,12 +211,12 @@ export default function AnalyticsDashboard() {
 
         <Box sx={{ mb: 4 }}>
           <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-            Distribution Analysis
+            {t('analytics.distributionAnalysis')}
           </Typography>
           <Grid container spacing={3}>
             <Grid item xs={12} md={6}>
               <DistributionChart
-                title="RFI Status"
+                title={t('analytics.rfiStatus')}
                 data={distributionsData?.rfiStatus ?? []}
                 height={350}
                 loading={loading}
@@ -223,7 +224,7 @@ export default function AnalyticsDashboard() {
             </Grid>
             <Grid item xs={12} md={6}>
               <DistributionChart
-                title="Equipment Status"
+                title={t('analytics.equipmentStatus')}
                 data={distributionsData?.equipmentStatus ?? []}
                 height={350}
                 innerRadius={60}
@@ -235,7 +236,7 @@ export default function AnalyticsDashboard() {
 
         <Box sx={{ mt: 3 }}>
           <Typography variant="body2" color="text.secondary">
-            Selected Range: {startDate?.format('MMM DD, YYYY')} - {endDate?.format('MMM DD, YYYY')}
+            {t('analytics.selectedRange')}: {startDate?.format('MMM DD, YYYY')} - {endDate?.format('MMM DD, YYYY')}
           </Typography>
         </Box>
       </Box>

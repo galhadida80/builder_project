@@ -1,15 +1,16 @@
 import uuid
+
 import pytest
 from fastapi import HTTPException
 
 from app.core.validation import (
+    detect_sql_injection_attempt,
+    prevent_sql_injection,
+    sanitize_input_dict,
     sanitize_string,
     validate_email,
     validate_password,
     validate_string_length,
-    sanitize_input_dict,
-    detect_sql_injection_attempt,
-    prevent_sql_injection,
     validate_uuid_format,
 )
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
@@ -37,8 +37,15 @@ import { useToast } from '../components/common/ToastProvider'
 import { useProject } from '../contexts/ProjectContext'
 
 export default function DashboardPage() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const navigate = useNavigate()
+
+  const dateLocale = useMemo(() => {
+    const lang = i18n.language
+    if (lang === 'he') return 'he-IL'
+    if (lang === 'es') return 'es-ES'
+    return 'en-US'
+  }, [i18n.language])
   const { showError, showWarning } = useToast()
   const { selectedProjectId } = useProject()
   const [loading, setLoading] = useState(true)
@@ -72,7 +79,7 @@ export default function DashboardPage() {
       setTeamMembers(teamData)
     } catch (error) {
       console.error('Failed to load dashboard data:', error)
-      showError('Failed to load dashboard data. Please refresh the page.')
+      showError(t('dashboard.failedToLoad'))
     } finally {
       setLoading(false)
     }
@@ -115,10 +122,10 @@ export default function DashboardPage() {
             mb: 0.5,
           }}
         >
-          Dashboard
+          {t('dashboard.title')}
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          Overview of your construction operations
+          {t('dashboard.overviewSubtitle')}
         </Typography>
       </Box>
 
@@ -131,25 +138,25 @@ export default function DashboardPage() {
         }}
       >
         <KPICard
-          title="Equipment Items"
+          title={t('dashboard.equipmentItems')}
           value={equipment.length}
           icon={<BuildIcon />}
           color="primary"
         />
         <KPICard
-          title="Materials"
+          title={t('nav.materials')}
           value={materials.length}
           icon={<InventoryIcon />}
           color="warning"
         />
         <KPICard
-          title="Pending Approvals"
+          title={t('dashboard.pendingApprovals')}
           value={pendingApprovals.length}
           icon={<CheckCircleIcon />}
           color="success"
         />
         <KPICard
-          title="Upcoming Meetings"
+          title={t('dashboard.upcomingMeetings')}
           value={upcomingMeetings.length}
           icon={<EventIcon />}
           color="info"
@@ -168,14 +175,14 @@ export default function DashboardPage() {
           <Box sx={{ p: 2.5 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
               <Box>
-                <Typography variant="h6" fontWeight={600}>Pending Approvals</Typography>
+                <Typography variant="h6" fontWeight={600}>{t('dashboard.pendingApprovals')}</Typography>
                 <Typography variant="caption" color="text.secondary">
-                  Items awaiting your review
+                  {t('dashboard.itemsAwaitingReview')}
                 </Typography>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Chip
-                  label={`${pendingApprovals.length} pending`}
+                  label={`${pendingApprovals.length} ${t('dashboard.pending')}`}
                   size="small"
                   color="warning"
                   sx={{ fontWeight: 600 }}
@@ -217,7 +224,7 @@ export default function DashboardPage() {
                           primary={
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                               <Typography variant="body2" fontWeight={500}>
-                                {entity?.name || 'Unknown Item'}
+                                {entity?.name || t('dashboard.unknownItem')}
                               </Typography>
                               <StatusBadge status={approval.currentStatus} size="small" />
                             </Box>
@@ -225,14 +232,14 @@ export default function DashboardPage() {
                           secondary={
                             <Box sx={{ mt: 1 }}>
                               <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-                                Step {completedSteps + 1} of {totalSteps}
+                                {t('dashboard.stepOfTotal', { current: completedSteps + 1, total: totalSteps })}
                               </Typography>
                               <ProgressBar value={progress} showValue={false} size="small" />
                             </Box>
                           }
                         />
                         <Button variant="tertiary" size="small" icon={<ArrowForwardIcon />} iconPosition="end">
-                          Review
+                          {t('dashboard.review')}
                         </Button>
                       </ListItem>
                     )
@@ -241,15 +248,15 @@ export default function DashboardPage() {
                 {pendingApprovals.length > 5 && (
                   <Box sx={{ mt: 2, textAlign: 'center' }}>
                     <Button variant="tertiary" size="small">
-                      View all {pendingApprovals.length} approvals
+                      {t('dashboard.viewAllApprovals', { count: pendingApprovals.length })}
                     </Button>
                   </Box>
                 )}
               </>
             ) : (
               <EmptyState
-                title="All caught up!"
-                description="No pending approvals at this time."
+                title={t('dashboard.allCaughtUp')}
+                description={t('dashboard.noPendingApprovals')}
                 icon={<CheckCircleIcon sx={{ color: 'success.main' }} />}
               />
             )}
@@ -260,7 +267,7 @@ export default function DashboardPage() {
           <Card>
             <Box sx={{ p: 2.5 }}>
               <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
-                Completion Rate
+                {t('dashboard.completionRate')}
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
                 <CircularProgressDisplay
@@ -271,19 +278,19 @@ export default function DashboardPage() {
                 />
                 <Box>
                   <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                    {equipment.filter(e => e.status === 'approved').length} of {equipment.length} approved
+                    {equipment.filter(e => e.status === 'approved').length} {t('dashboard.of')} {equipment.length} {t('dashboard.approved')}
                   </Typography>
                   <Box sx={{ display: 'flex', gap: 2 }}>
                     <Box>
-                      <Typography variant="caption" color="text.secondary">Equipment</Typography>
+                      <Typography variant="caption" color="text.secondary">{t('nav.equipment')}</Typography>
                       <Typography variant="body2" fontWeight={600}>
-                        {equipmentPending.length} pending
+                        {equipmentPending.length} {t('dashboard.pending')}
                       </Typography>
                     </Box>
                     <Box>
-                      <Typography variant="caption" color="text.secondary">Materials</Typography>
+                      <Typography variant="caption" color="text.secondary">{t('nav.materials')}</Typography>
                       <Typography variant="body2" fontWeight={600}>
-                        {materialsPending.length} pending
+                        {materialsPending.length} {t('dashboard.pending')}
                       </Typography>
                     </Box>
                   </Box>
@@ -295,7 +302,7 @@ export default function DashboardPage() {
           <Card>
             <Box sx={{ p: 2.5 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Typography variant="h6" fontWeight={600}>Quick Actions</Typography>
+                <Typography variant="h6" fontWeight={600}>{t('dashboard.quickActions')}</Typography>
               </Box>
               <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1.5 }}>
                 <Button
@@ -308,11 +315,11 @@ export default function DashboardPage() {
                     if (selectedProjectId) {
                       navigate(`/projects/${selectedProjectId}/equipment?action=add`)
                     } else {
-                      showWarning('Please select a project first')
+                      showWarning(t('dashboard.selectProjectFirst'))
                     }
                   }}
                 >
-                  Add Equipment
+                  {t('dashboard.addEquipment')}
                 </Button>
                 <Button
                   variant="secondary"
@@ -324,11 +331,11 @@ export default function DashboardPage() {
                     if (selectedProjectId) {
                       navigate(`/projects/${selectedProjectId}/materials?action=add`)
                     } else {
-                      showWarning('Please select a project first')
+                      showWarning(t('dashboard.selectProjectFirst'))
                     }
                   }}
                 >
-                  Add Material
+                  {t('dashboard.addMaterial')}
                 </Button>
                 <Button
                   variant="secondary"
@@ -340,11 +347,11 @@ export default function DashboardPage() {
                     if (selectedProjectId) {
                       navigate(`/projects/${selectedProjectId}/meetings?action=add`)
                     } else {
-                      showWarning('Please select a project first')
+                      showWarning(t('dashboard.selectProjectFirst'))
                     }
                   }}
                 >
-                  Schedule Meeting
+                  {t('dashboard.scheduleMeeting')}
                 </Button>
                 <Button
                   variant="secondary"
@@ -356,11 +363,11 @@ export default function DashboardPage() {
                     if (selectedProjectId) {
                       navigate(`/projects/${selectedProjectId}/inspections?action=add`)
                     } else {
-                      showWarning('Please select a project first')
+                      showWarning(t('dashboard.selectProjectFirst'))
                     }
                   }}
                 >
-                  New Inspection
+                  {t('dashboard.newInspection')}
                 </Button>
               </Box>
             </Box>
@@ -379,9 +386,9 @@ export default function DashboardPage() {
           <Box sx={{ p: 2.5 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
               <Box>
-                <Typography variant="h6" fontWeight={600}>Upcoming Meetings</Typography>
+                <Typography variant="h6" fontWeight={600}>{t('dashboard.upcomingMeetings')}</Typography>
                 <Typography variant="caption" color="text.secondary">
-                  Next 7 days
+                  {t('dashboard.next7Days')}
                 </Typography>
               </Box>
               <Chip label={upcomingMeetings.length} size="small" color="primary" />
@@ -414,10 +421,10 @@ export default function DashboardPage() {
                         }}
                       >
                         <Typography variant="caption" sx={{ lineHeight: 1, fontWeight: 700 }}>
-                          {new Date(meeting.scheduledDate).toLocaleDateString('en-US', { day: '2-digit' })}
+                          {new Date(meeting.scheduledDate).toLocaleDateString(dateLocale, { day: '2-digit' })}
                         </Typography>
                         <Typography variant="caption" sx={{ lineHeight: 1, fontSize: '0.6rem', textTransform: 'uppercase' }}>
-                          {new Date(meeting.scheduledDate).toLocaleDateString('en-US', { month: 'short' })}
+                          {new Date(meeting.scheduledDate).toLocaleDateString(dateLocale, { month: 'short' })}
                         </Typography>
                       </Box>
                     </ListItemAvatar>
@@ -429,7 +436,7 @@ export default function DashboardPage() {
                       }
                       secondary={
                         <Typography variant="caption" color="text.secondary">
-                          {new Date(meeting.scheduledDate).toLocaleTimeString('en-US', {
+                          {new Date(meeting.scheduledDate).toLocaleTimeString(dateLocale, {
                             hour: '2-digit',
                             minute: '2-digit',
                           })}
@@ -437,7 +444,7 @@ export default function DashboardPage() {
                       }
                     />
                     <Chip
-                      label={meeting.meetingType?.replace('_', ' ')}
+                      label={meeting.meetingType ? t(`meetings.type${meeting.meetingType.split('_').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join('')}`, { defaultValue: meeting.meetingType.replace('_', ' ') }) : ''}
                       size="small"
                       variant="outlined"
                       sx={{ textTransform: 'capitalize', fontSize: '0.65rem' }}
@@ -448,8 +455,8 @@ export default function DashboardPage() {
             ) : (
               <EmptyState
                 variant="empty"
-                title="No meetings scheduled"
-                description="Schedule your first meeting to get started."
+                title={t('dashboard.noMeetingsScheduled')}
+                description={t('dashboard.scheduleFirstMeeting')}
               />
             )}
           </Box>
@@ -458,7 +465,7 @@ export default function DashboardPage() {
         <Card>
           <Box sx={{ p: 2.5 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-              <Typography variant="h6" fontWeight={600}>Recent Activity</Typography>
+              <Typography variant="h6" fontWeight={600}>{t('dashboard.recentActivity')}</Typography>
               <IconButton size="small">
                 <MoreVertIcon fontSize="small" />
               </IconButton>
@@ -498,12 +505,14 @@ export default function DashboardPage() {
                     <ListItemText
                       primary={
                         <Typography variant="body2" fontSize="0.8rem">
-                          <strong>{log.user?.fullName || 'System'}</strong> {log.action}d {log.entityType}
+                          <strong>{log.user?.fullName || t('dashboard.system')}</strong>{' '}
+                          {t(`dashboard.activityActions.${log.action}`, { defaultValue: log.action })}{' '}
+                          {t(`dashboard.activityEntities.${log.entityType}`, { defaultValue: log.entityType })}
                         </Typography>
                       }
                       secondary={
                         <Typography variant="caption" color="text.secondary">
-                          {new Date(log.createdAt).toLocaleString('en-US', {
+                          {new Date(log.createdAt).toLocaleString(dateLocale, {
                             month: 'short',
                             day: 'numeric',
                             hour: '2-digit',
@@ -518,8 +527,8 @@ export default function DashboardPage() {
             ) : (
               <EmptyState
                 variant="empty"
-                title="No activity yet"
-                description="Activity will appear here as changes are made."
+                title={t('dashboard.noActivityYet')}
+                description={t('dashboard.activityWillAppear')}
               />
             )}
           </Box>
@@ -528,20 +537,20 @@ export default function DashboardPage() {
         <Card>
           <Box sx={{ p: 2.5 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-              <Typography variant="h6" fontWeight={600}>Team Overview</Typography>
+              <Typography variant="h6" fontWeight={600}>{t('dashboard.teamOverview')}</Typography>
               <Button variant="tertiary" size="small" icon={<GroupIcon />}>
-                View All
+                {t('dashboard.viewAll')}
               </Button>
             </Box>
 
             <Box sx={{ mb: 3 }}>
               <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
-                Active Team Members
+                {t('dashboard.activeTeamMembers')}
               </Typography>
               {teamMembers.length > 0 ? (
                 <AvatarGroup
                   users={teamMembers.map(member => ({
-                    name: member.user?.fullName || member.user?.email || 'Unknown'
+                    name: member.user?.fullName || member.user?.email || t('common.unknown')
                   }))}
                   max={5}
                   size="medium"

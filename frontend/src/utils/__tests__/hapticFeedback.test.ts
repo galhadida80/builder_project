@@ -16,7 +16,7 @@ describe('hapticFeedback Utility', () => {
 
   afterEach(() => {
     // Restore navigator
-    ;(global.navigator as any) = originalNavigator
+    (global.navigator as any) = originalNavigator
   })
 
   describe('hapticFeedback function', () => {
@@ -70,7 +70,7 @@ describe('hapticFeedback Utility', () => {
     })
 
     it('should gracefully degrade when navigator.vibrate is not available', () => {
-      ;(global.navigator as any).vibrate = undefined
+      (global.navigator as any).vibrate = undefined
 
       // Should not throw error
       expect(() => hapticFeedback('light')).not.toThrow()
@@ -79,7 +79,7 @@ describe('hapticFeedback Utility', () => {
     })
 
     it('should handle navigator.vibrate being null', () => {
-      ;(global.navigator as any).vibrate = null
+      (global.navigator as any).vibrate = null
 
       // Should not throw error
       expect(() => hapticFeedback('light')).not.toThrow()
@@ -203,7 +203,7 @@ describe('hapticFeedback Utility', () => {
     })
 
     it('should gracefully degrade when navigator.vibrate is not available', () => {
-      ;(global.navigator as any).vibrate = undefined
+      (global.navigator as any).vibrate = undefined
 
       // Should not throw error
       expect(() => hapticPattern(50)).not.toThrow()
@@ -293,25 +293,25 @@ describe('hapticFeedback Utility', () => {
 
   describe('isHapticSupported function', () => {
     it('should return true when navigator.vibrate is available', () => {
-      ;(global.navigator as any).vibrate = jest.fn()
+      (global.navigator as any).vibrate = jest.fn()
 
       expect(isHapticSupported()).toBe(true)
     })
 
     it('should return false when navigator.vibrate is undefined', () => {
-      ;(global.navigator as any).vibrate = undefined
+      (global.navigator as any).vibrate = undefined
 
       expect(isHapticSupported()).toBe(false)
     })
 
     it('should return false when navigator.vibrate is null', () => {
-      ;(global.navigator as any).vibrate = null
+      (global.navigator as any).vibrate = null
 
       expect(isHapticSupported()).toBe(false)
     })
 
     it('should work consistently across multiple calls', () => {
-      ;(global.navigator as any).vibrate = jest.fn()
+      (global.navigator as any).vibrate = jest.fn()
 
       expect(isHapticSupported()).toBe(true)
       expect(isHapticSupported()).toBe(true)
@@ -319,7 +319,7 @@ describe('hapticFeedback Utility', () => {
     })
 
     it('should return false when navigator object is modified', () => {
-      ;(global.navigator as any).vibrate = undefined
+      (global.navigator as any).vibrate = undefined
 
       expect(isHapticSupported()).toBe(false)
 
@@ -330,19 +330,19 @@ describe('hapticFeedback Utility', () => {
     })
 
     it('should not throw error when checking support', () => {
-      ;(global.navigator as any).vibrate = undefined
+      (global.navigator as any).vibrate = undefined
 
       expect(() => isHapticSupported()).not.toThrow()
     })
 
     it('should treat falsy vibrate as not supported', () => {
-      ;(global.navigator as any).vibrate = 0
+      (global.navigator as any).vibrate = 0
 
       expect(isHapticSupported()).toBe(false)
     })
 
     it('should treat truthy vibrate as supported', () => {
-      ;(global.navigator as any).vibrate = () => {
+      (global.navigator as any).vibrate = () => {
         // Mock function
       }
 
@@ -363,7 +363,7 @@ describe('hapticFeedback Utility', () => {
     })
 
     it('should handle unsupported device gracefully in conditional', () => {
-      ;(global.navigator as any).vibrate = undefined
+      (global.navigator as any).vibrate = undefined
 
       let hapticCalled = false
       if (isHapticSupported()) {

@@ -27,7 +27,7 @@ def verify_imports():
         from app.models.project import Project
         print("✓ app.models.project imported")
 
-        from app.models.inspection import ConsultantType, ProjectInspection, InspectionStatus
+        from app.models.inspection import ConsultantType, InspectionStatus, ProjectInspection
         print("✓ app.models.inspection imported")
 
         return True

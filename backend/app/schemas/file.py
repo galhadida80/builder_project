@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-from typing import Optional
-
-from uuid import UUID
 from datetime import datetime
-from pydantic import BaseModel
-from app.schemas.user import UserResponse
+from typing import Optional
+from uuid import UUID
+
 from app.core.validators import CamelCaseModel
+from app.schemas.user import UserResponse
+
+
 class FileResponse(CamelCaseModel):
     id: UUID
     project_id: UUID

@@ -4,6 +4,7 @@ import RejectedIcon from '@mui/icons-material/Cancel'
 import PendingIcon from '@mui/icons-material/HourglassBottom'
 import CommentIcon from '@mui/icons-material/Comment'
 import HistoryIcon from '@mui/icons-material/History'
+import { useTranslation } from 'react-i18next'
 import { Avatar } from './ui/Avatar'
 import { EmptyState } from './ui/EmptyState'
 
@@ -62,6 +63,17 @@ const ACTION_CONFIG: Record<ApprovalAction['action'], { icon: React.ReactNode; c
 }
 
 export function ApprovalAuditTrail({ actions, loading = false, sx }: ApprovalAuditTrailProps) {
+  const { t } = useTranslation()
+
+  const ACTION_LABELS: Record<ApprovalAction['action'], string> = {
+    submitted: t('approvalAuditTrail.submitted'),
+    approved: t('approvalAuditTrail.approved'),
+    rejected: t('approvalAuditTrail.rejected'),
+    commented: t('approvalAuditTrail.commented'),
+    revised: t('approvalAuditTrail.revised'),
+    resubmitted: t('approvalAuditTrail.resubmitted'),
+  }
+
   if (loading) {
     return (
       <Box sx={sx}>
@@ -84,8 +96,8 @@ export function ApprovalAuditTrail({ actions, loading = false, sx }: ApprovalAud
       <EmptyState
         variant="no-data"
         icon={<HistoryIcon />}
-        title="No approval history"
-        description="No actions have been taken on this approval yet."
+        title={t('approvals.noHistory')}
+        description={t('approvals.noHistoryDescription')}
         sx={sx}
       />
     )
@@ -148,7 +160,7 @@ export function ApprovalAuditTrail({ actions, loading = false, sx }: ApprovalAud
             <Box sx={{ flex: 1, pt: 0.5 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
                 <Chip
-                  label={config.label}
+                  label={ACTION_LABELS[action.action]}
                   size="small"
                   color={config.color}
                   variant="outlined"
@@ -200,7 +212,7 @@ export function ApprovalAuditTrail({ actions, loading = false, sx }: ApprovalAud
               {action.changes && Object.keys(action.changes).length > 0 && (
                 <Box sx={{ mt: 1 }}>
                   <Typography variant="caption" sx={{ fontWeight: 600, color: 'text.secondary' }}>
-                    Changes:
+                    {t('approvalAuditTrail.changes')}
                   </Typography>
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mt: 0.5 }}>
                     {Object.entries(action.changes).map(([field, values]) => (

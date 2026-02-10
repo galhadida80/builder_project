@@ -108,7 +108,7 @@ export default function Header({ user, currentProject, projects, onProjectChange
           PaperProps={{ sx: { width: 320, maxHeight: 400 } }}
         >
           <Box sx={{ px: 2, py: 1.5 }}>
-            <Typography variant="body2" color="text.secondary">No new notifications</Typography>
+            <Typography variant="body2" color="text.secondary">{t('header.noNewNotifications')}</Typography>
           </Box>
         </Menu>
 

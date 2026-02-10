@@ -1,20 +1,24 @@
 from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
+
+from app.core.security import get_current_admin_user
 from app.db.session import get_db
-from app.models.material_template import MaterialTemplate, MaterialTemplateConsultant
-from app.models.equipment_template import ConsultantType
-from app.models.user import User
-from app.schemas.material_template import (
-    MaterialTemplateCreate, MaterialTemplateUpdate,
-    MaterialTemplateResponse, MaterialTemplateWithConsultantsResponse
-)
-from app.schemas.equipment_template import ConsultantTypeResponse
-from app.services.audit_service import create_audit_log, get_model_dict
 from app.models.audit import AuditAction
-from app.core.security import get_current_user, get_current_admin_user
+from app.models.equipment_template import ConsultantType
+from app.models.material_template import MaterialTemplate, MaterialTemplateConsultant
+from app.models.user import User
+from app.schemas.equipment_template import ConsultantTypeResponse
+from app.schemas.material_template import (
+    MaterialTemplateCreate,
+    MaterialTemplateResponse,
+    MaterialTemplateUpdate,
+    MaterialTemplateWithConsultantsResponse,
+)
+from app.services.audit_service import create_audit_log, get_model_dict
 
 router = APIRouter()
 

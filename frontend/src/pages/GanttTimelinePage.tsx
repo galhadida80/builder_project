@@ -11,6 +11,7 @@ import ZoomInIcon from '@mui/icons-material/ZoomIn'
 import ZoomOutIcon from '@mui/icons-material/ZoomOut'
 import FilterListIcon from '@mui/icons-material/FilterList'
 import TimelineIcon from '@mui/icons-material/Timeline'
+import { useTranslation } from 'react-i18next'
 import { Card } from '../components/ui/Card'
 import { GanttChart } from '../components/ui/GanttChart'
 import { PageHeader } from '../components/ui/Breadcrumbs'
@@ -33,30 +34,30 @@ const convertMeetingsToTasks = (meetings: Meeting[]): { tasks: GanttTask[], link
   return { tasks, links: [] }
 }
 
-const zoomLevels: Array<{ label: string; scales: GanttScale[] }> = [
+const zoomLevels: Array<{ labelKey: string; scales: GanttScale[] }> = [
   {
-    label: 'Year/Month',
+    labelKey: 'gantt.zoomYearMonth',
     scales: [
       { unit: 'year', format: 'YYYY' },
       { unit: 'month', format: 'MMM' },
     ],
   },
   {
-    label: 'Month/Week',
+    labelKey: 'gantt.zoomMonthWeek',
     scales: [
       { unit: 'month', format: 'MMM YYYY' },
       { unit: 'week', format: 'w' },
     ],
   },
   {
-    label: 'Month/Day',
+    labelKey: 'gantt.zoomMonthDay',
     scales: [
       { unit: 'month', format: 'MMM YYYY' },
       { unit: 'day', format: 'D' },
     ],
   },
   {
-    label: 'Week/Day',
+    labelKey: 'gantt.zoomWeekDay',
     scales: [
       { unit: 'week', format: 'MMM D' },
       { unit: 'day', format: 'ddd D' },
@@ -65,6 +66,7 @@ const zoomLevels: Array<{ label: string; scales: GanttScale[] }> = [
 ]
 
 export default function GanttTimelinePage() {
+  const { t } = useTranslation()
   const { projectId } = useParams<{ projectId: string }>()
   const { showError } = useToast()
   const [zoomLevel, setZoomLevel] = useState(2)
@@ -91,7 +93,7 @@ export default function GanttTimelinePage() {
       setLinks(meetingLinks)
     } catch (error) {
       console.error('Failed to load timeline data:', error)
-      showError('Failed to load timeline data')
+      showError(t('gantt.failedToLoad'))
     } finally {
       setLoading(false)
     }
@@ -102,8 +104,8 @@ export default function GanttTimelinePage() {
       <Box sx={{ p: 3 }}>
         <EmptyState
           variant="not-found"
-          title="Project not found"
-          description="Please select a project to view the timeline"
+          title={t('gantt.projectNotFound')}
+          description={t('gantt.selectProject')}
         />
       </Box>
     )
@@ -132,27 +134,27 @@ export default function GanttTimelinePage() {
   return (
     <Box sx={{ p: 3 }}>
       <PageHeader
-        title="Project Timeline"
-        subtitle="View and manage project schedule"
+        title={t('gantt.title')}
+        subtitle={t('gantt.subtitle')}
       />
 
       <Card sx={{ mt: 3 }}>
         <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <Typography variant="h6" fontWeight={600}>
-              Construction Schedule
+              {t('gantt.constructionSchedule')}
             </Typography>
 
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                 <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
-                  Zoom:
+                  {t('gantt.zoom')}:
                 </Typography>
                 <IconButton
                   size="small"
                   onClick={handleZoomOut}
                   disabled={zoomLevel === 0}
-                  title="Zoom out"
+                  title={t('gantt.zoomOut')}
                   sx={{
                     bgcolor: 'action.hover',
                     '&:hover': { bgcolor: 'action.selected' },
@@ -165,7 +167,7 @@ export default function GanttTimelinePage() {
                   size="small"
                   onClick={handleZoomIn}
                   disabled={zoomLevel === zoomLevels.length - 1}
-                  title="Zoom in"
+                  title={t('gantt.zoomIn')}
                   sx={{
                     bgcolor: 'action.hover',
                     '&:hover': { bgcolor: 'action.selected' },
@@ -183,10 +185,10 @@ export default function GanttTimelinePage() {
                   startAdornment={<FilterListIcon sx={{ mr: 1, fontSize: 18, color: 'text.secondary' }} />}
                   sx={{ fontSize: '0.875rem' }}
                 >
-                  <MenuItem value="all">All Tasks</MenuItem>
-                  <MenuItem value="in-progress">In Progress</MenuItem>
-                  <MenuItem value="completed">Completed</MenuItem>
-                  <MenuItem value="milestones">Milestones Only</MenuItem>
+                  <MenuItem value="all">{t('gantt.allTasks')}</MenuItem>
+                  <MenuItem value="in-progress">{t('gantt.inProgress')}</MenuItem>
+                  <MenuItem value="completed">{t('common.completed')}</MenuItem>
+                  <MenuItem value="milestones">{t('gantt.milestonesOnly')}</MenuItem>
                 </Select>
               </FormControl>
             </Box>
@@ -200,8 +202,8 @@ export default function GanttTimelinePage() {
             <Box sx={{ p: 4 }}>
               <EmptyState
                 icon={<TimelineIcon sx={{ fontSize: 64 }} />}
-                title="No Timeline Data"
-                description="Schedule meetings and milestones to see them on the timeline. Add meetings from the Meetings page to populate the timeline."
+                title={t('gantt.noData')}
+                description={t('gantt.noDataDescription')}
               />
             </Box>
           )}
@@ -220,7 +222,7 @@ export default function GanttTimelinePage() {
               }}
             />
             <Typography variant="caption" color="text.secondary">
-              Task
+              {t('gantt.task')}
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -235,7 +237,7 @@ export default function GanttTimelinePage() {
               }}
             />
             <Typography variant="caption" color="text.secondary">
-              Milestone
+              {t('gantt.milestone')}
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -248,7 +250,7 @@ export default function GanttTimelinePage() {
               }}
             />
             <Typography variant="caption" color="text.secondary">
-              Completed
+              {t('common.completed')}
             </Typography>
           </Box>
         </Box>

@@ -1,8 +1,11 @@
 from datetime import datetime
-from uuid import UUID
 from typing import Optional
+from uuid import UUID
+
 from pydantic import BaseModel, Field
+
 from app.core.validators import CamelCaseModel
+from app.schemas.chat_action import ChatActionResponse
 
 
 class ChatMessageRequest(BaseModel):
@@ -17,6 +20,7 @@ class ChatMessageResponse(CamelCaseModel):
     content: Optional[str] = None
     tool_calls: Optional[list] = None
     created_at: datetime
+    pending_actions: list[ChatActionResponse] = []
 
 
 class ChatSendResponse(CamelCaseModel):

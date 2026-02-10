@@ -1,29 +1,32 @@
 import uuid
 from typing import Optional
+
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
+
+from app.config import get_settings
+from app.core.permissions import Permission, check_permission, require_permission
+from app.core.security import get_current_user, verify_project_access
 from app.db.session import get_db
+from app.models.project import ProjectMember
 from app.models.rfi import RFI, RFIEmailLog
+from app.models.user import User
 from app.schemas.rfi import (
+    PaginatedRFIResponse,
     RFICreate,
-    RFIUpdate,
-    RFIResponse,
+    RFIEmailLogSchema,
     RFIListResponse,
-    RFIStatusUpdate,
+    RFIResponse,
     RFIResponseCreate,
     RFIResponseSchema,
-    RFIEmailLogSchema,
+    RFIStatusUpdate,
     RFISummaryResponse,
-    RFISendRequest,
-    PaginatedRFIResponse,
+    RFIUpdate,
 )
-from app.services.rfi_service import RFIService
 from app.services.email_service import EmailService
-from app.core.security import get_current_user, verify_project_access
-from app.models.user import User
-from app.config import get_settings
+from app.services.rfi_service import RFIService
 
 router = APIRouter(tags=["rfis"])
 
@@ -93,10 +96,10 @@ async def get_project_rfis(
 async def create_rfi(
     project_id: uuid.UUID,
     rfi_data: RFICreate,
+    member: ProjectMember = require_permission(Permission.CREATE),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    await verify_project_access(project_id, current_user, db)
     service = RFIService(db)
     rfi = await service.create_rfi(
         project_id=project_id,
@@ -158,7 +161,7 @@ async def update_rfi(
     if not rfi:
         raise HTTPException(status_code=404, detail="RFI not found")
 
-    await verify_project_access(rfi.project_id, current_user, db)
+    await check_permission(Permission.EDIT, rfi.project_id, current_user.id, db)
 
     update_data = rfi_data.model_dump(exclude_unset=True)
     for field, value in update_data.items():
@@ -180,7 +183,8 @@ async def send_rfi(
     rfi = result.scalar_one_or_none()
     if not rfi:
         raise HTTPException(status_code=404, detail="RFI not found")
-    await verify_project_access(rfi.project_id, current_user, db)
+
+    await check_permission(Permission.EDIT, rfi.project_id, current_user.id, db)
 
     service = RFIService(db)
     try:
@@ -201,7 +205,8 @@ async def update_rfi_status(
     rfi = result.scalar_one_or_none()
     if not rfi:
         raise HTTPException(status_code=404, detail="RFI not found")
-    await verify_project_access(rfi.project_id, current_user, db)
+
+    await check_permission(Permission.EDIT, rfi.project_id, current_user.id, db)
 
     service = RFIService(db)
     try:
@@ -223,7 +228,8 @@ async def add_rfi_response(
     rfi = result.scalar_one_or_none()
     if not rfi:
         raise HTTPException(status_code=404, detail="RFI not found")
-    await verify_project_access(rfi.project_id, current_user, db)
+
+    await check_permission(Permission.CREATE, rfi.project_id, current_user.id, db)
 
     service = RFIService(db)
     try:
@@ -285,7 +291,7 @@ async def delete_rfi(
     if not rfi:
         raise HTTPException(status_code=404, detail="RFI not found")
 
-    await verify_project_access(rfi.project_id, current_user, db)
+    await check_permission(Permission.DELETE, rfi.project_id, current_user.id, db)
 
     if rfi.status not in ['draft', 'cancelled']:
         raise HTTPException(

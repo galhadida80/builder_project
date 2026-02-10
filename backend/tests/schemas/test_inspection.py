@@ -1,11 +1,14 @@
-import pytest
-from pydantic import ValidationError
-from app.schemas.inspection import (
-    InspectionCreate, InspectionUpdate, InspectionConsultantTypeCreate,
-    FindingCreate, FindingUpdate
-)
 from datetime import datetime
 from uuid import uuid4
+
+import pytest
+from pydantic import ValidationError
+
+from app.schemas.inspection import (
+    FindingCreate,
+    InspectionCreate,
+    InspectionUpdate,
+)
 
 
 def test_inspection_create_required_fields():

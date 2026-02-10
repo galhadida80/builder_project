@@ -14,6 +14,7 @@ import ErrorIcon from '@mui/icons-material/Error'
 import ScheduleIcon from '@mui/icons-material/Schedule'
 import AssignmentIcon from '@mui/icons-material/Assignment'
 import VisibilityIcon from '@mui/icons-material/Visibility'
+import { useTranslation } from 'react-i18next'
 import { Card, KPICard } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { DataTable, Column } from '../components/ui/DataTable'
@@ -30,6 +31,7 @@ import type {
 } from '../types'
 
 export default function InspectionsPage() {
+  const { t } = useTranslation()
   const { projectId } = useParams()
   const [inspections, setInspections] = useState<Inspection[]>([])
   const [consultantTypes, setConsultantTypes] = useState<InspectionConsultantType[]>([])
@@ -92,7 +94,7 @@ export default function InspectionsPage() {
   const inspectionColumns: Column<Inspection>[] = [
     {
       id: 'consultantType',
-      label: 'Consultant Type',
+      label: t('inspections.consultantType'),
       minWidth: 200,
       render: (row) => (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
@@ -111,7 +113,7 @@ export default function InspectionsPage() {
           </Box>
           <Box>
             <Typography variant="body2" fontWeight={500}>
-              {row.consultantType?.name || 'Unknown'}
+              {row.consultantType?.name || t('inspections.unknown')}
             </Typography>
             <Typography variant="caption" color="text.secondary" dir="rtl">
               {row.consultantType?.nameHe}
@@ -122,30 +124,23 @@ export default function InspectionsPage() {
     },
     {
       id: 'scheduledDate',
-      label: 'Scheduled Date',
+      label: t('inspections.scheduledDate'),
       minWidth: 140,
       sortable: true,
       render: (row) => (
         <Box>
           <Typography variant="body2">
-            {new Date(row.scheduledDate).toLocaleDateString('en-US', {
-              month: 'short',
-              day: 'numeric',
-              year: 'numeric',
-            })}
+            {new Date(row.scheduledDate).toLocaleDateString()}
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            {new Date(row.scheduledDate).toLocaleTimeString('en-US', {
-              hour: '2-digit',
-              minute: '2-digit',
-            })}
+            {new Date(row.scheduledDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </Typography>
         </Box>
       ),
     },
     {
       id: 'status',
-      label: 'Status',
+      label: t('common.status'),
       minWidth: 130,
       render: (row) => {
         const statusConfig: Record<string, { icon: React.ReactNode; color: 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning' }> = {
@@ -159,7 +154,7 @@ export default function InspectionsPage() {
           <Chip
             size="small"
             icon={config.icon as React.ReactElement}
-            label={row.status.replace('_', ' ')}
+            label={t(`common.statuses.${row.status}`, { defaultValue: row.status.replace('_', ' ') })}
             color={config.color}
             sx={{ textTransform: 'capitalize', fontWeight: 500 }}
           />
@@ -168,21 +163,21 @@ export default function InspectionsPage() {
     },
     {
       id: 'currentStage',
-      label: 'Current Stage',
+      label: t('inspections.currentStage'),
       minWidth: 140,
       render: (row) => (
         <Typography variant="body2" color={row.currentStage ? 'text.primary' : 'text.secondary'}>
-          {row.currentStage || 'Not started'}
+          {row.currentStage || t('inspections.notStarted')}
         </Typography>
       ),
     },
     {
       id: 'findings',
-      label: 'Findings',
+      label: t('inspections.findings'),
       minWidth: 180,
       render: (row) => {
         if (!row.findings || row.findings.length === 0) {
-          return <Typography variant="body2" color="text.secondary">No findings</Typography>
+          return <Typography variant="body2" color="text.secondary">{t('inspections.noFindings')}</Typography>
         }
         const critical = row.findings.filter(f => f.severity === 'critical').length
         const high = row.findings.filter(f => f.severity === 'high').length
@@ -206,7 +201,7 @@ export default function InspectionsPage() {
       align: 'right',
       render: () => (
         <Button variant="tertiary" size="small" icon={<VisibilityIcon />}>
-          View
+          {t('buttons.view')}
         </Button>
       ),
     },
@@ -238,7 +233,7 @@ export default function InspectionsPage() {
     },
     {
       id: 'name',
-      label: 'Stage Name',
+      label: t('inspections.stageName'),
       minWidth: 200,
       render: (row) => (
         <Typography variant="body2" fontWeight={500}>
@@ -248,7 +243,7 @@ export default function InspectionsPage() {
     },
     {
       id: 'nameHe',
-      label: 'Hebrew Name',
+      label: t('inspections.hebrewName'),
       minWidth: 200,
       render: (row) => (
         <Typography variant="body2" dir="rtl" color="text.secondary">
@@ -258,12 +253,12 @@ export default function InspectionsPage() {
     },
     {
       id: 'isActive',
-      label: 'Status',
+      label: t('common.status'),
       minWidth: 100,
       render: (row) => (
         <Chip
           size="small"
-          label={row.isActive ? 'Active' : 'Inactive'}
+          label={row.isActive ? t('inspections.active') : t('inspections.inactive')}
           color={row.isActive ? 'success' : 'default'}
           sx={{ fontWeight: 500 }}
         />
@@ -289,12 +284,12 @@ export default function InspectionsPage() {
   return (
     <Box sx={{ p: 3 }}>
       <PageHeader
-        title="Senior Supervision Inspections"
-        subtitle="Manage and track all inspection activities"
-        breadcrumbs={[{ label: 'Projects', href: '/projects' }, { label: 'Inspections' }]}
+        title={t('inspections.title')}
+        subtitle={t('inspections.subtitle')}
+        breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('nav.inspections') }]}
         actions={
           <Button variant="primary" icon={<AddIcon />} onClick={() => setDialogOpen(true)}>
-            Schedule Inspection
+            {t('inspections.scheduleInspection')}
           </Button>
         }
       />
@@ -308,42 +303,12 @@ export default function InspectionsPage() {
             mb: 4,
           }}
         >
-          <KPICard
-            title="Total Inspections"
-            value={summary.totalInspections}
-            icon={<AssignmentIcon />}
-            color="primary"
-          />
-          <KPICard
-            title="Pending"
-            value={summary.pendingCount}
-            icon={<ScheduleIcon />}
-            color="info"
-          />
-          <KPICard
-            title="In Progress"
-            value={summary.inProgressCount}
-            icon={<WarningIcon />}
-            color="warning"
-          />
-          <KPICard
-            title="Completed"
-            value={summary.completedCount}
-            icon={<CheckCircleIcon />}
-            color="success"
-          />
-          <KPICard
-            title="Overdue"
-            value={summary.overdueCount}
-            icon={<ErrorIcon />}
-            color="error"
-          />
-          <KPICard
-            title="Critical Findings"
-            value={summary.findingsBySeverity?.critical || 0}
-            icon={<ErrorIcon />}
-            color="error"
-          />
+          <KPICard title={t('inspections.totalInspections')} value={summary.totalInspections} icon={<AssignmentIcon />} color="primary" />
+          <KPICard title={t('inspections.pending')} value={summary.pendingCount} icon={<ScheduleIcon />} color="info" />
+          <KPICard title={t('inspections.inProgress')} value={summary.inProgressCount} icon={<WarningIcon />} color="warning" />
+          <KPICard title={t('inspections.completed')} value={summary.completedCount} icon={<CheckCircleIcon />} color="success" />
+          <KPICard title={t('inspections.overdue')} value={summary.overdueCount} icon={<ErrorIcon />} color="error" />
+          <KPICard title={t('inspections.criticalFindings')} value={summary.findingsBySeverity?.critical || 0} icon={<ErrorIcon />} color="error" />
         </Box>
       )}
 
@@ -351,7 +316,7 @@ export default function InspectionsPage() {
         <Card>
           <Box sx={{ p: 2.5 }}>
             <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
-              Consultant Types
+              {t('inspections.consultantTypes')}
             </Typography>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
               {consultantTypes.map((type) => (
@@ -370,15 +335,11 @@ export default function InspectionsPage() {
                     },
                   }}
                 >
-                  <Typography variant="body2" fontWeight={500}>
-                    {type.name}
-                  </Typography>
+                  <Typography variant="body2" fontWeight={500}>{type.name}</Typography>
                   <Typography
                     variant="caption"
                     dir="rtl"
-                    sx={{
-                      color: selectedType?.id === type.id ? 'rgba(255,255,255,0.8)' : 'text.secondary',
-                    }}
+                    sx={{ color: selectedType?.id === type.id ? 'rgba(255,255,255,0.8)' : 'text.secondary' }}
                   >
                     {type.nameHe}
                   </Typography>
@@ -394,18 +355,16 @@ export default function InspectionsPage() {
               <>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                   <Box>
-                    <Typography variant="h6" fontWeight={600}>
-                      {selectedType.name}
-                    </Typography>
+                    <Typography variant="h6" fontWeight={600}>{selectedType.name}</Typography>
                     <Typography variant="caption" color="text.secondary">
-                      Inspection Stages ({stageTemplates.length} stages)
+                      {t('inspections.inspectionStages', { count: stageTemplates.length })}
                     </Typography>
                   </Box>
-                  <Chip label={`${stageTemplates.filter(s => s.isActive).length} active`} size="small" color="success" />
+                  <Chip label={`${stageTemplates.filter(s => s.isActive).length} ${t('inspections.active').toLowerCase()}`} size="small" color="success" />
                 </Box>
 
                 <Alert severity="info" sx={{ mb: 2, borderRadius: 2 }}>
-                  Each inspection for <strong>{selectedType.name}</strong> goes through {stageTemplates.length} sequential stages.
+                  {t('inspections.stageDescription', { name: selectedType.name, count: stageTemplates.length })}
                 </Alert>
 
                 <DataTable
@@ -413,13 +372,13 @@ export default function InspectionsPage() {
                   rows={stageTemplates}
                   getRowId={(row) => row.id}
                   pagination={false}
-                  emptyMessage="No stages defined"
+                  emptyMessage={t('inspections.noStages')}
                 />
               </>
             ) : (
               <EmptyState
-                title="Select a Consultant Type"
-                description="Choose a consultant type from the list to view its inspection stages."
+                title={t('inspections.selectConsultantType')}
+                description={t('inspections.selectConsultantTypeDescription')}
               />
             )}
           </Box>
@@ -430,11 +389,11 @@ export default function InspectionsPage() {
         <Box sx={{ p: 2.5 }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
             <Typography variant="h6" fontWeight={600}>
-              Project Inspections
+              {t('inspections.projectInspections')}
             </Typography>
             <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
               <SearchField
-                placeholder="Search inspections..."
+                placeholder={t('inspections.searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -443,11 +402,11 @@ export default function InspectionsPage() {
 
           <Tabs
             items={[
-              { label: 'All', value: 'all', badge: inspections.length },
-              { label: 'Pending', value: 'pending', badge: inspections.filter(i => i.status === 'pending').length },
-              { label: 'In Progress', value: 'in_progress', badge: inspections.filter(i => i.status === 'in_progress').length },
-              { label: 'Completed', value: 'completed', badge: inspections.filter(i => i.status === 'completed').length },
-              { label: 'Timeline', value: 'timeline' },
+              { label: t('common.all'), value: 'all', badge: inspections.length },
+              { label: t('inspections.pending'), value: 'pending', badge: inspections.filter(i => i.status === 'pending').length },
+              { label: t('inspections.inProgress'), value: 'in_progress', badge: inspections.filter(i => i.status === 'in_progress').length },
+              { label: t('inspections.completed'), value: 'completed', badge: inspections.filter(i => i.status === 'completed').length },
+              { label: t('inspections.timeline'), value: 'timeline' },
             ]}
             value={activeTab}
             onChange={setActiveTab}
@@ -456,16 +415,13 @@ export default function InspectionsPage() {
 
           <Box sx={{ mt: 2 }}>
             {activeTab === 'timeline' ? (
-              <InspectionHistoryTimeline
-                inspections={inspections}
-                loading={loading}
-              />
+              <InspectionHistoryTimeline inspections={inspections} loading={loading} />
             ) : (
               <DataTable
                 columns={inspectionColumns}
                 rows={filteredInspections}
                 getRowId={(row) => row.id}
-                emptyMessage="No inspections found"
+                emptyMessage={t('inspections.noInspections')}
                 onRowClick={(row) => console.log('View inspection:', row.id)}
               />
             )}
@@ -477,15 +433,15 @@ export default function InspectionsPage() {
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
         onSubmit={handleCreateInspection}
-        title="Schedule New Inspection"
-        submitLabel="Schedule"
+        title={t('inspections.scheduleNew')}
+        submitLabel={t('inspections.schedule')}
         submitDisabled={!newInspection.consultantTypeId || !newInspection.scheduledDate}
       >
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1 }}>
           <MuiTextField
             select
             fullWidth
-            label="Consultant Type"
+            label={t('inspections.consultantType')}
             value={newInspection.consultantTypeId}
             onChange={(e) => setNewInspection({ ...newInspection, consultantTypeId: e.target.value })}
           >
@@ -498,7 +454,7 @@ export default function InspectionsPage() {
 
           <TextField
             fullWidth
-            label="Scheduled Date"
+            label={t('inspections.scheduledDate')}
             type="date"
             InputLabelProps={{ shrink: true }}
             value={newInspection.scheduledDate}
@@ -507,12 +463,12 @@ export default function InspectionsPage() {
 
           <TextField
             fullWidth
-            label="Notes"
+            label={t('common.notes')}
             multiline
             rows={3}
             value={newInspection.notes}
             onChange={(e) => setNewInspection({ ...newInspection, notes: e.target.value })}
-            placeholder="Add any relevant notes for this inspection..."
+            placeholder={t('inspections.notesPlaceholder')}
           />
         </Box>
       </FormModal>

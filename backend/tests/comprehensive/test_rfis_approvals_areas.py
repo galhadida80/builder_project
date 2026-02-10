@@ -1,6 +1,6 @@
 import os
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime
 
 os.environ["EMAIL_PROVIDER"] = "fake"
 
@@ -8,11 +8,11 @@ import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.rfi import RFI, RFIResponse as RFIResponseModel, RFIEmailLog
-from app.models.area import ConstructionArea
 from app.models.approval import ApprovalRequest, ApprovalStep
+from app.models.area import ConstructionArea
 from app.models.equipment import Equipment
-from app.models.project import Project, ProjectMember
+from app.models.project import Project
+from app.models.rfi import RFI, RFIEmailLog
 from app.models.user import User
 
 API_V1 = "/api/v1"

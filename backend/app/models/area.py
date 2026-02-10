@@ -5,9 +5,11 @@ from datetime import datetime
 from decimal import Decimal
 from enum import Enum
 from typing import Optional
-from sqlalchemy import String, Text, DateTime, ForeignKey, Integer, Numeric
-from sqlalchemy.dialects.postgresql import UUID, JSONB
+
+from sqlalchemy import DateTime, ForeignKey, Integer, Numeric, String, Text
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from app.db.session import Base
 
 

@@ -1,6 +1,8 @@
-import pytest
 from datetime import date, timedelta
+
+import pytest
 from httpx import AsyncClient
+
 from app.models.project import Project
 
 API = "/api/v1/analytics"

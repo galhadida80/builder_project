@@ -1,28 +1,38 @@
-from datetime import datetime, date
 from decimal import Decimal
 from uuid import uuid4
 
 import pytest
 from pydantic import ValidationError
 
-from app.schemas.equipment import EquipmentCreate, EquipmentUpdate, ChecklistCreate, ChecklistItem
-from app.schemas.material import MaterialCreate, MaterialUpdate, MaterialReceive
-from app.schemas.equipment_template import (
-    EquipmentTemplateCreate, EquipmentTemplateUpdate,
-    DocumentDefinition, SpecificationDefinition, ChecklistItemDefinition,
-    ConsultantTypeCreate, ConsultantTypeUpdate,
-    EquipmentApprovalSubmissionCreate, EquipmentApprovalSubmissionUpdate,
-    EquipmentApprovalDecisionCreate,
-)
-from app.schemas.material_template import MaterialTemplateCreate, MaterialTemplateUpdate
-from app.schemas.equipment_submission import EquipmentSubmissionCreate, EquipmentSubmissionUpdate
-from app.schemas.approval_decision import ApprovalDecisionCreate
 from app.core.validators import (
-    sanitize_string, validate_specifications, validate_code,
-    MIN_NAME_LENGTH, MAX_NAME_LENGTH, MAX_NOTES_LENGTH,
-    MAX_DESCRIPTION_LENGTH, MAX_SPEC_KEYS, MAX_SPEC_KEY_LENGTH, MAX_SPEC_VALUE_LENGTH,
+    MAX_DESCRIPTION_LENGTH,
+    MAX_NAME_LENGTH,
+    MAX_NOTES_LENGTH,
+    MAX_SPEC_KEY_LENGTH,
+    MAX_SPEC_KEYS,
+    MAX_SPEC_VALUE_LENGTH,
+    MIN_NAME_LENGTH,
+    sanitize_string,
+    validate_code,
+    validate_specifications,
 )
-
+from app.schemas.approval_decision import ApprovalDecisionCreate
+from app.schemas.equipment import ChecklistCreate, ChecklistItem, EquipmentCreate, EquipmentUpdate
+from app.schemas.equipment_submission import EquipmentSubmissionCreate, EquipmentSubmissionUpdate
+from app.schemas.equipment_template import (
+    ChecklistItemDefinition,
+    ConsultantTypeCreate,
+    ConsultantTypeUpdate,
+    DocumentDefinition,
+    EquipmentApprovalDecisionCreate,
+    EquipmentApprovalSubmissionCreate,
+    EquipmentApprovalSubmissionUpdate,
+    EquipmentTemplateCreate,
+    EquipmentTemplateUpdate,
+    SpecificationDefinition,
+)
+from app.schemas.material import MaterialCreate, MaterialReceive, MaterialUpdate
+from app.schemas.material_template import MaterialTemplateCreate, MaterialTemplateUpdate
 
 VALID_NAME = "Test Equipment"
 VALID_NAME_HE = "ציוד בדיקה"

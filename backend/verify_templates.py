@@ -1,7 +1,10 @@
 import asyncio
+
+from sqlalchemy import select
+
 from app.db.session import AsyncSessionLocal
 from app.models import EquipmentTemplate
-from sqlalchemy import select
+
 
 async def check():
     async with AsyncSessionLocal() as db:

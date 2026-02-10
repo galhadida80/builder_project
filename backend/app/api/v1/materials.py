@@ -1,19 +1,22 @@
 from typing import Optional
 from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
-from app.db.session import get_db
-from app.models.material import Material, ApprovalStatus
-from app.models.user import User
-from app.models.approval import ApprovalRequest, ApprovalStep
-from app.schemas.material import MaterialCreate, MaterialUpdate, MaterialResponse
-from app.schemas.approval import SubmitForApprovalRequest
-from app.services.audit_service import create_audit_log, get_model_dict
-from app.models.audit import AuditAction
+
+from app.core.permissions import Permission, require_permission
 from app.core.security import get_current_user, verify_project_access
+from app.db.session import get_db
+from app.models.approval import ApprovalRequest, ApprovalStep
+from app.models.audit import AuditAction
+from app.models.material import ApprovalStatus, Material
 from app.models.project import ProjectMember
+from app.models.user import User
+from app.schemas.approval import SubmitForApprovalRequest
+from app.schemas.material import MaterialCreate, MaterialResponse, MaterialUpdate
+from app.services.audit_service import create_audit_log, get_model_dict
 from app.utils.localization import get_language_from_request, translate_message
 
 router = APIRouter()
@@ -55,10 +58,10 @@ async def list_materials(
 async def create_material(
     project_id: UUID,
     data: MaterialCreate,
+    member: ProjectMember = require_permission(Permission.CREATE),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    await verify_project_access(project_id, current_user, db)
     material = Material(**data.model_dump(), project_id=project_id, created_by_id=current_user.id)
     db.add(material)
     await db.flush()
@@ -97,11 +100,11 @@ async def update_material(
     project_id: UUID,
     material_id: UUID,
     data: MaterialUpdate,
+    member: ProjectMember = require_permission(Permission.EDIT),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
     request: Request = None,
 ):
-    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(Material).where(Material.id == material_id, Material.project_id == project_id)
     )
@@ -126,11 +129,11 @@ async def update_material(
 async def delete_material(
     project_id: UUID,
     material_id: UUID,
+    member: ProjectMember = require_permission(Permission.DELETE),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
     request: Request = None,
 ):
-    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(Material).where(Material.id == material_id, Material.project_id == project_id)
     )
@@ -152,11 +155,11 @@ async def submit_material_for_approval(
     project_id: UUID,
     material_id: UUID,
     body: SubmitForApprovalRequest = SubmitForApprovalRequest(),
+    member: ProjectMember = require_permission(Permission.APPROVE),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
     request: Request = None,
 ):
-    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(Material).where(Material.id == material_id, Material.project_id == project_id)
     )

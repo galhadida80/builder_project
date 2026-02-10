@@ -14,6 +14,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert'
 import FolderIcon from '@mui/icons-material/Folder'
 import GridViewIcon from '@mui/icons-material/GridView'
 import ViewListIcon from '@mui/icons-material/ViewList'
+import { useTranslation } from 'react-i18next'
 import { Card, KPICard } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { StatusBadge } from '../components/ui/StatusBadge'
@@ -29,6 +30,7 @@ import { validateProjectForm, hasErrors, VALIDATION, type ValidationError } from
 import { useToast } from '../components/common/ToastProvider'
 
 export default function ProjectsPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { showError, showSuccess } = useToast()
   const [projects, setProjects] = useState<Project[]>([])
@@ -63,7 +65,7 @@ export default function ProjectsPage() {
       const data = await projectsApi.list()
       setProjects(data)
     } catch {
-      showError('Failed to load projects. Please try again.')
+      showError(t('pages.projects.failedToLoad'))
     } finally {
       setLoading(false)
     }
@@ -115,7 +117,7 @@ export default function ProjectsPage() {
           start_date: formData.startDate || undefined,
           estimated_end_date: formData.estimatedEndDate || undefined
         })
-        showSuccess('Project updated successfully!')
+        showSuccess(t('pages.projects.updateSuccess'))
       } else {
         await projectsApi.create({
           name: formData.name,
@@ -125,12 +127,12 @@ export default function ProjectsPage() {
           start_date: formData.startDate || undefined,
           estimated_end_date: formData.estimatedEndDate || undefined
         })
-        showSuccess('Project created successfully!')
+        showSuccess(t('pages.projects.createSuccess'))
       }
       handleCloseDialog()
       loadProjects()
     } catch {
-      showError(`Failed to ${editingProject ? 'update' : 'create'} project. Please try again.`)
+      showError(editingProject ? t('pages.projects.failedToUpdate') : t('pages.projects.failedToCreate'))
     } finally {
       setSaving(false)
     }
@@ -146,12 +148,12 @@ export default function ProjectsPage() {
     if (!projectToDelete) return
     try {
       await projectsApi.delete(projectToDelete.id)
-      showSuccess('Project deleted successfully!')
+      showSuccess(t('pages.projects.deleteSuccess'))
       setDeleteDialogOpen(false)
       setProjectToDelete(null)
       loadProjects()
     } catch {
-      showError('Failed to delete project. Please try again.')
+      showError(t('pages.projects.failedToDelete'))
     }
   }
 
@@ -203,12 +205,12 @@ export default function ProjectsPage() {
   return (
     <Box sx={{ p: 3 }}>
       <PageHeader
-        title="Projects"
-        subtitle="Manage your construction projects"
-        breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Projects' }]}
+        title={t('pages.projects.title')}
+        subtitle={t('pages.projects.subtitle')}
+        breadcrumbs={[{ label: t('nav.dashboard'), href: '/dashboard' }, { label: t('nav.projects') }]}
         actions={
           <Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>
-            New Project
+            {t('pages.projects.createNewProject')}
           </Button>
         }
       />
@@ -222,25 +224,25 @@ export default function ProjectsPage() {
         }}
       >
         <KPICard
-          title="Total Projects"
+          title={t('pages.projects.totalProjects')}
           value={projects.length}
           icon={<FolderIcon />}
           color="primary"
         />
         <KPICard
-          title="Active"
+          title={t('pages.projects.active')}
           value={activeProjects}
           icon={<FolderIcon />}
           color="success"
         />
         <KPICard
-          title="On Hold"
+          title={t('pages.projects.onHold')}
           value={onHoldProjects}
           icon={<FolderIcon />}
           color="warning"
         />
         <KPICard
-          title="Completed"
+          title={t('pages.projects.completed')}
           value={completedProjects}
           icon={<FolderIcon />}
           color="info"
@@ -252,17 +254,17 @@ export default function ProjectsPage() {
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
             <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
               <SearchField
-                placeholder="Search projects..."
+                placeholder={t('pages.projects.searchPlaceholder')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </Box>
             <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-              <Chip label={`${filteredProjects.length} projects`} size="small" />
+              <Chip label={`${filteredProjects.length} ${t('nav.projects').toLowerCase()}`} size="small" />
               <SegmentedTabs
                 items={[
-                  { label: 'Grid', value: 'grid', icon: <GridViewIcon sx={{ fontSize: 18 }} /> },
-                  { label: 'List', value: 'list', icon: <ViewListIcon sx={{ fontSize: 18 }} /> },
+                  { label: t('common.gridView'), value: 'grid', icon: <GridViewIcon sx={{ fontSize: 18 }} /> },
+                  { label: t('common.listView'), value: 'list', icon: <ViewListIcon sx={{ fontSize: 18 }} /> },
                 ]}
                 value={viewMode}
                 onChange={(v) => setViewMode(v as 'grid' | 'list')}
@@ -272,10 +274,10 @@ export default function ProjectsPage() {
 
           <Tabs
             items={[
-              { label: 'All', value: 'all', badge: projects.length },
-              { label: 'Active', value: 'active', badge: activeProjects },
-              { label: 'On Hold', value: 'on_hold', badge: onHoldProjects },
-              { label: 'Completed', value: 'completed', badge: completedProjects },
+              { label: t('common.all'), value: 'all', badge: projects.length },
+              { label: t('pages.projects.active'), value: 'active', badge: activeProjects },
+              { label: t('pages.projects.onHold'), value: 'on_hold', badge: onHoldProjects },
+              { label: t('pages.projects.completed'), value: 'completed', badge: completedProjects },
             ]}
             value={statusFilter}
             onChange={setStatusFilter}
@@ -286,9 +288,9 @@ export default function ProjectsPage() {
             <Box sx={{ mt: 4 }}>
               <EmptyState
                 variant="no-results"
-                title="No projects found"
-                description="Try adjusting your search or create a new project"
-                action={{ label: 'Create Project', onClick: handleOpenCreate }}
+                title={t('pages.projects.noProjectsFound')}
+                description={t('pages.projects.noProjectsDescription')}
+                action={{ label: t('pages.projects.createProject'), onClick: handleOpenCreate }}
               />
             </Box>
           ) : (
@@ -350,9 +352,9 @@ export default function ProjectsPage() {
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
                           <CalendarTodayIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
                           <Typography variant="caption" color="text.secondary">
-                            {new Date(project.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                            {new Date(project.startDate).toLocaleDateString()}
                             {project.estimatedEndDate && (
-                              <> - {new Date(project.estimatedEndDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</>
+                              <> - {new Date(project.estimatedEndDate).toLocaleDateString()}</>
                             )}
                           </Typography>
                         </Box>
@@ -361,9 +363,9 @@ export default function ProjectsPage() {
 
                     <Box>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                        <Typography variant="caption" color="text.secondary">Status</Typography>
+                        <Typography variant="caption" color="text.secondary">{t('common.status')}</Typography>
                         <Typography variant="caption" fontWeight={600} sx={{ textTransform: 'capitalize' }}>
-                          {project.status.replace('_', ' ')}
+                          {t(`common.statuses.${project.status}`, { defaultValue: project.status.replace('_', ' ') })}
                         </Typography>
                       </Box>
                       <ProgressBar value={project.status === 'completed' ? 100 : project.status === 'active' ? 50 : 0} showValue={false} size="small" />
@@ -377,24 +379,24 @@ export default function ProjectsPage() {
       </Card>
 
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-        <MenuItem onClick={() => selectedProject && handleOpenEdit(selectedProject)}>Edit Project</MenuItem>
-        <MenuItem onClick={handleMenuClose}>View Team</MenuItem>
-        <MenuItem onClick={handleMenuClose}>Export Report</MenuItem>
-        <MenuItem onClick={handleDeleteClick} sx={{ color: 'error.main' }}>Delete Project</MenuItem>
+        <MenuItem onClick={() => selectedProject && handleOpenEdit(selectedProject)}>{t('pages.projects.editProject')}</MenuItem>
+        <MenuItem onClick={handleMenuClose}>{t('pages.projects.viewTeam')}</MenuItem>
+        <MenuItem onClick={handleMenuClose}>{t('pages.projects.exportReport')}</MenuItem>
+        <MenuItem onClick={handleDeleteClick} sx={{ color: 'error.main' }}>{t('pages.projects.deleteProject')}</MenuItem>
       </Menu>
 
       <FormModal
         open={openDialog}
         onClose={handleCloseDialog}
         onSubmit={handleSaveProject}
-        title={editingProject ? 'Edit Project' : 'Create New Project'}
-        submitLabel={editingProject ? 'Save Changes' : 'Create Project'}
+        title={editingProject ? t('pages.projects.editProjectTitle') : t('pages.projects.createNewProject')}
+        submitLabel={editingProject ? t('common.saveChanges') : t('pages.projects.createProject')}
         loading={saving}
       >
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
           <TextField
             fullWidth
-            label="Project Name"
+            label={t('pages.projects.projectName')}
             required
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -404,18 +406,18 @@ export default function ProjectsPage() {
           />
           <TextField
             fullWidth
-            label="Project Code"
+            label={t('pages.projects.projectCode')}
             required
             disabled={!!editingProject}
             value={formData.code}
             onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
             error={!!errors.code}
-            helperText={editingProject ? 'Code cannot be changed' : (errors.code || 'Letters, numbers, hyphens only')}
+            helperText={editingProject ? t('pages.projects.codeCannotBeChanged') : (errors.code || t('pages.projects.codeHint'))}
             inputProps={{ maxLength: VALIDATION.MAX_CODE_LENGTH }}
           />
           <TextField
             fullWidth
-            label="Description"
+            label={t('pages.projects.description')}
             multiline
             rows={3}
             value={formData.description}
@@ -425,7 +427,7 @@ export default function ProjectsPage() {
           />
           <TextField
             fullWidth
-            label="Address"
+            label={t('pages.projects.address')}
             value={formData.address}
             onChange={(e) => setFormData({ ...formData, address: e.target.value })}
             error={!!errors.address}
@@ -434,7 +436,7 @@ export default function ProjectsPage() {
           <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
             <TextField
               fullWidth
-              label="Start Date"
+              label={t('pages.projects.startDate')}
               type="date"
               InputLabelProps={{ shrink: true }}
               value={formData.startDate}
@@ -444,7 +446,7 @@ export default function ProjectsPage() {
             />
             <TextField
               fullWidth
-              label="End Date"
+              label={t('pages.projects.endDate')}
               type="date"
               InputLabelProps={{ shrink: true }}
               value={formData.estimatedEndDate}
@@ -460,9 +462,9 @@ export default function ProjectsPage() {
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={handleConfirmDelete}
-        title="Delete Project"
-        message={`Are you sure you want to delete "${projectToDelete?.name}"? This will permanently remove the project and all associated data. This action cannot be undone.`}
-        confirmLabel="Delete Project"
+        title={t('pages.projects.deleteConfirmation')}
+        message={t('pages.projects.deleteConfirmationMessage', { name: projectToDelete?.name })}
+        confirmLabel={t('pages.projects.deleteProject')}
         variant="danger"
       />
     </Box>

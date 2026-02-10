@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Skeleton from '@mui/material/Skeleton'
@@ -66,12 +67,20 @@ interface ProjectOverviewData {
 export default function ProjectOverviewPage() {
   const { projectId } = useParams<{ projectId: string }>()
   const navigate = useNavigate()
+  const { t, i18n } = useTranslation()
   const { showError } = useToast()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const [loading, setLoading] = useState(true)
   const [overviewData, setOverviewData] = useState<ProjectOverviewData | null>(null)
   const [activeTab, setActiveTab] = useState('summary')
+
+  const dateLocale = useMemo(() => {
+    const lang = i18n.language
+    if (lang === 'he') return 'he-IL'
+    if (lang === 'es') return 'es-ES'
+    return 'en-US'
+  }, [i18n.language])
 
   useEffect(() => {
     loadOverviewData()
@@ -86,7 +95,7 @@ export default function ProjectOverviewPage() {
       setOverviewData(response.data)
     } catch (error) {
       console.error('Failed to load project overview:', error)
-      showError('Failed to load project overview. Please try again.')
+      showError(t('overview.failedToLoad'))
     } finally {
       setLoading(false)
     }
@@ -112,9 +121,9 @@ export default function ProjectOverviewPage() {
       <Box sx={{ p: 3 }}>
         <EmptyState
           variant="not-found"
-          title="Overview not available"
-          description="Unable to load project overview data"
-          action={{ label: 'Back to Project', onClick: () => navigate(`/projects/${projectId}`) }}
+          title={t('overview.notAvailable')}
+          description={t('overview.unableToLoad')}
+          action={{ label: t('overview.backToProject'), onClick: () => navigate(`/projects/${projectId}`) }}
         />
       </Box>
     )
@@ -143,7 +152,7 @@ export default function ProjectOverviewPage() {
         <Card>
           <Box sx={{ p: 3 }}>
             <Typography variant="h6" fontWeight={600} sx={{ mb: 3 }}>
-              Project Progress
+              {t('overview.projectProgress')}
             </Typography>
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 3, gap: 1 }}>
               <CircularProgressDisplay
@@ -153,7 +162,7 @@ export default function ProjectOverviewPage() {
                 showLabel
               />
               <Typography variant="body2" color="text.secondary">
-                {completedItems} of {totalItems} items completed
+                {t('overview.itemsCompleted', { completed: completedItems, total: totalItems })}
               </Typography>
             </Box>
             <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2, mt: 3 }}>
@@ -162,7 +171,7 @@ export default function ProjectOverviewPage() {
                   {completedItems}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  Completed
+                  {t('overview.completed')}
                 </Typography>
               </Box>
               <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'action.hover', borderRadius: 2 }}>
@@ -170,7 +179,7 @@ export default function ProjectOverviewPage() {
                   {progress.inspectionsTotal - progress.inspectionsCompleted}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  In Progress
+                  {t('overview.inProgress')}
                 </Typography>
               </Box>
               <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'action.hover', borderRadius: 2 }}>
@@ -178,7 +187,7 @@ export default function ProjectOverviewPage() {
                   {pendingItems}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  Pending
+                  {t('overview.pending')}
                 </Typography>
               </Box>
             </Box>
@@ -190,19 +199,19 @@ export default function ProjectOverviewPage() {
         <Card>
           <Box sx={{ p: 3 }}>
             <Typography variant="h6" fontWeight={600} sx={{ mb: 3 }}>
-              Project Stats
+              {t('overview.projectStats')}
             </Typography>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
               <Box>
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                  Timeline
+                  {t('overview.timeline')}
                 </Typography>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Typography variant="h4" fontWeight={700}>
                     {stats.daysElapsed || 0}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    days elapsed
+                    {t('overview.daysElapsed')}
                   </Typography>
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1 }}>
@@ -210,21 +219,21 @@ export default function ProjectOverviewPage() {
                     {stats.daysRemaining || 0}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    days remaining
+                    {t('overview.daysRemaining')}
                   </Typography>
                 </Box>
               </Box>
 
               <Box sx={{ pt: 2, borderTop: 1, borderColor: 'divider' }}>
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                  Activity & Findings
+                  {t('overview.activityFindings')}
                 </Typography>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Typography variant="h4" fontWeight={700}>
                     {timeline.length}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    recent activities
+                    {t('overview.recentActivities')}
                   </Typography>
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1 }}>
@@ -236,7 +245,7 @@ export default function ProjectOverviewPage() {
                     {stats.openFindings}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    open findings
+                    {t('overview.openFindings')}
                   </Typography>
                 </Box>
               </Box>
@@ -251,11 +260,11 @@ export default function ProjectOverviewPage() {
     <Card>
       <Box sx={{ p: 3 }}>
         <Typography variant="h6" fontWeight={600} sx={{ mb: 3 }}>
-          Recent Activity
+          {t('overview.recentActivity')}
         </Typography>
         {timeline.length === 0 ? (
           <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
-            No recent activity
+            {t('overview.noRecentActivity')}
           </Typography>
         ) : (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -277,7 +286,7 @@ export default function ProjectOverviewPage() {
                   )}
                 </Box>
                 <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap' }}>
-                  {new Date(event.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                  {new Date(event.date).toLocaleDateString(dateLocale, { month: 'short', day: 'numeric' })}
                 </Typography>
               </Box>
             ))}
@@ -291,12 +300,12 @@ export default function ProjectOverviewPage() {
     <Card>
       <Box sx={{ p: 3 }}>
         <Typography variant="h6" fontWeight={600} sx={{ mb: 3 }}>
-          Team Overview
+          {t('overview.teamOverview')}
         </Typography>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', p: 2, bgcolor: 'action.hover', borderRadius: 2 }}>
             <Typography variant="body1" color="text.secondary">
-              Total Team Members
+              {t('overview.totalTeamMembers')}
             </Typography>
             <Typography variant="h5" fontWeight={700}>
               {teamStats.totalMembers}
@@ -309,7 +318,7 @@ export default function ProjectOverviewPage() {
               sx={{ display: 'flex', justifyContent: 'space-between', py: 1.5, borderBottom: 1, borderColor: 'divider' }}
             >
               <Typography variant="body2" color="text.secondary" sx={{ textTransform: 'capitalize' }}>
-                {role.replace('_', ' ')}
+                {t(`roles.${role}`, { defaultValue: role.replace('_', ' ') })}
               </Typography>
               <Typography variant="body2" fontWeight={600}>
                 {count}
@@ -325,13 +334,13 @@ export default function ProjectOverviewPage() {
     <Card>
       <Box sx={{ p: 3 }}>
         <Typography variant="h6" fontWeight={600} sx={{ mb: 3 }}>
-          Detailed Statistics
+          {t('overview.detailedStatistics')}
         </Typography>
         <Grid container spacing={3}>
           <Grid item xs={12} sm={6}>
             <Box sx={{ p: 3, bgcolor: 'action.hover', borderRadius: 2 }}>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                Completion Rate
+                {t('overview.completionRate')}
               </Typography>
               <Typography variant="h3" fontWeight={700} color="primary.main">
                 {Math.round(progress.overallPercentage)}%
@@ -341,7 +350,7 @@ export default function ProjectOverviewPage() {
           <Grid item xs={12} sm={6}>
             <Box sx={{ p: 3, bgcolor: 'action.hover', borderRadius: 2 }}>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                Total Items
+                {t('overview.totalItems')}
               </Typography>
               <Typography variant="h3" fontWeight={700}>
                 {totalItems}
@@ -351,7 +360,7 @@ export default function ProjectOverviewPage() {
           <Grid item xs={12} sm={6}>
             <Box sx={{ p: 3, bgcolor: 'action.hover', borderRadius: 2 }}>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                Items Completed
+                {t('overview.itemsCompletedLabel')}
               </Typography>
               <Typography variant="h3" fontWeight={700} color="success.main">
                 {completedItems}
@@ -361,7 +370,7 @@ export default function ProjectOverviewPage() {
           <Grid item xs={12} sm={6}>
             <Box sx={{ p: 3, bgcolor: 'action.hover', borderRadius: 2 }}>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                Items Pending
+                {t('overview.itemsPending')}
               </Typography>
               <Typography variant="h3" fontWeight={700} color="warning.main">
                 {pendingItems}
@@ -371,7 +380,7 @@ export default function ProjectOverviewPage() {
           <Grid item xs={12} sm={6}>
             <Box sx={{ p: 3, bgcolor: 'action.hover', borderRadius: 2 }}>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                Inspections
+                {t('nav.inspections')}
               </Typography>
               <Typography variant="h3" fontWeight={700}>
                 {progress.inspectionsCompleted}/{progress.inspectionsTotal}
@@ -381,7 +390,7 @@ export default function ProjectOverviewPage() {
           <Grid item xs={12} sm={6}>
             <Box sx={{ p: 3, bgcolor: 'action.hover', borderRadius: 2 }}>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                Equipment
+                {t('nav.equipment')}
               </Typography>
               <Typography variant="h3" fontWeight={700}>
                 {progress.equipmentSubmitted}/{progress.equipmentTotal}
@@ -391,7 +400,7 @@ export default function ProjectOverviewPage() {
           <Grid item xs={12} sm={6}>
             <Box sx={{ p: 3, bgcolor: 'action.hover', borderRadius: 2 }}>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                Materials
+                {t('nav.materials')}
               </Typography>
               <Typography variant="h3" fontWeight={700}>
                 {progress.materialsSubmitted}/{progress.materialsTotal}
@@ -401,7 +410,7 @@ export default function ProjectOverviewPage() {
           <Grid item xs={12} sm={6}>
             <Box sx={{ p: 3, bgcolor: 'action.hover', borderRadius: 2 }}>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                Checklists
+                {t('equipment.checklist')}
               </Typography>
               <Typography variant="h3" fontWeight={700}>
                 {progress.checklistsCompleted}/{progress.checklistsTotal}
@@ -417,19 +426,19 @@ export default function ProjectOverviewPage() {
     <Box sx={{ p: 3, maxWidth: 1400, mx: 'auto' }}>
       <Box sx={{ mb: 4 }}>
         <Typography variant="h4" fontWeight={700} sx={{ mb: 1 }}>
-          Project Overview
+          {t('overview.title')}
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          Track your project progress, timeline, and team activity
+          {t('overview.subtitle')}
         </Typography>
       </Box>
 
       <Tabs
         items={[
-          { label: 'Summary', value: 'summary' },
-          { label: 'Timeline', value: 'timeline' },
-          { label: 'Team', value: 'team' },
-          { label: 'Statistics', value: 'stats' },
+          { label: t('overview.tabs.summary'), value: 'summary' },
+          { label: t('overview.tabs.timeline'), value: 'timeline' },
+          { label: t('overview.tabs.team'), value: 'team' },
+          { label: t('overview.tabs.statistics'), value: 'stats' },
         ]}
         value={activeTab}
         onChange={setActiveTab}

@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Optional
 from uuid import UUID
-from datetime import datetime
+
 from pydantic import BaseModel
-from app.schemas.user import UserResponse
+
 from app.core.validators import CamelCaseModel
+from app.schemas.user import UserResponse
 
 
 class ApprovalAction(BaseModel):

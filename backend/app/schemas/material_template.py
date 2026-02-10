@@ -1,12 +1,14 @@
-from uuid import UUID
 from datetime import datetime
-from typing import Literal
+from uuid import UUID
+
 from pydantic import BaseModel, Field, field_validator
-from app.schemas.user import UserResponse
-from app.schemas.equipment_template import DocumentDefinition, SpecificationDefinition, ChecklistItemDefinition, ConsultantTypeResponse
-from app.core.validators import (
-    sanitize_string,
-    MIN_NAME_LENGTH, MAX_NAME_LENGTH, MAX_DESCRIPTION_LENGTH
+
+from app.core.validators import MAX_NAME_LENGTH, MIN_NAME_LENGTH, sanitize_string
+from app.schemas.equipment_template import (
+    ChecklistItemDefinition,
+    ConsultantTypeResponse,
+    DocumentDefinition,
+    SpecificationDefinition,
 )
 
 

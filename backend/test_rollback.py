@@ -12,7 +12,9 @@ backend_dir = Path(__file__).parent
 sys.path.insert(0, str(backend_dir))
 
 from alembic.config import Config
+
 from alembic import command
+
 
 def test_migration_rollback():
     """Test migration rollback by downgrading and then upgrading."""

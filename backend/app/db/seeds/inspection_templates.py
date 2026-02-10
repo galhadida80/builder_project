@@ -3,7 +3,9 @@
 Data source: פיקוחים עליונים - כמות בדיקות.xlsx
 """
 import asyncio
+
 from sqlalchemy import select
+
 from app.db.session import AsyncSessionLocal
 from app.models.inspection import ConsultantType, InspectionStage
 

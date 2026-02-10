@@ -1,11 +1,13 @@
 from __future__ import annotations
 
-from uuid import UUID
 from decimal import Decimal
 from typing import Optional
+from uuid import UUID
+
 from sqlalchemy import inspect as sa_inspect
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.models.audit import AuditLog, AuditAction
+
+from app.models.audit import AuditAction, AuditLog
 from app.models.user import User
 
 

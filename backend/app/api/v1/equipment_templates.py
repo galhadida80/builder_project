@@ -1,24 +1,32 @@
 from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
+
+from app.core.security import get_current_admin_user, get_current_user, verify_project_access
 from app.db.session import get_db
-from app.models.equipment_template import EquipmentTemplate
-from app.models.equipment_submission import EquipmentSubmission
 from app.models.approval_decision import ApprovalDecision
-from app.models.equipment import ApprovalStatus
-from app.models.user import User
-from app.models.equipment_template import EquipmentTemplateConsultant, ConsultantType
-from app.schemas.equipment_template import (
-    EquipmentTemplateCreate, EquipmentTemplateUpdate,
-    EquipmentTemplateResponse, EquipmentTemplateWithConsultantsResponse, ConsultantTypeResponse
-)
-from app.schemas.equipment_submission import EquipmentSubmissionCreate, EquipmentSubmissionUpdate, EquipmentSubmissionResponse
-from app.schemas.approval_decision import ApprovalDecisionCreate, ApprovalDecisionResponse
-from app.services.audit_service import create_audit_log, get_model_dict
 from app.models.audit import AuditAction
-from app.core.security import get_current_user, get_current_admin_user, verify_project_access
+from app.models.equipment import ApprovalStatus
+from app.models.equipment_submission import EquipmentSubmission
+from app.models.equipment_template import EquipmentTemplate, EquipmentTemplateConsultant
+from app.models.user import User
+from app.schemas.approval_decision import ApprovalDecisionCreate, ApprovalDecisionResponse
+from app.schemas.equipment_submission import (
+    EquipmentSubmissionCreate,
+    EquipmentSubmissionResponse,
+    EquipmentSubmissionUpdate,
+)
+from app.schemas.equipment_template import (
+    ConsultantTypeResponse,
+    EquipmentTemplateCreate,
+    EquipmentTemplateResponse,
+    EquipmentTemplateUpdate,
+    EquipmentTemplateWithConsultantsResponse,
+)
+from app.services.audit_service import create_audit_log, get_model_dict
 
 router = APIRouter()
 

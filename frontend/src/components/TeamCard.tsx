@@ -1,5 +1,6 @@
 import { Card as MuiCard, CardContent, CardHeader, Box, Typography, Chip } from '@mui/material'
 import { styled } from '@mui/material'
+import { useTranslation } from 'react-i18next'
 import { Avatar, AvatarGroup } from './ui/Avatar'
 import { TeamMember } from '../types'
 import { getWorkloadColor } from '../utils/workloadCalculation'
@@ -38,6 +39,7 @@ const MemberRow = styled(Box)(({ theme }) => ({
 }))
 
 export function TeamCard({ teamName, members, onClick, showDetails = false }: TeamCardProps) {
+  const { t } = useTranslation()
   const avgWorkload = members.length > 0
     ? members.reduce((sum, m) => sum + m.workloadPercent, 0) / members.length
     : 0
@@ -53,10 +55,10 @@ export function TeamCard({ teamName, members, onClick, showDetails = false }: Te
         subheader={
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
             <Typography variant="body2" color="text.secondary">
-              {members.length} {members.length === 1 ? 'member' : 'members'}
+              {t('teamCard.memberCount', { count: members.length })}
             </Typography>
             <Chip
-              label={`${Math.round(avgWorkload)}% avg`}
+              label={`${Math.round(avgWorkload)}% ${t('teamCard.avg')}`}
               size="small"
               color={getWorkloadColor(avgWorkload)}
               sx={{ height: 20, fontSize: '0.7rem' }}
@@ -75,7 +77,7 @@ export function TeamCard({ teamName, members, onClick, showDetails = false }: Te
           <Box>
             {members.length === 0 ? (
               <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 2 }}>
-                No team members assigned
+                {t('teamCard.noMembers')}
               </Typography>
             ) : (
               members.map((member) => (
@@ -95,7 +97,7 @@ export function TeamCard({ teamName, members, onClick, showDetails = false }: Te
                         {member.user.fullName || member.user.email}
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
-                        {member.role.replace('_', ' ')}
+                        {t(`roles.${member.role}`, { defaultValue: member.role.replace('_', ' ') })}
                       </Typography>
                     </Box>
                   </Box>
@@ -117,12 +119,12 @@ export function TeamCard({ teamName, members, onClick, showDetails = false }: Te
         ) : (
           <Box>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-              Team Capacity
+              {t('teamCard.teamCapacity')}
             </Typography>
             <Box sx={{ display: 'flex', gap: 2 }}>
               <Box>
                 <Typography variant="caption" color="text.secondary">
-                  Assigned
+                  {t('teamCard.assigned')}
                 </Typography>
                 <Typography variant="h6" sx={{ fontWeight: 600 }}>
                   {members.reduce((sum, m) => sum + m.assignedHours, 0)}h
@@ -130,7 +132,7 @@ export function TeamCard({ teamName, members, onClick, showDetails = false }: Te
               </Box>
               <Box>
                 <Typography variant="caption" color="text.secondary">
-                  Available
+                  {t('teamCard.available')}
                 </Typography>
                 <Typography variant="h6" sx={{ fontWeight: 600 }}>
                   {members.reduce((sum, m) => sum + m.availableHours, 0)}h
@@ -138,7 +140,7 @@ export function TeamCard({ teamName, members, onClick, showDetails = false }: Te
               </Box>
               <Box>
                 <Typography variant="caption" color="text.secondary">
-                  Utilization
+                  {t('teamCard.utilization')}
                 </Typography>
                 <Typography variant="h6" sx={{ fontWeight: 600, color: getWorkloadColor(avgWorkload) }}>
                   {Math.round(avgWorkload)}%

@@ -3,17 +3,19 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 from enum import Enum
-from typing import Optional, TYPE_CHECKING
-from sqlalchemy import String, Text, DateTime, ForeignKey, Boolean, Index
-from sqlalchemy.dialects.postgresql import UUID, JSONB
+from typing import TYPE_CHECKING, Optional
+
+from sqlalchemy import Boolean, DateTime, ForeignKey, Index, String, Text
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from app.db.session import Base
 
 if TYPE_CHECKING:
-    from app.models.project import Project
-    from app.models.user import User
     from app.models.equipment import Equipment
     from app.models.material import Material
+    from app.models.project import Project
+    from app.models.user import User
 
 
 class RFIStatus(str, Enum):

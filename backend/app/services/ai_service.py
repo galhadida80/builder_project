@@ -1,9 +1,10 @@
 import json
 import time
+
 from google import genai
 from google.genai import types
-from app.config import get_settings
 
+from app.config import get_settings
 
 PROMPTS = {
     "ocr": (

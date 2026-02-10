@@ -3,10 +3,11 @@ Seed script to populate consultant types.
 Run with: python -m app.db.seeds.consultant_types
 """
 import asyncio
+
 from sqlalchemy import select
+
 from app.db.session import AsyncSessionLocal
 from app.models.equipment_template import ConsultantType
-
 
 # Consultant types based on Israeli construction industry standards
 CONSULTANT_TYPES = [

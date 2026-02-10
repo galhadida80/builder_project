@@ -7,14 +7,15 @@ Or standalone: docker exec builder_backend python tests/test_seed_one_per_templa
 """
 import asyncio
 import sys
-from sqlalchemy import select, func
-from app.db.session import AsyncSessionLocal
-from app.models.equipment_template import EquipmentTemplate
-from app.models.material_template import MaterialTemplate
-from app.models.equipment import Equipment
-from app.models.material import Material
-from app.models.project import Project
 
+from sqlalchemy import func, select
+
+from app.db.session import AsyncSessionLocal
+from app.models.equipment import Equipment
+from app.models.equipment_template import EquipmentTemplate
+from app.models.material import Material
+from app.models.material_template import MaterialTemplate
+from app.models.project import Project
 
 EXPECTED_EQUIPMENT_TEMPLATES = 44
 EXPECTED_MATERIAL_TEMPLATES = 28

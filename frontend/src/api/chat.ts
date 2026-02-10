@@ -1,5 +1,20 @@
 import { apiClient } from './client'
 
+export interface ChatAction {
+  id: string
+  conversationId: string
+  messageId: string
+  actionType: string
+  entityType: string
+  entityId: string | null
+  parameters: Record<string, unknown>
+  description: string
+  status: 'proposed' | 'executed' | 'rejected' | 'failed'
+  result: Record<string, unknown> | null
+  createdAt: string
+  executedAt: string | null
+}
+
 export interface ChatMessage {
   id: string
   conversationId: string
@@ -7,6 +22,7 @@ export interface ChatMessage {
   content: string | null
   toolCalls: string[] | null
   createdAt: string
+  pendingActions: ChatAction[]
 }
 
 export interface ChatSendResponse {
@@ -52,5 +68,17 @@ export const chatApi = {
 
   deleteConversation: async (projectId: string, conversationId: string): Promise<void> => {
     await apiClient.delete(`/projects/${projectId}/chat/conversations/${conversationId}`)
+  },
+
+  executeAction: async (projectId: string, actionId: string): Promise<ChatAction> => {
+    const response = await apiClient.post(`/projects/${projectId}/chat/actions/${actionId}/execute`)
+    return response.data
+  },
+
+  rejectAction: async (projectId: string, actionId: string, reason?: string): Promise<ChatAction> => {
+    const response = await apiClient.post(`/projects/${projectId}/chat/actions/${actionId}/reject`, {
+      reason: reason || null,
+    })
+    return response.data
   },
 }

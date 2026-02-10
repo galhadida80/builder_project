@@ -1,41 +1,44 @@
-from app.models.user import User
-from app.models.project import Project, ProjectMember
+from app.models.approval import ApprovalRequest, ApprovalStep
+from app.models.area import AreaProgress, ConstructionArea
+from app.models.audit import AuditLog
+from app.models.chat import ChatConversation, ChatMessage
+from app.models.chat_action import ChatAction
+from app.models.checklist import (
+    ChecklistInstance,
+    ChecklistItemResponse,
+    ChecklistItemTemplate,
+    ChecklistStatus,
+    ChecklistSubSection,
+    ChecklistTemplate,
+    ItemResponseStatus,
+)
 from app.models.contact import Contact
+from app.models.document_analysis import DocumentAnalysis
+from app.models.document_review import DocumentComment, DocumentReview, ReviewStatus
 from app.models.equipment import Equipment, EquipmentChecklist
 from app.models.equipment_template import (
     ConsultantType,
+    EquipmentApprovalDecision,
+    EquipmentApprovalSubmission,
     EquipmentTemplate,
     EquipmentTemplateConsultant,
-    EquipmentApprovalSubmission,
-    EquipmentApprovalDecision,
 )
+from app.models.file import File
+from app.models.inspection import Finding, Inspection, InspectionStage
+from app.models.inspection_template import InspectionConsultantType, InspectionStageTemplate
+from app.models.invitation import ProjectInvitation
 from app.models.material import Material
 from app.models.material_template import (
+    MaterialApprovalDecision,
+    MaterialApprovalSubmission,
     MaterialTemplate,
     MaterialTemplateConsultant,
-    MaterialApprovalSubmission,
-    MaterialApprovalDecision,
 )
 from app.models.meeting import Meeting, MeetingAttendee
-from app.models.approval import ApprovalRequest, ApprovalStep
-from app.models.area import ConstructionArea, AreaProgress
-from app.models.file import File
-from app.models.inspection_template import InspectionConsultantType, InspectionStageTemplate
-from app.models.audit import AuditLog
-from app.models.checklist import (
-    ChecklistTemplate,
-    ChecklistSubSection,
-    ChecklistItemTemplate,
-    ChecklistInstance,
-    ChecklistItemResponse,
-    ChecklistStatus,
-    ItemResponseStatus,
-)
-from app.models.inspection import Inspection, Finding, InspectionStage
-from app.models.rfi import RFI, RFIResponse, RFIEmailLog, RFIStatus, RFIPriority, RFICategory
-from app.models.document_review import DocumentReview, DocumentComment, ReviewStatus
-from app.models.document_analysis import DocumentAnalysis
-from app.models.chat import ChatConversation, ChatMessage
+from app.models.permission_override import PermissionOverride
+from app.models.project import Project, ProjectMember
+from app.models.rfi import RFI, RFICategory, RFIEmailLog, RFIPriority, RFIResponse, RFIStatus
+from app.models.user import User
 
 __all__ = [
     "User",
@@ -84,4 +87,7 @@ __all__ = [
     "DocumentAnalysis",
     "ChatConversation",
     "ChatMessage",
+    "ChatAction",
+    "PermissionOverride",
+    "ProjectInvitation",
 ]

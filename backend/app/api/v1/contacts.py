@@ -4,15 +4,18 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
 from fastapi.responses import StreamingResponse
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from app.db.session import get_db
-from app.models.contact import Contact
-from app.models.user import User
-from app.schemas.contact import ContactCreate, ContactUpdate, ContactResponse
-from app.services.audit_service import create_audit_log, get_model_dict
-from app.models.audit import AuditAction
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.permissions import Permission, require_permission
 from app.core.security import get_current_user, verify_project_access
+from app.db.session import get_db
+from app.models.audit import AuditAction
+from app.models.contact import Contact
+from app.models.project import ProjectMember
+from app.models.user import User
+from app.schemas.contact import ContactCreate, ContactResponse, ContactUpdate
+from app.services.audit_service import create_audit_log, get_model_dict
 from app.utils.localization import get_language_from_request, translate_message
 
 router = APIRouter()
@@ -68,10 +71,10 @@ async def export_contacts_csv(
 async def import_contacts_csv(
     project_id: UUID,
     file: UploadFile = File(...),
+    member: ProjectMember = require_permission(Permission.CREATE),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    await verify_project_access(project_id, current_user, db)
 
     content = await file.read()
     text = content.decode("utf-8-sig")
@@ -104,10 +107,10 @@ async def import_contacts_csv(
 async def create_contact(
     project_id: UUID,
     data: ContactCreate,
+    member: ProjectMember = require_permission(Permission.CREATE),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    await verify_project_access(project_id, current_user, db)
     contact = Contact(**data.model_dump(), project_id=project_id)
     db.add(contact)
     await db.flush()
@@ -145,11 +148,11 @@ async def update_contact(
     project_id: UUID,
     contact_id: UUID,
     data: ContactUpdate,
+    member: ProjectMember = require_permission(Permission.EDIT),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
     request: Request = None
 ):
-    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(Contact).where(Contact.id == contact_id, Contact.project_id == project_id)
     )
@@ -173,11 +176,11 @@ async def update_contact(
 async def delete_contact(
     project_id: UUID,
     contact_id: UUID,
+    member: ProjectMember = require_permission(Permission.DELETE),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
     request: Request = None
 ):
-    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(Contact).where(Contact.id == contact_id, Contact.project_id == project_id)
     )

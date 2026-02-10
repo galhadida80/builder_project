@@ -33,18 +33,19 @@ import type { Meeting } from '../types'
 import { validateMeetingForm, hasErrors, type ValidationError } from '../utils/validation'
 import { useToast } from '../components/common/ToastProvider'
 
-const meetingTypes = [
-  { value: 'site_inspection', label: 'Site Inspection' },
-  { value: 'approval_meeting', label: 'Approval Meeting' },
-  { value: 'coordination', label: 'Coordination' },
-  { value: 'safety_review', label: 'Safety Review' },
-  { value: 'other', label: 'Other' },
-]
-
 export default function MeetingsPage() {
   const { projectId } = useParams()
   const { showError, showSuccess } = useToast()
   const { t } = useTranslation()
+
+  const meetingTypes = [
+    { value: 'site_inspection', label: t('meetings.typeSiteInspection') },
+    { value: 'approval_meeting', label: t('meetings.typeApprovalMeeting') },
+    { value: 'coordination', label: t('meetings.typeCoordination') },
+    { value: 'safety_review', label: t('meetings.typeSafetyReview') },
+    { value: 'other', label: t('meetings.typeOther') },
+  ]
+
   const [loading, setLoading] = useState(true)
   const [meetings, setMeetings] = useState<Meeting[]>([])
   const [tabValue, setTabValue] = useState('upcoming')
@@ -121,8 +122,8 @@ export default function MeetingsPage() {
       title: formData.title,
       description: formData.description
     })
-    if (!formData.date) validationErrors.date = 'Date is required'
-    if (!formData.startTime) validationErrors.startTime = 'Start time is required'
+    if (!formData.date) validationErrors.date = t('meetings.dateRequired')
+    if (!formData.startTime) validationErrors.startTime = t('meetings.startTimeRequired')
     setErrors(validationErrors)
     if (hasErrors(validationErrors)) return
 
@@ -181,7 +182,7 @@ export default function MeetingsPage() {
   const displayedMeetings = tabValue === 'upcoming' ? upcomingMeetings : pastMeetings
 
   const getMeetingTypeLabel = (type?: string) => {
-    return meetingTypes.find(t => t.value === type)?.label || type || 'Meeting'
+    return meetingTypes.find(mt => mt.value === type)?.label || type || t('meetings.meeting')
   }
 
   const formatTime = (dateString: string) => {

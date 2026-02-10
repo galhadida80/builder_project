@@ -1,11 +1,15 @@
-import pytest
 import uuid
-from datetime import datetime
+
+import pytest
+
 from app.models.checklist import (
-    ChecklistTemplate, ChecklistSubSection, ChecklistItemTemplate,
-    ChecklistInstance, ChecklistItemResponse,
-    ChecklistStatus, ItemResponseStatus
+    ChecklistItemTemplate,
+    ChecklistStatus,
+    ChecklistSubSection,
+    ChecklistTemplate,
+    ItemResponseStatus,
 )
+
 
 # Test fixtures
 @pytest.fixture

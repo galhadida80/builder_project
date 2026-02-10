@@ -1,21 +1,41 @@
 from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
+
+from app.core.permissions import Permission, check_permission, require_permission
+from app.core.security import get_current_user, verify_project_access
 from app.db.session import get_db
-from app.models.checklist import ChecklistTemplate, ChecklistSubSection, ChecklistItemTemplate, ChecklistInstance, ChecklistItemResponse
+from app.models.audit import AuditAction
+from app.models.checklist import (
+    ChecklistInstance,
+    ChecklistItemResponse,
+    ChecklistItemTemplate,
+    ChecklistSubSection,
+    ChecklistTemplate,
+)
+from app.models.project import ProjectMember
 from app.models.user import User
 from app.schemas.checklist import (
-    ChecklistTemplateCreate, ChecklistTemplateUpdate, ChecklistTemplateResponse,
-    ChecklistSubSectionCreate, ChecklistSubSectionUpdate, ChecklistSubSectionResponse,
-    ChecklistItemTemplateCreate, ChecklistItemTemplateUpdate, ChecklistItemTemplateResponse,
-    ChecklistInstanceCreate, ChecklistInstanceUpdate, ChecklistInstanceResponse,
-    ChecklistItemResponseCreate, ChecklistItemResponseUpdate, ChecklistItemResponseResponse
+    ChecklistInstanceCreate,
+    ChecklistInstanceResponse,
+    ChecklistInstanceUpdate,
+    ChecklistItemResponseCreate,
+    ChecklistItemResponseResponse,
+    ChecklistItemResponseUpdate,
+    ChecklistItemTemplateCreate,
+    ChecklistItemTemplateResponse,
+    ChecklistItemTemplateUpdate,
+    ChecklistSubSectionCreate,
+    ChecklistSubSectionResponse,
+    ChecklistSubSectionUpdate,
+    ChecklistTemplateCreate,
+    ChecklistTemplateResponse,
+    ChecklistTemplateUpdate,
 )
 from app.services.audit_service import create_audit_log, get_model_dict
-from app.models.audit import AuditAction
-from app.core.security import get_current_user, verify_project_access
 
 router = APIRouter()
 
@@ -50,10 +70,10 @@ async def list_checklist_templates(
 async def create_checklist_template(
     project_id: UUID,
     data: ChecklistTemplateCreate,
+    member: ProjectMember = require_permission(Permission.CREATE),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    await verify_project_access(project_id, current_user, db)
     dump = data.model_dump()
     if "metadata" in dump:
         dump["extra_data"] = dump.pop("metadata")
@@ -92,10 +112,10 @@ async def update_checklist_template(
     project_id: UUID,
     template_id: UUID,
     data: ChecklistTemplateUpdate,
+    member: ProjectMember = require_permission(Permission.EDIT),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    await verify_project_access(project_id, current_user, db)
     result = await db.execute(select(ChecklistTemplate).where(ChecklistTemplate.id == template_id))
     checklist_template = result.scalar_one_or_none()
     if not checklist_template:
@@ -117,10 +137,10 @@ async def update_checklist_template(
 async def delete_checklist_template(
     project_id: UUID,
     template_id: UUID,
+    member: ProjectMember = require_permission(Permission.DELETE),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    await verify_project_access(project_id, current_user, db)
     result = await db.execute(select(ChecklistTemplate).where(ChecklistTemplate.id == template_id))
     checklist_template = result.scalar_one_or_none()
     if not checklist_template:
@@ -145,7 +165,7 @@ async def create_checklist_subsection(
     if not template:
         raise HTTPException(status_code=404, detail="Checklist template not found")
 
-    await verify_project_access(template.project_id, current_user, db)
+    await check_permission(Permission.CREATE, template.project_id, current_user.id, db)
 
     dump = data.model_dump()
     if "metadata" in dump:
@@ -222,10 +242,10 @@ async def update_checklist_subsection(
     if not subsection:
         raise HTTPException(status_code=404, detail="Checklist subsection not found")
 
-    # Get template for project_id
     template_result = await db.execute(select(ChecklistTemplate).where(ChecklistTemplate.id == template_id))
     template = template_result.scalar_one()
-    await verify_project_access(template.project_id, current_user, db)
+
+    await check_permission(Permission.EDIT, template.project_id, current_user.id, db)
 
     old_values = get_model_dict(subsection)
 
@@ -255,10 +275,10 @@ async def delete_checklist_subsection(
     if not subsection:
         raise HTTPException(status_code=404, detail="Checklist subsection not found")
 
-    # Get template for project_id and verify access
     template_result = await db.execute(select(ChecklistTemplate).where(ChecklistTemplate.id == template_id))
     template = template_result.scalar_one()
-    await verify_project_access(template.project_id, current_user, db)
+
+    await check_permission(Permission.DELETE, template.project_id, current_user.id, db)
 
     await create_audit_log(db, current_user, "checklist_subsection", subsection.id, AuditAction.DELETE,
                           project_id=template.project_id, old_values=get_model_dict(subsection))
@@ -274,7 +294,6 @@ async def create_checklist_item_template(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    # Verify subsection exists
     result = await db.execute(
         select(ChecklistSubSection)
         .options(selectinload(ChecklistSubSection.template))
@@ -284,7 +303,7 @@ async def create_checklist_item_template(
     if not subsection:
         raise HTTPException(status_code=404, detail="Checklist subsection not found")
 
-    await verify_project_access(subsection.template.project_id, current_user, db)
+    await check_permission(Permission.CREATE, subsection.template.project_id, current_user.id, db)
 
     dump = data.model_dump()
     if "metadata" in dump:
@@ -373,14 +392,14 @@ async def update_checklist_item_template(
         attr = "extra_data" if key == "metadata" else key
         setattr(item, attr, value)
 
-    # Get subsection and template for project_id and verify access
     subsection_result = await db.execute(
         select(ChecklistSubSection)
         .options(selectinload(ChecklistSubSection.template))
         .where(ChecklistSubSection.id == subsection_id)
     )
     subsection = subsection_result.scalar_one()
-    await verify_project_access(subsection.template.project_id, current_user, db)
+
+    await check_permission(Permission.EDIT, subsection.template.project_id, current_user.id, db)
 
     await create_audit_log(db, current_user, "checklist_item_template", item.id, AuditAction.UPDATE,
                           project_id=subsection.template.project_id, old_values=old_values, new_values=get_model_dict(item))
@@ -404,14 +423,14 @@ async def delete_checklist_item_template(
     if not item:
         raise HTTPException(status_code=404, detail="Checklist item template not found")
 
-    # Get subsection and template for project_id and verify access
     subsection_result = await db.execute(
         select(ChecklistSubSection)
         .options(selectinload(ChecklistSubSection.template))
         .where(ChecklistSubSection.id == subsection_id)
     )
     subsection = subsection_result.scalar_one()
-    await verify_project_access(subsection.template.project_id, current_user, db)
+
+    await check_permission(Permission.DELETE, subsection.template.project_id, current_user.id, db)
 
     await create_audit_log(db, current_user, "checklist_item_template", item.id, AuditAction.DELETE,
                           project_id=subsection.template.project_id, old_values=get_model_dict(item))
@@ -450,10 +469,10 @@ async def list_checklist_instances(
 async def create_checklist_instance(
     project_id: UUID,
     data: ChecklistInstanceCreate,
+    member: ProjectMember = require_permission(Permission.CREATE),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    await verify_project_access(project_id, current_user, db)
     dump = data.model_dump()
     if "metadata" in dump:
         dump["extra_data"] = dump.pop("metadata")
@@ -492,10 +511,10 @@ async def update_checklist_instance(
     project_id: UUID,
     instance_id: UUID,
     data: ChecklistInstanceUpdate,
+    member: ProjectMember = require_permission(Permission.EDIT),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    await verify_project_access(project_id, current_user, db)
     result = await db.execute(select(ChecklistInstance).where(ChecklistInstance.id == instance_id))
     checklist_instance = result.scalar_one_or_none()
     if not checklist_instance:
@@ -517,10 +536,10 @@ async def update_checklist_instance(
 async def delete_checklist_instance(
     project_id: UUID,
     instance_id: UUID,
+    member: ProjectMember = require_permission(Permission.DELETE),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    await verify_project_access(project_id, current_user, db)
     result = await db.execute(select(ChecklistInstance).where(ChecklistInstance.id == instance_id))
     checklist_instance = result.scalar_one_or_none()
     if not checklist_instance:
@@ -545,7 +564,7 @@ async def create_checklist_item_response(
     if not instance:
         raise HTTPException(status_code=404, detail="Checklist instance not found")
 
-    await verify_project_access(instance.project_id, current_user, db)
+    await check_permission(Permission.CREATE, instance.project_id, current_user.id, db)
 
     response = ChecklistItemResponse(**data.model_dump(), instance_id=instance_id, completed_by_id=current_user.id)
     db.add(response)
@@ -622,10 +641,10 @@ async def update_checklist_item_response(
     for key, value in data.model_dump(exclude_unset=True).items():
         setattr(response, key, value)
 
-    # Get instance for project_id and verify access
     instance_result = await db.execute(select(ChecklistInstance).where(ChecklistInstance.id == instance_id))
     instance = instance_result.scalar_one()
-    await verify_project_access(instance.project_id, current_user, db)
+
+    await check_permission(Permission.EDIT, instance.project_id, current_user.id, db)
 
     # Update completed_by if status changes
     if data.status and response.status != data.status:
@@ -653,10 +672,10 @@ async def delete_checklist_item_response(
     if not response:
         raise HTTPException(status_code=404, detail="Checklist item response not found")
 
-    # Get instance for project_id and verify access
     instance_result = await db.execute(select(ChecklistInstance).where(ChecklistInstance.id == instance_id))
     instance = instance_result.scalar_one()
-    await verify_project_access(instance.project_id, current_user, db)
+
+    await check_permission(Permission.DELETE, instance.project_id, current_user.id, db)
 
     await create_audit_log(db, current_user, "checklist_item_response", response.id, AuditAction.DELETE,
                           project_id=instance.project_id, old_values=get_model_dict(response))

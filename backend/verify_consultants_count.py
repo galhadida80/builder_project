@@ -94,12 +94,12 @@ def main():
     print(f"✅ Total Consultant Mappings: {total_consultants}")
     print(f"✅ Unique Consultant Roles: {len(all_consultant_roles)}")
 
-    print(f"\n📊 Consultant Role Distribution:")
+    print("\n📊 Consultant Role Distribution:")
     for role in sorted(all_consultant_roles):
         count = sum(1 for t in EQUIPMENT_TEMPLATES for c in t['consultants'] if c == role)
         print(f"   • {role}: used {count} time(s)")
 
-    print(f"\n🔍 Verification:")
+    print("\n🔍 Verification:")
     hebrew_present = all(any('\u0590' <= c <= '\u05FF' for c in t['name']) for t in EQUIPMENT_TEMPLATES)
     english_present = all(t.get('name_en') for t in EQUIPMENT_TEMPLATES)
     consultants_present = all(t.get('consultants') for t in EQUIPMENT_TEMPLATES)
@@ -107,10 +107,10 @@ def main():
     print(f"   • English names present: {'✓' if english_present else '✗'}")
     print(f"   • All templates have consultants: {'✓' if consultants_present else '✗'}")
 
-    print(f"\n📝 Note:")
-    print(f"   The spec mentions '18+ mappings', but the actual seed data contains")
+    print("\n📝 Note:")
+    print("   The spec mentions '18+ mappings', but the actual seed data contains")
     print(f"   exactly {total_consultants} mappings based on the equipment definitions in the spec.")
-    print(f"   This is the correct count per the requirements document.")
+    print("   This is the correct count per the requirements document.")
 
     print("\n" + "=" * 80)
 

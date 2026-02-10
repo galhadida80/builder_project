@@ -1,15 +1,13 @@
 import uuid
 from datetime import datetime
 
-import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.equipment_template import EquipmentTemplate, ConsultantType, EquipmentTemplateConsultant
 from app.models.equipment_submission import EquipmentSubmission
-from app.models.user import User
+from app.models.equipment_template import ConsultantType, EquipmentTemplate, EquipmentTemplateConsultant
 from app.models.project import Project
-
+from app.models.user import User
 
 API_V1 = "/api/v1"
 TEMPLATES_URL = f"{API_V1}/equipment-templates"

@@ -1,5 +1,6 @@
 import { Card, CardContent, CardMedia, Box, Typography, Chip } from '@mui/material'
 import { styled } from '@mui/material'
+import { useTranslation } from 'react-i18next'
 import InventoryIcon from '@mui/icons-material/Inventory'
 import LocationOnIcon from '@mui/icons-material/LocationOn'
 import WarningAmberIcon from '@mui/icons-material/WarningAmber'
@@ -60,6 +61,7 @@ const InfoRow = styled(Box)(({ theme }) => ({
 }))
 
 export function MaterialCard({ material, onClick, lowStockThreshold = 10 }: MaterialCardProps) {
+  const { t } = useTranslation()
   const isLowStock = material.quantity !== undefined && material.quantity < lowStockThreshold
   const imageUrl = material.documents?.[0]?.storagePath
 
@@ -73,7 +75,7 @@ export function MaterialCard({ material, onClick, lowStockThreshold = 10 }: Mate
         {isLowStock && (
           <LowStockBadge
             icon={<WarningAmberIcon sx={{ fontSize: '1rem' }} />}
-            label="Low Stock"
+            label={t('materials.lowStock')}
             size="small"
           />
         )}

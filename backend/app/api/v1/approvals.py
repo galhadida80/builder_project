@@ -1,21 +1,25 @@
 from __future__ import annotations
+
 from typing import Optional
 from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException, Request
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-from sqlalchemy.orm import selectinload
 from pydantic import BaseModel
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
+
+from app.core.permissions import Permission, check_permission, require_permission
+from app.core.security import get_current_user, verify_project_access
 from app.db.session import get_db
 from app.models.approval import ApprovalRequest, ApprovalStep
-from app.models.equipment import Equipment, ApprovalStatus
+from app.models.audit import AuditAction
+from app.models.equipment import ApprovalStatus, Equipment
 from app.models.material import Material
-from app.models.user import User
 from app.models.project import ProjectMember
+from app.models.user import User
 from app.schemas.approval import ApprovalRequestResponse, ApprovalStepResponse
 from app.services.audit_service import create_audit_log
-from app.models.audit import AuditAction
-from app.core.security import get_current_user, verify_project_access
 from app.utils.localization import get_language_from_request, translate_message
 
 router = APIRouter()
@@ -100,11 +104,11 @@ async def process_approval_step(
     approval_id: UUID,
     step_id: UUID,
     data: ApprovalAction,
+    member: ProjectMember = require_permission(Permission.APPROVE),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
     request: Request = None
 ):
-    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(ApprovalStep)
         .options(selectinload(ApprovalStep.approval_request))
@@ -210,7 +214,7 @@ async def approve_request(
         error_message = translate_message('resources.approval_not_found', language)
         raise HTTPException(status_code=404, detail=error_message)
 
-    await verify_project_access(approval_request.project_id, current_user, db)
+    await check_permission(Permission.APPROVE, approval_request.project_id, current_user.id, db)
 
     pending_step_result = await db.execute(
         select(ApprovalStep)
@@ -274,7 +278,7 @@ async def reject_request(
         error_message = translate_message('resources.approval_not_found', language)
         raise HTTPException(status_code=404, detail=error_message)
 
-    await verify_project_access(approval_request.project_id, current_user, db)
+    await check_permission(Permission.APPROVE, approval_request.project_id, current_user.id, db)
 
     pending_step_result = await db.execute(
         select(ApprovalStep)

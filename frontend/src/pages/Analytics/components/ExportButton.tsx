@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Button } from '@mui/material'
 import DownloadIcon from '@mui/icons-material/Download'
 import { CircularProgress } from '@mui/material'
+import { useTranslation } from 'react-i18next'
 import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
 
@@ -18,6 +19,7 @@ export default function ExportButton({
   variant = 'contained',
   size = 'medium',
 }: ExportButtonProps) {
+  const { t } = useTranslation()
   const [isExporting, setIsExporting] = useState(false)
 
   const handleExport = async () => {
@@ -29,7 +31,6 @@ export default function ExportButton({
         return
       }
 
-      // Capture the element as canvas with high quality
       const canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true,
@@ -39,7 +40,6 @@ export default function ExportButton({
 
       const imgData = canvas.toDataURL('image/png')
 
-      // Create PDF in landscape orientation
       const pdf = new jsPDF({
         orientation: 'landscape',
         unit: 'mm',
@@ -49,7 +49,6 @@ export default function ExportButton({
       const pdfWidth = pdf.internal.pageSize.getWidth()
       const pdfHeight = pdf.internal.pageSize.getHeight()
 
-      // Calculate dimensions to fit the canvas into the PDF
       const imgWidth = canvas.width
       const imgHeight = canvas.height
       const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight)
@@ -66,7 +65,6 @@ export default function ExportButton({
         imgHeight * ratio
       )
 
-      // Add timestamp to filename
       const timestamp = new Date().toISOString().split('T')[0]
       pdf.save(`${filename}-${timestamp}.pdf`)
     } catch (error) {
@@ -103,7 +101,7 @@ export default function ExportButton({
         },
       }}
     >
-      {isExporting ? 'Exporting...' : 'Export PDF'}
+      {isExporting ? t('analytics.exporting') : t('analytics.exportPdf')}
     </Button>
   )
 }

@@ -11,7 +11,6 @@ import Divider from '@mui/material/Divider'
 import Select from '@mui/material/Select'
 import MenuItem from '@mui/material/MenuItem'
 import FormControl from '@mui/material/FormControl'
-import InputLabel from '@mui/material/InputLabel'
 import { useTranslation } from 'react-i18next'
 import { useToast } from '../components/common/ToastProvider'
 import { useThemeMode } from '../theme'
@@ -31,12 +30,12 @@ export default function SettingsPage() {
 
   const handleNotificationChange = (key: keyof typeof notifications) => {
     setNotifications(prev => ({ ...prev, [key]: !prev[key] }))
-    showSuccess('Settings updated')
+    showSuccess(t('settings.settingsUpdated'))
   }
 
   const handleLanguageChange = (lang: string) => {
     i18n.changeLanguage(lang)
-    showSuccess('Language changed')
+    showSuccess(t('settings.languageChanged'))
   }
 
   return (
@@ -51,10 +50,10 @@ export default function SettingsPage() {
             fontSize: { xs: '1.75rem', sm: '2.125rem' },
           }}
         >
-          Settings
+          {t('settings.title')}
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          Manage your account preferences and notifications
+          {t('settings.subtitle')}
         </Typography>
       </Box>
 
@@ -62,14 +61,14 @@ export default function SettingsPage() {
         <Paper sx={{ p: 0 }}>
           <Box sx={{ p: 2.5, pb: 1 }}>
             <Typography variant="h6" fontWeight={600}>
-              Preferences
+              {t('settings.preferences')}
             </Typography>
           </Box>
           <List>
             <ListItem>
               <ListItemText
-                primary="Language"
-                secondary="Select your preferred language"
+                primary={t('settings.language')}
+                secondary={t('settings.languageDescription')}
               />
               <ListItemSecondaryAction>
                 <FormControl size="small" sx={{ minWidth: 120 }}>
@@ -77,9 +76,9 @@ export default function SettingsPage() {
                     value={i18n.language}
                     onChange={(e) => handleLanguageChange(e.target.value)}
                   >
-                    <MenuItem value="en">English</MenuItem>
-                    <MenuItem value="he">Hebrew</MenuItem>
-                    <MenuItem value="es">Spanish</MenuItem>
+                    <MenuItem value="en">{t('common.english')}</MenuItem>
+                    <MenuItem value="he">{t('common.hebrew')}</MenuItem>
+                    <MenuItem value="es">{t('settings.spanish')}</MenuItem>
                   </Select>
                 </FormControl>
               </ListItemSecondaryAction>
@@ -87,8 +86,8 @@ export default function SettingsPage() {
             <Divider component="li" />
             <ListItem>
               <ListItemText
-                primary="Theme"
-                secondary="Choose your color theme"
+                primary={t('settings.theme')}
+                secondary={t('settings.themeDescription')}
               />
               <ListItemSecondaryAction>
                 <FormControl size="small" sx={{ minWidth: 120 }}>
@@ -96,12 +95,12 @@ export default function SettingsPage() {
                     value={mode}
                     onChange={(e) => {
                       setMode(e.target.value as 'light' | 'dark' | 'system')
-                      showSuccess('Theme updated')
+                      showSuccess(t('settings.themeUpdated'))
                     }}
                   >
-                    <MenuItem value="system">System</MenuItem>
-                    <MenuItem value="light">Light</MenuItem>
-                    <MenuItem value="dark">Dark</MenuItem>
+                    <MenuItem value="system">{t('settings.system')}</MenuItem>
+                    <MenuItem value="light">{t('settings.light')}</MenuItem>
+                    <MenuItem value="dark">{t('settings.dark')}</MenuItem>
                   </Select>
                 </FormControl>
               </ListItemSecondaryAction>
@@ -112,62 +111,58 @@ export default function SettingsPage() {
         <Paper sx={{ p: 0 }}>
           <Box sx={{ p: 2.5, pb: 1 }}>
             <Typography variant="h6" fontWeight={600}>
-              Notifications
+              {t('settings.notifications')}
             </Typography>
           </Box>
           <List>
             <ListItem>
               <ListItemText
-                primary="Email Notifications"
-                secondary="Receive email updates for important events"
+                primary={t('settings.emailNotifications')}
+                secondary={t('settings.emailNotificationsDescription')}
               />
               <ListItemSecondaryAction>
                 <Switch
                   checked={notifications.email}
                   onChange={() => handleNotificationChange('email')}
-                  inputProps={{ 'aria-label': 'Email notifications' }}
                 />
               </ListItemSecondaryAction>
             </ListItem>
             <Divider component="li" />
             <ListItem>
               <ListItemText
-                primary="Push Notifications"
-                secondary="Receive browser push notifications"
+                primary={t('settings.pushNotifications')}
+                secondary={t('settings.pushNotificationsDescription')}
               />
               <ListItemSecondaryAction>
                 <Switch
                   checked={notifications.push}
                   onChange={() => handleNotificationChange('push')}
-                  inputProps={{ 'aria-label': 'Push notifications' }}
                 />
               </ListItemSecondaryAction>
             </ListItem>
             <Divider component="li" />
             <ListItem>
               <ListItemText
-                primary="RFI Updates"
-                secondary="Get notified when RFIs are updated or responded to"
+                primary={t('settings.rfiUpdates')}
+                secondary={t('settings.rfiUpdatesDescription')}
               />
               <ListItemSecondaryAction>
                 <Switch
                   checked={notifications.rfis}
                   onChange={() => handleNotificationChange('rfis')}
-                  inputProps={{ 'aria-label': 'RFI update notifications' }}
                 />
               </ListItemSecondaryAction>
             </ListItem>
             <Divider component="li" />
             <ListItem>
               <ListItemText
-                primary="Approval Requests"
-                secondary="Get notified when items require your approval"
+                primary={t('settings.approvalRequests')}
+                secondary={t('settings.approvalRequestsDescription')}
               />
               <ListItemSecondaryAction>
                 <Switch
                   checked={notifications.approvals}
                   onChange={() => handleNotificationChange('approvals')}
-                  inputProps={{ 'aria-label': 'Approval request notifications' }}
                 />
               </ListItemSecondaryAction>
             </ListItem>
@@ -177,20 +172,20 @@ export default function SettingsPage() {
         <Paper sx={{ p: 0 }}>
           <Box sx={{ p: 2.5, pb: 1 }}>
             <Typography variant="h6" fontWeight={600}>
-              Data & Privacy
+              {t('settings.dataPrivacy')}
             </Typography>
           </Box>
           <List>
             <ListItem>
               <ListItemText
-                primary="Export Data"
-                secondary="Download all your data in a CSV format"
+                primary={t('settings.exportData')}
+                secondary={t('settings.exportDataDescription')}
               />
               <ListItemSecondaryAction>
                 <Typography
                   component="button"
                   variant="body2"
-                  onClick={() => showSuccess('Export started')}
+                  onClick={() => showSuccess(t('settings.exportStarted'))}
                   sx={{
                     color: 'primary.main',
                     cursor: 'pointer',
@@ -201,7 +196,7 @@ export default function SettingsPage() {
                     '&:hover': { textDecoration: 'underline' }
                   }}
                 >
-                  Download
+                  {t('buttons.download')}
                 </Typography>
               </ListItemSecondaryAction>
             </ListItem>

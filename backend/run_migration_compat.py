@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Run migration with Python 3.9 compatibility workaround."""
 from __future__ import annotations
-import sys
+
 import os
 import subprocess
+import sys
 
 # Try to use Python 3.11 if available
 python_paths = [

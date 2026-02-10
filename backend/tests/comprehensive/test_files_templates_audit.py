@@ -1,12 +1,12 @@
-import pytest
-import uuid
 import io
+import uuid
+
+import pytest
 from httpx import AsyncClient
-from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.models.equipment_template import EquipmentTemplate
 from app.models.project import Project
 from app.models.user import User
-from app.models.equipment_template import EquipmentTemplate
-
 
 EQUIPMENT_TEMPLATE_PAYLOAD = {
     "name": "Tower Crane",

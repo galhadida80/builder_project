@@ -1,8 +1,10 @@
 import uuid
 from unittest.mock import AsyncMock, patch
+
 import pytest
-from app.models.file import File
+
 from app.models.document_analysis import DocumentAnalysis
+from app.models.file import File
 from app.models.project import ProjectMember
 from app.services.storage_service import StorageBackend, get_storage_backend
 

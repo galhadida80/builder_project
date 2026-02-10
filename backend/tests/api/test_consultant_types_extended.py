@@ -1,8 +1,11 @@
 import uuid
+
 import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.models.equipment_template import ConsultantType
+
 API = "/api/v1/consultant-types"
 FAKE_ID = str(uuid.uuid4())
 

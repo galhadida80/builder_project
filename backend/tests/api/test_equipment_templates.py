@@ -1,13 +1,16 @@
 import uuid
+
 import pytest
 from httpx import AsyncClient
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
 from sqlalchemy.ext.compiler import compiles
-from app.models.equipment_template import EquipmentTemplate
+
 from app.models.equipment_submission import EquipmentSubmission
-from app.models.user import User
+from app.models.equipment_template import EquipmentTemplate
 from app.models.project import Project
+from app.models.user import User
 
 
 @compiles(JSONB, "sqlite")

@@ -5,6 +5,7 @@ import TimelineIcon from '@mui/icons-material/Timeline'
 import WarningIcon from '@mui/icons-material/Warning'
 import { Gantt, Task, ViewMode } from 'gantt-task-react'
 import 'gantt-task-react/dist/index.css'
+import { useTranslation } from 'react-i18next'
 import { GanttChartProps, GanttTask, GanttViewMode, GanttTaskType } from '../types/gantt'
 import { Button } from './ui/Button'
 import { EmptyState } from './ui/EmptyState'
@@ -291,6 +292,7 @@ export function GanttChart({
   onExpanderClick,
 }: GanttChartProps) {
   const theme = useTheme()
+  const { t } = useTranslation()
   const [filterAnchorEl, setFilterAnchorEl] = useState<null | HTMLElement>(null)
   const [filterType, setFilterType] = useState<GanttTaskType | 'all'>('all')
   const filterMenuOpen = Boolean(filterAnchorEl)
@@ -314,10 +316,10 @@ export function GanttChart({
 
   // View mode options for the toolbar
   const viewModeOptions: { value: GanttViewMode; label: string }[] = [
-    { value: 'Hour', label: 'Hour' },
-    { value: 'Day', label: 'Day' },
-    { value: 'Week', label: 'Week' },
-    { value: 'Month', label: 'Month' },
+    { value: 'Hour', label: t('gantt.hour') },
+    { value: 'Day', label: t('gantt.day') },
+    { value: 'Week', label: t('gantt.week') },
+    { value: 'Month', label: t('gantt.month') },
   ]
 
   // Handle view mode change
@@ -391,10 +393,10 @@ export function GanttChart({
 
   // Filter options for the menu
   const filterOptions: { value: GanttTaskType | 'all'; label: string }[] = [
-    { value: 'all', label: 'All Tasks' },
-    { value: 'task', label: 'Tasks Only' },
-    { value: 'project', label: 'Projects Only' },
-    { value: 'milestone', label: 'Milestones Only' },
+    { value: 'all', label: t('gantt.allTasksFilter') },
+    { value: 'task', label: t('gantt.tasksOnly') },
+    { value: 'project', label: t('gantt.projectsOnly') },
+    { value: 'milestone', label: t('gantt.milestonesOnlyFilter') },
   ]
 
   // Render loading skeleton
@@ -433,8 +435,8 @@ export function GanttChart({
       <StyledGanttPaper elevation={1}>
         <EmptyState
           variant="no-data"
-          title="No Tasks Available"
-          description="Create your first task to see it displayed on the timeline."
+          title={t('gantt.noTasksAvailable')}
+          description={t('gantt.noTasksDescription')}
           icon={<TimelineIcon />}
         />
       </StyledGanttPaper>
@@ -450,7 +452,7 @@ export function GanttChart({
             {warnings.map((warning, index) => (
               <Alert key={index} severity={warning.type} sx={{ mb: 1 }}>
                 <AlertTitle>
-                  {warning.type === 'error' ? 'Validation Error' : 'Warning'}: {warning.taskName}
+                  {warning.type === 'error' ? t('gantt.validationError') : t('gantt.validationWarning')}: {warning.taskName}
                 </AlertTitle>
                 {warning.message}
               </Alert>
@@ -459,8 +461,8 @@ export function GanttChart({
         )}
         <EmptyState
           variant="no-data"
-          title="No Valid Tasks"
-          description="All tasks have validation errors. Please fix the issues above to display the timeline."
+          title={t('gantt.noValidTasks')}
+          description={t('gantt.noValidTasksDescription')}
           icon={<WarningIcon />}
         />
       </StyledGanttPaper>
@@ -475,13 +477,15 @@ export function GanttChart({
         {warnings.length > 0 && (
           <Box sx={{ mb: 2 }}>
             <Alert severity="warning" icon={<WarningIcon />}>
-              <AlertTitle>Validation Issues Found</AlertTitle>
-              {warnings.length} task{warnings.length > 1 ? 's have' : ' has'} validation issues.{' '}
+              <AlertTitle>{t('gantt.validationIssues')}</AlertTitle>
+              {warnings.length > 1
+                ? t('gantt.tasksHaveIssues', { count: warnings.length })
+                : t('gantt.taskHasIssues', { count: warnings.length })}{' '}
               {warnings.filter((w) => w.type === 'error').length > 0 && (
                 <>
-                  {warnings.filter((w) => w.type === 'error').length} error
-                  {warnings.filter((w) => w.type === 'error').length > 1 ? 's' : ''} (tasks excluded from
-                  timeline).
+                  {warnings.filter((w) => w.type === 'error').length > 1
+                    ? t('gantt.errorsExcludedPlural', { count: warnings.filter((w) => w.type === 'error').length })
+                    : t('gantt.errorsExcluded', { count: warnings.filter((w) => w.type === 'error').length })}
                 </>
               )}
             </Alert>
@@ -493,7 +497,9 @@ export function GanttChart({
               ))}
               {warnings.length > 5 && (
                 <Typography variant="body2" sx={{ mt: 1, color: 'text.secondary', textAlign: 'center' }}>
-                  ... and {warnings.length - 5} more issue{warnings.length - 5 > 1 ? 's' : ''}
+                  {warnings.length - 5 > 1
+                    ? t('gantt.moreIssuesPlural', { count: warnings.length - 5 })
+                    : t('gantt.moreIssues', { count: warnings.length - 5 })}
                 </Typography>
               )}
             </Box>
@@ -502,7 +508,7 @@ export function GanttChart({
         <ToolbarBox>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.secondary' }}>
-              View Mode:
+              {t('gantt.viewMode')}
             </Typography>
             <ButtonGroup size="small">
               {viewModeOptions.map((option) => (
@@ -526,7 +532,7 @@ export function GanttChart({
               startIcon={<FilterListIcon />}
               sx={{ textTransform: 'none' }}
             >
-              Filter: {filterOptions.find((opt) => opt.value === filterType)?.label}
+              {t('gantt.filterLabel')} {filterOptions.find((opt) => opt.value === filterType)?.label}
             </Button>
             <Menu
               anchorEl={filterAnchorEl}
@@ -579,15 +585,15 @@ export function GanttChart({
             <StyledTooltip>
               <div className="tooltip-title">{task.name}</div>
               <div className="tooltip-row">
-                <span className="tooltip-label">Progress:</span>
+                <span className="tooltip-label">{t('gantt.progressLabel')}</span>
                 <span>{task.progress}%</span>
               </div>
               <div className="tooltip-row">
-                <span className="tooltip-label">Start:</span>
+                <span className="tooltip-label">{t('gantt.startLabel')}</span>
                 <span>{task.start.toLocaleDateString()}</span>
               </div>
               <div className="tooltip-row">
-                <span className="tooltip-label">End:</span>
+                <span className="tooltip-label">{t('gantt.endLabel')}</span>
                 <span>{task.end.toLocaleDateString()}</span>
               </div>
             </StyledTooltip>

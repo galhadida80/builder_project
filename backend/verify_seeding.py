@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 """Verify consultant types seeding by running the script and checking the database."""
-import sys
 import subprocess
+import sys
 from pathlib import Path
 
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent))
 
-from sqlalchemy import create_engine, select, func
+from sqlalchemy import create_engine, func, select
 from sqlalchemy.orm import Session
+
 from app.config import get_settings
 from app.models.inspection import ConsultantType
 
@@ -53,9 +54,9 @@ def verify_count():
             ).scalar()
 
             print(f"\n{'='*80}")
-            print(f"Database Verification:")
+            print("Database Verification:")
             print(f"  Consultant Types Count: {count}")
-            print(f"  Expected: 21")
+            print("  Expected: 21")
             print(f"  Status: {'✓ PASS' if count == 21 else '✗ FAIL'}")
             print(f"{'='*80}\n")
 

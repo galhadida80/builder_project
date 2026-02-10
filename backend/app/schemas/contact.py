@@ -1,15 +1,22 @@
 from __future__ import annotations
 
-from typing import Optional
-
-from uuid import UUID
 from datetime import datetime
+from typing import Optional
+from uuid import UUID
+
 from pydantic import BaseModel, EmailStr, Field, field_validator
+
 from app.core.validators import (
-    sanitize_string, validate_phone,
-    MIN_NAME_LENGTH, MAX_NAME_LENGTH, MAX_PHONE_LENGTH, MAX_DESCRIPTION_LENGTH,
-    CamelCaseModel
+    MAX_DESCRIPTION_LENGTH,
+    MAX_NAME_LENGTH,
+    MAX_PHONE_LENGTH,
+    MIN_NAME_LENGTH,
+    CamelCaseModel,
+    sanitize_string,
+    validate_phone,
 )
+
+
 class ContactBase(BaseModel):
     contact_type: str = Field(min_length=1, max_length=50)
     company_name: Optional[str] = Field(default=None, max_length=MAX_NAME_LENGTH)

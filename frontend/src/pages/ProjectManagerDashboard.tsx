@@ -89,7 +89,7 @@ export default function ProjectManagerDashboard() {
         setTeam(mappedTeam)
       } catch (error) {
         console.error('Failed to load dashboard data:', error)
-        showError('Failed to load dashboard data')
+        showError(t('pmDashboard.failedToLoad'))
       } finally {
         setLoading(false)
       }
@@ -115,11 +115,11 @@ export default function ProjectManagerDashboard() {
 
   return (
     <Box sx={{ pb: 4 }}>
-      <PageHeader title="Project Manager Dashboard" breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Projects' }]} />
+      <PageHeader title={t('pmDashboard.title')} breadcrumbs={[{ label: t('nav.dashboard'), href: '/dashboard' }, { label: t('nav.projects') }]} />
 
       <Box sx={{ mt: 3, mb: 4 }}>
         <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
-          Overview
+          {t('pmDashboard.overview')}
         </Typography>
 
         {loading ? (
@@ -134,7 +134,7 @@ export default function ProjectManagerDashboard() {
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6} md={3}>
               <KPICard
-                title="Active Projects"
+                title={t('pmDashboard.activeProjects')}
                 value={activeProjects.length}
                 icon={<AssignmentIcon />}
                 color="primary"
@@ -143,7 +143,7 @@ export default function ProjectManagerDashboard() {
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
               <KPICard
-                title="Team Members"
+                title={t('pmDashboard.teamMembers')}
                 value={team.length}
                 icon={<GroupIcon />}
                 color="info"
@@ -151,17 +151,17 @@ export default function ProjectManagerDashboard() {
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
               <KPICard
-                title="Avg Progress"
+                title={t('pmDashboard.avgProgress')}
                 value={`${avgProgress}%`}
                 icon={<ChartBarIcon />}
                 color="success"
                 trend={5}
-                trendLabel="vs last month"
+                trendLabel={t('pmDashboard.vsLastMonth')}
               />
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
               <KPICard
-                title="Budget Used"
+                title={t('pmDashboard.budgetUsed')}
                 value={`${totalBudget > 0 ? Math.round((totalBudgetSpent / totalBudget) * 100) : 0}%`}
                 icon={<WarningIcon />}
                 color="warning"
@@ -174,10 +174,10 @@ export default function ProjectManagerDashboard() {
       <Box sx={{ mb: 4 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
           <Typography variant="h6" sx={{ fontWeight: 600 }}>
-            All Projects
+            {t('pmDashboard.allProjects')}
           </Typography>
           <Button variant="primary" size="small" onClick={() => navigate('/projects')}>
-            View All
+            {t('pmDashboard.viewAll')}
           </Button>
         </Box>
 
@@ -216,13 +216,13 @@ export default function ProjectManagerDashboard() {
                     <Grid container spacing={2} sx={{ mb: 2 }}>
                       <Grid item xs={12} sm={6}>
                         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-                          Progress
+                          {t('pmDashboard.progress')}
                         </Typography>
                         <ProgressBar value={project.progress} />
                       </Grid>
                       <Grid item xs={12} sm={6}>
                         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-                          Budget
+                          {t('pmDashboard.budget')}
                         </Typography>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <Typography variant="body2" sx={{ fontWeight: 500 }}>
@@ -236,13 +236,13 @@ export default function ProjectManagerDashboard() {
                       <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
                         <GroupIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
                         <Typography variant="body2" color="text.secondary">
-                          {project.team.assigned}/{project.team.total} team members
+                          {project.team.assigned}/{project.team.total} {t('pmDashboard.teamMembersLabel')}
                         </Typography>
                       </Box>
                       <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
                         <CheckCircleIcon sx={{ fontSize: 18, color: 'success.main' }} />
                         <Typography variant="body2" color="text.secondary">
-                          {project.tasksCompleted}/{project.tasksCompleted + project.tasksPending} tasks
+                          {project.tasksCompleted}/{project.tasksCompleted + project.tasksPending} {t('pmDashboard.tasks')}
                         </Typography>
                       </Box>
                     </Box>
@@ -255,15 +255,15 @@ export default function ProjectManagerDashboard() {
           <EmptyState
             variant="no-data"
             icon={<AssignmentIcon />}
-            title="No projects yet"
-            description="Start by creating a new project"
+            title={t('pmDashboard.noProjects')}
+            description={t('pmDashboard.noProjectsDescription')}
           />
         )}
       </Box>
 
       <Box>
         <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
-          Team Workload
+          {t('pmDashboard.teamWorkload')}
         </Typography>
 
         {loading ? (
@@ -296,7 +296,7 @@ export default function ProjectManagerDashboard() {
 
                     <Box sx={{ mb: 1.5 }}>
                       <Typography variant="caption" color="text.secondary">
-                        Assigned Projects: {member.assignedProjects}
+                        {t('pmDashboard.assignedProjects')}: {member.assignedProjects}
                       </Typography>
                     </Box>
 
@@ -330,8 +330,8 @@ export default function ProjectManagerDashboard() {
           <EmptyState
             variant="no-data"
             icon={<GroupIcon />}
-            title="No team members"
-            description="Add team members to view workload"
+            title={t('pmDashboard.noTeamMembers')}
+            description={t('pmDashboard.noTeamMembersDescription')}
           />
         )}
       </Box>

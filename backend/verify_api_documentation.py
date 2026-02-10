@@ -7,8 +7,9 @@ in the OpenAPI spec at http://localhost:8000/api/v1/docs
 
 import json
 import sys
-import requests
 from typing import Dict, List, Tuple
+
+import requests
 
 # ANSI color codes
 GREEN = '\033[92m'

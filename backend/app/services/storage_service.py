@@ -1,10 +1,10 @@
-import os
 import uuid
-from pathlib import Path
 from abc import ABC, abstractmethod
-from typing import Optional
-from fastapi import UploadFile, Depends
-from app.config import get_settings, Settings
+from pathlib import Path
+
+from fastapi import Depends, UploadFile
+
+from app.config import Settings, get_settings
 
 try:
     import boto3

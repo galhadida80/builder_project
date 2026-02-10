@@ -1,5 +1,6 @@
 import { Box, Typography, LinearProgress } from '@mui/material'
 import { styled } from '@mui/material'
+import { useTranslation } from 'react-i18next'
 import { getWorkloadColor } from '../utils/workloadCalculation'
 
 interface WorkloadBarProps {
@@ -23,11 +24,11 @@ const StyledLinearProgress = styled(LinearProgress, {
   },
 }))
 
-function getWorkloadLabel(percent: number): string {
-  if (percent <= 60) return 'Under-utilized'
-  if (percent <= 90) return 'Optimal'
-  if (percent <= 100) return 'High'
-  return 'Over-allocated'
+function getWorkloadLabelKey(percent: number): string {
+  if (percent <= 60) return 'workloadBar.underUtilized'
+  if (percent <= 90) return 'workloadBar.optimal'
+  if (percent <= 100) return 'workloadBar.high'
+  return 'workloadBar.overAllocated'
 }
 
 export function WorkloadBar({
@@ -39,9 +40,10 @@ export function WorkloadBar({
   assignedHours,
   availableHours,
 }: WorkloadBarProps) {
+  const { t } = useTranslation()
   const normalizedValue = Math.min(100, Math.max(0, value))
   const color = getWorkloadColor(value)
-  const workloadLabel = getWorkloadLabel(value)
+  const workloadLabel = t(getWorkloadLabelKey(value))
 
   return (
     <Box sx={{ width: '100%' }}>
@@ -88,7 +90,7 @@ export function WorkloadBar({
             fontWeight: 500,
           }}
         >
-          {workloadLabel} - {Math.round(value - 100)}% over capacity
+          {workloadLabel} - {Math.round(value - 100)}% {t('workloadBar.overCapacity')}
         </Typography>
       )}
     </Box>

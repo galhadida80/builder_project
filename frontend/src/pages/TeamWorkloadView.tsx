@@ -7,6 +7,7 @@ import Chip from '@mui/material/Chip'
 import PeopleIcon from '@mui/icons-material/People'
 import TrendingUpIcon from '@mui/icons-material/TrendingUp'
 import AssignmentIcon from '@mui/icons-material/Assignment'
+import { useTranslation } from 'react-i18next'
 import { Card, KPICard } from '../components/ui/Card'
 import { EmptyState } from '../components/ui/EmptyState'
 import { TeamCard } from '../components/TeamCard'
@@ -22,6 +23,7 @@ interface TeamGroup {
 }
 
 export default function TeamWorkloadView() {
+  const { t } = useTranslation()
   const { showError } = useToast()
   const [loading, setLoading] = useState(true)
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([])
@@ -40,7 +42,7 @@ export default function TeamWorkloadView() {
       setTeamMembers(data)
     } catch (error) {
       console.error('Failed to load team workload data:', error)
-      showError('Failed to load team workload data. Please refresh the page.')
+      showError(t('teamWorkload.failedToLoad'))
     } finally {
       setLoading(false)
     }
@@ -53,7 +55,7 @@ export default function TeamWorkloadView() {
 
   // Group team members by team
   const teamGroups = teamMembers.reduce<TeamGroup[]>((groups, member) => {
-    const teamName = member.teamName || 'Unassigned'
+    const teamName = member.teamName || t('teamWorkload.unassigned')
     const existingGroup = groups.find(g => g.teamName === teamName)
 
     if (existingGroup) {
@@ -115,10 +117,10 @@ export default function TeamWorkloadView() {
             fontSize: { xs: '1.75rem', sm: '2.125rem' },
           }}
         >
-          Team Workload
+          {t('teamWorkload.title')}
         </Typography>
         <Typography variant="body1" color="text.secondary" sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}>
-          Monitor team capacity and resource allocation
+          {t('teamWorkload.subtitle')}
         </Typography>
       </Box>
 
@@ -131,27 +133,27 @@ export default function TeamWorkloadView() {
         }}
       >
         <KPICard
-          title="Team Members"
+          title={t('teamWorkload.teamMembers')}
           value={totalMembers}
           icon={<PeopleIcon />}
           color="primary"
         />
         <KPICard
-          title="Avg. Workload"
+          title={t('teamWorkload.avgWorkload')}
           value={`${avgWorkload}%`}
           trend={avgWorkload > 90 ? -5 : avgWorkload < 60 ? 10 : 0}
-          trendLabel="vs last week"
+          trendLabel={t('teamWorkload.vsLastWeek')}
           icon={<TrendingUpIcon />}
           color={avgWorkload > 90 ? 'error' : avgWorkload < 60 ? 'success' : 'warning'}
         />
         <KPICard
-          title="Capacity Used"
+          title={t('teamWorkload.capacityUsed')}
           value={`${capacityUtilization}%`}
           icon={<AssignmentIcon />}
           color="info"
         />
         <KPICard
-          title="Over Capacity"
+          title={t('teamWorkload.overCapacity')}
           value={overloadedMembers}
           icon={<AssignmentIcon />}
           color={overloadedMembers > 0 ? 'error' : 'success'}
@@ -169,25 +171,25 @@ export default function TeamWorkloadView() {
           {teamMembers.length === 0 ? (
             <EmptyState
               icon={<PeopleIcon sx={{ fontSize: 64 }} />}
-              title="No Team Members"
-              description="No team members found for this project. Add team members to track workload."
+              title={t('teamWorkload.noMembers')}
+              description={t('teamWorkload.noMembersDescription')}
             />
           ) : (
             <>
               <Box sx={{ mb: 3 }}>
                 <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, gap: { xs: 1, sm: 0 }, mb: 2 }}>
                   <Typography variant="h6" fontWeight={600}>
-                    Team Overview
+                    {t('teamWorkload.teamOverview')}
                   </Typography>
                   <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                     <Chip
-                      label={`${underutilizedMembers} under-utilized`}
+                      label={`${underutilizedMembers} ${t('teamWorkload.underUtilized')}`}
                       size="small"
                       color="success"
                       sx={{ fontWeight: 600 }}
                     />
                     <Chip
-                      label={`${overloadedMembers} over capacity`}
+                      label={`${overloadedMembers} ${t('teamWorkload.overCapacity').toLowerCase()}`}
                       size="small"
                       color="error"
                       sx={{ fontWeight: 600 }}
@@ -199,7 +201,7 @@ export default function TeamWorkloadView() {
                   <Box sx={{ p: 2.5 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
                       <Typography variant="body2" color="text.secondary">
-                        Overall Team Capacity
+                        {t('teamWorkload.overallCapacity')}
                       </Typography>
                       <Typography variant="body2" fontWeight={600}>
                         {totalAssignedHours}h / {totalAvailableHours}h
@@ -258,7 +260,7 @@ export default function TeamWorkloadView() {
             <Card sx={{ mt: 3 }}>
               <Box sx={{ p: 2.5 }}>
                 <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
-                  Workload Distribution
+                  {t('teamWorkload.workloadDistribution')}
                 </Typography>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -271,7 +273,7 @@ export default function TeamWorkloadView() {
                       }}
                     />
                     <Typography variant="body2" sx={{ flex: 1 }}>
-                      Under-utilized (0-60%)
+                      {t('teamWorkload.underUtilizedRange')}
                     </Typography>
                     <Chip
                       label={underutilizedMembers}
@@ -289,7 +291,7 @@ export default function TeamWorkloadView() {
                       }}
                     />
                     <Typography variant="body2" sx={{ flex: 1 }}>
-                      Optimal (61-90%)
+                      {t('teamWorkload.optimalRange')}
                     </Typography>
                     <Chip
                       label={teamMembers.filter(m => m.workloadPercent > 60 && m.workloadPercent <= 90).length}
@@ -307,7 +309,7 @@ export default function TeamWorkloadView() {
                       }}
                     />
                     <Typography variant="body2" sx={{ flex: 1 }}>
-                      High/Over (91%+)
+                      {t('teamWorkload.highOverRange')}
                     </Typography>
                     <Chip
                       label={teamMembers.filter(m => m.workloadPercent > 90).length}

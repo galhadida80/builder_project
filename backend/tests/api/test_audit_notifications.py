@@ -1,15 +1,13 @@
 import uuid
 from datetime import datetime, timedelta
 
-import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.audit import AuditLog, AuditAction
+from app.models.audit import AuditAction, AuditLog
 from app.models.notification import Notification, NotificationCategory
-from app.models.user import User
 from app.models.project import Project, ProjectMember
-
+from app.models.user import User
 
 API_V1 = "/api/v1"
 FAKE_PROJECT_ID = str(uuid.uuid4())

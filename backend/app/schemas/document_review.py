@@ -1,14 +1,12 @@
 from __future__ import annotations
 
-from uuid import UUID
 from datetime import datetime
+from uuid import UUID
+
 from pydantic import BaseModel, Field, field_validator
+
+from app.core.validators import MAX_NOTES_LENGTH, CamelCaseModel, sanitize_string
 from app.schemas.user import UserResponse
-from app.core.validators import (
-    sanitize_string,
-    MAX_NOTES_LENGTH,
-    CamelCaseModel
-)
 
 
 # Document Comment Schemas

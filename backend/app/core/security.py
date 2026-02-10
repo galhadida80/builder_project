@@ -1,16 +1,18 @@
 from datetime import datetime, timedelta
 from typing import Optional
 from uuid import UUID
-from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-from jose import JWTError, jwt
+
 import bcrypt
-from app.db.session import get_db
-from app.models.user import User
-from app.models.project import ProjectMember
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from jose import JWTError, jwt
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.config import get_settings
+from app.db.session import get_db
+from app.models.project import ProjectMember
+from app.models.user import User
 
 security = HTTPBearer(auto_error=False)
 
@@ -101,7 +103,7 @@ async def get_current_user_optional(
 async def get_current_admin_user(
     current_user: User = Depends(get_current_user)
 ) -> User:
-    if current_user.role != "admin":
+    if not current_user.is_super_admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Admin access required"
@@ -114,6 +116,23 @@ async def verify_project_access(
     current_user: User,
     db: AsyncSession,
 ) -> ProjectMember:
+    if current_user.is_super_admin:
+        result = await db.execute(
+            select(ProjectMember).where(
+                ProjectMember.project_id == project_id,
+                ProjectMember.user_id == current_user.id,
+            )
+        )
+        member = result.scalar_one_or_none()
+        if member:
+            return member
+        placeholder = ProjectMember(
+            project_id=project_id,
+            user_id=current_user.id,
+            role="project_admin",
+        )
+        return placeholder
+
     result = await db.execute(
         select(ProjectMember).where(
             ProjectMember.project_id == project_id,

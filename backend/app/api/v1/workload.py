@@ -1,14 +1,16 @@
 import uuid
 from datetime import datetime
 from typing import Optional
+
 from fastapi import APIRouter, Depends, Query
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from app.db.session import get_db
-from app.models.user import User
-from app.models.project import ProjectMember
-from app.schemas.workload import TeamMemberResponse, WorkloadResponse, UserInfo
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.core.security import get_current_user, verify_project_access
+from app.db.session import get_db
+from app.models.project import ProjectMember
+from app.models.user import User
+from app.schemas.workload import TeamMemberResponse, UserInfo, WorkloadResponse
 
 router = APIRouter()
 

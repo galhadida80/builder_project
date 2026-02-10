@@ -1,5 +1,6 @@
 import { Box, Typography, SxProps, Theme } from '@mui/material'
 import { styled } from '@mui/material'
+import { useTranslation } from 'react-i18next'
 import InboxIcon from '@mui/icons-material/Inbox'
 import SearchOffIcon from '@mui/icons-material/SearchOff'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
@@ -87,7 +88,16 @@ export function EmptyState({
   secondaryAction,
   sx,
 }: EmptyStateProps) {
+  const { t } = useTranslation()
+  const translatedContent: Record<EmptyStateVariant, { title: string; description: string }> = {
+    empty: { title: t('emptyState.noDataYet'), description: t('emptyState.getStarted') },
+    'no-results': { title: t('emptyState.noResultsFound'), description: t('emptyState.adjustSearch') },
+    'no-data': { title: t('emptyState.noDataAvailable'), description: t('emptyState.noDataDescription') },
+    'not-found': { title: t('emptyState.notFound'), description: t('emptyState.notFoundDescription') },
+    error: { title: t('emptyState.somethingWentWrong'), description: t('emptyState.errorDescription') },
+  }
   const content = defaultContent[variant]
+  const translated = translatedContent[variant]
 
   return (
     <Container sx={sx}>
@@ -100,7 +110,7 @@ export function EmptyState({
           mb: 0.5,
         }}
       >
-        {title || content.title}
+        {title || translated.title}
       </Typography>
       <Typography
         variant="body2"
@@ -110,7 +120,7 @@ export function EmptyState({
           mb: action ? 3 : 0,
         }}
       >
-        {description || content.description}
+        {description || translated.description}
       </Typography>
       {(action || secondaryAction) && (
         <Box sx={{ display: 'flex', gap: 2 }}>
@@ -135,11 +145,12 @@ interface NoProjectSelectedProps {
 }
 
 export function NoProjectSelected({ onSelectProject }: NoProjectSelectedProps) {
+  const { t } = useTranslation()
   return (
     <EmptyState
-      title="No Project Selected"
-      description="Select a project from the dropdown above to view its details and manage resources."
-      action={onSelectProject ? { label: 'Select Project', onClick: onSelectProject } : undefined}
+      title={t('emptyState.noProjectSelected')}
+      description={t('emptyState.noProjectDescription')}
+      action={onSelectProject ? { label: t('emptyState.selectProject'), onClick: onSelectProject } : undefined}
     />
   )
 }
@@ -150,11 +161,12 @@ interface LoadingErrorProps {
 }
 
 export function LoadingError({ onRetry, message }: LoadingErrorProps) {
+  const { t } = useTranslation()
   return (
     <EmptyState
       variant="error"
       description={message}
-      action={onRetry ? { label: 'Try Again', onClick: onRetry } : undefined}
+      action={onRetry ? { label: t('emptyState.tryAgain'), onClick: onRetry } : undefined}
     />
   )
 }

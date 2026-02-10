@@ -1,22 +1,29 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Request
-from sqlalchemy.ext.asyncio import AsyncSession
+from datetime import datetime
+from typing import Optional
+
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.security import create_access_token, get_current_user, get_password_hash, verify_password
+from app.core.validation import sanitize_string, validate_email, validate_password
 from app.db.session import get_db
+from app.models.invitation import InvitationStatus, ProjectInvitation
+from app.models.project import ProjectMember
 from app.models.user import User
-from app.schemas.user import UserRegister, UserLogin, TokenResponse, UserResponse
-from app.core.security import (
-    get_password_hash, verify_password, create_access_token, get_current_user
-)
-from app.core.validation import validate_email, validate_password, sanitize_string
-from app.core.csrf import csrf_manager
+from app.schemas.user import TokenResponse, UserLogin, UserRegister, UserResponse
 from app.utils.localization import get_language_from_request, translate_message
 
 router = APIRouter()
 
 
 @router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
-async def register(data: UserRegister, request: Request, db: AsyncSession = Depends(get_db)):
-    # Validate and sanitize input
+async def register(
+    data: UserRegister,
+    request: Request,
+    invite_token: Optional[str] = Query(default=None),
+    db: AsyncSession = Depends(get_db),
+):
     email = validate_email(data.email)
     password = validate_password(data.password)
     full_name = sanitize_string(data.full_name)
@@ -39,6 +46,24 @@ async def register(data: UserRegister, request: Request, db: AsyncSession = Depe
         is_active=True
     )
     db.add(user)
+    await db.flush()
+
+    if invite_token:
+        inv_result = await db.execute(
+            select(ProjectInvitation).where(ProjectInvitation.token == invite_token)
+        )
+        invitation = inv_result.scalar_one_or_none()
+        if invitation and invitation.status == InvitationStatus.PENDING.value:
+            if invitation.email.lower() == email.lower() and invitation.expires_at > datetime.utcnow():
+                member = ProjectMember(
+                    project_id=invitation.project_id,
+                    user_id=user.id,
+                    role=invitation.role,
+                )
+                db.add(member)
+                invitation.status = InvitationStatus.ACCEPTED.value
+                invitation.accepted_at = datetime.utcnow()
+
     await db.commit()
     await db.refresh(user)
 

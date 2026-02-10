@@ -1,33 +1,39 @@
 import uuid
-from datetime import datetime, date
+from datetime import date, datetime
 from decimal import Decimal
 
 import pytest
-from sqlalchemy import select, inspect
+from sqlalchemy import inspect, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.user import User
-from app.models.project import Project, ProjectMember, ProjectStatus, UserRole
-from app.models.equipment import Equipment, EquipmentChecklist, ApprovalStatus
+from app.models.approval import ApprovalRequest, ApprovalStep
+from app.models.area import AreaProgress, AreaStatus, ConstructionArea
+from app.models.audit import AuditAction, AuditLog
+from app.models.chat import ChatConversation, ChatMessage
+from app.models.checklist import (
+    ChecklistInstance,
+    ChecklistItemResponse,
+    ChecklistItemTemplate,
+    ChecklistStatus,
+    ChecklistSubSection,
+    ChecklistTemplate,
+    ItemResponseStatus,
+)
+from app.models.consultant_assignment import AssignmentStatus, ConsultantAssignment
+from app.models.contact import Contact
+from app.models.document_analysis import DocumentAnalysis
+from app.models.document_review import DocumentComment, DocumentReview, ReviewStatus
+from app.models.equipment import ApprovalStatus, Equipment, EquipmentChecklist
+from app.models.file import File
+from app.models.inspection import Finding, FindingSeverity, FindingStatus, Inspection, InspectionStage, InspectionStatus
+from app.models.inspection_template import InspectionConsultantType, InspectionStageTemplate
 from app.models.material import Material
 from app.models.meeting import Meeting, MeetingAttendee, MeetingStatus
-from app.models.contact import Contact
-from app.models.area import ConstructionArea, AreaProgress, AreaStatus
-from app.models.rfi import RFI, RFIResponse as RFIResponseModel, RFIEmailLog, RFIStatus, RFIPriority, RFICategory
-from app.models.approval import ApprovalRequest, ApprovalStep
-from app.models.inspection import Inspection, Finding, InspectionStage, InspectionStatus, FindingSeverity, FindingStatus
-from app.models.inspection_template import InspectionConsultantType, InspectionStageTemplate
-from app.models.file import File
-from app.models.checklist import (
-    ChecklistTemplate, ChecklistSubSection, ChecklistItemTemplate,
-    ChecklistInstance, ChecklistItemResponse, ChecklistStatus, ItemResponseStatus,
-)
-from app.models.audit import AuditLog, AuditAction
 from app.models.notification import Notification, NotificationCategory
-from app.models.chat import ChatConversation, ChatMessage
-from app.models.document_analysis import DocumentAnalysis
-from app.models.document_review import DocumentReview, DocumentComment, ReviewStatus
-from app.models.consultant_assignment import ConsultantAssignment, AssignmentStatus
+from app.models.project import Project, ProjectMember, ProjectStatus, UserRole
+from app.models.rfi import RFI, RFICategory, RFIEmailLog, RFIPriority, RFIStatus
+from app.models.rfi import RFIResponse as RFIResponseModel
+from app.models.user import User
 
 
 # ---------------------------------------------------------------------------

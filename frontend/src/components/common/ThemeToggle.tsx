@@ -1,11 +1,13 @@
 import { IconButton, Tooltip, Menu, MenuItem, ListItemIcon, ListItemText } from '@mui/material'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import LightModeIcon from '@mui/icons-material/LightMode'
 import DarkModeIcon from '@mui/icons-material/DarkMode'
 import SettingsBrightnessIcon from '@mui/icons-material/SettingsBrightness'
 import { useThemeMode } from '../../theme'
 
 export function ThemeToggle() {
+  const { t } = useTranslation()
   const { mode, setMode, isDark } = useThemeMode()
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const open = Boolean(anchorEl)
@@ -30,7 +32,7 @@ export function ThemeToggle() {
 
   return (
     <>
-      <Tooltip title="Theme">
+      <Tooltip title={t('settings.theme')}>
         <IconButton
           onClick={handleClick}
           size="small"
@@ -60,7 +62,7 @@ export function ThemeToggle() {
           <ListItemIcon>
             <LightModeIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText>Light</ListItemText>
+          <ListItemText>{t('settings.light')}</ListItemText>
         </MenuItem>
         <MenuItem
           onClick={() => handleSelect('dark')}
@@ -69,7 +71,7 @@ export function ThemeToggle() {
           <ListItemIcon>
             <DarkModeIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText>Dark</ListItemText>
+          <ListItemText>{t('settings.dark')}</ListItemText>
         </MenuItem>
         <MenuItem
           onClick={() => handleSelect('system')}
@@ -78,7 +80,7 @@ export function ThemeToggle() {
           <ListItemIcon>
             <SettingsBrightnessIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText>System</ListItemText>
+          <ListItemText>{t('settings.system')}</ListItemText>
         </MenuItem>
       </Menu>
     </>

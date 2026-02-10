@@ -1,4 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import BottomNavigation from '@mui/material/BottomNavigation'
 import BottomNavigationAction from '@mui/material/BottomNavigationAction'
 import Paper from '@mui/material/Paper'
@@ -8,16 +9,16 @@ import FolderIcon from '@mui/icons-material/Folder'
 import PersonIcon from '@mui/icons-material/Person'
 
 interface NavTab {
-  label: string
+  labelKey: string
   path: string
   icon: React.ReactNode
 }
 
 const navTabs: NavTab[] = [
-  { label: 'Home', path: '/inspector-dashboard', icon: <HomeIcon /> },
-  { label: 'Inspections', path: '/inspections', icon: <AssignmentIcon /> },
-  { label: 'Projects', path: '/projects', icon: <FolderIcon /> },
-  { label: 'Profile', path: '/profile', icon: <PersonIcon /> },
+  { labelKey: 'mobileNav.home', path: '/inspector-dashboard', icon: <HomeIcon /> },
+  { labelKey: 'mobileNav.inspections', path: '/inspections', icon: <AssignmentIcon /> },
+  { labelKey: 'mobileNav.projects', path: '/projects', icon: <FolderIcon /> },
+  { labelKey: 'mobileNav.profile', path: '/profile', icon: <PersonIcon /> },
 ]
 
 interface MobileBottomNavProps {
@@ -25,6 +26,7 @@ interface MobileBottomNavProps {
 }
 
 export default function MobileBottomNav({ projectId }: MobileBottomNavProps) {
+  const { t } = useTranslation()
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -101,7 +103,7 @@ export default function MobileBottomNav({ projectId }: MobileBottomNavProps) {
         {navTabs.map((tab) => (
           <BottomNavigationAction
             key={tab.path}
-            label={tab.label}
+            label={t(tab.labelKey)}
             icon={tab.icon}
           />
         ))}

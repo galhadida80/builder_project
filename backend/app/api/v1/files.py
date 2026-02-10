@@ -1,20 +1,26 @@
 from __future__ import annotations
+
 import mimetypes
 from typing import Optional
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File as FastAPIFile, Request
+
+from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile
+from fastapi import File as FastAPIFile
 from fastapi.responses import Response
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
+
+from app.core.permissions import Permission, require_permission
+from app.core.security import get_current_user, verify_project_access
 from app.db.session import get_db
+from app.models.audit import AuditAction
 from app.models.file import File
+from app.models.project import ProjectMember
 from app.models.user import User
 from app.schemas.file import FileResponse
 from app.services.audit_service import create_audit_log, get_model_dict
-from app.services.storage_service import get_storage_backend, generate_storage_path, StorageBackend
-from app.models.audit import AuditAction
-from app.core.security import get_current_user, verify_project_access
+from app.services.storage_service import StorageBackend, generate_storage_path, get_storage_backend
 from app.utils.localization import get_language_from_request, translate_message
 
 router = APIRouter()
@@ -45,11 +51,11 @@ async def upload_file(
     entity_type: str,
     entity_id: UUID,
     file: UploadFile = FastAPIFile(...),
+    member: ProjectMember = require_permission(Permission.CREATE),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
     storage: StorageBackend = Depends(get_storage_backend)
 ):
-    await verify_project_access(project_id, current_user, db)
     storage_path = generate_storage_path(
         user_id=current_user.id,
         project_id=project_id,
@@ -108,12 +114,12 @@ async def get_file(
 async def delete_file(
     project_id: UUID,
     file_id: UUID,
+    member: ProjectMember = require_permission(Permission.DELETE),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
     storage: StorageBackend = Depends(get_storage_backend),
     request: Request = None
 ):
-    await verify_project_access(project_id, current_user, db)
     result = await db.execute(select(File).where(File.id == file_id, File.project_id == project_id))
     file_record = result.scalar_one_or_none()
     if not file_record:

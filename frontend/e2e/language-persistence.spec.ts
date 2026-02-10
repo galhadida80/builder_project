@@ -385,7 +385,7 @@ test.describe('Language Persistence and Browser Detection', () => {
 
     // Step 2: Refresh page - verify Hebrew persists
     await page.reload({ waitUntil: 'networkidle' })
-    let savedLanguage = await page.evaluate(() => localStorage.getItem('i18nextLng'))
+    const savedLanguage = await page.evaluate(() => localStorage.getItem('i18nextLng'))
     expect(savedLanguage).toBe('he')
     lang = await page.evaluate(() => document.documentElement.getAttribute('lang'))
     expect(lang).toBe('he')

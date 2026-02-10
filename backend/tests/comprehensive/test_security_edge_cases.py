@@ -1,19 +1,17 @@
 import uuid
-import asyncio
 from datetime import datetime
+
 import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.models.project import Project, ProjectMember
-from app.models.user import User
+
+from app.models.area import ConstructionArea
+from app.models.contact import Contact
 from app.models.equipment import Equipment
 from app.models.material import Material
-from app.models.contact import Contact
 from app.models.meeting import Meeting
-from app.models.rfi import RFI
-from app.models.area import ConstructionArea
-from app.models.file import File
-from app.models.audit import AuditLog
+from app.models.project import Project, ProjectMember
+from app.models.user import User
 
 FAKE_UUID = "00000000-0000-0000-0000-000000000099"
 

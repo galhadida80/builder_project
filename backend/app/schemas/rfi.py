@@ -1,14 +1,15 @@
-from uuid import UUID
 from datetime import datetime
-from pydantic import BaseModel, Field, EmailStr, field_validator
-from app.schemas.user import UserResponse
+from uuid import UUID
+
+from pydantic import BaseModel, EmailStr, Field, field_validator
+
 from app.core.validators import (
-    sanitize_string,
-    MIN_NAME_LENGTH,
     MAX_NAME_LENGTH,
-    MAX_DESCRIPTION_LENGTH,
     MAX_NOTES_LENGTH,
+    MIN_NAME_LENGTH,
+    sanitize_string,
 )
+from app.schemas.user import UserResponse
 
 MAX_SUBJECT_LENGTH = 500
 MAX_EMAIL_LENGTH = 255

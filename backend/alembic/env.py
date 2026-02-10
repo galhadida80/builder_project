@@ -1,11 +1,11 @@
 from logging.config import fileConfig
-from sqlalchemy import pool, create_engine
-from sqlalchemy.engine import Connection
-from alembic import context
 
+from sqlalchemy import create_engine, pool
+from sqlalchemy.engine import Connection
+
+from alembic import context
 from app.config import get_settings
 from app.db.session import Base
-from app.models import user, project, contact, equipment, material, meeting, approval, area, file, audit, checklist, equipment_template, chat
 
 config = context.config
 settings = get_settings()

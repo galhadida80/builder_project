@@ -1,11 +1,13 @@
 import uuid
 from datetime import datetime, timedelta
+
 import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.models.user import User
-from app.models.project import Project, ProjectMember
+
 from app.models.chat import ChatConversation, ChatMessage
+from app.models.project import Project, ProjectMember
+from app.models.user import User
 
 API, FAKE = "/api/v1", str(uuid.uuid4())
 L = lambda pid: f"{API}/projects/{pid}/chat/conversations"

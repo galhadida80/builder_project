@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import re
 from typing import Annotated, Optional
-from pydantic import BaseModel, Field, ConfigDict
-from pydantic.functional_validators import BeforeValidator
+
+from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
+from pydantic.functional_validators import BeforeValidator
 
 MIN_NAME_LENGTH = 2
 MAX_NAME_LENGTH = 255

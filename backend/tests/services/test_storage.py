@@ -7,18 +7,18 @@ This module tests:
 - Storage path generation utilities
 """
 
-import pytest
 import uuid
-from pathlib import Path
-from unittest.mock import Mock, MagicMock, patch
 from io import BytesIO
+from pathlib import Path
+from unittest.mock import MagicMock, patch
+
+import pytest
 from fastapi import UploadFile
 
 from app.services.storage_service import (
     LocalStorageBackend,
     S3StorageBackend,
     generate_storage_path,
-    get_storage_backend,
 )
 
 

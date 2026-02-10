@@ -1,23 +1,24 @@
 from datetime import datetime, timedelta
+
 from fastapi import APIRouter, Depends, Query
+from sqlalchemy import case, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, case
+
+from app.core.security import get_current_user
 from app.db.session import get_db
-from app.models.project import Project, ProjectStatus
+from app.models.equipment import ApprovalStatus, Equipment
 from app.models.inspection import Inspection, InspectionStatus
-from app.models.equipment import Equipment, ApprovalStatus
 from app.models.material import Material
 from app.models.meeting import Meeting
+from app.models.project import Project, ProjectMember, ProjectStatus
 from app.models.user import User
-from app.models.project import ProjectMember
 from app.schemas.analytics import (
+    DistributionItem,
+    DistributionsResponse,
     MetricsResponse,
     ProjectTrendsResponse,
     TrendDataPoint,
-    DistributionsResponse,
-    DistributionItem
 )
-from app.core.security import get_current_user
 
 router = APIRouter()
 

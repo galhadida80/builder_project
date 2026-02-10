@@ -10,10 +10,12 @@ Usage:
 """
 import asyncio
 import sys
-from sqlalchemy import select, func
+
+from sqlalchemy import func, select
+
+from app.db.seeds.equipment_templates import seed_equipment_templates
 from app.db.session import AsyncSessionLocal
 from app.models.equipment_template import EquipmentTemplate
-from app.db.seeds.equipment_templates import seed_equipment_templates
 
 
 async def get_template_count():
@@ -63,22 +65,22 @@ async def test_idempotency():
     print("=" * 60)
 
     if count_after_first == count_after_second:
-        print(f"✅ PASS: Idempotency verified!")
+        print("✅ PASS: Idempotency verified!")
         print(f"   - Count after first run: {count_after_first}")
         print(f"   - Count after second run: {count_after_second}")
-        print(f"   - No duplicates created")
+        print("   - No duplicates created")
 
         if count_after_first == 11:
-            print(f"✅ PASS: Expected 11 templates found")
+            print("✅ PASS: Expected 11 templates found")
         else:
             print(f"⚠️  WARNING: Expected 11 templates, but found {count_after_first}")
 
         return True
     else:
-        print(f"❌ FAIL: Idempotency check failed!")
+        print("❌ FAIL: Idempotency check failed!")
         print(f"   - Count after first run: {count_after_first}")
         print(f"   - Count after second run: {count_after_second}")
-        print(f"   - Duplicates were created!")
+        print("   - Duplicates were created!")
         return False
 
 

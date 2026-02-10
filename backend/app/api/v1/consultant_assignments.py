@@ -1,18 +1,22 @@
 from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
+
+from app.core.security import get_current_user, verify_project_access
 from app.db.session import get_db
+from app.models.audit import AuditAction
 from app.models.consultant_assignment import ConsultantAssignment
 from app.models.project import Project
 from app.models.user import User
 from app.schemas.consultant_assignment import (
-    ConsultantAssignmentCreate, ConsultantAssignmentUpdate, ConsultantAssignmentResponse
+    ConsultantAssignmentCreate,
+    ConsultantAssignmentResponse,
+    ConsultantAssignmentUpdate,
 )
 from app.services.audit_service import create_audit_log, get_model_dict
-from app.models.audit import AuditAction
-from app.core.security import get_current_user, verify_project_access
 
 router = APIRouter()
 

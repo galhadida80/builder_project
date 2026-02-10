@@ -2,13 +2,12 @@ import uuid
 
 import pytest
 from httpx import AsyncClient
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.user import User
+from app.core.security import create_access_token, get_password_hash, verify_password
 from app.models.project import Project, ProjectMember
-from app.core.security import get_password_hash, verify_password, create_access_token
-
+from app.models.user import User
 
 # ---------------------------------------------------------------------------
 # Auth - Registration

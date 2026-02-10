@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Skeleton from '@mui/material/Skeleton'
@@ -22,6 +23,7 @@ import { inspectionsApi } from '../api/inspections'
 import { useProject } from '../contexts/ProjectContext'
 
 export default function InspectorDashboard() {
+  const { t } = useTranslation()
   const [loading, setLoading] = useState(true)
   const [inspections, setInspections] = useState<Inspection[]>([])
   const [isOffline, setIsOffline] = useState(!navigator.onLine)
@@ -159,12 +161,12 @@ export default function InspectorDashboard() {
                 fontSize: { xs: '1.5rem', sm: '1.75rem' },
               }}
             >
-              Field Inspector
+              {t('inspector.title')}
             </Typography>
             {isOffline && (
               <Chip
                 icon={<SignalWifiOffIcon sx={{ fontSize: 14 }} />}
-                label="OFFLINE"
+                label={t('inspector.offline')}
                 size="small"
                 sx={{
                   bgcolor: 'error.main',
@@ -210,7 +212,7 @@ export default function InspectorDashboard() {
               letterSpacing: '0.5px',
             }}
           >
-            START INSPECTION
+            {t('inspector.startInspection')}
           </Button>
           <Button
             variant="primary"
@@ -227,7 +229,7 @@ export default function InspectorDashboard() {
               letterSpacing: '0.5px',
             }}
           >
-            TAKE PHOTO
+            {t('inspector.takePhoto')}
           </Button>
           <Button
             variant="danger"
@@ -243,7 +245,7 @@ export default function InspectorDashboard() {
               letterSpacing: '0.5px',
             }}
           >
-            REPORT ISSUE
+            {t('inspector.reportIssue')}
           </Button>
         </Box>
 
@@ -258,7 +260,7 @@ export default function InspectorDashboard() {
               fontSize: { xs: '1.125rem', sm: '1.25rem' },
             }}
           >
-            Today's Schedule
+            {t('inspector.todaySchedule')}
           </Typography>
 
           {inspections.length === 0 ? (
@@ -266,8 +268,8 @@ export default function InspectorDashboard() {
               <Box sx={{ p: 3, textAlign: 'center' }}>
                 <EmptyState
                   icon={<AssignmentIcon sx={{ fontSize: 48, color: 'text.secondary' }} />}
-                  title="No inspections scheduled"
-                  description="You have no inspections scheduled for today"
+                  title={t('inspector.noInspections')}
+                  description={t('inspector.noInspectionsDescription')}
                 />
               </Box>
             </Card>
@@ -312,7 +314,7 @@ export default function InspectorDashboard() {
                             whiteSpace: 'nowrap',
                           }}
                         >
-                          {inspection.consultantType?.name || 'Inspection'}
+                          {inspection.consultantType?.name || t('inspector.inspection')}
                         </Typography>
                         {inspection.consultantType?.nameHe && (
                           <Typography

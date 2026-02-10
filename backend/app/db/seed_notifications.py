@@ -4,11 +4,12 @@ Run with: python app/db/seed_notifications.py
 """
 import asyncio
 from datetime import datetime, timedelta
+
 from sqlalchemy import select
+
 from app.db.session import AsyncSessionLocal
 from app.models.notification import Notification, NotificationCategory
 from app.models.user import User
-
 
 # Sample notification data for testing
 SAMPLE_NOTIFICATIONS = [

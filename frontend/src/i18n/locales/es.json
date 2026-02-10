@@ -39,6 +39,9 @@
   "passwordMinLength": "La contraseña debe tener al menos 8 caracteres",
   "accountCreated": "¡Cuenta creada exitosamente! Por favor inicia sesión.",
   "registrationFailed": "Error en el registro. Por favor intenta de nuevo.",
+  "trustBadge": "Confiado por más de 500 equipos de construcción en todo el mundo",
+  "hidePassword": "Ocultar contraseña",
+  "showPassword": "Mostrar contraseña",
   "dashboard": {
     "title": "Panel de Control",
     "subtitle": "Resumen del Proyecto",
@@ -76,7 +79,22 @@
     "selectProjectFirst": "Por favor, selecciona un proyecto primero",
     "addEquipment": "Agregar Equipo",
     "addMaterial": "Agregar Material",
-    "scheduleMeeting": "Programar Reunión"
+    "scheduleMeeting": "Programar Reunión",
+    "unknownItem": "Elemento Desconocido",
+    "system": "Sistema",
+    "activityActions": {
+      "create": "creó",
+      "update": "actualizó",
+      "approval": "aprobó",
+      "delete": "eliminó"
+    },
+    "activityEntities": {
+      "equipment": "equipo",
+      "material": "material",
+      "meeting": "una reunión",
+      "inspection": "una inspección",
+      "rfi": "un RFI"
+    }
   },
   "equipment": {
     "title": "Equipos",
@@ -229,7 +247,41 @@
     "failedToLoadMeetings": "Error al cargar reuniones",
     "failedToCreateMeeting": "Error al crear reunión",
     "failedToUpdateMeeting": "Error al actualizar reunión",
-    "failedToDeleteMeeting": "Error al eliminar reunión"
+    "failedToDeleteMeeting": "Error al eliminar reunión",
+    "failedToLoad": "Error al cargar reuniones",
+    "updatedSuccessfully": "¡Reunión actualizada exitosamente!",
+    "scheduledSuccessfully": "¡Reunión programada exitosamente!",
+    "failedToSave": "Error al {{action}} reunión",
+    "deletedSuccessfully": "¡Reunión eliminada exitosamente!",
+    "failedToDelete": "Error al eliminar reunión",
+    "syncCalendar": "Sincronizar Calendario",
+    "totalMeetings": "Total de Reuniones",
+    "upcoming": "Próximas",
+    "completed": "Completadas",
+    "upcomingMeetings": "Reuniones Próximas",
+    "pastMeetings": "Reuniones Pasadas",
+    "meetingCount": "reuniones",
+    "noUpcoming": "No hay reuniones próximas",
+    "noPast": "No hay reuniones pasadas",
+    "scheduleFirstMeeting": "Programa tu primera reunión para comenzar",
+    "pastMeetingsWillAppear": "Las reuniones pasadas aparecerán aquí",
+    "deleteMeeting": "Eliminar Reunión",
+    "details": "Detalles de la Reunión",
+    "description": "Descripción",
+    "meetingTypeLabel": "Tipo de Reunión",
+    "selectType": "Seleccionar tipo",
+    "startTime": "Hora de Inicio",
+    "endTime": "Hora de Fin",
+    "deleteConfirmation": "Eliminar Reunión",
+    "deleteConfirmationMessage": "¿Estás seguro de que quieres eliminar \"{{title}}\"?",
+    "meeting": "Reunión",
+    "typeSiteInspection": "Inspección de Sitio",
+    "typeApprovalMeeting": "Reunión de Aprobación",
+    "typeCoordination": "Coordinación",
+    "typeSafetyReview": "Revisión de Seguridad",
+    "typeOther": "Otro",
+    "dateRequired": "La fecha es obligatoria",
+    "startTimeRequired": "La hora de inicio es obligatoria"
   },
   "common": {
     "welcome": "Bienvenido",
@@ -291,7 +343,19 @@
     "upload": "Subir",
     "active": "Activo",
     "pending": "Pendiente",
-    "completed": "Completado"
+    "completed": "Completado",
+    "unknown": "Desconocido",
+    "statuses": {
+      "active": "Activo",
+      "pending": "Pendiente",
+      "completed": "Completado",
+      "planning": "En Planificación",
+      "on_hold": "En Espera",
+      "in_progress": "En Progreso",
+      "failed": "Fallido",
+      "draft": "Borrador",
+      "cancelled": "Cancelado"
+    },
   },
   "buttons": {
     "save": "Guardar",
@@ -352,7 +416,23 @@
     "user": "Usuario",
     "action": "Acción",
     "entity": "Entidad",
-    "changes": "Cambios"
+    "changes": "Cambios",
+    "actions": {
+      "create": "Crear",
+      "update": "Actualizar",
+      "delete": "Eliminar",
+      "approval": "Aprobación",
+      "status_change": "Cambio de Estado"
+    },
+    "entities": {
+      "equipment": "Equipo",
+      "material": "Material",
+      "meeting": "Reunión",
+      "inspection": "Inspección",
+      "rfi": "RFI",
+      "project": "Proyecto",
+      "approval": "Aprobación"
+    }
   },
   "keyValueEditor": {
     "title": "Propiedades Personalizadas",
@@ -690,6 +770,16 @@
     "inspectionUpdated": "¡Inspección actualizada exitosamente!",
     "inspectionDeleted": "¡Inspección eliminada exitosamente!",
     "failedToLoad": "Error al cargar inspecciones",
+    "inspector": "Inspector",
+    "dateRange": "Rango de Fechas",
+    "noInspectionsInRange": "No se encontraron inspecciones",
+    "noInspectionsInRangeDescription": "No hay inspecciones para este proyecto en el rango de fechas seleccionado.",
+    "last7Days": "Últimos 7 días",
+    "last30Days": "Últimos 30 días",
+    "last3Months": "Últimos 3 meses",
+    "last6Months": "Últimos 6 meses",
+    "lastYear": "Último año",
+    "allTime": "Todo el tiempo",
     "failedToCreate": "Error al crear inspección",
     "failedToUpdate": "Error al actualizar inspección",
     "failedToDelete": "Error al eliminar inspección"
@@ -919,6 +1009,58 @@
     "noData": "Sin Datos de Cronograma",
     "noDataDescription": "No hay tareas programadas para este proyecto",
     "task": "Tarea",
-    "milestone": "Hito"
+    "milestone": "Hito",
+    "zoomYearMonth": "Año/Mes",
+    "zoomMonthWeek": "Mes/Semana",
+    "zoomMonthDay": "Mes/Día",
+    "zoomWeekDay": "Semana/Día"
+  },
+  "close": "Cerrar",
+  "roles": {
+    "project_admin": "Admin del Proyecto",
+    "supervisor": "Supervisor",
+    "consultant": "Consultor",
+    "contractor": "Contratista",
+    "inspector": "Inspector"
+  },
+  "invite": {
+    "title": "Invitacion al Proyecto",
+    "invalidLink": "Enlace de invitacion invalido o expirado",
+    "invitedAs": "Has sido invitado como",
+    "forEmail": "Invitacion para",
+    "acceptButton": "Aceptar Invitacion",
+    "acceptFailed": "Error al aceptar la invitacion",
+    "accepted": "Invitacion aceptada! Redirigiendo...",
+    "emailMismatch": "Has iniciado sesion con un correo diferente al de esta invitacion",
+    "dialogTitle": "Invitar Miembro del Equipo",
+    "role": "Rol",
+    "sendButton": "Enviar Invitacion",
+    "createFailed": "Error al crear la invitacion",
+    "created": "Invitacion creada exitosamente!",
+    "shareLink": "Comparte este enlace con el miembro del equipo:",
+    "copied": "Enlace copiado al portapapeles!"
+  },
+  "permissions": {
+    "roleLabel": "Rol",
+    "override": "Anulacion",
+    "save": "Guardar Permisos",
+    "create": "Crear",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "approve": "Aprobar",
+    "view_all": "Ver Todo",
+    "manage_members": "Gestionar Miembros",
+    "manage_settings": "Gestionar Configuracion",
+    "failedToLoad": "Error al cargar permisos",
+    "failedToSave": "Error al guardar permisos"
+  },
+  "admin": {
+    "usersTitle": "Gestion de Usuarios",
+    "active": "Activo",
+    "superAdmin": "Super Admin",
+    "joined": "Registro",
+    "failedToLoadUsers": "Error al cargar usuarios",
+    "failedToUpdateUser": "Error al actualizar usuario",
+    "superAdminLabel": "Super Admin"
   }
 }

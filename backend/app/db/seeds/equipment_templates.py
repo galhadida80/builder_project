@@ -3,10 +3,11 @@ Seed script to populate equipment templates from predefined data.
 Run with: python -m app.db.seeds.equipment_templates
 """
 import asyncio
-from sqlalchemy import select
-from app.db.session import AsyncSessionLocal
-from app.models.equipment_template import EquipmentTemplate, EquipmentTemplateConsultant, ConsultantType
 
+from sqlalchemy import select
+
+from app.db.session import AsyncSessionLocal
+from app.models.equipment_template import ConsultantType, EquipmentTemplate, EquipmentTemplateConsultant
 
 # Equipment template data based on רשימת ציוד לאישור.xlsx
 # All 44 equipment categories from the Excel file

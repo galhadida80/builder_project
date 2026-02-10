@@ -1,16 +1,18 @@
-import uuid
 import logging
+import uuid
 from datetime import datetime
 from typing import Optional
+
+from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, or_
 from sqlalchemy.orm import selectinload
-from app.models.rfi import RFI, RFIResponse, RFIEmailLog, RFIStatus
-from app.models.user import User
-from app.models.project import Project
-from app.services.email_service import EmailService
-from app.services.rfi_email_parser import RFIEmailParser, ParsedEmail
+
 from app.config import get_settings
+from app.models.project import Project
+from app.models.rfi import RFI, RFIEmailLog, RFIResponse, RFIStatus
+from app.models.user import User
+from app.services.email_service import EmailService
+from app.services.rfi_email_parser import ParsedEmail, RFIEmailParser
 
 logger = logging.getLogger(__name__)
 

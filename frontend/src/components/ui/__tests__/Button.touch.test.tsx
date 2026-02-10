@@ -52,7 +52,7 @@ describe('Button Haptic Feedback', () => {
     })
 
     it('should call onClick handler even if haptic feedback is not supported', () => {
-      ;(hapticFeedback as jest.Mock).mockImplementation(() => {
+      (hapticFeedback as jest.Mock).mockImplementation(() => {
         throw new Error('Haptic not supported')
       })
 

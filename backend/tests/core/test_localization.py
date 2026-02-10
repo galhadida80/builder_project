@@ -3,12 +3,11 @@ Tests for the LanguageDetectionMiddleware and localization utilities.
 """
 import pytest
 from httpx import AsyncClient
-from fastapi import Request
+
 from app.utils.localization import (
+    is_language_supported,
     parse_accept_language_header,
-    get_language_from_request,
     translate_message,
-    is_language_supported
 )
 
 

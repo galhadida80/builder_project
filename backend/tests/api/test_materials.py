@@ -3,14 +3,13 @@ from decimal import Decimal
 
 import pytest
 from httpx import AsyncClient
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.material import Material
 from app.models.approval import ApprovalRequest, ApprovalStep
+from app.models.material import Material
 from app.models.project import Project, ProjectMember
 from app.models.user import User
-
 
 VALID_MATERIAL_PAYLOAD = {
     "name": "Portland Cement Type II",

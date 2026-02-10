@@ -1,16 +1,20 @@
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Optional
 from uuid import UUID
-from datetime import datetime
+
 from pydantic import BaseModel, Field, field_validator
-from app.schemas.user import UserResponse
+
 from app.core.validators import (
+    MAX_NAME_LENGTH,
+    MAX_NOTES_LENGTH,
+    MIN_NAME_LENGTH,
+    CamelCaseModel,
     sanitize_string,
     validate_specifications,
-    MIN_NAME_LENGTH, MAX_NAME_LENGTH, MAX_NOTES_LENGTH,
-    CamelCaseModel
 )
+from app.schemas.user import UserResponse
 
 
 class ChecklistItem(BaseModel):

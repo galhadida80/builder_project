@@ -1,35 +1,37 @@
 import { useState } from 'react'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
+import { useTranslation } from 'react-i18next'
 import { GanttChart } from '../components/GanttChart'
 import type { GanttTask, GanttViewMode } from '../types/gantt'
 
 export default function GanttDemoPage() {
+  const { t } = useTranslation()
   const [viewMode, setViewMode] = useState<GanttViewMode>('Day')
   const [tasks, setTasks] = useState<GanttTask[]>(generateSampleTasks())
 
   const handleDateChange = (task: GanttTask, start: Date, end: Date) => {
     setTasks((prevTasks) =>
-      prevTasks.map((t) =>
-        t.id === task.id
-          ? { ...t, start, end }
-          : t
+      prevTasks.map((tsk) =>
+        tsk.id === task.id
+          ? { ...tsk, start, end }
+          : tsk
       )
     )
   }
 
   const handleProgressChange = (task: GanttTask, progress: number) => {
     setTasks((prevTasks) =>
-      prevTasks.map((t) =>
-        t.id === task.id
-          ? { ...t, progress }
-          : t
+      prevTasks.map((tsk) =>
+        tsk.id === task.id
+          ? { ...tsk, progress }
+          : tsk
       )
     )
   }
 
   const handleDelete = (task: GanttTask) => {
-    setTasks((prevTasks) => prevTasks.filter((t) => t.id !== task.id))
+    setTasks((prevTasks) => prevTasks.filter((tsk) => tsk.id !== task.id))
   }
 
   return (
@@ -43,10 +45,10 @@ export default function GanttDemoPage() {
             mb: 0.5,
           }}
         >
-          Project Timeline
+          {t('gantt.title')}
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          Gantt chart view of construction project tasks and milestones
+          {t('gantt.demoSubtitle')}
         </Typography>
       </Box>
 

@@ -4,12 +4,14 @@ import Typography from '@mui/material/Typography'
 import Skeleton from '@mui/material/Skeleton'
 import Grid from '@mui/material/Grid'
 import GroupIcon from '@mui/icons-material/Group'
+import { useTranslation } from 'react-i18next'
 import { EmptyState } from '../components/ui/EmptyState'
 import { TeamMemberCard, type TeamMember } from '../components/TeamMemberCard'
 import { teamMembersApi } from '../api/teamMembers'
 import { useToast } from '../components/common/ToastProvider'
 
 export default function TeamMembersPage() {
+  const { t } = useTranslation()
   const { showError } = useToast()
   const [loading, setLoading] = useState(true)
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([])
@@ -24,7 +26,7 @@ export default function TeamMembersPage() {
       const data = await teamMembersApi.list()
       setTeamMembers(data)
     } catch (error) {
-      showError('Failed to load team members. Please refresh the page.')
+      showError(t('teamMembers.failedToLoad'))
     } finally {
       setLoading(false)
     }
@@ -57,10 +59,10 @@ export default function TeamMembersPage() {
             mb: 0.5,
           }}
         >
-          Team Members
+          {t('teamMembers.title')}
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          View all team members and their roles
+          {t('teamMembers.subtitle')}
         </Typography>
       </Box>
 
@@ -74,8 +76,8 @@ export default function TeamMembersPage() {
         </Grid>
       ) : (
         <EmptyState
-          title="No team members found"
-          description="Team members will appear here once they are added."
+          title={t('teamMembers.noMembers')}
+          description={t('teamMembers.noMembersDescription')}
           icon={<GroupIcon sx={{ color: 'text.secondary' }} />}
         />
       )}

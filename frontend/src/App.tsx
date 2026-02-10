@@ -2,6 +2,7 @@ import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import Layout from './components/layout/Layout'
 import { PWAInstallPrompt } from './components/common/PWAInstallPrompt'
 import { ProjectProvider } from './contexts/ProjectContext'
+import { AuthProvider, useAuth } from './contexts/AuthContext'
 import LandingPage from './pages/LandingPage'
 import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
@@ -27,22 +28,35 @@ import GanttTimelinePage from './pages/GanttTimelinePage'
 import MobileChecklistPage from './pages/MobileChecklistPage'
 import RFIDetailPage from './pages/RFIDetailPage'
 import SettingsPage from './pages/SettingsPage'
+import InvitePage from './pages/InvitePage'
+import AdminUsersPage from './pages/AdminUsersPage'
 
 function ProtectedRoute() {
-  const token = localStorage.getItem('authToken')
-  if (!token) {
+  const { user, loading } = useAuth()
+  if (loading) return null
+  if (!user) {
     return <Navigate to="/login" replace />
   }
   return <Outlet />
 }
 
-export default function App() {
+function SuperAdminRoute() {
+  const { user, isSuperAdmin, loading } = useAuth()
+  if (loading) return null
+  if (!user || !isSuperAdmin) {
+    return <Navigate to="/dashboard" replace />
+  }
+  return <Outlet />
+}
+
+function AppRoutes() {
   return (
     <ProjectProvider>
       <PWAInstallPrompt />
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/invite" element={<InvitePage />} />
 
         <Route element={<ProtectedRoute />}>
           <Route element={<Layout />}>
@@ -70,12 +84,25 @@ export default function App() {
             <Route path="/settings" element={<SettingsPage />} />
           </Route>
 
-          {/* Document review page - fullscreen layout without nested Layout */}
+          <Route element={<SuperAdminRoute />}>
+            <Route element={<Layout />}>
+              <Route path="/admin/users" element={<AdminUsersPage />} />
+            </Route>
+          </Route>
+
           <Route path="/projects/:projectId/documents/:documentId/review" element={<DocumentReviewPage />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </ProjectProvider>
+  )
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppRoutes />
+    </AuthProvider>
   )
 }

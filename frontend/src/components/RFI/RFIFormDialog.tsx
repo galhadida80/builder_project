@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, Controller } from 'react-hook-form'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Box, Stack, Autocomplete, Chip, Typography, IconButton, List, ListItem, ListItemText, ListItemSecondaryAction, Alert } from '@mui/material'
 import { Delete as DeleteIcon, CloudUpload as CloudUploadIcon } from '@mui/icons-material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
@@ -75,6 +76,7 @@ export function RFIFormDialog({
   loading = false,
   mode = 'create',
 }: RFIFormDialogProps) {
+  const { t } = useTranslation()
   const {
     control,
     handleSubmit,
@@ -143,7 +145,7 @@ export function RFIFormDialog({
       setUploadedFiles([])
       onClose()
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to save draft. Please try again.'
+      const errorMessage = error instanceof Error ? error.message : t('rfis.failedToSaveDraft')
       setError(errorMessage)
     } finally {
       setLoadingState(false)
@@ -160,7 +162,7 @@ export function RFIFormDialog({
       setUploadedFiles([])
       onClose()
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to send RFI. Please try again.'
+      const errorMessage = error instanceof Error ? error.message : t('rfis.failedToSendRfi')
       setError(errorMessage)
     } finally {
       setLoadingState(false)
@@ -175,7 +177,7 @@ export function RFIFormDialog({
     onClose()
   }
 
-  const title = mode === 'create' ? 'Create New RFI' : 'Edit RFI'
+  const title = mode === 'create' ? t('rfis.createNewRfi') : t('rfis.editRfi')
   const isFormLoading = loading || loadingState || isSubmitting
 
   return (
@@ -187,7 +189,7 @@ export function RFIFormDialog({
       actions={
         <>
           <Button variant="tertiary" onClick={handleClose} disabled={isFormLoading}>
-            Cancel
+            {t('buttons.cancel')}
           </Button>
           {mode === 'create' ? (
             <>
@@ -197,7 +199,7 @@ export function RFIFormDialog({
                 loading={isFormLoading}
                 disabled={isFormLoading}
               >
-                Save as Draft
+                {t('buttons.saveAsDraft')}
               </Button>
               <Button
                 variant="primary"
@@ -205,7 +207,7 @@ export function RFIFormDialog({
                 loading={isFormLoading}
                 disabled={isFormLoading}
               >
-                Send Now
+                {t('buttons.sendNow')}
               </Button>
             </>
           ) : (
@@ -215,7 +217,7 @@ export function RFIFormDialog({
               loading={isFormLoading}
               disabled={isFormLoading}
             >
-              Save Changes
+              {t('common.saveChanges')}
             </Button>
           )}
         </>
@@ -237,7 +239,7 @@ export function RFIFormDialog({
             render={({ field, fieldState }) => (
               <TextField
                 {...field}
-                label="To Email"
+                label={t('rfis.toEmail')}
                 type="email"
                 required
                 fullWidth
@@ -254,7 +256,7 @@ export function RFIFormDialog({
             render={({ field, fieldState }) => (
               <TextField
                 {...field}
-                label="To Name"
+                label={t('rfis.toName')}
                 fullWidth
                 error={!!fieldState.error}
                 helperText={fieldState.error?.message}
@@ -269,7 +271,7 @@ export function RFIFormDialog({
             render={({ field, fieldState }) => (
               <TextField
                 {...field}
-                label="Subject"
+                label={t('rfis.subject')}
                 required
                 fullWidth
                 error={!!fieldState.error}
@@ -321,8 +323,8 @@ export function RFIFormDialog({
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label="CC Emails"
-                    placeholder="Add email..."
+                    label={t('rfis.ccEmails')}
+                    placeholder={t('rfis.addEmailPlaceholder')}
                     error={!!fieldState.error}
                     helperText={fieldState.error?.message}
                     disabled={isFormLoading}
@@ -339,7 +341,7 @@ export function RFIFormDialog({
             render={({ field, fieldState }) => (
               <Select
                 {...field}
-                label="Category"
+                label={t('rfis.category')}
                 options={RFI_CATEGORY_OPTIONS}
                 error={!!fieldState.error}
                 helperText={fieldState.error?.message}
@@ -354,7 +356,7 @@ export function RFIFormDialog({
             render={({ field, fieldState }) => (
               <Select
                 {...field}
-                label="Priority"
+                label={t('rfis.priority')}
                 options={RFI_PRIORITY_OPTIONS}
                 error={!!fieldState.error}
                 helperText={fieldState.error?.message}
@@ -370,7 +372,7 @@ export function RFIFormDialog({
               render={({ field, fieldState }) => (
                 <DateTimePicker
                   {...field}
-                  label="Due Date"
+                  label={t('rfis.dueDate')}
                   disabled={isFormLoading}
                   slotProps={{
                     textField: {
@@ -390,7 +392,7 @@ export function RFIFormDialog({
             render={({ field, fieldState }) => (
               <TextField
                 {...field}
-                label="Location"
+                label={t('rfis.location')}
                 fullWidth
                 error={!!fieldState.error}
                 helperText={fieldState.error?.message}
@@ -405,7 +407,7 @@ export function RFIFormDialog({
             render={({ field, fieldState }) => (
               <TextField
                 {...field}
-                label="Drawing Reference"
+                label={t('rfis.drawingReference')}
                 fullWidth
                 error={!!fieldState.error}
                 helperText={fieldState.error?.message}
@@ -420,7 +422,7 @@ export function RFIFormDialog({
             render={({ field, fieldState }) => (
               <TextField
                 {...field}
-                label="Specification Reference"
+                label={t('rfis.specificationReference')}
                 fullWidth
                 error={!!fieldState.error}
                 helperText={fieldState.error?.message}
@@ -432,7 +434,7 @@ export function RFIFormDialog({
           {/* File Upload Area */}
           <Box>
             <Typography variant="body2" sx={{ mb: 1, fontWeight: 500, color: 'text.primary' }}>
-              Attachments
+              {t('rfis.attachments')}
             </Typography>
             <Box
               {...getRootProps()}
@@ -454,10 +456,10 @@ export function RFIFormDialog({
               <input {...getInputProps()} disabled={isFormLoading} />
               <CloudUploadIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 1 }} />
               <Typography variant="body1" color="text.primary" gutterBottom>
-                {isDragActive ? 'Drop files here...' : 'Drag files here or click to upload'}
+                {isDragActive ? t('rfis.dropFilesHere') : t('rfis.dragFilesOrClick')}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Maximum file size: 10MB per file
+                {t('rfis.maxFileSize')}
               </Typography>
             </Box>
 

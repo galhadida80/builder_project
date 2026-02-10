@@ -15,8 +15,8 @@ import Header from './Header'
 import PageTransition from '../common/PageTransition'
 import ChatDrawer from '../chat/ChatDrawer'
 import { projectsApi } from '../../api/projects'
-import { authApi } from '../../api/auth'
-import type { Project, User } from '../../types'
+import { useAuth } from '../../contexts/AuthContext'
+import type { Project } from '../../types'
 
 const DRAWER_WIDTH = 260
 
@@ -24,9 +24,9 @@ export default function Layout() {
   const { projectId } = useParams()
   const navigate = useNavigate()
   const location = useLocation()
+  const { user: currentUser, logout } = useAuth()
   const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>(projectId)
   const [projects, setProjects] = useState<Project[]>([])
-  const [currentUser, setCurrentUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [chatOpen, setChatOpen] = useState(false)
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false)
@@ -38,23 +38,8 @@ export default function Layout() {
   }, [])
 
   useEffect(() => {
-    loadUserAndProjects()
+    loadProjects()
   }, [])
-
-  const loadUserAndProjects = async () => {
-    try {
-      const user = await authApi.getCurrentUser()
-      setCurrentUser(user)
-      await loadProjects()
-    } catch (error) {
-      console.error('Failed to load user:', error)
-      localStorage.removeItem('authToken')
-      localStorage.removeItem('userId')
-      navigate('/login')
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const loadProjects = async () => {
     try {
@@ -62,21 +47,25 @@ export default function Layout() {
       setProjects(data)
     } catch (error) {
       console.error('Failed to load projects:', error)
+    } finally {
+      setLoading(false)
     }
   }
 
   const currentProject = projects.find(p => p.id === selectedProjectId)
 
-  const handleProjectChange = (newProjectId: string) => {
+  const handleProjectChange = useCallback((newProjectId: string) => {
     setSelectedProjectId(newProjectId)
     navigate(`/projects/${newProjectId}`)
-  }
+  }, [navigate])
 
-  const handleLogout = () => {
-    localStorage.removeItem('authToken')
-    localStorage.removeItem('userId')
-    navigate('/login')
-  }
+  const handleLogout = useCallback(() => {
+    logout()
+  }, [logout])
+
+  const handleChatOpen = useCallback(() => setChatOpen(true), [])
+  const handleChatClose = useCallback(() => setChatOpen(false), [])
+  const handleMobileClose = useCallback(() => setMobileDrawerOpen(false), [])
 
   if (loading || !currentUser) {
     return (
@@ -100,7 +89,7 @@ export default function Layout() {
       <Sidebar
         projectId={selectedProjectId}
         mobileOpen={mobileDrawerOpen}
-        onMobileClose={() => setMobileDrawerOpen(false)}
+        onMobileClose={handleMobileClose}
         isMobile={isMobile}
       />
       <Box
@@ -137,7 +126,7 @@ export default function Layout() {
           <Fab
             color="primary"
             aria-label="Open AI assistant chat"
-            onClick={() => setChatOpen(true)}
+            onClick={handleChatOpen}
             sx={{
               position: 'fixed',
               bottom: 24,
@@ -150,7 +139,7 @@ export default function Layout() {
           </Fab>
           <ChatDrawer
             open={chatOpen}
-            onClose={() => setChatOpen(false)}
+            onClose={handleChatClose}
             projectId={selectedProjectId}
           />
         </>

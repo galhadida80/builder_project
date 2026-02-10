@@ -1,14 +1,16 @@
 import uuid
+
 import pytest
 from httpx import AsyncClient
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from app.models.equipment_template import EquipmentTemplate
-from app.models.equipment_submission import EquipmentSubmission
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.models.approval_decision import ApprovalDecision
 from app.models.audit import AuditLog
-from app.models.user import User
+from app.models.equipment_submission import EquipmentSubmission
+from app.models.equipment_template import EquipmentTemplate
 from app.models.project import Project, ProjectMember
+from app.models.user import User
 
 
 class TestEquipmentTemplates:

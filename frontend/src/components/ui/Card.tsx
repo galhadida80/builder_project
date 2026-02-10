@@ -1,5 +1,6 @@
 import { Card as MuiCard, CardContent, CardHeader, CardActions, Box, Typography, Skeleton, SxProps, Theme } from '@mui/material'
 import { styled, alpha } from '@mui/material'
+import { useTranslation } from 'react-i18next'
 import TrendingUpIcon from '@mui/icons-material/TrendingUp'
 import TrendingDownIcon from '@mui/icons-material/TrendingDown'
 import TrendingFlatIcon from '@mui/icons-material/TrendingFlat'
@@ -244,6 +245,7 @@ interface ProjectCardProps {
 }
 
 export function ProjectCard({ name, code, progress, status, imageUrl, onClick }: ProjectCardProps) {
+  const { t } = useTranslation()
   const getStatusColor = () => {
     switch (status) {
       case 'active': return 'success'
@@ -303,7 +305,7 @@ export function ProjectCard({ name, code, progress, status, imageUrl, onClick }:
               whiteSpace: 'nowrap',
             }}
           >
-            {status.replace('_', ' ')}
+            {t(`common.statuses.${status}`, { defaultValue: status.replace('_', ' ') })}
           </Box>
         </Box>
         {code && (

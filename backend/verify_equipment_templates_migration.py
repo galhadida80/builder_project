@@ -19,7 +19,8 @@ Environment variables required:
 
 import os
 import sys
-from typing import List, Tuple, Dict
+from typing import Dict, List, Tuple
+
 from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.engine import Engine
 
@@ -208,7 +209,7 @@ def main():
     # Get database connection
     try:
         database_url = get_database_url()
-        print(f"\nConnecting to database...")
+        print("\nConnecting to database...")
         engine = create_engine(database_url)
         print(f"{Colors.GREEN}✓ Connected{Colors.END}")
     except Exception as e:

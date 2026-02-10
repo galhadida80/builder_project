@@ -1,8 +1,8 @@
 #!/Users/galhadida/projects/builder_project/builder_program/.auto-claude/worktrees/tasks/084-write-rfi-system-integration-tests/backend/test_env/bin/python3
 
-import sys
-import json
 import argparse
+import json
+import sys
 from pprint import pformat
 
 import jmespath

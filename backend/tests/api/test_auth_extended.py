@@ -1,10 +1,12 @@
 import uuid
-import pytest
 from datetime import datetime, timedelta
-from jose import jwt
+
+import pytest
 from httpx import AsyncClient
+from jose import jwt
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.core.security import create_access_token, SECRET_KEY, ALGORITHM
+
+from app.core.security import ALGORITHM, SECRET_KEY, create_access_token
 
 API = "/api/v1/auth"
 
@@ -263,6 +265,7 @@ class TestTokenValidationExtended:
         reg = await client.post(f"{API}/register", json=_reg())
         token = reg.json()["accessToken"]
         from sqlalchemy import update
+
         from app.models.user import User
         await db.execute(update(User).where(User.email == "ext@test.com").values(is_active=False))
         await db.commit()

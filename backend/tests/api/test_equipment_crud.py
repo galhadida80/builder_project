@@ -1,16 +1,10 @@
 import uuid
-from datetime import datetime
 
 import pytest
-from httpx import AsyncClient
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
-from app.models.equipment import Equipment, EquipmentChecklist, ApprovalStatus
-from app.models.equipment_template import EquipmentTemplate
-from app.models.equipment_submission import EquipmentSubmission
 from app.models.approval import ApprovalRequest, ApprovalStep
-from app.models.user import User
+from app.models.equipment import ApprovalStatus, Equipment
 from app.models.project import Project, ProjectMember
 
 API = "/api/v1"

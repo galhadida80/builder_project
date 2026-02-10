@@ -1,10 +1,9 @@
 import uuid
 from datetime import datetime, timedelta
+
 import pytest
-from httpx import AsyncClient
-from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.models.notification import Notification
-from app.models.user import User
 
 API = "/api/v1/notifications"
 FAKE_ID = str(uuid.uuid4())
@@ -204,7 +203,7 @@ class TestMarkAllRead:
     async def test_does_not_affect_other_user(self, admin_client, db, admin_user, regular_user):
         await mkn_many(db, admin_user, 2); await mkn_many(db, regular_user, 3)
         await admin_client.put(f"{API}/mark-all-read")
-        from sqlalchemy import select, func
+        from sqlalchemy import func, select
         r = await db.execute(select(func.count(Notification.id)).where(
             Notification.user_id == regular_user.id, Notification.is_read == False))
         assert r.scalar() == 3

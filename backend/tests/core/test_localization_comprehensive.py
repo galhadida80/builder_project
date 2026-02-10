@@ -1,15 +1,13 @@
 from unittest.mock import MagicMock
 
-import pytest
-
 from app.utils.localization import (
-    parse_accept_language_header,
-    get_language_from_request,
-    translate_message,
-    is_language_supported,
     DEFAULT_LANGUAGE,
-    SUPPORTED_LANGUAGES,
     DEFAULT_MESSAGES,
+    SUPPORTED_LANGUAGES,
+    get_language_from_request,
+    is_language_supported,
+    parse_accept_language_header,
+    translate_message,
 )
 
 

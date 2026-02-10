@@ -5,7 +5,6 @@ This script analyzes the EQUIPMENT_TEMPLATES data structure in the seed script.
 Run with: python3 verify_seed_data_structure.py
 """
 import sys
-import json
 
 # Import the seed data
 sys.path.insert(0, '.')
@@ -110,7 +109,7 @@ def verify_seed_data():
                     errors.append(f"Template {i} ({name}): '{field}' contains non-string items: {non_strings}")
                     all_checks_passed = False
 
-    print(f"  ✓ PASS: All templates have valid JSONB fields")
+    print("  ✓ PASS: All templates have valid JSONB fields")
 
     # Check 5: Verify Hebrew text in JSONB arrays
     print("\n[CHECK 5] Verifying Hebrew text in JSONB arrays...")
@@ -193,8 +192,8 @@ def verify_seed_data():
         print(f"   - {len(EQUIPMENT_TEMPLATES)} templates defined")
         print(f"   - {total_consultants} consultant mappings")
         print(f"   - {len(all_consultant_roles)} unique consultant roles")
-        print(f"   - All JSONB fields properly structured")
-        print(f"   - Hebrew text encoding verified in seed data")
+        print("   - All JSONB fields properly structured")
+        print("   - Hebrew text encoding verified in seed data")
     else:
         print("\n❌ VERIFICATION FAILED")
 
@@ -208,7 +207,7 @@ if __name__ == "__main__":
         success = verify_seed_data()
         sys.exit(0 if success else 1)
     except Exception as e:
-        print(f"\n❌ ERROR: Verification failed with exception:")
+        print("\n❌ ERROR: Verification failed with exception:")
         print(f"  {type(e).__name__}: {e}")
         import traceback
         traceback.print_exc()

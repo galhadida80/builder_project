@@ -9,6 +9,7 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import PersonIcon from '@mui/icons-material/Person'
 import { styled, alpha } from '@mui/material'
+import { useTranslation } from 'react-i18next'
 import dayjs, { Dayjs } from 'dayjs'
 import isBetween from 'dayjs/plugin/isBetween'
 import type { ConsultantAssignment } from '../../types/consultantAssignment'
@@ -121,6 +122,7 @@ export function AssignmentCalendar({
   loading = false,
   onAssignmentClick,
 }: AssignmentCalendarProps) {
+  const { t } = useTranslation()
   const [startDate, setStartDate] = useState<Dayjs>(dayjs().startOf('week'))
 
   const endDate = useMemo(() => startDate.add(DAYS_TO_SHOW - 1, 'day'), [startDate])
@@ -202,7 +204,7 @@ export function AssignmentCalendar({
       <CalendarContainer elevation={0}>
         <TimelineHeader>
           <Typography variant="h6" fontWeight={600}>
-            Loading calendar...
+            {t('consultantAssignments.loadingCalendar')}
           </Typography>
         </TimelineHeader>
       </CalendarContainer>
@@ -213,7 +215,7 @@ export function AssignmentCalendar({
     return (
       <CalendarContainer elevation={0}>
         <Box sx={{ py: 8, textAlign: 'center' }}>
-          <Typography color="text.secondary">No consultant assignments found</Typography>
+          <Typography color="text.secondary">{t('consultantAssignments.noAssignmentsFound')}</Typography>
         </Box>
       </CalendarContainer>
     )
@@ -224,10 +226,10 @@ export function AssignmentCalendar({
       <TimelineHeader>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <Typography variant="h6" fontWeight={600}>
-            Assignment Timeline
+            {t('consultantAssignments.assignmentTimeline')}
           </Typography>
           <Chip
-            label="Today"
+            label={t('consultantAssignments.today')}
             size="small"
             onClick={handleToday}
             sx={{ cursor: 'pointer' }}
@@ -237,10 +239,10 @@ export function AssignmentCalendar({
           <Typography variant="body2" color="text.secondary" sx={{ mr: 2 }}>
             {startDate.format('MMM D, YYYY')} - {endDate.format('MMM D, YYYY')}
           </Typography>
-          <IconButton size="small" onClick={handlePrevWeek} title="Previous week">
+          <IconButton size="small" onClick={handlePrevWeek} title={t('consultantAssignments.previousWeek')}>
             <ChevronLeftIcon />
           </IconButton>
-          <IconButton size="small" onClick={handleNextWeek} title="Next week">
+          <IconButton size="small" onClick={handleNextWeek} title={t('consultantAssignments.nextWeek')}>
             <ChevronRightIcon />
           </IconButton>
         </Box>
@@ -250,7 +252,7 @@ export function AssignmentCalendar({
         <DayHeader>
           <ConsultantLabel>
             <Typography variant="caption" fontWeight={600} textTransform="uppercase">
-              Consultant
+              {t('consultantAssignments.consultantHeader')}
             </Typography>
           </ConsultantLabel>
           <Box sx={{ flex: 1, display: 'flex' }}>
@@ -338,7 +340,7 @@ export function AssignmentCalendar({
                         {dayjs(assignment.endDate).format('MMM D, YYYY')}
                       </Typography>
                       <Typography variant="caption" display="block">
-                        Status: {assignment.status}
+                        {t('consultantAssignments.statusLabel')} {assignment.status}
                       </Typography>
                     </Box>
                   }

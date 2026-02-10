@@ -9,6 +9,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import dayjs, { Dayjs } from 'dayjs'
+import { useTranslation } from 'react-i18next'
 import { Button } from './ui/Button'
 import { Card } from './ui/Card'
 
@@ -29,6 +30,7 @@ export function WorkloadCalendar({
   minDate,
   maxDate
 }: WorkloadCalendarProps) {
+  const { t } = useTranslation()
   const [selectedPreset, setSelectedPreset] = useState<DateRangePreset>('this-week')
   const [customMode, setCustomMode] = useState(false)
 
@@ -106,7 +108,7 @@ export function WorkloadCalendar({
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
             <CalendarTodayIcon sx={{ color: 'primary.main' }} />
             <Typography variant="h6" fontWeight={600}>
-              Workload Timeline
+              {t('workloadCalendar.title')}
             </Typography>
           </Box>
 
@@ -116,28 +118,28 @@ export function WorkloadCalendar({
               size="small"
               onClick={() => handlePresetChange('this-week')}
             >
-              This Week
+              {t('workloadCalendar.thisWeek')}
             </Button>
             <Button
               variant={selectedPreset === 'this-month' ? 'primary' : 'secondary'}
               size="small"
               onClick={() => handlePresetChange('this-month')}
             >
-              This Month
+              {t('workloadCalendar.thisMonth')}
             </Button>
             <Button
               variant={selectedPreset === 'custom' ? 'primary' : 'secondary'}
               size="small"
               onClick={() => handlePresetChange('custom')}
             >
-              Custom Range
+              {t('workloadCalendar.customRange')}
             </Button>
           </Box>
 
           {customMode ? (
             <Box sx={{ display: 'flex', gap: 2, mb: 3, flexDirection: { xs: 'column', sm: 'row' } }}>
               <DatePicker
-                label="Start Date"
+                label={t('workloadCalendar.startDate')}
                 value={startDate}
                 onChange={(newValue) => {
                   if (newValue) {
@@ -154,7 +156,7 @@ export function WorkloadCalendar({
                 }}
               />
               <DatePicker
-                label="End Date"
+                label={t('workloadCalendar.endDate')}
                 value={endDate}
                 onChange={(newValue) => {
                   if (newValue) {
@@ -225,7 +227,7 @@ export function WorkloadCalendar({
           >
             <CalendarTodayIcon sx={{ fontSize: 16, color: 'primary.main' }} />
             <Typography variant="caption" color="text.secondary">
-              {endDate.diff(startDate, 'day') + 1} days selected
+              {t('workloadCalendar.daysSelected', { count: endDate.diff(startDate, 'day') + 1 })}
             </Typography>
           </Box>
         </Box>

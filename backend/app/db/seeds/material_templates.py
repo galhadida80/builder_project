@@ -3,11 +3,12 @@ Seed script to populate material templates from predefined data.
 Run with: python -m app.db.seeds.material_templates
 """
 import asyncio
-from sqlalchemy import select
-from app.db.session import AsyncSessionLocal
-from app.models.material_template import MaterialTemplate, MaterialTemplateConsultant
-from app.models.equipment_template import ConsultantType
 
+from sqlalchemy import select
+
+from app.db.session import AsyncSessionLocal
+from app.models.equipment_template import ConsultantType
+from app.models.material_template import MaterialTemplate, MaterialTemplateConsultant
 
 # Material template data - construction materials requiring approval
 MATERIAL_TEMPLATES = [

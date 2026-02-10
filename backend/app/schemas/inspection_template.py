@@ -1,10 +1,9 @@
+from datetime import date, datetime
 from uuid import UUID
-from datetime import datetime, date
+
 from pydantic import BaseModel, Field, field_validator
-from app.core.validators import (
-    sanitize_string,
-    MIN_NAME_LENGTH, MAX_NAME_LENGTH, MAX_DESCRIPTION_LENGTH
-)
+
+from app.core.validators import MAX_DESCRIPTION_LENGTH, MAX_NAME_LENGTH, MIN_NAME_LENGTH, sanitize_string
 
 
 class InspectionConsultantTypeResponse(BaseModel):

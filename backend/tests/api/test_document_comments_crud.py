@@ -1,11 +1,8 @@
 import uuid
-import pytest
-from httpx import AsyncClient
-from sqlalchemy.ext.asyncio import AsyncSession
-from app.models.document_review import DocumentReview, DocumentComment, ReviewStatus
+
+from app.models.document_review import DocumentComment, DocumentReview, ReviewStatus
 from app.models.file import File
-from app.models.user import User
-from app.models.project import Project, ProjectMember
+from app.models.project import ProjectMember
 
 API = "/api/v1"
 FAKE_PID, FAKE_DID, FAKE_CID = str(uuid.uuid4()), str(uuid.uuid4()), str(uuid.uuid4())

@@ -1,5 +1,5 @@
-import re
 import base64
+import re
 from dataclasses import dataclass
 from email.utils import parseaddr
 from typing import Optional
