@@ -31,11 +31,13 @@ function muiEsmRedirect(): Plugin {
   }
 }
 
+const isCI = process.env.CI === 'true'
+
 export default defineConfig({
   plugins: [
     muiEsmRedirect(),
     react(),
-    VitePWA({
+    ...(!isCI ? [VitePWA({
       registerType: 'prompt',
       includeAssets: ['favicon.ico', 'robots.txt'],
       manifest: false,
@@ -91,7 +93,7 @@ export default defineConfig({
       devOptions: {
         enabled: false
       }
-    })
+    })] : []),
   ],
   resolve: {
     alias: {
