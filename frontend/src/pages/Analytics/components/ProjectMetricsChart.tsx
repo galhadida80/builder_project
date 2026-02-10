@@ -78,12 +78,6 @@ export default function ProjectMetricsChart({
           ]}
           height={height}
           margin={{ top: 10, right: 20, bottom: 30, left: 50 }}
-          slotProps={{
-            legend: {
-              direction: 'horizontal' as const,
-              position: { vertical: 'top' as const, horizontal: 'center' as const },
-            },
-          }}
           sx={{
             width: '100%',
             '& .MuiChartsAxis-tickLabel': {

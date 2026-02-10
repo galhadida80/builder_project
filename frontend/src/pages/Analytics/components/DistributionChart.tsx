@@ -104,14 +104,7 @@ export default function DistributionChart({
             },
           ]}
           height={height}
-          hideLegend={!showLegend}
           margin={{ top: 10, right: 20, bottom: 30, left: 20 }}
-          slotProps={{
-            legend: {
-              direction: 'vertical' as const,
-              position: { vertical: 'middle' as const, horizontal: 'end' as const },
-            },
-          }}
           sx={{
             width: '100%',
             '& .MuiChartsLegend-series text': {

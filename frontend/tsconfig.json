@@ -25,34 +25,13 @@
     "paths": {
       "@/*": [
         "src/*"
-      ],
-      "@/app/*": [
-        "app/*"
-      ],
-      "@/lib/*": [
-        "lib/*"
-      ],
-      "@/components/*": [
-        "components/*"
       ]
     },
-    "types": [],
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
     "allowJs": true,
     "esModuleInterop": true
   },
   "include": [
-    "src",
-    "app",
-    "lib",
-    "components",
-    "middleware.ts",
-    "next-env.d.ts",
-    ".next/types/**/*.ts"
+    "src"
   ],
   "exclude": [
     "src/**/*.test.ts",
