@@ -36,7 +36,7 @@ export function ThemeToggle() {
         <IconButton
           onClick={handleClick}
           size="small"
-          aria-label="Change theme"
+          aria-label={t('common.changeTheme')}
           sx={{
             color: 'text.secondary',
             '&:hover': { color: 'text.primary' },

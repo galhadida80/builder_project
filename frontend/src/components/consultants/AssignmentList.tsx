@@ -2,6 +2,7 @@ import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
 import Chip from '@mui/material/Chip'
+import { useTranslation } from 'react-i18next'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import PersonIcon from '@mui/icons-material/Person'
@@ -46,6 +47,7 @@ export function AssignmentList({
   onDelete,
   onRowClick,
 }: AssignmentListProps) {
+  const { t } = useTranslation()
   const columns: Column<ConsultantAssignment>[] = [
     {
       id: 'consultant',
@@ -136,7 +138,7 @@ export function AssignmentList({
                 e.stopPropagation()
                 onEdit(row)
               }}
-              title="Edit assignment"
+              title={t('consultants.editAssignment')}
             >
               <EditIcon fontSize="small" />
             </IconButton>
@@ -148,7 +150,7 @@ export function AssignmentList({
                 e.stopPropagation()
                 onDelete(row)
               }}
-              title="Delete assignment"
+              title={t('consultants.deleteAssignment')}
               color="error"
             >
               <DeleteIcon fontSize="small" />

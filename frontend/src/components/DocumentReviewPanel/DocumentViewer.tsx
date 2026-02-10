@@ -1,5 +1,6 @@
 import { Box, Paper, IconButton, Toolbar, Typography, Skeleton } from '@mui/material'
 import { styled } from '@mui/material'
+import { useTranslation } from 'react-i18next'
 import ZoomInIcon from '@mui/icons-material/ZoomIn'
 import ZoomOutIcon from '@mui/icons-material/ZoomOut'
 import DownloadIcon from '@mui/icons-material/Download'
@@ -77,6 +78,7 @@ export function DocumentViewer({
   onDownload,
   onPrint,
 }: DocumentViewerProps) {
+  const { t } = useTranslation()
   const [zoom, setZoom] = useState(1)
   const [rotation, setRotation] = useState(0)
   const [fitToScreen, setFitToScreen] = useState(true)
@@ -189,7 +191,7 @@ export function DocumentViewer({
           size="small"
           onClick={handleFitToScreen}
           disabled={isPdf}
-          title="Fit to Screen"
+          title={t('documentReview.fitToScreen')}
           sx={{ bgcolor: 'action.hover' }}
         >
           <FitScreenIcon fontSize="small" />

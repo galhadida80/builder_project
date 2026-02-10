@@ -76,9 +76,10 @@ export default function ProjectManagerDashboard() {
           tasksPending: 0,
         }))
 
+        const unknownLabel = t('common.unknown')
         const mappedTeam: TeamMember[] = teamData.map((t: TeamMemberType) => ({
           id: t.id,
-          name: t.user?.fullName || t.user?.email || 'Unknown',
+          name: t.user?.fullName || t.user?.email || unknownLabel,
           email: t.user?.email || '',
           role: t.role || 'Team Member',
           assignedProjects: 1,

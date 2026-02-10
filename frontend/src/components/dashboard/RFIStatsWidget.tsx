@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Skeleton from '@mui/material/Skeleton'
@@ -17,6 +18,7 @@ interface RFIStatsWidgetProps {
 }
 
 export default function RFIStatsWidget({ projectId }: RFIStatsWidgetProps) {
+  const { t } = useTranslation()
   const [stats, setStats] = useState<RFISummary | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -32,7 +34,7 @@ export default function RFIStatsWidget({ projectId }: RFIStatsWidgetProps) {
       const data = await rfiApi.getSummary(projectId)
       setStats(data)
     } catch (err) {
-      const errorMessage = 'Failed to load RFI statistics'
+      const errorMessage = t('rfis.failedToLoadStats')
       setError(errorMessage)
       showError(errorMessage)
     } finally {
@@ -108,7 +110,7 @@ export default function RFIStatsWidget({ projectId }: RFIStatsWidgetProps) {
             RFI Statistics
           </Typography>
           <Typography variant="body2" color="error" sx={{ mb: 2 }}>
-            {error || 'Failed to load RFI statistics'}
+            {error || t('rfis.failedToLoadStats')}
           </Typography>
           <Typography
             variant="body2"

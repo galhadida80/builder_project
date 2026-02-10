@@ -52,7 +52,7 @@ export function ApprovalQueueList({ onViewDetails }: ApprovalQueueListProps) {
       const transformedData: ApprovalRow[] = data.map((approval) => ({
         ...approval,
         entityName: `${approval.entityType.charAt(0).toUpperCase() + approval.entityType.slice(1)} ${approval.entityId}`,
-        requesterName: approval.createdBy?.fullName || approval.createdBy?.email || 'Unknown',
+        requesterName: approval.createdBy?.fullName || approval.createdBy?.email || t('common.unknown'),
         projectName: approval.projectId?.substring(0, 8) || 'N/A',
       }))
 

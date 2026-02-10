@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Box, Typography, IconButton, CircularProgress, Paper } from '@mui/material'
 import { styled } from '@mui/material'
+import { useTranslation } from 'react-i18next'
 import DownloadIcon from '@mui/icons-material/Download'
 import CloseIcon from '@mui/icons-material/Close'
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf'
@@ -78,6 +79,7 @@ const isPreviewable = (fileType: string): boolean => {
 }
 
 export function FilePreview({ file, projectId, onClose, onDownload }: FilePreviewProps) {
+  const { t } = useTranslation()
   const [previewUrl, setPreviewUrl] = useState<string>('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
@@ -159,8 +161,8 @@ export function FilePreview({ file, projectId, onClose, onDownload }: FilePrevie
       <PreviewContainer elevation={0}>
         <EmptyState
           variant="no-data"
-          title="No file selected"
-          description="Select a file from the list to preview it here."
+          title={t('documents.noFileSelected')}
+          description={t('documents.selectFileToPreview')}
           icon={<InsertDriveFileIcon />}
         />
       </PreviewContainer>
@@ -190,11 +192,11 @@ export function FilePreview({ file, projectId, onClose, onDownload }: FilePrevie
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', gap: 1 }}>
-          <IconButton size="small" onClick={handleDownload} title="Download file">
+          <IconButton size="small" onClick={handleDownload} title={t('documents.downloadFile')}>
             <DownloadIcon fontSize="small" />
           </IconButton>
           {onClose && (
-            <IconButton size="small" onClick={onClose} title="Close preview">
+            <IconButton size="small" onClick={onClose} title={t('documents.closePreview')}>
               <CloseIcon fontSize="small" />
             </IconButton>
           )}
@@ -214,8 +216,8 @@ export function FilePreview({ file, projectId, onClose, onDownload }: FilePrevie
         {error && (
           <EmptyState
             variant="error"
-            title="Failed to load preview"
-            description="Unable to load the file preview. Please try downloading the file."
+            title={t('documents.failedToLoadPreview')}
+            description={t('documents.unableToLoadPreview')}
             action={{
               label: 'Download File',
               onClick: handleDownload,
@@ -239,8 +241,8 @@ export function FilePreview({ file, projectId, onClose, onDownload }: FilePrevie
 
         {!loading && !error && !isPreviewable(file.fileType) && (
           <EmptyState
-            title="Preview not available"
-            description="This file type cannot be previewed in the browser. Download the file to view it."
+            title={t('documents.previewNotAvailable')}
+            description={t('documents.cannotPreviewFileType')}
             icon={getFileIcon(file.fileType)}
             action={{
               label: 'Download File',

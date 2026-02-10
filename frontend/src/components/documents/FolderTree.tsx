@@ -11,6 +11,7 @@ import {
   Typography,
   TextField,
 } from '@mui/material'
+import { useTranslation } from 'react-i18next'
 import { styled, alpha } from '@mui/material'
 import FolderIcon from '@mui/icons-material/Folder'
 import FolderOpenIcon from '@mui/icons-material/FolderOpen'
@@ -73,6 +74,7 @@ export function FolderTree({
   onRenameFolder,
   onDeleteFolder,
 }: FolderTreeProps) {
+  const { t } = useTranslation()
   const [expanded, setExpanded] = useState<Set<string>>(new Set(['root']))
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [renameModalOpen, setRenameModalOpen] = useState(false)
@@ -300,7 +302,7 @@ export function FolderTree({
               handleCreateFolder()
             }
           }}
-          placeholder="Enter folder name"
+          placeholder={t('documents.enterFolderName')}
         />
       </FormModal>
 
@@ -329,7 +331,7 @@ export function FolderTree({
               handleRenameFolder()
             }
           }}
-          placeholder="Enter new folder name"
+          placeholder={t('documents.enterNewFolderName')}
         />
       </FormModal>
 

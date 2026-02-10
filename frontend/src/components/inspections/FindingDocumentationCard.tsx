@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Box, Typography, IconButton, Grid, Button as MuiButton, Skeleton } from '@mui/material'
 import { styled } from '@mui/material'
 import LocationOnIcon from '@mui/icons-material/LocationOn'
@@ -74,6 +75,7 @@ export function FindingDocumentationCard({
   onPhotoClick,
   loading = false,
 }: FindingDocumentationCardProps) {
+  const { t } = useTranslation()
   const [editingLocation, setEditingLocation] = useState(false)
   const [locationValue, setLocationValue] = useState(finding.location || '')
 
@@ -281,7 +283,7 @@ export function FindingDocumentationCard({
               Inspector
             </Typography>
             <Typography variant="body2" sx={{ fontWeight: 500 }}>
-              {finding.createdBy?.fullName || finding.createdBy?.email || 'Unknown'}
+              {finding.createdBy?.fullName || finding.createdBy?.email || t('common.unknown')}
             </Typography>
           </Box>
           <Box sx={{ textAlign: 'right' }}>

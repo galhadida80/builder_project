@@ -75,7 +75,7 @@ export default function Header({ user, currentProject, projects, onProjectChange
       <Toolbar sx={{ justifyContent: 'space-between' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           {isMobile && (
-            <IconButton aria-label="Open navigation menu" onClick={onMenuToggle} edge="start">
+            <IconButton aria-label={t('common.openNavMenu')} onClick={onMenuToggle} edge="start">
               <MenuIcon />
             </IconButton>
           )}
@@ -90,11 +90,11 @@ export default function Header({ user, currentProject, projects, onProjectChange
           <ThemeToggle />
           <LanguageSwitcher />
 
-          <IconButton aria-label="Notifications" onClick={handleNotificationOpen}>
+          <IconButton aria-label={t('common.notifications')} onClick={handleNotificationOpen}>
             <NotificationsIcon />
           </IconButton>
 
-          <IconButton aria-label="User menu" onClick={handleMenuOpen} sx={{ ml: 1 }}>
+          <IconButton aria-label={t('common.userMenu')} onClick={handleMenuOpen} sx={{ ml: 1 }}>
             <Avatar sx={{ width: 36, height: 36, bgcolor: 'primary.main' }}>
               {getInitials(user.fullName || user.email)}
             </Avatar>

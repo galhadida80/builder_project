@@ -1,4 +1,5 @@
 import { Box, Typography, IconButton } from '@mui/material'
+import { useTranslation } from 'react-i18next'
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf'
 import ImageIcon from '@mui/icons-material/Image'
 import DescriptionIcon from '@mui/icons-material/Description'
@@ -67,6 +68,7 @@ export function FileList({
   onDelete,
   emptyMessage = 'No files in this folder',
 }: FileListProps) {
+  const { t } = useTranslation()
   const columns: Column<FileRecord>[] = [
     {
       id: 'filename',
@@ -104,7 +106,7 @@ export function FileList({
       minWidth: 140,
       render: (row) => (
         <Typography variant="body2" color="text.secondary">
-          {row.fileType.split('/')[1]?.toUpperCase() || 'Unknown'}
+          {row.fileType.split('/')[1]?.toUpperCase() || t('common.unknown')}
         </Typography>
       ),
     },
@@ -145,7 +147,7 @@ export function FileList({
                 e.stopPropagation()
                 onFileClick(row)
               }}
-              title="Preview file"
+              title={t('documents.previewFile')}
             >
               <VisibilityIcon fontSize="small" />
             </IconButton>
@@ -157,7 +159,7 @@ export function FileList({
                 e.stopPropagation()
                 onDownload(row)
               }}
-              title="Download file"
+              title={t('documents.downloadFile')}
             >
               <DownloadIcon fontSize="small" />
             </IconButton>
@@ -169,7 +171,7 @@ export function FileList({
                 e.stopPropagation()
                 onDelete(row)
               }}
-              title="Delete file"
+              title={t('documents.deleteFile')}
               color="error"
             >
               <DeleteIcon fontSize="small" />

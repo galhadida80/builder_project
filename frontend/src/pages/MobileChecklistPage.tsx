@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import LinearProgress from '@mui/material/LinearProgress'
@@ -72,6 +73,7 @@ const ProgressContainer = styled(Box)(({ theme }) => ({
 export default function MobileChecklistPage() {
   const { projectId, inspectionId } = useParams()
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const [checklistInstanceId, setChecklistInstanceId] = useState<string | undefined>(undefined)
   const { instance, loading, error, createResponse, updateResponse, uploadFile, refetch } =
     useChecklistInstance(checklistInstanceId)
@@ -105,7 +107,7 @@ export default function MobileChecklistPage() {
         console.error('Failed to load checklist instance:', err)
         setSnackbar({
           open: true,
-          message: 'Failed to load checklist',
+          message: t('checklist.failedToLoad'),
           severity: 'error',
         })
       }
@@ -215,7 +217,7 @@ export default function MobileChecklistPage() {
       console.error('Failed to save response:', err)
       setSnackbar({
         open: true,
-        message: 'Failed to save response',
+        message: t('checklist.failedToSave'),
         severity: 'error',
       })
     } finally {
@@ -298,7 +300,7 @@ export default function MobileChecklistPage() {
       console.error('Failed to submit checklist:', err)
       setSnackbar({
         open: true,
-        message: 'Failed to submit checklist',
+        message: t('checklist.failedToSubmit'),
         severity: 'error',
       })
     } finally {
@@ -525,7 +527,7 @@ export default function MobileChecklistPage() {
               rows={3}
               value={itemNotes}
               onChange={(e) => setItemNotes(e.target.value)}
-              placeholder="Add any notes or observations..."
+              placeholder={t('checklist.notesPlaceholder')}
             />
           </Box>
 

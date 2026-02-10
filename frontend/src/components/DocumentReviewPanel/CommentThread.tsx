@@ -1,5 +1,6 @@
 import { Box, Typography, IconButton, Menu, MenuItem, Divider } from '@mui/material'
 import { styled } from '@mui/material'
+import { useTranslation } from 'react-i18next'
 import { Avatar } from '../ui/Avatar'
 import { Button } from '../ui/Button'
 import { TextField } from '../ui/TextField'
@@ -148,6 +149,7 @@ export function CommentThread({
   onDelete,
   onResolve,
 }: CommentThreadProps) {
+  const { t } = useTranslation()
   const [isReplying, setIsReplying] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [replyText, setReplyText] = useState('')
@@ -370,7 +372,7 @@ export function CommentThread({
               fullWidth
               multiline
               rows={2}
-              placeholder="Write a reply..."
+              placeholder={t('documentReview.writeReplyPlaceholder')}
               value={replyText}
               onChange={(e) => setReplyText(e.target.value)}
               disabled={isSubmitting}

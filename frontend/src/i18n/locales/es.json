@@ -356,6 +356,24 @@
       "draft": "Borrador",
       "cancelled": "Cancelado"
     },
+    "openNavMenu": "Abrir menú de navegación",
+    "userMenu": "Menú de usuario",
+    "notifications": "Notificaciones",
+    "closeDialog": "Cerrar diálogo",
+    "changeTheme": "Cambiar tema",
+    "openAIChat": "Abrir asistente de IA",
+    "closeInstallGuide": "Cerrar guía de instalación",
+    "dismissInstallPrompt": "Descartar aviso de instalación",
+    "install": "Instalar",
+    "notNow": "Ahora no"
+  },
+  "pwa": {
+    "installIOS": "Instalar BuilderOps en iOS",
+    "iosStep1": "1. Toca el botón Compartir en Safari",
+    "iosStep2": "2. Desplázate hacia abajo y toca \"Agregar a pantalla de inicio\"",
+    "iosStep3": "3. Toca \"Agregar\" para instalar",
+    "installTitle": "Instalar BuilderOps",
+    "installDescription": "Agregue a su pantalla de inicio para acceso rápido y uso sin conexión"
   },
   "buttons": {
     "save": "Guardar",
@@ -737,7 +755,24 @@
     "failedToLoad": "Error al cargar RFIs",
     "failedToCreate": "Error al crear RFI",
     "failedToUpdate": "Error al actualizar RFI",
-    "failedToDelete": "Error al eliminar RFI"
+    "failedToDelete": "Error al eliminar RFI",
+    "failedToLoadStats": "Error al cargar estadísticas de RFI"
+  },
+  "checklist": {
+    "failedToLoad": "Error al cargar la lista de verificación",
+    "failedToSave": "Error al guardar la respuesta",
+    "failedToSubmit": "Error al enviar la lista de verificación",
+    "notesPlaceholder": "Agregar notas u observaciones..."
+  },
+  "documentReview": {
+    "failedToLoadDocument": "Error al cargar el documento. Inténtelo de nuevo.",
+    "failedToUpdateStatus": "Error al actualizar el estado de revisión. Inténtelo de nuevo.",
+    "documentNotFound": "Documento no encontrado",
+    "noCommentsYet": "Sin comentarios aún",
+    "beFirstToComment": "Sea el primero en agregar un comentario o retroalimentación sobre este documento.",
+    "addCommentPlaceholder": "Agregar un comentario...",
+    "writeReplyPlaceholder": "Escribir una respuesta...",
+    "fitToScreen": "Ajustar a pantalla"
   },
   "inspections": {
     "title": "Inspecciones",
@@ -809,7 +844,23 @@
     "failedToLoad": "Error al cargar documentos",
     "failedToUpload": "Error al subir documento",
     "failedToDelete": "Error al eliminar documento",
-    "failedToDownload": "Error al descargar documento"
+    "failedToDownload": "Error al descargar documento",
+    "noFileSelected": "Ningún archivo seleccionado",
+    "selectFileToPreview": "Seleccione un archivo de la lista para previsualizarlo aquí.",
+    "downloadFile": "Descargar archivo",
+    "closePreview": "Cerrar vista previa",
+    "failedToLoadPreview": "Error al cargar la vista previa",
+    "unableToLoadPreview": "No se pudo cargar la vista previa del archivo. Intente descargar el archivo.",
+    "previewNotAvailable": "Vista previa no disponible",
+    "cannotPreviewFileType": "Este tipo de archivo no se puede previsualizar en el navegador. Descargue el archivo para verlo.",
+    "previewFile": "Vista previa",
+    "deleteFile": "Eliminar archivo",
+    "enterFolderName": "Ingrese nombre de carpeta",
+    "enterNewFolderName": "Ingrese nuevo nombre de carpeta"
+  },
+  "consultants": {
+    "editAssignment": "Editar asignación",
+    "deleteAssignment": "Eliminar asignación"
   },
   "consultantAssignments": {
     "title": "Asignaciones de Consultores",

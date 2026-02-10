@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Skeleton from '@mui/material/Skeleton'
@@ -20,6 +21,7 @@ import type { FileRecord } from '../api/files'
 export default function DocumentReviewPage() {
   const { projectId, documentId } = useParams<{ projectId: string; documentId: string }>()
   const navigate = useNavigate()
+  const { t } = useTranslation()
 
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -93,7 +95,7 @@ export default function DocumentReviewPage() {
       }
     } catch (err) {
       console.error('Failed to load document or review:', err)
-      setError('Failed to load document. Please try again.')
+      setError(t('documentReview.failedToLoadDocument'))
     } finally {
       setLoading(false)
     }
@@ -308,7 +310,7 @@ export default function DocumentReviewPage() {
     } catch (err) {
       // Rollback on error
       setReviewStatus(previousStatus)
-      setError('Failed to update review status. Please try again.')
+      setError(t('documentReview.failedToUpdateStatus'))
       setTimeout(() => setError(null), 3000)
     }
   }
@@ -362,7 +364,7 @@ export default function DocumentReviewPage() {
         </Box>
         <EmptyState
           variant="error"
-          title="Document not found"
+          title={t('documentReview.documentNotFound')}
           description={error || "The document you're looking for doesn't exist or has been removed"}
           action={{ label: 'Back to Project', onClick: handleBack }}
         />

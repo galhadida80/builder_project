@@ -1,5 +1,6 @@
 import { Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Box, Typography, Fade, Grow } from '@mui/material'
 import { styled } from '@mui/material'
+import { useTranslation } from 'react-i18next'
 import CloseIcon from '@mui/icons-material/Close'
 import { TransitionProps } from '@mui/material/transitions'
 import { forwardRef } from 'react'
@@ -69,6 +70,7 @@ export function AnimatedModal({
   fullWidth = true,
   hideCloseButton = false,
 }: AnimatedModalProps) {
+  const { t } = useTranslation()
   return (
     <StyledDialog
       open={open}
@@ -83,7 +85,7 @@ export function AnimatedModal({
             {title}
           </Typography>
           {!hideCloseButton && (
-            <IconButton onClick={onClose} size="small" aria-label="Close dialog" sx={{ ml: 2 }}>
+            <IconButton onClick={onClose} size="small" aria-label={t('common.closeDialog')} sx={{ ml: 2 }}>
               <CloseIcon fontSize="small" />
             </IconButton>
           )}

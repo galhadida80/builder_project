@@ -115,6 +115,24 @@
       "draft": "טיוטה",
       "cancelled": "בוטל"
     },
+    "openNavMenu": "פתח תפריט ניווט",
+    "userMenu": "תפריט משתמש",
+    "notifications": "התראות",
+    "closeDialog": "סגור חלון",
+    "changeTheme": "שנה ערכת נושא",
+    "openAIChat": "פתח עוזר AI",
+    "closeInstallGuide": "סגור מדריך התקנה",
+    "dismissInstallPrompt": "סגור הודעת התקנה",
+    "install": "התקן",
+    "notNow": "לא עכשיו"
+  },
+  "pwa": {
+    "installIOS": "התקן את BuilderOps ב-iOS",
+    "iosStep1": "1. לחץ על כפתור השיתוף ב-Safari",
+    "iosStep2": "2. גלול למטה ולחץ על \"הוסף למסך הבית\"",
+    "iosStep3": "3. לחץ על \"הוסף\" להתקנה",
+    "installTitle": "התקן את BuilderOps",
+    "installDescription": "הוסף למסך הבית שלך לגישה מהירה ושימוש לא מקוון"
   },
   "buttons": {
     "save": "שמור",
@@ -873,7 +891,24 @@
       "high": "גבוה",
       "medium": "בינוני",
       "low": "נמוך"
-    }
+    },
+    "failedToLoadStats": "נכשל בטעינת סטטיסטיקות RFI"
+  },
+  "checklist": {
+    "failedToLoad": "נכשל בטעינת הצ'קליסט",
+    "failedToSave": "נכשל בשמירת התשובה",
+    "failedToSubmit": "נכשל בשליחת הצ'קליסט",
+    "notesPlaceholder": "הוסף הערות או תצפיות..."
+  },
+  "documentReview": {
+    "failedToLoadDocument": "נכשל בטעינת המסמך. אנא נסה שוב.",
+    "failedToUpdateStatus": "נכשל בעדכון סטטוס הסקירה. אנא נסה שוב.",
+    "documentNotFound": "מסמך לא נמצא",
+    "noCommentsYet": "אין תגובות עדיין",
+    "beFirstToComment": "היה הראשון להוסיף תגובה או משוב על מסמך זה.",
+    "addCommentPlaceholder": "הוסף תגובה...",
+    "writeReplyPlaceholder": "כתוב תגובה...",
+    "fitToScreen": "התאם למסך"
   },
   "inspections": {
     "title": "בדיקות",
@@ -939,7 +974,23 @@
     "downloading": "מוריד את {{name}}...",
     "downloadFailed": "נכשל בהורדת {{name}}",
     "deleteSuccess": "{{name}} נמחק בהצלחה!",
-    "deleteFailed": "נכשל במחיקת {{name}}"
+    "deleteFailed": "נכשל במחיקת {{name}}",
+    "noFileSelected": "לא נבחר קובץ",
+    "selectFileToPreview": "בחר קובץ מהרשימה כדי לצפות בו כאן.",
+    "downloadFile": "הורד קובץ",
+    "closePreview": "סגור תצוגה מקדימה",
+    "failedToLoadPreview": "נכשל בטעינת תצוגה מקדימה",
+    "unableToLoadPreview": "לא ניתן לטעון את התצוגה המקדימה. נסה להוריד את הקובץ.",
+    "previewNotAvailable": "תצוגה מקדימה לא זמינה",
+    "cannotPreviewFileType": "לא ניתן לצפות בסוג קובץ זה בדפדפן. הורד את הקובץ כדי לצפות בו.",
+    "previewFile": "תצוגה מקדימה",
+    "deleteFile": "מחק קובץ",
+    "enterFolderName": "הזן שם תיקייה",
+    "enterNewFolderName": "הזן שם תיקייה חדש"
+  },
+  "consultants": {
+    "editAssignment": "ערוך הקצאה",
+    "deleteAssignment": "מחק הקצאה"
   },
   "consultantAssignments": {
     "title": "הקצאות יועצים",

@@ -360,6 +360,24 @@
       "draft": "Draft",
       "cancelled": "Cancelled"
     },
+    "openNavMenu": "Open navigation menu",
+    "userMenu": "User menu",
+    "notifications": "Notifications",
+    "closeDialog": "Close dialog",
+    "changeTheme": "Change theme",
+    "openAIChat": "Open AI assistant chat",
+    "closeInstallGuide": "Close install guide",
+    "dismissInstallPrompt": "Dismiss install prompt",
+    "install": "Install",
+    "notNow": "Not Now"
+  },
+  "pwa": {
+    "installIOS": "Install BuilderOps on iOS",
+    "iosStep1": "1. Tap the Share button in Safari",
+    "iosStep2": "2. Scroll down and tap \"Add to Home Screen\"",
+    "iosStep3": "3. Tap \"Add\" to install",
+    "installTitle": "Install BuilderOps",
+    "installDescription": "Add to your home screen for quick access and offline use"
   },
   "buttons": {
     "save": "Save",
@@ -766,7 +784,24 @@
       "high": "High",
       "medium": "Medium",
       "low": "Low"
-    }
+    },
+    "failedToLoadStats": "Failed to load RFI statistics"
+  },
+  "checklist": {
+    "failedToLoad": "Failed to load checklist",
+    "failedToSave": "Failed to save response",
+    "failedToSubmit": "Failed to submit checklist",
+    "notesPlaceholder": "Add any notes or observations..."
+  },
+  "documentReview": {
+    "failedToLoadDocument": "Failed to load document. Please try again.",
+    "failedToUpdateStatus": "Failed to update review status. Please try again.",
+    "documentNotFound": "Document not found",
+    "noCommentsYet": "No comments yet",
+    "beFirstToComment": "Be the first to add a comment or feedback on this document.",
+    "addCommentPlaceholder": "Add a comment...",
+    "writeReplyPlaceholder": "Write a reply...",
+    "fitToScreen": "Fit to Screen"
   },
   "inspections": {
     "title": "Inspections",
@@ -832,7 +867,23 @@
     "downloading": "Downloading {{name}}...",
     "downloadFailed": "Failed to download {{name}}",
     "deleteSuccess": "{{name}} deleted successfully!",
-    "deleteFailed": "Failed to delete {{name}}"
+    "deleteFailed": "Failed to delete {{name}}",
+    "noFileSelected": "No file selected",
+    "selectFileToPreview": "Select a file from the list to preview it here.",
+    "downloadFile": "Download file",
+    "closePreview": "Close preview",
+    "failedToLoadPreview": "Failed to load preview",
+    "unableToLoadPreview": "Unable to load the file preview. Please try downloading the file.",
+    "previewNotAvailable": "Preview not available",
+    "cannotPreviewFileType": "This file type cannot be previewed in the browser. Download the file to view it.",
+    "previewFile": "Preview file",
+    "deleteFile": "Delete file",
+    "enterFolderName": "Enter folder name",
+    "enterNewFolderName": "Enter new folder name"
+  },
+  "consultants": {
+    "editAssignment": "Edit assignment",
+    "deleteAssignment": "Delete assignment"
   },
   "consultantAssignments": {
     "title": "Consultant Assignments",

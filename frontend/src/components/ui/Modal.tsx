@@ -1,5 +1,6 @@
 import { Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Box, Typography } from '@mui/material'
 import { styled } from '@mui/material'
+import { useTranslation } from 'react-i18next'
 import CloseIcon from '@mui/icons-material/Close'
 import { Button } from './Button'
 
@@ -53,6 +54,7 @@ export function Modal({
   fullWidth = true,
   hideCloseButton = false,
 }: ModalProps) {
+  const { t } = useTranslation()
   return (
     <StyledDialog open={open} onClose={onClose} maxWidth={maxWidth} fullWidth={fullWidth}>
       {title && (
@@ -61,7 +63,7 @@ export function Modal({
             {title}
           </Typography>
           {!hideCloseButton && (
-            <IconButton onClick={onClose} size="small" aria-label="Close dialog" sx={{ marginInlineStart: 2 }}>
+            <IconButton onClick={onClose} size="small" aria-label={t('common.closeDialog')} sx={{ marginInlineStart: 2 }}>
               <CloseIcon fontSize="small" />
             </IconButton>
           )}

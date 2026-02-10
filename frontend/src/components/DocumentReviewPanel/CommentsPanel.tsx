@@ -1,5 +1,6 @@
 import { Box, Paper, Typography, Divider, List, Skeleton } from '@mui/material'
 import { styled } from '@mui/material'
+import { useTranslation } from 'react-i18next'
 import { TextField } from '../ui/TextField'
 import { Button } from '../ui/Button'
 import { EmptyState } from '../ui/EmptyState'
@@ -131,6 +132,7 @@ export function CommentsPanel({
   onResolveComment,
   currentUserId,
 }: CommentsPanelProps) {
+  const { t } = useTranslation()
   const [newComment, setNewComment] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -184,8 +186,8 @@ export function CommentsPanel({
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
             <EmptyState
               icon={<CommentIcon />}
-              title="No comments yet"
-              description="Be the first to add a comment or feedback on this document."
+              title={t('documentReview.noCommentsYet')}
+              description={t('documentReview.beFirstToComment')}
             />
           </Box>
         ) : (
@@ -205,7 +207,7 @@ export function CommentsPanel({
       <CommentForm>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
           <TextField
-            placeholder="Add a comment..."
+            placeholder={t('documentReview.addCommentPlaceholder')}
             multiline
             rows={3}
             fullWidth

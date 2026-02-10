@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Outlet, useParams, useNavigate, useLocation } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Toolbar from '@mui/material/Toolbar'
@@ -21,6 +22,7 @@ import type { Project } from '../../types'
 const DRAWER_WIDTH = 260
 
 export default function Layout() {
+  const { t } = useTranslation()
   const { projectId } = useParams()
   const navigate = useNavigate()
   const location = useLocation()
@@ -125,7 +127,7 @@ export default function Layout() {
         <>
           <Fab
             color="primary"
-            aria-label="Open AI assistant chat"
+            aria-label={t('common.openAIChat')}
             onClick={handleChatOpen}
             sx={{
               position: 'fixed',
