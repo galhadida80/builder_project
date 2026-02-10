@@ -73,7 +73,7 @@ export const validateSerialNumber = (value: string | undefined | null, fieldName
 
 export const validatePhone = (value: string | undefined | null): string | null => {
   if (!value) return null
-  if (!/^[\d\s\-\+\(\)\.]+$/.test(value)) {
+  if (!/^[\d\s\-+().]+$/.test(value)) {
     return 'Phone must contain only digits, spaces, and standard phone characters'
   }
   return null

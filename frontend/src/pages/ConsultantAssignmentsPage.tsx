@@ -16,6 +16,7 @@ import PeopleIcon from '@mui/icons-material/People'
 import WorkIcon from '@mui/icons-material/Work'
 import PendingActionsIcon from '@mui/icons-material/PendingActions'
 import FilterListIcon from '@mui/icons-material/FilterList'
+import { useTranslation } from 'react-i18next'
 import { Card, KPICard } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { PageHeader } from '../components/ui/Breadcrumbs'
@@ -40,6 +41,7 @@ interface ConsultantType {
 }
 
 export default function ConsultantAssignmentsPage() {
+  const { t } = useTranslation()
   const { showError, showSuccess } = useToast()
   const [loading, setLoading] = useState(true)
   const [assignments, setAssignments] = useState<ConsultantAssignment[]>([])
@@ -77,19 +79,15 @@ export default function ConsultantAssignmentsPage() {
         loadConsultantTypes(),
       ])
     } catch (error) {
-      showError('Failed to load data. Please try again.')
+      showError(t('consultantAssignments.failedToLoad'))
     } finally {
       setLoading(false)
     }
   }
 
   const loadAssignments = async () => {
-    try {
-      const data = await consultantAssignmentsApi.list()
-      setAssignments(data)
-    } catch (error) {
-      throw error
-    }
+    const data = await consultantAssignmentsApi.list()
+    setAssignments(data)
   }
 
   const loadConsultants = async () => {
@@ -149,16 +147,16 @@ export default function ConsultantAssignmentsPage() {
 
       if (editingAssignment) {
         await consultantAssignmentsApi.update(editingAssignment.id, payload)
-        showSuccess('Assignment updated successfully!')
+        showSuccess(t('consultantAssignments.updateSuccess'))
       } else {
         await consultantAssignmentsApi.create(payload)
-        showSuccess('Assignment created successfully!')
+        showSuccess(t('consultantAssignments.createSuccess'))
       }
 
       handleCloseDialog()
       loadAssignments()
     } catch (error) {
-      showError(`Failed to ${editingAssignment ? 'update' : 'create'} assignment. Please try again.`)
+      showError(editingAssignment ? t('consultantAssignments.failedToUpdate') : t('consultantAssignments.failedToCreate'))
     } finally {
       setSaving(false)
     }
@@ -174,12 +172,12 @@ export default function ConsultantAssignmentsPage() {
 
     try {
       await consultantAssignmentsApi.delete(assignmentToDelete.id)
-      showSuccess('Assignment deleted successfully!')
+      showSuccess(t('consultantAssignments.deleteSuccess'))
       setDeleteDialogOpen(false)
       setAssignmentToDelete(null)
       loadAssignments()
     } catch (error) {
-      showError('Failed to delete assignment. Please try again.')
+      showError(t('consultantAssignments.failedToDelete'))
     }
   }
 
@@ -191,7 +189,6 @@ export default function ConsultantAssignmentsPage() {
 
   // Filter assignments
   const filteredAssignments = assignments.filter((assignment) => {
-    // Search filter
     const matchesSearch =
       search === '' ||
       assignment.consultant?.fullName?.toLowerCase().includes(search.toLowerCase()) ||
@@ -199,22 +196,18 @@ export default function ConsultantAssignmentsPage() {
       assignment.project?.name?.toLowerCase().includes(search.toLowerCase()) ||
       assignment.consultantType?.name?.toLowerCase().includes(search.toLowerCase())
 
-    // Consultant filter
     const matchesConsultant =
       selectedConsultant === 'all' ||
       assignment.consultantId === selectedConsultant
 
-    // Project filter
     const matchesProject =
       selectedProject === 'all' ||
       assignment.projectId === selectedProject
 
-    // Status filter
     const matchesStatus =
       selectedStatus === 'all' ||
       assignment.status === selectedStatus
 
-    // Date range filter
     const matchesDateRange = (() => {
       if (!startDateFilter && !endDateFilter) return true
 
@@ -224,15 +217,12 @@ export default function ConsultantAssignmentsPage() {
       if (startDateFilter && endDateFilter) {
         const filterStart = new Date(startDateFilter)
         const filterEnd = new Date(endDateFilter)
-        // Assignment overlaps with filter range
         return assignmentStart <= filterEnd && assignmentEnd >= filterStart
       } else if (startDateFilter) {
         const filterStart = new Date(startDateFilter)
-        // Assignment ends after filter start
         return assignmentEnd >= filterStart
       } else if (endDateFilter) {
         const filterEnd = new Date(endDateFilter)
-        // Assignment starts before filter end
         return assignmentStart <= filterEnd
       }
       return true
@@ -265,12 +255,12 @@ export default function ConsultantAssignmentsPage() {
   return (
     <Box sx={{ p: 3 }}>
       <PageHeader
-        title="Consultant Assignments"
-        subtitle="Manage consultant assignments across projects"
-        breadcrumbs={[{ label: 'Consultants' }, { label: 'Assignments' }]}
+        title={t('consultantAssignments.title')}
+        subtitle={t('consultantAssignments.subtitle')}
+        breadcrumbs={[{ label: t('consultantAssignments.consultants') }, { label: t('consultantAssignments.assignments') }]}
         actions={
           <Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>
-            New Assignment
+            {t('consultantAssignments.newAssignment')}
           </Button>
         }
       />
@@ -284,25 +274,25 @@ export default function ConsultantAssignmentsPage() {
         }}
       >
         <KPICard
-          title="Total Assignments"
+          title={t('consultantAssignments.totalAssignments')}
           value={assignments.length}
           icon={<AssignmentIcon />}
           color="primary"
         />
         <KPICard
-          title="Active"
+          title={t('common.active')}
           value={activeAssignments}
           icon={<WorkIcon />}
           color="success"
         />
         <KPICard
-          title="Pending"
+          title={t('common.pending')}
           value={pendingAssignments}
           icon={<PendingActionsIcon />}
           color="warning"
         />
         <KPICard
-          title="Consultants"
+          title={t('consultantAssignments.consultants')}
           value={uniqueConsultants}
           icon={<PeopleIcon />}
           color="info"
@@ -322,32 +312,32 @@ export default function ConsultantAssignmentsPage() {
               >
                 <ToggleButton value="list" aria-label="list view">
                   <ViewListIcon sx={{ mr: 0.5, fontSize: 20 }} />
-                  <Typography variant="body2">List</Typography>
+                  <Typography variant="body2">{t('consultantAssignments.listView')}</Typography>
                 </ToggleButton>
                 <ToggleButton value="calendar" aria-label="calendar view">
                   <CalendarMonthIcon sx={{ mr: 0.5, fontSize: 20 }} />
-                  <Typography variant="body2">Calendar</Typography>
+                  <Typography variant="body2">{t('consultantAssignments.calendarView')}</Typography>
                 </ToggleButton>
               </ToggleButtonGroup>
               <SearchField
-                placeholder="Search assignments..."
+                placeholder={t('consultantAssignments.searchPlaceholder')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </Box>
-            <Chip label={`${filteredAssignments.length} assignments`} size="small" />
+            <Chip label={`${filteredAssignments.length} ${t('consultantAssignments.assignments').toLowerCase()}`} size="small" />
           </Box>
 
           <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
             <MuiTextField
               select
               size="small"
-              label="Consultant"
+              label={t('consultantAssignments.consultant')}
               value={selectedConsultant}
               onChange={(e) => setSelectedConsultant(e.target.value)}
               sx={{ minWidth: 180 }}
             >
-              <MenuItem value="all">All Consultants</MenuItem>
+              <MenuItem value="all">{t('consultantAssignments.allConsultants')}</MenuItem>
               {consultants.map((consultant) => (
                 <MenuItem key={consultant.id} value={consultant.id}>
                   {consultant.fullName || consultant.email}
@@ -358,12 +348,12 @@ export default function ConsultantAssignmentsPage() {
             <MuiTextField
               select
               size="small"
-              label="Project"
+              label={t('consultantAssignments.project')}
               value={selectedProject}
               onChange={(e) => setSelectedProject(e.target.value)}
               sx={{ minWidth: 180 }}
             >
-              <MenuItem value="all">All Projects</MenuItem>
+              <MenuItem value="all">{t('consultantAssignments.allProjects')}</MenuItem>
               {projects.map((project) => (
                 <MenuItem key={project.id} value={project.id}>
                   {project.name}
@@ -374,22 +364,22 @@ export default function ConsultantAssignmentsPage() {
             <MuiTextField
               select
               size="small"
-              label="Status"
+              label={t('common.status')}
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
               sx={{ minWidth: 150 }}
             >
-              <MenuItem value="all">All Statuses</MenuItem>
-              <MenuItem value="pending">Pending</MenuItem>
-              <MenuItem value="active">Active</MenuItem>
-              <MenuItem value="completed">Completed</MenuItem>
-              <MenuItem value="cancelled">Cancelled</MenuItem>
+              <MenuItem value="all">{t('consultantAssignments.allStatuses')}</MenuItem>
+              <MenuItem value="pending">{t('common.pending')}</MenuItem>
+              <MenuItem value="active">{t('common.active')}</MenuItem>
+              <MenuItem value="completed">{t('common.completed')}</MenuItem>
+              <MenuItem value="cancelled">{t('consultantAssignments.cancelled')}</MenuItem>
             </MuiTextField>
 
             <MuiTextField
               type="date"
               size="small"
-              label="Start Date From"
+              label={t('consultantAssignments.startDateFrom')}
               value={startDateFilter}
               onChange={(e) => setStartDateFilter(e.target.value)}
               InputLabelProps={{ shrink: true }}
@@ -399,7 +389,7 @@ export default function ConsultantAssignmentsPage() {
             <MuiTextField
               type="date"
               size="small"
-              label="End Date To"
+              label={t('consultantAssignments.endDateTo')}
               value={endDateFilter}
               onChange={(e) => setEndDateFilter(e.target.value)}
               InputLabelProps={{ shrink: true }}
@@ -420,7 +410,7 @@ export default function ConsultantAssignmentsPage() {
                   setEndDateFilter('')
                 }}
               >
-                Clear Filters
+                {t('consultantAssignments.clearFilters')}
               </Button>
             )}
           </Box>
@@ -460,9 +450,9 @@ export default function ConsultantAssignmentsPage() {
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={handleConfirmDelete}
-        title="Delete Assignment"
-        message={`Are you sure you want to delete this assignment? This action cannot be undone.`}
-        confirmLabel="Delete"
+        title={t('consultantAssignments.deleteAssignment')}
+        message={t('consultantAssignments.deleteConfirmation')}
+        confirmLabel={t('common.delete')}
         variant="danger"
       />
     </Box>

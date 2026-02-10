@@ -204,8 +204,6 @@ export function useDocuments(projectId: string | undefined): UseDocumentsReturn 
       setUploading(true)
       await filesApi.upload(projectId, 'document', selectedFolderId, file)
       await loadFiles()
-    } catch (error) {
-      throw error
     } finally {
       setUploading(false)
     }
@@ -216,16 +214,12 @@ export function useDocuments(projectId: string | undefined): UseDocumentsReturn 
       throw new Error('Project ID not available')
     }
 
-    try {
-      await filesApi.delete(projectId, fileId)
-      await loadFiles()
+    await filesApi.delete(projectId, fileId)
+    await loadFiles()
 
-      // If the deleted file was selected, clear selection
-      if (selectedFile?.id === fileId) {
-        setSelectedFile(null)
-      }
-    } catch (error) {
-      throw error
+    // If the deleted file was selected, clear selection
+    if (selectedFile?.id === fileId) {
+      setSelectedFile(null)
     }
   }
 

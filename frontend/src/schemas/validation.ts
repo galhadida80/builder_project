@@ -163,7 +163,7 @@ export const searchQuerySchema = z
   .max(200, 'Search query too long')
   .transform((val) => val.trim())
   .refine(
-    (val) => !/[<>\"']/g.test(val),
+    (val) => !/[<>"']/g.test(val),
     'Search query contains invalid characters'
   )
 

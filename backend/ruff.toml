@@ -1,0 +1,28 @@
+target-version = "py311"
+line-length = 120
+extend-exclude = [
+    "test_env",
+    "backend/test_env",
+    "backend/tests",
+    "verify_*.py",
+    "test_rollback.py",
+    "run_migration.py",
+    "test_consultant_*.py",
+]
+
+[lint]
+select = ["E", "W", "F"]
+ignore = [
+    "E501",  # line too long
+    "E712",  # comparison to True/False (needed for SQLAlchemy filters)
+    "E702",  # multiple statements on one line (compact test helpers)
+    "E701",  # multiple statements on one line (colon)
+    "E731",  # lambda assignment
+    "E741",  # ambiguous variable name
+    "F841",  # local variable assigned but never used (test fixtures)
+]
+
+[lint.per-file-ignores]
+"__init__.py" = ["F401"]  # re-exports
+"tests/**" = ["E402"]     # import not at top of file
+"alembic/**" = ["F401"]   # model imports for metadata
