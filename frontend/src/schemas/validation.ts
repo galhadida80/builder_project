@@ -7,11 +7,11 @@ import { z } from 'zod'
 // Email validation schema
 export const emailSchema = z
   .string()
+  .trim()
+  .toLowerCase()
   .email('Invalid email address')
   .min(5, 'Email must be at least 5 characters')
   .max(254, 'Email must not exceed 254 characters')
-  .toLowerCase()
-  .trim()
 
 // Password validation schema with strength requirements
 export const passwordSchema = z

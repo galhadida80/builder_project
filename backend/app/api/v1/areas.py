@@ -30,7 +30,8 @@ async def list_areas(
         select(ConstructionArea)
         .options(
             selectinload(ConstructionArea.progress_updates).selectinload(AreaProgress.reported_by),
-            selectinload(ConstructionArea.children)
+            selectinload(ConstructionArea.children).selectinload(ConstructionArea.progress_updates),
+            selectinload(ConstructionArea.children).selectinload(ConstructionArea.children),
         )
         .where(ConstructionArea.project_id == project_id, ConstructionArea.parent_id.is_(None))
         .order_by(ConstructionArea.name)
@@ -70,7 +71,8 @@ async def get_area(
         select(ConstructionArea)
         .options(
             selectinload(ConstructionArea.progress_updates).selectinload(AreaProgress.reported_by),
-            selectinload(ConstructionArea.children)
+            selectinload(ConstructionArea.children).selectinload(ConstructionArea.progress_updates),
+            selectinload(ConstructionArea.children).selectinload(ConstructionArea.children),
         )
         .where(ConstructionArea.id == area_id, ConstructionArea.project_id == project_id)
     )
@@ -164,16 +166,14 @@ async def add_progress_update(
         photos=data.photos or []
     )
     db.add(progress)
-
     area.current_progress = data.progress_percentage
+    await db.flush()
 
     await create_audit_log(
         db, current_user, "area_progress", progress.id, AuditAction.CREATE,
         project_id=project_id,
-        new_values={"area_id": str(area_id), "progress_percentage": data.progress_percentage}
+        new_values={"area_id": str(area_id), "progress_percentage": float(data.progress_percentage)}
     )
-
-    await db.flush()
     await db.refresh(progress, ["reported_by"])
     return progress
 

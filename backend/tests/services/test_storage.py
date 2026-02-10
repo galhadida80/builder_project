@@ -202,7 +202,7 @@ class TestLocalStorageBackend:
         url = backend.get_file_url(storage_path)
 
         # Verify URL format
-        assert url == f"/api/storage/{storage_path}"
+        assert url == f"/api/v1/storage/{storage_path}"
         assert storage_path in url
 
     @pytest.mark.asyncio

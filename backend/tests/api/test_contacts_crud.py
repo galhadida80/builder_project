@@ -882,7 +882,7 @@ class TestCSVImport:
 
     @pytest.mark.asyncio
     async def test_import_csv_with_bom(self, admin_client: AsyncClient, project: Project):
-        csv_content = "\ufeffcontact_name,contact_type\nAlice,contractor\n"
+        csv_content = "contact_name,contact_type\nAlice,contractor\n"
         files = {"file": ("contacts.csv", io.BytesIO(csv_content.encode("utf-8-sig")), "text/csv")}
         resp = await admin_client.post(import_url(str(project.id)), files=files)
         assert resp.status_code == 200

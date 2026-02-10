@@ -815,7 +815,7 @@ class TestApprovalAccessControl:
         member = ProjectMember(
             project_id=project.id,
             user_id=regular_user.id,
-            role="member",
+            role="consultant",
         )
         db.add(member)
         await db.commit()
@@ -858,7 +858,7 @@ class TestApprovalAccessControl:
         member = ProjectMember(
             project_id=project.id,
             user_id=regular_user.id,
-            role="member",
+            role="consultant",
         )
         db.add(member)
         await db.commit()

@@ -56,8 +56,8 @@ describe('useNetworkStatus', () => {
   })
 
   it('cleans up event listeners on unmount', () => {
-    const addEventListenerSpy = jest.spyOn(window, 'addEventListener')
-    const removeEventListenerSpy = jest.spyOn(window, 'removeEventListener')
+    const addEventListenerSpy = vi.spyOn(window, 'addEventListener')
+    const removeEventListenerSpy = vi.spyOn(window, 'removeEventListener')
 
     const { unmount } = renderHook(() => useNetworkStatus())
 
@@ -74,7 +74,7 @@ describe('useNetworkStatus', () => {
   })
 
   it('clears timeout on unmount', async () => {
-    const clearTimeoutSpy = jest.spyOn(global, 'clearTimeout')
+    const clearTimeoutSpy = vi.spyOn(global, 'clearTimeout')
 
     const { unmount } = renderHook(() => useNetworkStatus())
 

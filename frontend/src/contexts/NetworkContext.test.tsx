@@ -1,3 +1,4 @@
+import { describe, it, expect, vi } from 'vitest'
 import { render, renderHook, act } from '@testing-library/react'
 import { NetworkProvider, useNetwork } from './NetworkContext'
 import { ReactNode } from 'react'
@@ -17,11 +18,11 @@ describe('NetworkContext', () => {
 
   it('throws error when useNetwork called outside provider', () => {
     // Suppress console.error for this test
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
     expect(() => {
       renderHook(() => useNetwork())
-    }).toThrow('useNetwork must be used within a NetworkProvider')
+    }).toThrow('useNetwork must be used within NetworkProvider')
 
     consoleSpy.mockRestore()
   })

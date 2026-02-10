@@ -159,7 +159,8 @@ async def list_document_comments(
         select(DocumentComment)
         .options(
             selectinload(DocumentComment.created_by),
-            selectinload(DocumentComment.replies).selectinload(DocumentComment.created_by)
+            selectinload(DocumentComment.replies).selectinload(DocumentComment.created_by),
+            selectinload(DocumentComment.replies).selectinload(DocumentComment.replies).selectinload(DocumentComment.created_by),
         )
         .where(
             DocumentComment.review_id == review.id,

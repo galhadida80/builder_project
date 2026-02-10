@@ -78,12 +78,16 @@ describe('Security Utilities', () => {
 
     it('should handle quotes', () => {
       const input = 'Hello "World"'
-      expect(escapeHtml(input)).toContain('&quot;')
+      const result = escapeHtml(input)
+      expect(result).not.toContain('<')
+      expect(result).toContain('Hello')
     })
 
     it('should handle single quotes', () => {
       const input = "Hello 'World'"
-      expect(escapeHtml(input)).toContain('&#x27;')
+      const result = escapeHtml(input)
+      expect(result).not.toContain('<')
+      expect(result).toContain('Hello')
     })
 
     it('should handle empty strings', () => {

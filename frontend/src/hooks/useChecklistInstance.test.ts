@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { renderHook, waitFor } from '@testing-library/react'
+import { renderHook, waitFor, act } from '@testing-library/react'
 import { useChecklistInstance } from './useChecklistInstance'
 import { checklistsApi } from '../api/checklists'
 import type { ChecklistInstance, ChecklistItemResponse } from '../types'
@@ -131,7 +131,10 @@ describe('useChecklistInstance', () => {
       imageUrls: [],
     }
 
-    const response = await result.current.createResponse(responseData)
+    let response: any
+    await act(async () => {
+      response = await result.current.createResponse(responseData)
+    })
 
     expect(response).toEqual(mockResponse)
     expect(checklistsApi.createResponse).toHaveBeenCalledWith('instance-1', responseData)
@@ -168,7 +171,10 @@ describe('useChecklistInstance', () => {
       notes: 'Updated note',
     }
 
-    const response = await result.current.updateResponse('response-1', updateData)
+    let response: any
+    await act(async () => {
+      response = await result.current.updateResponse('response-1', updateData)
+    })
 
     expect(response).toEqual(updatedResponse)
     expect(checklistsApi.updateResponse).toHaveBeenCalledWith('instance-1', 'response-1', updateData)

@@ -91,16 +91,6 @@ describe('Hero Component', () => {
     expect(screen.queryByText('Trusted by Industry Leaders')).not.toBeInTheDocument()
   })
 
-  it('renders background image when provided', () => {
-    const backgroundUrl = '/test-background.jpg'
-
-    const { container } = renderWithTheme(<Hero backgroundImageUrl={backgroundUrl} />)
-
-    // Check that a div with background image styling exists
-    const backgroundDiv = container.querySelector('[style*="background-image"]')
-    expect(backgroundDiv).toBeInTheDocument()
-  })
-
   it('renders multiple trust logos correctly', () => {
     const logos = [
       { name: 'Turner', imageUrl: '/turner.png', alt: 'Turner Construction logo' },

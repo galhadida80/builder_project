@@ -1005,7 +1005,7 @@ class TestRFIAccessControl:
         member = ProjectMember(
             project_id=project.id,
             user_id=regular_user.id,
-            role="member",
+            role="contractor",
         )
         db.add(member)
         await db.commit()
@@ -1020,7 +1020,7 @@ class TestRFIAccessControl:
         member = ProjectMember(
             project_id=project.id,
             user_id=regular_user.id,
-            role="member",
+            role="contractor",
         )
         db.add(member)
         await db.commit()

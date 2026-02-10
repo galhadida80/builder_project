@@ -209,20 +209,20 @@ describe('workloadCalculation', () => {
       expect(getWorkloadColor(50)).toBe('success')
     })
 
-    it('should return success for optimal', () => {
-      expect(getWorkloadColor(75)).toBe('success')
+    it('should return warning for optimal range', () => {
+      expect(getWorkloadColor(75)).toBe('warning')
     })
 
-    it('should return success at 90% threshold', () => {
-      expect(getWorkloadColor(90)).toBe('success')
+    it('should return warning at 90% threshold', () => {
+      expect(getWorkloadColor(90)).toBe('warning')
     })
 
-    it('should return warning for high workload', () => {
-      expect(getWorkloadColor(95)).toBe('warning')
+    it('should return error for high workload', () => {
+      expect(getWorkloadColor(95)).toBe('error')
     })
 
-    it('should return warning at 100% threshold', () => {
-      expect(getWorkloadColor(100)).toBe('warning')
+    it('should return error at 100% threshold', () => {
+      expect(getWorkloadColor(100)).toBe('error')
     })
 
     it('should return error for over-allocated', () => {
@@ -271,7 +271,6 @@ describe('workloadCalculation', () => {
         availableHours: 40,
         assignedHours: 20,
         workloadPercent: 0,
-        assignments: [],
         createdAt: '2024-01-01',
       }
 
@@ -288,11 +287,10 @@ describe('workloadCalculation', () => {
         user: mockUser,
         role: 'contractor',
         teamName: 'Team A',
-        availableHours: 0,
         assignedHours: 20,
         workloadPercent: 0,
         createdAt: '2024-01-01',
-      }
+      } as TeamMember
 
       const result = calculateTeamMemberWorkload(member)
       expect(result.availableHours).toBe(WORKLOAD_CONSTANTS.DEFAULT_AVAILABLE_HOURS_PER_WEEK)
@@ -919,11 +917,10 @@ describe('workloadCalculation', () => {
         user: mockUser,
         role: 'contractor',
         teamName: 'Team A',
-        availableHours: 0,
         assignedHours: 20,
         workloadPercent: 0,
         createdAt: '2024-01-01',
-      }
+      } as TeamMember
 
       const expected = WORKLOAD_CONSTANTS.DEFAULT_AVAILABLE_HOURS_PER_WEEK - 20
       expect(getAvailableCapacity(member)).toBe(expected)

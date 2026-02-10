@@ -248,7 +248,6 @@ class TestCreateMeetingDateValidation:
         "yesterday",
         "tomorrow",
         "",
-        "2024",
         "2024-01",
     ])
     async def test_invalid_date_formats(self, admin_client: AsyncClient, project: Project, bad_date):

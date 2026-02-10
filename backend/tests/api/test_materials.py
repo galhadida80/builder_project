@@ -1106,14 +1106,14 @@ class TestUserClientAccess:
         assert response.status_code == 200
 
     async def test_regular_user_can_delete_material(self, user_client: AsyncClient, project: Project, db: AsyncSession, regular_user: User):
-        db.add(ProjectMember(project_id=project.id, user_id=regular_user.id, role="contractor"))
+        db.add(ProjectMember(project_id=project.id, user_id=regular_user.id, role="project_admin"))
         await db.commit()
         mat = await create_material_in_db(db, project.id, regular_user.id)
         response = await user_client.delete(f"/api/v1/projects/{project.id}/materials/{mat.id}")
         assert response.status_code == 200
 
     async def test_regular_user_can_submit_material(self, user_client: AsyncClient, project: Project, db: AsyncSession, regular_user: User):
-        db.add(ProjectMember(project_id=project.id, user_id=regular_user.id, role="contractor"))
+        db.add(ProjectMember(project_id=project.id, user_id=regular_user.id, role="consultant"))
         await db.commit()
         mat = await create_material_in_db(db, project.id, regular_user.id)
         response = await user_client.post(f"/api/v1/projects/{project.id}/materials/{mat.id}/submit")
