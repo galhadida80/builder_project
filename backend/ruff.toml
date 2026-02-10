@@ -24,5 +24,5 @@ ignore = [
 
 [lint.per-file-ignores]
 "__init__.py" = ["F401"]  # re-exports
-"tests/**" = ["E402"]     # import not at top of file
+"tests/**" = ["E402", "F401"]  # import not at top of file, unused imports
 "alembic/**" = ["F401"]   # model imports for metadata

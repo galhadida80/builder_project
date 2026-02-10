@@ -66,6 +66,8 @@ jobs:
 
       - name: Run tests
         working-directory: backend
+        env:
+          GEMINI_API_KEY: dummy-key-for-ci
         run: pytest --tb=short --cov=app -q
 
   frontend-lint:
