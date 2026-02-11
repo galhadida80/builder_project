@@ -1,8 +1,7 @@
-import { Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Box, Typography } from '@mui/material'
-import { styled } from '@mui/material'
 import { useTranslation } from 'react-i18next'
-import CloseIcon from '@mui/icons-material/Close'
 import { Button } from './Button'
+import { CloseIcon } from '@/icons'
+import { Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Box, Typography, styled } from '@/mui'
 
 interface ModalProps {
   open: boolean
@@ -93,11 +92,14 @@ export function ConfirmModal({
   onConfirm,
   title,
   message,
-  confirmLabel = 'Confirm',
-  cancelLabel = 'Cancel',
+  confirmLabel,
+  cancelLabel,
   variant = 'danger',
   loading = false,
 }: ConfirmModalProps) {
+  const { t } = useTranslation()
+  const resolvedConfirmLabel = confirmLabel || t('common.confirm')
+  const resolvedCancelLabel = cancelLabel || t('common.cancel')
   return (
     <Modal
       open={open}
@@ -107,10 +109,10 @@ export function ConfirmModal({
       actions={
         <>
           <Button variant="tertiary" onClick={onClose} disabled={loading}>
-            {cancelLabel}
+            {resolvedCancelLabel}
           </Button>
           <Button variant={variant === 'danger' ? 'danger' : 'primary'} onClick={onConfirm} loading={loading}>
-            {confirmLabel}
+            {resolvedConfirmLabel}
           </Button>
         </>
       }
@@ -139,12 +141,15 @@ export function FormModal({
   onSubmit,
   title,
   children,
-  submitLabel = 'Save',
-  cancelLabel = 'Cancel',
+  submitLabel,
+  cancelLabel,
   loading = false,
   submitDisabled = false,
   maxWidth = 'sm',
 }: FormModalProps) {
+  const { t } = useTranslation()
+  const resolvedSubmitLabel = submitLabel || t('common.save')
+  const resolvedCancelLabel = cancelLabel || t('common.cancel')
   return (
     <Modal
       open={open}
@@ -154,10 +159,10 @@ export function FormModal({
       actions={
         <>
           <Button variant="tertiary" onClick={onClose} disabled={loading}>
-            {cancelLabel}
+            {resolvedCancelLabel}
           </Button>
           <Button variant="primary" onClick={onSubmit} loading={loading} disabled={submitDisabled}>
-            {submitLabel}
+            {resolvedSubmitLabel}
           </Button>
         </>
       }

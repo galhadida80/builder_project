@@ -1,13 +1,9 @@
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
-import Paper from '@mui/material/Paper'
-import Chip from '@mui/material/Chip'
-import Stack from '@mui/material/Stack'
-import SmartToyIcon from '@mui/icons-material/SmartToy'
-import PersonIcon from '@mui/icons-material/Person'
+import { memo, useMemo } from 'react'
 import ReactMarkdown from 'react-markdown'
 import ChatActionCard from './ChatActionCard'
 import type { ChatMessage as ChatMessageType } from '../../api/chat'
+import { SmartToyIcon, PersonIcon } from '@/icons'
+import { Box, Typography, Paper, Chip, Stack } from '@/mui'
 
 function parseSuggestions(content: string): { cleanContent: string; suggestions: string[] } {
   const lines = content.split('\n')
@@ -43,13 +39,14 @@ interface ChatMessageProps {
   onSuggestionClick?: (text: string) => void
 }
 
-export default function ChatMessage({ message, onActionExecute, onActionReject, onSuggestionClick }: ChatMessageProps) {
+export default memo(function ChatMessage({ message, onActionExecute, onActionReject, onSuggestionClick }: ChatMessageProps) {
   const isUser = message.role === 'user'
   const actions = message.pendingActions || []
 
-  const { cleanContent, suggestions } = !isUser && message.content
-    ? parseSuggestions(message.content)
-    : { cleanContent: message.content, suggestions: [] }
+  const { cleanContent, suggestions } = useMemo(() => {
+    if (!isUser && message.content) return parseSuggestions(message.content)
+    return { cleanContent: message.content, suggestions: [] }
+  }, [isUser, message.content])
 
   return (
     <Box
@@ -100,7 +97,7 @@ export default function ChatMessage({ message, onActionExecute, onActionReject, 
             <Box
               sx={{
                 '& p': { m: 0, mb: 1, lineHeight: 1.6, fontSize: '0.875rem', '&:last-child': { mb: 0 } },
-                '& ul, & ol': { pl: 2.5, my: 0.5, fontSize: '0.875rem' },
+                '& ul, & ol': { paddingInlineStart: '20px', my: 0.5, fontSize: '0.875rem' },
                 '& li': { mb: 0.3, lineHeight: 1.5 },
                 '& strong': { fontWeight: 600 },
                 '& h1, & h2, & h3, & h4': { mt: 1, mb: 0.5, fontWeight: 600 },
@@ -140,8 +137,8 @@ export default function ChatMessage({ message, onActionExecute, onActionReject, 
                 '& blockquote': {
                   borderInlineStart: '3px solid',
                   borderColor: 'primary.main',
-                  pl: 1.5,
-                  ml: 0,
+                  paddingInlineStart: '12px',
+                  marginInlineStart: 0,
                   my: 1,
                   color: 'text.secondary',
                 },
@@ -198,4 +195,4 @@ export default function ChatMessage({ message, onActionExecute, onActionReject, 
       )}
     </Box>
   )
-}
+})
