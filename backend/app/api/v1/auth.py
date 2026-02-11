@@ -1,18 +1,27 @@
-from datetime import datetime
+import logging
+import secrets
+from datetime import datetime, timedelta
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, Request, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.config import get_settings
 from app.core.security import create_access_token, get_current_user, get_password_hash, verify_password
 from app.core.validation import sanitize_string, validate_email, validate_password
 from app.db.session import get_db
 from app.models.invitation import InvitationStatus, ProjectInvitation
 from app.models.project import ProjectMember
-from app.models.user import User
-from app.schemas.user import TokenResponse, UserLogin, UserRegister, UserResponse
+from app.models.user import PasswordResetToken, User
+from app.schemas.user import (
+    MessageResponse, PasswordResetConfirm, PasswordResetRequest,
+    TokenResponse, UserLogin, UserRegister, UserResponse, UserUpdate,
+)
+from app.services.email_service import EmailService
 from app.utils.localization import get_language_from_request, translate_message
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -36,7 +45,7 @@ async def register(
         error_message = translate_message('email_already_registered', language)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=error_message
+            detail={"message": error_message, "code": "EMAIL_ALREADY_REGISTERED"}
         )
 
     user = User(
@@ -116,3 +125,107 @@ async def login(data: UserLogin, request: Request, db: AsyncSession = Depends(ge
 @router.get("/me", response_model=UserResponse)
 async def get_current_user_info(user: User = Depends(get_current_user)):
     return user
+
+
+@router.put("/me", response_model=UserResponse)
+async def update_current_user(
+    data: UserUpdate,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    if data.full_name is not None:
+        user.full_name = data.full_name
+    if data.phone is not None:
+        user.phone = data.phone
+    if data.company is not None:
+        user.company = data.company
+    await db.commit()
+    await db.refresh(user)
+    return user
+
+
+@router.post("/forgot-password", response_model=MessageResponse)
+async def forgot_password(
+    data: PasswordResetRequest,
+    request: Request,
+    background_tasks: BackgroundTasks,
+    db: AsyncSession = Depends(get_db),
+):
+    language = get_language_from_request(request)
+    generic_message = translate_message('password_reset_sent', language)
+
+    result = await db.execute(select(User).where(User.email == data.email))
+    user = result.scalar_one_or_none()
+
+    if user and user.is_active:
+        token = secrets.token_urlsafe(48)
+        reset_token = PasswordResetToken(
+            user_id=user.id,
+            token=token,
+            expires_at=datetime.utcnow() + timedelta(hours=1),
+        )
+        db.add(reset_token)
+        await db.commit()
+
+        settings = get_settings()
+        reset_url = f"{settings.frontend_base_url}/reset-password?token={token}"
+        body_html = (
+            f"<p>You requested a password reset for your BuilderOps account.</p>"
+            f"<p><a href='{reset_url}'>Click here to reset your password</a></p>"
+            f"<p>This link expires in 1 hour.</p>"
+            f"<p>If you didn't request this, please ignore this email.</p>"
+        )
+
+        try:
+            email_service = EmailService()
+            if email_service.enabled:
+                background_tasks.add_task(
+                    email_service.send_notification,
+                    to_email=user.email,
+                    subject="BuilderOps - Password Reset",
+                    body_html=body_html,
+                )
+        except Exception:
+            logger.warning("Failed to send password reset email", exc_info=True)
+
+    return MessageResponse(message=generic_message)
+
+
+@router.post("/reset-password", response_model=MessageResponse)
+async def reset_password(
+    data: PasswordResetConfirm,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+):
+    language = get_language_from_request(request)
+
+    result = await db.execute(
+        select(PasswordResetToken).where(PasswordResetToken.token == data.token)
+    )
+    reset_token = result.scalar_one_or_none()
+
+    if not reset_token or reset_token.used_at or reset_token.expires_at < datetime.utcnow():
+        error_message = translate_message('invalid_reset_token', language)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_message,
+        )
+
+    user_result = await db.execute(select(User).where(User.id == reset_token.user_id))
+    user = user_result.scalar_one_or_none()
+
+    if not user:
+        error_message = translate_message('invalid_reset_token', language)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_message,
+        )
+
+    password = validate_password(data.new_password)
+    user.password_hash = get_password_hash(password)
+    reset_token.used_at = datetime.utcnow()
+
+    await db.commit()
+
+    success_message = translate_message('password_reset_success', language)
+    return MessageResponse(message=success_message)

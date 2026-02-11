@@ -207,7 +207,8 @@
     "phone": "טלפון",
     "company": "חברה",
     "editProfile": "ערוך פרופיל",
-    "updateSuccess": "הפרופיל עודכן בהצלחה"
+    "updateSuccess": "הפרופיל עודכן בהצלחה",
+    "updateFailed": "נכשל בעדכון הפרופיל"
   },
   "equipment": {
     "title": "ציוד",

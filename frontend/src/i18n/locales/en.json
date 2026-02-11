@@ -452,7 +452,8 @@
     "phone": "Phone",
     "company": "Company",
     "editProfile": "Edit Profile",
-    "updateSuccess": "Profile updated successfully"
+    "updateSuccess": "Profile updated successfully",
+    "updateFailed": "Failed to update profile"
   },
   "auditLog": {
     "pageTitle": "Audit Log",

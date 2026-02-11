@@ -57,4 +57,17 @@ export const authApi = {
     const response = await apiClient.get<LoginResponse['user']>('/auth/me')
     return transformUser(response.data)
   },
+
+  forgotPassword: async (email: string): Promise<void> => {
+    await apiClient.post('/auth/forgot-password', { email })
+  },
+
+  resetPassword: async (token: string, newPassword: string): Promise<void> => {
+    await apiClient.post('/auth/reset-password', { token, new_password: newPassword })
+  },
+
+  updateProfile: async (data: { full_name?: string; phone?: string; company?: string }): Promise<User> => {
+    const response = await apiClient.put<LoginResponse['user']>('/auth/me', data)
+    return transformUser(response.data)
+  },
 }

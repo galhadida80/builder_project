@@ -2,14 +2,16 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 import { useToast } from '../components/common/ToastProvider'
+import { authApi } from '../api/auth'
 import { PersonIcon, EmailIcon, PhoneIcon, BusinessIcon, EditIcon, SaveIcon } from '@/icons'
 import { Box, Typography, Paper, Avatar, TextField, Button, Divider, Chip } from '@/mui'
 
 export default function ProfilePage() {
   const { t } = useTranslation()
-  const { user } = useAuth()
-  const { showSuccess } = useToast()
+  const { user, refreshUser } = useAuth()
+  const { showSuccess, showError } = useToast()
   const [editing, setEditing] = useState(false)
+  const [saving, setSaving] = useState(false)
   const [formData, setFormData] = useState({
     fullName: user?.fullName || '',
     phone: user?.phone || '',
@@ -20,9 +22,22 @@ export default function ProfilePage() {
     return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
   }
 
-  const handleSave = () => {
-    setEditing(false)
-    showSuccess(t('profile.updateSuccess'))
+  const handleSave = async () => {
+    setSaving(true)
+    try {
+      await authApi.updateProfile({
+        full_name: formData.fullName || undefined,
+        phone: formData.phone || undefined,
+        company: formData.company || undefined,
+      })
+      await refreshUser()
+      setEditing(false)
+      showSuccess(t('profile.updateSuccess'))
+    } catch {
+      showError(t('profile.updateFailed'))
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -117,8 +132,8 @@ export default function ProfilePage() {
 
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
             {editing ? (
-              <Button variant="contained" startIcon={<SaveIcon />} onClick={handleSave}>
-                {t('common.save')}
+              <Button variant="contained" startIcon={<SaveIcon />} onClick={handleSave} disabled={saving}>
+                {saving ? t('common.loading') : t('common.save')}
               </Button>
             ) : (
               <Button variant="outlined" startIcon={<EditIcon />} onClick={() => setEditing(true)}>
