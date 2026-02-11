@@ -1,27 +1,7 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import Box from '@mui/material/Box'
-import Drawer from '@mui/material/Drawer'
-import List from '@mui/material/List'
-import ListItem from '@mui/material/ListItem'
-import ListItemButton from '@mui/material/ListItemButton'
-import ListItemIcon from '@mui/material/ListItemIcon'
-import ListItemText from '@mui/material/ListItemText'
-import Divider from '@mui/material/Divider'
-import Typography from '@mui/material/Typography'
-import DashboardIcon from '@mui/icons-material/Dashboard'
-import FolderIcon from '@mui/icons-material/Folder'
-import BuildIcon from '@mui/icons-material/Build'
-import InventoryIcon from '@mui/icons-material/Inventory'
-import EventIcon from '@mui/icons-material/Event'
-import CheckCircleIcon from '@mui/icons-material/CheckCircle'
-import AccountTreeIcon from '@mui/icons-material/AccountTree'
-import ContactsIcon from '@mui/icons-material/Contacts'
-import HistoryIcon from '@mui/icons-material/History'
-import SettingsIcon from '@mui/icons-material/Settings'
-import AssignmentIcon from '@mui/icons-material/Assignment'
-import ConstructionIcon from '@mui/icons-material/Construction'
-import EmailIcon from '@mui/icons-material/Email'
+import { DashboardIcon, FolderIcon, BuildIcon, InventoryIcon, EventIcon, CheckCircleIcon, AccountTreeIcon, ContactsIcon, HistoryIcon, SettingsIcon, AssignmentIcon, ConstructionIcon, EmailIcon } from '@/icons'
+import { Box, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, Typography } from '@/mui'
 
 const DRAWER_WIDTH = 260
 
@@ -82,11 +62,17 @@ export default function Sidebar({ projectId, mobileOpen = false, onMobileClose, 
   const drawerContent = (
     <>
       <Box
+        onClick={() => navigate('/dashboard')}
         sx={{
           p: 2.5,
           display: 'flex',
           alignItems: 'center',
           gap: 1.5,
+          cursor: 'pointer',
+          '&:hover': { bgcolor: 'action.hover' },
+          borderRadius: 2,
+          mx: 0.5,
+          mt: 0.5,
         }}
       >
         <Box

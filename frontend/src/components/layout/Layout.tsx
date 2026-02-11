@@ -1,21 +1,15 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Outlet, useParams, useNavigate } from 'react-router-dom'
-import Box from '@mui/material/Box'
-import Toolbar from '@mui/material/Toolbar'
-import CircularProgress from '@mui/material/CircularProgress'
-import Fab from '@mui/material/Fab'
-import SmartToyIcon from '@mui/icons-material/SmartToy'
-import useMediaQuery from '@mui/material/useMediaQuery'
-import { useTheme } from '@mui/material/styles'
-import IconButton from '@mui/material/IconButton'
-import MenuIcon from '@mui/icons-material/Menu'
+import { Outlet, useParams, useNavigate, useLocation } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import Header from './Header'
 import ChatDrawer from '../chat/ChatDrawer'
 import { projectsApi } from '../../api/projects'
 import { useAuth } from '../../contexts/AuthContext'
 import type { Project } from '../../types'
+import { SmartToyIcon, MenuIcon } from '@/icons'
+import { Box, Toolbar, CircularProgress, Fab, useMediaQuery, IconButton } from '@/mui'
+import { useTheme } from '@/mui'
 
 const DRAWER_WIDTH = 260
 
@@ -23,8 +17,17 @@ export default function Layout() {
   const { t } = useTranslation()
   const { projectId } = useParams()
   const navigate = useNavigate()
+  const location = useLocation()
   const { user: currentUser, logout } = useAuth()
   const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>(projectId)
+
+  useEffect(() => {
+    const match = location.pathname.match(/\/projects\/([^/]+)/)
+    const urlProjectId = match ? match[1] : undefined
+    if (urlProjectId && urlProjectId !== selectedProjectId) {
+      setSelectedProjectId(urlProjectId)
+    }
+  }, [location.pathname])
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
   const [chatOpen, setChatOpen] = useState(false)
@@ -96,7 +99,6 @@ export default function Layout() {
         sx={{
           flexGrow: 1,
           p: { xs: 1, md: 2 },
-          ml: { xs: 0, md: `${DRAWER_WIDTH}px` },
           bgcolor: 'background.default',
           minHeight: '100vh',
         }}

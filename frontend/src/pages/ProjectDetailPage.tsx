@@ -1,69 +1,34 @@
-import { useState, useEffect, useMemo } from 'react'
-import { useParams, useNavigate, Outlet } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useParams, useNavigate, useLocation, Outlet } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
-import Chip from '@mui/material/Chip'
-import Skeleton from '@mui/material/Skeleton'
-import IconButton from '@mui/material/IconButton'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import EditIcon from '@mui/icons-material/Edit'
-import LocationOnIcon from '@mui/icons-material/LocationOn'
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
-import GroupIcon from '@mui/icons-material/Group'
-import ConstructionIcon from '@mui/icons-material/Construction'
-import InventoryIcon from '@mui/icons-material/Inventory'
-import EventIcon from '@mui/icons-material/Event'
-import TaskAltIcon from '@mui/icons-material/TaskAlt'
-import AccountTreeIcon from '@mui/icons-material/AccountTree'
-import ContactsIcon from '@mui/icons-material/Contacts'
-import TrendingUpIcon from '@mui/icons-material/TrendingUp'
-import WarningAmberIcon from '@mui/icons-material/WarningAmber'
-import EmailIcon from '@mui/icons-material/Email'
-import AssignmentIcon from '@mui/icons-material/Assignment'
-import TimelineIcon from '@mui/icons-material/Timeline'
 import { Card, KPICard } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { StatusBadge } from '../components/ui/StatusBadge'
-import { Tabs } from '../components/ui/Tabs'
 import { CircularProgressDisplay } from '../components/ui/ProgressBar'
 import { EmptyState } from '../components/ui/EmptyState'
 import { projectsApi } from '../api/projects'
 import { equipmentApi } from '../api/equipment'
 import { materialsApi } from '../api/materials'
 import { meetingsApi } from '../api/meetings'
-import { rfiApi, type RFISummary } from '../api/rfi'
 import type { Project, Equipment, Material, Meeting } from '../types'
-
-const TAB_KEYS = [
-  { key: 'projectDetail.tabs.overview', value: '', icon: <TrendingUpIcon sx={{ fontSize: 18 }} /> },
-  { key: 'projectDetail.tabs.timeline', value: 'timeline', icon: <TimelineIcon sx={{ fontSize: 18 }} /> },
-  { key: 'projectDetail.tabs.equipment', value: 'equipment', icon: <ConstructionIcon sx={{ fontSize: 18 }} /> },
-  { key: 'projectDetail.tabs.materials', value: 'materials', icon: <InventoryIcon sx={{ fontSize: 18 }} /> },
-  { key: 'projectDetail.tabs.meetings', value: 'meetings', icon: <EventIcon sx={{ fontSize: 18 }} /> },
-  { key: 'projectDetail.tabs.approvals', value: 'approvals', icon: <TaskAltIcon sx={{ fontSize: 18 }} /> },
-  { key: 'projectDetail.tabs.areas', value: 'areas', icon: <AccountTreeIcon sx={{ fontSize: 18 }} /> },
-  { key: 'projectDetail.tabs.contacts', value: 'contacts', icon: <ContactsIcon sx={{ fontSize: 18 }} /> },
-  { key: 'projectDetail.tabs.inspections', value: 'inspections', icon: <AssignmentIcon sx={{ fontSize: 18 }} /> },
-  { key: 'projectDetail.tabs.rfis', value: 'rfis', icon: <EmailIcon sx={{ fontSize: 18 }} /> },
-]
+import { ArrowBackIcon, EditIcon, LocationOnIcon, CalendarTodayIcon, GroupIcon, ConstructionIcon, InventoryIcon, EventIcon, WarningAmberIcon } from '@/icons'
+import { Box, Typography, Chip, Skeleton, IconButton } from '@/mui'
 
 export default function ProjectDetailPage() {
   const { projectId } = useParams()
   const navigate = useNavigate()
+  const location = useLocation()
   const { t, i18n } = useTranslation()
   const [loading, setLoading] = useState(true)
   const [project, setProject] = useState<Project | null>(null)
   const [equipment, setEquipment] = useState<Equipment[]>([])
   const [materials, setMaterials] = useState<Material[]>([])
   const [meetings, setMeetings] = useState<Meeting[]>([])
-  const [rfiSummary, setRfiSummary] = useState<RFISummary | null>(null)
 
-  const tabs = useMemo(() => TAB_KEYS.map(tk => ({ label: t(tk.key), value: tk.value, icon: tk.icon })), [t])
   const dateLocale = i18n.language === 'he' ? 'he-IL' : i18n.language === 'es' ? 'es-ES' : 'en-US'
 
-  const currentPath = window.location.pathname.split('/').pop() || ''
-  const currentTab = TAB_KEYS.find(t => t.value === currentPath)?.value || ''
+  const pathSegments = location.pathname.split('/')
+  const isOverview = pathSegments.length <= 3 || pathSegments[3] === ''
 
   useEffect(() => {
     loadProjectData()
@@ -73,18 +38,16 @@ export default function ProjectDetailPage() {
     if (!projectId) return
     try {
       setLoading(true)
-      const [projectData, equipmentData, materialsData, meetingsData, rfiSummaryData] = await Promise.all([
+      const [projectData, equipmentData, materialsData, meetingsData] = await Promise.all([
         projectsApi.get(projectId).catch(() => null),
         equipmentApi.list(projectId).catch(() => []),
         materialsApi.list(projectId).catch(() => []),
-        meetingsApi.list(projectId).catch(() => []),
-        rfiApi.getSummary(projectId).catch(() => null)
+        meetingsApi.list(projectId).catch(() => [])
       ])
       setProject(projectData)
       setEquipment(equipmentData)
       setMaterials(materialsData)
       setMeetings(meetingsData)
-      setRfiSummary(rfiSummaryData)
     } catch {
       // Error handled silently
     } finally {
@@ -121,10 +84,6 @@ export default function ProjectDetailPage() {
     )
   }
 
-  const handleTabChange = (value: string) => {
-    navigate(`/projects/${projectId}${value ? `/${value}` : ''}`)
-  }
-
   const approvedItems = equipment.filter(e => e.status === 'approved').length +
     materials.filter(m => m.status === 'approved').length
   const inProgressItems = equipment.filter(e => e.status === 'under_review' || e.status === 'submitted').length +
@@ -136,9 +95,9 @@ export default function ProjectDetailPage() {
 
   const pendingApprovals = inProgressItems
 
-  const rfiBadgeCount = rfiSummary ? (rfiSummary.open_count + rfiSummary.waiting_response_count) : 0
-
-  const isOverview = currentTab === ''
+  const handleNavTo = (section: string) => {
+    navigate(`/projects/${projectId}/${section}`)
+  }
 
   return (
     <Box sx={{ p: { xs: 1.5, md: 2 } }}>
@@ -211,20 +170,6 @@ export default function ProjectDetailPage() {
         </Box>
       </Card>
 
-      <Box sx={{ mb: 2 }}>
-        <Tabs
-          items={tabs.map(t => ({
-            label: t.label,
-            value: t.value,
-            icon: t.icon,
-            badge: t.value === 'rfis' ? rfiBadgeCount : undefined
-          }))}
-          value={currentTab}
-          onChange={handleTabChange}
-          variant="scrollable"
-        />
-      </Box>
-
       {isOverview ? (
         <Box>
           <Box
@@ -240,28 +185,28 @@ export default function ProjectDetailPage() {
               value={equipment.length}
               icon={<ConstructionIcon />}
               color="primary"
-              onClick={() => handleTabChange('equipment')}
+              onClick={() => handleNavTo('equipment')}
             />
             <KPICard
               title={t('nav.materials')}
               value={materials.length}
               icon={<InventoryIcon />}
               color="warning"
-              onClick={() => handleTabChange('materials')}
+              onClick={() => handleNavTo('materials')}
             />
             <KPICard
               title={t('nav.meetings')}
               value={meetings.length}
               icon={<EventIcon />}
               color="info"
-              onClick={() => handleTabChange('meetings')}
+              onClick={() => handleNavTo('meetings')}
             />
             <KPICard
               title={t('projectDetail.pendingApprovals')}
               value={pendingApprovals}
               icon={<WarningAmberIcon />}
               color={pendingApprovals > 0 ? 'error' : 'success'}
-              onClick={() => handleTabChange('approvals')}
+              onClick={() => handleNavTo('approvals')}
             />
           </Box>
 
@@ -303,28 +248,28 @@ export default function ProjectDetailPage() {
                     {t('projectDetail.quickStats')}
                   </Typography>
                   <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1.5, borderBottom: 1, borderColor: 'divider', cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' }, mx: -1, px: 1, borderRadius: 1 }} onClick={() => handleTabChange('equipment')}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1.5, borderBottom: 1, borderColor: 'divider', cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' }, mx: -1, px: 1, borderRadius: 1 }} onClick={() => handleNavTo('equipment')}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                         <ConstructionIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
                         <Typography variant="body2" color="text.secondary">{t('projectDetail.equipmentItems')}</Typography>
                       </Box>
                       <Typography variant="body2" fontWeight={600}>{equipment.length}</Typography>
                     </Box>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1.5, borderBottom: 1, borderColor: 'divider', cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' }, mx: -1, px: 1, borderRadius: 1 }} onClick={() => handleTabChange('materials')}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1.5, borderBottom: 1, borderColor: 'divider', cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' }, mx: -1, px: 1, borderRadius: 1 }} onClick={() => handleNavTo('materials')}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                         <InventoryIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
                         <Typography variant="body2" color="text.secondary">{t('nav.materials')}</Typography>
                       </Box>
                       <Typography variant="body2" fontWeight={600}>{materials.length}</Typography>
                     </Box>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1.5, borderBottom: 1, borderColor: 'divider', cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' }, mx: -1, px: 1, borderRadius: 1 }} onClick={() => handleTabChange('meetings')}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1.5, borderBottom: 1, borderColor: 'divider', cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' }, mx: -1, px: 1, borderRadius: 1 }} onClick={() => handleNavTo('meetings')}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                         <EventIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
                         <Typography variant="body2" color="text.secondary">{t('projectDetail.scheduledMeetings')}</Typography>
                       </Box>
                       <Typography variant="body2" fontWeight={600}>{meetings.length}</Typography>
                     </Box>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1.5, cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' }, mx: -1, px: 1, borderRadius: 1 }} onClick={() => handleTabChange('approvals')}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1.5, cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' }, mx: -1, px: 1, borderRadius: 1 }} onClick={() => handleNavTo('approvals')}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                         <WarningAmberIcon sx={{ fontSize: 18, color: pendingApprovals > 0 ? 'warning.main' : 'text.secondary' }} />
                         <Typography variant="body2" color="text.secondary">{t('projectDetail.pendingApprovals')}</Typography>
@@ -349,7 +294,7 @@ export default function ProjectDetailPage() {
                   <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
                     {t('projectDetail.teamDescription')}
                   </Typography>
-                  <Button variant="secondary" size="small" onClick={() => handleTabChange('contacts')}>
+                  <Button variant="secondary" size="small" onClick={() => handleNavTo('contacts')}>
                     {t('projectDetail.viewTeam')}
                   </Button>
                 </Box>

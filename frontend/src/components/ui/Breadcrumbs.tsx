@@ -127,14 +127,9 @@ interface PageHeaderProps {
   subtitle?: string
 }
 
-export function PageHeader({ title, breadcrumbs, actions, subtitle }: PageHeaderProps) {
+export function PageHeader({ title, actions, subtitle }: PageHeaderProps) {
   return (
     <Box sx={{ mb: 3 }}>
-      {breadcrumbs && breadcrumbs.length > 0 && (
-        <Box sx={{ mb: 1.5 }}>
-          <Breadcrumbs items={breadcrumbs} />
-        </Box>
-      )}
       <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 2 }}>
         <Box>
           <Typography

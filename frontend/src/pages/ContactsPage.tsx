@@ -1,21 +1,5 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
-import MenuItem from '@mui/material/MenuItem'
-import MuiTextField from '@mui/material/TextField'
-import Skeleton from '@mui/material/Skeleton'
-import Chip from '@mui/material/Chip'
-import IconButton from '@mui/material/IconButton'
-import AddIcon from '@mui/icons-material/Add'
-import EmailIcon from '@mui/icons-material/Email'
-import PhoneIcon from '@mui/icons-material/Phone'
-import BusinessIcon from '@mui/icons-material/Business'
-import EditIcon from '@mui/icons-material/Edit'
-import DeleteIcon from '@mui/icons-material/Delete'
-import StarIcon from '@mui/icons-material/Star'
-import PersonIcon from '@mui/icons-material/Person'
-import GroupIcon from '@mui/icons-material/Group'
 import { useTranslation } from 'react-i18next'
 import { Card, KPICard } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
@@ -30,6 +14,8 @@ import type { Contact } from '../types'
 import { useToast } from '../components/common/ToastProvider'
 import { validateContactForm, hasErrors,  type ValidationError } from '../utils/validation'
 import { parseValidationErrors } from '../utils/apiErrors'
+import { AddIcon, EmailIcon, PhoneIcon, BusinessIcon, EditIcon, DeleteIcon, StarIcon, PersonIcon, GroupIcon } from '@/icons'
+import { Box, Typography, MenuItem, TextField as MuiTextField, Skeleton, Chip, IconButton } from '@/mui'
 
 export default function ContactsPage() {
   const { t } = useTranslation()
@@ -284,15 +270,15 @@ export default function ContactsPage() {
               sx={{
                 mt: 3,
                 display: 'grid',
-                gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' },
-                gap: 2,
+                gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(4, 1fr)' },
+                gap: 1.5,
               }}
             >
               {filteredContacts.map((contact) => {
                 const typeConfig = getTypeConfig(contact.contactType)
                 return (
                   <Card key={contact.id} hoverable>
-                    <Box sx={{ p: 2.5, position: 'relative' }}>
+                    <Box sx={{ p: 2, position: 'relative' }}>
                       {contact.isPrimary && (
                         <StarIcon sx={{ position: 'absolute', top: 16, right: 16, color: 'warning.main', fontSize: 20 }} />
                       )}
