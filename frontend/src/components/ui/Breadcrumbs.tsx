@@ -1,8 +1,7 @@
-import { Breadcrumbs as MuiBreadcrumbs, Link, Typography, Box } from '@mui/material'
-import { styled } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
-import NavigateNextIcon from '@mui/icons-material/NavigateNext'
-import HomeIcon from '@mui/icons-material/Home'
+import { useTranslation } from 'react-i18next'
+import { NavigateNextIcon, HomeIcon } from '@/icons'
+import { Breadcrumbs as MuiBreadcrumbs, Link, Typography, Box, styled } from '@/mui'
 
 interface BreadcrumbItem {
   label: string
@@ -68,6 +67,7 @@ const CurrentItem = styled(Typography)(({ theme }) => ({
 
 export function Breadcrumbs({ items, showHome = true }: BreadcrumbsProps) {
   const navigate = useNavigate()
+  const { t } = useTranslation()
 
   const handleClick = (href?: string) => {
     if (href) {
@@ -76,7 +76,7 @@ export function Breadcrumbs({ items, showHome = true }: BreadcrumbsProps) {
   }
 
   const allItems = showHome
-    ? [{ label: 'Home', href: '/dashboard', icon: <HomeIcon sx={{ fontSize: 18 }} /> }, ...items]
+    ? [{ label: t('nav.home'), href: '/dashboard', icon: <HomeIcon sx={{ fontSize: 18 }} /> }, ...items]
     : items
 
   return (

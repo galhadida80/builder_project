@@ -1,26 +1,13 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import AppBar from '@mui/material/AppBar'
-import Toolbar from '@mui/material/Toolbar'
-import Typography from '@mui/material/Typography'
-import IconButton from '@mui/material/IconButton'
-
-import Avatar from '@mui/material/Avatar'
-import Menu from '@mui/material/Menu'
-import MenuItem from '@mui/material/MenuItem'
-import Divider from '@mui/material/Divider'
-import ListItemIcon from '@mui/material/ListItemIcon'
-import Box from '@mui/material/Box'
-import MenuIcon from '@mui/icons-material/Menu'
-import NotificationsIcon from '@mui/icons-material/Notifications'
-import PersonIcon from '@mui/icons-material/Person'
-import SettingsIcon from '@mui/icons-material/Settings'
-import LogoutIcon from '@mui/icons-material/Logout'
+import { useNavigate } from 'react-router-dom'
 import type { User, Project } from '../../types'
 import ProjectSelector from './ProjectSelector'
 import { useToast } from '../common/ToastProvider'
 import { ThemeToggle } from '../common/ThemeToggle'
 import { LanguageSwitcher } from '../common/LanguageSwitcher'
+import { MenuIcon, NotificationsIcon, PersonIcon, SettingsIcon, LogoutIcon } from '@/icons'
+import { AppBar, Toolbar, Typography, IconButton, Avatar, Menu, MenuItem, Divider, ListItemIcon, Box } from '@/mui'
 
 interface HeaderProps {
   user: User
@@ -34,6 +21,7 @@ interface HeaderProps {
 
 export default function Header({ user, currentProject, projects, onProjectChange, onLogout, onMenuToggle, isMobile }: HeaderProps) {
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const { showInfo } = useToast()
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [notificationAnchor, setNotificationAnchor] = useState<null | HTMLElement>(null)
@@ -123,11 +111,11 @@ export default function Header({ user, currentProject, projects, onProjectChange
             <Typography variant="caption" color="text.secondary">{user.email}</Typography>
           </Box>
           <Divider />
-          <MenuItem onClick={() => { handleMenuClose(); showInfo(t('messages.profileComingSoon')); }}>
+          <MenuItem onClick={() => { handleMenuClose(); navigate('/profile'); }}>
             <ListItemIcon><PersonIcon fontSize="small" /></ListItemIcon>
             {t('header.profile')}
           </MenuItem>
-          <MenuItem onClick={() => { handleMenuClose(); showInfo(t('messages.settingsComingSoon')); }}>
+          <MenuItem onClick={() => { handleMenuClose(); navigate('/settings'); }}>
             <ListItemIcon><SettingsIcon fontSize="small" /></ListItemIcon>
             {t('nav.settings')}
           </MenuItem>

@@ -436,7 +436,18 @@
     "inspections": "Inspecciones",
     "rfis": "RFIs",
     "auditLog": "Registro de Auditoría",
-    "settings": "Configuración"
+    "settings": "Configuración",
+    "home": "Inicio"
+  },
+  "profile": {
+    "title": "Perfil",
+    "subtitle": "Gestiona los detalles de tu cuenta",
+    "fullName": "Nombre Completo",
+    "email": "Correo Electrónico",
+    "phone": "Teléfono",
+    "company": "Empresa",
+    "editProfile": "Editar Perfil",
+    "updateSuccess": "Perfil actualizado con éxito"
   },
   "auditLog": {
     "pageTitle": "Registro de Auditoría",
@@ -931,6 +942,15 @@
     "underUtilizedRange": "Subutilizado (0-40%)",
     "optimalRange": "Óptimo (40-80%)",
     "highOverRange": "Alto/Sobre (80%+)"
+  },
+  "workloadCalendar": {
+    "title": "Calendario de Carga",
+    "thisWeek": "Esta Semana",
+    "thisMonth": "Este Mes",
+    "customRange": "Rango Personalizado",
+    "startDate": "Fecha de Inicio",
+    "endDate": "Fecha de Fin",
+    "daysSelected": "{{count}} días seleccionados"
   },
   "landing": {
     "signIn": "Iniciar Sesión",

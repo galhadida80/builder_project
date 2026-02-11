@@ -440,7 +440,18 @@
     "inspections": "Inspections",
     "rfis": "RFIs",
     "auditLog": "Audit Log",
-    "settings": "Settings"
+    "settings": "Settings",
+    "home": "Home"
+  },
+  "profile": {
+    "title": "Profile",
+    "subtitle": "Manage your account details",
+    "fullName": "Full Name",
+    "email": "Email",
+    "phone": "Phone",
+    "company": "Company",
+    "editProfile": "Edit Profile",
+    "updateSuccess": "Profile updated successfully"
   },
   "auditLog": {
     "pageTitle": "Audit Log",
@@ -982,6 +993,15 @@
     "underUtilizedRange": "Under-utilized (0-60%)",
     "optimalRange": "Optimal (61-90%)",
     "highOverRange": "High/Over (91%+)"
+  },
+  "workloadCalendar": {
+    "title": "Workload Calendar",
+    "thisWeek": "This Week",
+    "thisMonth": "This Month",
+    "customRange": "Custom Range",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "daysSelected": "{{count}} days selected"
   },
   "landing": {
     "signIn": "Sign In",

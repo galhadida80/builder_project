@@ -3,6 +3,7 @@ import Layout from './components/layout/Layout'
 import { PWAInstallPrompt } from './components/common/PWAInstallPrompt'
 import { ProjectProvider } from './contexts/ProjectContext'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
+import { ReferenceDataProvider } from './contexts/ReferenceDataContext'
 import LandingPage from './pages/LandingPage'
 import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
@@ -28,8 +29,10 @@ import GanttTimelinePage from './pages/GanttTimelinePage'
 import MobileChecklistPage from './pages/MobileChecklistPage'
 import RFIDetailPage from './pages/RFIDetailPage'
 import SettingsPage from './pages/SettingsPage'
+import ProfilePage from './pages/ProfilePage'
 import InvitePage from './pages/InvitePage'
 import AdminUsersPage from './pages/AdminUsersPage'
+import ResetPasswordPage from './pages/ResetPasswordPage'
 
 function ProtectedRoute() {
   const { user, loading } = useAuth()
@@ -52,10 +55,12 @@ function SuperAdminRoute() {
 function AppRoutes() {
   return (
     <ProjectProvider>
+      <ReferenceDataProvider>
       <PWAInstallPrompt />
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/invite" element={<InvitePage />} />
 
         <Route element={<ProtectedRoute />}>
@@ -82,6 +87,7 @@ function AppRoutes() {
             <Route path="/team-workload" element={<TeamWorkloadPage />} />
             <Route path="/inspector-dashboard" element={<InspectorDashboardPage />} />
             <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
           </Route>
 
           <Route element={<SuperAdminRoute />}>
@@ -95,6 +101,7 @@ function AppRoutes() {
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      </ReferenceDataProvider>
     </ProjectProvider>
   )
 }

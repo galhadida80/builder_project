@@ -1,11 +1,7 @@
 import { useTranslation } from 'react-i18next'
-import FormControl from '@mui/material/FormControl'
-import Select, { SelectChangeEvent } from '@mui/material/Select'
-import MenuItem from '@mui/material/MenuItem'
-import Typography from '@mui/material/Typography'
-import Box from '@mui/material/Box'
-import Chip from '@mui/material/Chip'
 import type { Project } from '../../types'
+import { FormControl, MenuItem, Typography, Box, Chip } from '@/mui'
+import { Select, SelectChangeEvent } from '@/mui'
 
 interface ProjectSelectorProps {
   projects: Project[]
@@ -37,7 +33,7 @@ export default function ProjectSelector({ projects, currentProject, onProjectCha
         onChange={handleChange}
         displayEmpty
         sx={{
-          bgcolor: 'grey.100',
+          bgcolor: 'action.hover',
           '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
           borderRadius: 2,
         }}
