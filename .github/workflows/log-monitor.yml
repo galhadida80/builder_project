@@ -1,0 +1,48 @@
+name: Log Monitor - Cloud Run Errors → GitHub Issues
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+env:
+  PROJECT_ID: builderops-poc-il
+  REGION: me-west1
+  BACKEND_SERVICE: builderops-backend
+
+jobs:
+  monitor-logs:
+    name: Check Cloud Run Error Logs
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_SA_EMAIL }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Fetch error logs and create issues
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          echo "Fetching Cloud Run error logs from the last 6 hours..."
+          gcloud logging read \
+            'resource.type="cloud_run_revision" AND resource.labels.service_name="${{ env.BACKEND_SERVICE }}" AND severity>=ERROR AND timestamp>="-PT6H"' \
+            --project=${{ env.PROJECT_ID }} \
+            --format=json \
+            --limit=500 \
+          | python infra/log_monitor.py
