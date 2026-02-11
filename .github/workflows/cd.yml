@@ -59,7 +59,11 @@ jobs:
             --set-env-vars "GCS_PROJECT_ID=${{ env.PROJECT_ID }}" \
             --set-env-vars "SECRET_KEY=${{ secrets.SECRET_KEY }}" \
             --set-env-vars "ENVIRONMENT=production" \
-            --set-env-vars "EMAIL_PROVIDER=fake" \
+            --set-env-vars "EMAIL_PROVIDER=${{ secrets.EMAIL_PROVIDER || 'fake' }}" \
+            --set-env-vars "SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }}" \
+            --set-env-vars "SENDGRID_FROM_EMAIL=${{ secrets.SENDGRID_FROM_EMAIL }}" \
+            --set-env-vars "SENDGRID_FROM_NAME=BuilderOps" \
+            --set-env-vars "FRONTEND_BASE_URL=https://builderops-frontend-295612488497.me-west1.run.app" \
             --set-env-vars "CORS_ORIGINS=*" \
             --set-env-vars "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}"
 
