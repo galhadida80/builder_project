@@ -118,6 +118,7 @@
     "notes": "הערות",
     "total": "סה\"כ",
     "amount": "כמות",
+    "hoursShort": "ש'",
     "price": "מחיר",
     "cost": "עלות",
     "required": "נדרש",
@@ -849,7 +850,8 @@
     "phone": "טלפון",
     "roleDescription": "תיאור תפקיד",
     "deleteContact": "מחק איש קשר",
-    "deleteConfirmationMessage": "האם אתה בטוח שברצונך למחוק את {{name}}? פעולה זו לא ניתנת לביטול."
+    "deleteConfirmationMessage": "האם אתה בטוח שברצונך למחוק את {{name}}? פעולה זו לא ניתנת לביטול.",
+    "primary": "ראשי"
   },
   "rfis": {
     "title": "בקשות מידע",
@@ -1109,6 +1111,13 @@
     "startDate": "תאריך התחלה",
     "endDate": "תאריך סיום",
     "daysSelected": "{{count}} ימים נבחרו"
+  },
+  "workloadBar": {
+    "underUtilized": "ניצול חסר",
+    "optimal": "אופטימלי",
+    "high": "גבוה",
+    "overAllocated": "הקצאת יתר",
+    "overCapacity": "מעבר לקיבולת"
   },
   "landing": {
     "signIn": "התחבר",

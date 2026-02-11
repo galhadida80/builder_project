@@ -1,7 +1,6 @@
-import { Box, Typography, LinearProgress } from '@mui/material'
-import { styled } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import { getWorkloadColor } from '../utils/workloadCalculation'
+import { Box, Typography, LinearProgress, styled } from '@/mui'
 
 interface WorkloadBarProps {
   value: number
@@ -57,7 +56,7 @@ export function WorkloadBar({
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             {showHours && assignedHours !== undefined && availableHours !== undefined && (
               <Typography variant="caption" color="text.secondary">
-                {assignedHours}h / {availableHours}h
+                {assignedHours}{t('common.hoursShort')} / {availableHours}{t('common.hoursShort')}
               </Typography>
             )}
             {showValue && (

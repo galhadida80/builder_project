@@ -1,10 +1,12 @@
 import { DatePicker, DatePickerProps as MuiDatePickerProps } from '@mui/x-date-pickers/DatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
-import { FormControl, FormHelperText } from '@mui/material'
-import { styled } from '@mui/material'
+import { useTranslation } from 'react-i18next'
 import { DatePickerInputBaseProps } from './types'
 import dayjs, { Dayjs } from 'dayjs'
+import 'dayjs/locale/he'
+import 'dayjs/locale/es'
+import { FormControl, FormHelperText, styled } from '@/mui'
 
 export interface DatePickerInputProps extends Omit<DatePickerInputBaseProps, 'onChange'> {
   /**
@@ -61,12 +63,13 @@ export function DatePickerInput({
   className,
   DatePickerProps,
 }: DatePickerInputProps) {
+  const { i18n } = useTranslation()
   const handleChange = (newValue: Dayjs | null) => {
     onChange(newValue ? newValue.toDate() : null)
   }
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
+    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={i18n.language}>
       <StyledFormControl
         fullWidth
         error={!!error}

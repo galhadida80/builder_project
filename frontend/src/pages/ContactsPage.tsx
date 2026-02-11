@@ -15,7 +15,7 @@ import { useToast } from '../components/common/ToastProvider'
 import { validateContactForm, hasErrors,  type ValidationError } from '../utils/validation'
 import { parseValidationErrors } from '../utils/apiErrors'
 import { AddIcon, EmailIcon, PhoneIcon, BusinessIcon, EditIcon, DeleteIcon, StarIcon, PersonIcon, GroupIcon } from '@/icons'
-import { Box, Typography, MenuItem, TextField as MuiTextField, Skeleton, Chip, IconButton } from '@/mui'
+import { Box, Typography, MenuItem, TextField as MuiTextField, Skeleton, Chip, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@/mui'
 
 export default function ContactsPage() {
   const { t } = useTranslation()
@@ -266,98 +266,85 @@ export default function ContactsPage() {
               />
             </Box>
           ) : (
-            <Box
-              sx={{
-                mt: 3,
-                display: 'grid',
-                gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(4, 1fr)' },
-                gap: 1.5,
-              }}
-            >
-              {filteredContacts.map((contact) => {
-                const typeConfig = getTypeConfig(contact.contactType)
-                return (
-                  <Card key={contact.id} hoverable>
-                    <Box sx={{ p: 2, position: 'relative' }}>
-                      {contact.isPrimary && (
-                        <StarIcon sx={{ position: 'absolute', top: 16, right: 16, color: 'warning.main', fontSize: 20 }} />
-                      )}
-
-                      <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-                        <Avatar name={contact.contactName} size="large" />
-                        <Box sx={{ flex: 1 }}>
-                          <Typography variant="subtitle1" fontWeight={600}>
-                            {contact.contactName}
-                          </Typography>
+            <TableContainer sx={{ mt: 2 }}>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }}>{t('contacts.contactName')}</TableCell>
+                    <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }}>{t('contacts.contactType')}</TableCell>
+                    <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }}>{t('contacts.companyName')}</TableCell>
+                    <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }}>{t('contacts.roleDescription')}</TableCell>
+                    <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }}>{t('contacts.email')}</TableCell>
+                    <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }}>{t('contacts.phone')}</TableCell>
+                    <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }} align="center">{t('common.actions')}</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {filteredContacts.map((contact) => {
+                    const typeConfig = getTypeConfig(contact.contactType)
+                    return (
+                      <TableRow key={contact.id} hover sx={{ '&:last-child td': { borderBottom: 0 } }}>
+                        <TableCell>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                            <Avatar name={contact.contactName} size="small" />
+                            <Box>
+                              <Typography variant="body2" fontWeight={600}>
+                                {contact.contactName}
+                              </Typography>
+                              {contact.isPrimary && (
+                                <Chip label={t('contacts.primary')} size="small" color="warning" sx={{ height: 18, fontSize: '0.65rem', mt: 0.25 }} />
+                              )}
+                            </Box>
+                          </Box>
+                        </TableCell>
+                        <TableCell>
                           <Chip
                             label={typeConfig.label}
                             size="small"
                             sx={{
-                              mt: 0.5,
                               bgcolor: `${typeConfig.color}15`,
                               color: typeConfig.color,
                               fontWeight: 500,
-                              fontSize: '0.7rem',
+                              fontSize: '0.75rem',
                             }}
                           />
-                        </Box>
-                      </Box>
-
-                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
-                        {contact.companyName && (
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <BusinessIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-                            <Typography variant="body2" color="text.secondary">
-                              {contact.companyName}
-                            </Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Typography variant="body2" color="text.secondary">
+                            {contact.companyName || '—'}
+                          </Typography>
+                        </TableCell>
+                        <TableCell sx={{ maxWidth: 200 }}>
+                          <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {contact.roleDescription || '—'}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          {contact.email ? (
+                            <Typography variant="body2" color="text.secondary">{contact.email}</Typography>
+                          ) : '—'}
+                        </TableCell>
+                        <TableCell>
+                          <Typography variant="body2" color="text.secondary">
+                            {contact.phone || '—'}
+                          </Typography>
+                        </TableCell>
+                        <TableCell align="center">
+                          <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center' }}>
+                            <IconButton size="small" onClick={() => handleOpenEdit(contact)}>
+                              <EditIcon fontSize="small" />
+                            </IconButton>
+                            <IconButton size="small" onClick={() => handleDeleteClick(contact)} color="error">
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
                           </Box>
-                        )}
-                        {contact.email && (
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <EmailIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-                            <Typography variant="body2" color="text.secondary" sx={{ wordBreak: 'break-all' }}>
-                              {contact.email}
-                            </Typography>
-                          </Box>
-                        )}
-                        {contact.phone && (
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <PhoneIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-                            <Typography variant="body2" color="text.secondary">
-                              {contact.phone}
-                            </Typography>
-                          </Box>
-                        )}
-                      </Box>
-
-                      {contact.roleDescription && (
-                        <Typography
-                          variant="caption"
-                          color="text.secondary"
-                          sx={{
-                            display: '-webkit-box',
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: 'vertical',
-                            overflow: 'hidden',
-                          }}
-                        >
-                          {contact.roleDescription}
-                        </Typography>
-                      )}
-
-                      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2, gap: 0.5 }}>
-                        <IconButton size="small" onClick={() => handleOpenEdit(contact)}>
-                          <EditIcon fontSize="small" />
-                        </IconButton>
-                        <IconButton size="small" onClick={() => handleDeleteClick(contact)} color="error">
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
-                      </Box>
-                    </Box>
-                  </Card>
-                )
-              })}
-            </Box>
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })}
+                </TableBody>
+              </Table>
+            </TableContainer>
           )}
         </Box>
       </Card>

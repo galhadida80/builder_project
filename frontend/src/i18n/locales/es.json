@@ -359,6 +359,7 @@
     "notes": "Notas",
     "total": "Total",
     "amount": "Cantidad",
+    "hoursShort": "h",
     "price": "Precio",
     "cost": "Costo",
     "required": "Requerido",
@@ -736,7 +737,18 @@
     "failedToLoad": "Error al cargar contactos",
     "failedToCreate": "Error al crear contacto",
     "failedToUpdate": "Error al actualizar contacto",
-    "failedToDelete": "Error al eliminar contacto"
+    "failedToDelete": "Error al eliminar contacto",
+    "primary": "Principal",
+    "contactType": "Tipo de Contacto",
+    "companyName": "Empresa",
+    "roleDescription": "Descripción del Rol",
+    "editContact": "Editar Contacto",
+    "noContacts": "No se encontraron contactos",
+    "typeRequired": "Se requiere tipo de contacto",
+    "createSuccess": "¡Contacto creado exitosamente!",
+    "updateSuccess": "¡Contacto actualizado exitosamente!",
+    "deleteSuccess": "¡Contacto eliminado exitosamente!",
+    "deleteConfirmationMessage": "¿Estás seguro de que deseas eliminar a {{name}}? Esta acción no se puede deshacer."
   },
   "rfis": {
     "title": "RFIs",
@@ -951,6 +963,13 @@
     "startDate": "Fecha de Inicio",
     "endDate": "Fecha de Fin",
     "daysSelected": "{{count}} días seleccionados"
+  },
+  "workloadBar": {
+    "underUtilized": "Subutilizado",
+    "optimal": "Óptimo",
+    "high": "Alto",
+    "overAllocated": "Sobreasignado",
+    "overCapacity": "sobre capacidad"
   },
   "landing": {
     "signIn": "Iniciar Sesión",

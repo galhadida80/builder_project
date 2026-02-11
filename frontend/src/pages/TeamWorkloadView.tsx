@@ -1,12 +1,4 @@
 import { useState, useEffect } from 'react'
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
-import Skeleton from '@mui/material/Skeleton'
-import Grid from '@mui/material/Grid'
-import Chip from '@mui/material/Chip'
-import PeopleIcon from '@mui/icons-material/People'
-import TrendingUpIcon from '@mui/icons-material/TrendingUp'
-import AssignmentIcon from '@mui/icons-material/Assignment'
 import { useTranslation } from 'react-i18next'
 import { Card, KPICard } from '../components/ui/Card'
 import { EmptyState } from '../components/ui/EmptyState'
@@ -16,6 +8,8 @@ import { workloadApi } from '../api/workload'
 import type { TeamMember } from '../types'
 import { useToast } from '../components/common/ToastProvider'
 import dayjs, { Dayjs } from 'dayjs'
+import { PeopleIcon, TrendingUpIcon, AssignmentIcon } from '@/icons'
+import { Box, Typography, Skeleton, Grid, Chip } from '@/mui'
 
 interface TeamGroup {
   teamName: string
@@ -204,7 +198,7 @@ export default function TeamWorkloadView() {
                         {t('teamWorkload.overallCapacity')}
                       </Typography>
                       <Typography variant="body2" fontWeight={600}>
-                        {totalAssignedHours}h / {totalAvailableHours}h
+                        {totalAssignedHours}{t('common.hoursShort')} / {totalAvailableHours}{t('common.hoursShort')}
                       </Typography>
                     </Box>
                     <Box

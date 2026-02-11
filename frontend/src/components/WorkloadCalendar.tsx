@@ -1,17 +1,15 @@
 import { useState } from 'react'
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
-import IconButton from '@mui/material/IconButton'
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
-import ChevronRightIcon from '@mui/icons-material/ChevronRight'
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import dayjs, { Dayjs } from 'dayjs'
+import 'dayjs/locale/he'
+import 'dayjs/locale/es'
 import { useTranslation } from 'react-i18next'
 import { Button } from './ui/Button'
 import { Card } from './ui/Card'
+import { ChevronLeftIcon, ChevronRightIcon, CalendarTodayIcon } from '@/icons'
+import { Box, Typography, IconButton } from '@/mui'
 
 interface WorkloadCalendarProps {
   startDate: Dayjs
@@ -30,7 +28,7 @@ export function WorkloadCalendar({
   minDate,
   maxDate
 }: WorkloadCalendarProps) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [selectedPreset, setSelectedPreset] = useState<DateRangePreset>('this-week')
   const [customMode, setCustomMode] = useState(false)
 
@@ -102,7 +100,7 @@ export function WorkloadCalendar({
   }
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
+    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={i18n.language}>
       <Card>
         <Box sx={{ p: 2.5 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>

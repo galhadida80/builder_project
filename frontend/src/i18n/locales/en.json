@@ -363,6 +363,7 @@
     "notes": "Notes",
     "total": "Total",
     "amount": "Amount",
+    "hoursShort": "h",
     "price": "Price",
     "cost": "Cost",
     "required": "Required",
@@ -742,7 +743,8 @@
     "phone": "Phone",
     "roleDescription": "Role Description",
     "deleteContact": "Delete Contact",
-    "deleteConfirmationMessage": "Are you sure you want to delete {{name}}? This action cannot be undone."
+    "deleteConfirmationMessage": "Are you sure you want to delete {{name}}? This action cannot be undone.",
+    "primary": "Primary"
   },
   "rfis": {
     "title": "RFIs",
@@ -1002,6 +1004,13 @@
     "startDate": "Start Date",
     "endDate": "End Date",
     "daysSelected": "{{count}} days selected"
+  },
+  "workloadBar": {
+    "underUtilized": "Under-utilized",
+    "optimal": "Optimal",
+    "high": "High",
+    "overAllocated": "Over-allocated",
+    "overCapacity": "over capacity"
   },
   "landing": {
     "signIn": "Sign In",

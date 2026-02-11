@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { Dayjs } from 'dayjs'
+import 'dayjs/locale/he'
+import 'dayjs/locale/es'
 import { useTranslation } from 'react-i18next'
+import { Box, Typography } from '@/mui'
 
 interface DateRangeSelectorProps {
   startDate: Dayjs | null
@@ -14,7 +15,7 @@ interface DateRangeSelectorProps {
 }
 
 export default function DateRangeSelector({ startDate, endDate, onDateChange }: DateRangeSelectorProps) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [localStartDate, setLocalStartDate] = useState<Dayjs | null>(startDate)
   const [localEndDate, setLocalEndDate] = useState<Dayjs | null>(endDate)
   const [endDateError, setEndDateError] = useState<string | null>(null)
@@ -50,7 +51,7 @@ export default function DateRangeSelector({ startDate, endDate, onDateChange }: 
   }
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
+    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={i18n.language}>
       <Box
         sx={{
           display: 'flex',

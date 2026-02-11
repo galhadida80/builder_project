@@ -3,10 +3,11 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, Controller } from 'react-hook-form'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Box, Stack, Autocomplete, Chip, Typography, IconButton, List, ListItem, ListItemText, ListItemSecondaryAction, Alert } from '@mui/material'
 import { Delete as DeleteIcon, CloudUpload as CloudUploadIcon } from '@mui/icons-material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import 'dayjs/locale/he'
+import 'dayjs/locale/es'
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
@@ -15,6 +16,7 @@ import { Modal } from '../ui/Modal'
 import { Button } from '../ui/Button'
 import { TextField } from '../ui/TextField'
 import { Select, SelectOption } from '../ui/Select'
+import { Box, Stack, Autocomplete, Chip, Typography, IconButton, List, ListItem, ListItemText, ListItemSecondaryAction, Alert } from '@/mui'
 
 // Category options for RFI classification
 const RFI_CATEGORY_OPTIONS: SelectOption[] = [
@@ -76,7 +78,7 @@ export function RFIFormDialog({
   loading = false,
   mode = 'create',
 }: RFIFormDialogProps) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const {
     control,
     handleSubmit,
@@ -365,7 +367,7 @@ export function RFIFormDialog({
             )}
           />
 
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={i18n.language}>
             <Controller
               name="dueDate"
               control={control}
