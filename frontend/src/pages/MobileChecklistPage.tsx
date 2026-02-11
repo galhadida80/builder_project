@@ -10,14 +10,13 @@ import { SignaturePad } from '../components/checklist/SignaturePad'
 import { useChecklistInstance } from '../hooks/useChecklistInstance'
 import { inspectionsApi } from '../api/inspections'
 import type {
-import { CheckCircleIcon, AssignmentIcon, ArrowBackIcon, SendIcon } from '@/icons'
-import { Box, Typography, LinearProgress, Skeleton, Alert, Snackbar, FormControlLabel, Radio, RadioGroup } from '@/mui'
-import { styled } from '@/mui'
   ChecklistItemTemplate,
   ChecklistItemResponse,
   ChecklistItemResponseCreate,
   ChecklistItemResponseUpdate,
 } from '../types'
+import { CheckCircleIcon, AssignmentIcon, ArrowBackIcon, SendIcon } from '@/icons'
+import { Box, Typography, LinearProgress, Skeleton, Alert, Snackbar, FormControlLabel, Radio, RadioGroup, styled } from '@/mui'
 
 const MobileContainer = styled(Box)(({ theme }) => ({
   minHeight: '100vh',
