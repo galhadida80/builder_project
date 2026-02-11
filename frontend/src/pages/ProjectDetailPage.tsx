@@ -265,30 +265,30 @@ export default function ProjectDetailPage() {
             />
           </Box>
 
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '2fr 1fr' }, gap: 2 }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 1.5 }}>
             <Card>
               <Box sx={{ p: { xs: 2, md: 2.5 } }}>
-                <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
+                <Typography variant="h6" fontWeight={600} sx={{ mb: 1.5 }}>
                   {t('projectDetail.projectProgress')}
                 </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', py: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', py: 1.5 }}>
                   <Box sx={{ textAlign: 'center' }}>
-                    <CircularProgressDisplay value={completionPercent} size={120} thickness={8} showLabel />
-                    <Typography variant="body2" color="text.secondary" sx={{ mt: 1.5 }}>
+                    <CircularProgressDisplay value={completionPercent} size={100} thickness={8} showLabel />
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
                       {t('projectDetail.overallCompletion')}
                     </Typography>
                   </Box>
                 </Box>
-                <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1.5, mt: 1.5 }}>
-                  <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'action.hover', borderRadius: 2 }}>
+                <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1, mt: 1 }}>
+                  <Box sx={{ textAlign: 'center', p: 1.5, bgcolor: 'action.hover', borderRadius: 2 }}>
                     <Typography variant="h5" fontWeight={700} color="success.main">{approvedItems}</Typography>
                     <Typography variant="caption" color="text.secondary">{t('projectDetail.approved')}</Typography>
                   </Box>
-                  <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'action.hover', borderRadius: 2 }}>
+                  <Box sx={{ textAlign: 'center', p: 1.5, bgcolor: 'action.hover', borderRadius: 2 }}>
                     <Typography variant="h5" fontWeight={700} color="info.main">{inProgressItems}</Typography>
                     <Typography variant="caption" color="text.secondary">{t('projectDetail.inReview')}</Typography>
                   </Box>
-                  <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'action.hover', borderRadius: 2 }}>
+                  <Box sx={{ textAlign: 'center', p: 1.5, bgcolor: 'action.hover', borderRadius: 2 }}>
                     <Typography variant="h5" fontWeight={700} color="warning.main">{pendingItems}</Typography>
                     <Typography variant="caption" color="text.secondary">{t('projectDetail.draft')}</Typography>
                   </Box>
@@ -296,35 +296,35 @@ export default function ProjectDetailPage() {
               </Box>
             </Card>
 
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
               <Card>
                 <Box sx={{ p: { xs: 2, md: 2.5 } }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
-                    <Typography variant="h6" fontWeight={600}>{t('projectDetail.quickStats')}</Typography>
-                  </Box>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1.5, borderBottom: 1, borderColor: 'divider' }}>
+                  <Typography variant="h6" fontWeight={600} sx={{ mb: 1 }}>
+                    {t('projectDetail.quickStats')}
+                  </Typography>
+                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1.5, borderBottom: 1, borderColor: 'divider', cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' }, mx: -1, px: 1, borderRadius: 1 }} onClick={() => handleTabChange('equipment')}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                         <ConstructionIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
                         <Typography variant="body2" color="text.secondary">{t('projectDetail.equipmentItems')}</Typography>
                       </Box>
                       <Typography variant="body2" fontWeight={600}>{equipment.length}</Typography>
                     </Box>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1.5, borderBottom: 1, borderColor: 'divider' }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1.5, borderBottom: 1, borderColor: 'divider', cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' }, mx: -1, px: 1, borderRadius: 1 }} onClick={() => handleTabChange('materials')}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                         <InventoryIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
                         <Typography variant="body2" color="text.secondary">{t('nav.materials')}</Typography>
                       </Box>
                       <Typography variant="body2" fontWeight={600}>{materials.length}</Typography>
                     </Box>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1.5, borderBottom: 1, borderColor: 'divider' }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1.5, borderBottom: 1, borderColor: 'divider', cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' }, mx: -1, px: 1, borderRadius: 1 }} onClick={() => handleTabChange('meetings')}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                         <EventIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
                         <Typography variant="body2" color="text.secondary">{t('projectDetail.scheduledMeetings')}</Typography>
                       </Box>
                       <Typography variant="body2" fontWeight={600}>{meetings.length}</Typography>
                     </Box>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1.5 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1.5, cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' }, mx: -1, px: 1, borderRadius: 1 }} onClick={() => handleTabChange('approvals')}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                         <WarningAmberIcon sx={{ fontSize: 18, color: pendingApprovals > 0 ? 'warning.main' : 'text.secondary' }} />
                         <Typography variant="body2" color="text.secondary">{t('projectDetail.pendingApprovals')}</Typography>
@@ -342,7 +342,7 @@ export default function ProjectDetailPage() {
 
               <Card>
                 <Box sx={{ p: { xs: 2, md: 2.5 } }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
                     <Typography variant="h6" fontWeight={600}>{t('projectDetail.team')}</Typography>
                     <GroupIcon sx={{ color: 'text.secondary' }} />
                   </Box>

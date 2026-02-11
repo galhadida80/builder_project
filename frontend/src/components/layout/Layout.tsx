@@ -1,19 +1,17 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Outlet, useParams, useNavigate, useLocation } from 'react-router-dom'
+import { Outlet, useParams, useNavigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Toolbar from '@mui/material/Toolbar'
 import CircularProgress from '@mui/material/CircularProgress'
 import Fab from '@mui/material/Fab'
 import SmartToyIcon from '@mui/icons-material/SmartToy'
-import { TransitionGroup } from 'react-transition-group'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { useTheme } from '@mui/material/styles'
 import IconButton from '@mui/material/IconButton'
 import MenuIcon from '@mui/icons-material/Menu'
 import Sidebar from './Sidebar'
 import Header from './Header'
-import PageTransition from '../common/PageTransition'
 import ChatDrawer from '../chat/ChatDrawer'
 import { projectsApi } from '../../api/projects'
 import { useAuth } from '../../contexts/AuthContext'
@@ -25,7 +23,6 @@ export default function Layout() {
   const { t } = useTranslation()
   const { projectId } = useParams()
   const navigate = useNavigate()
-  const location = useLocation()
   const { user: currentUser, logout } = useAuth()
   const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>(projectId)
   const [projects, setProjects] = useState<Project[]>([])
@@ -105,22 +102,7 @@ export default function Layout() {
         }}
       >
         <Toolbar />
-        <Box sx={{ position: 'relative', minHeight: '400px' }}>
-          <TransitionGroup component={null}>
-            <PageTransition key={location.pathname}>
-              <Box
-                sx={{
-                  position: 'absolute',
-                  width: '100%',
-                  top: 0,
-                  left: 0,
-                }}
-              >
-                <Outlet context={{ projectId: selectedProjectId, project: currentProject }} />
-              </Box>
-            </PageTransition>
-          </TransitionGroup>
-        </Box>
+        <Outlet context={{ projectId: selectedProjectId, project: currentProject }} />
       </Box>
 
       {selectedProjectId && (

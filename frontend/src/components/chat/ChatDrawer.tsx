@@ -77,19 +77,27 @@ export default function ChatDrawer({ open, onClose, projectId }: ChatDrawerProps
     try {
       const updated = await chatApi.executeAction(projectId, actionId)
       updateActionInMessages(actionId, updated)
-    } catch {
-      /* error handling via UI state */
+    } catch (err) {
+      console.error('Action execute failed:', err)
+      setMessages((prev) => [
+        ...prev,
+        { id: `error-${Date.now()}`, conversationId: conversationId || '', role: 'assistant', content: t('chat.actionError'), toolCalls: null, createdAt: new Date().toISOString(), pendingActions: [] },
+      ])
     }
-  }, [projectId, updateActionInMessages])
+  }, [projectId, conversationId, updateActionInMessages, t])
 
   const handleActionReject = useCallback(async (actionId: string) => {
     try {
       const updated = await chatApi.rejectAction(projectId, actionId)
       updateActionInMessages(actionId, updated)
-    } catch {
-      /* error handling via UI state */
+    } catch (err) {
+      console.error('Action reject failed:', err)
+      setMessages((prev) => [
+        ...prev,
+        { id: `error-${Date.now()}`, conversationId: conversationId || '', role: 'assistant', content: t('chat.actionError'), toolCalls: null, createdAt: new Date().toISOString(), pendingActions: [] },
+      ])
     }
-  }, [projectId, updateActionInMessages])
+  }, [projectId, conversationId, updateActionInMessages, t])
 
   const handleSend = useCallback(async (message: string) => {
     const optimisticMsg: ChatMessageType = {
@@ -137,7 +145,8 @@ export default function ChatDrawer({ open, onClose, projectId }: ChatDrawerProps
     try {
       const data = await chatApi.listConversations(projectId)
       setConversations(data)
-    } catch {
+    } catch (err) {
+      console.error('Failed to load conversations:', err)
       setConversations([])
     }
   }, [projectId])
@@ -153,8 +162,8 @@ export default function ChatDrawer({ open, onClose, projectId }: ChatDrawerProps
       setMessages(data.messages)
       setConversationId(convId)
       setShowHistory(false)
-    } catch {
-      /* ignore */
+    } catch (err) {
+      console.error('Failed to load conversation:', err)
     }
   }, [projectId])
 
@@ -169,8 +178,8 @@ export default function ChatDrawer({ open, onClose, projectId }: ChatDrawerProps
         }
         return prev
       })
-    } catch {
-      /* ignore */
+    } catch (err) {
+      console.error('Failed to delete conversation:', err)
     }
   }, [projectId])
 

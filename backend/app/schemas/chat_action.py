@@ -16,5 +16,6 @@ class ChatActionResponse(CamelCaseModel):
     description: str
     status: str
     result: Optional[dict] = None
+    executed_by_id: Optional[UUID] = None
     created_at: datetime
     executed_at: Optional[datetime] = None
