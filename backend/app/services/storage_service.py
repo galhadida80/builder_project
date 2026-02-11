@@ -11,6 +11,11 @@ try:
 except ImportError:
     boto3 = None
 
+try:
+    from google.cloud import storage as gcs_storage
+except ImportError:
+    gcs_storage = None
+
 
 class StorageBackend(ABC):
     @abstractmethod
@@ -110,6 +115,38 @@ class S3StorageBackend(StorageBackend):
         return response['Body'].read()
 
 
+class GCSStorageBackend(StorageBackend):
+    def __init__(self, bucket_name: str, project_id: str = ""):
+        if gcs_storage is None:
+            raise ImportError("google-cloud-storage is required for GCS storage backend")
+        self.bucket_name = bucket_name
+        client_kwargs = {}
+        if project_id:
+            client_kwargs["project"] = project_id
+        self.client = gcs_storage.Client(**client_kwargs)
+        self.bucket = self.client.bucket(bucket_name)
+
+    async def save_file(self, file: UploadFile, storage_path: str) -> int:
+        content = await file.read()
+        file_size = len(content)
+        blob = self.bucket.blob(storage_path)
+        blob.upload_from_string(content, content_type=file.content_type or "application/octet-stream")
+        await file.seek(0)
+        return file_size
+
+    async def delete_file(self, storage_path: str) -> None:
+        blob = self.bucket.blob(storage_path)
+        blob.delete()
+
+    def get_file_url(self, storage_path: str) -> str:
+        blob = self.bucket.blob(storage_path)
+        return blob.generate_signed_url(expiration=3600, version="v4")
+
+    async def get_file_content(self, storage_path: str) -> bytes:
+        blob = self.bucket.blob(storage_path)
+        return blob.download_as_bytes()
+
+
 def _create_storage_backend(settings: Settings) -> StorageBackend:
     """Core function to create storage backend from settings.
 
@@ -122,6 +159,11 @@ def _create_storage_backend(settings: Settings) -> StorageBackend:
             region=settings.s3_region,
             access_key_id=settings.s3_access_key_id,
             secret_access_key=settings.s3_secret_access_key
+        )
+    if settings.storage_type == "gcs":
+        return GCSStorageBackend(
+            bucket_name=settings.gcs_bucket_name,
+            project_id=settings.gcs_project_id
         )
     return LocalStorageBackend(settings.local_storage_path)
 

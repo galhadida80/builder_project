@@ -23,6 +23,9 @@ class Settings(BaseSettings):
     s3_access_key_id: str = ""
     s3_secret_access_key: str = ""
 
+    gcs_bucket_name: str = ""
+    gcs_project_id: str = ""
+
     redis_url: str = "redis://localhost:6379/0"
 
     cors_origins: list[str] = [
