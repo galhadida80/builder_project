@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { Box, Typography, Grid, Skeleton } from '@mui/material'
 import dayjs, { Dayjs } from 'dayjs'
 import { useTranslation } from 'react-i18next'
 import DateRangeSelector from './components/DateRangeSelector'
@@ -7,12 +6,10 @@ import AnalyticsKPICard from './components/KPICard'
 import ProjectMetricsChart from './components/ProjectMetricsChart'
 import DistributionChart from './components/DistributionChart'
 import ExportButton from './components/ExportButton'
-import AssessmentIcon from '@mui/icons-material/Assessment'
-import CheckCircleIcon from '@mui/icons-material/CheckCircle'
-import PendingActionsIcon from '@mui/icons-material/PendingActions'
-import TrendingUpIcon from '@mui/icons-material/TrendingUp'
 import { analyticsService, MetricsData, TrendData, DistributionData } from '../../services/analyticsService'
 import { useToast } from '../../components/common/ToastProvider'
+import { AssessmentIcon, CheckCircleIcon, PendingActionsIcon, TrendingUpIcon } from '@/icons'
+import { Box, Typography, Grid, Skeleton } from '@/mui'
 
 export default function AnalyticsDashboard() {
   const { t } = useTranslation()

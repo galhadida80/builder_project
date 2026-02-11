@@ -1,14 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
-import Checkbox from '@mui/material/Checkbox'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import Chip from '@mui/material/Chip'
-import Alert from '@mui/material/Alert'
-import CircularProgress from '@mui/material/CircularProgress'
 import { Button } from './ui/Button'
 import { apiClient } from '../api/client'
+import { Box, Typography, Checkbox, FormControlLabel, Chip, Alert, CircularProgress } from '@/mui'
 
 interface MemberPermissionsEditorProps {
   projectId: string

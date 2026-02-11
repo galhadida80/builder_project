@@ -1,7 +1,7 @@
-import { IconButton, Tooltip, Menu, MenuItem, ListItemIcon, ListItemText } from '@mui/material'
 import { useState } from 'react'
-import LanguageIcon from '@mui/icons-material/Language'
 import { useTranslation } from 'react-i18next'
+import { LanguageIcon } from '@/icons'
+import { IconButton, Tooltip, Menu, MenuItem, ListItemIcon, ListItemText } from '@/mui'
 
 export function LanguageToggle() {
   const { i18n } = useTranslation()

@@ -40,3 +40,7 @@ tests/e2e/node_modules/
 .worktrees/
 .security-key
 logs/security/
+
+# Screenshots
+screenshots/
+*.png

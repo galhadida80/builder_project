@@ -1,13 +1,7 @@
-import { Box, Paper, IconButton, Toolbar, Typography, Skeleton } from '@mui/material'
-import { styled } from '@mui/material'
 import { useTranslation } from 'react-i18next'
-import ZoomInIcon from '@mui/icons-material/ZoomIn'
-import ZoomOutIcon from '@mui/icons-material/ZoomOut'
-import DownloadIcon from '@mui/icons-material/Download'
-import PrintIcon from '@mui/icons-material/Print'
-import RotateRightIcon from '@mui/icons-material/RotateRight'
-import FitScreenIcon from '@mui/icons-material/FitScreen'
 import { useState, useRef, useEffect } from 'react'
+import { ZoomInIcon, ZoomOutIcon, DownloadIcon, PrintIcon, RotateRightIcon, FitScreenIcon } from '@/icons'
+import { Box, Paper, IconButton, Toolbar, Typography, Skeleton, styled } from '@/mui'
 
 interface DocumentViewerProps {
   documentUrl: string

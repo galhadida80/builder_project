@@ -1,19 +1,8 @@
 import { useState } from 'react'
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
-import Paper from '@mui/material/Paper'
-import Switch from '@mui/material/Switch'
-import List from '@mui/material/List'
-import ListItem from '@mui/material/ListItem'
-import ListItemText from '@mui/material/ListItemText'
-import ListItemSecondaryAction from '@mui/material/ListItemSecondaryAction'
-import Divider from '@mui/material/Divider'
-import Select from '@mui/material/Select'
-import MenuItem from '@mui/material/MenuItem'
-import FormControl from '@mui/material/FormControl'
 import { useTranslation } from 'react-i18next'
 import { useToast } from '../components/common/ToastProvider'
 import { useThemeMode } from '../theme'
+import { Box, Typography, Paper, Switch, List, ListItem, ListItemText, ListItemSecondaryAction, Divider, Select, MenuItem, FormControl } from '@/mui'
 
 export default function SettingsPage() {
   const { t, i18n } = useTranslation()

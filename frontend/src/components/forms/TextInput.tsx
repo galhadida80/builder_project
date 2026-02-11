@@ -1,6 +1,5 @@
-import { TextField as MuiTextField, TextFieldProps as MuiTextFieldProps } from '@mui/material'
-import { styled } from '@mui/material'
 import { TextInputBaseProps } from './types'
+import { TextField as MuiTextField, TextFieldProps as MuiTextFieldProps, styled } from '@/mui'
 
 export interface TextInputProps extends Omit<TextInputBaseProps, 'onChange'> {
   /**

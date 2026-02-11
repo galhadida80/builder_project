@@ -1,12 +1,8 @@
-import { Box, Typography, Chip, Skeleton, Avatar as MuiAvatar, SxProps, Theme } from '@mui/material'
-import ApprovedIcon from '@mui/icons-material/CheckCircle'
-import RejectedIcon from '@mui/icons-material/Cancel'
-import PendingIcon from '@mui/icons-material/HourglassBottom'
-import CommentIcon from '@mui/icons-material/Comment'
-import HistoryIcon from '@mui/icons-material/History'
 import { useTranslation } from 'react-i18next'
 import { Avatar } from './ui/Avatar'
 import { EmptyState } from './ui/EmptyState'
+import { CheckCircleIcon as ApprovedIcon, CancelIcon as RejectedIcon, HourglassBottomIcon as PendingIcon, CommentIcon, HistoryIcon } from '@/icons'
+import { Box, Typography, Chip, Skeleton, Avatar as MuiAvatar, SxProps, Theme } from '@/mui'
 
 export interface ApprovalAction {
   id: string

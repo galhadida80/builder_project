@@ -1,28 +1,14 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
-import Alert from '@mui/material/Alert'
-import Link from '@mui/material/Link'
-import Divider from '@mui/material/Divider'
-import Fade from '@mui/material/Fade'
-import ConstructionIcon from '@mui/icons-material/Construction'
-import EmailIcon from '@mui/icons-material/Email'
-import LockIcon from '@mui/icons-material/Lock'
-import PersonIcon from '@mui/icons-material/Person'
-import VisibilityIcon from '@mui/icons-material/Visibility'
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff'
-import IconButton from '@mui/material/IconButton'
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'
-import SecurityIcon from '@mui/icons-material/Security'
-import SpeedIcon from '@mui/icons-material/Speed'
-import GroupsIcon from '@mui/icons-material/Groups'
 import { Button } from '../components/ui/Button'
 import { TextField } from '../components/ui/TextField'
 import { SegmentedTabs } from '../components/ui/Tabs'
 import { useAuth } from '../contexts/AuthContext'
 import { invitationsApi } from '../api/invitations'
+import { authApi } from '../api/auth'
+import { ConstructionIcon, EmailIcon, LockIcon, PersonIcon, VisibilityIcon, VisibilityOffIcon, CheckCircleOutlineIcon, SecurityIcon, SpeedIcon, GroupsIcon, ArrowBackIcon } from '@/icons'
+import { Box, Typography, Alert, Link, Divider, Fade, IconButton } from '@/mui'
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -38,8 +24,11 @@ export default function LoginPage() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [errorCode, setErrorCode] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [showPassword, setShowPassword] = useState(false)
+  const [forgotPasswordMode, setForgotPasswordMode] = useState(false)
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState('')
 
   const resetForm = () => {
     setEmail('')
@@ -47,12 +36,15 @@ export default function LoginPage() {
     setFullName('')
     setConfirmPassword('')
     setError(null)
+    setErrorCode(null)
     setSuccess(null)
   }
 
-  const handleTabChange = (value: string) => {
+  const handleTabChange = (value: string, preserveEmail = false) => {
     setTab(value)
+    const currentEmail = email
     resetForm()
+    if (preserveEmail) setEmail(currentEmail)
   }
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -101,8 +93,15 @@ export default function LoginPage() {
       await register(email, password, fullName, inviteToken || undefined)
       navigate('/dashboard')
     } catch (err: unknown) {
-      const error = err as { response?: { data?: { detail?: string } } }
-      setError(error.response?.data?.detail || t('registrationFailed'))
+      const error = err as { response?: { data?: { detail?: string | { message?: string; code?: string } } } }
+      const detail = error.response?.data?.detail
+      if (typeof detail === 'object' && detail?.code === 'EMAIL_ALREADY_REGISTERED') {
+        setErrorCode('EMAIL_ALREADY_REGISTERED')
+        setError(detail.message || t('emailAlreadyRegistered'))
+      } else {
+        const message = typeof detail === 'string' ? detail : detail?.message
+        setError(message || t('registrationFailed'))
+      }
     } finally {
       setLoading(false)
     }
@@ -351,7 +350,46 @@ export default function LoginPage() {
 
             {/* Form */}
             <Box sx={{ mt: 3.5 }}>
-              {error && (
+              {error && errorCode === 'EMAIL_ALREADY_REGISTERED' ? (
+                <Alert
+                  severity="warning"
+                  sx={{ mb: 2.5, borderRadius: 2 }}
+                  onClose={() => { setError(null); setErrorCode(null) }}
+                >
+                  <Typography variant="body2" fontWeight={500} sx={{ mb: 0.5 }}>
+                    {t('emailAlreadyRegistered')}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
+                    {t('emailAlreadyRegisteredHint')}
+                  </Typography>
+                  <Box sx={{ display: 'flex', gap: 2 }}>
+                    <Link
+                      component="button"
+                      type="button"
+                      variant="caption"
+                      fontWeight={600}
+                      onClick={() => handleTabChange('signin', true)}
+                      sx={{ cursor: 'pointer' }}
+                    >
+                      {t('signInInstead')}
+                    </Link>
+                    <Link
+                      component="button"
+                      type="button"
+                      variant="caption"
+                      fontWeight={600}
+                      onClick={() => {
+                        setForgotPasswordMode(true)
+                        setForgotPasswordEmail(email)
+                        handleTabChange('signin', true)
+                      }}
+                      sx={{ cursor: 'pointer' }}
+                    >
+                      {t('resetYourPassword')}
+                    </Link>
+                  </Box>
+                </Alert>
+              ) : error ? (
                 <Alert
                   severity="error"
                   sx={{ mb: 2.5, borderRadius: 2 }}
@@ -359,7 +397,7 @@ export default function LoginPage() {
                 >
                   {error}
                 </Alert>
-              )}
+              ) : null}
 
               {success && (
                 <Alert
@@ -372,6 +410,65 @@ export default function LoginPage() {
               )}
 
               {tab === 'signin' ? (
+                forgotPasswordMode ? (
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                      {t('forgotPasswordDescription')}
+                    </Typography>
+                    <TextField
+                      fullWidth
+                      label={t('email')}
+                      type="email"
+                      value={forgotPasswordEmail}
+                      onChange={(e) => setForgotPasswordEmail(e.target.value)}
+                      required
+                      autoComplete="email"
+                      autoFocus
+                      startIcon={<EmailIcon sx={{ color: 'text.disabled', fontSize: 20 }} />}
+                    />
+                    <Button
+                      fullWidth
+                      variant="primary"
+                      loading={loading}
+                      onClick={async () => {
+                        if (!forgotPasswordEmail) return
+                        setLoading(true)
+                        setError(null)
+                        try {
+                          await authApi.forgotPassword(forgotPasswordEmail)
+                          setSuccess(t('resetLinkSent'))
+                        } catch {
+                          setSuccess(t('resetLinkSent'))
+                        } finally {
+                          setLoading(false)
+                        }
+                      }}
+                      sx={{
+                        py: 1.5,
+                        fontSize: '0.9375rem',
+                        fontWeight: 600,
+                        borderRadius: 2,
+                        boxShadow: '0 2px 8px rgba(3, 105, 161, 0.3)',
+                      }}
+                    >
+                      {t('sendResetLink')}
+                    </Button>
+                    <Link
+                      component="button"
+                      type="button"
+                      variant="body2"
+                      onClick={() => {
+                        setForgotPasswordMode(false)
+                        setError(null)
+                        setSuccess(null)
+                      }}
+                      sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer' }}
+                    >
+                      <ArrowBackIcon sx={{ fontSize: 16 }} />
+                      {t('backToSignIn')}
+                    </Link>
+                  </Box>
+                ) : (
                 <form onSubmit={handleLogin}>
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
                     <TextField
@@ -413,7 +510,14 @@ export default function LoginPage() {
 
                     <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: -1 }}>
                       <Link
-                        href="#"
+                        component="button"
+                        type="button"
+                        onClick={() => {
+                          setForgotPasswordMode(true)
+                          setForgotPasswordEmail(email)
+                          setError(null)
+                          setSuccess(null)
+                        }}
                         underline="hover"
                         sx={{
                           fontSize: '0.8125rem',
@@ -447,6 +551,7 @@ export default function LoginPage() {
                     </Button>
                   </Box>
                 </form>
+                )
               ) : (
                 <form onSubmit={handleRegister}>
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>

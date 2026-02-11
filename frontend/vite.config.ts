@@ -1,41 +1,12 @@
-import { defineConfig, Plugin } from 'vite'
+import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import path from 'path'
-import { createRequire } from 'module'
-
-const require = createRequire(import.meta.url)
-
-/**
- * Vite plugin to redirect @mui/system and @mui/utils subpath imports
- * to their ESM equivalents. These packages have CJS at root and ESM in esm/.
- * When excluded from optimizeDeps (to avoid esbuild createTheme bug),
- * Vite serves CJS files for subpath imports which browsers can't handle.
- */
-function muiEsmRedirect(): Plugin {
-  const muiPackages = ['@mui/system', '@mui/utils', '@mui/icons-material']
-  return {
-    name: 'mui-esm-redirect',
-    enforce: 'pre',
-    async resolveId(source, importer, options) {
-      for (const pkg of muiPackages) {
-        if (source.startsWith(pkg + '/') && !source.includes('/esm/') && !source.includes('/node/')) {
-          const subpath = source.slice(pkg.length + 1)
-          const esmSource = `${pkg}/esm/${subpath}`
-          const resolved = await this.resolve(esmSource, importer, { ...options, skipSelf: true })
-          if (resolved) return resolved
-        }
-      }
-      return null
-    },
-  }
-}
 
 const isCI = process.env.CI === 'true'
 
 export default defineConfig({
   plugins: [
-    muiEsmRedirect(),
     react(),
     ...(!isCI ? [VitePWA({
       registerType: 'prompt',
@@ -99,19 +70,9 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
-    dedupe: ['@mui/material', '@mui/system', '@mui/utils'],
+    dedupe: ['@emotion/react', '@emotion/styled', 'react', 'react-dom'],
   },
   optimizeDeps: {
-    exclude: [
-      '@mui/material',
-      '@mui/system',
-      '@mui/utils',
-      '@mui/base',
-      '@mui/icons-material',
-      '@mui/x-charts',
-      '@mui/x-data-grid',
-      '@mui/x-date-pickers',
-    ],
     include: [
       '@emotion/react',
       '@emotion/styled',
@@ -120,16 +81,16 @@ export default defineConfig({
       'hoist-non-react-statics',
       'react-transition-group',
       'clsx',
-      '@babel/runtime > regenerator-runtime',
       'dayjs',
       'dayjs/plugin/customParseFormat',
       'dayjs/plugin/isBetween',
       'dayjs/plugin/localizedFormat',
       'dayjs/plugin/weekOfYear',
+      '@mui/icons-material',
+      '@mui/material',
+      '@mui/x-date-pickers',
+      '@mui/x-date-pickers/AdapterDayjs',
     ],
-  },
-  ssr: {
-    noExternal: ['@mui/*'],
   },
   server: {
     port: 5173,
@@ -139,6 +100,9 @@ export default defineConfig({
         target: 'http://localhost:8000',
         changeOrigin: true,
       },
+    },
+    warmup: {
+      clientFiles: ['./src/main.tsx', './src/App.tsx', './src/components/layout/Layout.tsx'],
     },
   },
   preview: {

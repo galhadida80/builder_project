@@ -1,6 +1,6 @@
-import { createTheme } from '@mui/material'
-import type { ThemeOptions } from '@mui/material'
 import { colors, shadows, borderRadius, typography, transitions, animations } from './tokens'
+import { createTheme } from '@/mui'
+import type { ThemeOptions } from '@/mui'
 
 const baseThemeOptions: ThemeOptions = {
   typography: {
@@ -536,6 +536,37 @@ export function createDarkTheme() {
             '&:hover .MuiOutlinedInput-notchedOutline': {
               borderColor: colors.primary[500],
             },
+          },
+        },
+      },
+      MuiAlert: {
+        styleOverrides: {
+          root: {
+            borderRadius: borderRadius.md,
+          },
+          standardError: {
+            backgroundColor: 'rgba(239, 68, 68, 0.14)',
+            color: colors.error.light,
+            '& .MuiAlert-icon': { color: colors.error.light },
+            '& .MuiAlert-action': { color: colors.error.light },
+          },
+          standardWarning: {
+            backgroundColor: 'rgba(234, 179, 8, 0.14)',
+            color: colors.warning.light,
+            '& .MuiAlert-icon': { color: colors.warning.light },
+            '& .MuiAlert-action': { color: colors.warning.light },
+          },
+          standardSuccess: {
+            backgroundColor: 'rgba(34, 197, 94, 0.14)',
+            color: colors.success.light,
+            '& .MuiAlert-icon': { color: colors.success.light },
+            '& .MuiAlert-action': { color: colors.success.light },
+          },
+          standardInfo: {
+            backgroundColor: 'rgba(59, 130, 246, 0.14)',
+            color: colors.info.light,
+            '& .MuiAlert-icon': { color: colors.info.light },
+            '& .MuiAlert-action': { color: colors.info.light },
           },
         },
       },

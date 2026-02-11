@@ -1,10 +1,8 @@
-import { IconButton, Tooltip, Menu, MenuItem, ListItemIcon, ListItemText } from '@mui/material'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import LightModeIcon from '@mui/icons-material/LightMode'
-import DarkModeIcon from '@mui/icons-material/DarkMode'
-import SettingsBrightnessIcon from '@mui/icons-material/SettingsBrightness'
 import { useThemeMode } from '../../theme'
+import { LightModeIcon, DarkModeIcon, SettingsBrightnessIcon } from '@/icons'
+import { IconButton, Tooltip, Menu, MenuItem, ListItemIcon, ListItemText } from '@/mui'
 
 export function ThemeToggle() {
   const { t } = useTranslation()

@@ -1,25 +1,65 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
-import Box from '@mui/material/Box'
-import Drawer from '@mui/material/Drawer'
-import Typography from '@mui/material/Typography'
-import IconButton from '@mui/material/IconButton'
-import Chip from '@mui/material/Chip'
-import Stack from '@mui/material/Stack'
-import Divider from '@mui/material/Divider'
-import List from '@mui/material/List'
-import ListItemButton from '@mui/material/ListItemButton'
-import ListItemText from '@mui/material/ListItemText'
-import CloseIcon from '@mui/icons-material/Close'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import AddIcon from '@mui/icons-material/Add'
-import HistoryIcon from '@mui/icons-material/History'
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
-import SmartToyIcon from '@mui/icons-material/SmartToy'
+import { useState, useEffect, useRef, useCallback, memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import ChatMessage from './ChatMessage'
 import ChatInput from './ChatInput'
 import { chatApi } from '../../api/chat'
 import type { ChatMessage as ChatMessageType, ChatAction, Conversation } from '../../api/chat'
+import { CloseIcon, ArrowBackIcon, AddIcon, HistoryIcon, DeleteOutlineIcon, SmartToyIcon } from '@/icons'
+import { Box, Drawer, Typography, IconButton, Chip, Stack, Divider, List, ListItemButton, ListItemText, styled, keyframes } from '@/mui'
+
+const dotBounce = keyframes`
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.3; }
+  30% { transform: translateY(-6px); opacity: 0.8; }
+`
+
+const Dot = styled('span')<{ delay: number }>(({ delay }) => ({
+  width: 8,
+  height: 8,
+  borderRadius: '50%',
+  backgroundColor: 'currentColor',
+  opacity: 0.5,
+  display: 'inline-block',
+  animation: `${dotBounce} 1.4s infinite`,
+  animationDelay: `${delay}s`,
+}))
+
+const TypingIndicator = memo(function TypingIndicator() {
+  return (
+    <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start', mb: 1.5 }}>
+      <Box
+        sx={{
+          width: 32,
+          height: 32,
+          borderRadius: '50%',
+          bgcolor: 'primary.main',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexShrink: 0,
+          mt: 0.5,
+        }}
+      >
+        <SmartToyIcon sx={{ fontSize: 18, color: 'white' }} />
+      </Box>
+      <Box
+        sx={{
+          px: 2,
+          py: 1.5,
+          borderRadius: '16px 16px 16px 4px',
+          bgcolor: 'action.hover',
+          display: 'flex',
+          gap: 0.5,
+          alignItems: 'center',
+          color: 'text.secondary',
+        }}
+      >
+        <Dot delay={0} />
+        <Dot delay={0.2} />
+        <Dot delay={0.4} />
+      </Box>
+    </Box>
+  )
+})
 
 const DRAWER_WIDTH = 420
 
@@ -53,7 +93,7 @@ export default function ChatDrawer({ open, onClose, projectId }: ChatDrawerProps
 
   useEffect(() => {
     scrollToBottom()
-  }, [messages, scrollToBottom])
+  }, [messages.length, scrollToBottom])
 
   useEffect(() => {
     if (!open) return
@@ -115,10 +155,9 @@ export default function ChatDrawer({ open, onClose, projectId }: ChatDrawerProps
     try {
       const response = await chatApi.send(projectId, message, conversationId || undefined)
       setConversationId(response.conversationId)
-      setMessages((prev) => {
-        const withoutOptimistic = prev.filter((m) => m.id !== optimisticMsg.id)
-        return [...withoutOptimistic, response.userMessage, response.assistantMessage]
-      })
+      setMessages((prev) =>
+        prev.map((m) => m.id === optimisticMsg.id ? response.userMessage : m).concat(response.assistantMessage)
+      )
     } catch {
       setMessages((prev) => [
         ...prev,

@@ -1,12 +1,9 @@
-import { Box, Divider, Paper } from '@mui/material'
-import { styled } from '@mui/material'
 import { DocumentViewer } from './DocumentViewer'
 import { CommentsPanel } from './CommentsPanel'
 import { Button } from '../ui/Button'
-import CheckCircleIcon from '@mui/icons-material/CheckCircle'
-import CancelIcon from '@mui/icons-material/Cancel'
-import RateReviewIcon from '@mui/icons-material/RateReview'
 import { Comment } from './CommentThread'
+import { CheckCircleIcon, CancelIcon, RateReviewIcon } from '@/icons'
+import { Box, Divider, Paper, styled } from '@/mui'
 
 export type ReviewStatus = 'pending' | 'in_review' | 'approved' | 'rejected' | 'changes_requested'
 

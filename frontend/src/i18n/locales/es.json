@@ -745,6 +745,7 @@
     "editContact": "Editar Contacto",
     "noContacts": "No se encontraron contactos",
     "typeRequired": "Se requiere tipo de contacto",
+    "emailOrPhoneRequired": "Se requiere correo electrónico o teléfono",
     "createSuccess": "¡Contacto creado exitosamente!",
     "updateSuccess": "¡Contacto actualizado exitosamente!",
     "deleteSuccess": "¡Contacto eliminado exitosamente!",
@@ -953,7 +954,10 @@
     "workloadDistribution": "Distribución de Carga de Trabajo",
     "underUtilizedRange": "Subutilizado (0-40%)",
     "optimalRange": "Óptimo (40-80%)",
-    "highOverRange": "Alto/Sobre (80%+)"
+    "highOverRange": "Alto/Sobre (80%+)",
+    "memberName": "Nombre",
+    "role": "Rol",
+    "team": "Equipo"
   },
   "workloadCalendar": {
     "title": "Calendario de Carga",

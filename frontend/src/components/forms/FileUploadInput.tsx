@@ -1,11 +1,8 @@
 import { useState } from 'react'
-import { Box, FormControl, FormHelperText, Typography, IconButton, Chip } from '@mui/material'
-import { styled } from '@mui/material'
 import { useDropzone, FileRejection, Accept } from 'react-dropzone'
-import CloudUploadIcon from '@mui/icons-material/CloudUpload'
-import DeleteIcon from '@mui/icons-material/Delete'
-import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile'
 import { FileUploadInputBaseProps, FileInputValue } from './types'
+import { CloudUploadIcon, DeleteIcon, InsertDriveFileIcon } from '@/icons'
+import { Box, FormControl, FormHelperText, Typography, IconButton, Chip, styled } from '@/mui'
 
 export interface FileUploadInputProps extends FileUploadInputBaseProps {
   /**

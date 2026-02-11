@@ -1,21 +1,11 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
-import Skeleton from '@mui/material/Skeleton'
-import Chip from '@mui/material/Chip'
-import CardContent from '@mui/material/CardContent'
-import Avatar from '@mui/material/Avatar'
-import MuiTextField from '@mui/material/TextField'
-import MenuItem from '@mui/material/MenuItem'
-import CheckCircleIcon from '@mui/icons-material/CheckCircle'
-import WarningIcon from '@mui/icons-material/Warning'
-import ErrorIcon from '@mui/icons-material/Error'
-import ScheduleIcon from '@mui/icons-material/Schedule'
 import { Card } from './ui/Card'
 import { EmptyState } from './ui/EmptyState'
 import type { Inspection, InspectionStatus } from '../types'
+import { CheckCircleIcon, WarningIcon, ErrorIcon, ScheduleIcon } from '@/icons'
+import { Box, Typography, Skeleton, Chip, CardContent, Avatar, TextField as MuiTextField, MenuItem } from '@/mui'
 
 interface InspectionHistoryTimelineProps {
   inspections: Inspection[]

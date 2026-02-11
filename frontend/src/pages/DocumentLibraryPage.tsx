@@ -1,10 +1,5 @@
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { Box, Typography, Chip, Grid, Paper, Skeleton } from '@mui/material'
-import FolderIcon from '@mui/icons-material/Folder'
-import DescriptionIcon from '@mui/icons-material/Description'
-import CloudUploadIcon from '@mui/icons-material/CloudUpload'
-import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile'
 import { useTranslation } from 'react-i18next'
 import { Card, KPICard } from '../components/ui/Card'
 import { PageHeader } from '../components/ui/Breadcrumbs'
@@ -18,6 +13,8 @@ import { ConfirmModal } from '../components/ui/Modal'
 import { useDocuments } from '../hooks/useDocuments'
 import { filesApi } from '../api/files'
 import type { FileRecord } from '../types'
+import { FolderIcon, DescriptionIcon, CloudUploadIcon, InsertDriveFileIcon } from '@/icons'
+import { Box, Typography, Chip, Grid, Paper, Skeleton } from '@/mui'
 
 export default function DocumentLibraryPage() {
   const { t } = useTranslation()

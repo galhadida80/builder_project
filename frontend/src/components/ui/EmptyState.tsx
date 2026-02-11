@@ -1,12 +1,8 @@
-import { Box, Typography, SxProps, Theme } from '@mui/material'
-import { styled } from '@mui/material'
 import { useTranslation } from 'react-i18next'
-import InboxIcon from '@mui/icons-material/Inbox'
-import SearchOffIcon from '@mui/icons-material/SearchOff'
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
-import FolderOffIcon from '@mui/icons-material/FolderOff'
 import { Button } from './Button'
 import { createFadeIn, duration } from '../../utils/animations'
+import { InboxIcon, SearchOffIcon, ErrorOutlineIcon, FolderOffIcon } from '@/icons'
+import { Box, Typography, SxProps, Theme, styled } from '@/mui'
 
 export type EmptyStateVariant = 'empty' | 'no-results' | 'error' | 'no-data' | 'not-found'
 

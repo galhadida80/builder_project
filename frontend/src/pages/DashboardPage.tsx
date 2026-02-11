@@ -1,25 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
-import Skeleton from '@mui/material/Skeleton'
-import Chip from '@mui/material/Chip'
-import List from '@mui/material/List'
-import ListItem from '@mui/material/ListItem'
-import ListItemText from '@mui/material/ListItemText'
-import ListItemAvatar from '@mui/material/ListItemAvatar'
-import IconButton from '@mui/material/IconButton'
-import BuildIcon from '@mui/icons-material/Build'
-import InventoryIcon from '@mui/icons-material/Inventory'
-import CheckCircleIcon from '@mui/icons-material/CheckCircle'
-import EventIcon from '@mui/icons-material/Event'
-import TrendingUpIcon from '@mui/icons-material/TrendingUp'
-import WarningAmberIcon from '@mui/icons-material/WarningAmber'
-import AssignmentIcon from '@mui/icons-material/Assignment'
-import GroupIcon from '@mui/icons-material/Group'
-import MoreVertIcon from '@mui/icons-material/MoreVert'
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import { Card, KPICard } from '../components/ui/Card'
 import { StatusBadge } from '../components/ui/StatusBadge'
 import { Avatar, AvatarGroup } from '../components/ui/Avatar'
@@ -35,6 +16,8 @@ import { auditApi } from '../api/audit'
 import { workloadApi } from '../api/workload'
 import { useToast } from '../components/common/ToastProvider'
 import { useProject } from '../contexts/ProjectContext'
+import { BuildIcon, InventoryIcon, CheckCircleIcon, EventIcon, TrendingUpIcon, WarningAmberIcon, AssignmentIcon, GroupIcon, ArrowForwardIcon } from '@/icons'
+import { Box, Typography, Skeleton, Chip, List, ListItem, ListItemText, ListItemAvatar } from '@/mui'
 
 export default function DashboardPage() {
   const { t, i18n } = useTranslation()
@@ -180,17 +163,12 @@ export default function DashboardPage() {
                   {t('dashboard.itemsAwaitingReview')}
                 </Typography>
               </Box>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Chip
-                  label={`${pendingApprovals.length} ${t('dashboard.pending')}`}
-                  size="small"
-                  color="warning"
-                  sx={{ fontWeight: 600 }}
-                />
-                <IconButton size="small">
-                  <MoreVertIcon fontSize="small" />
-                </IconButton>
-              </Box>
+              <Chip
+                label={`${pendingApprovals.length} ${t('dashboard.pending')}`}
+                size="small"
+                color="warning"
+                sx={{ fontWeight: 600 }}
+              />
             </Box>
 
             {pendingApprovals.length > 0 ? (
@@ -238,7 +216,17 @@ export default function DashboardPage() {
                             </Box>
                           }
                         />
-                        <Button variant="tertiary" size="small" icon={<ArrowForwardIcon />} iconPosition="end">
+                        <Button
+                          variant="tertiary"
+                          size="small"
+                          icon={<ArrowForwardIcon />}
+                          iconPosition="end"
+                          onClick={() => {
+                            if (selectedProjectId) {
+                              navigate(`/projects/${selectedProjectId}/approvals`)
+                            }
+                          }}
+                        >
                           {t('dashboard.review')}
                         </Button>
                       </ListItem>
@@ -247,7 +235,17 @@ export default function DashboardPage() {
                 </List>
                 {pendingApprovals.length > 5 && (
                   <Box sx={{ mt: 2, textAlign: 'center' }}>
-                    <Button variant="tertiary" size="small">
+                    <Button
+                      variant="tertiary"
+                      size="small"
+                      onClick={() => {
+                        if (selectedProjectId) {
+                          navigate(`/projects/${selectedProjectId}/approvals`)
+                        } else {
+                          navigate('/approvals')
+                        }
+                      }}
+                    >
                       {t('dashboard.viewAllApprovals', { count: pendingApprovals.length })}
                     </Button>
                   </Box>
@@ -466,9 +464,6 @@ export default function DashboardPage() {
           <Box sx={{ p: 2.5 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
               <Typography variant="h6" fontWeight={600}>{t('dashboard.recentActivity')}</Typography>
-              <IconButton size="small">
-                <MoreVertIcon fontSize="small" />
-              </IconButton>
             </Box>
 
             {auditLogs.length > 0 ? (
@@ -538,7 +533,12 @@ export default function DashboardPage() {
           <Box sx={{ p: 2.5 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
               <Typography variant="h6" fontWeight={600}>{t('dashboard.teamOverview')}</Typography>
-              <Button variant="tertiary" size="small" icon={<GroupIcon />}>
+              <Button
+                variant="tertiary"
+                size="small"
+                icon={<GroupIcon />}
+                onClick={() => navigate('/team-workload')}
+              >
                 {t('dashboard.viewAll')}
               </Button>
             </Box>

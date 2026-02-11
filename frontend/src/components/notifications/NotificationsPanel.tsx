@@ -1,10 +1,9 @@
 import { useState } from 'react'
-import { Drawer, Box, Typography, IconButton, List, Divider, Button as MuiButton } from '@mui/material'
-import { styled } from '@mui/material'
-import CloseIcon from '@mui/icons-material/Close'
 import { Tabs } from '../ui/Tabs'
 import { NotificationItem } from './NotificationItem'
 import { Notification, NotificationCategory } from '../../types/notification'
+import { CloseIcon } from '@/icons'
+import { Drawer, Box, Typography, IconButton, List, Divider, Button as MuiButton, styled } from '@/mui'
 
 interface NotificationsPanelProps {
   open: boolean

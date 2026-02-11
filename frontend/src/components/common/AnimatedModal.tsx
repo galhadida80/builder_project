@@ -1,10 +1,9 @@
-import { Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Box, Typography, Fade, Grow } from '@mui/material'
-import { styled } from '@mui/material'
 import { useTranslation } from 'react-i18next'
-import CloseIcon from '@mui/icons-material/Close'
-import { TransitionProps } from '@mui/material/transitions'
 import { forwardRef } from 'react'
 import { Button } from '../ui/Button'
+import { CloseIcon } from '@/icons'
+import { Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Box, Typography, Fade, Grow, styled } from '@/mui'
+import type { TransitionProps } from '@/mui'
 
 interface AnimatedModalProps {
   open: boolean

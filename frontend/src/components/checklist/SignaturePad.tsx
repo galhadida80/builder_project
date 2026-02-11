@@ -1,11 +1,8 @@
 import { useRef, useState, useEffect } from 'react'
 import SignatureCanvas from 'react-signature-canvas'
-import { Box, Typography, Alert } from '@mui/material'
-import { styled } from '@mui/material'
-import CreateIcon from '@mui/icons-material/Create'
-import DeleteIcon from '@mui/icons-material/Delete'
-import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import { Button } from '../ui/Button'
+import { CreateIcon, DeleteIcon, CheckCircleIcon } from '@/icons'
+import { Box, Typography, Alert, styled } from '@/mui'
 
 interface SignaturePadProps {
   onSignatureChange?: (signature: string | null) => void

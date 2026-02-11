@@ -1,5 +1,4 @@
-import { Box, Typography, LinearProgress } from '@mui/material'
-import { styled } from '@mui/material'
+import { Box, Typography, LinearProgress, styled } from '@/mui'
 
 interface ProgressBarProps {
   value: number

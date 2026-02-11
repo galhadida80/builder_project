@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { screen, waitFor, fireEvent } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
 import { renderWithProviders } from '../test/test-utils'
 import TeamWorkloadView from './TeamWorkloadView'
 import { workloadApi } from '../api/workload'
@@ -31,16 +31,6 @@ vi.mock('../components/ui/EmptyState', () => ({
   EmptyState: ({ title, description }: { title: string; description?: string }) => (
     <div data-testid="empty-state"><span>{title}</span>{description && <span>{description}</span>}</div>
   ),
-}))
-
-vi.mock('../components/TeamCard', () => ({
-  TeamCard: ({ teamName, onClick }: { teamName: string; onClick?: () => void }) => (
-    <div data-testid="team-card" onClick={onClick}>{teamName}</div>
-  ),
-}))
-
-vi.mock('../components/WorkloadCalendar', () => ({
-  WorkloadCalendar: () => <div data-testid="workload-calendar" />,
 }))
 
 const makeMember = (overrides: Partial<TeamMember> = {}): TeamMember => ({
@@ -109,14 +99,25 @@ describe('TeamWorkloadView', () => {
     })
   })
 
-  it('renders team cards grouped by team name', async () => {
+  it('renders table with all team members', async () => {
     renderWithProviders(<TeamWorkloadView />)
     await waitFor(() => {
-      const teamCards = screen.getAllByTestId('team-card')
-      expect(teamCards).toHaveLength(2)
+      expect(screen.getByText('Alice')).toBeInTheDocument()
     })
-    expect(screen.getByText('Electrical')).toBeInTheDocument()
-    expect(screen.getByText('Structural')).toBeInTheDocument()
+    expect(screen.getByText('Bob')).toBeInTheDocument()
+    expect(screen.getByText('Carol')).toBeInTheDocument()
+  })
+
+  it('renders table headers', async () => {
+    renderWithProviders(<TeamWorkloadView />)
+    await waitFor(() => {
+      expect(screen.getByText('teamWorkload.memberName')).toBeInTheDocument()
+    })
+    expect(screen.getByText('teamWorkload.role')).toBeInTheDocument()
+    expect(screen.getByText('teamWorkload.team')).toBeInTheDocument()
+    expect(screen.getByText('teamCard.assigned')).toBeInTheDocument()
+    expect(screen.getByText('teamCard.available')).toBeInTheDocument()
+    expect(screen.getByText('teamCard.utilization')).toBeInTheDocument()
   })
 
   it('renders overall capacity progress bar', async () => {
@@ -156,11 +157,15 @@ describe('TeamWorkloadView', () => {
     })
   })
 
-  it('toggles team card details on click', async () => {
+  it('sorts members by workload descending', async () => {
     renderWithProviders(<TeamWorkloadView />)
     await waitFor(() => {
-      expect(screen.getAllByTestId('team-card')).toHaveLength(2)
+      expect(screen.getByText('Bob')).toBeInTheDocument()
     })
-    fireEvent.click(screen.getByText('Structural'))
+    const rows = screen.getAllByRole('row')
+    const dataRows = rows.slice(1)
+    expect(dataRows[0]).toHaveTextContent('Bob')
+    expect(dataRows[1]).toHaveTextContent('Alice')
+    expect(dataRows[2]).toHaveTextContent('Carol')
   })
 })

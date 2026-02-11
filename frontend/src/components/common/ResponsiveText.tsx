@@ -1,7 +1,6 @@
-import { Typography, TypographyProps } from '@mui/material'
-import { styled } from '@mui/material'
 import { forwardRef, ElementType } from 'react'
 import { typography } from '../../theme/tokens'
+import { Typography, TypographyProps, styled } from '@/mui'
 
 export type TextVariant = 'display' | 'h1' | 'h2' | 'h3' | 'h4' | 'body' | 'small'
 export type FontWeight = 'light' | 'regular' | 'medium' | 'semibold' | 'bold'

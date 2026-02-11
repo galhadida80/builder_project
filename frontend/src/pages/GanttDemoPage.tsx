@@ -1,9 +1,8 @@
 import { useState } from 'react'
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import { GanttChart } from '../components/GanttChart'
 import type { GanttTask, GanttViewMode } from '../types/gantt'
+import { Box, Typography } from '@/mui'
 
 export default function GanttDemoPage() {
   const { t } = useTranslation()

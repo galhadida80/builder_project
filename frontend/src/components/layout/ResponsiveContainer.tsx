@@ -1,6 +1,5 @@
 import { forwardRef } from 'react'
-import Box, { BoxProps } from '@mui/material/Box'
-import { SxProps, Theme } from '@mui/material'
+import { Box, BoxProps, SxProps, Theme } from '@/mui'
 
 /**
  * ResponsiveContainer Props

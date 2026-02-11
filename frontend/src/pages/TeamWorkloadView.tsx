@@ -2,32 +2,22 @@ import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Card, KPICard } from '../components/ui/Card'
 import { EmptyState } from '../components/ui/EmptyState'
-import { TeamCard } from '../components/TeamCard'
-import { WorkloadCalendar } from '../components/WorkloadCalendar'
 import { workloadApi } from '../api/workload'
 import type { TeamMember } from '../types'
 import { useToast } from '../components/common/ToastProvider'
-import dayjs, { Dayjs } from 'dayjs'
+import { getWorkloadColor } from '../utils/workloadCalculation'
 import { PeopleIcon, TrendingUpIcon, AssignmentIcon } from '@/icons'
-import { Box, Typography, Skeleton, Grid, Chip } from '@/mui'
-
-interface TeamGroup {
-  teamName: string
-  members: TeamMember[]
-}
+import { Box, Typography, Skeleton, Chip, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar } from '@/mui'
 
 export default function TeamWorkloadView() {
   const { t } = useTranslation()
   const { showError } = useToast()
   const [loading, setLoading] = useState(true)
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([])
-  const [startDate, setStartDate] = useState<Dayjs>(dayjs().startOf('week'))
-  const [endDate, setEndDate] = useState<Dayjs>(dayjs().endOf('week'))
-  const [selectedTeam, setSelectedTeam] = useState<string | null>(null)
 
   useEffect(() => {
     loadTeamData()
-  }, [startDate, endDate])
+  }, [])
 
   const loadTeamData = async () => {
     try {
@@ -42,27 +32,8 @@ export default function TeamWorkloadView() {
     }
   }
 
-  const handleDateChange = (newStartDate: Dayjs, newEndDate: Dayjs) => {
-    setStartDate(newStartDate)
-    setEndDate(newEndDate)
-  }
-
-  // Group team members by team
-  const teamGroups = teamMembers.reduce<TeamGroup[]>((groups, member) => {
-    const teamName = member.teamName || t('teamWorkload.unassigned')
-    const existingGroup = groups.find(g => g.teamName === teamName)
-
-    if (existingGroup) {
-      existingGroup.members.push(member)
-    } else {
-      groups.push({ teamName, members: [member] })
-    }
-
-    return groups
-  }, [])
-
-  // Sort teams by name
-  teamGroups.sort((a, b) => a.teamName.localeCompare(b.teamName))
+  // Sort members by workload descending
+  const sortedMembers = [...teamMembers].sort((a, b) => b.workloadPercent - a.workloadPercent)
 
   // Calculate KPIs
   const totalMembers = teamMembers.length
@@ -154,169 +125,139 @@ export default function TeamWorkloadView() {
         />
       </Box>
 
-      <Box
-        sx={{
-          display: 'grid',
-          gridTemplateColumns: { xs: '1fr', lg: '1fr 350px' },
-          gap: 3,
-        }}
-      >
-        <Box>
-          {teamMembers.length === 0 ? (
-            <EmptyState
-              icon={<PeopleIcon sx={{ fontSize: 64 }} />}
-              title={t('teamWorkload.noMembers')}
-              description={t('teamWorkload.noMembersDescription')}
+      <Box sx={{ mb: 3 }}>
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, gap: { xs: 1, sm: 0 }, mb: 2 }}>
+          <Typography variant="h6" fontWeight={600}>
+            {t('teamWorkload.teamOverview')}
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+            <Chip
+              label={`${underutilizedMembers} ${t('teamWorkload.underUtilized')}`}
+              size="small"
+              color="success"
+              sx={{ fontWeight: 600 }}
             />
-          ) : (
-            <>
-              <Box sx={{ mb: 3 }}>
-                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, gap: { xs: 1, sm: 0 }, mb: 2 }}>
-                  <Typography variant="h6" fontWeight={600}>
-                    {t('teamWorkload.teamOverview')}
-                  </Typography>
-                  <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                    <Chip
-                      label={`${underutilizedMembers} ${t('teamWorkload.underUtilized')}`}
-                      size="small"
-                      color="success"
-                      sx={{ fontWeight: 600 }}
-                    />
-                    <Chip
-                      label={`${overloadedMembers} ${t('teamWorkload.overCapacity').toLowerCase()}`}
-                      size="small"
-                      color="error"
-                      sx={{ fontWeight: 600 }}
-                    />
-                  </Box>
-                </Box>
-
-                <Card>
-                  <Box sx={{ p: 2.5 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-                      <Typography variant="body2" color="text.secondary">
-                        {t('teamWorkload.overallCapacity')}
-                      </Typography>
-                      <Typography variant="body2" fontWeight={600}>
-                        {totalAssignedHours}{t('common.hoursShort')} / {totalAvailableHours}{t('common.hoursShort')}
-                      </Typography>
-                    </Box>
-                    <Box
-                      sx={{
-                        height: 12,
-                        borderRadius: 2,
-                        bgcolor: 'action.hover',
-                        position: 'relative',
-                        overflow: 'hidden',
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          position: 'absolute',
-                          left: 0,
-                          top: 0,
-                          height: '100%',
-                          width: `${Math.min(100, capacityUtilization)}%`,
-                          bgcolor: capacityUtilization > 90 ? 'error.main' : capacityUtilization > 60 ? 'warning.main' : 'success.main',
-                          borderRadius: 2,
-                          transition: 'width 300ms ease-out',
-                        }}
-                      />
-                    </Box>
-                  </Box>
-                </Card>
-              </Box>
-
-              <Grid container spacing={{ xs: 2, sm: 3 }}>
-                {teamGroups.map((group) => (
-                  <Grid item xs={12} sm={6} key={group.teamName}>
-                    <TeamCard
-                      teamName={group.teamName}
-                      members={group.members}
-                      onClick={() => setSelectedTeam(selectedTeam === group.teamName ? null : group.teamName)}
-                      showDetails={selectedTeam === group.teamName}
-                    />
-                  </Grid>
-                ))}
-              </Grid>
-            </>
-          )}
+            <Chip
+              label={`${overloadedMembers} ${t('teamWorkload.overCapacity').toLowerCase()}`}
+              size="small"
+              color="error"
+              sx={{ fontWeight: 600 }}
+            />
+          </Box>
         </Box>
 
-        <Box sx={{ display: { xs: 'none', lg: 'block' } }}>
-          <WorkloadCalendar
-            startDate={startDate}
-            endDate={endDate}
-            onChange={handleDateChange}
-          />
-
-          {teamMembers.length > 0 && (
-            <Card sx={{ mt: 3 }}>
-              <Box sx={{ p: 2.5 }}>
-                <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
-                  {t('teamWorkload.workloadDistribution')}
-                </Typography>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <Box
-                      sx={{
-                        width: 16,
-                        height: 16,
-                        borderRadius: 1,
-                        bgcolor: 'success.main',
-                      }}
-                    />
-                    <Typography variant="body2" sx={{ flex: 1 }}>
-                      {t('teamWorkload.underUtilizedRange')}
-                    </Typography>
-                    <Chip
-                      label={underutilizedMembers}
-                      size="small"
-                      sx={{ minWidth: 40 }}
-                    />
-                  </Box>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <Box
-                      sx={{
-                        width: 16,
-                        height: 16,
-                        borderRadius: 1,
-                        bgcolor: 'warning.main',
-                      }}
-                    />
-                    <Typography variant="body2" sx={{ flex: 1 }}>
-                      {t('teamWorkload.optimalRange')}
-                    </Typography>
-                    <Chip
-                      label={teamMembers.filter(m => m.workloadPercent > 60 && m.workloadPercent <= 90).length}
-                      size="small"
-                      sx={{ minWidth: 40 }}
-                    />
-                  </Box>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <Box
-                      sx={{
-                        width: 16,
-                        height: 16,
-                        borderRadius: 1,
-                        bgcolor: 'error.main',
-                      }}
-                    />
-                    <Typography variant="body2" sx={{ flex: 1 }}>
-                      {t('teamWorkload.highOverRange')}
-                    </Typography>
-                    <Chip
-                      label={teamMembers.filter(m => m.workloadPercent > 90).length}
-                      size="small"
-                      sx={{ minWidth: 40 }}
-                    />
-                  </Box>
-                </Box>
-              </Box>
-            </Card>
-          )}
-        </Box>
+        <Card>
+          <Box sx={{ p: 2.5 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+              <Typography variant="body2" color="text.secondary">
+                {t('teamWorkload.overallCapacity')}
+              </Typography>
+              <Typography variant="body2" fontWeight={600}>
+                {totalAssignedHours}{t('common.hoursShort')} / {totalAvailableHours}{t('common.hoursShort')}
+              </Typography>
+            </Box>
+            <Box
+              sx={{
+                height: 12,
+                borderRadius: 2,
+                bgcolor: 'action.hover',
+                position: 'relative',
+                overflow: 'hidden',
+              }}
+            >
+              <Box
+                sx={{
+                  position: 'absolute',
+                  left: 0,
+                  top: 0,
+                  height: '100%',
+                  width: `${Math.min(100, capacityUtilization)}%`,
+                  bgcolor: capacityUtilization > 90 ? 'error.main' : capacityUtilization > 60 ? 'warning.main' : 'success.main',
+                  borderRadius: 2,
+                  transition: 'width 300ms ease-out',
+                }}
+              />
+            </Box>
+          </Box>
+        </Card>
       </Box>
+
+      {teamMembers.length === 0 ? (
+        <EmptyState
+          icon={<PeopleIcon sx={{ fontSize: 64 }} />}
+          title={t('teamWorkload.noMembers')}
+          description={t('teamWorkload.noMembersDescription')}
+        />
+      ) : (
+        <Card>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>{t('teamWorkload.memberName')}</TableCell>
+                  <TableCell>{t('teamWorkload.role')}</TableCell>
+                  <TableCell>{t('teamWorkload.team')}</TableCell>
+                  <TableCell align="center">{t('teamCard.assigned')}</TableCell>
+                  <TableCell align="center">{t('teamCard.available')}</TableCell>
+                  <TableCell align="center">{t('teamCard.utilization')}</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {sortedMembers.map((member) => {
+                  const name = member.user.fullName || member.user.email
+                  const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+                  return (
+                    <TableRow key={member.id} hover>
+                      <TableCell>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                          <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.main', fontSize: '0.8rem' }}>
+                            {initials}
+                          </Avatar>
+                          <Box>
+                            <Typography variant="body2" fontWeight={600}>{name}</Typography>
+                            <Typography variant="caption" color="text.secondary">{member.user.email}</Typography>
+                          </Box>
+                        </Box>
+                      </TableCell>
+                      <TableCell>
+                        <Chip
+                          label={t(`roles.${member.role}`, { defaultValue: member.role.replace('_', ' ') })}
+                          size="small"
+                          variant="outlined"
+                          sx={{ fontWeight: 500 }}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant="body2">
+                          {member.teamName || t('teamWorkload.unassigned')}
+                        </Typography>
+                      </TableCell>
+                      <TableCell align="center">
+                        <Typography variant="body2" fontWeight={500}>
+                          {member.assignedHours}{t('common.hoursShort')}
+                        </Typography>
+                      </TableCell>
+                      <TableCell align="center">
+                        <Typography variant="body2" fontWeight={500}>
+                          {member.availableHours}{t('common.hoursShort')}
+                        </Typography>
+                      </TableCell>
+                      <TableCell align="center">
+                        <Chip
+                          label={`${Math.round(member.workloadPercent)}%`}
+                          size="small"
+                          color={getWorkloadColor(member.workloadPercent)}
+                          sx={{ fontWeight: 600, minWidth: 55 }}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  )
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Card>
+      )}
     </Box>
   )
 }

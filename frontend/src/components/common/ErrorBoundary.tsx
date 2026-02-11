@@ -1,9 +1,5 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react'
-import Box from '@mui/material/Box'
-import Container from '@mui/material/Container'
-import Alert from '@mui/material/Alert'
-import Typography from '@mui/material/Typography'
-import Button from '@mui/material/Button'
+import { Box, Container, Alert, Typography, Button } from '@/mui'
 
 interface ErrorBoundaryProps {
   children: ReactNode

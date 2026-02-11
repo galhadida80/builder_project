@@ -1,35 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
-import Drawer from '@mui/material/Drawer'
-import Divider from '@mui/material/Divider'
-import List from '@mui/material/List'
-import ListItem from '@mui/material/ListItem'
-import ListItemText from '@mui/material/ListItemText'
-import ListItemIcon from '@mui/material/ListItemIcon'
-import MenuItem from '@mui/material/MenuItem'
-import MuiTextField from '@mui/material/TextField'
-import Skeleton from '@mui/material/Skeleton'
-import Chip from '@mui/material/Chip'
-import Checkbox from '@mui/material/Checkbox'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import AddIcon from '@mui/icons-material/Add'
-import VisibilityIcon from '@mui/icons-material/Visibility'
-import EditIcon from '@mui/icons-material/Edit'
-import DeleteIcon from '@mui/icons-material/Delete'
-import CloseIcon from '@mui/icons-material/Close'
-import DescriptionIcon from '@mui/icons-material/Description'
-import SendIcon from '@mui/icons-material/Send'
-import InventoryIcon from '@mui/icons-material/Inventory'
-import CloudUploadIcon from '@mui/icons-material/CloudUpload'
-import DownloadIcon from '@mui/icons-material/Download'
-import CheckCircleIcon from '@mui/icons-material/CheckCircle'
-import PersonIcon from '@mui/icons-material/Person'
-import LocalShippingIcon from '@mui/icons-material/LocalShipping'
-import WarehouseIcon from '@mui/icons-material/Warehouse'
-import CircularProgress from '@mui/material/CircularProgress'
-import IconButton from '@mui/material/IconButton'
 import { Card, KPICard } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { DataTable, Column } from '../components/ui/DataTable'
@@ -40,7 +10,7 @@ import { FormModal, ConfirmModal } from '../components/ui/Modal'
 import { Tabs } from '../components/ui/Tabs'
 import { ApprovalStepper } from '../components/ui/Stepper'
 import { materialsApi } from '../api/materials'
-import { materialTemplatesApi, type MaterialTemplate } from '../api/materialTemplates'
+import type { MaterialTemplate } from '../api/materialTemplates'
 import { filesApi } from '../api/files'
 import { formatFileSize } from '../utils/fileUtils'
 import type { Material } from '../types'
@@ -53,6 +23,9 @@ import { EmptyState } from '../components/ui/EmptyState'
 import TemplatePicker from '../components/ui/TemplatePicker'
 import KeyValueEditor, { type KeyValuePair } from '../components/ui/KeyValueEditor'
 import ContactSelectorDialog from '../components/ui/ContactSelectorDialog'
+import { useReferenceData } from '../contexts/ReferenceDataContext'
+import { AddIcon, VisibilityIcon, EditIcon, DeleteIcon, CloseIcon, DescriptionIcon, SendIcon, InventoryIcon, CloudUploadIcon, DownloadIcon, CheckCircleIcon, PersonIcon, LocalShippingIcon, WarehouseIcon } from '@/icons'
+import { Box, Typography, Drawer, Divider, List, ListItem, ListItemText, ListItemIcon, MenuItem, TextField as MuiTextField, Skeleton, Chip, Checkbox, FormControlLabel, CircularProgress, IconButton } from '@/mui'
 
 const UNIT_KEYS = ['ton', 'm3', 'm2', 'm', 'kg', 'unit', 'box', 'pallet', 'roll'] as const
 
@@ -67,9 +40,9 @@ export default function MaterialsPage() {
     return 'en-US'
   }, [i18n.language])
   const { showError, showSuccess } = useToast()
+  const { materialTemplates } = useReferenceData()
   const [loading, setLoading] = useState(true)
   const [materials, setMaterials] = useState<Material[]>([])
-  const [materialTemplates, setMaterialTemplates] = useState<MaterialTemplate[]>([])
   const [search, setSearch] = useState('')
   const [selectedMaterial, setSelectedMaterial] = useState<Material | null>(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
@@ -108,17 +81,7 @@ export default function MaterialsPage() {
 
   useEffect(() => {
     loadMaterials()
-    loadTemplates()
   }, [projectId])
-
-  const loadTemplates = async () => {
-    try {
-      const templates = await materialTemplatesApi.list()
-      setMaterialTemplates(templates)
-    } catch {
-      console.error('Failed to load material templates')
-    }
-  }
 
   useEffect(() => {
     const loadFiles = async () => {

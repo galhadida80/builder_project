@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Snackbar, Button, IconButton, Box, Typography, Paper, Slide } from '@mui/material'
-import CloseIcon from '@mui/icons-material/Close'
-import GetAppIcon from '@mui/icons-material/GetApp'
-import IosShareIcon from '@mui/icons-material/IosShare'
 import { usePWAInstall } from '../../hooks/usePWAInstall'
+import { CloseIcon, GetAppIcon, IosShareIcon } from '@/icons'
+import { Snackbar, Button, IconButton, Box, Typography, Paper, Slide } from '@/mui'
 
 const DISMISS_KEY = 'pwa-install-dismissed'
 const DISMISS_DURATION = 7 * 24 * 60 * 60 * 1000

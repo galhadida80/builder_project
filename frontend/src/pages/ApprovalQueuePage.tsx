@@ -1,9 +1,9 @@
-import Box from '@mui/material/Box'
 import { useTranslation } from 'react-i18next'
 import { PageHeader } from '../components/ui/Breadcrumbs'
 import { Card } from '../components/ui/Card'
 import { ApprovalQueueList } from '../components/ApprovalQueueList'
 import type { ApprovalRequest } from '../types'
+import { Box } from '@/mui'
 
 export default function ApprovalQueuePage() {
   const { t } = useTranslation()

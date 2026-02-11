@@ -1,5 +1,5 @@
 import { forwardRef, ReactElement, Ref } from 'react'
-import { Fade } from '@mui/material'
+import { Fade } from '@/mui'
 
 interface PageTransitionProps {
   children: ReactElement

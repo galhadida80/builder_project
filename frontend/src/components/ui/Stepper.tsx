@@ -10,14 +10,10 @@ import {
   Divider,
   useMediaQuery,
   useTheme,
-} from '@mui/material'
-import { styled } from '@mui/material'
+} from '@/mui'
 import { useTranslation } from 'react-i18next'
-import CheckCircleIcon from '@mui/icons-material/CheckCircle'
-import CancelIcon from '@mui/icons-material/Cancel'
-import ErrorIcon from '@mui/icons-material/Error'
-import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty'
-import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked'
+import { CheckCircleIcon, CancelIcon, ErrorIcon, HourglassEmptyIcon, RadioButtonUncheckedIcon } from '@/icons'
+import { styled } from '@/mui'
 
 // Approval workflow interfaces
 export interface UserResponse {

@@ -1,11 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import IconButton from '@mui/material/IconButton'
-import Menu from '@mui/material/Menu'
-import MenuItem from '@mui/material/MenuItem'
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
-import LanguageIcon from '@mui/icons-material/Language'
+import { LanguageIcon } from '@/icons'
+import { IconButton, Menu, MenuItem, Box, Typography } from '@/mui'
 
 export default function LanguageSelector() {
   const { t, i18n } = useTranslation()

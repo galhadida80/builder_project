@@ -1,13 +1,12 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
 import { Card } from '../../../components/ui/Card'
 import { PageHeader } from '../../../components/ui/Breadcrumbs'
 import EquipmentTable from '../../../components/equipment/EquipmentTable'
 import { equipmentApi } from '../../../api/equipment'
 import { useToast } from '../../../components/common/ToastProvider'
 import type { Equipment } from '../../../types'
+import { Box, Typography } from '@/mui'
 
 export default function EquipmentPage() {
   const { projectId } = useParams()

@@ -12,9 +12,9 @@ import {
   Box,
   Typography,
   Skeleton,
-} from '@mui/material'
-import { styled } from '@mui/material'
+} from '@/mui'
 import { useState } from 'react'
+import { styled } from '@/mui'
 
 export interface Column<T> {
   id: keyof T | string

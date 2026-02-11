@@ -1,7 +1,5 @@
-import Box from '@mui/material/Box'
-import Container from '@mui/material/Container'
-import Typography from '@mui/material/Typography'
 import { Button } from './ui/Button'
+import { Box, Container, Typography } from '@/mui'
 
 export interface HeroProps {
   title?: string

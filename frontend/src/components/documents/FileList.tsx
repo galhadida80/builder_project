@@ -1,15 +1,9 @@
-import { Box, Typography, IconButton } from '@mui/material'
 import { useTranslation } from 'react-i18next'
-import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf'
-import ImageIcon from '@mui/icons-material/Image'
-import DescriptionIcon from '@mui/icons-material/Description'
-import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile'
-import DownloadIcon from '@mui/icons-material/Download'
-import DeleteIcon from '@mui/icons-material/Delete'
-import VisibilityIcon from '@mui/icons-material/Visibility'
 import { DataTable, Column } from '../ui/DataTable'
 import type { FileRecord } from '../../types'
 import { formatFileSize } from '../../utils/fileUtils'
+import { PictureAsPdfIcon, ImageIcon, DescriptionIcon, InsertDriveFileIcon, DownloadIcon, DeleteIcon, VisibilityIcon } from '@/icons'
+import { Box, Typography, IconButton } from '@/mui'
 
 interface FileListProps {
   files: FileRecord[]

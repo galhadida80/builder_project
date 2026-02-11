@@ -10,18 +10,12 @@ import {
   Collapse,
   Typography,
   TextField,
-} from '@mui/material'
+} from '@/mui'
 import { useTranslation } from 'react-i18next'
-import { styled, alpha } from '@mui/material'
-import FolderIcon from '@mui/icons-material/Folder'
-import FolderOpenIcon from '@mui/icons-material/FolderOpen'
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import ChevronRightIcon from '@mui/icons-material/ChevronRight'
-import AddIcon from '@mui/icons-material/Add'
-import EditIcon from '@mui/icons-material/Edit'
-import DeleteIcon from '@mui/icons-material/Delete'
 import { FormModal, ConfirmModal } from '../ui/Modal'
 import type { Folder, FileRecord } from '../../types'
+import { FolderIcon, FolderOpenIcon, ExpandMoreIcon, ChevronRightIcon, AddIcon, EditIcon, DeleteIcon } from '@/icons'
+import { styled, alpha } from '@/mui'
 
 interface FolderTreeProps {
   folders: Folder[]

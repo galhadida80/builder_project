@@ -1,8 +1,3 @@
-import { Box, Paper, useTheme, Typography, ButtonGroup, Menu, MenuItem, Skeleton, Alert, AlertTitle } from '@mui/material'
-import { styled, alpha } from '@mui/material'
-import FilterListIcon from '@mui/icons-material/FilterList'
-import TimelineIcon from '@mui/icons-material/Timeline'
-import WarningIcon from '@mui/icons-material/Warning'
 import { Gantt, Task, ViewMode } from 'gantt-task-react'
 import 'gantt-task-react/dist/index.css'
 import { useTranslation } from 'react-i18next'
@@ -10,6 +5,8 @@ import { GanttChartProps, GanttTask, GanttViewMode, GanttTaskType } from '../typ
 import { Button } from './ui/Button'
 import { EmptyState } from './ui/EmptyState'
 import { useState, useMemo } from 'react'
+import { FilterListIcon, TimelineIcon, WarningIcon } from '@/icons'
+import { Box, Paper, useTheme, Typography, ButtonGroup, Menu, MenuItem, Skeleton, Alert, AlertTitle, styled, alpha } from '@/mui'
 
 // Styled components following MUI theme patterns
 const StyledGanttPaper = styled(Paper)(({ theme }) => ({

@@ -1,14 +1,11 @@
 import { useState, useEffect } from 'react'
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
-import Skeleton from '@mui/material/Skeleton'
-import Grid from '@mui/material/Grid'
-import GroupIcon from '@mui/icons-material/Group'
 import { useTranslation } from 'react-i18next'
 import { EmptyState } from '../components/ui/EmptyState'
 import { TeamMemberCard, type TeamMember } from '../components/TeamMemberCard'
 import { teamMembersApi } from '../api/teamMembers'
 import { useToast } from '../components/common/ToastProvider'
+import { GroupIcon } from '@/icons'
+import { Box, Typography, Skeleton, Grid } from '@/mui'
 
 export default function TeamMembersPage() {
   const { t } = useTranslation()

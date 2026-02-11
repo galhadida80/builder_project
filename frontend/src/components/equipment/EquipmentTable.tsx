@@ -1,10 +1,8 @@
 import { DataTable, Column } from '../ui/DataTable'
 import EquipmentStatusBadge from './EquipmentStatusBadge'
 import type { Equipment } from '../../types'
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
-import Paper from '@mui/material/Paper'
 import { LoadingError } from '../ui/EmptyState'
+import { Box, Typography, Paper } from '@/mui'
 
 interface EquipmentTableProps {
   equipment: Equipment[]

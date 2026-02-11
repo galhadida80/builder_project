@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Box, Grid, Skeleton } from '@mui/material'
 import { Tabs } from '../ui/Tabs'
 import { EmptyState } from '../ui/EmptyState'
 import { MaterialCard } from './MaterialCard'
-import InventoryIcon from '@mui/icons-material/Inventory'
 import type { Material } from '../../types'
+import { InventoryIcon } from '@/icons'
+import { Box, Grid, Skeleton } from '@/mui'
 
 interface MaterialInventoryGridProps {
   materials: Material[]

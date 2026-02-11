@@ -1,19 +1,5 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
-import Skeleton from '@mui/material/Skeleton'
-import Chip from '@mui/material/Chip'
-import Alert from '@mui/material/Alert'
-import MenuItem from '@mui/material/MenuItem'
-import MuiTextField from '@mui/material/TextField'
-import AddIcon from '@mui/icons-material/Add'
-import CheckCircleIcon from '@mui/icons-material/CheckCircle'
-import WarningIcon from '@mui/icons-material/Warning'
-import ErrorIcon from '@mui/icons-material/Error'
-import ScheduleIcon from '@mui/icons-material/Schedule'
-import AssignmentIcon from '@mui/icons-material/Assignment'
-import VisibilityIcon from '@mui/icons-material/Visibility'
 import { useTranslation } from 'react-i18next'
 import { Card, KPICard } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
@@ -32,13 +18,16 @@ import type {
 import { parseValidationErrors } from '../utils/apiErrors'
 import { validateInspectionForm, hasErrors, type ValidationError } from '../utils/validation'
 import { useToast } from '../components/common/ToastProvider'
+import { useReferenceData } from '../contexts/ReferenceDataContext'
+import { AddIcon, CheckCircleIcon, WarningIcon, ErrorIcon, ScheduleIcon, AssignmentIcon, VisibilityIcon } from '@/icons'
+import { Box, Typography, Skeleton, Chip, Alert, MenuItem, TextField as MuiTextField } from '@/mui'
 
 export default function InspectionsPage() {
   const { t } = useTranslation()
   const { projectId } = useParams()
   const { showError, showSuccess } = useToast()
+  const { consultantTypes } = useReferenceData()
   const [inspections, setInspections] = useState<Inspection[]>([])
-  const [consultantTypes, setConsultantTypes] = useState<InspectionConsultantType[]>([])
   const [summary, setSummary] = useState<InspectionSummary | null>(null)
   const [selectedType, setSelectedType] = useState<InspectionConsultantType | null>(null)
   const [stageTemplates, setStageTemplates] = useState<InspectionStageTemplate[]>([])
@@ -57,12 +46,10 @@ export default function InspectionsPage() {
     if (!projectId) return
     setLoading(true)
     try {
-      const [types, projectInspections, inspSummary] = await Promise.all([
-        inspectionsApi.getConsultantTypes(),
+      const [projectInspections, inspSummary] = await Promise.all([
         inspectionsApi.getProjectInspections(projectId),
         inspectionsApi.getInspectionSummary(projectId)
       ])
-      setConsultantTypes(types)
       setInspections(projectInspections)
       setSummary(inspSummary)
     } catch (error) {

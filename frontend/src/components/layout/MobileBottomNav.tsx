@@ -1,12 +1,7 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import BottomNavigation from '@mui/material/BottomNavigation'
-import BottomNavigationAction from '@mui/material/BottomNavigationAction'
-import Paper from '@mui/material/Paper'
-import HomeIcon from '@mui/icons-material/Home'
-import AssignmentIcon from '@mui/icons-material/Assignment'
-import FolderIcon from '@mui/icons-material/Folder'
-import PersonIcon from '@mui/icons-material/Person'
+import { HomeIcon, AssignmentIcon, FolderIcon, PersonIcon } from '@/icons'
+import { BottomNavigation, BottomNavigationAction, Paper } from '@/mui'
 
 interface NavTab {
   labelKey: string

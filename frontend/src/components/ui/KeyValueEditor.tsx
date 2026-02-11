@@ -1,16 +1,7 @@
 import { useState } from 'react'
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
-import IconButton from '@mui/material/IconButton'
-import MuiTextField from '@mui/material/TextField'
-import MenuItem from '@mui/material/MenuItem'
-import Chip from '@mui/material/Chip'
-import Tooltip from '@mui/material/Tooltip'
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline'
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
-import TuneIcon from '@mui/icons-material/Tune'
-import LockIcon from '@mui/icons-material/Lock'
 import { useTranslation } from 'react-i18next'
+import { AddCircleOutlineIcon, DeleteOutlineIcon, TuneIcon, LockIcon } from '@/icons'
+import { Box, Typography, IconButton, TextField as MuiTextField, MenuItem, Chip, Tooltip } from '@/mui'
 
 type ValueType = 'text' | 'number' | 'boolean' | 'date' | 'select'
 

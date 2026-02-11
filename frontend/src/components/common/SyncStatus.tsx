@@ -1,8 +1,5 @@
-import Chip from '@mui/material/Chip'
-import CircularProgress from '@mui/material/CircularProgress'
-import CheckCircleIcon from '@mui/icons-material/CheckCircle'
-import ErrorIcon from '@mui/icons-material/Error'
-import CloudQueueIcon from '@mui/icons-material/CloudQueue'
+import { CheckCircleIcon, ErrorIcon, CloudQueueIcon } from '@/icons'
+import { Chip, CircularProgress } from '@/mui'
 
 export type SyncStatusType = 'idle' | 'syncing' | 'synced' | 'error'
 

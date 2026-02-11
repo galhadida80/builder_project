@@ -1,8 +1,7 @@
 import { createContext, useContext, useState, useCallback, useRef, ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import Snackbar from '@mui/material/Snackbar'
-import Alert from '@mui/material/Alert'
 import { slideInUp, fadeOut, duration, easing } from '@/utils/animations'
+import { Snackbar, Alert } from '@/mui'
 
 type ToastSeverity = 'success' | 'error' | 'warning' | 'info'
 

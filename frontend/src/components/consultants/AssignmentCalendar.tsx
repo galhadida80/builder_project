@@ -1,18 +1,11 @@
 import { useState, useMemo } from 'react'
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
-import Paper from '@mui/material/Paper'
-import IconButton from '@mui/material/IconButton'
-import Tooltip from '@mui/material/Tooltip'
-import Chip from '@mui/material/Chip'
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
-import ChevronRightIcon from '@mui/icons-material/ChevronRight'
-import PersonIcon from '@mui/icons-material/Person'
-import { styled, alpha } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import dayjs, { Dayjs } from 'dayjs'
 import isBetween from 'dayjs/plugin/isBetween'
 import type { ConsultantAssignment } from '../../types/consultantAssignment'
+import { ChevronLeftIcon, ChevronRightIcon, PersonIcon } from '@/icons'
+import { Box, Typography, Paper, IconButton, Tooltip, Chip } from '@/mui'
+import { styled, alpha } from '@/mui'
 
 dayjs.extend(isBetween)
 

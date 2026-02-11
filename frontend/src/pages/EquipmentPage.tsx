@@ -1,35 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
-import Drawer from '@mui/material/Drawer'
-import Divider from '@mui/material/Divider'
-import List from '@mui/material/List'
-import ListItem from '@mui/material/ListItem'
-import ListItemText from '@mui/material/ListItemText'
-import ListItemIcon from '@mui/material/ListItemIcon'
-import MenuItem from '@mui/material/MenuItem'
-import MuiTextField from '@mui/material/TextField'
-import Skeleton from '@mui/material/Skeleton'
-import Chip from '@mui/material/Chip'
-import Checkbox from '@mui/material/Checkbox'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import Alert from '@mui/material/Alert'
-import AddIcon from '@mui/icons-material/Add'
-import VisibilityIcon from '@mui/icons-material/Visibility'
-import EditIcon from '@mui/icons-material/Edit'
-import DeleteIcon from '@mui/icons-material/Delete'
-import CloseIcon from '@mui/icons-material/Close'
-import DescriptionIcon from '@mui/icons-material/Description'
-import SendIcon from '@mui/icons-material/Send'
-import BuildIcon from '@mui/icons-material/Build'
-import FilterListIcon from '@mui/icons-material/FilterList'
-import CloudUploadIcon from '@mui/icons-material/CloudUpload'
-import DownloadIcon from '@mui/icons-material/Download'
-import CheckCircleIcon from '@mui/icons-material/CheckCircle'
-import PersonIcon from '@mui/icons-material/Person'
-import CircularProgress from '@mui/material/CircularProgress'
-import IconButton from '@mui/material/IconButton'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { DataTable, Column } from '../components/ui/DataTable'
@@ -40,7 +10,7 @@ import { FormModal, ConfirmModal } from '../components/ui/Modal'
 import { Tabs } from '../components/ui/Tabs'
 import { ApprovalStepper } from '../components/ui/Stepper'
 import { equipmentApi } from '../api/equipment'
-import { equipmentTemplatesApi, type EquipmentTemplate } from '../api/equipmentTemplates'
+import type { EquipmentTemplate } from '../api/equipmentTemplates'
 import { filesApi } from '../api/files'
 import { formatFileSize } from '../utils/fileUtils'
 import type { Equipment } from '../types'
@@ -52,14 +22,17 @@ import { useTranslation } from 'react-i18next'
 import TemplatePicker from '../components/ui/TemplatePicker'
 import KeyValueEditor, { type KeyValuePair } from '../components/ui/KeyValueEditor'
 import ContactSelectorDialog from '../components/ui/ContactSelectorDialog'
+import { useReferenceData } from '../contexts/ReferenceDataContext'
+import { AddIcon, VisibilityIcon, EditIcon, DeleteIcon, CloseIcon, DescriptionIcon, SendIcon, BuildIcon, FilterListIcon, CloudUploadIcon, DownloadIcon, CheckCircleIcon, PersonIcon } from '@/icons'
+import { Box, Typography, Drawer, Divider, List, ListItem, ListItemText, ListItemIcon, MenuItem, TextField as MuiTextField, Skeleton, Chip, Checkbox, FormControlLabel, Alert, CircularProgress, IconButton } from '@/mui'
 
 export default function EquipmentPage() {
   const { projectId } = useParams()
   const { t } = useTranslation()
   const { showError, showSuccess } = useToast()
+  const { equipmentTemplates } = useReferenceData()
   const [loading, setLoading] = useState(true)
   const [equipment, setEquipment] = useState<Equipment[]>([])
-  const [equipmentTemplates, setEquipmentTemplates] = useState<EquipmentTemplate[]>([])
   const [search, setSearch] = useState('')
   const [selectedEquipment, setSelectedEquipment] = useState<Equipment | null>(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
@@ -95,17 +68,7 @@ export default function EquipmentPage() {
 
   useEffect(() => {
     loadEquipment()
-    loadTemplates()
   }, [projectId])
-
-  const loadTemplates = async () => {
-    try {
-      const templates = await equipmentTemplatesApi.list()
-      setEquipmentTemplates(templates)
-    } catch {
-      console.error('Failed to load equipment templates')
-    }
-  }
 
   useEffect(() => {
     const loadFiles = async () => {

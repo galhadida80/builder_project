@@ -7,9 +7,9 @@ import {
   SelectChangeEvent,
   MenuItem,
   FormHelperText,
-} from '@mui/material'
-import { styled } from '@mui/material'
+} from '@/mui'
 import { SelectInputBaseProps, SelectOption } from './types'
+import { styled } from '@/mui'
 
 export interface SelectInputProps<T = string> extends SelectInputBaseProps<T> {
   /**

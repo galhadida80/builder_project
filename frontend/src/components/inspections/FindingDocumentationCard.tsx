@@ -1,16 +1,10 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Box, Typography, IconButton, Grid, Button as MuiButton, Skeleton } from '@mui/material'
-import { styled } from '@mui/material'
-import LocationOnIcon from '@mui/icons-material/LocationOn'
-import PersonIcon from '@mui/icons-material/Person'
-import AssignmentIndIcon from '@mui/icons-material/AssignmentInd'
-import CheckCircleIcon from '@mui/icons-material/CheckCircle'
-import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate'
-import ImageIcon from '@mui/icons-material/Image'
 import { Card } from '../ui/Card'
 import { SeverityBadge } from '../ui/StatusBadge'
 import type { Finding, FindingSeverity } from '../../types'
+import { LocationOnIcon, PersonIcon, AssignmentIndIcon, CheckCircleIcon, AddPhotoAlternateIcon, ImageIcon } from '@/icons'
+import { Box, Typography, IconButton, Grid, Button as MuiButton, Skeleton, styled } from '@/mui'
 
 interface FindingDocumentationCardProps {
   finding: Finding

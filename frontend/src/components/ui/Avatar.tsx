@@ -1,5 +1,4 @@
-import { Avatar as MuiAvatar, AvatarGroup as MuiAvatarGroup, Box, Typography, Tooltip } from '@mui/material'
-import { styled } from '@mui/material'
+import { Avatar as MuiAvatar, AvatarGroup as MuiAvatarGroup, Box, Typography, Tooltip, styled } from '@/mui'
 
 interface AvatarProps {
   name?: string

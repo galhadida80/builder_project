@@ -1,7 +1,6 @@
-import { styled } from '@mui/material'
-import Alert from '@mui/material/Alert'
-import Slide from '@mui/material/Slide'
 import { useNetwork } from '../../contexts/NetworkContext'
+import { Alert, Slide } from '@/mui'
+import { styled } from '@/mui'
 
 const StyledBannerContainer = styled('div')(({ theme }) => ({
   position: 'fixed',

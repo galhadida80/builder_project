@@ -1,6 +1,5 @@
-import { Box, Typography } from '@mui/material'
-import { styled } from '@mui/material'
 import { GanttTask, GanttLink, GanttScale } from '../../types/timeline'
+import { Box, Typography, styled } from '@/mui'
 
 interface GanttChartProps {
   tasks: GanttTask[]

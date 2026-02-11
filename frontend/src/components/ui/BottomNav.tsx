@@ -1,6 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom'
-import { BottomNavigation, BottomNavigationAction, Paper, Box } from '@mui/material'
-import { styled } from '@mui/material'
+import { BottomNavigation, BottomNavigationAction, Paper, Box, styled } from '@/mui'
 
 export interface BottomNavItem {
   label: string

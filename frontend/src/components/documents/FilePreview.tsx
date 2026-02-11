@@ -1,16 +1,11 @@
 import { useState, useEffect } from 'react'
-import { Box, Typography, IconButton, CircularProgress, Paper } from '@mui/material'
-import { styled } from '@mui/material'
 import { useTranslation } from 'react-i18next'
-import DownloadIcon from '@mui/icons-material/Download'
-import CloseIcon from '@mui/icons-material/Close'
-import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf'
-import ImageIcon from '@mui/icons-material/Image'
-import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile'
 import { EmptyState } from '../ui/EmptyState'
 import type { FileRecord } from '../../types'
 import { filesApi } from '../../api/files'
 import { formatFileSize } from '../../utils/fileUtils'
+import { DownloadIcon, CloseIcon, PictureAsPdfIcon, ImageIcon, InsertDriveFileIcon } from '@/icons'
+import { Box, Typography, IconButton, CircularProgress, Paper, styled } from '@/mui'
 
 interface FilePreviewProps {
   file: FileRecord | null

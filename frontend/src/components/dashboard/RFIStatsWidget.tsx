@@ -1,17 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
-import Skeleton from '@mui/material/Skeleton'
 import { useNavigate } from 'react-router-dom'
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
-import WarningAmberIcon from '@mui/icons-material/WarningAmber'
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'
-import TaskAltIcon from '@mui/icons-material/TaskAlt'
 import { Card } from '../ui/Card'
 import { KPICard } from '../ui/Card'
 import { rfiApi, RFISummary } from '../../api/rfi'
 import { useToast } from '../common/ToastProvider'
+import { InfoOutlinedIcon, WarningAmberIcon, CheckCircleOutlineIcon, TaskAltIcon } from '@/icons'
+import { Box, Typography, Skeleton } from '@/mui'
 
 interface RFIStatsWidgetProps {
   projectId?: string

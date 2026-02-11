@@ -1,17 +1,10 @@
-import { Box, Typography, IconButton, Menu, MenuItem, Divider } from '@mui/material'
-import { styled } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import { Avatar } from '../ui/Avatar'
 import { Button } from '../ui/Button'
 import { TextField } from '../ui/TextField'
-import ReplyIcon from '@mui/icons-material/Reply'
-import CheckCircleIcon from '@mui/icons-material/CheckCircle'
-import MoreVertIcon from '@mui/icons-material/MoreVert'
-import EditIcon from '@mui/icons-material/Edit'
-import DeleteIcon from '@mui/icons-material/Delete'
-import CancelIcon from '@mui/icons-material/Cancel'
-import SaveIcon from '@mui/icons-material/Save'
 import { useState } from 'react'
+import { ReplyIcon, CheckCircleIcon, MoreVertIcon, EditIcon, DeleteIcon, CancelIcon, SaveIcon } from '@/icons'
+import { Box, Typography, IconButton, Menu, MenuItem, Divider, styled } from '@/mui'
 
 export interface Comment {
   id: string

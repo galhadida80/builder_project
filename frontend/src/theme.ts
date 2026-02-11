@@ -1,5 +1,5 @@
-import { createTheme } from '@mui/material'
 import i18n from './i18n/config'
+import { createTheme } from '@/mui'
 
 const getTheme = () => {
   const direction = i18n.language === 'he' ? 'rtl' : 'ltr'

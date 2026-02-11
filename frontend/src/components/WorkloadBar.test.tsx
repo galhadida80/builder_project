@@ -37,14 +37,14 @@ describe('WorkloadBar', () => {
     renderWithProviders(
       <WorkloadBar value={75} showHours assignedHours={30} availableHours={40} />
     )
-    expect(screen.getByText('30h / 40h')).toBeInTheDocument()
+    expect(screen.getByText(/30common\.hoursShort.*40common\.hoursShort/)).toBeInTheDocument()
   })
 
   it('does not show hours when showHours is false', () => {
     renderWithProviders(
       <WorkloadBar value={75} showHours={false} assignedHours={30} availableHours={40} />
     )
-    expect(screen.queryByText('30h / 40h')).not.toBeInTheDocument()
+    expect(screen.queryByText(/30common\.hoursShort/)).not.toBeInTheDocument()
   })
 
   it('shows over-capacity warning when value > 100', () => {

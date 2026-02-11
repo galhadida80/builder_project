@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { Hero } from './Hero'
-import { ThemeProvider, createTheme } from '@mui/material'
+import { ThemeProvider, createTheme } from '@/mui'
 
 // Helper to render with theme
 const renderWithTheme = (component: React.ReactElement) => {

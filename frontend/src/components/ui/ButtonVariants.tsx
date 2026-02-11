@@ -1,6 +1,6 @@
-import { Box, Grid, Typography, SxProps, Theme } from '@mui/material'
 import { Button, ButtonProps } from './Button'
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
+import { HelpOutlineIcon } from '@/icons'
+import { Box, Grid, Typography, SxProps, Theme } from '@/mui'
 
 interface ButtonVariant {
   variant: ButtonProps['variant']

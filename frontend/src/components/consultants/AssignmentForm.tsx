@@ -1,12 +1,10 @@
 import { useState, useEffect } from 'react'
-import Box from '@mui/material/Box'
-import MenuItem from '@mui/material/MenuItem'
-import MuiTextField from '@mui/material/TextField'
 import { useTranslation } from 'react-i18next'
 import { TextField } from '../ui/TextField'
 import { FormModal } from '../ui/Modal'
 import type { ConsultantAssignment, AssignmentStatus } from '../../types/consultantAssignment'
 import type { User, Project } from '../../types'
+import { Box, MenuItem, TextField as MuiTextField } from '@/mui'
 
 interface ConsultantType {
   id: string

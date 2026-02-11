@@ -1,16 +1,8 @@
 import { useState } from 'react'
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
-import Collapse from '@mui/material/Collapse'
-import LinearProgress from '@mui/material/LinearProgress'
-import IconButton from '@mui/material/IconButton'
-import Chip from '@mui/material/Chip'
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import ExpandLessIcon from '@mui/icons-material/ExpandLess'
-import CheckCircleIcon from '@mui/icons-material/CheckCircle'
-import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked'
-import { styled } from '@mui/material'
 import type { ChecklistSubSection, ChecklistItemTemplate, ChecklistItemResponse } from '../../types'
+import { ExpandMoreIcon, ExpandLessIcon, CheckCircleIcon, RadioButtonUncheckedIcon } from '@/icons'
+import { Box, Typography, Collapse, LinearProgress, IconButton, Chip } from '@/mui'
+import { styled } from '@/mui'
 
 interface ChecklistSectionProps {
   section: ChecklistSubSection

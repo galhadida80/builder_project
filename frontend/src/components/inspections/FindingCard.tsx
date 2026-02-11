@@ -1,10 +1,7 @@
-import { Card, CardContent, CardMedia, Box, Typography, Chip } from '@mui/material'
-import { styled } from '@mui/material'
 import { Finding } from '../../types'
 import { SeverityBadge } from '../ui/StatusBadge'
-import LocationOnIcon from '@mui/icons-material/LocationOn'
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
-import ImageIcon from '@mui/icons-material/Image'
+import { LocationOnIcon, CalendarTodayIcon, ImageIcon } from '@/icons'
+import { Card, CardContent, CardMedia, Box, Typography, Chip, styled } from '@/mui'
 
 interface FindingCardProps {
   finding: Finding

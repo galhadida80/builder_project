@@ -1,6 +1,5 @@
-import { Box, BoxProps } from '@mui/material'
-import { styled } from '@mui/material'
 import { forwardRef, useCallback, KeyboardEvent } from 'react'
+import { Box, BoxProps, styled } from '@/mui'
 
 export interface TouchTargetProps extends BoxProps {
   /**

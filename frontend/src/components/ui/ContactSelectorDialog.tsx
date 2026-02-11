@@ -1,19 +1,10 @@
 import { useState, useEffect } from 'react'
-import Dialog from '@mui/material/Dialog'
-import DialogTitle from '@mui/material/DialogTitle'
-import DialogContent from '@mui/material/DialogContent'
-import DialogActions from '@mui/material/DialogActions'
-import Autocomplete from '@mui/material/Autocomplete'
-import MuiTextField from '@mui/material/TextField'
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
-import CircularProgress from '@mui/material/CircularProgress'
-import Alert from '@mui/material/Alert'
-import PersonIcon from '@mui/icons-material/Person'
 import { Button } from './Button'
 import { contactsApi } from '../../api/contacts'
 import type { Contact } from '../../types'
 import { useTranslation } from 'react-i18next'
+import { PersonIcon } from '@/icons'
+import { Dialog, DialogTitle, DialogContent, DialogActions, Autocomplete, TextField as MuiTextField, Box, Typography, CircularProgress, Alert } from '@/mui'
 
 interface ContactSelectorDialogProps {
   open: boolean

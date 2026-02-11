@@ -1,5 +1,5 @@
-import Chip from '@mui/material/Chip'
 import type { ApprovalStatus } from '../../types'
+import { Chip } from '@/mui'
 
 interface EquipmentStatusBadgeProps {
   status: ApprovalStatus

@@ -1,17 +1,14 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
-import Skeleton from '@mui/material/Skeleton'
-import Grid from '@mui/material/Grid'
-import { useTheme, useMediaQuery } from '@mui/material'
 import { Card } from '../components/ui/Card'
 import { EmptyState } from '../components/ui/EmptyState'
 import { Tabs } from '../components/ui/Tabs'
 import { CircularProgressDisplay } from '../components/ui/ProgressBar'
 import { apiClient } from '../api/client'
 import { useToast } from '../components/common/ToastProvider'
+import { Box, Typography, Skeleton, Grid } from '@/mui'
+import { useTheme, useMediaQuery } from '@/mui'
 
 interface TimelineEvent {
   id: string

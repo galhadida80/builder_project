@@ -1,9 +1,6 @@
-import { Card as MuiCard, CardContent, CardHeader, CardActions, Box, Typography, Skeleton, SxProps, Theme } from '@mui/material'
-import { styled, alpha } from '@mui/material'
 import { useTranslation } from 'react-i18next'
-import TrendingUpIcon from '@mui/icons-material/TrendingUp'
-import TrendingDownIcon from '@mui/icons-material/TrendingDown'
-import TrendingFlatIcon from '@mui/icons-material/TrendingFlat'
+import { TrendingUpIcon, TrendingDownIcon, TrendingFlatIcon } from '@/icons'
+import { Card as MuiCard, CardContent, CardHeader, CardActions, Box, Typography, Skeleton, SxProps, Theme, styled, alpha } from '@/mui'
 
 interface BaseCardProps {
   children: React.ReactNode

@@ -1,6 +1,5 @@
-import { Box, Typography, Skeleton, Paper } from '@mui/material'
 import { PieChart } from '@mui/x-charts/PieChart'
-import { styled } from '@mui/material'
+import { Box, Typography, Skeleton, Paper, styled } from '@/mui'
 
 interface DistributionChartProps {
   title: string

@@ -1,10 +1,7 @@
 import { useState } from 'react'
-import Box from '@mui/material/Box'
-import IconButton from '@mui/material/IconButton'
-import TextField from '@mui/material/TextField'
-import SendIcon from '@mui/icons-material/Send'
-import CircularProgress from '@mui/material/CircularProgress'
 import { useTranslation } from 'react-i18next'
+import { SendIcon } from '@/icons'
+import { Box, IconButton, TextField, CircularProgress } from '@/mui'
 
 interface ChatInputProps {
   onSend: (message: string) => void

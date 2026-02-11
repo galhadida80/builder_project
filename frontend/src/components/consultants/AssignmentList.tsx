@@ -1,13 +1,8 @@
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
-import IconButton from '@mui/material/IconButton'
-import Chip from '@mui/material/Chip'
 import { useTranslation } from 'react-i18next'
-import EditIcon from '@mui/icons-material/Edit'
-import DeleteIcon from '@mui/icons-material/Delete'
-import PersonIcon from '@mui/icons-material/Person'
 import { DataTable, Column } from '../ui/DataTable'
 import type { ConsultantAssignment } from '../../types/consultantAssignment'
+import { EditIcon, DeleteIcon, PersonIcon } from '@/icons'
+import { Box, Typography, IconButton, Chip } from '@/mui'
 
 interface AssignmentListProps {
   assignments: ConsultantAssignment[]

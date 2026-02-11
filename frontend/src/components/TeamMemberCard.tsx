@@ -1,6 +1,5 @@
-import { Card as MuiCard, CardContent, Avatar, Typography, Chip, Box, SxProps, Theme } from '@mui/material'
-import { styled } from '@mui/material'
-import PersonIcon from '@mui/icons-material/Person'
+import { PersonIcon } from '@/icons'
+import { Card as MuiCard, CardContent, Avatar, Typography, Chip, Box, SxProps, Theme, styled } from '@/mui'
 
 export interface TeamMember {
   id: string

@@ -1,6 +1,6 @@
-import { useTheme } from '@mui/material'
-import useMediaQuery from '@mui/material/useMediaQuery'
 import { useMemo } from 'react'
+import { useMediaQuery } from '@/mui'
+import { useTheme } from '@/mui'
 
 /**
  * Custom hook for responsive design patterns

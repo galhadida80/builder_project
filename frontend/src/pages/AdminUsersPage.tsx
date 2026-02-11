@@ -1,21 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
-import Table from '@mui/material/Table'
-import TableBody from '@mui/material/TableBody'
-import TableCell from '@mui/material/TableCell'
-import TableContainer from '@mui/material/TableContainer'
-import TableHead from '@mui/material/TableHead'
-import TableRow from '@mui/material/TableRow'
-import Paper from '@mui/material/Paper'
-import Switch from '@mui/material/Switch'
-import Chip from '@mui/material/Chip'
-import CircularProgress from '@mui/material/CircularProgress'
-import Alert from '@mui/material/Alert'
-import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings'
 import { adminApi } from '../api/admin'
 import type { User } from '../types'
+import { AdminPanelSettingsIcon } from '@/icons'
+import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Switch, Chip, CircularProgress, Alert } from '@/mui'
 
 export default function AdminUsersPage() {
   const { t } = useTranslation()

@@ -1,4 +1,4 @@
-import { useMediaQuery } from '@mui/material';
+import { useMediaQuery } from '@/mui';
 
 /**
  * Custom hook to detect if the user prefers reduced motion.

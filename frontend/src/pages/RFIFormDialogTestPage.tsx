@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { Box, Container, Typography, Button as MuiButton, Stack, Paper, Alert, Chip } from '@mui/material'
 import { RFIFormDialog } from '../components/RFI'
 import { rfiApi } from '../api/rfi'
 import type { RFIFormData } from '../components/RFI'
+import { Box, Container, Typography, Button as MuiButton, Stack, Paper, Alert, Chip } from '@/mui'
 
 /**
  * Test page to verify RFIFormDialog component rendering and API integration

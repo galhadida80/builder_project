@@ -1,8 +1,5 @@
-import { Card as MuiCard, CardContent, Box, Typography, Skeleton } from '@mui/material'
-import { styled } from '@mui/material'
-import TrendingUpIcon from '@mui/icons-material/TrendingUp'
-import TrendingDownIcon from '@mui/icons-material/TrendingDown'
-import TrendingFlatIcon from '@mui/icons-material/TrendingFlat'
+import { TrendingUpIcon, TrendingDownIcon, TrendingFlatIcon } from '@/icons'
+import { Card as MuiCard, CardContent, Box, Typography, Skeleton, styled } from '@/mui'
 
 interface AnalyticsKPICardProps {
   title: string

@@ -1,10 +1,7 @@
-import { Card, CardContent, CardMedia, Box, Typography, Chip } from '@mui/material'
-import { styled } from '@mui/material'
 import { useTranslation } from 'react-i18next'
-import InventoryIcon from '@mui/icons-material/Inventory'
-import LocationOnIcon from '@mui/icons-material/LocationOn'
-import WarningAmberIcon from '@mui/icons-material/WarningAmber'
 import type { Material } from '../../types'
+import { InventoryIcon, LocationOnIcon, WarningAmberIcon } from '@/icons'
+import { Card, CardContent, CardMedia, Box, Typography, Chip, styled } from '@/mui'
 
 interface MaterialCardProps {
   material: Material

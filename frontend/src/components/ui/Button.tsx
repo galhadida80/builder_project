@@ -1,5 +1,4 @@
-import { Button as MuiButton, ButtonProps as MuiButtonProps, CircularProgress } from '@mui/material'
-import { styled } from '@mui/material'
+import { Button as MuiButton, ButtonProps as MuiButtonProps, CircularProgress, styled } from '@/mui'
 
 export interface ButtonProps extends Omit<MuiButtonProps, 'variant'> {
   variant?: 'primary' | 'secondary' | 'tertiary' | 'danger' | 'success'

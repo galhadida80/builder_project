@@ -1,6 +1,5 @@
-import { Card as MuiCard, CardContent, Box, Typography, Grid, SxProps, Theme } from '@mui/material'
-import { styled, alpha } from '@mui/material'
 import { Button } from './Button'
+import { Card as MuiCard, CardContent, Box, Typography, Grid, SxProps, Theme, styled, alpha } from '@/mui'
 
 interface PricingCardProps {
   tier: string

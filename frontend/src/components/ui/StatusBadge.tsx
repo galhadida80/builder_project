@@ -1,13 +1,6 @@
-import { Chip, ChipProps } from '@mui/material'
-import { styled } from '@mui/material'
-import CheckCircleIcon from '@mui/icons-material/CheckCircle'
-import PendingIcon from '@mui/icons-material/Pending'
-import CancelIcon from '@mui/icons-material/Cancel'
-import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty'
-import EditIcon from '@mui/icons-material/Edit'
-import ErrorIcon from '@mui/icons-material/Error'
-import WarningIcon from '@mui/icons-material/Warning'
 import { keyframeAnimations, createTransition, duration, easing, createAnimation } from '../../utils/animations'
+import { CheckCircleIcon, PendingIcon, CancelIcon, HourglassEmptyIcon, EditIcon, ErrorIcon, WarningIcon } from '@/icons'
+import { Chip, ChipProps, styled } from '@/mui'
 
 export type StatusType =
   | 'draft'

@@ -1,11 +1,6 @@
-import { ListItem, ListItemAvatar, ListItemText, Box, Typography, IconButton, Avatar as MuiAvatar } from '@mui/material'
-import { styled } from '@mui/material'
-import CheckCircleIcon from '@mui/icons-material/CheckCircle'
-import WarningIcon from '@mui/icons-material/Warning'
-import UpdateIcon from '@mui/icons-material/Update'
-import InfoIcon from '@mui/icons-material/Info'
-import MoreVertIcon from '@mui/icons-material/MoreVert'
 import { Notification, NotificationCategory } from '../../types/notification'
+import { CheckCircleIcon, WarningIcon, UpdateIcon, InfoIcon, MoreVertIcon } from '@/icons'
+import { ListItem, ListItemAvatar, ListItemText, Box, Typography, IconButton, Avatar as MuiAvatar, styled } from '@/mui'
 
 interface NotificationItemProps {
   notification: Notification

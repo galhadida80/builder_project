@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
-import Chip from '@mui/material/Chip'
 import type { ApprovalStatus } from '../../types'
+import { Chip } from '@/mui'
 
 interface StatusBadgeProps {
   status: ApprovalStatus

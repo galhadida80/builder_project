@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import { Tabs as MuiTabs, Tab as MuiTab, Box } from '@mui/material'
-import { styled } from '@mui/material'
+import { Tabs as MuiTabs, Tab as MuiTab, Box, styled } from '@/mui'
 
 interface TabItem {
   label: string

@@ -1,5 +1,4 @@
-import { TextField as MuiTextField, TextFieldProps as MuiTextFieldProps, InputAdornment } from '@mui/material'
-import { styled } from '@mui/material'
+import { TextField as MuiTextField, TextFieldProps as MuiTextFieldProps, InputAdornment, styled } from '@/mui'
 
 export interface TextFieldProps extends Omit<MuiTextFieldProps, 'variant'> {
   variant?: 'outlined' | 'filled'

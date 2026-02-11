@@ -1,9 +1,8 @@
-import { Card as MuiCard, CardContent, CardHeader, Box, Typography, Chip } from '@mui/material'
-import { styled } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import { Avatar, AvatarGroup } from './ui/Avatar'
 import { TeamMember } from '../types'
 import { getWorkloadColor } from '../utils/workloadCalculation'
+import { Card as MuiCard, CardContent, CardHeader, Box, Typography, Chip, styled } from '@/mui'
 
 interface TeamCardProps {
   teamName: string

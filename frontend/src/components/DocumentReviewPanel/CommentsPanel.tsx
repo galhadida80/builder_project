@@ -1,13 +1,11 @@
-import { Box, Paper, Typography, Divider, List, Skeleton } from '@mui/material'
-import { styled } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import { TextField } from '../ui/TextField'
 import { Button } from '../ui/Button'
 import { EmptyState } from '../ui/EmptyState'
-import CommentIcon from '@mui/icons-material/Comment'
-import SendIcon from '@mui/icons-material/Send'
 import { useState } from 'react'
 import { CommentThread, Comment } from './CommentThread'
+import { CommentIcon, SendIcon } from '@/icons'
+import { Box, Paper, Typography, Divider, List, Skeleton, styled } from '@/mui'
 
 interface CommentsPanelProps {
   comments: Comment[]

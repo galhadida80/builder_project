@@ -1,18 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
-import Alert from '@mui/material/Alert'
-import CircularProgress from '@mui/material/CircularProgress'
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
-import Chip from '@mui/material/Chip'
-import ConstructionIcon from '@mui/icons-material/Construction'
-import GroupAddIcon from '@mui/icons-material/GroupAdd'
 import { Button } from '../components/ui/Button'
 import { useAuth } from '../contexts/AuthContext'
 import { invitationsApi, InvitationValidation } from '../api/invitations'
+import { ConstructionIcon, GroupAddIcon } from '@/icons'
+import { Box, Typography, Alert, CircularProgress, Card, CardContent, Chip } from '@/mui'
 
 export default function InvitePage() {
   const { t } = useTranslation()

@@ -1,10 +1,10 @@
 import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react'
-import { ThemeProvider as MuiThemeProvider } from '@mui/material'
 import { CacheProvider } from '@emotion/react'
-import CssBaseline from '@mui/material/CssBaseline'
 import { createLightTheme, createDarkTheme } from './theme'
 import { createEmotionCache } from './emotionCache'
 import { useLanguage } from '../i18n/LanguageContext'
+import { CssBaseline } from '@/mui'
+import { ThemeProvider as MuiThemeProvider } from '@/mui'
 
 type ThemeMode = 'light' | 'dark' | 'system'
 
