@@ -149,7 +149,9 @@ class TestRegistrationDuplicate:
     async def test_register_duplicate_error_message(self, client: AsyncClient):
         await client.post(f"{API}/register", json=_reg())
         resp = await client.post(f"{API}/register", json=_reg())
-        assert "already registered" in resp.json()["detail"].lower() or "registered" in resp.json()["detail"].lower()
+        detail = resp.json()["detail"]
+        detail_str = str(detail).lower() if not isinstance(detail, str) else detail.lower()
+        assert "already registered" in detail_str or "registered" in detail_str
 
     @pytest.mark.asyncio
     async def test_register_duplicate_with_hebrew_locale(self, client: AsyncClient):
