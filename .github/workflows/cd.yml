@@ -60,7 +60,7 @@ jobs:
             --set-env-vars "SECRET_KEY=${{ secrets.SECRET_KEY }}" \
             --set-env-vars "ENVIRONMENT=production" \
             --set-env-vars "EMAIL_PROVIDER=fake" \
-            --set-env-vars "CORS_ORIGINS=${{ secrets.CORS_ORIGINS }}" \
+            --set-env-vars "CORS_ORIGINS=*" \
             --set-env-vars "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}"
 
   deploy-frontend:

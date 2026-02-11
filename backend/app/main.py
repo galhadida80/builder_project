@@ -10,6 +10,7 @@ from app.config import get_settings
 from app.db.seeds.consultant_types import seed_consultant_types
 from app.db.seeds.equipment_templates import seed_equipment_templates
 from app.db.seeds.material_templates import seed_material_templates
+from app.services.mcp_server import mcp
 from app.utils.localization import get_language_from_request
 
 logger = logging.getLogger(__name__)
@@ -59,15 +60,17 @@ app = FastAPI(
 )
 
 app.add_middleware(LanguageDetectionMiddleware)
+cors_origins = ["*"] if settings.cors_origins == "*" else [o.strip() for o in settings.cors_origins.split(",")]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins,
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 app.include_router(api_router, prefix=settings.api_v1_prefix)
+app.mount("/mcp", mcp.http_app(stateless_http=True))
 
 
 @app.get("/health")
