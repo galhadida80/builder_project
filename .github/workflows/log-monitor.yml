@@ -40,8 +40,9 @@ jobs:
           GH_REPO: ${{ github.repository }}
         run: |
           echo "Fetching Cloud Run error logs from the last 6 hours..."
+          SINCE=$(date -u -d '6 hours ago' '+%Y-%m-%dT%H:%M:%SZ')
           gcloud logging read \
-            'resource.type="cloud_run_revision" AND resource.labels.service_name="${{ env.BACKEND_SERVICE }}" AND severity>=ERROR AND timestamp>="-PT6H"' \
+            "resource.type=\"cloud_run_revision\" AND resource.labels.service_name=\"${{ env.BACKEND_SERVICE }}\" AND severity>=ERROR AND timestamp>=\"${SINCE}\"" \
             --project=${{ env.PROJECT_ID }} \
             --format=json \
             --limit=500 \
