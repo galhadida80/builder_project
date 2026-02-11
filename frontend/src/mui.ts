@@ -38,6 +38,7 @@ export {
   Grow,
   IconButton,
   InputAdornment,
+  InputLabel,
   LinearProgress,
   Link,
   List,
@@ -85,8 +86,9 @@ export { createTheme, useTheme, ThemeProvider, styled, alpha, keyframes } from '
 export type { Theme, SxProps, ThemeOptions } from '@mui/material/styles'
 export type { BoxProps } from '@mui/material/Box'
 export type { ButtonProps } from '@mui/material/Button'
+export type { CheckboxProps } from '@mui/material/Checkbox'
 export type { ChipProps } from '@mui/material/Chip'
 export type { TextFieldProps } from '@mui/material/TextField'
 export type { TypographyProps } from '@mui/material/Typography'
-export type { SelectChangeEvent } from '@mui/material/Select'
+export type { SelectChangeEvent, SelectProps } from '@mui/material/Select'
 export type { TransitionProps } from '@mui/material/transitions'
