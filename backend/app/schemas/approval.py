@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 
 from app.core.validators import CamelCaseModel
 from app.schemas.user import UserResponse
@@ -17,6 +17,12 @@ class ApprovalAction(BaseModel):
 class SubmitForApprovalRequest(BaseModel):
     consultant_contact_id: Optional[UUID] = None
     inspector_contact_id: Optional[UUID] = None
+
+    @model_validator(mode="after")
+    def require_at_least_one_contact(self):
+        if not self.consultant_contact_id and not self.inspector_contact_id:
+            raise ValueError("At least one approver (consultant or inspector) must be selected")
+        return self
 
 
 class ApprovalStepResponse(CamelCaseModel):

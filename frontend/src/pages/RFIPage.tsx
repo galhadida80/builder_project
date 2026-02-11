@@ -29,6 +29,8 @@ import { Tabs } from '../components/ui/Tabs'
 import { rfiApi, RFI_PRIORITY_OPTIONS, RFI_CATEGORY_OPTIONS } from '../api/rfi'
 import type { RFIListItem, RFI, RFICreate, RFISummary } from '../api/rfi'
 import { useToast } from '../components/common/ToastProvider'
+import { parseValidationErrors } from '../utils/apiErrors'
+import { validateRFIForm, hasErrors, type ValidationError } from '../utils/validation'
 
 export default function RFIPage() {
   const { t } = useTranslation()
@@ -48,6 +50,7 @@ export default function RFIPage() {
   const [sending, setSending] = useState(false)
   const [activeTab, setActiveTab] = useState('all')
   const [detailLoading, setDetailLoading] = useState(false)
+  const [errors, setErrors] = useState<ValidationError>({})
   const [formData, setFormData] = useState<RFICreate & { cc_emails: string[] }>({
     subject: '',
     question: '',
@@ -121,6 +124,7 @@ export default function RFIPage() {
       drawing_reference: '',
       specification_reference: '',
     })
+    setErrors({})
     setEditingRfi(null)
   }
 
@@ -152,6 +156,7 @@ export default function RFIPage() {
         drawing_reference: fullRfi.drawing_reference || '',
         specification_reference: fullRfi.specification_reference || '',
       })
+      setErrors({})
       setDialogOpen(true)
       setDrawerOpen(false)
     } catch {
@@ -161,10 +166,20 @@ export default function RFIPage() {
 
   const handleSaveRfi = async () => {
     if (!projectId) return
-    if (!formData.subject || !formData.question || !formData.to_email) {
-      showError(t('rfis.fillRequired'))
-      return
-    }
+
+    const validationErrors = validateRFIForm({
+      subject: formData.subject,
+      question: formData.question,
+      to_email: formData.to_email,
+      category: formData.category,
+      priority: formData.priority,
+      to_name: formData.to_name,
+      location: formData.location,
+      drawing_reference: formData.drawing_reference,
+      specification_reference: formData.specification_reference
+    })
+    setErrors(validationErrors)
+    if (hasErrors(validationErrors)) return
 
     setSaving(true)
     try {
@@ -196,7 +211,13 @@ export default function RFIPage() {
       handleCloseDialog()
       loadRfis()
       loadSummary()
-    } catch {
+    } catch (err) {
+      const serverErrors = parseValidationErrors(err)
+      if (Object.keys(serverErrors).length > 0) {
+        setErrors(prev => ({ ...prev, ...serverErrors }))
+        showError(t('validation.checkFields'))
+        return
+      }
       showError(editingRfi ? t('rfis.failedToUpdate') : t('rfis.failedToCreate'))
     } finally {
       setSaving(false)
@@ -624,6 +645,8 @@ export default function RFIPage() {
             required
             value={formData.subject}
             onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+            error={!!errors.subject}
+            helperText={errors.subject}
           />
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
             <TextField
@@ -633,12 +656,16 @@ export default function RFIPage() {
               type="email"
               value={formData.to_email}
               onChange={(e) => setFormData({ ...formData, to_email: e.target.value })}
+              error={!!errors.to_email}
+              helperText={errors.to_email}
             />
             <TextField
               fullWidth
               label={t('rfis.toName')}
               value={formData.to_name}
               onChange={(e) => setFormData({ ...formData, to_name: e.target.value })}
+              error={!!errors.to_name}
+              helperText={errors.to_name}
             />
           </Box>
           <TextField
@@ -649,6 +676,8 @@ export default function RFIPage() {
             rows={4}
             value={formData.question}
             onChange={(e) => setFormData({ ...formData, question: e.target.value })}
+            error={!!errors.question}
+            helperText={errors.question}
           />
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
             <MuiTextField
@@ -689,6 +718,8 @@ export default function RFIPage() {
             label={t('rfis.location')}
             value={formData.location}
             onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+            error={!!errors.location}
+            helperText={errors.location}
           />
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
             <TextField
@@ -696,12 +727,16 @@ export default function RFIPage() {
               label={t('rfis.drawingReference')}
               value={formData.drawing_reference}
               onChange={(e) => setFormData({ ...formData, drawing_reference: e.target.value })}
+              error={!!errors.drawing_reference}
+              helperText={errors.drawing_reference}
             />
             <TextField
               fullWidth
               label={t('rfis.specificationReference')}
               value={formData.specification_reference}
               onChange={(e) => setFormData({ ...formData, specification_reference: e.target.value })}
+              error={!!errors.specification_reference}
+              helperText={errors.specification_reference}
             />
           </Box>
         </Box>

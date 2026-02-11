@@ -42,6 +42,14 @@
   "trustBadge": "מהימן על ידי 500+ צוותי בנייה ברחבי העולם",
   "hidePassword": "הסתר סיסמה",
   "showPassword": "הצג סיסמה",
+  "validation": {
+    "checkFields": "אנא תקן את השגיאות המסומנות",
+    "fieldRequired": "שדה חובה",
+    "tooShort": "חייב להכיל לפחות {{min}} תווים",
+    "tooLong": "חייב להכיל פחות מ-{{max}} תווים",
+    "invalidEmail": "אנא הזן כתובת אימייל תקינה",
+    "invalidRange": "הערך חייב להיות בין {{min}} ל-{{max}}"
+  },
   "common": {
     "welcome": "ברוכים הבאים",
     "goodbye": "להתראות",
@@ -588,7 +596,7 @@
     "selectConsultant": "בחר יועץ...",
     "selectInspector": "בחר מפקח...",
     "noContacts": "לא נמצאו אנשי קשר מתאימים",
-    "optionalHint": "השאר ריק כדי להקצות מאוחר יותר",
+    "requiredHint": "יש לבחור לפחות מאשר אחד",
     "confirmSubmit": "שלח לאישור"
   },
   "chat": {

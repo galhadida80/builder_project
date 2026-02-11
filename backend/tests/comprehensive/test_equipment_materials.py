@@ -379,7 +379,8 @@ class TestEquipmentStatusTransitions:
     async def test_submit_equipment_changes_status_to_submitted(self, admin_client: AsyncClient, project: Project):
         created = await create_eq(admin_client, project.id)
         resp = await admin_client.post(
-            f"{API_V1}/projects/{project.id}/equipment/{created['id']}/submit"
+            f"{API_V1}/projects/{project.id}/equipment/{created['id']}/submit",
+            json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"},
         )
         assert resp.status_code == 200
         assert resp.json()["status"] == "submitted"
@@ -709,7 +710,8 @@ class TestMaterialSubmitWorkflow:
     async def test_submit_material_changes_status(self, admin_client: AsyncClient, project: Project):
         created = await create_mat(admin_client, project.id)
         resp = await admin_client.post(
-            f"{API_V1}/projects/{project.id}/materials/{created['id']}/submit"
+            f"{API_V1}/projects/{project.id}/materials/{created['id']}/submit",
+            json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"},
         )
         assert resp.status_code == 200
         assert resp.json()["status"] == "submitted"
@@ -718,7 +720,8 @@ class TestMaterialSubmitWorkflow:
     async def test_submit_material_preserves_data(self, admin_client: AsyncClient, project: Project):
         created = await create_mat(admin_client, project.id)
         resp = await admin_client.post(
-            f"{API_V1}/projects/{project.id}/materials/{created['id']}/submit"
+            f"{API_V1}/projects/{project.id}/materials/{created['id']}/submit",
+            json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"},
         )
         assert resp.json()["name"] == "Reinforced Steel Rebar"
         assert resp.json()["manufacturer"] == "ArcelorMittal"
@@ -1031,7 +1034,8 @@ class TestFullLifecycle:
         created = await create_eq(admin_client, project.id)
         assert created["status"] == "draft"
         submit_resp = await admin_client.post(
-            f"{API_V1}/projects/{project.id}/equipment/{created['id']}/submit"
+            f"{API_V1}/projects/{project.id}/equipment/{created['id']}/submit",
+            json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"},
         )
         assert submit_resp.status_code == 200
         assert submit_resp.json()["status"] == "submitted"
@@ -1041,7 +1045,8 @@ class TestFullLifecycle:
         created = await create_mat(admin_client, project.id)
         assert created["status"] == "draft"
         submit_resp = await admin_client.post(
-            f"{API_V1}/projects/{project.id}/materials/{created['id']}/submit"
+            f"{API_V1}/projects/{project.id}/materials/{created['id']}/submit",
+            json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"},
         )
         assert submit_resp.status_code == 200
         assert submit_resp.json()["status"] == "submitted"

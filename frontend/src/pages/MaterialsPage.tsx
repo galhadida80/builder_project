@@ -46,6 +46,7 @@ import { formatFileSize } from '../utils/fileUtils'
 import type { Material } from '../types'
 import type { FileRecord } from '../api/files'
 import { validateMaterialForm, hasErrors, VALIDATION, type ValidationError } from '../utils/validation'
+import { parseValidationErrors } from '../utils/apiErrors'
 import { useToast } from '../components/common/ToastProvider'
 import { useTranslation } from 'react-i18next'
 import { EmptyState } from '../components/ui/EmptyState'
@@ -258,7 +259,13 @@ export default function MaterialsPage() {
 
       handleCloseDialog()
       loadMaterials()
-    } catch {
+    } catch (err) {
+      const serverErrors = parseValidationErrors(err)
+      if (Object.keys(serverErrors).length > 0) {
+        setErrors(prev => ({ ...prev, ...serverErrors }))
+        showError(t('validation.checkFields'))
+        return
+      }
       showError(editingMaterial ? t('materials.failedToUpdateMaterial') : t('materials.failedToCreateMaterial'))
     } finally {
       setSaving(false)

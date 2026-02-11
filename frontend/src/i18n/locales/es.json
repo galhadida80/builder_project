@@ -283,6 +283,14 @@
     "dateRequired": "La fecha es obligatoria",
     "startTimeRequired": "La hora de inicio es obligatoria"
   },
+  "validation": {
+    "checkFields": "Por favor corrige los errores destacados",
+    "fieldRequired": "Este campo es obligatorio",
+    "tooShort": "Debe tener al menos {{min}} caracteres",
+    "tooLong": "Debe tener menos de {{max}} caracteres",
+    "invalidEmail": "Por favor ingresa un correo valido",
+    "invalidRange": "El valor debe estar entre {{min}} y {{max}}"
+  },
   "common": {
     "welcome": "Bienvenido",
     "goodbye": "Adiós",
@@ -471,13 +479,13 @@
   },
   "contactSelector": {
     "selectApprovers": "Seleccionar Aprobadores",
-    "step1Consultant": "Paso 1: Revisión del Consultor",
-    "step2Inspector": "Paso 2: Aprobación del Inspector",
+    "step1Consultant": "Paso 1: Revision del Consultor",
+    "step2Inspector": "Paso 2: Aprobacion del Inspector",
     "selectConsultant": "Seleccionar un consultor...",
     "selectInspector": "Seleccionar un inspector...",
     "noContacts": "No se encontraron contactos",
-    "optionalHint": "Dejar vacío para asignar después",
-    "confirmSubmit": "Enviar para Aprobación"
+    "requiredHint": "Debe seleccionar al menos un aprobador",
+    "confirmSubmit": "Enviar para Aprobacion"
   },
   "chat": {
     "title": "Asistente AI",

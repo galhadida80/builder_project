@@ -29,6 +29,7 @@ import { contactsApi } from '../api/contacts'
 import type { Contact } from '../types'
 import { useToast } from '../components/common/ToastProvider'
 import { validateContactForm, hasErrors,  type ValidationError } from '../utils/validation'
+import { parseValidationErrors } from '../utils/apiErrors'
 
 export default function ContactsPage() {
   const { t } = useTranslation()
@@ -138,7 +139,13 @@ export default function ContactsPage() {
       }
       handleCloseDialog()
       loadContacts()
-    } catch {
+    } catch (err) {
+      const serverErrors = parseValidationErrors(err)
+      if (Object.keys(serverErrors).length > 0) {
+        setErrors(prev => ({ ...prev, ...serverErrors }))
+        showError(t('validation.checkFields'))
+        return
+      }
       showError(editingContact ? t('contacts.failedToUpdate') : t('contacts.failedToCreate'))
     } finally {
       setSaving(false)

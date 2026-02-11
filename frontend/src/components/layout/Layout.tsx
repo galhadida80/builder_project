@@ -98,14 +98,14 @@ export default function Layout() {
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
+          p: { xs: 1, md: 2 },
           ml: { xs: 0, md: `${DRAWER_WIDTH}px` },
           bgcolor: 'background.default',
           minHeight: '100vh',
         }}
       >
         <Toolbar />
-        <Box sx={{ position: 'relative', minHeight: '500px' }}>
+        <Box sx={{ position: 'relative', minHeight: '400px' }}>
           <TransitionGroup component={null}>
             <PageTransition key={location.pathname}>
               <Box

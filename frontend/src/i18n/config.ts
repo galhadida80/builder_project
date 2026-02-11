@@ -13,7 +13,7 @@ export const SUPPORTED_LANGUAGES: { code: LanguageCode; name: string; flag: stri
 ]
 
 export const RTL_LANGUAGES: LanguageCode[] = ['he']
-export const DEFAULT_LANGUAGE: LanguageCode = 'en'
+export const DEFAULT_LANGUAGE: LanguageCode = 'he'
 
 // Initialize i18next
 i18n
@@ -30,7 +30,7 @@ i18n
         translation: esTranslations,
       },
     },
-    lng: 'en',
+    lng: 'he',
     fallbackLng: 'en',
     supportedLngs: ['en', 'he', 'es'],
     interpolation: {

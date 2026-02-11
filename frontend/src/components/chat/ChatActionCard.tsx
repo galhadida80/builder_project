@@ -6,8 +6,16 @@ import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
 import CircularProgress from '@mui/material/CircularProgress'
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableCell from '@mui/material/TableCell'
+import TableRow from '@mui/material/TableRow'
+import Collapse from '@mui/material/Collapse'
+import IconButton from '@mui/material/IconButton'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import CancelIcon from '@mui/icons-material/Cancel'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import BuildIcon from '@mui/icons-material/Build'
 import CategoryIcon from '@mui/icons-material/Category'
 import DescriptionIcon from '@mui/icons-material/Description'
@@ -39,6 +47,45 @@ const STATUS_COLORS: Record<string, 'warning' | 'success' | 'error' | 'default'>
   failed: 'error',
 }
 
+const PARAM_LABELS: Record<string, Record<string, string>> = {
+  en: {
+    new_status: 'New Status', reason: 'Reason', name: 'Name', equipment_type: 'Type',
+    material_type: 'Type', manufacturer: 'Manufacturer', model_number: 'Model',
+    notes: 'Notes', quantity: 'Quantity', unit: 'Unit', subject: 'Subject',
+    question: 'Question', category: 'Category', priority: 'Priority',
+    to_email: 'To Email', title: 'Title', description: 'Description',
+    scheduled_date: 'Date', location: 'Location', contact_name: 'Name',
+    contact_type: 'Type', company_name: 'Company', email: 'Email',
+    phone: 'Phone', role_description: 'Role', new_progress: 'Progress',
+    area_type: 'Area Type', floor_number: 'Floor', area_code: 'Code',
+    total_units: 'Units', consultant_type_id: 'Consultant Type', comments: 'Comments',
+  },
+  he: {
+    new_status: 'סטטוס חדש', reason: 'סיבה', name: 'שם', equipment_type: 'סוג',
+    material_type: 'סוג', manufacturer: 'יצרן', model_number: 'דגם',
+    notes: 'הערות', quantity: 'כמות', unit: 'יחידה', subject: 'נושא',
+    question: 'שאלה', category: 'קטגוריה', priority: 'עדיפות',
+    to_email: 'אימייל נמען', title: 'כותרת', description: 'תיאור',
+    scheduled_date: 'תאריך', location: 'מיקום', contact_name: 'שם',
+    contact_type: 'סוג', company_name: 'חברה', email: 'אימייל',
+    phone: 'טלפון', role_description: 'תפקיד', new_progress: 'התקדמות',
+    area_type: 'סוג אזור', floor_number: 'קומה', area_code: 'קוד',
+    total_units: 'יחידות', consultant_type_id: 'סוג יועץ', comments: 'הערות',
+  },
+  es: {
+    new_status: 'Nuevo Estado', reason: 'Razon', name: 'Nombre', equipment_type: 'Tipo',
+    material_type: 'Tipo', manufacturer: 'Fabricante', model_number: 'Modelo',
+    notes: 'Notas', quantity: 'Cantidad', unit: 'Unidad', subject: 'Asunto',
+    question: 'Pregunta', category: 'Categoria', priority: 'Prioridad',
+    to_email: 'Email', title: 'Titulo', description: 'Descripcion',
+    scheduled_date: 'Fecha', location: 'Ubicacion', contact_name: 'Nombre',
+    contact_type: 'Tipo', company_name: 'Empresa', email: 'Email',
+    phone: 'Telefono', role_description: 'Rol', new_progress: 'Progreso',
+    area_type: 'Tipo de Area', floor_number: 'Piso', area_code: 'Codigo',
+    total_units: 'Unidades', consultant_type_id: 'Tipo Consultor', comments: 'Comentarios',
+  },
+}
+
 interface ChatActionCardProps {
   action: ChatAction
   onExecute: (actionId: string) => Promise<void>
@@ -46,8 +93,12 @@ interface ChatActionCardProps {
 }
 
 export default function ChatActionCard({ action, onExecute, onReject }: ChatActionCardProps) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [loading, setLoading] = useState(false)
+  const [expanded, setExpanded] = useState(action.status === 'proposed')
+
+  const lang = i18n.language as 'en' | 'he' | 'es'
+  const labels = PARAM_LABELS[lang] || PARAM_LABELS.en
 
   const handleExecute = async () => {
     setLoading(true)
@@ -70,6 +121,11 @@ export default function ChatActionCard({ action, onExecute, onReject }: ChatActi
   const icon = ENTITY_ICONS[action.entityType] || <BuildIcon fontSize="small" />
   const statusColor = STATUS_COLORS[action.status] || 'default'
   const isProposed = action.status === 'proposed'
+
+  const params = action.parameters || {}
+  const paramEntries = Object.entries(params).filter(
+    ([, v]) => v !== '' && v !== null && v !== undefined
+  )
 
   return (
     <Card
@@ -94,7 +150,31 @@ export default function ChatActionCard({ action, onExecute, onReject }: ChatActi
             size="small"
             variant={isProposed ? 'outlined' : 'filled'}
           />
+          {paramEntries.length > 0 && (
+            <IconButton size="small" onClick={() => setExpanded(!expanded)}>
+              {expanded ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
+            </IconButton>
+          )}
         </Box>
+
+        <Collapse in={expanded}>
+          {paramEntries.length > 0 && (
+            <Table size="small" sx={{ mt: 1, '& td': { py: 0.5, px: 1, borderBottom: '1px solid', borderColor: 'divider' } }}>
+              <TableBody>
+                {paramEntries.map(([key, value]) => (
+                  <TableRow key={key}>
+                    <TableCell sx={{ fontWeight: 600, color: 'text.secondary', width: '40%', fontSize: '0.8rem' }}>
+                      {labels[key] || key}
+                    </TableCell>
+                    <TableCell sx={{ fontSize: '0.8rem' }}>
+                      {typeof value === 'number' ? String(value) : String(value)}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </Collapse>
 
         {action.status === 'failed' && action.result && 'error' in action.result && (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>

@@ -29,10 +29,14 @@ import { inspectionsApi } from '../api/inspections'
 import type {
   Inspection, InspectionConsultantType, InspectionStageTemplate, InspectionSummary
 } from '../types'
+import { parseValidationErrors } from '../utils/apiErrors'
+import { validateInspectionForm, hasErrors, type ValidationError } from '../utils/validation'
+import { useToast } from '../components/common/ToastProvider'
 
 export default function InspectionsPage() {
   const { t } = useTranslation()
   const { projectId } = useParams()
+  const { showError, showSuccess } = useToast()
   const [inspections, setInspections] = useState<Inspection[]>([])
   const [consultantTypes, setConsultantTypes] = useState<InspectionConsultantType[]>([])
   const [summary, setSummary] = useState<InspectionSummary | null>(null)
@@ -43,6 +47,7 @@ export default function InspectionsPage() {
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
+  const [errors, setErrors] = useState<ValidationError>({})
 
   useEffect(() => {
     if (projectId) loadData()
@@ -79,10 +84,31 @@ export default function InspectionsPage() {
 
   const handleCreateInspection = async () => {
     if (!projectId) return
-    await inspectionsApi.createInspection(projectId, newInspection)
-    setDialogOpen(false)
-    setNewInspection({ consultantTypeId: '', scheduledDate: '', notes: '' })
-    loadData()
+
+    const validationErrors = validateInspectionForm({
+      consultant_type_id: newInspection.consultantTypeId,
+      scheduled_date: newInspection.scheduledDate,
+      notes: newInspection.notes
+    })
+    setErrors(validationErrors)
+    if (hasErrors(validationErrors)) return
+
+    try {
+      await inspectionsApi.createInspection(projectId, newInspection)
+      showSuccess(t('inspections.createSuccess'))
+      setDialogOpen(false)
+      setNewInspection({ consultantTypeId: '', scheduledDate: '', notes: '' })
+      setErrors({})
+      loadData()
+    } catch (err) {
+      const serverErrors = parseValidationErrors(err)
+      if (Object.keys(serverErrors).length > 0) {
+        setErrors(prev => ({ ...prev, ...serverErrors }))
+        showError(t('validation.checkFields'))
+        return
+      }
+      showError(t('inspections.failedToCreate'))
+    }
   }
 
   const filteredInspections = inspections.filter(inspection => {
@@ -431,7 +457,11 @@ export default function InspectionsPage() {
 
       <FormModal
         open={dialogOpen}
-        onClose={() => setDialogOpen(false)}
+        onClose={() => {
+          setDialogOpen(false)
+          setErrors({})
+          setNewInspection({ consultantTypeId: '', scheduledDate: '', notes: '' })
+        }}
         onSubmit={handleCreateInspection}
         title={t('inspections.scheduleNew')}
         submitLabel={t('inspections.schedule')}
@@ -444,6 +474,8 @@ export default function InspectionsPage() {
             label={t('inspections.consultantType')}
             value={newInspection.consultantTypeId}
             onChange={(e) => setNewInspection({ ...newInspection, consultantTypeId: e.target.value })}
+            error={!!errors.consultant_type_id}
+            helperText={errors.consultant_type_id}
           >
             {consultantTypes.map((type) => (
               <MenuItem key={type.id} value={type.id}>
@@ -459,6 +491,8 @@ export default function InspectionsPage() {
             InputLabelProps={{ shrink: true }}
             value={newInspection.scheduledDate}
             onChange={(e) => setNewInspection({ ...newInspection, scheduledDate: e.target.value })}
+            error={!!errors.scheduled_date}
+            helperText={errors.scheduled_date}
           />
 
           <TextField
@@ -469,6 +503,8 @@ export default function InspectionsPage() {
             value={newInspection.notes}
             onChange={(e) => setNewInspection({ ...newInspection, notes: e.target.value })}
             placeholder={t('inspections.notesPlaceholder')}
+            error={!!errors.notes}
+            helperText={errors.notes}
           />
         </Box>
       </FormModal>

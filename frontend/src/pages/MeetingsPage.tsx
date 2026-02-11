@@ -32,6 +32,7 @@ import { meetingsApi } from '../api/meetings'
 import type { Meeting } from '../types'
 import { validateMeetingForm, hasErrors, type ValidationError } from '../utils/validation'
 import { useToast } from '../components/common/ToastProvider'
+import { parseValidationErrors } from '../utils/apiErrors'
 
 export default function MeetingsPage() {
   const { projectId } = useParams()
@@ -151,7 +152,13 @@ export default function MeetingsPage() {
       }
       handleCloseDialog()
       loadMeetings()
-    } catch {
+    } catch (err) {
+      const serverErrors = parseValidationErrors(err)
+      if (Object.keys(serverErrors).length > 0) {
+        setErrors(prev => ({ ...prev, ...serverErrors }))
+        showError(t('validation.checkFields'))
+        return
+      }
       showError(t('meetings.failedToSave', { action: editingMeeting ? 'update' : 'schedule' }))
     } finally {
       setSaving(false)

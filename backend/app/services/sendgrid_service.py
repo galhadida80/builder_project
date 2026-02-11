@@ -46,17 +46,19 @@ class SendGridService:
         attachments: Optional[list[dict]] = None,
         in_reply_to: Optional[str] = None,
         references: Optional[str] = None,
-        from_email: Optional[str] = None
+        reply_to: Optional[str] = None
     ) -> dict:
         if not self.enabled:
             raise RuntimeError("SendGrid is not configured")
 
-        sender = from_email or self.from_email
         message = Mail()
-        message.from_email = Email(sender, self.from_name)
+        message.from_email = Email(self.from_email, self.from_name)
         message.to = [To(to_email)]
         message.subject = f"[{rfi_number}] {subject}"
         message.add_content(Content("text/html", body_html))
+
+        if reply_to:
+            message.reply_to = Email(reply_to)
 
         if cc_emails:
             for cc in cc_emails:

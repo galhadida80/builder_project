@@ -663,7 +663,7 @@ class TestAuthRequirements:
         ("POST", lambda pid: equipment_url(pid), True),
         ("PUT", lambda pid: equipment_detail_url(pid, FAKE_EQUIPMENT_ID), True),
         ("DELETE", lambda pid: equipment_detail_url(pid, FAKE_EQUIPMENT_ID), False),
-        ("POST", lambda pid: equipment_submit_url(pid, FAKE_EQUIPMENT_ID), False),
+        ("POST", lambda pid: equipment_submit_url(pid, FAKE_EQUIPMENT_ID), True),
     ])
     async def test_unauthenticated_returns_401(
         self, client: AsyncClient, project: Project, method, url_func, needs_body
@@ -671,7 +671,10 @@ class TestAuthRequirements:
         url = url_func(str(project.id))
         kwargs = {}
         if needs_body:
-            kwargs["json"] = valid_equipment_payload()
+            if "submit" in url:
+                kwargs["json"] = {"consultant_contact_id": "00000000-0000-0000-0000-000000000001"}
+            else:
+                kwargs["json"] = valid_equipment_payload()
         resp = await client.request(method, url, **kwargs)
         assert resp.status_code == 401
 
@@ -715,7 +718,7 @@ class TestSubmitForApproval:
 
     async def test_submit_changes_status_to_submitted(self, admin_client: AsyncClient, project: Project):
         created = await create_equipment_via_api(admin_client, str(project.id))
-        resp = await admin_client.post(equipment_submit_url(str(project.id), created["id"]))
+        resp = await admin_client.post(equipment_submit_url(str(project.id), created["id"]), json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
         assert resp.status_code == 200
         assert resp.json()["status"] == "submitted"
 
@@ -723,7 +726,7 @@ class TestSubmitForApproval:
         self, admin_client: AsyncClient, project: Project, db: AsyncSession
     ):
         created = await create_equipment_via_api(admin_client, str(project.id))
-        await admin_client.post(equipment_submit_url(str(project.id), created["id"]))
+        await admin_client.post(equipment_submit_url(str(project.id), created["id"]), json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
         result = await db.execute(
             select(ApprovalRequest).where(
                 ApprovalRequest.entity_id == uuid.UUID(created["id"]),
@@ -739,7 +742,7 @@ class TestSubmitForApproval:
         self, admin_client: AsyncClient, project: Project, db: AsyncSession
     ):
         created = await create_equipment_via_api(admin_client, str(project.id))
-        await admin_client.post(equipment_submit_url(str(project.id), created["id"]))
+        await admin_client.post(equipment_submit_url(str(project.id), created["id"]), json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
         result = await db.execute(
             select(ApprovalRequest).where(
                 ApprovalRequest.entity_id == uuid.UUID(created["id"]),
@@ -758,12 +761,12 @@ class TestSubmitForApproval:
         assert steps[1].approver_role == "inspector"
 
     async def test_submit_nonexistent_equipment(self, admin_client: AsyncClient, project: Project):
-        resp = await admin_client.post(equipment_submit_url(str(project.id), FAKE_EQUIPMENT_ID))
+        resp = await admin_client.post(equipment_submit_url(str(project.id), FAKE_EQUIPMENT_ID), json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
         assert resp.status_code == 404
 
     async def test_submit_returns_camel_case(self, admin_client: AsyncClient, project: Project):
         created = await create_equipment_via_api(admin_client, str(project.id))
-        resp = await admin_client.post(equipment_submit_url(str(project.id), created["id"]))
+        resp = await admin_client.post(equipment_submit_url(str(project.id), created["id"]), json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
         data = resp.json()
         assert "equipmentType" in data
         assert "projectId" in data
@@ -775,7 +778,7 @@ class TestSubmitForApproval:
         )
         db.add(equip)
         await db.flush()
-        resp = await client.post(equipment_submit_url(str(project.id), str(equip.id)))
+        resp = await client.post(equipment_submit_url(str(project.id), str(equip.id)), json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
         assert resp.status_code == 401
 
 
@@ -984,7 +987,7 @@ class TestCRUDFullWorkflow:
         created = await create_equipment_via_api(admin_client, str(project.id))
         assert created["status"] == "draft"
 
-        submit_resp = await admin_client.post(equipment_submit_url(str(project.id), created["id"]))
+        submit_resp = await admin_client.post(equipment_submit_url(str(project.id), created["id"]), json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
         assert submit_resp.status_code == 200
         assert submit_resp.json()["status"] == "submitted"
 
@@ -998,7 +1001,7 @@ class TestCRUDFullWorkflow:
             json=valid_checklist_payload(),
         )
         assert cl_resp.status_code == 200
-        submit_resp = await admin_client.post(equipment_submit_url(str(project.id), created["id"]))
+        submit_resp = await admin_client.post(equipment_submit_url(str(project.id), created["id"]), json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
         assert submit_resp.status_code == 200
         assert submit_resp.json()["status"] == "submitted"
 
@@ -1116,7 +1119,7 @@ class TestNotFoundResponses:
         ("GET", lambda: equipment_detail_url(FAKE_PROJECT_ID, FAKE_EQUIPMENT_ID), None),
         ("PUT", lambda: equipment_detail_url(FAKE_PROJECT_ID, FAKE_EQUIPMENT_ID), {"name": "Ghost"}),
         ("DELETE", lambda: equipment_detail_url(FAKE_PROJECT_ID, FAKE_EQUIPMENT_ID), None),
-        ("POST", lambda: equipment_submit_url(FAKE_PROJECT_ID, FAKE_EQUIPMENT_ID), None),
+        ("POST", lambda: equipment_submit_url(FAKE_PROJECT_ID, FAKE_EQUIPMENT_ID), {"consultant_contact_id": "00000000-0000-0000-0000-000000000001"}),
     ])
     async def test_403_for_nonexistent_project(
         self, admin_client: AsyncClient, method, path_func, body
@@ -1383,7 +1386,7 @@ class TestParametrizedAuthEndpoints:
         assert resp.status_code == 401
 
     async def test_submit_unauthenticated_returns_401(self, client: AsyncClient, project: Project):
-        resp = await client.post(equipment_submit_url(str(project.id), FAKE_EQUIPMENT_ID))
+        resp = await client.post(equipment_submit_url(str(project.id), FAKE_EQUIPMENT_ID), json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
         assert resp.status_code == 401
 
     @pytest.mark.parametrize("endpoint,path", [

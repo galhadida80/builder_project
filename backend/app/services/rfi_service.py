@@ -110,13 +110,14 @@ class RFIService:
         rfi_from_email = await self.generate_rfi_from_email(rfi.project_id, rfi.rfi_number)
 
         try:
+            logger.info(f"Sending RFI email: sender={self.email_service.provider.from_email if self.email_service.provider else 'N/A'}, reply_to={rfi_from_email}")
             email_result = self.email_service.send_rfi_email(
                 rfi_number=rfi.rfi_number,
                 to_email=rfi.to_email,
                 subject=rfi.subject,
                 body_html=email_html,
                 cc_emails=rfi.cc_emails,
-                from_email=rfi_from_email
+                reply_to=rfi_from_email
             )
 
             rfi.email_thread_id = email_result['thread_id']
@@ -303,6 +304,7 @@ class RFIService:
         if send_email and self.email_service.enabled:
             try:
                 rfi_from_email = await self.generate_rfi_from_email(rfi.project_id, rfi.rfi_number)
+                logger.info(f"Sending RFI response email: reply_to={rfi_from_email}")
                 email_result = self.email_service.send_rfi_email(
                     rfi_number=rfi.rfi_number,
                     to_email=rfi.to_email,
@@ -310,7 +312,7 @@ class RFIService:
                     body_html=self._build_response_email_html(rfi, response_text),
                     in_reply_to=rfi.email_message_id,
                     references=rfi.email_message_id,
-                    from_email=rfi_from_email
+                    reply_to=rfi_from_email
                 )
                 response.email_message_id = email_result.get('email_message_id')
 

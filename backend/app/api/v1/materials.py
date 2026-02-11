@@ -154,7 +154,7 @@ async def delete_material(
 async def submit_material_for_approval(
     project_id: UUID,
     material_id: UUID,
-    body: SubmitForApprovalRequest = SubmitForApprovalRequest(),
+    body: SubmitForApprovalRequest,
     member: ProjectMember = require_permission(Permission.APPROVE),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),

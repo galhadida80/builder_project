@@ -19,7 +19,7 @@ class EmailProvider(Protocol):
         attachments: Optional[list[dict]] = None,
         in_reply_to: Optional[str] = None,
         references: Optional[str] = None,
-        from_email: Optional[str] = None
+        reply_to: Optional[str] = None
     ) -> dict:
         ...
 
@@ -62,7 +62,7 @@ class EmailService:
         attachments: Optional[list[dict]] = None,
         in_reply_to: Optional[str] = None,
         references: Optional[str] = None,
-        from_email: Optional[str] = None
+        reply_to: Optional[str] = None
     ) -> dict:
         if not self.enabled:
             raise RuntimeError("Email service is not configured")
@@ -76,7 +76,7 @@ class EmailService:
             attachments=attachments,
             in_reply_to=in_reply_to,
             references=references,
-            from_email=from_email
+            reply_to=reply_to
         )
 
     def send_notification(

@@ -740,14 +740,14 @@ class TestSubmitMaterialForApproval:
     @pytest.mark.asyncio
     async def test_submit_changes_status(self, admin_client, project):
         mat = await create_mat(admin_client, project.id)
-        resp = await admin_client.post(mat_submit(str(project.id), mat["id"]))
+        resp = await admin_client.post(mat_submit(str(project.id), mat["id"]), json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
         assert resp.status_code == 200
         assert resp.json()["status"] == "submitted"
 
     @pytest.mark.asyncio
     async def test_submit_creates_approval_request(self, admin_client, project, db):
         mat = await create_mat(admin_client, project.id)
-        await admin_client.post(mat_submit(str(project.id), mat["id"]))
+        await admin_client.post(mat_submit(str(project.id), mat["id"]), json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
         result = await db.execute(
             select(ApprovalRequest).where(
                 ApprovalRequest.entity_id == uuid.UUID(mat["id"]),
@@ -762,7 +762,7 @@ class TestSubmitMaterialForApproval:
     @pytest.mark.asyncio
     async def test_submit_creates_two_approval_steps(self, admin_client, project, db):
         mat = await create_mat(admin_client, project.id)
-        await admin_client.post(mat_submit(str(project.id), mat["id"]))
+        await admin_client.post(mat_submit(str(project.id), mat["id"]), json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
         result = await db.execute(
             select(ApprovalRequest).where(ApprovalRequest.entity_id == uuid.UUID(mat["id"]))
         )
@@ -777,13 +777,13 @@ class TestSubmitMaterialForApproval:
 
     @pytest.mark.asyncio
     async def test_submit_nonexistent_returns_404(self, admin_client, project):
-        resp = await admin_client.post(mat_submit(str(project.id), FAKE_UUID))
+        resp = await admin_client.post(mat_submit(str(project.id), FAKE_UUID), json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
         assert resp.status_code == 404
 
     @pytest.mark.asyncio
     async def test_submit_preserves_data(self, admin_client, project):
         mat = await create_mat(admin_client, project.id)
-        resp = await admin_client.post(mat_submit(str(project.id), mat["id"]))
+        resp = await admin_client.post(mat_submit(str(project.id), mat["id"]), json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
         data = resp.json()
         assert data["name"] == mat["name"]
         assert data["manufacturer"] == mat["manufacturer"]
@@ -791,7 +791,7 @@ class TestSubmitMaterialForApproval:
     @pytest.mark.asyncio
     async def test_submit_returns_camel_case(self, admin_client, project):
         mat = await create_mat(admin_client, project.id)
-        resp = await admin_client.post(mat_submit(str(project.id), mat["id"]))
+        resp = await admin_client.post(mat_submit(str(project.id), mat["id"]), json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
         data = resp.json()
         assert "materialType" in data
         assert "projectId" in data
@@ -800,14 +800,14 @@ class TestSubmitMaterialForApproval:
     @pytest.mark.asyncio
     async def test_submit_then_verify_status_via_get(self, admin_client, project):
         mat = await create_mat(admin_client, project.id)
-        await admin_client.post(mat_submit(str(project.id), mat["id"]))
+        await admin_client.post(mat_submit(str(project.id), mat["id"]), json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
         resp = await admin_client.get(mat_detail(str(project.id), mat["id"]))
         assert resp.json()["status"] == "submitted"
 
     @pytest.mark.asyncio
     async def test_submit_approval_steps_pending(self, admin_client, project, db):
         mat = await create_mat(admin_client, project.id)
-        await admin_client.post(mat_submit(str(project.id), mat["id"]))
+        await admin_client.post(mat_submit(str(project.id), mat["id"]), json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
         result = await db.execute(
             select(ApprovalRequest).where(ApprovalRequest.entity_id == uuid.UUID(mat["id"]))
         )
@@ -879,7 +879,7 @@ class TestAuthenticationExtended:
 
     @pytest.mark.asyncio
     async def test_unauthenticated_submit_returns_401(self, client, project):
-        resp = await client.post(mat_submit(str(project.id), FAKE_UUID))
+        resp = await client.post(mat_submit(str(project.id), FAKE_UUID), json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
         assert resp.status_code == 401
 
 
@@ -936,7 +936,7 @@ class TestProjectAccessControl:
         db.add(ProjectMember(project_id=project.id, user_id=regular_user.id, role="contractor"))
         await db.commit()
         mat = await create_mat(admin_client, project.id)
-        resp = await user_client.post(mat_submit(str(project.id), mat["id"]))
+        resp = await user_client.post(mat_submit(str(project.id), mat["id"]), json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
         assert resp.status_code == 200
         assert resp.json()["status"] == "submitted"
 
@@ -1074,7 +1074,7 @@ class TestCRUDWorkflowsExtended:
         assert get_resp.status_code == 200
         upd_resp = await admin_client.put(mat_detail(pid, mid), json={"name": "Renamed Mat"})
         assert upd_resp.json()["name"] == "Renamed Mat"
-        sub_resp = await admin_client.post(mat_submit(pid, mid))
+        sub_resp = await admin_client.post(mat_submit(pid, mid), json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
         assert sub_resp.json()["status"] == "submitted"
         del_resp = await admin_client.delete(mat_detail(pid, mid))
         assert del_resp.status_code == 200
@@ -1089,14 +1089,14 @@ class TestCRUDWorkflowsExtended:
             mat_detail(pid, mat["id"]),
             json={"quantity": "999", "storage_location": "Updated Warehouse"},
         )
-        resp = await admin_client.post(mat_submit(pid, mat["id"]))
+        resp = await admin_client.post(mat_submit(pid, mat["id"]), json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
         assert resp.json()["status"] == "submitted"
 
     @pytest.mark.asyncio
     async def test_update_after_submit_still_works(self, admin_client, project):
         mat = await create_mat(admin_client, project.id)
         pid = str(project.id)
-        await admin_client.post(mat_submit(pid, mat["id"]))
+        await admin_client.post(mat_submit(pid, mat["id"]), json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
         resp = await admin_client.put(
             mat_detail(pid, mat["id"]), json={"notes": "Post submit note"}
         )
@@ -1259,7 +1259,7 @@ class TestNotFoundAndErrorExtended:
         if method == "PUT":
             resp = await admin_client.put(url, json={"name": "Ghost"})
         elif method == "POST":
-            resp = await admin_client.post(url)
+            resp = await admin_client.post(url, json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
         elif method == "DELETE":
             resp = await admin_client.delete(url)
         else:

@@ -46,6 +46,7 @@ import { formatFileSize } from '../utils/fileUtils'
 import type { Equipment } from '../types'
 import type { FileRecord } from '../api/files'
 import { validateEquipmentForm, hasErrors, VALIDATION, type ValidationError } from '../utils/validation'
+import { parseValidationErrors } from '../utils/apiErrors'
 import { useToast } from '../components/common/ToastProvider'
 import { useTranslation } from 'react-i18next'
 import TemplatePicker from '../components/ui/TemplatePicker'
@@ -239,7 +240,13 @@ export default function EquipmentPage() {
 
       handleCloseDialog()
       loadEquipment()
-    } catch {
+    } catch (err) {
+      const serverErrors = parseValidationErrors(err)
+      if (Object.keys(serverErrors).length > 0) {
+        setErrors(prev => ({ ...prev, ...serverErrors }))
+        showError(t('validation.checkFields'))
+        return
+      }
       showError(editingEquipment ? t('equipment.failedToUpdateEquipment') : t('equipment.failedToCreateEquipment'))
     } finally {
       setSaving(false)

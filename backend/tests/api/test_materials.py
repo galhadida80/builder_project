@@ -597,7 +597,7 @@ class TestNotFoundResponses:
 
     async def test_submit_nonexistent_material(self, admin_client: AsyncClient, project: Project):
         fake_id = uuid.uuid4()
-        response = await admin_client.post(f"/api/v1/projects/{project.id}/materials/{fake_id}/submit")
+        response = await admin_client.post(f"/api/v1/projects/{project.id}/materials/{fake_id}/submit", json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
         assert response.status_code == 404
 
     async def test_get_material_with_nonexistent_project(self, admin_client: AsyncClient, db: AsyncSession, admin_user: User, project: Project):
@@ -618,6 +618,8 @@ class TestNotFoundResponses:
         kwargs = {}
         if method == "PUT":
             kwargs["json"] = {"name": "Test"}
+        if method == "POST" and "/submit" in path_suffix:
+            kwargs["json"] = {"consultant_contact_id": "00000000-0000-0000-0000-000000000001"}
         response = await getattr(admin_client, method.lower())(url, **kwargs)
         assert response.status_code == 404
 
@@ -636,6 +638,8 @@ class TestAuthenticationRequired:
         kwargs = {}
         if method == "POST" and "submit" not in path:
             kwargs["json"] = {"name": "Test Material"}
+        elif method == "POST" and "submit" in path:
+            kwargs["json"] = {"consultant_contact_id": "00000000-0000-0000-0000-000000000001"}
         elif method == "PUT":
             kwargs["json"] = {"name": "Updated"}
         response = await getattr(client, method.lower())(path, **kwargs)
@@ -659,13 +663,13 @@ class TestSubmitWorkflow:
 
     async def test_submit_changes_status_to_submitted(self, admin_client: AsyncClient, project: Project, db: AsyncSession, admin_user: User):
         mat = await create_material_in_db(db, project.id, admin_user.id)
-        response = await admin_client.post(f"/api/v1/projects/{project.id}/materials/{mat.id}/submit")
+        response = await admin_client.post(f"/api/v1/projects/{project.id}/materials/{mat.id}/submit", json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
         assert response.status_code == 200
         assert response.json()["status"] == "submitted"
 
     async def test_submit_creates_approval_request(self, admin_client: AsyncClient, project: Project, db: AsyncSession, admin_user: User):
         mat = await create_material_in_db(db, project.id, admin_user.id)
-        await admin_client.post(f"/api/v1/projects/{project.id}/materials/{mat.id}/submit")
+        await admin_client.post(f"/api/v1/projects/{project.id}/materials/{mat.id}/submit", json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
         result = await db.execute(
             select(ApprovalRequest).where(
                 ApprovalRequest.entity_type == "material",
@@ -680,7 +684,7 @@ class TestSubmitWorkflow:
 
     async def test_submit_creates_two_approval_steps(self, admin_client: AsyncClient, project: Project, db: AsyncSession, admin_user: User):
         mat = await create_material_in_db(db, project.id, admin_user.id)
-        await admin_client.post(f"/api/v1/projects/{project.id}/materials/{mat.id}/submit")
+        await admin_client.post(f"/api/v1/projects/{project.id}/materials/{mat.id}/submit", json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
         result = await db.execute(
             select(ApprovalRequest).where(
                 ApprovalRequest.entity_id == mat.id,
@@ -701,7 +705,7 @@ class TestSubmitWorkflow:
 
     async def test_submit_approval_steps_start_as_pending(self, admin_client: AsyncClient, project: Project, db: AsyncSession, admin_user: User):
         mat = await create_material_in_db(db, project.id, admin_user.id)
-        await admin_client.post(f"/api/v1/projects/{project.id}/materials/{mat.id}/submit")
+        await admin_client.post(f"/api/v1/projects/{project.id}/materials/{mat.id}/submit", json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
         result = await db.execute(
             select(ApprovalRequest).where(ApprovalRequest.entity_id == mat.id)
         )
@@ -715,7 +719,7 @@ class TestSubmitWorkflow:
 
     async def test_submit_preserves_material_data(self, admin_client: AsyncClient, project: Project, db: AsyncSession, admin_user: User):
         mat = await create_material_in_db(db, project.id, admin_user.id, name="Submit Test", manufacturer="TestMfg")
-        response = await admin_client.post(f"/api/v1/projects/{project.id}/materials/{mat.id}/submit")
+        response = await admin_client.post(f"/api/v1/projects/{project.id}/materials/{mat.id}/submit", json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
         data = response.json()
         assert data["name"] == "Submit Test"
         assert data["manufacturer"] == "TestMfg"
@@ -1116,7 +1120,7 @@ class TestUserClientAccess:
         db.add(ProjectMember(project_id=project.id, user_id=regular_user.id, role="consultant"))
         await db.commit()
         mat = await create_material_in_db(db, project.id, regular_user.id)
-        response = await user_client.post(f"/api/v1/projects/{project.id}/materials/{mat.id}/submit")
+        response = await user_client.post(f"/api/v1/projects/{project.id}/materials/{mat.id}/submit", json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
         assert response.status_code == 200
         assert response.json()["status"] == "submitted"
 

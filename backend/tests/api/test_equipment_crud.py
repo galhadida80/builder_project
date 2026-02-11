@@ -459,14 +459,14 @@ class TestSubmitForApprovalExtended:
     @pytest.mark.asyncio
     async def test_submit_changes_status(self, admin_client, project):
         eq = await create_eq(admin_client, project.id)
-        resp = await admin_client.post(eq_submit(str(project.id), eq["id"]))
+        resp = await admin_client.post(eq_submit(str(project.id), eq["id"]), json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
         assert resp.status_code == 200
         assert resp.json()["status"] == "submitted"
 
     @pytest.mark.asyncio
     async def test_submit_creates_approval_request(self, admin_client, project, db):
         eq = await create_eq(admin_client, project.id)
-        await admin_client.post(eq_submit(str(project.id), eq["id"]))
+        await admin_client.post(eq_submit(str(project.id), eq["id"]), json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
         result = await db.execute(
             select(ApprovalRequest).where(
                 ApprovalRequest.entity_id == uuid.UUID(eq["id"]),
@@ -480,7 +480,7 @@ class TestSubmitForApprovalExtended:
     @pytest.mark.asyncio
     async def test_submit_creates_two_steps(self, admin_client, project, db):
         eq = await create_eq(admin_client, project.id)
-        await admin_client.post(eq_submit(str(project.id), eq["id"]))
+        await admin_client.post(eq_submit(str(project.id), eq["id"]), json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
         result = await db.execute(
             select(ApprovalRequest).where(ApprovalRequest.entity_id == uuid.UUID(eq["id"]))
         )
@@ -495,13 +495,13 @@ class TestSubmitForApprovalExtended:
 
     @pytest.mark.asyncio
     async def test_submit_nonexistent_equipment_returns_404(self, admin_client, project):
-        resp = await admin_client.post(eq_submit(str(project.id), FAKE_UUID))
+        resp = await admin_client.post(eq_submit(str(project.id), FAKE_UUID), json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
         assert resp.status_code == 404
 
     @pytest.mark.asyncio
     async def test_submit_preserves_equipment_data(self, admin_client, project):
         eq = await create_eq(admin_client, project.id)
-        resp = await admin_client.post(eq_submit(str(project.id), eq["id"]))
+        resp = await admin_client.post(eq_submit(str(project.id), eq["id"]), json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
         data = resp.json()
         assert data["name"] == eq["name"]
         assert data["manufacturer"] == eq["manufacturer"]
@@ -510,7 +510,7 @@ class TestSubmitForApprovalExtended:
     @pytest.mark.asyncio
     async def test_submit_returns_camel_case(self, admin_client, project):
         eq = await create_eq(admin_client, project.id)
-        resp = await admin_client.post(eq_submit(str(project.id), eq["id"]))
+        resp = await admin_client.post(eq_submit(str(project.id), eq["id"]), json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
         data = resp.json()
         assert "equipmentType" in data
         assert "projectId" in data
@@ -519,7 +519,7 @@ class TestSubmitForApprovalExtended:
     @pytest.mark.asyncio
     async def test_submit_then_verify_get_status(self, admin_client, project):
         eq = await create_eq(admin_client, project.id)
-        await admin_client.post(eq_submit(str(project.id), eq["id"]))
+        await admin_client.post(eq_submit(str(project.id), eq["id"]), json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
         resp = await admin_client.get(eq_detail(str(project.id), eq["id"]))
         assert resp.json()["status"] == "submitted"
 
@@ -534,7 +534,7 @@ class TestStatusTransitionsViaDB:
     @pytest.mark.asyncio
     async def test_submitted_via_api(self, admin_client, project):
         eq = await create_eq(admin_client, project.id)
-        resp = await admin_client.post(eq_submit(str(project.id), eq["id"]))
+        resp = await admin_client.post(eq_submit(str(project.id), eq["id"]), json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
         assert resp.json()["status"] == "submitted"
 
     @pytest.mark.asyncio
@@ -595,7 +595,7 @@ class TestAuthenticationExtended:
 
     @pytest.mark.asyncio
     async def test_unauthenticated_submit_returns_401(self, client, project):
-        resp = await client.post(eq_submit(str(project.id), FAKE_UUID))
+        resp = await client.post(eq_submit(str(project.id), FAKE_UUID), json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
         assert resp.status_code == 401
 
 
@@ -648,7 +648,7 @@ class TestProjectAccessControl:
         db.add(ProjectMember(project_id=project.id, user_id=regular_user.id, role="contractor"))
         await db.commit()
         eq = await create_eq(admin_client, project.id)
-        resp = await user_client.post(eq_submit(str(project.id), eq["id"]))
+        resp = await user_client.post(eq_submit(str(project.id), eq["id"]), json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
         assert resp.status_code == 200
 
     @pytest.mark.asyncio
@@ -965,7 +965,7 @@ class TestCRUDWorkflows:
         assert get_resp.status_code == 200
         upd_resp = await admin_client.put(eq_detail(pid, eid), json={"name": "Renamed"})
         assert upd_resp.json()["name"] == "Renamed"
-        sub_resp = await admin_client.post(eq_submit(pid, eid))
+        sub_resp = await admin_client.post(eq_submit(pid, eid), json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
         assert sub_resp.json()["status"] == "submitted"
         del_resp = await admin_client.delete(eq_detail(pid, eid))
         assert del_resp.status_code == 200
@@ -978,7 +978,7 @@ class TestCRUDWorkflows:
         pid = str(project.id)
         cl = {"checklist_name": "Pre-submit", "items": [{"id": "c1", "label": "Verified"}]}
         await admin_client.post(cl_url(pid, eq["id"]), json=cl)
-        resp = await admin_client.post(eq_submit(pid, eq["id"]))
+        resp = await admin_client.post(eq_submit(pid, eq["id"]), json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
         assert resp.json()["status"] == "submitted"
         detail = await admin_client.get(eq_detail(pid, eq["id"]))
         assert len(detail.json()["checklists"]) == 1
@@ -987,7 +987,7 @@ class TestCRUDWorkflows:
     async def test_update_after_submit_still_works(self, admin_client, project):
         eq = await create_eq(admin_client, project.id)
         pid = str(project.id)
-        await admin_client.post(eq_submit(pid, eq["id"]))
+        await admin_client.post(eq_submit(pid, eq["id"]), json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
         resp = await admin_client.put(eq_detail(pid, eq["id"]), json={"notes": "Post submit note"})
         assert resp.status_code == 200
         assert resp.json()["notes"] == "Post submit note"
@@ -1230,7 +1230,7 @@ class TestNotFoundAndErrorExtended:
         if method == "PUT":
             resp = await admin_client.put(url, json={"name": "Ghost"})
         elif method == "POST":
-            resp = await admin_client.post(url)
+            resp = await admin_client.post(url, json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
         elif method == "DELETE":
             resp = await admin_client.delete(url)
         else:

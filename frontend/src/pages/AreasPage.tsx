@@ -33,6 +33,7 @@ import { areasApi } from '../api/areas'
 import type { ConstructionArea, AreaStatus } from '../types'
 import { validateAreaForm, hasErrors, VALIDATION, type ValidationError } from '../utils/validation'
 import { useToast } from '../components/common/ToastProvider'
+import { parseValidationErrors } from '../utils/apiErrors'
 
 const AREA_TYPE_ICONS: Record<string, React.ReactNode> = {
   apartment: <ApartmentIcon />,
@@ -283,7 +284,13 @@ export default function AreasPage() {
       }
       handleCloseDialog()
       loadAreas()
-    } catch {
+    } catch (err) {
+      const serverErrors = parseValidationErrors(err)
+      if (Object.keys(serverErrors).length > 0) {
+        setErrors(prev => ({ ...prev, ...serverErrors }))
+        showError(t('validation.checkFields'))
+        return
+      }
       showError(editingArea ? t('areas.failedToUpdateArea') : t('areas.failedToCreateArea'))
     } finally {
       setSaving(false)

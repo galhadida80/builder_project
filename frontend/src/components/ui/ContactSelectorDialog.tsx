@@ -8,6 +8,7 @@ import MuiTextField from '@mui/material/TextField'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import CircularProgress from '@mui/material/CircularProgress'
+import Alert from '@mui/material/Alert'
 import PersonIcon from '@mui/icons-material/Person'
 import { Button } from './Button'
 import { contactsApi } from '../../api/contacts'
@@ -34,11 +35,15 @@ export default function ContactSelectorDialog({
   const [contactsLoading, setContactsLoading] = useState(false)
   const [consultantContact, setConsultantContact] = useState<Contact | null>(null)
   const [inspectorContact, setInspectorContact] = useState<Contact | null>(null)
+  const [showValidation, setShowValidation] = useState(false)
+
+  const hasSelection = !!(consultantContact || inspectorContact)
 
   useEffect(() => {
     if (!open) return
     setConsultantContact(null)
     setInspectorContact(null)
+    setShowValidation(false)
     const loadContacts = async () => {
       setContactsLoading(true)
       try {
@@ -57,6 +62,10 @@ export default function ContactSelectorDialog({
   const inspectorOptions = contacts.filter(c => c.contactType === 'inspector' || c.contactType === 'supervisor')
 
   const handleConfirm = () => {
+    if (!hasSelection) {
+      setShowValidation(true)
+      return
+    }
     onConfirm(consultantContact?.id, inspectorContact?.id)
   }
 
@@ -87,6 +96,12 @@ export default function ContactSelectorDialog({
           </Box>
         ) : (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, pt: 1 }}>
+            {showValidation && !hasSelection && (
+              <Alert severity="warning" sx={{ mb: 1 }}>
+                {t('contactSelector.requiredHint')}
+              </Alert>
+            )}
+
             <Box>
               <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
                 {t('contactSelector.step1Consultant')}
@@ -94,7 +109,7 @@ export default function ContactSelectorDialog({
               <Autocomplete
                 options={consultantOptions}
                 value={consultantContact}
-                onChange={(_, value) => setConsultantContact(value)}
+                onChange={(_, value) => { setConsultantContact(value); setShowValidation(false) }}
                 getOptionLabel={(o) => `${o.contactName}${o.companyName ? ` (${o.companyName})` : ''}`}
                 renderOption={renderOption}
                 renderInput={(params) => (
@@ -106,9 +121,6 @@ export default function ContactSelectorDialog({
                 )}
                 noOptionsText={t('contactSelector.noContacts')}
               />
-              <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
-                {t('contactSelector.optionalHint')}
-              </Typography>
             </Box>
 
             <Box>
@@ -118,7 +130,7 @@ export default function ContactSelectorDialog({
               <Autocomplete
                 options={inspectorOptions}
                 value={inspectorContact}
-                onChange={(_, value) => setInspectorContact(value)}
+                onChange={(_, value) => { setInspectorContact(value); setShowValidation(false) }}
                 getOptionLabel={(o) => `${o.contactName}${o.companyName ? ` (${o.companyName})` : ''}`}
                 renderOption={renderOption}
                 renderInput={(params) => (
@@ -130,16 +142,13 @@ export default function ContactSelectorDialog({
                 )}
                 noOptionsText={t('contactSelector.noContacts')}
               />
-              <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
-                {t('contactSelector.optionalHint')}
-              </Typography>
             </Box>
           </Box>
         )}
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2 }}>
         <Button variant="secondary" onClick={onClose}>{t('common.cancel')}</Button>
-        <Button variant="primary" onClick={handleConfirm} loading={loading}>
+        <Button variant="primary" onClick={handleConfirm} loading={loading} disabled={!hasSelection && showValidation}>
           {t('contactSelector.confirmSubmit')}
         </Button>
       </DialogActions>

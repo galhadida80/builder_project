@@ -94,11 +94,11 @@ export default function ProjectDetailPage() {
 
   if (loading) {
     return (
-      <Box sx={{ p: 3 }}>
-        <Skeleton variant="text" width={120} height={32} sx={{ mb: 2 }} />
+      <Box sx={{ p: { xs: 1.5, md: 2 } }}>
+        <Skeleton variant="text" width={120} height={32} sx={{ mb: 1.5 }} />
         <Skeleton variant="text" width={300} height={48} sx={{ mb: 1 }} />
-        <Skeleton variant="text" width={450} height={24} sx={{ mb: 4 }} />
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 2, mb: 4 }}>
+        <Skeleton variant="text" width={450} height={24} sx={{ mb: 2.5 }} />
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 1.5, mb: 2.5 }}>
           {[...Array(4)].map((_, i) => (
             <Skeleton key={i} variant="rounded" height={100} sx={{ borderRadius: 3 }} />
           ))}
@@ -110,7 +110,7 @@ export default function ProjectDetailPage() {
 
   if (!project) {
     return (
-      <Box sx={{ p: 3 }}>
+      <Box sx={{ p: { xs: 1.5, md: 2 } }}>
         <EmptyState
           variant="not-found"
           title={t('projectDetail.notFound')}
@@ -141,8 +141,8 @@ export default function ProjectDetailPage() {
   const isOverview = currentTab === ''
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+    <Box sx={{ p: { xs: 1.5, md: 2 } }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
         <IconButton onClick={() => navigate('/projects')} size="small">
           <ArrowBackIcon />
         </IconButton>
@@ -151,10 +151,10 @@ export default function ProjectDetailPage() {
         </Typography>
       </Box>
 
-      <Card sx={{ mb: 4 }}>
+      <Card sx={{ mb: 2.5 }}>
         <Box
           sx={{
-            p: 3,
+            p: { xs: 2, md: 2.5 },
             background: (theme) =>
               theme.palette.mode === 'dark'
                 ? 'linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%)'
@@ -211,7 +211,7 @@ export default function ProjectDetailPage() {
         </Box>
       </Card>
 
-      <Box sx={{ mb: 4 }}>
+      <Box sx={{ mb: 2 }}>
         <Tabs
           items={tabs.map(t => ({
             label: t.label,
@@ -231,8 +231,8 @@ export default function ProjectDetailPage() {
             sx={{
               display: 'grid',
               gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' },
-              gap: 2,
-              mb: 4,
+              gap: 1.5,
+              mb: 2.5,
             }}
           >
             <KPICard
@@ -265,21 +265,21 @@ export default function ProjectDetailPage() {
             />
           </Box>
 
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '2fr 1fr' }, gap: 3 }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '2fr 1fr' }, gap: 2 }}>
             <Card>
-              <Box sx={{ p: 3 }}>
-                <Typography variant="h6" fontWeight={600} sx={{ mb: 3 }}>
+              <Box sx={{ p: { xs: 2, md: 2.5 } }}>
+                <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
                   {t('projectDetail.projectProgress')}
                 </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', py: 4 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', py: 2 }}>
                   <Box sx={{ textAlign: 'center' }}>
-                    <CircularProgressDisplay value={completionPercent} size={140} thickness={8} showLabel />
-                    <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+                    <CircularProgressDisplay value={completionPercent} size={120} thickness={8} showLabel />
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 1.5 }}>
                       {t('projectDetail.overallCompletion')}
                     </Typography>
                   </Box>
                 </Box>
-                <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2, mt: 2 }}>
+                <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1.5, mt: 1.5 }}>
                   <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'action.hover', borderRadius: 2 }}>
                     <Typography variant="h5" fontWeight={700} color="success.main">{approvedItems}</Typography>
                     <Typography variant="caption" color="text.secondary">{t('projectDetail.approved')}</Typography>
@@ -296,10 +296,10 @@ export default function ProjectDetailPage() {
               </Box>
             </Card>
 
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               <Card>
-                <Box sx={{ p: 3 }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Box sx={{ p: { xs: 2, md: 2.5 } }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
                     <Typography variant="h6" fontWeight={600}>{t('projectDetail.quickStats')}</Typography>
                   </Box>
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
@@ -341,12 +341,12 @@ export default function ProjectDetailPage() {
               </Card>
 
               <Card>
-                <Box sx={{ p: 3 }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Box sx={{ p: { xs: 2, md: 2.5 } }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
                     <Typography variant="h6" fontWeight={600}>{t('projectDetail.team')}</Typography>
                     <GroupIcon sx={{ color: 'text.secondary' }} />
                   </Box>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
                     {t('projectDetail.teamDescription')}
                   </Typography>
                   <Button variant="secondary" size="small" onClick={() => handleTabChange('contacts')}>
