@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { DashboardIcon, FolderIcon, BuildIcon, InventoryIcon, EventIcon, CheckCircleIcon, AccountTreeIcon, ContactsIcon, HistoryIcon, SettingsIcon, AssignmentIcon, ConstructionIcon, EmailIcon } from '@/icons'
@@ -39,7 +40,7 @@ interface SidebarProps {
   isMobile?: boolean
 }
 
-export default function Sidebar({ projectId, mobileOpen = false, onMobileClose, isMobile = false }: SidebarProps) {
+export default memo(function Sidebar({ projectId, mobileOpen = false, onMobileClose, isMobile = false }: SidebarProps) {
   const { t } = useTranslation()
   const location = useLocation()
   const navigate = useNavigate()
@@ -308,4 +309,4 @@ export default function Sidebar({ projectId, mobileOpen = false, onMobileClose, 
       {drawerContent}
     </Drawer>
   )
-}
+})

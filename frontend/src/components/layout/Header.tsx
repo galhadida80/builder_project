@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import type { User, Project } from '../../types'
@@ -19,7 +19,7 @@ interface HeaderProps {
   isMobile?: boolean
 }
 
-export default function Header({ user, currentProject, projects, onProjectChange, onLogout, onMenuToggle, isMobile }: HeaderProps) {
+export default memo(function Header({ user, currentProject, projects, onProjectChange, onLogout, onMenuToggle, isMobile }: HeaderProps) {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { showInfo } = useToast()
@@ -128,4 +128,4 @@ export default function Header({ user, currentProject, projects, onProjectChange
       </Toolbar>
     </AppBar>
   )
-}
+})

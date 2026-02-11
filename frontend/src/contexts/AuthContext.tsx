@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { authApi } from '../api/auth'
 import type { User } from '../types'
@@ -64,18 +64,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     navigate('/login')
   }, [navigate])
 
+  const value = useMemo(() => ({
+    user,
+    isSuperAdmin: user?.isSuperAdmin ?? false,
+    loading,
+    login,
+    register,
+    logout,
+    refreshUser,
+  }), [user, loading, login, register, logout, refreshUser])
+
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isSuperAdmin: user?.isSuperAdmin ?? false,
-        loading,
-        login,
-        register,
-        logout,
-        refreshUser,
-      }}
-    >
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   )

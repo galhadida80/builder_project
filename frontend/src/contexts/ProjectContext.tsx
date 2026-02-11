@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from 'react'
+import { createContext, useContext, useState, useMemo, ReactNode } from 'react'
 
 interface ProjectContextType {
   selectedProjectId: string | undefined
@@ -10,8 +10,10 @@ const ProjectContext = createContext<ProjectContextType | undefined>(undefined)
 export function ProjectProvider({ children }: { children: ReactNode }) {
   const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>()
 
+  const value = useMemo(() => ({ selectedProjectId, setSelectedProjectId }), [selectedProjectId])
+
   return (
-    <ProjectContext.Provider value={{ selectedProjectId, setSelectedProjectId }}>
+    <ProjectContext.Provider value={value}>
       {children}
     </ProjectContext.Provider>
   )

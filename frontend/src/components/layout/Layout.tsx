@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Outlet, useParams, useNavigate, useLocation } from 'react-router-dom'
 import Sidebar from './Sidebar'
@@ -24,7 +24,7 @@ export default function Layout() {
   useEffect(() => {
     const match = location.pathname.match(/\/projects\/([^/]+)/)
     const urlProjectId = match ? match[1] : undefined
-    if (urlProjectId && urlProjectId !== selectedProjectId) {
+    if (urlProjectId !== selectedProjectId) {
       setSelectedProjectId(urlProjectId)
     }
   }, [location.pathname])
@@ -69,6 +69,11 @@ export default function Layout() {
   const handleChatClose = useCallback(() => setChatOpen(false), [])
   const handleMobileClose = useCallback(() => setMobileDrawerOpen(false), [])
 
+  const outletContext = useMemo(
+    () => ({ projectId: selectedProjectId, project: currentProject }),
+    [selectedProjectId, currentProject]
+  )
+
   if (loading || !currentUser) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
@@ -104,7 +109,7 @@ export default function Layout() {
         }}
       >
         <Toolbar />
-        <Outlet context={{ projectId: selectedProjectId, project: currentProject }} />
+        <Outlet context={outletContext} />
       </Box>
 
       {selectedProjectId && (
