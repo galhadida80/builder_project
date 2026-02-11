@@ -4,12 +4,14 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
 from fastapi.responses import StreamingResponse
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.core.permissions import Permission, require_permission
 from app.core.security import get_current_user, verify_project_access
 from app.db.session import get_db
+from app.models.approval import ApprovalStep
 from app.models.audit import AuditAction
 from app.models.contact import Contact
 from app.models.project import ProjectMember
@@ -28,12 +30,34 @@ async def list_contacts(
     current_user: User = Depends(get_current_user)
 ):
     await verify_project_access(project_id, current_user, db)
+
+    pending_counts_subq = (
+        select(ApprovalStep.contact_id, func.count().label("cnt"))
+        .where(ApprovalStep.status == "pending", ApprovalStep.contact_id.isnot(None))
+        .group_by(ApprovalStep.contact_id)
+        .subquery()
+    )
+
     result = await db.execute(
         select(Contact)
+        .options(selectinload(Contact.user))
         .where(Contact.project_id == project_id)
         .order_by(Contact.company_name, Contact.contact_name)
     )
-    return result.scalars().all()
+    contacts = result.scalars().all()
+
+    count_result = await db.execute(
+        select(pending_counts_subq.c.contact_id, pending_counts_subq.c.cnt)
+    )
+    counts_map = {row.contact_id: row.cnt for row in count_result}
+
+    response = []
+    for contact in contacts:
+        contact_data = ContactResponse.model_validate(contact)
+        contact_data.pending_approvals_count = counts_map.get(contact.id, 0)
+        response.append(contact_data)
+
+    return response
 
 
 CSV_HEADERS = ["contact_name", "contact_type", "company_name", "role_description", "email", "phone", "notes"]
@@ -118,7 +142,7 @@ async def create_contact(
     await create_audit_log(db, current_user, "contact", contact.id, AuditAction.CREATE,
                           project_id=project_id, new_values=get_model_dict(contact))
 
-    await db.refresh(contact)
+    await db.refresh(contact, ["user"])
     return contact
 
 
@@ -133,6 +157,7 @@ async def get_contact(
     await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(Contact)
+        .options(selectinload(Contact.user))
         .where(Contact.id == contact_id, Contact.project_id == project_id)
     )
     contact = result.scalar_one_or_none()
@@ -140,7 +165,16 @@ async def get_contact(
         language = get_language_from_request(request)
         error_message = translate_message('resources.contact_not_found', language)
         raise HTTPException(status_code=404, detail=error_message)
-    return contact
+
+    count_result = await db.execute(
+        select(func.count()).where(
+            ApprovalStep.contact_id == contact_id,
+            ApprovalStep.status == "pending"
+        )
+    )
+    contact_data = ContactResponse.model_validate(contact)
+    contact_data.pending_approvals_count = count_result.scalar() or 0
+    return contact_data
 
 
 @router.put("/projects/{project_id}/contacts/{contact_id}", response_model=ContactResponse)

@@ -36,7 +36,7 @@ class ContactBase(BaseModel):
     def validate_phone_format(cls, v: Optional[str]) -> Optional[str]:
         return validate_phone(v)
 class ContactCreate(ContactBase):
-    pass
+    user_id: Optional[UUID] = None
 class ContactUpdate(BaseModel):
     contact_type: Optional[str] = Field(default=None, min_length=1, max_length=50)
     company_name: Optional[str] = Field(default=None, max_length=MAX_NAME_LENGTH)
@@ -45,6 +45,7 @@ class ContactUpdate(BaseModel):
     phone: Optional[str] = Field(default=None, max_length=MAX_PHONE_LENGTH)
     role_description: Optional[str] = Field(default=None, max_length=MAX_DESCRIPTION_LENGTH)
     is_primary: Optional[bool] = None
+    user_id: Optional[UUID] = None
 
     @field_validator('contact_type', 'company_name', 'contact_name', 'role_description', mode='before')
     @classmethod
@@ -55,6 +56,12 @@ class ContactUpdate(BaseModel):
     @classmethod
     def validate_phone_format(cls, v: Optional[str]) -> Optional[str]:
         return validate_phone(v)
+class LinkedUserResponse(CamelCaseModel):
+    id: UUID
+    email: str
+    full_name: Optional[str] = None
+
+
 class ContactResponse(CamelCaseModel):
     id: UUID
     project_id: UUID
@@ -65,4 +72,7 @@ class ContactResponse(CamelCaseModel):
     phone: Optional[str] = None
     role_description: Optional[str] = None
     is_primary: bool = False
+    user_id: Optional[UUID] = None
+    user: Optional[LinkedUserResponse] = None
+    pending_approvals_count: int = 0
     created_at: datetime

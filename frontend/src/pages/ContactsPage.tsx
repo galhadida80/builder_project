@@ -10,12 +10,13 @@ import { FormModal, ConfirmModal } from '../components/ui/Modal'
 import { Tabs } from '../components/ui/Tabs'
 import { EmptyState } from '../components/ui/EmptyState'
 import { contactsApi } from '../api/contacts'
-import type { Contact } from '../types'
+import { apiClient } from '../api/client'
+import type { Contact, User } from '../types'
 import { useToast } from '../components/common/ToastProvider'
 import { validateContactForm, hasErrors,  type ValidationError } from '../utils/validation'
 import { parseValidationErrors } from '../utils/apiErrors'
-import { AddIcon, EmailIcon, PhoneIcon, BusinessIcon, EditIcon, DeleteIcon, StarIcon, PersonIcon, GroupIcon } from '@/icons'
-import { Box, Typography, MenuItem, TextField as MuiTextField, Skeleton, Chip, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@/mui'
+import { AddIcon, EditIcon, DeleteIcon, PersonIcon, GroupIcon, AssignmentIcon } from '@/icons'
+import { Box, Typography, MenuItem, TextField as MuiTextField, Skeleton, Chip, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Autocomplete } from '@/mui'
 
 export default function ContactsPage() {
   const { t } = useTranslation()
@@ -31,13 +32,15 @@ export default function ContactsPage() {
   const [contactToDelete, setContactToDelete] = useState<Contact | null>(null)
   const [saving, setSaving] = useState(false)
   const [errors, setErrors] = useState<ValidationError>({})
+  const [projectUsers, setProjectUsers] = useState<{ id: string; email: string; fullName?: string }[]>([])
   const [formData, setFormData] = useState({
     contactName: '',
     contactType: '',
     companyName: '',
     email: '',
     phone: '',
-    roleDescription: ''
+    roleDescription: '',
+    userId: '' as string | ''
   })
 
   const contactTypes = [
@@ -51,6 +54,7 @@ export default function ContactsPage() {
 
   useEffect(() => {
     loadContacts()
+    loadProjectUsers()
   }, [projectId])
 
   const loadContacts = async () => {
@@ -65,8 +69,16 @@ export default function ContactsPage() {
     }
   }
 
+  const loadProjectUsers = async () => {
+    try {
+      const res = await apiClient.get(`/projects/${projectId}/members`)
+      const members = res.data as { user: { id: string; email: string; fullName?: string } }[]
+      setProjectUsers(members.map(m => m.user))
+    } catch { /* non-critical */ }
+  }
+
   const resetForm = () => {
-    setFormData({ contactName: '', contactType: '', companyName: '', email: '', phone: '', roleDescription: '' })
+    setFormData({ contactName: '', contactType: '', companyName: '', email: '', phone: '', roleDescription: '', userId: '' })
     setErrors({})
     setEditingContact(null)
   }
@@ -89,7 +101,8 @@ export default function ContactsPage() {
       companyName: contact.companyName || '',
       email: contact.email || '',
       phone: contact.phone || '',
-      roleDescription: contact.roleDescription || ''
+      roleDescription: contact.roleDescription || '',
+      userId: contact.userId || ''
     })
     setErrors({})
     setDialogOpen(true)
@@ -99,10 +112,15 @@ export default function ContactsPage() {
     if (!projectId) return
     const validationErrors = validateContactForm({
       contact_name: formData.contactName,
+      contact_type: formData.contactType,
       email: formData.email,
-      phone: formData.phone
+      phone: formData.phone,
+      company_name: formData.companyName,
+      role_description: formData.roleDescription
     })
-    if (!formData.contactType) validationErrors.contactType = t('contacts.typeRequired')
+    if (!formData.email && !formData.phone) {
+      validationErrors.email = t('contacts.emailOrPhoneRequired')
+    }
     setErrors(validationErrors)
     if (hasErrors(validationErrors)) return
 
@@ -114,7 +132,8 @@ export default function ContactsPage() {
         company_name: formData.companyName || undefined,
         email: formData.email || undefined,
         phone: formData.phone || undefined,
-        role_description: formData.roleDescription || undefined
+        role_description: formData.roleDescription || undefined,
+        user_id: formData.userId || undefined
       }
       if (editingContact) {
         await contactsApi.update(projectId, editingContact.id, payload)
@@ -276,6 +295,8 @@ export default function ContactsPage() {
                     <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }}>{t('contacts.roleDescription')}</TableCell>
                     <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }}>{t('contacts.email')}</TableCell>
                     <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }}>{t('contacts.phone')}</TableCell>
+                    <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }}>{t('contacts.linkedUser')}</TableCell>
+                    <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }} align="center">{t('contacts.pendingApprovals')}</TableCell>
                     <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }} align="center">{t('common.actions')}</TableCell>
                   </TableRow>
                 </TableHead>
@@ -328,6 +349,30 @@ export default function ContactsPage() {
                           <Typography variant="body2" color="text.secondary">
                             {contact.phone || '—'}
                           </Typography>
+                        </TableCell>
+                        <TableCell>
+                          {contact.user ? (
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <Avatar name={contact.user.fullName || contact.user.email} size="small" />
+                              <Typography variant="body2" color="text.secondary">
+                                {contact.user.fullName || contact.user.email}
+                              </Typography>
+                            </Box>
+                          ) : (
+                            <Typography variant="body2" color="text.disabled">—</Typography>
+                          )}
+                        </TableCell>
+                        <TableCell align="center">
+                          {(contact.pendingApprovalsCount ?? 0) > 0 ? (
+                            <Chip
+                              label={contact.pendingApprovalsCount}
+                              size="small"
+                              color="warning"
+                              icon={<AssignmentIcon sx={{ fontSize: 14 }} />}
+                            />
+                          ) : (
+                            <Typography variant="body2" color="text.disabled">0</Typography>
+                          )}
                         </TableCell>
                         <TableCell align="center">
                           <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center' }}>
@@ -413,6 +458,22 @@ export default function ContactsPage() {
             rows={2}
             value={formData.roleDescription}
             onChange={(e) => setFormData({ ...formData, roleDescription: e.target.value })}
+          />
+          <Autocomplete
+            options={projectUsers}
+            getOptionLabel={(opt) => opt.fullName ? `${opt.fullName} (${opt.email})` : opt.email}
+            value={projectUsers.find(u => u.id === formData.userId) || null}
+            onChange={(_, val) => setFormData({ ...formData, userId: val?.id || '' })}
+            renderInput={(params) => (
+              <MuiTextField
+                {...params}
+                label={t('contacts.linkedUser')}
+                helperText={t('contacts.linkedUserHint')}
+                size="small"
+              />
+            )}
+            size="small"
+            isOptionEqualToValue={(opt, val) => opt.id === val.id}
           />
         </Box>
       </FormModal>

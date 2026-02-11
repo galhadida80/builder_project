@@ -56,6 +56,12 @@ export interface Project {
   members?: ProjectMember[]
 }
 
+export interface LinkedUser {
+  id: string
+  email: string
+  fullName?: string
+}
+
 export interface Contact {
   id: string
   projectId: string
@@ -66,6 +72,9 @@ export interface Contact {
   phone?: string
   roleDescription?: string
   isPrimary: boolean
+  userId?: string
+  user?: LinkedUser
+  pendingApprovalsCount?: number
   createdAt: string
 }
 

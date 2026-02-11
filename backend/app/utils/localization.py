@@ -70,6 +70,10 @@ DEFAULT_MESSAGES: Dict[str, Dict[str, str]] = {
         'area_not_found': 'Area not found',
         'contact_not_found': 'Contact not found',
         'file_not_found': 'File not found',
+        'password_reset_sent': 'If an account exists with this email, a password reset link has been sent.',
+        'invalid_reset_token': 'Invalid or expired reset token.',
+        'password_reset_success': 'Password has been reset successfully.',
+        'not_assigned_approver': 'You are not the assigned approver for this step.',
     },
     'he': {
         'email_already_registered': 'הדוא״ל כבר רשום',
@@ -95,6 +99,10 @@ DEFAULT_MESSAGES: Dict[str, Dict[str, str]] = {
         'area_not_found': 'האזור לא נמצא',
         'contact_not_found': 'איש הקשר לא נמצא',
         'file_not_found': 'הקובץ לא נמצא',
+        'password_reset_sent': 'אם קיים חשבון עם דוא״ל זה, נשלח קישור לאיפוס סיסמה.',
+        'invalid_reset_token': 'טוקן איפוס לא תקין או שפג תוקפו.',
+        'password_reset_success': 'הסיסמה אופסה בהצלחה.',
+        'not_assigned_approver': 'אינך המאשר המוקצה לשלב זה.',
     }
 }
 

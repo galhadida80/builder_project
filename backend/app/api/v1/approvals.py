@@ -5,7 +5,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -14,6 +14,7 @@ from app.core.security import get_current_user, verify_project_access
 from app.db.session import get_db
 from app.models.approval import ApprovalRequest, ApprovalStep
 from app.models.audit import AuditAction
+from app.models.contact import Contact
 from app.models.equipment import ApprovalStatus, Equipment
 from app.models.material import Material
 from app.models.project import ProjectMember
@@ -32,6 +33,25 @@ class ApprovalAction(BaseModel):
 
 class ApprovalComments(BaseModel):
     comments: Optional[str] = None
+
+
+async def verify_contact_assignment(
+    step: ApprovalStep, current_user: User, db: AsyncSession, request: Request = None
+):
+    if current_user.is_super_admin:
+        return
+    if not step.contact_id:
+        return
+    result = await db.execute(
+        select(Contact).where(Contact.id == step.contact_id)
+    )
+    contact = result.scalar_one_or_none()
+    if not contact or not contact.user_id:
+        return
+    if contact.user_id != current_user.id:
+        language = get_language_from_request(request) if request else "en"
+        error_message = translate_message("not_assigned_approver", language)
+        raise HTTPException(status_code=403, detail=error_message)
 
 
 @router.get("/approvals", response_model=list[ApprovalRequestResponse])
@@ -124,6 +144,8 @@ async def process_approval_step(
         language = get_language_from_request(request)
         error_message = translate_message('validation.validation_error', language)
         raise HTTPException(status_code=400, detail=error_message)
+
+    await verify_contact_assignment(step, current_user, db, request)
 
     approval_request = step.approval_request
 
@@ -230,6 +252,8 @@ async def approve_request(
         language = get_language_from_request(request)
         raise HTTPException(status_code=400, detail="No pending steps")
 
+    await verify_contact_assignment(step, current_user, db, request)
+
     step.status = "approved"
     step.approved_by_id = current_user.id
     if data:
@@ -294,6 +318,8 @@ async def reject_request(
         language = get_language_from_request(request)
         raise HTTPException(status_code=400, detail="No pending steps")
 
+    await verify_contact_assignment(step, current_user, db, request)
+
     step.status = "rejected"
     step.approved_by_id = current_user.id
     if data:
@@ -314,7 +340,10 @@ async def list_my_pending_approvals(
     accessible_projects = select(ProjectMember.project_id).where(
         ProjectMember.user_id == current_user.id
     )
-    result = await db.execute(
+
+    my_contact_ids = select(Contact.id).where(Contact.user_id == current_user.id)
+
+    query = (
         select(ApprovalRequest)
         .options(
             selectinload(ApprovalRequest.created_by),
@@ -324,8 +353,17 @@ async def list_my_pending_approvals(
         .where(
             ApprovalRequest.project_id.in_(accessible_projects),
             ApprovalStep.status == "pending",
-            ApprovalRequest.current_status.in_([ApprovalStatus.SUBMITTED.value, ApprovalStatus.UNDER_REVIEW.value])
+            ApprovalRequest.current_status.in_([ApprovalStatus.SUBMITTED.value, ApprovalStatus.UNDER_REVIEW.value]),
         )
-        .order_by(ApprovalRequest.created_at.desc())
     )
+
+    if not current_user.is_super_admin:
+        query = query.where(
+            or_(
+                ApprovalStep.contact_id.is_(None),
+                ApprovalStep.contact_id.in_(my_contact_ids),
+            )
+        )
+
+    result = await db.execute(query.order_by(ApprovalRequest.created_at.desc()))
     return result.scalars().unique().all()

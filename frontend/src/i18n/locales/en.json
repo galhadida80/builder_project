@@ -581,7 +581,8 @@
     "commentsOptional": "Comments (optional)",
     "rejectionReason": "Rejection Reason",
     "approvalCommentPlaceholder": "Add any comments for this approval...",
-    "rejectionPlaceholder": "Please provide a reason for rejection..."
+    "rejectionPlaceholder": "Please provide a reason for rejection...",
+    "notAuthorized": "You are not the assigned approver for this step."
   },
   "teamMembers": {
     "title": "Team Members",
@@ -735,6 +736,7 @@
     "deleteSuccess": "Contact deleted successfully!",
     "failedToDelete": "Failed to delete contact",
     "typeRequired": "Contact type is required",
+    "emailOrPhoneRequired": "Email or phone is required",
     "noContacts": "No Contacts Found",
     "noContactsDescription": "Add contacts to manage your project stakeholders",
     "contactName": "Contact Name",
@@ -745,7 +747,10 @@
     "roleDescription": "Role Description",
     "deleteContact": "Delete Contact",
     "deleteConfirmationMessage": "Are you sure you want to delete {{name}}? This action cannot be undone.",
-    "primary": "Primary"
+    "primary": "Primary",
+    "linkedUser": "Linked User",
+    "linkedUserHint": "Link this contact to a system user for approval enforcement",
+    "pendingApprovals": "Pending Approvals"
   },
   "rfis": {
     "title": "RFIs",
@@ -995,7 +1000,10 @@
     "workloadDistribution": "Workload Distribution",
     "underUtilizedRange": "Under-utilized (0-60%)",
     "optimalRange": "Optimal (61-90%)",
-    "highOverRange": "High/Over (91%+)"
+    "highOverRange": "High/Over (91%+)",
+    "memberName": "Name",
+    "role": "Role",
+    "team": "Team"
   },
   "workloadCalendar": {
     "title": "Workload Calendar",

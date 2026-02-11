@@ -688,7 +688,8 @@
     "commentsOptional": "הערות (אופציונלי)",
     "rejectionReason": "סיבת דחייה",
     "approvalCommentPlaceholder": "הוסף הערות לאישור זה...",
-    "rejectionPlaceholder": "אנא ספק סיבה לדחייה..."
+    "rejectionPlaceholder": "אנא ספק סיבה לדחייה...",
+    "notAuthorized": "אינך המאשר המוקצה לשלב זה."
   },
   "teamMembers": {
     "title": "חברי צוות",
@@ -842,6 +843,7 @@
     "deleteSuccess": "איש הקשר נמחק בהצלחה!",
     "failedToDelete": "נכשל במחיקת איש קשר",
     "typeRequired": "סוג איש קשר נדרש",
+    "emailOrPhoneRequired": "יש להזין דוא\"ל או טלפון",
     "noContacts": "לא נמצאו אנשי קשר",
     "noContactsDescription": "הוסף אנשי קשר לניהול בעלי העניין בפרויקט",
     "contactName": "שם איש קשר",
@@ -852,7 +854,10 @@
     "roleDescription": "תיאור תפקיד",
     "deleteContact": "מחק איש קשר",
     "deleteConfirmationMessage": "האם אתה בטוח שברצונך למחוק את {{name}}? פעולה זו לא ניתנת לביטול.",
-    "primary": "ראשי"
+    "primary": "ראשי",
+    "linkedUser": "משתמש מקושר",
+    "linkedUserHint": "קשר איש קשר זה למשתמש במערכת לאכיפת אישורים",
+    "pendingApprovals": "אישורים ממתינים"
   },
   "rfis": {
     "title": "בקשות מידע",
@@ -1102,7 +1107,10 @@
     "workloadDistribution": "התפלגות עומס עבודה",
     "underUtilizedRange": "ניצול חסר (0-60%)",
     "optimalRange": "אופטימלי (61-90%)",
-    "highOverRange": "גבוה/מעבר (91%+)"
+    "highOverRange": "גבוה/מעבר (91%+)",
+    "memberName": "שם",
+    "role": "תפקיד",
+    "team": "צוות"
   },
   "workloadCalendar": {
     "title": "לוח עומס עבודה",

@@ -9,6 +9,7 @@ interface ContactCreate {
   phone?: string
   role_description?: string
   is_primary?: boolean
+  user_id?: string
 }
 
 interface ContactUpdate {
@@ -19,6 +20,7 @@ interface ContactUpdate {
   phone?: string
   role_description?: string
   is_primary?: boolean
+  user_id?: string | null
 }
 
 export const contactsApi = {

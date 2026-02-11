@@ -1,8 +1,4 @@
 import { useState, useEffect } from 'react'
-import { Box, Chip, IconButton, Tooltip } from '@mui/material'
-import CheckCircleIcon from '@mui/icons-material/CheckCircle'
-import CancelIcon from '@mui/icons-material/Cancel'
-import VisibilityIcon from '@mui/icons-material/Visibility'
 import { useTranslation } from 'react-i18next'
 import { DataTable, Column } from './ui/DataTable'
 import { StatusBadge } from './ui/StatusBadge'
@@ -13,6 +9,8 @@ import { EmptyState } from './ui/EmptyState'
 import { approvalsApi } from '../api/approvals'
 import { useToast } from './common/ToastProvider'
 import type { ApprovalRequest } from '../types'
+import { CheckCircleIcon, CancelIcon, VisibilityIcon } from '@/icons'
+import { Box, Chip, IconButton, Tooltip } from '@/mui'
 
 interface ApprovalQueueListProps {
   onViewDetails?: (approval: ApprovalRequest) => void
@@ -111,8 +109,12 @@ export function ApprovalQueueList({ onViewDetails }: ApprovalQueueListProps) {
       setActionType(null)
       setComment('')
       loadData()
-    } catch {
-      showError(t('approvalQueue.failedToAction', { action: actionType }))
+    } catch (err: any) {
+      if (err?.response?.status === 403) {
+        showError(t('approvalQueue.notAuthorized'))
+      } else {
+        showError(t('approvalQueue.failedToAction', { action: actionType }))
+      }
     } finally {
       setSubmitting(false)
     }
