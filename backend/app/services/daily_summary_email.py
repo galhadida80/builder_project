@@ -1,6 +1,3 @@
-from datetime import date
-
-
 STRINGS = {
     "en": {
         "subject": "Daily Summary - {project_name} ({date})",

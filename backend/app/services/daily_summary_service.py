@@ -13,7 +13,6 @@ from app.models.material import Material
 from app.models.material_template import MaterialApprovalSubmission
 from app.models.meeting import Meeting
 from app.models.rfi import RFI
-from app.models.user import User
 
 
 async def collect_project_daily_summary(
