@@ -1,0 +1,105 @@
+{
+  "id": "EPIC-13",
+  "title": "Daily Work Summary Email",
+  "description": "Automated daily email summarizing all activity/progress across projects. Cloud Scheduler triggers a backend endpoint daily at 6 PM Israel time (Sun-Thu). The endpoint iterates active projects, queries that day's activity, renders a localized HTML email per project_admin user, and sends via EmailService. Projects with no activity are skipped. Secured by shared secret header (machine-to-machine, no JWT).",
+  "status": "done",
+  "priority": "medium",
+  "stories": [
+    {
+      "id": "STORY-13-1",
+      "title": "Database Migration - daily_summary_enabled",
+      "description": "Add daily_summary_enabled Boolean column to projects table (default=true, not null). Alembic migration 020.",
+      "status": "done",
+      "acceptance_criteria": [
+        "Migration 020 adds daily_summary_enabled column to projects table",
+        "Default value is true, column is NOT NULL",
+        "Down migration drops the column cleanly"
+      ]
+    },
+    {
+      "id": "STORY-13-2",
+      "title": "Project Model & Schema Update",
+      "description": "Add daily_summary_enabled field to Project model, ProjectResponse schema, and ProjectUpdate schema.",
+      "status": "done",
+      "acceptance_criteria": [
+        "Project model has daily_summary_enabled: Mapped[bool]",
+        "ProjectResponse includes daily_summary_enabled: bool = True",
+        "ProjectUpdate includes daily_summary_enabled: Optional[bool] = None",
+        "Existing project settings UI can toggle the field"
+      ]
+    },
+    {
+      "id": "STORY-13-3",
+      "title": "Daily Summary Data Collection Service",
+      "description": "Service that collects daily project activity: audit log entries, equipment/materials created/approved/rejected, inspections completed, RFIs opened/answered/closed/overdue, pending approvals count, upcoming meetings (7-day window), and overall construction area progress.",
+      "status": "done",
+      "acceptance_criteria": [
+        "collect_project_daily_summary(db, project_id, summary_date) returns dict",
+        "Queries audit_logs grouped by (entity_type, action) capped at 50",
+        "Equipment/Materials: count created/approved/rejected within the day",
+        "Inspections: count completed, count new findings",
+        "RFIs: count opened/answered/closed today + overdue count",
+        "Pending approvals: count equipment + material submissions with pending_review",
+        "Upcoming meetings: next 7 days",
+        "Overall progress: average current_progress from ConstructionArea",
+        "Returns has_activity flag (true if any counts > 0 or audit entries exist)"
+      ]
+    },
+    {
+      "id": "STORY-13-4",
+      "title": "HTML Email Renderer with i18n",
+      "description": "Renders a professional HTML email with inline CSS, RTL support for Hebrew, and localized strings (en/he). Sections: Activity Overview, Equipment & Materials, Inspections, RFIs, Pending Approvals, Upcoming Meetings, Project Progress bar.",
+      "status": "done",
+      "acceptance_criteria": [
+        "render_daily_summary_email() returns (subject, body_html)",
+        "Inline CSS for email client compatibility (max-width 600px centered)",
+        "RTL support: dir=rtl for Hebrew, correct text alignment",
+        "Localized strings dict for en and he",
+        "Empty sections are hidden (no empty tables)",
+        "Progress bar with color coding (green >= 60%, amber >= 30%, red < 30%)",
+        "View in BuilderOps CTA link using frontend_url",
+        "Construction-themed colors (blues/grays, amber for warnings)"
+      ]
+    },
+    {
+      "id": "STORY-13-5",
+      "title": "Trigger API Endpoint",
+      "description": "POST /api/v1/tasks/daily-summary endpoint secured by X-Scheduler-Secret header. Iterates active projects with daily_summary_enabled=True, collects summaries, sends emails to project_admin users in their preferred language.",
+      "status": "done",
+      "acceptance_criteria": [
+        "POST /api/v1/tasks/daily-summary validates X-Scheduler-Secret header",
+        "Returns 403 for invalid secret",
+        "Optional ?summary_date query param, defaults to today",
+        "Filters projects by status=active AND daily_summary_enabled=True",
+        "Skips projects with no activity (has_activity=False)",
+        "Gets project_admin members for each project",
+        "Sends email per admin in their user.language (en/he)",
+        "Returns JSON results array with status per project/email"
+      ]
+    },
+    {
+      "id": "STORY-13-6",
+      "title": "Config & CD Pipeline Update",
+      "description": "Add scheduler_secret to Settings config and SCHEDULER_SECRET env var to Cloud Run CD pipeline.",
+      "status": "done",
+      "acceptance_criteria": [
+        "scheduler_secret in Settings with dev default value",
+        "SCHEDULER_SECRET added to cd.yml backend deploy env vars",
+        "Router registers daily_summary at /tasks prefix"
+      ]
+    },
+    {
+      "id": "STORY-13-7",
+      "title": "Cloud Scheduler Setup (Manual)",
+      "description": "Configure GCP Cloud Scheduler to trigger the endpoint daily at 6 PM Israel time (Sun-Thu). Schedule: 0 18 * * 0-4, timezone: Asia/Jerusalem.",
+      "status": "planned",
+      "acceptance_criteria": [
+        "Cloud Scheduler job created in me-west1 region",
+        "Schedule: 0 18 * * 0-4 (6 PM Sun-Thu, Israeli work week)",
+        "Timezone: Asia/Jerusalem",
+        "HTTP POST to /api/v1/tasks/daily-summary with X-Scheduler-Secret header",
+        "Attempt deadline: 300s"
+      ]
+    }
+  ]
+}

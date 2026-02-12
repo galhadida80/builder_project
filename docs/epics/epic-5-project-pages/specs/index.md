@@ -22,5 +22,8 @@
 | 123-create-material-inventory-grid | Material grid (v2) |
 | 124-build-equipment-tracking-table | Equipment table (v2) |
 | 125-create-project-overview-page | Project overview (v2) |
+| 023-meeting-type-field-uses-wrong-property-name | Meeting type field bug fix |
+| 024-api-field-name-mismatch-project-creation | API field name mismatch fix |
+| 030-implement-local-file-storage-for-development-s3-fo | Local file storage for dev |
 
-**Total: 20 specs**
+**Total: 23 specs**

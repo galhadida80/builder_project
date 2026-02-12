@@ -45,6 +45,8 @@ class Settings(BaseSettings):
     sendgrid_from_email: str = ""
     sendgrid_from_name: str = "Construction Platform"
 
+    scheduler_secret: str = "dev-scheduler-secret-change-in-production"
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"

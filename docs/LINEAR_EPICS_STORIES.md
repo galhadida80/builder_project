@@ -1035,22 +1035,224 @@ As a developer, I need integration tests for the RFI system.
 
 ---
 
+## EPIC 12: AI Chat with Project Data
+**Description:** AI-powered chat interface that allows users to query their project data using natural language. Uses Pydantic AI with Gemini function calling to execute safe, parameterized queries against structured project data.
+**Priority:** P1 - High
+**Estimate:** 18 points
+**Status:** Complete (except WhatsApp Phase 2)
+
+### User Stories:
+
+#### US-12.1: Backend Chat Models & Database Schema
+**Title:** Create Chat Database Models and Migration
+**Description:**
+As a developer, I need database tables for chat conversations and messages so that chat history is persisted per project/user.
+
+**Acceptance Criteria:**
+- [x] ChatConversation model with project_id, user_id, title, timestamps
+- [x] ChatMessage model with conversation_id, role, content, tool_calls JSONB, tool_results JSONB
+- [x] Alembic migration 010 creates both tables with proper indexes and foreign keys
+**Estimate:** 3 points
+**Labels:** backend, database, ai-chat
+
+#### US-12.2: Chat Query Tools (13 tools)
+**Title:** Implement Chat Query Functions
+**Description:**
+As a developer, I need 13 async query tools that retrieve project data securely for the AI agent.
+
+**Acceptance Criteria:**
+- [x] 13 tools: project summary, equipment, materials, RFIs, inspections, meetings, approvals, areas, contacts, documents
+- [x] All tools execute parameterized SQL queries (no raw SQL)
+- [x] project_id always injected server-side, never from LLM
+- [x] Results limited to max 50 items to prevent token overflow
+**Estimate:** 3 points
+**Labels:** backend, ai-chat, tools
+
+#### US-12.3: Pydantic AI Chat Service (Gemini Orchestrator)
+**Title:** Implement AI Agent with Gemini Function Calling
+**Description:**
+As a developer, I need a Pydantic AI agent that orchestrates tool calls and generates natural language responses.
+
+**Acceptance Criteria:**
+- [x] Agent uses google-gla provider with Gemini 2.0 Flash
+- [x] 13 tools registered with descriptive docstrings for LLM
+- [x] Conversation history serialization/deserialization with ModelMessagesTypeAdapter
+- [x] System prompt instructs multi-language responses and tool-first behavior
+**Estimate:** 5 points
+**Labels:** backend, ai-chat, pydantic-ai
+
+#### US-12.4: Chat API Endpoints
+**Title:** Create Chat REST API Endpoints
+**Description:**
+As a developer, I need API endpoints for sending messages and managing conversations.
+
+**Acceptance Criteria:**
+- [x] POST /projects/{project_id}/chat sends message and returns user+assistant messages
+- [x] GET /projects/{project_id}/chat/conversations lists conversations
+- [x] GET /projects/{project_id}/chat/conversations/{id} returns full history
+- [x] DELETE /projects/{project_id}/chat/conversations/{id} deletes conversation
+**Estimate:** 2 points
+**Labels:** backend, api, ai-chat
+
+#### US-12.5: Frontend Chat UI Components
+**Title:** Build Chat Drawer with FAB Trigger
+**Description:**
+As a user, I want a chat interface to ask questions about my project data in natural language.
+
+**Acceptance Criteria:**
+- [x] FAB button (bottom-right) visible when a project is selected
+- [x] Right-side drawer (420px) with chat interface
+- [x] User/assistant message bubbles with AI icon
+- [x] Quick suggestion chips for common queries
+- [x] Conversation history list with load/delete
+- [x] i18n translations for EN, HE, ES
+**Estimate:** 3 points
+**Labels:** frontend, ai-chat, ui
+
+#### US-12.6: Propose-Confirm Action System
+**Title:** Implement AI Propose-Confirm for Write Operations
+**Description:**
+As a user, I want the AI to propose actions (status changes, approvals) that I can approve or reject before execution.
+
+**Acceptance Criteria:**
+- [x] ChatAction model in chat_actions table with FK to conversations & messages
+- [x] 11 propose_* tools create ChatAction records (status=proposed)
+- [x] Executor with 10 handlers (update statuses, create entities, approve submissions)
+- [x] API: POST .../chat/actions/{id}/execute and .../reject
+- [x] Frontend: ChatActionCard with Approve/Reject buttons
+**Estimate:** 5 points
+**Labels:** backend, frontend, ai-chat
+
+#### US-12.7: WhatsApp Integration (Phase 2 - Future)
+**Title:** Add WhatsApp Channel for AI Chat
+**Description:**
+As a field user, I want to chat with project data via WhatsApp.
+
+**Acceptance Criteria:**
+- [ ] WhatsApp webhook endpoint receives messages
+- [ ] User identified by phone number mapping
+- [ ] Reuses same chat_service orchestrator
+**Estimate:** 5 points
+**Labels:** backend, ai-chat, whatsapp, future
+**Status:** Planned
+
+---
+
+## EPIC 13: Daily Work Summary Email
+**Description:** Automated daily email summarizing all activity/progress across projects. Cloud Scheduler triggers at 6 PM Israel time (Sun-Thu). Skips projects with no activity.
+**Priority:** P2 - Medium
+**Estimate:** 10 points
+**Status:** Complete (except Cloud Scheduler manual setup)
+
+### User Stories:
+
+#### US-13.1: Database Migration
+**Title:** Add daily_summary_enabled Column
+**Description:**
+As an admin, I need a per-project toggle for daily summary emails.
+
+**Acceptance Criteria:**
+- [x] Migration 020 adds daily_summary_enabled Boolean to projects (default=true)
+- [x] Project model updated with new field
+- [x] ProjectResponse and ProjectUpdate schemas updated
+**Estimate:** 1 point
+**Labels:** backend, database, daily-summary
+
+#### US-13.2: Daily Summary Data Collection Service
+**Title:** Collect Project Activity for Summary Email
+**Description:**
+As the system, I need to query all relevant project activity for a given date.
+
+**Acceptance Criteria:**
+- [x] Audit log entries grouped by (entity_type, action)
+- [x] Equipment/Materials: created/approved/rejected counts for the day
+- [x] Inspections: completed count and new findings count
+- [x] RFIs: opened/answered/closed today + overdue count
+- [x] Pending approvals: equipment + material submission counts
+- [x] Upcoming meetings: next 7 days
+- [x] Overall progress: avg ConstructionArea.current_progress
+- [x] has_activity flag to skip empty days
+**Estimate:** 3 points
+**Labels:** backend, service, daily-summary
+
+#### US-13.3: HTML Email Renderer with i18n
+**Title:** Render Localized Daily Summary Email
+**Description:**
+As a project admin, I want a professional HTML email summarizing daily activity in my preferred language.
+
+**Acceptance Criteria:**
+- [x] Inline CSS for email client compatibility (600px max-width)
+- [x] RTL support for Hebrew (dir="rtl")
+- [x] Localized strings for en and he
+- [x] Sections: Activity Overview, Equipment & Materials, Inspections, RFIs, Pending Approvals, Upcoming Meetings, Progress bar
+- [x] Empty sections hidden
+- [x] "View in BuilderOps" CTA link
+**Estimate:** 3 points
+**Labels:** backend, email, daily-summary, i18n
+
+#### US-13.4: Trigger API Endpoint
+**Title:** Create POST /tasks/daily-summary Endpoint
+**Description:**
+As Cloud Scheduler, I need an HTTP endpoint to trigger the daily summary job.
+
+**Acceptance Criteria:**
+- [x] POST /api/v1/tasks/daily-summary secured by X-Scheduler-Secret header
+- [x] 403 for invalid secret
+- [x] Optional ?summary_date query param
+- [x] Iterates active projects with daily_summary_enabled=True
+- [x] Skips projects with no activity
+- [x] Sends email per project_admin in their user.language
+- [x] Returns JSON results array
+**Estimate:** 2 points
+**Labels:** backend, api, daily-summary
+
+#### US-13.5: Config & CD Pipeline
+**Title:** Add Scheduler Secret and Deploy Configuration
+**Description:**
+As a DevOps engineer, I need the scheduler secret configured in settings and CD pipeline.
+
+**Acceptance Criteria:**
+- [x] scheduler_secret in Settings with dev default
+- [x] SCHEDULER_SECRET env var added to cd.yml
+- [x] Router registers daily_summary at /tasks prefix
+**Estimate:** 1 point
+**Labels:** backend, devops, daily-summary
+
+#### US-13.6: Cloud Scheduler Setup (Manual)
+**Title:** Configure GCP Cloud Scheduler Job
+**Description:**
+As a DevOps engineer, I need to create the Cloud Scheduler job to trigger daily summaries.
+
+**Acceptance Criteria:**
+- [ ] Cloud Scheduler job in me-west1 region
+- [ ] Schedule: 0 18 * * 0-4 (6 PM Sun-Thu Israeli work week)
+- [ ] Timezone: Asia/Jerusalem
+- [ ] HTTP POST with X-Scheduler-Secret header
+- [ ] Attempt deadline: 300s
+**Estimate:** 1 point
+**Labels:** devops, gcp, daily-summary
+**Status:** Planned
+
+---
+
 ## Summary
 
-| Epic | Stories | Total Points |
-|------|---------|--------------|
-| 1. Design System Foundation | 4 | 8 |
-| 2. Landing Page Implementation | 6 | 13 |
-| 3. Dashboard Views | 6 | 21 |
-| 4. Approval System UI | 5 | 13 |
-| 5. Project Management Pages | 6 | 18 |
-| 6. Inspection System UI | 5 | 15 |
-| 7. RTL & Internationalization | 3 | 8 |
-| 8. Mobile & Offline Experience | 4 | 10 |
-| 9. Component Library | 5 | 13 |
-| 10. Animations & Micro-interactions | 2 | 5 |
-| 11. RFI System (Email Integration) | 16 | 46 |
-| **TOTAL** | **62 stories** | **170 points** |
+| Epic | Stories | Total Points | Status |
+|------|---------|--------------|--------|
+| 1. Design System Foundation | 4 | 8 | Done |
+| 2. Landing Page Implementation | 6 | 13 | Done |
+| 3. Dashboard Views | 6 | 21 | Done |
+| 4. Approval System UI | 5 | 13 | Done |
+| 5. Project Management Pages | 6 | 18 | Done |
+| 6. Inspection System UI | 5 | 15 | Done |
+| 7. RTL & Internationalization | 3 | 8 | Done |
+| 8. Mobile & Offline Experience | 4 | 10 | Done |
+| 9. Component Library | 5 | 13 | Done |
+| 10. Animations & Micro-interactions | 2 | 5 | Done |
+| 11. RFI System (Email Integration) | 16 | 46 | Done |
+| 12. AI Chat with Project Data | 7 | 26 | Done (Phase 1) |
+| 13. Daily Work Summary Email | 6 | 11 | Done |
+| **TOTAL** | **75 stories** | **207 points** | |
 
 ---
 
@@ -1063,3 +1265,5 @@ As a developer, I need integration tests for the RFI system.
 5. **Sprint 5:** Epic 7 (RTL) + Epic 8 (Mobile) - Internationalization
 6. **Sprint 6:** Epic 2 (Landing) + Epic 10 (Animations) - Polish
 7. **Sprint 7:** Epic 11 (RFI System) - Email-integrated RFI workflow
+8. **Sprint 8:** Epic 12 (AI Chat) - Project data chat with Gemini
+9. **Sprint 9:** Epic 13 (Daily Summary) - Automated daily email reports

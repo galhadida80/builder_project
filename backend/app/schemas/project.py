@@ -45,6 +45,7 @@ class ProjectUpdate(BaseModel):
     start_date: Optional[date] = None
     estimated_end_date: Optional[date] = None
     status: Optional[str] = Field(default=None, max_length=50)
+    daily_summary_enabled: Optional[bool] = None
 
     @field_validator('name', 'description', 'address', mode='before')
     @classmethod
@@ -74,6 +75,7 @@ class ProjectResponse(CamelCaseModel):
     start_date: Optional[date] = None
     estimated_end_date: Optional[date] = None
     status: str
+    daily_summary_enabled: bool = True
     created_at: datetime
     updated_at: datetime
     members: list[ProjectMemberResponse] = []

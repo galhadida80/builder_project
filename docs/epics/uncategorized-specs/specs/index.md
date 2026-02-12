@@ -1,24 +1,26 @@
 # Uncategorized Specs
 
-| Spec | Description |
-|------|-------------|
-| 023-meeting-type-field-uses-wrong-property-name | Meeting type field fix |
-| 024-api-field-name-mismatch-project-creation | API field name mismatch |
-| 025-no-error-handling-feedback-when-api-calls-fail | Error handling feedback |
-| 026-add-form-validation-to-areas-creation | Areas form validation |
-| 027-add-form-validation-to-materials-creation | Materials form validation |
-| 028-add-form-validation-to-equipment-creation | Equipment form validation |
-| 029-login-form-bypasses-authentication-security-issue | Login security fix |
-| 030-implement-local-file-storage-for-development-s3-fo | Local file storage |
-| 031-add-form-validation-to-create-project-dialog | Project dialog validation |
-| 031-sql-injection-prevention | SQL injection prevention |
-| 032-remove-google-sign-in-button-feature-not-supported | Remove Google sign-in |
-| 032-xss-attack-prevention | XSS attack prevention |
-| 033-csrf-protection-implementation | CSRF protection |
-| 041-form-validation-enhancement | Form validation enhancement |
-| 139-add-aria-label-to-all-iconbutton-components-across | ARIA labels |
-| 141-add-keyboard-accessibility-and-aria-roles-to-inter | Keyboard accessibility |
-| 142-fix-non-functional-datatable-column-sorting | DataTable sorting fix |
-| 143-fix-header-user-menu-to-navigate-to-existing-setti | Header menu fix |
+All specs have been categorized and moved to their respective epics:
 
-**Total: 18 specs**
+| Spec | Moved To |
+|------|----------|
+| 023-meeting-type-field | epic-5-project-pages |
+| 024-api-field-name-mismatch | epic-5-project-pages |
+| 025-no-error-handling | epic-9-components |
+| 026-form-validation-areas | epic-9-components |
+| 027-form-validation-materials | epic-9-components |
+| 028-form-validation-equipment | epic-9-components |
+| 029-login-security | epic-4-approvals |
+| 030-local-file-storage | epic-5-project-pages |
+| 031-project-dialog-validation | epic-9-components |
+| 031-sql-injection-prevention | epic-4-approvals |
+| 032-remove-google-signin | epic-4-approvals |
+| 032-xss-prevention | epic-4-approvals |
+| 033-csrf-protection | epic-4-approvals |
+| 041-form-validation-enhancement | epic-9-components |
+| 139-aria-labels | epic-9-components |
+| 141-keyboard-accessibility | epic-9-components |
+| 142-datatable-sorting | epic-9-components |
+| 143-header-menu-fix | epic-9-components |
+
+**Total: 0 remaining specs**

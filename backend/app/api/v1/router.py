@@ -12,6 +12,7 @@ from app.api.v1 import (
     consultant_assignments,
     consultant_types,
     contacts,
+    daily_summary,
     document_analysis,
     document_reviews,
     equipment,
@@ -57,3 +58,4 @@ api_router.include_router(chat.router, tags=["chat"])
 api_router.include_router(inspections.router, tags=["inspections"])
 api_router.include_router(invitations.router, tags=["invitations"])
 api_router.include_router(admin.router, prefix="/admin", tags=["admin"])
+api_router.include_router(daily_summary.router, prefix="/tasks", tags=["tasks"])
