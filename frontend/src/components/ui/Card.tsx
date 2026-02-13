@@ -98,7 +98,7 @@ export function KPICard({
 
   return (
     <StyledCard hoverable={!!onClick} onClick={onClick} sx={{ cursor: onClick ? 'pointer' : 'default' }}>
-      <CardContent sx={{ p: { xs: 1.5, sm: 2, md: 2.5 } }}>
+      <CardContent sx={{ p: { xs: 1.25, sm: 1.5, md: 2 }, '&:last-child': { pb: { xs: 1.25, sm: 1.5, md: 2 } } }}>
         <Box sx={{
           display: 'flex',
           alignItems: 'flex-start',
@@ -112,19 +112,19 @@ export function KPICard({
               sx={{
                 color: 'text.secondary',
                 fontWeight: 500,
-                fontSize: { xs: '0.75rem', sm: '0.8rem' },
-                mb: 0.5,
+                fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                mb: 0.25,
               }}
             >
               {title}
             </Typography>
             <Typography
-              variant="h4"
+              variant="h5"
               sx={{
                 fontWeight: 700,
                 color: 'text.primary',
                 lineHeight: 1.2,
-                fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2rem' },
+                fontSize: { xs: '1.25rem', sm: '1.5rem', md: '1.625rem' },
                 wordBreak: 'break-word',
               }}
             >
@@ -134,8 +134,8 @@ export function KPICard({
           {icon && (
             <Box
               sx={{
-                p: { xs: 0.75, sm: 1 },
-                borderRadius: 2,
+                p: 0.75,
+                borderRadius: 1.5,
                 bgcolor: `${color}.main`,
                 color: 'white',
                 display: 'flex',
@@ -143,7 +143,7 @@ export function KPICard({
                 justifyContent: 'center',
                 flexShrink: 0,
                 '& > svg': {
-                  fontSize: { xs: '1.25rem', sm: '1.5rem' }
+                  fontSize: { xs: '1.1rem', sm: '1.25rem' }
                 }
               }}
             >

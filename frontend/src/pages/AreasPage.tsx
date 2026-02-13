@@ -87,7 +87,7 @@ function AreaNode({ area, level, onEdit, onDelete, t }: AreaNodeProps) {
               </Box>
 
               <Box>
-                <Typography variant="subtitle1" fontWeight={600}>{area.name}</Typography>
+                <Typography variant="body2" fontWeight={600}>{area.name}</Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
                   <Chip
                     label={area.areaCode}
@@ -353,8 +353,8 @@ export default function AreasPage() {
         sx={{
           display: 'grid',
           gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' },
-          gap: 2,
-          mb: 4,
+          gap: 1.5,
+          mb: 3,
         }}
       >
         <KPICard
@@ -444,8 +444,8 @@ export default function AreasPage() {
       </Card>
 
       <Card>
-        <Box sx={{ p: 2.5 }}>
-          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, gap: { xs: 1, sm: 0 }, mb: 3 }}>
+        <Box sx={{ p: 2 }}>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, gap: { xs: 1, sm: 0 }, mb: 2 }}>
             <Typography variant="h6" fontWeight={600} sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {t('areas.areaHierarchy')}
             </Typography>

@@ -207,8 +207,8 @@ export default function ProjectsPage() {
         sx={{
           display: 'grid',
           gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' },
-          gap: 2,
-          mb: 4,
+          gap: 1.5,
+          mb: 3,
         }}
       >
         <KPICard
@@ -238,14 +238,14 @@ export default function ProjectsPage() {
       </Box>
 
       <Card>
-        <Box sx={{ p: 2.5 }}>
+        <Box sx={{ p: 2 }}>
           <Box sx={{
             display: 'flex',
             flexDirection: { xs: 'column', sm: 'row' },
             justifyContent: 'space-between',
             alignItems: { xs: 'stretch', sm: 'center' },
-            gap: { xs: 1.5, sm: 2 },
-            mb: 3,
+            gap: { xs: 1, sm: 1.5 },
+            mb: 2,
           }}>
             <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', minWidth: 0, flex: 1 }}>
               <SearchField
@@ -288,100 +288,122 @@ export default function ProjectsPage() {
                 action={{ label: t('pages.projects.createProject'), onClick: handleOpenCreate }}
               />
             </Box>
+          ) : viewMode === 'list' ? (
+            <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 1 }}>
+              {filteredProjects.map((project) => (
+                <Card key={project.id} hoverable onClick={() => handleProjectClick(project.id)}>
+                  <Box sx={{ px: 2, py: 1.25, display: 'flex', alignItems: 'center', gap: 2, minWidth: 0 }}>
+                    <Box sx={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                      <Typography
+                        variant="body2"
+                        fontWeight={600}
+                        sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 }}
+                      >
+                        {project.name}
+                      </Typography>
+                      <Chip label={project.code} size="small" variant="outlined" sx={{ fontSize: '0.65rem', height: 20, flexShrink: 0 }} />
+                    </Box>
+                    {project.address && (
+                      <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 0.5, flexShrink: 0, maxWidth: 200 }}>
+                        <LocationOnIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                        <Typography variant="caption" color="text.secondary" noWrap>{project.address}</Typography>
+                      </Box>
+                    )}
+                    {project.startDate && (
+                      <Box sx={{ display: { xs: 'none', sm: 'flex' }, alignItems: 'center', gap: 0.5, flexShrink: 0 }}>
+                        <CalendarTodayIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                        <Typography variant="caption" color="text.secondary" noWrap>
+                          {new Date(project.startDate).toLocaleDateString()}
+                        </Typography>
+                      </Box>
+                    )}
+                    <Box sx={{ width: 100, flexShrink: 0, display: { xs: 'none', sm: 'block' } }}>
+                      <ProgressBar value={project.status === 'completed' ? 100 : project.status === 'active' ? 50 : 0} showValue={false} size="small" />
+                    </Box>
+                    <StatusBadge status={project.status} size="small" />
+                    <IconButton size="small" onClick={(e) => handleMenuOpen(e, project)} sx={{ flexShrink: 0, ml: -0.5 }}>
+                      <MoreVertIcon sx={{ fontSize: 18 }} />
+                    </IconButton>
+                  </Box>
+                </Card>
+              ))}
+            </Box>
           ) : (
             <Box
               sx={{
-                mt: 3,
+                mt: 2,
                 display: 'grid',
-                gridTemplateColumns: viewMode === 'grid'
-                  ? { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }
-                  : '1fr',
-                gap: 2,
+                gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(4, 1fr)' },
+                gap: 1.5,
               }}
             >
               {filteredProjects.map((project) => (
                 <Card key={project.id} hoverable onClick={() => handleProjectClick(project.id)}>
-                  <Box sx={{ p: { xs: 2, sm: 2.5 }, minWidth: 0 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2, minWidth: 0 }}>
+                  <Box sx={{ p: 1.75, minWidth: 0 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1, minWidth: 0 }}>
                       <Box sx={{ flex: 1, minWidth: 0 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5, minWidth: 0 }}>
-                          <Typography
-                            variant="subtitle1"
-                            fontWeight={600}
-                            sx={{
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap',
-                              minWidth: 0,
-                              flex: 1,
-                            }}
-                          >
-                            {project.name}
-                          </Typography>
-                          <StatusBadge status={project.status} size="small" />
-                        </Box>
-                        <Chip label={project.code} size="small" variant="outlined" sx={{ fontSize: '0.7rem' }} />
+                        <Typography
+                          variant="body2"
+                          fontWeight={600}
+                          sx={{
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            minWidth: 0,
+                            mb: 0.25,
+                          }}
+                        >
+                          {project.name}
+                        </Typography>
+                        <Chip label={project.code} size="small" variant="outlined" sx={{ fontSize: '0.65rem', height: 20 }} />
                       </Box>
-                      <IconButton size="small" onClick={(e) => handleMenuOpen(e, project)} sx={{ flexShrink: 0 }}>
-                        <MoreVertIcon fontSize="small" />
+                      <IconButton size="small" onClick={(e) => handleMenuOpen(e, project)} sx={{ flexShrink: 0, mt: -0.5, mr: -0.5 }}>
+                        <MoreVertIcon sx={{ fontSize: 18 }} />
                       </IconButton>
                     </Box>
 
                     {project.description && (
                       <Typography
-                        variant="body2"
+                        variant="caption"
                         color="text.secondary"
                         sx={{
-                          mb: 2,
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
+                          mb: 1,
                           display: '-webkit-box',
+                          overflow: 'hidden',
                           WebkitLineClamp: 2,
                           WebkitBoxOrient: 'vertical',
+                          lineHeight: 1.4,
                         }}
                       >
                         {project.description}
                       </Typography>
                     )}
 
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mb: 1.25 }}>
                       {project.address && (
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, minWidth: 0 }}>
-                          <LocationOnIcon sx={{ fontSize: 16, color: 'text.secondary', flexShrink: 0 }} />
-                          <Typography
-                            variant="caption"
-                            color="text.secondary"
-                            sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-                          >
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 0 }}>
+                          <LocationOnIcon sx={{ fontSize: 14, color: 'text.secondary', flexShrink: 0 }} />
+                          <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {project.address}
                           </Typography>
                         </Box>
                       )}
                       {project.startDate && (
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, minWidth: 0 }}>
-                          <CalendarTodayIcon sx={{ fontSize: 16, color: 'text.secondary', flexShrink: 0 }} />
-                          <Typography
-                            variant="caption"
-                            color="text.secondary"
-                            sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-                          >
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 0 }}>
+                          <CalendarTodayIcon sx={{ fontSize: 14, color: 'text.secondary', flexShrink: 0 }} />
+                          <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem' }}>
                             {new Date(project.startDate).toLocaleDateString()}
-                            {project.estimatedEndDate && (
-                              <> - {new Date(project.estimatedEndDate).toLocaleDateString()}</>
-                            )}
+                            {project.estimatedEndDate && <> - {new Date(project.estimatedEndDate).toLocaleDateString()}</>}
                           </Typography>
                         </Box>
                       )}
                     </Box>
 
-                    <Box>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                        <Typography variant="caption" color="text.secondary">{t('common.status')}</Typography>
-                        <Typography variant="caption" fontWeight={600} sx={{ textTransform: 'capitalize' }}>
-                          {t(`common.statuses.${project.status}`, { defaultValue: project.status.replace('_', ' ') })}
-                        </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
+                      <Box sx={{ flex: 1, minWidth: 0 }}>
+                        <ProgressBar value={project.status === 'completed' ? 100 : project.status === 'active' ? 50 : 0} showValue={false} size="small" />
                       </Box>
-                      <ProgressBar value={project.status === 'completed' ? 100 : project.status === 'active' ? 50 : 0} showValue={false} size="small" />
+                      <StatusBadge status={project.status} size="small" />
                     </Box>
                   </Box>
                 </Card>

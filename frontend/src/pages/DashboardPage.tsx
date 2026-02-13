@@ -120,7 +120,7 @@ export default function DashboardPage() {
         sx={{
           display: 'grid',
           gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' },
-          gap: 3,
+          gap: 1.5,
           mb: 3,
         }}
       >
@@ -154,12 +154,12 @@ export default function DashboardPage() {
         sx={{
           display: 'grid',
           gridTemplateColumns: { xs: '1fr', lg: '2fr 1fr' },
-          gap: 3,
+          gap: 2,
           mb: 3,
         }}
       >
         <Card>
-          <Box sx={{ p: 2.5 }}>
+          <Box sx={{ p: 2 }}>
             <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, gap: { xs: 1, sm: 0 }, mb: 2 }}>
               <Box sx={{ minWidth: 0 }}>
                 <Typography variant="h6" fontWeight={600} sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t('dashboard.pendingApprovals')}</Typography>
@@ -265,9 +265,9 @@ export default function DashboardPage() {
           </Box>
         </Card>
 
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           <Card>
-            <Box sx={{ p: 2.5 }}>
+            <Box sx={{ p: 2 }}>
               <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
                 {t('dashboard.completionRate')}
               </Typography>
@@ -302,7 +302,7 @@ export default function DashboardPage() {
           </Card>
 
           <Card>
-            <Box sx={{ p: 2.5 }}>
+            <Box sx={{ p: 2 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                 <Typography variant="h6" fontWeight={600}>{t('dashboard.quickActions')}</Typography>
               </Box>
@@ -381,11 +381,11 @@ export default function DashboardPage() {
         sx={{
           display: 'grid',
           gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' },
-          gap: 3,
+          gap: 2,
         }}
       >
         <Card>
-          <Box sx={{ p: 2.5 }}>
+          <Box sx={{ p: 2 }}>
             <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, gap: { xs: 1, sm: 0 }, mb: 2 }}>
               <Box sx={{ minWidth: 0 }}>
                 <Typography variant="h6" fontWeight={600} sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t('dashboard.upcomingMeetings')}</Typography>
@@ -465,7 +465,7 @@ export default function DashboardPage() {
         </Card>
 
         <Card>
-          <Box sx={{ p: 2.5 }}>
+          <Box sx={{ p: 2 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
               <Typography variant="h6" fontWeight={600}>{t('dashboard.recentActivity')}</Typography>
             </Box>
@@ -534,7 +534,7 @@ export default function DashboardPage() {
         </Card>
 
         <Card>
-          <Box sx={{ p: 2.5 }}>
+          <Box sx={{ p: 2 }}>
             <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, gap: { xs: 1, sm: 0 }, mb: 2 }}>
               <Typography variant="h6" fontWeight={600} sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t('dashboard.teamOverview')}</Typography>
               <Button

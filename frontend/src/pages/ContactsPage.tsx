@@ -231,8 +231,8 @@ export default function ContactsPage() {
         sx={{
           display: 'grid',
           gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' },
-          gap: 2,
-          mb: 4,
+          gap: 1.5,
+          mb: 3,
         }}
       >
         <KPICard
@@ -256,8 +256,8 @@ export default function ContactsPage() {
       </Box>
 
       <Card>
-        <Box sx={{ p: 2.5 }}>
-          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, gap: { xs: 1.5, sm: 0 }, mb: 3 }}>
+        <Box sx={{ p: 2 }}>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, gap: { xs: 1, sm: 0 }, mb: 2 }}>
             <SearchField
               placeholder={t('contacts.searchPlaceholder')}
               value={search}

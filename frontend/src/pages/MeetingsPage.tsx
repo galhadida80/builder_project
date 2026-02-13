@@ -230,8 +230,8 @@ export default function MeetingsPage() {
         sx={{
           display: 'grid',
           gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' },
-          gap: 2,
-          mb: 4,
+          gap: 1.5,
+          mb: 3,
         }}
       >
         <KPICard
@@ -255,8 +255,8 @@ export default function MeetingsPage() {
       </Box>
 
       <Card>
-        <Box sx={{ p: 2.5 }}>
-          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, gap: { xs: 1.5, sm: 0 }, mb: 3 }}>
+        <Box sx={{ p: 2 }}>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, gap: { xs: 1, sm: 0 }, mb: 2 }}>
             <Tabs
               items={[
                 { label: t('meetings.upcomingMeetings'), value: 'upcoming', badge: upcomingMeetings.length },
@@ -286,13 +286,13 @@ export default function MeetingsPage() {
             >
               {displayedMeetings.map((meeting) => (
                 <Card key={meeting.id} hoverable onClick={() => handleMeetingClick(meeting)}>
-                  <Box sx={{ p: 2.5 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2, gap: 1 }}>
-                      <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start', minWidth: 0, flex: 1 }}>
+                  <Box sx={{ p: 2 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1.5, gap: 1 }}>
+                      <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-start', minWidth: 0, flex: 1 }}>
                         <Box
                           sx={{
-                            width: 52,
-                            height: 52,
+                            width: 44,
+                            height: 44,
                             borderRadius: 2,
                             bgcolor: 'primary.main',
                             color: 'white',
@@ -310,7 +310,7 @@ export default function MeetingsPage() {
                           </Typography>
                         </Box>
                         <Box sx={{ minWidth: 0 }}>
-                          <Typography variant="subtitle1" fontWeight={600} sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          <Typography variant="body2" fontWeight={600} sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {meeting.title}
                           </Typography>
                           <Chip
@@ -324,7 +324,7 @@ export default function MeetingsPage() {
                       <StatusBadge status={meeting.status} size="small" />
                     </Box>
 
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75, mb: 2 }}>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mb: 1.5 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <AccessTimeIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
                         <Typography variant="body2" color="text.secondary">

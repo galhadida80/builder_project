@@ -312,8 +312,8 @@ export default function InspectionsPage() {
           sx={{
             display: 'grid',
             gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(6, 1fr)' },
-            gap: 2,
-            mb: 4,
+            gap: 1.5,
+            mb: 3,
           }}
         >
           <KPICard title={t('inspections.totalInspections')} value={summary.totalInspections} icon={<AssignmentIcon />} color="primary" />
@@ -325,9 +325,9 @@ export default function InspectionsPage() {
         </Box>
       )}
 
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '320px 1fr' }, gap: 3, mb: 4 }}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '320px 1fr' }, gap: 2, mb: 3 }}>
         <Card>
-          <Box sx={{ p: 2.5 }}>
+          <Box sx={{ p: 2 }}>
             <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
               {t('inspections.consultantTypes')}
             </Typography>
@@ -363,7 +363,7 @@ export default function InspectionsPage() {
         </Card>
 
         <Card>
-          <Box sx={{ p: 2.5 }}>
+          <Box sx={{ p: 2 }}>
             {selectedType ? (
               <>
                 <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, gap: { xs: 1, sm: 0 }, mb: 2 }}>
@@ -399,8 +399,8 @@ export default function InspectionsPage() {
       </Box>
 
       <Card>
-        <Box sx={{ p: 2.5 }}>
-          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, gap: { xs: 1.5, sm: 0 }, mb: 3 }}>
+        <Box sx={{ p: 2 }}>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, gap: { xs: 1, sm: 0 }, mb: 2 }}>
             <Typography variant="h6" fontWeight={600} sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {t('inspections.projectInspections')}
             </Typography>

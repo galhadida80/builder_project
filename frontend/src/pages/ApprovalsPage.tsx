@@ -147,8 +147,8 @@ export default function ApprovalsPage() {
         sx={{
           display: 'grid',
           gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' },
-          gap: 2,
-          mb: 4,
+          gap: 1.5,
+          mb: 3,
         }}
       >
         <KPICard
@@ -178,8 +178,8 @@ export default function ApprovalsPage() {
       </Box>
 
       <Card>
-        <Box sx={{ p: 2.5 }}>
-          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, gap: { xs: 1.5, sm: 0 }, mb: 3 }}>
+        <Box sx={{ p: 2 }}>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, gap: { xs: 1, sm: 0 }, mb: 2 }}>
             <SearchField
               placeholder={t('approvals.searchPlaceholder')}
               value={searchQuery}
@@ -200,7 +200,7 @@ export default function ApprovalsPage() {
             size="small"
           />
 
-          <Box sx={{ mt: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
             {displayedApprovals.length === 0 ? (
               <EmptyState
                 title={tabValue === 'pending' ? t('approvals.noPending') : t('approvals.noApprovals')}
@@ -216,7 +216,7 @@ export default function ApprovalsPage() {
 
                 return (
                   <Card key={approval.id} hoverable>
-                    <Box sx={{ p: 2.5 }}>
+                    <Box sx={{ p: 2 }}>
                       <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-start', gap: { xs: 2, sm: 0 } }}>
                         <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start', flex: 1, minWidth: 0 }}>
                           <Box
@@ -238,7 +238,7 @@ export default function ApprovalsPage() {
                           </Box>
                           <Box sx={{ flex: 1 }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
-                              <Typography variant="subtitle1" fontWeight={600}>
+                              <Typography variant="body2" fontWeight={600}>
                                 {entity?.name || t('approvals.unknown')}
                               </Typography>
                               <StatusBadge status={approval.currentStatus} />
