@@ -27,7 +27,7 @@ export default function ProjectSelector({ projects, currentProject, onProjectCha
   }
 
   return (
-    <FormControl size="small" sx={{ minWidth: 280 }}>
+    <FormControl size="small" sx={{ minWidth: { xs: 0, sm: 200, md: 280 }, maxWidth: { xs: 140, sm: 200, md: 300 }, width: '100%' }}>
       <Select
         value={currentProject?.id || ''}
         onChange={handleChange}
@@ -39,16 +39,25 @@ export default function ProjectSelector({ projects, currentProject, onProjectCha
         }}
         renderValue={(selected) => {
           if (!selected) {
-            return <Typography color="text.secondary">{t('projectSelector.selectAProject')}</Typography>
+            return (
+              <Typography
+                color="text.secondary"
+                sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+              >
+                {t('projectSelector.selectAProject')}
+              </Typography>
+            )
           }
           const project = projects.find(p => p.id === selected)
           return (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Typography>{project?.name}</Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0, overflow: 'hidden' }}>
+              <Typography sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0, flex: 1 }}>
+                {project?.name}
+              </Typography>
               <Chip
                 label={project?.code}
                 size="small"
-                sx={{ height: 20, fontSize: '0.7rem' }}
+                sx={{ height: 20, fontSize: '0.7rem', flexShrink: 0, display: { xs: 'none', sm: 'flex' } }}
               />
             </Box>
           )

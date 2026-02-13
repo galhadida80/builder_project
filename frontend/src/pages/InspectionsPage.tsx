@@ -295,7 +295,7 @@ export default function InspectionsPage() {
   }
 
   return (
-    <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
+    <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 }, maxWidth: '100%', overflow: 'hidden' }}>
       <PageHeader
         title={t('inspections.title')}
         subtitle={t('inspections.subtitle')}
@@ -366,14 +366,14 @@ export default function InspectionsPage() {
           <Box sx={{ p: 2.5 }}>
             {selectedType ? (
               <>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                  <Box>
-                    <Typography variant="h6" fontWeight={600}>{selectedType.name}</Typography>
+                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, gap: { xs: 1, sm: 0 }, mb: 2 }}>
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography variant="h6" fontWeight={600} sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{selectedType.name}</Typography>
                     <Typography variant="caption" color="text.secondary">
                       {t('inspections.inspectionStages', { count: stageTemplates.length })}
                     </Typography>
                   </Box>
-                  <Chip label={`${stageTemplates.filter(s => s.isActive).length} ${t('inspections.active').toLowerCase()}`} size="small" color="success" />
+                  <Chip label={`${stageTemplates.filter(s => s.isActive).length} ${t('inspections.active').toLowerCase()}`} size="small" color="success" sx={{ flexShrink: 0, alignSelf: { xs: 'flex-start', sm: 'center' } }} />
                 </Box>
 
                 <Alert severity="info" sx={{ mb: 2, borderRadius: 2 }}>
@@ -400,8 +400,8 @@ export default function InspectionsPage() {
 
       <Card>
         <Box sx={{ p: 2.5 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-            <Typography variant="h6" fontWeight={600}>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, gap: { xs: 1.5, sm: 0 }, mb: 3 }}>
+            <Typography variant="h6" fontWeight={600} sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {t('inspections.projectInspections')}
             </Typography>
             <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>

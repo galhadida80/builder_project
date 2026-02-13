@@ -136,7 +136,7 @@ export default function ApprovalsPage() {
   }
 
   return (
-    <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
+    <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 }, maxWidth: '100%', overflow: 'hidden' }}>
       <PageHeader
         title={t('approvals.title')}
         subtitle={t('approvals.subtitle')}
@@ -179,13 +179,13 @@ export default function ApprovalsPage() {
 
       <Card>
         <Box sx={{ p: 2.5 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, gap: { xs: 1.5, sm: 0 }, mb: 3 }}>
             <SearchField
               placeholder={t('approvals.searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <Chip label={`${displayedApprovals.length} ${t('common.items')}`} size="small" />
+            <Chip label={`${displayedApprovals.length} ${t('common.items')}`} size="small" sx={{ alignSelf: { xs: 'flex-start', sm: 'center' } }} />
           </Box>
 
           <Tabs
@@ -267,7 +267,7 @@ export default function ApprovalsPage() {
                         </Box>
 
                         {tabValue === 'pending' && (
-                          <Box sx={{ display: 'flex', gap: 1, ml: 2 }}>
+                          <Box sx={{ display: 'flex', gap: 1, ml: { xs: 0, sm: 2 }, flexShrink: 0 }}>
                             <Button
                               variant="success"
                               size="small"

@@ -173,15 +173,15 @@ export default function ProjectsPage() {
 
   if (loading) {
     return (
-      <Box sx={{ p: 3 }}>
-        <Skeleton variant="text" width={200} height={48} sx={{ mb: 1 }} />
-        <Skeleton variant="text" width={300} height={24} sx={{ mb: 4 }} />
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 2, mb: 4 }}>
+      <Box sx={{ p: { xs: 2, sm: 3 }, maxWidth: '100%', overflow: 'hidden' }}>
+        <Skeleton variant="text" width="60%" height={48} sx={{ mb: 1, maxWidth: 200 }} />
+        <Skeleton variant="text" width="80%" height={24} sx={{ mb: 4, maxWidth: 300 }} />
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 2, mb: 4 }}>
           {[...Array(4)].map((_, i) => (
             <Skeleton key={i} variant="rounded" height={100} sx={{ borderRadius: 3 }} />
           ))}
         </Box>
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 3 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }, gap: 3 }}>
           {[...Array(6)].map((_, i) => (
             <Skeleton key={i} variant="rounded" height={200} sx={{ borderRadius: 3 }} />
           ))}
@@ -191,7 +191,7 @@ export default function ProjectsPage() {
   }
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: { xs: 2, sm: 3 }, maxWidth: '100%', overflow: 'hidden' }}>
       <PageHeader
         title={t('pages.projects.title')}
         subtitle={t('pages.projects.subtitle')}
@@ -239,15 +239,22 @@ export default function ProjectsPage() {
 
       <Card>
         <Box sx={{ p: 2.5 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+          <Box sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', sm: 'row' },
+            justifyContent: 'space-between',
+            alignItems: { xs: 'stretch', sm: 'center' },
+            gap: { xs: 1.5, sm: 2 },
+            mb: 3,
+          }}>
+            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', minWidth: 0, flex: 1 }}>
               <SearchField
                 placeholder={t('pages.projects.searchPlaceholder')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </Box>
-            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+            <Box sx={{ display: 'flex', gap: { xs: 1, sm: 2 }, alignItems: 'center', flexShrink: 0, justifyContent: { xs: 'space-between', sm: 'flex-end' } }}>
               <Chip label={`${filteredProjects.length} ${t('nav.projects').toLowerCase()}`} size="small" />
               <SegmentedTabs
                 items={[
@@ -294,18 +301,28 @@ export default function ProjectsPage() {
             >
               {filteredProjects.map((project) => (
                 <Card key={project.id} hoverable onClick={() => handleProjectClick(project.id)}>
-                  <Box sx={{ p: 2.5 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                      <Box sx={{ flex: 1 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
-                          <Typography variant="subtitle1" fontWeight={600}>
+                  <Box sx={{ p: { xs: 2, sm: 2.5 }, minWidth: 0 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2, minWidth: 0 }}>
+                      <Box sx={{ flex: 1, minWidth: 0 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5, minWidth: 0 }}>
+                          <Typography
+                            variant="subtitle1"
+                            fontWeight={600}
+                            sx={{
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                              minWidth: 0,
+                              flex: 1,
+                            }}
+                          >
                             {project.name}
                           </Typography>
                           <StatusBadge status={project.status} size="small" />
                         </Box>
                         <Chip label={project.code} size="small" variant="outlined" sx={{ fontSize: '0.7rem' }} />
                       </Box>
-                      <IconButton size="small" onClick={(e) => handleMenuOpen(e, project)}>
+                      <IconButton size="small" onClick={(e) => handleMenuOpen(e, project)} sx={{ flexShrink: 0 }}>
                         <MoreVertIcon fontSize="small" />
                       </IconButton>
                     </Box>
@@ -329,17 +346,25 @@ export default function ProjectsPage() {
 
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
                       {project.address && (
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-                          <LocationOnIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-                          <Typography variant="caption" color="text.secondary">
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, minWidth: 0 }}>
+                          <LocationOnIcon sx={{ fontSize: 16, color: 'text.secondary', flexShrink: 0 }} />
+                          <Typography
+                            variant="caption"
+                            color="text.secondary"
+                            sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                          >
                             {project.address}
                           </Typography>
                         </Box>
                       )}
                       {project.startDate && (
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-                          <CalendarTodayIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-                          <Typography variant="caption" color="text.secondary">
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, minWidth: 0 }}>
+                          <CalendarTodayIcon sx={{ fontSize: 16, color: 'text.secondary', flexShrink: 0 }} />
+                          <Typography
+                            variant="caption"
+                            color="text.secondary"
+                            sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                          >
                             {new Date(project.startDate).toLocaleDateString()}
                             {project.estimatedEndDate && (
                               <> - {new Date(project.estimatedEndDate).toLocaleDateString()}</>

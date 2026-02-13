@@ -405,7 +405,7 @@ export default function EquipmentPage() {
   }
 
   return (
-    <Box sx={{ p: { xs: 1, sm: 1.5, md: 3 } }}>
+    <Box sx={{ p: { xs: 1, sm: 1.5, md: 3 }, maxWidth: '100%', overflow: 'hidden' }}>
       <PageHeader
         title={t('equipment.title')}
         subtitle={t('equipment.subtitle')}

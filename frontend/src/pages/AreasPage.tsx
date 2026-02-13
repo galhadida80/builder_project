@@ -337,7 +337,7 @@ export default function AreasPage() {
   }
 
   return (
-    <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
+    <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 }, maxWidth: '100%', overflow: 'hidden' }}>
       <PageHeader
         title={t('areas.pageTitle')}
         subtitle={t('areas.subtitle')}
@@ -394,9 +394,9 @@ export default function AreasPage() {
             borderRadius: 3,
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
-            <Box>
-              <Typography variant="h6" fontWeight={600} color="white">
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'center' }, justifyContent: 'space-between', gap: 2 }}>
+            <Box sx={{ minWidth: 0 }}>
+              <Typography variant="h6" fontWeight={600} color="white" sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {t('areas.overallProjectProgress')}
               </Typography>
               <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', mt: 0.5 }}>
@@ -445,11 +445,11 @@ export default function AreasPage() {
 
       <Card>
         <Box sx={{ p: 2.5 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-            <Typography variant="h6" fontWeight={600}>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, gap: { xs: 1, sm: 0 }, mb: 3 }}>
+            <Typography variant="h6" fontWeight={600} sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {t('areas.areaHierarchy')}
             </Typography>
-            <Chip label={t('areas.title', { count: allAreas.length })} size="small" />
+            <Chip label={t('areas.title', { count: allAreas.length })} size="small" sx={{ flexShrink: 0, alignSelf: { xs: 'flex-start', sm: 'center' } }} />
           </Box>
 
           {areas.length === 0 ? (

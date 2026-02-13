@@ -129,15 +129,25 @@ interface PageHeaderProps {
 
 export function PageHeader({ title, actions, subtitle }: PageHeaderProps) {
   return (
-    <Box sx={{ mb: 3 }}>
-      <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 2 }}>
-        <Box>
+    <Box sx={{ mb: 3, maxWidth: '100%', overflow: 'hidden' }}>
+      <Box sx={{
+        display: 'flex',
+        flexDirection: { xs: 'column', sm: 'row' },
+        alignItems: { xs: 'stretch', sm: 'flex-start' },
+        justifyContent: 'space-between',
+        gap: { xs: 1.5, sm: 2 },
+      }}>
+        <Box sx={{ minWidth: 0, flex: 1 }}>
           <Typography
             variant="h4"
             sx={{
               fontWeight: 700,
               color: 'text.primary',
               lineHeight: 1.2,
+              fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2.125rem' },
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
             }}
           >
             {title}
@@ -148,13 +158,20 @@ export function PageHeader({ title, actions, subtitle }: PageHeaderProps) {
               sx={{
                 color: 'text.secondary',
                 mt: 0.5,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
               }}
             >
               {subtitle}
             </Typography>
           )}
         </Box>
-        {actions && <Box sx={{ display: 'flex', gap: 1 }}>{actions}</Box>}
+        {actions && (
+          <Box sx={{ display: 'flex', gap: 1, flexShrink: 0 }}>
+            {actions}
+          </Box>
+        )}
       </Box>
     </Box>
   )

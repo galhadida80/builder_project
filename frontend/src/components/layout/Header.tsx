@@ -60,10 +60,10 @@ export default memo(function Header({ user, currentProject, projects, onProjectC
         width: { xs: '100%', md: 'calc(100% - 260px)' },
       }}
     >
-      <Toolbar sx={{ justifyContent: 'space-between' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+      <Toolbar sx={{ justifyContent: 'space-between', px: { xs: 1, sm: 2 }, gap: { xs: 0.5, sm: 1 }, minWidth: 0 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 2 }, minWidth: 0, flex: 1, overflow: 'hidden' }}>
           {isMobile && (
-            <IconButton aria-label={t('common.openNavMenu')} onClick={onMenuToggle} edge="start">
+            <IconButton aria-label={t('common.openNavMenu')} onClick={onMenuToggle} edge="start" sx={{ flexShrink: 0 }}>
               <MenuIcon />
             </IconButton>
           )}
@@ -74,7 +74,7 @@ export default memo(function Header({ user, currentProject, projects, onProjectC
           />
         </Box>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0, sm: 1 }, flexShrink: 0 }}>
           <ThemeToggle />
           <LanguageSwitcher />
 
@@ -82,8 +82,8 @@ export default memo(function Header({ user, currentProject, projects, onProjectC
             <NotificationsIcon />
           </IconButton>
 
-          <IconButton aria-label={t('common.userMenu')} onClick={handleMenuOpen} sx={{ ml: 1 }}>
-            <Avatar sx={{ width: 36, height: 36, bgcolor: 'primary.main' }}>
+          <IconButton aria-label={t('common.userMenu')} onClick={handleMenuOpen} sx={{ ml: { xs: 0, sm: 1 } }}>
+            <Avatar sx={{ width: { xs: 32, sm: 36 }, height: { xs: 32, sm: 36 }, bgcolor: 'primary.main' }}>
               {getInitials(user.fullName || user.email)}
             </Avatar>
           </IconButton>

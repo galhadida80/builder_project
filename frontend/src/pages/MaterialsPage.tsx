@@ -435,7 +435,7 @@ export default function MaterialsPage() {
   }
 
   return (
-    <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
+    <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 }, maxWidth: '100%', overflow: 'hidden' }}>
       <PageHeader
         title={t('materials.title')}
         subtitle={t('materials.subtitle')}

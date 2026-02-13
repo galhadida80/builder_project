@@ -78,7 +78,7 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <Box sx={{ p: 3 }}>
+      <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
         <Skeleton variant="text" width={300} height={48} sx={{ mb: 1 }} />
         <Skeleton variant="text" width={400} height={24} sx={{ mb: 4 }} />
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 3, mb: 3 }}>
@@ -95,7 +95,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 }, maxWidth: '100%', overflow: 'hidden' }}>
       <Box sx={{ mb: 4 }}>
         <Typography
           variant="h4"
@@ -103,6 +103,10 @@ export default function DashboardPage() {
             fontWeight: 700,
             color: 'text.primary',
             mb: 0.5,
+            fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2.125rem' },
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
           }}
         >
           {t('dashboard.title')}
@@ -156,9 +160,9 @@ export default function DashboardPage() {
       >
         <Card>
           <Box sx={{ p: 2.5 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-              <Box>
-                <Typography variant="h6" fontWeight={600}>{t('dashboard.pendingApprovals')}</Typography>
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, gap: { xs: 1, sm: 0 }, mb: 2 }}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="h6" fontWeight={600} sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t('dashboard.pendingApprovals')}</Typography>
                 <Typography variant="caption" color="text.secondary">
                   {t('dashboard.itemsAwaitingReview')}
                 </Typography>
@@ -167,7 +171,7 @@ export default function DashboardPage() {
                 label={`${pendingApprovals.length} ${t('dashboard.pending')}`}
                 size="small"
                 color="warning"
-                sx={{ fontWeight: 600 }}
+                sx={{ fontWeight: 600, flexShrink: 0, alignSelf: { xs: 'flex-start', sm: 'center' } }}
               />
             </Box>
 
@@ -267,7 +271,7 @@ export default function DashboardPage() {
               <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
                 {t('dashboard.completionRate')}
               </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+              <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: 'center', gap: { xs: 2, sm: 3 } }}>
                 <CircularProgressDisplay
                   value={completionRate}
                   size={100}
@@ -302,7 +306,7 @@ export default function DashboardPage() {
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                 <Typography variant="h6" fontWeight={600}>{t('dashboard.quickActions')}</Typography>
               </Box>
-              <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1.5 }}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' }, gap: 1.5 }}>
                 <Button
                   variant="secondary"
                   size="small"
@@ -382,14 +386,14 @@ export default function DashboardPage() {
       >
         <Card>
           <Box sx={{ p: 2.5 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-              <Box>
-                <Typography variant="h6" fontWeight={600}>{t('dashboard.upcomingMeetings')}</Typography>
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, gap: { xs: 1, sm: 0 }, mb: 2 }}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="h6" fontWeight={600} sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t('dashboard.upcomingMeetings')}</Typography>
                 <Typography variant="caption" color="text.secondary">
                   {t('dashboard.next7Days')}
                 </Typography>
               </Box>
-              <Chip label={upcomingMeetings.length} size="small" color="primary" />
+              <Chip label={upcomingMeetings.length} size="small" color="primary" sx={{ flexShrink: 0, alignSelf: { xs: 'flex-start', sm: 'center' } }} />
             </Box>
 
             {upcomingMeetings.length > 0 ? (
@@ -531,8 +535,8 @@ export default function DashboardPage() {
 
         <Card>
           <Box sx={{ p: 2.5 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-              <Typography variant="h6" fontWeight={600}>{t('dashboard.teamOverview')}</Typography>
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, gap: { xs: 1, sm: 0 }, mb: 2 }}>
+              <Typography variant="h6" fontWeight={600} sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t('dashboard.teamOverview')}</Typography>
               <Button
                 variant="tertiary"
                 size="small"

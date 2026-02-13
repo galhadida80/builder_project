@@ -209,13 +209,13 @@ export default function MeetingsPage() {
   }
 
   return (
-    <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
+    <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 }, maxWidth: '100%', overflow: 'hidden' }}>
       <PageHeader
         title={t('meetings.title')}
         subtitle={t('meetings.subtitle')}
         breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('meetings.title') }]}
         actions={
-          <Box sx={{ display: 'flex', gap: 1 }}>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 1 }}>
             <Button variant="secondary" icon={<SyncIcon />}>
               {t('meetings.syncCalendar')}
             </Button>
@@ -256,7 +256,7 @@ export default function MeetingsPage() {
 
       <Card>
         <Box sx={{ p: 2.5 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, gap: { xs: 1.5, sm: 0 }, mb: 3 }}>
             <Tabs
               items={[
                 { label: t('meetings.upcomingMeetings'), value: 'upcoming', badge: upcomingMeetings.length },
@@ -266,7 +266,7 @@ export default function MeetingsPage() {
               onChange={setTabValue}
               size="small"
             />
-            <Chip label={`${displayedMeetings.length} ${t('meetings.meetingCount')}`} size="small" />
+            <Chip label={`${displayedMeetings.length} ${t('meetings.meetingCount')}`} size="small" sx={{ alignSelf: { xs: 'flex-start', sm: 'center' } }} />
           </Box>
 
           {displayedMeetings.length === 0 ? (
@@ -287,8 +287,8 @@ export default function MeetingsPage() {
               {displayedMeetings.map((meeting) => (
                 <Card key={meeting.id} hoverable onClick={() => handleMeetingClick(meeting)}>
                   <Box sx={{ p: 2.5 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                      <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2, gap: 1 }}>
+                      <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start', minWidth: 0, flex: 1 }}>
                         <Box
                           sx={{
                             width: 52,
@@ -309,8 +309,8 @@ export default function MeetingsPage() {
                             {new Date(meeting.scheduledDate).toLocaleDateString('en-US', { month: 'short' })}
                           </Typography>
                         </Box>
-                        <Box>
-                          <Typography variant="subtitle1" fontWeight={600}>
+                        <Box sx={{ minWidth: 0 }}>
+                          <Typography variant="subtitle1" fontWeight={600} sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {meeting.title}
                           </Typography>
                           <Chip

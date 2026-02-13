@@ -187,7 +187,7 @@ export default function AuditLogPage() {
 
   if (loading) {
     return (
-      <Box sx={{ p: 3 }}>
+      <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
         <Skeleton variant="text" width={200} height={48} sx={{ mb: 1 }} />
         <Skeleton variant="text" width={350} height={24} sx={{ mb: 4 }} />
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, gap: 2, mb: 4 }}>
@@ -201,7 +201,7 @@ export default function AuditLogPage() {
   }
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 }, maxWidth: '100%', overflow: 'hidden' }}>
       <PageHeader
         title={t('auditLog.pageTitle')}
         subtitle={t('auditLog.subtitle')}
@@ -238,39 +238,41 @@ export default function AuditLogPage() {
 
       <Card>
         <Box sx={{ p: 2.5 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, gap: { xs: 1.5, sm: 2 }, mb: 3 }}>
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: { xs: 1.5, sm: 2 }, alignItems: { xs: 'stretch', sm: 'center' }, flex: 1, minWidth: 0 }}>
               <SearchField
                 placeholder={t('auditLog.searchPlaceholder')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
-              <MuiTextField
-                select
-                value={entityFilter}
-                onChange={(e) => setEntityFilter(e.target.value)}
-                size="small"
-                sx={{ minWidth: 140 }}
-              >
-                <MenuItem value="">{t('auditLog.allEntities')}</MenuItem>
-                {entityTypes.map(type => (
-                  <MenuItem key={type} value={type} sx={{ textTransform: 'capitalize' }}>{type}</MenuItem>
-                ))}
-              </MuiTextField>
-              <MuiTextField
-                select
-                value={actionFilter}
-                onChange={(e) => setActionFilter(e.target.value)}
-                size="small"
-                sx={{ minWidth: 140 }}
-              >
-                <MenuItem value="">{t('auditLog.allActions')}</MenuItem>
-                {actionTypes.map(type => (
-                  <MenuItem key={type} value={type} sx={{ textTransform: 'capitalize' }}>{t(`auditLog.actions.${type}`, { defaultValue: type.replace('_', ' ') })}</MenuItem>
-                ))}
-              </MuiTextField>
+              <Box sx={{ display: 'flex', gap: 1, flexShrink: 0 }}>
+                <MuiTextField
+                  select
+                  value={entityFilter}
+                  onChange={(e) => setEntityFilter(e.target.value)}
+                  size="small"
+                  sx={{ minWidth: { xs: 0, sm: 140 }, flex: { xs: 1, sm: 'none' } }}
+                >
+                  <MenuItem value="">{t('auditLog.allEntities')}</MenuItem>
+                  {entityTypes.map(type => (
+                    <MenuItem key={type} value={type} sx={{ textTransform: 'capitalize' }}>{type}</MenuItem>
+                  ))}
+                </MuiTextField>
+                <MuiTextField
+                  select
+                  value={actionFilter}
+                  onChange={(e) => setActionFilter(e.target.value)}
+                  size="small"
+                  sx={{ minWidth: { xs: 0, sm: 140 }, flex: { xs: 1, sm: 'none' } }}
+                >
+                  <MenuItem value="">{t('auditLog.allActions')}</MenuItem>
+                  {actionTypes.map(type => (
+                    <MenuItem key={type} value={type} sx={{ textTransform: 'capitalize' }}>{t(`auditLog.actions.${type}`, { defaultValue: type.replace('_', ' ') })}</MenuItem>
+                  ))}
+                </MuiTextField>
+              </Box>
             </Box>
-            <Chip label={t('auditLog.entriesLabel', { count: filteredLogs.length })} size="small" />
+            <Chip label={t('auditLog.entriesLabel', { count: filteredLogs.length })} size="small" sx={{ flexShrink: 0, alignSelf: { xs: 'flex-start', sm: 'center' } }} />
           </Box>
 
           {filteredLogs.length === 0 ? (
@@ -298,7 +300,7 @@ export default function AuditLogPage() {
         PaperProps={{ sx: { width: { xs: '100%', sm: 420 }, borderRadius: '16px 0 0 16px' } }}
       >
         {selectedLog && (
-          <Box sx={{ p: 3 }}>
+          <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
               <Typography variant="h6" fontWeight={600}>{t('auditLog.auditDetails')}</Typography>
               <IconButton onClick={() => setDetailsOpen(false)} size="small">

@@ -88,6 +88,9 @@ export default function Layout() {
           p: { xs: 1, sm: 1.5, md: 2 },
           bgcolor: 'background.default',
           minHeight: '100vh',
+          overflowX: 'hidden',
+          maxWidth: '100%',
+          minWidth: 0,
         }}
       >
         <Toolbar />
