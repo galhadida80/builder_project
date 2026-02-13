@@ -65,11 +65,15 @@ export function Button({
       variant={getMuiVariant()}
       color={getColor()}
       disabled={disabled || loading}
-      startIcon={loading ? <CircularProgress size={18} color="inherit" /> : startIcon}
-      endIcon={endIcon}
+      startIcon={loading ? undefined : startIcon}
+      endIcon={loading ? undefined : endIcon}
       {...props}
     >
-      {children}
+      {loading ? (
+        <CircularProgress size={22} color="inherit" />
+      ) : (
+        children
+      )}
     </StyledButton>
   )
 }

@@ -1,33 +1,21 @@
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Outlet, useParams, useNavigate, useLocation } from 'react-router-dom'
+import { Outlet, useParams, useNavigate } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import Header from './Header'
 import ChatDrawer from '../chat/ChatDrawer'
 import { projectsApi } from '../../api/projects'
 import { useAuth } from '../../contexts/AuthContext'
 import type { Project } from '../../types'
-import { SmartToyIcon, MenuIcon } from '@/icons'
-import { Box, Toolbar, CircularProgress, Fab, useMediaQuery, IconButton } from '@/mui'
+import { SmartToyIcon } from '@/icons'
+import { Box, Toolbar, CircularProgress, Fab, useMediaQuery } from '@/mui'
 import { useTheme } from '@/mui'
-
-const DRAWER_WIDTH = 260
 
 export default function Layout() {
   const { t } = useTranslation()
   const { projectId } = useParams()
   const navigate = useNavigate()
-  const location = useLocation()
   const { user: currentUser, logout } = useAuth()
-  const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>(projectId)
-
-  useEffect(() => {
-    const match = location.pathname.match(/\/projects\/([^/]+)/)
-    const urlProjectId = match ? match[1] : undefined
-    if (urlProjectId !== selectedProjectId) {
-      setSelectedProjectId(urlProjectId)
-    }
-  }, [location.pathname])
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
   const [chatOpen, setChatOpen] = useState(false)
@@ -54,10 +42,9 @@ export default function Layout() {
     }
   }
 
-  const currentProject = projects.find(p => p.id === selectedProjectId)
+  const currentProject = projects.find(p => p.id === projectId)
 
   const handleProjectChange = useCallback((newProjectId: string) => {
-    setSelectedProjectId(newProjectId)
     navigate(`/projects/${newProjectId}`)
   }, [navigate])
 
@@ -68,11 +55,6 @@ export default function Layout() {
   const handleChatOpen = useCallback(() => setChatOpen(true), [])
   const handleChatClose = useCallback(() => setChatOpen(false), [])
   const handleMobileClose = useCallback(() => setMobileDrawerOpen(false), [])
-
-  const outletContext = useMemo(
-    () => ({ projectId: selectedProjectId, project: currentProject }),
-    [selectedProjectId, currentProject]
-  )
 
   if (loading || !currentUser) {
     return (
@@ -94,7 +76,7 @@ export default function Layout() {
         isMobile={isMobile}
       />
       <Sidebar
-        projectId={selectedProjectId}
+        projectId={projectId}
         mobileOpen={mobileDrawerOpen}
         onMobileClose={handleMobileClose}
         isMobile={isMobile}
@@ -109,10 +91,10 @@ export default function Layout() {
         }}
       >
         <Toolbar />
-        <Outlet context={outletContext} />
+        <Outlet />
       </Box>
 
-      {selectedProjectId && (
+      {projectId && (
         <>
           <Fab
             color="primary"
@@ -131,7 +113,7 @@ export default function Layout() {
           <ChatDrawer
             open={chatOpen}
             onClose={handleChatClose}
-            projectId={selectedProjectId}
+            projectId={projectId}
           />
         </>
       )}

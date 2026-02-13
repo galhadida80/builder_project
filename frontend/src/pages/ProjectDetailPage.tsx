@@ -241,65 +241,20 @@ export default function ProjectDetailPage() {
               </Box>
             </Card>
 
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-              <Card>
-                <Box sx={{ p: { xs: 2, md: 2.5 } }}>
-                  <Typography variant="h6" fontWeight={600} sx={{ mb: 1 }}>
-                    {t('projectDetail.quickStats')}
-                  </Typography>
-                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1.5, borderBottom: 1, borderColor: 'divider', cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' }, mx: -1, px: 1, borderRadius: 1 }} onClick={() => handleNavTo('equipment')}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                        <ConstructionIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
-                        <Typography variant="body2" color="text.secondary">{t('projectDetail.equipmentItems')}</Typography>
-                      </Box>
-                      <Typography variant="body2" fontWeight={600}>{equipment.length}</Typography>
-                    </Box>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1.5, borderBottom: 1, borderColor: 'divider', cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' }, mx: -1, px: 1, borderRadius: 1 }} onClick={() => handleNavTo('materials')}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                        <InventoryIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
-                        <Typography variant="body2" color="text.secondary">{t('nav.materials')}</Typography>
-                      </Box>
-                      <Typography variant="body2" fontWeight={600}>{materials.length}</Typography>
-                    </Box>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1.5, borderBottom: 1, borderColor: 'divider', cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' }, mx: -1, px: 1, borderRadius: 1 }} onClick={() => handleNavTo('meetings')}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                        <EventIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
-                        <Typography variant="body2" color="text.secondary">{t('projectDetail.scheduledMeetings')}</Typography>
-                      </Box>
-                      <Typography variant="body2" fontWeight={600}>{meetings.length}</Typography>
-                    </Box>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1.5, cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' }, mx: -1, px: 1, borderRadius: 1 }} onClick={() => handleNavTo('approvals')}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                        <WarningAmberIcon sx={{ fontSize: 18, color: pendingApprovals > 0 ? 'warning.main' : 'text.secondary' }} />
-                        <Typography variant="body2" color="text.secondary">{t('projectDetail.pendingApprovals')}</Typography>
-                      </Box>
-                      <Chip
-                        label={pendingApprovals}
-                        size="small"
-                        color={pendingApprovals > 0 ? 'warning' : 'default'}
-                        sx={{ fontWeight: 600 }}
-                      />
-                    </Box>
-                  </Box>
+            <Card>
+              <Box sx={{ p: { xs: 2, md: 2.5 } }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                  <Typography variant="h6" fontWeight={600}>{t('projectDetail.team')}</Typography>
+                  <GroupIcon sx={{ color: 'text.secondary' }} />
                 </Box>
-              </Card>
-
-              <Card>
-                <Box sx={{ p: { xs: 2, md: 2.5 } }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                    <Typography variant="h6" fontWeight={600}>{t('projectDetail.team')}</Typography>
-                    <GroupIcon sx={{ color: 'text.secondary' }} />
-                  </Box>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
-                    {t('projectDetail.teamDescription')}
-                  </Typography>
-                  <Button variant="secondary" size="small" onClick={() => handleNavTo('contacts')}>
-                    {t('projectDetail.viewTeam')}
-                  </Button>
-                </Box>
-              </Card>
-            </Box>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+                  {t('projectDetail.teamDescription')}
+                </Typography>
+                <Button variant="secondary" size="small" onClick={() => handleNavTo('contacts')}>
+                  {t('projectDetail.viewTeam')}
+                </Button>
+              </Box>
+            </Card>
           </Box>
         </Box>
       ) : (
