@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { useParams, useNavigate, useLocation, Outlet } from 'react-router-dom'
+import { useState, useEffect, useRef } from 'react'
+import { useParams, useNavigate, useOutlet } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Card, KPICard } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
@@ -17,61 +17,45 @@ import { Box, Typography, Chip, Skeleton, IconButton } from '@/mui'
 export default function ProjectDetailPage() {
   const { projectId } = useParams()
   const navigate = useNavigate()
-  const location = useLocation()
+  const outlet = useOutlet()
   const { t, i18n } = useTranslation()
-  const [loading, setLoading] = useState(true)
   const [project, setProject] = useState<Project | null>(null)
   const [equipment, setEquipment] = useState<Equipment[]>([])
   const [materials, setMaterials] = useState<Material[]>([])
   const [meetings, setMeetings] = useState<Meeting[]>([])
+  const loadedProjectId = useRef<string | null>(null)
 
+  const isOverview = !outlet
   const dateLocale = i18n.language === 'he' ? 'he-IL' : i18n.language === 'es' ? 'es-ES' : 'en-US'
 
-  const pathSegments = location.pathname.split('/')
-  const isOverview = pathSegments.length <= 3 || pathSegments[3] === ''
-
   useEffect(() => {
-    loadProjectData()
+    if (!projectId || projectId === loadedProjectId.current) return
+    loadedProjectId.current = projectId
+    projectsApi.get(projectId).then(setProject).catch(() => null)
   }, [projectId])
 
-  const loadProjectData = async () => {
-    if (!projectId) return
-    try {
-      setLoading(true)
-      const [projectData, equipmentData, materialsData, meetingsData] = await Promise.all([
-        projectsApi.get(projectId).catch(() => null),
-        equipmentApi.list(projectId).catch(() => []),
-        materialsApi.list(projectId).catch(() => []),
-        meetingsApi.list(projectId).catch(() => [])
-      ])
-      setProject(projectData)
-      setEquipment(equipmentData)
-      setMaterials(materialsData)
-      setMeetings(meetingsData)
-    } catch {
-      // Error handled silently
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  if (loading) {
-    return (
-      <Box sx={{ p: { xs: 1.5, md: 2 } }}>
-        <Skeleton variant="text" width={120} height={32} sx={{ mb: 1.5 }} />
-        <Skeleton variant="text" width={300} height={48} sx={{ mb: 1 }} />
-        <Skeleton variant="text" width={450} height={24} sx={{ mb: 2.5 }} />
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 1.5, mb: 2.5 }}>
-          {[...Array(4)].map((_, i) => (
-            <Skeleton key={i} variant="rounded" height={100} sx={{ borderRadius: 3 }} />
-          ))}
-        </Box>
-        <Skeleton variant="rounded" height={400} sx={{ borderRadius: 3 }} />
-      </Box>
-    )
-  }
+  useEffect(() => {
+    if (!projectId || !isOverview) return
+    Promise.all([
+      equipmentApi.list(projectId).catch(() => []),
+      materialsApi.list(projectId).catch(() => []),
+      meetingsApi.list(projectId).catch(() => [])
+    ]).then(([eq, mat, meet]) => {
+      setEquipment(eq)
+      setMaterials(mat)
+      setMeetings(meet)
+    })
+  }, [projectId, isOverview])
 
   if (!project) {
+    if (!loadedProjectId.current) {
+      return (
+        <Box sx={{ p: { xs: 1.5, md: 2 } }}>
+          <Skeleton variant="text" width={120} height={32} sx={{ mb: 1.5 }} />
+          <Skeleton variant="rounded" height={140} sx={{ borderRadius: 3, mb: 2.5 }} />
+        </Box>
+      )
+    }
     return (
       <Box sx={{ p: { xs: 1.5, md: 2 } }}>
         <EmptyState
@@ -258,7 +242,7 @@ export default function ProjectDetailPage() {
           </Box>
         </Box>
       ) : (
-        <Outlet />
+        outlet
       )}
     </Box>
   )
