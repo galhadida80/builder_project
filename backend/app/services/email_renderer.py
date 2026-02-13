@@ -46,6 +46,80 @@ STRINGS = {
             "footer": ".זוהי הודעה אוטומטית מ-BuilderOps",
         },
     },
+    "daily_summary": {
+        "en": {
+            "subject": "Daily Summary - {project_name} ({date})",
+            "title": "Daily Work Summary",
+            "project": "Project",
+            "date": "Date",
+            "activity_overview": "Activity Overview",
+            "entity_type": "Entity",
+            "action": "Action",
+            "count": "Count",
+            "equipment_materials": "Equipment & Materials",
+            "equipment": "Equipment",
+            "materials": "Materials",
+            "created": "Created",
+            "approved": "Approved",
+            "rejected": "Rejected",
+            "inspections": "Inspections",
+            "completed": "Completed",
+            "new_findings": "New Findings",
+            "rfis": "RFIs",
+            "opened": "Opened",
+            "answered": "Answered",
+            "closed": "Closed",
+            "overdue": "Overdue",
+            "pending_approvals": "Pending Approvals",
+            "equipment_pending": "Equipment submissions",
+            "material_pending": "Material submissions",
+            "total_pending": "Total pending",
+            "upcoming_meetings": "Upcoming Meetings (7 days)",
+            "meeting_type": "Type",
+            "scheduled": "Scheduled",
+            "location": "Location",
+            "project_progress": "Project Progress",
+            "view_in_app": "View in BuilderOps",
+            "no_meetings": "No upcoming meetings",
+            "footer": "This is an automated daily summary from BuilderOps.",
+        },
+        "he": {
+            "subject": "סיכום יומי - {project_name} ({date})",
+            "title": "סיכום עבודה יומי",
+            "project": "פרויקט",
+            "date": "תאריך",
+            "activity_overview": "סקירת פעילות",
+            "entity_type": "ישות",
+            "action": "פעולה",
+            "count": "כמות",
+            "equipment_materials": "ציוד וחומרים",
+            "equipment": "ציוד",
+            "materials": "חומרים",
+            "created": "נוצרו",
+            "approved": "אושרו",
+            "rejected": "נדחו",
+            "inspections": "בדיקות",
+            "completed": "הושלמו",
+            "new_findings": "ממצאים חדשים",
+            "rfis": "בקשות מידע",
+            "opened": "נפתחו",
+            "answered": "נענו",
+            "closed": "נסגרו",
+            "overdue": "באיחור",
+            "pending_approvals": "אישורים ממתינים",
+            "equipment_pending": "הגשות ציוד",
+            "material_pending": "הגשות חומרים",
+            "total_pending": "סה״כ ממתינים",
+            "upcoming_meetings": "פגישות קרובות (7 ימים)",
+            "meeting_type": "סוג",
+            "scheduled": "מתוכנן",
+            "location": "מיקום",
+            "project_progress": "התקדמות פרויקט",
+            "view_in_app": "צפה ב-BuilderOps",
+            "no_meetings": "אין פגישות קרובות",
+            "footer": "זהו סיכום יומי אוטומטי מ-BuilderOps.",
+        },
+    },
 }
 
 
@@ -114,3 +188,44 @@ def render_rfi_response_email(rfi, response_text: str) -> tuple[str, str]:
         align="left",
     )
     return f"Re: {rfi.subject}", html
+
+
+def render_daily_summary_email(
+    summary: dict, project_name: str, language: str, frontend_url: str
+) -> tuple[str, str]:
+    s = STRINGS["daily_summary"].get(language, STRINGS["daily_summary"]["en"])
+    direction = "rtl" if language == "he" else "ltr"
+    align = "right" if language == "he" else "left"
+    summary_date = summary["summary_date"]
+
+    subject = s["subject"].format(project_name=project_name, date=summary_date)
+
+    equipment = summary["equipment"]
+    materials = summary["materials"]
+    rfis = summary["rfis"]
+    has_equip_materials = any(
+        v != 0 for v in [*equipment.values(), *materials.values()]
+    )
+    has_rfis = any(v != 0 for v in rfis.values())
+
+    template = env.get_template("daily_summary.html")
+    html = template.render(
+        s=s,
+        summary_date=summary_date,
+        project_name=project_name,
+        frontend_url=frontend_url,
+        audit_entries=summary["audit_entries"],
+        equipment=equipment,
+        materials=materials,
+        has_equip_materials=has_equip_materials,
+        inspections=summary["inspections"],
+        rfis=rfis,
+        has_rfis=has_rfis,
+        pending=summary["pending_approvals"],
+        meetings=summary["upcoming_meetings"],
+        progress=summary["overall_progress"],
+        lang=language,
+        direction=direction,
+        align=align,
+    )
+    return subject, html

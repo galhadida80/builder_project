@@ -9,7 +9,7 @@ from app.config import get_settings
 from app.db.session import get_db
 from app.models.project import Project, ProjectMember, UserRole
 from app.models.user import User
-from app.services.daily_summary_email import render_daily_summary_email
+from app.services.email_renderer import render_daily_summary_email
 from app.services.daily_summary_service import collect_project_daily_summary
 from app.services.email_service import EmailService
 

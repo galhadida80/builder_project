@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% macro section_header(title) %}
+<h2 style="margin:20px 0 12px;font-size:16px;font-weight:600;color:#1565c0;border-bottom:2px solid #e3f2fd;padding-bottom:6px;">{{ title }}</h2>
+{% endmacro %}
+
+{% macro stat_cell(label, value, color="#424242") %}
+<td style="text-align:center;padding:8px;">
+  <div style="font-size:22px;font-weight:700;color:{{ color }};">{{ value }}</div>
+  <div style="font-size:11px;color:#757575;margin-top:2px;">{{ label }}</div>
+</td>
+{% endmacro %}
+
+{% block header %}
+<tr><td style="background:linear-gradient(135deg,#1565c0,#0d47a1);padding:28px 32px;text-align:{{ align }};">
+  <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;">{{ s.title }}</h1>
+  <p style="margin:8px 0 0;color:#bbdefb;font-size:14px;">{{ s.project }}: <strong style="color:#ffffff;">{{ project_name }}</strong> &middot; {{ s.date }}: {{ summary_date }}</p>
+</td></tr>
+{% endblock %}
+
+{% block content %}
+
+{# 1. Activity overview table #}
+{% if audit_entries %}
+{{ section_header(s.activity_overview) }}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e0e0e0;border-radius:4px;">
+  <tr style="background-color:#f5f5f5;">
+    <th style="padding:8px 12px;text-align:left;font-size:12px;color:#616161;">{{ s.entity_type }}</th>
+    <th style="padding:8px 12px;text-align:left;font-size:12px;color:#616161;">{{ s.action }}</th>
+    <th style="padding:8px 12px;text-align:center;font-size:12px;color:#616161;">{{ s.count }}</th>
+  </tr>
+  {% for entry in audit_entries[:15] %}
+  <tr>
+    <td style="padding:6px 12px;border-bottom:1px solid #f0f0f0;font-size:13px;">{{ entry.entity_type }}</td>
+    <td style="padding:6px 12px;border-bottom:1px solid #f0f0f0;font-size:13px;">{{ entry.action }}</td>
+    <td style="padding:6px 12px;border-bottom:1px solid #f0f0f0;font-size:13px;text-align:center;font-weight:600;">{{ entry.count }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endif %}
+
+{# 2. Equipment & Materials stats #}
+{% if has_equip_materials %}
+{{ section_header(s.equipment_materials) }}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:8px;">
+  <tr><td colspan="3" style="font-size:13px;font-weight:600;color:#424242;padding:4px 8px;">{{ s.equipment }}</td></tr>
+  <tr>
+    {{ stat_cell(s.created, equipment.created, "#1565c0") }}
+    {{ stat_cell(s.approved, equipment.approved, "#2e7d32") }}
+    {{ stat_cell(s.rejected, equipment.rejected, "#c62828") }}
+  </tr>
+  <tr><td colspan="3" style="font-size:13px;font-weight:600;color:#424242;padding:12px 8px 4px;">{{ s.materials }}</td></tr>
+  <tr>
+    {{ stat_cell(s.created, materials.created, "#1565c0") }}
+    {{ stat_cell(s.approved, materials.approved, "#2e7d32") }}
+    {{ stat_cell(s.rejected, materials.rejected, "#c62828") }}
+  </tr>
+</table>
+{% endif %}
+
+{# 3. Inspections stats #}
+{% if inspections.completed or inspections.new_findings %}
+{{ section_header(s.inspections) }}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+  <tr>
+    {{ stat_cell(s.completed, inspections.completed, "#2e7d32") }}
+    {{ stat_cell(s.new_findings, inspections.new_findings, "#e65100") }}
+  </tr>
+</table>
+{% endif %}
+
+{# 4. RFIs stats #}
+{% if has_rfis %}
+{{ section_header(s.rfis) }}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+  <tr>
+    {{ stat_cell(s.opened, rfis.opened, "#1565c0") }}
+    {{ stat_cell(s.answered, rfis.answered, "#2e7d32") }}
+    {{ stat_cell(s.closed, rfis.closed, "#616161") }}
+    {{ stat_cell(s.overdue, rfis.overdue, "#c62828" if rfis.overdue > 0 else "#424242") }}
+  </tr>
+</table>
+{% endif %}
+
+{# 5. Pending approvals panel #}
+{% if pending.total %}
+{{ section_header(s.pending_approvals) }}
+{% set bg = "#fff8e1" if pending.total > 5 else "#f5f5f5" %}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:{{ bg }};border-radius:4px;border:1px solid #ffe082;">
+  <tr><td style="padding:12px 16px;font-size:13px;">{{ s.equipment_pending }}: <strong>{{ pending.equipment }}</strong></td></tr>
+  <tr><td style="padding:0 16px 12px;font-size:13px;">{{ s.material_pending }}: <strong>{{ pending.materials }}</strong></td></tr>
+  <tr><td style="padding:0 16px 12px;font-size:14px;font-weight:700;color:#f57f17;">{{ s.total_pending }}: {{ pending.total }}</td></tr>
+</table>
+{% endif %}
+
+{# 6. Upcoming meetings table #}
+{{ section_header(s.upcoming_meetings) }}
+{% if meetings %}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e0e0e0;border-radius:4px;">
+  <tr style="background-color:#f5f5f5;">
+    <th style="padding:8px 12px;text-align:left;font-size:12px;color:#616161;">{{ s.upcoming_meetings.split("(")[0].strip() }}</th>
+    <th style="padding:8px 12px;text-align:left;font-size:12px;color:#616161;">{{ s.meeting_type }}</th>
+    <th style="padding:8px 12px;text-align:left;font-size:12px;color:#616161;">{{ s.scheduled }}</th>
+  </tr>
+  {% for m in meetings[:7] %}
+  <tr>
+    <td style="padding:6px 12px;border-bottom:1px solid #f0f0f0;font-size:13px;font-weight:500;">{{ m.title }}</td>
+    <td style="padding:6px 12px;border-bottom:1px solid #f0f0f0;font-size:13px;">{{ m.meeting_type | default("", true) }}</td>
+    <td style="padding:6px 12px;border-bottom:1px solid #f0f0f0;font-size:13px;">{{ m.scheduled_date }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p style="color:#9e9e9e;font-size:13px;">{{ s.no_meetings }}</p>
+{% endif %}
+
+{# 7. Progress bar (always shown) #}
+{{ section_header(s.project_progress) }}
+{% set pct = [0, [100, progress] | min] | max %}
+{% if pct >= 60 %}
+  {% set bar_color = "#2e7d32" %}
+{% elif pct >= 30 %}
+  {% set bar_color = "#f57f17" %}
+{% else %}
+  {% set bar_color = "#c62828" %}
+{% endif %}
+<div style="background-color:#e0e0e0;border-radius:10px;height:20px;overflow:hidden;margin:8px 0;">
+  <div style="background-color:{{ bar_color }};height:100%;width:{{ pct }}%;border-radius:10px;"></div>
+</div>
+<p style="text-align:center;font-size:14px;font-weight:700;color:{{ bar_color }};margin:4px 0 0;">{{ "%.1f" | format(pct) }}%</p>
+
+{% endblock %}
+
+{% block cta %}
+<tr><td style="padding:0 32px 24px;text-align:center;">
+  <a href="{{ frontend_url }}" style="display:inline-block;background-color:#1565c0;color:#ffffff;text-decoration:none;padding:12px 32px;border-radius:6px;font-size:14px;font-weight:600;">{{ s.view_in_app }}</a>
+</td></tr>
+{% endblock %}
+
+{% block footer %}{{ s.footer }}{% endblock %}
