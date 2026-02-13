@@ -11,6 +11,7 @@ from app.config import get_settings
 from app.models.project import Project
 from app.models.rfi import RFI, RFIEmailLog, RFIResponse, RFIStatus
 from app.models.user import User
+from app.services.email_renderer import render_rfi_email, render_rfi_response_email
 from app.services.email_service import EmailService
 from app.services.rfi_email_parser import ParsedEmail, RFIEmailParser
 
@@ -106,7 +107,7 @@ class RFIService:
         if rfi.status not in [RFIStatus.DRAFT.value, RFIStatus.OPEN.value]:
             raise ValueError(f"Cannot send RFI with status: {rfi.status}")
 
-        email_html = self._build_rfi_email_html(rfi)
+        _, email_html = render_rfi_email(rfi)
         rfi_from_email = await self.generate_rfi_from_email(rfi.project_id, rfi.rfi_number)
 
         try:
@@ -309,7 +310,7 @@ class RFIService:
                     rfi_number=rfi.rfi_number,
                     to_email=rfi.to_email,
                     subject=f"Re: {rfi.subject}",
-                    body_html=self._build_response_email_html(rfi, response_text),
+                    body_html=render_rfi_response_email(rfi, response_text)[1],
                     in_reply_to=rfi.email_message_id,
                     references=rfi.email_message_id,
                     reply_to=rfi_from_email
@@ -451,97 +452,3 @@ class RFIService:
             'by_category': by_category
         }
 
-    def _build_rfi_email_html(self, rfi: RFI) -> str:
-        due_date_str = rfi.due_date.strftime('%Y-%m-%d') if rfi.due_date else 'N/A'
-        location_str = rfi.location or 'N/A'
-        drawing_str = rfi.drawing_reference or 'N/A'
-
-        return f"""
-        <html>
-        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-                <div style="background: #0F172A; color: white; padding: 20px; border-radius: 8px 8px 0 0;">
-                    <h2 style="margin: 0;">Request for Information</h2>
-                    <p style="margin: 5px 0 0; opacity: 0.9;">{rfi.rfi_number}</p>
-                </div>
-
-                <div style="border: 1px solid #e5e7eb; border-top: none; padding: 20px;">
-                    <table style="width: 100%; margin-bottom: 20px; font-size: 14px;">
-                        <tr>
-                            <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;">
-                                <strong>Category:</strong>
-                            </td>
-                            <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;">
-                                {rfi.category.title()}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;">
-                                <strong>Priority:</strong>
-                            </td>
-                            <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;">
-                                {rfi.priority.title()}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;">
-                                <strong>Due Date:</strong>
-                            </td>
-                            <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;">
-                                {due_date_str}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;">
-                                <strong>Location:</strong>
-                            </td>
-                            <td style="padding: 8px 0; border-bottom: 1px solid #f3f4f6;">
-                                {location_str}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 8px 0;">
-                                <strong>Drawing Ref:</strong>
-                            </td>
-                            <td style="padding: 8px 0;">
-                                {drawing_str}
-                            </td>
-                        </tr>
-                    </table>
-
-                    <h3 style="color: #0F172A; margin-bottom: 10px;">Question:</h3>
-                    <div style="background: #f8fafc; padding: 15px; border-radius: 8px; border-left: 4px solid #0369A1;">
-                        {rfi.question.replace(chr(10), '<br>')}
-                    </div>
-
-                    <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
-
-                    <p style="color: #6b7280; font-size: 12px;">
-                        Please reply directly to this email. Your response will be automatically tracked.
-                        <br><br>
-                        <strong>Reference:</strong> {rfi.rfi_number}
-                    </p>
-                </div>
-            </div>
-        </body>
-        </html>
-        """
-
-    def _build_response_email_html(self, rfi: RFI, response_text: str) -> str:
-        return f"""
-        <html>
-        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-                <div style="background: #f8fafc; padding: 15px; border-radius: 8px; border-left: 4px solid #0369A1;">
-                    {response_text.replace(chr(10), '<br>')}
-                </div>
-
-                <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
-
-                <p style="color: #6b7280; font-size: 12px;">
-                    <strong>Reference:</strong> {rfi.rfi_number}
-                </p>
-            </div>
-        </body>
-        </html>
-        """

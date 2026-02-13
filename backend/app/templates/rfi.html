@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block header %}
+{% if not is_response %}
+<tr><td style="background:#0F172A;color:white;padding:20px 32px;border-radius:8px 8px 0 0;">
+<h2 style="margin:0;color:#ffffff;font-size:20px;">Request for Information</h2>
+<p style="margin:5px 0 0;opacity:0.9;color:#cbd5e1;font-size:14px;">{{ rfi.rfi_number }}</p>
+</td></tr>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+{% if is_response %}
+<div style="background:#f8fafc;padding:15px;border-radius:8px;border-left:4px solid #0369A1;">
+{{ response_text | replace('\n', '<br>') }}
+</div>
+<hr style="margin:30px 0;border:none;border-top:1px solid #e5e7eb;">
+<p style="color:#6b7280;font-size:12px;">
+<strong>Reference:</strong> {{ rfi.rfi_number }}
+</p>
+{% else %}
+<div style="border:1px solid #e5e7eb;border-top:none;padding:0;">
+<table style="width:100%;margin-bottom:20px;font-size:14px;">
+<tr>
+<td style="padding:8px 0;border-bottom:1px solid #f3f4f6;"><strong>Category:</strong></td>
+<td style="padding:8px 0;border-bottom:1px solid #f3f4f6;">{{ rfi.category | title }}</td>
+</tr>
+<tr>
+<td style="padding:8px 0;border-bottom:1px solid #f3f4f6;"><strong>Priority:</strong></td>
+<td style="padding:8px 0;border-bottom:1px solid #f3f4f6;">{{ rfi.priority | title }}</td>
+</tr>
+<tr>
+<td style="padding:8px 0;border-bottom:1px solid #f3f4f6;"><strong>Due Date:</strong></td>
+<td style="padding:8px 0;border-bottom:1px solid #f3f4f6;">{{ due_date }}</td>
+</tr>
+<tr>
+<td style="padding:8px 0;border-bottom:1px solid #f3f4f6;"><strong>Location:</strong></td>
+<td style="padding:8px 0;border-bottom:1px solid #f3f4f6;">{{ location }}</td>
+</tr>
+<tr>
+<td style="padding:8px 0;"><strong>Drawing Ref:</strong></td>
+<td style="padding:8px 0;">{{ drawing_ref }}</td>
+</tr>
+</table>
+
+<h3 style="color:#0F172A;margin-bottom:10px;">Question:</h3>
+<div style="background:#f8fafc;padding:15px;border-radius:8px;border-left:4px solid #0369A1;">
+{{ rfi.question | replace('\n', '<br>') }}
+</div>
+
+<hr style="margin:30px 0;border:none;border-top:1px solid #e5e7eb;">
+
+<p style="color:#6b7280;font-size:12px;">
+Please reply directly to this email. Your response will be automatically tracked.
+<br><br>
+<strong>Reference:</strong> {{ rfi.rfi_number }}
+</p>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block footer %}{% endblock %}

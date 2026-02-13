@@ -18,62 +18,11 @@ from app.schemas.user import (
     MessageResponse, PasswordResetConfirm, PasswordResetRequest,
     TokenResponse, UserLogin, UserRegister, UserResponse, UserUpdate,
 )
+from app.services.email_renderer import render_password_reset_email, render_welcome_email
 from app.services.email_service import EmailService
 from app.utils.localization import get_language_from_request, translate_message
 
 logger = logging.getLogger(__name__)
-
-WELCOME_STRINGS = {
-    "en": {
-        "subject": "Welcome to BuilderOps!",
-        "greeting": "Welcome, {name}!",
-        "message": "Your account has been created successfully. You can now manage construction projects, track equipment approvals, schedule inspections, and collaborate with your team.",
-        "cta": "Go to Dashboard",
-        "footer": "This is an automated message from BuilderOps.",
-    },
-    "he": {
-        "subject": "!BuilderOps-ברוכים הבאים ל",
-        "greeting": "!{name} ,ברוכים הבאים",
-        "message": "החשבון שלך נוצר בהצלחה. כעת תוכל לנהל פרויקטי בנייה, לעקוב אחר אישורי ציוד, לתזמן בדיקות ולשתף פעולה עם הצוות שלך.",
-        "cta": "עבור ללוח הבקרה",
-        "footer": ".זוהי הודעה אוטומטית מ-BuilderOps",
-    },
-}
-
-
-def render_welcome_email(name: str, language: str, frontend_url: str) -> tuple[str, str]:
-    s = WELCOME_STRINGS.get(language, WELCOME_STRINGS["en"])
-    direction = "rtl" if language == "he" else "ltr"
-    align = "right" if language == "he" else "left"
-    esc_name = name.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-
-    subject = s["subject"]
-    body_html = f"""<!DOCTYPE html>
-<html lang="{language}" dir="{direction}">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-<body style="margin:0;padding:0;background-color:#f4f5f7;font-family:Arial,Helvetica,sans-serif;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f5f7;">
-<tr><td align="center" style="padding:24px 16px;">
-<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background-color:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
-<tr><td style="background:linear-gradient(135deg,#1565c0,#0d47a1);padding:36px 32px;text-align:center;">
-<h1 style="margin:0;color:#ffffff;font-size:24px;font-weight:700;">{s["greeting"].format(name=esc_name)}</h1>
-</td></tr>
-<tr><td style="padding:32px;text-align:{align};">
-<p style="margin:0 0 24px;color:#424242;font-size:15px;line-height:1.7;">{s["message"]}</p>
-<div style="text-align:center;">
-<a href="{frontend_url}/dashboard" style="display:inline-block;background-color:#1565c0;color:#ffffff;text-decoration:none;padding:12px 32px;border-radius:6px;font-size:14px;font-weight:600;">{s["cta"]}</a>
-</div>
-</td></tr>
-<tr><td style="background-color:#f8f9fa;padding:16px 32px;text-align:center;border-top:1px solid #e0e0e0;">
-<p style="margin:0;color:#9e9e9e;font-size:12px;">{s["footer"]}</p>
-</td></tr>
-</table>
-</td></tr>
-</table>
-</body>
-</html>"""
-    return subject, body_html
-
 
 router = APIRouter()
 
@@ -239,12 +188,7 @@ async def forgot_password(
 
         settings = get_settings()
         reset_url = f"{settings.frontend_base_url}/reset-password?token={token}"
-        body_html = (
-            f"<p>You requested a password reset for your BuilderOps account.</p>"
-            f"<p><a href='{reset_url}'>Click here to reset your password</a></p>"
-            f"<p>This link expires in 1 hour.</p>"
-            f"<p>If you didn't request this, please ignore this email.</p>"
-        )
+        subject, body_html = render_password_reset_email(reset_url, language)
 
         try:
             email_service = EmailService()
@@ -252,7 +196,7 @@ async def forgot_password(
                 background_tasks.add_task(
                     email_service.send_notification,
                     to_email=user.email,
-                    subject="BuilderOps - Password Reset",
+                    subject=subject,
                     body_html=body_html,
                 )
         except Exception:
