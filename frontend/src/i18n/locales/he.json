@@ -197,7 +197,8 @@
     "rfis": "בקשות מידע",
     "auditLog": "יומן ביקורת",
     "settings": "הגדרות",
-    "home": "דף הבית"
+    "home": "דף הבית",
+    "bim": "מודלי BIM"
   },
   "profile": {
     "title": "פרופיל",
@@ -1484,5 +1485,32 @@
     "revised": "תוקן",
     "resubmitted": "הוגש מחדש",
     "changes": "שינויים:"
+  },
+  "bim": {
+    "title": "מודלי BIM",
+    "subtitle": "העלאה, תרגום וצפייה במודלים תלת-ממדיים",
+    "upload": "העלאת מודל",
+    "uploading": "מעלה...",
+    "uploadSuccess": "המודל הועלה בהצלחה!",
+    "uploadFailed": "העלאת המודל נכשלה",
+    "translate": "תרגום מודל",
+    "translateFailed": "הפעלת התרגום נכשלה",
+    "translating": "מתרגם...",
+    "translationComplete": "תרגום המודל הושלם!",
+    "viewer": "תצוגה תלת-ממדית",
+    "viewerLoadError": "טעינת התצוגה התלת-ממדית נכשלה",
+    "noModels": "אין מודלי BIM",
+    "noModelsDescription": "העלו קובץ Revit או IFC ראשון כדי להתחיל",
+    "deleteConfirmation": "מחיקת מודל",
+    "deleteConfirmationMessage": "האם אתה בטוח שברצונך למחוק את \"{{name}}\"? פעולה זו לא ניתנת לביטול.",
+    "deleteSuccess": "המודל נמחק בהצלחה!",
+    "deleteFailed": "מחיקת המודל נכשלה",
+    "failedToLoad": "טעינת מודלי BIM נכשלה",
+    "status": {
+      "uploaded": "הועלה",
+      "translating": "בתרגום",
+      "complete": "מוכן",
+      "failed": "נכשל"
+    }
   }
 }

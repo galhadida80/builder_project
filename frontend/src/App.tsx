@@ -33,6 +33,7 @@ import ProfilePage from './pages/ProfilePage'
 import InvitePage from './pages/InvitePage'
 import AdminUsersPage from './pages/AdminUsersPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
+import BIMPage from './pages/BIMPage'
 
 function ProtectedRoute() {
   const { user, loading } = useAuth()
@@ -79,6 +80,7 @@ function AppRoutes() {
               <Route path="contacts" element={<ContactsPage />} />
               <Route path="inspections" element={<InspectionsPage />} />
               <Route path="rfis" element={<RFIPage />} />
+              <Route path="bim" element={<BIMPage />} />
             </Route>
 
             <Route path="/approvals" element={<ApprovalsPage />} />

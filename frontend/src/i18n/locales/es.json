@@ -452,7 +452,8 @@
     "rfis": "RFIs",
     "auditLog": "Registro de Auditoría",
     "settings": "Configuración",
-    "home": "Inicio"
+    "home": "Inicio",
+    "bim": "Modelos BIM"
   },
   "profile": {
     "title": "Perfil",
@@ -1193,5 +1194,32 @@
     "failedToLoadUsers": "Error al cargar usuarios",
     "failedToUpdateUser": "Error al actualizar usuario",
     "superAdminLabel": "Super Admin"
+  },
+  "bim": {
+    "title": "Modelos BIM",
+    "subtitle": "Suba, traduzca y visualice modelos 3D BIM",
+    "upload": "Subir Modelo",
+    "uploading": "Subiendo...",
+    "uploadSuccess": "Modelo subido exitosamente!",
+    "uploadFailed": "Error al subir el modelo",
+    "translate": "Traducir Modelo",
+    "translateFailed": "Error al iniciar la traduccion",
+    "translating": "Traduciendo...",
+    "translationComplete": "Traduccion del modelo completada!",
+    "viewer": "Visor 3D",
+    "viewerLoadError": "Error al cargar el visor 3D",
+    "noModels": "Sin Modelos BIM",
+    "noModelsDescription": "Suba su primer archivo Revit o IFC para comenzar",
+    "deleteConfirmation": "Eliminar Modelo",
+    "deleteConfirmationMessage": "Esta seguro de que desea eliminar \"{{name}}\"? Esta accion no se puede deshacer.",
+    "deleteSuccess": "Modelo eliminado exitosamente!",
+    "deleteFailed": "Error al eliminar el modelo",
+    "failedToLoad": "Error al cargar modelos BIM",
+    "status": {
+      "uploaded": "Subido",
+      "translating": "Traduciendo",
+      "complete": "Listo",
+      "failed": "Fallido"
+    }
   }
 }

@@ -500,3 +500,21 @@ export interface InspectionHistoryEvent {
   newValues?: Record<string, unknown>
   createdAt: string
 }
+
+export type TranslationStatus = 'uploaded' | 'translating' | 'complete' | 'failed'
+
+export interface BimModel {
+  id: string
+  projectId: string
+  filename: string
+  fileSize?: number
+  storagePath?: string
+  urn?: string
+  translationStatus: TranslationStatus
+  translationProgress: number
+  metadataJson?: Record<string, unknown>
+  uploadedById?: string
+  uploadedBy?: User
+  createdAt: string
+  updatedAt: string
+}

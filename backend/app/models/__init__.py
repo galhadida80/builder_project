@@ -1,6 +1,7 @@
 from app.models.approval import ApprovalRequest, ApprovalStep
 from app.models.area import AreaProgress, ConstructionArea
 from app.models.audit import AuditLog
+from app.models.bim import AutodeskConnection, BimModel
 from app.models.chat import ChatConversation, ChatMessage
 from app.models.chat_action import ChatAction
 from app.models.checklist import (
@@ -90,4 +91,6 @@ __all__ = [
     "ChatAction",
     "PermissionOverride",
     "ProjectInvitation",
+    "BimModel",
+    "AutodeskConnection",
 ]

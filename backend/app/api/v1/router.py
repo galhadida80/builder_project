@@ -7,6 +7,7 @@ from app.api.v1 import (
     areas,
     audit,
     auth,
+    bim,
     chat,
     checklists,
     consultant_assignments,
@@ -59,3 +60,4 @@ api_router.include_router(inspections.router, tags=["inspections"])
 api_router.include_router(invitations.router, tags=["invitations"])
 api_router.include_router(admin.router, prefix="/admin", tags=["admin"])
 api_router.include_router(daily_summary.router, prefix="/tasks", tags=["tasks"])
+api_router.include_router(bim.router, tags=["bim"])

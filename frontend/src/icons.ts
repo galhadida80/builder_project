@@ -134,6 +134,7 @@ export {
   TrendingUp as TrendingUpIcon,
   Tune as TuneIcon,
   Update as UpdateIcon,
+  ViewInAr as ViewInArIcon,
   ViewList as ViewListIcon,
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,

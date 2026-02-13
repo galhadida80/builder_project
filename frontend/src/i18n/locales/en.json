@@ -456,7 +456,8 @@
     "rfis": "RFIs",
     "auditLog": "Audit Log",
     "settings": "Settings",
-    "home": "Home"
+    "home": "Home",
+    "bim": "BIM Models"
   },
   "profile": {
     "title": "Profile",
@@ -1432,5 +1433,32 @@
     "revised": "Revised",
     "resubmitted": "Resubmitted",
     "changes": "Changes:"
+  },
+  "bim": {
+    "title": "BIM Models",
+    "subtitle": "Upload, translate and view 3D BIM models",
+    "upload": "Upload Model",
+    "uploading": "Uploading...",
+    "uploadSuccess": "Model uploaded successfully!",
+    "uploadFailed": "Failed to upload model",
+    "translate": "Translate Model",
+    "translateFailed": "Failed to start translation",
+    "translating": "Translating...",
+    "translationComplete": "Model translation complete!",
+    "viewer": "3D Viewer",
+    "viewerLoadError": "Failed to load 3D viewer",
+    "noModels": "No BIM Models",
+    "noModelsDescription": "Upload your first Revit or IFC file to get started",
+    "deleteConfirmation": "Delete Model",
+    "deleteConfirmationMessage": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
+    "deleteSuccess": "Model deleted successfully!",
+    "deleteFailed": "Failed to delete model",
+    "failedToLoad": "Failed to load BIM models",
+    "status": {
+      "uploaded": "Uploaded",
+      "translating": "Translating",
+      "complete": "Ready",
+      "failed": "Failed"
+    }
   }
 }

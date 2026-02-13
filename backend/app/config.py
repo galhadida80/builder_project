@@ -47,6 +47,10 @@ class Settings(BaseSettings):
 
     scheduler_secret: str = "dev-scheduler-secret-change-in-production"
 
+    aps_client_id: str = ""
+    aps_client_secret: str = ""
+    aps_callback_url: str = "http://localhost:8000/api/v1/bim/callback"
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
