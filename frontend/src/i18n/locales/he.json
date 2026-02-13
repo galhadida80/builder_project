@@ -833,8 +833,11 @@
       "supervisor": "מפקח",
       "inspector": "בודק",
       "engineer": "מהנדס",
-      "manager": "מנהל"
+      "manager": "מנהל",
+      "other": "אחר"
     },
+    "customTypeName": "ציין סוג איש קשר",
+    "customTypeRequired": "נא לציין את סוג איש הקשר",
     "failedToLoad": "נכשל בטעינת אנשי קשר",
     "updateSuccess": "איש הקשר עודכן בהצלחה!",
     "createSuccess": "איש הקשר נוצר בהצלחה!",

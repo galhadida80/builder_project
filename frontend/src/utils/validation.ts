@@ -96,9 +96,18 @@ export const validateSerialNumber = (value: string | undefined | null, fieldName
 }
 
 export const validatePhone = (value: string | undefined | null): string | null => {
-  if (!value) return null
+  if (!value || !value.trim()) return null
   if (!/^[\d\s\-+().]+$/.test(value)) {
     return 'Phone must contain only digits, spaces, and standard phone characters'
+  }
+  let digits = value.replace(/[\s\-().]/g, '')
+  if (digits.startsWith('+972')) {
+    digits = '0' + digits.slice(4)
+  } else if (digits.startsWith('972')) {
+    digits = '0' + digits.slice(3)
+  }
+  if (!/^0[2-9]\d{7,8}$/.test(digits)) {
+    return 'Please enter a valid Israeli phone number (e.g. 050-1234567, 02-1234567)'
   }
   return null
 }
@@ -211,7 +220,7 @@ export const validateContactForm = (data: { contact_name?: string; email?: strin
   errors.contact_type = validateRequired(data.contact_type, 'Contact Type')
     || validateMaxLength(data.contact_type, VALIDATION.MAX_CONTACT_TYPE_LENGTH, 'Contact Type')
 
-  errors.email = validateEmail(data.email)
+  errors.email = validateRequired(data.email, 'Email') || validateEmail(data.email)
   errors.phone = validatePhone(data.phone)
   errors.company_name = validateMaxLength(data.company_name, VALIDATION.MAX_COMPANY_NAME_LENGTH, 'Company')
   errors.role_description = validateMaxLength(data.role_description, VALIDATION.MAX_ROLE_DESCRIPTION_LENGTH, 'Role Description')

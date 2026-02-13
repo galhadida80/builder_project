@@ -167,12 +167,19 @@ export const searchQuerySchema = z
     'Search query contains invalid characters'
   )
 
-// Phone validation
-const phoneRegex = /^[\d\s\-+().]+$/
+// Phone validation (Israeli format)
+const phoneCharRegex = /^[\d\s\-+().]+$/
 export const phoneSchema = z
   .string()
-  .max(50, 'Phone must not exceed 50 characters')
-  .refine((val) => !val || phoneRegex.test(val), 'Phone must contain only digits, spaces, and standard phone characters')
+  .max(30, 'Phone must not exceed 30 characters')
+  .refine((val) => !val || phoneCharRegex.test(val), 'Phone must contain only digits, spaces, and standard phone characters')
+  .refine((val) => {
+    if (!val) return true
+    let digits = val.replace(/[\s\-().]/g, '')
+    if (digits.startsWith('+972')) digits = '0' + digits.slice(4)
+    else if (digits.startsWith('972')) digits = '0' + digits.slice(3)
+    return /^0[2-9]\d{7,8}$/.test(digits)
+  }, 'Please enter a valid Israeli phone number (e.g. 050-1234567, 02-1234567)')
   .optional()
   .or(z.literal(''))
 

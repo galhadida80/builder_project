@@ -36,6 +36,7 @@ export default function ContactsPage() {
   const [formData, setFormData] = useState({
     contactName: '',
     contactType: '',
+    customType: '',
     companyName: '',
     email: '',
     phone: '',
@@ -50,6 +51,7 @@ export default function ContactsPage() {
     { value: 'inspector', label: t('contacts.types.inspector'), color: '#ed6c02' },
     { value: 'engineer', label: t('contacts.types.engineer'), color: '#0288d1' },
     { value: 'manager', label: t('contacts.types.manager'), color: '#d32f2f' },
+    { value: 'other', label: t('contacts.types.other'), color: '#757575' },
   ]
 
   useEffect(() => {
@@ -78,7 +80,7 @@ export default function ContactsPage() {
   }
 
   const resetForm = () => {
-    setFormData({ contactName: '', contactType: '', companyName: '', email: '', phone: '', roleDescription: '', userId: '' })
+    setFormData({ contactName: '', contactType: '', customType: '', companyName: '', email: '', phone: '', roleDescription: '', userId: '' })
     setErrors({})
     setEditingContact(null)
   }
@@ -95,9 +97,12 @@ export default function ContactsPage() {
 
   const handleOpenEdit = (contact: Contact) => {
     setEditingContact(contact)
+    const knownTypes = contactTypes.map(t => t.value)
+    const isKnownType = knownTypes.includes(contact.contactType)
     setFormData({
       contactName: contact.contactName,
-      contactType: contact.contactType,
+      contactType: isKnownType ? contact.contactType : 'other',
+      customType: isKnownType ? '' : contact.contactType,
       companyName: contact.companyName || '',
       email: contact.email || '',
       phone: contact.phone || '',
@@ -110,16 +115,17 @@ export default function ContactsPage() {
 
   const handleSaveContact = async () => {
     if (!projectId) return
+    const resolvedType = formData.contactType === 'other' ? formData.customType : formData.contactType
     const validationErrors = validateContactForm({
       contact_name: formData.contactName,
-      contact_type: formData.contactType,
+      contact_type: resolvedType,
       email: formData.email,
       phone: formData.phone,
       company_name: formData.companyName,
       role_description: formData.roleDescription
     })
-    if (!formData.email && !formData.phone) {
-      validationErrors.email = t('contacts.emailOrPhoneRequired')
+    if (formData.contactType === 'other' && !formData.customType.trim()) {
+      validationErrors.customType = t('contacts.customTypeRequired')
     }
     setErrors(validationErrors)
     if (hasErrors(validationErrors)) return
@@ -128,9 +134,9 @@ export default function ContactsPage() {
     try {
       const payload = {
         contact_name: formData.contactName,
-        contact_type: formData.contactType,
+        contact_type: resolvedType,
         company_name: formData.companyName || undefined,
-        email: formData.email || undefined,
+        email: formData.email,
         phone: formData.phone || undefined,
         role_description: formData.roleDescription || undefined,
         user_id: formData.userId || undefined
@@ -304,7 +310,7 @@ export default function ContactsPage() {
                   {filteredContacts.map((contact) => {
                     const typeConfig = getTypeConfig(contact.contactType)
                     return (
-                      <TableRow key={contact.id} hover sx={{ '&:last-child td': { borderBottom: 0 } }}>
+                      <TableRow key={contact.id} hover onClick={() => handleOpenEdit(contact)} sx={{ cursor: 'pointer', '&:last-child td': { borderBottom: 0 } }}>
                         <TableCell>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                             <Avatar name={contact.contactName} size="small" />
@@ -374,7 +380,7 @@ export default function ContactsPage() {
                             <Typography variant="body2" color="text.disabled">0</Typography>
                           )}
                         </TableCell>
-                        <TableCell align="center">
+                        <TableCell align="center" onClick={(e) => e.stopPropagation()}>
                           <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center' }}>
                             <IconButton size="small" onClick={() => handleOpenEdit(contact)}>
                               <EditIcon fontSize="small" />
@@ -418,14 +424,25 @@ export default function ContactsPage() {
             label={t('contacts.contactType')}
             required
             value={formData.contactType}
-            onChange={(e) => setFormData({ ...formData, contactType: e.target.value })}
-            error={!!errors.contactType}
-            helperText={errors.contactType}
+            onChange={(e) => setFormData({ ...formData, contactType: e.target.value, customType: e.target.value === 'other' ? formData.customType : '' })}
+            error={!!errors.contact_type}
+            helperText={errors.contact_type}
           >
             {contactTypes.map(type => (
               <MenuItem key={type.value} value={type.value}>{type.label}</MenuItem>
             ))}
           </MuiTextField>
+          {formData.contactType === 'other' && (
+            <TextField
+              fullWidth
+              label={t('contacts.customTypeName')}
+              required
+              value={formData.customType}
+              onChange={(e) => setFormData({ ...formData, customType: e.target.value })}
+              error={!!errors.customType}
+              helperText={errors.customType}
+            />
+          )}
           <TextField
             fullWidth
             label={t('contacts.companyName')}
@@ -437,6 +454,7 @@ export default function ContactsPage() {
               fullWidth
               label={t('contacts.email')}
               type="email"
+              required
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               error={!!errors.email}

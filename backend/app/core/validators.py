@@ -50,8 +50,17 @@ def validate_phone(value: Optional[str]) -> Optional[str]:
     if value is None:
         return None
     value = value.strip()
-    if value and not re.match(r'^[\d\s\-\+\(\)\.]+$', value):
+    if not value:
+        return None
+    if not re.match(r'^[\d\s\-\+\(\)\.]+$', value):
         raise ValueError('Phone must contain only digits, spaces, and standard phone characters')
+    digits = re.sub(r'[\s\-\(\)\.]', '', value)
+    if digits.startswith('+972'):
+        digits = '0' + digits[4:]
+    elif digits.startswith('972'):
+        digits = '0' + digits[3:]
+    if not re.match(r'^0[2-9]\d{7,8}$', digits):
+        raise ValueError('Please enter a valid Israeli phone number (e.g. 050-1234567, 02-1234567)')
     return value
 
 

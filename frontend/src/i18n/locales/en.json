@@ -726,8 +726,11 @@
       "supervisor": "Supervisor",
       "inspector": "Inspector",
       "engineer": "Engineer",
-      "manager": "Manager"
+      "manager": "Manager",
+      "other": "Other"
     },
+    "customTypeName": "Specify Contact Type",
+    "customTypeRequired": "Please specify the contact type",
     "failedToLoad": "Failed to load contacts",
     "updateSuccess": "Contact updated successfully!",
     "createSuccess": "Contact created successfully!",

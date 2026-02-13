@@ -21,7 +21,7 @@ class ContactBase(BaseModel):
     contact_type: str = Field(min_length=1, max_length=50)
     company_name: Optional[str] = Field(default=None, max_length=MAX_NAME_LENGTH)
     contact_name: str = Field(min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
-    email: Optional[EmailStr] = None
+    email: EmailStr
     phone: Optional[str] = Field(default=None, max_length=MAX_PHONE_LENGTH)
     role_description: Optional[str] = Field(default=None, max_length=MAX_DESCRIPTION_LENGTH)
     is_primary: bool = False

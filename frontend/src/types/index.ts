@@ -65,10 +65,10 @@ export interface LinkedUser {
 export interface Contact {
   id: string
   projectId: string
-  contactType: 'contractor' | 'consultant' | 'supervisor' | 'inspector' | 'engineer' | 'manager'
+  contactType: string
   companyName?: string
   contactName: string
-  email?: string
+  email: string
   phone?: string
   roleDescription?: string
   isPrimary: boolean
