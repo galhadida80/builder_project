@@ -7,11 +7,11 @@ from uuid import UUID
 from pydantic import BaseModel, Field, field_validator
 
 from app.core.validators import MAX_NOTES_LENGTH, CamelCaseModel, sanitize_string
+from app.schemas.user import UserResponse
 
 ReviewStatusLiteral = Literal[
     "pending", "in_review", "approved", "rejected", "changes_requested"
 ]
-from app.schemas.user import UserResponse
 
 
 # Document Comment Schemas
