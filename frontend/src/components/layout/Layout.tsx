@@ -85,7 +85,7 @@ export default function Layout() {
         component="main"
         sx={{
           flexGrow: 1,
-          p: { xs: 1, md: 2 },
+          p: { xs: 1, sm: 1.5, md: 2 },
           bgcolor: 'background.default',
           minHeight: '100vh',
         }}

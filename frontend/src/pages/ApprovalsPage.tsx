@@ -122,10 +122,10 @@ export default function ApprovalsPage() {
 
   if (loading) {
     return (
-      <Box sx={{ p: 3 }}>
+      <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
         <Skeleton variant="text" width={200} height={48} sx={{ mb: 1 }} />
         <Skeleton variant="text" width={300} height={24} sx={{ mb: 4 }} />
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 2, mb: 4 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 2, mb: 4 }}>
           {[...Array(4)].map((_, i) => (
             <Skeleton key={i} variant="rounded" height={100} sx={{ borderRadius: 3 }} />
           ))}
@@ -136,7 +136,7 @@ export default function ApprovalsPage() {
   }
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
       <PageHeader
         title={t('approvals.title')}
         subtitle={t('approvals.subtitle')}
@@ -217,8 +217,8 @@ export default function ApprovalsPage() {
                 return (
                   <Card key={approval.id} hoverable>
                     <Box sx={{ p: 2.5 }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                        <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start', flex: 1 }}>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-start', gap: { xs: 2, sm: 0 } }}>
+                        <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start', flex: 1, minWidth: 0 }}>
                           <Box
                             sx={{
                               width: 48,
@@ -293,7 +293,7 @@ export default function ApprovalsPage() {
                           <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ mb: 1.5, display: 'block' }}>
                             {t('approvals.approvalWorkflow')}
                           </Typography>
-                          <Box sx={{ display: 'flex', gap: 1 }}>
+                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                             {approval.steps.map((step, index) => {
                               const status = getStepStatus(step)
                               return (
@@ -303,6 +303,7 @@ export default function ApprovalsPage() {
                                     display: 'flex',
                                     alignItems: 'center',
                                     flex: 1,
+                                    minWidth: { xs: 60, sm: 80 },
                                   }}
                                 >
                                   <Box

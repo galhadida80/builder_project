@@ -389,7 +389,7 @@ export default function RFIPage() {
 
   if (loading && rfis.length === 0) {
     return (
-      <Box sx={{ p: 3 }}>
+      <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
         <Skeleton variant="text" width={200} height={48} sx={{ mb: 1 }} />
         <Skeleton variant="text" width={300} height={24} sx={{ mb: 4 }} />
         <Skeleton variant="rounded" height={500} sx={{ borderRadius: 3 }} />
@@ -398,7 +398,7 @@ export default function RFIPage() {
   }
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
       <PageHeader
         title={t('rfis.title')}
         subtitle={t('rfis.subtitle')}
@@ -473,13 +473,13 @@ export default function RFIPage() {
         PaperProps={{ sx: { width: { xs: '100%', sm: 520 }, borderRadius: '16px 0 0 16px' } }}
       >
         {detailLoading ? (
-          <Box sx={{ p: 3 }}>
+          <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
             <Skeleton variant="text" width={200} height={32} />
             <Skeleton variant="text" width={150} height={24} sx={{ mb: 2 }} />
             <Skeleton variant="rounded" height={200} />
           </Box>
         ) : selectedRfi && (
-          <Box sx={{ p: 3 }}>
+          <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
               <Typography variant="h6" fontWeight={600}>{t('rfis.details')}</Typography>
               <IconButton onClick={handleCloseDrawer} size="small">

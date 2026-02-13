@@ -105,10 +105,10 @@ export default function ProjectDetailPage() {
             borderRadius: 3,
           }}
         >
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <Box>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
-                <Typography variant="h4" fontWeight={700} color="white">
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 2 }}>
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1, flexWrap: 'wrap' }}>
+                <Typography variant="h4" fontWeight={700} color="white" sx={{ fontSize: { xs: '1.5rem', sm: '2.125rem' } }}>
                   {project.name}
                 </Typography>
                 <Chip
@@ -127,7 +127,7 @@ export default function ProjectDetailPage() {
                   {project.description}
                 </Typography>
               )}
-              <Box sx={{ display: 'flex', gap: 4, mt: 2 }}>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: { xs: 1, sm: 4 }, mt: 2 }}>
                 {project.address && (
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <LocationOnIcon sx={{ fontSize: 18, color: 'rgba(255,255,255,0.7)' }} />
@@ -147,8 +147,10 @@ export default function ProjectDetailPage() {
                 )}
               </Box>
             </Box>
-            <Button variant="secondary" icon={<EditIcon />} sx={{ bgcolor: 'rgba(255,255,255,0.1)', color: 'white', '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' } }}>
-              {t('projectDetail.editProject')}
+            <Button variant="secondary" icon={<EditIcon />} sx={{ bgcolor: 'rgba(255,255,255,0.1)', color: 'white', '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' }, flexShrink: 0 }}>
+              <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
+                {t('projectDetail.editProject')}
+              </Box>
             </Button>
           </Box>
         </Box>

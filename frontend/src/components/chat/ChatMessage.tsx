@@ -1,9 +1,10 @@
 import { memo, useMemo } from 'react'
 import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import ChatActionCard from './ChatActionCard'
 import type { ChatMessage as ChatMessageType } from '../../api/chat'
 import { SmartToyIcon, PersonIcon } from '@/icons'
-import { Box, Typography, Paper, Chip, Stack } from '@/mui'
+import { Box, Typography, Paper, Chip, Stack, useTheme } from '@/mui'
 
 function parseSuggestions(content: string): { cleanContent: string; suggestions: string[] } {
   const lines = content.split('\n')
@@ -42,6 +43,11 @@ interface ChatMessageProps {
 export default memo(function ChatMessage({ message, onActionExecute, onActionReject, onSuggestionClick }: ChatMessageProps) {
   const isUser = message.role === 'user'
   const actions = message.pendingActions || []
+  const theme = useTheme()
+  const isDark = theme.palette.mode === 'dark'
+  const borderColor = isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)'
+  const headerBg = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'
+  const codeBg = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'
 
   const { cleanContent, suggestions } = useMemo(() => {
     if (!isUser && message.content) return parseSuggestions(message.content)
@@ -104,7 +110,7 @@ export default memo(function ChatMessage({ message, onActionExecute, onActionRej
                 '& h3': { fontSize: '1rem' },
                 '& h4': { fontSize: '0.9rem' },
                 '& code': {
-                  bgcolor: 'rgba(0,0,0,0.06)',
+                  bgcolor: codeBg,
                   px: 0.5,
                   py: 0.25,
                   borderRadius: 0.5,
@@ -112,27 +118,13 @@ export default memo(function ChatMessage({ message, onActionExecute, onActionRej
                   fontFamily: 'monospace',
                 },
                 '& pre': {
-                  bgcolor: 'rgba(0,0,0,0.06)',
+                  bgcolor: codeBg,
                   p: 1.5,
                   borderRadius: 1,
                   overflow: 'auto',
                   my: 1,
                   '& code': { bgcolor: 'transparent', p: 0 },
                 },
-                '& table': {
-                  width: '100%',
-                  borderCollapse: 'collapse',
-                  fontSize: '0.8rem',
-                  my: 1,
-                },
-                '& th, & td': {
-                  border: '1px solid',
-                  borderColor: 'divider',
-                  px: 1,
-                  py: 0.5,
-                  textAlign: 'start',
-                },
-                '& th': { fontWeight: 600, bgcolor: 'rgba(0,0,0,0.04)' },
                 '& hr': { my: 1, borderColor: 'divider' },
                 '& blockquote': {
                   borderInlineStart: '3px solid',
@@ -144,7 +136,30 @@ export default memo(function ChatMessage({ message, onActionExecute, onActionRej
                 },
               }}
             >
-              <ReactMarkdown>{cleanContent}</ReactMarkdown>
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  table: ({ children }) => (
+                    <Box sx={{ overflowX: 'auto', my: 1, WebkitOverflowScrolling: 'touch' }}>
+                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                        {children}
+                      </table>
+                    </Box>
+                  ),
+                  th: ({ children }) => (
+                    <th style={{ border: `1px solid ${borderColor}`, padding: '6px 10px', textAlign: 'left', fontWeight: 600, backgroundColor: headerBg }}>
+                      {children}
+                    </th>
+                  ),
+                  td: ({ children }) => (
+                    <td style={{ border: `1px solid ${borderColor}`, padding: '6px 10px' }}>
+                      {children}
+                    </td>
+                  ),
+                }}
+              >
+                {cleanContent}
+              </ReactMarkdown>
             </Box>
           )}
         </Paper>

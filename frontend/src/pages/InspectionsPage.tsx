@@ -281,7 +281,7 @@ export default function InspectionsPage() {
 
   if (loading) {
     return (
-      <Box sx={{ p: 3 }}>
+      <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
         <Skeleton variant="text" width={350} height={48} sx={{ mb: 1 }} />
         <Skeleton variant="text" width={250} height={24} sx={{ mb: 4 }} />
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(6, 1fr)' }, gap: 2, mb: 4 }}>
@@ -295,7 +295,7 @@ export default function InspectionsPage() {
   }
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
       <PageHeader
         title={t('inspections.title')}
         subtitle={t('inspections.subtitle')}

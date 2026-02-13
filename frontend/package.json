@@ -45,6 +45,7 @@
     "react-markdown": "^10.1.0",
     "react-router-dom": "^6.21.3",
     "react-signature-canvas": "^1.1.0-alpha.2",
+    "remark-gfm": "^4.0.1",
     "stylis-plugin-rtl": "^2.1.1",
     "vite-plugin-pwa": "^1.2.0",
     "zod": "^4.3.6"

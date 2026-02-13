@@ -58,12 +58,13 @@ export default memo(function Sidebar({ projectId, mobileOpen = false, onMobileCl
     } else {
       navigate(path)
     }
+    onMobileClose?.()
   }
 
   const drawerContent = (
     <>
       <Box
-        onClick={() => navigate('/dashboard')}
+        onClick={() => { navigate('/dashboard'); onMobileClose?.() }}
         sx={{
           p: 2.5,
           display: 'flex',

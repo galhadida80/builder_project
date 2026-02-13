@@ -396,7 +396,7 @@ export default function EquipmentPage() {
 
   if (loading) {
     return (
-      <Box sx={{ p: 3 }}>
+      <Box sx={{ p: { xs: 1, sm: 1.5, md: 3 } }}>
         <Skeleton variant="text" width={200} height={48} sx={{ mb: 1 }} />
         <Skeleton variant="text" width={300} height={24} sx={{ mb: 4 }} />
         <Skeleton variant="rounded" height={500} sx={{ borderRadius: 3 }} />
@@ -405,7 +405,7 @@ export default function EquipmentPage() {
   }
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: { xs: 1, sm: 1.5, md: 3 } }}>
       <PageHeader
         title={t('equipment.title')}
         subtitle={t('equipment.subtitle')}
@@ -419,7 +419,7 @@ export default function EquipmentPage() {
 
       <Card>
         <Box sx={{ p: 2.5 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, gap: 1.5, mb: 3 }}>
             <SearchField
               placeholder={t('equipment.searchPlaceholder')}
               value={search}
@@ -459,7 +459,7 @@ export default function EquipmentPage() {
         PaperProps={{ sx: { width: { xs: '100%', sm: 480 }, borderRadius: '16px 0 0 16px' } }}
       >
         {selectedEquipment && (
-          <Box sx={{ p: 3 }}>
+          <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
               <Typography variant="h6" fontWeight={600}>{t('equipment.details')}</Typography>
               <IconButton onClick={handleCloseDrawer} size="small">
@@ -497,10 +497,10 @@ export default function EquipmentPage() {
             <Box
               sx={{
                 display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
+                gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' },
                 gap: 2,
                 mb: 3,
-                p: 2,
+                p: { xs: 1.5, sm: 2 },
                 bgcolor: 'action.hover',
                 borderRadius: 2,
               }}
@@ -629,7 +629,7 @@ export default function EquipmentPage() {
             </Typography>
             <ApprovalStepper status={selectedEquipment.status as 'draft' | 'submitted' | 'under_review' | 'approved' | 'rejected'} />
 
-            <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
+            <Box sx={{ mt: 3, display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
               {selectedEquipment.status === 'draft' && (
                 <Button
                   variant="primary"
@@ -754,7 +754,7 @@ export default function EquipmentPage() {
                     </Typography>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, p: 2, bgcolor: 'action.hover', borderRadius: 2 }}>
                       {selectedTemplate.required_documents.map((doc) => (
-                        <Box key={doc.name} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 1.5, bgcolor: 'background.paper', borderRadius: 1, border: '1px solid', borderColor: 'divider' }}>
+                        <Box key={doc.name} sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'flex-start', sm: 'center' }, justifyContent: 'space-between', gap: 1, p: 1.5, bgcolor: 'background.paper', borderRadius: 1, border: '1px solid', borderColor: 'divider' }}>
                           <Box>
                             <Typography variant="body2" fontWeight={500}>
                               {doc.name_he}
@@ -845,7 +845,7 @@ export default function EquipmentPage() {
             value={formData.manufacturer}
             onChange={(e) => setFormData({ ...formData, manufacturer: e.target.value })}
           />
-          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
             <TextField
               fullWidth
               label={t('equipment.model')}

@@ -421,10 +421,10 @@ export default function MaterialsPage() {
 
   if (loading) {
     return (
-      <Box sx={{ p: 3 }}>
+      <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
         <Skeleton variant="text" width={200} height={48} sx={{ mb: 1 }} />
         <Skeleton variant="text" width={300} height={24} sx={{ mb: 4 }} />
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 2, mb: 4 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 2, mb: 4 }}>
           {[...Array(4)].map((_, i) => (
             <Skeleton key={i} variant="rounded" height={100} sx={{ borderRadius: 3 }} />
           ))}
@@ -435,7 +435,7 @@ export default function MaterialsPage() {
   }
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
       <PageHeader
         title={t('materials.title')}
         subtitle={t('materials.subtitle')}
@@ -483,7 +483,7 @@ export default function MaterialsPage() {
 
       <Card>
         <Box sx={{ p: 2.5 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, flexDirection: { xs: 'column', sm: 'row' }, gap: { xs: 1.5, sm: 0 }, mb: 3 }}>
             <SearchField
               placeholder={t('materials.searchPlaceholder')}
               value={search}
@@ -533,7 +533,7 @@ export default function MaterialsPage() {
         PaperProps={{ sx: { width: { xs: '100%', sm: 480 }, borderRadius: '16px 0 0 16px' } }}
       >
         {selectedMaterial && (
-          <Box sx={{ p: 3 }}>
+          <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
               <Typography variant="h6" fontWeight={600}>{t('materials.details')}</Typography>
               <IconButton onClick={handleCloseDrawer} size="small">
@@ -571,7 +571,7 @@ export default function MaterialsPage() {
             <Box
               sx={{
                 display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
+                gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' },
                 gap: 2,
                 mb: 3,
                 p: 2,
@@ -719,7 +719,7 @@ export default function MaterialsPage() {
             </Typography>
             <ApprovalStepper status={selectedMaterial.status as 'draft' | 'submitted' | 'under_review' | 'approved' | 'rejected'} />
 
-            <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
+            <Box sx={{ mt: 3, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
               {selectedMaterial.status === 'draft' && (
                 <Button
                   variant="primary"
@@ -937,7 +937,7 @@ export default function MaterialsPage() {
             value={formData.modelNumber}
             onChange={(e) => setFormData({ ...formData, modelNumber: e.target.value })}
           />
-          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
             <TextField
               fullWidth
               label={t('materials.quantity')}
@@ -959,7 +959,7 @@ export default function MaterialsPage() {
               {UNIT_KEYS.map(unit => <MenuItem key={unit} value={unit}>{t(`materials.units.${unit}`)}</MenuItem>)}
             </MuiTextField>
           </Box>
-          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
             <TextField
               fullWidth
               label={t('materials.deliveryDate')}

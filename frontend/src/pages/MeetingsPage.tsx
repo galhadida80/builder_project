@@ -191,7 +191,7 @@ export default function MeetingsPage() {
 
   if (loading) {
     return (
-      <Box sx={{ p: 3 }}>
+      <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
         <Skeleton variant="text" width={200} height={48} sx={{ mb: 1 }} />
         <Skeleton variant="text" width={300} height={24} sx={{ mb: 4 }} />
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, gap: 2, mb: 4 }}>
@@ -209,7 +209,7 @@ export default function MeetingsPage() {
   }
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
       <PageHeader
         title={t('meetings.title')}
         subtitle={t('meetings.subtitle')}
@@ -380,7 +380,7 @@ export default function MeetingsPage() {
         PaperProps={{ sx: { width: { xs: '100%', sm: 420 }, borderRadius: '16px 0 0 16px' } }}
       >
         {selectedMeeting && (
-          <Box sx={{ p: 3 }}>
+          <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
               <Typography variant="h6" fontWeight={600}>{t('meetings.details')}</Typography>
               <IconButton onClick={() => setDetailsOpen(false)} size="small">
@@ -524,7 +524,7 @@ export default function MeetingsPage() {
             value={formData.location}
             onChange={(e) => setFormData({ ...formData, location: e.target.value })}
           />
-          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 2 }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr 1fr' }, gap: 2 }}>
             <TextField
               fullWidth
               label={t('meetings.date')}

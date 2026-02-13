@@ -53,11 +53,11 @@ function AreaNode({ area, level, onEdit, onDelete, t }: AreaNodeProps) {
   const statusColor = STATUS_COLORS[derivedStatus] || 'default'
 
   return (
-    <Box sx={{ marginInlineStart: level * 3 }}>
+    <Box sx={{ marginInlineStart: { xs: level * 1.5, sm: level * 3 } }}>
       <Card hoverable sx={{ mb: 1 }}>
         <Box sx={{ p: 2 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: { xs: 1, sm: 0 } }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 2 } }}>
               {hasChildren ? (
                 <IconButton
                   size="small"
@@ -113,8 +113,8 @@ function AreaNode({ area, level, onEdit, onDelete, t }: AreaNodeProps) {
               </Box>
             </Box>
 
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-              <Box sx={{ width: 160 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 3 } }}>
+              <Box sx={{ width: { xs: 100, sm: 160 } }}>
                 <ProgressBar
                   value={overallProgress}
                   showValue
@@ -127,7 +127,7 @@ function AreaNode({ area, level, onEdit, onDelete, t }: AreaNodeProps) {
                 label={t(`areas.statuses.${derivedStatus}`)}
                 size="small"
                 color={statusColor}
-                sx={{ fontWeight: 500, minWidth: 100 }}
+                sx={{ fontWeight: 500, minWidth: { xs: 'auto', sm: 100 }, display: { xs: 'none', sm: 'flex' } }}
               />
 
               <Box sx={{ display: 'flex', gap: 0.5 }}>
@@ -323,7 +323,7 @@ export default function AreasPage() {
 
   if (loading) {
     return (
-      <Box sx={{ p: 3 }}>
+      <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
         <Skeleton variant="text" width={250} height={48} sx={{ mb: 1 }} />
         <Skeleton variant="text" width={350} height={24} sx={{ mb: 4 }} />
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 2, mb: 4 }}>
@@ -337,7 +337,7 @@ export default function AreasPage() {
   }
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
       <PageHeader
         title={t('areas.pageTitle')}
         subtitle={t('areas.subtitle')}
@@ -386,7 +386,7 @@ export default function AreasPage() {
       <Card sx={{ mb: 4 }}>
         <Box
           sx={{
-            p: 3,
+            p: { xs: 2, sm: 3 },
             background: (theme) =>
               theme.palette.mode === 'dark'
                 ? 'linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%)'
@@ -394,7 +394,7 @@ export default function AreasPage() {
             borderRadius: 3,
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
             <Box>
               <Typography variant="h6" fontWeight={600} color="white">
                 {t('areas.overallProjectProgress')}
@@ -403,8 +403,8 @@ export default function AreasPage() {
                 {t('areas.basedOnAllAreas', { count: allAreas.length })}
               </Typography>
             </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <Box sx={{ width: 200 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 2, sm: 4 } }}>
+              <Box sx={{ width: { xs: 140, sm: 200 } }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                   <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)' }}>
                     {t('areas.progress')}
@@ -506,7 +506,7 @@ export default function AreasPage() {
             helperText={editingArea ? t('areas.codeCannotBeChanged') : (errors.areaCode || t('areas.codeHint'))}
             inputProps={{ maxLength: VALIDATION.MAX_CODE_LENGTH }}
           />
-          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
             <MuiTextField
               fullWidth
               select
@@ -530,7 +530,7 @@ export default function AreasPage() {
                 .map(area => <MenuItem key={area.id} value={area.id}>{area.name}</MenuItem>)}
             </MuiTextField>
           </Box>
-          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
             <TextField
               fullWidth
               label={t('areas.floorNumber')}
