@@ -1,23 +1,30 @@
 from datetime import datetime, timedelta
+from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Path, Query
 from sqlalchemy import case, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import get_current_user
 from app.db.session import get_db
+from app.models.area import ConstructionArea
+from app.models.audit import AuditLog
 from app.models.equipment import ApprovalStatus, Equipment
-from app.models.inspection import Inspection, InspectionStatus
+from app.models.inspection import Finding, Inspection, InspectionStatus
 from app.models.material import Material
 from app.models.meeting import Meeting
 from app.models.project import Project, ProjectMember, ProjectStatus
+from app.models.rfi import RFI
 from app.models.user import User
 from app.schemas.analytics import (
+    DashboardStatsResponse,
     DistributionItem,
     DistributionsResponse,
+    FloorProgress,
     MetricsResponse,
     ProjectTrendsResponse,
     TrendDataPoint,
+    WeeklyActivityPoint,
 )
 
 router = APIRouter()
@@ -290,4 +297,130 @@ async def get_distributions(
         equipment_status=equipment_distribution,
         material_status=material_distribution,
         project_status=project_distribution
+    )
+
+
+@router.get("/projects/{project_id}/dashboard-stats", response_model=DashboardStatsResponse)
+async def get_dashboard_stats(
+    project_id: UUID = Path(...),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    membership = await db.execute(
+        select(ProjectMember).where(
+            ProjectMember.project_id == project_id,
+            ProjectMember.user_id == current_user.id,
+        )
+    )
+    if not membership.scalar_one_or_none() and not current_user.is_super_admin:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=403, detail="Not a project member")
+
+    equip_result = await db.execute(
+        select(Equipment.status, func.count(Equipment.id).label("count"))
+        .where(Equipment.project_id == project_id)
+        .group_by(Equipment.status)
+    )
+    equipment_distribution = [
+        DistributionItem(label=row.status, value=row.count)
+        for row in equip_result.all()
+    ]
+
+    mat_result = await db.execute(
+        select(Material.status, func.count(Material.id).label("count"))
+        .where(Material.project_id == project_id)
+        .group_by(Material.status)
+    )
+    material_distribution = [
+        DistributionItem(label=row.status, value=row.count)
+        for row in mat_result.all()
+    ]
+
+    rfi_result = await db.execute(
+        select(RFI.status, func.count(RFI.id).label("count"))
+        .where(RFI.project_id == project_id)
+        .group_by(RFI.status)
+    )
+    rfi_distribution = [
+        DistributionItem(label=row.status, value=row.count)
+        for row in rfi_result.all()
+    ]
+
+    findings_result = await db.execute(
+        select(Finding.severity, func.count(Finding.id).label("count"))
+        .join(Inspection, Finding.inspection_id == Inspection.id)
+        .where(Inspection.project_id == project_id)
+        .group_by(Finding.severity)
+    )
+    findings_severity = [
+        DistributionItem(label=row.severity, value=row.count)
+        for row in findings_result.all()
+    ]
+
+    today = datetime.utcnow().date()
+    start_date = today - timedelta(days=13)
+    weekly_activity = []
+    for day_offset in range(14):
+        day = start_date + timedelta(days=day_offset)
+        day_start = datetime.combine(day, datetime.min.time())
+        day_end = datetime.combine(day + timedelta(days=1), datetime.min.time())
+
+        counts = {}
+        for entity_type in ["equipment", "material", "inspection", "rfi"]:
+            result = await db.execute(
+                select(func.count())
+                .select_from(AuditLog)
+                .where(
+                    AuditLog.project_id == project_id,
+                    AuditLog.entity_type == entity_type,
+                    AuditLog.created_at >= day_start,
+                    AuditLog.created_at < day_end,
+                )
+            )
+            counts[entity_type] = result.scalar() or 0
+
+        weekly_activity.append(WeeklyActivityPoint(
+            date=day.isoformat(),
+            equipment=counts["equipment"],
+            materials=counts["material"],
+            inspections=counts["inspection"],
+            rfis=counts["rfi"],
+        ))
+
+    area_result = await db.execute(
+        select(
+            ConstructionArea.floor_number,
+            func.count(ConstructionArea.id).label("area_count"),
+            func.avg(ConstructionArea.current_progress).label("avg_progress"),
+        )
+        .where(
+            ConstructionArea.project_id == project_id,
+            ConstructionArea.floor_number.isnot(None),
+        )
+        .group_by(ConstructionArea.floor_number)
+        .order_by(ConstructionArea.floor_number)
+    )
+    area_progress_by_floor = [
+        FloorProgress(
+            floor=row.floor_number,
+            area_count=row.area_count,
+            avg_progress=round(float(row.avg_progress or 0), 1),
+        )
+        for row in area_result.all()
+    ]
+
+    overall_result = await db.execute(
+        select(func.avg(ConstructionArea.current_progress))
+        .where(ConstructionArea.project_id == project_id)
+    )
+    overall_progress = round(float(overall_result.scalar() or 0), 1)
+
+    return DashboardStatsResponse(
+        equipment_distribution=equipment_distribution,
+        material_distribution=material_distribution,
+        rfi_distribution=rfi_distribution,
+        findings_severity=findings_severity,
+        weekly_activity=weekly_activity,
+        area_progress_by_floor=area_progress_by_floor,
+        overall_progress=overall_progress,
     )

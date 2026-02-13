@@ -36,3 +36,27 @@ class DistributionsResponse(BaseModel):
     equipment_status: list[DistributionItem]
     material_status: list[DistributionItem]
     project_status: list[DistributionItem]
+
+
+class WeeklyActivityPoint(BaseModel):
+    date: str
+    equipment: int
+    materials: int
+    inspections: int
+    rfis: int
+
+
+class FloorProgress(BaseModel):
+    floor: int
+    area_count: int
+    avg_progress: float
+
+
+class DashboardStatsResponse(BaseModel):
+    equipment_distribution: list[DistributionItem]
+    material_distribution: list[DistributionItem]
+    rfi_distribution: list[DistributionItem]
+    findings_severity: list[DistributionItem]
+    weekly_activity: list[WeeklyActivityPoint]
+    area_progress_by_floor: list[FloorProgress]
+    overall_progress: float

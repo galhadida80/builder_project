@@ -108,6 +108,20 @@
       "meeting": "a meeting",
       "inspection": "an inspection",
       "rfi": "an RFI"
+    },
+    "charts": {
+      "activityTrend": "Weekly Activity",
+      "equipmentStatus": "Equipment Status",
+      "materialStatus": "Material Status",
+      "rfiStatus": "RFI Status",
+      "areaProgress": "Area Progress by Floor",
+      "findingsSeverity": "Findings by Severity",
+      "overallProgress": "Overall Progress",
+      "noData": "No data available",
+      "floor": "Floor",
+      "avgProgress": "Avg Progress %",
+      "findings": "Findings",
+      "floorsTracked": "floors tracked"
     }
   },
   "equipment": {

@@ -1,23 +1,28 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { BarChart } from '@mui/x-charts/BarChart'
 import { Card, KPICard } from '../components/ui/Card'
 import { StatusBadge } from '../components/ui/StatusBadge'
 import { Avatar, AvatarGroup } from '../components/ui/Avatar'
 import { ProgressBar, CircularProgressDisplay } from '../components/ui/ProgressBar'
 import { EmptyState } from '../components/ui/EmptyState'
 import { Button } from '../components/ui/Button'
+import DistributionChart from '../pages/Analytics/components/DistributionChart'
+import ProjectMetricsChart from '../pages/Analytics/components/ProjectMetricsChart'
 import type { Equipment, Material, Meeting, ApprovalRequest, AuditLog, TeamMember } from '../types'
+import type { DashboardStats } from '../api/dashboardStats'
 import { equipmentApi } from '../api/equipment'
 import { materialsApi } from '../api/materials'
 import { meetingsApi } from '../api/meetings'
 import { approvalsApi } from '../api/approvals'
 import { auditApi } from '../api/audit'
 import { workloadApi } from '../api/workload'
+import { dashboardStatsApi } from '../api/dashboardStats'
 import { useToast } from '../components/common/ToastProvider'
 import { useProject } from '../contexts/ProjectContext'
 import { BuildIcon, InventoryIcon, CheckCircleIcon, EventIcon, TrendingUpIcon, WarningAmberIcon, AssignmentIcon, GroupIcon, ArrowForwardIcon } from '@/icons'
-import { Box, Typography, Skeleton, Chip, List, ListItem, ListItemText, ListItemAvatar } from '@/mui'
+import { Box, Typography, Skeleton, Chip, List, ListItem, ListItemText, ListItemAvatar, Paper } from '@/mui'
 
 export default function DashboardPage() {
   const { t, i18n } = useTranslation()
@@ -38,9 +43,19 @@ export default function DashboardPage() {
   const [approvals, setApprovals] = useState<ApprovalRequest[]>([])
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([])
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([])
+  const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null)
+  const [statsLoading, setStatsLoading] = useState(false)
 
   useEffect(() => {
     loadDashboardData()
+  }, [selectedProjectId])
+
+  useEffect(() => {
+    if (selectedProjectId) {
+      loadDashboardStats()
+    } else {
+      setDashboardStats(null)
+    }
   }, [selectedProjectId])
 
   const loadDashboardData = async () => {
@@ -68,6 +83,19 @@ export default function DashboardPage() {
     }
   }
 
+  const loadDashboardStats = async () => {
+    if (!selectedProjectId) return
+    try {
+      setStatsLoading(true)
+      const stats = await dashboardStatsApi.getStats(selectedProjectId)
+      setDashboardStats(stats)
+    } catch (error) {
+      console.error('Failed to load dashboard stats:', error)
+    } finally {
+      setStatsLoading(false)
+    }
+  }
+
   const pendingApprovals = approvals.filter(a => a.currentStatus !== 'approved' && a.currentStatus !== 'rejected')
   const upcomingMeetings = meetings.filter(m => m.status === 'scheduled' || m.status === 'invitations_sent')
   const equipmentPending = equipment.filter(e => e.status !== 'approved' && e.status !== 'draft')
@@ -75,6 +103,24 @@ export default function DashboardPage() {
   const completionRate = equipment.length > 0
     ? Math.round((equipment.filter(e => e.status === 'approved').length / equipment.length) * 100)
     : 0
+
+  const activityChartData = useMemo(() => {
+    if (!dashboardStats) return { data: [], labels: [] }
+    const labels = dashboardStats.weeklyActivity.map(p => {
+      const d = new Date(p.date)
+      return d.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric' })
+    })
+    const data = [
+      { label: t('nav.equipment'), values: dashboardStats.weeklyActivity.map(p => p.equipment) },
+      { label: t('nav.materials'), values: dashboardStats.weeklyActivity.map(p => p.materials) },
+      { label: t('nav.inspections'), values: dashboardStats.weeklyActivity.map(p => p.inspections) },
+      { label: 'RFIs', values: dashboardStats.weeklyActivity.map(p => p.rfis) },
+    ]
+    return { data, labels }
+  }, [dashboardStats, dateLocale, t])
+
+  const toDistChartData = (items: { label: string; value: number }[]) =>
+    items.map((item, i) => ({ id: i, label: item.label, value: item.value }))
 
   if (loading) {
     return (
@@ -116,6 +162,7 @@ export default function DashboardPage() {
         </Typography>
       </Box>
 
+      {/* Row 1: KPI Cards */}
       <Box
         sx={{
           display: 'grid',
@@ -150,6 +197,124 @@ export default function DashboardPage() {
         />
       </Box>
 
+      {/* Row 2: Activity Trend + Overall Progress */}
+      {selectedProjectId && (
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '3fr 2fr' }, gap: 2, mb: 3 }}>
+          <ProjectMetricsChart
+            title={t('dashboard.charts.activityTrend')}
+            data={activityChartData.data}
+            xAxisLabels={activityChartData.labels}
+            loading={statsLoading}
+            height={280}
+          />
+          <Paper sx={{ p: 3, borderRadius: 3, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+            <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
+              {t('dashboard.charts.overallProgress')}
+            </Typography>
+            {statsLoading ? (
+              <Skeleton variant="circular" width={140} height={140} />
+            ) : (
+              <>
+                <CircularProgressDisplay
+                  value={dashboardStats?.overallProgress ?? 0}
+                  size={140}
+                  thickness={8}
+                  color="primary"
+                />
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+                  {dashboardStats?.areaProgressByFloor.length ?? 0} {t('dashboard.charts.floorsTracked')}
+                </Typography>
+              </>
+            )}
+          </Paper>
+        </Box>
+      )}
+
+      {/* Row 3: Equipment Donut + Material Donut + RFI Status */}
+      {selectedProjectId && (
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, gap: 2, mb: 3 }}>
+          <DistributionChart
+            title={t('dashboard.charts.equipmentStatus')}
+            data={toDistChartData(dashboardStats?.equipmentDistribution ?? [])}
+            loading={statsLoading}
+            height={250}
+            innerRadius={60}
+            outerRadius={90}
+          />
+          <DistributionChart
+            title={t('dashboard.charts.materialStatus')}
+            data={toDistChartData(dashboardStats?.materialDistribution ?? [])}
+            loading={statsLoading}
+            height={250}
+            innerRadius={60}
+            outerRadius={90}
+          />
+          <DistributionChart
+            title={t('dashboard.charts.rfiStatus')}
+            data={toDistChartData(dashboardStats?.rfiDistribution ?? [])}
+            loading={statsLoading}
+            height={250}
+            innerRadius={60}
+            outerRadius={90}
+          />
+        </Box>
+      )}
+
+      {/* Row 4: Area Progress by Floor + Findings Severity */}
+      {selectedProjectId && (
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' }, gap: 2, mb: 3 }}>
+          <Paper sx={{ p: 3, borderRadius: 3 }}>
+            <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
+              {t('dashboard.charts.areaProgress')}
+            </Typography>
+            {statsLoading ? (
+              <Skeleton variant="rectangular" height={250} sx={{ borderRadius: 2 }} />
+            ) : (dashboardStats?.areaProgressByFloor.length ?? 0) > 0 ? (
+              <BarChart
+                xAxis={[{
+                  scaleType: 'band' as const,
+                  data: dashboardStats!.areaProgressByFloor.map(f => `${t('dashboard.charts.floor')} ${f.floor}`),
+                }]}
+                series={[{
+                  data: dashboardStats!.areaProgressByFloor.map(f => f.avgProgress),
+                  label: t('dashboard.charts.avgProgress'),
+                  color: '#1976d2',
+                }]}
+                height={250}
+                margin={{ top: 20, right: 20, bottom: 30, left: 50 }}
+              />
+            ) : (
+              <EmptyState variant="empty" title={t('dashboard.charts.noData')} />
+            )}
+          </Paper>
+          <Paper sx={{ p: 3, borderRadius: 3 }}>
+            <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
+              {t('dashboard.charts.findingsSeverity')}
+            </Typography>
+            {statsLoading ? (
+              <Skeleton variant="rectangular" height={250} sx={{ borderRadius: 2 }} />
+            ) : (dashboardStats?.findingsSeverity.length ?? 0) > 0 ? (
+              <BarChart
+                xAxis={[{
+                  scaleType: 'band' as const,
+                  data: dashboardStats!.findingsSeverity.map(f => f.label),
+                }]}
+                series={[{
+                  data: dashboardStats!.findingsSeverity.map(f => f.value),
+                  label: t('dashboard.charts.findings'),
+                  color: '#d32f2f',
+                }]}
+                height={250}
+                margin={{ top: 20, right: 20, bottom: 30, left: 50 }}
+              />
+            ) : (
+              <EmptyState variant="empty" title={t('dashboard.charts.noData')} />
+            )}
+          </Paper>
+        </Box>
+      )}
+
+      {/* Row 5: Pending Approvals + Completion Rate + Quick Actions */}
       <Box
         sx={{
           display: 'grid',
@@ -377,6 +542,7 @@ export default function DashboardPage() {
         </Box>
       </Box>
 
+      {/* Row 6: Meetings + Activity + Team */}
       <Box
         sx={{
           display: 'grid',

@@ -453,6 +453,20 @@
       "meeting": "פגישה",
       "inspection": "בדיקה",
       "rfi": "RFI"
+    },
+    "charts": {
+      "activityTrend": "פעילות שבועית",
+      "equipmentStatus": "סטטוס ציוד",
+      "materialStatus": "סטטוס חומרים",
+      "rfiStatus": "סטטוס RFI",
+      "areaProgress": "התקדמות אזורים לפי קומה",
+      "findingsSeverity": "ממצאים לפי חומרה",
+      "overallProgress": "התקדמות כללית",
+      "noData": "אין נתונים זמינים",
+      "floor": "קומה",
+      "avgProgress": "התקדמות ממוצעת %",
+      "findings": "ממצאים",
+      "floorsTracked": "קומות במעקב"
     }
   },
   "pages": {

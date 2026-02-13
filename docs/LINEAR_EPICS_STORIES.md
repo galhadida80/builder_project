@@ -1235,6 +1235,264 @@ As a DevOps engineer, I need to create the Cloud Scheduler job to trigger daily 
 
 ---
 
+## EPIC 14: Autodesk Revit/BIM Integration
+**Description:** Import BIM model data from Autodesk Revit files (.rvt) into BuilderOps. Users upload Revit files, view 3D models in-browser, and extract structured data (rooms→areas, assets→equipment, types→materials). Includes two-way RFI sync with Autodesk Construction Cloud (ACC). Uses Autodesk Platform Services (APS) APIs: Model Derivative, AEC Data Model (GraphQL), Viewer SDK v7, and ACC RFI v3.
+**Priority:** P1 - High
+**Estimate:** 44 points
+**Status:** Planned
+
+### Architecture Overview
+```
+Upload: .rvt file → GCS bucket → APS Model Derivative → SVF2 translation
+View:   SVF2 → Forge Viewer SDK (React) → interactive 3D in browser
+Extract: Model Derivative metadata → rooms/assets/materials → import wizard → DB
+RFI Sync: BuilderOps RFI ↔ ACC RFI v3 API (bidirectional)
+Auth:   2-legged OAuth (server) + 3-legged OAuth (user ACC access)
+```
+
+### External Dependencies
+- Autodesk Platform Services (APS) app registration
+- APS Client ID + Client Secret
+- ACC project access (for RFI sync)
+- Python: `aps-toolkit` or direct REST calls
+- Frontend: `@autodesk/viewer` SDK v7
+
+### User Stories:
+
+#### US-14.1: APS Authentication & Service Foundation
+**Title:** Implement Autodesk Platform Services OAuth and Base Service
+**Description:**
+As a developer, I need an APS authentication service so that the backend can communicate with Autodesk APIs securely.
+
+**Acceptance Criteria:**
+- [ ] Create `backend/app/services/autodesk_service.py` with 2-legged OAuth token management
+- [ ] Implement token caching with expiry (tokens last 1 hour)
+- [ ] Add APS config to Settings: `aps_client_id`, `aps_client_secret`
+- [ ] Create 3-legged OAuth flow for user ACC access (authorize URL, callback, token exchange)
+- [ ] Store user APS tokens in `autodesk_connections` table (user_id, access_token, refresh_token, expires_at)
+- [ ] Alembic migration for `autodesk_connections` table
+**Estimate:** 5 points
+**Labels:** backend, autodesk, auth
+
+#### US-14.2: Revit File Upload & Storage
+**Title:** Upload Revit Files to Cloud Storage and Register with APS
+**Description:**
+As a user, I want to upload .rvt files so that they can be translated and viewed in 3D.
+
+**Acceptance Criteria:**
+- [ ] POST /projects/{project_id}/bim/upload accepts .rvt files (max 500MB)
+- [ ] Upload file to GCS bucket (`builderops-bim-models/{project_id}/`)
+- [ ] Create `bim_models` DB table: id, project_id, filename, file_size, gcs_path, urn, translation_status, uploaded_by, created_at
+- [ ] Register file with APS using Data Management API (get URN)
+- [ ] Return BIM model record with status "uploaded"
+- [ ] Alembic migration for `bim_models` table
+**Estimate:** 5 points
+**Labels:** backend, autodesk, upload
+
+#### US-14.3: Model Translation (Model Derivative API)
+**Title:** Translate Revit Models to Viewable Format
+**Description:**
+As a developer, I need to translate uploaded .rvt files to SVF2 format so the 3D viewer can display them.
+
+**Acceptance Criteria:**
+- [ ] POST /projects/{project_id}/bim/{model_id}/translate triggers Model Derivative API
+- [ ] Set `generateMasterViews: true` to include rooms/spaces in output
+- [ ] Poll translation status and update `bim_models.translation_status` (pending→processing→complete→failed)
+- [ ] GET /projects/{project_id}/bim/{model_id}/status returns current status with progress percentage
+- [ ] Extract and store model metadata (categories, element counts) in `bim_models.metadata` JSONB column
+- [ ] Handle translation errors with user-friendly messages
+**Estimate:** 5 points
+**Labels:** backend, autodesk, model-derivative
+
+#### US-14.4: 3D Viewer Embedding
+**Title:** Embed Autodesk Forge Viewer in React Frontend
+**Description:**
+As a user, I want to view my Revit model in 3D in the browser so that I can explore the building design interactively.
+
+**Acceptance Criteria:**
+- [ ] Create `frontend/src/components/bim/ForgeViewer.tsx` component
+- [ ] Load Autodesk Viewer SDK v7 dynamically
+- [ ] Initialize viewer with SVF2 URN from backend
+- [ ] Toolbar: orbit, pan, zoom, section plane, isolate, explode
+- [ ] Click element → show properties panel (name, category, parameters)
+- [ ] Selection events emit selected element data to parent component
+- [ ] Responsive layout (full-width in BIM page, resizable split view)
+- [ ] Loading skeleton while model loads
+**Estimate:** 5 points
+**Labels:** frontend, autodesk, viewer, bim
+
+#### US-14.5: BIM Page & Model Management UI
+**Title:** Create BIM Models Page with Upload and Viewer
+**Description:**
+As a user, I want a dedicated BIM page in my project to upload, manage, and view Revit models.
+
+**Acceptance Criteria:**
+- [ ] Create /projects/{projectId}/bim route
+- [ ] Model list: cards with filename, upload date, status badge, file size
+- [ ] Upload button with drag-and-drop zone (.rvt only)
+- [ ] Click model → opens viewer in split/full-screen view
+- [ ] Translation progress indicator (spinner + percentage)
+- [ ] Delete model action with confirmation
+- [ ] Add "BIM" tab to project sidebar navigation
+- [ ] i18n translations for EN, HE, ES
+**Estimate:** 3 points
+**Labels:** frontend, page, bim
+
+#### US-14.6: BIM Data Extraction - Rooms to Areas
+**Title:** Extract Rooms/Spaces from Revit Model and Map to Construction Areas
+**Description:**
+As a user, I want to extract rooms from my Revit model and import them as construction areas so I don't have to enter area data manually.
+
+**Acceptance Criteria:**
+- [ ] GET /projects/{project_id}/bim/{model_id}/extract/rooms queries Model Derivative metadata
+- [ ] Filter elements by Revit category "Rooms" or "Spaces"
+- [ ] Extract: room name→area_name, room number→area_code, level→floor_number, area→square meters
+- [ ] Return preview list of extracted rooms with mapped BuilderOps fields
+- [ ] POST /projects/{project_id}/bim/{model_id}/import/areas accepts confirmed room selections
+- [ ] Bulk-create ConstructionArea records, skip duplicates by area_code
+- [ ] Track import history: source_model_id on created areas
+**Estimate:** 5 points
+**Labels:** backend, autodesk, extraction, areas
+
+#### US-14.7: BIM Data Extraction - Assets to Equipment
+**Title:** Extract Mechanical/Electrical Assets from Revit and Map to Equipment
+**Description:**
+As a user, I want to extract equipment assets from my Revit model (HVAC, electrical panels, plumbing fixtures) so they appear in my equipment tracking page.
+
+**Acceptance Criteria:**
+- [ ] GET /projects/{project_id}/bim/{model_id}/extract/equipment queries Model Derivative metadata
+- [ ] Filter by Revit categories: Mechanical Equipment, Electrical Equipment, Plumbing Fixtures, Fire Protection
+- [ ] Extract: family name→equipment_type, type name→model_number, instance params→specifications
+- [ ] Match against existing equipment templates by name similarity (fuzzy match)
+- [ ] Return preview with auto-mapped fields and confidence scores
+- [ ] POST /projects/{project_id}/bim/{model_id}/import/equipment creates Equipment records
+- [ ] Link to matched equipment template when confidence > 80%
+**Estimate:** 5 points
+**Labels:** backend, autodesk, extraction, equipment
+
+#### US-14.8: BIM Data Extraction - Types to Materials
+**Title:** Extract Material Types from Revit Model and Map to Materials
+**Description:**
+As a user, I want to extract material information from my Revit model (concrete types, steel grades, finishes) so they appear in my materials inventory.
+
+**Acceptance Criteria:**
+- [ ] GET /projects/{project_id}/bim/{model_id}/extract/materials queries Model Derivative metadata
+- [ ] Filter by Revit categories: Materials, Structural Foundations, Walls, Floors, Ceilings
+- [ ] Extract: material name, material class, quantities from schedules
+- [ ] Match against existing material templates by name similarity
+- [ ] Return preview with auto-mapped fields
+- [ ] POST /projects/{project_id}/bim/{model_id}/import/materials creates Material records
+**Estimate:** 3 points
+**Labels:** backend, autodesk, extraction, materials
+
+#### US-14.9: Import Wizard UI
+**Title:** Create BIM Import Wizard for Areas, Equipment, and Materials
+**Description:**
+As a user, I want a step-by-step import wizard so I can review, map, and confirm extracted BIM data before it's imported.
+
+**Acceptance Criteria:**
+- [ ] Multi-step wizard dialog: Select Model → Choose Data Type → Review & Map → Confirm
+- [ ] Step 1: Select which BIM model to extract from
+- [ ] Step 2: Choose extraction type (Areas / Equipment / Materials)
+- [ ] Step 3: Table showing extracted items with editable field mappings, checkboxes to include/exclude
+- [ ] Highlight items that match existing records (duplicate detection)
+- [ ] Auto-mapped fields shown in green, manual fields in yellow, unmapped in red
+- [ ] Step 4: Summary count + "Import N items" confirmation
+- [ ] Progress bar during import with success/error counts
+- [ ] 3D viewer sidebar: clicking row highlights element in viewer
+**Estimate:** 5 points
+**Labels:** frontend, autodesk, wizard, bim
+
+#### US-14.10: ACC RFI Sync - Outbound
+**Title:** Sync BuilderOps RFIs to Autodesk Construction Cloud
+**Description:**
+As a user, I want to push my BuilderOps RFIs to ACC so that external contractors using ACC can see and respond to them.
+
+**Acceptance Criteria:**
+- [ ] POST /projects/{project_id}/bim/rfi-sync/push syncs open RFIs to ACC
+- [ ] Requires user 3-legged OAuth connection to ACC (from US-14.1)
+- [ ] Map BuilderOps RFI fields to ACC RFI v3 schema (subject, question, status, priority, assignee)
+- [ ] Store ACC RFI ID in `rfis.acc_rfi_id` column (new migration)
+- [ ] Update existing ACC RFIs when BuilderOps RFI changes
+- [ ] Skip already-synced RFIs that haven't changed
+- [ ] Return sync report: created N, updated N, failed N
+**Estimate:** 3 points
+**Labels:** backend, autodesk, rfi-sync
+
+#### US-14.11: ACC RFI Sync - Inbound
+**Title:** Import RFIs from Autodesk Construction Cloud into BuilderOps
+**Description:**
+As a user, I want to pull RFIs from ACC into BuilderOps so all project communication is in one place.
+
+**Acceptance Criteria:**
+- [ ] POST /projects/{project_id}/bim/rfi-sync/pull fetches RFIs from ACC
+- [ ] Uses ACC RFI v3 API: POST /construction/rfis/v3/projects/{acc_project_id}/search:rfis
+- [ ] Map ACC RFI fields to BuilderOps RFI schema
+- [ ] Detect duplicates by acc_rfi_id to avoid double-import
+- [ ] Import responses/answers as RFIResponse records
+- [ ] Return import report: imported N new, updated N, skipped N duplicates
+- [ ] Settings page: link BuilderOps project to ACC project ID
+**Estimate:** 3 points
+**Labels:** backend, autodesk, rfi-sync
+
+---
+
+## EPIC 15: BI Dashboard & Reporting
+**Description:** Add visual charts and analytics to the main project dashboard so managers get at-a-glance project health via donut charts, bar charts, line trends, and a progress gauge.
+**Priority:** P1 - High
+**Estimate:** 8 points
+
+### User Stories:
+
+#### US-15.1: Dashboard Stats Backend Endpoint
+**Title:** Create Project Dashboard Stats API Endpoint
+**Description:**
+As a backend developer, I need a single project-scoped endpoint (`GET /analytics/projects/{project_id}/dashboard-stats`) returning equipment/material/RFI distributions, findings severity, weekly activity trend, area progress by floor, and overall progress so the frontend can render charts in one call.
+
+**Acceptance Criteria:**
+- [ ] Equipment status distribution (GROUP BY status)
+- [ ] Material status distribution (GROUP BY status)
+- [ ] RFI status distribution (GROUP BY status)
+- [ ] Findings severity distribution (JOIN inspection for project scope)
+- [ ] 14-day activity trend from audit_logs grouped by day
+- [ ] Area progress grouped by floor_number with AVG(current_progress)
+- [ ] Overall progress as AVG of all area current_progress
+- [ ] Project membership check (403 for non-members)
+**Estimate:** 3 points
+**Labels:** backend, analytics, api
+
+#### US-15.2: Dashboard Charts (MUI X Charts)
+**Title:** Add BI Charts to Dashboard Page
+**Description:**
+As a project manager, I want to see visual charts on the dashboard including activity trend line, progress gauge, status donut charts, area progress bars, and findings severity bars so I can assess project health at a glance.
+
+**Acceptance Criteria:**
+- [ ] Activity trend line chart (14-day, 4 series)
+- [ ] Overall progress circular gauge
+- [ ] Equipment/Material/RFI status donut charts (3 across)
+- [ ] Area progress by floor bar chart
+- [ ] Findings severity bar chart
+- [ ] Charts only render when a project is selected
+- [ ] Loading skeletons while data fetches
+- [ ] Responsive grid layout (mobile to desktop)
+**Estimate:** 3 points
+**Labels:** frontend, dashboard, charts
+
+#### US-15.3: i18n for Dashboard Charts
+**Title:** Add Translations for Dashboard Chart Labels
+**Description:**
+As a user, I want dashboard chart titles and labels translated in English, Hebrew, and Spanish so the charts are localized.
+
+**Acceptance Criteria:**
+- [ ] English translations under `dashboard.charts.*`
+- [ ] Hebrew translations with correct RTL support
+- [ ] Spanish translations
+- [ ] Keys: activityTrend, equipmentStatus, materialStatus, rfiStatus, areaProgress, findingsSeverity, overallProgress, noData, floor, avgProgress, findings, floorsTracked
+**Estimate:** 2 points
+**Labels:** frontend, i18n
+
+---
+
 ## Summary
 
 | Epic | Stories | Total Points | Status |
@@ -1252,7 +1510,9 @@ As a DevOps engineer, I need to create the Cloud Scheduler job to trigger daily 
 | 11. RFI System (Email Integration) | 16 | 46 | Done |
 | 12. AI Chat with Project Data | 7 | 26 | Done (Phase 1) |
 | 13. Daily Work Summary Email | 6 | 11 | Done |
-| **TOTAL** | **75 stories** | **207 points** | |
+| 14. Autodesk Revit/BIM Integration | 11 | 47 | Planned |
+| 15. BI Dashboard & Reporting | 3 | 8 | Done |
+| **TOTAL** | **89 stories** | **262 points** | |
 
 ---
 
@@ -1267,3 +1527,7 @@ As a DevOps engineer, I need to create the Cloud Scheduler job to trigger daily 
 7. **Sprint 7:** Epic 11 (RFI System) - Email-integrated RFI workflow
 8. **Sprint 8:** Epic 12 (AI Chat) - Project data chat with Gemini
 9. **Sprint 9:** Epic 13 (Daily Summary) - Automated daily email reports
+10. **Sprint 10:** Epic 14 (BIM Integration) Phase 1 - Auth + Upload + Viewer (US-14.1 to 14.5)
+11. **Sprint 11:** Epic 14 (BIM Integration) Phase 2 - Data Extraction + Import Wizard (US-14.6 to 14.9)
+12. **Sprint 12:** Epic 14 (BIM Integration) Phase 3 - ACC RFI Sync (US-14.10 to 14.11)
+13. **Sprint 13:** Epic 15 (BI Dashboard) - Dashboard charts and analytics
