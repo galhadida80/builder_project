@@ -69,6 +69,10 @@ PhoneField = Annotated[str | None, Field(max_length=MAX_PHONE_LENGTH)]
 ShortTextField = Annotated[str | None, Field(max_length=MAX_NAME_LENGTH)]
 
 
+MAX_CC_EMAILS = 20
+MAX_ATTACHMENTS = 50
+MAX_LIST_LENGTH = 100
+
 MAX_SPEC_KEYS = 50
 MAX_SPEC_KEY_LENGTH = 100
 MAX_SPEC_VALUE_LENGTH = 500

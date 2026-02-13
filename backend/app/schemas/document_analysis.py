@@ -1,14 +1,15 @@
 from datetime import datetime
+from typing import Literal
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from app.core.validators import CamelCaseModel
 
 
 class DocumentAnalysisCreate(BaseModel):
     file_id: UUID
-    analysis_type: str = Field(min_length=1, max_length=50)
+    analysis_type: Literal["extract_text", "classify", "summarize", "analyze"]
 
 
 class DocumentAnalysisResponse(CamelCaseModel):

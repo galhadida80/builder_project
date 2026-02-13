@@ -1,16 +1,21 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import Literal
 from uuid import UUID
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr
 
 from app.core.validators import CamelCaseModel
+
+RoleLiteral = Literal[
+    "project_admin", "supervisor", "consultant", "contractor", "inspector"
+]
 
 
 class InvitationCreate(BaseModel):
     email: EmailStr
-    role: str = Field(min_length=1, max_length=50)
+    role: RoleLiteral
 
 
 class InvitationResponse(CamelCaseModel):

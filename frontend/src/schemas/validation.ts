@@ -167,6 +167,88 @@ export const searchQuerySchema = z
     'Search query contains invalid characters'
   )
 
+// Phone validation
+const phoneRegex = /^[\d\s\-+().]+$/
+export const phoneSchema = z
+  .string()
+  .max(50, 'Phone must not exceed 50 characters')
+  .refine((val) => !val || phoneRegex.test(val), 'Phone must contain only digits, spaces, and standard phone characters')
+  .optional()
+  .or(z.literal(''))
+
+// Profile form schema
+export const profileSchema = z.object({
+  fullName: z
+    .string()
+    .min(2, 'Name must be at least 2 characters')
+    .max(255, 'Name must not exceed 255 characters')
+    .trim(),
+  phone: phoneSchema,
+  company: z
+    .string()
+    .max(255, 'Company must not exceed 255 characters')
+    .optional()
+    .or(z.literal('')),
+})
+
+export type ProfileFormData = z.infer<typeof profileSchema>
+
+// Contact form schema
+export const contactSchema = z.object({
+  contact_name: z.string().min(2, 'Name is required').max(255).trim(),
+  contact_type: z.string().min(1, 'Contact type is required').max(50),
+  email: emailSchema.optional().or(z.literal('')),
+  phone: phoneSchema,
+  company_name: z.string().max(255).optional().or(z.literal('')),
+  role_description: z.string().max(2000).optional().or(z.literal('')),
+})
+
+export type ContactFormData = z.infer<typeof contactSchema>
+
+// Meeting form schema
+export const meetingSchema = z.object({
+  title: z.string().min(2, 'Title is required').max(255).trim(),
+  description: z.string().max(2000).optional().or(z.literal('')),
+  meeting_type: z.string().max(50).optional().or(z.literal('')),
+  location: z.string().max(255).optional().or(z.literal('')),
+  scheduled_date: z.string().min(1, 'Date is required'),
+})
+
+export type MeetingFormData = z.infer<typeof meetingSchema>
+
+// Area form schema
+export const areaSchema = z.object({
+  name: z.string().min(2, 'Name is required').max(255).trim(),
+  area_code: z.string().min(2, 'Code is required').max(50).trim(),
+  floor_number: z.number().min(-99).max(999).optional(),
+  total_units: z.number().min(1).max(10000).optional(),
+  current_progress: z.number().min(0).max(100).optional(),
+})
+
+export type AreaFormData = z.infer<typeof areaSchema>
+
+// Inspection form schema
+export const inspectionSchema = z.object({
+  consultant_type_id: z.string().uuid('Consultant type is required'),
+  scheduled_date: z.string().min(1, 'Date is required'),
+  notes: z.string().max(5000).optional().or(z.literal('')),
+})
+
+export type InspectionFormData = z.infer<typeof inspectionSchema>
+
+// Material form schema
+export const materialSchema = z.object({
+  name: z.string().min(2, 'Name is required').max(255).trim(),
+  material_type: z.string().max(100).optional().or(z.literal('')),
+  manufacturer: z.string().max(255).optional().or(z.literal('')),
+  model_number: z.string().max(100).optional().or(z.literal('')),
+  quantity: z.number().min(0).max(999999999).optional(),
+  unit: z.string().max(50).optional().or(z.literal('')),
+  notes: z.string().max(5000).optional().or(z.literal('')),
+})
+
+export type MaterialFormData = z.infer<typeof materialSchema>
+
 export function validateWithSchema<T>(schema: z.ZodSchema<T>, data: unknown): { valid: boolean; data?: T; errors?: Record<string, string> } {
   const result = schema.safeParse(data)
 

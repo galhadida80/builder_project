@@ -7,6 +7,7 @@ import { SegmentedTabs } from '../components/ui/Tabs'
 import { useAuth } from '../contexts/AuthContext'
 import { invitationsApi } from '../api/invitations'
 import { authApi } from '../api/auth'
+import { passwordSchema } from '../schemas/validation'
 import { ConstructionIcon, EmailIcon, LockIcon, PersonIcon, VisibilityIcon, VisibilityOffIcon, CheckCircleOutlineIcon, SecurityIcon, SpeedIcon, GroupsIcon, ArrowBackIcon } from '@/icons'
 import { Box, Typography, Alert, Link, Divider, Fade, IconButton } from '@/mui'
 
@@ -27,6 +28,7 @@ export default function LoginPage() {
   const [errorCode, setErrorCode] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [showPassword, setShowPassword] = useState(false)
+  const [passwordErrors, setPasswordErrors] = useState<string[]>([])
   const [forgotPasswordMode, setForgotPasswordMode] = useState(false)
   const [forgotPasswordEmail, setForgotPasswordEmail] = useState('')
 
@@ -38,6 +40,7 @@ export default function LoginPage() {
     setError(null)
     setErrorCode(null)
     setSuccess(null)
+    setPasswordErrors([])
   }
 
   const handleTabChange = (value: string, preserveEmail = false) => {
@@ -83,11 +86,13 @@ export default function LoginPage() {
       return
     }
 
-    if (password.length < 8) {
-      setError(t('passwordMinLength'))
+    const pwResult = passwordSchema.safeParse(password)
+    if (!pwResult.success) {
+      setPasswordErrors(pwResult.error.issues.map((i) => i.message))
       setLoading(false)
       return
     }
+    setPasswordErrors([])
 
     try {
       await register(email, password, fullName, inviteToken || undefined)
@@ -583,7 +588,8 @@ export default function LoginPage() {
                       onChange={(e) => setPassword(e.target.value)}
                       required
                       autoComplete="new-password"
-                      helperText={t('atLeast8Chars')}
+                      error={passwordErrors.length > 0}
+                      helperText={passwordErrors.length > 0 ? passwordErrors[0] : t('atLeast8Chars')}
                       startIcon={<LockIcon sx={{ color: 'text.disabled', fontSize: 20 }} />}
                       endIcon={
                         <IconButton

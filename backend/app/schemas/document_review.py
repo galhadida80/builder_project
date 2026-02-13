@@ -1,11 +1,16 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import Literal
 from uuid import UUID
 
 from pydantic import BaseModel, Field, field_validator
 
 from app.core.validators import MAX_NOTES_LENGTH, CamelCaseModel, sanitize_string
+
+ReviewStatusLiteral = Literal[
+    "pending", "in_review", "approved", "rejected", "changes_requested"
+]
 from app.schemas.user import UserResponse
 
 
@@ -49,7 +54,7 @@ class DocumentCommentResponse(CamelCaseModel):
 
 # Document Review Schemas
 class DocumentReviewBase(BaseModel):
-    status: str | None = Field(default=None, max_length=50)
+    status: ReviewStatusLiteral | None = None
 
 
 class DocumentReviewCreate(DocumentReviewBase):
@@ -57,7 +62,7 @@ class DocumentReviewCreate(DocumentReviewBase):
 
 
 class DocumentReviewUpdate(BaseModel):
-    status: str | None = Field(default=None, max_length=50)
+    status: ReviewStatusLiteral | None = None
     reviewed_by_id: UUID | None = None
 
 

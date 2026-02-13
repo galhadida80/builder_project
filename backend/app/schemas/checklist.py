@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Literal
 from uuid import UUID
 
 from pydantic import BaseModel, Field, field_validator
@@ -153,10 +154,10 @@ class ChecklistItemTemplateResponse(BaseModel):
 
 class ChecklistInstanceBase(BaseModel):
     unit_identifier: str = Field(min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
-    status: str = Field(max_length=50)
+    status: Literal["pending", "in_progress", "completed", "cancelled"] = "pending"
     metadata: dict | None = None
 
-    @field_validator('unit_identifier', 'status', mode='before')
+    @field_validator('unit_identifier', mode='before')
     @classmethod
     def sanitize_text(cls, v: str | None) -> str | None:
         return sanitize_string(v)
@@ -168,10 +169,10 @@ class ChecklistInstanceCreate(ChecklistInstanceBase):
 
 class ChecklistInstanceUpdate(BaseModel):
     unit_identifier: str | None = Field(default=None, min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
-    status: str | None = Field(default=None, max_length=50)
+    status: Literal["pending", "in_progress", "completed", "cancelled"] | None = None
     metadata: dict | None = None
 
-    @field_validator('unit_identifier', 'status', mode='before')
+    @field_validator('unit_identifier', mode='before')
     @classmethod
     def sanitize_text(cls, v: str | None) -> str | None:
         return sanitize_string(v)
@@ -195,7 +196,7 @@ class ChecklistInstanceResponse(BaseModel):
 
 class ChecklistItemResponseBase(BaseModel):
     item_template_id: UUID
-    status: str = Field(max_length=50)
+    status: Literal["pending", "approved", "rejected", "not_applicable"] = "pending"
     notes: str | None = Field(default=None, max_length=MAX_NOTES_LENGTH)
     image_urls: list | None = None
     signature_url: str | None = Field(default=None, max_length=500)
@@ -213,7 +214,7 @@ class ChecklistItemResponseCreate(ChecklistItemResponseBase):
 
 class ChecklistItemResponseUpdate(BaseModel):
     item_template_id: UUID | None = None
-    status: str | None = Field(default=None, max_length=50)
+    status: Literal["pending", "approved", "rejected", "not_applicable"] | None = None
     notes: str | None = Field(default=None, max_length=MAX_NOTES_LENGTH)
     image_urls: list | None = None
     signature_url: str | None = Field(default=None, max_length=500)

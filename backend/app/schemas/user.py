@@ -1,24 +1,36 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Optional
+from typing import Literal, Optional
 from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, Field, field_validator
 
-from app.core.validators import MAX_NAME_LENGTH, MIN_NAME_LENGTH, CamelCaseModel, sanitize_string
+from app.core.validators import (
+    MAX_NAME_LENGTH,
+    MIN_NAME_LENGTH,
+    CamelCaseModel,
+    PhoneStr,
+    SanitizedStrOptional,
+    sanitize_string,
+)
 
 
 class UserBase(BaseModel):
     email: EmailStr
-    full_name: Optional[str] = None
-    phone: Optional[str] = None
-    company: Optional[str] = None
-    language: Optional[str] = None
+    full_name: Optional[str] = Field(default=None, max_length=MAX_NAME_LENGTH)
+    phone: PhoneStr = Field(default=None, max_length=50)
+    company: SanitizedStrOptional = Field(default=None, max_length=255)
+    language: Literal["en", "he", "es"] | None = None
+
+    @field_validator('full_name', mode='before')
+    @classmethod
+    def sanitize_name(cls, v: str | None) -> str | None:
+        return sanitize_string(v)
 
 
 class UserCreate(UserBase):
-    firebase_uid: str | None = None
+    firebase_uid: str | None = Field(default=None, max_length=255)
 
 
 class UserRegister(BaseModel):
@@ -28,7 +40,7 @@ class UserRegister(BaseModel):
 
     @field_validator('full_name', mode='before')
     @classmethod
-    def sanitize_name(cls, v: str) -> str:
+    def sanitize_register_name(cls, v: str) -> str:
         return sanitize_string(v) or ''
 
 
@@ -53,12 +65,13 @@ class TokenResponse(CamelCaseModel):
 
 class UserUpdate(BaseModel):
     full_name: Optional[str] = Field(None, min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
-    phone: Optional[str] = Field(None, max_length=50)
-    company: Optional[str] = Field(None, max_length=255)
+    phone: PhoneStr = Field(None, max_length=50)
+    company: SanitizedStrOptional = Field(None, max_length=255)
+    language: Literal["en", "he", "es"] | None = None
 
     @field_validator('full_name', mode='before')
     @classmethod
-    def sanitize_name(cls, v: str | None) -> str | None:
+    def sanitize_update_name(cls, v: str | None) -> str | None:
         if v is None:
             return v
         return sanitize_string(v) or None

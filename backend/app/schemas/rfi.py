@@ -20,14 +20,14 @@ class RFIBase(BaseModel):
     question: str = Field(min_length=MIN_NAME_LENGTH, max_length=MAX_NOTES_LENGTH)
     to_email: EmailStr
     to_name: str | None = Field(default=None, max_length=MAX_NAME_LENGTH)
-    cc_emails: list[EmailStr] | None = None
+    cc_emails: list[EmailStr] | None = Field(default=None, max_length=20)
     category: str = Field(default="other", max_length=50)
     priority: str = Field(default="medium", max_length=20)
     due_date: datetime | None = None
     location: str | None = Field(default=None, max_length=MAX_NAME_LENGTH)
     drawing_reference: str | None = Field(default=None, max_length=MAX_NAME_LENGTH)
     specification_reference: str | None = Field(default=None, max_length=MAX_NAME_LENGTH)
-    attachments: list[dict] | None = None
+    attachments: list[dict] | None = Field(default=None, max_length=50)
 
     @field_validator("subject", "question", "to_name", "location", mode="before")
     @classmethod
@@ -65,14 +65,14 @@ class RFIUpdate(BaseModel):
     question: str | None = Field(default=None, min_length=MIN_NAME_LENGTH, max_length=MAX_NOTES_LENGTH)
     to_email: EmailStr | None = None
     to_name: str | None = Field(default=None, max_length=MAX_NAME_LENGTH)
-    cc_emails: list[EmailStr] | None = None
+    cc_emails: list[EmailStr] | None = Field(default=None, max_length=20)
     category: str | None = Field(default=None, max_length=50)
     priority: str | None = Field(default=None, max_length=20)
     due_date: datetime | None = None
     location: str | None = Field(default=None, max_length=MAX_NAME_LENGTH)
     drawing_reference: str | None = Field(default=None, max_length=MAX_NAME_LENGTH)
     specification_reference: str | None = Field(default=None, max_length=MAX_NAME_LENGTH)
-    attachments: list[dict] | None = None
+    attachments: list[dict] | None = Field(default=None, max_length=50)
     assigned_to_id: UUID | None = None
     related_equipment_id: UUID | None = None
     related_material_id: UUID | None = None
@@ -99,7 +99,7 @@ class RFIStatusUpdate(BaseModel):
 
 class RFIResponseBase(BaseModel):
     response_text: str = Field(min_length=1, max_length=MAX_NOTES_LENGTH)
-    attachments: list[dict] | None = None
+    attachments: list[dict] | None = Field(default=None, max_length=50)
 
     @field_validator("response_text", mode="before")
     @classmethod

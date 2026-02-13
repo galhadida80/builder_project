@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Optional
+from typing import Literal, Optional
 from uuid import UUID
 
 from pydantic import BaseModel, Field, field_validator
@@ -100,8 +100,8 @@ class InspectionStageUpdate(BaseModel):
 class FindingBase(BaseModel):
     title: str = Field(min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
     description: str | None = Field(default=None, max_length=MAX_DESCRIPTION_LENGTH)
-    severity: str = Field(min_length=1, max_length=50)
-    status: str = Field(default="open", min_length=1, max_length=50)
+    severity: Literal["low", "medium", "high", "critical"]
+    status: Literal["open", "resolved"] = "open"
     location: str | None = Field(default=None, max_length=MAX_NAME_LENGTH)
     photos: list | None = None
 
@@ -118,8 +118,8 @@ class FindingCreate(FindingBase):
 class FindingUpdate(BaseModel):
     title: str | None = Field(default=None, min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
     description: str | None = Field(default=None, max_length=MAX_DESCRIPTION_LENGTH)
-    severity: str | None = Field(default=None, min_length=1, max_length=50)
-    status: str | None = Field(default=None, min_length=1, max_length=50)
+    severity: Literal["low", "medium", "high", "critical"] | None = None
+    status: Literal["open", "resolved"] | None = None
     location: str | None = Field(default=None, max_length=MAX_NAME_LENGTH)
     photos: list | None = None
 
@@ -151,7 +151,7 @@ class InspectionBase(BaseModel):
     consultant_type_id: UUID
     scheduled_date: datetime
     current_stage: str | None = Field(default=None, max_length=MAX_NAME_LENGTH)
-    status: str = Field(default="pending", min_length=1, max_length=50)
+    status: Literal["pending", "in_progress", "completed", "failed"] = "pending"
     notes: str | None = Field(default=None, max_length=MAX_NOTES_LENGTH)
 
     @field_validator('current_stage', 'notes', mode='before')
@@ -169,7 +169,7 @@ class InspectionUpdate(BaseModel):
     scheduled_date: datetime | None = None
     completed_date: datetime | None = None
     current_stage: str | None = Field(default=None, max_length=MAX_NAME_LENGTH)
-    status: str | None = Field(default=None, min_length=1, max_length=50)
+    status: Literal["pending", "in_progress", "completed", "failed"] | None = None
     notes: str | None = Field(default=None, max_length=MAX_NOTES_LENGTH)
 
     @field_validator('current_stage', 'notes', mode='before')

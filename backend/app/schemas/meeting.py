@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Optional
+from typing import Literal, Optional
 from uuid import UUID
 
 from pydantic import BaseModel, Field, field_validator
@@ -66,7 +66,7 @@ class MeetingUpdate(BaseModel):
     scheduled_time: Optional[str] = Field(default=None, max_length=20)
     summary: Optional[str] = Field(default=None, max_length=MAX_NOTES_LENGTH)
     action_items: Optional[list[ActionItem]] = Field(default=None, max_length=50)
-    status: Optional[str] = Field(default=None, max_length=50)
+    status: Literal["scheduled", "invitations_sent", "completed", "cancelled"] | None = None
 
     @field_validator('title', 'description', 'meeting_type', 'location', 'summary', mode='before')
     @classmethod

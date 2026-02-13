@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 import { useToast } from '../components/common/ToastProvider'
 import { authApi } from '../api/auth'
+import { profileSchema, validateWithSchema } from '../schemas/validation'
 import { PersonIcon, EmailIcon, PhoneIcon, BusinessIcon, EditIcon, SaveIcon } from '@/icons'
 import { Box, Typography, Paper, Avatar, TextField, Button, Divider, Chip } from '@/mui'
 
@@ -12,6 +13,7 @@ export default function ProfilePage() {
   const { showSuccess, showError } = useToast()
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [errors, setErrors] = useState<Record<string, string>>({})
   const [formData, setFormData] = useState({
     fullName: user?.fullName || '',
     phone: user?.phone || '',
@@ -23,6 +25,12 @@ export default function ProfilePage() {
   }
 
   const handleSave = async () => {
+    const result = validateWithSchema(profileSchema, formData)
+    if (!result.valid) {
+      setErrors(result.errors || {})
+      return
+    }
+    setErrors({})
     setSaving(true)
     try {
       await authApi.updateProfile({
@@ -76,6 +84,8 @@ export default function ProfilePage() {
                   label={t('profile.fullName')}
                   value={formData.fullName}
                   onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                  error={!!errors.fullName}
+                  helperText={errors.fullName}
                 />
               ) : (
                 <Box>
@@ -102,6 +112,8 @@ export default function ProfilePage() {
                   label={t('profile.phone')}
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  error={!!errors.phone}
+                  helperText={errors.phone}
                 />
               ) : (
                 <Box>
@@ -120,6 +132,8 @@ export default function ProfilePage() {
                   label={t('profile.company')}
                   value={formData.company}
                   onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                  error={!!errors.company}
+                  helperText={errors.company}
                 />
               ) : (
                 <Box>
