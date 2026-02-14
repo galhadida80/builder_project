@@ -813,7 +813,7 @@ class TestMeetingResponse:
 # ---------------------------------------------------------------------------
 class TestContactCreate:
     def test_valid(self):
-        obj = ContactCreate(contact_type="contractor", contact_name="John Doe")
+        obj = ContactCreate(contact_type="contractor", contact_name="John Doe", email="john@test.com")
         assert obj.contact_type == "contractor"
         assert obj.is_primary is False
 
@@ -843,9 +843,9 @@ class TestContactCreate:
 
     def test_valid_phone(self):
         obj = ContactCreate(
-            contact_type="contractor", contact_name="John", phone="+1 (555) 123-4567"
+            contact_type="contractor", contact_name="John", email="john@test.com", phone="050-1234567"
         )
-        assert obj.phone == "+1 (555) 123-4567"
+        assert obj.phone == "050-1234567"
 
     def test_invalid_phone(self):
         with pytest.raises(ValidationError):
@@ -855,20 +855,19 @@ class TestContactCreate:
 
     def test_xss_in_contact_name(self):
         obj = ContactCreate(
-            contact_type="contractor", contact_name='<script>x</script>John Doe'
+            contact_type="contractor", contact_name='<script>x</script>John Doe', email="xss@test.com"
         )
         assert "<script>" not in obj.contact_name
 
     def test_optional_fields_none(self):
-        obj = ContactCreate(contact_type="sub", contact_name="Jane")
+        obj = ContactCreate(contact_type="sub", contact_name="Jane", email="jane@test.com")
         assert obj.company_name is None
-        assert obj.email is None
         assert obj.phone is None
         assert obj.role_description is None
 
     def test_is_primary_flag(self):
         obj = ContactCreate(
-            contact_type="sub", contact_name="Jane", is_primary=True
+            contact_type="sub", contact_name="Jane", email="jane2@test.com", is_primary=True
         )
         assert obj.is_primary is True
 
@@ -1667,12 +1666,12 @@ class TestConversationDetailResponse:
 # ---------------------------------------------------------------------------
 class TestDocumentAnalysisCreate:
     def test_valid(self):
-        obj = DocumentAnalysisCreate(file_id=VALID_UUID, analysis_type="summary")
-        assert obj.analysis_type == "summary"
+        obj = DocumentAnalysisCreate(file_id=VALID_UUID, analysis_type="summarize")
+        assert obj.analysis_type == "summarize"
 
     def test_missing_file_id(self):
         with pytest.raises(ValidationError):
-            DocumentAnalysisCreate(analysis_type="summary")
+            DocumentAnalysisCreate(analysis_type="summarize")
 
     def test_empty_analysis_type(self):
         with pytest.raises(ValidationError):
@@ -1687,7 +1686,7 @@ class TestDocumentAnalysisResponse:
     def test_camel_case(self):
         data = {
             "id": VALID_UUID, "file_id": VALID_UUID, "project_id": VALID_UUID,
-            "analysis_type": "summary", "model_used": "gemini",
+            "analysis_type": "summarize", "model_used": "gemini",
             "status": "completed", "created_at": NOW, "updated_at": NOW,
             "processing_time_ms": 500, "error_message": None,
         }
@@ -2031,7 +2030,7 @@ class TestEdgeCases:
         assert obj.quantity == Decimal("10.5")
 
     def test_boolean_default_false(self):
-        obj = ContactCreate(contact_type="sub", contact_name="Jane")
+        obj = ContactCreate(contact_type="sub", contact_name="Jane", email="jane@test.com")
         assert obj.is_primary is False
 
     def test_empty_string_name_fails(self):

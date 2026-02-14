@@ -15,7 +15,7 @@ from app.schemas.document_analysis import (
 
 class TestDocumentAnalysisCreateSchema:
 
-    @pytest.mark.parametrize("analysis_type", ["ocr", "summary", "extraction"])
+    @pytest.mark.parametrize("analysis_type", ["extract_text", "classify", "summarize", "analyze"])
     def test_valid_analysis_types(self, analysis_type):
         schema = DocumentAnalysisCreate(
             file_id=uuid.uuid4(),
@@ -25,23 +25,23 @@ class TestDocumentAnalysisCreateSchema:
 
     def test_requires_file_id(self):
         with pytest.raises(ValidationError):
-            DocumentAnalysisCreate(analysis_type="ocr")
+            DocumentAnalysisCreate(analysis_type="extract_text")
 
     def test_requires_analysis_type(self):
         with pytest.raises(ValidationError):
             DocumentAnalysisCreate(file_id=uuid.uuid4())
 
-    def test_analysis_type_min_length(self):
+    def test_invalid_analysis_type(self):
+        with pytest.raises(ValidationError):
+            DocumentAnalysisCreate(file_id=uuid.uuid4(), analysis_type="invalid_type")
+
+    def test_analysis_type_empty_rejected(self):
         with pytest.raises(ValidationError):
             DocumentAnalysisCreate(file_id=uuid.uuid4(), analysis_type="")
 
-    def test_analysis_type_max_length(self):
-        with pytest.raises(ValidationError):
-            DocumentAnalysisCreate(file_id=uuid.uuid4(), analysis_type="x" * 51)
-
     def test_valid_uuid_file_id(self):
         fid = uuid.uuid4()
-        schema = DocumentAnalysisCreate(file_id=fid, analysis_type="ocr")
+        schema = DocumentAnalysisCreate(file_id=fid, analysis_type="extract_text")
         assert schema.file_id == fid
 
 
@@ -53,7 +53,7 @@ class TestDocumentAnalysisResponseSchema:
             id=uuid.uuid4(),
             file_id=uuid.uuid4(),
             project_id=uuid.uuid4(),
-            analysis_type="ocr",
+            analysis_type="extract_text",
             result={"extracted_text": "hello"},
             model_used="gemini-2.0-flash",
             status="completed",
@@ -78,7 +78,7 @@ class TestDocumentAnalysisResponseSchema:
             id=uuid.uuid4(),
             file_id=uuid.uuid4(),
             project_id=uuid.uuid4(),
-            analysis_type="summary",
+            analysis_type="summarize",
             result=None,
             model_used="gemini-2.0-flash",
             status="failed",
@@ -98,7 +98,7 @@ class TestDocumentAnalysisResponseSchema:
                 id=uuid.uuid4(),
                 file_id=uuid.uuid4(),
                 project_id=uuid.uuid4(),
-                analysis_type="ocr",
+                analysis_type="extract_text",
                 result=None,
                 model_used="test",
                 status=status,
@@ -116,7 +116,7 @@ class TestDocumentAnalysisListResponseSchema:
             id=uuid.uuid4(),
             file_id=uuid.uuid4(),
             project_id=uuid.uuid4(),
-            analysis_type="ocr",
+            analysis_type="extract_text",
             result={"text": "hello"},
             model_used="gemini-2.0-flash",
             status="completed",
@@ -127,7 +127,7 @@ class TestDocumentAnalysisListResponseSchema:
         lst = DocumentAnalysisListResponse(items=[item], total=1)
         assert lst.total == 1
         assert len(lst.items) == 1
-        assert lst.items[0].analysis_type == "ocr"
+        assert lst.items[0].analysis_type == "extract_text"
 
     def test_empty_list(self):
         lst = DocumentAnalysisListResponse(items=[], total=0)
@@ -183,7 +183,7 @@ class TestDocumentAnalysisModel:
             id=uuid.uuid4(),
             file_id=file.id,
             project_id=project.id,
-            analysis_type="ocr",
+            analysis_type="extract_text",
             result={"extracted_text": "test content"},
             model_used="gemini-2.0-flash",
             status="completed",
@@ -197,7 +197,7 @@ class TestDocumentAnalysisModel:
             select(DocumentAnalysis).where(DocumentAnalysis.id == analysis.id)
         )
         saved = result.scalar_one()
-        assert saved.analysis_type == "ocr"
+        assert saved.analysis_type == "extract_text"
         assert saved.model_used == "gemini-2.0-flash"
         assert saved.status == "completed"
         assert saved.processing_time_ms == 1200
@@ -233,7 +233,7 @@ class TestDocumentAnalysisAPI:
         fake_file_id = uuid.uuid4()
         response = await admin_client.post(
             f"/api/v1/projects/{project.id}/files/{fake_file_id}/analyze",
-            json={"file_id": str(fake_file_id), "analysis_type": "ocr"},
+            json={"file_id": str(fake_file_id), "analysis_type": "extract_text"},
         )
         assert response.status_code == 404
 
@@ -292,7 +292,7 @@ class TestDocumentAnalysisAPI:
 
             response = await admin_client.post(
                 f"/api/v1/projects/{project.id}/files/{file.id}/analyze",
-                json={"file_id": str(file.id), "analysis_type": "ocr"},
+                json={"file_id": str(file.id), "analysis_type": "extract_text"},
             )
 
             del app.dependency_overrides[get_storage_backend]
@@ -300,7 +300,7 @@ class TestDocumentAnalysisAPI:
         assert response.status_code == 201
         data = response.json()
         assert data["status"] == "completed"
-        assert data["analysisType"] == "ocr"
+        assert data["analysisType"] == "extract_text"
         assert data["modelUsed"] == "gemini-2.0-flash"
         assert data["result"]["extracted_text"] == "test content from OCR"
 
@@ -333,7 +333,7 @@ class TestDocumentAnalysisAPI:
 
             response = await admin_client.post(
                 f"/api/v1/projects/{project.id}/files/{file.id}/analyze",
-                json={"file_id": str(file.id), "analysis_type": "summary"},
+                json={"file_id": str(file.id), "analysis_type": "summarize"},
             )
 
             del app.dependency_overrides[get_storage_backend]
@@ -348,10 +348,11 @@ class TestAIServicePrompts:
 
     def test_prompt_templates_exist(self):
         from app.services.ai_service import PROMPTS
-        assert "ocr" in PROMPTS
-        assert "summary" in PROMPTS
-        assert "extraction" in PROMPTS
-        assert len(PROMPTS) == 3
+        assert "extract_text" in PROMPTS
+        assert "classify" in PROMPTS
+        assert "summarize" in PROMPTS
+        assert "analyze" in PROMPTS
+        assert len(PROMPTS) == 4
 
     def test_analyze_document_rejects_unknown_type(self):
         from app.services.ai_service import analyze_document
@@ -366,4 +367,4 @@ class TestAIServicePrompts:
         with patch("app.services.ai_service.get_settings") as mock_settings:
             mock_settings.return_value.gemini_api_key = ""
             with pytest.raises(ValueError, match="GEMINI_API_KEY"):
-                analyze_document(b"content", "application/pdf", "ocr")
+                analyze_document(b"content", "application/pdf", "extract_text")

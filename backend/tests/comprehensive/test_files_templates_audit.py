@@ -763,7 +763,7 @@ class TestAuditLogOnContactOperations:
     async def test_audit_log_on_contact_create(self, admin_client: AsyncClient, project: Project):
         await admin_client.post(
             f"/api/v1/projects/{project.id}/contacts",
-            json={"contact_name": "John Doe", "contact_type": "contractor", "company_name": "BuildCo"},
+            json={"contact_name": "John Doe", "contact_type": "contractor", "company_name": "BuildCo", "email": "john@buildco.com"},
         )
         resp = await admin_client.get(
             f"/api/v1/projects/{project.id}/audit",
@@ -778,7 +778,7 @@ class TestAuditLogOnContactOperations:
     async def test_audit_log_on_contact_update(self, admin_client: AsyncClient, project: Project):
         create_resp = await admin_client.post(
             f"/api/v1/projects/{project.id}/contacts",
-            json={"contact_name": "Jane Smith", "contact_type": "engineer"},
+            json={"contact_name": "Jane Smith", "contact_type": "engineer", "email": "jane@test.com"},
         )
         contact_id = create_resp.json()["id"]
         await admin_client.put(
@@ -799,7 +799,7 @@ class TestAuditLogOnContactOperations:
     async def test_audit_log_on_contact_delete(self, admin_client: AsyncClient, project: Project):
         create_resp = await admin_client.post(
             f"/api/v1/projects/{project.id}/contacts",
-            json={"contact_name": "Delete Me", "contact_type": "subcontractor"},
+            json={"contact_name": "Delete Me", "contact_type": "subcontractor", "email": "delete@test.com"},
         )
         contact_id = create_resp.json()["id"]
         await admin_client.delete(f"/api/v1/projects/{project.id}/contacts/{contact_id}")
@@ -819,7 +819,7 @@ class TestAuditLogFields:
     async def test_audit_log_has_entity_type(self, admin_client: AsyncClient, project: Project):
         await admin_client.post(
             f"/api/v1/projects/{project.id}/contacts",
-            json={"contact_name": "Field Test", "contact_type": "architect"},
+            json={"contact_name": "Field Test", "contact_type": "architect", "email": "field@test.com"},
         )
         resp = await admin_client.get(f"/api/v1/projects/{project.id}/audit")
         logs = resp.json()
@@ -831,7 +831,7 @@ class TestAuditLogFields:
     async def test_audit_log_has_action(self, admin_client: AsyncClient, project: Project):
         await admin_client.post(
             f"/api/v1/projects/{project.id}/contacts",
-            json={"contact_name": "Action Test", "contact_type": "inspector"},
+            json={"contact_name": "Action Test", "contact_type": "inspector", "email": "action@test.com"},
         )
         resp = await admin_client.get(f"/api/v1/projects/{project.id}/audit")
         logs = resp.json()
@@ -841,7 +841,7 @@ class TestAuditLogFields:
     async def test_audit_log_has_user_id(self, admin_client: AsyncClient, project: Project, admin_user: User):
         await admin_client.post(
             f"/api/v1/projects/{project.id}/contacts",
-            json={"contact_name": "UserId Test", "contact_type": "pm"},
+            json={"contact_name": "UserId Test", "contact_type": "pm", "email": "userid@test.com"},
         )
         resp = await admin_client.get(f"/api/v1/projects/{project.id}/audit")
         logs = resp.json()
@@ -851,7 +851,7 @@ class TestAuditLogFields:
     async def test_audit_log_has_entity_id(self, admin_client: AsyncClient, project: Project):
         create_resp = await admin_client.post(
             f"/api/v1/projects/{project.id}/contacts",
-            json={"contact_name": "EntityId Test", "contact_type": "owner"},
+            json={"contact_name": "EntityId Test", "contact_type": "owner", "email": "entity@test.com"},
         )
         contact_id = create_resp.json()["id"]
         resp = await admin_client.get(f"/api/v1/projects/{project.id}/audit")
@@ -862,7 +862,7 @@ class TestAuditLogFields:
     async def test_audit_log_has_project_id(self, admin_client: AsyncClient, project: Project):
         await admin_client.post(
             f"/api/v1/projects/{project.id}/contacts",
-            json={"contact_name": "ProjectId Test", "contact_type": "consultant"},
+            json={"contact_name": "ProjectId Test", "contact_type": "consultant", "email": "projid@test.com"},
         )
         resp = await admin_client.get(f"/api/v1/projects/{project.id}/audit")
         logs = resp.json()
@@ -872,7 +872,7 @@ class TestAuditLogFields:
     async def test_audit_log_has_created_at(self, admin_client: AsyncClient, project: Project):
         await admin_client.post(
             f"/api/v1/projects/{project.id}/contacts",
-            json={"contact_name": "Timestamp Test", "contact_type": "safety"},
+            json={"contact_name": "Timestamp Test", "contact_type": "safety", "email": "timestamp@test.com"},
         )
         resp = await admin_client.get(f"/api/v1/projects/{project.id}/audit")
         logs = resp.json()
@@ -885,7 +885,7 @@ class TestAuditLogFiltering:
     async def test_audit_filter_by_entity_type(self, admin_client: AsyncClient, project: Project):
         await admin_client.post(
             f"/api/v1/projects/{project.id}/contacts",
-            json={"contact_name": "Filter Entity", "contact_type": "contractor"},
+            json={"contact_name": "Filter Entity", "contact_type": "contractor", "email": "filter-entity@test.com"},
         )
         entity_id = str(uuid.uuid4())
         await admin_client.post(
@@ -905,7 +905,7 @@ class TestAuditLogFiltering:
     async def test_audit_filter_by_action(self, admin_client: AsyncClient, project: Project):
         create_resp = await admin_client.post(
             f"/api/v1/projects/{project.id}/contacts",
-            json={"contact_name": "Filter Action", "contact_type": "contractor"},
+            json={"contact_name": "Filter Action", "contact_type": "contractor", "email": "filter-action@test.com"},
         )
         contact_id = create_resp.json()["id"]
         await admin_client.put(
@@ -924,7 +924,7 @@ class TestAuditLogFiltering:
     async def test_audit_filter_by_user_id(self, admin_client: AsyncClient, project: Project, admin_user: User):
         await admin_client.post(
             f"/api/v1/projects/{project.id}/contacts",
-            json={"contact_name": "Filter User", "contact_type": "contractor"},
+            json={"contact_name": "Filter User", "contact_type": "contractor", "email": "filter-user@test.com"},
         )
         resp = await admin_client.get(
             f"/api/v1/projects/{project.id}/audit",
@@ -939,7 +939,7 @@ class TestAuditLogFiltering:
         for i in range(5):
             await admin_client.post(
                 f"/api/v1/projects/{project.id}/contacts",
-                json={"contact_name": f"Contact {i}", "contact_type": "contractor"},
+                json={"contact_name": f"Contact {i}", "contact_type": "contractor", "email": f"contact{i}@test.com"},
             )
         resp = await admin_client.get(
             f"/api/v1/projects/{project.id}/audit",
@@ -952,7 +952,7 @@ class TestAuditLogFiltering:
         for i in range(5):
             await admin_client.post(
                 f"/api/v1/projects/{project.id}/contacts",
-                json={"contact_name": f"Offset Contact {i}", "contact_type": "contractor"},
+                json={"contact_name": f"Offset Contact {i}", "contact_type": "contractor", "email": f"offset{i}@test.com"},
             )
         all_resp = await admin_client.get(f"/api/v1/projects/{project.id}/audit")
         all_logs = all_resp.json()
@@ -970,7 +970,7 @@ class TestAuditLogGlobal:
     async def test_global_audit_endpoint(self, admin_client: AsyncClient, project: Project):
         await admin_client.post(
             f"/api/v1/projects/{project.id}/contacts",
-            json={"contact_name": "Global Audit", "contact_type": "contractor"},
+            json={"contact_name": "Global Audit", "contact_type": "contractor", "email": "global@test.com"},
         )
         resp = await admin_client.get("/api/v1/audit")
         assert resp.status_code == 200

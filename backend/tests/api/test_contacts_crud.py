@@ -35,7 +35,7 @@ def valid_contact_payload(**overrides) -> dict:
         "contact_type": "contractor",
         "company_name": "BuildCo Inc.",
         "email": "john@buildco.com",
-        "phone": "+1-555-0100",
+        "phone": "050-1234567",
         "role_description": "Lead Contractor",
         "is_primary": False,
     }
@@ -81,14 +81,13 @@ class TestCreateContact:
 
     @pytest.mark.asyncio
     async def test_create_with_minimal_fields(self, admin_client: AsyncClient, project: Project):
-        payload = {"contact_name": "Jane Doe", "contact_type": "client"}
+        payload = {"contact_name": "Jane Doe", "contact_type": "client", "email": "jane@test.com"}
         resp = await admin_client.post(contacts_url(str(project.id)), json=payload)
         assert resp.status_code == 200
         data = resp.json()
         assert data["contactName"] == "Jane Doe"
         assert data["contactType"] == "client"
         assert data["companyName"] is None
-        assert data["email"] is None
         assert data["phone"] is None
         assert data["roleDescription"] is None
         assert data["isPrimary"] is False
@@ -105,13 +104,13 @@ class TestCreateContact:
 
     @pytest.mark.asyncio
     async def test_create_missing_contact_name(self, admin_client: AsyncClient, project: Project):
-        payload = {"contact_type": "contractor"}
+        payload = {"contact_type": "contractor", "email": "test@test.com"}
         resp = await admin_client.post(contacts_url(str(project.id)), json=payload)
         assert resp.status_code == 422
 
     @pytest.mark.asyncio
     async def test_create_missing_contact_type(self, admin_client: AsyncClient, project: Project):
-        payload = {"contact_name": "Jane Doe"}
+        payload = {"contact_name": "Jane Doe", "email": "test@test.com"}
         resp = await admin_client.post(contacts_url(str(project.id)), json=payload)
         assert resp.status_code == 422
 
@@ -190,8 +189,8 @@ class TestCreateContact:
         assert resp.status_code == 422
 
     @pytest.mark.asyncio
-    async def test_create_phone_max_length(self, admin_client: AsyncClient, project: Project):
-        payload = valid_contact_payload(phone="1" * 30)
+    async def test_create_phone_valid_israeli(self, admin_client: AsyncClient, project: Project):
+        payload = valid_contact_payload(phone="050-1234567")
         resp = await admin_client.post(contacts_url(str(project.id)), json=payload)
         assert resp.status_code == 200
 
@@ -207,7 +206,7 @@ class TestCreateContact:
             "contact_name": "Null Fields",
             "contact_type": "vendor",
             "company_name": None,
-            "email": None,
+            "email": "null-test@test.com",
             "phone": None,
             "role_description": None,
         }
@@ -215,7 +214,6 @@ class TestCreateContact:
         assert resp.status_code == 200
         data = resp.json()
         assert data["companyName"] is None
-        assert data["email"] is None
         assert data["phone"] is None
         assert data["roleDescription"] is None
 
@@ -228,7 +226,7 @@ class TestCreateContact:
 
     @pytest.mark.asyncio
     async def test_create_is_primary_default_false(self, admin_client: AsyncClient, project: Project):
-        payload = {"contact_name": "No Primary", "contact_type": "vendor"}
+        payload = {"contact_name": "No Primary", "contact_type": "vendor", "email": "noprimary@test.com"}
         resp = await admin_client.post(contacts_url(str(project.id)), json=payload)
         assert resp.status_code == 200
         assert resp.json()["isPrimary"] is False
@@ -240,12 +238,17 @@ class TestCreateContactEmailValidation:
     @pytest.mark.parametrize("email,expected_status", [
         ("valid@example.com", 200),
         ("user.name+tag@domain.co", 200),
-        (None, 200),
     ])
     async def test_valid_emails(self, admin_client: AsyncClient, project: Project, email, expected_status):
         payload = valid_contact_payload(email=email)
         resp = await admin_client.post(contacts_url(str(project.id)), json=payload)
         assert resp.status_code == expected_status
+
+    @pytest.mark.asyncio
+    async def test_null_email_rejected(self, admin_client: AsyncClient, project: Project):
+        payload = valid_contact_payload(email=None)
+        resp = await admin_client.post(contacts_url(str(project.id)), json=payload)
+        assert resp.status_code == 422
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize("email", [
@@ -264,11 +267,10 @@ class TestCreateContactPhoneValidation:
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize("phone,expected_status", [
-        ("+1-555-0100", 200),
-        ("(555) 555-0100", 200),
-        ("555.555.0100", 200),
+        ("050-1234567", 200),
+        ("02-1234567", 200),
         ("+972 50 123 4567", 200),
-        ("1234567890", 200),
+        ("052-9876543", 200),
         (None, 200),
     ])
     async def test_valid_phones(self, admin_client: AsyncClient, project: Project, phone, expected_status):
@@ -521,10 +523,10 @@ class TestUpdateContact:
         created = await create_contact_via_api(admin_client, str(project.id))
         resp = await admin_client.put(
             contact_detail_url(str(project.id), created["id"]),
-            json={"phone": "+972-50-123-4567"},
+            json={"phone": "052-9876543"},
         )
         assert resp.status_code == 200
-        assert resp.json()["phone"] == "+972-50-123-4567"
+        assert resp.json()["phone"] == "052-9876543"
 
     @pytest.mark.asyncio
     async def test_update_role_description(self, admin_client: AsyncClient, project: Project):
@@ -817,7 +819,7 @@ class TestCSVImport:
 
     @pytest.mark.asyncio
     async def test_import_csv_success(self, admin_client: AsyncClient, project: Project):
-        csv_content = "contact_name,contact_type,company_name,email,phone\nAlice,contractor,ACME,alice@acme.com,555-0001\n"
+        csv_content = "contact_name,contact_type,company_name,email,phone\nAlice,contractor,ACME,alice@acme.com,050-1234567\n"
         files = {"file": ("contacts.csv", io.BytesIO(csv_content.encode()), "text/csv")}
         resp = await admin_client.post(import_url(str(project.id)), files=files)
         assert resp.status_code == 200
@@ -892,7 +894,7 @@ class TestCSVImport:
     async def test_import_csv_with_optional_fields(self, admin_client: AsyncClient, project: Project):
         csv_content = (
             "contact_name,contact_type,company_name,role_description,email,phone,notes\n"
-            "Alice,contractor,ACME,Lead,alice@acme.com,555-0001,Note here\n"
+            "Alice,contractor,ACME,Lead,alice@acme.com,050-1234567,Note here\n"
         )
         files = {"file": ("contacts.csv", io.BytesIO(csv_content.encode()), "text/csv")}
         resp = await admin_client.post(import_url(str(project.id)), files=files)
@@ -1043,8 +1045,8 @@ class TestFullCRUDWorkflow:
     async def test_import_then_export_roundtrip(self, admin_client: AsyncClient, project: Project):
         csv_content = (
             "contact_name,contact_type,company_name,email,phone\n"
-            "Alice,contractor,ACME,alice@acme.com,555-0001\n"
-            "Bob,client,BuildCo,bob@buildco.com,555-0002\n"
+            "Alice,contractor,ACME,alice@acme.com,050-1234567\n"
+            "Bob,client,BuildCo,bob@buildco.com,052-9876543\n"
         )
         files = {"file": ("contacts.csv", io.BytesIO(csv_content.encode()), "text/csv")}
         import_resp = await admin_client.post(import_url(str(project.id)), files=files)
@@ -1058,19 +1060,19 @@ class TestParametrizedCreateAllFields:
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize("payload,expected_status,desc", [
-        ({"contact_name": "AB", "contact_type": "client"}, 200, "minimal payload"),
-        ({"contact_name": "Full", "contact_type": "contractor", "company_name": "Co"}, 200, "with company"),
+        ({"contact_name": "AB", "contact_type": "client", "email": "ab@test.com"}, 200, "minimal payload"),
+        ({"contact_name": "Full", "contact_type": "contractor", "email": "full@test.com", "company_name": "Co"}, 200, "with company"),
         ({"contact_name": "Full", "contact_type": "contractor", "email": "a@b.com"}, 200, "with email"),
-        ({"contact_name": "Full", "contact_type": "contractor", "phone": "555-0001"}, 200, "with phone"),
-        ({"contact_name": "Full", "contact_type": "contractor", "role_description": "Lead"}, 200, "with role"),
-        ({"contact_name": "Full", "contact_type": "contractor", "is_primary": True}, 200, "with primary"),
+        ({"contact_name": "Full", "contact_type": "contractor", "email": "ph@test.com", "phone": "050-1234567"}, 200, "with phone"),
+        ({"contact_name": "Full", "contact_type": "contractor", "email": "rl@test.com", "role_description": "Lead"}, 200, "with role"),
+        ({"contact_name": "Full", "contact_type": "contractor", "email": "pr@test.com", "is_primary": True}, 200, "with primary"),
         ({}, 422, "empty payload"),
-        ({"contact_type": "contractor"}, 422, "missing name"),
-        ({"contact_name": "Jane"}, 422, "missing type"),
-        ({"contact_name": "", "contact_type": "client"}, 422, "empty name"),
-        ({"contact_name": "A", "contact_type": "client"}, 422, "name too short"),
-        ({"contact_name": "A" * 256, "contact_type": "client"}, 422, "name too long"),
-        ({"contact_name": "Jane", "contact_type": ""}, 422, "empty type"),
+        ({"contact_type": "contractor", "email": "x@test.com"}, 422, "missing name"),
+        ({"contact_name": "Jane", "email": "x@test.com"}, 422, "missing type"),
+        ({"contact_name": "", "contact_type": "client", "email": "x@test.com"}, 422, "empty name"),
+        ({"contact_name": "A", "contact_type": "client", "email": "x@test.com"}, 422, "name too short"),
+        ({"contact_name": "A" * 256, "contact_type": "client", "email": "x@test.com"}, 422, "name too long"),
+        ({"contact_name": "Jane", "contact_type": "", "email": "x@test.com"}, 422, "empty type"),
     ])
     async def test_create_parametrized(self, admin_client: AsyncClient, project: Project, payload, expected_status, desc):
         resp = await admin_client.post(contacts_url(str(project.id)), json=payload)
@@ -1147,10 +1149,10 @@ class TestResponseFormat:
 
     @pytest.mark.asyncio
     async def test_phone_stored_correctly(self, admin_client: AsyncClient, project: Project):
-        payload = valid_contact_payload(phone="+1 (555) 123-4567")
+        payload = valid_contact_payload(phone="050-1234567")
         resp = await admin_client.post(contacts_url(str(project.id)), json=payload)
         assert resp.status_code == 200
-        assert resp.json()["phone"] == "+1 (555) 123-4567"
+        assert resp.json()["phone"] == "050-1234567"
 
 
 class TestContactMultipleCreation:

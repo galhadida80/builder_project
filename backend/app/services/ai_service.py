@@ -7,20 +7,26 @@ from google.genai import types
 from app.config import get_settings
 
 PROMPTS = {
-    "ocr": (
+    "extract_text": (
         "Extract ALL text from this document/image. "
         "Return the text exactly as it appears, preserving structure and formatting where possible. "
         "Return the result as JSON with keys: 'extracted_text' (the full text), "
         "'metadata' (any detected document type, language, page count if applicable)."
     ),
-    "summary": (
+    "classify": (
+        "Classify this document/image. Determine the document type, category, "
+        "and any relevant classification labels. "
+        "Return as JSON with keys: 'document_type', 'category', 'labels' (list of strings), "
+        "'confidence' (float), 'metadata' (dict)."
+    ),
+    "summarize": (
         "Analyze and summarize this document/image. Provide: "
         "1) A brief summary (2-3 sentences) "
         "2) Key findings or important points as a list "
         "3) Document metadata (type, date if visible, parties involved). "
         "Return as JSON with keys: 'summary', 'key_findings' (list of strings), 'metadata' (dict)."
     ),
-    "extraction": (
+    "analyze": (
         "Extract structured data from this document/image. Look for: "
         "dates, monetary amounts, names of people/companies, addresses, "
         "reference numbers, quantities, and any other structured information. "

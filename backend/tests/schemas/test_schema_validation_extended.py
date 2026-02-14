@@ -138,11 +138,12 @@ class TestDocumentReviewUpdate:
         assert u.status is None and u.reviewed_by_id is None
     def test_status(self):
         assert DocumentReviewUpdate(status="approved").status == "approved"
-    def test_status_max(self):
-        assert len(DocumentReviewUpdate(status="a" * 50).status) == 50
-    def test_status_over(self):
+    def test_status_valid_values(self):
+        for s in ["pending", "in_review", "approved", "rejected", "changes_requested"]:
+            assert DocumentReviewUpdate(status=s).status == s
+    def test_status_invalid(self):
         with pytest.raises(ValidationError):
-            DocumentReviewUpdate(status="a" * 51)
+            DocumentReviewUpdate(status="invalid_status")
     def test_reviewer_uuid(self):
         u = uuid.uuid4()
         assert DocumentReviewUpdate(reviewed_by_id=u).reviewed_by_id == u

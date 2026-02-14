@@ -420,7 +420,7 @@ async def test_cannot_create_contact_in_other_project(
 ):
     r = await admin_client.post(
         f"/api/v1/projects/{project_b.id}/contacts",
-        json={"contact_name": "Hack", "contact_type": "contractor"},
+        json={"contact_name": "Hack", "contact_type": "contractor", "email": "hack@test.com"},
     )
     assert r.status_code == 403
 
@@ -683,6 +683,7 @@ async def test_sql_injection_in_contact_name(
         json={
             "contact_name": "' OR 1=1; --",
             "contact_type": "contractor",
+            "email": "sqli@test.com",
         },
     )
     assert r.status_code in [200, 201, 422]
@@ -977,6 +978,7 @@ async def test_extra_unknown_fields_ignored_contact(
         json={
             "contact_name": "Valid Name",
             "contact_type": "contractor",
+            "email": "valid@test.com",
             "nonexistent": True,
         },
     )
@@ -1000,7 +1002,7 @@ async def test_hebrew_text_in_contact_name(
 ):
     r = await admin_client.post(
         f"/api/v1/projects/{project.id}/contacts",
-        json={"contact_name": "Name Here", "contact_type": "contractor"},
+        json={"contact_name": "Name Here", "contact_type": "contractor", "email": "namehere@test.com"},
     )
     assert r.status_code in [200, 201]
 
@@ -1077,6 +1079,7 @@ async def test_boolean_field_handling_contact(
         json={
             "contact_name": "Primary Contact",
             "contact_type": "owner",
+            "email": "primary@test.com",
             "is_primary": True,
         },
     )
@@ -1274,6 +1277,7 @@ async def test_phone_invalid_chars_rejected(
         json={
             "contact_name": "Bad Phone",
             "contact_type": "contractor",
+            "email": "badphone@test.com",
             "phone": "abc-invalid-phone",
         },
     )
@@ -1289,7 +1293,8 @@ async def test_phone_valid_format_accepted(
         json={
             "contact_name": "Good Phone",
             "contact_type": "contractor",
-            "phone": "+1 (555) 123-4567",
+            "email": "goodphone@test.com",
+            "phone": "050-1234567",
         },
     )
     assert r.status_code in [200, 201]
@@ -1315,6 +1320,7 @@ async def test_xss_in_contact_role_description(
         json={
             "contact_name": "XSS Contact",
             "contact_type": "contractor",
+            "email": "xss@test.com",
             "role_description": '<script>document.cookie</script>Manager',
         },
     )

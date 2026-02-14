@@ -277,11 +277,11 @@ async def create_approval_decision(
     await db.flush()
 
     old_status = submission.status
-    if data.decision == "approve":
+    if data.decision == "approved":
         submission.status = ApprovalStatus.APPROVED.value
-    elif data.decision == "reject":
+    elif data.decision == "rejected":
         submission.status = ApprovalStatus.REJECTED.value
-    elif data.decision == "revision":
+    elif data.decision == "revision_requested":
         submission.status = ApprovalStatus.REVISION_REQUESTED.value
     else:
         raise HTTPException(status_code=400, detail="Invalid decision")

@@ -57,7 +57,7 @@ def valid_contact_payload(**overrides) -> dict:
         "contact_type": "contractor",
         "company_name": "ABC Corp",
         "email": "john@abc.com",
-        "phone": "555-1234",
+        "phone": "050-1234567",
         "role_description": "Site Manager",
     }
     base.update(overrides)
@@ -170,13 +170,12 @@ class TestCreateContact:
 
     @pytest.mark.asyncio
     async def test_create_contact_minimal_fields(self, admin_client: AsyncClient, project: Project):
-        payload = {"contact_name": "Min Contact", "contact_type": "other"}
+        payload = {"contact_name": "Min Contact", "contact_type": "other", "email": "min@test.com"}
         resp = await admin_client.post(contacts_url(str(project.id)), json=payload)
         assert resp.status_code == 200
         data = resp.json()
         assert data["contactName"] == "Min Contact"
         assert data["companyName"] is None
-        assert data["email"] is None
         assert data["phone"] is None
 
     @pytest.mark.asyncio
@@ -194,10 +193,10 @@ class TestCreateContact:
     @pytest.mark.asyncio
     async def test_create_contact_various_types(self, admin_client: AsyncClient, project: Project):
         types = ["contractor", "subcontractor", "supplier", "consultant", "architect", "engineer", "inspector", "client", "other"]
-        for ctype in types:
+        for i, ctype in enumerate(types):
             resp = await admin_client.post(
                 contacts_url(str(project.id)),
-                json={"contact_name": f"Test {ctype}", "contact_type": ctype},
+                json={"contact_name": f"Test {ctype}", "contact_type": ctype, "email": f"type{i}@test.com"},
             )
             assert resp.status_code == 200
             assert resp.json()["contactType"] == ctype
@@ -297,7 +296,7 @@ class TestUpdateContact:
             "contact_type": "architect",
             "company_name": "New Corp",
             "email": "updated@new.com",
-            "phone": "999-0000",
+            "phone": "052-9876543",
             "role_description": "Architect Lead",
             "is_primary": True,
         }

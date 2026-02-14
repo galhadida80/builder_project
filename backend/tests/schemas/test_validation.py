@@ -677,12 +677,19 @@ class TestApprovalDecisionCreate:
     @pytest.mark.parametrize("decision", [
         "approved",
         "rejected",
-        "pending",
-        "any_string",
-    ], ids=["approved", "rejected", "pending", "any_string"])
+        "revision_requested",
+    ], ids=["approved", "rejected", "revision_requested"])
     def test_valid_decisions(self, decision):
         ad = ApprovalDecisionCreate(decision=decision)
         assert ad.decision == decision
+
+    @pytest.mark.parametrize("decision", [
+        "pending",
+        "any_string",
+    ], ids=["pending", "any_string"])
+    def test_invalid_decisions(self, decision):
+        with pytest.raises(ValidationError):
+            ApprovalDecisionCreate(decision=decision)
 
     def test_with_comments(self):
         ad = ApprovalDecisionCreate(decision="approved", comments="Looks good")

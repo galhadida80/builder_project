@@ -203,7 +203,7 @@ class TestInstance:
         t=await mt(admin_client,project.id)
         assert (await admin_client.post(nu(str(project.id)),json=np(t["id"],**{f:v}))).status_code==422
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("m",["template_id","unit_identifier","status"])
+    @pytest.mark.parametrize("m",["template_id","unit_identifier"])
     async def test_miss(self, admin_client, project, m):
         t=await mt(admin_client,project.id);p=np(t["id"]);del p[m]
         assert (await admin_client.post(nu(str(project.id)),json=p)).status_code==422

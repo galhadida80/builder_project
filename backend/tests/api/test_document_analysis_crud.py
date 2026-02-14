@@ -15,7 +15,7 @@ fa_url = lambda p, f: f"{API}/projects/{p}/files/{f}/analysis"
 pa_url = lambda p: f"{API}/projects/{p}/analyses"
 AI_OK = {"result": {"text": "ok"}, "model_used": "gemini-2.0", "processing_time_ms": 42}
 AI_PATCH = "app.api.v1.document_analysis.analyze_document"
-BODY = lambda fid, at="ocr": {"file_id": str(fid), "analysis_type": at}
+BODY = lambda fid, at="extract_text": {"file_id": str(fid), "analysis_type": at}
 
 
 async def mk_file(db, proj, user, name="t.pdf"):
@@ -25,7 +25,7 @@ async def mk_file(db, proj, user, name="t.pdf"):
     db.add(f); await db.commit(); await db.refresh(f); return f
 
 
-async def mk_analysis(db, proj, file, atype="ocr", status="completed"):
+async def mk_analysis(db, proj, file, atype="extract_text", status="completed"):
     a = DocumentAnalysis(id=uuid.uuid4(), file_id=file.id, project_id=proj.id,
                          analysis_type=atype, model_used="gemini-test", status=status,
                          result={"extracted_text": "hello"}, processing_time_ms=100)
@@ -42,7 +42,7 @@ def override_storage():
     app.dependency_overrides.pop(get_storage_backend, None)
 
 
-async def post_ok(client, pid, fid, atype="ocr", ai_ret=None, ai_err=None):
+async def post_ok(client, pid, fid, atype="extract_text", ai_ret=None, ai_err=None):
     body = BODY(fid, atype)
     if ai_err:
         with patch(AI_PATCH, side_effect=ai_err):
@@ -52,7 +52,7 @@ async def post_ok(client, pid, fid, atype="ocr", ai_ret=None, ai_err=None):
 
 
 class TestTriggerAnalysis:
-    @pytest.mark.parametrize("atype", ["ocr", "summary", "extraction"])
+    @pytest.mark.parametrize("atype", ["extract_text", "classify", "summarize", "analyze"])
     async def test_trigger_201(self, admin_client, project, db, admin_user, atype):
         f = await mk_file(db, project, admin_user)
         assert (await post_ok(admin_client, project.id, f.id, atype)).status_code == 201
@@ -107,14 +107,14 @@ class TestTriggerAnalysis:
         assert d["projectId"] == str(project.id) and d["fileId"] == str(f.id)
     async def test_multiple_same_file(self, admin_client, project, db, admin_user):
         f = await mk_file(db, project, admin_user)
-        for at in ["ocr", "summary", "extraction"]:
+        for at in ["extract_text", "summarize", "analyze"]:
             assert (await post_ok(admin_client, project.id, f.id, at)).status_code == 201
     async def test_storage_error_failed(self, admin_client, project, db, admin_user, override_storage):
         f = await mk_file(db, project, admin_user)
         override_storage.get_file_content.side_effect = FileNotFoundError("gone")
         r = await admin_client.post(a_url(str(project.id), str(f.id)), json=BODY(f.id))
         assert r.status_code == 201 and r.json()["status"] == "failed"
-    @pytest.mark.parametrize("atype", ["ocr", "summary", "extraction", "custom"])
+    @pytest.mark.parametrize("atype", ["extract_text", "classify", "summarize", "analyze"])
     async def test_type_preserved(self, admin_client, project, db, admin_user, atype):
         f = await mk_file(db, project, admin_user)
         assert (await post_ok(admin_client, project.id, f.id, atype)).json()["analysisType"] == atype
@@ -137,18 +137,18 @@ class TestGetFileAnalyses:
         assert r.status_code == 200 and r.json() == []
     async def test_returns_analyses(self, admin_client, project, db, admin_user):
         f = await mk_file(db, project, admin_user)
-        await mk_analysis(db, project, f, "ocr"); await mk_analysis(db, project, f, "summary")
+        await mk_analysis(db, project, f, "extract_text"); await mk_analysis(db, project, f, "summarize")
         assert len((await admin_client.get(fa_url(str(project.id), str(f.id)))).json()) == 2
     async def test_no_cross_file_leak(self, admin_client, project, db, admin_user):
         f1 = await mk_file(db, project, admin_user, "a.pdf")
         f2 = await mk_file(db, project, admin_user, "b.pdf")
-        await mk_analysis(db, project, f1, "ocr"); await mk_analysis(db, project, f2, "summary")
+        await mk_analysis(db, project, f1, "extract_text"); await mk_analysis(db, project, f2, "summarize")
         data = (await admin_client.get(fa_url(str(project.id), str(f1.id)))).json()
-        assert len(data) == 1 and data[0]["analysisType"] == "ocr"
+        assert len(data) == 1 and data[0]["analysisType"] == "extract_text"
     async def test_ordered_desc(self, admin_client, project, db, admin_user):
         f = await mk_file(db, project, admin_user)
-        await mk_analysis(db, project, f, "ocr")
-        a2 = await mk_analysis(db, project, f, "summary")
+        await mk_analysis(db, project, f, "extract_text")
+        a2 = await mk_analysis(db, project, f, "summarize")
         assert (await admin_client.get(fa_url(str(project.id), str(f.id)))).json()[0]["id"] == str(a2.id)
     async def test_camel_case(self, admin_client, project, db, admin_user):
         f = await mk_file(db, project, admin_user); await mk_analysis(db, project, f)
@@ -177,12 +177,12 @@ class TestListProjectAnalyses:
     async def test_all_for_project(self, admin_client, project, db, admin_user):
         f1 = await mk_file(db, project, admin_user, "x.pdf")
         f2 = await mk_file(db, project, admin_user, "y.pdf")
-        await mk_analysis(db, project, f1, "ocr"); await mk_analysis(db, project, f2, "summary")
+        await mk_analysis(db, project, f1, "extract_text"); await mk_analysis(db, project, f2, "summarize")
         d = (await admin_client.get(pa_url(str(project.id)))).json()
         assert d["total"] == 2 and len(d["items"]) == 2
     async def test_total_equals_items(self, admin_client, project, db, admin_user):
         f = await mk_file(db, project, admin_user)
-        for at in ["ocr", "summary", "extraction"]:
+        for at in ["extract_text", "summarize", "analyze"]:
             await mk_analysis(db, project, f, at)
         d = (await admin_client.get(pa_url(str(project.id)))).json()
         assert d["total"] == len(d["items"]) == 3
@@ -192,8 +192,8 @@ class TestListProjectAnalyses:
         assert "items" in d and "total" in d
     async def test_ordered_desc(self, admin_client, project, db, admin_user):
         f = await mk_file(db, project, admin_user)
-        await mk_analysis(db, project, f, "ocr")
-        a2 = await mk_analysis(db, project, f, "extraction")
+        await mk_analysis(db, project, f, "extract_text")
+        a2 = await mk_analysis(db, project, f, "analyze")
         assert (await admin_client.get(pa_url(str(project.id)))).json()["items"][0]["id"] == str(a2.id)
     async def test_fake_project_403(self, admin_client):
         assert (await admin_client.get(pa_url(FAKE_PID))).status_code == 403
@@ -206,14 +206,14 @@ class TestListProjectAnalyses:
             assert k in item
     async def test_mixed_statuses(self, admin_client, project, db, admin_user):
         f = await mk_file(db, project, admin_user)
-        await mk_analysis(db, project, f, "ocr", "completed")
-        await mk_analysis(db, project, f, "summary", "failed")
+        await mk_analysis(db, project, f, "extract_text", "completed")
+        await mk_analysis(db, project, f, "summarize", "failed")
         statuses = {i["status"] for i in (await admin_client.get(pa_url(str(project.id)))).json()["items"]}
         assert statuses == {"completed", "failed"}
     async def test_multi_file_aggregated(self, admin_client, project, db, admin_user):
         for i in range(4):
             f = await mk_file(db, project, admin_user, f"f{i}.pdf")
-            await mk_analysis(db, project, f, "ocr")
+            await mk_analysis(db, project, f, "extract_text")
         assert (await admin_client.get(pa_url(str(project.id)))).json()["total"] == 4
 
 

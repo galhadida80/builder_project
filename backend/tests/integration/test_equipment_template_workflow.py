@@ -121,14 +121,14 @@ class TestEquipmentTemplateWorkflow:
         decision_response = await user_client.post(
             f"/api/v1/equipment-submissions/{submission_id}/decisions",
             json={
-                "decision": "approve",
+                "decision": "approved",
                 "comments": "Approved for project use"
             }
         )
 
         assert decision_response.status_code == 201
         decision_data = decision_response.json()
-        assert decision_data["decision"] == "approve"
+        assert decision_data["decision"] == "approved"
         assert decision_data["comments"] == "Approved for project use"
 
         # Step 3: Verify submission status was updated to approved
@@ -149,7 +149,7 @@ class TestEquipmentTemplateWorkflow:
         )
         decision = result.scalar_one_or_none()
         assert decision is not None
-        assert decision.decision == "approve"
+        assert decision.decision == "approved"
         assert decision.submission_id == uuid.UUID(submission_id)
 
         # Step 5: Test rejection workflow
@@ -168,7 +168,7 @@ class TestEquipmentTemplateWorkflow:
         reject_decision_response = await user_client.post(
             f"/api/v1/equipment-submissions/{rejection_submission_id}/decisions",
             json={
-                "decision": "reject",
+                "decision": "rejected",
                 "comments": "Not needed at this time"
             }
         )
@@ -337,7 +337,7 @@ class TestEquipmentTemplateWorkflow:
         await admin_client.post(
             f"/api/v1/equipment-submissions/{submission_id}/decisions",
             json={
-                "decision": "approve",
+                "decision": "approved",
                 "comments": "Audit test approval"
             }
         )

@@ -312,14 +312,14 @@ class TestEquipmentTemplates:
         response = await user_client.post(
             f"/api/v1/equipment-submissions/{equipment_submission.id}/decisions",
             json={
-                "decision": "approve",
+                "decision": "approved",
                 "comments": "Looks good"
             }
         )
 
         assert response.status_code == 201
         data = response.json()
-        assert data["decision"] == "approve"
+        assert data["decision"] == "approved"
         assert data["comments"] == "Looks good"
         assert "id" in data
         assert "decidedAt" in data
@@ -354,7 +354,7 @@ class TestEquipmentTemplates:
         decision = ApprovalDecision(
             id=uuid.uuid4(),
             submission_id=equipment_submission.id,
-            decision="approve",
+            decision="approved",
             comments="Test decision",
             decided_by_id=regular_user.id
         )

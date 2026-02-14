@@ -77,7 +77,7 @@ async def make_decision(
     db: AsyncSession,
     submission: EquipmentSubmission,
     user: User,
-    decision: str = "approve",
+    decision: str = "approved",
     comments: str | None = None,
 ) -> ApprovalDecision:
     dec = ApprovalDecision(
@@ -765,8 +765,8 @@ class TestSubmissionDeleteEndpoint:
         proj = await make_project(db, admin_user)
         tpl = await make_template(db)
         sub = await make_submission(db, proj, tpl, admin_user)
-        await make_decision(db, sub, admin_user, decision="approve")
-        await make_decision(db, sub, admin_user, decision="reject")
+        await make_decision(db, sub, admin_user, decision="approved")
+        await make_decision(db, sub, admin_user, decision="rejected")
         await db.commit()
         sub_id = sub.id
         await admin_client.delete(f"{BASE}/projects/{proj.id}/equipment-submissions/{sub.id}")
@@ -793,9 +793,9 @@ class TestApprovalDecisionCreateEndpoint:
     @pytest.mark.parametrize(
         "decision,expected_status",
         [
-            ("approve", "approved"),
-            ("reject", "rejected"),
-            ("revision", "revision_requested"),
+            ("approved", "approved"),
+            ("rejected", "rejected"),
+            ("revision_requested", "revision_requested"),
         ],
         ids=["approve_decision", "reject_decision", "revision_decision"],
     )
@@ -826,27 +826,27 @@ class TestApprovalDecisionCreateEndpoint:
         await db.commit()
         resp = await client.post(
             f"{BASE}/equipment-submissions/{sub.id}/decisions",
-            json={"decision": "approve"},
+            json={"decision": "approved"},
         )
         assert resp.status_code == 401
 
     async def test_decision_nonexistent_submission(self, admin_client: AsyncClient):
         resp = await admin_client.post(
             f"{BASE}/equipment-submissions/{FAKE_UUID}/decisions",
-            json={"decision": "approve"},
+            json={"decision": "approved"},
         )
         assert resp.status_code == 404
 
     @pytest.mark.parametrize(
         "invalid_decision",
-        ["accepted", "denied", "pending", "", "APPROVE", "Reject", "unknown", "123"],
+        ["accepted", "denied", "pending", "", "APPROVED", "Rejected", "unknown", "123"],
         ids=[
             "accepted_invalid",
             "denied_invalid",
             "pending_invalid",
             "empty_invalid",
-            "uppercase_approve",
-            "capitalized_reject",
+            "uppercase_approved",
+            "capitalized_rejected",
             "unknown_invalid",
             "numeric_invalid",
         ],
@@ -862,7 +862,7 @@ class TestApprovalDecisionCreateEndpoint:
             f"{BASE}/equipment-submissions/{sub.id}/decisions",
             json={"decision": invalid_decision},
         )
-        assert resp.status_code == 400
+        assert resp.status_code == 422
 
     @pytest.mark.parametrize(
         "comments",
@@ -882,7 +882,7 @@ class TestApprovalDecisionCreateEndpoint:
         tpl = await make_template(db)
         sub = await make_submission(db, proj, tpl, admin_user)
         await db.commit()
-        payload = {"decision": "approve"}
+        payload = {"decision": "approved"}
         if comments is not None:
             payload["comments"] = comments
         resp = await admin_client.post(
@@ -903,7 +903,7 @@ class TestApprovalDecisionCreateEndpoint:
         await db.commit()
         resp = await admin_client.post(
             f"{BASE}/equipment-submissions/{sub.id}/decisions",
-            json={"decision": "approve"},
+            json={"decision": "approved"},
         )
         assert resp.status_code == 201
         data = resp.json()
@@ -916,7 +916,7 @@ class TestApprovalDecisionCreateEndpoint:
         await db.commit()
         resp = await admin_client.post(
             f"{BASE}/equipment-submissions/{sub.id}/decisions",
-            json={"decision": "reject"},
+            json={"decision": "rejected"},
         )
         assert resp.status_code == 201
         data = resp.json()
@@ -932,7 +932,7 @@ class TestApprovedSubmissionProtection:
         await db.commit()
         approve_resp = await admin_client.post(
             f"{BASE}/equipment-submissions/{sub.id}/decisions",
-            json={"decision": "approve"},
+            json={"decision": "approved"},
         )
         assert approve_resp.status_code == 201
         update_resp = await admin_client.put(
@@ -960,7 +960,7 @@ class TestApprovedSubmissionProtection:
         await db.commit()
         await admin_client.post(
             f"{BASE}/equipment-submissions/{sub.id}/decisions",
-            json={"decision": "approve"},
+            json={"decision": "approved"},
         )
         resp = await admin_client.put(
             f"{BASE}/projects/{proj.id}/equipment-submissions/{sub.id}",
@@ -975,7 +975,7 @@ class TestApprovedSubmissionProtection:
         await db.commit()
         await admin_client.post(
             f"{BASE}/equipment-submissions/{sub.id}/decisions",
-            json={"decision": "reject"},
+            json={"decision": "rejected"},
         )
         resp = await admin_client.put(
             f"{BASE}/projects/{proj.id}/equipment-submissions/{sub.id}",
@@ -991,7 +991,7 @@ class TestApprovedSubmissionProtection:
         await db.commit()
         await admin_client.post(
             f"{BASE}/equipment-submissions/{sub.id}/decisions",
-            json={"decision": "revision"},
+            json={"decision": "revision_requested"},
         )
         resp = await admin_client.put(
             f"{BASE}/projects/{proj.id}/equipment-submissions/{sub.id}",
@@ -1010,11 +1010,11 @@ class TestMultipleDecisions:
         await db.commit()
         await admin_client.post(
             f"{BASE}/equipment-submissions/{sub.id}/decisions",
-            json={"decision": "approve"},
+            json={"decision": "approved"},
         )
         await admin_client.post(
             f"{BASE}/equipment-submissions/{sub.id}/decisions",
-            json={"decision": "reject"},
+            json={"decision": "rejected"},
         )
         get_resp = await admin_client.get(f"{BASE}/projects/{proj.id}/equipment-submissions/{sub.id}")
         assert get_resp.json()["status"] == "rejected"
@@ -1026,11 +1026,11 @@ class TestMultipleDecisions:
         await db.commit()
         await admin_client.post(
             f"{BASE}/equipment-submissions/{sub.id}/decisions",
-            json={"decision": "reject"},
+            json={"decision": "rejected"},
         )
         await admin_client.post(
             f"{BASE}/equipment-submissions/{sub.id}/decisions",
-            json={"decision": "revision"},
+            json={"decision": "revision_requested"},
         )
         get_resp = await admin_client.get(f"{BASE}/projects/{proj.id}/equipment-submissions/{sub.id}")
         assert get_resp.json()["status"] == "revision_requested"
@@ -1042,11 +1042,11 @@ class TestMultipleDecisions:
         await db.commit()
         await admin_client.post(
             f"{BASE}/equipment-submissions/{sub.id}/decisions",
-            json={"decision": "revision"},
+            json={"decision": "revision_requested"},
         )
         await admin_client.post(
             f"{BASE}/equipment-submissions/{sub.id}/decisions",
-            json={"decision": "approve"},
+            json={"decision": "approved"},
         )
         get_resp = await admin_client.get(f"{BASE}/projects/{proj.id}/equipment-submissions/{sub.id}")
         assert get_resp.json()["status"] == "approved"
@@ -1054,15 +1054,15 @@ class TestMultipleDecisions:
     @pytest.mark.parametrize(
         "sequence,final_status",
         [
-            (["approve"], "approved"),
-            (["reject"], "rejected"),
-            (["revision"], "revision_requested"),
-            (["approve", "reject"], "rejected"),
-            (["reject", "approve"], "approved"),
-            (["revision", "approve"], "approved"),
-            (["approve", "revision"], "revision_requested"),
-            (["reject", "revision", "approve"], "approved"),
-            (["approve", "reject", "revision"], "revision_requested"),
+            (["approved"], "approved"),
+            (["rejected"], "rejected"),
+            (["revision_requested"], "revision_requested"),
+            (["approved", "rejected"], "rejected"),
+            (["rejected", "approved"], "approved"),
+            (["revision_requested", "approved"], "approved"),
+            (["approved", "revision_requested"], "revision_requested"),
+            (["rejected", "revision_requested", "approved"], "approved"),
+            (["approved", "rejected", "revision_requested"], "revision_requested"),
         ],
         ids=[
             "single_approve",
@@ -1116,13 +1116,13 @@ class TestListDecisionsEndpoint:
         await db.commit()
         await admin_client.post(
             f"{BASE}/equipment-submissions/{sub.id}/decisions",
-            json={"decision": "approve", "comments": "LGTM"},
+            json={"decision": "approved", "comments": "LGTM"},
         )
         resp = await admin_client.get(f"{BASE}/equipment-submissions/{sub.id}/decisions")
         assert resp.status_code == 200
         data = resp.json()
         assert len(data) == 1
-        assert data[0]["decision"] == "approve"
+        assert data[0]["decision"] == "approved"
         assert data[0]["comments"] == "LGTM"
 
     async def test_list_decisions_multiple(self, admin_client: AsyncClient, db: AsyncSession, admin_user: User):
@@ -1132,11 +1132,11 @@ class TestListDecisionsEndpoint:
         await db.commit()
         await admin_client.post(
             f"{BASE}/equipment-submissions/{sub.id}/decisions",
-            json={"decision": "revision", "comments": "Please fix"},
+            json={"decision": "revision_requested", "comments": "Please fix"},
         )
         await admin_client.post(
             f"{BASE}/equipment-submissions/{sub.id}/decisions",
-            json={"decision": "approve", "comments": "Fixed, approved"},
+            json={"decision": "approved", "comments": "Fixed, approved"},
         )
         resp = await admin_client.get(f"{BASE}/equipment-submissions/{sub.id}/decisions")
         assert resp.status_code == 200
@@ -1155,7 +1155,7 @@ class TestListDecisionsEndpoint:
         tpl = await make_template(db)
         sub = await make_submission(db, proj, tpl, admin_user)
         await db.commit()
-        decisions = ["approve", "reject", "revision", "approve", "reject"]
+        decisions = ["approved", "rejected", "revision_requested", "approved", "rejected"]
         for i in range(count):
             await admin_client.post(
                 f"{BASE}/equipment-submissions/{sub.id}/decisions",
@@ -1225,7 +1225,7 @@ class TestResponseFormat:
         await db.commit()
         resp = await admin_client.post(
             f"{BASE}/equipment-submissions/{sub.id}/decisions",
-            json={"decision": "approve", "comments": "OK"},
+            json={"decision": "approved", "comments": "OK"},
         )
         assert resp.status_code == 201
         data = resp.json()
@@ -1264,7 +1264,7 @@ class TestResponseFormat:
         await db.commit()
         resp = await admin_client.post(
             f"{BASE}/equipment-submissions/{sub.id}/decisions",
-            json={"decision": "approve"},
+            json={"decision": "approved"},
         )
         assert resp.status_code == 201
         assert field in resp.json()
@@ -1352,11 +1352,11 @@ class TestCascadeDelete:
         await db.commit()
         await admin_client.post(
             f"{BASE}/equipment-submissions/{sub.id}/decisions",
-            json={"decision": "revision", "comments": "Fix this"},
+            json={"decision": "revision_requested", "comments": "Fix this"},
         )
         await admin_client.post(
             f"{BASE}/equipment-submissions/{sub.id}/decisions",
-            json={"decision": "approve", "comments": "Now OK"},
+            json={"decision": "approved", "comments": "Now OK"},
         )
         decisions_resp = await admin_client.get(f"{BASE}/equipment-submissions/{sub.id}/decisions")
         assert len(decisions_resp.json()) == 2
@@ -1373,7 +1373,7 @@ class TestCascadeDelete:
         tpl = await make_template(db)
         sub = await make_submission(db, proj, tpl, admin_user)
         await db.commit()
-        for dec_val in ["revision", "reject", "revision", "approve", "reject"]:
+        for dec_val in ["revision_requested", "rejected", "revision_requested", "approved", "rejected"]:
             await admin_client.post(
                 f"{BASE}/equipment-submissions/{sub.id}/decisions",
                 json={"decision": dec_val},
@@ -1403,7 +1403,7 @@ class TestAuthEndpoints:
         await db.commit()
         path = f"{BASE}" + path_suffix.format(pid=proj.id, sid=sub.id)
         if method == "POST" and "decisions" in path_suffix:
-            resp = await client.post(path, json={"decision": "approve"})
+            resp = await client.post(path, json={"decision": "approved"})
         elif method == "POST":
             resp = await client.post(path, json={"template_id": str(tpl.id), "name": "Test"})
         elif method == "PUT":
@@ -1447,7 +1447,7 @@ class TestAuthEndpoints:
         await db.commit()
         resp = await user_client.post(
             f"{BASE}/equipment-submissions/{sub.id}/decisions",
-            json={"decision": "approve"},
+            json={"decision": "approved"},
         )
         assert resp.status_code == 201
 
@@ -1494,7 +1494,7 @@ class TestNotFoundResponses:
     async def test_decision_nonexistent_submission_404(self, admin_client: AsyncClient):
         resp = await admin_client.post(
             f"{BASE}/equipment-submissions/{FAKE_UUID}/decisions",
-            json={"decision": "approve"},
+            json={"decision": "approved"},
         )
         assert resp.status_code == 404
 
@@ -1554,7 +1554,7 @@ class TestSubmissionCRUDHappyPath:
 
         rev_resp = await admin_client.post(
             f"{BASE}/equipment-submissions/{sub_id}/decisions",
-            json={"decision": "revision", "comments": "Need more info"},
+            json={"decision": "revision_requested", "comments": "Need more info"},
         )
         assert rev_resp.status_code == 201
 
@@ -1569,7 +1569,7 @@ class TestSubmissionCRUDHappyPath:
 
         app_resp = await admin_client.post(
             f"{BASE}/equipment-submissions/{sub_id}/decisions",
-            json={"decision": "approve", "comments": "Looks good now"},
+            json={"decision": "approved", "comments": "Looks good now"},
         )
         assert app_resp.status_code == 201
 
@@ -1683,32 +1683,32 @@ class TestEdgeCases:
     @pytest.mark.parametrize(
         "decision_value,expected_code",
         [
-            ("approve", 201),
-            ("reject", 201),
-            ("revision", 201),
-            ("APPROVE", 400),
-            ("Approve", 400),
-            ("approved", 400),
-            ("rejected", 400),
-            ("revision_requested", 400),
-            ("pending", 400),
-            ("cancel", 400),
-            (" approve ", 400),
-            ("approve ", 400),
+            ("approved", 201),
+            ("rejected", 201),
+            ("revision_requested", 201),
+            ("APPROVED", 422),
+            ("Approved", 422),
+            ("approve", 422),
+            ("reject", 422),
+            ("revision", 422),
+            ("pending", 422),
+            ("cancel", 422),
+            (" approved ", 422),
+            ("approved ", 422),
         ],
         ids=[
-            "lowercase_approve",
-            "lowercase_reject",
-            "lowercase_revision",
-            "uppercase_approve_fail",
-            "capitalized_approve_fail",
-            "past_tense_approve_fail",
-            "past_tense_reject_fail",
-            "full_status_revision_fail",
+            "lowercase_approved",
+            "lowercase_rejected",
+            "lowercase_revision_requested",
+            "uppercase_approved_fail",
+            "capitalized_approved_fail",
+            "old_approve_fail",
+            "old_reject_fail",
+            "old_revision_fail",
             "pending_fail",
             "cancel_fail",
-            "padded_approve_fail",
-            "trailing_space_approve_fail",
+            "padded_approved_fail",
+            "trailing_space_approved_fail",
         ],
     )
     async def test_decision_value_exactness(
