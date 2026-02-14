@@ -55,6 +55,8 @@ class UserResponse(CamelCaseModel, UserBase):
     is_active: bool
     is_super_admin: bool = False
     created_at: datetime
+    phone: Optional[str] = None
+    language: Optional[str] = None
 
 
 class TokenResponse(CamelCaseModel):
