@@ -198,7 +198,8 @@
     "auditLog": "יומן ביקורת",
     "settings": "הגדרות",
     "home": "דף הבית",
-    "bim": "מודלי BIM"
+    "bim": "מודלי BIM",
+    "checklists": "צ'קליסטים"
   },
   "profile": {
     "title": "פרופיל",
@@ -959,6 +960,22 @@
     "failedToSave": "נכשל בשמירת התשובה",
     "failedToSubmit": "נכשל בשליחת הצ'קליסט",
     "notesPlaceholder": "הוסף הערות או תצפיות..."
+  },
+  "checklists": {
+    "title": "צ'קליסטים",
+    "subtitle": "ניהול תבניות צ'קליסט ופריטי בדיקה",
+    "failedToLoad": "נכשל בטעינת צ'קליסטים",
+    "templates": "תבניות",
+    "items": "פריטים",
+    "subsections": "תתי-סעיפים",
+    "group": "קבוצה",
+    "level": "רמה",
+    "name": "שם",
+    "noTemplates": "לא נמצאו תבניות צ'קליסט",
+    "searchPlaceholder": "חיפוש צ'קליסטים...",
+    "requiresImage": "תמונה",
+    "requiresNote": "הערה",
+    "requiresSignature": "חתימה"
   },
   "documentReview": {
     "failedToLoadDocument": "נכשל בטעינת המסמך. אנא נסה שוב.",

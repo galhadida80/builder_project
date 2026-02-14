@@ -390,103 +390,111 @@ export interface Folder {
   updatedAt: string
 }
 
-export interface ChecklistInstance {
-  id: string
-  templateId: string
-  projectId: string
-  entityType: string
-  entityId: string
-  status: string
-  createdAt: string
-  updatedAt: string
-  items: ChecklistItemResponse[]
-  responses: ChecklistItemResponse[]
-}
-
 export interface ChecklistItemTemplate {
   id: string
-  templateId: string
+  subsection_id: string
   name: string
-  label: string
+  category?: string
   description?: string
-  required: boolean
-  order: number
-  mustImage?: boolean
-  mustNote?: boolean
-  mustSignature?: boolean
-}
-
-export interface ChecklistItemResponse {
-  id: string
-  instanceId: string
-  templateItemId: string
-  itemTemplateId: string
-  label: string
-  description?: string
-  required: boolean
-  completed: boolean
-  status: 'pending' | 'completed' | 'skipped' | 'pass' | 'fail' | 'na'
-  notes?: string
-  imageUrls?: string[]
-  completedAt?: string
-  completedBy?: User
-}
-
-export interface ChecklistItemResponseCreate {
-  templateItemId?: string
-  itemTemplateId: string
-  completed?: boolean
-  status?: string
-  notes?: string
-  imageUrls?: string[]
-}
-
-export interface ChecklistItemResponseUpdate {
-  completed?: boolean
-  status?: string
-  notes?: string
-  imageUrls?: string[]
-}
-
-export interface ChecklistTemplate {
-  id: string
-  projectId: string
-  name: string
-  description?: string
-  entityType: string
-  items: ChecklistItemTemplate[]
-  createdAt: string
-  updatedAt: string
-}
-
-export interface ChecklistTemplateCreate {
-  name: string
-  description?: string
-  entityType: string
-  items?: Omit<ChecklistItemTemplate, 'id' | 'templateId'>[]
-}
-
-export interface ChecklistTemplateUpdate {
-  name?: string
-  description?: string
-  items?: Omit<ChecklistItemTemplate, 'id' | 'templateId'>[]
-}
-
-export interface ChecklistInstanceCreate {
-  templateId: string
-  entityType: string
-  entityId: string
-}
-
-export interface ChecklistInstanceUpdate {
-  status?: string
+  must_image: boolean
+  must_note: boolean
+  must_signature: boolean
+  metadata?: Record<string, unknown>
+  created_at: string
+  updated_at: string
 }
 
 export interface ChecklistSubSection {
   id: string
+  template_id: string
   name: string
   order: number
+  metadata?: Record<string, unknown>
+  created_at: string
+  updated_at: string
   items: ChecklistItemTemplate[]
+}
+
+export interface ChecklistTemplate {
+  id: string
+  project_id?: string
+  name: string
+  level: string
+  group: string
+  category?: string
+  metadata?: Record<string, unknown>
+  created_at: string
+  updated_at: string
+  created_by?: User
+  subsections: ChecklistSubSection[]
+}
+
+export interface ChecklistTemplateCreate {
+  name: string
+  level: string
+  group: string
+  category?: string
+  metadata?: Record<string, unknown>
+}
+
+export interface ChecklistTemplateUpdate {
+  name?: string
+  level?: string
+  group?: string
+  category?: string
+  metadata?: Record<string, unknown>
+}
+
+export interface ChecklistInstance {
+  id: string
+  template_id: string
+  project_id: string
+  unit_identifier: string
+  status: string
+  metadata?: Record<string, unknown>
+  created_at: string
+  updated_at: string
+  created_by?: User
+  responses: ChecklistItemResponse[]
+}
+
+export interface ChecklistInstanceCreate {
+  template_id: string
+  unit_identifier: string
+}
+
+export interface ChecklistInstanceUpdate {
+  unit_identifier?: string
+  status?: string
+}
+
+export interface ChecklistItemResponse {
+  id: string
+  instance_id: string
+  item_template_id: string
+  status: 'pending' | 'approved' | 'rejected' | 'not_applicable'
+  notes?: string
+  image_urls?: string[]
+  signature_url?: string
+  completed_at?: string
+  completed_by_id?: string
+  created_at: string
+  updated_at: string
+}
+
+export interface ChecklistItemResponseCreate {
+  item_template_id: string
+  status?: string
+  notes?: string
+  image_urls?: string[]
+  signature_url?: string
+}
+
+export interface ChecklistItemResponseUpdate {
+  status?: string
+  notes?: string
+  image_urls?: string[]
+  signature_url?: string
 }
 
 export interface InspectionHistoryEvent {

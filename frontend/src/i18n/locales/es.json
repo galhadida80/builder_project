@@ -453,7 +453,8 @@
     "auditLog": "Registro de Auditoría",
     "settings": "Configuración",
     "home": "Inicio",
-    "bim": "Modelos BIM"
+    "bim": "Modelos BIM",
+    "checklists": "Listas de Verificación"
   },
   "profile": {
     "title": "Perfil",
@@ -825,6 +826,22 @@
     "failedToSave": "Error al guardar la respuesta",
     "failedToSubmit": "Error al enviar la lista de verificación",
     "notesPlaceholder": "Agregar notas u observaciones..."
+  },
+  "checklists": {
+    "title": "Listas de Verificación",
+    "subtitle": "Gestionar plantillas de listas de verificación y elementos de inspección",
+    "failedToLoad": "Error al cargar las listas de verificación",
+    "templates": "Plantillas",
+    "items": "Elementos",
+    "subsections": "Subsecciones",
+    "group": "Grupo",
+    "level": "Nivel",
+    "name": "Nombre",
+    "noTemplates": "No se encontraron plantillas",
+    "searchPlaceholder": "Buscar listas...",
+    "requiresImage": "Imagen",
+    "requiresNote": "Nota",
+    "requiresSignature": "Firma"
   },
   "documentReview": {
     "failedToLoadDocument": "Error al cargar el documento. Inténtelo de nuevo.",

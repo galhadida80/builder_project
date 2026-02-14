@@ -119,7 +119,7 @@ export default function MobileChecklistPage() {
       totalItems += items.length
 
       items.forEach((item: ChecklistItemTemplate) => {
-        const response = instance.responses.find((r) => r.itemTemplateId === item.id)
+        const response = instance.responses.find((r) => r.item_template_id === item.id)
         if (response && response.status !== 'pending') {
           completedItems++
         }
@@ -138,11 +138,11 @@ export default function MobileChecklistPage() {
     setSelectedItem(item)
 
     // Load existing response if available
-    const existingResponse = instance?.responses.find((r) => r.itemTemplateId === item.id)
+    const existingResponse = instance?.responses.find((r) => r.item_template_id === item.id)
     if (existingResponse) {
       setItemStatus(existingResponse.status || 'pending')
       setItemNotes(existingResponse.notes || '')
-      setItemPhotoUrls(existingResponse.imageUrls || [])
+      setItemPhotoUrls(existingResponse.image_urls || [])
     } else {
       setItemStatus('pending')
       setItemNotes('')
@@ -169,23 +169,23 @@ export default function MobileChecklistPage() {
       }
 
       // Check if response already exists
-      const existingResponse = instance.responses.find((r) => r.itemTemplateId === selectedItem.id)
+      const existingResponse = instance.responses.find((r) => r.item_template_id === selectedItem.id)
 
       if (existingResponse) {
         // Update existing response
         const updateData: ChecklistItemResponseUpdate = {
           status: itemStatus,
           notes: itemNotes,
-          imageUrls: uploadedUrls,
+          image_urls: uploadedUrls,
         }
         await updateResponse(existingResponse.id, updateData)
       } else {
         // Create new response
         const createData: ChecklistItemResponseCreate = {
-          itemTemplateId: selectedItem.id,
+          item_template_id: selectedItem.id,
           status: itemStatus,
           notes: itemNotes,
-          imageUrls: uploadedUrls,
+          image_urls: uploadedUrls,
         }
         await createResponse(createData)
       }
@@ -225,17 +225,17 @@ export default function MobileChecklistPage() {
     subsections.forEach((section: any) => {
       const items = section.items || []
       items.forEach((item: ChecklistItemTemplate) => {
-        const response = instance.responses.find((r) => r.itemTemplateId === item.id)
+        const response = instance.responses.find((r) => r.item_template_id === item.id)
         if (!response || response.status === 'pending') {
           incompleteItems.push(item.name)
         }
 
         // Check for required fields
         if (response) {
-          if (item.mustImage && (!response.imageUrls || response.imageUrls.length === 0)) {
+          if (item.must_image && (!response.image_urls || response.image_urls.length === 0)) {
             incompleteItems.push(`${item.name} (photo required)`)
           }
-          if (item.mustNote && !response.notes) {
+          if (item.must_note && !response.notes) {
             incompleteItems.push(`${item.name} (note required)`)
           }
         }
@@ -244,7 +244,7 @@ export default function MobileChecklistPage() {
 
     // Check for signature requirement
     const hasSignatureRequirement = subsections.some((section: any) =>
-      section.items?.some((item: ChecklistItemTemplate) => item.mustSignature)
+      section.items?.some((item: ChecklistItemTemplate) => item.must_signature)
     )
 
     if (hasSignatureRequirement && !signature) {
@@ -435,7 +435,7 @@ export default function MobileChecklistPage() {
 
         {/* Signature Section */}
         {subsections.some((section: any) =>
-          section.items?.some((item: ChecklistItemTemplate) => item.mustSignature)
+          section.items?.some((item: ChecklistItemTemplate) => item.must_signature)
         ) && (
           <Box sx={{ mt: 3 }}>
             <Button
@@ -510,7 +510,7 @@ export default function MobileChecklistPage() {
           <Box>
             <TextField
               fullWidth
-              label={selectedItem?.mustNote ? 'Notes *' : 'Notes'}
+              label={selectedItem?.must_note ? 'Notes *' : 'Notes'}
               multiline
               rows={3}
               value={itemNotes}
@@ -520,10 +520,10 @@ export default function MobileChecklistPage() {
           </Box>
 
           {/* Photo Capture */}
-          {selectedItem?.mustImage && (
+          {selectedItem?.must_image && (
             <Box>
               <Typography variant="subtitle2" fontWeight="medium" gutterBottom>
-                Photos {selectedItem.mustImage && '*'}
+                Photos {selectedItem.must_image && '*'}
               </Typography>
               <PhotoCapture
                 maxPhotos={5}

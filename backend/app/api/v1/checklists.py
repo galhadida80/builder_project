@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -60,7 +60,7 @@ async def list_checklist_templates(
     result = await db.execute(
         select(ChecklistTemplate)
         .options(selectinload(ChecklistTemplate.created_by), selectinload(ChecklistTemplate.subsections))
-        .where(ChecklistTemplate.project_id == project_id)
+        .where(or_(ChecklistTemplate.project_id == project_id, ChecklistTemplate.project_id.is_(None)))
         .order_by(ChecklistTemplate.created_at.desc())
     )
     return result.scalars().all()

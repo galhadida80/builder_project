@@ -67,7 +67,7 @@ export function ChecklistSection({
   // Calculate completion progress
   const totalItems = section.items?.length || 0
   const completedItems = section.items?.filter((item) => {
-    const response = responses.find((r) => r.itemTemplateId === item.id)
+    const response = responses.find((r) => r.item_template_id === item.id)
     return response && response.status !== 'pending'
   }).length || 0
 
@@ -75,7 +75,7 @@ export function ChecklistSection({
   const isComplete = completedItems === totalItems && totalItems > 0
 
   const getItemStatus = (itemId: string): ChecklistItemResponse | undefined => {
-    return responses.find((r) => r.itemTemplateId === itemId)
+    return responses.find((r) => r.item_template_id === itemId)
   }
 
   const isItemComplete = (itemId: string): boolean => {
@@ -235,11 +235,11 @@ export function ChecklistSection({
                           size="small"
                           label={response.status}
                           color={
-                            response.status === 'pass'
+                            response.status === 'approved'
                               ? 'success'
-                              : response.status === 'fail'
+                              : response.status === 'rejected'
                               ? 'error'
-                              : response.status === 'na'
+                              : response.status === 'not_applicable'
                               ? 'default'
                               : 'info'
                           }
@@ -254,7 +254,7 @@ export function ChecklistSection({
                     )}
                   </Box>
                   <Box sx={{ display: 'flex', gap: 0.5 }}>
-                    {item.mustImage && (
+                    {item.must_image && (
                       <Chip
                         size="small"
                         label="Photo"
@@ -266,7 +266,7 @@ export function ChecklistSection({
                         }}
                       />
                     )}
-                    {item.mustNote && (
+                    {item.must_note && (
                       <Chip
                         size="small"
                         label="Note"
@@ -278,7 +278,7 @@ export function ChecklistSection({
                         }}
                       />
                     )}
-                    {item.mustSignature && (
+                    {item.must_signature && (
                       <Chip
                         size="small"
                         label="Signature"

@@ -46,7 +46,7 @@ class ChecklistTemplateUpdate(BaseModel):
 
 class ChecklistTemplateResponse(BaseModel):
     id: UUID
-    project_id: UUID
+    project_id: UUID | None = None
     name: str
     level: str
     group: str

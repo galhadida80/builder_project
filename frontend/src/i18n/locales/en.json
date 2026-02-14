@@ -457,7 +457,8 @@
     "auditLog": "Audit Log",
     "settings": "Settings",
     "home": "Home",
-    "bim": "BIM Models"
+    "bim": "BIM Models",
+    "checklists": "Checklists"
   },
   "profile": {
     "title": "Profile",
@@ -852,6 +853,22 @@
     "failedToSave": "Failed to save response",
     "failedToSubmit": "Failed to submit checklist",
     "notesPlaceholder": "Add any notes or observations..."
+  },
+  "checklists": {
+    "title": "Checklists",
+    "subtitle": "Manage checklist templates and inspection items",
+    "failedToLoad": "Failed to load checklists",
+    "templates": "Templates",
+    "items": "Items",
+    "subsections": "Subsections",
+    "group": "Group",
+    "level": "Level",
+    "name": "Name",
+    "noTemplates": "No checklist templates found",
+    "searchPlaceholder": "Search checklists...",
+    "requiresImage": "Image",
+    "requiresNote": "Note",
+    "requiresSignature": "Signature"
   },
   "documentReview": {
     "failedToLoadDocument": "Failed to load document. Please try again.",
