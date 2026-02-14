@@ -23,6 +23,10 @@ class StorageBackend(ABC):
         pass
 
     @abstractmethod
+    async def save_bytes(self, content: bytes, storage_path: str, content_type: str = "application/octet-stream") -> int:
+        pass
+
+    @abstractmethod
     async def delete_file(self, storage_path: str) -> None:
         pass
 
@@ -49,6 +53,13 @@ class LocalStorageBackend(StorageBackend):
             f.write(content)
         await file.seek(0)
         return file_size
+
+    async def save_bytes(self, content: bytes, storage_path: str, content_type: str = "application/octet-stream") -> int:
+        full_path = self.base_path / storage_path
+        full_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(full_path, "wb") as f:
+            f.write(content)
+        return len(content)
 
     async def delete_file(self, storage_path: str) -> None:
         full_path = self.base_path / storage_path
@@ -99,6 +110,15 @@ class S3StorageBackend(StorageBackend):
         await file.seek(0)
         return file_size
 
+    async def save_bytes(self, content: bytes, storage_path: str, content_type: str = "application/octet-stream") -> int:
+        self.client.put_object(
+            Bucket=self.bucket_name,
+            Key=storage_path,
+            Body=content,
+            ContentType=content_type,
+        )
+        return len(content)
+
     async def delete_file(self, storage_path: str) -> None:
         self.client.delete_object(Bucket=self.bucket_name, Key=storage_path)
 
@@ -133,6 +153,11 @@ class GCSStorageBackend(StorageBackend):
         blob.upload_from_string(content, content_type=file.content_type or "application/octet-stream")
         await file.seek(0)
         return file_size
+
+    async def save_bytes(self, content: bytes, storage_path: str, content_type: str = "application/octet-stream") -> int:
+        blob = self.bucket.blob(storage_path)
+        blob.upload_from_string(content, content_type=content_type)
+        return len(content)
 
     async def delete_file(self, storage_path: str) -> None:
         blob = self.bucket.blob(storage_path)

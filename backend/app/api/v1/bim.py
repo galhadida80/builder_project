@@ -114,7 +114,7 @@ async def upload_bim_model(
 
     content = await file.read()
     file_size = len(content)
-    await file.seek(0)
+    content_type = file.content_type or "application/octet-stream"
 
     bim_model = BimModel(
         project_id=project_id,
@@ -132,7 +132,7 @@ async def upload_bim_model(
         entity_id=bim_model.id,
         filename=filename,
     )
-    await storage.save_file(file, storage_path)
+    await storage.save_bytes(content, storage_path, content_type)
     bim_model.storage_path = storage_path
 
     bucket_key = f"builderops-{str(project_id).replace('-', '')[:20]}"
@@ -140,7 +140,7 @@ async def upload_bim_model(
 
     try:
         await aps.ensure_bucket(bucket_key)
-        obj_details = await aps.upload_object(bucket_key, object_key, content, "application/octet-stream")
+        obj_details = await aps.upload_object(bucket_key, object_key, content, content_type)
         bim_model.urn = obj_details.get("objectId", "")
     except Exception:
         bim_model.urn = None

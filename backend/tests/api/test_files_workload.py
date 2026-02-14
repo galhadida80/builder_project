@@ -77,6 +77,10 @@ class MockStorageBackend(StorageBackend):
         await file.seek(0)
         return len(content)
 
+    async def save_bytes(self, content: bytes, storage_path: str, content_type: str = "application/octet-stream") -> int:
+        self.saved_files[storage_path] = content
+        return len(content)
+
     async def delete_file(self, storage_path: str) -> None:
         self.deleted_files.append(storage_path)
 
