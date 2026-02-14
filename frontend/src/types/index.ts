@@ -526,3 +526,43 @@ export interface BimModel {
   createdAt: string
   updatedAt: string
 }
+
+export interface BimExtractedArea {
+  bimObjectId: number
+  name: string
+  areaType?: string
+  floorNumber?: number
+  areaCode?: string
+}
+
+export interface BimExtractedEquipment {
+  bimObjectId: number
+  name: string
+  equipmentType?: string
+  manufacturer?: string
+  modelNumber?: string
+  specifications?: Record<string, unknown>
+}
+
+export interface BimExtractedMaterial {
+  bimObjectId: number
+  name: string
+  materialType?: string
+  manufacturer?: string
+  modelNumber?: string
+}
+
+export interface BimExtractionResponse {
+  modelId: string
+  extractedAt?: string
+  areas: BimExtractedArea[]
+  equipment: BimExtractedEquipment[]
+  materials: BimExtractedMaterial[]
+  totalObjects: number
+}
+
+export interface BimImportResult {
+  importedCount: number
+  skippedCount: number
+  entityType: string
+}

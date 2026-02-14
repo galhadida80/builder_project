@@ -9,8 +9,9 @@ import { formatFileSize } from '../utils/fileUtils'
 import { useToast } from '../components/common/ToastProvider'
 import ForgeViewer from '../components/bim/ForgeViewer'
 import IFCViewer from '../components/bim/IFCViewer'
+import BimImportWizard from '../components/bim/BimImportWizard'
 import type { BimModel } from '../types'
-import { CloudUploadIcon, DeleteIcon, DescriptionIcon, RotateRightIcon } from '@/icons'
+import { CategoryIcon, CloudUploadIcon, DeleteIcon, DescriptionIcon, RotateRightIcon } from '@/icons'
 import {
   Box,
   Typography,
@@ -43,6 +44,7 @@ export default function BIMPage() {
   const [uploading, setUploading] = useState(false)
   const [selectedModel, setSelectedModel] = useState<BimModel | null>(null)
   const [deleteModel, setDeleteModel] = useState<BimModel | null>(null)
+  const [importModel, setImportModel] = useState<BimModel | null>(null)
   const [pollingIds, setPollingIds] = useState<Set<string>>(new Set())
 
   const loadModels = useCallback(async () => {
@@ -289,6 +291,20 @@ export default function BIMPage() {
                     </IconButton>
                   </Tooltip>
                 )}
+                {model.translationStatus === 'complete' && (
+                  <Tooltip title={t('bim.extractData')}>
+                    <IconButton
+                      size="small"
+                      color="primary"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setImportModel(model)
+                      }}
+                    >
+                      <CategoryIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                )}
                 <Tooltip title={t('common.delete')}>
                   <IconButton
                     size="small"
@@ -318,6 +334,15 @@ export default function BIMPage() {
             <ForgeViewer urn={selectedModel.urn} getToken={getViewerToken} />
           ) : null}
         </Box>
+      )}
+
+      {importModel && (
+        <BimImportWizard
+          open={!!importModel}
+          onClose={() => setImportModel(null)}
+          projectId={projectId!}
+          model={importModel}
+        />
       )}
 
       <ConfirmModal

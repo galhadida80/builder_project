@@ -162,3 +162,38 @@ class APSService:
             )
             resp.raise_for_status()
             return resp.json()
+
+    async def get_model_views(self, urn: str) -> list[dict[str, Any]]:
+        token = await self.get_2legged_token()
+        encoded_urn = base64.urlsafe_b64encode(urn.encode()).decode().rstrip("=")
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(
+                f"{APS_BASE_URL}/modelderivative/v2/designdata/{encoded_urn}/metadata",
+                headers={"Authorization": f"Bearer {token}"},
+            )
+            resp.raise_for_status()
+            data = resp.json()
+        return data.get("data", {}).get("metadata", [])
+
+    async def get_object_tree(self, urn: str, guid: str) -> dict[str, Any]:
+        token = await self.get_2legged_token()
+        encoded_urn = base64.urlsafe_b64encode(urn.encode()).decode().rstrip("=")
+        async with httpx.AsyncClient(timeout=180.0) as client:
+            resp = await client.get(
+                f"{APS_BASE_URL}/modelderivative/v2/designdata/{encoded_urn}/metadata/{guid}",
+                headers={"Authorization": f"Bearer {token}"},
+            )
+            resp.raise_for_status()
+            return resp.json()
+
+    async def get_object_properties(self, urn: str, guid: str) -> list[dict[str, Any]]:
+        token = await self.get_2legged_token()
+        encoded_urn = base64.urlsafe_b64encode(urn.encode()).decode().rstrip("=")
+        async with httpx.AsyncClient(timeout=180.0) as client:
+            resp = await client.get(
+                f"{APS_BASE_URL}/modelderivative/v2/designdata/{encoded_urn}/metadata/{guid}/properties",
+                headers={"Authorization": f"Bearer {token}"},
+            )
+            resp.raise_for_status()
+            data = resp.json()
+        return data.get("data", {}).get("collection", [])

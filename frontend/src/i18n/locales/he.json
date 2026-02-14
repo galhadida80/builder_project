@@ -1558,11 +1558,37 @@
     "deleteSuccess": "המודל נמחק בהצלחה!",
     "deleteFailed": "מחיקת המודל נכשלה",
     "failedToLoad": "טעינת מודלי BIM נכשלה",
+    "extractData": "חילוץ נתונים",
     "status": {
       "uploaded": "הועלה",
       "translating": "בתרגום",
       "complete": "מוכן",
       "failed": "נכשל"
+    },
+    "import": {
+      "title": "אשף ייבוא BIM",
+      "stepExtract": "חילוץ",
+      "stepReview": "סקירה ובחירה",
+      "stepImport": "ייבוא",
+      "extractDescription": "חילוץ אזורים, ציוד וחומרים מ-\"{{filename}}\"",
+      "extractButton": "חלץ נתונים",
+      "extractFailed": "חילוץ נתוני BIM נכשל",
+      "refresh": "רענון",
+      "areas": "אזורים",
+      "equipment": "ציוד",
+      "materials": "חומרים",
+      "type": "סוג",
+      "floor": "קומה",
+      "code": "קוד",
+      "manufacturer": "יצרן",
+      "model": "דגם",
+      "noItems": "לא נמצאו פריטים בקטגוריה זו",
+      "importButton": "ייבוא {{count}} פריטים",
+      "importSuccess": "יובאו {{count}} פריטים בהצלחה",
+      "importFailed": "ייבוא הפריטים נכשל",
+      "complete": "הייבוא הושלם",
+      "imported": "יובאו",
+      "skipped": "דולגו"
     }
   }
 }

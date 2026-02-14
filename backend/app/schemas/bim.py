@@ -48,3 +48,47 @@ class OAuthCallbackParams(BaseModel):
 class ViewerTokenResponse(CamelCaseModel):
     access_token: str
     expires_in: int
+
+
+class BimExtractedArea(CamelCaseModel):
+    bim_object_id: int
+    name: str
+    area_type: Optional[str] = None
+    floor_number: Optional[int] = None
+    area_code: Optional[str] = None
+
+
+class BimExtractedEquipment(CamelCaseModel):
+    bim_object_id: int
+    name: str
+    equipment_type: Optional[str] = None
+    manufacturer: Optional[str] = None
+    model_number: Optional[str] = None
+    specifications: Optional[dict] = None
+
+
+class BimExtractedMaterial(CamelCaseModel):
+    bim_object_id: int
+    name: str
+    material_type: Optional[str] = None
+    manufacturer: Optional[str] = None
+    model_number: Optional[str] = None
+
+
+class BimExtractionResponse(CamelCaseModel):
+    model_id: UUID
+    extracted_at: Optional[str] = None
+    areas: list[BimExtractedArea] = []
+    equipment: list[BimExtractedEquipment] = []
+    materials: list[BimExtractedMaterial] = []
+    total_objects: int = 0
+
+
+class BimImportRequest(BaseModel):
+    items: list[int]
+
+
+class BimImportResult(CamelCaseModel):
+    imported_count: int
+    skipped_count: int
+    entity_type: str

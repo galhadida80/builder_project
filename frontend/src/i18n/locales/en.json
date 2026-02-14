@@ -1506,11 +1506,37 @@
     "deleteSuccess": "Model deleted successfully!",
     "deleteFailed": "Failed to delete model",
     "failedToLoad": "Failed to load BIM models",
+    "extractData": "Extract Data",
     "status": {
       "uploaded": "Uploaded",
       "translating": "Translating",
       "complete": "Ready",
       "failed": "Failed"
+    },
+    "import": {
+      "title": "BIM Import Wizard",
+      "stepExtract": "Extract",
+      "stepReview": "Review & Select",
+      "stepImport": "Import",
+      "extractDescription": "Extract areas, equipment and materials from \"{{filename}}\"",
+      "extractButton": "Extract Data",
+      "extractFailed": "Failed to extract BIM data",
+      "refresh": "Refresh",
+      "areas": "Areas",
+      "equipment": "Equipment",
+      "materials": "Materials",
+      "type": "Type",
+      "floor": "Floor",
+      "code": "Code",
+      "manufacturer": "Manufacturer",
+      "model": "Model",
+      "noItems": "No items found in this category",
+      "importButton": "Import {{count}} items",
+      "importSuccess": "Successfully imported {{count}} items",
+      "importFailed": "Failed to import items",
+      "complete": "Import Complete",
+      "imported": "imported",
+      "skipped": "skipped"
     }
   }
 }

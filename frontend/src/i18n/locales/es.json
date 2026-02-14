@@ -1267,11 +1267,37 @@
     "deleteSuccess": "Modelo eliminado exitosamente!",
     "deleteFailed": "Error al eliminar el modelo",
     "failedToLoad": "Error al cargar modelos BIM",
+    "extractData": "Extraer Datos",
     "status": {
       "uploaded": "Subido",
       "translating": "Traduciendo",
       "complete": "Listo",
       "failed": "Fallido"
+    },
+    "import": {
+      "title": "Asistente de Importacion BIM",
+      "stepExtract": "Extraer",
+      "stepReview": "Revisar y Seleccionar",
+      "stepImport": "Importar",
+      "extractDescription": "Extraer areas, equipos y materiales de \"{{filename}}\"",
+      "extractButton": "Extraer Datos",
+      "extractFailed": "Error al extraer datos BIM",
+      "refresh": "Actualizar",
+      "areas": "Areas",
+      "equipment": "Equipos",
+      "materials": "Materiales",
+      "type": "Tipo",
+      "floor": "Piso",
+      "code": "Codigo",
+      "manufacturer": "Fabricante",
+      "model": "Modelo",
+      "noItems": "No se encontraron elementos en esta categoria",
+      "importButton": "Importar {{count}} elementos",
+      "importSuccess": "Se importaron {{count}} elementos exitosamente",
+      "importFailed": "Error al importar elementos",
+      "complete": "Importacion Completa",
+      "imported": "importados",
+      "skipped": "omitidos"
     }
   }
 }
