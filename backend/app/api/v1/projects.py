@@ -3,6 +3,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import case, func, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -61,7 +62,11 @@ async def create_project(
 ):
     project = Project(**data.model_dump(), created_by_id=current_user.id)
     db.add(project)
-    await db.flush()
+    try:
+        await db.flush()
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(status_code=409, detail=f"Project code '{data.code}' already exists")
 
     member = ProjectMember(project_id=project.id, user_id=current_user.id, role="project_admin")
     db.add(member)

@@ -13,6 +13,7 @@ import { ProgressBar } from '../components/ui/ProgressBar'
 import { projectsApi } from '../api/projects'
 import type { Project } from '../types'
 import { validateProjectForm, hasErrors, VALIDATION, type ValidationError } from '../utils/validation'
+import { parseValidationErrors } from '../utils/apiErrors'
 import { useToast } from '../components/common/ToastProvider'
 import { AddIcon, LocationOnIcon, CalendarTodayIcon, MoreVertIcon, FolderIcon, GridViewIcon, ViewListIcon } from '@/icons'
 import { Box, Typography, Menu, MenuItem, IconButton, Skeleton, Chip } from '@/mui'
@@ -119,8 +120,21 @@ export default function ProjectsPage() {
       }
       handleCloseDialog()
       loadProjects()
-    } catch {
-      showError(editingProject ? t('pages.projects.failedToUpdate') : t('pages.projects.failedToCreate'))
+    } catch (err: unknown) {
+      const serverErrors = parseValidationErrors(err)
+      if (Object.keys(serverErrors).length > 0) {
+        setErrors(prev => ({ ...prev, ...serverErrors }))
+        showError(t('validation.checkFields'))
+      } else {
+        const axiosErr = err as { response?: { status?: number; data?: { detail?: string } } }
+        const detail = axiosErr?.response?.data?.detail
+        if (axiosErr?.response?.status === 409 && detail) {
+          setErrors(prev => ({ ...prev, code: detail }))
+          showError(detail)
+        } else {
+          showError(editingProject ? t('pages.projects.failedToUpdate') : t('pages.projects.failedToCreate'))
+        }
+      }
     } finally {
       setSaving(false)
     }
