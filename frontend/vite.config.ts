@@ -91,7 +91,7 @@ export default defineConfig({
       '@mui/x-date-pickers',
       '@mui/x-date-pickers/AdapterDayjs',
     ],
-    exclude: ['web-ifc-three'],
+    exclude: ['web-ifc'],
   },
   server: {
     port: 5173,

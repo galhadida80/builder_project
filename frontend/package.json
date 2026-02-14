@@ -51,7 +51,6 @@
     "three": "^0.160.0",
     "vite-plugin-pwa": "^1.2.0",
     "web-ifc": "^0.0.75",
-    "web-ifc-three": "^0.0.126",
     "zod": "^4.3.6"
   },
   "devDependencies": {
@@ -78,9 +77,6 @@
   "overrides": {
     "@mui/base": {
       "@mui/utils": "$@mui/utils"
-    },
-    "web-ifc-three": {
-      "web-ifc": "0.0.75"
     }
   }
 }
