@@ -11,12 +11,16 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.pool import StaticPool
 
+from app.config import get_settings
 from app.db.session import Base, get_db
 from app.main import app
 from app.models.equipment_submission import EquipmentSubmission
 from app.models.equipment_template import EquipmentTemplate
 from app.models.project import Project, ProjectMember
 from app.models.user import User
+
+# Force fake email provider for all tests (avoid hitting real SendGrid)
+get_settings().email_provider = "fake"
 
 compiles(JSONB, "sqlite")(lambda element, compiler, **kw: compiler.visit_JSON(element, **kw))
 compiles(PG_UUID, "sqlite")(lambda element, compiler, **kw: "VARCHAR(36)")
