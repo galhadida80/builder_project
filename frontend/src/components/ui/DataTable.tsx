@@ -12,8 +12,9 @@ import {
   Box,
   Typography,
   Skeleton,
+  Collapse,
 } from '@/mui'
-import { useState } from 'react'
+import { useState, Fragment } from 'react'
 import { styled } from '@/mui'
 
 export interface Column<T> {
@@ -34,6 +35,7 @@ interface DataTableProps<T> {
   onSelectionChange?: (ids: (string | number)[]) => void
   getRowId: (row: T) => string | number
   onRowClick?: (row: T) => void
+  renderExpandedRow?: (row: T) => React.ReactNode | null
   pagination?: boolean
   pageSize?: number
   emptyMessage?: string
@@ -130,6 +132,7 @@ export function DataTable<T>({
   onSelectionChange,
   getRowId,
   onRowClick,
+  renderExpandedRow,
   pagination = true,
   pageSize = 10,
   emptyMessage = 'No data available',
@@ -276,33 +279,45 @@ export function DataTable<T>({
           {displayedRows.map((row) => {
             const rowId = getRowId(row)
             const isSelected = selectedIds.includes(rowId)
+            const expandedContent = renderExpandedRow?.(row)
+            const totalColSpan = columns.length + (selectable ? 1 : 0)
 
             return (
-              <TableRow
-                key={rowId}
-                selected={isSelected}
-                onClick={() => onRowClick?.(row)}
-                sx={{ cursor: onRowClick ? 'pointer' : 'default' }}
-              >
-                {selectable && (
-                  <TableCell padding="checkbox">
-                    <Checkbox
-                      checked={isSelected}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleSelectRow(rowId)
-                      }}
-                    />
-                  </TableCell>
+              <Fragment key={rowId}>
+                <TableRow
+                  selected={isSelected}
+                  onClick={() => onRowClick?.(row)}
+                  sx={{ cursor: onRowClick ? 'pointer' : 'default' }}
+                >
+                  {selectable && (
+                    <TableCell padding="checkbox">
+                      <Checkbox
+                        checked={isSelected}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleSelectRow(rowId)
+                        }}
+                      />
+                    </TableCell>
+                  )}
+                  {columns.map((column) => (
+                    <TableCell key={String(column.id)} align={column.align}>
+                      {column.render
+                        ? column.render(row)
+                        : String((row as Record<string, unknown>)[column.id as string] ?? '')}
+                    </TableCell>
+                  ))}
+                </TableRow>
+                {renderExpandedRow && (
+                  <TableRow>
+                    <TableCell colSpan={totalColSpan} sx={{ p: 0, borderBottom: expandedContent ? 1 : 0, borderColor: 'divider' }}>
+                      <Collapse in={!!expandedContent}>
+                        {expandedContent}
+                      </Collapse>
+                    </TableCell>
+                  </TableRow>
                 )}
-                {columns.map((column) => (
-                  <TableCell key={String(column.id)} align={column.align}>
-                    {column.render
-                      ? column.render(row)
-                      : String((row as Record<string, unknown>)[column.id as string] ?? '')}
-                  </TableCell>
-                ))}
-              </TableRow>
+              </Fragment>
             )
           })}
         </TableBody>

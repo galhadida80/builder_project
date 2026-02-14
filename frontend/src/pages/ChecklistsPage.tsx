@@ -538,26 +538,24 @@ export default function ChecklistsPage() {
               {filteredTemplates.length === 0 ? (
                 <EmptyState title={t('checklists.noTemplates')} icon={<ChecklistIcon sx={{ fontSize: 48 }} />} />
               ) : (
-                <>
-                  <DataTable<ChecklistTemplate>
-                    columns={templateColumns}
-                    rows={filteredTemplates}
-                    getRowId={(row) => row.id}
-                    onRowClick={(row) => setExpandedId(expandedId === row.id ? null : row.id)}
-                  />
-                  {filteredTemplates.map((tpl) => (
-                    <Collapse key={tpl.id} in={expandedId === tpl.id}>
-                      <Box sx={{ px: 2, py: 1.5, bgcolor: 'action.hover', borderRadius: 2, mb: 1 }}>
-                        {tpl.subsections
+                <DataTable<ChecklistTemplate>
+                  columns={templateColumns}
+                  rows={filteredTemplates}
+                  getRowId={(row) => row.id}
+                  onRowClick={(row) => setExpandedId(expandedId === row.id ? null : row.id)}
+                  renderExpandedRow={(row) =>
+                    expandedId === row.id ? (
+                      <Box sx={{ px: 2, py: 1.5, bgcolor: 'action.hover' }}>
+                        {row.subsections
                           .slice()
                           .sort((a, b) => a.order - b.order)
                           .map((sub: ChecklistSubSection) => (
                             <SubsectionCard key={sub.id} subsection={sub} />
                           ))}
                       </Box>
-                    </Collapse>
-                  ))}
-                </>
+                    ) : null
+                  }
+                />
               )}
             </>
           )}
