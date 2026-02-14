@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, useCallback, useMemo, R
 import { equipmentTemplatesApi, type EquipmentTemplate } from '../api/equipmentTemplates'
 import { materialTemplatesApi, type MaterialTemplate } from '../api/materialTemplates'
 import { inspectionsApi } from '../api/inspections'
+import { useAuth } from './AuthContext'
 import type { InspectionConsultantType } from '../types'
 
 const CACHE_TTL = 60 * 60 * 1000 // 1 hour
@@ -49,7 +50,7 @@ function writeCache<T>(key: string, data: T): void {
 
 function initFromCache() {
   const token = localStorage.getItem('authToken')
-  if (!token) return { eq: [], mat: [], con: [], allCached: true }
+  if (!token) return { eq: [], mat: [], con: [], allCached: false }
   const eq = readCache<EquipmentTemplate[]>(CACHE_KEYS.equipmentTemplates) || []
   const mat = readCache<MaterialTemplate[]>(CACHE_KEYS.materialTemplates) || []
   const con = readCache<InspectionConsultantType[]>(CACHE_KEYS.consultantTypes) || []
@@ -58,6 +59,7 @@ function initFromCache() {
 }
 
 export function ReferenceDataProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth()
   const initial = initFromCache()
   const [equipmentTemplates, setEquipmentTemplates] = useState<EquipmentTemplate[]>(initial.eq)
   const [materialTemplates, setMaterialTemplates] = useState<MaterialTemplate[]>(initial.mat)
@@ -105,8 +107,10 @@ export function ReferenceDataProvider({ children }: { children: ReactNode }) {
   }, [])
 
   useEffect(() => {
-    loadAll()
-  }, [loadAll])
+    if (user) {
+      loadAll()
+    }
+  }, [loadAll, user])
 
   const refreshReferenceData = useCallback(() => {
     loadAll(true)
