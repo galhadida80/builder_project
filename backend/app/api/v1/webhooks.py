@@ -54,7 +54,7 @@ async def gmail_push_notification(
 
 
 async def process_gmail_history(history_id: str):
-    from app.db.session import async_session_maker
+    from app.db.session import AsyncSessionLocal
 
     gmail_service = GmailService()
 
@@ -69,7 +69,7 @@ async def process_gmail_history(history_id: str):
             logger.info(f"No new history records for historyId: {history_id}")
             return
 
-        async with async_session_maker() as db:
+        async with AsyncSessionLocal() as db:
             rfi_service = RFIService(db)
 
             for record in history['history']:
