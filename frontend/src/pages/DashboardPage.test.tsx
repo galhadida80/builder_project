@@ -8,13 +8,18 @@ import { meetingsApi } from '../api/meetings'
 import { approvalsApi } from '../api/approvals'
 import { auditApi } from '../api/audit'
 import { workloadApi } from '../api/workload'
+import { dashboardStatsApi } from '../api/dashboardStats'
 
-vi.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (key: string, opts?: Record<string, unknown>) => opts?.defaultValue ? String(opts.defaultValue) : key,
-    i18n: { language: 'en' },
-  }),
-}))
+vi.mock('react-i18next', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('react-i18next')>()
+  return {
+    ...actual,
+    useTranslation: () => ({
+      t: (key: string, opts?: Record<string, unknown>) => opts?.defaultValue ? String(opts.defaultValue) : key,
+      i18n: { language: 'en' },
+    }),
+  }
+})
 
 vi.mock('react-router-dom', () => ({
   useNavigate: () => vi.fn(),
@@ -32,8 +37,21 @@ vi.mock('../api/equipment', () => ({ equipmentApi: { list: vi.fn() } }))
 vi.mock('../api/materials', () => ({ materialsApi: { list: vi.fn() } }))
 vi.mock('../api/meetings', () => ({ meetingsApi: { list: vi.fn() } }))
 vi.mock('../api/approvals', () => ({ approvalsApi: { list: vi.fn() } }))
-vi.mock('../api/audit', () => ({ auditApi: { listAll: vi.fn() } }))
+vi.mock('../api/audit', () => ({ auditApi: { listAll: vi.fn(), listByProject: vi.fn() } }))
 vi.mock('../api/workload', () => ({ workloadApi: { getTeamMembers: vi.fn() } }))
+vi.mock('../api/dashboardStats', () => ({ dashboardStatsApi: { getStats: vi.fn() } }))
+
+vi.mock('@mui/x-charts/BarChart', () => ({
+  BarChart: () => <div data-testid="bar-chart" />,
+}))
+
+vi.mock('../pages/Analytics/components/DistributionChart', () => ({
+  default: () => <div data-testid="distribution-chart" />,
+}))
+
+vi.mock('../pages/Analytics/components/ProjectMetricsChart', () => ({
+  default: () => <div data-testid="project-metrics-chart" />,
+}))
 
 vi.mock('../components/ui/Card', () => ({
   Card: ({ children }: { children: React.ReactNode }) => <div data-testid="card">{children}</div>,
@@ -91,6 +109,16 @@ const mockTeam = [
   { id: 'tm-1', userId: 'u1', user: { id: 'u1', fullName: 'Alice', email: 'a@t.com', isActive: true, createdAt: '2024-01-01' }, role: 'inspector', workloadPercent: 70, assignedHours: 28, availableHours: 40, createdAt: '2024-01-01' },
 ]
 
+const mockDashboardStats = {
+  equipmentDistribution: [],
+  materialDistribution: [],
+  rfiDistribution: [],
+  findingsSeverity: [],
+  weeklyActivity: [],
+  areaProgressByFloor: [],
+  overallProgress: 0,
+}
+
 describe('DashboardPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -98,8 +126,10 @@ describe('DashboardPage', () => {
     vi.mocked(materialsApi.list).mockResolvedValue(mockMaterials as never)
     vi.mocked(meetingsApi.list).mockResolvedValue(mockMeetings as never)
     vi.mocked(approvalsApi.list).mockResolvedValue(mockApprovals as never)
+    vi.mocked(auditApi.listByProject).mockResolvedValue(mockAuditLogs as never)
     vi.mocked(auditApi.listAll).mockResolvedValue(mockAuditLogs as never)
     vi.mocked(workloadApi.getTeamMembers).mockResolvedValue(mockTeam as never)
+    vi.mocked(dashboardStatsApi.getStats).mockResolvedValue(mockDashboardStats as never)
   })
 
   it('shows loading skeletons initially', () => {
@@ -142,7 +172,7 @@ describe('DashboardPage', () => {
     await waitFor(() => {
       expect(screen.getByText('dashboard.completionRate')).toBeInTheDocument()
     })
-    expect(screen.getByTestId('circular-progress')).toBeInTheDocument()
+    expect(screen.getAllByTestId('circular-progress').length).toBeGreaterThanOrEqual(1)
   })
 
   it('renders quick actions section', async () => {
@@ -188,7 +218,7 @@ describe('DashboardPage', () => {
   })
 
   it('shows empty activity state when no audit logs', async () => {
-    vi.mocked(auditApi.listAll).mockResolvedValue([])
+    vi.mocked(auditApi.listByProject).mockResolvedValue([])
     renderWithProviders(<DashboardPage />)
     await waitFor(() => {
       expect(screen.getByText('dashboard.noActivityYet')).toBeInTheDocument()
@@ -212,7 +242,7 @@ describe('DashboardPage', () => {
       expect(materialsApi.list).toHaveBeenCalled()
       expect(meetingsApi.list).toHaveBeenCalled()
       expect(approvalsApi.list).toHaveBeenCalled()
-      expect(auditApi.listAll).toHaveBeenCalled()
+      expect(auditApi.listByProject).toHaveBeenCalled()
       expect(workloadApi.getTeamMembers).toHaveBeenCalled()
     })
   })

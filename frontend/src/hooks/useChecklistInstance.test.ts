@@ -4,7 +4,6 @@ import { useChecklistInstance } from './useChecklistInstance'
 import { checklistsApi } from '../api/checklists'
 import type { ChecklistInstance, ChecklistItemResponse } from '../types'
 
-// Mock the API
 vi.mock('../api/checklists', () => ({
   checklistsApi: {
     getInstance: vi.fn(),
@@ -14,40 +13,26 @@ vi.mock('../api/checklists', () => ({
   },
 }))
 
-// Mock data
 const mockInstance: ChecklistInstance = {
   id: 'instance-1',
-  checklistTemplateId: 'template-1',
-  projectId: 'project-1',
-  inspectionId: 'inspection-1',
+  template_id: 'template-1',
+  project_id: 'project-1',
+  unit_identifier: 'Unit A',
   status: 'in_progress',
-  startedAt: '2024-01-01T00:00:00Z',
-  completedAt: null,
-  createdAt: '2024-01-01T00:00:00Z',
-  updatedAt: '2024-01-01T00:00:00Z',
-  subsections: [],
+  created_at: '2024-01-01T00:00:00Z',
+  updated_at: '2024-01-01T00:00:00Z',
   responses: [],
-  template: {
-    id: 'template-1',
-    name: 'Safety Inspection',
-    description: 'Standard safety checklist',
-    category: 'safety',
-    version: 1,
-    isActive: true,
-    createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-01T00:00:00Z',
-  },
 }
 
 const mockResponse: ChecklistItemResponse = {
   id: 'response-1',
-  checklistInstanceId: 'instance-1',
-  itemTemplateId: 'item-1',
-  status: 'pass',
+  instance_id: 'instance-1',
+  item_template_id: 'item-1',
+  status: 'approved',
   notes: 'Test note',
-  imageUrls: [],
-  createdAt: '2024-01-01T00:00:00Z',
-  updatedAt: '2024-01-01T00:00:00Z',
+  image_urls: [],
+  created_at: '2024-01-01T00:00:00Z',
+  updated_at: '2024-01-01T00:00:00Z',
 }
 
 describe('useChecklistInstance', () => {
@@ -58,21 +43,19 @@ describe('useChecklistInstance', () => {
   it('fetches instance data on mount', async () => {
     vi.mocked(checklistsApi.getInstance).mockResolvedValue(mockInstance)
 
-    const { result } = renderHook(() => useChecklistInstance('instance-1'))
+    const { result } = renderHook(() => useChecklistInstance('project-1', 'instance-1'))
 
-    // Initially loading
     expect(result.current.loading).toBe(true)
     expect(result.current.instance).toBe(null)
     expect(result.current.error).toBe(null)
 
-    // Wait for data to load
     await waitFor(() => {
       expect(result.current.loading).toBe(false)
     })
 
     expect(result.current.instance).toEqual(mockInstance)
     expect(result.current.error).toBe(null)
-    expect(checklistsApi.getInstance).toHaveBeenCalledWith('instance-1')
+    expect(checklistsApi.getInstance).toHaveBeenCalledWith('project-1', 'instance-1')
   })
 
   it('handles loading state correctly', async () => {
@@ -80,7 +63,7 @@ describe('useChecklistInstance', () => {
       () => new Promise((resolve) => setTimeout(() => resolve(mockInstance), 100))
     )
 
-    const { result } = renderHook(() => useChecklistInstance('instance-1'))
+    const { result } = renderHook(() => useChecklistInstance('project-1', 'instance-1'))
 
     expect(result.current.loading).toBe(true)
 
@@ -92,7 +75,7 @@ describe('useChecklistInstance', () => {
   it('handles error state when fetch fails', async () => {
     vi.mocked(checklistsApi.getInstance).mockRejectedValue(new Error('Network error'))
 
-    const { result } = renderHook(() => useChecklistInstance('instance-1'))
+    const { result } = renderHook(() => useChecklistInstance('project-1', 'instance-1'))
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false)
@@ -103,7 +86,7 @@ describe('useChecklistInstance', () => {
   })
 
   it('handles undefined instanceId', async () => {
-    const { result } = renderHook(() => useChecklistInstance(undefined))
+    const { result } = renderHook(() => useChecklistInstance(undefined, undefined))
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false)
@@ -117,29 +100,26 @@ describe('useChecklistInstance', () => {
     vi.mocked(checklistsApi.getInstance).mockResolvedValue(mockInstance)
     vi.mocked(checklistsApi.createResponse).mockResolvedValue(mockResponse)
 
-    const { result } = renderHook(() => useChecklistInstance('instance-1'))
+    const { result } = renderHook(() => useChecklistInstance('project-1', 'instance-1'))
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false)
     })
 
-    // Create response
     const responseData = {
-      itemTemplateId: 'item-1',
-      status: 'pass' as const,
+      item_template_id: 'item-1',
+      status: 'approved' as const,
       notes: 'Test note',
-      imageUrls: [],
+      image_urls: [],
     }
 
-    let response: any
+    let response: ChecklistItemResponse | undefined
     await act(async () => {
       response = await result.current.createResponse(responseData)
     })
 
     expect(response).toEqual(mockResponse)
     expect(checklistsApi.createResponse).toHaveBeenCalledWith('instance-1', responseData)
-
-    // Instance should be updated with new response
     expect(result.current.instance?.responses).toContainEqual(mockResponse)
   })
 
@@ -153,25 +133,24 @@ describe('useChecklistInstance', () => {
 
     const updatedResponse = {
       ...mockResponse,
-      status: 'fail' as const,
+      status: 'rejected' as const,
       notes: 'Updated note',
     }
 
     vi.mocked(checklistsApi.updateResponse).mockResolvedValue(updatedResponse)
 
-    const { result } = renderHook(() => useChecklistInstance('instance-1'))
+    const { result } = renderHook(() => useChecklistInstance('project-1', 'instance-1'))
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false)
     })
 
-    // Update response
     const updateData = {
-      status: 'fail' as const,
+      status: 'rejected' as const,
       notes: 'Updated note',
     }
 
-    let response: any
+    let response: ChecklistItemResponse | undefined
     await act(async () => {
       response = await result.current.updateResponse('response-1', updateData)
     })
@@ -179,11 +158,8 @@ describe('useChecklistInstance', () => {
     expect(response).toEqual(updatedResponse)
     expect(checklistsApi.updateResponse).toHaveBeenCalledWith('instance-1', 'response-1', updateData)
 
-    // Instance should be updated with modified response
-    const updatedInstance = result.current.instance
-    const updatedResponseInInstance = updatedInstance?.responses.find((r) => r.id === 'response-1')
-
-    expect(updatedResponseInInstance?.status).toBe('fail')
+    const updatedResponseInInstance = result.current.instance?.responses.find((r) => r.id === 'response-1')
+    expect(updatedResponseInInstance?.status).toBe('rejected')
     expect(updatedResponseInInstance?.notes).toBe('Updated note')
   })
 
@@ -198,9 +174,9 @@ describe('useChecklistInstance', () => {
       projectId: 'project-1',
       uploadedBy: 'user-1',
       createdAt: '2024-01-01T00:00:00Z',
-    })
+    } as never)
 
-    const { result } = renderHook(() => useChecklistInstance('instance-1'))
+    const { result } = renderHook(() => useChecklistInstance('project-1', 'instance-1'))
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false)
@@ -217,17 +193,17 @@ describe('useChecklistInstance', () => {
     vi.mocked(checklistsApi.getInstance).mockResolvedValue(mockInstance)
     vi.mocked(checklistsApi.createResponse).mockRejectedValue(new Error('API error'))
 
-    const { result } = renderHook(() => useChecklistInstance('instance-1'))
+    const { result } = renderHook(() => useChecklistInstance('project-1', 'instance-1'))
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false)
     })
 
     const responseData = {
-      itemTemplateId: 'item-1',
-      status: 'pass' as const,
+      item_template_id: 'item-1',
+      status: 'approved' as const,
       notes: 'Test',
-      imageUrls: [],
+      image_urls: [],
     }
 
     await expect(result.current.createResponse(responseData)).rejects.toThrow(
@@ -239,14 +215,14 @@ describe('useChecklistInstance', () => {
     vi.mocked(checklistsApi.getInstance).mockResolvedValue(mockInstance)
     vi.mocked(checklistsApi.updateResponse).mockRejectedValue(new Error('API error'))
 
-    const { result } = renderHook(() => useChecklistInstance('instance-1'))
+    const { result } = renderHook(() => useChecklistInstance('project-1', 'instance-1'))
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false)
     })
 
     const updateData = {
-      status: 'fail' as const,
+      status: 'rejected' as const,
     }
 
     await expect(result.current.updateResponse('response-1', updateData)).rejects.toThrow(
@@ -258,7 +234,7 @@ describe('useChecklistInstance', () => {
     vi.mocked(checklistsApi.getInstance).mockResolvedValue(mockInstance)
     vi.mocked(checklistsApi.uploadFile).mockRejectedValue(new Error('Upload failed'))
 
-    const { result } = renderHook(() => useChecklistInstance('instance-1'))
+    const { result } = renderHook(() => useChecklistInstance('project-1', 'instance-1'))
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false)
@@ -274,7 +250,7 @@ describe('useChecklistInstance', () => {
   it('refetches data when refetch is called', async () => {
     vi.mocked(checklistsApi.getInstance).mockResolvedValue(mockInstance)
 
-    const { result } = renderHook(() => useChecklistInstance('instance-1'))
+    const { result } = renderHook(() => useChecklistInstance('project-1', 'instance-1'))
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false)
@@ -282,38 +258,37 @@ describe('useChecklistInstance', () => {
 
     expect(checklistsApi.getInstance).toHaveBeenCalledTimes(1)
 
-    // Call refetch
     await result.current.refetch()
 
     expect(checklistsApi.getInstance).toHaveBeenCalledTimes(2)
   })
 
   it('throws error when createResponse called without instanceId', async () => {
-    const { result } = renderHook(() => useChecklistInstance(undefined))
+    const { result } = renderHook(() => useChecklistInstance(undefined, undefined))
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false)
     })
 
     const responseData = {
-      itemTemplateId: 'item-1',
-      status: 'pass' as const,
+      item_template_id: 'item-1',
+      status: 'approved' as const,
       notes: '',
-      imageUrls: [],
+      image_urls: [],
     }
 
     await expect(result.current.createResponse(responseData)).rejects.toThrow('No instance ID available')
   })
 
   it('throws error when updateResponse called without instanceId', async () => {
-    const { result } = renderHook(() => useChecklistInstance(undefined))
+    const { result } = renderHook(() => useChecklistInstance(undefined, undefined))
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false)
     })
 
     const updateData = {
-      status: 'fail' as const,
+      status: 'rejected' as const,
     }
 
     await expect(result.current.updateResponse('response-1', updateData)).rejects.toThrow(

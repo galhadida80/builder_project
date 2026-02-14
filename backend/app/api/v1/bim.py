@@ -17,7 +17,6 @@ from app.models.bim import AutodeskConnection, BimModel, TranslationStatus
 from app.models.project import ProjectMember
 from app.models.user import User
 from app.schemas.bim import (
-    AutodeskConnectionResponse,
     BimModelResponse,
     TranslationStatusResponse,
     ViewerTokenResponse,

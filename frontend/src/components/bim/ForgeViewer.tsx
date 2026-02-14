@@ -8,7 +8,9 @@ declare global {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 declare namespace Autodesk {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Viewing {
     function Initializer(options: Record<string, unknown>, callback: () => void): void
     function shutdown(): void
