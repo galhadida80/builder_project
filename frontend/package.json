@@ -29,7 +29,7 @@
     "@tiptap/pm": "^3.19.0",
     "@tiptap/react": "^3.19.0",
     "@tiptap/starter-kit": "^3.19.0",
-    "@types/three": "^0.182.0",
+    "@types/three": "^0.160.0",
     "axios": "^1.6.7",
     "dayjs": "^1.11.10",
     "firebase": "^10.7.2",
@@ -48,7 +48,7 @@
     "react-signature-canvas": "^1.1.0-alpha.2",
     "remark-gfm": "^4.0.1",
     "stylis-plugin-rtl": "^2.1.1",
-    "three": "^0.149.0",
+    "three": "^0.160.0",
     "vite-plugin-pwa": "^1.2.0",
     "web-ifc": "^0.0.75",
     "web-ifc-three": "^0.0.126",
@@ -78,6 +78,9 @@
   "overrides": {
     "@mui/base": {
       "@mui/utils": "$@mui/utils"
+    },
+    "web-ifc-three": {
+      "web-ifc": "0.0.75"
     }
   }
 }

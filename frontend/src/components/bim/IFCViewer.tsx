@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import { IFCLoader } from 'web-ifc-three'
+import { IfcAPI } from 'web-ifc'
 import { Box, Skeleton, Typography } from '@/mui'
 import { bimApi } from '../../api/bim'
 
@@ -22,7 +22,7 @@ export default function IFCViewer({ projectId, modelId, filename }: IFCViewerPro
     let cancelled = false
     let renderer: THREE.WebGLRenderer | null = null
     let animationId: number | null = null
-    let blobUrl: string | null = null
+    let ifcApi: IfcAPI | null = null
 
     async function init() {
       const container = containerRef.current
@@ -45,14 +45,11 @@ export default function IFCViewer({ projectId, modelId, filename }: IFCViewerPro
       const controls = new OrbitControls(camera, renderer.domElement)
       controls.enableDamping = true
 
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.6)
-      scene.add(ambientLight)
-      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8)
-      directionalLight.position.set(10, 20, 10)
-      scene.add(directionalLight)
-
-      const gridHelper = new THREE.GridHelper(50, 50)
-      scene.add(gridHelper)
+      scene.add(new THREE.AmbientLight(0xffffff, 0.6))
+      const dirLight = new THREE.DirectionalLight(0xffffff, 0.8)
+      dirLight.position.set(10, 20, 10)
+      scene.add(dirLight)
+      scene.add(new THREE.GridHelper(50, 50))
 
       function animate() {
         animationId = requestAnimationFrame(animate)
@@ -72,41 +69,82 @@ export default function IFCViewer({ projectId, modelId, filename }: IFCViewerPro
       window.addEventListener('resize', handleResize)
 
       try {
+        ifcApi = new IfcAPI()
+        ifcApi.SetWasmPath('/wasm/')
+        await ifcApi.Init()
+        if (cancelled) return
+
         const blob = await bimApi.getFileContent(projectId, modelId)
         if (cancelled) return
 
-        blobUrl = URL.createObjectURL(blob)
-        const ifcLoader = new IFCLoader()
-        await ifcLoader.ifcManager.setWasmPath('https://unpkg.com/web-ifc@0.0.75/')
+        const buffer = await blob.arrayBuffer()
+        const data = new Uint8Array(buffer)
+        const modelID = ifcApi.OpenModel(data)
 
-        ifcLoader.load(
-          blobUrl,
-          (model) => {
-            if (cancelled) return
-            scene.add(model)
+        const modelGroup = new THREE.Group()
+        ifcApi.StreamAllMeshes(modelID, (mesh) => {
+          const placedGeometries = mesh.geometries
+          for (let i = 0; i < placedGeometries.size(); i++) {
+            const placed = placedGeometries.get(i)
+            const geom = ifcApi!.GetGeometry(modelID, placed.geometryExpressID)
 
-            const box = new THREE.Box3().setFromObject(model)
-            const center = box.getCenter(new THREE.Vector3())
-            const size = box.getSize(new THREE.Vector3())
-            const maxDim = Math.max(size.x, size.y, size.z)
-            const fov = camera.fov * (Math.PI / 180)
-            const distance = maxDim / (2 * Math.tan(fov / 2)) * 1.5
+            const verts = ifcApi!.GetVertexArray(geom.GetVertexData(), geom.GetVertexDataSize())
+            const indices = ifcApi!.GetIndexArray(geom.GetIndexData(), geom.GetIndexDataSize())
 
-            camera.position.set(center.x + distance, center.y + distance * 0.5, center.z + distance)
-            controls.target.copy(center)
-            controls.update()
-
-            setLoading(false)
-          },
-          undefined,
-          () => {
-            if (!cancelled) {
-              setError(t('bim.viewerLoadError'))
-              setLoading(false)
+            const positions = new Float32Array(verts.length / 2)
+            const normals = new Float32Array(verts.length / 2)
+            for (let j = 0; j < verts.length; j += 6) {
+              positions[j / 2] = verts[j]
+              positions[j / 2 + 1] = verts[j + 1]
+              positions[j / 2 + 2] = verts[j + 2]
+              normals[j / 2] = verts[j + 3]
+              normals[j / 2 + 1] = verts[j + 4]
+              normals[j / 2 + 2] = verts[j + 5]
             }
-          },
-        )
-      } catch {
+
+            const bufferGeometry = new THREE.BufferGeometry()
+            bufferGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3))
+            bufferGeometry.setAttribute('normal', new THREE.BufferAttribute(normals, 3))
+            bufferGeometry.setIndex(new THREE.BufferAttribute(indices, 1))
+
+            const { color } = placed
+            const material = new THREE.MeshPhongMaterial({
+              color: new THREE.Color(color.x, color.y, color.z),
+              opacity: color.w,
+              transparent: color.w < 1,
+              side: THREE.DoubleSide,
+            })
+
+            const meshObj = new THREE.Mesh(bufferGeometry, material)
+            const matrix = new THREE.Matrix4().fromArray(placed.flatTransformation)
+            meshObj.applyMatrix4(matrix)
+            modelGroup.add(meshObj)
+
+            geom.delete?.()
+          }
+          mesh.delete?.()
+        })
+
+        ifcApi.CloseModel(modelID)
+
+        scene.add(modelGroup)
+
+        const box = new THREE.Box3().setFromObject(modelGroup)
+        if (!box.isEmpty()) {
+          const center = box.getCenter(new THREE.Vector3())
+          const size = box.getSize(new THREE.Vector3())
+          const maxDim = Math.max(size.x, size.y, size.z)
+          const fov = camera.fov * (Math.PI / 180)
+          const distance = maxDim / (2 * Math.tan(fov / 2)) * 1.5
+
+          camera.position.set(center.x + distance, center.y + distance * 0.5, center.z + distance)
+          controls.target.copy(center)
+          controls.update()
+        }
+
+        if (!cancelled) setLoading(false)
+      } catch (err) {
+        console.error('IFC viewer error:', err)
         if (!cancelled) {
           setError(t('bim.viewerLoadError'))
           setLoading(false)
@@ -123,11 +161,13 @@ export default function IFCViewer({ projectId, modelId, filename }: IFCViewerPro
     return () => {
       cancelled = true
       if (animationId !== null) cancelAnimationFrame(animationId)
-      if (blobUrl) URL.revokeObjectURL(blobUrl)
       if (renderer) {
         renderer.dispose()
         const canvas = renderer.domElement
         canvas.parentElement?.removeChild(canvas)
+      }
+      if (ifcApi) {
+        try { ifcApi.Dispose() } catch { /* ignore */ }
       }
     }
   }, [projectId, modelId, filename, t])
