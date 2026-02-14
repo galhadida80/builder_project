@@ -8,6 +8,7 @@ import { bimApi } from '../api/bim'
 import { formatFileSize } from '../utils/fileUtils'
 import { useToast } from '../components/common/ToastProvider'
 import ForgeViewer from '../components/bim/ForgeViewer'
+import IFCViewer from '../components/bim/IFCViewer'
 import type { BimModel } from '../types'
 import { CloudUploadIcon, DeleteIcon, DescriptionIcon, RotateRightIcon } from '@/icons'
 import {
@@ -138,8 +139,12 @@ export default function BIMPage() {
     setDeleteModel(null)
   }
 
+  const isIfc = (filename: string) => filename.toLowerCase().endsWith('.ifc')
+
+  const canView = (model: BimModel) => isIfc(model.filename) || model.translationStatus === 'complete'
+
   const handleModelClick = (model: BimModel) => {
-    if (model.translationStatus === 'complete') {
+    if (canView(model)) {
       setSelectedModel(selectedModel?.id === model.id ? null : model)
     }
   }
@@ -214,11 +219,11 @@ export default function BIMPage() {
             <Card
               key={model.id}
               sx={{
-                cursor: model.translationStatus === 'complete' ? 'pointer' : 'default',
+                cursor: canView(model) ? 'pointer' : 'default',
                 border: selectedModel?.id === model.id ? 2 : 1,
                 borderColor: selectedModel?.id === model.id ? 'primary.main' : 'divider',
                 transition: 'border-color 0.2s',
-                '&:hover': model.translationStatus === 'complete' ? { borderColor: 'primary.light' } : {},
+                '&:hover': canView(model) ? { borderColor: 'primary.light' } : {},
               }}
               onClick={() => handleModelClick(model)}
             >
@@ -239,6 +244,12 @@ export default function BIMPage() {
                 <Typography variant="caption" color="text.secondary">
                   {new Date(model.createdAt).toLocaleDateString()}
                 </Typography>
+
+                {canView(model) && selectedModel?.id !== model.id && (
+                  <Typography variant="caption" color="primary" sx={{ mt: 0.5, display: 'block' }}>
+                    {t('bim.clickToView')}
+                  </Typography>
+                )}
 
                 {model.translationStatus === 'translating' && (
                   <Box sx={{ mt: 1 }}>
@@ -296,12 +307,16 @@ export default function BIMPage() {
         </Box>
       )}
 
-      {selectedModel && selectedModel.urn && (
+      {selectedModel && (
         <Box sx={{ mt: 3 }}>
           <Typography variant="h6" sx={{ mb: 1 }}>
             {t('bim.viewer')} — {selectedModel.filename}
           </Typography>
-          <ForgeViewer urn={selectedModel.urn} getToken={getViewerToken} />
+          {isIfc(selectedModel.filename) ? (
+            <IFCViewer projectId={projectId!} modelId={selectedModel.id} filename={selectedModel.filename} />
+          ) : selectedModel.urn ? (
+            <ForgeViewer urn={selectedModel.urn} getToken={getViewerToken} />
+          ) : null}
         </Box>
       )}
 

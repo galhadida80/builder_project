@@ -36,6 +36,13 @@ export const bimApi = {
     return response.data
   },
 
+  getFileContent: async (projectId: string, modelId: string): Promise<Blob> => {
+    const response = await apiClient.get(`/projects/${projectId}/bim/${modelId}/content`, {
+      responseType: 'blob',
+    })
+    return response.data
+  },
+
   delete: async (projectId: string, modelId: string): Promise<void> => {
     await apiClient.delete(`/projects/${projectId}/bim/${modelId}`)
   },

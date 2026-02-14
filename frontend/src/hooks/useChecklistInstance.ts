@@ -17,13 +17,13 @@ interface UseChecklistInstanceResult {
   uploadFile: (projectId: string, file: File) => Promise<string>
 }
 
-export const useChecklistInstance = (instanceId: string | undefined): UseChecklistInstanceResult => {
+export const useChecklistInstance = (projectId: string | undefined, instanceId: string | undefined): UseChecklistInstanceResult => {
   const [instance, setInstance] = useState<ChecklistInstance | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   const fetchInstance = useCallback(async () => {
-    if (!instanceId) {
+    if (!instanceId || !projectId) {
       setLoading(false)
       setError('No instance ID provided')
       return
@@ -32,7 +32,7 @@ export const useChecklistInstance = (instanceId: string | undefined): UseCheckli
     setLoading(true)
     setError(null)
     try {
-      const data = await checklistsApi.getInstance(instanceId)
+      const data = await checklistsApi.getInstance(projectId, instanceId)
       setInstance(data)
     } catch (err) {
       console.error('Failed to load checklist instance:', err)
@@ -40,7 +40,7 @@ export const useChecklistInstance = (instanceId: string | undefined): UseCheckli
     } finally {
       setLoading(false)
     }
-  }, [instanceId])
+  }, [projectId, instanceId])
 
   useEffect(() => {
     fetchInstance()
@@ -55,7 +55,6 @@ export const useChecklistInstance = (instanceId: string | undefined): UseCheckli
       try {
         const response = await checklistsApi.createResponse(instanceId, data)
 
-        // Optimistically update the instance with the new response
         setInstance((prev) => {
           if (!prev) return prev
           return {
@@ -82,7 +81,6 @@ export const useChecklistInstance = (instanceId: string | undefined): UseCheckli
       try {
         const updated = await checklistsApi.updateResponse(instanceId, responseId, data)
 
-        // Optimistically update the response in the instance
         setInstance((prev) => {
           if (!prev) return prev
           return {

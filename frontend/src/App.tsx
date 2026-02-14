@@ -33,8 +33,10 @@ import ProfilePage from './pages/ProfilePage'
 import InvitePage from './pages/InvitePage'
 import AdminUsersPage from './pages/AdminUsersPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
-import BIMPage from './pages/BIMPage'
+import { lazy, Suspense } from 'react'
 import ChecklistsPage from './pages/ChecklistsPage'
+
+const BIMPage = lazy(() => import('./pages/BIMPage'))
 
 function ProtectedRoute() {
   const { user, loading } = useAuth()
@@ -82,7 +84,7 @@ function AppRoutes() {
               <Route path="inspections" element={<InspectionsPage />} />
               <Route path="rfis" element={<RFIPage />} />
               <Route path="checklists" element={<ChecklistsPage />} />
-              <Route path="bim" element={<BIMPage />} />
+              <Route path="bim" element={<Suspense fallback={null}><BIMPage /></Suspense>} />
             </Route>
 
             <Route path="/approvals" element={<ApprovalsPage />} />

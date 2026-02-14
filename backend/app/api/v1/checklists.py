@@ -44,7 +44,10 @@ router = APIRouter()
 async def list_all_checklist_templates(db: AsyncSession = Depends(get_db)):
     result = await db.execute(
         select(ChecklistTemplate)
-        .options(selectinload(ChecklistTemplate.created_by), selectinload(ChecklistTemplate.subsections))
+        .options(
+            selectinload(ChecklistTemplate.created_by),
+            selectinload(ChecklistTemplate.subsections).selectinload(ChecklistSubSection.items),
+        )
         .order_by(ChecklistTemplate.created_at.desc())
     )
     return result.scalars().all()
@@ -59,7 +62,10 @@ async def list_checklist_templates(
     await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(ChecklistTemplate)
-        .options(selectinload(ChecklistTemplate.created_by), selectinload(ChecklistTemplate.subsections))
+        .options(
+            selectinload(ChecklistTemplate.created_by),
+            selectinload(ChecklistTemplate.subsections).selectinload(ChecklistSubSection.items),
+        )
         .where(or_(ChecklistTemplate.project_id == project_id, ChecklistTemplate.project_id.is_(None)))
         .order_by(ChecklistTemplate.created_at.desc())
     )
@@ -98,7 +104,10 @@ async def get_checklist_template(
     await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(ChecklistTemplate)
-        .options(selectinload(ChecklistTemplate.created_by), selectinload(ChecklistTemplate.subsections))
+        .options(
+            selectinload(ChecklistTemplate.created_by),
+            selectinload(ChecklistTemplate.subsections).selectinload(ChecklistSubSection.items),
+        )
         .where(ChecklistTemplate.id == template_id, ChecklistTemplate.project_id == project_id)
     )
     checklist_template = result.scalar_one_or_none()

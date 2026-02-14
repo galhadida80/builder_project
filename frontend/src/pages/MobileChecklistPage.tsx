@@ -64,7 +64,7 @@ export default function MobileChecklistPage() {
   const { t } = useTranslation()
   const [checklistInstanceId, setChecklistInstanceId] = useState<string | undefined>(undefined)
   const { instance, loading, error, createResponse, updateResponse, uploadFile, refetch } =
-    useChecklistInstance(checklistInstanceId)
+    useChecklistInstance(projectId, checklistInstanceId)
 
   const [selectedItem, setSelectedItem] = useState<ChecklistItemTemplate | null>(null)
   const [itemModalOpen, setItemModalOpen] = useState(false)

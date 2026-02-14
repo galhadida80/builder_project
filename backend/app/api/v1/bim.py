@@ -3,7 +3,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile
 from fastapi import File as FastAPIFile
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, Response
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -72,6 +72,32 @@ async def get_bim_model(
     return model
 
 
+@router.get("/projects/{project_id}/bim/{model_id}/content")
+async def get_bim_model_content(
+    project_id: UUID,
+    model_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    storage: StorageBackend = Depends(get_storage_backend),
+):
+    await verify_project_access(project_id, current_user, db)
+    result = await db.execute(
+        select(BimModel).where(BimModel.id == model_id, BimModel.project_id == project_id)
+    )
+    model = result.scalar_one_or_none()
+    if not model:
+        raise HTTPException(status_code=404, detail="BIM model not found")
+    if not model.storage_path:
+        raise HTTPException(status_code=404, detail="Model file not found in storage")
+
+    content = await storage.get_file_content(model.storage_path)
+    return Response(
+        content=content,
+        media_type="application/octet-stream",
+        headers={"Content-Disposition": f'inline; filename="{model.filename}"'},
+    )
+
+
 @router.post("/projects/{project_id}/bim/upload", response_model=BimModelResponse, status_code=201)
 async def upload_bim_model(
     project_id: UUID,
@@ -89,6 +115,7 @@ async def upload_bim_model(
 
     content = await file.read()
     file_size = len(content)
+    await file.seek(0)
 
     bim_model = BimModel(
         project_id=project_id,
@@ -106,7 +133,7 @@ async def upload_bim_model(
         entity_id=bim_model.id,
         filename=filename,
     )
-    await storage.upload(storage_path, content)
+    await storage.save_file(file, storage_path)
     bim_model.storage_path = storage_path
 
     bucket_key = f"builderops-{str(project_id).replace('-', '')[:20]}"
@@ -223,7 +250,7 @@ async def delete_bim_model(
 
     if model.storage_path:
         try:
-            await storage.delete(model.storage_path)
+            await storage.delete_file(model.storage_path)
         except Exception:
             pass
 

@@ -40,8 +40,8 @@ export const checklistsApi = {
     return response.data
   },
 
-  getInstance: async (instanceId: string): Promise<ChecklistInstance> => {
-    const response = await apiClient.get(`/checklist-instances/${instanceId}`)
+  getInstance: async (projectId: string, instanceId: string): Promise<ChecklistInstance> => {
+    const response = await apiClient.get(`/projects/${projectId}/checklist-instances/${instanceId}`)
     return response.data
   },
 
@@ -50,9 +50,13 @@ export const checklistsApi = {
     return response.data
   },
 
-  updateInstance: async (instanceId: string, data: ChecklistInstanceUpdate): Promise<ChecklistInstance> => {
-    const response = await apiClient.put(`/checklist-instances/${instanceId}`, data)
+  updateInstance: async (projectId: string, instanceId: string, data: ChecklistInstanceUpdate): Promise<ChecklistInstance> => {
+    const response = await apiClient.put(`/projects/${projectId}/checklist-instances/${instanceId}`, data)
     return response.data
+  },
+
+  deleteInstance: async (projectId: string, instanceId: string): Promise<void> => {
+    await apiClient.delete(`/projects/${projectId}/checklist-instances/${instanceId}`)
   },
 
   // Response methods
