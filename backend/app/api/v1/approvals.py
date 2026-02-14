@@ -236,6 +236,7 @@ async def approve_request(
         error_message = translate_message('resources.approval_not_found', language)
         raise HTTPException(status_code=404, detail=error_message)
 
+    await verify_project_access(approval_request.project_id, current_user, db)
     await check_permission(Permission.APPROVE, approval_request.project_id, current_user.id, db)
 
     pending_step_result = await db.execute(
@@ -302,6 +303,7 @@ async def reject_request(
         error_message = translate_message('resources.approval_not_found', language)
         raise HTTPException(status_code=404, detail=error_message)
 
+    await verify_project_access(approval_request.project_id, current_user, db)
     await check_permission(Permission.APPROVE, approval_request.project_id, current_user.id, db)
 
     pending_step_result = await db.execute(

@@ -111,6 +111,11 @@ def require_permission(permission: Permission):
 
 
 async def check_permission(permission: Permission, project_id: UUID, user_id: UUID, db: AsyncSession) -> None:
+    user_result = await db.execute(select(User).where(User.id == user_id))
+    user = user_result.scalar_one_or_none()
+    if user and user.is_super_admin:
+        return
+
     result = await db.execute(
         select(ProjectMember).where(
             ProjectMember.project_id == project_id,
@@ -123,11 +128,6 @@ async def check_permission(permission: Permission, project_id: UUID, user_id: UU
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You do not have access to this project",
         )
-
-    user_result = await db.execute(select(User).where(User.id == user_id))
-    user = user_result.scalar_one_or_none()
-    if user and user.is_super_admin:
-        return
 
     effective = await get_effective_permissions(member, db)
     if permission.value not in effective:

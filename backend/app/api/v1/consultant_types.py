@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.core.security import get_current_user
+from app.core.security import get_current_user, verify_project_access
 from app.db.session import get_db
 from app.models.audit import AuditAction
 from app.models.consultant_assignment import ConsultantAssignment
@@ -24,7 +24,7 @@ router = APIRouter()
 
 
 @router.get("/consultant-types", response_model=list[ConsultantTypeResponse])
-async def list_consultant_types(db: AsyncSession = Depends(get_db)):
+async def list_consultant_types(db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_user)):
     result = await db.execute(
         select(ConsultantType)
         .order_by(ConsultantType.name)
@@ -50,7 +50,7 @@ async def create_consultant_type(
 
 
 @router.get("/consultant-types/{consultant_type_id}", response_model=ConsultantTypeResponse)
-async def get_consultant_type(consultant_type_id: UUID, db: AsyncSession = Depends(get_db)):
+async def get_consultant_type(consultant_type_id: UUID, db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_user)):
     result = await db.execute(
         select(ConsultantType)
         .where(ConsultantType.id == consultant_type_id)
@@ -105,7 +105,8 @@ async def delete_consultant_type(
 @router.get("/consultant-types/{consultant_type_id}/templates", response_model=list[InspectionStageTemplateResponse])
 async def list_templates(
     consultant_type_id: UUID,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     result = await db.execute(
         select(InspectionStageTemplate)
@@ -143,7 +144,8 @@ async def create_template(
 async def get_template(
     consultant_type_id: UUID,
     template_id: UUID,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     result = await db.execute(
         select(InspectionStageTemplate)
@@ -216,8 +218,10 @@ async def delete_template(
 @router.get("/projects/{project_id}/consultant-assignments")
 async def list_project_consultant_assignments(
     project_id: UUID,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
+    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(ConsultantAssignment)
         .options(

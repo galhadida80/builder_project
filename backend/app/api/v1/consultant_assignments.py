@@ -9,7 +9,7 @@ from app.core.security import get_current_user, verify_project_access
 from app.db.session import get_db
 from app.models.audit import AuditAction
 from app.models.consultant_assignment import ConsultantAssignment
-from app.models.project import Project
+from app.models.project import Project, ProjectMember
 from app.models.user import User
 from app.schemas.consultant_assignment import (
     ConsultantAssignmentCreate,
@@ -26,7 +26,8 @@ async def list_consultant_assignments(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    result = await db.execute(
+    user_project_ids = select(ProjectMember.project_id).where(ProjectMember.user_id == current_user.id)
+    query = (
         select(ConsultantAssignment)
         .options(
             selectinload(ConsultantAssignment.consultant),
@@ -35,6 +36,9 @@ async def list_consultant_assignments(
         )
         .order_by(ConsultantAssignment.start_date.desc())
     )
+    if not current_user.is_super_admin:
+        query = query.where(ConsultantAssignment.project_id.in_(user_project_ids))
+    result = await db.execute(query)
     return result.scalars().all()
 
 
