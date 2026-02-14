@@ -19,7 +19,6 @@ from app.core.validators import (
 class UserBase(BaseModel):
     email: EmailStr
     full_name: Optional[str] = Field(default=None, max_length=MAX_NAME_LENGTH)
-    phone: PhoneStr = Field(default=None, max_length=50)
     company: SanitizedStrOptional = Field(default=None, max_length=255)
     language: Literal["en", "he", "es"] | None = None
 
@@ -30,6 +29,7 @@ class UserBase(BaseModel):
 
 
 class UserCreate(UserBase):
+    phone: PhoneStr = Field(default=None, max_length=50)
     firebase_uid: str | None = Field(default=None, max_length=255)
 
 
