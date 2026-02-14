@@ -34,7 +34,7 @@ export default function IFCViewer({ projectId, modelId, filename }: IFCViewerPro
       const scene = new THREE.Scene()
       scene.background = new THREE.Color(0xf0f0f0)
 
-      const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000)
+      const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 10000)
       camera.position.set(15, 15, 15)
 
       renderer = new THREE.WebGLRenderer({ antialias: true })
@@ -79,48 +79,60 @@ export default function IFCViewer({ projectId, modelId, filename }: IFCViewerPro
 
         const buffer = await blob.arrayBuffer()
         const data = new Uint8Array(buffer)
-        const modelID = ifcApi.OpenModel(data)
+        const modelID = ifcApi.OpenModel(data, {
+          COORDINATE_TO_ORIGIN: true,
+          MEMORY_LIMIT: 512 * 1024 * 1024,
+        })
 
         const modelGroup = new THREE.Group()
         ifcApi.StreamAllMeshes(modelID, (mesh) => {
           const placedGeometries = mesh.geometries
           for (let i = 0; i < placedGeometries.size(); i++) {
-            const placed = placedGeometries.get(i)
-            const geom = ifcApi!.GetGeometry(modelID, placed.geometryExpressID)
+            try {
+              const placed = placedGeometries.get(i)
+              const geom = ifcApi!.GetGeometry(modelID, placed.geometryExpressID)
 
-            const verts = ifcApi!.GetVertexArray(geom.GetVertexData(), geom.GetVertexDataSize())
-            const indices = ifcApi!.GetIndexArray(geom.GetIndexData(), geom.GetIndexDataSize())
+              const verts = ifcApi!.GetVertexArray(geom.GetVertexData(), geom.GetVertexDataSize())
+              const indices = ifcApi!.GetIndexArray(geom.GetIndexData(), geom.GetIndexDataSize())
 
-            const positions = new Float32Array(verts.length / 2)
-            const normals = new Float32Array(verts.length / 2)
-            for (let j = 0; j < verts.length; j += 6) {
-              positions[j / 2] = verts[j]
-              positions[j / 2 + 1] = verts[j + 1]
-              positions[j / 2 + 2] = verts[j + 2]
-              normals[j / 2] = verts[j + 3]
-              normals[j / 2 + 1] = verts[j + 4]
-              normals[j / 2 + 2] = verts[j + 5]
+              if (verts.length === 0 || indices.length === 0) {
+                geom.delete?.()
+                continue
+              }
+
+              const positions = new Float32Array(verts.length / 2)
+              const normals = new Float32Array(verts.length / 2)
+              for (let j = 0; j < verts.length; j += 6) {
+                positions[j / 2] = verts[j]
+                positions[j / 2 + 1] = verts[j + 1]
+                positions[j / 2 + 2] = verts[j + 2]
+                normals[j / 2] = verts[j + 3]
+                normals[j / 2 + 1] = verts[j + 4]
+                normals[j / 2 + 2] = verts[j + 5]
+              }
+
+              const bufferGeometry = new THREE.BufferGeometry()
+              bufferGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3))
+              bufferGeometry.setAttribute('normal', new THREE.BufferAttribute(normals, 3))
+              bufferGeometry.setIndex(new THREE.BufferAttribute(indices, 1))
+
+              const { color } = placed
+              const material = new THREE.MeshPhongMaterial({
+                color: new THREE.Color(color.x, color.y, color.z),
+                opacity: color.w,
+                transparent: color.w < 1,
+                side: THREE.DoubleSide,
+              })
+
+              const meshObj = new THREE.Mesh(bufferGeometry, material)
+              const matrix = new THREE.Matrix4().fromArray(placed.flatTransformation)
+              meshObj.applyMatrix4(matrix)
+              modelGroup.add(meshObj)
+
+              geom.delete?.()
+            } catch {
+              // Skip meshes that fail to process
             }
-
-            const bufferGeometry = new THREE.BufferGeometry()
-            bufferGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3))
-            bufferGeometry.setAttribute('normal', new THREE.BufferAttribute(normals, 3))
-            bufferGeometry.setIndex(new THREE.BufferAttribute(indices, 1))
-
-            const { color } = placed
-            const material = new THREE.MeshPhongMaterial({
-              color: new THREE.Color(color.x, color.y, color.z),
-              opacity: color.w,
-              transparent: color.w < 1,
-              side: THREE.DoubleSide,
-            })
-
-            const meshObj = new THREE.Mesh(bufferGeometry, material)
-            const matrix = new THREE.Matrix4().fromArray(placed.flatTransformation)
-            meshObj.applyMatrix4(matrix)
-            modelGroup.add(meshObj)
-
-            geom.delete?.()
           }
           mesh.delete?.()
         })
