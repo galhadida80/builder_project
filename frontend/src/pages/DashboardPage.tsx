@@ -61,13 +61,14 @@ export default function DashboardPage() {
   const loadDashboardData = async () => {
     try {
       setLoading(true)
+      const pid = selectedProjectId
       const [equipmentData, materialsData, meetingsData, approvalsData, auditData, teamData] = await Promise.all([
-        equipmentApi.list(),
-        materialsApi.list(),
-        meetingsApi.list(),
-        approvalsApi.list(),
-        auditApi.listAll({ limit: 10 }),
-        workloadApi.getTeamMembers()
+        equipmentApi.list(pid),
+        materialsApi.list(pid),
+        meetingsApi.list(pid),
+        approvalsApi.list(pid),
+        pid ? auditApi.listByProject(pid, { limit: 10 }) : auditApi.listAll({ limit: 10 }),
+        workloadApi.getTeamMembers(pid)
       ])
       setEquipment(equipmentData)
       setMaterials(materialsData)

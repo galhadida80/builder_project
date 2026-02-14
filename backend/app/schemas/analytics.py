@@ -1,5 +1,7 @@
 from pydantic import BaseModel
 
+from app.core.validators import CamelCaseModel
+
 
 class MetricsResponse(BaseModel):
     total_projects: int
@@ -38,7 +40,7 @@ class DistributionsResponse(BaseModel):
     project_status: list[DistributionItem]
 
 
-class WeeklyActivityPoint(BaseModel):
+class WeeklyActivityPoint(CamelCaseModel):
     date: str
     equipment: int
     materials: int
@@ -46,13 +48,13 @@ class WeeklyActivityPoint(BaseModel):
     rfis: int
 
 
-class FloorProgress(BaseModel):
+class FloorProgress(CamelCaseModel):
     floor: int
     area_count: int
     avg_progress: float
 
 
-class DashboardStatsResponse(BaseModel):
+class DashboardStatsResponse(CamelCaseModel):
     equipment_distribution: list[DistributionItem]
     material_distribution: list[DistributionItem]
     rfi_distribution: list[DistributionItem]

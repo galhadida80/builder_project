@@ -6,6 +6,7 @@ import Header from './Header'
 import ChatDrawer from '../chat/ChatDrawer'
 import { projectsApi } from '../../api/projects'
 import { useAuth } from '../../contexts/AuthContext'
+import { useProject } from '../../contexts/ProjectContext'
 import type { Project } from '../../types'
 import { SmartToyIcon } from '@/icons'
 import { Box, Toolbar, CircularProgress, Fab, useMediaQuery } from '@/mui'
@@ -16,6 +17,7 @@ export default function Layout() {
   const { projectId } = useParams()
   const navigate = useNavigate()
   const { user: currentUser, logout } = useAuth()
+  const { setSelectedProjectId } = useProject()
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
   const [chatOpen, setChatOpen] = useState(false)
@@ -26,6 +28,12 @@ export default function Layout() {
   const handleDrawerToggle = useCallback(() => {
     setMobileDrawerOpen(prev => !prev)
   }, [])
+
+  useEffect(() => {
+    if (projectId) {
+      setSelectedProjectId(projectId)
+    }
+  }, [projectId, setSelectedProjectId])
 
   useEffect(() => {
     loadProjects()
