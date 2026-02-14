@@ -13,7 +13,6 @@ export interface RFI {
   to_email: string
   to_name?: string
   cc_emails?: string[]
-  cc_recipients?: string[]
   status: string
   due_date?: string
   responded_at?: string
@@ -218,12 +217,12 @@ export const rfiApi = {
   },
 
   closeRfi: async (rfiId: string): Promise<RFI> => {
-    const response = await apiClient.post(`/rfis/${rfiId}/close`)
+    const response = await apiClient.patch(`/rfis/${rfiId}/status`, { status: 'closed' })
     return response.data
   },
 
   reopenRfi: async (rfiId: string): Promise<RFI> => {
-    const response = await apiClient.post(`/rfis/${rfiId}/reopen`)
+    const response = await apiClient.patch(`/rfis/${rfiId}/status`, { status: 'open' })
     return response.data
   },
 }

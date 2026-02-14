@@ -846,7 +846,9 @@
       "medium": "Medium",
       "low": "Low"
     },
-    "failedToLoadStats": "Failed to load RFI statistics"
+    "failedToLoadStats": "Failed to load RFI statistics",
+    "sentRfi": "RFI Sent",
+    "draftNotSent": "This RFI is a draft and has not been sent yet"
   },
   "checklist": {
     "failedToLoad": "Failed to load checklist",
@@ -893,6 +895,7 @@
     "failedToCreate": "Failed to create checklist",
     "failedToDelete": "Failed to delete checklist",
     "failedToUpdate": "Failed to update checklist",
+    "failedToSave": "Failed to save response",
     "completeChecklist": "Complete Checklist",
     "itemsCompleted": "{{completed}} of {{total}} items",
     "allItemsRequired": "All required items must be completed",

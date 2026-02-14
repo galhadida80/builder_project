@@ -105,6 +105,7 @@ export {
   Print as PrintIcon,
   RadioButtonUnchecked as RadioButtonUncheckedIcon,
   RateReview as RateReviewIcon,
+  Refresh as RefreshIcon,
   Reply as ReplyIcon,
   ReportProblem as ReportProblemIcon,
   Roofing as RoofingIcon,

@@ -819,7 +819,9 @@
     "failedToCreate": "Error al crear RFI",
     "failedToUpdate": "Error al actualizar RFI",
     "failedToDelete": "Error al eliminar RFI",
-    "failedToLoadStats": "Error al cargar estadísticas de RFI"
+    "failedToLoadStats": "Error al cargar estadísticas de RFI",
+    "sentRfi": "RFI Enviado",
+    "draftNotSent": "Este RFI es un borrador y aún no se ha enviado"
   },
   "checklist": {
     "failedToLoad": "Error al cargar la lista de verificación",
@@ -866,6 +868,7 @@
     "failedToCreate": "Error al crear la lista",
     "failedToDelete": "Error al eliminar la lista",
     "failedToUpdate": "Error al actualizar la lista",
+    "failedToSave": "Error al guardar la respuesta",
     "completeChecklist": "Completar Lista",
     "itemsCompleted": "{{completed}} de {{total}} elementos",
     "allItemsRequired": "Todos los elementos requeridos deben completarse",

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
@@ -14,27 +14,24 @@ import type { RFIListItem, RFI, RFICreate, RFISummary } from '../api/rfi'
 import { useToast } from '../components/common/ToastProvider'
 import { parseValidationErrors } from '../utils/apiErrors'
 import { validateRFIForm, hasErrors, type ValidationError } from '../utils/validation'
-import { AddIcon, VisibilityIcon, EditIcon, DeleteIcon, CloseIcon, SendIcon, EmailIcon, AccessTimeIcon } from '@/icons'
-import { Box, Typography, Drawer, Divider, MenuItem, TextField as MuiTextField, Skeleton, Chip, IconButton } from '@/mui'
+import { AddIcon, VisibilityIcon, EditIcon, DeleteIcon, EmailIcon, AccessTimeIcon } from '@/icons'
+import { Box, Typography, Divider, MenuItem, TextField as MuiTextField, Skeleton, Chip, IconButton } from '@/mui'
 
 export default function RFIPage() {
   const { t } = useTranslation()
   const { projectId } = useParams()
+  const navigate = useNavigate()
   const { showError, showSuccess } = useToast()
   const [loading, setLoading] = useState(true)
   const [rfis, setRfis] = useState<RFIListItem[]>([])
   const [summary, setSummary] = useState<RFISummary | null>(null)
   const [search, setSearch] = useState('')
-  const [selectedRfi, setSelectedRfi] = useState<RFI | null>(null)
-  const [drawerOpen, setDrawerOpen] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingRfi, setEditingRfi] = useState<RFI | null>(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [rfiToDelete, setRfiToDelete] = useState<RFIListItem | null>(null)
   const [saving, setSaving] = useState(false)
-  const [sending, setSending] = useState(false)
   const [activeTab, setActiveTab] = useState('all')
-  const [detailLoading, setDetailLoading] = useState(false)
   const [errors, setErrors] = useState<ValidationError>({})
   const [formData, setFormData] = useState<RFICreate & { cc_emails: string[] }>({
     subject: '',
@@ -143,7 +140,6 @@ export default function RFIPage() {
       })
       setErrors({})
       setDialogOpen(true)
-      setDrawerOpen(false)
     } catch {
       showError(t('rfis.failedToLoadDetails'))
     }
@@ -222,7 +218,6 @@ export default function RFIPage() {
       showSuccess(t('rfis.deleteSuccess'))
       setDeleteDialogOpen(false)
       setRfiToDelete(null)
-      setDrawerOpen(false)
       loadRfis()
       loadSummary()
     } catch {
@@ -230,40 +225,8 @@ export default function RFIPage() {
     }
   }
 
-  const handleSendRfi = async () => {
-    if (!selectedRfi) return
-    setSending(true)
-    try {
-      await rfiApi.send(selectedRfi.id)
-      showSuccess(t('rfis.sentSuccess'))
-      loadRfis()
-      loadSummary()
-      const updated = await rfiApi.get(selectedRfi.id)
-      setSelectedRfi(updated)
-    } catch {
-      showError(t('rfis.failedToSend'))
-    } finally {
-      setSending(false)
-    }
-  }
-
-  const handleViewDetails = async (rfi: RFIListItem) => {
-    setDetailLoading(true)
-    setDrawerOpen(true)
-    try {
-      const fullRfi = await rfiApi.get(rfi.id)
-      setSelectedRfi(fullRfi)
-    } catch {
-      showError(t('rfis.failedToLoadDetails'))
-      setDrawerOpen(false)
-    } finally {
-      setDetailLoading(false)
-    }
-  }
-
-  const handleCloseDrawer = () => {
-    setDrawerOpen(false)
-    setSelectedRfi(null)
+  const handleViewDetails = (rfi: RFIListItem) => {
+    navigate(`/projects/${projectId}/rfis/${rfi.id}`)
   }
 
   const formatDate = (date?: string) => {
@@ -465,155 +428,6 @@ export default function RFIPage() {
           )}
         </Box>
       </Card>
-
-      <Drawer
-        anchor="right"
-        open={drawerOpen}
-        onClose={handleCloseDrawer}
-        PaperProps={{ sx: { width: { xs: '100%', sm: 520 }, borderRadius: '16px 0 0 16px' } }}
-      >
-        {detailLoading ? (
-          <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
-            <Skeleton variant="text" width={200} height={32} />
-            <Skeleton variant="text" width={150} height={24} sx={{ mb: 2 }} />
-            <Skeleton variant="rounded" height={200} />
-          </Box>
-        ) : selectedRfi && (
-          <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-              <Typography variant="h6" fontWeight={600}>{t('rfis.details')}</Typography>
-              <IconButton onClick={handleCloseDrawer} size="small">
-                <CloseIcon />
-              </IconButton>
-            </Box>
-
-            <Box sx={{ mb: 3 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-                <Box
-                  sx={{
-                    width: 56,
-                    height: 56,
-                    borderRadius: 2,
-                    bgcolor: 'primary.light',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <EmailIcon sx={{ fontSize: 28, color: 'primary.main' }} />
-                </Box>
-                <Box>
-                  <Typography variant="h5" fontWeight={700}>{selectedRfi.rfi_number}</Typography>
-                  <Box sx={{ display: 'flex', gap: 1, mt: 0.5 }}>
-                    <StatusBadge status={selectedRfi.status} />
-                    <StatusBadge status={selectedRfi.priority} />
-                  </Box>
-                </Box>
-              </Box>
-            </Box>
-
-            <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 1 }}>{selectedRfi.subject}</Typography>
-
-            <Divider sx={{ my: 2 }} />
-
-            <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1, fontWeight: 600 }}>
-              {t('rfis.question')}
-            </Typography>
-            <Box sx={{ p: 2, bgcolor: 'action.hover', borderRadius: 2, mb: 3 }}>
-              <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>{selectedRfi.question}</Typography>
-            </Box>
-
-            <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1.5, fontWeight: 600 }}>
-              {t('common.details')}
-            </Typography>
-            <Box
-              sx={{
-                display: 'grid',
-                gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' },
-                gap: 2,
-                mb: 3,
-                p: 2,
-                bgcolor: 'action.hover',
-                borderRadius: 2,
-              }}
-            >
-              <Box>
-                <Typography variant="caption" color="text.secondary">{t('rfis.to')}</Typography>
-                <Typography variant="body2" fontWeight={500}>{selectedRfi.to_name || selectedRfi.to_email}</Typography>
-                <Typography variant="caption" color="text.secondary">{selectedRfi.to_email}</Typography>
-              </Box>
-              <Box>
-                <Typography variant="caption" color="text.secondary">{t('rfis.category')}</Typography>
-                <Typography variant="body2" fontWeight={500}>
-                  {t(`rfis.categories.${selectedRfi.category}`, { defaultValue: selectedRfi.category })}
-                </Typography>
-              </Box>
-              <Box>
-                <Typography variant="caption" color="text.secondary">{t('rfis.dueDate')}</Typography>
-                <Typography variant="body2" fontWeight={500}>{formatDate(selectedRfi.due_date)}</Typography>
-              </Box>
-              <Box>
-                <Typography variant="caption" color="text.secondary">{t('rfis.created')}</Typography>
-                <Typography variant="body2" fontWeight={500}>{formatDate(selectedRfi.created_at)}</Typography>
-              </Box>
-              {selectedRfi.location && (
-                <Box>
-                  <Typography variant="caption" color="text.secondary">{t('rfis.location')}</Typography>
-                  <Typography variant="body2" fontWeight={500}>{selectedRfi.location}</Typography>
-                </Box>
-              )}
-              {selectedRfi.drawing_reference && (
-                <Box>
-                  <Typography variant="caption" color="text.secondary">{t('rfis.drawingRef')}</Typography>
-                  <Typography variant="body2" fontWeight={500}>{selectedRfi.drawing_reference}</Typography>
-                </Box>
-              )}
-            </Box>
-
-            {selectedRfi.responses && selectedRfi.responses.length > 0 && (
-              <>
-                <Divider sx={{ my: 2 }} />
-                <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1.5, fontWeight: 600 }}>
-                  {t('rfis.responses')} ({selectedRfi.responses.length})
-                </Typography>
-                {selectedRfi.responses.map((response) => (
-                  <Box key={response.id} sx={{ p: 2, bgcolor: response.is_internal ? 'warning.light' : 'success.light', borderRadius: 2, mb: 1.5 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                      <Typography variant="caption" fontWeight={600}>
-                        {response.from_name || response.from_email}
-                        {response.is_internal && <Chip label={t('rfis.internal')} size="small" sx={{ ml: 1, height: 16 }} />}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {formatDate(response.created_at)}
-                      </Typography>
-                    </Box>
-                    <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>{response.response_text}</Typography>
-                  </Box>
-                ))}
-              </>
-            )}
-
-            <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
-              {selectedRfi.status === 'draft' && (
-                <Button
-                  variant="primary"
-                  icon={sending ? undefined : <SendIcon />}
-                  loading={sending}
-                  fullWidth
-                  onClick={handleSendRfi}
-                >
-                  {t('rfis.sendRfi')}
-                </Button>
-              )}
-              {selectedRfi.status === 'draft' && (
-                <Button variant="secondary" fullWidth onClick={() => handleOpenEdit(selectedRfi as unknown as RFIListItem)}>
-                  {t('rfis.editRfi')}
-                </Button>
-              )}
-            </Box>
-          </Box>
-        )}
-      </Drawer>
 
       <FormModal
         open={dialogOpen}

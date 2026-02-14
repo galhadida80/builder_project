@@ -271,7 +271,7 @@ export default function ChecklistsPage() {
         )
       }
     } catch {
-      showError(t('checklist.failedToSave'))
+      showError(t('checklists.failedToSave'))
     } finally {
       setSavingResponse(false)
     }

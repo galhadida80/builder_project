@@ -83,6 +83,7 @@ function AppRoutes() {
               <Route path="contacts" element={<ContactsPage />} />
               <Route path="inspections" element={<InspectionsPage />} />
               <Route path="rfis" element={<RFIPage />} />
+              <Route path="rfis/:rfiId" element={<RFIDetailPage />} />
               <Route path="checklists" element={<ChecklistsPage />} />
               <Route path="bim" element={<Suspense fallback={null}><BIMPage /></Suspense>} />
             </Route>

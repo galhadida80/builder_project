@@ -953,7 +953,9 @@
       "medium": "בינוני",
       "low": "נמוך"
     },
-    "failedToLoadStats": "נכשל בטעינת סטטיסטיקות RFI"
+    "failedToLoadStats": "נכשל בטעינת סטטיסטיקות RFI",
+    "sentRfi": "RFI נשלח",
+    "draftNotSent": "RFI זה הוא טיוטה ועדיין לא נשלח"
   },
   "checklist": {
     "failedToLoad": "נכשל בטעינת הצ'קליסט",
@@ -1000,6 +1002,7 @@
     "failedToCreate": "נכשל ביצירת צ'קליסט",
     "failedToDelete": "נכשל במחיקת צ'קליסט",
     "failedToUpdate": "נכשל בעדכון צ'קליסט",
+    "failedToSave": "נכשל בשמירת תגובה",
     "completeChecklist": "השלם צ'קליסט",
     "itemsCompleted": "{{completed}} מתוך {{total}} פריטים",
     "allItemsRequired": "יש להשלים את כל הפריטים הנדרשים",

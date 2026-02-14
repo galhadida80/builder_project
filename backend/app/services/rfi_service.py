@@ -111,7 +111,7 @@ class RFIService:
         rfi_from_email = await self.generate_rfi_from_email(rfi.project_id, rfi.rfi_number)
 
         try:
-            logger.info(f"Sending RFI email: sender={self.email_service.provider.from_email if self.email_service.provider else 'N/A'}, reply_to={rfi_from_email}")
+            logger.info(f"Sending RFI email: reply_to={rfi_from_email}, to={rfi.to_email}")
             email_result = self.email_service.send_rfi_email(
                 rfi_number=rfi.rfi_number,
                 to_email=rfi.to_email,
