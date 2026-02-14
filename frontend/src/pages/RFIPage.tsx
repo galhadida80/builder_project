@@ -11,11 +11,14 @@ import { FormModal, ConfirmModal } from '../components/ui/Modal'
 import { Tabs } from '../components/ui/Tabs'
 import { rfiApi, RFI_PRIORITY_OPTIONS, RFI_CATEGORY_OPTIONS } from '../api/rfi'
 import type { RFIListItem, RFI, RFICreate, RFISummary } from '../api/rfi'
+import { contactsApi } from '../api/contacts'
+import { contactGroupsApi } from '../api/contactGroups'
+import type { Contact, ContactGroupListItem } from '../types'
 import { useToast } from '../components/common/ToastProvider'
 import { parseValidationErrors } from '../utils/apiErrors'
 import { validateRFIForm, hasErrors, type ValidationError } from '../utils/validation'
 import { AddIcon, VisibilityIcon, EditIcon, DeleteIcon, EmailIcon, AccessTimeIcon } from '@/icons'
-import { Box, Typography, Divider, MenuItem, TextField as MuiTextField, Skeleton, Chip, IconButton } from '@/mui'
+import { Box, Typography, Divider, MenuItem, TextField as MuiTextField, Skeleton, Chip, IconButton, Autocomplete } from '@/mui'
 
 export default function RFIPage() {
   const { t } = useTranslation()
@@ -49,10 +52,13 @@ export default function RFIPage() {
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [total, setTotal] = useState(0)
+  const [projectContacts, setProjectContacts] = useState<Contact[]>([])
+  const [contactGroups, setContactGroups] = useState<ContactGroupListItem[]>([])
 
   useEffect(() => {
     loadRfis()
     loadSummary()
+    loadContactsAndGroups()
   }, [projectId, page])
 
   const loadRfis = async () => {
@@ -84,6 +90,43 @@ export default function RFIPage() {
     } catch {
       console.error('Failed to load RFI summary')
     }
+  }
+
+  const loadContactsAndGroups = async () => {
+    if (!projectId) return
+    try {
+      const [contactsData, groupsData] = await Promise.all([
+        contactsApi.list(projectId),
+        contactGroupsApi.list(projectId),
+      ])
+      setProjectContacts(contactsData)
+      setContactGroups(groupsData)
+    } catch { /* non-critical */ }
+  }
+
+  const handleSelectContact = (contact: Contact | null) => {
+    if (!contact) return
+    setFormData(prev => ({
+      ...prev,
+      to_email: contact.email || prev.to_email,
+      to_name: contact.contactName || prev.to_name,
+    }))
+  }
+
+  const handleFillFromGroup = async (group: ContactGroupListItem | null) => {
+    if (!group || !projectId) return
+    try {
+      const full = await contactGroupsApi.get(projectId, group.id)
+      const emails = full.contacts.map(c => c.email).filter(Boolean) as string[]
+      if (emails.length === 0) return
+      const [first, ...rest] = emails
+      setFormData(prev => ({
+        ...prev,
+        to_email: first,
+        to_name: full.contacts[0]?.contactName || prev.to_name,
+        cc_emails: [...new Set([...prev.cc_emails, ...rest])],
+      }))
+    } catch { /* ignore */ }
   }
 
   useEffect(() => {
@@ -447,6 +490,15 @@ export default function RFIPage() {
             error={!!errors.subject}
             helperText={errors.subject}
           />
+          <Autocomplete
+            options={projectContacts.filter(c => c.email)}
+            getOptionLabel={(opt) => `${opt.contactName} (${opt.email})`}
+            onChange={(_, val) => handleSelectContact(val)}
+            renderInput={(params) => (
+              <MuiTextField {...params} label={t('rfis.selectRecipient')} size="small" />
+            )}
+            size="small"
+          />
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
             <TextField
               fullWidth
@@ -467,6 +519,17 @@ export default function RFIPage() {
               helperText={errors.to_name}
             />
           </Box>
+          {contactGroups.length > 0 && (
+            <Autocomplete
+              options={contactGroups}
+              getOptionLabel={(opt) => `${opt.name} (${opt.memberCount} ${t('contactGroups.members').toLowerCase()})`}
+              onChange={(_, val) => handleFillFromGroup(val)}
+              renderInput={(params) => (
+                <MuiTextField {...params} label={t('rfis.selectGroup')} size="small" helperText={t('rfis.selectGroupHint')} />
+              )}
+              size="small"
+            />
+          )}
           <TextField
             fullWidth
             label={t('rfis.question')}

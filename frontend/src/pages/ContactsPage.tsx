@@ -10,13 +10,14 @@ import { FormModal, ConfirmModal } from '../components/ui/Modal'
 import { Tabs } from '../components/ui/Tabs'
 import { EmptyState } from '../components/ui/EmptyState'
 import { contactsApi } from '../api/contacts'
+import { contactGroupsApi } from '../api/contactGroups'
 import { apiClient } from '../api/client'
-import type { Contact, User } from '../types'
+import type { Contact, ContactGroupListItem, ContactGroup } from '../types'
 import { useToast } from '../components/common/ToastProvider'
 import { validateContactForm, hasErrors,  type ValidationError } from '../utils/validation'
 import { parseValidationErrors } from '../utils/apiErrors'
 import { AddIcon, EditIcon, DeleteIcon, PersonIcon, GroupIcon, AssignmentIcon } from '@/icons'
-import { Box, Typography, MenuItem, TextField as MuiTextField, Skeleton, Chip, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Autocomplete } from '@/mui'
+import { Box, Typography, MenuItem, TextField as MuiTextField, Skeleton, Chip, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Autocomplete, Tab as MuiTab, Tabs as MuiTabs } from '@/mui'
 
 export default function ContactsPage() {
   const { t } = useTranslation()
@@ -44,6 +45,15 @@ export default function ContactsPage() {
     userId: '' as string | ''
   })
 
+  const [mainTab, setMainTab] = useState(0)
+  const [groups, setGroups] = useState<ContactGroupListItem[]>([])
+  const [groupDialogOpen, setGroupDialogOpen] = useState(false)
+  const [editingGroup, setEditingGroup] = useState<ContactGroup | null>(null)
+  const [deleteGroupDialogOpen, setDeleteGroupDialogOpen] = useState(false)
+  const [groupToDelete, setGroupToDelete] = useState<ContactGroupListItem | null>(null)
+  const [groupFormData, setGroupFormData] = useState({ name: '', description: '', contactIds: [] as string[] })
+  const [groupSaving, setGroupSaving] = useState(false)
+
   const contactTypes = [
     { value: 'contractor', label: t('contacts.types.contractor'), color: '#1976d2' },
     { value: 'consultant', label: t('contacts.types.consultant'), color: '#9c27b0' },
@@ -57,6 +67,7 @@ export default function ContactsPage() {
   useEffect(() => {
     loadContacts()
     loadProjectUsers()
+    loadGroups()
   }, [projectId])
 
   const loadContacts = async () => {
@@ -76,6 +87,13 @@ export default function ContactsPage() {
       const res = await apiClient.get(`/projects/${projectId}/members`)
       const members = res.data as { user: { id: string; email: string; fullName?: string } }[]
       setProjectUsers(members.map(m => m.user))
+    } catch { /* non-critical */ }
+  }
+
+  const loadGroups = async () => {
+    try {
+      const data = await contactGroupsApi.list(projectId!)
+      setGroups(data)
     } catch { /* non-critical */ }
   }
 
@@ -195,6 +213,74 @@ export default function ContactsPage() {
 
   const typeCount = (type: string) => contacts.filter(c => c.contactType === type).length
 
+  const handleOpenGroupCreate = () => {
+    setEditingGroup(null)
+    setGroupFormData({ name: '', description: '', contactIds: [] })
+    setGroupDialogOpen(true)
+  }
+
+  const handleOpenGroupEdit = async (group: ContactGroupListItem) => {
+    try {
+      const full = await contactGroupsApi.get(projectId!, group.id)
+      setEditingGroup(full)
+      setGroupFormData({
+        name: full.name,
+        description: full.description || '',
+        contactIds: full.contacts.map(c => c.id),
+      })
+      setGroupDialogOpen(true)
+    } catch {
+      showError(t('contactGroups.failedToLoad'))
+    }
+  }
+
+  const handleSaveGroup = async () => {
+    if (!projectId) return
+    if (!groupFormData.name.trim()) return
+    setGroupSaving(true)
+    try {
+      if (editingGroup) {
+        await contactGroupsApi.update(projectId, editingGroup.id, {
+          name: groupFormData.name,
+          description: groupFormData.description || undefined,
+          contact_ids: groupFormData.contactIds,
+        })
+        showSuccess(t('contactGroups.updateSuccess'))
+      } else {
+        await contactGroupsApi.create(projectId, {
+          name: groupFormData.name,
+          description: groupFormData.description || undefined,
+          contact_ids: groupFormData.contactIds,
+        })
+        showSuccess(t('contactGroups.createSuccess'))
+      }
+      setGroupDialogOpen(false)
+      loadGroups()
+    } catch {
+      showError(editingGroup ? t('contactGroups.failedToUpdate') : t('contactGroups.failedToCreate'))
+    } finally {
+      setGroupSaving(false)
+    }
+  }
+
+  const handleDeleteGroupClick = (group: ContactGroupListItem) => {
+    setGroupToDelete(group)
+    setDeleteGroupDialogOpen(true)
+  }
+
+  const handleConfirmDeleteGroup = async () => {
+    if (!projectId || !groupToDelete) return
+    try {
+      await contactGroupsApi.delete(projectId, groupToDelete.id)
+      showSuccess(t('contactGroups.deleteSuccess'))
+      setDeleteGroupDialogOpen(false)
+      setGroupToDelete(null)
+      loadGroups()
+    } catch {
+      showError(t('contactGroups.failedToDelete'))
+    }
+  }
+
   if (loading) {
     return (
       <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
@@ -221,9 +307,15 @@ export default function ContactsPage() {
         subtitle={t('contacts.subtitle')}
         breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('nav.contacts') }]}
         actions={
-          <Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>
-            {t('contacts.addContact')}
-          </Button>
+          mainTab === 0 ? (
+            <Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>
+              {t('contacts.addContact')}
+            </Button>
+          ) : (
+            <Button variant="primary" icon={<AddIcon />} onClick={handleOpenGroupCreate}>
+              {t('contactGroups.createGroup')}
+            </Button>
+          )
         }
       />
 
@@ -255,150 +347,215 @@ export default function ContactsPage() {
         />
       </Box>
 
-      <Card>
-        <Box sx={{ p: 2 }}>
-          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, gap: { xs: 1, sm: 0 }, mb: 2 }}>
-            <SearchField
-              placeholder={t('contacts.searchPlaceholder')}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+      <MuiTabs value={mainTab} onChange={(_, v) => setMainTab(v)} sx={{ mb: 2 }}>
+        <MuiTab label={t('nav.contacts')} />
+        <MuiTab label={t('contactGroups.title')} />
+      </MuiTabs>
+
+      {mainTab === 0 && (
+        <Card>
+          <Box sx={{ p: 2 }}>
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, gap: { xs: 1, sm: 0 }, mb: 2 }}>
+              <SearchField
+                placeholder={t('contacts.searchPlaceholder')}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+              <Chip label={`${filteredContacts.length} ${t('nav.contacts').toLowerCase()}`} size="small" sx={{ alignSelf: { xs: 'flex-start', sm: 'center' } }} />
+            </Box>
+
+            <Tabs
+              items={[
+                { label: t('common.all'), value: 'all', badge: contacts.length },
+                ...contactTypes.map(type => ({
+                  label: type.label,
+                  value: type.value,
+                  badge: typeCount(type.value)
+                }))
+              ]}
+              value={filterType}
+              onChange={setFilterType}
+              size="small"
+              variant="scrollable"
             />
-            <Chip label={`${filteredContacts.length} ${t('nav.contacts').toLowerCase()}`} size="small" sx={{ alignSelf: { xs: 'flex-start', sm: 'center' } }} />
+
+            {filteredContacts.length === 0 ? (
+              <Box sx={{ mt: 4 }}>
+                <EmptyState
+                  variant="no-results"
+                  title={t('contacts.noContacts')}
+                  description={t('contacts.noContactsDescription')}
+                  action={{ label: t('contacts.addContact'), onClick: handleOpenCreate }}
+                />
+              </Box>
+            ) : (
+              <TableContainer sx={{ mt: 2, overflowX: 'auto' }}>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }}>{t('contacts.contactName')}</TableCell>
+                      <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }}>{t('contacts.contactType')}</TableCell>
+                      <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }}>{t('contacts.companyName')}</TableCell>
+                      <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }}>{t('contacts.roleDescription')}</TableCell>
+                      <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }}>{t('contacts.email')}</TableCell>
+                      <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }}>{t('contacts.phone')}</TableCell>
+                      <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }}>{t('contacts.linkedUser')}</TableCell>
+                      <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }} align="center">{t('contacts.pendingApprovals')}</TableCell>
+                      <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }} align="center">{t('common.actions')}</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {filteredContacts.map((contact) => {
+                      const typeConfig = getTypeConfig(contact.contactType)
+                      return (
+                        <TableRow key={contact.id} hover onClick={() => handleOpenEdit(contact)} sx={{ cursor: 'pointer', '&:last-child td': { borderBottom: 0 } }}>
+                          <TableCell>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                              <Avatar name={contact.contactName} size="small" />
+                              <Box>
+                                <Typography variant="body2" fontWeight={600}>
+                                  {contact.contactName}
+                                </Typography>
+                                {contact.isPrimary && (
+                                  <Chip label={t('contacts.primary')} size="small" color="warning" sx={{ height: 18, fontSize: '0.65rem', mt: 0.25 }} />
+                                )}
+                              </Box>
+                            </Box>
+                          </TableCell>
+                          <TableCell>
+                            <Chip
+                              label={typeConfig.label}
+                              size="small"
+                              sx={{
+                                bgcolor: `${typeConfig.color}15`,
+                                color: typeConfig.color,
+                                fontWeight: 500,
+                                fontSize: '0.75rem',
+                              }}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Typography variant="body2" color="text.secondary">
+                              {contact.companyName || '—'}
+                            </Typography>
+                          </TableCell>
+                          <TableCell sx={{ maxWidth: 200 }}>
+                            <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                              {contact.roleDescription || '—'}
+                            </Typography>
+                          </TableCell>
+                          <TableCell>
+                            {contact.email ? (
+                              <Typography variant="body2" color="text.secondary">{contact.email}</Typography>
+                            ) : '—'}
+                          </TableCell>
+                          <TableCell>
+                            <Typography variant="body2" color="text.secondary">
+                              {contact.phone || '—'}
+                            </Typography>
+                          </TableCell>
+                          <TableCell>
+                            {contact.user ? (
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Avatar name={contact.user.fullName || contact.user.email} size="small" />
+                                <Typography variant="body2" color="text.secondary">
+                                  {contact.user.fullName || contact.user.email}
+                                </Typography>
+                              </Box>
+                            ) : (
+                              <Typography variant="body2" color="text.disabled">—</Typography>
+                            )}
+                          </TableCell>
+                          <TableCell align="center">
+                            {(contact.pendingApprovalsCount ?? 0) > 0 ? (
+                              <Chip
+                                label={contact.pendingApprovalsCount}
+                                size="small"
+                                color="warning"
+                                icon={<AssignmentIcon sx={{ fontSize: 14 }} />}
+                              />
+                            ) : (
+                              <Typography variant="body2" color="text.disabled">0</Typography>
+                            )}
+                          </TableCell>
+                          <TableCell align="center" onClick={(e) => e.stopPropagation()}>
+                            <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center' }}>
+                              <IconButton size="small" onClick={() => handleOpenEdit(contact)}>
+                                <EditIcon fontSize="small" />
+                              </IconButton>
+                              <IconButton size="small" onClick={() => handleDeleteClick(contact)} color="error">
+                                <DeleteIcon fontSize="small" />
+                              </IconButton>
+                            </Box>
+                          </TableCell>
+                        </TableRow>
+                      )
+                    })}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
           </Box>
+        </Card>
+      )}
 
-          <Tabs
-            items={[
-              { label: t('common.all'), value: 'all', badge: contacts.length },
-              ...contactTypes.map(type => ({
-                label: type.label,
-                value: type.value,
-                badge: typeCount(type.value)
-              }))
-            ]}
-            value={filterType}
-            onChange={setFilterType}
-            size="small"
-            variant="scrollable"
-          />
-
-          {filteredContacts.length === 0 ? (
-            <Box sx={{ mt: 4 }}>
+      {mainTab === 1 && (
+        <Card>
+          <Box sx={{ p: 2 }}>
+            {groups.length === 0 ? (
               <EmptyState
                 variant="no-results"
-                title={t('contacts.noContacts')}
-                description={t('contacts.noContactsDescription')}
-                action={{ label: t('contacts.addContact'), onClick: handleOpenCreate }}
+                title={t('contactGroups.noGroups')}
+                description={t('contactGroups.noGroupsDescription')}
+                action={{ label: t('contactGroups.createGroup'), onClick: handleOpenGroupCreate }}
               />
-            </Box>
-          ) : (
-            <TableContainer sx={{ mt: 2, overflowX: 'auto' }}>
-              <Table size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }}>{t('contacts.contactName')}</TableCell>
-                    <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }}>{t('contacts.contactType')}</TableCell>
-                    <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }}>{t('contacts.companyName')}</TableCell>
-                    <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }}>{t('contacts.roleDescription')}</TableCell>
-                    <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }}>{t('contacts.email')}</TableCell>
-                    <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }}>{t('contacts.phone')}</TableCell>
-                    <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }}>{t('contacts.linkedUser')}</TableCell>
-                    <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }} align="center">{t('contacts.pendingApprovals')}</TableCell>
-                    <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }} align="center">{t('common.actions')}</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {filteredContacts.map((contact) => {
-                    const typeConfig = getTypeConfig(contact.contactType)
-                    return (
-                      <TableRow key={contact.id} hover onClick={() => handleOpenEdit(contact)} sx={{ cursor: 'pointer', '&:last-child td': { borderBottom: 0 } }}>
+            ) : (
+              <TableContainer>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }}>{t('common.name')}</TableCell>
+                      <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }}>{t('common.description')}</TableCell>
+                      <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }} align="center">{t('contactGroups.members')}</TableCell>
+                      <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }} align="center">{t('common.actions')}</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {groups.map((group) => (
+                      <TableRow key={group.id} hover onClick={() => handleOpenGroupEdit(group)} sx={{ cursor: 'pointer' }}>
                         <TableCell>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                            <Avatar name={contact.contactName} size="small" />
-                            <Box>
-                              <Typography variant="body2" fontWeight={600}>
-                                {contact.contactName}
-                              </Typography>
-                              {contact.isPrimary && (
-                                <Chip label={t('contacts.primary')} size="small" color="warning" sx={{ height: 18, fontSize: '0.65rem', mt: 0.25 }} />
-                              )}
-                            </Box>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <GroupIcon sx={{ color: 'primary.main', fontSize: 20 }} />
+                            <Typography variant="body2" fontWeight={600}>{group.name}</Typography>
                           </Box>
                         </TableCell>
                         <TableCell>
-                          <Chip
-                            label={typeConfig.label}
-                            size="small"
-                            sx={{
-                              bgcolor: `${typeConfig.color}15`,
-                              color: typeConfig.color,
-                              fontWeight: 500,
-                              fontSize: '0.75rem',
-                            }}
-                          />
-                        </TableCell>
-                        <TableCell>
                           <Typography variant="body2" color="text.secondary">
-                            {contact.companyName || '—'}
+                            {group.description || '—'}
                           </Typography>
-                        </TableCell>
-                        <TableCell sx={{ maxWidth: 200 }}>
-                          <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                            {contact.roleDescription || '—'}
-                          </Typography>
-                        </TableCell>
-                        <TableCell>
-                          {contact.email ? (
-                            <Typography variant="body2" color="text.secondary">{contact.email}</Typography>
-                          ) : '—'}
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant="body2" color="text.secondary">
-                            {contact.phone || '—'}
-                          </Typography>
-                        </TableCell>
-                        <TableCell>
-                          {contact.user ? (
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                              <Avatar name={contact.user.fullName || contact.user.email} size="small" />
-                              <Typography variant="body2" color="text.secondary">
-                                {contact.user.fullName || contact.user.email}
-                              </Typography>
-                            </Box>
-                          ) : (
-                            <Typography variant="body2" color="text.disabled">—</Typography>
-                          )}
                         </TableCell>
                         <TableCell align="center">
-                          {(contact.pendingApprovalsCount ?? 0) > 0 ? (
-                            <Chip
-                              label={contact.pendingApprovalsCount}
-                              size="small"
-                              color="warning"
-                              icon={<AssignmentIcon sx={{ fontSize: 14 }} />}
-                            />
-                          ) : (
-                            <Typography variant="body2" color="text.disabled">0</Typography>
-                          )}
+                          <Chip label={group.memberCount} size="small" />
                         </TableCell>
                         <TableCell align="center" onClick={(e) => e.stopPropagation()}>
                           <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center' }}>
-                            <IconButton size="small" onClick={() => handleOpenEdit(contact)}>
+                            <IconButton size="small" onClick={() => handleOpenGroupEdit(group)}>
                               <EditIcon fontSize="small" />
                             </IconButton>
-                            <IconButton size="small" onClick={() => handleDeleteClick(contact)} color="error">
+                            <IconButton size="small" onClick={() => handleDeleteGroupClick(group)} color="error">
                               <DeleteIcon fontSize="small" />
                             </IconButton>
                           </Box>
                         </TableCell>
                       </TableRow>
-                    )
-                  })}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          )}
-        </Box>
-      </Card>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
+          </Box>
+        </Card>
+      )}
 
       <FormModal
         open={dialogOpen}
@@ -502,6 +659,69 @@ export default function ContactsPage() {
         onConfirm={handleConfirmDelete}
         title={t('contacts.deleteContact')}
         message={t('contacts.deleteConfirmationMessage', { name: contactToDelete?.contactName })}
+        confirmLabel={t('common.delete')}
+        variant="danger"
+      />
+
+      <FormModal
+        open={groupDialogOpen}
+        onClose={() => setGroupDialogOpen(false)}
+        onSubmit={handleSaveGroup}
+        title={editingGroup ? t('contactGroups.editGroup') : t('contactGroups.createGroup')}
+        submitLabel={editingGroup ? t('common.saveChanges') : t('contactGroups.createGroup')}
+        loading={groupSaving}
+      >
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
+          <TextField
+            fullWidth
+            label={t('common.name')}
+            required
+            value={groupFormData.name}
+            onChange={(e) => setGroupFormData({ ...groupFormData, name: e.target.value })}
+          />
+          <TextField
+            fullWidth
+            label={t('common.description')}
+            multiline
+            rows={2}
+            value={groupFormData.description}
+            onChange={(e) => setGroupFormData({ ...groupFormData, description: e.target.value })}
+          />
+          <Autocomplete
+            multiple
+            options={contacts}
+            getOptionLabel={(opt) => `${opt.contactName}${opt.email ? ` (${opt.email})` : ''}`}
+            value={contacts.filter(c => groupFormData.contactIds.includes(c.id))}
+            onChange={(_, val) => setGroupFormData({ ...groupFormData, contactIds: val.map(v => v.id) })}
+            renderInput={(params) => (
+              <MuiTextField
+                {...params}
+                label={t('contactGroups.members')}
+                size="small"
+              />
+            )}
+            renderTags={(value, getTagProps) =>
+              value.map((opt, index) => (
+                <Chip
+                  label={opt.contactName}
+                  {...getTagProps({ index })}
+                  key={opt.id}
+                  size="small"
+                />
+              ))
+            }
+            size="small"
+            isOptionEqualToValue={(opt, val) => opt.id === val.id}
+          />
+        </Box>
+      </FormModal>
+
+      <ConfirmModal
+        open={deleteGroupDialogOpen}
+        onClose={() => setDeleteGroupDialogOpen(false)}
+        onConfirm={handleConfirmDeleteGroup}
+        title={t('contactGroups.deleteGroup')}
+        message={t('contactGroups.deleteConfirmation', { name: groupToDelete?.name })}
         confirmLabel={t('common.delete')}
         variant="danger"
       />

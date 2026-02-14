@@ -566,3 +566,23 @@ export interface BimImportResult {
   skippedCount: number
   entityType: string
 }
+
+export interface ContactGroupListItem {
+  id: string
+  projectId: string
+  name: string
+  description?: string
+  memberCount: number
+  createdAt: string
+  updatedAt: string
+}
+
+export interface ContactGroup {
+  id: string
+  projectId: string
+  name: string
+  description?: string
+  contacts: Contact[]
+  createdAt: string
+  updatedAt: string
+}

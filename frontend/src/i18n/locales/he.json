@@ -955,7 +955,27 @@
     },
     "failedToLoadStats": "נכשל בטעינת סטטיסטיקות RFI",
     "sentRfi": "RFI נשלח",
-    "draftNotSent": "RFI זה הוא טיוטה ועדיין לא נשלח"
+    "draftNotSent": "RFI זה הוא טיוטה ועדיין לא נשלח",
+    "selectRecipient": "בחר נמען מאנשי קשר",
+    "selectGroup": "מלא מקבוצת אנשי קשר",
+    "selectGroupHint": "איש הקשר הראשון הופך לנמען, השאר מתווספים כהעתק"
+  },
+  "contactGroups": {
+    "title": "קבוצות אנשי קשר",
+    "createGroup": "צור קבוצה",
+    "editGroup": "ערוך קבוצה",
+    "deleteGroup": "מחק קבוצה",
+    "members": "חברים",
+    "noGroups": "אין קבוצות אנשי קשר",
+    "noGroupsDescription": "צור קבוצות כדי לשלוח RFI במהירות למספר אנשי קשר",
+    "createSuccess": "קבוצת אנשי קשר נוצרה בהצלחה!",
+    "updateSuccess": "קבוצת אנשי קשר עודכנה בהצלחה!",
+    "deleteSuccess": "קבוצת אנשי קשר נמחקה בהצלחה!",
+    "failedToLoad": "נכשל בטעינת קבוצת אנשי קשר",
+    "failedToCreate": "נכשל ביצירת קבוצת אנשי קשר",
+    "failedToUpdate": "נכשל בעדכון קבוצת אנשי קשר",
+    "failedToDelete": "נכשל במחיקת קבוצת אנשי קשר",
+    "deleteConfirmation": "האם אתה בטוח שברצונך למחוק את \"{{name}}\"? פעולה זו אינה ניתנת לביטול."
   },
   "checklist": {
     "failedToLoad": "נכשל בטעינת הצ'קליסט",

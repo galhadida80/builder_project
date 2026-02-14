@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, Controller } from 'react-hook-form'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Delete as DeleteIcon, CloudUpload as CloudUploadIcon } from '@mui/icons-material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
@@ -16,7 +16,10 @@ import { Modal } from '../ui/Modal'
 import { Button } from '../ui/Button'
 import { TextField } from '../ui/TextField'
 import { Select, SelectOption } from '../ui/Select'
-import { Box, Stack, Autocomplete, Chip, Typography, IconButton, List, ListItem, ListItemText, ListItemSecondaryAction, Alert } from '@/mui'
+import { contactsApi } from '../../api/contacts'
+import { contactGroupsApi } from '../../api/contactGroups'
+import type { Contact, ContactGroupListItem } from '../../types'
+import { Box, Stack, Autocomplete, Chip, Typography, IconButton, List, ListItem, ListItemText, ListItemSecondaryAction, Alert, TextField as MuiTextField } from '@/mui'
 
 // Category options for RFI classification
 const RFI_CATEGORY_OPTIONS: SelectOption[] = [
@@ -68,6 +71,7 @@ interface RFIFormDialogProps {
   initialData?: Partial<RFIFormData>
   loading?: boolean
   mode?: 'create' | 'edit'
+  projectId?: string
 }
 
 export function RFIFormDialog({
@@ -77,8 +81,24 @@ export function RFIFormDialog({
   initialData,
   loading = false,
   mode = 'create',
+  projectId,
 }: RFIFormDialogProps) {
   const { t, i18n } = useTranslation()
+  const [projectContacts, setProjectContacts] = useState<Contact[]>([])
+  const [contactGroups, setContactGroups] = useState<ContactGroupListItem[]>([])
+
+  useEffect(() => {
+    if (open && projectId) {
+      Promise.all([
+        contactsApi.list(projectId),
+        contactGroupsApi.list(projectId),
+      ]).then(([contacts, groups]) => {
+        setProjectContacts(contacts.filter(c => c.email))
+        setContactGroups(groups)
+      }).catch(() => {})
+    }
+  }, [open, projectId])
+
   const {
     control,
     handleSubmit,
@@ -234,6 +254,25 @@ export function RFIFormDialog({
             </Alert>
           )}
 
+          {/* Contact/Group Quick Select */}
+          {projectId && projectContacts.length > 0 && (
+            <Autocomplete
+              options={projectContacts}
+              getOptionLabel={(opt) => `${opt.contactName} (${opt.email})`}
+              onChange={(_, val) => {
+                if (val) {
+                  setValue('toEmail', val.email || '')
+                  setValue('toName', val.contactName || '')
+                }
+              }}
+              renderInput={(params) => (
+                <MuiTextField {...params} label={t('rfis.selectRecipient')} size="small" />
+              )}
+              size="small"
+              disabled={isFormLoading}
+            />
+          )}
+
           {/* Required Fields */}
           <Controller
             name="toEmail"
@@ -301,6 +340,33 @@ export function RFIFormDialog({
               </Box>
             )}
           />
+
+          {projectId && contactGroups.length > 0 && (
+            <Autocomplete
+              options={contactGroups}
+              getOptionLabel={(opt) => `${opt.name} (${opt.memberCount})`}
+              onChange={async (_, val) => {
+                if (val && projectId) {
+                  try {
+                    const full = await contactGroupsApi.get(projectId, val.id)
+                    const emails = full.contacts.map(c => c.email).filter(Boolean) as string[]
+                    if (emails.length > 0) {
+                      const [first, ...rest] = emails
+                      setValue('toEmail', first)
+                      setValue('toName', full.contacts[0]?.contactName || '')
+                      const current = control._formValues.ccEmails || []
+                      setValue('ccEmails', [...new Set([...current, ...rest])])
+                    }
+                  } catch { /* ignore */ }
+                }
+              }}
+              renderInput={(params) => (
+                <MuiTextField {...params} label={t('rfis.selectGroup')} size="small" helperText={t('rfis.selectGroupHint')} />
+              )}
+              size="small"
+              disabled={isFormLoading}
+            />
+          )}
 
           <Controller
             name="ccEmails"

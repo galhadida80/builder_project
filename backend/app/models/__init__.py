@@ -14,6 +14,7 @@ from app.models.checklist import (
     ItemResponseStatus,
 )
 from app.models.contact import Contact
+from app.models.contact_group import ContactGroup, ContactGroupMember
 from app.models.document_analysis import DocumentAnalysis
 from app.models.document_review import DocumentComment, DocumentReview, ReviewStatus
 from app.models.equipment import Equipment, EquipmentChecklist
@@ -93,4 +94,6 @@ __all__ = [
     "ProjectInvitation",
     "BimModel",
     "AutodeskConnection",
+    "ContactGroup",
+    "ContactGroupMember",
 ]

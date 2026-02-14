@@ -848,7 +848,27 @@
     },
     "failedToLoadStats": "Failed to load RFI statistics",
     "sentRfi": "RFI Sent",
-    "draftNotSent": "This RFI is a draft and has not been sent yet"
+    "draftNotSent": "This RFI is a draft and has not been sent yet",
+    "selectRecipient": "Select Recipient from Contacts",
+    "selectGroup": "Fill from Contact Group",
+    "selectGroupHint": "First contact becomes recipient, rest added as CC"
+  },
+  "contactGroups": {
+    "title": "Contact Groups",
+    "createGroup": "Create Group",
+    "editGroup": "Edit Group",
+    "deleteGroup": "Delete Group",
+    "members": "Members",
+    "noGroups": "No Contact Groups",
+    "noGroupsDescription": "Create groups to quickly send RFIs to multiple contacts",
+    "createSuccess": "Contact group created successfully!",
+    "updateSuccess": "Contact group updated successfully!",
+    "deleteSuccess": "Contact group deleted successfully!",
+    "failedToLoad": "Failed to load contact group",
+    "failedToCreate": "Failed to create contact group",
+    "failedToUpdate": "Failed to update contact group",
+    "failedToDelete": "Failed to delete contact group",
+    "deleteConfirmation": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone."
   },
   "checklist": {
     "failedToLoad": "Failed to load checklist",

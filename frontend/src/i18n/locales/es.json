@@ -821,7 +821,27 @@
     "failedToDelete": "Error al eliminar RFI",
     "failedToLoadStats": "Error al cargar estadísticas de RFI",
     "sentRfi": "RFI Enviado",
-    "draftNotSent": "Este RFI es un borrador y aún no se ha enviado"
+    "draftNotSent": "Este RFI es un borrador y aún no se ha enviado",
+    "selectRecipient": "Seleccionar Destinatario de Contactos",
+    "selectGroup": "Llenar desde Grupo de Contactos",
+    "selectGroupHint": "El primer contacto se convierte en destinatario, el resto se agrega como CC"
+  },
+  "contactGroups": {
+    "title": "Grupos de Contactos",
+    "createGroup": "Crear Grupo",
+    "editGroup": "Editar Grupo",
+    "deleteGroup": "Eliminar Grupo",
+    "members": "Miembros",
+    "noGroups": "Sin Grupos de Contactos",
+    "noGroupsDescription": "Crea grupos para enviar RFIs rápidamente a múltiples contactos",
+    "createSuccess": "¡Grupo de contactos creado exitosamente!",
+    "updateSuccess": "¡Grupo de contactos actualizado exitosamente!",
+    "deleteSuccess": "¡Grupo de contactos eliminado exitosamente!",
+    "failedToLoad": "Error al cargar grupo de contactos",
+    "failedToCreate": "Error al crear grupo de contactos",
+    "failedToUpdate": "Error al actualizar grupo de contactos",
+    "failedToDelete": "Error al eliminar grupo de contactos",
+    "deleteConfirmation": "¿Estás seguro de que deseas eliminar \"{{name}}\"? Esta acción no se puede deshacer."
   },
   "checklist": {
     "failedToLoad": "Error al cargar la lista de verificación",
