@@ -44,3 +44,11 @@ logs/security/
 # Screenshots
 screenshots/
 *.png
+
+# Data files
+*.ifc
+*.xlsx
+
+# Build cache
+tsconfig.tsbuildinfo
+frontend/tsconfig.tsbuildinfo
