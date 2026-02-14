@@ -90,7 +90,7 @@ gcloud iam service-accounts create "$SA_NAME" \
   --display-name="GitHub Actions CD"
 
 # Grant minimal roles
-for ROLE in roles/run.admin roles/storage.admin roles/artifactregistry.writer roles/cloudsql.client roles/iam.serviceAccountUser; do
+for ROLE in roles/run.admin roles/storage.admin roles/artifactregistry.writer roles/cloudsql.client roles/iam.serviceAccountUser roles/logging.viewer; do
   gcloud projects add-iam-policy-binding "$PROJECT_ID" \
     --member="serviceAccount:$SA_EMAIL" \
     --role="$ROLE" \
