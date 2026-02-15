@@ -1282,8 +1282,9 @@ class TestInspectionUpdate:
 # ---------------------------------------------------------------------------
 class TestInspectionConsultantTypeCreate:
     def test_valid(self):
-        obj = InspectionConsultantTypeCreate(name="Structural Engineer")
+        obj = InspectionConsultantTypeCreate(name="Structural Engineer", name_he="מהנדס מבנים")
         assert obj.name == "Structural Engineer"
+        assert obj.name_he == "מהנדס מבנים"
 
     def test_missing_name(self):
         with pytest.raises(ValidationError):
@@ -1291,14 +1292,14 @@ class TestInspectionConsultantTypeCreate:
 
     def test_name_too_short(self):
         with pytest.raises(ValidationError):
-            InspectionConsultantTypeCreate(name="A")
+            InspectionConsultantTypeCreate(name="A", name_he="א")
 
-    def test_optional_description(self):
-        obj = InspectionConsultantTypeCreate(name="Architect", description="Building review")
-        assert obj.description == "Building review"
+    def test_optional_category(self):
+        obj = InspectionConsultantTypeCreate(name="Architect", name_he="אדריכל", category="structural")
+        assert obj.category == "structural"
 
     def test_xss_in_name(self):
-        obj = InspectionConsultantTypeCreate(name='<script>x</script>Engineer')
+        obj = InspectionConsultantTypeCreate(name='<script>x</script>Engineer', name_he="מהנדס")
         assert "<script>" not in obj.name
 
 

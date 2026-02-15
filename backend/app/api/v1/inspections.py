@@ -55,7 +55,7 @@ async def create_consultant_type(
     current_user: User = Depends(get_current_user)
 ):
     """Create a new inspection consultant type (admin-level, no project-specific permission check)"""
-    consultant_type = InspectionConsultantType(**data.model_dump())
+    consultant_type = InspectionConsultantType(**data.model_dump(exclude_unset=True))
     db.add(consultant_type)
     await db.flush()
 
@@ -104,7 +104,7 @@ async def add_stage_to_consultant_type(
 
     # Create the stage
     stage = InspectionStage(
-        **data.model_dump(),
+        **data.model_dump(exclude_unset=True),
         consultant_type_id=consultant_type_id
     )
     db.add(stage)
