@@ -39,7 +39,11 @@ export const inspectionsApi = {
     scheduledDate: string
     notes?: string
   }): Promise<Inspection> => {
-    const response = await apiClient.post(`/projects/${projectId}/inspections`, data)
+    const response = await apiClient.post(`/projects/${projectId}/inspections`, {
+      consultant_type_id: data.consultantTypeId,
+      scheduled_date: data.scheduledDate,
+      notes: data.notes || undefined,
+    })
     return response.data
   },
 

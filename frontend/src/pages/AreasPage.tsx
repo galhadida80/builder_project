@@ -240,7 +240,9 @@ export default function AreasPage() {
 
     const validationErrors = validateAreaForm({
       name: formData.name,
-      areaCode: formData.areaCode
+      areaCode: formData.areaCode,
+      floor_number: formData.floorNumber ? parseInt(formData.floorNumber) : undefined,
+      total_units: formData.totalUnits ? parseInt(formData.totalUnits) : undefined,
     })
     setErrors(validationErrors)
     if (hasErrors(validationErrors)) return

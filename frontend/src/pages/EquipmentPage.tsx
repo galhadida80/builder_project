@@ -163,11 +163,14 @@ export default function EquipmentPage() {
 
   const handleSaveEquipment = async () => {
     if (!projectId) return
-    const validationData = {
-      ...formData,
-      equipmentType: selectedTemplate?.name_he || ''
-    }
-    const validationErrors = validateEquipmentForm(validationData)
+    const validationErrors = validateEquipmentForm({
+      name: formData.name,
+      notes: formData.notes,
+      serialNumber: formData.serialNumber,
+      equipment_type: selectedTemplate?.name_he || '',
+      manufacturer: formData.manufacturer,
+      model_number: formData.modelNumber,
+    })
     setErrors(validationErrors)
     if (hasErrors(validationErrors)) return
 

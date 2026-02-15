@@ -182,7 +182,12 @@ export default function MaterialsPage() {
     const validationErrors = validateMaterialForm({
       name: formData.name,
       notes: formData.notes,
-      quantity: formData.quantity ? parseFloat(formData.quantity) : undefined
+      quantity: formData.quantity ? parseFloat(formData.quantity) : undefined,
+      material_type: selectedTemplate?.name_he,
+      manufacturer: formData.manufacturer,
+      model_number: formData.modelNumber,
+      unit: formData.unit,
+      storage_location: formData.storageLocation,
     })
     setErrors(validationErrors)
     if (hasErrors(validationErrors)) return
