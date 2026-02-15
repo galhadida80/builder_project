@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Tabs } from '../ui/Tabs'
 import { NotificationItem } from './NotificationItem'
 import { Notification, NotificationCategory } from '../../types/notification'
@@ -63,7 +64,7 @@ const LoadMoreButton = styled(MuiButton)(({ theme }) => ({
   fontWeight: 500,
 }))
 
-const EmptyState = styled(Box)(({ theme }) => ({
+const EmptyStateBox = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
@@ -98,13 +99,14 @@ export function NotificationsPanel({
   hasMore = false,
   loading = false,
 }: NotificationsPanelProps) {
+  const { t } = useTranslation()
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
 
   const tabItems = [
-    { label: 'All', value: 'all' },
-    { label: 'Approvals', value: 'approval' },
-    { label: 'Inspections', value: 'inspection' },
-    { label: 'Updates', value: 'update' },
+    { label: t('notificationsPanel.all'), value: 'all' },
+    { label: t('notificationsPanel.approvals'), value: 'approval' },
+    { label: t('notificationsPanel.inspections'), value: 'inspection' },
+    { label: t('notificationsPanel.updates'), value: 'update' },
   ]
 
   const filteredNotifications =
@@ -123,7 +125,7 @@ export function NotificationsPanel({
       <Header>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Typography variant="h6" component="div" fontWeight={600}>
-            Notifications
+            {t('notificationsPanel.title')}
           </Typography>
           {unreadCount > 0 && <UnreadBadge>{unreadCount}</UnreadBadge>}
         </Box>
@@ -149,22 +151,22 @@ export function NotificationsPanel({
               color: 'primary.main',
             }}
           >
-            Mark all as read
+            {t('notificationsPanel.markAllAsRead')}
           </MuiButton>
         </Box>
       )}
 
       {filteredNotifications.length === 0 ? (
-        <EmptyState>
+        <EmptyStateBox>
           <Typography variant="h6" color="text.secondary" gutterBottom>
-            No notifications
+            {t('notificationsPanel.noNotifications')}
           </Typography>
           <Typography variant="body2" color="text.disabled">
             {selectedCategory === 'all'
-              ? "You're all caught up!"
-              : `No ${selectedCategory} notifications at this time.`}
+              ? t('notificationsPanel.allCaughtUp')
+              : t('notificationsPanel.noCategoryNotifications', { category: selectedCategory })}
           </Typography>
-        </EmptyState>
+        </EmptyStateBox>
       ) : (
         <>
           <NotificationsList>
@@ -184,7 +186,7 @@ export function NotificationsPanel({
               onClick={onLoadMore}
               disabled={loading}
             >
-              {loading ? 'Loading...' : 'Load More'}
+              {loading ? t('common.loading') : t('notificationsPanel.loadMore')}
             </LoadMoreButton>
           )}
         </>

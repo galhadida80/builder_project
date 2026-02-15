@@ -147,7 +147,7 @@ export default function ProjectDetailPage() {
                 )}
               </Box>
             </Box>
-            <Button variant="secondary" icon={<EditIcon />} sx={{ bgcolor: 'rgba(255,255,255,0.1)', color: 'white', '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' }, flexShrink: 0 }}>
+            <Button variant="secondary" icon={<EditIcon />} onClick={() => navigate(`/projects?edit=${projectId}`)} sx={{ bgcolor: 'rgba(255,255,255,0.1)', color: 'white', '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' }, flexShrink: 0 }}>
               <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
                 {t('projectDetail.editProject')}
               </Box>

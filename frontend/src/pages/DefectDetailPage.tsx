@@ -171,10 +171,10 @@ export default function DefectDetailPage() {
       </Button>
 
       <Card sx={{ mb: 3 }}>
-        <Box sx={{ p: 3 }}>
+        <Box sx={{ p: { xs: 2, md: 3 } }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 2, mb: 3 }}>
             <Box>
-              <Typography variant="h5" fontWeight={700} sx={{ mb: 1 }}>
+              <Typography variant="h5" fontWeight={700} sx={{ mb: 1, fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>
                 {t('defects.defectNumber', { number: defect.defectNumber })}
               </Typography>
               <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
@@ -231,7 +231,7 @@ export default function DefectDetailPage() {
       </Card>
 
       <Card sx={{ mb: 3 }}>
-        <Box sx={{ p: 3 }}>
+        <Box sx={{ p: { xs: 2, md: 3 } }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
             <Typography variant="h6" fontWeight={600}>
               {t('defects.assignees')} ({defect.assignees.length})
@@ -264,8 +264,8 @@ export default function DefectDetailPage() {
       </Card>
 
       <Card sx={{ mb: 3 }}>
-        <Box sx={{ p: 3 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <Box sx={{ p: { xs: 2, md: 3 } }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 1 }}>
             <Typography variant="h6" fontWeight={600}>
               {t('defects.photos')} ({photos.length})
             </Typography>
@@ -278,10 +278,10 @@ export default function DefectDetailPage() {
             >
               {uploading ? t('common.uploading') : t('defects.addPhoto')}
             </Button>
-            <input id="defect-photo-input" type="file" hidden multiple accept="image/*" onChange={handlePhotoUpload} />
+            <input id="defect-photo-input" type="file" hidden multiple accept="image/*,application/pdf" onChange={handlePhotoUpload} />
           </Box>
           {photos.length > 0 ? (
-            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 1.5 }}>
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(auto-fill, minmax(140px, 1fr))' }, gap: 1.5 }}>
               {photos.map((file) => (
                 <Box
                   key={file.id}

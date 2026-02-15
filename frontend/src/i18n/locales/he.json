@@ -567,6 +567,18 @@
     "settingsComingSoon": "דף הגדרות בקרוב!",
     "noNewNotifications": "אין התראות חדשות"
   },
+  "notificationsPanel": {
+    "title": "התראות",
+    "all": "הכל",
+    "approvals": "אישורים",
+    "inspections": "בדיקות",
+    "updates": "עדכונים",
+    "markAllAsRead": "סמן הכל כנקרא",
+    "noNotifications": "אין התראות",
+    "allCaughtUp": "אתה מעודכן!",
+    "noCategoryNotifications": "אין התראות {{category}} כרגע.",
+    "loadMore": "טען עוד"
+  },
   "sidebar": {
     "dashboard": "לוח בקרה",
     "projects": "פרויקטים",
@@ -599,11 +611,15 @@
     "entity": "ישות",
     "changes": "שינויים",
     "entityId": "מזהה ישות",
+    "export": "ייצוא CSV",
+    "exportSuccess": "יומן הביקורת יוצא בהצלחה",
+    "fieldsChanged": "{{count}} שדות שונו",
     "actions": {
       "create": "יצירה",
       "update": "עדכון",
       "delete": "מחיקה",
       "approval": "אישור",
+      "rejection": "דחייה",
       "status_change": "שינוי סטטוס"
     },
     "entities": {
@@ -613,6 +629,8 @@
       "inspection": "בדיקה",
       "rfi": "RFI",
       "project": "פרויקט",
+      "contact": "איש קשר",
+      "area": "אזור",
       "approval": "אישור"
     }
   },

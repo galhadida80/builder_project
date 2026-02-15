@@ -50,7 +50,13 @@ export default function ProjectsPage() {
       handleOpenCreate()
       setSearchParams({}, { replace: true })
     }
-  }, [loading, searchParams])
+    const editId = searchParams.get('edit')
+    if (editId && !loading && projects.length > 0) {
+      const proj = projects.find(p => p.id === editId)
+      if (proj) handleOpenEdit(proj)
+      setSearchParams({}, { replace: true })
+    }
+  }, [loading, searchParams, projects])
 
   const resetForm = () => {
     setFormData({ name: '', code: '', description: '', address: '', startDate: '', estimatedEndDate: '' })

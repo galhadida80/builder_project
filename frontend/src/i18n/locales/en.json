@@ -492,11 +492,15 @@
     "entity": "Entity",
     "changes": "Changes",
     "entityId": "Entity ID",
+    "export": "Export CSV",
+    "exportSuccess": "Audit log exported successfully",
+    "fieldsChanged": "{{count}} field(s) changed",
     "actions": {
       "create": "Create",
       "update": "Update",
       "delete": "Delete",
       "approval": "Approval",
+      "rejection": "Rejection",
       "status_change": "Status Change"
     },
     "entities": {
@@ -506,6 +510,8 @@
       "inspection": "Inspection",
       "rfi": "RFI",
       "project": "Project",
+      "contact": "Contact",
+      "area": "Area",
       "approval": "Approval"
     }
   },
@@ -1398,6 +1404,18 @@
     "noNewNotifications": "No new notifications",
     "profileComingSoon": "Profile page coming soon!",
     "settingsComingSoon": "Settings page coming soon!"
+  },
+  "notificationsPanel": {
+    "title": "Notifications",
+    "all": "All",
+    "approvals": "Approvals",
+    "inspections": "Inspections",
+    "updates": "Updates",
+    "markAllAsRead": "Mark all as read",
+    "noNotifications": "No notifications",
+    "allCaughtUp": "You're all caught up!",
+    "noCategoryNotifications": "No {{category}} notifications at this time.",
+    "loadMore": "Load More"
   },
   "rfiDetail": {
     "notFound": "RFI not found",
