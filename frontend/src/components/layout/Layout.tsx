@@ -66,14 +66,14 @@ export default function Layout() {
 
   if (loading || !currentUser) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100dvh' }}>
         <CircularProgress />
       </Box>
     )
   }
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+    <Box sx={{ display: 'flex', minHeight: '100dvh' }}>
       <Header
         user={currentUser}
         currentProject={currentProject}
@@ -95,8 +95,7 @@ export default function Layout() {
           flexGrow: 1,
           p: { xs: 1, sm: 1.5, md: 2 },
           bgcolor: 'background.default',
-          minHeight: '100vh',
-          overflowX: 'hidden',
+          minHeight: '100dvh',
           maxWidth: '100%',
           minWidth: 0,
         }}

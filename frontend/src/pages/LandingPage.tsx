@@ -63,7 +63,7 @@ export default function LandingPage() {
   ]
 
   return (
-    <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column' }}>
       {/* Floating Nav */}
       <Box
         sx={{

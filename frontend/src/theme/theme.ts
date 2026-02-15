@@ -118,13 +118,14 @@ const baseThemeOptions: ThemeOptions = {
         },
         html: {
           scrollBehavior: 'smooth',
-          overflowX: 'hidden',
+          height: '100%',
         },
         body: {
           fontFamily: typography.fontFamily.english,
           overflowX: 'hidden',
           wordWrap: 'break-word',
           overflowWrap: 'break-word',
+          minHeight: '100%',
         },
         '[dir="rtl"] body': {
           fontFamily: typography.fontFamily.hebrew,
@@ -134,8 +135,7 @@ const baseThemeOptions: ThemeOptions = {
           wordWrap: 'break-word',
           hyphens: 'auto',
         },
-        'p, span, div': {
-          maxWidth: '100%',
+        'p, span': {
           overflowWrap: 'break-word',
         },
         '@media (prefers-reduced-motion: reduce)': {

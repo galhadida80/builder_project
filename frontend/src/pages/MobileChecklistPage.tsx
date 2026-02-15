@@ -19,7 +19,7 @@ import { CheckCircleIcon, AssignmentIcon, ArrowBackIcon, SendIcon } from '@/icon
 import { Box, Typography, LinearProgress, Skeleton, Alert, Snackbar, FormControlLabel, Radio, RadioGroup, styled } from '@/mui'
 
 const MobileContainer = styled(Box)(({ theme }) => ({
-  minHeight: '100vh',
+  minHeight: '100dvh',
   backgroundColor: theme.palette.background.default,
   paddingBottom: theme.spacing(10), // Space for fixed bottom bar
 }))

@@ -31,7 +31,7 @@ export function Hero({
     <Box
       sx={{
         position: 'relative',
-        minHeight: { xs: '100vh', md: '100vh' },
+        minHeight: { xs: '100dvh', md: '100dvh' },
         display: 'flex',
         alignItems: 'center',
         overflow: 'hidden',

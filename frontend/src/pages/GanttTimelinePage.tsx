@@ -186,7 +186,7 @@ export default function GanttTimelinePage() {
           </Box>
         </Box>
 
-        <Box sx={{ p: 0, minHeight: 400, height: 'calc(100vh - 320px)' }}>
+        <Box sx={{ p: 0, minHeight: 400, height: 'calc(100dvh - 320px)' }}>
           {tasks.length > 0 ? (
             <GanttChart tasks={tasks} links={links} scales={currentScales} />
           ) : (

@@ -92,7 +92,7 @@ export default function InspectorDashboard() {
           sx={{
             maxWidth: '428px',
             margin: '0 auto',
-            minHeight: '100vh',
+            minHeight: '100dvh',
             bgcolor: 'background.default',
             px: { xs: 2, sm: 3 },
             py: { xs: 2, sm: 2.5 },
@@ -129,7 +129,7 @@ export default function InspectorDashboard() {
         sx={{
           maxWidth: '428px',
           margin: '0 auto',
-          minHeight: '100vh',
+          minHeight: '100dvh',
           bgcolor: 'background.default',
           display: 'flex',
           flexDirection: 'column',

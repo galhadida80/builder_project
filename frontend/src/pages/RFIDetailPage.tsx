@@ -183,7 +183,7 @@ export default function RFIDetailPage() {
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 64px)', maxWidth: 900, mx: 'auto', px: { xs: 1, sm: 2, md: 3 } }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: 'calc(100dvh - 64px)', maxWidth: 900, mx: 'auto', px: { xs: 1, sm: 2, md: 3 } }}>
       {/* Header */}
       <Box sx={{ py: 2, flexShrink: 0 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1.5 }}>

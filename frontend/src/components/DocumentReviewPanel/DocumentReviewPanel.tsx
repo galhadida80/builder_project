@@ -34,7 +34,7 @@ export interface DocumentReviewPanelProps {
 }
 
 const RootContainer = styled(Box)(() => ({
-  height: '100vh',
+  height: '100dvh',
   width: '100%',
   display: 'flex',
   flexDirection: 'column',
