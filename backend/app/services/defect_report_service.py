@@ -175,16 +175,23 @@ async def generate_defects_report_pdf(
         for d in defects
     ]
 
+    counts = {"open": 0, "in_progress": 0, "resolved": 0, "closed": 0}
+    for d in defects:
+        if d.status in counts:
+            counts[d.status] += 1
+
     template = env.get_template("defects_report.html")
     html_content = template.render(
         s=s,
         direction="rtl",
         align="right",
         project_name=project.name,
+        project_code=getattr(project, "code", ""),
         report_date=today,
         total_count=len(defects),
+        counts=counts,
         defects=defect_items,
     )
 
-    pdf_bytes = HTML(string=html_content).write_pdf()
+    pdf_bytes = HTML(string=html_content, base_url=TEMPLATES_DIR).write_pdf()
     return pdf_bytes

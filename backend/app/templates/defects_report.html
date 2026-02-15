@@ -3,230 +3,416 @@
 <head>
 <meta charset="UTF-8">
 <style>
+  @font-face {
+    font-family: "NotoHebrew";
+    src: url("fonts/NotoSansHebrew-Regular.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: "NotoHebrew";
+    src: url("fonts/NotoSansHebrew-Bold.ttf") format("truetype");
+    font-weight: 700;
+    font-style: normal;
+  }
+
   @page {
     size: A4;
-    margin: 15mm 15mm 20mm 15mm;
-    @bottom-center {
-      content: "BuilderOps";
-      font-size: 9px;
-      color: #9e9e9e;
+    margin: 12mm 14mm 16mm 14mm;
+    @bottom-left {
+      content: "BuilderOps  |  {{ project_name }}";
+      font-family: "NotoHebrew", sans-serif;
+      font-size: 7.5pt;
+      color: #94A3B8;
+    }
+    @bottom-right {
+      content: counter(page);
+      font-family: "NotoHebrew", sans-serif;
+      font-size: 7.5pt;
+      color: #94A3B8;
     }
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 12px;
-    color: #333;
+    font-family: "NotoHebrew", sans-serif;
+    font-size: 10pt;
+    color: #1E293B;
     direction: {{ direction }};
-    line-height: 1.5;
+    line-height: 1.6;
+    background: #fff;
   }
 
-  .header {
-    background: linear-gradient(135deg, #1565C0, #1976D2);
-    color: white;
-    padding: 18px 24px;
+  /* ── COVER HEADER ── */
+  .report-header {
+    background: #0F172A;
+    padding: 28px 32px 24px;
+    margin: -12mm -14mm 0 -14mm;
+    color: #fff;
+  }
+
+  .header-top {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    border-radius: 6px;
-    margin-bottom: 12px;
+    align-items: flex-start;
+    margin-bottom: 18px;
+  }
+
+  .brand {
+    font-size: 10pt;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #F97316;
+  }
+
+  .header-date {
+    font-size: 9pt;
+    color: #94A3B8;
   }
 
   .header-title {
-    font-size: 22px;
+    font-size: 26pt;
     font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
   }
 
-  .header-info {
-    text-align: {{ 'left' if direction == 'rtl' else 'right' }};
-    font-size: 12px;
-    opacity: 0.9;
+  .header-project {
+    font-size: 12pt;
+    color: #CBD5E1;
+    font-weight: 400;
   }
 
-  .header-info div { margin-bottom: 2px; }
-
-  .total-line {
-    font-size: 14px;
+  .header-project .code {
+    color: #F97316;
     font-weight: 600;
-    color: #555;
-    margin-bottom: 16px;
-    padding: 0 4px;
   }
 
-  .defect-card {
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    margin-bottom: 16px;
-    page-break-inside: avoid;
+  .header-rule {
+    border: none;
+    border-top: 2px solid #F97316;
+    margin: 14px 0 0;
+    width: 64px;
+  }
+
+  /* ── SUMMARY BAR ── */
+  .summary-bar {
+    display: flex;
+    gap: 0;
+    margin: 20px 0 18px;
+    border: 1px solid #E2E8F0;
+    border-radius: 6px;
     overflow: hidden;
   }
 
-  .card-header {
-    background: #f5f5f5;
-    padding: 10px 16px;
+  .summary-item {
+    flex: 1;
+    padding: 10px 14px;
+    text-align: center;
+    border-left: 1px solid #E2E8F0;
+  }
+
+  .summary-item:first-child { border-left: none; }
+
+  .summary-count {
+    font-size: 18pt;
+    font-weight: 700;
+    color: #0F172A;
+    line-height: 1.2;
+  }
+
+  .summary-label {
+    font-size: 7.5pt;
+    color: #64748B;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── DEFECT CARD ── */
+  .defect-card {
+    border: 1px solid #E2E8F0;
+    border-radius: 6px;
+    margin-bottom: 14px;
+    page-break-inside: avoid;
+    overflow: hidden;
+    background: #fff;
+  }
+
+  .card-top {
     display: flex;
     align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-    border-bottom: 1px solid #e0e0e0;
+    justify-content: space-between;
+    padding: 10px 16px;
+    border-bottom: 1px solid #E2E8F0;
+    background: #F8FAFC;
+  }
+
+  .card-top-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
 
   .defect-num {
-    font-size: 14px;
+    font-size: 13pt;
     font-weight: 700;
-    color: #333;
+    color: #0F172A;
+    letter-spacing: -0.3px;
   }
 
   .badge {
     display: inline-block;
     padding: 2px 10px;
-    border-radius: 12px;
-    font-size: 11px;
-    font-weight: 600;
-    color: white;
+    border-radius: 4px;
+    font-size: 7.5pt;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
   }
 
   .badge-outline {
     display: inline-block;
     padding: 2px 10px;
-    border-radius: 12px;
-    font-size: 11px;
-    font-weight: 500;
-    background: white;
-    border: 1px solid #bdbdbd;
-    color: #555;
+    border-radius: 4px;
+    font-size: 7.5pt;
+    font-weight: 600;
+    background: #fff;
+    border: 1px solid #CBD5E1;
+    color: #475569;
+    letter-spacing: 0.2px;
   }
 
+  .card-top-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* ── CARD BODY: TWO-COLUMN GRID ── */
   .card-body {
     padding: 14px 16px;
   }
 
-  .field-row {
+  .fields-grid {
     display: flex;
-    margin-bottom: 6px;
-    font-size: 12px;
+    flex-wrap: wrap;
+    gap: 0;
+  }
+
+  .field-cell {
+    width: 50%;
+    padding: 5px 8px 5px 0;
+    border-bottom: 1px solid #F1F5F9;
+  }
+
+  .field-cell:nth-child(even) {
+    padding: 5px 0 5px 8px;
+  }
+
+  .field-cell.full-width {
+    width: 100%;
+    padding: 5px 0;
   }
 
   .field-label {
+    font-size: 7pt;
     font-weight: 600;
-    color: #666;
-    min-width: 110px;
-    flex-shrink: 0;
+    color: #94A3B8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 1px;
   }
 
   .field-value {
-    color: #333;
-    flex: 1;
+    font-size: 9.5pt;
+    color: #1E293B;
+    font-weight: 500;
+    line-height: 1.4;
   }
 
-  .photos-row {
+  .field-value.muted {
+    color: #94A3B8;
+  }
+
+  /* ── PHOTOS ── */
+  .photos-section {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #F1F5F9;
+  }
+
+  .photos-label {
+    font-size: 7pt;
+    font-weight: 600;
+    color: #94A3B8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+
+  .photos-grid {
     display: flex;
-    gap: 10px;
-    margin-top: 12px;
-    flex-wrap: wrap;
+    gap: 8px;
   }
 
   .photo-thumb {
-    width: 160px;
-    height: 120px;
+    width: 170px;
+    height: 128px;
     object-fit: cover;
-    border-radius: 6px;
-    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    border: 1px solid #E2E8F0;
   }
 
+  /* ── EMPTY STATE ── */
   .empty-state {
     text-align: center;
-    padding: 60px 20px;
-    color: #999;
-    font-size: 16px;
+    padding: 80px 20px;
+    color: #94A3B8;
+    font-size: 13pt;
+    font-weight: 500;
+  }
+
+  /* ── FOOTER ── */
+  .report-footer {
+    margin-top: 30px;
+    padding-top: 12px;
+    border-top: 2px solid #0F172A;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 
   .footer-brand {
-    text-align: center;
-    margin-top: 24px;
-    padding-top: 12px;
-    border-top: 1px solid #e0e0e0;
-    color: #9e9e9e;
-    font-size: 10px;
+    font-size: 8pt;
+    font-weight: 700;
+    color: #0F172A;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  .footer-info {
+    font-size: 7.5pt;
+    color: #94A3B8;
   }
 </style>
 </head>
 <body>
 
-<div class="header">
-  <div>
-    <div class="header-title">{{ s.report_title }}</div>
-    <div style="font-size: 13px; margin-top: 4px; opacity: 0.85;">{{ project_name }}</div>
+<!-- ═══ HEADER ═══ -->
+<div class="report-header">
+  <div class="header-top">
+    <div class="brand">BUILDEROPS</div>
+    <div class="header-date">{{ report_date }}</div>
   </div>
-  <div class="header-info">
-    <div>{{ report_date }}</div>
-    <div>BuilderOps</div>
+  <div class="header-title">{{ s.report_title }}</div>
+  <div class="header-project">{{ project_name }}{% if project_code %} <span class="code">{{ project_code }}</span>{% endif %}</div>
+  <hr class="header-rule">
+</div>
+
+<!-- ═══ SUMMARY BAR ═══ -->
+<div class="summary-bar">
+  <div class="summary-item">
+    <div class="summary-count">{{ total_count }}</div>
+    <div class="summary-label">{{ s.total_tasks }}</div>
+  </div>
+  <div class="summary-item">
+    <div class="summary-count" style="color: #E53935;">{{ counts.open }}</div>
+    <div class="summary-label">{{ s.statuses.open }}</div>
+  </div>
+  <div class="summary-item">
+    <div class="summary-count" style="color: #FB8C00;">{{ counts.in_progress }}</div>
+    <div class="summary-label">{{ s.statuses.in_progress }}</div>
+  </div>
+  <div class="summary-item">
+    <div class="summary-count" style="color: #43A047;">{{ counts.resolved }}</div>
+    <div class="summary-label">{{ s.statuses.resolved }}</div>
+  </div>
+  <div class="summary-item">
+    <div class="summary-count" style="color: #64748B;">{{ counts.closed }}</div>
+    <div class="summary-label">{{ s.statuses.closed }}</div>
   </div>
 </div>
 
-<div class="total-line">
-  {{ total_count }} {{ s.total_tasks }}
-</div>
-
+<!-- ═══ DEFECT CARDS ═══ -->
 {% if defects|length == 0 %}
 <div class="empty-state">{{ s.no_defects }}</div>
 {% endif %}
 
 {% for d in defects %}
 <div class="defect-card">
-  <div class="card-header">
-    <span class="defect-num">#{{ d.number }}</span>
-    <span class="badge" style="background: {{ d.status_color }};">{{ d.status }}</span>
-    <span class="badge" style="background: {{ d.severity_color }};">{{ d.severity }}</span>
-    {% if d.is_repeated %}
-    <span class="badge-outline">{{ s.repeated_task }}</span>
-    {% endif %}
-    <span class="badge-outline">{{ d.category }}</span>
+  <div class="card-top">
+    <div class="card-top-right">
+      <span class="defect-num">#{{ d.number }}</span>
+      <span class="badge" style="background: {{ d.status_color }};">{{ d.status }}</span>
+      <span class="badge" style="background: {{ d.severity_color }};">{{ d.severity }}</span>
+      {% if d.is_repeated %}
+      <span class="badge-outline">{{ s.repeated_task }}</span>
+      {% endif %}
+    </div>
+    <div class="card-top-left">
+      <span class="badge-outline">{{ d.category }}</span>
+    </div>
   </div>
   <div class="card-body">
-    <div class="field-row">
-      <span class="field-label">{{ s.location }}:</span>
-      <span class="field-value">{{ d.location }}</span>
+    <!-- Description full width -->
+    <div class="fields-grid">
+      <div class="field-cell full-width">
+        <div class="field-label">{{ s.description }}</div>
+        <div class="field-value">{{ d.description }}</div>
+      </div>
     </div>
-    <div class="field-row">
-      <span class="field-label">{{ s.description }}:</span>
-      <span class="field-value">{{ d.description }}</span>
+
+    <!-- Two-column fields -->
+    <div class="fields-grid">
+      <div class="field-cell">
+        <div class="field-label">{{ s.location }}</div>
+        <div class="field-value{% if d.location == '-' %} muted{% endif %}">{{ d.location }}</div>
+      </div>
+      <div class="field-cell">
+        <div class="field-label">{{ s.reporter }}</div>
+        <div class="field-value{% if d.reporter == '-' %} muted{% endif %}">{{ d.reporter }}</div>
+      </div>
+      <div class="field-cell">
+        <div class="field-label">{{ s.assignees }}</div>
+        <div class="field-value{% if d.assignees == '-' %} muted{% endif %}">{{ d.assignees }}</div>
+      </div>
+      <div class="field-cell">
+        <div class="field-label">{{ s.followup }}</div>
+        <div class="field-value{% if d.followup == '-' %} muted{% endif %}">{{ d.followup }}</div>
+      </div>
+      <div class="field-cell">
+        <div class="field-label">{{ s.due_date }}</div>
+        <div class="field-value{% if d.due_date == '-' %} muted{% endif %}">{{ d.due_date }}</div>
+      </div>
+      <div class="field-cell">
+        <div class="field-label">{{ s.updated_at }}</div>
+        <div class="field-value{% if d.updated_at == '-' %} muted{% endif %}">{{ d.updated_at }}</div>
+      </div>
     </div>
-    <div class="field-row">
-      <span class="field-label">{{ s.reporter }}:</span>
-      <span class="field-value">{{ d.reporter }}</span>
-    </div>
-    <div class="field-row">
-      <span class="field-label">{{ s.assignees }}:</span>
-      <span class="field-value">{{ d.assignees }}</span>
-    </div>
-    <div class="field-row">
-      <span class="field-label">{{ s.followup }}:</span>
-      <span class="field-value">{{ d.followup }}</span>
-    </div>
-    <div class="field-row">
-      <span class="field-label">{{ s.due_date }}:</span>
-      <span class="field-value">{{ d.due_date }}</span>
-    </div>
-    <div class="field-row">
-      <span class="field-label">{{ s.updated_at }}:</span>
-      <span class="field-value">{{ d.updated_at }}</span>
-    </div>
+
+    <!-- Photos -->
     {% if d.photos %}
-    <div class="photos-row">
-      {% for photo in d.photos %}
-      <img class="photo-thumb" src="{{ photo }}" alt="{{ s.photos }}">
-      {% endfor %}
+    <div class="photos-section">
+      <div class="photos-label">{{ s.photos }}</div>
+      <div class="photos-grid">
+        {% for photo in d.photos %}
+        <img class="photo-thumb" src="{{ photo }}" alt="{{ s.photos }}">
+        {% endfor %}
+      </div>
     </div>
     {% endif %}
   </div>
 </div>
 {% endfor %}
 
-<div class="footer-brand">
-  BuilderOps &copy; {{ report_date[-4:] }}
+<!-- ═══ FOOTER ═══ -->
+<div class="report-footer">
+  <div class="footer-brand">BUILDEROPS</div>
+  <div class="footer-info">{{ report_date }} | {{ project_name }}</div>
 </div>
 
 </body>

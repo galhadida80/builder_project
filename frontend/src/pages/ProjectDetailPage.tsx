@@ -6,10 +6,16 @@ import { Button } from '../components/ui/Button'
 import { StatusBadge } from '../components/ui/StatusBadge'
 import { CircularProgressDisplay } from '../components/ui/ProgressBar'
 import { EmptyState } from '../components/ui/EmptyState'
+import { FormModal } from '../components/ui/Modal'
+import { TextField } from '../components/ui/TextField'
 import { projectsApi } from '../api/projects'
 import { equipmentApi } from '../api/equipment'
 import { materialsApi } from '../api/materials'
 import { meetingsApi } from '../api/meetings'
+import { useProject } from '../contexts/ProjectContext'
+import { useToast } from '../components/common/ToastProvider'
+import { validateProjectForm, hasErrors, VALIDATION, type ValidationError } from '../utils/validation'
+import { parseValidationErrors } from '../utils/apiErrors'
 import type { Project, Equipment, Material, Meeting } from '../types'
 import { ArrowBackIcon, EditIcon, LocationOnIcon, CalendarTodayIcon, GroupIcon, ConstructionIcon, InventoryIcon, EventIcon, WarningAmberIcon } from '@/icons'
 import { Box, Typography, Chip, Skeleton, IconButton } from '@/mui'
@@ -19,11 +25,17 @@ export default function ProjectDetailPage() {
   const navigate = useNavigate()
   const outlet = useOutlet()
   const { t, i18n } = useTranslation()
+  const { refreshProjects } = useProject()
+  const { showError, showSuccess } = useToast()
   const [project, setProject] = useState<Project | null>(null)
   const [equipment, setEquipment] = useState<Equipment[]>([])
   const [materials, setMaterials] = useState<Material[]>([])
   const [meetings, setMeetings] = useState<Meeting[]>([])
   const loadedProjectId = useRef<string | null>(null)
+  const [editOpen, setEditOpen] = useState(false)
+  const [editSaving, setEditSaving] = useState(false)
+  const [editErrors, setEditErrors] = useState<ValidationError>({})
+  const [editForm, setEditForm] = useState({ name: '', code: '', description: '', address: '', startDate: '', estimatedEndDate: '' })
 
   const isOverview = !outlet
   const dateLocale = i18n.language === 'he' ? 'he-IL' : i18n.language === 'es' ? 'es-ES' : 'en-US'
@@ -81,6 +93,49 @@ export default function ProjectDetailPage() {
 
   const handleNavTo = (section: string) => {
     navigate(`/projects/${projectId}/${section}`)
+  }
+
+  const handleOpenEdit = () => {
+    if (!project) return
+    setEditForm({
+      name: project.name,
+      code: project.code,
+      description: project.description || '',
+      address: project.address || '',
+      startDate: project.startDate || '',
+      estimatedEndDate: project.estimatedEndDate || '',
+    })
+    setEditErrors({})
+    setEditOpen(true)
+  }
+
+  const handleSaveEdit = async () => {
+    const validationErrors = validateProjectForm(editForm)
+    setEditErrors(validationErrors)
+    if (hasErrors(validationErrors)) return
+    setEditSaving(true)
+    try {
+      const updated = await projectsApi.update(project!.id, {
+        name: editForm.name,
+        description: editForm.description || undefined,
+        address: editForm.address || undefined,
+        start_date: editForm.startDate || undefined,
+        estimated_end_date: editForm.estimatedEndDate || undefined,
+      })
+      setProject(updated)
+      refreshProjects()
+      showSuccess(t('pages.projects.updateSuccess'))
+      setEditOpen(false)
+    } catch (err: unknown) {
+      const serverErrors = parseValidationErrors(err)
+      if (Object.keys(serverErrors).length > 0) {
+        setEditErrors(prev => ({ ...prev, ...serverErrors }))
+      } else {
+        showError(t('pages.projects.failedToUpdate'))
+      }
+    } finally {
+      setEditSaving(false)
+    }
   }
 
   return (
@@ -147,7 +202,7 @@ export default function ProjectDetailPage() {
                 )}
               </Box>
             </Box>
-            <Button variant="secondary" icon={<EditIcon />} onClick={() => navigate(`/projects?edit=${projectId}`)} sx={{ bgcolor: 'rgba(255,255,255,0.1)', color: 'white', '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' }, flexShrink: 0 }}>
+            <Button variant="secondary" icon={<EditIcon />} onClick={handleOpenEdit} sx={{ bgcolor: 'rgba(255,255,255,0.1)', color: 'white', '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' }, flexShrink: 0 }}>
               <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
                 {t('projectDetail.editProject')}
               </Box>
@@ -246,6 +301,75 @@ export default function ProjectDetailPage() {
       ) : (
         outlet
       )}
+
+      <FormModal
+        open={editOpen}
+        onClose={() => setEditOpen(false)}
+        onSubmit={handleSaveEdit}
+        title={t('pages.projects.editProjectTitle')}
+        submitLabel={t('common.saveChanges')}
+        loading={editSaving}
+      >
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
+          <TextField
+            fullWidth
+            label={t('pages.projects.projectName')}
+            required
+            value={editForm.name}
+            onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+            error={!!editErrors.name}
+            helperText={editErrors.name}
+            inputProps={{ maxLength: VALIDATION.MAX_NAME_LENGTH }}
+          />
+          <TextField
+            fullWidth
+            label={t('pages.projects.projectCode')}
+            disabled
+            value={editForm.code}
+            helperText={t('pages.projects.codeCannotBeChanged')}
+          />
+          <TextField
+            fullWidth
+            label={t('pages.projects.description')}
+            multiline
+            rows={3}
+            value={editForm.description}
+            onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+            error={!!editErrors.description}
+            helperText={editErrors.description}
+          />
+          <TextField
+            fullWidth
+            label={t('pages.projects.address')}
+            value={editForm.address}
+            onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
+            error={!!editErrors.address}
+            helperText={editErrors.address}
+          />
+          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+            <TextField
+              fullWidth
+              label={t('pages.projects.startDate')}
+              type="date"
+              InputLabelProps={{ shrink: true }}
+              value={editForm.startDate}
+              onChange={(e) => setEditForm({ ...editForm, startDate: e.target.value })}
+              error={!!editErrors.startDate}
+              helperText={editErrors.startDate}
+            />
+            <TextField
+              fullWidth
+              label={t('pages.projects.endDate')}
+              type="date"
+              InputLabelProps={{ shrink: true }}
+              value={editForm.estimatedEndDate}
+              onChange={(e) => setEditForm({ ...editForm, estimatedEndDate: e.target.value })}
+              error={!!editErrors.estimatedEndDate}
+              helperText={editErrors.estimatedEndDate}
+            />
+          </Box>
+        </Box>
+      </FormModal>
     </Box>
   )
 }
