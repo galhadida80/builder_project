@@ -17,12 +17,33 @@ from app.models.user import User
 from app.schemas.bim import BimExtractionResponse, BimImportRequest, BimImportResult
 from app.services.aps_service import APSService
 from app.services.bim_extraction_service import extract_bim_metadata
+from app.services.ifc_extraction_service import extract_from_ifc
+from app.services.storage_service import StorageBackend, get_storage_backend
 
 router = APIRouter()
 
 
 def get_aps_service(settings: Settings = Depends(get_settings)) -> APSService:
     return APSService(settings)
+
+
+async def get_or_extract_ifc(
+    bim_model: BimModel,
+    storage: StorageBackend,
+    db: AsyncSession,
+) -> dict:
+    if bim_model.metadata_json and bim_model.metadata_json.get("extracted_at"):
+        return bim_model.metadata_json
+    if not bim_model.storage_path:
+        raise HTTPException(status_code=400, detail="Model file not found in storage")
+    metadata = await extract_from_ifc(storage, bim_model.storage_path)
+    bim_model.metadata_json = metadata
+    await db.commit()
+    return metadata
+
+
+def is_ifc_file(filename: str) -> bool:
+    return filename.lower().endswith(".ifc")
 
 
 async def get_bim_model_or_404(
@@ -38,7 +59,7 @@ async def get_bim_model_or_404(
         raise HTTPException(status_code=404, detail="BIM model not found")
     if model.translation_status != "complete":
         raise HTTPException(status_code=400, detail="Model translation not complete")
-    if not model.urn:
+    if not is_ifc_file(model.filename) and not model.urn:
         raise HTTPException(status_code=400, detail="Model has no URN")
     return model
 
@@ -54,9 +75,13 @@ async def extract_bim_data(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
     aps: APSService = Depends(get_aps_service),
+    storage: StorageBackend = Depends(get_storage_backend),
 ):
     bim_model = await get_bim_model_or_404(project_id, model_id, db)
-    metadata = await extract_bim_metadata(aps, bim_model, db)
+    if is_ifc_file(bim_model.filename):
+        metadata = await get_or_extract_ifc(bim_model, storage, db)
+    else:
+        metadata = await extract_bim_metadata(aps, bim_model, db)
     return BimExtractionResponse(
         model_id=bim_model.id,
         extracted_at=metadata.get("extracted_at"),
@@ -78,11 +103,15 @@ async def refresh_extraction(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
     aps: APSService = Depends(get_aps_service),
+    storage: StorageBackend = Depends(get_storage_backend),
 ):
     bim_model = await get_bim_model_or_404(project_id, model_id, db)
     bim_model.metadata_json = None
     await db.flush()
-    metadata = await extract_bim_metadata(aps, bim_model, db)
+    if is_ifc_file(bim_model.filename):
+        metadata = await get_or_extract_ifc(bim_model, storage, db)
+    else:
+        metadata = await extract_bim_metadata(aps, bim_model, db)
     return BimExtractionResponse(
         model_id=bim_model.id,
         extracted_at=metadata.get("extracted_at"),

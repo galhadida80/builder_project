@@ -28,6 +28,7 @@ from app.services.storage_service import StorageBackend, generate_storage_path, 
 router = APIRouter()
 
 ALLOWED_EXTENSIONS = {".rvt", ".ifc", ".nwd", ".nwc", ".dwg"}
+IFC_EXTENSION = ".ifc"
 
 
 def get_aps_service(settings: Settings = Depends(get_settings)) -> APSService:
@@ -135,15 +136,19 @@ async def upload_bim_model(
     await storage.save_bytes(content, storage_path, content_type)
     bim_model.storage_path = storage_path
 
-    bucket_key = f"builderops-{str(project_id).replace('-', '')[:20]}"
-    object_key = f"{bim_model.id}/{filename}"
-
-    try:
-        await aps.ensure_bucket(bucket_key)
-        obj_details = await aps.upload_object(bucket_key, object_key, content, content_type)
-        bim_model.urn = obj_details.get("objectId", "")
-    except Exception:
+    if ext == IFC_EXTENSION:
         bim_model.urn = None
+        bim_model.translation_status = TranslationStatus.COMPLETE.value
+        bim_model.translation_progress = 100
+    else:
+        bucket_key = f"builderops-{str(project_id).replace('-', '')[:20]}"
+        object_key = f"{bim_model.id}/{filename}"
+        try:
+            await aps.ensure_bucket(bucket_key)
+            obj_details = await aps.upload_object(bucket_key, object_key, content, content_type)
+            bim_model.urn = obj_details.get("objectId", "")
+        except Exception:
+            bim_model.urn = None
 
     await db.commit()
     await db.refresh(bim_model, attribute_names=["uploaded_by"])
