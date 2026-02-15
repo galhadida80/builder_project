@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block header_content %}
+<h1 style="margin:0;color:#ffffff;font-size:24px;font-weight:700;">{{ title }}</h1>
+{% if project_name %}
+<p style="margin:8px 0 0;color:#bbdefb;font-size:14px;">{{ strings.project_label }}: {{ project_name }}</p>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<p style="margin:0 0 24px;color:#424242;font-size:15px;line-height:1.7;">{{ message }}</p>
+{% if action_url %}
+<div style="text-align:center;margin:24px 0;">
+<a href="{{ action_url }}" style="display:inline-block;background-color:#1565c0;color:#ffffff;text-decoration:none;padding:12px 32px;border-radius:6px;font-size:14px;font-weight:600;">{{ strings.cta }}</a>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block footer %}{{ strings.footer }}{% endblock %}

@@ -46,6 +46,18 @@ STRINGS = {
             "footer": ".זוהי הודעה אוטומטית מ-BuilderOps",
         },
     },
+    "notification": {
+        "en": {
+            "project_label": "Project",
+            "cta": "View in BuilderOps",
+            "footer": "This is an automated notification from BuilderOps.",
+        },
+        "he": {
+            "project_label": "פרויקט",
+            "cta": "צפה ב-BuilderOps",
+            "footer": "זוהי הודעה אוטומטית מ-BuilderOps.",
+        },
+    },
     "daily_summary": {
         "en": {
             "subject": "Daily Summary - {project_name} ({date})",
@@ -229,3 +241,24 @@ def render_daily_summary_email(
         align=align,
     )
     return subject, html
+
+
+def render_notification_email(
+    title: str, message: str, action_url: str, project_name: str = "", language: str = "en"
+) -> tuple[str, str]:
+    s = STRINGS["notification"].get(language, STRINGS["notification"]["en"])
+    direction = "rtl" if language == "he" else "ltr"
+    align = "right" if language == "he" else "left"
+
+    template = env.get_template("notification.html")
+    html = template.render(
+        title=title,
+        message=message,
+        action_url=action_url,
+        project_name=project_name,
+        strings=s,
+        lang=language,
+        direction=direction,
+        align=align,
+    )
+    return title, html

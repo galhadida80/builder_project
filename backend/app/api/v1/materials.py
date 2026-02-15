@@ -11,12 +11,14 @@ from app.core.security import get_current_user, verify_project_access
 from app.db.session import get_db
 from app.models.approval import ApprovalRequest, ApprovalStep
 from app.models.audit import AuditAction
+from app.models.contact import Contact
 from app.models.material import ApprovalStatus, Material
 from app.models.project import ProjectMember
 from app.models.user import User
 from app.schemas.approval import SubmitForApprovalRequest
 from app.schemas.material import MaterialCreate, MaterialResponse, MaterialUpdate
 from app.services.audit_service import create_audit_log, get_model_dict
+from app.services.notification_service import notify_contact
 from app.utils.localization import get_language_from_request, translate_message
 
 router = APIRouter()
@@ -191,6 +193,16 @@ async def submit_material_for_approval(
         approver_role="inspector", contact_id=body.inspector_contact_id
     )
     db.add_all([step1, step2])
+
+    consultant_result = await db.execute(select(Contact).where(Contact.id == body.consultant_contact_id))
+    consultant = consultant_result.scalar_one_or_none()
+    if consultant:
+        await notify_contact(
+            db, consultant, "approval",
+            f"Material awaiting your approval: {material.name}",
+            f"Material '{material.name}' has been submitted and requires your review.",
+            entity_type="material", entity_id=material.id,
+        )
 
     await create_audit_log(db, current_user, "material", material.id, AuditAction.STATUS_CHANGE,
                           project_id=project_id, old_values={"status": old_status},

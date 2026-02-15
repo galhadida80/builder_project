@@ -21,6 +21,7 @@ from app.models.project import ProjectMember
 from app.models.user import User
 from app.schemas.approval import ApprovalRequestResponse, ApprovalStepResponse
 from app.services.audit_service import create_audit_log
+from app.services.notification_service import notify_contact, notify_user
 from app.utils.localization import get_language_from_request, translate_message
 
 router = APIRouter()
@@ -166,9 +167,24 @@ async def process_approval_step(
         if next_step:
             approval_request.current_step = next_step.step_order
             approval_request.current_status = ApprovalStatus.UNDER_REVIEW.value
+            if next_step.contact_id:
+                contact_result = await db.execute(select(Contact).where(Contact.id == next_step.contact_id))
+                next_contact = contact_result.scalar_one_or_none()
+                if next_contact:
+                    await notify_contact(
+                        db, next_contact, "approval",
+                        f"{approval_request.entity_type.title()} ready for your review",
+                        f"A {approval_request.entity_type} approval is ready for your review.",
+                        entity_type=approval_request.entity_type, entity_id=approval_request.entity_id,
+                    )
         else:
             approval_request.current_status = ApprovalStatus.APPROVED.value
             await update_entity_status(db, approval_request.entity_type, approval_request.entity_id, ApprovalStatus.APPROVED.value)
+            await notify_approval_creator(
+                db, approval_request, project_id,
+                f"Your {approval_request.entity_type} has been approved",
+                f"Your {approval_request.entity_type} submission has been fully approved.",
+            )
 
     elif data.action == "reject":
         step.status = "rejected"
@@ -176,6 +192,12 @@ async def process_approval_step(
         step.comments = data.comments
         approval_request.current_status = ApprovalStatus.REJECTED.value
         await update_entity_status(db, approval_request.entity_type, approval_request.entity_id, ApprovalStatus.REJECTED.value)
+        comment_text = f" Comments: {data.comments}" if data.comments else ""
+        await notify_approval_creator(
+            db, approval_request, project_id,
+            f"Your {approval_request.entity_type} has been rejected",
+            f"Your {approval_request.entity_type} submission has been rejected.{comment_text}",
+        )
 
     elif data.action == "revision":
         step.status = "revision_requested"
@@ -183,6 +205,12 @@ async def process_approval_step(
         step.comments = data.comments
         approval_request.current_status = ApprovalStatus.REVISION_REQUESTED.value
         await update_entity_status(db, approval_request.entity_type, approval_request.entity_id, ApprovalStatus.REVISION_REQUESTED.value)
+        comment_text = f" Comments: {data.comments}" if data.comments else ""
+        await notify_approval_creator(
+            db, approval_request, project_id,
+            f"Revisions requested for your {approval_request.entity_type}",
+            f"Revisions have been requested for your {approval_request.entity_type} submission.{comment_text}",
+        )
 
     else:
         language = get_language_from_request(request)
@@ -198,6 +226,21 @@ async def process_approval_step(
 
     await db.refresh(step, ["approved_by"])
     return step
+
+
+async def notify_approval_creator(
+    db: AsyncSession, approval_request: ApprovalRequest, project_id: UUID, title: str, message: str
+) -> None:
+    if not approval_request.created_by_id:
+        return
+    result = await db.execute(select(User).where(User.id == approval_request.created_by_id))
+    creator = result.scalar_one_or_none()
+    if creator:
+        await notify_user(
+            db, creator.id, "approval", title, message,
+            entity_type=approval_request.entity_type, entity_id=approval_request.entity_id,
+            email=creator.email, language=creator.language or "en",
+        )
 
 
 async def update_entity_status(db: AsyncSession, entity_type: str, entity_id: UUID, status: str):
@@ -272,9 +315,24 @@ async def approve_request(
     if next_step:
         approval_request.current_step = next_step.step_order
         approval_request.current_status = ApprovalStatus.UNDER_REVIEW.value
+        if next_step.contact_id:
+            contact_result = await db.execute(select(Contact).where(Contact.id == next_step.contact_id))
+            next_contact = contact_result.scalar_one_or_none()
+            if next_contact:
+                await notify_contact(
+                    db, next_contact, "approval",
+                    f"{approval_request.entity_type.title()} ready for your review",
+                    f"A {approval_request.entity_type} approval is ready for your review.",
+                    entity_type=approval_request.entity_type, entity_id=approval_request.entity_id,
+                )
     else:
         approval_request.current_status = ApprovalStatus.APPROVED.value
         await update_entity_status(db, approval_request.entity_type, approval_request.entity_id, ApprovalStatus.APPROVED.value)
+        await notify_approval_creator(
+            db, approval_request, approval_request.project_id,
+            f"Your {approval_request.entity_type} has been approved",
+            f"Your {approval_request.entity_type} submission has been fully approved.",
+        )
 
     await db.commit()
     await db.refresh(approval_request, ["created_by", "steps"])
@@ -328,6 +386,12 @@ async def reject_request(
         step.comments = data.comments
     approval_request.current_status = ApprovalStatus.REJECTED.value
     await update_entity_status(db, approval_request.entity_type, approval_request.entity_id, ApprovalStatus.REJECTED.value)
+    comment_text = f" Comments: {data.comments}" if data and data.comments else ""
+    await notify_approval_creator(
+        db, approval_request, approval_request.project_id,
+        f"Your {approval_request.entity_type} has been rejected",
+        f"Your {approval_request.entity_type} submission has been rejected.{comment_text}",
+    )
 
     await db.commit()
     await db.refresh(approval_request, ["created_by", "steps"])

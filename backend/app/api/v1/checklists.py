@@ -36,6 +36,7 @@ from app.schemas.checklist import (
     ChecklistTemplateUpdate,
 )
 from app.services.audit_service import create_audit_log, get_model_dict
+from app.services.notification_service import notify_project_admins, notify_user
 
 router = APIRouter()
 
@@ -534,6 +535,14 @@ async def update_checklist_instance(
         attr = "extra_data" if key == "metadata" else key
         setattr(checklist_instance, attr, value)
 
+    if data.status == "completed" and old_values.get("status") != "completed":
+        await notify_project_admins(
+            db, project_id, "update",
+            f"Checklist completed: {checklist_instance.unit_identifier}",
+            f"Checklist '{checklist_instance.unit_identifier}' has been marked as completed.",
+            entity_type="checklist_instance", entity_id=checklist_instance.id,
+        )
+
     await create_audit_log(db, current_user, "checklist_instance", checklist_instance.id, AuditAction.UPDATE,
                           project_id=project_id, old_values=old_values, new_values=get_model_dict(checklist_instance))
 
@@ -658,6 +667,18 @@ async def update_checklist_item_response(
 
     if data.status and data.status != old_status:
         response.completed_by_id = current_user.id
+
+    if data.status == "rejected" and old_status != "rejected" and instance.created_by_id:
+        creator_result = await db.execute(select(User).where(User.id == instance.created_by_id))
+        creator = creator_result.scalar_one_or_none()
+        if creator:
+            await notify_user(
+                db, creator.id, "update",
+                f"Checklist item rejected: {instance.unit_identifier}",
+                f"A checklist item in '{instance.unit_identifier}' has been rejected.",
+                entity_type="checklist_instance", entity_id=instance.id,
+                email=creator.email, language=creator.language or "en",
+            )
 
     await create_audit_log(db, current_user, "checklist_item_response", response.id, AuditAction.UPDATE,
                           project_id=instance.project_id, old_values=old_values, new_values=get_model_dict(response))

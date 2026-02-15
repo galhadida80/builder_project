@@ -5,6 +5,7 @@ export {
   Autocomplete,
   Avatar,
   AvatarGroup,
+  Badge,
   BottomNavigation,
   BottomNavigationAction,
   Box,

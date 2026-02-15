@@ -6,8 +6,10 @@ import ProjectSelector from './ProjectSelector'
 import { useToast } from '../common/ToastProvider'
 import { ThemeToggle } from '../common/ThemeToggle'
 import { LanguageSwitcher } from '../common/LanguageSwitcher'
+import { NotificationsPanel } from '../notifications/NotificationsPanel'
+import { useNotifications } from '../../hooks/useNotifications'
 import { MenuIcon, NotificationsIcon, PersonIcon, SettingsIcon, LogoutIcon } from '@/icons'
-import { AppBar, Toolbar, Typography, IconButton, Avatar, Menu, MenuItem, Divider, ListItemIcon, Box } from '@/mui'
+import { AppBar, Toolbar, Typography, IconButton, Avatar, Badge, Menu, MenuItem, Divider, ListItemIcon, Box } from '@/mui'
 
 interface HeaderProps {
   user: User
@@ -24,7 +26,9 @@ export default memo(function Header({ user, currentProject, projects, onProjectC
   const navigate = useNavigate()
   const { showInfo } = useToast()
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
-  const [notificationAnchor, setNotificationAnchor] = useState<null | HTMLElement>(null)
+  const [notificationPanelOpen, setNotificationPanelOpen] = useState(false)
+
+  const { notifications, unreadCount, markAsRead, markAllAsRead, loadMore, hasMore, loading } = useNotifications()
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget)
@@ -32,14 +36,6 @@ export default memo(function Header({ user, currentProject, projects, onProjectC
 
   const handleMenuClose = () => {
     setAnchorEl(null)
-  }
-
-  const handleNotificationOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setNotificationAnchor(event.currentTarget)
-  }
-
-  const handleNotificationClose = () => {
-    setNotificationAnchor(null)
   }
 
   const getInitials = (name: string) => {
@@ -78,8 +74,10 @@ export default memo(function Header({ user, currentProject, projects, onProjectC
           <ThemeToggle />
           <LanguageSwitcher />
 
-          <IconButton aria-label={t('common.notifications')} onClick={handleNotificationOpen}>
-            <NotificationsIcon />
+          <IconButton aria-label={t('common.notifications')} onClick={() => setNotificationPanelOpen(true)}>
+            <Badge badgeContent={unreadCount} color="error">
+              <NotificationsIcon />
+            </Badge>
           </IconButton>
 
           <IconButton aria-label={t('common.userMenu')} onClick={handleMenuOpen} sx={{ ml: { xs: 0, sm: 1 } }}>
@@ -89,16 +87,17 @@ export default memo(function Header({ user, currentProject, projects, onProjectC
           </IconButton>
         </Box>
 
-        <Menu
-          anchorEl={notificationAnchor}
-          open={Boolean(notificationAnchor)}
-          onClose={handleNotificationClose}
-          PaperProps={{ sx: { width: 320, maxHeight: 400 } }}
-        >
-          <Box sx={{ px: 2, py: 1.5 }}>
-            <Typography variant="body2" color="text.secondary">{t('header.noNewNotifications')}</Typography>
-          </Box>
-        </Menu>
+        <NotificationsPanel
+          open={notificationPanelOpen}
+          onClose={() => setNotificationPanelOpen(false)}
+          notifications={notifications}
+          unreadCount={unreadCount}
+          onMarkAsRead={markAsRead}
+          onMarkAllAsRead={markAllAsRead}
+          onLoadMore={loadMore}
+          hasMore={hasMore}
+          loading={loading}
+        />
 
         <Menu
           anchorEl={anchorEl}
