@@ -646,17 +646,17 @@ async def update_checklist_item_response(
         raise HTTPException(status_code=404, detail="Checklist item response not found")
 
     old_values = get_model_dict(response)
-
-    for key, value in data.model_dump(exclude_unset=True).items():
-        setattr(response, key, value)
+    old_status = response.status
 
     instance_result = await db.execute(select(ChecklistInstance).where(ChecklistInstance.id == instance_id))
     instance = instance_result.scalar_one()
 
     await check_permission(Permission.EDIT, instance.project_id, current_user.id, db)
 
-    # Update completed_by if status changes
-    if data.status and response.status != data.status:
+    for key, value in data.model_dump(exclude_unset=True).items():
+        setattr(response, key, value)
+
+    if data.status and data.status != old_status:
         response.completed_by_id = current_user.id
 
     await create_audit_log(db, current_user, "checklist_item_response", response.id, AuditAction.UPDATE,
