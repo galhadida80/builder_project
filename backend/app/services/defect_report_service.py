@@ -43,6 +43,14 @@ STRINGS = {
     "no_defects": "לא נמצאו ליקויים",
     "page": "עמוד",
     "of": "מתוך",
+    "defect_types": {
+        "non_conformance": "אי התאמה",
+        "safety": "בטיחות",
+        "quality": "איכות",
+        "other": "אחר",
+    },
+    "checklist": "צ'קליסט",
+    "task_id": "מזהה משימה",
     "statuses": {
         "open": "לטיפול",
         "in_progress": "בטיפול",
@@ -121,6 +129,13 @@ async def load_defect_photos(
     return photos_by_defect
 
 
+def format_contact(contact) -> str:
+    name = contact.contact_name
+    if contact.company_name:
+        return f"{name} • {contact.company_name}"
+    return name
+
+
 def build_defect_context(defect: Defect, strings: dict, photos: list[str]) -> dict:
     s = strings
     area = defect.area
@@ -130,30 +145,35 @@ def build_defect_context(defect: Defect, strings: dict, photos: list[str]) -> di
         if area.floor_number is not None:
             location_parts.append(f"{s['floor']} {area.floor_number}")
         if hasattr(area, "area_code") and area.area_code:
-            location_parts.append(area.area_code)
+            location_parts.append(f"{s['apartment']} {area.area_code}")
 
-    assignee_names = []
+    assignee_labels = []
     if defect.assigned_contact:
-        assignee_names.append(defect.assigned_contact.contact_name)
+        assignee_labels.append(format_contact(defect.assigned_contact))
     for da in defect.assignees:
-        if da.contact and da.contact.contact_name not in assignee_names:
-            assignee_names.append(da.contact.contact_name)
+        if da.contact:
+            label = format_contact(da.contact)
+            if label not in assignee_labels:
+                assignee_labels.append(label)
+
+    checklist_name = "-"
+    if defect.checklist_instance and defect.checklist_instance.template:
+        checklist_name = defect.checklist_instance.template.name
 
     return {
         "number": defect.defect_number,
         "status": s["statuses"].get(defect.status, defect.status),
         "status_color": STATUS_COLORS.get(defect.status, "#757575"),
-        "severity": s["severities"].get(defect.severity, defect.severity),
-        "severity_color": SEVERITY_COLORS.get(defect.severity, "#757575"),
+        "defect_type": s["defect_types"].get(defect.defect_type, defect.defect_type),
         "category": s["categories"].get(defect.category, defect.category),
         "is_repeated": defect.is_repeated,
-        "location": " \u2022 ".join(location_parts) if location_parts else "-",
+        "location": " • ".join(location_parts) if location_parts else "-",
         "description": defect.description or "-",
-        "reporter": defect.reporter.contact_name if defect.reporter else "-",
-        "assignees": ", ".join(assignee_names) if assignee_names else "-",
-        "followup": defect.followup_contact.contact_name if defect.followup_contact else "-",
-        "updated_at": defect.updated_at.strftime("%d/%m/%Y") if defect.updated_at else "-",
-        "due_date": defect.due_date.strftime("%d/%m/%Y") if defect.due_date else "-",
+        "checklist": checklist_name,
+        "reporter": format_contact(defect.reporter) if defect.reporter else "-",
+        "assignees": ", ".join(assignee_labels) if assignee_labels else "-",
+        "followup": format_contact(defect.followup_contact) if defect.followup_contact else "-",
+        "updated_at": defect.updated_at.strftime("%H:%M %d/%m/%Y") if defect.updated_at else "-",
         "photos": photos,
     }
 
@@ -175,11 +195,6 @@ async def generate_defects_report_pdf(
         for d in defects
     ]
 
-    counts = {"open": 0, "in_progress": 0, "resolved": 0, "closed": 0}
-    for d in defects:
-        if d.status in counts:
-            counts[d.status] += 1
-
     template = env.get_template("defects_report.html")
     html_content = template.render(
         s=s,
@@ -189,7 +204,6 @@ async def generate_defects_report_pdf(
         project_code=getattr(project, "code", ""),
         report_date=today,
         total_count=len(defects),
-        counts=counts,
         defects=defect_items,
     )
 

@@ -19,14 +19,8 @@
   @page {
     size: A4;
     margin: 12mm 14mm 16mm 14mm;
-    @bottom-left {
-      content: "BuilderOps  |  {{ project_name }}";
-      font-family: "NotoHebrew", sans-serif;
-      font-size: 7.5pt;
-      color: #94A3B8;
-    }
     @bottom-right {
-      content: counter(page);
+      content: counter(page) " / " counter(pages);
       font-family: "NotoHebrew", sans-serif;
       font-size: 7.5pt;
       color: #94A3B8;
@@ -97,48 +91,31 @@
     width: 64px;
   }
 
-  /* ── SUMMARY BAR ── */
-  .summary-bar {
-    display: flex;
-    gap: 0;
-    margin: 20px 0 18px;
-    border: 1px solid #E2E8F0;
-    border-radius: 6px;
-    overflow: hidden;
+  /* ── TOTAL COUNT ── */
+  .total-count {
+    margin: 16px 0 20px;
+    font-size: 11pt;
+    font-weight: 600;
+    color: #475569;
   }
 
-  .summary-item {
-    flex: 1;
-    padding: 10px 14px;
-    text-align: center;
-    border-left: 1px solid #E2E8F0;
-  }
-
-  .summary-item:first-child { border-left: none; }
-
-  .summary-count {
-    font-size: 18pt;
+  .total-count span {
     font-weight: 700;
     color: #0F172A;
-    line-height: 1.2;
-  }
-
-  .summary-label {
-    font-size: 7.5pt;
-    color: #64748B;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    font-size: 13pt;
   }
 
   /* ── DEFECT CARD ── */
   .defect-card {
     border: 1px solid #E2E8F0;
     border-radius: 6px;
-    margin-bottom: 14px;
-    page-break-inside: avoid;
     overflow: hidden;
     background: #fff;
+    page-break-after: always;
+  }
+
+  .defect-card:last-child {
+    page-break-after: auto;
   }
 
   .card-top {
@@ -156,8 +133,15 @@
     gap: 6px;
   }
 
+  .task-id-label {
+    font-size: 8pt;
+    font-weight: 500;
+    color: #64748B;
+    margin-left: 4px;
+  }
+
   .defect-num {
-    font-size: 13pt;
+    font-size: 15pt;
     font-weight: 700;
     color: #0F172A;
     letter-spacing: -0.3px;
@@ -171,7 +155,6 @@
     font-weight: 700;
     color: #fff;
     letter-spacing: 0.3px;
-    text-transform: uppercase;
   }
 
   .badge-outline {
@@ -186,45 +169,48 @@
     letter-spacing: 0.2px;
   }
 
+  .badge-repeated {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 4px;
+    font-size: 7.5pt;
+    font-weight: 600;
+    background: #fff;
+    border: 1px solid #E53935;
+    color: #E53935;
+    letter-spacing: 0.2px;
+  }
+
   .card-top-left {
     display: flex;
     align-items: center;
     gap: 6px;
   }
 
-  /* ── CARD BODY: TWO-COLUMN GRID ── */
+  /* ── CARD BODY: SINGLE-COLUMN ROWS ── */
   .card-body {
     padding: 14px 16px;
   }
 
-  .fields-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0;
-  }
-
-  .field-cell {
-    width: 50%;
-    padding: 5px 8px 5px 0;
+  .field-row {
+    padding: 6px 0;
     border-bottom: 1px solid #F1F5F9;
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
   }
 
-  .field-cell:nth-child(even) {
-    padding: 5px 0 5px 8px;
-  }
-
-  .field-cell.full-width {
-    width: 100%;
-    padding: 5px 0;
+  .field-row:last-child {
+    border-bottom: none;
   }
 
   .field-label {
-    font-size: 7pt;
+    font-size: 8pt;
     font-weight: 600;
     color: #94A3B8;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 1px;
+    letter-spacing: 0.3px;
+    min-width: 90px;
+    flex-shrink: 0;
   }
 
   .field-value {
@@ -240,28 +226,19 @@
 
   /* ── PHOTOS ── */
   .photos-section {
-    margin-top: 10px;
+    margin-top: 12px;
     padding-top: 10px;
     border-top: 1px solid #F1F5F9;
   }
 
-  .photos-label {
-    font-size: 7pt;
-    font-weight: 600;
-    color: #94A3B8;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 8px;
-  }
-
   .photos-grid {
     display: flex;
-    gap: 8px;
+    gap: 10px;
   }
 
   .photo-thumb {
-    width: 170px;
-    height: 128px;
+    width: 220px;
+    height: 180px;
     object-fit: cover;
     border-radius: 4px;
     border: 1px solid #E2E8F0;
@@ -274,29 +251,6 @@
     color: #94A3B8;
     font-size: 13pt;
     font-weight: 500;
-  }
-
-  /* ── FOOTER ── */
-  .report-footer {
-    margin-top: 30px;
-    padding-top: 12px;
-    border-top: 2px solid #0F172A;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .footer-brand {
-    font-size: 8pt;
-    font-weight: 700;
-    color: #0F172A;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-  }
-
-  .footer-info {
-    font-size: 7.5pt;
-    color: #94A3B8;
   }
 </style>
 </head>
@@ -313,29 +267,8 @@
   <hr class="header-rule">
 </div>
 
-<!-- ═══ SUMMARY BAR ═══ -->
-<div class="summary-bar">
-  <div class="summary-item">
-    <div class="summary-count">{{ total_count }}</div>
-    <div class="summary-label">{{ s.total_tasks }}</div>
-  </div>
-  <div class="summary-item">
-    <div class="summary-count" style="color: #E53935;">{{ counts.open }}</div>
-    <div class="summary-label">{{ s.statuses.open }}</div>
-  </div>
-  <div class="summary-item">
-    <div class="summary-count" style="color: #FB8C00;">{{ counts.in_progress }}</div>
-    <div class="summary-label">{{ s.statuses.in_progress }}</div>
-  </div>
-  <div class="summary-item">
-    <div class="summary-count" style="color: #43A047;">{{ counts.resolved }}</div>
-    <div class="summary-label">{{ s.statuses.resolved }}</div>
-  </div>
-  <div class="summary-item">
-    <div class="summary-count" style="color: #64748B;">{{ counts.closed }}</div>
-    <div class="summary-label">{{ s.statuses.closed }}</div>
-  </div>
-</div>
+<!-- ═══ TOTAL COUNT ═══ -->
+<div class="total-count"><span>{{ total_count }}</span> {{ s.total_tasks }}</div>
 
 <!-- ═══ DEFECT CARDS ═══ -->
 {% if defects|length == 0 %}
@@ -346,61 +279,53 @@
 <div class="defect-card">
   <div class="card-top">
     <div class="card-top-right">
-      <span class="defect-num">#{{ d.number }}</span>
-      <span class="badge" style="background: {{ d.status_color }};">{{ d.status }}</span>
-      <span class="badge" style="background: {{ d.severity_color }};">{{ d.severity }}</span>
-      {% if d.is_repeated %}
-      <span class="badge-outline">{{ s.repeated_task }}</span>
-      {% endif %}
+      <span class="task-id-label">{{ s.task_id }}:</span>
+      <span class="defect-num">{{ d.number }}</span>
     </div>
     <div class="card-top-left">
+      {% if d.is_repeated %}
+      <span class="badge-repeated">{{ s.repeated_task }}</span>
+      {% endif %}
+      <span class="badge" style="background: {{ d.status_color }};">{{ d.status }}</span>
+      <span class="badge-outline">{{ d.defect_type }}</span>
       <span class="badge-outline">{{ d.category }}</span>
     </div>
   </div>
   <div class="card-body">
-    <!-- Description full width -->
-    <div class="fields-grid">
-      <div class="field-cell full-width">
-        <div class="field-label">{{ s.description }}</div>
-        <div class="field-value">{{ d.description }}</div>
-      </div>
+    <div class="field-row">
+      <div class="field-label">{{ s.location }}</div>
+      <div class="field-value{% if d.location == '-' %} muted{% endif %}">{{ d.location }}</div>
+    </div>
+    <div class="field-row">
+      <div class="field-label">{{ s.description }}</div>
+      <div class="field-value">{{ d.description }}</div>
+    </div>
+    <div class="field-row">
+      <div class="field-label">{{ s.checklist }}</div>
+      <div class="field-value{% if d.checklist == '-' %} muted{% endif %}">{{ d.checklist }}</div>
+    </div>
+    <div class="field-row">
+      <div class="field-label">{{ s.reporter }}</div>
+      <div class="field-value{% if d.reporter == '-' %} muted{% endif %}">{{ d.reporter }}</div>
+    </div>
+    <div class="field-row">
+      <div class="field-label">{{ s.assignees }}</div>
+      <div class="field-value{% if d.assignees == '-' %} muted{% endif %}">{{ d.assignees }}</div>
+    </div>
+    <div class="field-row">
+      <div class="field-label">{{ s.followup }}</div>
+      <div class="field-value{% if d.followup == '-' %} muted{% endif %}">{{ d.followup }}</div>
+    </div>
+    <div class="field-row">
+      <div class="field-label">{{ s.updated_at }}</div>
+      <div class="field-value{% if d.updated_at == '-' %} muted{% endif %}">{{ d.updated_at }}</div>
     </div>
 
-    <!-- Two-column fields -->
-    <div class="fields-grid">
-      <div class="field-cell">
-        <div class="field-label">{{ s.location }}</div>
-        <div class="field-value{% if d.location == '-' %} muted{% endif %}">{{ d.location }}</div>
-      </div>
-      <div class="field-cell">
-        <div class="field-label">{{ s.reporter }}</div>
-        <div class="field-value{% if d.reporter == '-' %} muted{% endif %}">{{ d.reporter }}</div>
-      </div>
-      <div class="field-cell">
-        <div class="field-label">{{ s.assignees }}</div>
-        <div class="field-value{% if d.assignees == '-' %} muted{% endif %}">{{ d.assignees }}</div>
-      </div>
-      <div class="field-cell">
-        <div class="field-label">{{ s.followup }}</div>
-        <div class="field-value{% if d.followup == '-' %} muted{% endif %}">{{ d.followup }}</div>
-      </div>
-      <div class="field-cell">
-        <div class="field-label">{{ s.due_date }}</div>
-        <div class="field-value{% if d.due_date == '-' %} muted{% endif %}">{{ d.due_date }}</div>
-      </div>
-      <div class="field-cell">
-        <div class="field-label">{{ s.updated_at }}</div>
-        <div class="field-value{% if d.updated_at == '-' %} muted{% endif %}">{{ d.updated_at }}</div>
-      </div>
-    </div>
-
-    <!-- Photos -->
     {% if d.photos %}
     <div class="photos-section">
-      <div class="photos-label">{{ s.photos }}</div>
       <div class="photos-grid">
         {% for photo in d.photos %}
-        <img class="photo-thumb" src="{{ photo }}" alt="{{ s.photos }}">
+        <img class="photo-thumb" src="{{ photo }}" alt="">
         {% endfor %}
       </div>
     </div>
@@ -408,12 +333,6 @@
   </div>
 </div>
 {% endfor %}
-
-<!-- ═══ FOOTER ═══ -->
-<div class="report-footer">
-  <div class="footer-brand">BUILDEROPS</div>
-  <div class="footer-info">{{ report_date }} | {{ project_name }}</div>
-</div>
 
 </body>
 </html>

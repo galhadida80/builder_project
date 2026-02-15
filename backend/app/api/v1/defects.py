@@ -13,6 +13,7 @@ from app.core.security import get_current_user, verify_project_access
 from app.db.session import get_db
 from app.models.audit import AuditAction
 from app.models.contact import Contact
+from app.models.checklist import ChecklistInstance
 from app.models.defect import Defect, DefectAssignee
 from app.models.project import Project
 from app.models.user import User
@@ -40,6 +41,7 @@ DEFECT_LOAD_OPTIONS = [
     selectinload(Defect.followup_contact),
     selectinload(Defect.created_by),
     selectinload(Defect.assignees).selectinload(DefectAssignee.contact),
+    selectinload(Defect.checklist_instance).selectinload(ChecklistInstance.template),
 ]
 
 
