@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.area import ConstructionArea
 from app.models.audit import AuditLog
+from app.models.defect import Defect
 from app.models.equipment import Equipment
 from app.models.equipment_template import EquipmentApprovalSubmission
 from app.models.inspection import Finding, Inspection
@@ -26,6 +27,7 @@ async def collect_project_daily_summary(
     material_stats = await _get_entity_day_stats(db, Material, project_id, day_start, day_end)
     inspection_stats = await _get_inspection_stats(db, project_id, day_start, day_end)
     rfi_stats = await _get_rfi_stats(db, project_id, day_start, day_end, summary_date)
+    defect_stats = await _get_defect_stats(db, project_id, day_start, day_end)
     pending_approvals = await _get_pending_approvals_count(db, project_id)
     upcoming_meetings = await _get_upcoming_meetings(db, project_id, summary_date)
     overall_progress = await _get_overall_progress(db, project_id)
@@ -38,6 +40,8 @@ async def collect_project_daily_summary(
         or rfi_stats["opened"] > 0
         or rfi_stats["answered"] > 0
         or rfi_stats["closed"] > 0
+        or defect_stats["new"] > 0
+        or defect_stats["resolved"] > 0
     )
 
     return {
@@ -48,6 +52,7 @@ async def collect_project_daily_summary(
         "materials": material_stats,
         "inspections": inspection_stats,
         "rfis": rfi_stats,
+        "defects": defect_stats,
         "pending_approvals": pending_approvals,
         "upcoming_meetings": upcoming_meetings,
         "overall_progress": overall_progress,
@@ -192,6 +197,44 @@ async def _get_rfi_stats(
         "answered": answered.scalar() or 0,
         "closed": closed.scalar() or 0,
         "overdue": overdue.scalar() or 0,
+    }
+
+
+async def _get_defect_stats(
+    db: AsyncSession, project_id: uuid.UUID, day_start: datetime, day_end: datetime
+) -> dict:
+    new_count = await db.execute(
+        select(func.count())
+        .select_from(Defect)
+        .where(
+            Defect.project_id == project_id,
+            Defect.created_at >= day_start,
+            Defect.created_at < day_end,
+        )
+    )
+    resolved_count = await db.execute(
+        select(func.count())
+        .select_from(Defect)
+        .where(
+            Defect.project_id == project_id,
+            Defect.status == "resolved",
+            Defect.resolved_at >= day_start,
+            Defect.resolved_at < day_end,
+        )
+    )
+    critical_open = await db.execute(
+        select(func.count())
+        .select_from(Defect)
+        .where(
+            Defect.project_id == project_id,
+            Defect.severity == "critical",
+            Defect.status.in_(["open", "in_progress"]),
+        )
+    )
+    return {
+        "new": new_count.scalar() or 0,
+        "resolved": resolved_count.scalar() or 0,
+        "critical_open": critical_open.scalar() or 0,
     }
 
 

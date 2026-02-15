@@ -586,3 +586,71 @@ export interface ContactGroup {
   createdAt: string
   updatedAt: string
 }
+
+export type DefectStatus = 'open' | 'in_progress' | 'resolved' | 'closed'
+export type DefectSeverity = 'low' | 'medium' | 'high' | 'critical'
+export type DefectCategory =
+  | 'concrete_structure' | 'wet_room_waterproofing' | 'plaster' | 'roof'
+  | 'painting' | 'plumbing' | 'flooring' | 'fire_passage_sealing'
+  | 'roof_waterproofing' | 'building_general' | 'moisture' | 'waterproofing'
+  | 'hvac' | 'lighting' | 'solar_system' | 'other'
+
+export interface DefectContactBrief {
+  id: string
+  contactName: string
+  companyName?: string
+  email?: string
+  phone?: string
+}
+
+export interface DefectAreaBrief {
+  id: string
+  name: string
+  areaCode?: string
+  floorNumber?: number
+}
+
+export interface DefectAssignee {
+  id: string
+  contactId: string
+  contact?: DefectContactBrief
+}
+
+export interface Defect {
+  id: string
+  projectId: string
+  defectNumber: number
+  category: DefectCategory
+  defectType: string
+  description: string
+  areaId?: string
+  status: DefectStatus
+  severity: DefectSeverity
+  isRepeated: boolean
+  dueDate?: string
+  resolvedAt?: string
+  reporterId?: string
+  assignedContactId?: string
+  followupContactId?: string
+  checklistInstanceId?: string
+  createdById: string
+  createdAt: string
+  updatedAt: string
+  area?: DefectAreaBrief
+  reporter?: DefectContactBrief
+  assignedContact?: DefectContactBrief
+  followupContact?: DefectContactBrief
+  createdBy?: User
+  assignees: DefectAssignee[]
+}
+
+export interface DefectSummary {
+  total: number
+  openCount: number
+  inProgressCount: number
+  resolvedCount: number
+  closedCount: number
+  criticalCount: number
+  highCount: number
+  byCategory: Record<string, number>
+}

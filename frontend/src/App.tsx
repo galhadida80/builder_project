@@ -35,6 +35,8 @@ import AdminUsersPage from './pages/AdminUsersPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
 import { lazy, Suspense } from 'react'
 import ChecklistsPage from './pages/ChecklistsPage'
+import DefectsPage from './pages/DefectsPage'
+import DefectDetailPage from './pages/DefectDetailPage'
 
 const BIMPage = lazy(() => import('./pages/BIMPage'))
 
@@ -85,6 +87,8 @@ function AppRoutes() {
               <Route path="rfis" element={<RFIPage />} />
               <Route path="rfis/:rfiId" element={<RFIDetailPage />} />
               <Route path="checklists" element={<ChecklistsPage />} />
+              <Route path="defects" element={<DefectsPage />} />
+              <Route path="defects/:defectId" element={<DefectDetailPage />} />
               <Route path="bim" element={<Suspense fallback={null}><BIMPage /></Suspense>} />
             </Route>
 

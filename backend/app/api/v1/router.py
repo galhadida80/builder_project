@@ -16,6 +16,7 @@ from app.api.v1 import (
     contact_groups,
     contacts,
     daily_summary,
+    defects,
     document_analysis,
     document_reviews,
     equipment,
@@ -65,3 +66,4 @@ api_router.include_router(admin.router, prefix="/admin", tags=["admin"])
 api_router.include_router(daily_summary.router, prefix="/tasks", tags=["tasks"])
 api_router.include_router(bim.router, tags=["bim"])
 api_router.include_router(bim_extract.router, tags=["bim_extract"])
+api_router.include_router(defects.router, tags=["defects"])

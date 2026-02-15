@@ -15,6 +15,7 @@ from app.models.checklist import (
 )
 from app.models.contact import Contact
 from app.models.contact_group import ContactGroup, ContactGroupMember
+from app.models.defect import Defect, DefectAssignee
 from app.models.document_analysis import DocumentAnalysis
 from app.models.document_review import DocumentComment, DocumentReview, ReviewStatus
 from app.models.equipment import Equipment, EquipmentChecklist
@@ -96,4 +97,6 @@ __all__ = [
     "AutodeskConnection",
     "ContactGroup",
     "ContactGroupMember",
+    "Defect",
+    "DefectAssignee",
 ]

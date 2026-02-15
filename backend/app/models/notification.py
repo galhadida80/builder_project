@@ -15,6 +15,7 @@ from app.db.session import Base
 class NotificationCategory(str, Enum):
     APPROVAL = "approval"
     INSPECTION = "inspection"
+    DEFECT = "defect"
     UPDATE = "update"
     GENERAL = "general"
 
