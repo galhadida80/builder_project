@@ -459,6 +459,7 @@ export default function EquipmentPage() {
         anchor="right"
         open={drawerOpen}
         onClose={handleCloseDrawer}
+        sx={{ zIndex: 1400 }}
         PaperProps={{ sx: { width: { xs: '100%', sm: 480 }, borderRadius: '16px 0 0 16px' } }}
       >
         {selectedEquipment && (

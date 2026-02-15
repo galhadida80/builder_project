@@ -382,6 +382,7 @@ export default function MeetingsPage() {
         anchor="right"
         open={detailsOpen}
         onClose={() => setDetailsOpen(false)}
+        sx={{ zIndex: 1400 }}
         PaperProps={{ sx: { width: { xs: '100%', sm: 420 }, borderRadius: '16px 0 0 16px' } }}
       >
         {selectedMeeting && (

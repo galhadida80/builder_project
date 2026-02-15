@@ -48,7 +48,7 @@ export default memo(function Header({ user, currentProject, projects, onProjectC
       color="inherit"
       elevation={0}
       sx={{
-        zIndex: (theme) => theme.zIndex.drawer + 1,
+        zIndex: 1201,
         borderBottom: '1px solid',
         borderColor: 'divider',
         bgcolor: 'background.paper',
@@ -56,10 +56,10 @@ export default memo(function Header({ user, currentProject, projects, onProjectC
         width: { xs: '100%', md: 'calc(100% - 260px)' },
       }}
     >
-      <Toolbar sx={{ justifyContent: 'space-between', px: { xs: 1, sm: 2 }, gap: { xs: 0.5, sm: 1 }, minWidth: 0 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 2 }, minWidth: 0, flex: 1, overflow: 'hidden' }}>
+      <Toolbar sx={{ justifyContent: 'space-between', px: { xs: 0.5, sm: 2 }, gap: 0.5, minHeight: { xs: 56, sm: 64 }, minWidth: 0 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 0, flex: 1, overflow: 'hidden' }}>
           {isMobile && (
-            <IconButton aria-label={t('common.openNavMenu')} onClick={onMenuToggle} edge="start" sx={{ flexShrink: 0 }}>
+            <IconButton aria-label={t('common.openNavMenu')} onClick={onMenuToggle} edge="start" size="small" sx={{ flexShrink: 0 }}>
               <MenuIcon />
             </IconButton>
           )}
@@ -70,20 +70,20 @@ export default memo(function Header({ user, currentProject, projects, onProjectC
           />
         </Box>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0, sm: 0.5 }, flexShrink: 0 }}>
-          <Box sx={{ display: { xs: 'none', sm: 'flex' }, alignItems: 'center' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0, flexShrink: 0 }}>
+          <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center' }}>
             <ThemeToggle />
             <LanguageSwitcher />
           </Box>
 
-          <IconButton aria-label={t('common.notifications')} onClick={() => setNotificationPanelOpen(true)} size={isMobile ? 'small' : 'medium'}>
+          <IconButton aria-label={t('common.notifications')} onClick={() => setNotificationPanelOpen(true)} size="small">
             <Badge badgeContent={unreadCount} color="error">
-              <NotificationsIcon fontSize={isMobile ? 'small' : 'medium'} />
+              <NotificationsIcon fontSize="small" />
             </Badge>
           </IconButton>
 
-          <IconButton aria-label={t('common.userMenu')} onClick={handleMenuOpen} sx={{ ml: { xs: 0, sm: 0.5 } }}>
-            <Avatar sx={{ width: { xs: 30, sm: 36 }, height: { xs: 30, sm: 36 }, bgcolor: 'primary.main', fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+          <IconButton aria-label={t('common.userMenu')} onClick={handleMenuOpen} size="small">
+            <Avatar sx={{ width: 30, height: 30, bgcolor: 'primary.main', fontSize: '0.75rem' }}>
               {getInitials(user.fullName || user.email)}
             </Avatar>
           </IconButton>
@@ -112,13 +112,11 @@ export default memo(function Header({ user, currentProject, projects, onProjectC
             <Typography variant="caption" color="text.secondary">{user.email}</Typography>
           </Box>
           <Divider />
-          {isMobile && (
-            <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1, py: 1, px: 2 }}>
-              <ThemeToggle />
-              <LanguageSwitcher />
-            </Box>
-          )}
-          {isMobile && <Divider />}
+          <Box sx={{ display: { xs: 'flex', md: 'none' }, justifyContent: 'center', gap: 1, py: 1, px: 2 }}>
+            <ThemeToggle />
+            <LanguageSwitcher />
+          </Box>
+          <Divider sx={{ display: { xs: 'block', md: 'none' } }} />
           <MenuItem onClick={() => { handleMenuClose(); navigate('/profile'); }}>
             <ListItemIcon><PersonIcon fontSize="small" /></ListItemIcon>
             {t('header.profile')}

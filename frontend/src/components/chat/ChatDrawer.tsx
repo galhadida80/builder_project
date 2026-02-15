@@ -237,6 +237,7 @@ export default function ChatDrawer({ open, onClose, projectId }: ChatDrawerProps
       open={open}
       onClose={onClose}
       sx={{
+        zIndex: 1400,
         '& .MuiDrawer-paper': {
           width: isMobile ? '100vw' : DRAWER_WIDTH,
           maxWidth: '100vw',

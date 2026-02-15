@@ -27,7 +27,7 @@ export default function ProjectSelector({ projects, currentProject, onProjectCha
   }
 
   return (
-    <FormControl size="small" sx={{ minWidth: { xs: 0, sm: 200, md: 280 }, maxWidth: { xs: 140, sm: 200, md: 300 }, width: '100%' }}>
+    <FormControl size="small" sx={{ minWidth: { xs: 100, sm: 200, md: 280 }, maxWidth: { xs: 160, sm: 200, md: 300 }, width: '100%' }}>
       <Select
         value={currentProject?.id || ''}
         onChange={handleChange}

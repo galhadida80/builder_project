@@ -670,6 +670,7 @@ export default function ChecklistsPage() {
         anchor="right"
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
+        sx={{ zIndex: 1400 }}
         PaperProps={{ sx: { width: { xs: '100vw', sm: 540 }, maxWidth: '100vw' } }}
       >
         {selectedInstance && selectedTemplate && (

@@ -282,6 +282,7 @@ export default memo(function Sidebar({ projectId, mobileOpen = false, onMobileCl
         ModalProps={{ keepMounted: true }}
         sx={{
           display: { xs: 'block', md: 'none' },
+          zIndex: 1400,
           '& .MuiDrawer-paper': {
             width: DRAWER_WIDTH,
             boxSizing: 'border-box',

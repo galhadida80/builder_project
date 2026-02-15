@@ -18,6 +18,7 @@ interface NotificationsPanelProps {
 }
 
 const StyledDrawer = styled(Drawer)(({ theme }) => ({
+  zIndex: 1400,
   '& .MuiDrawer-paper': {
     width: 400,
     maxWidth: '100vw',
