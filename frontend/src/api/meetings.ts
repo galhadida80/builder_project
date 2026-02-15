@@ -4,21 +4,21 @@ import type { Meeting } from '../types'
 interface MeetingCreate {
   title: string
   description?: string
-  meetingType?: string
+  meeting_type?: string
   location?: string
-  scheduledDate: string
-  scheduledTime?: string
+  scheduled_date: string
+  scheduled_time?: string
 }
 
 interface MeetingUpdate {
   title?: string
   description?: string
-  meetingType?: string
+  meeting_type?: string
   location?: string
-  scheduledDate?: string
-  scheduledTime?: string
+  scheduled_date?: string
+  scheduled_time?: string
   summary?: string
-  actionItems?: Array<{ id: string; description: string; isCompleted: boolean }>
+  action_items?: Array<{ id: string; description: string; assignee_id?: string; due_date?: string; is_completed: boolean }>
   status?: string
 }
 

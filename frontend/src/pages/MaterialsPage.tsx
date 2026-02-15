@@ -756,7 +756,7 @@ export default function MaterialsPage() {
             required
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            error={!!errors.name || formData.name.length >= VALIDATION.MAX_NAME_LENGTH}
+            error={!!errors.name || formData.name.length > VALIDATION.MAX_NAME_LENGTH}
             helperText={errors.name || (formData.name.length > 0 ? `${formData.name.length}/${VALIDATION.MAX_NAME_LENGTH}` : undefined)}
             inputProps={{ maxLength: VALIDATION.MAX_NAME_LENGTH }}
           />
@@ -982,7 +982,7 @@ export default function MaterialsPage() {
             rows={2}
             value={formData.notes}
             onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-            error={!!errors.notes || formData.notes.length >= VALIDATION.MAX_NOTES_LENGTH}
+            error={!!errors.notes || formData.notes.length > VALIDATION.MAX_NOTES_LENGTH}
             helperText={errors.notes || (formData.notes.length > 0 ? `${formData.notes.length}/${VALIDATION.MAX_NOTES_LENGTH}` : undefined)}
           />
 

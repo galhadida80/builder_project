@@ -87,13 +87,18 @@ export default function MeetingsPage() {
   const handleOpenEdit = (meeting: Meeting) => {
     setEditingMeeting(meeting)
     const startDate = new Date(meeting.scheduledDate)
+    const year = startDate.getFullYear()
+    const month = String(startDate.getMonth() + 1).padStart(2, '0')
+    const day = String(startDate.getDate()).padStart(2, '0')
+    const hours = String(startDate.getHours()).padStart(2, '0')
+    const minutes = String(startDate.getMinutes()).padStart(2, '0')
     setFormData({
       title: meeting.title,
       meetingType: meeting.meetingType || '',
       description: meeting.description || '',
       location: meeting.location || '',
-      date: startDate.toISOString().split('T')[0],
-      startTime: startDate.toTimeString().slice(0, 5),
+      date: `${year}-${month}-${day}`,
+      startTime: `${hours}:${minutes}`,
       endTime: ''
     })
     setErrors({})
@@ -114,23 +119,23 @@ export default function MeetingsPage() {
 
     setSaving(true)
     try {
-      const scheduledDate = `${formData.date}T${formData.startTime}:00Z`
+      const scheduled_date = `${formData.date}T${formData.startTime}:00`
       if (editingMeeting) {
         await meetingsApi.update(projectId, editingMeeting.id, {
           title: formData.title,
-          meetingType: formData.meetingType || undefined,
+          meeting_type: formData.meetingType || undefined,
           description: formData.description || undefined,
           location: formData.location || undefined,
-          scheduledDate
+          scheduled_date
         })
         showSuccess(t('meetings.updatedSuccessfully'))
       } else {
         await meetingsApi.create(projectId, {
           title: formData.title,
-          meetingType: formData.meetingType || undefined,
+          meeting_type: formData.meetingType || undefined,
           description: formData.description || undefined,
           location: formData.location || undefined,
-          scheduledDate
+          scheduled_date
         })
         showSuccess(t('meetings.scheduledSuccessfully'))
       }

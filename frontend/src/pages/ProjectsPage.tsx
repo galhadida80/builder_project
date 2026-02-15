@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Card, KPICard } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
@@ -21,6 +21,7 @@ import { Box, Typography, Menu, MenuItem, IconButton, Skeleton, Chip } from '@/m
 export default function ProjectsPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   const { showError, showSuccess } = useToast()
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
@@ -47,6 +48,13 @@ export default function ProjectsPage() {
   useEffect(() => {
     loadProjects()
   }, [])
+
+  useEffect(() => {
+    if (searchParams.get('new') === 'true' && !loading) {
+      handleOpenCreate()
+      setSearchParams({}, { replace: true })
+    }
+  }, [loading, searchParams])
 
   const loadProjects = async () => {
     try {
@@ -449,7 +457,7 @@ export default function ProjectsPage() {
             required
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            error={!!errors.name || formData.name.length >= VALIDATION.MAX_NAME_LENGTH}
+            error={!!errors.name || formData.name.length > VALIDATION.MAX_NAME_LENGTH}
             helperText={errors.name || (formData.name.length > 0 ? `${formData.name.length}/${VALIDATION.MAX_NAME_LENGTH}` : undefined)}
             inputProps={{ maxLength: VALIDATION.MAX_NAME_LENGTH }}
           />
@@ -500,8 +508,8 @@ export default function ProjectsPage() {
               InputLabelProps={{ shrink: true }}
               value={formData.estimatedEndDate}
               onChange={(e) => setFormData({ ...formData, estimatedEndDate: e.target.value })}
-              error={!!errors.endDate}
-              helperText={errors.endDate}
+              error={!!errors.estimatedEndDate}
+              helperText={errors.estimatedEndDate}
             />
           </Box>
         </Box>
