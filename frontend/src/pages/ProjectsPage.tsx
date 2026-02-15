@@ -11,6 +11,7 @@ import { Tabs, SegmentedTabs } from '../components/ui/Tabs'
 import { EmptyState } from '../components/ui/EmptyState'
 import { ProgressBar } from '../components/ui/ProgressBar'
 import { projectsApi } from '../api/projects'
+import { useProject } from '../contexts/ProjectContext'
 import type { Project } from '../types'
 import { validateProjectForm, hasErrors, VALIDATION, type ValidationError } from '../utils/validation'
 import { parseValidationErrors } from '../utils/apiErrors'
@@ -23,8 +24,7 @@ export default function ProjectsPage() {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const { showError, showSuccess } = useToast()
-  const [projects, setProjects] = useState<Project[]>([])
-  const [loading, setLoading] = useState(true)
+  const { projects, projectsLoading: loading, refreshProjects } = useProject()
   const [search, setSearch] = useState('')
   const [openDialog, setOpenDialog] = useState(false)
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
@@ -46,27 +46,11 @@ export default function ProjectsPage() {
   })
 
   useEffect(() => {
-    loadProjects()
-  }, [])
-
-  useEffect(() => {
     if (searchParams.get('new') === 'true' && !loading) {
       handleOpenCreate()
       setSearchParams({}, { replace: true })
     }
   }, [loading, searchParams])
-
-  const loadProjects = async () => {
-    try {
-      setLoading(true)
-      const data = await projectsApi.list()
-      setProjects(data)
-    } catch {
-      showError(t('pages.projects.failedToLoad'))
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const resetForm = () => {
     setFormData({ name: '', code: '', description: '', address: '', startDate: '', estimatedEndDate: '' })
@@ -127,7 +111,7 @@ export default function ProjectsPage() {
         showSuccess(t('pages.projects.createSuccess'))
       }
       handleCloseDialog()
-      loadProjects()
+      refreshProjects()
     } catch (err: unknown) {
       const serverErrors = parseValidationErrors(err)
       if (Object.keys(serverErrors).length > 0) {
@@ -161,7 +145,7 @@ export default function ProjectsPage() {
       showSuccess(t('pages.projects.deleteSuccess'))
       setDeleteDialogOpen(false)
       setProjectToDelete(null)
-      loadProjects()
+      refreshProjects()
     } catch {
       showError(t('pages.projects.failedToDelete'))
     }

@@ -1,13 +1,11 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Outlet, useParams, useNavigate } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import Header from './Header'
 import ChatDrawer from '../chat/ChatDrawer'
-import { projectsApi } from '../../api/projects'
 import { useAuth } from '../../contexts/AuthContext'
 import { useProject } from '../../contexts/ProjectContext'
-import type { Project } from '../../types'
 import { SmartToyIcon } from '@/icons'
 import { Box, Toolbar, CircularProgress, Fab, useMediaQuery } from '@/mui'
 import { useTheme } from '@/mui'
@@ -17,9 +15,7 @@ export default function Layout() {
   const { projectId } = useParams()
   const navigate = useNavigate()
   const { user: currentUser, logout } = useAuth()
-  const { setSelectedProjectId } = useProject()
-  const [projects, setProjects] = useState<Project[]>([])
-  const [loading, setLoading] = useState(true)
+  const { setSelectedProjectId, projects, projectsLoading } = useProject()
   const [chatOpen, setChatOpen] = useState(false)
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false)
   const theme = useTheme()
@@ -35,21 +31,6 @@ export default function Layout() {
     }
   }, [projectId, setSelectedProjectId])
 
-  useEffect(() => {
-    loadProjects()
-  }, [])
-
-  const loadProjects = async () => {
-    try {
-      const data = await projectsApi.list()
-      setProjects(data)
-    } catch (error) {
-      console.error('Failed to load projects:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
   const currentProject = projects.find(p => p.id === projectId)
 
   const handleProjectChange = useCallback((newProjectId: string) => {
@@ -64,7 +45,7 @@ export default function Layout() {
   const handleChatClose = useCallback(() => setChatOpen(false), [])
   const handleMobileClose = useCallback(() => setMobileDrawerOpen(false), [])
 
-  if (loading || !currentUser) {
+  if (projectsLoading || !currentUser) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100dvh' }}>
         <CircularProgress />
