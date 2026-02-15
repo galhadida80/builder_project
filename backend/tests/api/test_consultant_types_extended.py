@@ -96,73 +96,71 @@ class TestCreate:
 
 
 class TestList:
-    async def test_empty(self, client: AsyncClient):
-        assert (await client.get(API)).status_code == 200 and (await client.get(API)).json() == []
+    async def test_empty(self, admin_client: AsyncClient):
+        assert (await admin_client.get(API)).status_code == 200 and (await admin_client.get(API)).json() == []
 
-    async def test_returns_all(self, admin_client: AsyncClient, client: AsyncClient):
+    async def test_returns_all(self, admin_client: AsyncClient):
         await api_create(admin_client, name="Alpha", name_he="אלפא")
         await api_create(admin_client, name="Beta", name_he="בטא")
-        assert len((await client.get(API)).json()) == 2
+        assert len((await admin_client.get(API)).json()) == 2
 
-    async def test_ordered_by_name(self, admin_client: AsyncClient, client: AsyncClient):
+    async def test_ordered_by_name(self, admin_client: AsyncClient):
         await api_create(admin_client, name="Zebra", name_he="זברה")
         await api_create(admin_client, name="Apple", name_he="תפוח")
-        names = [c["name"] for c in (await client.get(API)).json()]
+        names = [c["name"] for c in (await admin_client.get(API)).json()]
         assert names == sorted(names)
 
-    async def test_no_auth_required(self, admin_client: AsyncClient, client: AsyncClient):
-        await api_create(admin_client)
-        assert (await client.get(API)).status_code == 200
+    async def test_unauthenticated(self, client: AsyncClient):
+        assert (await client.get(API)).status_code in (401, 403)
 
-    async def test_json_array(self, client: AsyncClient):
-        r = await client.get(API)
+    async def test_json_array(self, admin_client: AsyncClient):
+        r = await admin_client.get(API)
         assert isinstance(r.json(), list) and "application/json" in r.headers["content-type"]
 
-    async def test_after_create(self, admin_client: AsyncClient, client: AsyncClient):
+    async def test_after_create(self, admin_client: AsyncClient):
         await api_create(admin_client, name="New One", name_he="חדש אחד")
-        assert "New One" in [c["name"] for c in (await client.get(API)).json()]
+        assert "New One" in [c["name"] for c in (await admin_client.get(API)).json()]
 
-    async def test_after_delete(self, admin_client: AsyncClient, client: AsyncClient):
+    async def test_after_delete(self, admin_client: AsyncClient):
         ct_id = (await api_create(admin_client, name="ToDelete", name_he="למחיקה"))["id"]
         await admin_client.delete(url(ct_id))
-        assert ct_id not in [c["id"] for c in (await client.get(API)).json()]
+        assert ct_id not in [c["id"] for c in (await admin_client.get(API)).json()]
 
-    async def test_multiple_categories(self, admin_client: AsyncClient, client: AsyncClient):
+    async def test_multiple_categories(self, admin_client: AsyncClient):
         await api_create(admin_client, name="TypeA", name_he="סוג א", category="safety")
         await api_create(admin_client, name="TypeB", name_he="סוג ב", category="mep")
-        cats = {c["category"] for c in (await client.get(API)).json()}
+        cats = {c["category"] for c in (await admin_client.get(API)).json()}
         assert "safety" in cats and "mep" in cats
 
 
 class TestGet:
-    async def test_existing(self, admin_client: AsyncClient, client: AsyncClient):
+    async def test_existing(self, admin_client: AsyncClient):
         d = await api_create(admin_client, name="Specific", name_he="ספציפי")
-        r = await client.get(url(d["id"]))
+        r = await admin_client.get(url(d["id"]))
         assert r.status_code == 200 and r.json()["name"] == "Specific"
 
-    async def test_all_fields(self, admin_client: AsyncClient, client: AsyncClient):
+    async def test_all_fields(self, admin_client: AsyncClient):
         d = await api_create(admin_client)
         for f in ("id", "name", "name_he", "category", "created_at", "updated_at"):
-            assert f in (await client.get(url(d["id"]))).json()
+            assert f in (await admin_client.get(url(d["id"]))).json()
 
-    async def test_not_found(self, client: AsyncClient):
-        r = await client.get(url(FAKE_ID))
+    async def test_not_found(self, admin_client: AsyncClient):
+        r = await admin_client.get(url(FAKE_ID))
         assert r.status_code == 404 and "not found" in r.json()["detail"].lower()
 
-    async def test_invalid_uuid(self, client: AsyncClient):
-        assert (await client.get(url("not-a-uuid"))).status_code == 422
+    async def test_invalid_uuid(self, admin_client: AsyncClient):
+        assert (await admin_client.get(url("not-a-uuid"))).status_code == 422
 
-    async def test_no_auth_required(self, admin_client: AsyncClient, client: AsyncClient):
+    async def test_unauthenticated(self, client: AsyncClient):
+        assert (await client.get(url(FAKE_ID))).status_code in (401, 403)
+
+    async def test_valid_uuid_in_response(self, admin_client: AsyncClient):
         d = await api_create(admin_client)
-        assert (await client.get(url(d["id"]))).status_code == 200
+        uuid.UUID((await admin_client.get(url(d["id"]))).json()["id"])
 
-    async def test_valid_uuid_in_response(self, admin_client: AsyncClient, client: AsyncClient):
-        d = await api_create(admin_client)
-        uuid.UUID((await client.get(url(d["id"]))).json()["id"])
-
-    async def test_matches_create(self, admin_client: AsyncClient, client: AsyncClient):
+    async def test_matches_create(self, admin_client: AsyncClient):
         c = await api_create(admin_client, name="Match", name_he="התאם")
-        g = (await client.get(url(c["id"]))).json()
+        g = (await admin_client.get(url(c["id"]))).json()
         assert c["id"] == g["id"] and c["name"] == g["name"] and c["category"] == g["category"]
 
 
