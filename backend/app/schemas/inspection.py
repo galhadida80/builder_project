@@ -20,9 +20,10 @@ from app.schemas.user import UserResponse
 # InspectionConsultantType Schemas
 class InspectionConsultantTypeBase(BaseModel):
     name: str = Field(min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
-    description: str | None = Field(default=None, max_length=MAX_DESCRIPTION_LENGTH)
+    name_he: str = Field(min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
+    category: str | None = Field(default=None, max_length=100)
 
-    @field_validator('name', 'description', mode='before')
+    @field_validator('name', 'name_he', mode='before')
     @classmethod
     def sanitize_text(cls, v: str | None) -> str | None:
         return sanitize_string(v)
@@ -34,9 +35,10 @@ class InspectionConsultantTypeCreate(InspectionConsultantTypeBase):
 
 class InspectionConsultantTypeUpdate(BaseModel):
     name: str | None = Field(default=None, min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
-    description: str | None = Field(default=None, max_length=MAX_DESCRIPTION_LENGTH)
+    name_he: str | None = Field(default=None, min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
+    category: str | None = Field(default=None, max_length=100)
 
-    @field_validator('name', 'description', mode='before')
+    @field_validator('name', 'name_he', mode='before')
     @classmethod
     def sanitize_text(cls, v: str | None) -> str | None:
         return sanitize_string(v)
@@ -58,7 +60,8 @@ class InspectionStageResponse(BaseModel):
 class InspectionConsultantTypeResponse(BaseModel):
     id: UUID
     name: str
-    description: str | None = None
+    name_he: str
+    category: str | None = None
     created_at: datetime
     updated_at: datetime
     stages: list[InspectionStageResponse] = []
