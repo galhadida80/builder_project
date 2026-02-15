@@ -500,9 +500,9 @@ export default function MobileChecklistPage() {
               Status *
             </Typography>
             <RadioGroup value={itemStatus} onChange={(e) => setItemStatus(e.target.value)}>
-              <FormControlLabel value="pass" control={<Radio />} label="Pass" />
-              <FormControlLabel value="fail" control={<Radio />} label="Fail" />
-              <FormControlLabel value="na" control={<Radio />} label="N/A" />
+              <FormControlLabel value="approved" control={<Radio />} label="Approved" />
+              <FormControlLabel value="rejected" control={<Radio />} label="Rejected" />
+              <FormControlLabel value="not_applicable" control={<Radio />} label="N/A" />
             </RadioGroup>
           </Box>
 
