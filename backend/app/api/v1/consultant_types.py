@@ -111,7 +111,7 @@ async def list_templates(
     result = await db.execute(
         select(InspectionStageTemplate)
         .where(InspectionStageTemplate.consultant_type_id == consultant_type_id)
-        .order_by(InspectionStageTemplate.version.desc())
+        .order_by(InspectionStageTemplate.stage_order.asc())
     )
     return result.scalars().all()
 

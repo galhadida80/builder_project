@@ -27,6 +27,13 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
+def safe_send_email(email_service: EmailService, to_email: str, subject: str, body_html: str):
+    try:
+        email_service.send_notification(to_email=to_email, subject=subject, body_html=body_html)
+    except Exception:
+        logger.warning("Background email send failed for %s", to_email, exc_info=True)
+
+
 @router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
 async def register(
     data: UserRegister,
@@ -87,10 +94,7 @@ async def register(
                 full_name or email, language, settings.frontend_base_url
             )
             background_tasks.add_task(
-                email_service.send_notification,
-                to_email=email,
-                subject=subject,
-                body_html=body_html,
+                safe_send_email, email_service, email, subject, body_html,
             )
     except Exception:
         logger.warning("Failed to send welcome email", exc_info=True)
@@ -194,10 +198,7 @@ async def forgot_password(
             email_service = EmailService()
             if email_service.enabled:
                 background_tasks.add_task(
-                    email_service.send_notification,
-                    to_email=user.email,
-                    subject=subject,
-                    body_html=body_html,
+                    safe_send_email, email_service, user.email, subject, body_html,
                 )
         except Exception:
             logger.warning("Failed to send password reset email", exc_info=True)
