@@ -1,9 +1,11 @@
 import logging
+import re
 import uuid
 from datetime import datetime
 from typing import Optional
 
 from sqlalchemy import func, or_, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -36,13 +38,19 @@ class RFIService:
 
     async def generate_rfi_number(self) -> str:
         year = datetime.utcnow().year
+        prefix = f"RFI-{year}-"
         result = await self.db.execute(
-            select(func.count(RFI.id)).where(
-                RFI.rfi_number.like(f"RFI-{year}-%")
+            select(func.max(RFI.rfi_number)).where(
+                RFI.rfi_number.like(f"{prefix}%")
             )
         )
-        count = result.scalar() + 1
-        return f"RFI-{year}-{count:05d}"
+        max_number = result.scalar()
+        if max_number:
+            match = re.search(r"(\d+)$", max_number)
+            seq = int(match.group(1)) + 1 if match else 1
+        else:
+            seq = 1
+        return f"{prefix}{seq:05d}"
 
     async def create_rfi(
         self,
@@ -64,32 +72,40 @@ class RFIService:
         related_equipment_id: Optional[uuid.UUID] = None,
         related_material_id: Optional[uuid.UUID] = None
     ) -> RFI:
-        rfi_number = await self.generate_rfi_number()
-
-        rfi = RFI(
-            project_id=project_id,
-            rfi_number=rfi_number,
-            subject=subject,
-            question=question,
-            category=category,
-            priority=priority,
-            created_by_id=created_by_id,
-            assigned_to_id=assigned_to_id,
-            related_equipment_id=related_equipment_id,
-            related_material_id=related_material_id,
-            to_email=to_email.lower(),
-            to_name=to_name,
-            cc_emails=cc_emails or [],
-            due_date=due_date,
-            location=location,
-            drawing_reference=drawing_reference,
-            specification_reference=specification_reference,
-            attachments=attachments or [],
-            status=RFIStatus.DRAFT.value
-        )
-        self.db.add(rfi)
-        await self.db.commit()
-        await self.db.refresh(rfi)
+        max_retries = 3
+        for attempt in range(max_retries):
+            rfi_number = await self.generate_rfi_number()
+            rfi = RFI(
+                project_id=project_id,
+                rfi_number=rfi_number,
+                subject=subject,
+                question=question,
+                category=category,
+                priority=priority,
+                created_by_id=created_by_id,
+                assigned_to_id=assigned_to_id,
+                related_equipment_id=related_equipment_id,
+                related_material_id=related_material_id,
+                to_email=to_email.lower(),
+                to_name=to_name,
+                cc_emails=cc_emails or [],
+                due_date=due_date,
+                location=location,
+                drawing_reference=drawing_reference,
+                specification_reference=specification_reference,
+                attachments=attachments or [],
+                status=RFIStatus.DRAFT.value
+            )
+            self.db.add(rfi)
+            try:
+                await self.db.commit()
+                await self.db.refresh(rfi)
+                return rfi
+            except IntegrityError:
+                await self.db.rollback()
+                if attempt == max_retries - 1:
+                    raise
+                logger.warning(f"RFI number collision on '{rfi_number}', retrying ({attempt + 1}/{max_retries})")
 
         return rfi
 
