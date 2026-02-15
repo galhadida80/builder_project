@@ -73,12 +73,11 @@ export const defectsApi = {
     await apiClient.delete(`/projects/${projectId}/defects/${defectId}/assignees/${contactId}`)
   },
 
-  exportPdf: async (projectId: string, filters?: { status?: string; category?: string; severity?: string }, language: string = 'he'): Promise<void> => {
+  exportPdf: async (projectId: string, filters?: { status?: string; category?: string; severity?: string }): Promise<void> => {
     const params = new URLSearchParams()
     if (filters?.status) params.set('status', filters.status)
     if (filters?.category) params.set('category', filters.category)
     if (filters?.severity) params.set('severity', filters.severity)
-    params.set('language', language)
     const qs = params.toString()
     const response = await apiClient.get(`/projects/${projectId}/defects/export-pdf${qs ? `?${qs}` : ''}`, {
       responseType: 'blob',

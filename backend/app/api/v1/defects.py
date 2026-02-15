@@ -123,7 +123,6 @@ async def export_defects_pdf(
     status: Optional[str] = Query(None),
     category: Optional[str] = Query(None),
     severity: Optional[str] = Query(None),
-    language: str = Query("he"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
     storage: StorageBackend = Depends(get_storage_backend),
@@ -148,7 +147,7 @@ async def export_defects_pdf(
     result = await db.execute(query)
     defects = list(result.scalars().all())
 
-    pdf_bytes = await generate_defects_report_pdf(db, defects, project, storage, language)
+    pdf_bytes = await generate_defects_report_pdf(db, defects, project, storage)
     filename = f"defects_report_{project.code}_{datetime.utcnow().strftime('%Y%m%d')}.pdf"
     return Response(
         content=pdf_bytes,
