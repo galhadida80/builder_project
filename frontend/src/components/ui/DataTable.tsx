@@ -13,9 +13,12 @@ import {
   Typography,
   Skeleton,
   Collapse,
+  useMediaQuery,
+  useTheme,
 } from '@/mui'
 import { useState, Fragment } from 'react'
 import { styled } from '@/mui'
+import { ChevronRightIcon, ChevronLeftIcon } from '@/icons'
 
 export interface Column<T> {
   id: keyof T | string
@@ -43,12 +46,10 @@ interface DataTableProps<T> {
 
 const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
   borderRadius: 12,
-  // Enable horizontal scrolling on mobile
   overflowX: 'auto',
-  // Smooth scrolling for better UX
   scrollBehavior: 'smooth',
-  // Prevent scrollbar from taking up layout space on mobile
   WebkitOverflowScrolling: 'touch',
+  position: 'relative',
   '& .MuiTableHead-root': {
     '& .MuiTableCell-head': {
       backgroundColor: theme.palette.mode === 'dark' ? theme.palette.grey[900] : theme.palette.grey[50],
@@ -194,6 +195,11 @@ export function DataTable<T>({
     ? sortedRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
     : sortedRows
 
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+  const showChevron = isMobile && !!onRowClick
+  const isRtl = theme.direction === 'rtl'
+
   if (loading) {
     return (
       <StyledTableContainer component={Paper} elevation={0}>
@@ -273,6 +279,7 @@ export function DataTable<T>({
                 )}
               </TableCell>
             ))}
+            {showChevron && <TableCell sx={{ width: 32, p: 0 }} />}
           </TableRow>
         </TableHead>
         <TableBody>
@@ -280,7 +287,7 @@ export function DataTable<T>({
             const rowId = getRowId(row)
             const isSelected = selectedIds.includes(rowId)
             const expandedContent = renderExpandedRow?.(row)
-            const totalColSpan = columns.length + (selectable ? 1 : 0)
+            const totalColSpan = columns.length + (selectable ? 1 : 0) + (showChevron ? 1 : 0)
 
             return (
               <Fragment key={rowId}>
@@ -307,6 +314,11 @@ export function DataTable<T>({
                         : String((row as Record<string, unknown>)[column.id as string] ?? '')}
                     </TableCell>
                   ))}
+                  {showChevron && (
+                    <TableCell sx={{ width: 32, p: 0.5, color: 'text.disabled' }}>
+                      {isRtl ? <ChevronLeftIcon fontSize="small" /> : <ChevronRightIcon fontSize="small" />}
+                    </TableCell>
+                  )}
                 </TableRow>
                 {renderExpandedRow && (
                   <TableRow>

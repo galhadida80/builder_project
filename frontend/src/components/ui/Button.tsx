@@ -91,10 +91,10 @@ export function IconButton({
       disabled={props.disabled || loading}
       {...props}
       sx={{
-        minWidth: '36px',
-        width: '36px',
-        height: '36px',
-        p: 0.75,
+        minWidth: { xs: '44px', sm: '36px' },
+        width: { xs: '44px', sm: '36px' },
+        height: { xs: '44px', sm: '36px' },
+        p: { xs: 1, sm: 0.75 },
         ...props.sx,
       }}
     >

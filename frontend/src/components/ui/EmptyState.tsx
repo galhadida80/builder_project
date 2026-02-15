@@ -30,6 +30,9 @@ const Container = styled(Box)(({ theme }) => ({
   padding: theme.spacing(6),
   textAlign: 'center',
   ...createFadeIn(true, duration.normal),
+  [theme.breakpoints.down('sm')]: {
+    padding: theme.spacing(3),
+  },
 }))
 
 const IconContainer = styled(Box)(({ theme }) => ({
@@ -44,6 +47,13 @@ const IconContainer = styled(Box)(({ theme }) => ({
   '& .MuiSvgIcon-root': {
     fontSize: 40,
     color: theme.palette.text.secondary,
+  },
+  [theme.breakpoints.down('sm')]: {
+    width: 60,
+    height: 60,
+    '& .MuiSvgIcon-root': {
+      fontSize: 28,
+    },
   },
 }))
 

@@ -202,6 +202,16 @@
     "checklists": "צ'קליסטים",
     "defects": "ליקויים"
   },
+  "mobileNav": {
+    "dashboard": "לוח בקרה",
+    "projects": "פרויקטים",
+    "profile": "פרופיל",
+    "menu": "תפריט",
+    "overview": "סקירה",
+    "inspections": "בדיקות",
+    "checklists": "צ'קליסטים",
+    "defects": "ליקויים"
+  },
   "profile": {
     "title": "פרופיל",
     "subtitle": "נהל את פרטי החשבון שלך",

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { EmptyState } from '../components/ui/EmptyState'
-import MobileBottomNav from '../components/layout/MobileBottomNav'
+
 import type { Inspection } from '../types'
 import { inspectionsApi } from '../api/inspections'
 import { useProject } from '../contexts/ProjectContext'
@@ -118,7 +118,6 @@ export default function InspectorDashboard() {
           <Skeleton variant="rounded" height={130} sx={{ mb: 2, borderRadius: '12px' }} />
           <Skeleton variant="rounded" height={130} sx={{ borderRadius: '12px' }} />
         </Box>
-        <MobileBottomNav projectId={projectId} />
       </>
     )
   }
@@ -375,7 +374,6 @@ export default function InspectorDashboard() {
           )}
         </Box>
       </Box>
-      <MobileBottomNav projectId={projectId} />
     </>
   )
 }

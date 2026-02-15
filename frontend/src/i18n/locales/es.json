@@ -454,7 +454,18 @@
     "settings": "Configuración",
     "home": "Inicio",
     "bim": "Modelos BIM",
-    "checklists": "Listas de Verificación"
+    "checklists": "Listas de Verificación",
+    "defects": "Defectos"
+  },
+  "mobileNav": {
+    "dashboard": "Panel",
+    "projects": "Proyectos",
+    "profile": "Perfil",
+    "menu": "Menú",
+    "overview": "Resumen",
+    "inspections": "Inspecciones",
+    "checklists": "Checklists",
+    "defects": "Defectos"
   },
   "profile": {
     "title": "Perfil",

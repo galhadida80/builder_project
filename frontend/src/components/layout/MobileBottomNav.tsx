@@ -1,58 +1,58 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { HomeIcon, AssignmentIcon, FolderIcon, PersonIcon } from '@/icons'
+import { DashboardIcon, FolderIcon, PersonIcon, MenuIcon, AssignmentIcon, ReportProblemIcon, ChecklistIcon } from '@/icons'
 import { BottomNavigation, BottomNavigationAction, Paper } from '@/mui'
 
 interface NavTab {
   labelKey: string
   path: string
   icon: React.ReactNode
+  action?: 'menu'
 }
 
-const navTabs: NavTab[] = [
-  { labelKey: 'mobileNav.home', path: '/inspector-dashboard', icon: <HomeIcon /> },
-  { labelKey: 'mobileNav.inspections', path: '/inspections', icon: <AssignmentIcon /> },
+const globalTabs: NavTab[] = [
+  { labelKey: 'mobileNav.dashboard', path: '/dashboard', icon: <DashboardIcon /> },
   { labelKey: 'mobileNav.projects', path: '/projects', icon: <FolderIcon /> },
   { labelKey: 'mobileNav.profile', path: '/profile', icon: <PersonIcon /> },
+  { labelKey: 'mobileNav.menu', path: '', icon: <MenuIcon />, action: 'menu' },
+]
+
+const projectTabs = (projectId: string): NavTab[] => [
+  { labelKey: 'mobileNav.overview', path: `/projects/${projectId}/overview`, icon: <DashboardIcon /> },
+  { labelKey: 'mobileNav.inspections', path: `/projects/${projectId}/inspections`, icon: <AssignmentIcon /> },
+  { labelKey: 'mobileNav.checklists', path: `/projects/${projectId}/checklists`, icon: <ChecklistIcon /> },
+  { labelKey: 'mobileNav.defects', path: `/projects/${projectId}/defects`, icon: <ReportProblemIcon /> },
+  { labelKey: 'mobileNav.menu', path: '', icon: <MenuIcon />, action: 'menu' },
 ]
 
 interface MobileBottomNavProps {
   projectId?: string
+  onMenuOpen?: () => void
 }
 
-export default function MobileBottomNav({ projectId }: MobileBottomNavProps) {
+export default function MobileBottomNav({ projectId, onMenuOpen }: MobileBottomNavProps) {
   const { t } = useTranslation()
   const location = useLocation()
   const navigate = useNavigate()
 
+  const tabs = projectId ? projectTabs(projectId) : globalTabs
+
   const getActiveTab = () => {
-    const activeIndex = navTabs.findIndex((tab) => {
-      if (tab.path === '/inspector-dashboard') {
-        return location.pathname === '/inspector-dashboard'
-      }
-      if (tab.path === '/projects') {
-        return location.pathname === '/projects'
-      }
-      if (tab.path === '/inspections') {
-        return (
-          location.pathname === '/inspections' ||
-          location.pathname.startsWith('/inspections/')
-        )
-      }
-      if (tab.path === '/profile') {
-        return location.pathname.startsWith('/profile')
-      }
-      return false
+    const activeIndex = tabs.findIndex((tab) => {
+      if (tab.action === 'menu') return false
+      if (!tab.path) return false
+      return location.pathname === tab.path || location.pathname.startsWith(tab.path + '/')
     })
-    return activeIndex >= 0 ? activeIndex : 0
+    return activeIndex >= 0 ? activeIndex : -1
   }
 
-  const handleNavigation = (path: string) => {
-    if (path === '/inspections' && projectId) {
-      navigate(`/projects/${projectId}/inspections`)
-    } else {
-      navigate(path)
+  const handleNavigation = (index: number) => {
+    const tab = tabs[index]
+    if (tab.action === 'menu') {
+      onMenuOpen?.()
+      return
     }
+    navigate(tab.path)
   }
 
   return (
@@ -62,42 +62,41 @@ export default function MobileBottomNav({ projectId }: MobileBottomNavProps) {
         bottom: 0,
         left: 0,
         right: 0,
-        zIndex: 1000,
+        zIndex: 1200,
         borderTop: '1px solid',
         borderColor: 'divider',
+        display: { xs: 'block', md: 'none' },
       }}
-      elevation={3}
+      elevation={8}
     >
       <BottomNavigation
         value={getActiveTab()}
-        onChange={(_, newValue) => {
-          handleNavigation(navTabs[newValue].path)
-        }}
+        onChange={(_, newValue) => handleNavigation(newValue)}
         showLabels
         sx={{
           height: 64,
           '& .MuiBottomNavigationAction-root': {
             minWidth: 'auto',
             padding: '6px 0',
-            transition: 'all 200ms ease-out',
+            transition: 'color 200ms ease-out',
             '&.Mui-selected': {
               color: 'primary.main',
               '& .MuiBottomNavigationAction-label': {
                 fontWeight: 600,
-                fontSize: '0.75rem',
+                fontSize: '0.7rem',
               },
             },
           },
           '& .MuiBottomNavigationAction-label': {
-            fontSize: '0.7rem',
+            fontSize: '0.65rem',
             fontWeight: 500,
-            marginTop: '4px',
+            marginTop: '2px',
           },
         }}
       >
-        {navTabs.map((tab) => (
+        {tabs.map((tab, i) => (
           <BottomNavigationAction
-            key={tab.path}
+            key={tab.labelKey}
             label={t(tab.labelKey)}
             icon={tab.icon}
           />

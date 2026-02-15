@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
-import { TrendingUpIcon, TrendingDownIcon, TrendingFlatIcon } from '@/icons'
-import { Card as MuiCard, CardContent, CardHeader, CardActions, Box, Typography, Skeleton, SxProps, Theme, styled, alpha } from '@/mui'
+import { TrendingUpIcon, TrendingDownIcon, TrendingFlatIcon, ChevronLeftIcon, ChevronRightIcon } from '@/icons'
+import { Card as MuiCard, CardContent, CardHeader, CardActions, Box, Typography, Skeleton, SxProps, Theme, styled, alpha, useTheme } from '@/mui'
 
 interface BaseCardProps {
   children: React.ReactNode
@@ -31,6 +31,17 @@ export function Card({ children, hoverable = false, onClick, ...props }: BaseCar
     <StyledCard hoverable={hoverable} onClick={onClick} {...props}>
       {children}
     </StyledCard>
+  )
+}
+
+function TapChevron() {
+  const theme = useTheme()
+  const isRtl = theme.direction === 'rtl'
+  const Icon = isRtl ? ChevronLeftIcon : ChevronRightIcon
+  return (
+    <Box sx={{ display: { xs: 'flex', sm: 'none' }, alignItems: 'center', color: 'text.disabled', ml: 'auto', flexShrink: 0 }}>
+      <Icon fontSize="small" />
+    </Box>
   )
 }
 
@@ -189,44 +200,49 @@ export function FeatureCard({ icon, title, description, onClick }: FeatureCardPr
   return (
     <StyledCard hoverable={!!onClick} onClick={onClick}>
       <CardContent sx={{ p: { xs: 2, sm: 2.5, md: 3 } }}>
-        <Box
-          sx={{
-            width: { xs: 40, sm: 48 },
-            height: { xs: 40, sm: 48 },
-            borderRadius: 2,
-            bgcolor: 'primary.main',
-            color: 'white',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            mb: { xs: 1.5, sm: 2 },
-            '& > svg': {
-              fontSize: { xs: '1.25rem', sm: '1.5rem' }
-            }
-          }}
-        >
-          {icon}
+        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <Box
+              sx={{
+                width: { xs: 40, sm: 48 },
+                height: { xs: 40, sm: 48 },
+                borderRadius: 2,
+                bgcolor: 'primary.main',
+                color: 'white',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                mb: { xs: 1.5, sm: 2 },
+                '& > svg': {
+                  fontSize: { xs: '1.25rem', sm: '1.5rem' }
+                }
+              }}
+            >
+              {icon}
+            </Box>
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: 600,
+                mb: 1,
+                fontSize: { xs: '1rem', sm: '1.125rem', md: '1.25rem' }
+              }}
+            >
+              {title}
+            </Typography>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{
+                fontSize: { xs: '0.813rem', sm: '0.875rem' },
+                lineHeight: 1.5,
+              }}
+            >
+              {description}
+            </Typography>
+          </Box>
+          {onClick && <TapChevron />}
         </Box>
-        <Typography
-          variant="h6"
-          sx={{
-            fontWeight: 600,
-            mb: 1,
-            fontSize: { xs: '1rem', sm: '1.125rem', md: '1.25rem' }
-          }}
-        >
-          {title}
-        </Typography>
-        <Typography
-          variant="body2"
-          color="text.secondary"
-          sx={{
-            fontSize: { xs: '0.813rem', sm: '0.875rem' },
-            lineHeight: 1.5,
-          }}
-        >
-          {description}
-        </Typography>
       </CardContent>
     </StyledCard>
   )
@@ -288,21 +304,23 @@ export function ProjectCard({ name, code, progress, status, imageUrl, onClick }:
           >
             {name}
           </Typography>
-          <Box
-            sx={{
-              px: { xs: 0.75, sm: 1 },
-              py: 0.25,
-              borderRadius: 1,
-              bgcolor: getStatusColor() === 'grey' ? 'grey.500' : `${getStatusColor()}.main`,
-              color: 'white',
-              fontSize: { xs: '0.625rem', sm: '0.65rem' },
-              fontWeight: 600,
-              textTransform: 'uppercase',
-              flexShrink: 0,
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {t(`common.statuses.${status}`, { defaultValue: status.replace('_', ' ') })}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0 }}>
+            <Box
+              sx={{
+                px: { xs: 0.75, sm: 1 },
+                py: 0.25,
+                borderRadius: 1,
+                bgcolor: getStatusColor() === 'grey' ? 'grey.500' : `${getStatusColor()}.main`,
+                color: 'white',
+                fontSize: { xs: '0.625rem', sm: '0.65rem' },
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {t(`common.statuses.${status}`, { defaultValue: status.replace('_', ' ') })}
+            </Box>
+            {onClick && <TapChevron />}
           </Box>
         </Box>
         {code && (

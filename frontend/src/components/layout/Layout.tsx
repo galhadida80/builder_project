@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Outlet, useParams, useNavigate } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import Header from './Header'
+import MobileBottomNav from './MobileBottomNav'
 import ChatDrawer from '../chat/ChatDrawer'
 import { useAuth } from '../../contexts/AuthContext'
 import { useProject } from '../../contexts/ProjectContext'
@@ -75,6 +76,7 @@ export default function Layout() {
         sx={{
           flexGrow: 1,
           p: { xs: 1, sm: 1.5, md: 2 },
+          pb: { xs: '80px', md: 2 },
           bgcolor: 'background.default',
           minHeight: '100dvh',
           maxWidth: '100%',
@@ -84,6 +86,10 @@ export default function Layout() {
         <Toolbar />
         <Outlet />
       </Box>
+
+      {isMobile && (
+        <MobileBottomNav projectId={projectId} onMenuOpen={handleDrawerToggle} />
+      )}
 
       {projectId && (
         <>

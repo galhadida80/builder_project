@@ -461,6 +461,16 @@
     "checklists": "Checklists",
     "defects": "Defects"
   },
+  "mobileNav": {
+    "dashboard": "Dashboard",
+    "projects": "Projects",
+    "profile": "Profile",
+    "menu": "Menu",
+    "overview": "Overview",
+    "inspections": "Inspections",
+    "checklists": "Checklists",
+    "defects": "Defects"
+  },
   "profile": {
     "title": "Profile",
     "subtitle": "Manage your account details",
