@@ -4,6 +4,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import case, func, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -152,7 +153,11 @@ async def create_inspection(
     """Create a new inspection for a project"""
     inspection = Inspection(**data.model_dump(), project_id=project_id, created_by_id=current_user.id)
     db.add(inspection)
-    await db.flush()
+    try:
+        await db.flush()
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(status_code=422, detail="Invalid consultant_type_id or duplicate entry")
 
     await create_audit_log(db, current_user, "inspection", inspection.id, AuditAction.CREATE,
                           project_id=project_id, new_values=get_model_dict(inspection))
