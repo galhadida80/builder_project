@@ -142,6 +142,7 @@ async def delete_project(
                           project_id=project.id, old_values=get_model_dict(project))
 
     await db.delete(project)
+    await db.commit()
     return {"message": "Project deleted"}
 
 
