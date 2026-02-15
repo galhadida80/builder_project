@@ -7,6 +7,7 @@ export {
   AvatarGroup,
   Badge,
   BottomNavigation,
+  Pagination,
   BottomNavigationAction,
   Box,
   Breadcrumbs,

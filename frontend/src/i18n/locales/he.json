@@ -624,6 +624,10 @@
     "export": "ייצוא CSV",
     "exportSuccess": "יומן הביקורת יוצא בהצלחה",
     "fieldsChanged": "{{count}} שדות שונו",
+    "justNow": "עכשיו",
+    "minutesAgo": "לפני {{count}} דק׳",
+    "hoursAgo": "לפני {{count}} שע׳",
+    "daysAgo": "לפני {{count}} ימים",
     "actions": {
       "create": "יצירה",
       "update": "עדכון",

@@ -505,6 +505,10 @@
     "export": "Export CSV",
     "exportSuccess": "Audit log exported successfully",
     "fieldsChanged": "{{count}} field(s) changed",
+    "justNow": "Just now",
+    "minutesAgo": "{{count}}m ago",
+    "hoursAgo": "{{count}}h ago",
+    "daysAgo": "{{count}}d ago",
     "actions": {
       "create": "Create",
       "update": "Update",
