@@ -5,7 +5,8 @@ import ChatInput from './ChatInput'
 import { chatApi } from '../../api/chat'
 import type { ChatMessage as ChatMessageType, ChatAction, Conversation } from '../../api/chat'
 import { CloseIcon, ArrowBackIcon, AddIcon, HistoryIcon, DeleteOutlineIcon, SmartToyIcon } from '@/icons'
-import { Box, Drawer, Typography, IconButton, Chip, Stack, Divider, List, ListItemButton, ListItemText, styled, keyframes } from '@/mui'
+import { Box, Drawer, Typography, IconButton, Chip, Stack, Divider, List, ListItemButton, ListItemText, styled, keyframes, useMediaQuery } from '@/mui'
+import { useTheme } from '@/mui'
 
 const dotBounce = keyframes`
   0%, 60%, 100% { transform: translateY(0); opacity: 0.3; }
@@ -80,6 +81,8 @@ interface ChatDrawerProps {
 
 export default function ChatDrawer({ open, onClose, projectId }: ChatDrawerProps) {
   const { t } = useTranslation()
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'))
   const [messages, setMessages] = useState<ChatMessageType[]>([])
   const [conversationId, setConversationId] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -235,7 +238,7 @@ export default function ChatDrawer({ open, onClose, projectId }: ChatDrawerProps
       onClose={onClose}
       sx={{
         '& .MuiDrawer-paper': {
-          width: DRAWER_WIDTH,
+          width: isMobile ? '100vw' : DRAWER_WIDTH,
           maxWidth: '100vw',
         },
       }}
@@ -263,7 +266,14 @@ export default function ChatDrawer({ open, onClose, projectId }: ChatDrawerProps
               </IconButton>
             </>
           )}
-          <IconButton size="small" onClick={onClose}>
+          <IconButton
+            onClick={onClose}
+            size={isMobile ? 'medium' : 'small'}
+            sx={{
+              bgcolor: isMobile ? 'action.hover' : 'transparent',
+              '&:hover': { bgcolor: 'action.selected' },
+            }}
+          >
             <CloseIcon />
           </IconButton>
         </Box>

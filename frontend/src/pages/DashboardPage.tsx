@@ -142,8 +142,8 @@ export default function DashboardPage() {
   }
 
   return (
-    <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 }, maxWidth: '100%', overflow: 'hidden' }}>
-      <Box sx={{ mb: 4 }}>
+    <Box sx={{ p: { xs: 1, sm: 2, md: 3 }, maxWidth: '100%', overflow: 'hidden', boxSizing: 'border-box' }}>
+      <Box sx={{ mb: { xs: 2, sm: 3, md: 4 } }}>
         <Typography
           variant="h4"
           sx={{
@@ -200,7 +200,7 @@ export default function DashboardPage() {
 
       {/* Row 2: Activity Trend + Overall Progress */}
       {selectedProjectId && (
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '3fr 2fr' }, gap: 2, mb: 3 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '3fr 2fr' }, gap: { xs: 1.5, md: 2 }, mb: 3 }}>
           <ProjectMetricsChart
             title={t('dashboard.charts.activityTrend')}
             data={activityChartData.data}
@@ -208,7 +208,7 @@ export default function DashboardPage() {
             loading={statsLoading}
             height={280}
           />
-          <Paper sx={{ p: 3, borderRadius: 3, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+          <Paper sx={{ p: { xs: 2, md: 3 }, borderRadius: 3, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
             <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
               {t('dashboard.charts.overallProgress')}
             </Typography>
@@ -233,7 +233,7 @@ export default function DashboardPage() {
 
       {/* Row 3: Equipment Donut + Material Donut + RFI Status */}
       {selectedProjectId && (
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, gap: 2, mb: 3 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: { xs: 1.5, md: 2 }, mb: 3 }}>
           <DistributionChart
             title={t('dashboard.charts.equipmentStatus')}
             data={toDistChartData(dashboardStats?.equipmentDistribution ?? [])}
@@ -263,8 +263,8 @@ export default function DashboardPage() {
 
       {/* Row 4: Area Progress by Floor + Findings Severity */}
       {selectedProjectId && (
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' }, gap: 2, mb: 3 }}>
-          <Paper sx={{ p: 3, borderRadius: 3 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' }, gap: { xs: 1.5, md: 2 }, mb: 3 }}>
+          <Paper sx={{ p: { xs: 2, md: 3 }, borderRadius: 3, overflow: 'hidden' }}>
             <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
               {t('dashboard.charts.areaProgress')}
             </Typography>
@@ -288,7 +288,7 @@ export default function DashboardPage() {
               <EmptyState variant="empty" title={t('dashboard.charts.noData')} />
             )}
           </Paper>
-          <Paper sx={{ p: 3, borderRadius: 3 }}>
+          <Paper sx={{ p: { xs: 2, md: 3 }, borderRadius: 3, overflow: 'hidden' }}>
             <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
               {t('dashboard.charts.findingsSeverity')}
             </Typography>
@@ -320,7 +320,7 @@ export default function DashboardPage() {
         sx={{
           display: 'grid',
           gridTemplateColumns: { xs: '1fr', lg: '2fr 1fr' },
-          gap: 2,
+          gap: { xs: 1.5, md: 2 },
           mb: 3,
         }}
       >
@@ -548,7 +548,7 @@ export default function DashboardPage() {
         sx={{
           display: 'grid',
           gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' },
-          gap: 2,
+          gap: { xs: 1.5, md: 2 },
         }}
       >
         <Card>

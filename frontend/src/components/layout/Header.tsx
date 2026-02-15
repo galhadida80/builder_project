@@ -70,18 +70,20 @@ export default memo(function Header({ user, currentProject, projects, onProjectC
           />
         </Box>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0, sm: 1 }, flexShrink: 0 }}>
-          <ThemeToggle />
-          <LanguageSwitcher />
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0, sm: 0.5 }, flexShrink: 0 }}>
+          <Box sx={{ display: { xs: 'none', sm: 'flex' }, alignItems: 'center' }}>
+            <ThemeToggle />
+            <LanguageSwitcher />
+          </Box>
 
-          <IconButton aria-label={t('common.notifications')} onClick={() => setNotificationPanelOpen(true)}>
+          <IconButton aria-label={t('common.notifications')} onClick={() => setNotificationPanelOpen(true)} size={isMobile ? 'small' : 'medium'}>
             <Badge badgeContent={unreadCount} color="error">
-              <NotificationsIcon />
+              <NotificationsIcon fontSize={isMobile ? 'small' : 'medium'} />
             </Badge>
           </IconButton>
 
-          <IconButton aria-label={t('common.userMenu')} onClick={handleMenuOpen} sx={{ ml: { xs: 0, sm: 1 } }}>
-            <Avatar sx={{ width: { xs: 32, sm: 36 }, height: { xs: 32, sm: 36 }, bgcolor: 'primary.main' }}>
+          <IconButton aria-label={t('common.userMenu')} onClick={handleMenuOpen} sx={{ ml: { xs: 0, sm: 0.5 } }}>
+            <Avatar sx={{ width: { xs: 30, sm: 36 }, height: { xs: 30, sm: 36 }, bgcolor: 'primary.main', fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
               {getInitials(user.fullName || user.email)}
             </Avatar>
           </IconButton>
@@ -103,13 +105,20 @@ export default memo(function Header({ user, currentProject, projects, onProjectC
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}
           onClose={handleMenuClose}
-          PaperProps={{ sx: { width: 200 } }}
+          PaperProps={{ sx: { width: 220 } }}
         >
           <Box sx={{ px: 2, py: 1 }}>
             <Typography variant="subtitle2">{user.fullName}</Typography>
             <Typography variant="caption" color="text.secondary">{user.email}</Typography>
           </Box>
           <Divider />
+          {isMobile && (
+            <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1, py: 1, px: 2 }}>
+              <ThemeToggle />
+              <LanguageSwitcher />
+            </Box>
+          )}
+          {isMobile && <Divider />}
           <MenuItem onClick={() => { handleMenuClose(); navigate('/profile'); }}>
             <ListItemIcon><PersonIcon fontSize="small" /></ListItemIcon>
             {t('header.profile')}

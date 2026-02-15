@@ -112,8 +112,8 @@ export default function Layout() {
             onClick={handleChatOpen}
             sx={{
               position: 'fixed',
-              bottom: 24,
-              right: 24,
+              bottom: { xs: 80, md: 24 },
+              right: { xs: 16, md: 24 },
               zIndex: 1100,
               display: chatOpen ? 'none' : 'flex',
             }}

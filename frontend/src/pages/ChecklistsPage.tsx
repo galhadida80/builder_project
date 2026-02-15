@@ -670,7 +670,7 @@ export default function ChecklistsPage() {
         anchor="right"
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
-        PaperProps={{ sx: { width: { xs: '100%', sm: 540 }, maxWidth: '100vw' } }}
+        PaperProps={{ sx: { width: { xs: '100vw', sm: 540 }, maxWidth: '100vw' } }}
       >
         {selectedInstance && selectedTemplate && (
           <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -686,7 +686,13 @@ export default function ChecklistsPage() {
                     <StatusBadge status={selectedInstance.status} />
                   </Box>
                 </Box>
-                <IconButton onClick={() => setDrawerOpen(false)} size="small">
+                <IconButton
+                  onClick={() => setDrawerOpen(false)}
+                  sx={{
+                    bgcolor: 'action.hover',
+                    '&:hover': { bgcolor: 'action.selected' },
+                  }}
+                >
                   <CloseIcon />
                 </IconButton>
               </Box>
@@ -760,18 +766,18 @@ export default function ChecklistsPage() {
                               if (val) handleStatusChange(item, val)
                             }}
                             size="small"
-                            sx={{ mb: 2, flexWrap: 'wrap' }}
+                            sx={{ mb: 2, flexWrap: 'wrap', gap: 0.5, '& .MuiToggleButton-root': { borderRadius: '8px !important', border: '1px solid', borderColor: 'divider' } }}
                           >
-                            <ToggleButton value="pending" sx={{ textTransform: 'none', fontSize: '0.75rem' }}>
+                            <ToggleButton value="pending" sx={{ textTransform: 'none', fontSize: '0.75rem', px: { xs: 1, sm: 1.5 } }}>
                               {t('checklists.statusPending')}
                             </ToggleButton>
-                            <ToggleButton value="approved" color="success" sx={{ textTransform: 'none', fontSize: '0.75rem' }}>
+                            <ToggleButton value="approved" color="success" sx={{ textTransform: 'none', fontSize: '0.75rem', px: { xs: 1, sm: 1.5 } }}>
                               {t('checklists.statusApproved')}
                             </ToggleButton>
-                            <ToggleButton value="rejected" color="error" sx={{ textTransform: 'none', fontSize: '0.75rem' }}>
+                            <ToggleButton value="rejected" color="error" sx={{ textTransform: 'none', fontSize: '0.75rem', px: { xs: 1, sm: 1.5 } }}>
                               {t('checklists.statusRejected')}
                             </ToggleButton>
-                            <ToggleButton value="not_applicable" sx={{ textTransform: 'none', fontSize: '0.75rem' }}>
+                            <ToggleButton value="not_applicable" sx={{ textTransform: 'none', fontSize: '0.75rem', px: { xs: 1, sm: 1.5 } }}>
                               {t('checklists.statusNotApplicable')}
                             </ToggleButton>
                           </ToggleButtonGroup>

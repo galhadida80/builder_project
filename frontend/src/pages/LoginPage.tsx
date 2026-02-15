@@ -7,6 +7,7 @@ import { SegmentedTabs } from '../components/ui/Tabs'
 import { useAuth } from '../contexts/AuthContext'
 import { invitationsApi } from '../api/invitations'
 import { authApi } from '../api/auth'
+import { projectsApi } from '../api/projects'
 import { passwordSchema } from '../schemas/validation'
 import { ConstructionIcon, EmailIcon, LockIcon, PersonIcon, VisibilityIcon, VisibilityOffIcon, CheckCircleOutlineIcon, SecurityIcon, SpeedIcon, GroupsIcon, ArrowBackIcon } from '@/icons'
 import { Box, Typography, Alert, Link, Divider, Fade, IconButton } from '@/mui'
@@ -66,7 +67,16 @@ export default function LoginPage() {
           }
         } catch { /* ignore invite accept errors */ }
       }
-      navigate('/dashboard')
+      try {
+        const projects = await projectsApi.list()
+        if (projects.length === 0) {
+          navigate('/projects?new=true')
+        } else {
+          navigate('/dashboard')
+        }
+      } catch {
+        navigate('/dashboard')
+      }
     } catch (err: unknown) {
       const error = err as { response?: { data?: { detail?: string } } }
       setError(error.response?.data?.detail || t('invalidCredentials'))
@@ -96,7 +106,16 @@ export default function LoginPage() {
 
     try {
       await register(email, password, fullName, inviteToken || undefined)
-      navigate('/dashboard')
+      if (inviteToken) {
+        try {
+          const result = await invitationsApi.accept(inviteToken)
+          if (result.projectId) {
+            navigate(`/projects/${result.projectId}/overview`)
+            return
+          }
+        } catch { /* ignore invite accept errors */ }
+      }
+      navigate('/projects?new=true')
     } catch (err: unknown) {
       const error = err as { response?: { data?: { detail?: string | { message?: string; code?: string } } } }
       const detail = error.response?.data?.detail
