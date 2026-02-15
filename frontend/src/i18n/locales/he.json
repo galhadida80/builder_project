@@ -1698,6 +1698,10 @@
       "lighting": "תאורה",
       "solar_system": "מערכת סולרית",
       "other": "אחר"
-    }
+    },
+    "exportPdf": "ייצוא PDF",
+    "exporting": "מייצא...",
+    "exportSuccess": "דוח PDF הורד בהצלחה",
+    "exportFailed": "ייצוא PDF נכשל"
   }
 }

@@ -72,4 +72,25 @@ export const defectsApi = {
   removeAssignee: async (projectId: string, defectId: string, contactId: string): Promise<void> => {
     await apiClient.delete(`/projects/${projectId}/defects/${defectId}/assignees/${contactId}`)
   },
+
+  exportPdf: async (projectId: string, filters?: { status?: string; category?: string; severity?: string }, language: string = 'he'): Promise<void> => {
+    const params = new URLSearchParams()
+    if (filters?.status) params.set('status', filters.status)
+    if (filters?.category) params.set('category', filters.category)
+    if (filters?.severity) params.set('severity', filters.severity)
+    params.set('language', language)
+    const qs = params.toString()
+    const response = await apiClient.get(`/projects/${projectId}/defects/export-pdf${qs ? `?${qs}` : ''}`, {
+      responseType: 'blob',
+    })
+    const blob = new Blob([response.data], { type: 'application/pdf' })
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `defects_report_${new Date().toISOString().slice(0, 10)}.pdf`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    window.URL.revokeObjectURL(url)
+  },
 }

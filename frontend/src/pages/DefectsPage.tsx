@@ -17,7 +17,7 @@ import type { Defect, DefectSummary, Contact, ConstructionArea } from '../types'
 import { useToast } from '../components/common/ToastProvider'
 import {
   AddIcon, ReportProblemIcon, CheckCircleIcon, WarningIcon, ErrorIcon,
-  HourglassEmptyIcon, VisibilityIcon,
+  HourglassEmptyIcon, VisibilityIcon, PictureAsPdfIcon,
 } from '@/icons'
 import {
   Box, Typography, Skeleton, Chip, MenuItem,
@@ -48,6 +48,8 @@ export default function DefectsPage() {
   const [activeTab, setActiveTab] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('')
+
+  const [exporting, setExporting] = useState(false)
 
   const [form, setForm] = useState<DefectCreateData>({
     description: '',
@@ -91,6 +93,22 @@ export default function DefectsPage() {
       loadData()
     } catch {
       showError(t('defects.createFailed'))
+    }
+  }
+
+  const handleExportPdf = async () => {
+    if (!projectId) return
+    setExporting(true)
+    try {
+      const filters: { status?: string; category?: string } = {}
+      if (activeTab !== 'all') filters.status = activeTab
+      if (categoryFilter) filters.category = categoryFilter
+      await defectsApi.exportPdf(projectId, filters)
+      showSuccess(t('defects.exportSuccess'))
+    } catch {
+      showError(t('defects.exportFailed'))
+    } finally {
+      setExporting(false)
     }
   }
 
@@ -219,9 +237,14 @@ export default function DefectsPage() {
         subtitle={t('defects.subtitle')}
         breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('nav.defects') }]}
         actions={
-          <Button variant="primary" icon={<AddIcon />} onClick={() => setDialogOpen(true)}>
-            {t('defects.reportDefect')}
-          </Button>
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Button variant="secondary" icon={<PictureAsPdfIcon />} onClick={handleExportPdf} disabled={exporting}>
+              {exporting ? t('defects.exporting') : t('defects.exportPdf')}
+            </Button>
+            <Button variant="primary" icon={<AddIcon />} onClick={() => setDialogOpen(true)}>
+              {t('defects.reportDefect')}
+            </Button>
+          </Box>
         }
       />
 

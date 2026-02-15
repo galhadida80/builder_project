@@ -3,6 +3,7 @@ from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.responses import Response
 from sqlalchemy import case, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -22,11 +23,13 @@ from app.schemas.defect import (
     DefectUpdate,
 )
 from app.services.audit_service import create_audit_log, get_model_dict
+from app.services.defect_report_service import generate_defects_report_pdf
 from app.services.notification_service import (
     notify_contact,
     notify_project_admins,
     notify_user,
 )
+from app.services.storage_service import StorageBackend, get_storage_backend
 
 router = APIRouter()
 
@@ -111,6 +114,46 @@ async def get_defect_summary(
         critical_count=row.critical_count or 0,
         high_count=row.high_count or 0,
         by_category=by_category,
+    )
+
+
+@router.get("/projects/{project_id}/defects/export-pdf")
+async def export_defects_pdf(
+    project_id: UUID,
+    status: Optional[str] = Query(None),
+    category: Optional[str] = Query(None),
+    severity: Optional[str] = Query(None),
+    language: str = Query("he"),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    storage: StorageBackend = Depends(get_storage_backend),
+):
+    await verify_project_access(project_id, current_user, db)
+    project = await db.get(Project, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    query = (
+        select(Defect)
+        .options(*DEFECT_LOAD_OPTIONS)
+        .where(Defect.project_id == project_id)
+    )
+    if status:
+        query = query.where(Defect.status == status)
+    if category:
+        query = query.where(Defect.category == category)
+    if severity:
+        query = query.where(Defect.severity == severity)
+    query = query.order_by(Defect.defect_number.desc())
+    result = await db.execute(query)
+    defects = list(result.scalars().all())
+
+    pdf_bytes = await generate_defects_report_pdf(db, defects, project, storage, language)
+    filename = f"defects_report_{project.code}_{datetime.utcnow().strftime('%Y%m%d')}.pdf"
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
 
 

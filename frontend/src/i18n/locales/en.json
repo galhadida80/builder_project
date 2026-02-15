@@ -1646,6 +1646,10 @@
       "lighting": "Lighting",
       "solar_system": "Solar System",
       "other": "Other"
-    }
+    },
+    "exportPdf": "Export PDF",
+    "exporting": "Exporting...",
+    "exportSuccess": "PDF report downloaded",
+    "exportFailed": "Failed to export PDF"
   }
 }
