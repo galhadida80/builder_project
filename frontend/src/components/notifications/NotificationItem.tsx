@@ -99,7 +99,7 @@ function getInitials(title: string): string {
 }
 
 export function NotificationItem({ notification, onClick, onActionClick }: NotificationItemProps) {
-  const config = categoryConfig[notification.category]
+  const config = categoryConfig[notification.category] ?? categoryConfig.general
 
   const handleClick = () => {
     if (onClick) {
