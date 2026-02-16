@@ -11,16 +11,18 @@ import { PageHeader } from '../components/ui/Breadcrumbs'
 import { EmptyState } from '../components/ui/EmptyState'
 import { TextField, SearchField } from '../components/ui/TextField'
 import { defectsApi, DefectCreateData } from '../api/defects'
+import { filesApi } from '../api/files'
 import { contactsApi } from '../api/contacts'
 import { areasApi } from '../api/areas'
 import type { Defect, DefectSummary, Contact, ConstructionArea } from '../types'
 import { useToast } from '../components/common/ToastProvider'
 import {
   AddIcon, ReportProblemIcon, CheckCircleIcon, WarningIcon, ErrorIcon,
-  HourglassEmptyIcon, VisibilityIcon, PictureAsPdfIcon,
+  HourglassEmptyIcon, VisibilityIcon, PictureAsPdfIcon, AddPhotoAlternateIcon,
+  CloseIcon,
 } from '@/icons'
 import {
-  Box, Typography, Skeleton, Chip, MenuItem,
+  Box, Typography, Skeleton, Chip, MenuItem, IconButton,
   TextField as MuiTextField, Autocomplete,
 } from '@/mui'
 
@@ -50,6 +52,8 @@ export default function DefectsPage() {
   const [categoryFilter, setCategoryFilter] = useState('')
 
   const [exporting, setExporting] = useState(false)
+
+  const [pendingPhotos, setPendingPhotos] = useState<File[]>([])
 
   const [form, setForm] = useState<DefectCreateData>({
     description: '',
@@ -86,10 +90,16 @@ export default function DefectsPage() {
   const handleCreate = async () => {
     if (!projectId) return
     try {
-      await defectsApi.create(projectId, form)
+      const created = await defectsApi.create(projectId, form)
+      if (pendingPhotos.length > 0) {
+        for (const file of pendingPhotos) {
+          await filesApi.upload(projectId, 'defect', created.id, file)
+        }
+      }
       showSuccess(t('defects.createSuccess'))
       setDialogOpen(false)
       setForm({ description: '', category: 'other', severity: 'medium', assignee_ids: [] })
+      setPendingPhotos([])
       loadData()
     } catch {
       showError(t('defects.createFailed'))
@@ -337,6 +347,7 @@ export default function DefectsPage() {
         onClose={() => {
           setDialogOpen(false)
           setForm({ description: '', category: 'other', severity: 'medium', assignee_ids: [] })
+          setPendingPhotos([])
         }}
         onSubmit={handleCreate}
         title={t('defects.reportDefect')}
@@ -439,6 +450,56 @@ export default function DefectsPage() {
             value={form.due_date || ''}
             onChange={(e) => setForm({ ...form, due_date: e.target.value || undefined })}
           />
+
+          <Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+              <Typography variant="body2" fontWeight={500}>
+                {t('defects.photos')} {pendingPhotos.length > 0 && `(${pendingPhotos.length})`}
+              </Typography>
+              <Button
+                variant="secondary"
+                size="small"
+                icon={<AddPhotoAlternateIcon />}
+                onClick={() => document.getElementById('defect-create-photo-input')?.click()}
+              >
+                {t('defects.addPhoto')}
+              </Button>
+              <input
+                id="defect-create-photo-input"
+                type="file"
+                hidden
+                multiple
+                accept="image/*"
+                onChange={(e) => {
+                  if (e.target.files) {
+                    setPendingPhotos(prev => [...prev, ...Array.from(e.target.files!)])
+                  }
+                  e.target.value = ''
+                }}
+              />
+            </Box>
+            {pendingPhotos.length > 0 && (
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                {pendingPhotos.map((file, idx) => (
+                  <Box key={idx} sx={{ position: 'relative', width: 80, height: 80, borderRadius: 1.5, overflow: 'hidden', border: '1px solid', borderColor: 'divider' }}>
+                    <Box
+                      component="img"
+                      src={URL.createObjectURL(file)}
+                      alt={file.name}
+                      sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                    <IconButton
+                      size="small"
+                      onClick={() => setPendingPhotos(prev => prev.filter((_, i) => i !== idx))}
+                      sx={{ position: 'absolute', top: 2, right: 2, bgcolor: 'rgba(0,0,0,0.5)', color: 'white', p: 0.3, '&:hover': { bgcolor: 'rgba(0,0,0,0.7)' } }}
+                    >
+                      <CloseIcon sx={{ fontSize: 14 }} />
+                    </IconButton>
+                  </Box>
+                ))}
+              </Box>
+            )}
+          </Box>
         </Box>
       </FormModal>
     </Box>
