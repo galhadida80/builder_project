@@ -10,6 +10,7 @@ const StyledTextField = styled(MuiTextField)(({ theme }) => ({
   '& .MuiOutlinedInput-root': {
     borderRadius: 8,
     transition: 'border-color 200ms ease-out',
+    minHeight: 48,
     '&:hover': {
       '& .MuiOutlinedInput-notchedOutline': {
         borderColor: theme.palette.primary.main,
@@ -27,6 +28,10 @@ const StyledTextField = styled(MuiTextField)(({ theme }) => ({
   '& .MuiInputBase-input': {
     fontSize: '0.875rem',
     textAlign: 'start',
+    padding: '12px 14px',
+  },
+  '& .MuiInputAdornment-root': {
+    marginTop: '0 !important',
   },
 }))
 

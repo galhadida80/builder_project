@@ -36,6 +36,7 @@ export default function DefectDetailPage() {
   const [newStatus, setNewStatus] = useState('')
   const [uploading, setUploading] = useState(false)
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null)
+  const [thumbnails, setThumbnails] = useState<Record<string, string>>({})
 
   useEffect(() => {
     loadDetail()
@@ -55,12 +56,27 @@ export default function DefectDetailPage() {
       setPhotos(fileList)
       setContacts(contactList)
       setHistory(auditList)
+      loadThumbnails(fileList)
     } catch {
       showError(t('defects.failedToLoad'))
       navigate(-1)
     } finally {
       setLoading(false)
     }
+  }
+
+  const loadThumbnails = async (files: FileRecord[]) => {
+    if (!projectId) return
+    const imageFiles = files.filter(f => f.fileType?.startsWith('image/'))
+    const urls: Record<string, string> = {}
+    await Promise.all(
+      imageFiles.map(async (file) => {
+        try {
+          urls[file.id] = await filesApi.getFileBlob(projectId, file.id)
+        } catch { /* skip failed thumbnails */ }
+      })
+    )
+    setThumbnails(prev => ({ ...prev, ...urls }))
   }
 
   const handleStatusChange = async () => {
@@ -96,6 +112,7 @@ export default function DefectDetailPage() {
       }
       const updated = await filesApi.list(projectId, 'defect', defectId)
       setPhotos(updated)
+      loadThumbnails(updated)
       showSuccess(t('defects.photosUploaded'))
     } catch {
       showError(t('defects.photoUploadFailed'))
@@ -296,9 +313,18 @@ export default function DefectDetailPage() {
                   }}
                   onClick={() => handleViewPhoto(file)}
                 >
-                  <Box sx={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <ImageIcon sx={{ fontSize: 40, color: 'grey.400' }} />
-                  </Box>
+                  {thumbnails[file.id] ? (
+                    <Box
+                      component="img"
+                      src={thumbnails[file.id]}
+                      alt={file.filename}
+                      sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  ) : (
+                    <Box sx={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <ImageIcon sx={{ fontSize: 40, color: 'grey.400' }} />
+                    </Box>
+                  )}
                   <Box
                     className="overlay"
                     sx={{

@@ -25,6 +25,42 @@ const entityTypes = ['equipment', 'material', 'meeting', 'project', 'contact', '
 const actionTypes = ['create', 'update', 'delete', 'status_change', 'approval', 'rejection']
 const PAGE_SIZE = 15
 
+const FIELD_LABELS: Record<string, string> = {
+  filename: 'File Name',
+  entity_id: 'Related Entity',
+  entity_type: 'Entity Type',
+  contact_name: 'Contact Name',
+  company_name: 'Company',
+  contact_type: 'Contact Type',
+  role_description: 'Role',
+  equipment_type: 'Equipment Type',
+  model_number: 'Model Number',
+  serial_number: 'Serial Number',
+  manufacturer: 'Manufacturer',
+  status: 'Status',
+  name: 'Name',
+  description: 'Description',
+  title: 'Title',
+  question: 'Question',
+  category: 'Category',
+  priority: 'Priority',
+  severity: 'Severity',
+  location: 'Location',
+  floor_number: 'Floor',
+  area_code: 'Area Code',
+  due_date: 'Due Date',
+  scheduled_date: 'Scheduled Date',
+  meeting_type: 'Meeting Type',
+  file_type: 'File Type',
+  file_size: 'File Size',
+  storage_path: 'Storage Path',
+  defect_number: 'Defect #',
+  submission_number: 'Submission #',
+}
+
+const isUUID = (val: unknown): boolean =>
+  typeof val === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val)
+
 export default function AuditLogPage() {
   const { showError, showSuccess } = useToast()
   const { t, i18n } = useTranslation()
@@ -419,10 +455,12 @@ export default function AuditLogPage() {
                 </Box>
               </Box>
               <Box>
-                <Typography variant="caption" color="text.secondary" fontWeight={600}>{t('auditLog.entityId').toUpperCase()}</Typography>
-                <Typography variant="body2" sx={{ fontFamily: 'monospace', fontSize: '0.8rem', wordBreak: 'break-all' }}>
-                  {selectedLog.entityId}
-                </Typography>
+                <Typography variant="caption" color="text.secondary" fontWeight={600}>{t('auditLog.entity').toUpperCase()}</Typography>
+                <Chip
+                  label={t(`auditLog.entities.${selectedLog.entityType}`, { defaultValue: selectedLog.entityType })}
+                  size="small"
+                  sx={{ mt: 0.5 }}
+                />
               </Box>
             </Box>
 
@@ -432,7 +470,9 @@ export default function AuditLogPage() {
                 <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ mb: 1.5, display: 'block' }}>
                   {t('auditLog.changes').toUpperCase()}
                 </Typography>
-                {formatChanges(selectedLog.oldValues, selectedLog.newValues).map(change => (
+                {formatChanges(selectedLog.oldValues, selectedLog.newValues)
+                  .filter(change => !(isUUID(change.old) && isUUID(change.new)) && !(change.old === undefined && isUUID(change.new)) && !(isUUID(change.old) && change.new === undefined))
+                  .map(change => (
                   <Box
                     key={change.field}
                     sx={{
@@ -443,12 +483,12 @@ export default function AuditLogPage() {
                     }}
                   >
                     <Typography variant="caption" color="text.secondary" fontWeight={600}>
-                      {change.field}
+                      {FIELD_LABELS[change.field] || change.field.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
                     </Typography>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5, flexWrap: 'wrap' }}>
                       {change.old !== undefined && (
                         <Chip
-                          label={String(change.old)}
+                          label={isUUID(change.old) ? String(change.old).slice(0, 8) + '...' : String(change.old)}
                           size="small"
                           sx={{ bgcolor: 'error.light', color: 'error.dark', fontSize: '0.7rem', maxWidth: '100%' }}
                         />
@@ -456,7 +496,7 @@ export default function AuditLogPage() {
                       <SwapHorizIcon sx={{ fontSize: 16, color: 'text.secondary', flexShrink: 0 }} />
                       {change.new !== undefined && (
                         <Chip
-                          label={String(change.new)}
+                          label={isUUID(change.new) ? String(change.new).slice(0, 8) + '...' : String(change.new)}
                           size="small"
                           sx={{ bgcolor: 'success.light', color: 'success.dark', fontSize: '0.7rem', maxWidth: '100%' }}
                         />

@@ -5,6 +5,7 @@ import { EmptyState } from '../components/ui/EmptyState'
 import { workloadApi } from '../api/workload'
 import type { TeamMember } from '../types'
 import { useToast } from '../components/common/ToastProvider'
+import { useProject } from '../contexts/ProjectContext'
 import { getWorkloadColor } from '../utils/workloadCalculation'
 import { PeopleIcon, TrendingUpIcon, AssignmentIcon } from '@/icons'
 import { Box, Typography, Skeleton, Chip, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar } from '@/mui'
@@ -12,17 +13,18 @@ import { Box, Typography, Skeleton, Chip, Table, TableBody, TableCell, TableCont
 export default function TeamWorkloadView() {
   const { t } = useTranslation()
   const { showError } = useToast()
+  const { selectedProjectId } = useProject()
   const [loading, setLoading] = useState(true)
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([])
 
   useEffect(() => {
     loadTeamData()
-  }, [])
+  }, [selectedProjectId])
 
   const loadTeamData = async () => {
     try {
       setLoading(true)
-      const data = await workloadApi.getTeamMembers()
+      const data = await workloadApi.getTeamMembers(selectedProjectId)
       setTeamMembers(data)
     } catch (error) {
       console.error('Failed to load team workload data:', error)
