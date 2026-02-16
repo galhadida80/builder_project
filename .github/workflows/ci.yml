@@ -44,7 +44,7 @@ jobs:
           cache-dependency-path: backend/requirements.txt
 
       - name: Install dependencies
-        run: pip install -r backend/requirements.txt
+        run: pip install -r backend/requirements.txt ruff
 
       - name: Lint
         run: ruff check backend/
