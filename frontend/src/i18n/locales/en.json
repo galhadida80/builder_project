@@ -530,7 +530,9 @@
       "project": "Project",
       "contact": "Contact",
       "area": "Area",
-      "approval": "Approval"
+      "approval": "Approval",
+      "defect": "Defect",
+      "file": "File"
     },
     "fieldLabels": {
       "filename": "File Name",
@@ -569,7 +571,21 @@
       "area_id": "Area",
       "to_email": "Recipient Email",
       "to_name": "Recipient Name",
-      "assigned_to": "Assigned To"
+      "assigned_to": "Assigned To",
+      "rfi_number": "RFI Number",
+      "subject": "Subject",
+      "notes": "Notes",
+      "phone": "Phone",
+      "email": "Email",
+      "quantity": "Quantity",
+      "unit": "Unit",
+      "material_type": "Material Type",
+      "defect_type": "Defect Type",
+      "resolved_at": "Resolved At",
+      "sent_at": "Sent At",
+      "responded_at": "Responded At",
+      "total_units": "Total Units",
+      "area_type": "Area Type"
     }
   },
   "statuses": {

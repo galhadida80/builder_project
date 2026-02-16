@@ -21,7 +21,7 @@ const actionConfig: Record<string, { icon: React.ReactNode; color: 'success' | '
   rejection: { icon: <CancelIcon sx={{ fontSize: 18 }} />, color: 'error', bg: 'error.light' },
 }
 
-const entityTypes = ['equipment', 'material', 'meeting', 'project', 'contact', 'area']
+const entityTypes = ['equipment', 'material', 'meeting', 'project', 'contact', 'area', 'inspection', 'rfi', 'defect', 'file', 'approval']
 const actionTypes = ['create', 'update', 'delete', 'status_change', 'approval', 'rejection']
 const PAGE_SIZE = 15
 
@@ -63,7 +63,25 @@ const FIELD_LABEL_KEYS: Record<string, string> = {
   to_email: 'auditLog.fieldLabels.to_email',
   to_name: 'auditLog.fieldLabels.to_name',
   assigned_to: 'auditLog.fieldLabels.assigned_to',
+  rfi_number: 'auditLog.fieldLabels.rfi_number',
+  subject: 'auditLog.fieldLabels.subject',
+  notes: 'auditLog.fieldLabels.notes',
+  phone: 'auditLog.fieldLabels.phone',
+  email: 'auditLog.fieldLabels.email',
+  quantity: 'auditLog.fieldLabels.quantity',
+  unit: 'auditLog.fieldLabels.unit',
+  material_type: 'auditLog.fieldLabels.material_type',
+  defect_type: 'auditLog.fieldLabels.defect_type',
+  resolved_at: 'auditLog.fieldLabels.resolved_at',
+  sent_at: 'auditLog.fieldLabels.sent_at',
+  responded_at: 'auditLog.fieldLabels.responded_at',
+  total_units: 'auditLog.fieldLabels.total_units',
+  area_type: 'auditLog.fieldLabels.area_type',
 }
+
+const HIDDEN_FIELDS = new Set(['id', 'project_id', 'entity_id', 'created_by_id', 'updated_by_id', 'consultant_type_id', 'related_equipment_id', 'related_material_id', 'area_id', 'user_id'])
+
+const STATUS_FIELDS = new Set(['status'])
 
 const isUUID = (val: unknown): boolean =>
   typeof val === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val)
@@ -152,7 +170,18 @@ export default function AuditLogPage() {
     ]
     const rows = filteredLogs.map(log => {
       const changes = formatChanges(log.oldValues, log.newValues)
-      const changesText = changes.map(c => `${c.field}: ${String(c.old ?? '')} → ${String(c.new ?? '')}`).join('; ')
+        .filter(c => !HIDDEN_FIELDS.has(c.field))
+        .filter(c => !(isUUID(c.old) || isUUID(c.new)))
+        .filter(c => !(isNullish(c.old) && isNullish(c.new)))
+      const formatCsvVal = (field: string, val: unknown) => {
+        if (isNullish(val)) return ''
+        if (isISODate(val)) return new Date(String(val)).toLocaleString(dateLocale)
+        if (STATUS_FIELDS.has(field)) return t(`statuses.${String(val)}`, { defaultValue: String(val) })
+        return String(val)
+      }
+      const translateField = (field: string) =>
+        FIELD_LABEL_KEYS[field] ? t(FIELD_LABEL_KEYS[field]) : field.replace(/_/g, ' ').replace(/\b\w/g, ch => ch.toUpperCase())
+      const changesText = changes.map(c => `${translateField(c.field)}: ${formatCsvVal(c.field, c.old)} → ${formatCsvVal(c.field, c.new)}`).join('; ')
       return [
         new Date(log.createdAt).toLocaleString(dateLocale),
         log.user?.fullName || log.user?.email || '',
@@ -484,15 +513,17 @@ export default function AuditLogPage() {
                   {t('auditLog.changes').toUpperCase()}
                 </Typography>
                 {formatChanges(selectedLog.oldValues, selectedLog.newValues)
-                  .filter(change => !(isUUID(change.old) && isUUID(change.new)) && !(change.old === undefined && isUUID(change.new)) && !(isUUID(change.old) && change.new === undefined))
+                  .filter(change => !HIDDEN_FIELDS.has(change.field))
+                  .filter(change => !(isUUID(change.old) || isUUID(change.new)))
                   .filter(change => !(isNullish(change.old) && isNullish(change.new)))
                   .map(change => {
                     const isCreate = isNullish(change.old) && !isNullish(change.new)
                     const isDelete = !isNullish(change.old) && isNullish(change.new)
+                    const isStatusField = STATUS_FIELDS.has(change.field)
                     const formatVal = (val: unknown) => {
                       if (isNullish(val)) return ''
-                      if (isUUID(val)) return String(val).slice(0, 8) + '...'
                       if (isISODate(val)) return new Date(String(val)).toLocaleString(dateLocale)
+                      if (isStatusField) return t(`statuses.${String(val)}`, { defaultValue: String(val).replace(/_/g, ' ') })
                       return String(val)
                     }
                     return (

@@ -649,7 +649,9 @@
       "project": "פרויקט",
       "contact": "איש קשר",
       "area": "אזור",
-      "approval": "אישור"
+      "approval": "אישור",
+      "defect": "ליקוי",
+      "file": "קובץ"
     },
     "fieldLabels": {
       "filename": "שם קובץ",
@@ -688,7 +690,21 @@
       "area_id": "אזור",
       "to_email": "אימייל נמען",
       "to_name": "שם נמען",
-      "assigned_to": "שויך ל"
+      "assigned_to": "שויך ל",
+      "rfi_number": "מספר RFI",
+      "subject": "נושא",
+      "notes": "הערות",
+      "phone": "טלפון",
+      "email": "אימייל",
+      "quantity": "כמות",
+      "unit": "יחידה",
+      "material_type": "סוג חומר",
+      "defect_type": "סוג ליקוי",
+      "resolved_at": "נפתר בתאריך",
+      "sent_at": "נשלח בתאריך",
+      "responded_at": "נענה בתאריך",
+      "total_units": "סה\"כ יחידות",
+      "area_type": "סוג אזור"
     }
   },
   "statuses": {

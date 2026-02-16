@@ -514,7 +514,11 @@
       "inspection": "Inspección",
       "rfi": "RFI",
       "project": "Proyecto",
-      "approval": "Aprobación"
+      "approval": "Aprobación",
+      "contact": "Contacto",
+      "area": "Área",
+      "defect": "Defecto",
+      "file": "Archivo"
     },
     "fieldLabels": {
       "filename": "Nombre de Archivo",
@@ -553,7 +557,21 @@
       "area_id": "Área",
       "to_email": "Email del Destinatario",
       "to_name": "Nombre del Destinatario",
-      "assigned_to": "Asignado a"
+      "assigned_to": "Asignado a",
+      "rfi_number": "Número de RFI",
+      "subject": "Asunto",
+      "notes": "Notas",
+      "phone": "Teléfono",
+      "email": "Email",
+      "quantity": "Cantidad",
+      "unit": "Unidad",
+      "material_type": "Tipo de Material",
+      "defect_type": "Tipo de Defecto",
+      "resolved_at": "Fecha de Resolución",
+      "sent_at": "Fecha de Envío",
+      "responded_at": "Fecha de Respuesta",
+      "total_units": "Total de Unidades",
+      "area_type": "Tipo de Área"
     }
   },
   "statuses": {
