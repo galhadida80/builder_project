@@ -7,6 +7,7 @@ from sqlalchemy.orm import selectinload
 
 from app.models.area import ConstructionArea
 from app.models.contact import Contact
+from app.models.defect import Defect
 from app.models.document_analysis import DocumentAnalysis
 from app.models.equipment import Equipment
 from app.models.equipment_template import EquipmentApprovalSubmission
@@ -571,6 +572,89 @@ async def get_contact_details(db: AsyncSession, project_id: uuid.UUID, **kwargs)
     }
 
 
+async def count_defects_by_status(db: AsyncSession, project_id: uuid.UUID, **kwargs) -> dict:
+    result = await db.execute(
+        select(Defect.status, func.count(Defect.id).label("count"))
+        .where(Defect.project_id == project_id)
+        .group_by(Defect.status)
+    )
+    rows = result.all()
+    total = sum(r.count for r in rows)
+    by_status = {r.status: r.count for r in rows}
+
+    severity_result = await db.execute(
+        select(Defect.severity, func.count(Defect.id).label("count"))
+        .where(Defect.project_id == project_id)
+        .group_by(Defect.severity)
+    )
+    by_severity = {r.severity: r.count for r in severity_result.all()}
+
+    return {"total": total, "by_status": by_status, "by_severity": by_severity}
+
+
+async def list_defects(db: AsyncSession, project_id: uuid.UUID, **kwargs) -> dict:
+    status = kwargs.get("status")
+    severity = kwargs.get("severity")
+    category = kwargs.get("category")
+    limit = min(int(kwargs.get("limit", 20)), 50)
+
+    query = select(Defect).where(Defect.project_id == project_id)
+    if status:
+        query = query.where(Defect.status == status)
+    if severity:
+        query = query.where(Defect.severity == severity)
+    if category:
+        query = query.where(Defect.category == category)
+    query = query.order_by(Defect.created_at.desc()).limit(limit)
+
+    result = await db.execute(query)
+    items = result.scalars().all()
+    return {
+        "count": len(items),
+        "items": [
+            {
+                "id": str(d.id),
+                "defect_number": d.defect_number,
+                "category": d.category,
+                "defect_type": d.defect_type,
+                "description": d.description[:200],
+                "severity": d.severity,
+                "status": d.status,
+                "is_repeated": d.is_repeated,
+                "due_date": str(d.due_date) if d.due_date else None,
+                "created_at": str(d.created_at),
+            }
+            for d in items
+        ],
+    }
+
+
+async def get_defect_details(db: AsyncSession, project_id: uuid.UUID, **kwargs) -> dict:
+    entity_id = kwargs.get("entity_id")
+    if not entity_id:
+        return {"error": "entity_id is required"}
+    result = await db.execute(
+        select(Defect).where(Defect.id == entity_id, Defect.project_id == project_id)
+    )
+    d = result.scalar_one_or_none()
+    if not d:
+        return {"error": "Defect not found"}
+    return {
+        "id": str(d.id),
+        "defect_number": d.defect_number,
+        "category": d.category,
+        "defect_type": d.defect_type,
+        "description": d.description,
+        "severity": d.severity,
+        "status": d.status,
+        "is_repeated": d.is_repeated,
+        "due_date": str(d.due_date) if d.due_date else None,
+        "resolved_at": str(d.resolved_at) if d.resolved_at else None,
+        "area_id": str(d.area_id) if d.area_id else None,
+        "created_at": str(d.created_at),
+    }
+
+
 async def search_documents(db: AsyncSession, project_id: uuid.UUID, **kwargs) -> dict:
     query_text = kwargs.get("query", "")
     if not query_text:
@@ -625,6 +709,7 @@ async def get_full_project_context(db: AsyncSession, project_id: uuid.UUID) -> s
     mat_status = await count_materials_by_status(db, project_id)
     rfi_status = await count_rfis_by_status(db, project_id)
     insp_status = await count_inspections_by_status(db, project_id)
+    defect_status = await count_defects_by_status(db, project_id)
     meetings = await get_meetings(db, project_id, upcoming="true", limit="5")
     approvals = await get_approval_queue(db, project_id)
     areas = await get_area_progress(db, project_id, limit="50")
@@ -643,6 +728,7 @@ async def get_full_project_context(db: AsyncSession, project_id: uuid.UUID) -> s
         f"**Materials:** {mat_status['total']} total — {mat_status['by_status']}" if mat_status['total'] else "**Materials:** 0 items",
         f"**RFIs:** {rfi_status['total']} total — status: {rfi_status['by_status']}, priority: {rfi_status['by_priority']}" if rfi_status['total'] else "**RFIs:** 0 items",
         f"**Inspections:** {insp_status['total']} total — {insp_status['by_status']}" if insp_status['total'] else "**Inspections:** 0 items",
+        f"**Defects:** {defect_status['total']} total — status: {defect_status['by_status']}, severity: {defect_status['by_severity']}" if defect_status['total'] else "**Defects:** 0 items",
         f"**Upcoming Meetings:** {meetings['count']}",
         f"**Pending Approvals:** {approvals['total_pending']} ({approvals['equipment_pending']} equipment, {approvals['material_pending']} materials)",
         f"**Construction Areas:** {areas['count']} total, average progress: {areas['average_progress']:.0f}%",
@@ -688,5 +774,8 @@ TOOL_REGISTRY = {
     "get_area_details": get_area_details,
     "list_contacts": list_contacts,
     "get_contact_details": get_contact_details,
+    "count_defects_by_status": count_defects_by_status,
+    "list_defects": list_defects,
+    "get_defect_details": get_defect_details,
     "search_documents": search_documents,
 }

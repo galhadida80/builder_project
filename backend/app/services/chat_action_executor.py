@@ -9,6 +9,7 @@ from app.models.area import AreaProgress, ConstructionArea
 from app.models.audit import AuditLog
 from app.models.chat_action import ChatAction
 from app.models.contact import Contact
+from app.models.defect import Defect
 from app.models.equipment import Equipment
 from app.models.equipment_template import EquipmentApprovalDecision, EquipmentApprovalSubmission
 from app.models.inspection import Inspection
@@ -22,6 +23,7 @@ VALID_MATERIAL_STATUSES = {"draft", "submitted", "under_review", "approved", "re
 VALID_RFI_STATUSES = {"draft", "open", "waiting_response", "answered", "closed", "cancelled"}
 VALID_INSPECTION_STATUSES = {"pending", "in_progress", "completed", "failed"}
 VALID_MEETING_STATUSES = {"scheduled", "invitations_sent", "completed", "cancelled"}
+VALID_DEFECT_STATUSES = {"open", "in_progress", "resolved", "closed", "rejected"}
 
 
 async def execute_action(db: AsyncSession, action: ChatAction, user_id: uuid.UUID, project_id: uuid.UUID) -> dict:
@@ -40,6 +42,8 @@ async def execute_action(db: AsyncSession, action: ChatAction, user_id: uuid.UUI
         "create_material": handle_create_material,
         "create_area": handle_create_area,
         "create_contact": handle_create_contact,
+        "create_defect": handle_create_defect,
+        "update_defect_status": handle_update_defect_status,
     }
     handler = handlers.get(action.action_type)
     if not handler:
@@ -387,3 +391,52 @@ async def handle_create_contact(db: AsyncSession, action: ChatAction, user_id: u
         new_values={"contact_name": contact.contact_name, "contact_type": contact.contact_type},
     ))
     return {"contact_id": str(contact.id), "contact_name": contact.contact_name}
+
+
+async def handle_create_defect(db: AsyncSession, action: ChatAction, user_id: uuid.UUID, project_id: uuid.UUID) -> dict:
+    params = action.parameters
+    existing = await db.execute(
+        select(func.count()).select_from(Defect).where(Defect.project_id == project_id)
+    )
+    next_num = (existing.scalar() or 0) + 1
+    defect = Defect(
+        project_id=project_id,
+        defect_number=next_num,
+        description=params.get("description", ""),
+        category=params.get("category", "other"),
+        severity=params.get("severity", "medium"),
+        defect_type=params.get("defect_type", "non_conformance"),
+        status="open",
+        created_by_id=user_id,
+    )
+    db.add(defect)
+    await db.flush()
+    db.add(AuditLog(
+        project_id=project_id, user_id=user_id, entity_type="defect",
+        entity_id=defect.id, action="create",
+        new_values={"defect_number": next_num, "category": defect.category, "severity": defect.severity},
+    ))
+    return {"defect_id": str(defect.id), "defect_number": next_num}
+
+
+async def handle_update_defect_status(db: AsyncSession, action: ChatAction, user_id: uuid.UUID, project_id: uuid.UUID) -> dict:
+    new_status = action.parameters.get("new_status")
+    if new_status not in VALID_DEFECT_STATUSES:
+        return {"error": f"Invalid status: {new_status}"}
+    result = await db.execute(
+        select(Defect).where(Defect.id == action.entity_id, Defect.project_id == project_id)
+    )
+    entity = result.scalar_one_or_none()
+    if not entity:
+        return {"error": "Defect not found"}
+    old_status = entity.status
+    entity.status = new_status
+    entity.updated_at = datetime.utcnow()
+    if new_status == "resolved":
+        entity.resolved_at = datetime.utcnow()
+    db.add(AuditLog(
+        project_id=project_id, user_id=user_id, entity_type="defect",
+        entity_id=entity.id, action="status_change",
+        old_values={"status": old_status}, new_values={"status": new_status},
+    ))
+    return {"old_status": old_status, "new_status": new_status, "defect_number": entity.defect_number}

@@ -77,10 +77,14 @@ Hebrew example:
 - Use the project context snapshot (provided dynamically) for general overview questions.
 - When listing entities, always include their IDs for future reference.
 
-## Clarification
-- If the user's question is vague, ask a clarifying question BEFORE fetching data.
-- Example: "הצג ציוד" → Ask: "האם להציג את כל הציוד, או לסנן לפי סטטוס (טיוטה/הוגש/אושר)?"
-- Example: "עדכן סטטוס" → Ask: "איזה פריט לעדכן, ולאיזה סטטוס?"
+## Action First — NEVER Ask Before Listing
+- When the user asks to see/list/show items (equipment, materials, RFIs, inspections, meetings, defects, contacts, areas):
+  **ALWAYS call the tool IMMEDIATELY with NO filters** and show ALL items. Do NOT ask "which status?" or "which type?" first.
+- Example: "הצג ציוד" → CALL list_equipment() with no status filter → show all items → THEN suggest filters in follow-up
+- Example: "הצג RFIs" → CALL list_rfis() with no filters → show all → suggest "רוצה לסנן לפי עדיפות/סטטוס?"
+- Example: "מה הציוד בפרויקט?" → CALL list_equipment() immediately
+- The ONLY time you ask before listing is if the user explicitly says they want something specific (e.g., "הצג רק ציוד מאושר")
+- For updates: "עדכן סטטוס" → Ask: "איזה פריט לעדכן, ולאיזה סטטוס?" (this is OK because you need a specific entity)
 
 ## Action Capabilities
 - When a user asks to change, update, create, or approve something, use the propose_* tools.
@@ -89,16 +93,15 @@ Hebrew example:
 - Describe clearly what will change and why.
 - Proactively suggest actions when you spot opportunities (e.g., "3 פריטים עדיין בטיוטה — האם להגיש אותם לבדיקה?").
 
-## Entity Creation — ALWAYS Call the Tool + Show Template
-When a user asks to CREATE a new entity (equipment, material, contact, RFI, meeting, area, inspection):
-- **NEVER ask single questions one at a time.** Do NOT reply with just "what is the name?"
-- **You MUST call the propose_create_* tool in the SAME turn.** This is mandatory — do NOT just display a table without calling the tool.
-- Use the context you have (project type, existing data patterns) to fill in sensible values.
-- After calling the tool, also show the template table in your text response so the user sees all fields.
+## Entity Creation — MANDATORY: Call Tool Immediately
+When a user asks to CREATE a new entity (equipment, material, contact, RFI, meeting, area, inspection, defect):
+- **ABSOLUTE RULE: Call the propose_create_* tool in the SAME turn. No exceptions.**
+- **NEVER ask "what is the name?" or any other question before calling the tool.**
+- **NEVER reply with just text asking for details. You MUST call the tool.**
+- Fill ALL fields using: (1) details the user provided, (2) smart defaults from project context, (3) placeholder values for optional fields.
+- After calling the tool, show a template table so the user can review and modify fields.
 
-Example behavior when user says "צור ציוד חדש" (create new equipment):
-1. **CALL** propose_create_equipment with: name="ציוד חדש", equipment_type="כללי", manufacturer="", model_number="", notes=""
-2. In your text response, also show the template table:
+Example: User says "צור ציוד חדש" → You MUST immediately call propose_create_equipment(name="ציוד חדש", equipment_type="כללי") and show:
 
 | שדה | ערך |
 |------|------|
@@ -108,9 +111,11 @@ Example behavior when user says "צור ציוד חדש" (create new equipment):
 | מספר דגם | (ריק) |
 | הערות | (ריק) |
 
-3. Tell the user: "הנה טופס הציוד — אשר אותו או בקש שינויים בשדות ספציפיים"
+Then tell the user: "אשר את היצירה או בקש שינויים בשדות ספציפיים"
 
-Same pattern for ALL entity types:
+Example: User says "צור ציוד בשם מנוף 50 טון" → Call propose_create_equipment(name="מנוף 50 טון", equipment_type="הרמה") with smart type detection.
+
+**Required fields per entity type:**
 - **Equipment**: name, equipment_type, manufacturer, model_number, notes
 - **Material**: name, material_type, manufacturer, quantity, unit, notes
 - **Contact**: contact_name, contact_type, company_name, email, phone, role_description
@@ -118,9 +123,9 @@ Same pattern for ALL entity types:
 - **Meeting**: title, description, scheduled_date, location
 - **Area**: name, area_type, floor_number, area_code, total_units
 - **Inspection**: consultant_type_id, scheduled_date, notes
+- **Defect**: description, category, severity (default: "medium"), defect_type (default: "non_conformance")
 
-If the user provides SOME details (e.g., "צור ציוד בשם מנוף 50 טון"), use those details and fill the rest with defaults.
-The user can always modify individual fields by saying things like "שנה את היצרן ל-Liebherr"."""
+The user can always modify fields after seeing the proposal: "שנה את היצרן ל-Liebherr"."""
 
 
 @dataclass
@@ -294,6 +299,32 @@ async def list_contacts(ctx: RunContext[ChatDeps], limit: int = 30) -> dict:
 async def get_contact_details(ctx: RunContext[ChatDeps], entity_id: str) -> dict:
     """Get full contact details by ID including role description."""
     return await TOOL_REGISTRY["get_contact_details"](ctx.deps.db, ctx.deps.project_id, entity_id=entity_id)
+
+
+@agent.tool
+async def count_defects_by_status(ctx: RunContext[ChatDeps]) -> dict:
+    """Get defect counts by status (open, in_progress, resolved, closed, rejected) and by severity (low, medium, high, critical)."""
+    return await TOOL_REGISTRY["count_defects_by_status"](ctx.deps.db, ctx.deps.project_id)
+
+
+@agent.tool
+async def list_defects(ctx: RunContext[ChatDeps], status: str = "", severity: str = "", category: str = "", limit: int = 20) -> dict:
+    """List defects with optional filters. Each item includes an id. Statuses: open, in_progress, resolved, closed, rejected. Severities: low, medium, high, critical."""
+    kwargs = {}
+    if status:
+        kwargs["status"] = status
+    if severity:
+        kwargs["severity"] = severity
+    if category:
+        kwargs["category"] = category
+    kwargs["limit"] = limit
+    return await TOOL_REGISTRY["list_defects"](ctx.deps.db, ctx.deps.project_id, **kwargs)
+
+
+@agent.tool
+async def get_defect_details(ctx: RunContext[ChatDeps], entity_id: str) -> dict:
+    """Get full defect details by ID including description, severity, category, due date."""
+    return await TOOL_REGISTRY["get_defect_details"](ctx.deps.db, ctx.deps.project_id, entity_id=entity_id)
 
 
 @agent.tool
@@ -551,6 +582,43 @@ async def propose_create_contact(ctx: RunContext[ChatDeps], contact_name: str, c
         entity_id=None,
         parameters=params,
         description=f"Create contact: '{contact_name}' ({contact_type})",
+        status="proposed",
+    )
+    ctx.deps.db.add(action)
+    await ctx.deps.db.flush()
+    return {"action_id": str(action.id), "status": "proposed", "description": action.description}
+
+
+@agent.tool
+async def propose_create_defect(ctx: RunContext[ChatDeps], description: str, category: str, severity: str = "medium", defect_type: str = "non_conformance") -> dict:
+    """Propose creating a new defect. Categories: structural, electrical, plumbing, finishing, safety, other. Severities: low, medium, high, critical. Types: non_conformance, damage, safety_hazard, design_error, workmanship."""
+    params = {"description": description, "category": category, "severity": severity, "defect_type": defect_type}
+    action = ChatAction(
+        conversation_id=ctx.deps.conversation_id,
+        message_id=ctx.deps.message_id,
+        action_type="create_defect",
+        entity_type="defect",
+        entity_id=None,
+        parameters=params,
+        description=f"Create defect: '{description[:80]}' ({severity}, {category})",
+        status="proposed",
+    )
+    ctx.deps.db.add(action)
+    await ctx.deps.db.flush()
+    return {"action_id": str(action.id), "status": "proposed", "description": action.description}
+
+
+@agent.tool
+async def propose_update_defect_status(ctx: RunContext[ChatDeps], entity_id: str, new_status: str, reason: str) -> dict:
+    """Propose changing a defect's status. Status values: open, in_progress, resolved, closed, rejected. The user must approve."""
+    action = ChatAction(
+        conversation_id=ctx.deps.conversation_id,
+        message_id=ctx.deps.message_id,
+        action_type="update_defect_status",
+        entity_type="defect",
+        entity_id=uuid.UUID(entity_id),
+        parameters={"new_status": new_status, "reason": reason},
+        description=f"Change defect status to '{new_status}': {reason}",
         status="proposed",
     )
     ctx.deps.db.add(action)
