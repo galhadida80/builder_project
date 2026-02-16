@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { ChatAction } from '../../api/chat'
-import { CheckCircleIcon, CancelIcon, ExpandMoreIcon, ExpandLessIcon, BuildIcon, CategoryIcon, DescriptionIcon, EventIcon, EngineeringIcon, MapIcon, ContactsIcon, ApprovalIcon, ErrorOutlineIcon } from '@/icons'
+import { CheckCircleIcon, CancelIcon, ExpandMoreIcon, ExpandLessIcon, BuildIcon, CategoryIcon, DescriptionIcon, EventIcon, EngineeringIcon, MapIcon, ContactsIcon, ApprovalIcon, ErrorOutlineIcon, ReportProblemIcon } from '@/icons'
 import { Box, Card, CardContent, Typography, Button, Chip, CircularProgress, Table, TableBody, TableCell, TableRow, Collapse, IconButton } from '@/mui'
 
 const ENTITY_ICONS: Record<string, React.ReactNode> = {
@@ -12,6 +12,7 @@ const ENTITY_ICONS: Record<string, React.ReactNode> = {
   meeting: <EventIcon fontSize="small" />,
   area: <MapIcon fontSize="small" />,
   contact: <ContactsIcon fontSize="small" />,
+  defect: <ReportProblemIcon fontSize="small" />,
   equipment_submission: <ApprovalIcon fontSize="small" />,
   material_submission: <ApprovalIcon fontSize="small" />,
 }
@@ -35,6 +36,7 @@ const PARAM_LABELS: Record<string, Record<string, string>> = {
     phone: 'Phone', role_description: 'Role', new_progress: 'Progress',
     area_type: 'Area Type', floor_number: 'Floor', area_code: 'Code',
     total_units: 'Units', consultant_type_id: 'Consultant Type', comments: 'Comments',
+    severity: 'Severity', defect_type: 'Defect Type', defect_number: 'Defect #',
   },
   he: {
     new_status: 'סטטוס חדש', reason: 'סיבה', name: 'שם', equipment_type: 'סוג',
@@ -47,6 +49,7 @@ const PARAM_LABELS: Record<string, Record<string, string>> = {
     phone: 'טלפון', role_description: 'תפקיד', new_progress: 'התקדמות',
     area_type: 'סוג אזור', floor_number: 'קומה', area_code: 'קוד',
     total_units: 'יחידות', consultant_type_id: 'סוג יועץ', comments: 'הערות',
+    severity: 'חומרה', defect_type: 'סוג ליקוי', defect_number: 'מספר ליקוי',
   },
   es: {
     new_status: 'Nuevo Estado', reason: 'Razon', name: 'Nombre', equipment_type: 'Tipo',
@@ -59,6 +62,7 @@ const PARAM_LABELS: Record<string, Record<string, string>> = {
     phone: 'Telefono', role_description: 'Rol', new_progress: 'Progreso',
     area_type: 'Tipo de Area', floor_number: 'Piso', area_code: 'Codigo',
     total_units: 'Unidades', consultant_type_id: 'Tipo Consultor', comments: 'Comentarios',
+    severity: 'Severidad', defect_type: 'Tipo de Defecto', defect_number: 'Defecto #',
   },
 }
 
