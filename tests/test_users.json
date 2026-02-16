@@ -1,0 +1,90 @@
+[
+  {
+    "email": "claude.test@builderops.dev",
+    "password": "ClaudeTest2026!",
+    "name": "Claude Test (Admin)",
+    "status": "existing_admin",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2YzM1YmRhNS0wM2YyLTQ2ZmItYWUyNy0xMmQzMDcyODYxNWMiLCJleHAiOjE3NzE3OTM4ODh9.tz5IxHoJYXRZTIzL3fxz8_Z1-UvOaO58DV8VMtlCx9Q",
+    "userId": "6c35bda5-03f2-46fb-ae27-12d30728615c"
+  },
+  {
+    "email": "test.user1@builderops.dev",
+    "password": "TestUser1Pass2026",
+    "name": "Test User 1",
+    "status": "registered",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmOGFiY2RiMi1hMjBmLTRmOGItYWFjYi0xYWIzMWU4NmE0YTEiLCJleHAiOjE3NzE3OTM4ODl9.GccMo3SYPBbRVEztaEagCbUZ6IVRY--ZH3eOYB3Lp4o",
+    "userId": "f8abcdb2-a20f-4f8b-aacb-1ab31e86a4a1"
+  },
+  {
+    "email": "test.user2@builderops.dev",
+    "password": "TestUser2Pass2026",
+    "name": "Test User 2",
+    "status": "registered",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwYzJkM2YwNC1kNWEzLTQxYzktYjRiZS1hM2JhOGIyMGM5NTkiLCJleHAiOjE3NzE3OTM4ODl9.VCnDtrB3lgfl20lqEd9bAF8LZ4slWQ8zk5ojmeN25z8",
+    "userId": "0c2d3f04-d5a3-41c9-b4be-a3ba8b20c959"
+  },
+  {
+    "email": "test.user3@builderops.dev",
+    "password": "TestUser3Pass2026",
+    "name": "Test User 3",
+    "status": "registered",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhNjg3NWJhMy0zMTgzLTQ2YTUtOTliMC1mY2Y3NjU1MTQ0Y2MiLCJleHAiOjE3NzE3OTM4OTB9.rUelOP0GQwiAXUxAHG0v7hRkYwrmGo98ygXJ3HH7ha0",
+    "userId": "a6875ba3-3183-46a5-99b0-fcf7655144cc"
+  },
+  {
+    "email": "test.user4@builderops.dev",
+    "password": "TestUser4Pass2026",
+    "name": "Test User 4",
+    "status": "registered",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzNmRhNTYyYS00ZmUwLTRjMzQtYWU2YS1hZmQ5NjkwYTM5NGMiLCJleHAiOjE3NzE3OTM4OTF9.7KLvmoyfF5hvF4PkRZv1QTwrYBQhbODqs0nvO6Be_-s",
+    "userId": "36da562a-4fe0-4c34-ae6a-afd9690a394c"
+  },
+  {
+    "email": "test.user5@builderops.dev",
+    "password": "TestUser5Pass2026",
+    "name": "Test User 5",
+    "status": "registered",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmZWUyYmY4NS05ZTlkLTQwNWYtYTdkYy1mNzlkZmVhM2Q1NDYiLCJleHAiOjE3NzE3OTM4OTF9.e8glrXEA5wQ5gpmCT9PMKGJhuYXNV6GPBdcVefooz_s",
+    "userId": "fee2bf85-9e9d-405f-a7dc-f79dfea3d546"
+  },
+  {
+    "email": "test.user6@builderops.dev",
+    "password": "TestUser6Pass2026",
+    "name": "Test User 6",
+    "status": "registered",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3MTkyN2ZkNC02NGE4LTQwNTUtYTY2My0xZTMxMjRkZmUyZmMiLCJleHAiOjE3NzE3OTM4OTJ9.-1bmQRHTjSesu8gNgTclgVCQBH82aE7TZax0nh9mhUk",
+    "userId": "71927fd4-64a8-4055-a663-1e3124dfe2fc"
+  },
+  {
+    "email": "test.user7@builderops.dev",
+    "password": "TestUser7Pass2026",
+    "name": "Test User 7",
+    "status": "registered",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlNzM0MWQ0OC1hZjIwLTQyM2MtYTcyOC0yNDhhYWJjYWZmYzEiLCJleHAiOjE3NzE3OTM4OTJ9.zjTRUsFH9UQ5rDL35Zyx9VpOyaGItBD7QINQYreRhm0",
+    "userId": "e7341d48-af20-423c-a728-248aabcaffc1"
+  },
+  {
+    "email": "test.user8@builderops.dev",
+    "password": "TestUser8Pass2026",
+    "name": "Test User 8",
+    "status": "registered",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0ZDJkMzkzMS1kYWY1LTQ0YTAtOWM2My1hZDYyMWNhYTIyNTkiLCJleHAiOjE3NzE3OTM4OTN9.nTznNQD5QYJ8Xx36hPvLTlrNxFZBM45YcJfMf4d33b8",
+    "userId": "4d2d3931-daf5-44a0-9c63-ad621caa2259"
+  },
+  {
+    "email": "test.user9@builderops.dev",
+    "password": "TestUser9Pass2026",
+    "name": "Test User 9",
+    "status": "registered",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkZGI0MzZmZC01ZjU5LTQ3MzItOTdiMi03YzU4ODc1N2ZlMzAiLCJleHAiOjE3NzE3OTM4OTN9.12hNXsmzJzuvCQsJQ3gYfRwn3dT2Wy7x_IMgGilkCUQ",
+    "userId": "ddb436fd-5f59-4732-97b2-7c588757fe30"
+  },
+  {
+    "email": "test.user10@builderops.dev",
+    "password": "TestUser10Pass2026",
+    "name": "Test User 10",
+    "status": "registered",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzNTUwMmIyYi02MGNkLTQ5YmQtOTM2MC02N2RkZjc5NWVhN2IiLCJleHAiOjE3NzE3OTM4OTR9.NX9CFVqe3Zu6dq1IZZyrncycIiHKVqru5Aoa7RlC7Ic",
+    "userId": "35502b2b-60cd-49bd-9360-67ddf795ea7b"
+  }
+]

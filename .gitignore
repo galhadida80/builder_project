@@ -52,3 +52,22 @@ screenshots/
 # Build cache
 tsconfig.tsbuildinfo
 frontend/tsconfig.tsbuildinfo
+
+# AI agent/IDE skill directories
+.agent/
+.agents/
+.augment/
+.claude/skills/
+.cursor/skills/
+.junie/
+
+# Playwright MCP artifacts
+.playwright-mcp/
+
+# Test result files (generated output)
+test_results_*.json
+test_final_report.json
+test_report_combined.json
+
+# Temp PDF files
+RESfilepdf*.pdf
