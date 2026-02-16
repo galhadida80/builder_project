@@ -149,6 +149,10 @@
     "install": "התקן",
     "notNow": "לא עכשיו"
   },
+  "table": {
+    "rowsPerPage": "שורות בעמוד:",
+    "of": "מתוך"
+  },
   "pwa": {
     "installIOS": "התקן את BuilderOps ב-iOS",
     "iosStep1": "1. לחץ על כפתור השיתוף ב-Safari",

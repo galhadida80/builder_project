@@ -408,6 +408,10 @@
     "install": "Install",
     "notNow": "Not Now"
   },
+  "table": {
+    "rowsPerPage": "Rows per page:",
+    "of": "of"
+  },
   "pwa": {
     "installIOS": "Install BuilderOps on iOS",
     "iosStep1": "1. Tap the Share button in Safari",

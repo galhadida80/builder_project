@@ -1,3 +1,8 @@
+/* Prevent horizontal overflow on mobile */
+html, body {
+  overflow-x: hidden;
+}
+
 /* Global touch interaction styles */
 
 /* Prevent double-tap zoom on interactive elements */

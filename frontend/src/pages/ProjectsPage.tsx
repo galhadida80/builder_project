@@ -188,7 +188,7 @@ export default function ProjectsPage() {
       <Box sx={{ p: { xs: 2, sm: 3 }, maxWidth: '100%', overflow: 'hidden' }}>
         <Skeleton variant="text" width="60%" height={48} sx={{ mb: 1, maxWidth: 200 }} />
         <Skeleton variant="text" width="80%" height={24} sx={{ mb: 4, maxWidth: 300 }} />
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 2, mb: 4 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', md: 'repeat(4, 1fr)' }, gap: 2, mb: 4, overflow: 'hidden' }}>
           {[...Array(4)].map((_, i) => (
             <Skeleton key={i} variant="rounded" height={100} sx={{ borderRadius: 3 }} />
           ))}
@@ -218,9 +218,10 @@ export default function ProjectsPage() {
       <Box
         sx={{
           display: 'grid',
-          gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' },
+          gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', md: 'repeat(4, 1fr)' },
           gap: 1.5,
           mb: 3,
+          overflow: 'hidden',
         }}
       >
         <KPICard

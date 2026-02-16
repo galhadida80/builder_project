@@ -24,6 +24,9 @@ const StyledDrawer = styled(Drawer)(({ theme }) => ({
     width: 400,
     maxWidth: '100vw',
     backgroundColor: theme.palette.background.default,
+    overflow: 'hidden',
+    display: 'flex',
+    flexDirection: 'column',
   },
   '& .MuiBackdrop-root': {
     backgroundColor: 'rgba(0, 0, 0, 0.5)',

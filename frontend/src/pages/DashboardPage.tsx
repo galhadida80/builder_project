@@ -167,9 +167,10 @@ export default function DashboardPage() {
       <Box
         sx={{
           display: 'grid',
-          gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' },
+          gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', md: 'repeat(4, 1fr)' },
           gap: { xs: 1, sm: 1.5 },
           mb: { xs: 2, md: 3 },
+          overflow: 'hidden',
         }}
       >
         <KPICard

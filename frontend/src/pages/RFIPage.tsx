@@ -330,6 +330,7 @@ export default function RFIPage() {
       id: 'category',
       label: t('rfis.category'),
       minWidth: 110,
+      hideOnMobile: true,
       render: (row) => {
         return <Chip label={t(`rfis.categories.${row.category}`, { defaultValue: row.category })} size="small" variant="outlined" />
       },
@@ -338,6 +339,7 @@ export default function RFIPage() {
       id: 'priority',
       label: t('rfis.priority'),
       minWidth: 100,
+      hideOnMobile: true,
       render: (row) => <StatusBadge status={row.priority} />,
     },
     {
@@ -350,6 +352,7 @@ export default function RFIPage() {
       id: 'due_date',
       label: t('rfis.dueDate'),
       minWidth: 110,
+      hideOnMobile: true,
       render: (row) => (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
           {row.due_date && <AccessTimeIcon sx={{ fontSize: 16, color: isOverdue(row) ? 'error.main' : 'text.secondary' }} />}
@@ -364,6 +367,7 @@ export default function RFIPage() {
       label: t('rfis.responses'),
       minWidth: 90,
       align: 'center',
+      hideOnMobile: true,
       render: (row) => (
         <Chip label={row.response_count} size="small" color={row.response_count > 0 ? 'success' : 'default'} />
       ),
@@ -373,6 +377,7 @@ export default function RFIPage() {
       label: '',
       minWidth: 120,
       align: 'right',
+      hideOnMobile: true,
       render: (row) => (
         <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
           <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleViewDetails(row); }}>

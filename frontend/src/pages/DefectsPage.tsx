@@ -163,6 +163,7 @@ export default function DefectsPage() {
       id: 'location',
       label: t('defects.location'),
       minWidth: 130,
+      hideOnMobile: true,
       render: (row) => (
         <Typography variant="body2" color={row.area ? 'text.primary' : 'text.secondary'}>
           {row.area ? `${row.area.name}${row.area.floorNumber != null ? ` / ${t('defects.floor')} ${row.area.floorNumber}` : ''}` : '-'}
@@ -173,6 +174,7 @@ export default function DefectsPage() {
       id: 'severity',
       label: t('defects.severity'),
       minWidth: 110,
+      hideOnMobile: true,
       render: (row) => <SeverityBadge severity={row.severity} />,
     },
     {
@@ -185,6 +187,7 @@ export default function DefectsPage() {
       id: 'assignedContact',
       label: t('defects.assignedTo'),
       minWidth: 140,
+      hideOnMobile: true,
       render: (row) => (
         <Typography variant="body2" color={row.assignedContact ? 'text.primary' : 'text.secondary'}>
           {row.assignedContact?.contactName || '-'}
@@ -196,6 +199,7 @@ export default function DefectsPage() {
       label: t('common.date'),
       minWidth: 100,
       sortable: true,
+      hideOnMobile: true,
       render: (row) => (
         <Typography variant="body2">
           {new Date(row.createdAt).toLocaleDateString()}
@@ -207,6 +211,7 @@ export default function DefectsPage() {
       label: '',
       minWidth: 90,
       align: 'right',
+      hideOnMobile: true,
       render: () => (
         <Button variant="tertiary" size="small" icon={<VisibilityIcon />}>
           {t('buttons.view')}
@@ -220,7 +225,7 @@ export default function DefectsPage() {
       <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
         <Skeleton variant="text" width={350} height={48} sx={{ mb: 1 }} />
         <Skeleton variant="text" width={250} height={24} sx={{ mb: 4 }} />
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(5, 1fr)' }, gap: 2, mb: 4 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', md: 'repeat(3, 1fr)', lg: 'repeat(5, 1fr)' }, gap: 2, mb: 4, overflow: 'hidden' }}>
           {[...Array(5)].map((_, i) => (
             <Skeleton key={i} variant="rounded" height={100} sx={{ borderRadius: 3 }} />
           ))}
@@ -237,7 +242,7 @@ export default function DefectsPage() {
         subtitle={t('defects.subtitle')}
         breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('nav.defects') }]}
         actions={
-          <Box sx={{ display: 'flex', gap: 1 }}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
             <Button variant="secondary" icon={<PictureAsPdfIcon />} onClick={handleExportPdf} disabled={exporting}>
               {exporting ? t('defects.exporting') : t('defects.exportPdf')}
             </Button>
@@ -252,9 +257,10 @@ export default function DefectsPage() {
         <Box
           sx={{
             display: 'grid',
-            gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(5, 1fr)' },
+            gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', md: 'repeat(3, 1fr)', lg: 'repeat(5, 1fr)' },
             gap: 1.5,
             mb: 3,
+            overflow: 'hidden',
           }}
         >
           <KPICard title={t('defects.total')} value={summary.total} icon={<ReportProblemIcon />} color="primary" />

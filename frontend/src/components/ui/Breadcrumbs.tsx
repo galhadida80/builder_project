@@ -168,7 +168,7 @@ export function PageHeader({ title, actions, subtitle }: PageHeaderProps) {
           )}
         </Box>
         {actions && (
-          <Box sx={{ display: 'flex', gap: 1, flexShrink: 0 }}>
+          <Box sx={{ display: 'flex', gap: 1, flexShrink: 0, flexWrap: 'wrap' }}>
             {actions}
           </Box>
         )}

@@ -78,7 +78,7 @@ export default function ContactSelectorDialog({
   }
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth sx={{ zIndex: 1500 }}>
       <DialogTitle>{t('contactSelector.selectApprovers')}</DialogTitle>
       <DialogContent>
         {contactsLoading ? (

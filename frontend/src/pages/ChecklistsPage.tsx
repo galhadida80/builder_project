@@ -346,12 +346,14 @@ export default function ChecklistsPage() {
       id: 'group',
       label: t('checklists.group'),
       minWidth: 160,
+      hideOnMobile: true,
       render: (row) => <Chip size="small" label={row.group} color="default" sx={{ fontWeight: 500 }} />,
     },
     {
       id: 'level',
       label: t('checklists.level'),
       minWidth: 120,
+      hideOnMobile: true,
       render: (row) => <Typography variant="body2">{row.level}</Typography>,
     },
     {
@@ -476,7 +478,7 @@ export default function ChecklistsPage() {
       <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
         <Skeleton variant="text" width={350} height={48} sx={{ mb: 1 }} />
         <Skeleton variant="text" width={250} height={24} sx={{ mb: 4 }} />
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 2, mb: 4 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', md: 'repeat(4, 1fr)' }, gap: 2, mb: 4, overflow: 'hidden' }}>
           {[...Array(4)].map((_, i) => (
             <Skeleton key={i} variant="rounded" height={100} sx={{ borderRadius: 3 }} />
           ))}
@@ -499,13 +501,13 @@ export default function ChecklistsPage() {
 
       {/* KPI Cards — context-sensitive */}
       {activeTab === 'templates' ? (
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 1.5, mb: 3 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', md: 'repeat(3, 1fr)' }, gap: 1.5, mb: 3, overflow: 'hidden' }}>
           <KPICard title={t('checklists.templates')} value={templates.length} icon={<ChecklistIcon />} color="primary" />
           <KPICard title={t('checklists.subsections')} value={totalSubsections} icon={<AssignmentIcon />} color="info" />
           <KPICard title={t('checklists.items')} value={totalItems} icon={<AssignmentIcon />} color="success" />
         </Box>
       ) : (
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 1.5, mb: 3 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', md: 'repeat(4, 1fr)' }, gap: 1.5, mb: 3, overflow: 'hidden' }}>
           <KPICard title={t('checklists.totalInstances')} value={instanceCounts.total} icon={<ChecklistIcon />} color="primary" />
           <KPICard title={t('checklists.pendingInstances')} value={instanceCounts.pending} icon={<PendingIcon />} color="warning" />
           <KPICard title={t('checklists.inProgressInstances')} value={instanceCounts.inProgress} icon={<HourglassEmptyIcon />} color="info" />

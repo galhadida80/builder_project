@@ -138,6 +138,7 @@ export function NotificationItem({ notification, onClick, onActionClick }: Notif
       </ListItemAvatar>
 
       <ListItemText
+        sx={{ overflow: 'hidden', minWidth: 0 }}
         primary={
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
             <Typography
@@ -154,6 +155,7 @@ export function NotificationItem({ notification, onClick, onActionClick }: Notif
             </Typography>
             <Typography
               variant="body2"
+              noWrap
               sx={{
                 fontWeight: 600,
                 color: 'text.primary',

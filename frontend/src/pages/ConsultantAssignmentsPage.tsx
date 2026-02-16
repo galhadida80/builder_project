@@ -253,9 +253,10 @@ export default function ConsultantAssignmentsPage() {
       <Box
         sx={{
           display: 'grid',
-          gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' },
+          gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', md: 'repeat(4, 1fr)' },
           gap: 2,
           mb: 4,
+          overflow: 'hidden',
         }}
       >
         <KPICard

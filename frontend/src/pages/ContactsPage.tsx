@@ -395,12 +395,12 @@ export default function ContactsPage() {
                     <TableRow>
                       <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }}>{t('contacts.contactName')}</TableCell>
                       <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }}>{t('contacts.contactType')}</TableCell>
-                      <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }}>{t('contacts.companyName')}</TableCell>
-                      <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }}>{t('contacts.roleDescription')}</TableCell>
-                      <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }}>{t('contacts.email')}</TableCell>
-                      <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }}>{t('contacts.phone')}</TableCell>
-                      <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }}>{t('contacts.linkedUser')}</TableCell>
-                      <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }} align="center">{t('contacts.pendingApprovals')}</TableCell>
+                      <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem', display: { xs: 'none', md: 'table-cell' } }}>{t('contacts.companyName')}</TableCell>
+                      <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem', display: { xs: 'none', md: 'table-cell' } }}>{t('contacts.roleDescription')}</TableCell>
+                      <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem', display: { xs: 'none', md: 'table-cell' } }}>{t('contacts.email')}</TableCell>
+                      <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem', display: { xs: 'none', md: 'table-cell' } }}>{t('contacts.phone')}</TableCell>
+                      <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem', display: { xs: 'none', md: 'table-cell' } }}>{t('contacts.linkedUser')}</TableCell>
+                      <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem', display: { xs: 'none', md: 'table-cell' } }} align="center">{t('contacts.pendingApprovals')}</TableCell>
                       <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }} align="center">{t('common.actions')}</TableCell>
                     </TableRow>
                   </TableHead>
@@ -434,27 +434,27 @@ export default function ContactsPage() {
                               }}
                             />
                           </TableCell>
-                          <TableCell>
+                          <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>
                             <Typography variant="body2" color="text.secondary">
                               {contact.companyName || '—'}
                             </Typography>
                           </TableCell>
-                          <TableCell sx={{ maxWidth: 200 }}>
+                          <TableCell sx={{ maxWidth: 200, display: { xs: 'none', md: 'table-cell' } }}>
                             <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                               {contact.roleDescription || '—'}
                             </Typography>
                           </TableCell>
-                          <TableCell>
+                          <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>
                             {contact.email ? (
                               <Typography variant="body2" color="text.secondary">{contact.email}</Typography>
                             ) : '—'}
                           </TableCell>
-                          <TableCell>
+                          <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>
                             <Typography variant="body2" color="text.secondary">
                               {contact.phone || '—'}
                             </Typography>
                           </TableCell>
-                          <TableCell>
+                          <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>
                             {contact.user ? (
                               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                 <Avatar name={contact.user.fullName || contact.user.email} size="small" />
@@ -466,7 +466,7 @@ export default function ContactsPage() {
                               <Typography variant="body2" color="text.disabled">—</Typography>
                             )}
                           </TableCell>
-                          <TableCell align="center">
+                          <TableCell align="center" sx={{ display: { xs: 'none', md: 'table-cell' } }}>
                             {(contact.pendingApprovalsCount ?? 0) > 0 ? (
                               <Chip
                                 label={contact.pendingApprovalsCount}

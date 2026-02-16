@@ -281,7 +281,7 @@ export default function DefectDetailPage() {
             <input id="defect-photo-input" type="file" hidden multiple accept="image/*,application/pdf" onChange={handlePhotoUpload} />
           </Box>
           {photos.length > 0 ? (
-            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(auto-fill, minmax(140px, 1fr))' }, gap: 1.5 }}>
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', sm: 'repeat(auto-fill, minmax(140px, 1fr))' }, gap: 1.5, overflow: 'hidden' }}>
               {photos.map((file) => (
                 <Box
                   key={file.id}

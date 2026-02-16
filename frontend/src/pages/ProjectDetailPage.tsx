@@ -216,9 +216,10 @@ export default function ProjectDetailPage() {
           <Box
             sx={{
               display: 'grid',
-              gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' },
+              gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', md: 'repeat(4, 1fr)' },
               gap: 1.5,
               mb: 2.5,
+              overflow: 'hidden',
             }}
           >
             <KPICard

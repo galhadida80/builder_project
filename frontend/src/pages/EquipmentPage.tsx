@@ -341,6 +341,7 @@ export default function EquipmentPage() {
       id: 'manufacturer',
       label: t('equipment.manufacturer'),
       minWidth: 140,
+      hideOnMobile: true,
       render: (row) => (
         <Typography variant="body2" color={row.manufacturer ? 'text.primary' : 'text.secondary'}>
           {row.manufacturer || '-'}
@@ -351,6 +352,7 @@ export default function EquipmentPage() {
       id: 'modelNumber',
       label: t('equipment.model'),
       minWidth: 120,
+      hideOnMobile: true,
       render: (row) => (
         <Typography variant="body2" color={row.modelNumber ? 'text.primary' : 'text.secondary'}>
           {row.modelNumber || '-'}
@@ -368,6 +370,7 @@ export default function EquipmentPage() {
       label: '',
       minWidth: 140,
       align: 'right',
+      hideOnMobile: true,
       render: (row) => (
         <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
           <IconButton
@@ -460,16 +463,17 @@ export default function EquipmentPage() {
         open={drawerOpen}
         onClose={handleCloseDrawer}
         sx={{ zIndex: 1400 }}
-        PaperProps={{ sx: { width: { xs: '100%', sm: 480 }, borderRadius: '16px 0 0 16px' } }}
+        PaperProps={{ sx: { width: { xs: '100%', sm: 480 }, borderRadius: '16px 0 0 16px', overflow: 'hidden', display: 'flex', flexDirection: 'column' } }}
       >
         {selectedEquipment && (
-          <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+          <>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: { xs: 1.5, sm: 2, md: 3 }, pb: 0, position: 'sticky', top: 0, zIndex: 1, bgcolor: 'background.default' }}>
               <Typography variant="h6" fontWeight={600}>{t('equipment.details')}</Typography>
               <IconButton onClick={handleCloseDrawer} size="small">
                 <CloseIcon />
               </IconButton>
             </Box>
+            <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 }, pt: 1.5, overflowY: 'auto', flex: 1 }}>
 
             <Box sx={{ mb: 3 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
@@ -650,6 +654,7 @@ export default function EquipmentPage() {
               </Button>
             </Box>
           </Box>
+          </>
         )}
       </Drawer>
 

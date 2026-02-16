@@ -17,6 +17,7 @@ import {
   useTheme,
 } from '@/mui'
 import { useState, Fragment } from 'react'
+import { useTranslation } from 'react-i18next'
 import { styled } from '@/mui'
 import { ChevronRightIcon, ChevronLeftIcon } from '@/icons'
 
@@ -26,6 +27,7 @@ export interface Column<T> {
   minWidth?: number
   align?: 'left' | 'center' | 'right'
   sortable?: boolean
+  hideOnMobile?: boolean
   render?: (row: T) => React.ReactNode
 }
 
@@ -138,6 +140,7 @@ export function DataTable<T>({
   pageSize = 10,
   emptyMessage = 'No data available',
 }: DataTableProps<T>) {
+  const { t } = useTranslation()
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(pageSize)
   const [orderBy, setOrderBy] = useState<string>('')
@@ -199,6 +202,7 @@ export function DataTable<T>({
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const showChevron = isMobile && !!onRowClick
   const isRtl = theme.direction === 'rtl'
+  const visibleColumns = isMobile ? columns.filter(c => !c.hideOnMobile) : columns
 
   if (loading) {
     return (
@@ -207,7 +211,7 @@ export function DataTable<T>({
           <TableHead>
             <TableRow>
               {selectable && <TableCell padding="checkbox" />}
-              {columns.map((column) => (
+              {visibleColumns.map((column) => (
                 <TableCell key={String(column.id)} style={{ minWidth: column.minWidth }}>
                   <Skeleton width={80} />
                 </TableCell>
@@ -222,7 +226,7 @@ export function DataTable<T>({
                     <Skeleton variant="rectangular" width={20} height={20} />
                   </TableCell>
                 )}
-                {columns.map((column) => (
+                {visibleColumns.map((column) => (
                   <TableCell key={String(column.id)}>
                     <Skeleton />
                   </TableCell>
@@ -260,7 +264,7 @@ export function DataTable<T>({
                 />
               </TableCell>
             )}
-            {columns.map((column) => (
+            {visibleColumns.map((column) => (
               <TableCell
                 key={String(column.id)}
                 align={column.align}
@@ -287,7 +291,7 @@ export function DataTable<T>({
             const rowId = getRowId(row)
             const isSelected = selectedIds.includes(rowId)
             const expandedContent = renderExpandedRow?.(row)
-            const totalColSpan = columns.length + (selectable ? 1 : 0) + (showChevron ? 1 : 0)
+            const totalColSpan = visibleColumns.length + (selectable ? 1 : 0) + (showChevron ? 1 : 0)
 
             return (
               <Fragment key={rowId}>
@@ -307,7 +311,7 @@ export function DataTable<T>({
                       />
                     </TableCell>
                   )}
-                  {columns.map((column) => (
+                  {visibleColumns.map((column) => (
                     <TableCell key={String(column.id)} align={column.align}>
                       {column.render
                         ? column.render(row)
@@ -343,6 +347,8 @@ export function DataTable<T>({
           page={page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
+          labelRowsPerPage={t('table.rowsPerPage')}
+          labelDisplayedRows={({ from, to, count }) => `${from}-${to} ${t('table.of')} ${count !== -1 ? count : `>${to}`}`}
         />
       )}
     </StyledTableContainer>
