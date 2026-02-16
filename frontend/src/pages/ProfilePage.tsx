@@ -1,11 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 import { useToast } from '../components/common/ToastProvider'
-import { authApi } from '../api/auth'
+import { authApi, WebAuthnCredential } from '../api/auth'
 import { profileSchema, validateWithSchema } from '../schemas/validation'
-import { PersonIcon, EmailIcon, PhoneIcon, BusinessIcon, EditIcon, SaveIcon } from '@/icons'
-import { Box, Typography, Paper, Avatar, TextField, Button, Divider, Chip } from '@/mui'
+import { PersonIcon, EmailIcon, PhoneIcon, BusinessIcon, EditIcon, SaveIcon, FingerprintIcon, DeleteIcon } from '@/icons'
+import { Box, Typography, Paper, Avatar, TextField, Button, Divider, Chip, IconButton, CircularProgress } from '@/mui'
 
 export default function ProfilePage() {
   const { t } = useTranslation()
@@ -19,6 +19,27 @@ export default function ProfilePage() {
     phone: user?.phone || '',
     company: user?.company || '',
   })
+
+  const [webauthnSupported] = useState(() => !!window.PublicKeyCredential)
+  const [credentials, setCredentials] = useState<WebAuthnCredential[]>([])
+  const [loadingCredentials, setLoadingCredentials] = useState(false)
+  const [registering, setRegistering] = useState(false)
+
+  useEffect(() => {
+    if (webauthnSupported) loadCredentials()
+  }, [webauthnSupported])
+
+  const loadCredentials = async () => {
+    setLoadingCredentials(true)
+    try {
+      const creds = await authApi.webauthnListCredentials()
+      setCredentials(creds)
+    } catch {
+      // ignore
+    } finally {
+      setLoadingCredentials(false)
+    }
+  }
 
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
@@ -45,6 +66,37 @@ export default function ProfilePage() {
       showError(t('profile.updateFailed'))
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handleRegisterBiometric = async () => {
+    setRegistering(true)
+    try {
+      const { options } = await authApi.webauthnRegisterBegin()
+      const credential = await navigator.credentials.create({ publicKey: options }) as PublicKeyCredential
+      if (!credential) throw new Error('No credential')
+      await authApi.webauthnRegisterComplete(credential)
+      localStorage.setItem('webauthn_email', user?.email || '')
+      showSuccess(t('webauthn.registerSuccess'))
+      loadCredentials()
+    } catch {
+      showError(t('webauthn.registerFailed'))
+    } finally {
+      setRegistering(false)
+    }
+  }
+
+  const handleDeleteCredential = async (id: string) => {
+    try {
+      await authApi.webauthnDeleteCredential(id)
+      showSuccess(t('webauthn.deleteSuccess'))
+      const updated = credentials.filter(c => c.id !== id)
+      setCredentials(updated)
+      if (updated.length === 0) {
+        localStorage.removeItem('webauthn_email')
+      }
+    } catch {
+      showError(t('webauthn.deleteFailed'))
     }
   }
 
@@ -156,6 +208,71 @@ export default function ProfilePage() {
             )}
           </Box>
         </Paper>
+
+        {webauthnSupported && (
+          <Paper sx={{ p: 3 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
+              <FingerprintIcon sx={{ color: 'primary.main' }} />
+              <Typography variant="h6" fontWeight={600}>
+                {t('webauthn.setupTitle')}
+              </Typography>
+            </Box>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2.5 }}>
+              {t('webauthn.setupDescription')}
+            </Typography>
+
+            {loadingCredentials ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
+                <CircularProgress size={24} />
+              </Box>
+            ) : (
+              <>
+                {credentials.length > 0 && (
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2.5 }}>
+                    {credentials.map((cred) => (
+                      <Box
+                        key={cred.id}
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          p: 1.5,
+                          borderRadius: 2,
+                          bgcolor: 'action.hover',
+                        }}
+                      >
+                        <Box>
+                          <Typography variant="body2" fontWeight={500}>
+                            {cred.deviceName}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {t('webauthn.registeredOn')}: {new Date(cred.createdAt).toLocaleDateString()}
+                          </Typography>
+                        </Box>
+                        <IconButton
+                          size="small"
+                          color="error"
+                          onClick={() => handleDeleteCredential(cred.id)}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </Box>
+                    ))}
+                  </Box>
+                )}
+
+                <Button
+                  variant="outlined"
+                  startIcon={<FingerprintIcon />}
+                  onClick={handleRegisterBiometric}
+                  disabled={registering}
+                >
+                  {registering ? t('webauthn.registering') : t('webauthn.setupButton')}
+                </Button>
+              </>
+            )}
+          </Paper>
+        )}
       </Box>
     </Box>
   )

@@ -1416,5 +1416,29 @@
       "imported": "importados",
       "skipped": "omitidos"
     }
+  },
+  "defects": {
+    "attachPhotos": "Adjuntar Fotos",
+    "dragOrTap": "Arrastra fotos aqui o toca para capturar",
+    "dropHere": "Suelta las fotos aqui...",
+    "maxPhotos": "Maximo de {{max}} fotos alcanzado",
+    "uploadingPhotos": "Subiendo fotos...",
+    "photoUploadPartialFail": "{{count}} foto(s) fallaron al subir"
+  },
+  "webauthn": {
+    "setupTitle": "Inicio Biometrico",
+    "setupDescription": "Usa Face ID o huella digital para iniciar sesion mas rapido",
+    "setupButton": "Configurar Inicio Biometrico",
+    "registering": "Configurando...",
+    "registerSuccess": "Inicio biometrico habilitado",
+    "registerFailed": "Error al configurar inicio biometrico",
+    "loginButton": "Iniciar sesion con Face ID / Huella",
+    "loginFailed": "Inicio biometrico fallo",
+    "deleteDevice": "Eliminar",
+    "deleteSuccess": "Dispositivo eliminado",
+    "deleteFailed": "Error al eliminar dispositivo",
+    "noDevices": "No hay dispositivos registrados",
+    "deviceName": "Dispositivo",
+    "registeredOn": "Registrado"
   }
 }

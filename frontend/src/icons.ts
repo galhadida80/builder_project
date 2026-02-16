@@ -57,6 +57,7 @@ export {
   ExpandLess as ExpandLessIcon,
   ExpandMore as ExpandMoreIcon,
   FileDownload as FileDownloadIcon,
+  Fingerprint as FingerprintIcon,
   FilterList as FilterListIcon,
   FireExtinguisher as FireExtinguisherIcon,
   FitScreen as FitScreenIcon,

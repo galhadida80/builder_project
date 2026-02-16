@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { useDropzone } from 'react-dropzone'
 import { Card, KPICard } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { DataTable, Column } from '../components/ui/DataTable'
@@ -18,13 +19,45 @@ import type { Defect, DefectSummary, Contact, ConstructionArea } from '../types'
 import { useToast } from '../components/common/ToastProvider'
 import {
   AddIcon, ReportProblemIcon, CheckCircleIcon, WarningIcon, ErrorIcon,
-  HourglassEmptyIcon, VisibilityIcon, PictureAsPdfIcon, AddPhotoAlternateIcon,
+  HourglassEmptyIcon, VisibilityIcon, PictureAsPdfIcon, CameraAltIcon,
   CloseIcon,
 } from '@/icons'
 import {
-  Box, Typography, Skeleton, Chip, MenuItem, IconButton,
+  Box, Typography, Skeleton, Chip, MenuItem, IconButton, LinearProgress,
   TextField as MuiTextField, Autocomplete,
 } from '@/mui'
+
+function compressImage(file: File, maxWidth = 1920, quality = 0.8): Promise<File> {
+  return new Promise((resolve) => {
+    const img = new Image()
+    const url = URL.createObjectURL(file)
+    img.onload = () => {
+      URL.revokeObjectURL(url)
+      if (img.width <= maxWidth && file.size <= 1024 * 1024) {
+        resolve(file)
+        return
+      }
+      const scale = Math.min(1, maxWidth / img.width)
+      const canvas = document.createElement('canvas')
+      canvas.width = Math.round(img.width * scale)
+      canvas.height = Math.round(img.height * scale)
+      const ctx = canvas.getContext('2d')!
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) { resolve(file); return }
+          resolve(new File([blob], file.name.replace(/\.\w+$/, '.jpg'), { type: 'image/jpeg' }))
+        },
+        'image/jpeg',
+        quality,
+      )
+    }
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(file) }
+    img.src = url
+  })
+}
+
+const MAX_PHOTOS = 5
 
 const CATEGORY_OPTIONS = [
   'concrete_structure', 'wet_room_waterproofing', 'plaster', 'roof',
@@ -39,7 +72,7 @@ export default function DefectsPage() {
   const { t } = useTranslation()
   const { projectId } = useParams()
   const navigate = useNavigate()
-  const { showError, showSuccess } = useToast()
+  const { showError, showSuccess, showWarning } = useToast()
 
   const [defects, setDefects] = useState<Defect[]>([])
   const [summary, setSummary] = useState<DefectSummary | null>(null)
@@ -50,16 +83,51 @@ export default function DefectsPage() {
   const [activeTab, setActiveTab] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('')
-
   const [exporting, setExporting] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
 
   const [pendingPhotos, setPendingPhotos] = useState<File[]>([])
+  const [photoPreviews, setPhotoPreviews] = useState<string[]>([])
 
   const [form, setForm] = useState<DefectCreateData>({
     description: '',
     category: 'other',
     severity: 'medium',
     assignee_ids: [],
+  })
+
+  const addPhotos = useCallback(async (files: File[]) => {
+    const remaining = MAX_PHOTOS - pendingPhotos.length
+    if (remaining <= 0) return
+    const toAdd = files.slice(0, remaining)
+    const compressed = await Promise.all(toAdd.map(f => compressImage(f)))
+    const previews = compressed.map(f => URL.createObjectURL(f))
+    setPendingPhotos(prev => [...prev, ...compressed])
+    setPhotoPreviews(prev => [...prev, ...previews])
+  }, [pendingPhotos.length])
+
+  const removePhoto = useCallback((index: number) => {
+    setPhotoPreviews(prev => {
+      URL.revokeObjectURL(prev[index])
+      return prev.filter((_, i) => i !== index)
+    })
+    setPendingPhotos(prev => prev.filter((_, i) => i !== index))
+  }, [])
+
+  const clearPhotos = useCallback(() => {
+    photoPreviews.forEach(url => URL.revokeObjectURL(url))
+    setPendingPhotos([])
+    setPhotoPreviews([])
+  }, [photoPreviews])
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    accept: { 'image/*': [] },
+    maxFiles: MAX_PHOTOS,
+    maxSize: 5 * 1024 * 1024,
+    onDrop: addPhotos,
+    noClick: pendingPhotos.length >= MAX_PHOTOS,
+    noDrag: pendingPhotos.length >= MAX_PHOTOS,
   })
 
   useEffect(() => {
@@ -89,20 +157,40 @@ export default function DefectsPage() {
 
   const handleCreate = async () => {
     if (!projectId) return
+    setSubmitting(true)
+    setUploadProgress(0)
     try {
       const created = await defectsApi.create(projectId, form)
+
       if (pendingPhotos.length > 0) {
+        let uploaded = 0
+        let failed = 0
         for (const file of pendingPhotos) {
-          await filesApi.upload(projectId, 'defect', created.id, file)
+          try {
+            await filesApi.upload(projectId, 'defect', created.id, file)
+            uploaded++
+          } catch {
+            failed++
+          }
+          setUploadProgress(Math.round(((uploaded + failed) / pendingPhotos.length) * 100))
+        }
+        if (failed > 0 && uploaded > 0) {
+          showWarning(t('defects.photoUploadPartialFail', { count: failed }))
+        } else if (failed > 0) {
+          showWarning(t('defects.photoUploadFailed'))
         }
       }
+
       showSuccess(t('defects.createSuccess'))
       setDialogOpen(false)
       setForm({ description: '', category: 'other', severity: 'medium', assignee_ids: [] })
-      setPendingPhotos([])
+      clearPhotos()
       loadData()
     } catch {
       showError(t('defects.createFailed'))
+    } finally {
+      setSubmitting(false)
+      setUploadProgress(0)
     }
   }
 
@@ -345,14 +433,17 @@ export default function DefectsPage() {
       <FormModal
         open={dialogOpen}
         onClose={() => {
+          if (submitting) return
           setDialogOpen(false)
           setForm({ description: '', category: 'other', severity: 'medium', assignee_ids: [] })
-          setPendingPhotos([])
+          clearPhotos()
         }}
         onSubmit={handleCreate}
         title={t('defects.reportDefect')}
         submitLabel={t('defects.create')}
         submitDisabled={!form.description || !form.category || !form.severity}
+        loading={submitting}
+        maxWidth="md"
       >
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1 }}>
           <TextField
@@ -451,52 +542,66 @@ export default function DefectsPage() {
             onChange={(e) => setForm({ ...form, due_date: e.target.value || undefined })}
           />
 
+          {/* Photo Upload Section */}
           <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-              <Typography variant="body2" fontWeight={500}>
-                {t('defects.photos')} {pendingPhotos.length > 0 && `(${pendingPhotos.length})`}
+            <Typography variant="body2" fontWeight={500} sx={{ mb: 1 }}>
+              {t('defects.attachPhotos')} ({pendingPhotos.length}/{MAX_PHOTOS})
+            </Typography>
+
+            <Box
+              {...getRootProps()}
+              sx={{
+                border: '2px dashed',
+                borderColor: isDragActive ? 'primary.main' : 'divider',
+                borderRadius: 2,
+                p: 2,
+                textAlign: 'center',
+                cursor: pendingPhotos.length >= MAX_PHOTOS ? 'default' : 'pointer',
+                bgcolor: isDragActive ? 'action.hover' : 'transparent',
+                transition: 'all 200ms ease',
+                '&:hover': pendingPhotos.length < MAX_PHOTOS ? { borderColor: 'primary.light', bgcolor: 'action.hover' } : {},
+              }}
+            >
+              <input {...getInputProps()} capture="environment" />
+              <CameraAltIcon sx={{ fontSize: 32, color: 'text.disabled', mb: 0.5 }} />
+              <Typography variant="body2" color="text.secondary">
+                {isDragActive ? t('defects.dropHere') : t('defects.dragOrTap')}
               </Typography>
-              <Button
-                variant="secondary"
-                size="small"
-                icon={<AddPhotoAlternateIcon />}
-                onClick={() => document.getElementById('defect-create-photo-input')?.click()}
-              >
-                {t('defects.addPhoto')}
-              </Button>
-              <input
-                id="defect-create-photo-input"
-                type="file"
-                hidden
-                multiple
-                accept="image/*"
-                onChange={(e) => {
-                  if (e.target.files) {
-                    setPendingPhotos(prev => [...prev, ...Array.from(e.target.files!)])
-                  }
-                  e.target.value = ''
-                }}
-              />
+              {pendingPhotos.length >= MAX_PHOTOS && (
+                <Typography variant="caption" color="text.disabled">
+                  {t('defects.maxPhotos', { max: MAX_PHOTOS })}
+                </Typography>
+              )}
             </Box>
+
             {pendingPhotos.length > 0 && (
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                {pendingPhotos.map((file, idx) => (
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1.5 }}>
+                {photoPreviews.map((url, idx) => (
                   <Box key={idx} sx={{ position: 'relative', width: 80, height: 80, borderRadius: 1.5, overflow: 'hidden', border: '1px solid', borderColor: 'divider' }}>
                     <Box
                       component="img"
-                      src={URL.createObjectURL(file)}
-                      alt={file.name}
+                      src={url}
+                      alt={pendingPhotos[idx]?.name}
                       sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
                     <IconButton
                       size="small"
-                      onClick={() => setPendingPhotos(prev => prev.filter((_, i) => i !== idx))}
+                      onClick={(e) => { e.stopPropagation(); removePhoto(idx) }}
                       sx={{ position: 'absolute', top: 2, right: 2, bgcolor: 'rgba(0,0,0,0.5)', color: 'white', p: 0.3, '&:hover': { bgcolor: 'rgba(0,0,0,0.7)' } }}
                     >
                       <CloseIcon sx={{ fontSize: 14 }} />
                     </IconButton>
                   </Box>
                 ))}
+              </Box>
+            )}
+
+            {submitting && uploadProgress > 0 && (
+              <Box sx={{ mt: 1.5 }}>
+                <Typography variant="caption" color="text.secondary">
+                  {t('defects.uploadingPhotos')}
+                </Typography>
+                <LinearProgress variant="determinate" value={uploadProgress} sx={{ mt: 0.5, borderRadius: 1 }} />
               </Box>
             )}
           </Box>

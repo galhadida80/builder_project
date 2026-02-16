@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Button } from '../components/ui/Button'
@@ -9,14 +9,14 @@ import { invitationsApi } from '../api/invitations'
 import { authApi } from '../api/auth'
 import { projectsApi } from '../api/projects'
 import { passwordSchema } from '../schemas/validation'
-import { ConstructionIcon, EmailIcon, LockIcon, PersonIcon, VisibilityIcon, VisibilityOffIcon, CheckCircleOutlineIcon, SecurityIcon, SpeedIcon, GroupsIcon, ArrowBackIcon } from '@/icons'
+import { ConstructionIcon, EmailIcon, LockIcon, PersonIcon, VisibilityIcon, VisibilityOffIcon, CheckCircleOutlineIcon, SecurityIcon, SpeedIcon, GroupsIcon, ArrowBackIcon, FingerprintIcon } from '@/icons'
 import { Box, Typography, Alert, Link, Divider, Fade, IconButton } from '@/mui'
 
 export default function LoginPage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const { t } = useTranslation()
-  const { login, register } = useAuth()
+  const { login, loginWithWebAuthn, register } = useAuth()
   const inviteToken = searchParams.get('invite')
   const initialTab = searchParams.get('tab') || 'signin'
   const [tab, setTab] = useState(initialTab)
@@ -32,6 +32,25 @@ export default function LoginPage() {
   const [passwordErrors, setPasswordErrors] = useState<string[]>([])
   const [forgotPasswordMode, setForgotPasswordMode] = useState(false)
   const [forgotPasswordEmail, setForgotPasswordEmail] = useState('')
+  const [webauthnAvailable, setWebauthnAvailable] = useState(false)
+  const [webauthnEmail, setWebauthnEmail] = useState<string | null>(null)
+  const biometricAttempted = useRef(false)
+
+  useEffect(() => {
+    const available = !!window.PublicKeyCredential
+    setWebauthnAvailable(available)
+    if (available) {
+      const savedEmail = localStorage.getItem('webauthn_email')
+      if (savedEmail) setWebauthnEmail(savedEmail)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (webauthnAvailable && webauthnEmail && tab === 'signin' && !biometricAttempted.current) {
+      biometricAttempted.current = true
+      handleBiometricLogin(webauthnEmail)
+    }
+  }, [webauthnAvailable, webauthnEmail, tab])
 
   const resetForm = () => {
     setEmail('')
@@ -51,6 +70,37 @@ export default function LoginPage() {
     if (preserveEmail) setEmail(currentEmail)
   }
 
+  const navigateAfterLogin = async () => {
+    if (inviteToken) {
+      try {
+        const result = await invitationsApi.accept(inviteToken)
+        if (result.projectId) {
+          navigate(`/projects/${result.projectId}/overview`)
+          return
+        }
+      } catch { /* ignore */ }
+    }
+    try {
+      const projects = await projectsApi.list()
+      navigate(projects.length === 0 ? '/projects?new=true' : '/dashboard')
+    } catch {
+      navigate('/dashboard')
+    }
+  }
+
+  const handleBiometricLogin = async (biometricEmail: string) => {
+    setLoading(true)
+    setError(null)
+    try {
+      await loginWithWebAuthn(biometricEmail)
+      await navigateAfterLogin()
+    } catch {
+      // silently fail — user can use password
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -58,25 +108,7 @@ export default function LoginPage() {
 
     try {
       await login(email, password)
-      if (inviteToken) {
-        try {
-          const result = await invitationsApi.accept(inviteToken)
-          if (result.projectId) {
-            navigate(`/projects/${result.projectId}/overview`)
-            return
-          }
-        } catch { /* ignore invite accept errors */ }
-      }
-      try {
-        const projects = await projectsApi.list()
-        if (projects.length === 0) {
-          navigate('/projects?new=true')
-        } else {
-          navigate('/dashboard')
-        }
-      } catch {
-        navigate('/dashboard')
-      }
+      await navigateAfterLogin()
     } catch (err: unknown) {
       const error = err as { response?: { data?: { detail?: string } } }
       setError(error.response?.data?.detail || t('invalidCredentials'))
@@ -493,6 +525,7 @@ export default function LoginPage() {
                     </Link>
                   </Box>
                 ) : (
+                <>
                 <form onSubmit={handleLogin}>
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
                     <TextField
@@ -575,6 +608,33 @@ export default function LoginPage() {
                     </Button>
                   </Box>
                 </form>
+
+                {webauthnAvailable && webauthnEmail && (
+                  <>
+                    <Divider sx={{ my: 2.5 }}>
+                      <Typography variant="caption" color="text.disabled" sx={{ px: 1 }}>
+                        {t('or')}
+                      </Typography>
+                    </Divider>
+
+                    <Button
+                      fullWidth
+                      variant="secondary"
+                      icon={<FingerprintIcon />}
+                      loading={loading}
+                      onClick={() => handleBiometricLogin(webauthnEmail)}
+                      sx={{
+                        py: 1.5,
+                        fontSize: '0.9375rem',
+                        fontWeight: 600,
+                        borderRadius: 2,
+                      }}
+                    >
+                      {t('webauthn.loginButton')}
+                    </Button>
+                  </>
+                )}
+                </>
                 )
               ) : (
                 <form onSubmit={handleRegister}>

@@ -34,7 +34,7 @@ class Settings(BaseSettings):
 
     gemini_api_key: str = ""
     gemini_model: str = "gemini-2.0-flash"
-    chat_max_history: int = 20
+    chat_max_history: int = 50
 
     frontend_base_url: str = "http://localhost:5173"
 
@@ -50,6 +50,9 @@ class Settings(BaseSettings):
     aps_client_id: str = ""
     aps_client_secret: str = ""
     aps_callback_url: str = "http://localhost:8000/api/v1/bim/callback"
+
+    webauthn_rp_id: str = "localhost"
+    webauthn_rp_name: str = "BuilderOps"
 
     class Config:
         env_file = ".env"

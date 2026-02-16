@@ -42,6 +42,7 @@ from app.models.permission_override import PermissionOverride
 from app.models.project import Project, ProjectMember
 from app.models.rfi import RFI, RFICategory, RFIEmailLog, RFIPriority, RFIResponse, RFIStatus
 from app.models.user import User
+from app.models.webauthn_credential import WebAuthnCredential
 
 __all__ = [
     "User",
@@ -99,4 +100,5 @@ __all__ = [
     "ContactGroupMember",
     "Defect",
     "DefectAssignee",
+    "WebAuthnCredential",
 ]

@@ -1815,6 +1815,28 @@
     "exportPdf": "ייצוא PDF",
     "exporting": "מייצא...",
     "exportSuccess": "דוח PDF הורד בהצלחה",
-    "exportFailed": "ייצוא PDF נכשל"
+    "exportFailed": "ייצוא PDF נכשל",
+    "attachPhotos": "צירוף תמונות",
+    "dragOrTap": "גרור תמונות לכאן או לחץ לצילום",
+    "dropHere": "שחרר תמונות כאן...",
+    "maxPhotos": "הגעת למקסימום {{max}} תמונות",
+    "uploadingPhotos": "מעלה תמונות...",
+    "photoUploadPartialFail": "{{count}} תמונה/ות נכשלו בהעלאה"
+  },
+  "webauthn": {
+    "setupTitle": "כניסה ביומטרית",
+    "setupDescription": "השתמש בזיהוי פנים או טביעת אצבע לכניסה מהירה",
+    "setupButton": "הגדר כניסה ביומטרית",
+    "registering": "מגדיר...",
+    "registerSuccess": "כניסה ביומטרית הופעלה",
+    "registerFailed": "הגדרת כניסה ביומטרית נכשלה",
+    "loginButton": "כניסה עם זיהוי פנים / טביעת אצבע",
+    "loginFailed": "כניסה ביומטרית נכשלה",
+    "deleteDevice": "הסר",
+    "deleteSuccess": "המכשיר הוסר",
+    "deleteFailed": "הסרת המכשיר נכשלה",
+    "noDevices": "אין מכשירים רשומים",
+    "deviceName": "מכשיר",
+    "registeredOn": "נרשם"
   }
 }

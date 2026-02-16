@@ -8,6 +8,7 @@ interface AuthContextType {
   isSuperAdmin: boolean
   loading: boolean
   login: (email: string, password: string) => Promise<void>
+  loginWithWebAuthn: (email: string) => Promise<void>
   register: (email: string, password: string, fullName: string, inviteToken?: string) => Promise<void>
   logout: () => void
   refreshUser: () => Promise<void>
@@ -50,6 +51,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(response.user)
   }, [])
 
+  const loginWithWebAuthn = useCallback(async (email: string) => {
+    const { options } = await authApi.webauthnLoginBegin(email)
+    const credential = await navigator.credentials.get({ publicKey: options }) as PublicKeyCredential
+    if (!credential) throw new Error('No credential returned')
+    const response = await authApi.webauthnLoginComplete(email, credential)
+    localStorage.setItem('authToken', response.access_token)
+    localStorage.setItem('userId', response.user.id)
+    localStorage.setItem('webauthn_email', email)
+    setUser(response.user)
+  }, [])
+
   const register = useCallback(async (email: string, password: string, fullName: string, inviteToken?: string) => {
     const response = await authApi.register(email, password, fullName, inviteToken)
     localStorage.setItem('authToken', response.access_token)
@@ -69,10 +81,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isSuperAdmin: user?.isSuperAdmin ?? false,
     loading,
     login,
+    loginWithWebAuthn,
     register,
     logout,
     refreshUser,
-  }), [user, loading, login, register, logout, refreshUser])
+  }), [user, loading, login, loginWithWebAuthn, register, logout, refreshUser])
 
   return (
     <AuthContext.Provider value={value}>

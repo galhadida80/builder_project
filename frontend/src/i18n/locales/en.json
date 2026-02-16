@@ -1763,6 +1763,28 @@
     "exportPdf": "Export PDF",
     "exporting": "Exporting...",
     "exportSuccess": "PDF report downloaded",
-    "exportFailed": "Failed to export PDF"
+    "exportFailed": "Failed to export PDF",
+    "attachPhotos": "Attach Photos",
+    "dragOrTap": "Drag photos here or tap to capture",
+    "dropHere": "Drop photos here...",
+    "maxPhotos": "Maximum {{max}} photos reached",
+    "uploadingPhotos": "Uploading photos...",
+    "photoUploadPartialFail": "{{count}} photo(s) failed to upload"
+  },
+  "webauthn": {
+    "setupTitle": "Biometric Login",
+    "setupDescription": "Use Face ID or fingerprint to sign in faster",
+    "setupButton": "Set Up Biometric Login",
+    "registering": "Setting up...",
+    "registerSuccess": "Biometric login enabled",
+    "registerFailed": "Failed to set up biometric login",
+    "loginButton": "Sign in with Face ID / Fingerprint",
+    "loginFailed": "Biometric login failed",
+    "deleteDevice": "Remove",
+    "deleteSuccess": "Device removed",
+    "deleteFailed": "Failed to remove device",
+    "noDevices": "No devices registered",
+    "deviceName": "Device",
+    "registeredOn": "Registered"
   }
 }
