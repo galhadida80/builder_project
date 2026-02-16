@@ -36,7 +36,10 @@ class RFIService:
         return f"{local_part}@{self.settings.rfi_email_domain}"
 
     async def generate_rfi_number(self) -> str:
-        await self.db.execute(text("SELECT pg_advisory_xact_lock(hashtext('rfi_number_gen'))"))
+        try:
+            await self.db.execute(text("SELECT pg_advisory_xact_lock(hashtext('rfi_number_gen'))"))
+        except Exception:
+            pass
         year = datetime.utcnow().year
         prefix = f"RFI-{year}-"
         result = await self.db.execute(

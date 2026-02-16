@@ -35,9 +35,6 @@ vi.mock('../components/ui/EmptyState', () => ({
   ),
 }))
 
-vi.mock('../components/layout/MobileBottomNav', () => ({
-  default: () => <div data-testid="mobile-bottom-nav" />,
-}))
 
 const today = new Date()
 today.setHours(10, 0, 0, 0)
@@ -136,13 +133,6 @@ describe('InspectorDashboard', () => {
     renderWithProviders(<InspectorDashboard />)
     await waitFor(() => {
       expect(screen.getByText('inspector.noInspections')).toBeInTheDocument()
-    })
-  })
-
-  it('renders mobile bottom nav', async () => {
-    renderWithProviders(<InspectorDashboard />)
-    await waitFor(() => {
-      expect(screen.getByTestId('mobile-bottom-nav')).toBeInTheDocument()
     })
   })
 

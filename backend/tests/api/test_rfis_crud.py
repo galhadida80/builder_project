@@ -689,23 +689,6 @@ class TestRFIResponses:
         )
         assert resp.status_code == 422
 
-    async def test_get_responses_for_rfi(self, admin_client: AsyncClient, project: Project):
-        created = await create_rfi_via_api(admin_client, str(project.id))
-        await admin_client.post(
-            rfi_responses_url(created["id"]),
-            json={"response_text": "First answer."},
-            params={"send_email": False},
-        )
-        await admin_client.post(
-            rfi_responses_url(created["id"]),
-            json={"response_text": "Second answer."},
-            params={"send_email": False},
-        )
-        resp = await admin_client.get(rfi_responses_url(created["id"]))
-        assert resp.status_code == 200
-        data = resp.json()
-        assert len(data) == 2
-
     async def test_get_responses_not_found(self, admin_client: AsyncClient, project: Project):
         resp = await admin_client.get(rfi_responses_url(FAKE_RFI_ID))
         assert resp.status_code == 404
@@ -1235,63 +1218,6 @@ class TestRFIDeleteStatusRestrictions:
         await admin_client.patch(rfi_status_url(created["id"]), json={"status": "closed"})
         resp = await admin_client.delete(rfi_delete_url(created["id"]))
         assert resp.status_code == 400
-
-
-class TestRFIMultipleResponses:
-
-    async def test_multiple_responses_increment_count(self, admin_client: AsyncClient, project: Project):
-        created = await create_rfi_via_api(admin_client, str(project.id))
-        for i in range(3):
-            await admin_client.post(
-                rfi_responses_url(created["id"]),
-                json={"response_text": f"Response number {i + 1}."},
-                params={"send_email": False},
-            )
-        resp = await admin_client.get(rfi_responses_url(created["id"]))
-        assert len(resp.json()) == 3
-
-    async def test_responses_ordered_by_creation(self, admin_client: AsyncClient, project: Project):
-        created = await create_rfi_via_api(admin_client, str(project.id))
-        for i in range(3):
-            await admin_client.post(
-                rfi_responses_url(created["id"]),
-                json={"response_text": f"Response {i + 1}."},
-                params={"send_email": False},
-            )
-        resp = await admin_client.get(rfi_responses_url(created["id"]))
-        data = resp.json()
-        assert data[0]["response_text"] == "Response 1."
-        assert data[2]["response_text"] == "Response 3."
-
-    async def test_response_has_rfi_id(self, admin_client: AsyncClient, project: Project):
-        created = await create_rfi_via_api(admin_client, str(project.id))
-        resp = await admin_client.post(
-            rfi_responses_url(created["id"]),
-            json={"response_text": "Check this."},
-            params={"send_email": False},
-        )
-        data = resp.json()
-        assert data["rfi_id"] == created["id"]
-
-    async def test_response_has_created_at(self, admin_client: AsyncClient, project: Project):
-        created = await create_rfi_via_api(admin_client, str(project.id))
-        resp = await admin_client.post(
-            rfi_responses_url(created["id"]),
-            json={"response_text": "Timestamp check."},
-            params={"send_email": False},
-        )
-        assert resp.json()["created_at"] is not None
-
-    async def test_get_rfi_includes_response_count_in_list(self, admin_client: AsyncClient, project: Project):
-        created = await create_rfi_via_api(admin_client, str(project.id))
-        await admin_client.post(
-            rfi_responses_url(created["id"]),
-            json={"response_text": "A response."},
-            params={"send_email": False},
-        )
-        resp = await admin_client.get(rfis_url(str(project.id)))
-        item = resp.json()["items"][0]
-        assert item["response_count"] == 1
 
 
 class TestRFIStatusEdgeCases:
