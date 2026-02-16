@@ -121,7 +121,7 @@ export default function DashboardPage() {
   }, [dashboardStats, dateLocale, t])
 
   const toDistChartData = (items: { label: string; value: number }[]) =>
-    items.map((item, i) => ({ id: i, label: item.label, value: item.value }))
+    items.map((item, i) => ({ id: i, label: t(`statuses.${item.label}`, { defaultValue: item.label.replace(/_/g, ' ') }), value: item.value }))
 
   if (loading) {
     return (

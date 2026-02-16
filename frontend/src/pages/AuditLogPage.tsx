@@ -25,41 +25,54 @@ const entityTypes = ['equipment', 'material', 'meeting', 'project', 'contact', '
 const actionTypes = ['create', 'update', 'delete', 'status_change', 'approval', 'rejection']
 const PAGE_SIZE = 15
 
-const FIELD_LABELS: Record<string, string> = {
-  filename: 'File Name',
-  entity_id: 'Related Entity',
-  entity_type: 'Entity Type',
-  contact_name: 'Contact Name',
-  company_name: 'Company',
-  contact_type: 'Contact Type',
-  role_description: 'Role',
-  equipment_type: 'Equipment Type',
-  model_number: 'Model Number',
-  serial_number: 'Serial Number',
-  manufacturer: 'Manufacturer',
-  status: 'Status',
-  name: 'Name',
-  description: 'Description',
-  title: 'Title',
-  question: 'Question',
-  category: 'Category',
-  priority: 'Priority',
-  severity: 'Severity',
-  location: 'Location',
-  floor_number: 'Floor',
-  area_code: 'Area Code',
-  due_date: 'Due Date',
-  scheduled_date: 'Scheduled Date',
-  meeting_type: 'Meeting Type',
-  file_type: 'File Type',
-  file_size: 'File Size',
-  storage_path: 'Storage Path',
-  defect_number: 'Defect #',
-  submission_number: 'Submission #',
+const FIELD_LABEL_KEYS: Record<string, string> = {
+  filename: 'auditLog.fieldLabels.filename',
+  entity_id: 'auditLog.fieldLabels.entity_id',
+  entity_type: 'auditLog.fieldLabels.entity_type',
+  contact_name: 'auditLog.fieldLabels.contact_name',
+  company_name: 'auditLog.fieldLabels.company_name',
+  contact_type: 'auditLog.fieldLabels.contact_type',
+  role_description: 'auditLog.fieldLabels.role_description',
+  equipment_type: 'auditLog.fieldLabels.equipment_type',
+  model_number: 'auditLog.fieldLabels.model_number',
+  serial_number: 'auditLog.fieldLabels.serial_number',
+  manufacturer: 'auditLog.fieldLabels.manufacturer',
+  status: 'auditLog.fieldLabels.status',
+  name: 'auditLog.fieldLabels.name',
+  description: 'auditLog.fieldLabels.description',
+  title: 'auditLog.fieldLabels.title',
+  question: 'auditLog.fieldLabels.question',
+  category: 'auditLog.fieldLabels.category',
+  priority: 'auditLog.fieldLabels.priority',
+  severity: 'auditLog.fieldLabels.severity',
+  location: 'auditLog.fieldLabels.location',
+  floor_number: 'auditLog.fieldLabels.floor_number',
+  area_code: 'auditLog.fieldLabels.area_code',
+  due_date: 'auditLog.fieldLabels.due_date',
+  scheduled_date: 'auditLog.fieldLabels.scheduled_date',
+  meeting_type: 'auditLog.fieldLabels.meeting_type',
+  file_type: 'auditLog.fieldLabels.file_type',
+  file_size: 'auditLog.fieldLabels.file_size',
+  storage_path: 'auditLog.fieldLabels.storage_path',
+  defect_number: 'auditLog.fieldLabels.defect_number',
+  submission_number: 'auditLog.fieldLabels.submission_number',
+  created_at: 'auditLog.fieldLabels.created_at',
+  updated_at: 'auditLog.fieldLabels.updated_at',
+  project_id: 'auditLog.fieldLabels.project_id',
+  area_id: 'auditLog.fieldLabels.area_id',
+  to_email: 'auditLog.fieldLabels.to_email',
+  to_name: 'auditLog.fieldLabels.to_name',
+  assigned_to: 'auditLog.fieldLabels.assigned_to',
 }
 
 const isUUID = (val: unknown): boolean =>
   typeof val === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val)
+
+const isISODate = (val: unknown): boolean =>
+  typeof val === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(val)
+
+const isNullish = (val: unknown): boolean =>
+  val === null || val === undefined || val === 'null' || val === ''
 
 export default function AuditLogPage() {
   const { showError, showSuccess } = useToast()
@@ -472,38 +485,51 @@ export default function AuditLogPage() {
                 </Typography>
                 {formatChanges(selectedLog.oldValues, selectedLog.newValues)
                   .filter(change => !(isUUID(change.old) && isUUID(change.new)) && !(change.old === undefined && isUUID(change.new)) && !(isUUID(change.old) && change.new === undefined))
-                  .map(change => (
-                  <Box
-                    key={change.field}
-                    sx={{
-                      p: 1.5,
-                      bgcolor: 'action.hover',
-                      borderRadius: 2,
-                      mb: 1,
-                    }}
-                  >
-                    <Typography variant="caption" color="text.secondary" fontWeight={600}>
-                      {FIELD_LABELS[change.field] || change.field.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
-                    </Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5, flexWrap: 'wrap' }}>
-                      {change.old !== undefined && (
-                        <Chip
-                          label={isUUID(change.old) ? String(change.old).slice(0, 8) + '...' : String(change.old)}
-                          size="small"
-                          sx={{ bgcolor: 'error.light', color: 'error.dark', fontSize: '0.7rem', maxWidth: '100%' }}
-                        />
-                      )}
-                      <SwapHorizIcon sx={{ fontSize: 16, color: 'text.secondary', flexShrink: 0 }} />
-                      {change.new !== undefined && (
-                        <Chip
-                          label={isUUID(change.new) ? String(change.new).slice(0, 8) + '...' : String(change.new)}
-                          size="small"
-                          sx={{ bgcolor: 'success.light', color: 'success.dark', fontSize: '0.7rem', maxWidth: '100%' }}
-                        />
-                      )}
-                    </Box>
-                  </Box>
-                ))}
+                  .filter(change => !(isNullish(change.old) && isNullish(change.new)))
+                  .map(change => {
+                    const isCreate = isNullish(change.old) && !isNullish(change.new)
+                    const isDelete = !isNullish(change.old) && isNullish(change.new)
+                    const formatVal = (val: unknown) => {
+                      if (isNullish(val)) return ''
+                      if (isUUID(val)) return String(val).slice(0, 8) + '...'
+                      if (isISODate(val)) return new Date(String(val)).toLocaleString(dateLocale)
+                      return String(val)
+                    }
+                    return (
+                      <Box
+                        key={change.field}
+                        sx={{
+                          p: 1.5,
+                          bgcolor: 'action.hover',
+                          borderRadius: 2,
+                          mb: 1,
+                        }}
+                      >
+                        <Typography variant="caption" color="text.secondary" fontWeight={600}>
+                          {FIELD_LABEL_KEYS[change.field] ? t(FIELD_LABEL_KEYS[change.field]) : change.field.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                        </Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5, flexWrap: 'wrap' }}>
+                          {!isNullish(change.old) && (
+                            <Chip
+                              label={formatVal(change.old)}
+                              size="small"
+                              sx={{ bgcolor: 'error.light', color: 'error.dark', fontSize: '0.7rem', maxWidth: '100%' }}
+                            />
+                          )}
+                          {!isCreate && !isDelete && (
+                            <SwapHorizIcon sx={{ fontSize: 16, color: 'text.secondary', flexShrink: 0 }} />
+                          )}
+                          {!isNullish(change.new) && (
+                            <Chip
+                              label={formatVal(change.new)}
+                              size="small"
+                              sx={{ bgcolor: 'success.light', color: 'success.dark', fontSize: '0.7rem', maxWidth: '100%' }}
+                            />
+                          )}
+                        </Box>
+                      </Box>
+                    )
+                  })}
               </>
             )}
           </Box>
