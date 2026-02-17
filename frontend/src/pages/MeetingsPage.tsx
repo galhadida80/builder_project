@@ -194,6 +194,10 @@ export default function MeetingsPage() {
     setDetailsOpen(true)
   }
 
+  const handleSyncCalendar = () => {
+    showSuccess(t('meetings.syncCalendarComingSoon'))
+  }
+
   if (loading) {
     return (
       <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
@@ -221,7 +225,7 @@ export default function MeetingsPage() {
         breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('meetings.title') }]}
         actions={
           <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 1 }}>
-            <Button variant="secondary" icon={<SyncIcon />}>
+            <Button variant="secondary" icon={<SyncIcon />} onClick={handleSyncCalendar}>
               {t('meetings.syncCalendar')}
             </Button>
             <Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>

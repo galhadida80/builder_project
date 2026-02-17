@@ -23,7 +23,7 @@ import TemplatePicker from '../components/ui/TemplatePicker'
 import KeyValueEditor, { type KeyValuePair } from '../components/ui/KeyValueEditor'
 import ContactSelectorDialog from '../components/ui/ContactSelectorDialog'
 import { useReferenceData } from '../contexts/ReferenceDataContext'
-import { AddIcon, VisibilityIcon, EditIcon, DeleteIcon, CloseIcon, DescriptionIcon, SendIcon, BuildIcon, FilterListIcon, CloudUploadIcon, DownloadIcon, CheckCircleIcon, PersonIcon } from '@/icons'
+import { AddIcon, VisibilityIcon, EditIcon, DeleteIcon, CloseIcon, DescriptionIcon, SendIcon, BuildIcon, CloudUploadIcon, DownloadIcon, CheckCircleIcon, PersonIcon } from '@/icons'
 import { Box, Typography, Drawer, Divider, List, ListItem, ListItemText, ListItemIcon, MenuItem, TextField as MuiTextField, Skeleton, Chip, Checkbox, FormControlLabel, Alert, CircularProgress, IconButton } from '@/mui'
 
 export default function EquipmentPage() {

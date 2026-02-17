@@ -283,6 +283,7 @@
     "deletedSuccessfully": "¡Reunión eliminada exitosamente!",
     "failedToDelete": "Error al eliminar reunión",
     "syncCalendar": "Sincronizar Calendario",
+    "syncCalendarComingSoon": "¡Sincronización de calendario próximamente!",
     "totalMeetings": "Total de Reuniones",
     "upcoming": "Próximas",
     "completed": "Completadas",

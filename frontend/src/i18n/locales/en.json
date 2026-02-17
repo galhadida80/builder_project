@@ -287,6 +287,7 @@
     "deletedSuccessfully": "Meeting deleted successfully!",
     "failedToDelete": "Failed to delete meeting",
     "syncCalendar": "Sync Calendar",
+    "syncCalendarComingSoon": "Calendar sync coming soon!",
     "totalMeetings": "Total Meetings",
     "upcoming": "Upcoming",
     "completed": "Completed",

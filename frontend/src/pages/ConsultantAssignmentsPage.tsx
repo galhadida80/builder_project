@@ -15,7 +15,7 @@ import { apiClient } from '../api/client'
 import type { ConsultantAssignment } from '../types/consultantAssignment'
 import type { User, Project } from '../types'
 import { useToast } from '../components/common/ToastProvider'
-import { AddIcon, ViewListIcon, CalendarMonthIcon, AssignmentIcon, PeopleIcon, WorkIcon, PendingActionsIcon, FilterListIcon } from '@/icons'
+import { AddIcon, ViewListIcon, CalendarMonthIcon, AssignmentIcon, PeopleIcon, WorkIcon, PendingActionsIcon } from '@/icons'
 import { Box, Typography, Skeleton, Chip, IconButton, ToggleButton, ToggleButtonGroup, MenuItem, TextField as MuiTextField } from '@/mui'
 
 type ViewMode = 'list' | 'calendar'
