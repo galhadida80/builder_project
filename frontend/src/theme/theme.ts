@@ -155,11 +155,35 @@ const baseThemeOptions: ThemeOptions = {
           padding: '8px 16px',
           minHeight: 36,
           transition: `background-color ${transitions.normal}, box-shadow ${transitions.normal}, border-color ${transitions.normal}`,
+          '&.Mui-disabled': {
+            cursor: 'not-allowed',
+            opacity: 0.5,
+          },
         },
         containedPrimary: {
           backgroundColor: colors.accent.primary,
           '&:hover': {
             backgroundColor: colors.accent.hover,
+          },
+        },
+        contained: {
+          '&.Mui-disabled': {
+            opacity: 0.6,
+            backgroundColor: colors.primary[300],
+            color: colors.primary[500],
+          },
+        },
+        outlined: {
+          '&.Mui-disabled': {
+            opacity: 0.5,
+            borderColor: colors.primary[300],
+            color: colors.primary[400],
+          },
+        },
+        text: {
+          '&.Mui-disabled': {
+            opacity: 0.5,
+            color: colors.primary[400],
           },
         },
         sizeSmall: {

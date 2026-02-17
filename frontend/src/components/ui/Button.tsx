@@ -14,6 +14,12 @@ const StyledButton = styled(MuiButton)(({ theme }) => ({
   fontWeight: 600,
   transition: 'background-color 200ms ease-out, box-shadow 200ms ease-out, border-color 200ms ease-out',
   touchAction: 'manipulation',
+  '&.Mui-disabled': {
+    cursor: 'not-allowed',
+    opacity: 0.6,
+    filter: 'grayscale(0.3)',
+    pointerEvents: 'auto',
+  },
 }))
 
 export function Button({
