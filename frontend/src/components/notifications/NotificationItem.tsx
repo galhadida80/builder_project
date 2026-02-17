@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { Notification, NotificationCategory } from '../../types/notification'
 import { CheckCircleIcon, WarningIcon, UpdateIcon, InfoIcon, MoreVertIcon } from '@/icons'
 import { ListItem, ListItemAvatar, ListItemText, Box, Typography, IconButton, Avatar as MuiAvatar, styled } from '@/mui'
@@ -99,6 +100,7 @@ function getInitials(title: string): string {
 }
 
 export function NotificationItem({ notification, onClick, onActionClick }: NotificationItemProps) {
+  const { t } = useTranslation()
   const config = categoryConfig[notification.category] ?? categoryConfig.general
 
   const handleClick = () => {
@@ -198,7 +200,7 @@ export function NotificationItem({ notification, onClick, onActionClick }: Notif
       />
 
       {onActionClick && (
-        <IconButton
+        <IconButton aria-label={t('common.actions')}
           size="small"
           onClick={handleActionClick}
           sx={{ ml: 1, color: 'text.secondary' }}

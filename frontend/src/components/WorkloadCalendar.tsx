@@ -185,6 +185,7 @@ export function WorkloadCalendar({
             >
               <IconButton
                 size="small"
+                aria-label={t('common.previous')}
                 onClick={handlePreviousPeriod}
                 sx={{
                   bgcolor: 'background.paper',
@@ -200,6 +201,7 @@ export function WorkloadCalendar({
 
               <IconButton
                 size="small"
+                aria-label={t('common.next')}
                 onClick={handleNextPeriod}
                 sx={{
                   bgcolor: 'background.paper',

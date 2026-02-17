@@ -586,6 +586,7 @@ export default function DefectsPage() {
                     />
                     <IconButton
                       size="small"
+                      aria-label={t('common.removeItem')}
                       onClick={(e) => { e.stopPropagation(); removePhoto(idx) }}
                       sx={{ position: 'absolute', top: 2, right: 2, bgcolor: 'rgba(0,0,0,0.5)', color: 'white', p: 0.3, '&:hover': { bgcolor: 'rgba(0,0,0,0.7)' } }}
                     >

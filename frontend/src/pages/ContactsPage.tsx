@@ -480,10 +480,10 @@ export default function ContactsPage() {
                           </TableCell>
                           <TableCell align="center" onClick={(e) => e.stopPropagation()}>
                             <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center' }}>
-                              <IconButton size="small" onClick={() => handleOpenEdit(contact)}>
+                              <IconButton size="small" aria-label={t('contacts.editContact')} onClick={() => handleOpenEdit(contact)}>
                                 <EditIcon fontSize="small" />
                               </IconButton>
-                              <IconButton size="small" onClick={() => handleDeleteClick(contact)} color="error">
+                              <IconButton size="small" aria-label={t('contacts.deleteContact')} onClick={() => handleDeleteClick(contact)} color="error">
                                 <DeleteIcon fontSize="small" />
                               </IconButton>
                             </Box>
@@ -539,10 +539,10 @@ export default function ContactsPage() {
                         </TableCell>
                         <TableCell align="center" onClick={(e) => e.stopPropagation()}>
                           <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center' }}>
-                            <IconButton size="small" onClick={() => handleOpenGroupEdit(group)}>
+                            <IconButton size="small" aria-label={t('contacts.editGroup')} onClick={() => handleOpenGroupEdit(group)}>
                               <EditIcon fontSize="small" />
                             </IconButton>
-                            <IconButton size="small" onClick={() => handleDeleteGroupClick(group)} color="error">
+                            <IconButton size="small" aria-label={t('contacts.deleteGroup')} onClick={() => handleDeleteGroupClick(group)} color="error">
                               <DeleteIcon fontSize="small" />
                             </IconButton>
                           </Box>

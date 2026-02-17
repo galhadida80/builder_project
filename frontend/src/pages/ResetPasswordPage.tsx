@@ -134,6 +134,7 @@ export default function ResetPasswordPage() {
                         onClick={() => setShowPassword(!showPassword)}
                         edge="end"
                         size="small"
+                        aria-label={showPassword ? t('hidePassword') : t('showPassword')}
                         sx={{ color: 'text.disabled' }}
                       >
                         {showPassword ? <VisibilityOffIcon sx={{ fontSize: 20 }} /> : <VisibilityIcon sx={{ fontSize: 20 }} />}

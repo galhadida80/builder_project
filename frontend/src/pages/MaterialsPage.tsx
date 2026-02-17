@@ -402,21 +402,21 @@ export default function MaterialsPage() {
           <IconButton
             size="small"
             onClick={(e) => { e.stopPropagation(); handleViewDetails(row); }}
-            title={t('common.details')}
+            aria-label={t('common.viewDetails')}
           >
             <VisibilityIcon fontSize="small" />
           </IconButton>
           <IconButton
             size="small"
             onClick={(e) => handleOpenEdit(row, e)}
-            title={t('materials.editMaterial')}
+            aria-label={t('materials.editMaterial')}
           >
             <EditIcon fontSize="small" />
           </IconButton>
           <IconButton
             size="small"
             onClick={(e) => handleDeleteClick(row, e)}
-            title={t('common.delete')}
+            aria-label={t('common.delete')}
             color="error"
           >
             <DeleteIcon fontSize="small" />
@@ -539,7 +539,7 @@ export default function MaterialsPage() {
           <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
               <Typography variant="h6" fontWeight={600}>{t('materials.details')}</Typography>
-              <IconButton onClick={handleCloseDrawer} size="small">
+              <IconButton aria-label={t('common.close')} onClick={handleCloseDrawer} size="small">
                 <CloseIcon />
               </IconButton>
             </Box>
@@ -666,7 +666,7 @@ export default function MaterialsPage() {
                       <IconButton
                         edge="end"
                         size="small"
-                        title={t('buttons.download')}
+                        aria-label={t('buttons.download')}
                         onClick={async () => {
                           try {
                             const blobUrl = await filesApi.getFileBlob(projectId!, file.id)

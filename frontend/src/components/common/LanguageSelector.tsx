@@ -25,6 +25,7 @@ export default function LanguageSelector() {
       <IconButton
         onClick={handleClick}
         title={t('language.selectLanguage')}
+        aria-label={t('language.selectLanguage')}
         sx={{ ml: 1 }}
       >
         <LanguageIcon />

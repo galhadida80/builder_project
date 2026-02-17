@@ -4,7 +4,7 @@ import { LanguageIcon } from '@/icons'
 import { IconButton, Tooltip, Menu, MenuItem, ListItemIcon, ListItemText } from '@/mui'
 
 export function LanguageToggle() {
-  const { i18n } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const open = Boolean(anchorEl)
 
@@ -53,6 +53,7 @@ export function LanguageToggle() {
         <IconButton
           onClick={handleClick}
           size="small"
+          aria-label={t('language.selectLanguage')}
           sx={{
             color: 'text.secondary',
             '&:hover': { color: 'text.primary' },

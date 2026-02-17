@@ -127,25 +127,23 @@ export function AssignmentList({
       render: (row) => (
         <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
           {onEdit && (
-            <IconButton
+            <IconButton aria-label={t('consultants.editAssignment')}
               size="small"
               onClick={(e) => {
                 e.stopPropagation()
                 onEdit(row)
               }}
-              title={t('consultants.editAssignment')}
             >
               <EditIcon fontSize="small" />
             </IconButton>
           )}
           {onDelete && (
-            <IconButton
+            <IconButton aria-label={t('consultants.deleteAssignment')}
               size="small"
               onClick={(e) => {
                 e.stopPropagation()
                 onDelete(row)
               }}
-              title={t('consultants.deleteAssignment')}
               color="error"
             >
               <DeleteIcon fontSize="small" />

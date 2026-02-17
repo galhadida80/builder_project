@@ -164,7 +164,7 @@ export function DocumentViewer({
           size="small"
           onClick={handleZoomOut}
           disabled={zoom <= 0.5 || isPdf}
-          title="Zoom Out"
+          aria-label={t('documentReview.zoomOut')}
           sx={{ bgcolor: 'action.hover' }}
         >
           <ZoomOutIcon fontSize="small" />
@@ -176,7 +176,7 @@ export function DocumentViewer({
           size="small"
           onClick={handleZoomIn}
           disabled={zoom >= 3 || isPdf}
-          title="Zoom In"
+          aria-label={t('documentReview.zoomIn')}
           sx={{ bgcolor: 'action.hover' }}
         >
           <ZoomInIcon fontSize="small" />
@@ -185,7 +185,7 @@ export function DocumentViewer({
           size="small"
           onClick={handleFitToScreen}
           disabled={isPdf}
-          title={t('documentReview.fitToScreen')}
+          aria-label={t('documentReview.fitToScreen')}
           sx={{ bgcolor: 'action.hover' }}
         >
           <FitScreenIcon fontSize="small" />
@@ -194,7 +194,7 @@ export function DocumentViewer({
           size="small"
           onClick={handleRotate}
           disabled={isPdf}
-          title="Rotate"
+          aria-label={t('documentReview.rotate')}
           sx={{ bgcolor: 'action.hover' }}
         >
           <RotateRightIcon fontSize="small" />
@@ -203,7 +203,7 @@ export function DocumentViewer({
         <IconButton
           size="small"
           onClick={handleDownload}
-          title="Download"
+          aria-label={t('documentReview.downloadDocument')}
           sx={{ bgcolor: 'action.hover' }}
         >
           <DownloadIcon fontSize="small" />
@@ -211,7 +211,7 @@ export function DocumentViewer({
         <IconButton
           size="small"
           onClick={handlePrint}
-          title="Print"
+          aria-label={t('documentReview.printDocument')}
           sx={{ bgcolor: 'action.hover' }}
         >
           <PrintIcon fontSize="small" />
@@ -245,6 +245,7 @@ export function DocumentViewer({
             <IconButton
               size="large"
               onClick={handleDownload}
+              aria-label={t('documentReview.downloadDocument')}
               sx={{ bgcolor: 'primary.main', color: 'white', '&:hover': { bgcolor: 'primary.dark' } }}
             >
               <DownloadIcon />

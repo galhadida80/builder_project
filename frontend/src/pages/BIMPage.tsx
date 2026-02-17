@@ -271,6 +271,7 @@ export default function BIMPage() {
                   <Tooltip title={t('bim.translate')}>
                     <IconButton
                       size="small"
+                      aria-label={t('bim.translate')}
                       onClick={async (e) => {
                         e.stopPropagation()
                         if (!projectId) return
@@ -296,6 +297,7 @@ export default function BIMPage() {
                     <IconButton
                       size="small"
                       color="primary"
+                      aria-label={t('bim.extractData')}
                       onClick={(e) => {
                         e.stopPropagation()
                         setImportModel(model)
@@ -309,6 +311,7 @@ export default function BIMPage() {
                   <IconButton
                     size="small"
                     color="error"
+                    aria-label={t('common.delete')}
                     onClick={(e) => {
                       e.stopPropagation()
                       setDeleteModel(model)

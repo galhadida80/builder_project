@@ -187,11 +187,11 @@ export function FilePreview({ file, projectId, onClose, onDownload }: FilePrevie
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', gap: 1 }}>
-          <IconButton size="small" onClick={handleDownload} title={t('documents.downloadFile')}>
+          <IconButton size="small" onClick={handleDownload} aria-label={t('documents.downloadFile')}>
             <DownloadIcon fontSize="small" />
           </IconButton>
           {onClose && (
-            <IconButton size="small" onClick={onClose} title={t('documents.closePreview')}>
+            <IconButton size="small" onClick={onClose} aria-label={t('documents.closePreview')}>
               <CloseIcon fontSize="small" />
             </IconButton>
           )}

@@ -279,6 +279,7 @@ export function CommentThread({
           {isOwnComment && (
             <IconButton
               size="small"
+              aria-label={t('common.viewMenu')}
               onClick={handleMenuOpen}
               sx={{ ml: 'auto', width: 32, height: 32 }}
             >

@@ -248,7 +248,7 @@ export default function ChatDrawer({ open, onClose, projectId }: ChatDrawerProps
         {/* Header */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 2, borderBottom: 1, borderColor: 'divider' }}>
           {showHistory ? (
-            <IconButton size="small" onClick={() => setShowHistory(false)}>
+            <IconButton size="small" aria-label={t('chat.backToChat')} onClick={() => setShowHistory(false)}>
               <ArrowBackIcon />
             </IconButton>
           ) : (
@@ -259,15 +259,16 @@ export default function ChatDrawer({ open, onClose, projectId }: ChatDrawerProps
           </Typography>
           {!showHistory && (
             <>
-              <IconButton size="small" onClick={handleNewChat} title={t('chat.newChat')}>
+              <IconButton size="small" aria-label={t('chat.newChat')} onClick={handleNewChat}>
                 <AddIcon />
               </IconButton>
-              <IconButton size="small" onClick={handleShowHistory} title={t('chat.history')}>
+              <IconButton size="small" aria-label={t('chat.history')} onClick={handleShowHistory}>
                 <HistoryIcon />
               </IconButton>
             </>
           )}
           <IconButton
+            aria-label={t('chat.closeChat')}
             onClick={onClose}
             size={isMobile ? 'medium' : 'small'}
             sx={{
@@ -301,6 +302,7 @@ export default function ChatDrawer({ open, onClose, projectId }: ChatDrawerProps
                     />
                     <IconButton
                       size="small"
+                      aria-label={t('chat.deleteConversation')}
                       onClick={(e) => {
                         e.stopPropagation()
                         handleDeleteConversation(conv.id)

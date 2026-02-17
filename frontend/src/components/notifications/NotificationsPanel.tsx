@@ -132,7 +132,7 @@ export function NotificationsPanel({
           </Typography>
           {unreadCount > 0 && <UnreadBadge>{unreadCount}</UnreadBadge>}
         </Box>
-        <IconButton onClick={onClose} size="small">
+        <IconButton aria-label={t('notifications.closePanel')} onClick={onClose} size="small">
           <CloseIcon fontSize="small" />
         </IconButton>
       </Header>

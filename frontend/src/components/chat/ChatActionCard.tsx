@@ -131,7 +131,7 @@ export default function ChatActionCard({ action, onExecute, onReject }: ChatActi
             variant={isProposed ? 'outlined' : 'filled'}
           />
           {paramEntries.length > 0 && (
-            <IconButton size="small" onClick={() => setExpanded(!expanded)}>
+            <IconButton size="small" aria-label={t('chat.toggleDetails')} onClick={() => setExpanded(!expanded)}>
               {expanded ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
             </IconButton>
           )}

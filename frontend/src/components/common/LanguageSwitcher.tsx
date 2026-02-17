@@ -28,6 +28,7 @@ export function LanguageSwitcher() {
         <IconButton
           onClick={handleClick}
           size="small"
+          aria-label="Select language"
           sx={{
             color: 'text.secondary',
             '&:hover': { color: 'text.primary' },

@@ -338,6 +338,7 @@ export default function DefectDetailPage() {
                     </Typography>
                     <Tooltip title={t('common.delete')}>
                       <IconButton
+                        aria-label={t('common.delete')}
                         size="small"
                         onClick={(e) => { e.stopPropagation(); handlePhotoDelete(file.id) }}
                         sx={{ color: 'white' }}

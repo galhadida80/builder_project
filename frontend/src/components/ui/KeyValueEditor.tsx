@@ -167,7 +167,7 @@ export default function KeyValueEditor({ entries, onChange, label }: KeyValueEdi
 
               {!entry.locked && (
                 <Tooltip title={t('common.delete')}>
-                  <IconButton size="small" color="error" onClick={() => handleRemove(index)}>
+                  <IconButton size="small" color="error" aria-label={t('common.delete')} onClick={() => handleRemove(index)}>
                     <DeleteOutlineIcon fontSize="small" />
                   </IconButton>
                 </Tooltip>
@@ -214,6 +214,7 @@ export default function KeyValueEditor({ entries, onChange, label }: KeyValueEdi
           <span>
             <IconButton
               color="primary"
+              aria-label={t('keyValueEditor.addField')}
               onClick={handleAdd}
               disabled={!newKey.trim() || entries.some(e => e.key === newKey.trim())}
             >

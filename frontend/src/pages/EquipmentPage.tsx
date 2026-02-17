@@ -375,6 +375,7 @@ export default function EquipmentPage() {
         <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
           <IconButton
             size="small"
+            aria-label={t('common.details')}
             onClick={(e) => { e.stopPropagation(); handleViewDetails(row); }}
             title={t('common.details')}
           >
@@ -382,6 +383,7 @@ export default function EquipmentPage() {
           </IconButton>
           <IconButton
             size="small"
+            aria-label={t('equipment.editEquipment')}
             onClick={(e) => handleOpenEdit(row, e)}
             title={t('equipment.editEquipment')}
           >
@@ -389,6 +391,7 @@ export default function EquipmentPage() {
           </IconButton>
           <IconButton
             size="small"
+            aria-label={t('common.delete')}
             onClick={(e) => handleDeleteClick(row, e)}
             title={t('common.delete')}
             color="error"
@@ -469,7 +472,7 @@ export default function EquipmentPage() {
           <>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: { xs: 1.5, sm: 2, md: 3 }, pb: 0, position: 'sticky', top: 0, zIndex: 1, bgcolor: 'background.default' }}>
               <Typography variant="h6" fontWeight={600}>{t('equipment.details')}</Typography>
-              <IconButton onClick={handleCloseDrawer} size="small">
+              <IconButton aria-label={t('common.close')} onClick={handleCloseDrawer} size="small">
                 <CloseIcon />
               </IconButton>
             </Box>
@@ -581,6 +584,7 @@ export default function EquipmentPage() {
                       <IconButton
                         edge="end"
                         size="small"
+                        aria-label={t('buttons.download')}
                         title={t('buttons.download')}
                         onClick={async () => {
                           try {

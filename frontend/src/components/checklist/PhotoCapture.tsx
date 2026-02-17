@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useDropzone } from 'react-dropzone'
 import { Button } from '../ui/Button'
 import { CameraAltIcon, DeleteIcon, CloudUploadIcon } from '@/icons'
@@ -112,6 +113,7 @@ export function PhotoCapture({
   onPhotosChange,
   disabled = false,
 }: PhotoCaptureProps) {
+  const { t } = useTranslation()
   const [photos, setPhotos] = useState<PhotoFile[]>([])
   const [compressing, setCompressing] = useState(false)
 
@@ -256,6 +258,7 @@ export function PhotoCapture({
                     sx={{ objectFit: 'cover' }}
                   />
                   <DeleteButton
+                    aria-label={t('common.delete')}
                     size="small"
                     onClick={() => removePhoto(index)}
                     disabled={disabled}

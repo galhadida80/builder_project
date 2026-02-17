@@ -156,6 +156,7 @@ export function FolderTree({
                     e.stopPropagation()
                     handleOpenCreateModal(folder.id)
                   }}
+                  aria-label={t('documents.addSubfolder')}
                   sx={{ p: 0.5 }}
                 >
                   <AddIcon fontSize="small" />
@@ -163,6 +164,7 @@ export function FolderTree({
                 <IconButton
                   size="small"
                   onClick={(e) => handleOpenRenameModal(folder, e)}
+                  aria-label={t('documents.renameFolder')}
                   sx={{ p: 0.5 }}
                 >
                   <EditIcon fontSize="small" />
@@ -170,6 +172,7 @@ export function FolderTree({
                 <IconButton
                   size="small"
                   onClick={(e) => handleOpenDeleteModal(folder, e)}
+                  aria-label={t('documents.deleteFolder')}
                   sx={{ p: 0.5 }}
                 >
                   <DeleteIcon fontSize="small" />
@@ -189,6 +192,7 @@ export function FolderTree({
                   e.stopPropagation()
                   toggleExpand(folder.id)
                 }}
+                aria-label={isExpanded ? t('documents.collapseFolder') : t('documents.expandFolder')}
                 sx={{ p: 0.5, mr: 0.5 }}
               >
                 {isExpanded ? (
@@ -256,6 +260,7 @@ export function FolderTree({
         <IconButton
           size="small"
           onClick={() => handleOpenCreateModal('root')}
+          aria-label={t('documents.createFolder')}
           sx={{
             bgcolor: 'primary.main',
             color: 'white',

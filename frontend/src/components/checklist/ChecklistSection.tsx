@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { ChecklistSubSection, ChecklistItemTemplate, ChecklistItemResponse } from '../../types'
 import { ExpandMoreIcon, ExpandLessIcon, CheckCircleIcon, RadioButtonUncheckedIcon } from '@/icons'
 import { Box, Typography, Collapse, LinearProgress, IconButton, Chip } from '@/mui'
@@ -62,6 +63,7 @@ export function ChecklistSection({
   defaultExpanded = false,
   onItemClick,
 }: ChecklistSectionProps) {
+  const { t } = useTranslation()
   const [expanded, setExpanded] = useState(defaultExpanded)
 
   // Calculate completion progress
@@ -153,7 +155,7 @@ export function ChecklistSection({
               {progressPercent}%
             </Typography>
           </Box>
-          <IconButton
+          <IconButton aria-label={expanded ? t('checklist.collapseSection') : t('checklist.expandSection')}
             size="small"
             sx={{
               transition: 'transform 200ms ease-out',

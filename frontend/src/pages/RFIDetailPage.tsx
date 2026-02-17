@@ -179,7 +179,7 @@ export default function RFIDetailPage() {
       {/* Header */}
       <Box sx={{ py: 2, flexShrink: 0 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1.5 }}>
-          <IconButton onClick={() => navigate(`/projects/${projectId}/rfis`)} size="small">
+          <IconButton aria-label={t('common.back')} onClick={() => navigate(`/projects/${projectId}/rfis`)} size="small">
             <ArrowBackIcon />
           </IconButton>
           <Avatar sx={{ bgcolor: 'primary.main', width: 40, height: 40 }}>
@@ -199,7 +199,7 @@ export default function RFIDetailPage() {
           </Box>
           <Box sx={{ display: 'flex', gap: 0.5, flexShrink: 0 }}>
             <Tooltip title={t('common.refresh')}>
-              <IconButton size="small" onClick={handleRefresh} disabled={refreshing}>
+              <IconButton size="small" aria-label={t('common.refresh')} onClick={handleRefresh} disabled={refreshing}>
                 <RefreshIcon fontSize="small" sx={{ animation: refreshing ? 'spin 1s linear infinite' : 'none', '@keyframes spin': { '100%': { transform: 'rotate(360deg)' } } }} />
               </IconButton>
             </Tooltip>

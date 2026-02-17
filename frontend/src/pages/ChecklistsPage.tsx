@@ -301,6 +301,7 @@ export default function ChecklistsPage() {
       render: (row) => (
         <IconButton
           size="small"
+          aria-label={expandedId === row.id ? t('common.collapse') : t('common.expand')}
           onClick={(e) => {
             e.stopPropagation()
             setExpandedId(expandedId === row.id ? null : row.id)
@@ -461,6 +462,7 @@ export default function ChecklistsPage() {
         <IconButton
           size="small"
           color="error"
+          aria-label={t('checklists.deleteChecklist')}
           onClick={(e) => {
             e.stopPropagation()
             setDeleteTargetId(row.id)
@@ -690,6 +692,7 @@ export default function ChecklistsPage() {
                   </Box>
                 </Box>
                 <IconButton
+                  aria-label={t('common.close')}
                   onClick={() => setDrawerOpen(false)}
                   sx={{
                     bgcolor: 'action.hover',

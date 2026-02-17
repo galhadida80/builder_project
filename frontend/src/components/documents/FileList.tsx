@@ -141,7 +141,7 @@ export function FileList({
                 e.stopPropagation()
                 onFileClick(row)
               }}
-              title={t('documents.previewFile')}
+              aria-label={t('documents.previewFile')}
             >
               <VisibilityIcon fontSize="small" />
             </IconButton>
@@ -153,7 +153,7 @@ export function FileList({
                 e.stopPropagation()
                 onDownload(row)
               }}
-              title={t('documents.downloadFile')}
+              aria-label={t('documents.downloadFile')}
             >
               <DownloadIcon fontSize="small" />
             </IconButton>
@@ -165,7 +165,7 @@ export function FileList({
                 e.stopPropagation()
                 onDelete(row)
               }}
-              title={t('documents.deleteFile')}
+              aria-label={t('documents.deleteFile')}
               color="error"
             >
               <DeleteIcon fontSize="small" />

@@ -334,7 +334,7 @@ export default function ProjectsPage() {
                       <ProgressBar value={project.status === 'completed' ? 100 : project.status === 'active' ? 50 : 0} showValue={false} size="small" />
                     </Box>
                     <StatusBadge status={project.status} size="small" />
-                    <IconButton size="small" onClick={(e) => handleMenuOpen(e, project)} sx={{ flexShrink: 0, ml: -0.5 }}>
+                    <IconButton size="small" aria-label={t('common.viewMenu')} onClick={(e) => handleMenuOpen(e, project)} sx={{ flexShrink: 0, ml: -0.5 }}>
                       <MoreVertIcon sx={{ fontSize: 18 }} />
                     </IconButton>
                   </Box>
@@ -370,7 +370,7 @@ export default function ProjectsPage() {
                         </Typography>
                         <Chip label={project.code} size="small" variant="outlined" sx={{ fontSize: '0.65rem', height: 20 }} />
                       </Box>
-                      <IconButton size="small" onClick={(e) => handleMenuOpen(e, project)} sx={{ flexShrink: 0, mt: -0.5, mr: -0.5 }}>
+                      <IconButton size="small" aria-label={t('common.viewMenu')} onClick={(e) => handleMenuOpen(e, project)} sx={{ flexShrink: 0, mt: -0.5, mr: -0.5 }}>
                         <MoreVertIcon sx={{ fontSize: 18 }} />
                       </IconButton>
                     </Box>

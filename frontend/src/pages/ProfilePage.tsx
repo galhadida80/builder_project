@@ -250,6 +250,7 @@ export default function ProfilePage() {
                           </Typography>
                         </Box>
                         <IconButton
+                          aria-label={t('webauthn.deleteDevice')}
                           size="small"
                           color="error"
                           onClick={() => handleDeleteCredential(cred.id)}

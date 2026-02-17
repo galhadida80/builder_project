@@ -141,7 +141,7 @@ export default function ProjectDetailPage() {
   return (
     <Box sx={{ p: { xs: 1.5, md: 2 } }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
-        <IconButton onClick={() => navigate('/projects')} size="small">
+        <IconButton aria-label={t('projectDetail.backToProjects')} onClick={() => navigate('/projects')} size="small">
           <ArrowBackIcon />
         </IconButton>
         <Typography variant="body2" color="text.secondary">

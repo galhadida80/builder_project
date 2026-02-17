@@ -73,7 +73,7 @@ export default function InviteMemberDialog({ open, onClose, projectId }: InviteM
                 readOnly: true,
                 endAdornment: (
                   <InputAdornment position="end">
-                    <IconButton onClick={handleCopy} size="small">
+                    <IconButton onClick={handleCopy} size="small" aria-label={t('common.copy')}>
                       <ContentCopyIcon fontSize="small" />
                     </IconButton>
                   </InputAdornment>

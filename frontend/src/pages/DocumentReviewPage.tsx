@@ -346,7 +346,7 @@ export default function DocumentReviewPage() {
     return (
       <Box sx={{ p: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-          <IconButton onClick={handleBack} size="small">
+          <IconButton aria-label={t('common.back')} onClick={handleBack} size="small">
             <ArrowBackIcon />
           </IconButton>
           <Typography variant="body2" color="text.secondary">
@@ -390,7 +390,7 @@ export default function DocumentReviewPage() {
         alignItems: 'center',
         gap: 1
       }}>
-        <IconButton onClick={handleBack} size="small">
+        <IconButton aria-label={t('common.back')} onClick={handleBack} size="small">
           <ArrowBackIcon />
         </IconButton>
         <Typography variant="body2" color="text.secondary">

@@ -147,7 +147,16 @@
     "closeInstallGuide": "סגור מדריך התקנה",
     "dismissInstallPrompt": "סגור הודעת התקנה",
     "install": "התקן",
-    "notNow": "לא עכשיו"
+    "notNow": "לא עכשיו",
+    "viewMenu": "הצג תפריט",
+    "collapseSection": "כווץ קטע",
+    "expandSection": "הרחב קטע",
+    "closeSidePanel": "סגור פאנל צדדי",
+    "backToList": "חזרה לרשימה",
+    "removeItem": "הסר פריט",
+    "selectLanguage": "בחר שפה",
+    "viewDetails": "הצג פרטים",
+    "toggleNavigation": "החלף ניווט"
   },
   "table": {
     "rowsPerPage": "שורות בעמוד:",
@@ -417,7 +426,8 @@
     "typeSafetyReview": "סקירת בטיחות",
     "typeOther": "אחר",
     "dateRequired": "תאריך נדרש",
-    "startTimeRequired": "שעת התחלה נדרשת"
+    "startTimeRequired": "שעת התחלה נדרשת",
+    "closeMeetingDetails": "סגור פרטי פגישה"
   },
   "dashboard": {
     "title": "לוח בקרה",
@@ -784,7 +794,12 @@
       "failed": "נכשל",
       "approve": "אישור",
       "reject": "דחייה"
-    }
+    },
+    "backToChat": "חזרה לצ'אט",
+    "closeChat": "סגור צ'אט",
+    "deleteConversation": "מחק שיחה",
+    "sendMessage": "שלח הודעה",
+    "toggleDetails": "הצג/הסתר פרטים"
   },
   "approvalQueue": {
     "title": "תור אישורים",
@@ -1096,7 +1111,9 @@
     "failedToLoad": "נכשל בטעינת הצ'קליסט",
     "failedToSave": "נכשל בשמירת התשובה",
     "failedToSubmit": "נכשל בשליחת הצ'קליסט",
-    "notesPlaceholder": "הוסף הערות או תצפיות..."
+    "notesPlaceholder": "הוסף הערות או תצפיות...",
+    "collapseSection": "כווץ קטע",
+    "expandSection": "הרחב קטע"
   },
   "checklists": {
     "title": "צ'קליסטים",
@@ -1156,7 +1173,12 @@
     "beFirstToComment": "היה הראשון להוסיף תגובה או משוב על מסמך זה.",
     "addCommentPlaceholder": "הוסף תגובה...",
     "writeReplyPlaceholder": "כתוב תגובה...",
-    "fitToScreen": "התאם למסך"
+    "fitToScreen": "התאם למסך",
+    "zoomIn": "הגדל תצוגה",
+    "zoomOut": "הקטן תצוגה",
+    "rotate": "סובב מסמך",
+    "downloadDocument": "הורד מסמך",
+    "printDocument": "הדפס מסמך"
   },
   "inspections": {
     "title": "בדיקות",
@@ -1234,7 +1256,16 @@
     "previewFile": "תצוגה מקדימה",
     "deleteFile": "מחק קובץ",
     "enterFolderName": "הזן שם תיקייה",
-    "enterNewFolderName": "הזן שם תיקייה חדש"
+    "enterNewFolderName": "הזן שם תיקייה חדש",
+    "renameFolder": "שנה שם תיקייה",
+    "deleteFolder": "מחק תיקייה",
+    "createFolder": "צור תיקייה",
+    "addSubfolder": "הוסף תיקיית משנה",
+    "expandFolder": "הרחב תיקייה",
+    "collapseFolder": "כווץ תיקייה"
+  },
+  "notifications": {
+    "closePanel": "סגור פאנל התראות"
   },
   "consultants": {
     "editAssignment": "ערוך הקצאה",

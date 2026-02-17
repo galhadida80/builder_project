@@ -232,10 +232,10 @@ export function AssignmentCalendar({
           <Typography variant="body2" color="text.secondary" sx={{ mr: 2 }}>
             {startDate.format('MMM D, YYYY')} - {endDate.format('MMM D, YYYY')}
           </Typography>
-          <IconButton size="small" onClick={handlePrevWeek} title={t('consultantAssignments.previousWeek')}>
+          <IconButton aria-label={t('consultantAssignments.previousWeek')} size="small" onClick={handlePrevWeek}>
             <ChevronLeftIcon />
           </IconButton>
-          <IconButton size="small" onClick={handleNextWeek} title={t('consultantAssignments.nextWeek')}>
+          <IconButton aria-label={t('consultantAssignments.nextWeek')} size="small" onClick={handleNextWeek}>
             <ChevronRightIcon />
           </IconButton>
         </Box>

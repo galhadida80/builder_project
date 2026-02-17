@@ -208,6 +208,7 @@ export function ApprovalQueueList({ onViewDetails }: ApprovalQueueListProps) {
                 <IconButton
                   size="small"
                   color="success"
+                  aria-label={t('approvals.approve')}
                   onClick={() => handleAction(row, 'approve')}
                 >
                   <CheckCircleIcon fontSize="small" />
@@ -217,6 +218,7 @@ export function ApprovalQueueList({ onViewDetails }: ApprovalQueueListProps) {
                 <IconButton
                   size="small"
                   color="error"
+                  aria-label={t('approvals.reject')}
                   onClick={() => handleAction(row, 'reject')}
                 >
                   <CancelIcon fontSize="small" />
@@ -228,6 +230,7 @@ export function ApprovalQueueList({ onViewDetails }: ApprovalQueueListProps) {
             <Tooltip title={t('approvals.viewDetails')}>
               <IconButton
                 size="small"
+                aria-label={t('approvals.viewDetails')}
                 onClick={() => onViewDetails(row)}
               >
                 <VisibilityIcon fontSize="small" />

@@ -360,14 +360,14 @@ export default function MeetingsPage() {
                         <IconButton
                           size="small"
                           onClick={(e) => { e.stopPropagation(); handleOpenEdit(meeting); }}
-                          title={t('meetings.editMeeting')}
+                          aria-label={t('meetings.editMeeting')}
                         >
                           <EditIcon fontSize="small" />
                         </IconButton>
                         <IconButton
                           size="small"
                           onClick={(e) => { e.stopPropagation(); handleDeleteClick(meeting); }}
-                          title={t('meetings.deleteMeeting')}
+                          aria-label={t('meetings.deleteMeeting')}
                           color="error"
                         >
                           <DeleteIcon fontSize="small" />
@@ -393,7 +393,7 @@ export default function MeetingsPage() {
           <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
               <Typography variant="h6" fontWeight={600}>{t('meetings.details')}</Typography>
-              <IconButton onClick={() => setDetailsOpen(false)} size="small">
+              <IconButton aria-label={t('meetings.closeMeetingDetails')} onClick={() => setDetailsOpen(false)} size="small">
                 <CloseIcon />
               </IconButton>
             </Box>

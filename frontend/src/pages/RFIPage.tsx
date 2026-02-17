@@ -380,15 +380,15 @@ export default function RFIPage() {
       hideOnMobile: true,
       render: (row) => (
         <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
-          <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleViewDetails(row); }}>
+          <IconButton size="small" aria-label={t('common.viewDetails')} onClick={(e) => { e.stopPropagation(); handleViewDetails(row); }}>
             <VisibilityIcon fontSize="small" />
           </IconButton>
           {row.status === 'draft' && (
             <>
-              <IconButton size="small" onClick={(e) => handleOpenEdit(row, e)}>
+              <IconButton size="small" aria-label={t('rfis.editRfi')} onClick={(e) => handleOpenEdit(row, e)}>
                 <EditIcon fontSize="small" />
               </IconButton>
-              <IconButton size="small" onClick={(e) => handleDeleteClick(row, e)} color="error">
+              <IconButton size="small" aria-label={t('rfis.deleteRfi')} onClick={(e) => handleDeleteClick(row, e)} color="error">
                 <DeleteIcon fontSize="small" />
               </IconButton>
             </>

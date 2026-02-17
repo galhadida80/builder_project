@@ -451,7 +451,7 @@ export default function AuditLogPage() {
           <Box sx={{ p: { xs: 2, sm: 2, md: 3 } }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
               <Typography variant="h6" fontWeight={600}>{t('auditLog.auditDetails')}</Typography>
-              <IconButton onClick={() => setDetailsOpen(false)} size="small">
+              <IconButton aria-label={t('common.close')} onClick={() => setDetailsOpen(false)} size="small">
                 <CloseIcon />
               </IconButton>
             </Box>

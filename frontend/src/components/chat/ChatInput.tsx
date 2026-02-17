@@ -41,6 +41,7 @@ export default function ChatInput({ onSend, loading }: ChatInputProps) {
         sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }}
       />
       <IconButton
+        aria-label={t('chat.sendMessage')}
         color="primary"
         onClick={handleSend}
         disabled={!input.trim() || loading}

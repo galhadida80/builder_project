@@ -61,6 +61,7 @@ function AreaNode({ area, level, onEdit, onDelete, t }: AreaNodeProps) {
               {hasChildren ? (
                 <IconButton
                   size="small"
+                  aria-label={expanded ? t('common.collapse') : t('common.expand')}
                   onClick={() => setExpanded(!expanded)}
                   sx={{
                     bgcolor: 'action.hover',
@@ -131,10 +132,10 @@ function AreaNode({ area, level, onEdit, onDelete, t }: AreaNodeProps) {
               />
 
               <Box sx={{ display: 'flex', gap: 0.5 }}>
-                <IconButton size="small" onClick={() => onEdit(area)} title={t('areas.editArea')}>
+                <IconButton size="small" aria-label={t('areas.editArea')} onClick={() => onEdit(area)} title={t('areas.editArea')}>
                   <EditIcon fontSize="small" />
                 </IconButton>
-                <IconButton size="small" onClick={() => onDelete(area)} title={t('areas.deleteArea')} color="error">
+                <IconButton size="small" aria-label={t('areas.deleteArea')} onClick={() => onDelete(area)} title={t('areas.deleteArea')} color="error">
                   <DeleteIcon fontSize="small" />
                 </IconButton>
               </Box>

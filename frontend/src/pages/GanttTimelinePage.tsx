@@ -143,6 +143,7 @@ export default function GanttTimelinePage() {
                 </Typography>
                 <IconButton
                   size="small"
+                  aria-label={t('gantt.zoomOut')}
                   onClick={handleZoomOut}
                   disabled={zoomLevel === 0}
                   title={t('gantt.zoomOut')}
@@ -156,6 +157,7 @@ export default function GanttTimelinePage() {
                 </IconButton>
                 <IconButton
                   size="small"
+                  aria-label={t('gantt.zoomIn')}
                   onClick={handleZoomIn}
                   disabled={zoomLevel === zoomLevels.length - 1}
                   title={t('gantt.zoomIn')}

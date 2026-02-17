@@ -310,7 +310,8 @@
     "typeSafetyReview": "Revisión de Seguridad",
     "typeOther": "Otro",
     "dateRequired": "La fecha es obligatoria",
-    "startTimeRequired": "La hora de inicio es obligatoria"
+    "startTimeRequired": "La hora de inicio es obligatoria",
+    "closeMeetingDetails": "Cerrar detalles de reunión"
   },
   "validation": {
     "checkFields": "Por favor corrige los errores destacados",
@@ -403,7 +404,16 @@
     "closeInstallGuide": "Cerrar guía de instalación",
     "dismissInstallPrompt": "Descartar aviso de instalación",
     "install": "Instalar",
-    "notNow": "Ahora no"
+    "notNow": "Ahora no",
+    "viewMenu": "Ver menú",
+    "collapseSection": "Contraer sección",
+    "expandSection": "Expandir sección",
+    "closeSidePanel": "Cerrar panel lateral",
+    "backToList": "Volver a la lista",
+    "removeItem": "Eliminar elemento",
+    "selectLanguage": "Seleccionar idioma",
+    "viewDetails": "Ver detalles",
+    "toggleNavigation": "Alternar navegación"
   },
   "table": {
     "rowsPerPage": "Filas por página:",
@@ -651,7 +661,12 @@
       "failed": "Fallido",
       "approve": "Aprobar",
       "reject": "Rechazar"
-    }
+    },
+    "backToChat": "Volver al chat",
+    "closeChat": "Cerrar chat",
+    "deleteConversation": "Eliminar conversación",
+    "sendMessage": "Enviar mensaje",
+    "toggleDetails": "Alternar detalles"
   },
   "pages": {
     "projects": {
@@ -942,7 +957,9 @@
     "failedToLoad": "Error al cargar la lista de verificación",
     "failedToSave": "Error al guardar la respuesta",
     "failedToSubmit": "Error al enviar la lista de verificación",
-    "notesPlaceholder": "Agregar notas u observaciones..."
+    "notesPlaceholder": "Agregar notas u observaciones...",
+    "collapseSection": "Contraer sección",
+    "expandSection": "Expandir sección"
   },
   "checklists": {
     "title": "Listas de Verificación",
@@ -1002,7 +1019,12 @@
     "beFirstToComment": "Sea el primero en agregar un comentario o retroalimentación sobre este documento.",
     "addCommentPlaceholder": "Agregar un comentario...",
     "writeReplyPlaceholder": "Escribir una respuesta...",
-    "fitToScreen": "Ajustar a pantalla"
+    "fitToScreen": "Ajustar a pantalla",
+    "zoomIn": "Acercar",
+    "zoomOut": "Alejar",
+    "rotate": "Rotar documento",
+    "downloadDocument": "Descargar documento",
+    "printDocument": "Imprimir documento"
   },
   "inspections": {
     "title": "Inspecciones",
@@ -1086,7 +1108,16 @@
     "previewFile": "Vista previa",
     "deleteFile": "Eliminar archivo",
     "enterFolderName": "Ingrese nombre de carpeta",
-    "enterNewFolderName": "Ingrese nuevo nombre de carpeta"
+    "enterNewFolderName": "Ingrese nuevo nombre de carpeta",
+    "renameFolder": "Renombrar carpeta",
+    "deleteFolder": "Eliminar carpeta",
+    "createFolder": "Crear carpeta",
+    "addSubfolder": "Agregar subcarpeta",
+    "expandFolder": "Expandir carpeta",
+    "collapseFolder": "Contraer carpeta"
+  },
+  "notifications": {
+    "closePanel": "Cerrar panel de notificaciones"
   },
   "consultants": {
     "editAssignment": "Editar asignación",

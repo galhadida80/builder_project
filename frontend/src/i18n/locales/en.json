@@ -314,7 +314,8 @@
     "typeSafetyReview": "Safety Review",
     "typeOther": "Other",
     "dateRequired": "Date is required",
-    "startTimeRequired": "Start time is required"
+    "startTimeRequired": "Start time is required",
+    "closeMeetingDetails": "Close meeting details"
   },
   "validation": {
     "checkFields": "Please fix the highlighted errors",
@@ -407,7 +408,16 @@
     "closeInstallGuide": "Close install guide",
     "dismissInstallPrompt": "Dismiss install prompt",
     "install": "Install",
-    "notNow": "Not Now"
+    "notNow": "Not Now",
+    "viewMenu": "View menu",
+    "collapseSection": "Collapse section",
+    "expandSection": "Expand section",
+    "closeSidePanel": "Close side panel",
+    "backToList": "Back to list",
+    "removeItem": "Remove item",
+    "selectLanguage": "Select language",
+    "viewDetails": "View details",
+    "toggleNavigation": "Toggle navigation"
   },
   "table": {
     "rowsPerPage": "Rows per page:",
@@ -665,7 +675,12 @@
       "failed": "Failed",
       "approve": "Approve",
       "reject": "Reject"
-    }
+    },
+    "backToChat": "Back to chat",
+    "closeChat": "Close chat",
+    "deleteConversation": "Delete conversation",
+    "sendMessage": "Send message",
+    "toggleDetails": "Toggle details"
   },
   "approvalQueue": {
     "title": "Approval Queue",
@@ -977,7 +992,9 @@
     "failedToLoad": "Failed to load checklist",
     "failedToSave": "Failed to save response",
     "failedToSubmit": "Failed to submit checklist",
-    "notesPlaceholder": "Add any notes or observations..."
+    "notesPlaceholder": "Add any notes or observations...",
+    "collapseSection": "Collapse section",
+    "expandSection": "Expand section"
   },
   "checklists": {
     "title": "Checklists",
@@ -1037,7 +1054,12 @@
     "beFirstToComment": "Be the first to add a comment or feedback on this document.",
     "addCommentPlaceholder": "Add a comment...",
     "writeReplyPlaceholder": "Write a reply...",
-    "fitToScreen": "Fit to Screen"
+    "fitToScreen": "Fit to Screen",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "rotate": "Rotate document",
+    "downloadDocument": "Download document",
+    "printDocument": "Print document"
   },
   "inspections": {
     "title": "Inspections",
@@ -1115,7 +1137,16 @@
     "previewFile": "Preview file",
     "deleteFile": "Delete file",
     "enterFolderName": "Enter folder name",
-    "enterNewFolderName": "Enter new folder name"
+    "enterNewFolderName": "Enter new folder name",
+    "renameFolder": "Rename folder",
+    "deleteFolder": "Delete folder",
+    "createFolder": "Create folder",
+    "addSubfolder": "Add subfolder",
+    "expandFolder": "Expand folder",
+    "collapseFolder": "Collapse folder"
+  },
+  "notifications": {
+    "closePanel": "Close notifications panel"
   },
   "consultants": {
     "editAssignment": "Edit assignment",
