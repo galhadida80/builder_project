@@ -27,6 +27,7 @@ router = APIRouter()
 @router.get("/materials", response_model=list[MaterialResponse])
 async def list_all_materials(
     project_id: Optional[UUID] = Query(None),
+    status: Optional[str] = Query(None),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -36,6 +37,8 @@ async def list_all_materials(
     ).where(Material.project_id.in_(user_project_ids))
     if project_id:
         query = query.where(Material.project_id == project_id)
+    if status:
+        query = query.where(Material.status == status)
     result = await db.execute(query.order_by(Material.created_at.desc()))
     return result.scalars().all()
 
@@ -43,16 +46,20 @@ async def list_all_materials(
 @router.get("/projects/{project_id}/materials", response_model=list[MaterialResponse])
 async def list_materials(
     project_id: UUID,
+    status: Optional[str] = Query(None),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     await verify_project_access(project_id, current_user, db)
-    result = await db.execute(
+    query = (
         select(Material)
         .options(selectinload(Material.created_by))
         .where(Material.project_id == project_id)
-        .order_by(Material.created_at.desc())
     )
+    if status:
+        query = query.where(Material.status == status)
+    query = query.order_by(Material.created_at.desc())
+    result = await db.execute(query)
     return result.scalars().all()
 
 

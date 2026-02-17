@@ -1362,3 +1362,120 @@ class TestMaterialSpecificFields:
             json={"expected_delivery": None, "actual_delivery": None},
         )
         assert resp.status_code == 200
+
+
+class TestStatusFilterMaterials:
+
+    @pytest.mark.asyncio
+    async def test_status_filter_draft_returns_only_draft(self, admin_client, project, db, admin_user):
+        await make_material_in_db(db, project.id, admin_user.id, name="Draft Mat", status=ApprovalStatus.DRAFT.value)
+        await make_material_in_db(db, project.id, admin_user.id, name="Approved Mat", status=ApprovalStatus.APPROVED.value)
+        resp = await admin_client.get(mat_url(str(project.id)), params={"status": "draft"})
+        assert resp.status_code == 200
+        items = resp.json()
+        assert all(item["status"] == "draft" for item in items)
+        names = [item["name"] for item in items]
+        assert "Draft Mat" in names
+        assert "Approved Mat" not in names
+
+    @pytest.mark.asyncio
+    async def test_status_filter_approved_returns_only_approved(self, admin_client, project, db, admin_user):
+        await make_material_in_db(db, project.id, admin_user.id, name="Draft Mat", status=ApprovalStatus.DRAFT.value)
+        await make_material_in_db(db, project.id, admin_user.id, name="Approved Mat", status=ApprovalStatus.APPROVED.value)
+        resp = await admin_client.get(mat_url(str(project.id)), params={"status": "approved"})
+        assert resp.status_code == 200
+        items = resp.json()
+        assert all(item["status"] == "approved" for item in items)
+        names = [item["name"] for item in items]
+        assert "Approved Mat" in names
+        assert "Draft Mat" not in names
+
+    @pytest.mark.asyncio
+    async def test_status_filter_no_param_returns_all(self, admin_client, project, db, admin_user):
+        await make_material_in_db(db, project.id, admin_user.id, name="Mat Draft", status=ApprovalStatus.DRAFT.value)
+        await make_material_in_db(db, project.id, admin_user.id, name="Mat Approved", status=ApprovalStatus.APPROVED.value)
+        await make_material_in_db(db, project.id, admin_user.id, name="Mat Rejected", status=ApprovalStatus.REJECTED.value)
+        resp = await admin_client.get(mat_url(str(project.id)))
+        assert resp.status_code == 200
+        names = [item["name"] for item in resp.json()]
+        assert "Mat Draft" in names
+        assert "Mat Approved" in names
+        assert "Mat Rejected" in names
+
+    @pytest.mark.asyncio
+    async def test_status_filter_rejected_returns_only_rejected(self, admin_client, project, db, admin_user):
+        await make_material_in_db(db, project.id, admin_user.id, name="Rejected Mat", status=ApprovalStatus.REJECTED.value)
+        await make_material_in_db(db, project.id, admin_user.id, name="Draft Mat", status=ApprovalStatus.DRAFT.value)
+        resp = await admin_client.get(mat_url(str(project.id)), params={"status": "rejected"})
+        assert resp.status_code == 200
+        items = resp.json()
+        assert all(item["status"] == "rejected" for item in items)
+        names = [item["name"] for item in items]
+        assert "Rejected Mat" in names
+        assert "Draft Mat" not in names
+
+    @pytest.mark.asyncio
+    async def test_status_filter_nonexistent_status_returns_empty(self, admin_client, project, db, admin_user):
+        await make_material_in_db(db, project.id, admin_user.id, name="Some Mat", status=ApprovalStatus.DRAFT.value)
+        resp = await admin_client.get(mat_url(str(project.id)), params={"status": "nonexistent_status"})
+        assert resp.status_code == 200
+        assert resp.json() == []
+
+    @pytest.mark.asyncio
+    async def test_status_filter_case_sensitive(self, admin_client, project, db, admin_user):
+        await make_material_in_db(db, project.id, admin_user.id, name="Draft Mat", status=ApprovalStatus.DRAFT.value)
+        resp = await admin_client.get(mat_url(str(project.id)), params={"status": "DRAFT"})
+        assert resp.status_code == 200
+        assert resp.json() == []
+
+    @pytest.mark.asyncio
+    async def test_status_filter_submitted_returns_only_submitted(self, admin_client, project, db, admin_user):
+        await make_material_in_db(db, project.id, admin_user.id, name="Submitted Mat", status=ApprovalStatus.SUBMITTED.value)
+        await make_material_in_db(db, project.id, admin_user.id, name="Draft Mat", status=ApprovalStatus.DRAFT.value)
+        resp = await admin_client.get(mat_url(str(project.id)), params={"status": "submitted"})
+        assert resp.status_code == 200
+        items = resp.json()
+        assert all(item["status"] == "submitted" for item in items)
+        names = [item["name"] for item in items]
+        assert "Submitted Mat" in names
+        assert "Draft Mat" not in names
+
+    @pytest.mark.asyncio
+    async def test_flat_list_status_filter_draft_returns_only_draft(self, admin_client, project, db, admin_user):
+        await make_material_in_db(db, project.id, admin_user.id, name="Flat Draft", status=ApprovalStatus.DRAFT.value)
+        await make_material_in_db(db, project.id, admin_user.id, name="Flat Approved", status=ApprovalStatus.APPROVED.value)
+        resp = await admin_client.get(f"{API}/materials", params={"status": "draft"})
+        assert resp.status_code == 200
+        items = resp.json()
+        assert all(item["status"] == "draft" for item in items)
+        names = [item["name"] for item in items]
+        assert "Flat Draft" in names
+        assert "Flat Approved" not in names
+
+    @pytest.mark.asyncio
+    async def test_flat_list_status_filter_no_param_returns_all(self, admin_client, project, db, admin_user):
+        await make_material_in_db(db, project.id, admin_user.id, name="All Draft", status=ApprovalStatus.DRAFT.value)
+        await make_material_in_db(db, project.id, admin_user.id, name="All Approved", status=ApprovalStatus.APPROVED.value)
+        resp = await admin_client.get(f"{API}/materials")
+        assert resp.status_code == 200
+        names = [item["name"] for item in resp.json()]
+        assert "All Draft" in names
+        assert "All Approved" in names
+
+    @pytest.mark.asyncio
+    async def test_flat_list_status_filter_nonexistent_returns_empty(self, admin_client, project, db, admin_user):
+        await make_material_in_db(db, project.id, admin_user.id, name="Some Mat", status=ApprovalStatus.DRAFT.value)
+        resp = await admin_client.get(f"{API}/materials", params={"status": "no_such_status"})
+        assert resp.status_code == 200
+        assert resp.json() == []
+
+    @pytest.mark.asyncio
+    async def test_status_filter_multiple_items_same_status(self, admin_client, project, db, admin_user):
+        for i in range(3):
+            await make_material_in_db(db, project.id, admin_user.id, name=f"Draft {i}", status=ApprovalStatus.DRAFT.value)
+        await make_material_in_db(db, project.id, admin_user.id, name="Approved Only", status=ApprovalStatus.APPROVED.value)
+        resp = await admin_client.get(mat_url(str(project.id)), params={"status": "draft"})
+        assert resp.status_code == 200
+        items = resp.json()
+        assert len(items) == 3
+        assert all(item["status"] == "draft" for item in items)

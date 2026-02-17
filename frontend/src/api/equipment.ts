@@ -31,9 +31,12 @@ interface ChecklistCreate {
 }
 
 export const equipmentApi = {
-  list: async (projectId?: string): Promise<Equipment[]> => {
+  list: async (projectId?: string, filters?: { status?: string }): Promise<Equipment[]> => {
+    const params = new URLSearchParams()
+    if (filters?.status) params.set('status', filters.status)
+    const qs = params.toString()
     const url = projectId ? `/projects/${projectId}/equipment` : '/equipment'
-    const response = await apiClient.get(url)
+    const response = await apiClient.get(`${url}${qs ? `?${qs}` : ''}`)
     return response.data
   },
 

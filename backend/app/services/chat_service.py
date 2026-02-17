@@ -3,9 +3,10 @@ import uuid
 from dataclasses import dataclass
 from datetime import datetime
 
-from pydantic_ai import Agent, ModelMessagesTypeAdapter, RunContext
-from pydantic_ai.models.google import GoogleModel
-from pydantic_ai.providers.google import GoogleProvider
+from pydantic_ai import Agent, RunContext
+from pydantic_ai.messages import ModelMessagesTypeAdapter
+from pydantic_ai.models.gemini import GeminiModel as GoogleModel
+from pydantic_ai.providers.google_gla import GoogleGLAProvider as GoogleProvider
 from pydantic_core import to_jsonable_python
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession

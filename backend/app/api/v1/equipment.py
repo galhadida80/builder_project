@@ -33,6 +33,7 @@ router = APIRouter()
 @router.get("/equipment", response_model=list[EquipmentResponse])
 async def list_all_equipment(
     project_id: Optional[UUID] = Query(None),
+    status: Optional[str] = Query(None),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -42,6 +43,8 @@ async def list_all_equipment(
     ).where(Equipment.project_id.in_(user_project_ids))
     if project_id:
         query = query.where(Equipment.project_id == project_id)
+    if status:
+        query = query.where(Equipment.status == status)
     result = await db.execute(query.order_by(Equipment.created_at.desc()))
     return result.scalars().all()
 
@@ -49,16 +52,20 @@ async def list_all_equipment(
 @router.get("/projects/{project_id}/equipment", response_model=list[EquipmentResponse])
 async def list_equipment(
     project_id: UUID,
+    status: Optional[str] = Query(None),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     await verify_project_access(project_id, current_user, db)
-    result = await db.execute(
+    query = (
         select(Equipment)
         .options(selectinload(Equipment.created_by), selectinload(Equipment.checklists))
         .where(Equipment.project_id == project_id)
-        .order_by(Equipment.created_at.desc())
     )
+    if status:
+        query = query.where(Equipment.status == status)
+    query = query.order_by(Equipment.created_at.desc())
+    result = await db.execute(query)
     return result.scalars().all()
 
 

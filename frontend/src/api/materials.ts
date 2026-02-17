@@ -29,9 +29,12 @@ interface MaterialUpdate {
 }
 
 export const materialsApi = {
-  list: async (projectId?: string): Promise<Material[]> => {
+  list: async (projectId?: string, filters?: { status?: string }): Promise<Material[]> => {
     const url = projectId ? `/projects/${projectId}/materials` : '/materials'
-    const response = await apiClient.get(url)
+    const params = new URLSearchParams()
+    if (filters?.status) params.set('status', filters.status)
+    const qs = params.toString()
+    const response = await apiClient.get(`${url}${qs ? `?${qs}` : ''}`)
     return response.data
   },
 
