@@ -82,7 +82,6 @@ async def list_materials(
         page_size=page_size,
         total_pages=total_pages
     )
->>>>>>> theirs
 
 
 @router.post("/projects/{project_id}/materials", response_model=MaterialResponse)
