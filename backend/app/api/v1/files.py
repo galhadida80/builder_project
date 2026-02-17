@@ -11,8 +11,10 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from app.config import Settings, get_settings
 from app.core.permissions import Permission, require_permission
 from app.core.security import get_current_user, verify_project_access
+from app.core.validation import validate_storage_path
 from app.db.session import get_db
 from app.models.audit import AuditAction
 from app.models.file import File
@@ -197,9 +199,12 @@ async def serve_local_file(
     path: str,
     storage: StorageBackend = Depends(get_storage_backend),
     current_user: User = Depends(get_current_user),
+    settings: Settings = Depends(get_settings),
     request: Request = None
 ):
     try:
+        # Validate path to prevent directory traversal attacks
+        validate_storage_path(path, settings.local_storage_path)
         content = await storage.get_file_content(path)
         mime_type, _ = mimetypes.guess_type(path)
         return Response(content=content, media_type=mime_type or "application/octet-stream")

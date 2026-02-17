@@ -1,6 +1,7 @@
 """Input validation and sanitization module for security."""
 
 import re
+from pathlib import Path
 from typing import Any, Dict
 
 from fastapi import HTTPException, status
@@ -164,3 +165,52 @@ def validate_uuid_format(value: str, field_name: str = "ID") -> str:
             detail=f"Invalid {field_name} format"
         )
     return value
+
+
+def validate_storage_path(path: str, base_path: str) -> str:
+    """Validate storage path to prevent directory traversal attacks.
+
+    Args:
+        path: The user-provided storage path to validate
+        base_path: The base directory that the path must be within
+
+    Returns:
+        The validated path string
+
+    Raises:
+        HTTPException: If the path attempts directory traversal or is outside base_path
+    """
+    # Check for null bytes
+    if '\0' in path:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid storage path"
+        )
+
+    # Check for '..' components
+    if '..' in path:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid storage path"
+        )
+
+    # Convert to Path objects
+    try:
+        base = Path(base_path).resolve()
+        requested = (base / path).resolve()
+    except (ValueError, RuntimeError) as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid storage path"
+        )
+
+    # Verify the resolved path is within the base path
+    try:
+        requested.relative_to(base)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid storage path"
+        )
+
+    return path

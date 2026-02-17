@@ -5,6 +5,7 @@ from pathlib import Path
 from fastapi import Depends, UploadFile
 
 from app.config import Settings, get_settings
+from app.core.validation import validate_storage_path
 
 try:
     import boto3
@@ -70,6 +71,8 @@ class LocalStorageBackend(StorageBackend):
         return f"/api/v1/storage/{storage_path}"
 
     async def get_file_content(self, storage_path: str) -> bytes:
+        # Validate path to prevent directory traversal attacks
+        validate_storage_path(storage_path, str(self.base_path))
         full_path = self.base_path / storage_path
         if not full_path.exists():
             raise FileNotFoundError(f"File not found: {storage_path}")
