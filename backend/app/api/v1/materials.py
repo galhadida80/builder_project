@@ -2,7 +2,7 @@ from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
-from sqlalchemy import select
+from sqlalchemy import and_, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -16,7 +16,7 @@ from app.models.material import ApprovalStatus, Material
 from app.models.project import ProjectMember
 from app.models.user import User
 from app.schemas.approval import SubmitForApprovalRequest
-from app.schemas.material import MaterialCreate, MaterialResponse, MaterialUpdate
+from app.schemas.material import MaterialCreate, MaterialResponse, MaterialUpdate, PaginatedMaterialResponse
 from app.services.audit_service import create_audit_log, get_model_dict
 from app.services.notification_service import notify_contact
 from app.utils.localization import get_language_from_request, translate_message
@@ -43,24 +43,46 @@ async def list_all_materials(
     return result.scalars().all()
 
 
-@router.get("/projects/{project_id}/materials", response_model=list[MaterialResponse])
+@router.get("/projects/{project_id}/materials", response_model=PaginatedMaterialResponse)
 async def list_materials(
     project_id: UUID,
     status: Optional[str] = Query(None),
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     await verify_project_access(project_id, current_user, db)
-    query = (
+
+    base_filter = Material.project_id == project_id
+    if status:
+        base_filter = and_(base_filter, Material.status == status)
+
+    count_result = await db.execute(
+        select(func.count()).select_from(Material).where(base_filter)
+    )
+    total = count_result.scalar()
+
+    offset = (page - 1) * page_size
+    result = await db.execute(
         select(Material)
         .options(selectinload(Material.created_by))
-        .where(Material.project_id == project_id)
+        .where(base_filter)
+        .order_by(Material.created_at.desc())
+        .limit(page_size)
+        .offset(offset)
     )
-    if status:
-        query = query.where(Material.status == status)
-    query = query.order_by(Material.created_at.desc())
-    result = await db.execute(query)
-    return result.scalars().all()
+    materials = result.scalars().all()
+    total_pages = (total + page_size - 1) // page_size
+
+    return PaginatedMaterialResponse(
+        items=materials,
+        total=total,
+        page=page,
+        page_size=page_size,
+        total_pages=total_pages
+    )
+>>>>>>> theirs
 
 
 @router.post("/projects/{project_id}/materials", response_model=MaterialResponse)

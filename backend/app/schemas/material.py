@@ -90,3 +90,11 @@ class MaterialResponse(CamelCaseModel):
     created_at: datetime
     updated_at: datetime
     created_by: UserResponse | None = None
+
+
+class PaginatedMaterialResponse(BaseModel):
+    items: list[MaterialResponse]
+    total: int
+    page: int
+    page_size: int
+    total_pages: int

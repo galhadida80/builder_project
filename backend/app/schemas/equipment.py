@@ -113,3 +113,11 @@ class EquipmentResponse(CamelCaseModel):
     updated_at: datetime
     created_by: Optional[UserResponse] = None
     checklists: list[ChecklistResponse] = []
+
+
+class PaginatedEquipmentResponse(BaseModel):
+    items: list[EquipmentResponse]
+    total: int
+    page: int
+    page_size: int
+    total_pages: int

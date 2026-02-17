@@ -22,6 +22,7 @@ from app.schemas.defect import (
     DefectResponse,
     DefectSummaryResponse,
     DefectUpdate,
+    PaginatedDefectResponse,
 )
 from app.services.audit_service import create_audit_log, get_model_dict
 from app.services.defect_report_service import generate_defects_report_pdf
@@ -53,30 +54,54 @@ async def get_next_defect_number(db: AsyncSession, project_id: UUID) -> int:
     return (result.scalar() or 0) + 1
 
 
-@router.get("/projects/{project_id}/defects", response_model=list[DefectResponse])
+@router.get("/projects/{project_id}/defects", response_model=PaginatedDefectResponse)
 async def list_defects(
     project_id: UUID,
     status: Optional[str] = Query(None),
     category: Optional[str] = Query(None),
     severity: Optional[str] = Query(None),
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     await verify_project_access(project_id, current_user, db)
-    query = (
-        select(Defect)
-        .options(*DEFECT_LOAD_OPTIONS)
-        .where(Defect.project_id == project_id)
-    )
+
+    # Build base query for filtering
+    base_query = select(Defect).where(Defect.project_id == project_id)
     if status:
-        query = query.where(Defect.status == status)
+        base_query = base_query.where(Defect.status == status)
     if category:
-        query = query.where(Defect.category == category)
+        base_query = base_query.where(Defect.category == category)
     if severity:
-        query = query.where(Defect.severity == severity)
-    query = query.order_by(Defect.defect_number.desc())
+        base_query = base_query.where(Defect.severity == severity)
+
+    # Get total count
+    count_query = select(func.count()).select_from(base_query.subquery())
+    count_result = await db.execute(count_query)
+    total = count_result.scalar() or 0
+
+    # Get paginated results
+    query = (
+        base_query
+        .options(*DEFECT_LOAD_OPTIONS)
+        .order_by(Defect.defect_number.desc())
+        .offset((page - 1) * page_size)
+        .limit(page_size)
+    )
     result = await db.execute(query)
-    return result.scalars().all()
+    defects = result.scalars().all()
+
+    # Calculate total pages
+    total_pages = (total + page_size - 1) // page_size
+
+    return PaginatedDefectResponse(
+        items=list(defects),
+        total=total,
+        page=page,
+        page_size=page_size,
+        total_pages=total_pages
+    )
 
 
 @router.get("/projects/{project_id}/defects/summary", response_model=DefectSummaryResponse)
