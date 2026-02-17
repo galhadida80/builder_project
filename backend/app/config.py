@@ -1,5 +1,6 @@
 from functools import lru_cache
 
+from pydantic import model_validator
 from pydantic_settings import BaseSettings
 
 
@@ -53,6 +54,47 @@ class Settings(BaseSettings):
 
     webauthn_rp_id: str = "localhost"
     webauthn_rp_name: str = "BuilderOps"
+
+    @model_validator(mode='after')
+    def validate_production_secrets(self) -> 'Settings':
+        if self.environment == 'production':
+            generation_cmd = "python -c \"import secrets; print(secrets.token_urlsafe(32))\""
+
+            # Validate secret_key
+            if self.secret_key == "dev-secret-key-change-in-production-use-strong-random-key":
+                raise ValueError(
+                    f'SECRET_KEY must be changed from default value in production. '
+                    f'Generate a strong secret using: {generation_cmd}'
+                )
+            if len(self.secret_key) < 32:
+                raise ValueError(
+                    f'SECRET_KEY must be at least 32 characters in production. '
+                    f'Generate a strong secret using: {generation_cmd}'
+                )
+            if not any(c.isalnum() for c in self.secret_key):
+                raise ValueError(
+                    f'SECRET_KEY must contain alphanumeric characters. '
+                    f'Generate a strong secret using: {generation_cmd}'
+                )
+
+            # Validate scheduler_secret
+            if self.scheduler_secret == "dev-scheduler-secret-change-in-production":
+                raise ValueError(
+                    f'SCHEDULER_SECRET must be changed from default value in production. '
+                    f'Generate a strong secret using: {generation_cmd}'
+                )
+            if len(self.scheduler_secret) < 32:
+                raise ValueError(
+                    f'SCHEDULER_SECRET must be at least 32 characters in production. '
+                    f'Generate a strong secret using: {generation_cmd}'
+                )
+            if not any(c.isalnum() for c in self.scheduler_secret):
+                raise ValueError(
+                    f'SCHEDULER_SECRET must contain alphanumeric characters. '
+                    f'Generate a strong secret using: {generation_cmd}'
+                )
+
+        return self
 
     class Config:
         env_file = ".env"
