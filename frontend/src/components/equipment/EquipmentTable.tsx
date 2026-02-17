@@ -121,7 +121,7 @@ export default function EquipmentTable({
       loading={loading}
       getRowId={(row) => row.id}
       onRowClick={onRowClick}
-      emptyMessage={emptyMessage}
+      emptyVariant='empty'
       pagination={true}
       pageSize={10}
     />

@@ -386,7 +386,7 @@ export default function InspectionsPage() {
                   rows={stageTemplates}
                   getRowId={(row) => row.id}
                   pagination={false}
-                  emptyMessage={t('inspections.noStages')}
+                  emptyVariant='empty'
                 />
               </>
             ) : (
@@ -435,8 +435,7 @@ export default function InspectionsPage() {
                 columns={inspectionColumns}
                 rows={filteredInspections}
                 getRowId={(row) => row.id}
-                emptyMessage={t('inspections.noInspections')}
-                onRowClick={(row) => console.log('View inspection:', row.id)}
+                emptyVariant='empty'
               />
             )}
           </Box>

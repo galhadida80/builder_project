@@ -9,8 +9,6 @@ import {
   TableSortLabel,
   Paper,
   Checkbox,
-  Box,
-  Typography,
   Skeleton,
   Collapse,
   useMediaQuery,
@@ -20,6 +18,7 @@ import { useState, Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
 import { styled } from '@/mui'
 import { ChevronRightIcon, ChevronLeftIcon } from '@/icons'
+import { EmptyState, EmptyStateVariant } from './EmptyState'
 
 export interface Column<T> {
   id: keyof T | string
@@ -44,6 +43,12 @@ interface DataTableProps<T> {
   pagination?: boolean
   pageSize?: number
   emptyMessage?: string
+  emptyVariant?: EmptyStateVariant
+  emptyTitle?: string
+  emptyDescription?: string
+  emptyAction?: { label: string; onClick: () => void }
+  emptySecondaryAction?: { label: string; onClick: () => void }
+  emptyIcon?: React.ReactNode
 }
 
 const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
@@ -138,7 +143,13 @@ export function DataTable<T>({
   renderExpandedRow,
   pagination = true,
   pageSize = 10,
-  emptyMessage = 'No data available',
+  emptyMessage,
+  emptyVariant,
+  emptyTitle,
+  emptyDescription,
+  emptyAction,
+  emptySecondaryAction,
+  emptyIcon,
 }: DataTableProps<T>) {
   const { t } = useTranslation()
   const [page, setPage] = useState(0)
@@ -243,9 +254,14 @@ export function DataTable<T>({
   if (rows.length === 0) {
     return (
       <StyledTableContainer component={Paper} elevation={0}>
-        <Box sx={{ py: 8, textAlign: 'center' }}>
-          <Typography color="text.secondary">{emptyMessage}</Typography>
-        </Box>
+        <EmptyState
+          variant={emptyVariant}
+          title={emptyTitle || emptyMessage}
+          description={emptyDescription}
+          action={emptyAction}
+          secondaryAction={emptySecondaryAction}
+          icon={emptyIcon}
+        />
       </StyledTableContainer>
     )
   }

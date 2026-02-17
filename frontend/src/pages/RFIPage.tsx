@@ -457,7 +457,7 @@ export default function RFIPage() {
               rows={rfis}
               getRowId={(row) => row.id}
               onRowClick={handleViewDetails}
-              emptyMessage={t('rfis.noRfis')}
+              emptyVariant='empty'
             />
           </Box>
 

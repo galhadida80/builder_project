@@ -19,7 +19,6 @@ import { validateMaterialForm, hasErrors, VALIDATION, type ValidationError } fro
 import { parseValidationErrors } from '../utils/apiErrors'
 import { useToast } from '../components/common/ToastProvider'
 import { useTranslation } from 'react-i18next'
-import { EmptyState } from '../components/ui/EmptyState'
 import TemplatePicker from '../components/ui/TemplatePicker'
 import KeyValueEditor, { type KeyValuePair } from '../components/ui/KeyValueEditor'
 import ContactSelectorDialog from '../components/ui/ContactSelectorDialog'
@@ -514,22 +513,16 @@ export default function MaterialsPage() {
           />
 
           <Box sx={{ mt: 2 }}>
-            {filteredMaterials.length === 0 ? (
-              <EmptyState
-                variant="no-results"
-                title={t('materials.noMaterialsFound')}
-                description={t('materials.noResultsDescription')}
-                action={{ label: t('materials.addMaterial'), onClick: handleOpenCreate }}
-              />
-            ) : (
-              <DataTable
-                columns={columns}
-                rows={filteredMaterials}
-                getRowId={(row) => row.id}
-                onRowClick={handleViewDetails}
-                emptyMessage={t('materials.noMaterialsFound')}
-              />
-            )}
+            <DataTable
+              columns={columns}
+              rows={filteredMaterials}
+              getRowId={(row) => row.id}
+              onRowClick={handleViewDetails}
+              emptyVariant="no-results"
+              emptyTitle={t('materials.noMaterialsFound')}
+              emptyDescription={t('materials.noResultsDescription')}
+              emptyAction={{ label: t('materials.addMaterial'), onClick: handleOpenCreate }}
+            />
           </Box>
         </Box>
       </Card>
