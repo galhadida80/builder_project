@@ -71,3 +71,14 @@ test_report_combined.json
 
 # Temp PDF files
 RESfilepdf*.pdf
+
+# Backend test environments
+backend/test_env/
+
+# Auto-generated verification/summary docs
+*_VERIFICATION.md
+*_COMPLETION_SUMMARY.md
+backend/verify_*.py
+
+# Project index (auto-generated)
+project_index.json
