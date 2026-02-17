@@ -56,6 +56,40 @@ class LanguageDetectionMiddleware(BaseHTTPMiddleware):
         return response
 
 
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    """
+    Middleware to add security headers to all HTTP responses.
+
+    This middleware:
+    1. Adds X-Content-Type-Options header to prevent MIME-type sniffing attacks
+    2. Adds X-Frame-Options header to prevent clickjacking attacks
+    3. Adds Strict-Transport-Security header to enforce HTTPS connections
+    4. Adds Content-Security-Policy header to mitigate XSS and injection attacks
+    """
+
+    async def dispatch(self, request: Request, call_next):
+        # Process the request
+        response = await call_next(request)
+
+        # Add security headers to the response
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        response.headers['X-Frame-Options'] = 'DENY'
+        response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+        response.headers['Content-Security-Policy'] = (
+            "default-src 'self'; "
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval'; "
+            "style-src 'self' 'unsafe-inline'; "
+            "img-src 'self' data: https:; "
+            "font-src 'self' data:; "
+            "connect-src 'self' https:; "
+            "frame-ancestors 'none'; "
+            "base-uri 'self'; "
+            "form-action 'self';"
+        )
+
+        return response
+
+
 app = FastAPI(
     title=settings.app_name,
     openapi_url=f"{settings.api_v1_prefix}/openapi.json",
@@ -64,6 +98,7 @@ app = FastAPI(
 )
 
 app.add_middleware(LanguageDetectionMiddleware)
+app.add_middleware(SecurityHeadersMiddleware)
 cors_origins = ["*"] if settings.cors_origins == "*" else [o.strip() for o in settings.cors_origins.split(",")]
 app.add_middleware(
     CORSMiddleware,
