@@ -172,6 +172,7 @@ export function DataTable<T>({
     const isAsc = orderBy === columnId && order === 'asc'
     setOrder(isAsc ? 'desc' : 'asc')
     setOrderBy(columnId)
+    setPage(0)
   }
 
   const handleChangePage = (_: unknown, newPage: number) => {
