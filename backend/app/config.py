@@ -29,6 +29,12 @@ class Settings(BaseSettings):
 
     redis_url: str = "redis://localhost:6379/0"
 
+    rate_limit_enabled: bool = True
+    rate_limit_auth_window: int = 300
+    rate_limit_auth_max_requests: int = 5
+    rate_limit_default_window: int = 60
+    rate_limit_default_max_requests: int = 100
+
     cors_origins: str = "http://localhost:5173,http://localhost:3000,http://localhost:4173,http://127.0.0.1:5173,http://127.0.0.1:3000,http://127.0.0.1:8000"
 
     api_v1_prefix: str = "/api/v1"

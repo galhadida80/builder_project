@@ -33,10 +33,12 @@ from app.schemas.webauthn import (
 from app.services.email_renderer import render_password_reset_email, render_welcome_email
 from app.services.email_service import EmailService
 from app.utils.localization import get_language_from_request, translate_message
+from app.middleware.rate_limiter import get_rate_limiter
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
+limiter = get_rate_limiter()
 
 
 def safe_send_email(email_service: EmailService, to_email: str, subject: str, body_html: str):
@@ -47,6 +49,7 @@ def safe_send_email(email_service: EmailService, to_email: str, subject: str, bo
 
 
 @router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
+@limiter.limit("5/5minute")
 async def register(
     data: UserRegister,
     request: Request,
@@ -120,6 +123,7 @@ async def register(
 
 
 @router.post("/login", response_model=TokenResponse)
+@limiter.limit("5/5minute")
 async def login(data: UserLogin, request: Request, db: AsyncSession = Depends(get_db)):
     # Validate and sanitize input
     email = validate_email(data.email)
@@ -180,6 +184,7 @@ async def update_current_user(
 
 
 @router.post("/forgot-password", response_model=MessageResponse)
+@limiter.limit("3/hour")
 async def forgot_password(
     data: PasswordResetRequest,
     request: Request,
@@ -219,6 +224,7 @@ async def forgot_password(
 
 
 @router.post("/reset-password", response_model=MessageResponse)
+@limiter.limit("3/hour")
 async def reset_password(
     data: PasswordResetConfirm,
     request: Request,
