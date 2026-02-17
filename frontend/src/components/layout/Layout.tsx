@@ -5,8 +5,10 @@ import Sidebar from './Sidebar'
 import Header from './Header'
 import MobileBottomNav from './MobileBottomNav'
 import ChatDrawer from '../chat/ChatDrawer'
+import { RouteProgressBar } from '../common/RouteProgressBar'
 import { useAuth } from '../../contexts/AuthContext'
 import { useProject } from '../../contexts/ProjectContext'
+import { useRouteProgress } from '../../hooks/useRouteProgress'
 import { SmartToyIcon } from '@/icons'
 import { Box, Toolbar, CircularProgress, Fab, useMediaQuery } from '@/mui'
 import { useTheme } from '@/mui'
@@ -17,6 +19,7 @@ export default function Layout() {
   const navigate = useNavigate()
   const { user: currentUser, logout } = useAuth()
   const { setSelectedProjectId, projects, projectsLoading } = useProject()
+  const { isLoading, progress } = useRouteProgress()
   const [chatOpen, setChatOpen] = useState(false)
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false)
   const theme = useTheme()
@@ -56,6 +59,7 @@ export default function Layout() {
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100dvh' }}>
+      <RouteProgressBar loading={isLoading} progress={progress} />
       <Header
         user={currentUser}
         currentProject={currentProject}
