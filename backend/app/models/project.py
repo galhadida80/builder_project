@@ -42,8 +42,10 @@ class Project(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     daily_summary_enabled: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
     created_by_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
+    organization_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("organizations.id", ondelete="SET NULL"), index=True, nullable=True)
 
     members = relationship("ProjectMember", back_populates="project", cascade="all, delete-orphan")
+    organization = relationship("Organization", back_populates="projects")
     equipment = relationship("Equipment", back_populates="project", cascade="all, delete-orphan")
     equipment_approval_submissions = relationship("EquipmentApprovalSubmission", back_populates="project", cascade="all, delete-orphan")
     materials = relationship("Material", back_populates="project", cascade="all, delete-orphan")

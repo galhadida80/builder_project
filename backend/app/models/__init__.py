@@ -42,6 +42,10 @@ from app.models.permission_override import PermissionOverride
 from app.models.project import Project, ProjectMember
 from app.models.rfi import RFI, RFICategory, RFIEmailLog, RFIPriority, RFIResponse, RFIStatus
 from app.models.user import User
+from app.models.analytics import CustomKpiDefinition
+from app.models.budget import BudgetLineItem, ChangeOrder, CostEntry
+from app.models.organization import Organization, OrganizationMember
+from app.models.task import Task, TaskDependency
 from app.models.webauthn_credential import WebAuthnCredential
 
 __all__ = [
@@ -101,4 +105,12 @@ __all__ = [
     "Defect",
     "DefectAssignee",
     "WebAuthnCredential",
+    "Task",
+    "TaskDependency",
+    "BudgetLineItem",
+    "CostEntry",
+    "ChangeOrder",
+    "Organization",
+    "OrganizationMember",
+    "CustomKpiDefinition",
 ]

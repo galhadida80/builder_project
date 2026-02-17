@@ -3,12 +3,14 @@ from fastapi import APIRouter
 from app.api.v1 import (
     admin,
     analytics,
+    analytics_bi,
     approvals,
     areas,
     audit,
     auth,
     bim,
     bim_extract,
+    budget,
     chat,
     checklists,
     consultant_assignments,
@@ -28,8 +30,10 @@ from app.api.v1 import (
     materials,
     meetings,
     notifications,
+    organizations,
     projects,
     rfis,
+    tasks_api,
     webhooks,
     workload,
 )
@@ -67,3 +71,7 @@ api_router.include_router(daily_summary.router, prefix="/tasks", tags=["tasks"])
 api_router.include_router(bim.router, tags=["bim"])
 api_router.include_router(bim_extract.router, tags=["bim_extract"])
 api_router.include_router(defects.router, tags=["defects"])
+api_router.include_router(tasks_api.router, tags=["project_tasks"])
+api_router.include_router(budget.router, tags=["budget"])
+api_router.include_router(organizations.router, tags=["organizations"])
+api_router.include_router(analytics_bi.router, prefix="/analytics", tags=["analytics_bi"])

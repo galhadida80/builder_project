@@ -654,3 +654,142 @@ export interface DefectSummary {
   highCount: number
   byCategory: Record<string, number>
 }
+
+export type TaskStatus = 'not_started' | 'in_progress' | 'completed' | 'on_hold' | 'cancelled'
+export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent'
+
+export interface Task {
+  id: string
+  projectId: string
+  taskNumber: number
+  title: string
+  description?: string
+  status: TaskStatus
+  priority: TaskPriority
+  assigneeId?: string
+  reporterId?: string
+  startDate?: string
+  dueDate?: string
+  completedAt?: string
+  estimatedHours?: number
+  actualHours?: number
+  createdById: string
+  createdAt: string
+  updatedAt: string
+  assignee?: User
+  reporter?: User
+  createdBy?: User
+  dependencies: TaskDependency[]
+}
+
+export interface TaskDependency {
+  id: string
+  taskId: string
+  dependsOnId: string
+  dependencyType: string
+}
+
+export interface TaskSummary {
+  total: number
+  notStartedCount: number
+  inProgressCount: number
+  completedCount: number
+  onHoldCount: number
+  overdueCount: number
+}
+
+export type BudgetCategory = 'labor' | 'materials' | 'equipment' | 'subcontractor' | 'permits' | 'overhead' | 'other'
+export type ChangeOrderStatus = 'draft' | 'submitted' | 'approved' | 'rejected'
+
+export interface BudgetLineItem {
+  id: string
+  projectId: string
+  name: string
+  category: BudgetCategory
+  description?: string
+  budgetedAmount: number
+  sortOrder: number
+  actualAmount: number
+  remainingAmount: number
+  createdById: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface CostEntry {
+  id: string
+  budgetItemId: string
+  projectId: string
+  description?: string
+  amount: number
+  entryDate: string
+  vendor?: string
+  referenceNumber?: string
+  createdById: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface ChangeOrder {
+  id: string
+  projectId: string
+  changeOrderNumber: number
+  title: string
+  description?: string
+  amount: number
+  status: ChangeOrderStatus
+  budgetItemId?: string
+  requestedById?: string
+  approvedById?: string
+  requestedDate?: string
+  approvedDate?: string
+  createdById: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface BudgetSummary {
+  totalBudgeted: number
+  totalActual: number
+  totalVariance: number
+  totalChangeOrders: number
+  approvedChangeOrders: number
+  lineItemCount: number
+  costEntryCount: number
+}
+
+export interface Organization {
+  id: string
+  name: string
+  code: string
+  description?: string
+  logoUrl?: string
+  settings?: Record<string, unknown>
+  memberCount: number
+  createdAt: string
+  updatedAt: string
+}
+
+export interface OrganizationMember {
+  id: string
+  organizationId: string
+  userId: string
+  role: 'org_admin' | 'org_member'
+  addedAt: string
+  user?: User
+}
+
+export interface CustomKpiDefinition {
+  id: string
+  projectId?: string
+  name: string
+  description?: string
+  kpiType: string
+  entityType: string
+  filterConfig?: Record<string, unknown>
+  calculation: string
+  fieldName?: string
+  createdById: string
+  createdAt: string
+  updatedAt: string
+}

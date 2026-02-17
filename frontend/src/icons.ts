@@ -1,8 +1,10 @@
 export {
+  AccountBalance as AccountBalanceIcon,
   AcUnit as AcUnitIcon,
   AccessTime as AccessTimeIcon,
   AccountTree as AccountTreeIcon,
   Add as AddIcon,
+  AttachMoney as AttachMoneyIcon,
   AddCircle as AddCircleIcon,
   AddCircleOutline as AddCircleOutlineIcon,
   AddPhotoAlternate as AddPhotoAlternateIcon,
@@ -106,6 +108,7 @@ export {
   Print as PrintIcon,
   RadioButtonUnchecked as RadioButtonUncheckedIcon,
   RateReview as RateReviewIcon,
+  ReceiptLong as ReceiptLongIcon,
   Refresh as RefreshIcon,
   Reply as ReplyIcon,
   ReportProblem as ReportProblemIcon,

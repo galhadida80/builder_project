@@ -1,7 +1,7 @@
 import { memo } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { DashboardIcon, FolderIcon, BuildIcon, InventoryIcon, EventIcon, CheckCircleIcon, AccountTreeIcon, ContactsIcon, HistoryIcon, SettingsIcon, AssignmentIcon, ConstructionIcon, EmailIcon, ViewInArIcon, ChecklistIcon, ReportProblemIcon } from '@/icons'
+import { DashboardIcon, FolderIcon, BuildIcon, InventoryIcon, EventIcon, CheckCircleIcon, AccountTreeIcon, ContactsIcon, HistoryIcon, SettingsIcon, AssignmentIcon, ConstructionIcon, EmailIcon, ViewInArIcon, ChecklistIcon, ReportProblemIcon, TaskAltIcon, AccountBalanceIcon, BusinessIcon } from '@/icons'
 import { Box, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, Typography } from '@/mui'
 
 const DRAWER_WIDTH = 260
@@ -15,6 +15,7 @@ interface NavItem {
 const mainNavItems: NavItem[] = [
   { label: 'nav.dashboard', path: '/dashboard', icon: <DashboardIcon /> },
   { label: 'nav.projects', path: '/projects', icon: <FolderIcon /> },
+  { label: 'nav.organizations', path: '/organizations', icon: <BusinessIcon /> },
 ]
 
 const projectNavItems: NavItem[] = [
@@ -28,6 +29,8 @@ const projectNavItems: NavItem[] = [
   { label: 'nav.rfis', path: '/rfis', icon: <EmailIcon /> },
   { label: 'nav.checklists', path: '/checklists', icon: <ChecklistIcon /> },
   { label: 'nav.defects', path: '/defects', icon: <ReportProblemIcon /> },
+  { label: 'nav.tasks', path: '/tasks', icon: <TaskAltIcon /> },
+  { label: 'nav.budget', path: '/budget', icon: <AccountBalanceIcon /> },
   { label: 'nav.bim', path: '/bim', icon: <ViewInArIcon /> },
 ]
 

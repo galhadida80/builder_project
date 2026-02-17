@@ -37,6 +37,10 @@ import { lazy, Suspense } from 'react'
 import ChecklistsPage from './pages/ChecklistsPage'
 import DefectsPage from './pages/DefectsPage'
 import DefectDetailPage from './pages/DefectDetailPage'
+import TasksPage from './pages/TasksPage'
+import BudgetPage from './pages/BudgetPage'
+import OrganizationsPage from './pages/OrganizationsPage'
+import OrganizationDetailPage from './pages/OrganizationDetailPage'
 
 const BIMPage = lazy(() => import('./pages/BIMPage'))
 
@@ -89,9 +93,13 @@ function AppRoutes() {
               <Route path="checklists" element={<ChecklistsPage />} />
               <Route path="defects" element={<DefectsPage />} />
               <Route path="defects/:defectId" element={<DefectDetailPage />} />
+              <Route path="tasks" element={<TasksPage />} />
+              <Route path="budget" element={<BudgetPage />} />
               <Route path="bim" element={<Suspense fallback={null}><BIMPage /></Suspense>} />
             </Route>
 
+            <Route path="/organizations" element={<OrganizationsPage />} />
+            <Route path="/organizations/:orgId" element={<OrganizationDetailPage />} />
             <Route path="/approvals" element={<ApprovalsPage />} />
             <Route path="/audit" element={<AuditLogPage />} />
             <Route path="/analytics" element={<AnalyticsDashboard />} />
