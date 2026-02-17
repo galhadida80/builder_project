@@ -67,7 +67,16 @@ export default memo(function Sidebar({ projectId, mobileOpen = false, onMobileCl
   const drawerContent = (
     <>
       <Box
+        role="button"
+        tabIndex={0}
         onClick={() => { navigate('/dashboard'); onMobileClose?.() }}
+        onKeyDown={(e: React.KeyboardEvent) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            navigate('/dashboard')
+            onMobileClose?.()
+          }
+        }}
         sx={{
           p: 2.5,
           display: 'flex',
@@ -75,6 +84,10 @@ export default memo(function Sidebar({ projectId, mobileOpen = false, onMobileCl
           gap: 1.5,
           cursor: 'pointer',
           '&:hover': { bgcolor: 'action.hover' },
+          '&:focus-visible': {
+            outline: (theme) => `2px solid ${theme.palette.primary.main}`,
+            outlineOffset: -2,
+          },
           borderRadius: 2,
           mx: 0.5,
           mt: 0.5,
@@ -139,6 +152,10 @@ export default memo(function Sidebar({ projectId, mobileOpen = false, onMobileCl
                     color: 'primary.contrastText',
                   },
                 },
+                '&:focus-visible': {
+                  outline: (theme) => `2px solid ${theme.palette.primary.main}`,
+                  outlineOffset: -2,
+                },
               }}
             >
               <ListItemIcon sx={{ minWidth: 40, color: 'text.secondary' }}>
@@ -199,6 +216,10 @@ export default memo(function Sidebar({ projectId, mobileOpen = false, onMobileCl
                           color: 'primary.contrastText',
                         },
                       },
+                      '&:focus-visible': {
+                        outline: (theme) => `2px solid ${theme.palette.primary.main}`,
+                        outlineOffset: -2,
+                      },
                     }}
                   >
                     <ListItemIcon sx={{ minWidth: 40, color: 'text.secondary' }}>
@@ -241,6 +262,10 @@ export default memo(function Sidebar({ projectId, mobileOpen = false, onMobileCl
                   '& .MuiListItemIcon-root': {
                     color: 'primary.contrastText',
                   },
+                },
+                '&:focus-visible': {
+                  outline: (theme) => `2px solid ${theme.palette.primary.main}`,
+                  outlineOffset: -2,
                 },
               }}
             >

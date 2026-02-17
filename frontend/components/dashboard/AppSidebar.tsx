@@ -67,6 +67,11 @@ const navButtonSx = {
   '&:hover': {
     bgcolor: 'action.hover',
   },
+  '&:focus-visible': {
+    outline: '2px solid',
+    outlineColor: 'primary.main',
+    outlineOffset: -2,
+  },
   '&.Mui-selected': {
     bgcolor: 'primary.main',
     color: 'primary.contrastText',
@@ -115,7 +120,34 @@ export default function AppSidebar({ projectId }: AppSidebarProps) {
         },
       }}
     >
-      <Box sx={{ p: 2.5, display: 'flex', alignItems: 'center', gap: 1.5 }}>
+      <Box
+        role="button"
+        tabIndex={0}
+        onClick={() => router.push('/dashboard')}
+        onKeyDown={(e: React.KeyboardEvent) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            router.push('/dashboard')
+          }
+        }}
+        sx={{
+          p: 2.5,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1.5,
+          cursor: 'pointer',
+          borderRadius: 2,
+          transition: 'background-color 150ms ease-out',
+          '&:hover': {
+            bgcolor: 'action.hover',
+          },
+          '&:focus-visible': {
+            outline: '2px solid',
+            outlineColor: 'primary.main',
+            outlineOffset: -2,
+          },
+        }}
+      >
         <Box
           sx={{
             width: 40,
