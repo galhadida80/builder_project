@@ -23,6 +23,10 @@ const StyledCard = styled(MuiCard, {
       transform: 'translateY(-2px)',
       boxShadow: theme.shadows[4],
     },
+    '&:focus-visible': {
+      outline: `2px solid ${theme.palette.primary.main}`,
+      outlineOffset: -2,
+    },
   }),
 }))
 
@@ -62,8 +66,25 @@ export default function AnalyticsKPICard({
     )
   }
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (onClick && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault()
+      onClick()
+    }
+  }
+
+  const ariaLabel = `${title}: ${value}${trend !== undefined ? `, ${trend > 0 ? 'up' : trend < 0 ? 'down' : 'stable'} ${Math.abs(trend)}%` : ''}`
+
   return (
-    <StyledCard hoverable={!!onClick} onClick={onClick} sx={{ cursor: onClick ? 'pointer' : 'default' }}>
+    <StyledCard
+      hoverable={!!onClick}
+      onClick={onClick}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? handleKeyDown : undefined}
+      aria-label={onClick ? ariaLabel : undefined}
+      sx={{ cursor: onClick ? 'pointer' : 'default' }}
+    >
       <CardContent sx={{ p: 2.5 }}>
         <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
           <Box>

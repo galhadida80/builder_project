@@ -11,8 +11,8 @@ interface BaseCardProps {
 }
 
 const StyledCard = styled(MuiCard, {
-  shouldForwardProp: (prop) => prop !== 'hoverable',
-})<{ hoverable?: boolean }>(({ theme, hoverable }) => ({
+  shouldForwardProp: (prop) => prop !== 'hoverable' && prop !== 'interactive',
+})<{ hoverable?: boolean; interactive?: boolean }>(({ theme, hoverable, interactive }) => ({
   borderRadius: 8,
   transition: 'box-shadow 200ms ease-out',
   cursor: hoverable ? 'pointer' : 'default',
@@ -24,11 +24,34 @@ const StyledCard = styled(MuiCard, {
       boxShadow: theme.shadows[4],
     },
   }),
+  ...(interactive && {
+    '&:focus-visible': {
+      outline: `2px solid ${theme.palette.primary.main}`,
+      outlineOffset: 2,
+    },
+  }),
 }))
 
 export function Card({ children, hoverable = false, onClick, ...props }: BaseCardProps) {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (onClick && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault()
+      onClick()
+    }
+  }
+
+  const isInteractive = !!onClick
+
   return (
-    <StyledCard hoverable={hoverable} onClick={onClick} {...props}>
+    <StyledCard
+      hoverable={hoverable}
+      interactive={isInteractive}
+      onClick={onClick}
+      onKeyDown={isInteractive ? handleKeyDown : undefined}
+      role={isInteractive ? 'button' : undefined}
+      tabIndex={isInteractive ? 0 : undefined}
+      {...props}
+    >
       {children}
     </StyledCard>
   )
@@ -95,6 +118,24 @@ export function KPICard({
     return 'text.secondary'
   }
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (onClick && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault()
+      onClick()
+    }
+  }
+
+  const getAriaLabel = () => {
+    let label = `${title}: ${value}`
+    if (trend !== undefined && trendLabel) {
+      const trendDirection = trend > 0 ? 'up' : trend < 0 ? 'down' : 'flat'
+      label += `, ${trendLabel} (trend ${trendDirection})`
+    }
+    return label
+  }
+
+  const isInteractive = !!onClick
+
   if (loading) {
     return (
       <StyledCard>
@@ -108,7 +149,16 @@ export function KPICard({
   }
 
   return (
-    <StyledCard hoverable={!!onClick} onClick={onClick} sx={{ cursor: onClick ? 'pointer' : 'default' }}>
+    <StyledCard
+      hoverable={isInteractive}
+      interactive={isInteractive}
+      onClick={onClick}
+      onKeyDown={isInteractive ? handleKeyDown : undefined}
+      role={isInteractive ? 'button' : undefined}
+      tabIndex={isInteractive ? 0 : undefined}
+      aria-label={isInteractive ? getAriaLabel() : undefined}
+      sx={{ cursor: onClick ? 'pointer' : 'default' }}
+    >
       <CardContent sx={{ p: { xs: 1.25, sm: 1.5, md: 2 }, '&:last-child': { pb: { xs: 1.25, sm: 1.5, md: 2 } } }}>
         <Box sx={{
           display: 'flex',
@@ -197,8 +247,25 @@ interface FeatureCardProps {
 }
 
 export function FeatureCard({ icon, title, description, onClick }: FeatureCardProps) {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (onClick && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault()
+      onClick()
+    }
+  }
+
+  const isInteractive = !!onClick
+
   return (
-    <StyledCard hoverable={!!onClick} onClick={onClick}>
+    <StyledCard
+      hoverable={isInteractive}
+      interactive={isInteractive}
+      onClick={onClick}
+      onKeyDown={isInteractive ? handleKeyDown : undefined}
+      role={isInteractive ? 'button' : undefined}
+      tabIndex={isInteractive ? 0 : undefined}
+      aria-label={isInteractive ? `${title}: ${description}` : undefined}
+    >
       <CardContent sx={{ p: { xs: 2, sm: 2.5, md: 3 } }}>
         <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
           <Box sx={{ flex: 1, minWidth: 0 }}>
@@ -269,8 +336,30 @@ export function ProjectCard({ name, code, progress, status, imageUrl, onClick }:
     }
   }
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (onClick && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault()
+      onClick()
+    }
+  }
+
+  const getAriaLabel = () => {
+    const statusText = t(`common.statuses.${status}`, { defaultValue: status.replace('_', ' ') })
+    return `${name}, ${statusText}, ${progress}% complete`
+  }
+
+  const isInteractive = !!onClick
+
   return (
-    <StyledCard hoverable onClick={onClick}>
+    <StyledCard
+      hoverable={isInteractive}
+      interactive={isInteractive}
+      onClick={onClick}
+      onKeyDown={isInteractive ? handleKeyDown : undefined}
+      role={isInteractive ? 'button' : undefined}
+      tabIndex={isInteractive ? 0 : undefined}
+      aria-label={isInteractive ? getAriaLabel() : undefined}
+    >
       {imageUrl && (
         <Box
           role="img"
