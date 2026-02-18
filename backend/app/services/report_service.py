@@ -3,7 +3,7 @@ import csv
 from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import select, func
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.equipment_submission import EquipmentSubmission
