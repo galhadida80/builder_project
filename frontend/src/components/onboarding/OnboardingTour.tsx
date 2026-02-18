@@ -112,24 +112,40 @@ export default function OnboardingTour({ open, onComplete }: OnboardingTourProps
     }
   }, [open, updatePosition])
 
+  const findNextVisible = useCallback((from: number, direction: 1 | -1): number | null => {
+    let idx = from + direction
+    while (idx >= 0 && idx < STEPS.length) {
+      if (document.querySelector(STEPS[idx].target)) return idx
+      idx += direction
+    }
+    return null
+  }, [])
+
   const handleNext = useCallback(() => {
-    if (currentStep < STEPS.length - 1) {
-      setCurrentStep(prev => prev + 1)
+    const next = findNextVisible(currentStep, 1)
+    if (next !== null) {
+      setCurrentStep(next)
     } else {
       onComplete()
     }
-  }, [currentStep, onComplete])
+  }, [currentStep, findNextVisible, onComplete])
 
   const handlePrevious = useCallback(() => {
-    if (currentStep > 0) {
-      setCurrentStep(prev => prev - 1)
+    const prev = findNextVisible(currentStep, -1)
+    if (prev !== null) {
+      setCurrentStep(prev)
     }
-  }, [currentStep])
+  }, [currentStep, findNextVisible])
 
   if (!open) return null
 
   const step = STEPS[currentStep]
-  const progress = ((currentStep + 1) / STEPS.length) * 100
+  const visibleSteps = STEPS.filter(s => document.querySelector(s.target))
+  const visibleIndex = visibleSteps.indexOf(step)
+  const visibleTotal = visibleSteps.length
+  const progress = visibleTotal > 0 ? ((visibleIndex + 1) / visibleTotal) * 100 : 0
+  const hasPrev = findNextVisible(currentStep, -1) !== null
+  const hasNext = findNextVisible(currentStep, 1) !== null
 
   return (
     <>
@@ -173,19 +189,19 @@ export default function OnboardingTour({ open, onComplete }: OnboardingTourProps
 
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Typography variant="caption" color="text.secondary">
-            {t('onboarding.stepOf', { current: currentStep + 1, total: STEPS.length })}
+            {t('onboarding.stepOf', { current: visibleIndex + 1, total: visibleTotal })}
           </Typography>
           <Box sx={{ display: 'flex', gap: 1 }}>
             <Button size="small" variant="text" onClick={onComplete}>
               {t('onboarding.skip')}
             </Button>
-            {currentStep > 0 && (
+            {hasPrev && (
               <Button size="small" variant="outlined" onClick={handlePrevious}>
                 {t('common.previous')}
               </Button>
             )}
             <Button size="small" variant="contained" onClick={handleNext}>
-              {currentStep < STEPS.length - 1 ? t('common.next') : t('onboarding.finish')}
+              {hasNext ? t('common.next') : t('onboarding.finish')}
             </Button>
           </Box>
         </Box>
