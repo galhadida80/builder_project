@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Optional
 
 from fastapi import APIRouter, Depends, Query
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import get_current_user, verify_project_access
@@ -47,11 +47,15 @@ async def get_team_members(
         user_project_ids = select(ProjectMember.project_id).where(
             ProjectMember.user_id == current_user.id
         )
+        unique_member_ids = (
+            select(func.min(ProjectMember.id))
+            .where(ProjectMember.project_id.in_(user_project_ids))
+            .group_by(ProjectMember.user_id)
+        )
         result = await db.execute(
             select(ProjectMember, User)
             .join(User, ProjectMember.user_id == User.id)
-            .where(ProjectMember.project_id.in_(user_project_ids))
-            .distinct(ProjectMember.user_id)
+            .where(ProjectMember.id.in_(unique_member_ids))
         )
         rows = result.all()
         return [
