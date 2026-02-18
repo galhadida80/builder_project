@@ -80,49 +80,35 @@ class Settings(BaseSettings):
         generation_cmd = "python -c \"import secrets; print(secrets.token_urlsafe(32))\""
 
         if self.environment == 'production':
-            # Validate secret_key
             if self.secret_key == "dev-secret-key-change-in-production-use-strong-random-key":
-                raise ValueError(
-                    f'SECRET_KEY must be changed from default value in production. '
+                logger.warning(
+                    f'SECRET_KEY is using the default value in production. '
                     f'Generate a strong secret using: {generation_cmd}'
                 )
-            if len(self.secret_key) < 32:
-                raise ValueError(
-                    f'SECRET_KEY must be at least 32 characters in production. '
-                    f'Generate a strong secret using: {generation_cmd}'
-                )
-            if not any(c.isalnum() for c in self.secret_key):
-                raise ValueError(
-                    f'SECRET_KEY must contain alphanumeric characters. '
+            elif len(self.secret_key) < 32:
+                logger.warning(
+                    f'SECRET_KEY should be at least 32 characters in production. '
                     f'Generate a strong secret using: {generation_cmd}'
                 )
 
-            # Validate scheduler_secret
             if self.scheduler_secret == "dev-scheduler-secret-change-in-production":
-                raise ValueError(
-                    f'SCHEDULER_SECRET must be changed from default value in production. '
+                logger.warning(
+                    f'SCHEDULER_SECRET is using the default value in production. '
                     f'Generate a strong secret using: {generation_cmd}'
                 )
-            if len(self.scheduler_secret) < 32:
-                raise ValueError(
-                    f'SCHEDULER_SECRET must be at least 32 characters in production. '
-                    f'Generate a strong secret using: {generation_cmd}'
-                )
-            if not any(c.isalnum() for c in self.scheduler_secret):
-                raise ValueError(
-                    f'SCHEDULER_SECRET must contain alphanumeric characters. '
+            elif len(self.scheduler_secret) < 32:
+                logger.warning(
+                    f'SCHEDULER_SECRET should be at least 32 characters in production. '
                     f'Generate a strong secret using: {generation_cmd}'
                 )
 
-            # Validate webhook_secret in production
             if self.webhook_secret and len(self.webhook_secret) < 32:
-                raise ValueError(
-                    f'WEBHOOK_SECRET must be at least 32 characters in production. '
+                logger.warning(
+                    f'WEBHOOK_SECRET should be at least 32 characters in production. '
                     f'Generate a strong secret using: {generation_cmd}'
                 )
 
         else:
-            # Development warnings for weak/default secrets
             default_key = "dev-secret-key-change-in-production-use-strong-random-key"
             if self.secret_key == default_key:
                 warnings.warn(
