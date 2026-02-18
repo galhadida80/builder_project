@@ -35,7 +35,7 @@ class FakeEmailService:
         email_data = {
             'message_id': message_id,
             'rfi_number': rfi_number,
-            'from_email': self.settings.rfi_email_address or 'noreply@construction-platform.dev',
+            'from_email': self.settings.rfi_email_address or 'builderops26@gmail.com',
             'reply_to': reply_to,
             'to_email': to_email,
             'cc_emails': cc_emails or [],
@@ -78,7 +78,7 @@ class FakeEmailService:
         email_data = {
             'message_id': message_id,
             'type': 'notification',
-            'from_email': self.settings.rfi_email_address or 'noreply@construction-platform.dev',
+            'from_email': self.settings.rfi_email_address or 'builderops26@gmail.com',
             'to_email': to_email,
             'subject': subject,
             'body_html': body_html,

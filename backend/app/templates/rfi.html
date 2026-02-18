@@ -1,62 +1,129 @@
 {% extends "base.html" %}
 
 {% block header %}
-{% if not is_response %}
-<tr><td style="background:#0F172A;color:white;padding:20px 32px;border-radius:8px 8px 0 0;">
-<h2 style="margin:0;color:#ffffff;font-size:20px;">Request for Information</h2>
-<p style="margin:5px 0 0;opacity:0.9;color:#cbd5e1;font-size:14px;">{{ rfi.rfi_number }}</p>
+<tr><td style="background:#0F172A;padding:32px 32px 28px;border-radius:8px 8px 0 0;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+<tr>
+<td style="vertical-align:middle;">
+<p style="margin:0;font-size:13px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#94A3B8;">BuilderOps</p>
+</td>
+</tr>
+<tr>
+<td style="padding-top:16px;">
+<h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;letter-spacing:-0.3px;">Request for Information</h1>
+<p style="margin:6px 0 0;color:#94A3B8;font-size:14px;font-weight:500;">{{ rfi.rfi_number }}</p>
+</td>
+</tr>
+</table>
 </td></tr>
-{% endif %}
 {% endblock %}
 
 {% block content %}
 {% if is_response %}
-<div style="background:#f8fafc;padding:15px;border-radius:8px;border-left:4px solid #0369A1;">
-{{ response_text | replace('\n', '<br>') }}
-</div>
-<hr style="margin:30px 0;border:none;border-top:1px solid #e5e7eb;">
-<p style="color:#6b7280;font-size:12px;">
-<strong>Reference:</strong> {{ rfi.rfi_number }}
-</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+<tr><td style="padding:16px 20px;background:#F0F9FF;border-radius:8px;border-left:4px solid #0369A1;">
+<p style="margin:0 0 4px;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:#0369A1;">Response</p>
+<p style="margin:0;color:#334155;font-size:14px;line-height:1.7;">{{ response_text | replace('\n', '<br>') }}</p>
+</td></tr>
+</table>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+<tr><td style="padding-top:16px;border-top:1px solid #E2E8F0;">
+<p style="margin:0;color:#94A3B8;font-size:12px;">Reference: <strong style="color:#64748B;">{{ rfi.rfi_number }}</strong></p>
+</td></tr>
+</table>
+
 {% else %}
-<div style="border:1px solid #e5e7eb;border-top:none;padding:0;">
-<table style="width:100%;margin-bottom:20px;font-size:14px;">
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
 <tr>
-<td style="padding:8px 0;border-bottom:1px solid #f3f4f6;"><strong>Category:</strong></td>
-<td style="padding:8px 0;border-bottom:1px solid #f3f4f6;">{{ rfi.category | title }}</td>
+<td width="50%" style="padding:12px 16px;border-bottom:1px solid #F1F5F9;vertical-align:top;">
+<p style="margin:0 0 2px;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">Category</p>
+<p style="margin:0;font-size:14px;color:#334155;font-weight:500;">
+<span style="display:inline-block;background:#EFF6FF;color:#1D4ED8;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:600;">{{ rfi.category | title }}</span>
+</p>
+</td>
+<td width="50%" style="padding:12px 16px;border-bottom:1px solid #F1F5F9;vertical-align:top;">
+<p style="margin:0 0 2px;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">Priority</p>
+<p style="margin:0;font-size:14px;color:#334155;font-weight:500;">
+{% if rfi.priority == 'urgent' %}
+<span style="display:inline-block;background:#FEF2F2;color:#DC2626;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:600;">{{ rfi.priority | title }}</span>
+{% elif rfi.priority == 'high' %}
+<span style="display:inline-block;background:#FFF7ED;color:#EA580C;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:600;">{{ rfi.priority | title }}</span>
+{% elif rfi.priority == 'medium' %}
+<span style="display:inline-block;background:#FFFBEB;color:#D97706;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:600;">{{ rfi.priority | title }}</span>
+{% else %}
+<span style="display:inline-block;background:#F0FDF4;color:#16A34A;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:600;">{{ rfi.priority | title }}</span>
+{% endif %}
+</p>
+</td>
 </tr>
 <tr>
-<td style="padding:8px 0;border-bottom:1px solid #f3f4f6;"><strong>Priority:</strong></td>
-<td style="padding:8px 0;border-bottom:1px solid #f3f4f6;">{{ rfi.priority | title }}</td>
+<td width="50%" style="padding:12px 16px;border-bottom:1px solid #F1F5F9;vertical-align:top;">
+<p style="margin:0 0 2px;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">Due Date</p>
+<p style="margin:0;font-size:14px;color:#334155;font-weight:500;">{{ due_date }}</p>
+</td>
+<td width="50%" style="padding:12px 16px;border-bottom:1px solid #F1F5F9;vertical-align:top;">
+<p style="margin:0 0 2px;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">Location</p>
+<p style="margin:0;font-size:14px;color:#334155;font-weight:500;">{{ location }}</p>
+</td>
 </tr>
 <tr>
-<td style="padding:8px 0;border-bottom:1px solid #f3f4f6;"><strong>Due Date:</strong></td>
-<td style="padding:8px 0;border-bottom:1px solid #f3f4f6;">{{ due_date }}</td>
-</tr>
-<tr>
-<td style="padding:8px 0;border-bottom:1px solid #f3f4f6;"><strong>Location:</strong></td>
-<td style="padding:8px 0;border-bottom:1px solid #f3f4f6;">{{ location }}</td>
-</tr>
-<tr>
-<td style="padding:8px 0;"><strong>Drawing Ref:</strong></td>
-<td style="padding:8px 0;">{{ drawing_ref }}</td>
+<td width="50%" style="padding:12px 16px;vertical-align:top;">
+<p style="margin:0 0 2px;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">Drawing Ref</p>
+<p style="margin:0;font-size:14px;color:#334155;font-weight:500;">{{ drawing_ref }}</p>
+</td>
+<td width="50%" style="padding:12px 16px;vertical-align:top;">
+<p style="margin:0 0 2px;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">Spec Ref</p>
+<p style="margin:0;font-size:14px;color:#334155;font-weight:500;">{{ spec_ref }}</p>
+</td>
 </tr>
 </table>
 
-<h3 style="color:#0F172A;margin-bottom:10px;">Question:</h3>
-<div style="background:#f8fafc;padding:15px;border-radius:8px;border-left:4px solid #0369A1;">
-{{ rfi.question | replace('\n', '<br>') }}
-</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
+<tr><td>
+<p style="margin:0 0 10px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#0F172A;">Question</p>
+</td></tr>
+<tr><td style="padding:16px 20px;background:#F8FAFC;border-radius:8px;border-left:4px solid #0369A1;">
+<p style="margin:0;color:#334155;font-size:14px;line-height:1.7;">{{ rfi.question | replace('\n', '<br>') }}</p>
+</td></tr>
+</table>
 
-<hr style="margin:30px 0;border:none;border-top:1px solid #e5e7eb;">
-
-<p style="color:#6b7280;font-size:12px;">
-Please reply directly to this email. Your response will be automatically tracked.
-<br><br>
-<strong>Reference:</strong> {{ rfi.rfi_number }}
+{% if rfi.attachments and rfi.attachments | length > 0 %}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
+<tr><td>
+<p style="margin:0 0 10px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#0F172A;">Attachments ({{ rfi.attachments | length }})</p>
+</td></tr>
+<tr><td style="padding:12px 16px;background:#F8FAFC;border-radius:8px;">
+<p style="margin:0;color:#64748B;font-size:13px;line-height:1.8;">
+{% for att in rfi.attachments %}
+{{ att.filename if att is mapping else att }}{% if not loop.last %}, {% endif %}
+{% endfor %}
 </p>
-</div>
+</td></tr>
+</table>
+{% endif %}
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+<tr><td style="text-align:center;padding:8px 0 16px;">
+<a href="{{ frontend_url }}/projects/{{ rfi.project_id }}/rfis/{{ rfi.id }}" style="display:inline-block;background:#0369A1;color:#ffffff;text-decoration:none;padding:14px 36px;border-radius:8px;font-size:14px;font-weight:600;letter-spacing:0.3px;">View &amp; Respond to RFI</a>
+</td></tr>
+</table>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+<tr><td style="padding-top:20px;border-top:1px solid #E2E8F0;">
+<p style="margin:0 0 4px;color:#94A3B8;font-size:12px;line-height:1.6;">
+Please reply directly to this email. Your response will be automatically tracked.
+</p>
+<p style="margin:0;color:#94A3B8;font-size:12px;">
+Reference: <strong style="color:#64748B;">{{ rfi.rfi_number }}</strong>
+</p>
+</td></tr>
+</table>
+
 {% endif %}
 {% endblock %}
 
-{% block footer %}{% endblock %}
+{% block footer %}
+&copy; 2026 BuilderOps. All rights reserved.
+{% endblock %}

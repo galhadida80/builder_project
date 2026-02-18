@@ -47,16 +47,19 @@ class Settings(BaseSettings):
 
     email_provider: str = "fake"
     rfi_email_domain: str = "builderops.co.il"
-    rfi_email_address: str = "rfis@example.com"
+    rfi_email_address: str = "builderops26@gmail.com"
     sendgrid_api_key: str = ""
-    sendgrid_from_email: str = ""
-    sendgrid_from_name: str = "Construction Platform"
+    sendgrid_from_email: str = "builderops26@gmail.com"
+    sendgrid_from_name: str = "BuilderOps"
 
     scheduler_secret: str = "dev-scheduler-secret-change-in-production"
 
     aps_client_id: str = ""
     aps_client_secret: str = ""
     aps_callback_url: str = "http://localhost:8000/api/v1/bim/callback"
+
+    google_pubsub_audience: str = ""
+    google_pubsub_verify: bool = True
 
     webauthn_rp_id: str = "localhost"
     webauthn_rp_name: str = "BuilderOps"

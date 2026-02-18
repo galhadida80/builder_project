@@ -170,10 +170,14 @@ def render_password_reset_email(reset_url: str, language: str) -> tuple[str, str
     return s["subject"], html
 
 
-def render_rfi_email(rfi) -> tuple[str, str]:
+def render_rfi_email(rfi, frontend_url: str = "") -> tuple[str, str]:
     due_date = rfi.due_date.strftime("%Y-%m-%d") if rfi.due_date else "N/A"
     location = rfi.location or "N/A"
     drawing_ref = rfi.drawing_reference or "N/A"
+    spec_ref = rfi.specification_reference or "N/A"
+
+    if not frontend_url:
+        frontend_url = get_settings().frontend_base_url
 
     template = env.get_template("rfi.html")
     html = template.render(
@@ -182,6 +186,8 @@ def render_rfi_email(rfi) -> tuple[str, str]:
         due_date=due_date,
         location=location,
         drawing_ref=drawing_ref,
+        spec_ref=spec_ref,
+        frontend_url=frontend_url,
         lang="en",
         direction="ltr",
         align="left",
