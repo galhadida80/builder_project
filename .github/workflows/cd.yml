@@ -51,6 +51,7 @@ jobs:
             --cpu 1 \
             --port 8080 \
             --timeout 300 \
+            --cpu-boost \
             --add-cloudsql-instances ${{ secrets.CLOUD_SQL_CONNECTION }} \
             --set-env-vars "DATABASE_URL=${{ secrets.DATABASE_URL }}" \
             --set-env-vars "DATABASE_URL_SYNC=${{ secrets.DATABASE_URL_SYNC }}" \
