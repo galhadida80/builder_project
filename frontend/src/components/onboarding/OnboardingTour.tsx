@@ -1,0 +1,195 @@
+import { useState, useEffect, useCallback, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Box, Button, Typography, Paper, LinearProgress } from '@/mui'
+import { CloseIcon } from '@/icons'
+import { IconButton } from '@/mui'
+
+interface TourStep {
+  target: string
+  titleKey: string
+  contentKey: string
+  placement: 'bottom' | 'top' | 'left' | 'right'
+}
+
+const STEPS: TourStep[] = [
+  {
+    target: '[data-tour="sidebar"]',
+    titleKey: 'onboarding.steps.sidebar.title',
+    contentKey: 'onboarding.steps.sidebar.content',
+    placement: 'right',
+  },
+  {
+    target: '[data-tour="projects"]',
+    titleKey: 'onboarding.steps.projects.title',
+    contentKey: 'onboarding.steps.projects.content',
+    placement: 'right',
+  },
+  {
+    target: '[data-tour="equipment"]',
+    titleKey: 'onboarding.steps.equipment.title',
+    contentKey: 'onboarding.steps.equipment.content',
+    placement: 'right',
+  },
+  {
+    target: '[data-tour="materials"]',
+    titleKey: 'onboarding.steps.materials.title',
+    contentKey: 'onboarding.steps.materials.content',
+    placement: 'right',
+  },
+  {
+    target: '[data-tour="approvals"]',
+    titleKey: 'onboarding.steps.approvals.title',
+    contentKey: 'onboarding.steps.approvals.content',
+    placement: 'right',
+  },
+  {
+    target: '[data-tour="chat"]',
+    titleKey: 'onboarding.steps.chat.title',
+    contentKey: 'onboarding.steps.chat.content',
+    placement: 'top',
+  },
+]
+
+interface OnboardingTourProps {
+  open: boolean
+  onComplete: () => void
+}
+
+export default function OnboardingTour({ open, onComplete }: OnboardingTourProps) {
+  const { t } = useTranslation()
+  const [currentStep, setCurrentStep] = useState(0)
+  const [position, setPosition] = useState({ top: 0, left: 0 })
+  const [visible, setVisible] = useState(false)
+  const popoverRef = useRef<HTMLDivElement>(null)
+
+  const updatePosition = useCallback(() => {
+    const step = STEPS[currentStep]
+    if (!step) return
+
+    const el = document.querySelector(step.target)
+    if (!el) {
+      setVisible(false)
+      return
+    }
+
+    const rect = el.getBoundingClientRect()
+    let top = 0
+    let left = 0
+
+    switch (step.placement) {
+      case 'right':
+        top = rect.top + rect.height / 2 - 80
+        left = rect.right + 12
+        break
+      case 'left':
+        top = rect.top + rect.height / 2 - 80
+        left = rect.left - 332
+        break
+      case 'bottom':
+        top = rect.bottom + 12
+        left = rect.left + rect.width / 2 - 160
+        break
+      case 'top':
+        top = rect.top - 180
+        left = rect.left + rect.width / 2 - 160
+        break
+    }
+
+    top = Math.max(8, Math.min(top, window.innerHeight - 200))
+    left = Math.max(8, Math.min(left, window.innerWidth - 340))
+
+    setPosition({ top, left })
+    setVisible(true)
+  }, [currentStep])
+
+  useEffect(() => {
+    if (!open) return
+    const timer = setTimeout(updatePosition, 300)
+    window.addEventListener('resize', updatePosition)
+    return () => {
+      clearTimeout(timer)
+      window.removeEventListener('resize', updatePosition)
+    }
+  }, [open, updatePosition])
+
+  const handleNext = useCallback(() => {
+    if (currentStep < STEPS.length - 1) {
+      setCurrentStep(prev => prev + 1)
+    } else {
+      onComplete()
+    }
+  }, [currentStep, onComplete])
+
+  const handlePrevious = useCallback(() => {
+    if (currentStep > 0) {
+      setCurrentStep(prev => prev - 1)
+    }
+  }, [currentStep])
+
+  if (!open) return null
+
+  const step = STEPS[currentStep]
+  const progress = ((currentStep + 1) / STEPS.length) * 100
+
+  return (
+    <>
+      <Box
+        sx={{
+          position: 'fixed',
+          inset: 0,
+          bgcolor: 'rgba(0,0,0,0.4)',
+          zIndex: 1300,
+        }}
+        onClick={onComplete}
+      />
+      <Paper
+        ref={popoverRef}
+        elevation={8}
+        sx={{
+          position: 'fixed',
+          top: position.top,
+          left: position.left,
+          width: 320,
+          zIndex: 1301,
+          p: 2.5,
+          opacity: visible ? 1 : 0,
+          transition: 'opacity 200ms, top 200ms, left 200ms',
+        }}
+      >
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+          <Typography variant="subtitle1" fontWeight={600}>
+            {t(step.titleKey)}
+          </Typography>
+          <IconButton size="small" onClick={onComplete} aria-label={t('common.close')}>
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </Box>
+
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          {t(step.contentKey)}
+        </Typography>
+
+        <LinearProgress variant="determinate" value={progress} sx={{ mb: 1.5, borderRadius: 1 }} />
+
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography variant="caption" color="text.secondary">
+            {t('onboarding.stepOf', { current: currentStep + 1, total: STEPS.length })}
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Button size="small" variant="text" onClick={onComplete}>
+              {t('onboarding.skip')}
+            </Button>
+            {currentStep > 0 && (
+              <Button size="small" variant="outlined" onClick={handlePrevious}>
+                {t('common.previous')}
+              </Button>
+            )}
+            <Button size="small" variant="contained" onClick={handleNext}>
+              {currentStep < STEPS.length - 1 ? t('common.next') : t('onboarding.finish')}
+            </Button>
+          </Box>
+        </Box>
+      </Paper>
+    </>
+  )
+}

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { getDateLocale } from '../utils/dateLocale'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { DataTable, Column } from '../components/ui/DataTable'
@@ -16,6 +17,7 @@ import { contactGroupsApi } from '../api/contactGroups'
 import type { Contact, ContactGroupListItem } from '../types'
 import { useToast } from '../components/common/ToastProvider'
 import { parseValidationErrors } from '../utils/apiErrors'
+import HelpTooltip from '../components/help/HelpTooltip'
 import { validateRFIForm, hasErrors, type ValidationError } from '../utils/validation'
 import { AddIcon, VisibilityIcon, EditIcon, DeleteIcon, EmailIcon, AccessTimeIcon } from '@/icons'
 import { Box, Typography, Divider, MenuItem, TextField as MuiTextField, Skeleton, Chip, IconButton, Autocomplete } from '@/mui'
@@ -153,6 +155,12 @@ export default function RFIPage() {
     setEditingRfi(null)
   }
 
+  const validateField = (field: string, value: string) => {
+    const testData = { ...formData, [field]: value }
+    const allErrors = validateRFIForm(testData)
+    setErrors(prev => ({ ...prev, [field]: allErrors[field] || null }))
+  }
+
   const handleCloseDialog = () => {
     setDialogOpen(false)
     resetForm()
@@ -274,7 +282,7 @@ export default function RFIPage() {
 
   const formatDate = (date?: string) => {
     if (!date) return '-'
-    return new Date(date).toLocaleDateString()
+    return new Date(date).toLocaleDateString(getDateLocale())
   }
 
   const isOverdue = (rfi: RFIListItem) => {
@@ -410,16 +418,19 @@ export default function RFIPage() {
 
   return (
     <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 }, maxWidth: '100%', overflow: 'hidden' }}>
-      <PageHeader
-        title={t('rfis.title')}
-        subtitle={t('rfis.subtitle')}
-        breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('nav.rfis') }]}
-        actions={
-          <Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>
-            {t('rfis.newRfi')}
-          </Button>
-        }
-      />
+      <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+        <PageHeader
+          title={t('rfis.title')}
+          subtitle={t('rfis.subtitle')}
+          breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('nav.rfis') }]}
+          actions={
+            <Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>
+              {t('rfis.newRfi')}
+            </Button>
+          }
+        />
+        <HelpTooltip helpKey="help.tooltips.rfiForm" />
+      </Box>
 
       <Card>
         <Box sx={{ p: 2.5 }}>
@@ -492,6 +503,7 @@ export default function RFIPage() {
             required
             value={formData.subject}
             onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+            onBlur={() => validateField('subject', formData.subject)}
             error={!!errors.subject}
             helperText={errors.subject}
           />
@@ -512,6 +524,7 @@ export default function RFIPage() {
               type="email"
               value={formData.to_email}
               onChange={(e) => setFormData({ ...formData, to_email: e.target.value })}
+              onBlur={() => validateField('to_email', formData.to_email)}
               error={!!errors.to_email}
               helperText={errors.to_email}
             />
@@ -543,6 +556,7 @@ export default function RFIPage() {
             rows={4}
             value={formData.question}
             onChange={(e) => setFormData({ ...formData, question: e.target.value })}
+            onBlur={() => validateField('question', formData.question)}
             error={!!errors.question}
             helperText={errors.question}
           />
@@ -553,6 +567,8 @@ export default function RFIPage() {
               label={t('rfis.category')}
               value={formData.category}
               onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+              error={!!errors.category}
+              helperText={errors.category}
             >
               {RFI_CATEGORY_OPTIONS.map(cat => (
                 <MenuItem key={cat.value} value={cat.value}>{t(`rfis.categories.${cat.value}`, { defaultValue: cat.label })}</MenuItem>
@@ -564,6 +580,8 @@ export default function RFIPage() {
               label={t('rfis.priority')}
               value={formData.priority}
               onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
+              error={!!errors.priority}
+              helperText={errors.priority}
             >
               {RFI_PRIORITY_OPTIONS.map(p => (
                 <MenuItem key={p.value} value={p.value}>{t(`rfis.priorities.${p.value}`, { defaultValue: p.label })}</MenuItem>

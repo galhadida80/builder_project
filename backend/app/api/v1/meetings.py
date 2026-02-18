@@ -1,6 +1,7 @@
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.responses import Response
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -20,6 +21,11 @@ from app.schemas.meeting import (
     MeetingUpdate,
 )
 from app.services.audit_service import create_audit_log, get_model_dict
+from app.services.calendar_service import (
+    generate_google_calendar_url,
+    generate_ical_event,
+    generate_outlook_url,
+)
 from app.utils.localization import get_language_from_request, translate_message
 
 router = APIRouter()
@@ -224,3 +230,74 @@ async def confirm_attendance(
     attendee.confirmed = True
     await db.refresh(attendee, ["user"])
     return attendee
+
+
+@router.get("/projects/{project_id}/meetings/{meeting_id}/ical")
+async def get_meeting_ical(
+    project_id: UUID,
+    meeting_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    request: Request = None
+):
+    await verify_project_access(project_id, current_user, db)
+    result = await db.execute(
+        select(Meeting)
+        .options(selectinload(Meeting.attendees).selectinload(MeetingAttendee.user))
+        .where(Meeting.id == meeting_id, Meeting.project_id == project_id)
+    )
+    meeting = result.scalar_one_or_none()
+    if not meeting:
+        language = get_language_from_request(request)
+        raise HTTPException(status_code=404, detail=translate_message('resources.meeting_not_found', language))
+
+    attendees_data = []
+    for att in meeting.attendees:
+        if att.user:
+            attendees_data.append({"email": att.user.email, "name": att.user.full_name or ""})
+
+    meeting_data = {
+        "title": meeting.title,
+        "description": meeting.description or "",
+        "location": meeting.location or "",
+        "scheduled_date": meeting.scheduled_date,
+        "attendees": attendees_data,
+    }
+
+    ical_content = generate_ical_event(meeting_data)
+    return Response(
+        content=ical_content,
+        media_type="text/calendar",
+        headers={"Content-Disposition": f'attachment; filename="meeting-{meeting_id}.ics"'},
+    )
+
+
+@router.get("/projects/{project_id}/meetings/{meeting_id}/calendar-links")
+async def get_meeting_calendar_links(
+    project_id: UUID,
+    meeting_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    request: Request = None
+):
+    await verify_project_access(project_id, current_user, db)
+    result = await db.execute(
+        select(Meeting).where(Meeting.id == meeting_id, Meeting.project_id == project_id)
+    )
+    meeting = result.scalar_one_or_none()
+    if not meeting:
+        language = get_language_from_request(request)
+        raise HTTPException(status_code=404, detail=translate_message('resources.meeting_not_found', language))
+
+    meeting_data = {
+        "title": meeting.title,
+        "description": meeting.description or "",
+        "location": meeting.location or "",
+        "scheduled_date": meeting.scheduled_date,
+    }
+
+    return {
+        "google_url": generate_google_calendar_url(meeting_data),
+        "outlook_url": generate_outlook_url(meeting_data),
+        "ics_download_url": f"/api/v1/projects/{project_id}/meetings/{meeting_id}/ical",
+    }

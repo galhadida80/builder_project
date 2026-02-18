@@ -9,9 +9,11 @@ from app.config import get_settings
 from app.db.session import get_db
 from app.models.project import Project, ProjectMember, UserRole
 from app.models.user import User
-from app.services.email_renderer import render_daily_summary_email
+from app.services.approval_reminder_service import check_approval_deadlines
 from app.services.daily_summary_service import collect_project_daily_summary
+from app.services.email_renderer import render_daily_summary_email
 from app.services.email_service import EmailService
+from app.services.rfi_deadline_service import check_rfi_deadlines
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -115,4 +117,78 @@ async def trigger_daily_summary(
         "skipped": skipped_count,
         "errors": error_count,
         "results": results,
+    }
+
+
+@router.post("/rfi-deadline-check")
+async def trigger_rfi_deadline_check(
+    db: AsyncSession = Depends(get_db),
+    x_scheduler_secret: str = Header(alias="X-Scheduler-Secret"),
+):
+    settings = get_settings()
+    if x_scheduler_secret != settings.scheduler_secret:
+        raise HTTPException(status_code=403, detail="Invalid scheduler secret")
+
+    notifications = await check_rfi_deadlines(db)
+
+    email_service = EmailService()
+    sent = 0
+    errors = 0
+
+    for notif in notifications:
+        if not notif.get("user_email"):
+            continue
+        try:
+            email_service.send_notification(
+                to_email=notif["user_email"],
+                subject=notif["email_subject"],
+                body_html=notif["email_html"],
+            )
+            sent += 1
+        except Exception as e:
+            logger.error(f"Failed to send RFI deadline email to {notif['user_email']}: {e}")
+            errors += 1
+
+    return {
+        "total_alerts": len(notifications),
+        "emails_sent": sent,
+        "emails_errors": errors,
+        "notifications": notifications,
+    }
+
+
+@router.post("/approval-reminder-check")
+async def trigger_approval_reminder_check(
+    db: AsyncSession = Depends(get_db),
+    x_scheduler_secret: str = Header(alias="X-Scheduler-Secret"),
+):
+    settings = get_settings()
+    if x_scheduler_secret != settings.scheduler_secret:
+        raise HTTPException(status_code=403, detail="Invalid scheduler secret")
+
+    notifications = await check_approval_deadlines(db)
+
+    email_service = EmailService()
+    sent = 0
+    errors = 0
+
+    for notif in notifications:
+        if not notif.get("user_email"):
+            continue
+        try:
+            email_service.send_notification(
+                to_email=notif["user_email"],
+                subject=notif["email_subject"],
+                body_html=notif["email_html"],
+            )
+            sent += 1
+        except Exception as e:
+            logger.error(f"Failed to send approval reminder email to {notif['user_email']}: {e}")
+            errors += 1
+
+    return {
+        "total_alerts": len(notifications),
+        "emails_sent": sent,
+        "emails_errors": errors,
+        "notifications": notifications,
     }

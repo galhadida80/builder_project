@@ -2,7 +2,7 @@ from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
-from sqlalchemy import and_, func, select
+from sqlalchemy import and_, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -47,6 +47,7 @@ async def list_all_materials(
 async def list_materials(
     project_id: UUID,
     status: Optional[str] = Query(None),
+    search: Optional[str] = Query(None),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
@@ -57,6 +58,18 @@ async def list_materials(
     base_filter = Material.project_id == project_id
     if status:
         base_filter = and_(base_filter, Material.status == status)
+    if search:
+        search_filter = f"%{search}%"
+        base_filter = and_(
+            base_filter,
+            or_(
+                Material.name.ilike(search_filter),
+                Material.material_type.ilike(search_filter),
+                Material.manufacturer.ilike(search_filter),
+                Material.model_number.ilike(search_filter),
+                Material.storage_location.ilike(search_filter),
+            ),
+        )
 
     count_result = await db.execute(
         select(func.count()).select_from(Material).where(base_filter)

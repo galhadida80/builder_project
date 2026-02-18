@@ -6,6 +6,7 @@ import { EmptyState } from '../components/ui/EmptyState'
 
 import type { Inspection } from '../types'
 import { inspectionsApi } from '../api/inspections'
+import { getDateLocale } from '../utils/dateLocale'
 import { useProject } from '../contexts/ProjectContext'
 import { CheckCircleIcon, CameraAltIcon, ReportProblemIcon, LocationOnIcon, AccessTimeIcon, AssignmentIcon, SignalWifiOffIcon } from '@/icons'
 import { Box, Typography, Skeleton, Chip, List, ListItem, ListItemText } from '@/mui'
@@ -78,7 +79,7 @@ export default function InspectorDashboard() {
 
   const formatTime = (dateString: string) => {
     const date = new Date(dateString)
-    return date.toLocaleTimeString('en-US', {
+    return date.toLocaleTimeString(getDateLocale(), {
       hour: 'numeric',
       minute: '2-digit',
       hour12: true,
@@ -174,7 +175,7 @@ export default function InspectorDashboard() {
             )}
           </Box>
           <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
-            {new Date().toLocaleDateString('en-US', {
+            {new Date().toLocaleDateString(getDateLocale(), {
               weekday: 'long',
               month: 'long',
               day: 'numeric',

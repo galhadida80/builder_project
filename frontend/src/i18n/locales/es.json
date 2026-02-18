@@ -311,7 +311,13 @@
     "typeOther": "Otro",
     "dateRequired": "La fecha es obligatoria",
     "startTimeRequired": "La hora de inicio es obligatoria",
-    "closeMeetingDetails": "Cerrar detalles de reunión"
+    "closeMeetingDetails": "Cerrar detalles de reunión",
+    "calendar": {
+      "addToCalendar": "Agregar al Calendario",
+      "google": "Agregar a Google Calendar",
+      "outlook": "Agregar a Outlook",
+      "downloadIcs": "Descargar archivo .ics"
+    }
   },
   "validation": {
     "checkFields": "Por favor corrige los errores destacados",
@@ -473,7 +479,8 @@
     "defects": "Defectos",
     "tasks": "Tareas",
     "budget": "Presupuesto",
-    "organizations": "Organizaciones"
+    "organizations": "Organizaciones",
+    "reports": "Informes"
   },
   "mobileNav": {
     "dashboard": "Panel",
@@ -1120,7 +1127,13 @@
     "collapseFolder": "Contraer carpeta"
   },
   "notifications": {
-    "closePanel": "Cerrar panel de notificaciones"
+    "closePanel": "Cerrar panel de notificaciones",
+    "push": {
+      "title": "Notificaciones Push",
+      "notSupported": "Las notificaciones push no son compatibles con este navegador",
+      "enabledDescription": "Recibirás notificaciones push para actualizaciones",
+      "disabledDescription": "Activa para recibir notificaciones push del navegador"
+    }
   },
   "consultants": {
     "editAssignment": "Editar asignación",
@@ -1223,7 +1236,23 @@
     },
     "ctaTitle": "¿Listo para Transformar tu Gestión de Construcción?",
     "ctaSubtitle": "Únete a miles de equipos de construcción que ya construyen de manera más inteligente con BuilderOps.",
-    "allRightsReserved": "Todos los derechos reservados."
+    "allRightsReserved": "Todos los derechos reservados.",
+    "mobilePreview": {
+      "title": "Lleva BuilderOps al Campo",
+      "subtitle": "Accede a los datos de tu proyecto, envía inspecciones y gestiona aprobaciones directamente desde tu teléfono. Mantente conectado con tu equipo dondequiera que te lleve el trabajo."
+    },
+    "testimonials": {
+      "sectionTitle": "Lo Que Dicen los Líderes de la Construcción",
+      "quote1": "BuilderOps transformó la forma en que gestionamos las inspecciones en nuestros 12 sitios activos. Solo el seguimiento en tiempo real nos ahorró 15 horas por semana.",
+      "name1": "David Chen",
+      "role1": "VP de Operaciones, Meridian Builders",
+      "quote2": "Redujimos nuestro tiempo de ciclo de aprobación en un 60%. La automatización de flujos es exactamente lo que nuestro equipo necesitaba para cumplir con el cronograma.",
+      "name2": "Sarah Thompson",
+      "role2": "Directora de Proyectos, Atlas Construction Group",
+      "quote3": "El sistema de gestión de inspecciones nos da visibilidad completa. Nuestra tasa de cumplimiento pasó del 82% al 97% en solo tres meses.",
+      "name3": "Michael Rodríguez",
+      "role3": "Gerente de Calidad, Summit Infrastructure"
+    }
   },
   "analytics": {
     "title": "Panel de Analíticas",
@@ -1568,6 +1597,66 @@
       "rejected": "Rechazado"
     }
   },
+  "onboarding": {
+    "stepOf": "Paso {{current}} de {{total}}",
+    "skip": "Omitir",
+    "finish": "Finalizar",
+    "steps": {
+      "sidebar": {
+        "title": "Barra de Navegación",
+        "content": "Usa la barra lateral para navegar entre las diferentes secciones de la plataforma. Accede a tu panel, proyectos y más."
+      },
+      "projects": {
+        "title": "Proyectos",
+        "content": "Ve y gestiona todos tus proyectos de construcción. Haz clic aquí para ver tu lista de proyectos y crear nuevos."
+      },
+      "equipment": {
+        "title": "Gestión de Equipos",
+        "content": "Rastrea todo el equipo del proyecto, gestiona envíos de aprobación y sube documentos requeridos."
+      },
+      "materials": {
+        "title": "Seguimiento de Materiales",
+        "content": "Gestiona el inventario de materiales, rastrea entregas y envía materiales para aprobación."
+      },
+      "approvals": {
+        "title": "Flujos de Aprobación",
+        "content": "Revisa y procesa solicitudes de aprobación para equipos, materiales y otros elementos."
+      },
+      "chat": {
+        "title": "Asistente IA",
+        "content": "Chatea con el asistente de IA para obtener información rápida sobre los datos de tu proyecto y realizar acciones."
+      }
+    }
+  },
+  "error": {
+    "title": "Algo salió mal",
+    "message": "Ocurrió un error inesperado. Por favor, intenta recargar la página.",
+    "reload": "Recargar Página"
+  },
+  "offline": {
+    "youAreOffline": "Estas sin conexion",
+    "changesWillSync": "Los cambios se sincronizaran cuando se restablezca la conexion.",
+    "syncing": "Sincronizando cambios...",
+    "syncComplete": "{{count}} cambio(s) sincronizado(s) exitosamente.",
+    "syncPartial": "{{success}} sincronizados, {{failed}} fallaron. Se reintentara mas tarde."
+  },
+  "annotations": {
+    "title": "Anotar Foto",
+    "pen": "Lapiz",
+    "arrow": "Flecha",
+    "rectangle": "Rectangulo",
+    "circle": "Circulo",
+    "text": "Texto",
+    "color": "Color",
+    "strokeWidth": "Grosor de linea",
+    "undo": "Deshacer",
+    "redo": "Rehacer",
+    "clear": "Limpiar",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "annotate": "Anotar",
+    "textPrompt": "Ingrese texto de anotacion"
+  },
   "organizations": {
     "pageTitle": "Organizaciones",
     "pageSubtitle": "Gestiona tus organizaciones",
@@ -1593,6 +1682,124 @@
     "roles": {
       "org_admin": "Administrador",
       "org_member": "Miembro"
+    }
+  },
+  "websocket": {
+    "connected": "Conectado",
+    "disconnected": "Desconectado"
+  },
+  "discussions": {
+    "title": "Discusion",
+    "noComments": "Sin comentarios aun. Se el primero en iniciar la discusion.",
+    "placeholder": "Escribe un comentario...",
+    "send": "Enviar comentario",
+    "reply": "Responder",
+    "replyingTo": "Respondiendo al comentario",
+    "failedToLoad": "Error al cargar las discusiones",
+    "failedToCreate": "Error al publicar el comentario",
+    "edited": "editado"
+  },
+  "reports": {
+    "title": "Informes",
+    "subtitle": "Generar y exportar informes del proyecto",
+    "reportType": "Tipo de Informe",
+    "inspectionSummary": "Resumen de Inspecciones",
+    "approvalStatus": "Estado de Aprobaciones",
+    "rfiAging": "Antigüedad de RFI",
+    "dateFrom": "Desde",
+    "dateTo": "Hasta",
+    "generate": "Generar",
+    "exportCsv": "Exportar CSV",
+    "dateRangeRequired": "Seleccione un rango de fechas",
+    "failedToGenerate": "Error al generar el informe",
+    "noReportGenerated": "No se ha generado ningún informe",
+    "selectAndGenerate": "Seleccione un tipo de informe y haga clic en Generar",
+    "totalInspections": "Total de Inspecciones",
+    "totalFindings": "Total de Hallazgos",
+    "finding": "Hallazgo",
+    "severity": "Severidad",
+    "status": "Estado",
+    "location": "Ubicación",
+    "equipmentSubmissions": "Envíos de Equipos",
+    "materialSubmissions": "Envíos de Materiales",
+    "name": "Nombre",
+    "type": "Tipo",
+    "createdAt": "Creado el",
+    "totalOpenRfis": "Total de RFIs Abiertos",
+    "avgAge": "Edad Promedio",
+    "days": "días",
+    "rfiNumber": "RFI #",
+    "subject": "Asunto",
+    "priority": "Prioridad",
+    "ageDays": "Edad (Días)"
+  },
+  "help": {
+    "title": "Ayuda",
+    "searchPlaceholder": "Buscar temas de ayuda...",
+    "noResults": "No se encontraron temas de ayuda",
+    "groups": {
+      "gettingStarted": "Primeros Pasos",
+      "equipment": "Equipos",
+      "materials": "Materiales",
+      "inspections": "Inspecciones",
+      "rfis": "RFIs",
+      "approvals": "Aprobaciones"
+    },
+    "items": {
+      "createProject": {
+        "title": "Crear un Proyecto",
+        "description": "Crea un nuevo proyecto navegando a la pagina de Proyectos y haciendo clic en Agregar Proyecto. Completa nombre, codigo y fechas."
+      },
+      "inviteTeam": {
+        "title": "Invitar Miembros del Equipo",
+        "description": "Ve a la configuracion del proyecto para invitar miembros del equipo por correo. Asigna roles como admin, supervisor o contratista."
+      },
+      "addEquipment": {
+        "title": "Agregar Equipo",
+        "description": "Agrega equipo desde plantillas o manualmente. Completa tipo, fabricante, modelo y numero de serie."
+      },
+      "equipmentApproval": {
+        "title": "Proceso de Aprobacion de Equipos",
+        "description": "Envia equipos para aprobacion despues de subir los documentos requeridos. Los consultores revisaran y aprobaran o solicitaran revisiones."
+      },
+      "addMaterial": {
+        "title": "Agregar Materiales",
+        "description": "Agrega materiales con cantidad, unidad y detalles del proveedor. Usa plantillas para tipos comunes."
+      },
+      "materialApproval": {
+        "title": "Proceso de Aprobacion de Materiales",
+        "description": "Envia materiales para aprobacion similar a equipos. Rastrea el estado de aprobacion a traves de los pasos del flujo."
+      },
+      "scheduleInspection": {
+        "title": "Programar Inspecciones",
+        "description": "Programa inspecciones seleccionando un tipo de consultor y fecha. Asigna inspectores de tu lista de contactos."
+      },
+      "checklists": {
+        "title": "Usar Listas de Verificacion",
+        "description": "Crea instancias de listas de verificacion desde plantillas. Completalas en campo y marca items como aprobados, rechazados o N/A."
+      },
+      "createRfi": {
+        "title": "Crear un RFI",
+        "description": "Crea una Solicitud de Informacion con asunto, pregunta y destinatario. Agrega correos CC y adjuntos segun sea necesario."
+      },
+      "respondRfi": {
+        "title": "Responder RFIs",
+        "description": "Ve los detalles del RFI y agrega respuestas en el hilo de conversacion. Cierra el RFI cuando la pregunta este resuelta."
+      },
+      "reviewApproval": {
+        "title": "Revisar Aprobaciones",
+        "description": "Revisa la pagina de Aprobaciones para solicitudes pendientes. Revisa detalles y aprueba o rechaza con comentarios."
+      },
+      "approvalWorkflow": {
+        "title": "Entender Flujos de Aprobacion",
+        "description": "Las aprobaciones siguen un flujo de varios pasos con revision de consultor y aprobacion de inspector. Rastrea el progreso en el stepper."
+      }
+    },
+    "tooltips": {
+      "equipmentForm": "Completa los detalles del equipo. Usa una plantilla para especificaciones y documentos predefinidos.",
+      "materialForm": "Agrega detalles del material incluyendo cantidad y proveedor. Las plantillas proporcionan especificaciones estandar.",
+      "rfiForm": "Crea una Solicitud de Informacion. El destinatario sera notificado por correo.",
+      "inspectionForm": "Selecciona un tipo de consultor y fecha programada. El inspector asignado sera notificado."
     }
   }
 }

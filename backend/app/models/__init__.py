@@ -16,6 +16,7 @@ from app.models.checklist import (
 from app.models.contact import Contact
 from app.models.contact_group import ContactGroup, ContactGroupMember
 from app.models.defect import Defect, DefectAssignee
+from app.models.discussion import Discussion
 from app.models.document_analysis import DocumentAnalysis
 from app.models.document_review import DocumentComment, DocumentReview, ReviewStatus
 from app.models.equipment import Equipment, EquipmentChecklist
@@ -46,6 +47,7 @@ from app.models.analytics import CustomKpiDefinition
 from app.models.budget import BudgetLineItem, ChangeOrder, CostEntry
 from app.models.organization import Organization, OrganizationMember
 from app.models.task import Task, TaskDependency
+from app.models.push_subscription import PushSubscription
 from app.models.webauthn_credential import WebAuthnCredential
 
 __all__ = [
@@ -113,4 +115,6 @@ __all__ = [
     "Organization",
     "OrganizationMember",
     "CustomKpiDefinition",
+    "PushSubscription",
+    "Discussion",
 ]

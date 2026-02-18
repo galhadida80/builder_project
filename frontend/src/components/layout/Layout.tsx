@@ -9,6 +9,8 @@ import { RouteProgressBar } from '../common/RouteProgressBar'
 import { useAuth } from '../../contexts/AuthContext'
 import { useProject } from '../../contexts/ProjectContext'
 import { useRouteProgress } from '../../hooks/useRouteProgress'
+import OnboardingTour from '../onboarding/OnboardingTour'
+import { useOnboarding } from '../../hooks/useOnboarding'
 import { SmartToyIcon } from '@/icons'
 import { Box, Toolbar, CircularProgress, Fab, useMediaQuery } from '@/mui'
 import { useTheme } from '@/mui'
@@ -22,6 +24,7 @@ export default function Layout() {
   const { isLoading, progress } = useRouteProgress()
   const [chatOpen, setChatOpen] = useState(false)
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false)
+  const { showTour, completeTour } = useOnboarding()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
 
@@ -95,9 +98,12 @@ export default function Layout() {
         <MobileBottomNav projectId={projectId} onMenuOpen={handleDrawerToggle} />
       )}
 
+      <OnboardingTour open={showTour && !isMobile} onComplete={completeTour} />
+
       {projectId && (
         <>
           <Fab
+            data-tour="chat"
             color="primary"
             aria-label={t('common.openAIChat')}
             onClick={handleChatOpen}

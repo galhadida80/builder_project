@@ -78,10 +78,14 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers['X-Content-Type-Options'] = 'nosniff'
         response.headers['X-Frame-Options'] = 'DENY'
         response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+        # CSP requires 'unsafe-inline' and 'unsafe-eval' in script-src because the
+        # Autodesk Forge viewer SDK (loaded from cdn.jsdelivr.net) uses inline scripts
+        # and eval() for 3D rendering. This is the strictest policy possible given
+        # that dependency. If Forge viewer is removed, tighten to just 'self'.
         response.headers['Content-Security-Policy'] = (
             "default-src 'self'; "
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval'; "
-            "style-src 'self' 'unsafe-inline'; "
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; "
+            "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
             "img-src 'self' data: https:; "
             "font-src 'self' data:; "
             "connect-src 'self' https:; "

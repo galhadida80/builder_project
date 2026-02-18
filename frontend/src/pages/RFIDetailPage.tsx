@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { getDateLocale } from '../utils/dateLocale'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { StatusBadge } from '../components/ui/StatusBadge'
@@ -140,12 +141,12 @@ export default function RFIDetailPage() {
 
   const formatDate = (date?: string) => {
     if (!date) return '-'
-    return new Date(date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+    return new Date(date).toLocaleDateString(getDateLocale(), { month: 'short', day: 'numeric', year: 'numeric' })
   }
 
   const formatFullDate = (date?: string) => {
     if (!date) return '-'
-    return new Date(date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+    return new Date(date).toLocaleDateString(getDateLocale(), { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })
   }
 
   const getInitials = (name?: string, email?: string) => {

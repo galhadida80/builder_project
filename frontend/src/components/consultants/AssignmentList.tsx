@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { getDateLocale } from '../../utils/dateLocale'
 import { DataTable, Column } from '../ui/DataTable'
 import type { ConsultantAssignment } from '../../types/consultantAssignment'
 import { EditIcon, DeleteIcon, PersonIcon } from '@/icons'
@@ -28,7 +29,7 @@ const getStatusColor = (status: string): 'default' | 'primary' | 'success' | 'wa
 }
 
 const formatDate = (dateString: string): string => {
-  return new Date(dateString).toLocaleDateString('en-US', {
+  return new Date(dateString).toLocaleDateString(getDateLocale(), {
     month: 'short',
     day: 'numeric',
     year: 'numeric'

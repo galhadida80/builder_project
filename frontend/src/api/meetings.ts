@@ -66,4 +66,13 @@ export const meetingsApi = {
     const response = await apiClient.put(`/projects/${projectId}/meetings/${meetingId}/attendees/${userId}/confirm`)
     return response.data
   },
+
+  getCalendarLinks: async (projectId: string, meetingId: string): Promise<{ google_url: string; outlook_url: string; ics_download_url: string }> => {
+    const response = await apiClient.get(`/projects/${projectId}/meetings/${meetingId}/calendar-links`)
+    return response.data
+  },
+
+  getIcalUrl: (projectId: string, meetingId: string): string => {
+    return `/api/v1/projects/${projectId}/meetings/${meetingId}/ical`
+  },
 }

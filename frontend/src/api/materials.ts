@@ -29,13 +29,15 @@ interface MaterialUpdate {
 }
 
 export const materialsApi = {
-  list: async (projectId?: string, filters?: { status?: string }): Promise<Material[]> => {
+  list: async (projectId?: string, filters?: { status?: string; search?: string }): Promise<Material[]> => {
     const url = projectId ? `/projects/${projectId}/materials` : '/materials'
     const params = new URLSearchParams()
     if (filters?.status) params.set('status', filters.status)
+    if (filters?.search) params.set('search', filters.search)
     const qs = params.toString()
     const response = await apiClient.get(`${url}${qs ? `?${qs}` : ''}`)
-    return response.data
+    const data = response.data
+    return Array.isArray(data) ? data : data.items ?? []
   },
 
   get: async (projectId: string, id: string): Promise<Material> => {

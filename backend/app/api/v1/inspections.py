@@ -2,7 +2,8 @@ from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.responses import Response
 from sqlalchemy import case, func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -14,7 +15,7 @@ from app.db.session import get_db
 from app.models.audit import AuditAction, AuditLog
 from app.models.inspection import Finding, Inspection, InspectionStage, InspectionStatus
 from app.models.inspection_template import InspectionConsultantType
-from app.models.project import ProjectMember
+from app.models.project import Project, ProjectMember
 from app.models.user import User
 from app.schemas.audit import AuditLogResponse
 from app.schemas.inspection import (
@@ -31,6 +32,7 @@ from app.schemas.inspection import (
     InspectionUpdate,
 )
 from app.services.audit_service import create_audit_log, get_model_dict
+from app.services.inspection_report_service import generate_inspections_report_pdf
 
 router = APIRouter()
 
@@ -239,6 +241,47 @@ async def list_pending_inspections(
         .order_by(Inspection.scheduled_date.desc())
     )
     return result.scalars().all()
+
+
+@router.get("/projects/{project_id}/inspections/export-pdf")
+async def export_inspections_pdf(
+    project_id: UUID,
+    inspection_id: Optional[UUID] = Query(None),
+    status: Optional[str] = Query(None),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Export inspections as PDF report. Optionally filter by inspection_id or status."""
+    await verify_project_access(project_id, current_user, db)
+    project = await db.get(Project, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    query = (
+        select(Inspection)
+        .options(
+            selectinload(Inspection.created_by),
+            selectinload(Inspection.consultant_type),
+            selectinload(Inspection.findings),
+        )
+        .where(Inspection.project_id == project_id)
+    )
+    if inspection_id:
+        query = query.where(Inspection.id == inspection_id)
+    if status:
+        query = query.where(Inspection.status == status)
+    query = query.order_by(Inspection.scheduled_date.desc())
+
+    result = await db.execute(query)
+    inspections = list(result.scalars().all())
+
+    pdf_bytes = generate_inspections_report_pdf(inspections, project)
+    filename = f"inspections_report_{project.code}_{datetime.utcnow().strftime('%Y%m%d')}.pdf"
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
 
 
 @router.get("/projects/{project_id}/inspections/{inspection_id}", response_model=InspectionResponse)

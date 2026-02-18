@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { getDateLocale } from '../utils/dateLocale'
 import { adminApi } from '../api/admin'
 import type { User } from '../types'
 import { AdminPanelSettingsIcon } from '@/icons'
@@ -95,7 +96,7 @@ export default function AdminUsersPage() {
                   />
                 </TableCell>
                 <TableCell>
-                  {new Date(user.createdAt).toLocaleDateString()}
+                  {new Date(user.createdAt).toLocaleDateString(getDateLocale())}
                 </TableCell>
               </TableRow>
             ))}

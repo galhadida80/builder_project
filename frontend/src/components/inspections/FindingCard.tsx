@@ -1,4 +1,5 @@
 import { Finding } from '../../types'
+import { getDateLocale } from '../../utils/dateLocale'
 import { SeverityBadge } from '../ui/StatusBadge'
 import { LocationOnIcon, CalendarTodayIcon, ImageIcon } from '@/icons'
 import { Card, CardContent, CardMedia, Box, Typography, Chip, styled } from '@/mui'
@@ -57,7 +58,7 @@ const InfoRow = styled(Box)(({ theme }) => ({
 
 export function FindingCard({ finding, onClick, hoverable = false }: FindingCardProps) {
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return new Date(dateString).toLocaleDateString(getDateLocale(), {
       year: 'numeric',
       month: 'short',
       day: 'numeric',

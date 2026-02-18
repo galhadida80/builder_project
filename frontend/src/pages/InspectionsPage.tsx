@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { getDateLocale } from '../utils/dateLocale'
 import { Card, KPICard } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { DataTable, Column } from '../components/ui/DataTable'
@@ -19,6 +20,7 @@ import { parseValidationErrors } from '../utils/apiErrors'
 import { validateInspectionForm, hasErrors, type ValidationError } from '../utils/validation'
 import { useToast } from '../components/common/ToastProvider'
 import { useReferenceData } from '../contexts/ReferenceDataContext'
+import HelpTooltip from '../components/help/HelpTooltip'
 import { AddIcon, CheckCircleIcon, WarningIcon, ErrorIcon, ScheduleIcon, AssignmentIcon, VisibilityIcon } from '@/icons'
 import { Box, Typography, Skeleton, Chip, Alert, MenuItem, TextField as MuiTextField } from '@/mui'
 
@@ -143,10 +145,10 @@ export default function InspectionsPage() {
       render: (row) => (
         <Box>
           <Typography variant="body2">
-            {new Date(row.scheduledDate).toLocaleDateString()}
+            {new Date(row.scheduledDate).toLocaleDateString(getDateLocale())}
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            {new Date(row.scheduledDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            {new Date(row.scheduledDate).toLocaleTimeString(getDateLocale(), { hour: '2-digit', minute: '2-digit' })}
           </Typography>
         </Box>
       ),
@@ -296,16 +298,19 @@ export default function InspectionsPage() {
 
   return (
     <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 }, maxWidth: '100%', overflow: 'hidden' }}>
-      <PageHeader
-        title={t('inspections.title')}
-        subtitle={t('inspections.subtitle')}
-        breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('nav.inspections') }]}
-        actions={
-          <Button variant="primary" icon={<AddIcon />} onClick={() => setDialogOpen(true)}>
-            {t('inspections.scheduleInspection')}
-          </Button>
-        }
-      />
+      <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+        <PageHeader
+          title={t('inspections.title')}
+          subtitle={t('inspections.subtitle')}
+          breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('nav.inspections') }]}
+          actions={
+            <Button variant="primary" icon={<AddIcon />} onClick={() => setDialogOpen(true)}>
+              {t('inspections.scheduleInspection')}
+            </Button>
+          }
+        />
+        <HelpTooltip helpKey="help.tooltips.inspectionForm" />
+      </Box>
 
       {summary && (
         <Box

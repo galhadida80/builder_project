@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { getDateLocale } from '../utils/dateLocale'
 import { PageHeader } from '../components/ui/Breadcrumbs'
 import { ConfirmModal } from '../components/ui/Modal'
 import { StatusBadge } from '../components/ui/StatusBadge'
@@ -244,7 +245,7 @@ export default function BIMPage() {
                   {model.fileSize ? formatFileSize(model.fileSize) : '—'}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  {new Date(model.createdAt).toLocaleDateString()}
+                  {new Date(model.createdAt).toLocaleDateString(getDateLocale())}
                 </Typography>
 
                 {canView(model) && selectedModel?.id !== model.id && (

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { getDateLocale } from '../utils/dateLocale'
 import { Card, KPICard } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { DataTable, Column } from '../components/ui/DataTable'
@@ -130,7 +131,7 @@ export default function BudgetPage() {
     { id: 'title', label: t('budget.coTitle', { defaultValue: 'Title' }), minWidth: 180 },
     { id: 'amount', label: t('budget.amount', { defaultValue: 'Amount' }), minWidth: 120, sortable: true, render: (r) => <Typography variant="body2" color={r.amount >= 0 ? 'success.main' : 'error.main'}>{fmt(r.amount)}</Typography> },
     { id: 'status', label: t('common.status', { defaultValue: 'Status' }), minWidth: 110, render: (r) => <Chip size="small" label={t(`budget.statuses.${r.status}`, { defaultValue: r.status })} color={CO_STATUS_COLORS[r.status] || 'default'} /> },
-    { id: 'requestedDate', label: t('budget.date', { defaultValue: 'Date' }), minWidth: 100, hideOnMobile: true, render: (r) => <Typography variant="body2">{r.requestedDate ? new Date(r.requestedDate).toLocaleDateString() : '-'}</Typography> },
+    { id: 'requestedDate', label: t('budget.date', { defaultValue: 'Date' }), minWidth: 100, hideOnMobile: true, render: (r) => <Typography variant="body2">{r.requestedDate ? new Date(r.requestedDate).toLocaleDateString(getDateLocale()) : '-'}</Typography> },
     { id: 'actions', label: '', minWidth: 90, align: 'right', render: (r) => (
       <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
         <IconButton size="small" onClick={(e) => { e.stopPropagation(); openEditCO(r) }}><EditIcon fontSize="small" /></IconButton>
@@ -194,7 +195,7 @@ export default function BudgetPage() {
                         <Box key={c.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 0.5, borderBottom: '1px solid', borderColor: 'divider' }}>
                           <Box>
                             <Typography variant="body2">{c.description || c.vendor || '-'}</Typography>
-                            <Typography variant="caption" color="text.secondary">{new Date(c.entryDate).toLocaleDateString()}{c.vendor ? ` - ${c.vendor}` : ''}</Typography>
+                            <Typography variant="caption" color="text.secondary">{new Date(c.entryDate).toLocaleDateString(getDateLocale())}{c.vendor ? ` - ${c.vendor}` : ''}</Typography>
                           </Box>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                             <Typography variant="body2" fontWeight={600}>{fmt(c.amount)}</Typography>

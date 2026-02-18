@@ -1,10 +1,12 @@
 import { useState } from 'react'
+import { getDateLocale } from '../../utils/dateLocale'
 import { useTranslation } from 'react-i18next'
 import { Card } from '../ui/Card'
 import { SeverityBadge } from '../ui/StatusBadge'
+import { PhotoAnnotator } from '../annotations/PhotoAnnotator'
 import type { Finding, FindingSeverity } from '../../types'
-import { LocationOnIcon, PersonIcon, AssignmentIndIcon, CheckCircleIcon, AddPhotoAlternateIcon, ImageIcon } from '@/icons'
-import { Box, Typography, IconButton, Grid, Button as MuiButton, Skeleton, styled } from '@/mui'
+import { LocationOnIcon, PersonIcon, AssignmentIndIcon, CheckCircleIcon, AddPhotoAlternateIcon, ImageIcon, EditIcon } from '@/icons'
+import { Box, Typography, IconButton, Grid, Button as MuiButton, Skeleton, styled, Dialog, DialogTitle, DialogContent, Tooltip } from '@/mui'
 
 interface FindingDocumentationCardProps {
   finding: Finding
@@ -72,6 +74,7 @@ export function FindingDocumentationCard({
   const { t } = useTranslation()
   const [editingLocation, setEditingLocation] = useState(false)
   const [locationValue, setLocationValue] = useState(finding.location || '')
+  const [annotatingPhoto, setAnnotatingPhoto] = useState<string | null>(null)
 
   if (loading) {
     return (
@@ -100,7 +103,7 @@ export function FindingDocumentationCard({
 
   const formatTimestamp = (dateString: string) => {
     const date = new Date(dateString)
-    return date.toLocaleString('en-US', {
+    return date.toLocaleString(getDateLocale(), {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
@@ -151,26 +154,50 @@ export function FindingDocumentationCard({
             <Grid container spacing={1.5}>
               {finding.photos.map((photo, index) => (
                 <Grid item xs={6} sm={4} key={index}>
-                  <PhotoThumbnail
-                    onClick={() => onPhotoClick?.(photo)}
-                    sx={{
-                      backgroundImage: `url(${photo})`,
-                    }}
-                  >
-                    {!photo && (
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          height: '100%',
-                          color: 'text.secondary',
-                        }}
-                      >
-                        <ImageIcon />
-                      </Box>
+                  <Box sx={{ position: 'relative' }}>
+                    <PhotoThumbnail
+                      onClick={() => onPhotoClick?.(photo)}
+                      sx={{
+                        backgroundImage: `url(${photo})`,
+                      }}
+                    >
+                      {!photo && (
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            height: '100%',
+                            color: 'text.secondary',
+                          }}
+                        >
+                          <ImageIcon />
+                        </Box>
+                      )}
+                    </PhotoThumbnail>
+                    {photo && (
+                      <Tooltip title={t('annotations.annotate')}>
+                        <IconButton
+                          size="small"
+                          aria-label={t('annotations.annotate')}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setAnnotatingPhoto(photo)
+                          }}
+                          sx={{
+                            position: 'absolute',
+                            top: 4,
+                            right: 4,
+                            bgcolor: 'rgba(0,0,0,0.6)',
+                            color: 'white',
+                            '&:hover': { bgcolor: 'rgba(0,0,0,0.8)' },
+                          }}
+                        >
+                          <EditIcon sx={{ fontSize: 16 }} />
+                        </IconButton>
+                      </Tooltip>
                     )}
-                  </PhotoThumbnail>
+                  </Box>
                 </Grid>
               ))}
             </Grid>
@@ -321,6 +348,25 @@ export function FindingDocumentationCard({
           </ActionButton>
         </Box>
       </Box>
+
+      <Dialog
+        open={annotatingPhoto !== null}
+        onClose={() => setAnnotatingPhoto(null)}
+        fullScreen
+      >
+        <DialogTitle>{t('annotations.title')}</DialogTitle>
+        <DialogContent sx={{ p: 0, display: 'flex', flexDirection: 'column' }}>
+          {annotatingPhoto && (
+            <PhotoAnnotator
+              imageUrl={annotatingPhoto}
+              onSave={() => {
+                setAnnotatingPhoto(null)
+              }}
+              onCancel={() => setAnnotatingPhoto(null)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </StyledCard>
   )
 }

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { getDateLocale } from '../utils/dateLocale'
 import { useAuth } from '../contexts/AuthContext'
 import { useToast } from '../components/common/ToastProvider'
 import { authApi, WebAuthnCredential } from '../api/auth'
@@ -246,7 +247,7 @@ export default function ProfilePage() {
                             {cred.deviceName}
                           </Typography>
                           <Typography variant="caption" color="text.secondary">
-                            {t('webauthn.registeredOn')}: {new Date(cred.createdAt).toLocaleDateString()}
+                            {t('webauthn.registeredOn')}: {new Date(cred.createdAt).toLocaleDateString(getDateLocale())}
                           </Typography>
                         </Box>
                         <IconButton

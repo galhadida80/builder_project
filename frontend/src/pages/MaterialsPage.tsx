@@ -18,10 +18,12 @@ import type { FileRecord } from '../api/files'
 import { validateMaterialForm, hasErrors, VALIDATION, type ValidationError } from '../utils/validation'
 import { parseValidationErrors } from '../utils/apiErrors'
 import { useToast } from '../components/common/ToastProvider'
+import { getDateLocale } from '../utils/dateLocale'
 import { useTranslation } from 'react-i18next'
 import TemplatePicker from '../components/ui/TemplatePicker'
 import KeyValueEditor, { type KeyValuePair } from '../components/ui/KeyValueEditor'
 import ContactSelectorDialog from '../components/ui/ContactSelectorDialog'
+import HelpTooltip from '../components/help/HelpTooltip'
 import { useReferenceData } from '../contexts/ReferenceDataContext'
 import { AddIcon, VisibilityIcon, EditIcon, DeleteIcon, CloseIcon, DescriptionIcon, SendIcon, InventoryIcon, CloudUploadIcon, DownloadIcon, CheckCircleIcon, PersonIcon, LocalShippingIcon, WarehouseIcon } from '@/icons'
 import { Box, Typography, Drawer, Divider, List, ListItem, ListItemText, ListItemIcon, MenuItem, TextField as MuiTextField, Skeleton, Chip, Checkbox, FormControlLabel, CircularProgress, IconButton } from '@/mui'
@@ -30,14 +32,9 @@ const UNIT_KEYS = ['ton', 'm3', 'm2', 'm', 'kg', 'unit', 'box', 'pallet', 'roll'
 
 export default function MaterialsPage() {
   const { projectId } = useParams()
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
 
-  const dateLocale = useMemo(() => {
-    const lang = i18n.language
-    if (lang === 'he') return 'he-IL'
-    if (lang === 'es') return 'es-ES'
-    return 'en-US'
-  }, [i18n.language])
+  const dateLocale = getDateLocale()
   const { showError, showSuccess } = useToast()
   const { materialTemplates } = useReferenceData()
   const [loading, setLoading] = useState(true)
@@ -443,16 +440,19 @@ export default function MaterialsPage() {
 
   return (
     <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 }, maxWidth: '100%', overflow: 'hidden' }}>
-      <PageHeader
-        title={t('materials.title')}
-        subtitle={t('materials.subtitle')}
-        breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('materials.title') }]}
-        actions={
-          <Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>
-            {t('materials.addMaterial')}
-          </Button>
-        }
-      />
+      <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+        <PageHeader
+          title={t('materials.title')}
+          subtitle={t('materials.subtitle')}
+          breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('materials.title') }]}
+          actions={
+            <Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>
+              {t('materials.addMaterial')}
+            </Button>
+          }
+        />
+        <HelpTooltip helpKey="help.tooltips.materialForm" />
+      </Box>
 
       <Box
         sx={{

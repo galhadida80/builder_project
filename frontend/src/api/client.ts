@@ -28,7 +28,8 @@ apiClient.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       const isAuthEndpoint = error.config?.url?.includes('/auth/')
-      if (!isAuthEndpoint) {
+      const isAlreadyOnLogin = window.location.pathname === '/login' || window.location.pathname === '/'
+      if (!isAuthEndpoint && !isAlreadyOnLogin) {
         localStorage.removeItem('authToken')
         window.location.href = '/login'
       }

@@ -15,7 +15,8 @@ import type { Meeting } from '../types'
 import { validateMeetingForm, hasErrors, type ValidationError } from '../utils/validation'
 import { useToast } from '../components/common/ToastProvider'
 import { parseValidationErrors } from '../utils/apiErrors'
-import { AddIcon, EditIcon, DeleteIcon, EventIcon, LocationOnIcon, AccessTimeIcon, CalendarMonthIcon, SyncIcon, CloseIcon } from '@/icons'
+import { getDateLocale } from '../utils/dateLocale'
+import { AddIcon, EditIcon, DeleteIcon, EventIcon, LocationOnIcon, AccessTimeIcon, CalendarMonthIcon, SyncIcon, CloseIcon, DownloadIcon } from '@/icons'
 import { Box, Typography, MenuItem, TextField as MuiTextField, Skeleton, Chip, IconButton, Drawer, Divider } from '@/mui'
 
 export default function MeetingsPage() {
@@ -66,6 +67,17 @@ export default function MeetingsPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const validateField = (field: string, value: string) => {
+    const testData = { ...formData, [field]: value }
+    const allErrors = validateMeetingForm({
+      title: testData.title,
+      description: testData.description,
+    })
+    if (field === 'date' && !testData.date) allErrors.date = t('meetings.dateRequired')
+    if (field === 'startTime' && !testData.startTime) allErrors.startTime = t('meetings.startTimeRequired')
+    setErrors(prev => ({ ...prev, [field]: allErrors[field] || null }))
   }
 
   const resetForm = () => {
@@ -182,16 +194,27 @@ export default function MeetingsPage() {
   }
 
   const formatTime = (dateString: string) => {
-    return new Date(dateString).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+    return new Date(dateString).toLocaleTimeString(getDateLocale(), { hour: '2-digit', minute: '2-digit' })
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
+    return new Date(dateString).toLocaleDateString(getDateLocale(), { weekday: 'long', month: 'long', day: 'numeric' })
   }
 
-  const handleMeetingClick = (meeting: Meeting) => {
+  const [calendarLinks, setCalendarLinks] = useState<{ google_url: string; outlook_url: string; ics_download_url: string } | null>(null)
+
+  const handleMeetingClick = async (meeting: Meeting) => {
     setSelectedMeeting(meeting)
     setDetailsOpen(true)
+    setCalendarLinks(null)
+    if (projectId) {
+      try {
+        const links = await meetingsApi.getCalendarLinks(projectId, meeting.id)
+        setCalendarLinks(links)
+      } catch {
+        // calendar links are optional, don't block the UI
+      }
+    }
   }
 
   const handleSyncCalendar = () => {
@@ -315,7 +338,7 @@ export default function MeetingsPage() {
                             {new Date(meeting.scheduledDate).getDate()}
                           </Typography>
                           <Typography variant="caption" sx={{ lineHeight: 1, fontSize: '0.6rem', textTransform: 'uppercase' }}>
-                            {new Date(meeting.scheduledDate).toLocaleDateString('en-US', { month: 'short' })}
+                            {new Date(meeting.scheduledDate).toLocaleDateString(getDateLocale(), { month: 'short' })}
                           </Typography>
                         </Box>
                         <Box sx={{ minWidth: 0 }}>
@@ -416,7 +439,7 @@ export default function MeetingsPage() {
                   {new Date(selectedMeeting.scheduledDate).getDate()}
                 </Typography>
                 <Typography variant="caption" sx={{ lineHeight: 1, textTransform: 'uppercase' }}>
-                  {new Date(selectedMeeting.scheduledDate).toLocaleDateString('en-US', { month: 'short' })}
+                  {new Date(selectedMeeting.scheduledDate).toLocaleDateString(getDateLocale(), { month: 'short' })}
                 </Typography>
               </Box>
               <Box>
@@ -478,6 +501,26 @@ export default function MeetingsPage() {
               </Box>
             </Box>
 
+            {calendarLinks && (
+              <>
+                <Divider sx={{ my: 2 }} />
+                <Box sx={{ mb: 3 }}>
+                  <Typography variant="caption" color="text.secondary" fontWeight={600}>{t('meetings.calendar.addToCalendar').toUpperCase()}</Typography>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mt: 1 }}>
+                    <Button variant="secondary" fullWidth icon={<CalendarMonthIcon />} onClick={() => window.open(calendarLinks.google_url, '_blank')}>
+                      {t('meetings.calendar.google')}
+                    </Button>
+                    <Button variant="secondary" fullWidth icon={<EventIcon />} onClick={() => window.open(calendarLinks.outlook_url, '_blank')}>
+                      {t('meetings.calendar.outlook')}
+                    </Button>
+                    <Button variant="secondary" fullWidth icon={<DownloadIcon />} onClick={() => window.open(calendarLinks.ics_download_url, '_blank')}>
+                      {t('meetings.calendar.downloadIcs')}
+                    </Button>
+                  </Box>
+                </Box>
+              </>
+            )}
+
             <Box sx={{ display: 'flex', gap: 2 }}>
               <Button variant="secondary" fullWidth onClick={() => handleOpenEdit(selectedMeeting)}>
                 {t('meetings.editMeeting')}
@@ -505,6 +548,7 @@ export default function MeetingsPage() {
             required
             value={formData.title}
             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+            onBlur={() => validateField('title', formData.title)}
             error={!!errors.title}
             helperText={errors.title}
           />
@@ -525,6 +569,7 @@ export default function MeetingsPage() {
             rows={2}
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            onBlur={() => validateField('description', formData.description)}
             error={!!errors.description}
             helperText={errors.description}
           />
@@ -533,6 +578,8 @@ export default function MeetingsPage() {
             label={t('meetings.location')}
             value={formData.location}
             onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+            error={!!errors.location}
+            helperText={errors.location}
           />
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr 1fr' }, gap: 2 }}>
             <TextField
@@ -543,6 +590,7 @@ export default function MeetingsPage() {
               required
               value={formData.date}
               onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+              onBlur={() => validateField('date', formData.date)}
               error={!!errors.date}
               helperText={errors.date}
             />
@@ -554,6 +602,7 @@ export default function MeetingsPage() {
               required
               value={formData.startTime}
               onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
+              onBlur={() => validateField('startTime', formData.startTime)}
               error={!!errors.startTime}
               helperText={errors.startTime}
             />

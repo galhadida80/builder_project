@@ -12,6 +12,7 @@ import {
   useTheme,
 } from '@/mui'
 import { useTranslation } from 'react-i18next'
+import { getDateLocale } from '../../utils/dateLocale'
 import { CheckCircleIcon, CancelIcon, ErrorIcon, HourglassEmptyIcon, RadioButtonUncheckedIcon } from '@/icons'
 import { styled } from '@/mui'
 
@@ -411,7 +412,7 @@ export function ApprovalWorkflowStepper({
                 (step.approverId ? `User ${step.approverId.slice(0, 8)}` : 'Unknown approver')
 
               const formattedDate = step.decidedAt
-                ? new Date(step.decidedAt).toLocaleString('en-US', {
+                ? new Date(step.decidedAt).toLocaleString(getDateLocale(), {
                     month: 'short',
                     day: 'numeric',
                     year: 'numeric',
@@ -562,7 +563,7 @@ function getStepDescription(step: ApprovalStepResponse): string {
     case 'approved':
       if (step.decidedAt) {
         try {
-          const date = new Date(step.decidedAt).toLocaleDateString()
+          const date = new Date(step.decidedAt).toLocaleDateString(getDateLocale())
           const approverName = getApproverName()
           return `Approved by ${approverName} on ${date}`
         } catch {
@@ -575,7 +576,7 @@ function getStepDescription(step: ApprovalStepResponse): string {
     case 'rejected':
       if (step.decidedAt) {
         try {
-          const date = new Date(step.decidedAt).toLocaleDateString()
+          const date = new Date(step.decidedAt).toLocaleDateString(getDateLocale())
           const approverName = getApproverName()
           return `Rejected by ${approverName} on ${date}`
         } catch {

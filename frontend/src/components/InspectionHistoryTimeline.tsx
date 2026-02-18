@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { getDateLocale } from '../utils/dateLocale'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Card } from './ui/Card'
@@ -80,7 +81,7 @@ export function InspectionHistoryTimeline({
   )
 
   const formatDate = (dateString: string): string => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return new Date(dateString).toLocaleDateString(getDateLocale(), {
       month: 'short',
       day: 'numeric',
       year: 'numeric',

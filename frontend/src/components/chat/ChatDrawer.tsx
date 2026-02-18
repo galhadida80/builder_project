@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback, memo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { getDateLocale } from '../../utils/dateLocale'
 import ChatMessage from './ChatMessage'
 import ChatInput from './ChatInput'
 import { chatApi } from '../../api/chat'
@@ -297,7 +298,7 @@ export default function ChatDrawer({ open, onClose, projectId }: ChatDrawerProps
                   >
                     <ListItemText
                       primary={conv.title || t('chat.untitledChat')}
-                      secondary={`${conv.messageCount} ${t('chat.messages')} · ${new Date(conv.updatedAt).toLocaleDateString()}`}
+                      secondary={`${conv.messageCount} ${t('chat.messages')} · ${new Date(conv.updatedAt).toLocaleDateString(getDateLocale())}`}
                       primaryTypographyProps={{ noWrap: true }}
                     />
                     <IconButton

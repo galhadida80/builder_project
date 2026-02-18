@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { getDateLocale } from '../utils/dateLocale'
 import { Card, KPICard } from '../components/ui/Card'
 import { DataTable, Column } from '../components/ui/DataTable'
 import { PageHeader } from '../components/ui/Breadcrumbs'
@@ -449,7 +450,7 @@ export default function ChecklistsPage() {
       minWidth: 110,
       render: (row) => (
         <Typography variant="body2" color="text.secondary">
-          {new Date(row.created_at).toLocaleDateString()}
+          {new Date(row.created_at).toLocaleDateString(getDateLocale())}
         </Typography>
       ),
     },

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { getDateLocale } from '../utils/dateLocale'
 import { useDropzone } from 'react-dropzone'
 import { Card, KPICard } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
@@ -17,6 +18,7 @@ import { contactsApi } from '../api/contacts'
 import { areasApi } from '../api/areas'
 import type { Defect, DefectSummary, Contact, ConstructionArea } from '../types'
 import { useToast } from '../components/common/ToastProvider'
+import { validateRequired, validateMinLength, type ValidationError, hasErrors } from '../utils/validation'
 import {
   AddIcon, ReportProblemIcon, CheckCircleIcon, WarningIcon, ErrorIcon,
   HourglassEmptyIcon, VisibilityIcon, PictureAsPdfIcon, CameraAltIcon,
@@ -90,12 +92,27 @@ export default function DefectsPage() {
   const [pendingPhotos, setPendingPhotos] = useState<File[]>([])
   const [photoPreviews, setPhotoPreviews] = useState<string[]>([])
 
+  const [formErrors, setFormErrors] = useState<ValidationError>({})
   const [form, setForm] = useState<DefectCreateData>({
     description: '',
     category: 'other',
     severity: 'medium',
     assignee_ids: [],
   })
+
+  const validateDefectForm = (data: DefectCreateData): ValidationError => {
+    const errors: ValidationError = {}
+    errors.description = validateRequired(data.description, t('defects.description'))
+      || validateMinLength(data.description, 2, t('defects.description'))
+    errors.category = validateRequired(data.category, t('defects.category'))
+    errors.severity = validateRequired(data.severity, t('defects.severity'))
+    return errors
+  }
+
+  const validateDefectField = (field: string) => {
+    const allErrors = validateDefectForm(form)
+    setFormErrors(prev => ({ ...prev, [field]: allErrors[field] || null }))
+  }
 
   const addPhotos = useCallback(async (files: File[]) => {
     const remaining = MAX_PHOTOS - pendingPhotos.length
@@ -157,6 +174,9 @@ export default function DefectsPage() {
 
   const handleCreate = async () => {
     if (!projectId) return
+    const errors = validateDefectForm(form)
+    setFormErrors(errors)
+    if (hasErrors(errors)) return
     setSubmitting(true)
     setUploadProgress(0)
     try {
@@ -184,6 +204,7 @@ export default function DefectsPage() {
       showSuccess(t('defects.createSuccess'))
       setDialogOpen(false)
       setForm({ description: '', category: 'other', severity: 'medium', assignee_ids: [] })
+      setFormErrors({})
       clearPhotos()
       loadData()
     } catch {
@@ -300,7 +321,7 @@ export default function DefectsPage() {
       hideOnMobile: true,
       render: (row) => (
         <Typography variant="body2">
-          {new Date(row.createdAt).toLocaleDateString()}
+          {new Date(row.createdAt).toLocaleDateString(getDateLocale())}
         </Typography>
       ),
     },
@@ -436,6 +457,7 @@ export default function DefectsPage() {
           if (submitting) return
           setDialogOpen(false)
           setForm({ description: '', category: 'other', severity: 'medium', assignee_ids: [] })
+          setFormErrors({})
           clearPhotos()
         }}
         onSubmit={handleCreate}
@@ -453,6 +475,9 @@ export default function DefectsPage() {
             rows={3}
             value={form.description}
             onChange={(e) => setForm({ ...form, description: e.target.value })}
+            onBlur={() => validateDefectField('description')}
+            error={!!formErrors.description}
+            helperText={formErrors.description}
             required
           />
 
@@ -462,6 +487,8 @@ export default function DefectsPage() {
             label={t('defects.category')}
             value={form.category}
             onChange={(e) => setForm({ ...form, category: e.target.value })}
+            error={!!formErrors.category}
+            helperText={formErrors.category}
             required
           >
             {CATEGORY_OPTIONS.map((cat) => (
@@ -477,6 +504,8 @@ export default function DefectsPage() {
             label={t('defects.severity')}
             value={form.severity}
             onChange={(e) => setForm({ ...form, severity: e.target.value })}
+            error={!!formErrors.severity}
+            helperText={formErrors.severity}
             required
           >
             {SEVERITY_OPTIONS.map((sev) => (

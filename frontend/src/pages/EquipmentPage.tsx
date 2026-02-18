@@ -22,6 +22,7 @@ import { useTranslation } from 'react-i18next'
 import TemplatePicker from '../components/ui/TemplatePicker'
 import KeyValueEditor, { type KeyValuePair } from '../components/ui/KeyValueEditor'
 import ContactSelectorDialog from '../components/ui/ContactSelectorDialog'
+import HelpTooltip from '../components/help/HelpTooltip'
 import { useReferenceData } from '../contexts/ReferenceDataContext'
 import { AddIcon, VisibilityIcon, EditIcon, DeleteIcon, CloseIcon, DescriptionIcon, SendIcon, BuildIcon, CloudUploadIcon, DownloadIcon, CheckCircleIcon, PersonIcon } from '@/icons'
 import { Box, Typography, Drawer, Divider, List, ListItem, ListItemText, ListItemIcon, MenuItem, TextField as MuiTextField, Skeleton, Chip, Checkbox, FormControlLabel, Alert, CircularProgress, IconButton } from '@/mui'
@@ -415,16 +416,19 @@ export default function EquipmentPage() {
 
   return (
     <Box sx={{ p: { xs: 1, sm: 1.5, md: 3 }, maxWidth: '100%', overflow: 'hidden' }}>
-      <PageHeader
-        title={t('equipment.title')}
-        subtitle={t('equipment.subtitle')}
-        breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('equipment.title') }]}
-        actions={
-          <Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>
-            {t('equipment.addEquipment')}
-          </Button>
-        }
-      />
+      <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+        <PageHeader
+          title={t('equipment.title')}
+          subtitle={t('equipment.subtitle')}
+          breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('equipment.title') }]}
+          actions={
+            <Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>
+              {t('equipment.addEquipment')}
+            </Button>
+          }
+        />
+        <HelpTooltip helpKey="help.tooltips.equipmentForm" />
+      </Box>
 
       <Card>
         <Box sx={{ p: 2.5 }}>

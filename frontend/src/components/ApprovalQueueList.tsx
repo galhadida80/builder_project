@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { getDateLocale } from '../utils/dateLocale'
 import { DataTable, Column } from './ui/DataTable'
 import { StatusBadge } from './ui/StatusBadge'
 import { Tabs } from './ui/Tabs'
@@ -94,26 +95,38 @@ export function ApprovalQueueList({ onViewDetails }: ApprovalQueueListProps) {
   }
 
   const handleSubmitAction = async () => {
-    if (!selectedApproval) return
+    if (!selectedApproval || !actionType) return
     setSubmitting(true)
+
+    const previousApprovals = [...approvals]
+    const newStatus = actionType === 'approve' ? 'approved' : 'rejected'
+
+    setApprovals(prev =>
+      prev.map(a =>
+        a.id === selectedApproval.id ? { ...a, currentStatus: newStatus } : a
+      )
+    )
+
+    setDialogOpen(false)
+    setSelectedApproval(null)
+    const savedActionType = actionType
+    setActionType(null)
+    setComment('')
+
     try {
-      if (actionType === 'approve') {
+      if (savedActionType === 'approve') {
         await approvalsApi.approve(selectedApproval.id, comment || undefined)
         showSuccess(t('approvalQueue.approvedSuccess'))
       } else {
         await approvalsApi.reject(selectedApproval.id, comment)
         showSuccess(t('approvalQueue.rejectedSuccess'))
       }
-      setDialogOpen(false)
-      setSelectedApproval(null)
-      setActionType(null)
-      setComment('')
-      loadData()
     } catch (err: any) {
+      setApprovals(previousApprovals)
       if (err?.response?.status === 403) {
         showError(t('approvalQueue.notAuthorized'))
       } else {
-        showError(t('approvalQueue.failedToAction', { action: actionType }))
+        showError(t('approvalQueue.failedToAction', { action: savedActionType }))
       }
     } finally {
       setSubmitting(false)
@@ -188,7 +201,7 @@ export function ApprovalQueueList({ onViewDetails }: ApprovalQueueListProps) {
       sortable: true,
       render: (row) => (
         <Box sx={{ fontSize: '0.875rem' }}>
-          {new Date(row.createdAt).toLocaleDateString()}
+          {new Date(row.createdAt).toLocaleDateString(getDateLocale())}
         </Box>
       ),
     },

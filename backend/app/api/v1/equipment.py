@@ -2,7 +2,7 @@ from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
-from sqlalchemy import and_, func, select
+from sqlalchemy import and_, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -54,6 +54,7 @@ async def list_all_equipment(
 async def list_equipment(
     project_id: UUID,
     status: Optional[str] = Query(None),
+    search: Optional[str] = Query(None),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
@@ -64,6 +65,18 @@ async def list_equipment(
     base_filter = Equipment.project_id == project_id
     if status:
         base_filter = and_(base_filter, Equipment.status == status)
+    if search:
+        search_filter = f"%{search}%"
+        base_filter = and_(
+            base_filter,
+            or_(
+                Equipment.name.ilike(search_filter),
+                Equipment.equipment_type.ilike(search_filter),
+                Equipment.manufacturer.ilike(search_filter),
+                Equipment.model_number.ilike(search_filter),
+                Equipment.serial_number.ilike(search_filter),
+            ),
+        )
 
     count_result = await db.execute(
         select(func.count(Equipment.id)).where(base_filter)

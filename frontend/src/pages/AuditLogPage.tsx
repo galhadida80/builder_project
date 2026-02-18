@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Card, KPICard } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
@@ -7,6 +7,7 @@ import { PageHeader } from '../components/ui/Breadcrumbs'
 import { SearchField } from '../components/ui/TextField'
 import { EmptyState } from '../components/ui/EmptyState'
 import { auditApi } from '../api/audit'
+import { getDateLocale } from '../utils/dateLocale'
 import { useToast } from '../components/common/ToastProvider'
 import type { AuditLog } from '../types'
 import { AddCircleIcon, EditIcon, DeleteIcon, CheckCircleIcon, CancelIcon, SwapHorizIcon, CloseIcon, HistoryIcon, FileDownloadIcon, ChevronRightIcon, ChevronLeftIcon } from '@/icons'
@@ -94,7 +95,7 @@ const isNullish = (val: unknown): boolean =>
 
 export default function AuditLogPage() {
   const { showError, showSuccess } = useToast()
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const isRtl = theme.direction === 'rtl'
@@ -107,11 +108,7 @@ export default function AuditLogPage() {
   const [detailsOpen, setDetailsOpen] = useState(false)
   const [page, setPage] = useState(1)
 
-  const dateLocale = useMemo(() => {
-    if (i18n.language === 'he') return 'he-IL'
-    if (i18n.language === 'es') return 'es-ES'
-    return 'en-US'
-  }, [i18n.language])
+  const dateLocale = getDateLocale()
 
   useEffect(() => {
     loadLogs()

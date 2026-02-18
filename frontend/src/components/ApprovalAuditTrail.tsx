@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { getDateLocale } from '../utils/dateLocale'
 import { Avatar } from './ui/Avatar'
 import { EmptyState } from './ui/EmptyState'
 import { CheckCircleIcon as ApprovedIcon, CancelIcon as RejectedIcon, HourglassBottomIcon as PendingIcon, CommentIcon, HistoryIcon } from '@/icons'
@@ -163,13 +164,13 @@ export function ApprovalAuditTrail({ actions, loading = false, sx }: ApprovalAud
                   sx={{ height: 24, fontWeight: 500 }}
                 />
                 <Typography variant="caption" color="text.secondary">
-                  {new Date(action.timestamp).toLocaleDateString('en-US', {
+                  {new Date(action.timestamp).toLocaleDateString(getDateLocale(), {
                     month: 'short',
                     day: 'numeric',
                     year: 'numeric',
                   })}
                   {' '}
-                  {new Date(action.timestamp).toLocaleTimeString('en-US', {
+                  {new Date(action.timestamp).toLocaleTimeString(getDateLocale(), {
                     hour: '2-digit',
                     minute: '2-digit',
                   })}

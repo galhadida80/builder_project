@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { getDateLocale } from '../utils/dateLocale'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { StatusBadge, SeverityBadge } from '../components/ui/StatusBadge'
@@ -238,10 +239,10 @@ export default function DefectDetailPage() {
             <InfoItem icon={<PersonIcon />} label={t('defects.reporter')} value={defect.reporter?.contactName || '-'} />
             <InfoItem icon={<PersonIcon />} label={t('defects.primaryAssignee')} value={defect.assignedContact?.contactName || '-'} />
             <InfoItem icon={<PersonIcon />} label={t('defects.followupPerson')} value={defect.followupContact?.contactName || '-'} />
-            <InfoItem icon={<ScheduleIcon />} label={t('defects.dueDate')} value={defect.dueDate ? new Date(defect.dueDate).toLocaleDateString() : '-'} />
-            <InfoItem icon={<ScheduleIcon />} label={t('defects.createdAt')} value={new Date(defect.createdAt).toLocaleDateString()} />
+            <InfoItem icon={<ScheduleIcon />} label={t('defects.dueDate')} value={defect.dueDate ? new Date(defect.dueDate).toLocaleDateString(getDateLocale()) : '-'} />
+            <InfoItem icon={<ScheduleIcon />} label={t('defects.createdAt')} value={new Date(defect.createdAt).toLocaleDateString(getDateLocale())} />
             {defect.resolvedAt && (
-              <InfoItem icon={<ScheduleIcon />} label={t('defects.resolvedAt')} value={new Date(defect.resolvedAt).toLocaleDateString()} />
+              <InfoItem icon={<ScheduleIcon />} label={t('defects.resolvedAt')} value={new Date(defect.resolvedAt).toLocaleDateString(getDateLocale())} />
             )}
           </Box>
         </Box>
@@ -372,7 +373,7 @@ export default function DefectDetailPage() {
                     {entry.user?.fullName || t('defects.system')} - {entry.action}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
-                    {new Date(entry.createdAt).toLocaleString()}
+                    {new Date(entry.createdAt).toLocaleString(getDateLocale())}
                   </Typography>
                 </Box>
               </Box>

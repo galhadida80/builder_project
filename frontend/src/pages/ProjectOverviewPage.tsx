@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Card } from '../components/ui/Card'
@@ -7,6 +7,7 @@ import { Tabs } from '../components/ui/Tabs'
 import { CircularProgressDisplay } from '../components/ui/ProgressBar'
 import { apiClient } from '../api/client'
 import { useToast } from '../components/common/ToastProvider'
+import { getDateLocale } from '../utils/dateLocale'
 import { Box, Typography, Skeleton, Grid } from '@/mui'
 import { useTheme, useMediaQuery } from '@/mui'
 
@@ -64,7 +65,7 @@ interface ProjectOverviewData {
 export default function ProjectOverviewPage() {
   const { projectId } = useParams<{ projectId: string }>()
   const navigate = useNavigate()
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const { showError } = useToast()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
@@ -72,12 +73,7 @@ export default function ProjectOverviewPage() {
   const [overviewData, setOverviewData] = useState<ProjectOverviewData | null>(null)
   const [activeTab, setActiveTab] = useState('summary')
 
-  const dateLocale = useMemo(() => {
-    const lang = i18n.language
-    if (lang === 'he') return 'he-IL'
-    if (lang === 'es') return 'es-ES'
-    return 'en-US'
-  }, [i18n.language])
+  const dateLocale = getDateLocale()
 
   useEffect(() => {
     loadOverviewData()

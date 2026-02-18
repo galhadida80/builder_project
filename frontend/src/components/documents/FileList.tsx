@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { getDateLocale } from '../../utils/dateLocale'
 import { DataTable, Column } from '../ui/DataTable'
 import type { FileRecord } from '../../types'
 import { formatFileSize } from '../../utils/fileUtils'
@@ -47,7 +48,7 @@ const getFileExtension = (filename: string): string => {
  */
 const formatDate = (dateString: string): string => {
   const date = new Date(dateString)
-  return date.toLocaleDateString('en-US', {
+  return date.toLocaleDateString(getDateLocale(), {
     month: 'short',
     day: 'numeric',
     year: 'numeric',

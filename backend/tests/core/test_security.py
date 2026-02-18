@@ -3,7 +3,6 @@
 import pytest
 from fastapi import HTTPException
 
-from app.core.csrf import CSRFTokenManager
 from app.core.validation import (
     detect_sql_injection_attempt,
     prevent_sql_injection,
@@ -168,51 +167,3 @@ class TestSQLInjectionDetection:
         assert prevent_sql_injection(normal) == normal
 
 
-class TestCSRFTokenManager:
-    """Test CSRF token generation and validation."""
-
-    def test_generate_token(self):
-        """Test token generation."""
-        manager = CSRFTokenManager()
-        token = manager.generate_token('user-123')
-        assert token is not None
-        assert len(token) > 0
-
-    def test_validate_token(self):
-        """Test token validation."""
-        manager = CSRFTokenManager()
-        user_id = 'user-123'
-        token = manager.generate_token(user_id)
-
-        assert manager.validate_token(token, user_id) is True
-
-    def test_validate_token_wrong_user(self):
-        """Test that token validation fails for different user."""
-        manager = CSRFTokenManager()
-        token = manager.generate_token('user-123')
-
-        assert manager.validate_token(token, 'user-456') is False
-
-    def test_validate_token_wrong_token(self):
-        """Test that invalid tokens are rejected."""
-        manager = CSRFTokenManager()
-        manager.generate_token('user-123')
-
-        assert manager.validate_token('invalid-token', 'user-123') is False
-
-    def test_consume_token(self):
-        """Test token consumption."""
-        manager = CSRFTokenManager()
-        user_id = 'user-123'
-        token = manager.generate_token(user_id)
-
-        assert manager.consume_token(token, user_id) is True
-        assert manager.validate_token(token, user_id) is False
-
-    def test_cleanup_expired_tokens(self):
-        """Test cleanup of expired tokens."""
-        manager = CSRFTokenManager(token_lifetime_hours=0)
-        token = manager.generate_token('user-123')
-
-        manager.cleanup_expired_tokens()
-        assert manager.validate_token(token, 'user-123') is False

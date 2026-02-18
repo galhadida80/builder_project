@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { getDateLocale } from '../../utils/dateLocale'
 import { Notification, NotificationCategory } from '../../types/notification'
 import { CheckCircleIcon, WarningIcon, UpdateIcon, InfoIcon, MoreVertIcon } from '@/icons'
 import { ListItem, ListItemAvatar, ListItemText, Box, Typography, IconButton, Avatar as MuiAvatar, styled } from '@/mui'
@@ -87,7 +88,7 @@ function getRelativeTime(timestamp: string): string {
   if (diffInHours < 24) return `${diffInHours}h ago`
   if (diffInDays < 7) return `${diffInDays}d ago`
   if (diffInDays < 30) return `${Math.floor(diffInDays / 7)}w ago`
-  return date.toLocaleDateString()
+  return date.toLocaleDateString(getDateLocale())
 }
 
 function getInitials(title: string): string {

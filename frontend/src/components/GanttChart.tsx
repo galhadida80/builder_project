@@ -1,6 +1,7 @@
 import { Gantt, Task, ViewMode } from 'gantt-task-react'
 import 'gantt-task-react/dist/index.css'
 import { useTranslation } from 'react-i18next'
+import { getDateLocale } from '../utils/dateLocale'
 import { GanttChartProps, GanttTask, GanttViewMode, GanttTaskType } from '../types/gantt'
 import { Button } from './ui/Button'
 import { EmptyState } from './ui/EmptyState'
@@ -587,11 +588,11 @@ export function GanttChart({
               </div>
               <div className="tooltip-row">
                 <span className="tooltip-label">{t('gantt.startLabel')}</span>
-                <span>{task.start.toLocaleDateString()}</span>
+                <span>{task.start.toLocaleDateString(getDateLocale())}</span>
               </div>
               <div className="tooltip-row">
                 <span className="tooltip-label">{t('gantt.endLabel')}</span>
-                <span>{task.end.toLocaleDateString()}</span>
+                <span>{task.end.toLocaleDateString(getDateLocale())}</span>
               </div>
             </StyledTooltip>
           )}

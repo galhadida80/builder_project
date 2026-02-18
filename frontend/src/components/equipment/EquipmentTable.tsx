@@ -1,4 +1,5 @@
 import { DataTable, Column } from '../ui/DataTable'
+import { getDateLocale } from '../../utils/dateLocale'
 import EquipmentStatusBadge from './EquipmentStatusBadge'
 import type { Equipment } from '../../types'
 import { LoadingError } from '../ui/EmptyState'
@@ -96,7 +97,7 @@ export default function EquipmentTable({
       sortable: true,
       render: (row) => (
         <Typography variant="body2" color="text.secondary">
-          {new Date(row.updatedAt).toLocaleDateString('en-US', {
+          {new Date(row.updatedAt).toLocaleDateString(getDateLocale(), {
             year: 'numeric',
             month: 'short',
             day: 'numeric',

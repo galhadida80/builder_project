@@ -2,14 +2,16 @@ from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import func, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import get_current_user
 from app.db.session import get_db
 from app.models.notification import Notification
+from app.models.push_subscription import PushSubscription
 from app.models.user import User
 from app.schemas.notification import NotificationResponse, UnreadCountResponse
+from app.schemas.push_subscription import PushSubscriptionCreate, PushSubscriptionResponse
 
 router = APIRouter()
 
@@ -85,3 +87,47 @@ async def mark_all_notifications_read(
 
     await db.commit()
     return {"message": f"Marked {len(notifications)} notifications as read"}
+
+
+@router.post("/push-subscribe", response_model=PushSubscriptionResponse)
+async def push_subscribe(
+    data: PushSubscriptionCreate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    result = await db.execute(
+        select(PushSubscription).where(
+            PushSubscription.user_id == current_user.id,
+            PushSubscription.endpoint == data.endpoint,
+        )
+    )
+    existing = result.scalar_one_or_none()
+    if existing:
+        return existing
+
+    subscription = PushSubscription(
+        user_id=current_user.id,
+        endpoint=data.endpoint,
+        p256dh_key=data.p256dh_key,
+        auth_key=data.auth_key,
+    )
+    db.add(subscription)
+    await db.commit()
+    await db.refresh(subscription)
+    return subscription
+
+
+@router.delete("/push-unsubscribe")
+async def push_unsubscribe(
+    endpoint: str = Query(..., description="Push subscription endpoint URL"),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    await db.execute(
+        delete(PushSubscription).where(
+            PushSubscription.user_id == current_user.id,
+            PushSubscription.endpoint == endpoint,
+        )
+    )
+    await db.commit()
+    return {"message": "Push subscription removed"}

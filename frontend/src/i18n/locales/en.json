@@ -315,7 +315,13 @@
     "typeOther": "Other",
     "dateRequired": "Date is required",
     "startTimeRequired": "Start time is required",
-    "closeMeetingDetails": "Close meeting details"
+    "closeMeetingDetails": "Close meeting details",
+    "calendar": {
+      "addToCalendar": "Add to Calendar",
+      "google": "Add to Google Calendar",
+      "outlook": "Add to Outlook",
+      "downloadIcs": "Download .ics File"
+    }
   },
   "validation": {
     "checkFields": "Please fix the highlighted errors",
@@ -477,7 +483,8 @@
     "defects": "Defects",
     "tasks": "Tasks",
     "budget": "Budget",
-    "organizations": "Organizations"
+    "organizations": "Organizations",
+    "reports": "Reports"
   },
   "mobileNav": {
     "dashboard": "Dashboard",
@@ -1149,7 +1156,13 @@
     "collapseFolder": "Collapse folder"
   },
   "notifications": {
-    "closePanel": "Close notifications panel"
+    "closePanel": "Close notifications panel",
+    "push": {
+      "title": "Push Notifications",
+      "notSupported": "Push notifications are not supported in this browser",
+      "enabledDescription": "You will receive push notifications for updates",
+      "disabledDescription": "Enable to receive browser push notifications"
+    }
   },
   "consultants": {
     "editAssignment": "Edit assignment",
@@ -1280,7 +1293,23 @@
     },
     "ctaTitle": "Ready to streamline your construction operations?",
     "ctaSubtitle": "Join 500+ construction teams already using BuilderOps to deliver projects on time.",
-    "allRightsReserved": "All rights reserved."
+    "allRightsReserved": "All rights reserved.",
+    "mobilePreview": {
+      "title": "Take BuilderOps to the Field",
+      "subtitle": "Access your project data, submit inspections, and manage approvals right from your phone. Stay connected with your team wherever the job takes you."
+    },
+    "testimonials": {
+      "sectionTitle": "What Construction Leaders Say",
+      "quote1": "BuilderOps transformed how we manage inspections across our 12 active sites. The real-time tracking alone saved us 15 hours per week.",
+      "name1": "David Chen",
+      "role1": "VP of Operations, Meridian Builders",
+      "quote2": "We reduced our approval cycle time by 60%. The workflow automation is exactly what our team needed to stay on schedule.",
+      "name2": "Sarah Thompson",
+      "role2": "Project Director, Atlas Construction Group",
+      "quote3": "The inspection management system gives us complete visibility. Our compliance rate went from 82% to 97% in just three months.",
+      "name3": "Michael Rodriguez",
+      "role3": "Quality Manager, Summit Infrastructure"
+    }
   },
   "analytics": {
     "title": "Analytics Dashboard",
@@ -1914,6 +1943,66 @@
       "rejected": "Rejected"
     }
   },
+  "onboarding": {
+    "stepOf": "Step {{current}} of {{total}}",
+    "skip": "Skip",
+    "finish": "Finish",
+    "steps": {
+      "sidebar": {
+        "title": "Navigation Sidebar",
+        "content": "Use the sidebar to navigate between different sections of the platform. Access your dashboard, projects, and more."
+      },
+      "projects": {
+        "title": "Projects",
+        "content": "View and manage all your construction projects. Click here to see your project list and create new ones."
+      },
+      "equipment": {
+        "title": "Equipment Management",
+        "content": "Track all project equipment, manage approval submissions, and upload required documents."
+      },
+      "materials": {
+        "title": "Materials Tracking",
+        "content": "Manage materials inventory, track deliveries, and submit materials for approval."
+      },
+      "approvals": {
+        "title": "Approval Workflows",
+        "content": "Review and process approval requests for equipment, materials, and other items."
+      },
+      "chat": {
+        "title": "AI Assistant",
+        "content": "Chat with the AI assistant to get quick insights about your project data and perform actions."
+      }
+    }
+  },
+  "error": {
+    "title": "Something went wrong",
+    "message": "An unexpected error occurred. Please try reloading the page.",
+    "reload": "Reload Page"
+  },
+  "offline": {
+    "youAreOffline": "You are offline",
+    "changesWillSync": "Changes will sync when connection is restored.",
+    "syncing": "Syncing offline changes...",
+    "syncComplete": "{{count}} change(s) synced successfully.",
+    "syncPartial": "{{success}} synced, {{failed}} failed. Will retry later."
+  },
+  "annotations": {
+    "title": "Annotate Photo",
+    "pen": "Pen",
+    "arrow": "Arrow",
+    "rectangle": "Rectangle",
+    "circle": "Circle",
+    "text": "Text",
+    "color": "Color",
+    "strokeWidth": "Stroke Width",
+    "undo": "Undo",
+    "redo": "Redo",
+    "clear": "Clear",
+    "save": "Save",
+    "cancel": "Cancel",
+    "annotate": "Annotate",
+    "textPrompt": "Enter text annotation"
+  },
   "organizations": {
     "pageTitle": "Organizations",
     "pageSubtitle": "Manage your organizations",
@@ -1939,6 +2028,124 @@
     "roles": {
       "org_admin": "Admin",
       "org_member": "Member"
+    }
+  },
+  "websocket": {
+    "connected": "Connected",
+    "disconnected": "Disconnected"
+  },
+  "discussions": {
+    "title": "Discussion",
+    "noComments": "No comments yet. Be the first to start the discussion.",
+    "placeholder": "Write a comment...",
+    "send": "Send comment",
+    "reply": "Reply",
+    "replyingTo": "Replying to comment",
+    "failedToLoad": "Failed to load discussions",
+    "failedToCreate": "Failed to post comment",
+    "edited": "edited"
+  },
+  "reports": {
+    "title": "Reports",
+    "subtitle": "Generate and export project reports",
+    "reportType": "Report Type",
+    "inspectionSummary": "Inspection Summary",
+    "approvalStatus": "Approval Status",
+    "rfiAging": "RFI Aging",
+    "dateFrom": "Date From",
+    "dateTo": "Date To",
+    "generate": "Generate",
+    "exportCsv": "Export CSV",
+    "dateRangeRequired": "Please select a date range",
+    "failedToGenerate": "Failed to generate report",
+    "noReportGenerated": "No report generated",
+    "selectAndGenerate": "Select a report type and click Generate",
+    "totalInspections": "Total Inspections",
+    "totalFindings": "Total Findings",
+    "finding": "Finding",
+    "severity": "Severity",
+    "status": "Status",
+    "location": "Location",
+    "equipmentSubmissions": "Equipment Submissions",
+    "materialSubmissions": "Material Submissions",
+    "name": "Name",
+    "type": "Type",
+    "createdAt": "Created At",
+    "totalOpenRfis": "Total Open RFIs",
+    "avgAge": "Avg Age",
+    "days": "days",
+    "rfiNumber": "RFI #",
+    "subject": "Subject",
+    "priority": "Priority",
+    "ageDays": "Age (Days)"
+  },
+  "help": {
+    "title": "Help",
+    "searchPlaceholder": "Search help topics...",
+    "noResults": "No help topics found",
+    "groups": {
+      "gettingStarted": "Getting Started",
+      "equipment": "Equipment",
+      "materials": "Materials",
+      "inspections": "Inspections",
+      "rfis": "RFIs",
+      "approvals": "Approvals"
+    },
+    "items": {
+      "createProject": {
+        "title": "Creating a Project",
+        "description": "Create a new project by navigating to the Projects page and clicking Add Project. Fill in the name, code, and dates."
+      },
+      "inviteTeam": {
+        "title": "Inviting Team Members",
+        "description": "Go to project settings to invite team members via email. Assign roles like admin, supervisor, or contractor."
+      },
+      "addEquipment": {
+        "title": "Adding Equipment",
+        "description": "Add equipment from templates or manually. Fill in the type, manufacturer, model, and serial number."
+      },
+      "equipmentApproval": {
+        "title": "Equipment Approval Process",
+        "description": "Submit equipment for approval after uploading required documents. Consultants will review and approve or request revisions."
+      },
+      "addMaterial": {
+        "title": "Adding Materials",
+        "description": "Add materials with quantity, unit, and supplier details. Use templates for common material types."
+      },
+      "materialApproval": {
+        "title": "Material Approval Process",
+        "description": "Submit materials for approval similar to equipment. Track approval status through the workflow steps."
+      },
+      "scheduleInspection": {
+        "title": "Scheduling Inspections",
+        "description": "Schedule inspections by selecting a consultant type and date. Assign inspectors from your contacts list."
+      },
+      "checklists": {
+        "title": "Using Checklists",
+        "description": "Create checklist instances from templates. Fill them out in the field and mark items as approved, rejected, or N/A."
+      },
+      "createRfi": {
+        "title": "Creating an RFI",
+        "description": "Create a Request for Information with a subject, question, and recipient. Add CC emails and attachments as needed."
+      },
+      "respondRfi": {
+        "title": "Responding to RFIs",
+        "description": "View RFI details and add responses in the conversation thread. Close the RFI when the question is resolved."
+      },
+      "reviewApproval": {
+        "title": "Reviewing Approvals",
+        "description": "Check the Approvals page for pending requests. Review details and approve or reject with comments."
+      },
+      "approvalWorkflow": {
+        "title": "Understanding Approval Workflows",
+        "description": "Approvals follow a multi-step workflow with consultant review and inspector approval. Track progress in the stepper."
+      }
+    },
+    "tooltips": {
+      "equipmentForm": "Fill in equipment details. Use a template for pre-filled specifications and documents.",
+      "materialForm": "Add material details including quantity and supplier. Templates provide standard specs.",
+      "rfiForm": "Create a Request for Information. The recipient will be notified via email.",
+      "inspectionForm": "Select a consultant type and schedule date. The assigned inspector will be notified."
     }
   }
 }

@@ -19,6 +19,7 @@ from app.api.v1 import (
     contacts,
     daily_summary,
     defects,
+    discussions,
     document_analysis,
     document_reviews,
     equipment,
@@ -32,10 +33,12 @@ from app.api.v1 import (
     notifications,
     organizations,
     projects,
+    reports,
     rfis,
     tasks_api,
     webhooks,
     workload,
+    ws,
 )
 
 api_router = APIRouter()
@@ -75,3 +78,6 @@ api_router.include_router(tasks_api.router, tags=["project_tasks"])
 api_router.include_router(budget.router, tags=["budget"])
 api_router.include_router(organizations.router, tags=["organizations"])
 api_router.include_router(analytics_bi.router, prefix="/analytics", tags=["analytics_bi"])
+api_router.include_router(ws.router, tags=["websocket"])
+api_router.include_router(discussions.router, tags=["discussions"])
+api_router.include_router(reports.router, tags=["reports"])

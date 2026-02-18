@@ -15,6 +15,12 @@ class MetricsResponse(BaseModel):
     approved_materials: int
     total_meetings: int
     approval_rate: float
+    total_rfis: int
+    open_rfis: int
+    closed_rfis: int
+    total_approvals: int
+    pending_approvals: int
+    approved_approvals: int
 
 
 class TrendDataPoint(BaseModel):
@@ -22,6 +28,10 @@ class TrendDataPoint(BaseModel):
     inspections: int
     equipment_submissions: int
     material_submissions: int
+    rfi_created: int = 0
+    rfi_closed: int = 0
+    approvals_submitted: int = 0
+    approvals_decided: int = 0
 
 
 class ProjectTrendsResponse(BaseModel):
@@ -38,6 +48,8 @@ class DistributionsResponse(BaseModel):
     equipment_status: list[DistributionItem]
     material_status: list[DistributionItem]
     project_status: list[DistributionItem]
+    rfi_status: list[DistributionItem]
+    approval_status: list[DistributionItem]
 
 
 class WeeklyActivityPoint(CamelCaseModel):
@@ -58,6 +70,7 @@ class DashboardStatsResponse(CamelCaseModel):
     equipment_distribution: list[DistributionItem]
     material_distribution: list[DistributionItem]
     rfi_distribution: list[DistributionItem]
+    approval_distribution: list[DistributionItem]
     findings_severity: list[DistributionItem]
     weekly_activity: list[WeeklyActivityPoint]
     area_progress_by_floor: list[FloorProgress]

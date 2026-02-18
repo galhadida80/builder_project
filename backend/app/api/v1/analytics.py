@@ -7,14 +7,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import get_current_user
 from app.db.session import get_db
+from app.models.approval import ApprovalRequest
 from app.models.area import ConstructionArea
 from app.models.audit import AuditLog
 from app.models.equipment import ApprovalStatus, Equipment
+from app.models.equipment_template import EquipmentApprovalSubmission
 from app.models.inspection import Finding, Inspection, InspectionStatus
 from app.models.material import Material
+from app.models.material_template import MaterialApprovalSubmission
 from app.models.meeting import Meeting
 from app.models.project import Project, ProjectMember, ProjectStatus
-from app.models.rfi import RFI
+from app.models.rfi import RFI, RFIStatus
 from app.models.user import User
 from app.schemas.analytics import (
     DashboardStatsResponse,
@@ -114,6 +117,34 @@ async def get_analytics_metrics(
     meeting_result = await db.execute(meeting_query)
     total_meetings = meeting_result.scalar() or 0
 
+    # Get RFI counts
+    rfi_query = select(
+        func.count().label('total'),
+        func.sum(case((RFI.status == RFIStatus.OPEN.value, 1), else_=0)).label('open'),
+        func.sum(case((RFI.status == RFIStatus.CLOSED.value, 1), else_=0)).label('closed')
+    ).where(RFI.project_id.in_(accessible_projects))
+    if date_filter_start:
+        rfi_query = rfi_query.where(RFI.created_at >= date_filter_start)
+    if date_filter_end:
+        rfi_query = rfi_query.where(RFI.created_at <= date_filter_end)
+
+    rfi_result = await db.execute(rfi_query)
+    rfi_counts = rfi_result.first()
+
+    # Get approval request counts
+    approval_query = select(
+        func.count().label('total'),
+        func.sum(case((ApprovalRequest.current_status == "pending", 1), else_=0)).label('pending'),
+        func.sum(case((ApprovalRequest.current_status == "approved", 1), else_=0)).label('approved')
+    ).where(ApprovalRequest.project_id.in_(accessible_projects))
+    if date_filter_start:
+        approval_query = approval_query.where(ApprovalRequest.created_at >= date_filter_start)
+    if date_filter_end:
+        approval_query = approval_query.where(ApprovalRequest.created_at <= date_filter_end)
+
+    approval_result = await db.execute(approval_query)
+    approval_counts = approval_result.first()
+
     # Calculate approval rate (equipment + materials)
     total_approval_items = (equipment_counts.total or 0) + (material_counts.total or 0)
     total_approved_items = (equipment_counts.approved or 0) + (material_counts.approved or 0)
@@ -130,7 +161,13 @@ async def get_analytics_metrics(
         total_materials=material_counts.total or 0,
         approved_materials=material_counts.approved or 0,
         total_meetings=total_meetings,
-        approval_rate=round(approval_rate, 2)
+        approval_rate=round(approval_rate, 2),
+        total_rfis=rfi_counts.total or 0,
+        open_rfis=rfi_counts.open or 0,
+        closed_rfis=rfi_counts.closed or 0,
+        total_approvals=approval_counts.total or 0,
+        pending_approvals=approval_counts.pending or 0,
+        approved_approvals=approval_counts.approved or 0,
     )
 
 
@@ -195,11 +232,73 @@ async def get_project_trends(
         )
         material_submissions = material_count.scalar() or 0
 
+        # Count RFIs created on this day
+        rfi_created_count = await db.execute(
+            select(func.count())
+            .select_from(RFI)
+            .where(RFI.project_id.in_(accessible_projects))
+            .where(RFI.created_at >= current_date)
+            .where(RFI.created_at < next_date)
+        )
+        rfi_created = rfi_created_count.scalar() or 0
+
+        # Count RFIs closed on this day
+        rfi_closed_count = await db.execute(
+            select(func.count())
+            .select_from(RFI)
+            .where(RFI.project_id.in_(accessible_projects))
+            .where(RFI.status == RFIStatus.CLOSED.value)
+            .where(RFI.updated_at >= current_date)
+            .where(RFI.updated_at < next_date)
+        )
+        rfi_closed = rfi_closed_count.scalar() or 0
+
+        # Count approval submissions submitted on this day (equipment + material)
+        equip_sub_count = await db.execute(
+            select(func.count())
+            .select_from(EquipmentApprovalSubmission)
+            .where(EquipmentApprovalSubmission.project_id.in_(accessible_projects))
+            .where(EquipmentApprovalSubmission.submitted_at >= current_date)
+            .where(EquipmentApprovalSubmission.submitted_at < next_date)
+        )
+        mat_sub_count = await db.execute(
+            select(func.count())
+            .select_from(MaterialApprovalSubmission)
+            .where(MaterialApprovalSubmission.project_id.in_(accessible_projects))
+            .where(MaterialApprovalSubmission.submitted_at >= current_date)
+            .where(MaterialApprovalSubmission.submitted_at < next_date)
+        )
+        approvals_submitted = (equip_sub_count.scalar() or 0) + (mat_sub_count.scalar() or 0)
+
+        # Count approval submissions decided on this day
+        decided_statuses = ("approved", "rejected", "conditionally_approved")
+        equip_decided_count = await db.execute(
+            select(func.count())
+            .select_from(EquipmentApprovalSubmission)
+            .where(EquipmentApprovalSubmission.project_id.in_(accessible_projects))
+            .where(EquipmentApprovalSubmission.status.in_(decided_statuses))
+            .where(EquipmentApprovalSubmission.updated_at >= current_date)
+            .where(EquipmentApprovalSubmission.updated_at < next_date)
+        )
+        mat_decided_count = await db.execute(
+            select(func.count())
+            .select_from(MaterialApprovalSubmission)
+            .where(MaterialApprovalSubmission.project_id.in_(accessible_projects))
+            .where(MaterialApprovalSubmission.status.in_(decided_statuses))
+            .where(MaterialApprovalSubmission.updated_at >= current_date)
+            .where(MaterialApprovalSubmission.updated_at < next_date)
+        )
+        approvals_decided = (equip_decided_count.scalar() or 0) + (mat_decided_count.scalar() or 0)
+
         data_points.append(TrendDataPoint(
             date=current_date.strftime('%Y-%m-%d'),
             inspections=inspections,
             equipment_submissions=equipment_submissions,
-            material_submissions=material_submissions
+            material_submissions=material_submissions,
+            rfi_created=rfi_created,
+            rfi_closed=rfi_closed,
+            approvals_submitted=approvals_submitted,
+            approvals_decided=approvals_decided,
         ))
 
         current_date = next_date
@@ -292,11 +391,47 @@ async def get_distributions(
         for row in project_result.all()
     ]
 
+    # Get RFI status distribution
+    rfi_query = select(RFI.status, func.count(RFI.id).label('count')).where(
+        RFI.project_id.in_(accessible_projects)
+    )
+    if date_filter_start:
+        rfi_query = rfi_query.where(RFI.created_at >= date_filter_start)
+    if date_filter_end:
+        rfi_query = rfi_query.where(RFI.created_at <= date_filter_end)
+    rfi_query = rfi_query.group_by(RFI.status)
+
+    rfi_result = await db.execute(rfi_query)
+    rfi_distribution = [
+        DistributionItem(label=row.status, value=row.count)
+        for row in rfi_result.all()
+    ]
+
+    # Get approval status distribution
+    approval_query = select(
+        ApprovalRequest.current_status, func.count(ApprovalRequest.id).label('count')
+    ).where(
+        ApprovalRequest.project_id.in_(accessible_projects)
+    )
+    if date_filter_start:
+        approval_query = approval_query.where(ApprovalRequest.created_at >= date_filter_start)
+    if date_filter_end:
+        approval_query = approval_query.where(ApprovalRequest.created_at <= date_filter_end)
+    approval_query = approval_query.group_by(ApprovalRequest.current_status)
+
+    approval_result = await db.execute(approval_query)
+    approval_distribution = [
+        DistributionItem(label=row.current_status, value=row.count)
+        for row in approval_result.all()
+    ]
+
     return DistributionsResponse(
         inspection_status=inspection_distribution,
         equipment_status=equipment_distribution,
         material_status=material_distribution,
-        project_status=project_distribution
+        project_status=project_distribution,
+        rfi_status=rfi_distribution,
+        approval_status=approval_distribution,
     )
 
 
@@ -344,6 +479,16 @@ async def get_dashboard_stats(
     rfi_distribution = [
         DistributionItem(label=row.status, value=row.count)
         for row in rfi_result.all()
+    ]
+
+    approval_result = await db.execute(
+        select(ApprovalRequest.current_status, func.count(ApprovalRequest.id).label("count"))
+        .where(ApprovalRequest.project_id == project_id)
+        .group_by(ApprovalRequest.current_status)
+    )
+    approval_distribution = [
+        DistributionItem(label=row.current_status, value=row.count)
+        for row in approval_result.all()
     ]
 
     findings_result = await db.execute(
@@ -419,6 +564,7 @@ async def get_dashboard_stats(
         equipment_distribution=equipment_distribution,
         material_distribution=material_distribution,
         rfi_distribution=rfi_distribution,
+        approval_distribution=approval_distribution,
         findings_severity=findings_severity,
         weekly_activity=weekly_activity,
         area_progress_by_floor=area_progress_by_floor,

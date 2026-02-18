@@ -1,8 +1,9 @@
-import { memo } from 'react'
+import { memo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { DashboardIcon, FolderIcon, BuildIcon, InventoryIcon, EventIcon, CheckCircleIcon, AccountTreeIcon, ContactsIcon, HistoryIcon, SettingsIcon, AssignmentIcon, ConstructionIcon, EmailIcon, ViewInArIcon, ChecklistIcon, ReportProblemIcon, TaskAltIcon, AccountBalanceIcon, BusinessIcon } from '@/icons'
+import { DashboardIcon, FolderIcon, BuildIcon, InventoryIcon, EventIcon, CheckCircleIcon, AccountTreeIcon, ContactsIcon, HistoryIcon, SettingsIcon, AssignmentIcon, ConstructionIcon, EmailIcon, ViewInArIcon, ChecklistIcon, ReportProblemIcon, TaskAltIcon, AccountBalanceIcon, BusinessIcon, HelpOutlineIcon } from '@/icons'
 import { Box, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, Typography } from '@/mui'
+import HelpDrawer from '../help/HelpDrawer'
 
 const DRAWER_WIDTH = 260
 
@@ -10,19 +11,20 @@ interface NavItem {
   label: string
   path: string
   icon: React.ReactNode
+  tourId?: string
 }
 
 const mainNavItems: NavItem[] = [
   { label: 'nav.dashboard', path: '/dashboard', icon: <DashboardIcon /> },
-  { label: 'nav.projects', path: '/projects', icon: <FolderIcon /> },
+  { label: 'nav.projects', path: '/projects', icon: <FolderIcon />, tourId: 'projects' },
   { label: 'nav.organizations', path: '/organizations', icon: <BusinessIcon /> },
 ]
 
 const projectNavItems: NavItem[] = [
-  { label: 'nav.equipment', path: '/equipment', icon: <BuildIcon /> },
-  { label: 'nav.materials', path: '/materials', icon: <InventoryIcon /> },
+  { label: 'nav.equipment', path: '/equipment', icon: <BuildIcon />, tourId: 'equipment' },
+  { label: 'nav.materials', path: '/materials', icon: <InventoryIcon />, tourId: 'materials' },
   { label: 'nav.meetings', path: '/meetings', icon: <EventIcon /> },
-  { label: 'nav.approvals', path: '/approvals', icon: <CheckCircleIcon /> },
+  { label: 'nav.approvals', path: '/approvals', icon: <CheckCircleIcon />, tourId: 'approvals' },
   { label: 'nav.areas', path: '/areas', icon: <AccountTreeIcon /> },
   { label: 'nav.contacts', path: '/contacts', icon: <ContactsIcon /> },
   { label: 'nav.inspections', path: '/inspections', icon: <AssignmentIcon /> },
@@ -50,6 +52,7 @@ export default memo(function Sidebar({ projectId, mobileOpen = false, onMobileCl
   const { t } = useTranslation()
   const location = useLocation()
   const navigate = useNavigate()
+  const [helpOpen, setHelpOpen] = useState(false)
 
   const isActive = (path: string) => {
     if (path === '/projects' && location.pathname.startsWith('/projects')) {
@@ -70,6 +73,7 @@ export default memo(function Sidebar({ projectId, mobileOpen = false, onMobileCl
   const drawerContent = (
     <>
       <Box
+        data-tour="sidebar"
         role="button"
         tabIndex={0}
         onClick={() => { navigate('/dashboard'); onMobileClose?.() }}
@@ -134,7 +138,7 @@ export default memo(function Sidebar({ projectId, mobileOpen = false, onMobileCl
 
       <List sx={{ px: 1.5, py: 1 }}>
         {mainNavItems.map((item) => (
-          <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }}>
+          <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }} data-tour={item.tourId}>
             <ListItemButton
               selected={isActive(item.path)}
               onClick={() => handleNavigation(item.path, false)}
@@ -198,7 +202,7 @@ export default memo(function Sidebar({ projectId, mobileOpen = false, onMobileCl
             {projectNavItems.map((item) => {
               const fullPath = `/projects/${projectId}${item.path}`
               return (
-                <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }}>
+                <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }} data-tour={item.tourId}>
                   <ListItemButton
                     selected={location.pathname === fullPath}
                     onClick={() => handleNavigation(item.path, true)}
@@ -285,7 +289,32 @@ export default memo(function Sidebar({ projectId, mobileOpen = false, onMobileCl
             </ListItemButton>
           </ListItem>
         ))}
+        <ListItem disablePadding sx={{ mb: 0.5 }}>
+          <ListItemButton
+            onClick={() => setHelpOpen(true)}
+            sx={{
+              borderRadius: 2,
+              py: 1,
+              transition: 'all 200ms ease-out',
+              '&:hover': { bgcolor: 'action.hover' },
+              '&:focus-visible': {
+                outline: (theme) => `2px solid ${theme.palette.primary.main}`,
+                outlineOffset: -2,
+              },
+            }}
+          >
+            <ListItemIcon sx={{ minWidth: 40, color: 'text.secondary' }}>
+              <HelpOutlineIcon />
+            </ListItemIcon>
+            <ListItemText
+              primary={t('help.title')}
+              primaryTypographyProps={{ fontWeight: 500, fontSize: '0.875rem' }}
+            />
+          </ListItemButton>
+        </ListItem>
       </List>
+
+      <HelpDrawer open={helpOpen} onClose={() => setHelpOpen(false)} />
 
       <Box sx={{ p: 2, pt: 0 }}>
         <Typography

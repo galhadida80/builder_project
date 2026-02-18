@@ -21,19 +21,15 @@ import { workloadApi } from '../api/workload'
 import { dashboardStatsApi } from '../api/dashboardStats'
 import { useToast } from '../components/common/ToastProvider'
 import { useProject } from '../contexts/ProjectContext'
+import { getDateLocale } from '../utils/dateLocale'
 import { BuildIcon, InventoryIcon, CheckCircleIcon, EventIcon, TrendingUpIcon, WarningAmberIcon, AssignmentIcon, GroupIcon, ArrowForwardIcon } from '@/icons'
 import { Box, Typography, Skeleton, Chip, List, ListItem, ListItemText, ListItemAvatar, Paper } from '@/mui'
 
 export default function DashboardPage() {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const navigate = useNavigate()
 
-  const dateLocale = useMemo(() => {
-    const lang = i18n.language
-    if (lang === 'he') return 'he-IL'
-    if (lang === 'es') return 'es-ES'
-    return 'en-US'
-  }, [i18n.language])
+  const dateLocale = getDateLocale()
   const { showError, showWarning } = useToast()
   const { selectedProjectId } = useProject()
   const [loading, setLoading] = useState(true)

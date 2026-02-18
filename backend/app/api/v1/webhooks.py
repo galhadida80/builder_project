@@ -2,15 +2,41 @@ import base64
 import json
 import logging
 
-from fastapi import APIRouter, BackgroundTasks, Depends, Request
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request
+from google.auth.transport import requests as google_requests
+from google.oauth2 import id_token
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.config import get_settings
 from app.db.session import get_db
 from app.services.gmail_service import GmailService
 from app.services.rfi_service import RFIService
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/webhooks", tags=["webhooks"])
+settings = get_settings()
+
+
+def verify_pubsub_token(request: Request):
+    if not settings.google_pubsub_verify:
+        return
+
+    auth_header = request.headers.get("Authorization", "")
+    if not auth_header.startswith("Bearer "):
+        raise HTTPException(status_code=403, detail="Missing or invalid Authorization header")
+
+    token = auth_header[len("Bearer "):]
+
+    try:
+        claim = id_token.verify_oauth2_token(
+            token,
+            google_requests.Request(),
+            audience=settings.google_pubsub_audience or None,
+        )
+        logger.info(f"Pub/Sub token verified, email: {claim.get('email')}")
+    except Exception as e:
+        logger.warning(f"Pub/Sub token verification failed: {e}")
+        raise HTTPException(status_code=403, detail="Invalid Pub/Sub token")
 
 
 @router.post("/gmail/push")
@@ -19,6 +45,7 @@ async def gmail_push_notification(
     background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db)
 ):
+    verify_pubsub_token(request)
     try:
         body = await request.json()
     except Exception as e:

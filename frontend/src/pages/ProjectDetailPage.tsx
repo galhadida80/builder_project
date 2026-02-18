@@ -15,6 +15,7 @@ import { meetingsApi } from '../api/meetings'
 import { useProject } from '../contexts/ProjectContext'
 import { useToast } from '../components/common/ToastProvider'
 import { validateProjectForm, hasErrors, VALIDATION, type ValidationError } from '../utils/validation'
+import { getDateLocale } from '../utils/dateLocale'
 import { parseValidationErrors } from '../utils/apiErrors'
 import type { Project, Equipment, Material, Meeting } from '../types'
 import { ArrowBackIcon, EditIcon, LocationOnIcon, CalendarTodayIcon, GroupIcon, ConstructionIcon, InventoryIcon, EventIcon, WarningAmberIcon } from '@/icons'
@@ -24,7 +25,7 @@ export default function ProjectDetailPage() {
   const { projectId } = useParams()
   const navigate = useNavigate()
   const outlet = useOutlet()
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const { refreshProjects } = useProject()
   const { showError, showSuccess } = useToast()
   const [project, setProject] = useState<Project | null>(null)
@@ -38,7 +39,7 @@ export default function ProjectDetailPage() {
   const [editForm, setEditForm] = useState({ name: '', code: '', description: '', address: '', startDate: '', estimatedEndDate: '' })
 
   const isOverview = !outlet
-  const dateLocale = i18n.language === 'he' ? 'he-IL' : i18n.language === 'es' ? 'es-ES' : 'en-US'
+  const dateLocale = getDateLocale()
 
   useEffect(() => {
     if (!projectId || projectId === loadedProjectId.current) return

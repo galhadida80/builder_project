@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { getDateLocale } from '../utils/dateLocale'
 import { organizationsApi } from '../api/organizations'
 import type { Organization, OrganizationMember } from '../types'
 import { useToast } from '../components/common/ToastProvider'
@@ -149,7 +150,7 @@ export default function OrganizationDetailPage() {
             />
           </Box>
           <Typography variant="caption" color="text.secondary">
-            {t('organizations.createdAt', 'Created')}: {new Date(org.createdAt).toLocaleDateString()}
+            {t('organizations.createdAt', 'Created')}: {new Date(org.createdAt).toLocaleDateString(getDateLocale())}
           </Typography>
         </Box>
       </Box>
@@ -210,7 +211,7 @@ export default function OrganizationDetailPage() {
                         </TableCell>
                         <TableCell>
                           <Typography variant="caption" color="text.secondary">
-                            {new Date(member.addedAt).toLocaleDateString()}
+                            {new Date(member.addedAt).toLocaleDateString(getDateLocale())}
                           </Typography>
                         </TableCell>
                         <TableCell align="center">
@@ -266,7 +267,7 @@ export default function OrganizationDetailPage() {
                         </TableCell>
                         <TableCell>
                           <Typography variant="caption" color="text.secondary">
-                            {project.createdAt ? new Date(project.createdAt).toLocaleDateString() : '—'}
+                            {project.createdAt ? new Date(project.createdAt).toLocaleDateString(getDateLocale()) : '—'}
                           </Typography>
                         </TableCell>
                       </TableRow>

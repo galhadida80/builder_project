@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { getDateLocale } from '../../utils/dateLocale'
 import { Avatar } from '../ui/Avatar'
 import { Button } from '../ui/Button'
 import { TextField } from '../ui/TextField'
@@ -126,7 +127,7 @@ function formatTimestamp(dateString: string): string {
   if (diffHours < 24) return `${diffHours}h ago`
   if (diffDays < 7) return `${diffDays}d ago`
 
-  return date.toLocaleDateString('en-US', {
+  return date.toLocaleDateString(getDateLocale(), {
     month: 'short',
     day: 'numeric',
     year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined,

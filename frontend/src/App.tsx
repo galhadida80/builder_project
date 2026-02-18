@@ -34,6 +34,8 @@ import InvitePage from './pages/InvitePage'
 import AdminUsersPage from './pages/AdminUsersPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
 import { lazy, Suspense } from 'react'
+import { ErrorBoundary } from './components/common/ErrorBoundary'
+import { OfflineIndicator } from './components/common/OfflineIndicator'
 import ChecklistsPage from './pages/ChecklistsPage'
 import DefectsPage from './pages/DefectsPage'
 import DefectDetailPage from './pages/DefectDetailPage'
@@ -41,6 +43,7 @@ import TasksPage from './pages/TasksPage'
 import BudgetPage from './pages/BudgetPage'
 import OrganizationsPage from './pages/OrganizationsPage'
 import OrganizationDetailPage from './pages/OrganizationDetailPage'
+import ReportsPage from './pages/ReportsPage'
 
 const BIMPage = lazy(() => import('./pages/BIMPage'))
 
@@ -67,6 +70,7 @@ function AppRoutes() {
     <ProjectProvider>
       <ReferenceDataProvider>
       <PWAInstallPrompt />
+      <OfflineIndicator />
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
@@ -96,6 +100,7 @@ function AppRoutes() {
               <Route path="tasks" element={<TasksPage />} />
               <Route path="budget" element={<BudgetPage />} />
               <Route path="bim" element={<Suspense fallback={null}><BIMPage /></Suspense>} />
+              <Route path="reports" element={<ReportsPage />} />
             </Route>
 
             <Route path="/organizations" element={<OrganizationsPage />} />
@@ -127,8 +132,10 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <AppRoutes />
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
+    </ErrorBoundary>
   )
 }

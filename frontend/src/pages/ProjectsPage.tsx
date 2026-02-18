@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { getDateLocale } from '../utils/dateLocale'
 import { Card, KPICard } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { StatusBadge } from '../components/ui/StatusBadge'
@@ -326,7 +327,7 @@ export default function ProjectsPage() {
                       <Box sx={{ display: { xs: 'none', sm: 'flex' }, alignItems: 'center', gap: 0.5, flexShrink: 0 }}>
                         <CalendarTodayIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
                         <Typography variant="caption" color="text.secondary" noWrap>
-                          {new Date(project.startDate).toLocaleDateString()}
+                          {new Date(project.startDate).toLocaleDateString(getDateLocale())}
                         </Typography>
                       </Box>
                     )}
@@ -405,8 +406,8 @@ export default function ProjectsPage() {
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 0 }}>
                           <CalendarTodayIcon sx={{ fontSize: 14, color: 'text.secondary', flexShrink: 0 }} />
                           <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem' }}>
-                            {new Date(project.startDate).toLocaleDateString()}
-                            {project.estimatedEndDate && <> - {new Date(project.estimatedEndDate).toLocaleDateString()}</>}
+                            {new Date(project.startDate).toLocaleDateString(getDateLocale())}
+                            {project.estimatedEndDate && <> - {new Date(project.estimatedEndDate).toLocaleDateString(getDateLocale())}</>}
                           </Typography>
                         </Box>
                       )}

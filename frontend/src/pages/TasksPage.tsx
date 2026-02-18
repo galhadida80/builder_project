@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { getDateLocale } from '../utils/dateLocale'
 import { Card, KPICard } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { DataTable, Column } from '../components/ui/DataTable'
@@ -164,7 +165,7 @@ export default function TasksPage() {
     { id: 'assignee', label: t('tasks.assignee'), minWidth: 140, hideOnMobile: true,
       render: (row) => <Typography variant="body2" color={row.assignee ? 'text.primary' : 'text.secondary'}>{row.assignee?.fullName || '-'}</Typography> },
     { id: 'dueDate', label: t('tasks.dueDate'), minWidth: 110, sortable: true, hideOnMobile: true,
-      render: (row) => <Typography variant="body2" color={isOverdue(row) ? 'error.main' : 'text.primary'} fontWeight={isOverdue(row) ? 600 : 400}>{row.dueDate ? new Date(row.dueDate).toLocaleDateString() : '-'}</Typography> },
+      render: (row) => <Typography variant="body2" color={isOverdue(row) ? 'error.main' : 'text.primary'} fontWeight={isOverdue(row) ? 600 : 400}>{row.dueDate ? new Date(row.dueDate).toLocaleDateString(getDateLocale()) : '-'}</Typography> },
     { id: 'actions', label: '', minWidth: 90, align: 'right', hideOnMobile: true,
       render: (row) => (
         <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>

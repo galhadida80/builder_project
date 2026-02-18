@@ -1,5 +1,6 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react'
-import { Box, Container, Alert, Typography, Button } from '@/mui'
+import { Box, Typography, Button } from '@/mui'
+import { i18n } from '../../i18n'
 
 interface ErrorBoundaryProps {
   children: ReactNode
@@ -34,8 +35,6 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       error,
       errorInfo,
     })
-
-    // Log error to console for debugging
     console.error('ErrorBoundary caught an error:', error, errorInfo)
   }
 
@@ -49,75 +48,30 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
         return this.props.fallback
       }
 
-      const isDevelopment = import.meta.env.DEV
+      const t = i18n.t.bind(i18n)
 
       return (
         <Box
           sx={{
             display: 'flex',
+            flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
             minHeight: '100dvh',
             bgcolor: 'background.default',
+            px: 3,
+            textAlign: 'center',
           }}
         >
-          <Container maxWidth="md">
-            <Alert severity="error" sx={{ mb: 3 }}>
-              <Typography variant="h6" gutterBottom>
-                Something went wrong
-              </Typography>
-              <Typography variant="body2" sx={{ mb: 2 }}>
-                An unexpected error occurred in the application. Please try reloading the page.
-              </Typography>
-              {isDevelopment && this.state.error && (
-                <Box sx={{ mt: 2 }}>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>
-                    Error Details (Development Only):
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    component="pre"
-                    sx={{
-                      p: 2,
-                      bgcolor: 'rgba(0, 0, 0, 0.1)',
-                      borderRadius: 1,
-                      overflow: 'auto',
-                      fontSize: '0.875rem',
-                      fontFamily: 'monospace',
-                    }}
-                  >
-                    {this.state.error.message}
-                  </Typography>
-                  {this.state.errorInfo?.componentStack && (
-                    <Typography
-                      variant="body2"
-                      component="pre"
-                      sx={{
-                        mt: 1,
-                        p: 2,
-                        bgcolor: 'rgba(0, 0, 0, 0.1)',
-                        borderRadius: 1,
-                        overflow: 'auto',
-                        fontSize: '0.75rem',
-                        fontFamily: 'monospace',
-                        maxHeight: '200px',
-                      }}
-                    >
-                      {this.state.errorInfo.componentStack}
-                    </Typography>
-                  )}
-                </Box>
-              )}
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={this.handleReload}
-                sx={{ mt: 2 }}
-              >
-                Reload Page
-              </Button>
-            </Alert>
-          </Container>
+          <Typography variant="h4" gutterBottom>
+            {t('error.title')}
+          </Typography>
+          <Typography variant="body1" color="text.secondary" sx={{ mb: 3, maxWidth: 480 }}>
+            {t('error.message')}
+          </Typography>
+          <Button variant="contained" onClick={this.handleReload}>
+            {t('error.reload')}
+          </Button>
         </Box>
       )
     }

@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useCallback, useEffect, useMemo, ReactNode } from 'react'
 import { projectsApi } from '../api/projects'
+import { useAuth } from './AuthContext'
 import type { Project } from '../types'
 
 interface ProjectContextType {
@@ -13,11 +14,17 @@ interface ProjectContextType {
 const ProjectContext = createContext<ProjectContextType | undefined>(undefined)
 
 export function ProjectProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth()
   const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>()
   const [projects, setProjects] = useState<Project[]>([])
   const [projectsLoading, setProjectsLoading] = useState(true)
 
   const refreshProjects = useCallback(async () => {
+    if (!user) {
+      setProjects([])
+      setProjectsLoading(false)
+      return
+    }
     try {
       const data = await projectsApi.list()
       setProjects(data)
@@ -26,7 +33,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     } finally {
       setProjectsLoading(false)
     }
-  }, [])
+  }, [user])
 
   useEffect(() => {
     refreshProjects()
