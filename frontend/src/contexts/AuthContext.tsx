@@ -46,7 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(async (email: string, password: string) => {
     const response = await authApi.login(email, password)
-    localStorage.setItem('authToken', response.access_token)
+    localStorage.setItem('authToken', response.accessToken)
     localStorage.setItem('userId', response.user.id)
     setUser(response.user)
   }, [])
@@ -56,7 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const credential = await navigator.credentials.get({ publicKey: options }) as PublicKeyCredential
     if (!credential) throw new Error('No credential returned')
     const response = await authApi.webauthnLoginComplete(email, credential)
-    localStorage.setItem('authToken', response.access_token)
+    localStorage.setItem('authToken', response.accessToken)
     localStorage.setItem('userId', response.user.id)
     localStorage.setItem('webauthn_email', email)
     setUser(response.user)
@@ -64,7 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const register = useCallback(async (email: string, password: string, fullName: string, inviteToken?: string) => {
     const response = await authApi.register(email, password, fullName, inviteToken)
-    localStorage.setItem('authToken', response.access_token)
+    localStorage.setItem('authToken', response.accessToken)
     localStorage.setItem('userId', response.user.id)
     setUser(response.user)
   }, [])

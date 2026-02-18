@@ -32,15 +32,15 @@ function transformUser(apiUser: LoginResponse['user']): User {
 }
 
 export const authApi = {
-  login: async (email: string, password: string): Promise<{ access_token: string; user: User }> => {
+  login: async (email: string, password: string): Promise<{ accessToken: string; user: User }> => {
     const response = await apiClient.post<LoginResponse>('/auth/login', { email, password })
     return {
-      access_token: response.data.accessToken,
+      accessToken: response.data.accessToken,
       user: transformUser(response.data.user),
     }
   },
 
-  register: async (email: string, password: string, fullName: string, inviteToken?: string): Promise<{ access_token: string; user: User }> => {
+  register: async (email: string, password: string, fullName: string, inviteToken?: string): Promise<{ accessToken: string; user: User }> => {
     const params = inviteToken ? { invite_token: inviteToken } : undefined
     const response = await apiClient.post<LoginResponse>('/auth/register', {
       email,
@@ -48,7 +48,7 @@ export const authApi = {
       full_name: fullName,
     }, { params })
     return {
-      access_token: response.data.accessToken,
+      accessToken: response.data.accessToken,
       user: transformUser(response.data.user),
     }
   },
@@ -100,7 +100,7 @@ export const authApi = {
     return { options: parseRequestOptions(response.data.options) }
   },
 
-  webauthnLoginComplete: async (email: string, credential: PublicKeyCredential): Promise<{ access_token: string; user: User }> => {
+  webauthnLoginComplete: async (email: string, credential: PublicKeyCredential): Promise<{ accessToken: string; user: User }> => {
     const assertion = credential.response as AuthenticatorAssertionResponse
     const body = {
       email,
@@ -118,7 +118,7 @@ export const authApi = {
     }
     const response = await apiClient.post<LoginResponse>('/auth/webauthn/login/complete', body)
     return {
-      access_token: response.data.accessToken,
+      accessToken: response.data.accessToken,
       user: transformUser(response.data.user),
     }
   },

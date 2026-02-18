@@ -9,7 +9,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.config import get_settings
-from app.models.project import Project
 from app.models.rfi import RFI, RFIEmailLog, RFIResponse, RFIStatus
 from app.models.user import User
 from app.services.email_renderer import render_rfi_email, render_rfi_response_email
@@ -27,13 +26,7 @@ class RFIService:
         self.settings = get_settings()
 
     async def generate_rfi_from_email(self, project_id: uuid.UUID, rfi_number: str) -> str:
-        result = await self.db.execute(
-            select(Project.code).where(Project.id == project_id)
-        )
-        project_code = result.scalar_one()
-        seq = rfi_number.split("-")[-1]
-        local_part = f"RFI-{project_code}-{seq}".lower()
-        return f"{local_part}@{self.settings.rfi_email_domain}"
+        return self.settings.rfi_email_address
 
     async def generate_rfi_number(self) -> str:
         try:

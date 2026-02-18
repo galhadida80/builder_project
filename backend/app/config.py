@@ -55,7 +55,7 @@ class Settings(BaseSettings):
     frontend_base_url: str = "http://localhost:5173"
 
     email_provider: str = "fake"
-    rfi_email_domain: str = "builderops.co.il"
+    rfi_email_domain: str = "gmail.com"
     rfi_email_address: str = "builderops26@gmail.com"
     sendgrid_api_key: str = ""
     sendgrid_from_email: str = "builderops26@gmail.com"
