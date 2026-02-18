@@ -25,8 +25,8 @@ import KeyValueEditor, { type KeyValuePair } from '../components/ui/KeyValueEdit
 import ContactSelectorDialog from '../components/ui/ContactSelectorDialog'
 import HelpTooltip from '../components/help/HelpTooltip'
 import { useReferenceData } from '../contexts/ReferenceDataContext'
-import { AddIcon, VisibilityIcon, EditIcon, DeleteIcon, CloseIcon, DescriptionIcon, SendIcon, InventoryIcon, CloudUploadIcon, DownloadIcon, CheckCircleIcon, PersonIcon, LocalShippingIcon, WarehouseIcon } from '@/icons'
-import { Box, Typography, Drawer, Divider, List, ListItem, ListItemText, ListItemIcon, MenuItem, TextField as MuiTextField, Skeleton, Chip, Checkbox, FormControlLabel, CircularProgress, IconButton } from '@/mui'
+import { AddIcon, VisibilityIcon, EditIcon, DeleteIcon, CloseIcon, DescriptionIcon, SendIcon, InventoryIcon, CloudUploadIcon, DownloadIcon, CheckCircleIcon, PersonIcon, WarehouseIcon } from '@/icons'
+import { Box, Typography, Drawer, Divider, List, ListItem, ListItemText, ListItemIcon, MenuItem, TextField as MuiTextField, Skeleton, Chip, Checkbox, FormControlLabel, CircularProgress, IconButton, TablePagination } from '@/mui'
 
 const UNIT_KEYS = ['ton', 'm3', 'm2', 'm', 'kg', 'unit', 'box', 'pallet', 'roll'] as const
 
@@ -39,6 +39,9 @@ export default function MaterialsPage() {
   const { materialTemplates } = useReferenceData()
   const [loading, setLoading] = useState(true)
   const [materials, setMaterials] = useState<Material[]>([])
+  const [totalMaterials, setTotalMaterials] = useState(0)
+  const [page, setPage] = useState(1)
+  const [rowsPerPage, setRowsPerPage] = useState(20)
   const [search, setSearch] = useState('')
   const [selectedMaterial, setSelectedMaterial] = useState<Material | null>(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
@@ -77,7 +80,7 @@ export default function MaterialsPage() {
 
   useEffect(() => {
     loadMaterials()
-  }, [projectId])
+  }, [projectId, page, rowsPerPage, activeTab, search])
 
   useEffect(() => {
     const loadFiles = async () => {
@@ -103,8 +106,21 @@ export default function MaterialsPage() {
   const loadMaterials = async () => {
     try {
       setLoading(true)
-      const data = await materialsApi.list(projectId!)
-      setMaterials(data)
+      const params: { status?: string; search?: string; page: number; pageSize: number } = {
+        page,
+        pageSize: rowsPerPage,
+      }
+      if (activeTab !== 'all') {
+        if (activeTab === 'pending') {
+          params.status = 'submitted'
+        } else {
+          params.status = activeTab
+        }
+      }
+      if (search) params.search = search
+      const result = await materialsApi.list(projectId!, params)
+      setMaterials(result.items)
+      setTotalMaterials(result.total)
     } catch {
       showError(t('materials.failedToLoadMaterials'))
     } finally {
@@ -264,16 +280,24 @@ export default function MaterialsPage() {
   const handleConfirmSubmit = async (consultantContactId?: string, inspectorContactId?: string) => {
     if (!projectId || !selectedMaterial) return
     setSubmitting(true)
+    const previousMaterials = [...materials]
+    const previousSelected = { ...selectedMaterial }
+    setMaterials(prev => prev.map(m =>
+      m.id === selectedMaterial.id ? { ...m, status: 'submitted' } : m
+    ))
+    setSelectedMaterial({ ...selectedMaterial, status: 'submitted' })
+    setContactDialogOpen(false)
+    setDrawerOpen(false)
+    showSuccess(t('materials.materialSubmittedSuccessfully'))
     try {
       const body: { consultant_contact_id?: string; inspector_contact_id?: string } = {}
       if (consultantContactId) body.consultant_contact_id = consultantContactId
       if (inspectorContactId) body.inspector_contact_id = inspectorContactId
       await materialsApi.submit(projectId, selectedMaterial.id, body)
-      showSuccess(t('materials.materialSubmittedSuccessfully'))
-      setContactDialogOpen(false)
       loadMaterials()
-      setDrawerOpen(false)
     } catch {
+      setMaterials(previousMaterials)
+      setSelectedMaterial(previousSelected)
       showError(t('materials.failedToSubmitMaterial'))
     } finally {
       setSubmitting(false)
@@ -312,16 +336,7 @@ export default function MaterialsPage() {
     setSelectedMaterial(null)
   }
 
-  const filteredMaterials = materials.filter(m => {
-    const matchesSearch = m.name.toLowerCase().includes(search.toLowerCase()) ||
-      m.materialType?.toLowerCase().includes(search.toLowerCase())
-    const matchesTab = activeTab === 'all' ||
-      (activeTab === 'pending' ? (m.status === 'submitted' || m.status === 'under_review') : m.status === activeTab)
-    return matchesSearch && matchesTab
-  })
-
-  const pendingMaterials = materials.filter(m => m.status === 'submitted' || m.status === 'under_review').length
-  const approvedMaterials = materials.filter(m => m.status === 'approved').length
+  const filteredMaterials = materials
   const totalQuantity = materials.reduce((sum, m) => sum + (Number(m.quantity) || 0), 0)
 
   const columns: Column<Material>[] = [
@@ -427,13 +442,31 @@ export default function MaterialsPage() {
     return (
       <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
         <Skeleton variant="text" width={200} height={48} sx={{ mb: 1 }} />
-        <Skeleton variant="text" width={300} height={24} sx={{ mb: 4 }} />
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', md: 'repeat(4, 1fr)' }, gap: 2, mb: 4, overflow: 'hidden' }}>
-          {[...Array(4)].map((_, i) => (
-            <Skeleton key={i} variant="rounded" height={100} sx={{ borderRadius: 3 }} />
+        <Skeleton variant="text" width={300} height={24} sx={{ mb: 3 }} />
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', md: 'repeat(2, 1fr)' }, gap: 1.5, mb: 3, overflow: 'hidden' }}>
+          {[...Array(2)].map((_, i) => (
+            <Skeleton key={i} variant="rounded" height={80} sx={{ borderRadius: 2 }} />
           ))}
         </Box>
-        <Skeleton variant="rounded" height={400} sx={{ borderRadius: 3 }} />
+        <Skeleton variant="rounded" width="100%" height={42} sx={{ borderRadius: 2, mb: 2 }} />
+        <Skeleton variant="rounded" width="100%" height={36} sx={{ borderRadius: 2, mb: 2 }} />
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+          {[...Array(5)].map((_, i) => (
+            <Box key={i} sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr 100px', sm: '2fr 1fr 1fr 120px 100px' }, gap: 2, py: 1.5, px: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <Skeleton variant="rounded" width={40} height={40} />
+                <Box>
+                  <Skeleton variant="text" width={120} height={20} />
+                  <Skeleton variant="text" width={80} height={16} />
+                </Box>
+              </Box>
+              <Skeleton variant="text" width={90} height={20} sx={{ display: { xs: 'none', sm: 'block' } }} />
+              <Skeleton variant="text" width={70} height={20} sx={{ display: { xs: 'none', sm: 'block' } }} />
+              <Skeleton variant="rounded" width={80} height={24} sx={{ borderRadius: 4 }} />
+              <Skeleton variant="text" width={60} height={20} sx={{ display: { xs: 'none', sm: 'block' } }} />
+            </Box>
+          ))}
+        </Box>
       </Box>
     )
   }
@@ -457,7 +490,7 @@ export default function MaterialsPage() {
       <Box
         sx={{
           display: 'grid',
-          gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', md: 'repeat(4, 1fr)' },
+          gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', md: 'repeat(2, 1fr)' },
           gap: 1.5,
           mb: 3,
           overflow: 'hidden',
@@ -465,21 +498,9 @@ export default function MaterialsPage() {
       >
         <KPICard
           title={t('materials.totalMaterials')}
-          value={materials.length}
+          value={totalMaterials}
           icon={<InventoryIcon />}
           color="warning"
-        />
-        <KPICard
-          title={t('materials.pendingApproval')}
-          value={pendingMaterials}
-          icon={<LocalShippingIcon />}
-          color="info"
-        />
-        <KPICard
-          title={t('materials.approved')}
-          value={approvedMaterials}
-          icon={<CheckCircleIcon />}
-          color="success"
         />
         <KPICard
           title={t('materials.totalQuantity')}
@@ -495,20 +516,20 @@ export default function MaterialsPage() {
             <SearchField
               placeholder={t('materials.searchPlaceholder')}
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => { setSearch(e.target.value); setPage(1) }}
             />
-            <Chip label={`${filteredMaterials.length} ${t('common.items')}`} size="small" />
+            <Chip label={`${totalMaterials} ${t('common.items')}`} size="small" />
           </Box>
 
           <Tabs
             items={[
-              { label: t('common.all'), value: 'all', badge: materials.length },
-              { label: t('materials.draft'), value: 'draft', badge: materials.filter(m => m.status === 'draft').length },
-              { label: t('materials.pending'), value: 'pending', badge: pendingMaterials },
-              { label: t('materials.approved'), value: 'approved', badge: approvedMaterials },
+              { label: t('common.all'), value: 'all' },
+              { label: t('materials.draft'), value: 'draft' },
+              { label: t('materials.pending'), value: 'pending' },
+              { label: t('materials.approved'), value: 'approved' },
             ]}
             value={activeTab}
-            onChange={setActiveTab}
+            onChange={(val) => { setActiveTab(val); setPage(1) }}
             size="small"
           />
 
@@ -522,7 +543,21 @@ export default function MaterialsPage() {
               emptyTitle={t('materials.noMaterialsFound')}
               emptyDescription={t('materials.noResultsDescription')}
               emptyAction={{ label: t('materials.addMaterial'), onClick: handleOpenCreate }}
+              pagination={false}
             />
+            {totalMaterials > 0 && (
+              <TablePagination
+                component="div"
+                count={totalMaterials}
+                page={page - 1}
+                rowsPerPage={rowsPerPage}
+                onPageChange={(_, newPage) => setPage(newPage + 1)}
+                onRowsPerPageChange={(e) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(1) }}
+                rowsPerPageOptions={[10, 20, 50, 100]}
+                labelRowsPerPage={t('table.rowsPerPage')}
+                labelDisplayedRows={({ from, to, count }) => `${from}-${to} ${t('table.of')} ${count !== -1 ? count : `>${to}`}`}
+              />
+            )}
           </Box>
         </Box>
       </Card>
@@ -685,7 +720,26 @@ export default function MaterialsPage() {
                         <DownloadIcon fontSize="small" />
                       </IconButton>
                     }
-                    sx={{ cursor: 'pointer', '&:hover': { bgcolor: 'action.selected' }, borderRadius: 1 }}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={file.filename}
+                    onKeyDown={async (e: React.KeyboardEvent) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        try {
+                          const blobUrl = await filesApi.getFileBlob(projectId!, file.id)
+                          window.open(blobUrl, '_blank')
+                        } catch {
+                          showError(t('materials.failedToOpenFile'))
+                        }
+                      }
+                    }}
+                    sx={{
+                      cursor: 'pointer',
+                      '&:hover': { bgcolor: 'action.selected' },
+                      '&:focus-visible': { outline: (theme) => `2px solid ${theme.palette.primary.main}`, outlineOffset: -2 },
+                      borderRadius: 1,
+                    }}
                     onClick={async () => {
                       try {
                         const blobUrl = await filesApi.getFileBlob(projectId!, file.id)

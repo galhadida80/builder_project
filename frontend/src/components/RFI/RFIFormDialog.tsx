@@ -552,7 +552,7 @@ export function RFIFormDialog({
                     <ListItemSecondaryAction>
                       <IconButton
                         edge="end"
-                        aria-label="delete"
+                        aria-label={t('common.delete')}
                         onClick={() => handleRemoveFile(index)}
                         disabled={isFormLoading}
                       >

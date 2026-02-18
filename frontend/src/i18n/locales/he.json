@@ -156,7 +156,8 @@
     "removeItem": "הסר פריט",
     "selectLanguage": "בחר שפה",
     "viewDetails": "הצג פרטים",
-    "toggleNavigation": "החלף ניווט"
+    "toggleNavigation": "החלף ניווט",
+    "loadingPage": "טוען עמוד..."
   },
   "table": {
     "rowsPerPage": "שורות בעמוד:",
@@ -972,6 +973,7 @@
     "rejectionReason": "סיבת דחייה",
     "commentsPlaceholder": "הוסף הערות לגבי ההחלטה שלך...",
     "rejectionPlaceholder": "אנא ציין סיבה לדחייה...",
+    "rejectionReasonRequired": "יש לציין סיבת דחייה",
     "noHistory": "אין היסטוריית אישורים",
     "noHistoryDescription": "לא בוצעו פעולות על אישור זה עדיין.",
     "viewDetails": "צפה בפרטים"
@@ -1234,7 +1236,25 @@
     "last3Months": "3 חודשים אחרונים",
     "last6Months": "6 חודשים אחרונים",
     "lastYear": "שנה אחרונה",
-    "allTime": "הכל"
+    "allTime": "הכל",
+    "previewReport": "תצוגת דוח",
+    "inspectionReport": "דוח בדיקה",
+    "reportDetails": "פרטי דוח",
+    "reportDate": "תאריך דוח",
+    "completedDate": "תאריך סיום",
+    "createdBy": "נוצר על ידי",
+    "findingSummary": "סיכום ממצאים",
+    "severity": "חומרה",
+    "location": "מיקום",
+    "description": "תיאור",
+    "noDescription": "לא סופק תיאור",
+    "open": "פתוח",
+    "resolved": "נפתר",
+    "printReport": "הדפס דוח",
+    "generatedOn": "נוצר בתאריך",
+    "notCompleted": "טרם הושלם",
+    "createSuccess": "הבדיקה נוצרה בהצלחה",
+    "failedToCreate": "יצירת הבדיקה נכשלה"
   },
   "documents": {
     "title": "ספריית מסמכים",
@@ -1428,6 +1448,50 @@
       "quote3": "מערכת ניהול הבדיקות נותנת לנו נראות מלאה. שיעור התאימות שלנו עלה מ-82% ל-97% תוך שלושה חודשים בלבד.",
       "name3": "מיכאל רודריגז",
       "role3": "מנהל איכות, תשתיות סאמיט"
+    },
+    "pricing": {
+      "label": "תמחור",
+      "title": "תמחור פשוט ושקוף",
+      "subtitle": "בחרו את התוכנית שמתאימה לצוות שלכם. ללא עמלות נסתרות, ביטול בכל עת.",
+      "perMonth": "חודש",
+      "getStarted": "התחל עכשיו",
+      "contactSales": "צור קשר עם מכירות",
+      "popular": "הכי פופולרי",
+      "starter": {
+        "name": "סטארטר",
+        "description": "מושלם לצוותים קטנים שמתחילים עם ניהול בנייה.",
+        "features": {
+          "upTo5Projects": "עד 5 פרויקטים",
+          "equipmentTracking": "מעקב ציוד",
+          "basicInspections": "בדיקות בסיסיות",
+          "emailSupport": "תמיכה במייל"
+        }
+      },
+      "professional": {
+        "name": "מקצועי",
+        "description": "לצוותים צומחים שצריכים תהליכי עבודה מתקדמים ואנליטיקה.",
+        "features": {
+          "unlimitedProjects": "פרויקטים ללא הגבלה",
+          "fullEquipmentMgmt": "ניהול ציוד מלא",
+          "advancedInspections": "בדיקות מתקדמות",
+          "approvalWorkflows": "תהליכי אישור",
+          "analyticsReports": "אנליטיקה ודוחות",
+          "prioritySupport": "תמיכה בעדיפות"
+        }
+      },
+      "enterprise": {
+        "name": "ארגוני",
+        "description": "לארגונים גדולים עם צרכי אבטחה ואינטגרציה מותאמים.",
+        "price": "מותאם אישית",
+        "features": {
+          "everythingInPro": "הכל שבתוכנית מקצועי",
+          "ssoIntegration": "אינטגרציית SSO",
+          "dedicatedSupport": "מנהל חשבון ייעודי",
+          "customIntegrations": "אינטגרציות מותאמות",
+          "slaGuarantee": "התחייבות SLA של 99.9%",
+          "onPremiseOption": "אפשרות התקנה מקומית"
+        }
+      }
     }
   },
   "analytics": {

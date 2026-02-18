@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime, timedelta
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -16,6 +17,7 @@ from app.models.user import User
 from app.schemas.rfi import (
     PaginatedRFIResponse,
     RFICreate,
+    RFIDeadlineResponse,
     RFIEmailLogSchema,
     RFIListResponse,
     RFIResponse,
@@ -132,6 +134,87 @@ async def get_rfi_summary(
     await verify_project_access(project_id, current_user, db)
     service = RFIService(db)
     return await service.get_rfi_summary(project_id)
+
+
+@router.get("/projects/{project_id}/rfis/overdue", response_model=list[RFIDeadlineResponse])
+async def get_overdue_rfis(
+    project_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    await verify_project_access(project_id, current_user, db)
+    now = datetime.utcnow()
+    result = await db.execute(
+        select(RFI)
+        .where(
+            RFI.project_id == project_id,
+            RFI.due_date < now,
+            RFI.due_date.isnot(None),
+            RFI.status.in_(["draft", "open", "waiting_response"])
+        )
+        .order_by(RFI.due_date.asc())
+    )
+    rfis = result.scalars().all()
+    return [
+        RFIDeadlineResponse(
+            id=rfi.id,
+            project_id=rfi.project_id,
+            rfi_number=rfi.rfi_number,
+            subject=rfi.subject,
+            to_email=rfi.to_email,
+            to_name=rfi.to_name,
+            category=rfi.category,
+            priority=rfi.priority,
+            status=rfi.status,
+            due_date=rfi.due_date,
+            days_overdue=(now - rfi.due_date).days,
+            created_at=rfi.created_at,
+            sent_at=rfi.sent_at
+        )
+        for rfi in rfis
+    ]
+
+
+@router.get("/projects/{project_id}/rfis/upcoming-deadlines", response_model=list[RFIDeadlineResponse])
+async def get_upcoming_deadline_rfis(
+    project_id: uuid.UUID,
+    days: int = Query(7, ge=1, le=30),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    await verify_project_access(project_id, current_user, db)
+    now = datetime.utcnow()
+    deadline = now + timedelta(days=days)
+    result = await db.execute(
+        select(RFI)
+        .where(
+            RFI.project_id == project_id,
+            RFI.due_date >= now,
+            RFI.due_date <= deadline,
+            RFI.due_date.isnot(None),
+            RFI.status.in_(["draft", "open", "waiting_response"])
+        )
+        .order_by(RFI.due_date.asc())
+    )
+    rfis = result.scalars().all()
+    return [
+        RFIDeadlineResponse(
+            id=rfi.id,
+            project_id=rfi.project_id,
+            rfi_number=rfi.rfi_number,
+            subject=rfi.subject,
+            to_email=rfi.to_email,
+            to_name=rfi.to_name,
+            category=rfi.category,
+            priority=rfi.priority,
+            status=rfi.status,
+            due_date=rfi.due_date,
+            days_until_due=(rfi.due_date - now).days,
+            created_at=rfi.created_at,
+            sent_at=rfi.sent_at
+        )
+        for rfi in rfis
+    ]
 
 
 @router.get("/rfis/{rfi_id}", response_model=RFIResponse)

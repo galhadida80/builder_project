@@ -26,7 +26,7 @@ import {
 } from '@/icons'
 import {
   Box, Typography, Skeleton, Chip, MenuItem, IconButton, LinearProgress,
-  TextField as MuiTextField, Autocomplete,
+  TextField as MuiTextField, Autocomplete, TablePagination,
 } from '@/mui'
 
 function compressImage(file: File, maxWidth = 1920, quality = 0.8): Promise<File> {
@@ -77,6 +77,9 @@ export default function DefectsPage() {
   const { showError, showSuccess, showWarning } = useToast()
 
   const [defects, setDefects] = useState<Defect[]>([])
+  const [totalDefects, setTotalDefects] = useState(0)
+  const [page, setPage] = useState(1)
+  const [rowsPerPage, setRowsPerPage] = useState(20)
   const [summary, setSummary] = useState<DefectSummary | null>(null)
   const [contacts, setContacts] = useState<Contact[]>([])
   const [areas, setAreas] = useState<ConstructionArea[]>([])
@@ -148,23 +151,42 @@ export default function DefectsPage() {
   })
 
   useEffect(() => {
-    if (projectId) loadData()
+    if (projectId) loadReferenceData()
   }, [projectId])
 
-  const loadData = async () => {
+  useEffect(() => {
+    if (projectId) loadDefects()
+  }, [projectId, page, rowsPerPage, activeTab, categoryFilter])
+
+  const loadReferenceData = async () => {
     if (!projectId) return
-    setLoading(true)
     try {
-      const [defectList, defectSummary, contactList, areaList] = await Promise.all([
-        defectsApi.list(projectId),
+      const [defectSummary, contactList, areaList] = await Promise.all([
         defectsApi.getSummary(projectId),
         contactsApi.list(projectId).catch(() => []),
         areasApi.list(projectId).catch(() => []),
       ])
-      setDefects(defectList)
       setSummary(defectSummary)
       setContacts(contactList)
       setAreas(areaList)
+    } catch (error) {
+      console.error('Failed to load reference data:', error)
+    }
+  }
+
+  const loadDefects = async () => {
+    if (!projectId) return
+    setLoading(true)
+    try {
+      const params: { status?: string; category?: string; page: number; pageSize: number } = {
+        page,
+        pageSize: rowsPerPage,
+      }
+      if (activeTab !== 'all') params.status = activeTab
+      if (categoryFilter) params.category = categoryFilter
+      const result = await defectsApi.list(projectId, params)
+      setDefects(result.items)
+      setTotalDefects(result.total)
     } catch (error) {
       console.error('Failed to load defects:', error)
     } finally {
@@ -206,7 +228,9 @@ export default function DefectsPage() {
       setForm({ description: '', category: 'other', severity: 'medium', assignee_ids: [] })
       setFormErrors({})
       clearPhotos()
-      loadData()
+      setPage(1)
+      loadDefects()
+      loadReferenceData()
     } catch {
       showError(t('defects.createFailed'))
     } finally {
@@ -231,20 +255,17 @@ export default function DefectsPage() {
     }
   }
 
-  const filteredDefects = defects.filter(d => {
-    if (activeTab !== 'all' && d.status !== activeTab) return false
-    if (categoryFilter && d.category !== categoryFilter) return false
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase()
-      return (
-        d.description.toLowerCase().includes(q) ||
-        String(d.defectNumber).includes(q) ||
-        d.area?.name?.toLowerCase().includes(q) ||
-        d.assignedContact?.contactName?.toLowerCase().includes(q)
-      )
-    }
-    return true
-  })
+  const filteredDefects = searchQuery
+    ? defects.filter(d => {
+        const q = searchQuery.toLowerCase()
+        return (
+          d.description.toLowerCase().includes(q) ||
+          String(d.defectNumber).includes(q) ||
+          d.area?.name?.toLowerCase().includes(q) ||
+          d.assignedContact?.contactName?.toLowerCase().includes(q)
+        )
+      })
+    : defects
 
   const columns: Column<Defect>[] = [
     {
@@ -331,8 +352,8 @@ export default function DefectsPage() {
       minWidth: 90,
       align: 'right',
       hideOnMobile: true,
-      render: () => (
-        <Button variant="tertiary" size="small" icon={<VisibilityIcon />}>
+      render: (row) => (
+        <Button variant="tertiary" size="small" icon={<VisibilityIcon />} onClick={(e) => { e.stopPropagation(); navigate(`/projects/${projectId}/defects/${row.id}`); }}>
           {t('buttons.view')}
         </Button>
       ),
@@ -343,13 +364,29 @@ export default function DefectsPage() {
     return (
       <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
         <Skeleton variant="text" width={350} height={48} sx={{ mb: 1 }} />
-        <Skeleton variant="text" width={250} height={24} sx={{ mb: 4 }} />
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', md: 'repeat(3, 1fr)', lg: 'repeat(5, 1fr)' }, gap: 2, mb: 4, overflow: 'hidden' }}>
+        <Skeleton variant="text" width={250} height={24} sx={{ mb: 3 }} />
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', md: 'repeat(3, 1fr)', lg: 'repeat(5, 1fr)' }, gap: 1.5, mb: 3, overflow: 'hidden' }}>
           {[...Array(5)].map((_, i) => (
-            <Skeleton key={i} variant="rounded" height={100} sx={{ borderRadius: 3 }} />
+            <Skeleton key={i} variant="rounded" height={80} sx={{ borderRadius: 2 }} />
           ))}
         </Box>
-        <Skeleton variant="rounded" height={400} sx={{ borderRadius: 3 }} />
+        <Skeleton variant="rounded" width="100%" height={42} sx={{ borderRadius: 2, mb: 2 }} />
+        <Skeleton variant="rounded" width="100%" height={36} sx={{ borderRadius: 2, mb: 2 }} />
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+          {[...Array(6)].map((_, i) => (
+            <Box key={i} sx={{ display: 'grid', gridTemplateColumns: { xs: '60px 1fr 80px', sm: '60px 1fr 1fr 1fr 100px 100px 100px' }, gap: 2, py: 1.5, px: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
+              <Skeleton variant="text" width={40} height={20} />
+              <Box>
+                <Skeleton variant="text" width={100} height={20} />
+              </Box>
+              <Skeleton variant="text" width={140} height={20} sx={{ display: { xs: 'none', sm: 'block' } }} />
+              <Skeleton variant="text" width={90} height={20} sx={{ display: { xs: 'none', sm: 'block' } }} />
+              <Skeleton variant="rounded" width={60} height={22} sx={{ borderRadius: 4, display: { xs: 'none', sm: 'block' } }} />
+              <Skeleton variant="rounded" width={70} height={24} sx={{ borderRadius: 4 }} />
+              <Skeleton variant="text" width={80} height={20} sx={{ display: { xs: 'none', sm: 'block' } }} />
+            </Box>
+          ))}
+        </Box>
       </Box>
     )
   }
@@ -362,8 +399,8 @@ export default function DefectsPage() {
         breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('nav.defects') }]}
         actions={
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-            <Button variant="secondary" icon={<PictureAsPdfIcon />} onClick={handleExportPdf} disabled={exporting}>
-              {exporting ? t('defects.exporting') : t('defects.exportPdf')}
+            <Button variant="secondary" icon={<PictureAsPdfIcon />} onClick={handleExportPdf} loading={exporting}>
+              {t('defects.exportPdf')}
             </Button>
             <Button variant="primary" icon={<AddIcon />} onClick={() => setDialogOpen(true)}>
               {t('defects.reportDefect')}
@@ -401,7 +438,7 @@ export default function DefectsPage() {
                 select
                 size="small"
                 value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
+                onChange={(e) => { setCategoryFilter(e.target.value); setPage(1) }}
                 label={t('defects.category')}
                 sx={{ minWidth: 160 }}
               >
@@ -422,14 +459,14 @@ export default function DefectsPage() {
 
           <Tabs
             items={[
-              { label: t('common.all'), value: 'all', badge: defects.length },
-              { label: t('defects.open'), value: 'open', badge: defects.filter(d => d.status === 'open').length },
-              { label: t('defects.inProgress'), value: 'in_progress', badge: defects.filter(d => d.status === 'in_progress').length },
-              { label: t('defects.resolved'), value: 'resolved', badge: defects.filter(d => d.status === 'resolved').length },
-              { label: t('defects.closed'), value: 'closed', badge: defects.filter(d => d.status === 'closed').length },
+              { label: t('common.all'), value: 'all', badge: summary?.total ?? 0 },
+              { label: t('defects.open'), value: 'open', badge: summary?.openCount ?? 0 },
+              { label: t('defects.inProgress'), value: 'in_progress', badge: summary?.inProgressCount ?? 0 },
+              { label: t('defects.resolved'), value: 'resolved', badge: summary?.resolvedCount ?? 0 },
+              { label: t('defects.closed'), value: 'closed', badge: summary?.closedCount ?? 0 },
             ]}
             value={activeTab}
-            onChange={setActiveTab}
+            onChange={(val) => { setActiveTab(val); setPage(1) }}
             size="small"
           />
 
@@ -440,12 +477,26 @@ export default function DefectsPage() {
                 description={t('defects.noDefectsDescription')}
               />
             ) : (
-              <DataTable
-                columns={columns}
-                rows={filteredDefects}
-                getRowId={(row) => row.id}
-                onRowClick={(row) => navigate(`/projects/${projectId}/defects/${row.id}`)}
-              />
+              <>
+                <DataTable
+                  columns={columns}
+                  rows={filteredDefects}
+                  getRowId={(row) => row.id}
+                  onRowClick={(row) => navigate(`/projects/${projectId}/defects/${row.id}`)}
+                  pagination={false}
+                />
+                <TablePagination
+                  component="div"
+                  count={totalDefects}
+                  page={page - 1}
+                  rowsPerPage={rowsPerPage}
+                  onPageChange={(_, newPage) => setPage(newPage + 1)}
+                  onRowsPerPageChange={(e) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(1) }}
+                  rowsPerPageOptions={[10, 20, 50, 100]}
+                  labelRowsPerPage={t('table.rowsPerPage')}
+                  labelDisplayedRows={({ from, to, count }) => `${from}-${to} ${t('table.of')} ${count !== -1 ? count : `>${to}`}`}
+                />
+              </>
             )}
           </Box>
         </Box>

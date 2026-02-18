@@ -1,5 +1,6 @@
 import { apiClient } from './client'
 import type { Material } from '../types'
+import type { PaginatedResponse } from './types'
 
 interface MaterialCreate {
   name: string
@@ -28,16 +29,28 @@ interface MaterialUpdate {
   notes?: string
 }
 
+export interface MaterialListParams {
+  status?: string
+  search?: string
+  page?: number
+  pageSize?: number
+}
+
 export const materialsApi = {
-  list: async (projectId?: string, filters?: { status?: string; search?: string }): Promise<Material[]> => {
+  list: async (projectId?: string, params?: MaterialListParams): Promise<PaginatedResponse<Material>> => {
     const url = projectId ? `/projects/${projectId}/materials` : '/materials'
-    const params = new URLSearchParams()
-    if (filters?.status) params.set('status', filters.status)
-    if (filters?.search) params.set('search', filters.search)
-    const qs = params.toString()
-    const response = await apiClient.get(`${url}${qs ? `?${qs}` : ''}`)
+    const qs = new URLSearchParams()
+    if (params?.status) qs.set('status', params.status)
+    if (params?.search) qs.set('search', params.search)
+    if (params?.page) qs.set('page', String(params.page))
+    if (params?.pageSize) qs.set('page_size', String(params.pageSize))
+    const query = qs.toString()
+    const response = await apiClient.get(`${url}${query ? `?${query}` : ''}`)
     const data = response.data
-    return Array.isArray(data) ? data : data.items ?? []
+    if (Array.isArray(data)) {
+      return { items: data, total: data.length, page: 1, page_size: data.length, total_pages: 1 }
+    }
+    return data
   },
 
   get: async (projectId: string, id: string): Promise<Material> => {

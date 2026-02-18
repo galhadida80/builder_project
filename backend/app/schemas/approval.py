@@ -53,3 +53,15 @@ class ApprovalRequestResponse(CamelCaseModel):
     created_at: datetime
     created_by: Optional[UserResponse] = None
     steps: list[ApprovalStepResponse] = []
+
+
+class PendingReminderResponse(CamelCaseModel):
+    id: UUID
+    project_id: UUID
+    entity_type: str
+    entity_id: UUID
+    current_status: str
+    created_at: datetime
+    days_pending: int
+    created_by: Optional[UserResponse] = None
+    steps: list[ApprovalStepResponse] = []

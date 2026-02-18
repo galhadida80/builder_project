@@ -1,5 +1,6 @@
 export const colors = {
   primary: {
+    950: '#020617',
     900: '#0F172A',
     800: '#1E293B',
     700: '#334155',
@@ -16,11 +17,21 @@ export const colors = {
     hover: '#0284C7',
     light: '#E0F2FE',
     dark: '#075985',
+    darker: '#0C4A6E',
+  },
+  teal: {
+    600: '#0D9488',
+    500: '#14B8A6',
+    400: '#2DD4BF',
+    300: '#5EEAD4',
+    100: '#CCFBF1',
+    50: '#F0FDFA',
   },
   orange: {
-    500: '#F97316',
     600: '#EA580C',
+    500: '#F97316',
     400: '#FB923C',
+    300: '#FDBA74',
     100: '#FFEDD5',
     50: '#FFF7ED',
   },
@@ -29,24 +40,42 @@ export const colors = {
     light: '#86EFAC',
     dark: '#16A34A',
     bg: '#F0FDF4',
+    darkBg: 'rgba(34, 197, 94, 0.14)',
   },
   warning: {
     main: '#EAB308',
     light: '#FDE047',
     dark: '#CA8A04',
     bg: '#FEFCE8',
+    darkBg: 'rgba(234, 179, 8, 0.14)',
   },
   error: {
     main: '#EF4444',
     light: '#FCA5A5',
     dark: '#DC2626',
     bg: '#FEF2F2',
+    darkBg: 'rgba(239, 68, 68, 0.14)',
   },
   info: {
     main: '#3B82F6',
     light: '#93C5FD',
     dark: '#2563EB',
     bg: '#EFF6FF',
+    darkBg: 'rgba(59, 130, 246, 0.14)',
+  },
+  surface: {
+    light: {
+      default: '#F8FAFC',
+      paper: '#FFFFFF',
+      elevated: '#FFFFFF',
+      overlay: 'rgba(15, 23, 42, 0.5)',
+    },
+    dark: {
+      default: '#0F172A',
+      paper: '#1E293B',
+      elevated: '#263548',
+      overlay: 'rgba(0, 0, 0, 0.6)',
+    },
   },
 }
 

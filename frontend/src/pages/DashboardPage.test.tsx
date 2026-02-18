@@ -84,14 +84,20 @@ vi.mock('../components/ui/Button', () => ({
   ),
 }))
 
-const mockEquipment = [
-  { id: 'eq-1', projectId: 'p1', name: 'Crane A', status: 'approved', createdAt: '2024-01-01', updatedAt: '2024-01-01' },
-  { id: 'eq-2', projectId: 'p1', name: 'Crane B', status: 'submitted', createdAt: '2024-01-01', updatedAt: '2024-01-01' },
-]
+const mockEquipment = {
+  items: [
+    { id: 'eq-1', projectId: 'p1', name: 'Crane A', status: 'approved', createdAt: '2024-01-01', updatedAt: '2024-01-01' },
+    { id: 'eq-2', projectId: 'p1', name: 'Crane B', status: 'submitted', createdAt: '2024-01-01', updatedAt: '2024-01-01' },
+  ],
+  total: 2, page: 1, page_size: 20, total_pages: 1,
+}
 
-const mockMaterials = [
-  { id: 'mat-1', projectId: 'p1', name: 'Steel', status: 'approved', createdAt: '2024-01-01', updatedAt: '2024-01-01' },
-]
+const mockMaterials = {
+  items: [
+    { id: 'mat-1', projectId: 'p1', name: 'Steel', status: 'approved', createdAt: '2024-01-01', updatedAt: '2024-01-01' },
+  ],
+  total: 1, page: 1, page_size: 20, total_pages: 1,
+}
 
 const mockMeetings = [
   { id: 'mtg-1', projectId: 'p1', title: 'Site Review', status: 'scheduled', scheduledDate: '2025-06-15T10:00:00Z', createdAt: '2024-01-01' },

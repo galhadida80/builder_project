@@ -12,6 +12,7 @@ import { PageHeader } from '../components/ui/Breadcrumbs'
 import { EmptyState } from '../components/ui/EmptyState'
 import { TextField, SearchField } from '../components/ui/TextField'
 import { InspectionHistoryTimeline } from '../components/InspectionHistoryTimeline'
+import InspectionReportPreview from '../components/InspectionReportPreview'
 import { inspectionsApi } from '../api/inspections'
 import type {
   Inspection, InspectionConsultantType, InspectionStageTemplate, InspectionSummary
@@ -21,8 +22,8 @@ import { validateInspectionForm, hasErrors, type ValidationError } from '../util
 import { useToast } from '../components/common/ToastProvider'
 import { useReferenceData } from '../contexts/ReferenceDataContext'
 import HelpTooltip from '../components/help/HelpTooltip'
-import { AddIcon, CheckCircleIcon, WarningIcon, ErrorIcon, ScheduleIcon, AssignmentIcon, VisibilityIcon } from '@/icons'
-import { Box, Typography, Skeleton, Chip, Alert, MenuItem, TextField as MuiTextField } from '@/mui'
+import { AddIcon, CheckCircleIcon, WarningIcon, ErrorIcon, ScheduleIcon, AssignmentIcon, DescriptionIcon } from '@/icons'
+import { Box, Typography, Skeleton, Chip, Alert, MenuItem, TextField as MuiTextField, IconButton, Tooltip } from '@/mui'
 
 export default function InspectionsPage() {
   const { t } = useTranslation()
@@ -39,6 +40,7 @@ export default function InspectionsPage() {
   const [activeTab, setActiveTab] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [errors, setErrors] = useState<ValidationError>({})
+  const [previewInspection, setPreviewInspection] = useState<Inspection | null>(null)
 
   useEffect(() => {
     if (projectId) loadData()
@@ -212,12 +214,19 @@ export default function InspectionsPage() {
     {
       id: 'actions',
       label: '',
-      minWidth: 100,
+      minWidth: 80,
       align: 'right',
-      render: () => (
-        <Button variant="tertiary" size="small" icon={<VisibilityIcon />}>
-          {t('buttons.view')}
-        </Button>
+      hideOnMobile: true,
+      render: (row) => (
+        <Tooltip title={t('inspections.previewReport')}>
+          <IconButton
+            size="small"
+            onClick={(e) => { e.stopPropagation(); setPreviewInspection(row); }}
+            aria-label={t('inspections.previewReport')}
+          >
+            <DescriptionIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
       ),
     },
   ]
@@ -500,6 +509,12 @@ export default function InspectionsPage() {
           />
         </Box>
       </FormModal>
+
+      <InspectionReportPreview
+        open={!!previewInspection}
+        onClose={() => setPreviewInspection(null)}
+        inspection={previewInspection}
+      />
     </Box>
   )
 }

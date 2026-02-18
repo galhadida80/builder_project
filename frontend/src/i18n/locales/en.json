@@ -423,7 +423,8 @@
     "removeItem": "Remove item",
     "selectLanguage": "Select language",
     "viewDetails": "View details",
-    "toggleNavigation": "Toggle navigation"
+    "toggleNavigation": "Toggle navigation",
+    "loadingPage": "Loading page..."
   },
   "table": {
     "rowsPerPage": "Rows per page:",
@@ -853,6 +854,7 @@
     "rejectionReason": "Rejection Reason",
     "commentsPlaceholder": "Add any comments about your decision...",
     "rejectionPlaceholder": "Please provide a reason for rejection...",
+    "rejectionReasonRequired": "A rejection reason is required",
     "noHistory": "No approval history",
     "noHistoryDescription": "No actions have been taken on this approval yet.",
     "viewDetails": "View Details"
@@ -1115,7 +1117,25 @@
     "last3Months": "Last 3 months",
     "last6Months": "Last 6 months",
     "lastYear": "Last year",
-    "allTime": "All time"
+    "allTime": "All time",
+    "previewReport": "Preview Report",
+    "inspectionReport": "Inspection Report",
+    "reportDetails": "Report Details",
+    "reportDate": "Report Date",
+    "completedDate": "Completed Date",
+    "createdBy": "Created By",
+    "findingSummary": "Finding Summary",
+    "severity": "Severity",
+    "location": "Location",
+    "description": "Description",
+    "noDescription": "No description provided",
+    "open": "Open",
+    "resolved": "Resolved",
+    "printReport": "Print Report",
+    "generatedOn": "Generated on",
+    "notCompleted": "Not completed yet",
+    "createSuccess": "Inspection created successfully",
+    "failedToCreate": "Failed to create inspection"
   },
   "documents": {
     "title": "Document Library",
@@ -1309,6 +1329,50 @@
       "quote3": "The inspection management system gives us complete visibility. Our compliance rate went from 82% to 97% in just three months.",
       "name3": "Michael Rodriguez",
       "role3": "Quality Manager, Summit Infrastructure"
+    },
+    "pricing": {
+      "label": "Pricing",
+      "title": "Simple, transparent pricing",
+      "subtitle": "Choose the plan that fits your team. No hidden fees, cancel anytime.",
+      "perMonth": "month",
+      "getStarted": "Get Started",
+      "contactSales": "Contact Sales",
+      "popular": "Most Popular",
+      "starter": {
+        "name": "Starter",
+        "description": "Perfect for small teams getting started with construction management.",
+        "features": {
+          "upTo5Projects": "Up to 5 projects",
+          "equipmentTracking": "Equipment tracking",
+          "basicInspections": "Basic inspections",
+          "emailSupport": "Email support"
+        }
+      },
+      "professional": {
+        "name": "Professional",
+        "description": "For growing teams that need advanced workflows and analytics.",
+        "features": {
+          "unlimitedProjects": "Unlimited projects",
+          "fullEquipmentMgmt": "Full equipment management",
+          "advancedInspections": "Advanced inspections",
+          "approvalWorkflows": "Approval workflows",
+          "analyticsReports": "Analytics & reports",
+          "prioritySupport": "Priority support"
+        }
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "description": "For large organizations with custom security and integration needs.",
+        "price": "Custom",
+        "features": {
+          "everythingInPro": "Everything in Professional",
+          "ssoIntegration": "SSO integration",
+          "dedicatedSupport": "Dedicated account manager",
+          "customIntegrations": "Custom integrations",
+          "slaGuarantee": "99.9% SLA guarantee",
+          "onPremiseOption": "On-premise deployment option"
+        }
+      }
     }
   },
   "analytics": {

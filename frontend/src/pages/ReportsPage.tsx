@@ -134,7 +134,10 @@ export default function ReportsPage() {
   const renderApprovalStatus = (data: Record<string, unknown>) => {
     const eqItems = (data.equipment_items || []) as Array<Record<string, string>>
     const matItems = (data.material_items || []) as Array<Record<string, string>>
-    const allItems = [...eqItems.map(i => ({ ...i, type: 'Equipment' })), ...matItems.map(i => ({ ...i, type: 'Material' }))]
+    const allItems = [
+      ...eqItems.map(i => ({ ...i, type: 'Equipment' } as Record<string, string>)),
+      ...matItems.map(i => ({ ...i, type: 'Material' } as Record<string, string>)),
+    ]
 
     return (
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>

@@ -1,5 +1,6 @@
 import { apiClient } from './client'
 import type { Equipment } from '../types'
+import type { PaginatedResponse } from './types'
 
 interface EquipmentCreate {
   name: string
@@ -30,16 +31,28 @@ interface ChecklistCreate {
   items: Array<{ id: string; label: string; is_completed: boolean }>
 }
 
+export interface EquipmentListParams {
+  status?: string
+  search?: string
+  page?: number
+  pageSize?: number
+}
+
 export const equipmentApi = {
-  list: async (projectId?: string, filters?: { status?: string; search?: string }): Promise<Equipment[]> => {
-    const params = new URLSearchParams()
-    if (filters?.status) params.set('status', filters.status)
-    if (filters?.search) params.set('search', filters.search)
-    const qs = params.toString()
+  list: async (projectId?: string, params?: EquipmentListParams): Promise<PaginatedResponse<Equipment>> => {
+    const qs = new URLSearchParams()
+    if (params?.status) qs.set('status', params.status)
+    if (params?.search) qs.set('search', params.search)
+    if (params?.page) qs.set('page', String(params.page))
+    if (params?.pageSize) qs.set('page_size', String(params.pageSize))
+    const query = qs.toString()
     const url = projectId ? `/projects/${projectId}/equipment` : '/equipment'
-    const response = await apiClient.get(`${url}${qs ? `?${qs}` : ''}`)
+    const response = await apiClient.get(`${url}${query ? `?${query}` : ''}`)
     const data = response.data
-    return Array.isArray(data) ? data : data.items ?? []
+    if (Array.isArray(data)) {
+      return { items: data, total: data.length, page: 1, page_size: data.length, total_pages: 1 }
+    }
+    return data
   },
 
   get: async (projectId: string, id: string): Promise<Equipment> => {

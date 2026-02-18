@@ -66,8 +66,8 @@ export default function DashboardPage() {
         pid ? auditApi.listByProject(pid, { limit: 10 }) : auditApi.listAll({ limit: 10 }),
         workloadApi.getTeamMembers(pid)
       ])
-      setEquipment(equipmentData)
-      setMaterials(materialsData)
+      setEquipment(equipmentData.items)
+      setMaterials(materialsData.items)
       setMeetings(meetingsData)
       setApprovals(approvalsData)
       setAuditLogs(auditData)

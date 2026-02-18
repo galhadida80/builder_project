@@ -119,9 +119,9 @@ export default function BudgetPage() {
     { id: 'remainingAmount', label: t('budget.remaining', { defaultValue: 'Remaining' }), minWidth: 120, hideOnMobile: true, render: (r) => <Typography variant="body2" color={r.remainingAmount >= 0 ? 'success.main' : 'error.main'}>{fmt(r.remainingAmount)}</Typography> },
     { id: 'actions', label: '', minWidth: 130, align: 'right', render: (r) => (
       <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
-        <IconButton size="small" onClick={(e) => { e.stopPropagation(); openAddCost(r.id) }}><AttachMoneyIcon fontSize="small" /></IconButton>
-        <IconButton size="small" onClick={(e) => { e.stopPropagation(); openEditItem(r) }}><EditIcon fontSize="small" /></IconButton>
-        <IconButton size="small" onClick={(e) => { e.stopPropagation(); setDeleteTarget({ type: 'item', id: r.id }) }}><DeleteIcon fontSize="small" /></IconButton>
+        <IconButton size="small" aria-label={t('budget.addCost')} onClick={(e) => { e.stopPropagation(); openAddCost(r.id) }}><AttachMoneyIcon fontSize="small" /></IconButton>
+        <IconButton size="small" aria-label={t('budget.editItem')} onClick={(e) => { e.stopPropagation(); openEditItem(r) }}><EditIcon fontSize="small" /></IconButton>
+        <IconButton size="small" aria-label={t('common.delete')} onClick={(e) => { e.stopPropagation(); setDeleteTarget({ type: 'item', id: r.id }) }}><DeleteIcon fontSize="small" /></IconButton>
       </Box>
     )},
   ]
@@ -134,8 +134,8 @@ export default function BudgetPage() {
     { id: 'requestedDate', label: t('budget.date', { defaultValue: 'Date' }), minWidth: 100, hideOnMobile: true, render: (r) => <Typography variant="body2">{r.requestedDate ? new Date(r.requestedDate).toLocaleDateString(getDateLocale()) : '-'}</Typography> },
     { id: 'actions', label: '', minWidth: 90, align: 'right', render: (r) => (
       <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
-        <IconButton size="small" onClick={(e) => { e.stopPropagation(); openEditCO(r) }}><EditIcon fontSize="small" /></IconButton>
-        <IconButton size="small" onClick={(e) => { e.stopPropagation(); setDeleteTarget({ type: 'co', id: r.id }) }}><DeleteIcon fontSize="small" /></IconButton>
+        <IconButton size="small" aria-label={t('budget.editChangeOrder')} onClick={(e) => { e.stopPropagation(); openEditCO(r) }}><EditIcon fontSize="small" /></IconButton>
+        <IconButton size="small" aria-label={t('common.delete')} onClick={(e) => { e.stopPropagation(); setDeleteTarget({ type: 'co', id: r.id }) }}><DeleteIcon fontSize="small" /></IconButton>
       </Box>
     )},
   ]
@@ -199,7 +199,7 @@ export default function BudgetPage() {
                           </Box>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                             <Typography variant="body2" fontWeight={600}>{fmt(c.amount)}</Typography>
-                            <IconButton size="small" onClick={() => setDeleteTarget({ type: 'cost', id: c.id })}><DeleteIcon fontSize="small" /></IconButton>
+                            <IconButton size="small" aria-label={t('common.delete')} onClick={() => setDeleteTarget({ type: 'cost', id: c.id })}><DeleteIcon fontSize="small" /></IconButton>
                           </Box>
                         </Box>
                       ))}

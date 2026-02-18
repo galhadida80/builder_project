@@ -34,6 +34,7 @@ import InvitePage from './pages/InvitePage'
 import AdminUsersPage from './pages/AdminUsersPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
 import { lazy, Suspense } from 'react'
+import { LoadingPage } from './components/common/LoadingPage'
 import { ErrorBoundary } from './components/common/ErrorBoundary'
 import { OfflineIndicator } from './components/common/OfflineIndicator'
 import ChecklistsPage from './pages/ChecklistsPage'
@@ -99,7 +100,7 @@ function AppRoutes() {
               <Route path="defects/:defectId" element={<DefectDetailPage />} />
               <Route path="tasks" element={<TasksPage />} />
               <Route path="budget" element={<BudgetPage />} />
-              <Route path="bim" element={<Suspense fallback={null}><BIMPage /></Suspense>} />
+              <Route path="bim" element={<Suspense fallback={<LoadingPage />}><BIMPage /></Suspense>} />
               <Route path="reports" element={<ReportsPage />} />
             </Route>
 

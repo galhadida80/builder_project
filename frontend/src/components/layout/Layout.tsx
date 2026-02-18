@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Outlet, useParams, useNavigate } from 'react-router-dom'
 import Sidebar from './Sidebar'
@@ -9,6 +9,7 @@ import { RouteProgressBar } from '../common/RouteProgressBar'
 import { useAuth } from '../../contexts/AuthContext'
 import { useProject } from '../../contexts/ProjectContext'
 import { useRouteProgress } from '../../hooks/useRouteProgress'
+import { LoadingPage } from '../common/LoadingPage'
 import OnboardingTour from '../onboarding/OnboardingTour'
 import { useOnboarding } from '../../hooks/useOnboarding'
 import { SmartToyIcon } from '@/icons'
@@ -27,6 +28,12 @@ export default function Layout() {
   const { showTour, completeTour } = useOnboarding()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
+
+  useEffect(() => {
+    if (!isMobile) {
+      setMobileDrawerOpen(false)
+    }
+  }, [isMobile])
 
   const handleDrawerToggle = useCallback(() => {
     setMobileDrawerOpen(prev => !prev)
@@ -86,12 +93,16 @@ export default function Layout() {
           pb: { xs: '80px', md: 2 },
           bgcolor: 'background.default',
           minHeight: '100dvh',
+          width: { xs: '100%', md: `calc(100% - 260px)` },
           maxWidth: '100%',
           minWidth: 0,
+          overflowX: 'hidden',
         }}
       >
         <Toolbar />
-        <Outlet />
+        <Suspense fallback={<LoadingPage />}>
+          <Outlet />
+        </Suspense>
       </Box>
 
       {isMobile && (
@@ -113,6 +124,10 @@ export default function Layout() {
               right: { xs: 16, md: 24 },
               zIndex: 1100,
               display: chatOpen ? 'none' : 'flex',
+              '&:focus-visible': {
+                outline: (theme) => `2px solid ${theme.palette.primary.main}`,
+                outlineOffset: 2,
+              },
             }}
           >
             <SmartToyIcon />

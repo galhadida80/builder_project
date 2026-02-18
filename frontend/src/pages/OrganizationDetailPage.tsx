@@ -215,7 +215,7 @@ export default function OrganizationDetailPage() {
                           </Typography>
                         </TableCell>
                         <TableCell align="center">
-                          <IconButton size="small" onClick={() => setRemoveMemberId(member.id)} color="error">
+                          <IconButton size="small" aria-label={t('organizations.removeMember')} onClick={() => setRemoveMemberId(member.id)} color="error">
                             <DeleteIcon fontSize="small" />
                           </IconButton>
                         </TableCell>

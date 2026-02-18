@@ -199,9 +199,17 @@ export function DataTable<T>({
     ? [...rows].sort((a, b) => {
         const aVal = (a as Record<string, unknown>)[orderBy]
         const bVal = (b as Record<string, unknown>)[orderBy]
+        if (aVal == null && bVal == null) return 0
         if (aVal == null) return 1
         if (bVal == null) return -1
-        const cmp = String(aVal).localeCompare(String(bVal), undefined, { numeric: true })
+        let cmp: number
+        if (typeof aVal === 'number' && typeof bVal === 'number') {
+          cmp = aVal - bVal
+        } else if (aVal instanceof Date && bVal instanceof Date) {
+          cmp = aVal.getTime() - bVal.getTime()
+        } else {
+          cmp = String(aVal).localeCompare(String(bVal), undefined, { numeric: true, sensitivity: 'base' })
+        }
         return order === 'asc' ? cmp : -cmp
       })
     : rows
@@ -315,7 +323,25 @@ export function DataTable<T>({
                 <TableRow
                   selected={isSelected}
                   onClick={() => onRowClick?.(row)}
-                  sx={{ cursor: onRowClick ? 'pointer' : 'default' }}
+                  onKeyDown={onRowClick ? (e: React.KeyboardEvent) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      onRowClick(row)
+                    }
+                  } : undefined}
+                  tabIndex={onRowClick ? 0 : undefined}
+                  role={onRowClick ? 'button' : undefined}
+                  aria-label={onRowClick ? t('accessibility.viewDetails') : undefined}
+                  sx={{
+                    cursor: onRowClick ? 'pointer' : 'default',
+                    ...(onRowClick && {
+                      '&:focus-visible': {
+                        outline: `2px solid`,
+                        outlineColor: 'primary.main',
+                        outlineOffset: -2,
+                      },
+                    }),
+                  }}
                 >
                   {selectable && (
                     <TableCell padding="checkbox">

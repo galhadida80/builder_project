@@ -86,6 +86,11 @@ export default function MobileBottomNav({ projectId, onMenuOpen }: MobileBottomN
                 fontSize: '0.7rem',
               },
             },
+            '&:focus-visible': {
+              outline: (theme) => `2px solid ${theme.palette.primary.main}`,
+              outlineOffset: -2,
+              borderRadius: 1,
+            },
           },
           '& .MuiBottomNavigationAction-label': {
             fontSize: '0.65rem',

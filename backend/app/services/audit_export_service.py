@@ -9,7 +9,7 @@ from sqlalchemy.orm import selectinload
 
 from app.models.audit import AuditLog
 from app.models.equipment_submission import EquipmentSubmission
-from app.models.inspection import Inspection, Finding
+from app.models.inspection import Inspection
 from app.models.material_template import MaterialApprovalSubmission
 
 

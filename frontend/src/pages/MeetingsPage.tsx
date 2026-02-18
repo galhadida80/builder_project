@@ -16,7 +16,7 @@ import { validateMeetingForm, hasErrors, type ValidationError } from '../utils/v
 import { useToast } from '../components/common/ToastProvider'
 import { parseValidationErrors } from '../utils/apiErrors'
 import { getDateLocale } from '../utils/dateLocale'
-import { AddIcon, EditIcon, DeleteIcon, EventIcon, LocationOnIcon, AccessTimeIcon, CalendarMonthIcon, SyncIcon, CloseIcon, DownloadIcon } from '@/icons'
+import { AddIcon, EditIcon, DeleteIcon, EventIcon, LocationOnIcon, AccessTimeIcon, CalendarMonthIcon, CloseIcon, DownloadIcon } from '@/icons'
 import { Box, Typography, MenuItem, TextField as MuiTextField, Skeleton, Chip, IconButton, Drawer, Divider } from '@/mui'
 
 export default function MeetingsPage() {
@@ -217,10 +217,6 @@ export default function MeetingsPage() {
     }
   }
 
-  const handleSyncCalendar = () => {
-    showSuccess(t('meetings.syncCalendarComingSoon'))
-  }
-
   if (loading) {
     return (
       <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
@@ -247,14 +243,9 @@ export default function MeetingsPage() {
         subtitle={t('meetings.subtitle')}
         breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('meetings.title') }]}
         actions={
-          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 1 }}>
-            <Button variant="secondary" icon={<SyncIcon />} onClick={handleSyncCalendar}>
-              {t('meetings.syncCalendar')}
-            </Button>
-            <Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>
-              {t('meetings.scheduleMeeting')}
-            </Button>
-          </Box>
+          <Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>
+            {t('meetings.scheduleMeeting')}
+          </Button>
         }
       />
 

@@ -11,7 +11,7 @@ export default function HelpTooltip({ helpKey }: HelpTooltipProps) {
 
   return (
     <Tooltip title={t(helpKey)} arrow placement="top">
-      <IconButton size="small" sx={{ ml: 0.5, opacity: 0.6, '&:hover': { opacity: 1 } }}>
+      <IconButton size="small" aria-label={t('help.title')} sx={{ ml: 0.5, opacity: 0.6, '&:hover': { opacity: 1 } }}>
         <HelpOutlineIcon sx={{ fontSize: 18 }} />
       </IconButton>
     </Tooltip>

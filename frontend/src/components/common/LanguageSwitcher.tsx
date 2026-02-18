@@ -1,10 +1,12 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useLanguage } from '../../i18n'
 import { SUPPORTED_LANGUAGES, type LanguageCode } from '../../i18n/config'
 import { LanguageIcon } from '@/icons'
 import { IconButton, Tooltip, Menu, MenuItem, ListItemIcon, ListItemText } from '@/mui'
 
 export function LanguageSwitcher() {
+  const { t } = useTranslation()
   const { language, setLanguage } = useLanguage()
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const open = Boolean(anchorEl)
@@ -28,7 +30,7 @@ export function LanguageSwitcher() {
         <IconButton
           onClick={handleClick}
           size="small"
-          aria-label="Select language"
+          aria-label={t('common.selectLanguage')}
           sx={{
             color: 'text.secondary',
             '&:hover': { color: 'text.primary' },

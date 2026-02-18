@@ -24,8 +24,8 @@ export default function EquipmentPage() {
     try {
       setLoading(true)
       setError(null)
-      const data = await equipmentApi.list(projectId)
-      setEquipment(data)
+      const res = await equipmentApi.list(projectId)
+      setEquipment(res.items)
     } catch (error) {
       const errorMsg = 'Failed to load equipment. Please try again.'
       setError(errorMsg)

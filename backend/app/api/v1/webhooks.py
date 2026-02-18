@@ -1,4 +1,6 @@
 import base64
+import hashlib
+import hmac
 import json
 import logging
 
@@ -37,6 +39,16 @@ def verify_pubsub_token(request: Request):
     except Exception as e:
         logger.warning(f"Pub/Sub token verification failed: {e}")
         raise HTTPException(status_code=403, detail="Invalid Pub/Sub token")
+
+
+def verify_webhook_signature(signature: str, body: bytes, secret: str) -> bool:
+    """Verify HMAC-SHA256 signature of webhook request body."""
+    expected = hmac.new(
+        secret.encode("utf-8"),
+        body,
+        hashlib.sha256,
+    ).hexdigest()
+    return hmac.compare_digest(f"sha256={expected}", signature)
 
 
 @router.post("/gmail/push")
@@ -144,3 +156,29 @@ async def setup_gmail_watch():
     except Exception as e:
         logger.error(f"Failed to setup Gmail watch: {e}")
         return {"status": "error", "message": str(e)}
+
+
+@router.post("/incoming")
+async def receive_webhook(request: Request):
+    """Generic webhook endpoint secured with HMAC-SHA256 signature verification."""
+    if not settings.webhook_secret:
+        raise HTTPException(status_code=500, detail="Webhook secret not configured")
+
+    signature = request.headers.get("X-Webhook-Signature", "")
+    if not signature:
+        raise HTTPException(status_code=401, detail="Missing X-Webhook-Signature header")
+
+    body = await request.body()
+    if not verify_webhook_signature(signature, body, settings.webhook_secret):
+        logger.warning("Webhook signature verification failed")
+        raise HTTPException(status_code=403, detail="Invalid webhook signature")
+
+    try:
+        payload = json.loads(body)
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        raise HTTPException(status_code=400, detail="Invalid JSON payload")
+
+    event_type = payload.get("event_type", "unknown")
+    logger.info(f"Received verified webhook event: {event_type}")
+
+    return {"status": "ok", "event_type": event_type}

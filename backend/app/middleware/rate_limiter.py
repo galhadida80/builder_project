@@ -38,27 +38,26 @@ def get_client_identifier(request: Request) -> str:
 
 @lru_cache
 def get_rate_limiter() -> Limiter:
-    """
-    Get the configured rate limiter instance.
+    storage_uri = settings.redis_url
+    try:
+        if settings.rate_limit_enabled and storage_uri.startswith("redis://"):
+            import redis
+            r = redis.from_url(storage_uri, socket_connect_timeout=2)
+            r.ping()
+    except Exception:
+        logger.warning("Redis unavailable, falling back to in-memory rate limiting")
+        storage_uri = "memory://"
 
-    This function creates and caches a Limiter instance configured with:
-    - Redis storage backend for distributed rate limiting
-    - Custom key function to identify clients by IP address
-    - Settings from application configuration
-
-    Returns:
-        Limiter: Configured slowapi Limiter instance
-    """
     limiter = Limiter(
         key_func=get_client_identifier,
-        storage_uri=settings.redis_url,
+        storage_uri=storage_uri,
         enabled=settings.rate_limit_enabled,
-        headers_enabled=True,  # Add rate limit headers to responses
+        headers_enabled=True,
     )
 
     logger.info(
         f"Rate limiter initialized: enabled={settings.rate_limit_enabled}, "
-        f"storage={settings.redis_url}"
+        f"storage={storage_uri}"
     )
 
     return limiter

@@ -56,7 +56,7 @@ export default memo(function Header({ user, currentProject, projects, onProjectC
         width: { xs: '100%', md: 'calc(100% - 260px)' },
       }}
     >
-      <Toolbar sx={{ justifyContent: 'space-between', px: { xs: 0.5, sm: 2 }, gap: 0.5, minHeight: { xs: 56, sm: 64 }, minWidth: 0 }}>
+      <Toolbar sx={{ justifyContent: 'space-between', px: { xs: 0.5, sm: 2 }, gap: 0.5, minHeight: { xs: 56, sm: 64 }, minWidth: 0, '& .MuiIconButton-root:focus-visible': { outline: (theme) => `2px solid ${theme.palette.primary.main}`, outlineOffset: 2, borderRadius: '50%' } }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 0, flex: 1, overflow: 'hidden' }}>
           {isMobile && (
             <IconButton aria-label={t('common.openNavMenu')} onClick={onMenuToggle} edge="start" size="small" sx={{ flexShrink: 0 }}>

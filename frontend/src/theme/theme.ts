@@ -1,8 +1,9 @@
-import { colors, shadows, borderRadius, typography, transitions, animations } from './tokens'
+import { colors, spacing, shadows, borderRadius, typography, transitions, zIndex } from './tokens'
 import { createTheme } from '@/mui'
 import type { ThemeOptions } from '@/mui'
 
 const baseThemeOptions: ThemeOptions = {
+  spacing: spacing.sm,
   typography: {
     fontFamily: typography.fontFamily.english,
     h1: {
@@ -109,6 +110,16 @@ const baseThemeOptions: ThemeOptions = {
       lg: 1200,
       xl: 1536,
     },
+  },
+  zIndex: {
+    mobileStepper: 1000,
+    fab: 1050,
+    speedDial: 1050,
+    appBar: 1100,
+    drawer: zIndex.drawer,
+    modal: zIndex.modal,
+    snackbar: zIndex.snackbar,
+    tooltip: zIndex.tooltip,
   },
   components: {
     MuiCssBaseline: {
@@ -403,9 +414,9 @@ export function createLightTheme() {
         contrastText: '#FFFFFF',
       },
       secondary: {
-        main: colors.orange[500],
-        light: colors.orange[400],
-        dark: colors.orange[600],
+        main: colors.teal[600],
+        light: colors.teal[400],
+        dark: colors.teal[600],
         contrastText: '#FFFFFF',
       },
       success: {
@@ -429,8 +440,8 @@ export function createLightTheme() {
         dark: colors.info.dark,
       },
       background: {
-        default: colors.primary[50],
-        paper: '#FFFFFF',
+        default: colors.surface.light.default,
+        paper: colors.surface.light.paper,
       },
       text: {
         primary: colors.primary[900],
@@ -469,9 +480,9 @@ export function createDarkTheme() {
         contrastText: '#FFFFFF',
       },
       secondary: {
-        main: colors.orange[400],
-        light: colors.orange[100],
-        dark: colors.orange[500],
+        main: colors.teal[400],
+        light: colors.teal[300],
+        dark: colors.teal[500],
         contrastText: colors.primary[900],
       },
       success: {
@@ -495,8 +506,8 @@ export function createDarkTheme() {
         dark: colors.info.dark,
       },
       background: {
-        default: colors.primary[900],
-        paper: colors.primary[800],
+        default: colors.surface.dark.default,
+        paper: colors.surface.dark.paper,
       },
       text: {
         primary: colors.primary[50],
@@ -517,21 +528,39 @@ export function createDarkTheme() {
           root: {
             backgroundImage: 'none',
           },
+          elevation1: {
+            backgroundColor: colors.surface.dark.paper,
+          },
+          elevation2: {
+            backgroundColor: colors.surface.dark.elevated,
+          },
+          elevation3: {
+            backgroundColor: colors.surface.dark.elevated,
+          },
         },
       },
       MuiCard: {
         styleOverrides: {
           root: {
-            backgroundColor: colors.primary[800],
+            backgroundColor: colors.surface.dark.paper,
             borderRadius: borderRadius.lg,
+            border: `1px solid ${colors.primary[700]}`,
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)',
+          },
+        },
+      },
+      MuiDialog: {
+        styleOverrides: {
+          paper: {
+            backgroundColor: colors.surface.dark.elevated,
+            backgroundImage: 'none',
           },
         },
       },
       MuiDrawer: {
         styleOverrides: {
           paper: {
-            backgroundColor: colors.primary[900],
+            backgroundColor: colors.surface.dark.default,
             borderRight: `1px solid ${colors.primary[700]}`,
           },
         },
@@ -539,7 +568,7 @@ export function createDarkTheme() {
       MuiAppBar: {
         styleOverrides: {
           root: {
-            backgroundColor: colors.primary[900],
+            backgroundColor: colors.surface.dark.default,
             borderBottom: `1px solid ${colors.primary[700]}`,
           },
         },
@@ -548,6 +577,15 @@ export function createDarkTheme() {
         styleOverrides: {
           root: {
             borderBottomColor: colors.primary[700],
+          },
+        },
+      },
+      MuiTableHead: {
+        styleOverrides: {
+          root: {
+            '& .MuiTableCell-head': {
+              backgroundColor: colors.surface.dark.elevated,
+            },
           },
         },
       },
@@ -563,34 +601,68 @@ export function createDarkTheme() {
           },
         },
       },
+      MuiChip: {
+        styleOverrides: {
+          root: {
+            borderRadius: borderRadius.md,
+            fontWeight: typography.fontWeight.medium,
+          },
+          filled: {
+            backgroundColor: colors.primary[700],
+          },
+        },
+      },
+      MuiTooltip: {
+        styleOverrides: {
+          tooltip: {
+            backgroundColor: colors.primary[700],
+            border: `1px solid ${colors.primary[600]}`,
+          },
+        },
+      },
+      MuiMenu: {
+        styleOverrides: {
+          paper: {
+            backgroundColor: colors.surface.dark.elevated,
+            border: `1px solid ${colors.primary[700]}`,
+          },
+        },
+      },
       MuiAlert: {
         styleOverrides: {
           root: {
             borderRadius: borderRadius.md,
           },
           standardError: {
-            backgroundColor: 'rgba(239, 68, 68, 0.14)',
+            backgroundColor: colors.error.darkBg,
             color: colors.error.light,
             '& .MuiAlert-icon': { color: colors.error.light },
             '& .MuiAlert-action': { color: colors.error.light },
           },
           standardWarning: {
-            backgroundColor: 'rgba(234, 179, 8, 0.14)',
+            backgroundColor: colors.warning.darkBg,
             color: colors.warning.light,
             '& .MuiAlert-icon': { color: colors.warning.light },
             '& .MuiAlert-action': { color: colors.warning.light },
           },
           standardSuccess: {
-            backgroundColor: 'rgba(34, 197, 94, 0.14)',
+            backgroundColor: colors.success.darkBg,
             color: colors.success.light,
             '& .MuiAlert-icon': { color: colors.success.light },
             '& .MuiAlert-action': { color: colors.success.light },
           },
           standardInfo: {
-            backgroundColor: 'rgba(59, 130, 246, 0.14)',
+            backgroundColor: colors.info.darkBg,
             color: colors.info.light,
             '& .MuiAlert-icon': { color: colors.info.light },
             '& .MuiAlert-action': { color: colors.info.light },
+          },
+        },
+      },
+      MuiSkeleton: {
+        styleOverrides: {
+          root: {
+            backgroundColor: colors.primary[700],
           },
         },
       },
@@ -598,4 +670,4 @@ export function createDarkTheme() {
   })
 }
 
-export { colors, shadows, borderRadius, typography, transitions }
+export { colors, spacing, shadows, borderRadius, typography, transitions, zIndex }

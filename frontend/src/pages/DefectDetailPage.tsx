@@ -81,14 +81,16 @@ export default function DefectDetailPage() {
   }
 
   const handleStatusChange = async () => {
-    if (!projectId || !defectId || !newStatus) return
+    if (!projectId || !defectId || !newStatus || !defect) return
+    const previousStatus = defect.status
+    setDefect({ ...defect, status: newStatus as Defect['status'] })
+    setStatusDialogOpen(false)
+    showSuccess(t('defects.statusUpdated'))
     try {
       const updated = await defectsApi.update(projectId, defectId, { status: newStatus })
       setDefect(updated)
-      setStatusDialogOpen(false)
-      showSuccess(t('defects.statusUpdated'))
-      loadDetail()
     } catch {
+      setDefect(prev => prev ? { ...prev, status: previousStatus } : null)
       showError(t('defects.updateFailed'))
     }
   }
@@ -303,6 +305,15 @@ export default function DefectDetailPage() {
               {photos.map((file) => (
                 <Box
                   key={file.id}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`${t('defects.photos')}: ${file.filename}`}
+                  onKeyDown={(e: React.KeyboardEvent) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      handleViewPhoto(file)
+                    }
+                  }}
                   sx={{
                     position: 'relative',
                     aspectRatio: '1',
@@ -311,6 +322,10 @@ export default function DefectDetailPage() {
                     bgcolor: 'grey.100',
                     cursor: 'pointer',
                     '&:hover .overlay': { opacity: 1 },
+                    '&:focus-visible': {
+                      outline: (theme) => `2px solid ${theme.palette.primary.main}`,
+                      outlineOffset: 2,
+                    },
                   }}
                   onClick={() => handleViewPhoto(file)}
                 >

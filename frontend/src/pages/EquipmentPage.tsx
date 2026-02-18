@@ -25,7 +25,7 @@ import ContactSelectorDialog from '../components/ui/ContactSelectorDialog'
 import HelpTooltip from '../components/help/HelpTooltip'
 import { useReferenceData } from '../contexts/ReferenceDataContext'
 import { AddIcon, VisibilityIcon, EditIcon, DeleteIcon, CloseIcon, DescriptionIcon, SendIcon, BuildIcon, CloudUploadIcon, DownloadIcon, CheckCircleIcon, PersonIcon } from '@/icons'
-import { Box, Typography, Drawer, Divider, List, ListItem, ListItemText, ListItemIcon, MenuItem, TextField as MuiTextField, Skeleton, Chip, Checkbox, FormControlLabel, Alert, CircularProgress, IconButton } from '@/mui'
+import { Box, Typography, Drawer, Divider, List, ListItem, ListItemText, ListItemIcon, MenuItem, TextField as MuiTextField, Skeleton, Chip, Checkbox, FormControlLabel, Alert, CircularProgress, IconButton, TablePagination } from '@/mui'
 
 export default function EquipmentPage() {
   const { projectId } = useParams()
@@ -34,6 +34,9 @@ export default function EquipmentPage() {
   const { equipmentTemplates } = useReferenceData()
   const [loading, setLoading] = useState(true)
   const [equipment, setEquipment] = useState<Equipment[]>([])
+  const [totalEquipment, setTotalEquipment] = useState(0)
+  const [page, setPage] = useState(1)
+  const [rowsPerPage, setRowsPerPage] = useState(20)
   const [search, setSearch] = useState('')
   const [selectedEquipment, setSelectedEquipment] = useState<Equipment | null>(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
@@ -69,7 +72,7 @@ export default function EquipmentPage() {
 
   useEffect(() => {
     loadEquipment()
-  }, [projectId])
+  }, [projectId, page, rowsPerPage, activeTab, search])
 
   useEffect(() => {
     const loadFiles = async () => {
@@ -95,8 +98,21 @@ export default function EquipmentPage() {
   const loadEquipment = async () => {
     try {
       setLoading(true)
-      const data = await equipmentApi.list(projectId!)
-      setEquipment(data)
+      const params: { status?: string; search?: string; page: number; pageSize: number } = {
+        page,
+        pageSize: rowsPerPage,
+      }
+      if (activeTab !== 'all') {
+        if (activeTab === 'under_review') {
+          params.status = 'submitted'
+        } else {
+          params.status = activeTab
+        }
+      }
+      if (search) params.search = search
+      const result = await equipmentApi.list(projectId!, params)
+      setEquipment(result.items)
+      setTotalEquipment(result.total)
     } catch {
       showError(t('equipment.failedToLoadEquipment'))
     } finally {
@@ -248,16 +264,24 @@ export default function EquipmentPage() {
   const handleConfirmSubmit = async (consultantContactId?: string, inspectorContactId?: string) => {
     if (!projectId || !selectedEquipment) return
     setSubmitting(true)
+    const previousEquipment = [...equipment]
+    const previousSelected = { ...selectedEquipment }
+    setEquipment(prev => prev.map(eq =>
+      eq.id === selectedEquipment.id ? { ...eq, status: 'submitted' } : eq
+    ))
+    setSelectedEquipment({ ...selectedEquipment, status: 'submitted' })
+    setContactDialogOpen(false)
+    setDrawerOpen(false)
+    showSuccess(t('equipment.equipmentSubmittedSuccessfully'))
     try {
       const body: { consultant_contact_id?: string; inspector_contact_id?: string } = {}
       if (consultantContactId) body.consultant_contact_id = consultantContactId
       if (inspectorContactId) body.inspector_contact_id = inspectorContactId
       await equipmentApi.submit(projectId, selectedEquipment.id, body)
-      showSuccess(t('equipment.equipmentSubmittedSuccessfully'))
-      setContactDialogOpen(false)
       loadEquipment()
-      setDrawerOpen(false)
     } catch {
+      setEquipment(previousEquipment)
+      setSelectedEquipment(previousSelected)
       showError(t('equipment.failedToSubmitEquipment'))
     } finally {
       setSubmitting(false)
@@ -286,18 +310,7 @@ export default function EquipmentPage() {
     input.click()
   }
 
-  const filteredEquipment = equipment.filter(e => {
-    if (activeTab !== 'all') {
-      if (activeTab === 'under_review') {
-        if (e.status !== 'submitted' && e.status !== 'under_review') return false
-      } else if (e.status !== activeTab) {
-        return false
-      }
-    }
-    if (search && !e.name.toLowerCase().includes(search.toLowerCase()) &&
-        !e.equipmentType?.toLowerCase().includes(search.toLowerCase())) return false
-    return true
-  })
+  const filteredEquipment = equipment
 
   const handleViewDetails = (eq: Equipment) => {
     setSelectedEquipment(eq)
@@ -408,8 +421,26 @@ export default function EquipmentPage() {
     return (
       <Box sx={{ p: { xs: 1, sm: 1.5, md: 3 } }}>
         <Skeleton variant="text" width={200} height={48} sx={{ mb: 1 }} />
-        <Skeleton variant="text" width={300} height={24} sx={{ mb: 4 }} />
-        <Skeleton variant="rounded" height={500} sx={{ borderRadius: 3 }} />
+        <Skeleton variant="text" width={300} height={24} sx={{ mb: 3 }} />
+        <Skeleton variant="rounded" width="100%" height={42} sx={{ borderRadius: 2, mb: 2 }} />
+        <Skeleton variant="rounded" width="100%" height={36} sx={{ borderRadius: 2, mb: 2 }} />
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+          {[...Array(6)].map((_, i) => (
+            <Box key={i} sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr 100px', sm: '2fr 1fr 1fr 120px 100px' }, gap: 2, py: 1.5, px: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <Skeleton variant="rounded" width={40} height={40} />
+                <Box>
+                  <Skeleton variant="text" width={120} height={20} />
+                  <Skeleton variant="text" width={80} height={16} />
+                </Box>
+              </Box>
+              <Skeleton variant="text" width={90} height={20} sx={{ display: { xs: 'none', sm: 'block' } }} />
+              <Skeleton variant="text" width={70} height={20} sx={{ display: { xs: 'none', sm: 'block' } }} />
+              <Skeleton variant="rounded" width={80} height={24} sx={{ borderRadius: 4 }} />
+              <Skeleton variant="text" width={60} height={20} sx={{ display: { xs: 'none', sm: 'block' } }} />
+            </Box>
+          ))}
+        </Box>
       </Box>
     )
   }
@@ -436,20 +467,20 @@ export default function EquipmentPage() {
             <SearchField
               placeholder={t('equipment.searchPlaceholder')}
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => { setSearch(e.target.value); setPage(1) }}
             />
-            <Chip label={`${filteredEquipment.length} ${t('common.items')}`} size="small" />
+            <Chip label={`${totalEquipment} ${t('common.items')}`} size="small" />
           </Box>
 
           <Tabs
             items={[
-              { label: t('common.all'), value: 'all', badge: equipment.length },
-              { label: t('equipment.draft'), value: 'draft', badge: equipment.filter(e => e.status === 'draft').length },
-              { label: t('equipment.underReview'), value: 'under_review', badge: equipment.filter(e => e.status === 'submitted' || e.status === 'under_review').length },
-              { label: t('equipment.approved'), value: 'approved', badge: equipment.filter(e => e.status === 'approved').length },
+              { label: t('common.all'), value: 'all' },
+              { label: t('equipment.draft'), value: 'draft' },
+              { label: t('equipment.underReview'), value: 'under_review' },
+              { label: t('equipment.approved'), value: 'approved' },
             ]}
             value={activeTab}
-            onChange={setActiveTab}
+            onChange={(val) => { setActiveTab(val); setPage(1) }}
             size="small"
           />
 
@@ -460,7 +491,21 @@ export default function EquipmentPage() {
               getRowId={(row) => row.id}
               onRowClick={handleViewDetails}
               emptyMessage={t('equipment.noEquipmentFound')}
+              pagination={false}
             />
+            {totalEquipment > 0 && (
+              <TablePagination
+                component="div"
+                count={totalEquipment}
+                page={page - 1}
+                rowsPerPage={rowsPerPage}
+                onPageChange={(_, newPage) => setPage(newPage + 1)}
+                onRowsPerPageChange={(e) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(1) }}
+                rowsPerPageOptions={[10, 20, 50, 100]}
+                labelRowsPerPage={t('table.rowsPerPage')}
+                labelDisplayedRows={({ from, to, count }) => `${from}-${to} ${t('table.of')} ${count !== -1 ? count : `>${to}`}`}
+              />
+            )}
           </Box>
         </Box>
       </Card>
@@ -608,7 +653,26 @@ export default function EquipmentPage() {
                         <DownloadIcon fontSize="small" />
                       </IconButton>
                     }
-                    sx={{ cursor: 'pointer', '&:hover': { bgcolor: 'action.selected' }, borderRadius: 1 }}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={file.filename}
+                    onKeyDown={async (e: React.KeyboardEvent) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        try {
+                          const blobUrl = await filesApi.getFileBlob(projectId!, file.id)
+                          window.open(blobUrl, '_blank')
+                        } catch {
+                          showError(t('equipment.failedToOpenFile'))
+                        }
+                      }
+                    }}
+                    sx={{
+                      cursor: 'pointer',
+                      '&:hover': { bgcolor: 'action.selected' },
+                      '&:focus-visible': { outline: (theme) => `2px solid ${theme.palette.primary.main}`, outlineOffset: -2 },
+                      borderRadius: 1,
+                    }}
                     onClick={async () => {
                       try {
                         const blobUrl = await filesApi.getFileBlob(projectId!, file.id)

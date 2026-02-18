@@ -53,6 +53,7 @@ export default function TasksPage() {
 
   const EMPTY_FORM: TaskCreateData = { title: '', priority: 'medium' }
   const [form, setForm] = useState<TaskCreateData>(EMPTY_FORM)
+  const [titleTouched, setTitleTouched] = useState(false)
 
   useEffect(() => {
     if (projectId) loadData()
@@ -169,8 +170,8 @@ export default function TasksPage() {
     { id: 'actions', label: '', minWidth: 90, align: 'right', hideOnMobile: true,
       render: (row) => (
         <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
-          <IconButton size="small" onClick={(e) => { e.stopPropagation(); openEditDialog(row) }}><EditIcon fontSize="small" /></IconButton>
-          <IconButton size="small" onClick={(e) => { e.stopPropagation(); setDeleteTask(row) }}><DeleteIcon fontSize="small" color="error" /></IconButton>
+          <IconButton size="small" aria-label={t('tasks.editTask')} onClick={(e) => { e.stopPropagation(); openEditDialog(row) }}><EditIcon fontSize="small" /></IconButton>
+          <IconButton size="small" aria-label={t('common.delete')} onClick={(e) => { e.stopPropagation(); setDeleteTask(row) }}><DeleteIcon fontSize="small" color="error" /></IconButton>
         </Box>
       ) },
   ]
@@ -239,7 +240,7 @@ export default function TasksPage() {
 
       <FormModal
         open={dialogOpen}
-        onClose={() => { if (!submitting) { setDialogOpen(false); setForm(EMPTY_FORM); setEditingTask(null) } }}
+        onClose={() => { if (!submitting) { setDialogOpen(false); setForm(EMPTY_FORM); setEditingTask(null); setTitleTouched(false) } }}
         onSubmit={handleSubmit}
         title={editingTask ? t('tasks.editTask') : t('tasks.createTask')}
         submitLabel={editingTask ? t('common.save') : t('tasks.create')}
@@ -248,7 +249,7 @@ export default function TasksPage() {
         maxWidth="sm"
       >
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1 }}>
-          <TextField fullWidth label={t('tasks.title')} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required />
+          <TextField fullWidth label={t('tasks.title')} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} onBlur={() => setTitleTouched(true)} required error={titleTouched && !form.title.trim()} helperText={titleTouched && !form.title.trim() ? t('validation.fieldRequired') : undefined} />
           <TextField fullWidth label={t('tasks.description')} multiline rows={3} value={form.description || ''} onChange={(e) => setForm({ ...form, description: e.target.value || undefined })} />
           <MuiTextField select fullWidth label={t('tasks.priority')} value={form.priority || 'medium'} onChange={(e) => setForm({ ...form, priority: e.target.value })}>
             {PRIORITY_OPTIONS.map((p) => <MenuItem key={p} value={p}>{t(`tasks.priorities.${p}`, { defaultValue: p })}</MenuItem>)}

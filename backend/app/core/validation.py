@@ -180,25 +180,45 @@ def validate_storage_path(path: str, base_path: str) -> str:
     Raises:
         HTTPException: If the path attempts directory traversal or is outside base_path
     """
-    # Check for null bytes
+    if not path or not path.strip():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid storage path"
+        )
+
+    # Reject null bytes (can bypass file extension checks)
     if '\0' in path:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid storage path"
         )
 
-    # Check for '..' components
+    # Reject absolute paths (must be relative to base_path)
+    if path.startswith('/') or path.startswith('\\'):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid storage path"
+        )
+
+    # Reject '..' traversal components in any form
     if '..' in path:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid storage path"
         )
 
-    # Convert to Path objects
+    # Reject backslash-based traversal on all platforms
+    if '\\' in path:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid storage path"
+        )
+
+    # Convert to Path objects and resolve symlinks
     try:
         base = Path(base_path).resolve()
         requested = (base / path).resolve()
-    except (ValueError, RuntimeError) as e:
+    except (ValueError, RuntimeError):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid storage path"

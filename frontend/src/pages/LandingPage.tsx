@@ -11,7 +11,7 @@ import skanskaLogo from '../assets/logos/skanska.svg'
 import {
   ConstructionIcon, SpeedIcon, SecurityIcon, GroupsIcon,
   AssignmentTurnedInIcon, BarChartIcon, ArrowForwardIcon,
-  PhoneIphoneIcon, FormatQuoteIcon,
+  PhoneIphoneIcon, FormatQuoteIcon, CheckCircleOutlineIcon,
 } from '@/icons'
 import { Box, Container, Typography, Grid, Avatar } from '@/mui'
 
@@ -582,6 +582,211 @@ export default function LandingPage() {
               />
             ))}
           </Box>
+        </Container>
+      </Box>
+
+      {/* Pricing Section */}
+      <Box sx={{ bgcolor: '#F0F9FF', py: { xs: 8, md: 12 } }}>
+        <Container maxWidth="lg">
+          <Box sx={{ textAlign: 'center', mb: { xs: 6, md: 8 }, maxWidth: 600, mx: 'auto' }}>
+            <Typography
+              sx={{
+                fontSize: '0.8rem',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                color: 'primary.main',
+                mb: 1.5,
+              }}
+            >
+              {t('landing.pricing.label')}
+            </Typography>
+            <Typography
+              variant="h3"
+              sx={{
+                fontWeight: 700,
+                letterSpacing: '-0.02em',
+                color: 'text.primary',
+                mb: 2,
+                fontSize: { xs: '1.5rem', md: '2rem' },
+              }}
+            >
+              {t('landing.pricing.title')}
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              {t('landing.pricing.subtitle')}
+            </Typography>
+          </Box>
+
+          <Grid container spacing={3} justifyContent="center" alignItems="stretch">
+            {/* Starter */}
+            <Grid item xs={12} sm={6} md={4}>
+              <Box
+                sx={{
+                  p: 4,
+                  borderRadius: 3,
+                  bgcolor: 'background.paper',
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  transition: 'all 200ms ease-out',
+                  '&:hover': { borderColor: 'primary.light', boxShadow: '0 8px 24px rgba(3, 105, 161, 0.08)', transform: 'translateY(-4px)' },
+                }}
+              >
+                <Typography sx={{ fontWeight: 700, fontSize: '1.25rem', color: 'text.primary', mb: 1 }}>
+                  {t('landing.pricing.starter.name')}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 3, minHeight: 40 }}>
+                  {t('landing.pricing.starter.description')}
+                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'baseline', mb: 3 }}>
+                  <Typography sx={{ fontWeight: 700, fontSize: '2.5rem', color: 'text.primary', lineHeight: 1 }}>
+                    $49
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ ml: 0.5 }}>
+                    / {t('landing.pricing.perMonth')}
+                  </Typography>
+                </Box>
+                <Box sx={{ flex: 1, mb: 3 }}>
+                  {['upTo5Projects', 'equipmentTracking', 'basicInspections', 'emailSupport'].map((key) => (
+                    <Box key={key} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+                      <CheckCircleOutlineIcon sx={{ fontSize: 18, color: 'success.main' }} />
+                      <Typography variant="body2" color="text.primary">
+                        {t(`landing.pricing.starter.features.${key}`)}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Box>
+                <Button
+                  variant="secondary"
+                  onClick={() => navigate('/login')}
+                  sx={{ width: '100%', py: 1.5, borderRadius: 2 }}
+                >
+                  {t('landing.pricing.getStarted')}
+                </Button>
+              </Box>
+            </Grid>
+
+            {/* Professional (highlighted) */}
+            <Grid item xs={12} sm={6} md={4}>
+              <Box
+                sx={{
+                  p: 4,
+                  borderRadius: 3,
+                  bgcolor: 'background.paper',
+                  border: '2px solid',
+                  borderColor: 'primary.main',
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  position: 'relative',
+                  boxShadow: '0 12px 32px rgba(3, 105, 161, 0.12)',
+                  transition: 'all 200ms ease-out',
+                  '&:hover': { boxShadow: '0 16px 40px rgba(3, 105, 161, 0.18)', transform: 'translateY(-4px)' },
+                }}
+              >
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    top: -14,
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    bgcolor: 'primary.main',
+                    color: 'white',
+                    px: 2.5,
+                    py: 0.5,
+                    borderRadius: 5,
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                  }}
+                >
+                  {t('landing.pricing.popular')}
+                </Box>
+                <Typography sx={{ fontWeight: 700, fontSize: '1.25rem', color: 'text.primary', mb: 1 }}>
+                  {t('landing.pricing.professional.name')}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 3, minHeight: 40 }}>
+                  {t('landing.pricing.professional.description')}
+                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'baseline', mb: 3 }}>
+                  <Typography sx={{ fontWeight: 700, fontSize: '2.5rem', color: 'text.primary', lineHeight: 1 }}>
+                    $149
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ ml: 0.5 }}>
+                    / {t('landing.pricing.perMonth')}
+                  </Typography>
+                </Box>
+                <Box sx={{ flex: 1, mb: 3 }}>
+                  {['unlimitedProjects', 'fullEquipmentMgmt', 'advancedInspections', 'approvalWorkflows', 'analyticsReports', 'prioritySupport'].map((key) => (
+                    <Box key={key} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+                      <CheckCircleOutlineIcon sx={{ fontSize: 18, color: 'primary.main' }} />
+                      <Typography variant="body2" color="text.primary" fontWeight={500}>
+                        {t(`landing.pricing.professional.features.${key}`)}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Box>
+                <Button
+                  variant="primary"
+                  onClick={() => navigate('/login')}
+                  sx={{ width: '100%', py: 1.5, borderRadius: 2 }}
+                >
+                  {t('landing.pricing.getStarted')}
+                </Button>
+              </Box>
+            </Grid>
+
+            {/* Enterprise */}
+            <Grid item xs={12} sm={6} md={4}>
+              <Box
+                sx={{
+                  p: 4,
+                  borderRadius: 3,
+                  bgcolor: 'background.paper',
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  transition: 'all 200ms ease-out',
+                  '&:hover': { borderColor: 'primary.light', boxShadow: '0 8px 24px rgba(3, 105, 161, 0.08)', transform: 'translateY(-4px)' },
+                }}
+              >
+                <Typography sx={{ fontWeight: 700, fontSize: '1.25rem', color: 'text.primary', mb: 1 }}>
+                  {t('landing.pricing.enterprise.name')}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 3, minHeight: 40 }}>
+                  {t('landing.pricing.enterprise.description')}
+                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'baseline', mb: 3 }}>
+                  <Typography sx={{ fontWeight: 700, fontSize: '2.5rem', color: 'text.primary', lineHeight: 1 }}>
+                    {t('landing.pricing.enterprise.price')}
+                  </Typography>
+                </Box>
+                <Box sx={{ flex: 1, mb: 3 }}>
+                  {['everythingInPro', 'ssoIntegration', 'dedicatedSupport', 'customIntegrations', 'slaGuarantee', 'onPremiseOption'].map((key) => (
+                    <Box key={key} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+                      <CheckCircleOutlineIcon sx={{ fontSize: 18, color: 'success.main' }} />
+                      <Typography variant="body2" color="text.primary">
+                        {t(`landing.pricing.enterprise.features.${key}`)}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Box>
+                <Button
+                  variant="secondary"
+                  onClick={() => navigate('/login')}
+                  sx={{ width: '100%', py: 1.5, borderRadius: 2 }}
+                >
+                  {t('landing.pricing.contactSales')}
+                </Button>
+              </Box>
+            </Grid>
+          </Grid>
         </Container>
       </Box>
 

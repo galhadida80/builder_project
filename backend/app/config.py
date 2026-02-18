@@ -1,7 +1,16 @@
+import logging
+import warnings
 from functools import lru_cache
 
 from pydantic import model_validator
 from pydantic_settings import BaseSettings
+
+logger = logging.getLogger(__name__)
+
+WEAK_SECRET_PATTERNS = [
+    "dev-secret", "change-in-production", "secret", "password",
+    "123456", "default", "test", "example",
+]
 
 
 class Settings(BaseSettings):
@@ -61,14 +70,16 @@ class Settings(BaseSettings):
     google_pubsub_audience: str = ""
     google_pubsub_verify: bool = True
 
+    webhook_secret: str = ""
+
     webauthn_rp_id: str = "localhost"
     webauthn_rp_name: str = "BuilderOps"
 
     @model_validator(mode='after')
     def validate_production_secrets(self) -> 'Settings':
-        if self.environment == 'production':
-            generation_cmd = "python -c \"import secrets; print(secrets.token_urlsafe(32))\""
+        generation_cmd = "python -c \"import secrets; print(secrets.token_urlsafe(32))\""
 
+        if self.environment == 'production':
             # Validate secret_key
             if self.secret_key == "dev-secret-key-change-in-production-use-strong-random-key":
                 raise ValueError(
@@ -101,6 +112,29 @@ class Settings(BaseSettings):
                 raise ValueError(
                     f'SCHEDULER_SECRET must contain alphanumeric characters. '
                     f'Generate a strong secret using: {generation_cmd}'
+                )
+
+            # Validate webhook_secret in production
+            if self.webhook_secret and len(self.webhook_secret) < 32:
+                raise ValueError(
+                    f'WEBHOOK_SECRET must be at least 32 characters in production. '
+                    f'Generate a strong secret using: {generation_cmd}'
+                )
+
+        else:
+            # Development warnings for weak/default secrets
+            default_key = "dev-secret-key-change-in-production-use-strong-random-key"
+            if self.secret_key == default_key:
+                warnings.warn(
+                    "SECRET_KEY is using the default development value. "
+                    f"Generate a strong secret using: {generation_cmd}",
+                    stacklevel=2,
+                )
+            elif any(pattern in self.secret_key.lower() for pattern in WEAK_SECRET_PATTERNS):
+                warnings.warn(
+                    "SECRET_KEY appears weak. Consider using a stronger secret "
+                    f"even in development: {generation_cmd}",
+                    stacklevel=2,
                 )
 
         return self

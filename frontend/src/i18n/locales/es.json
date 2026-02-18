@@ -419,7 +419,8 @@
     "removeItem": "Eliminar elemento",
     "selectLanguage": "Seleccionar idioma",
     "viewDetails": "Ver detalles",
-    "toggleNavigation": "Alternar navegación"
+    "toggleNavigation": "Alternar navegación",
+    "loadingPage": "Cargando página..."
   },
   "table": {
     "rowsPerPage": "Filas por página:",
@@ -1079,7 +1080,23 @@
     "allTime": "Todo el tiempo",
     "failedToCreate": "Error al crear inspección",
     "failedToUpdate": "Error al actualizar inspección",
-    "failedToDelete": "Error al eliminar inspección"
+    "failedToDelete": "Error al eliminar inspección",
+    "previewReport": "Vista Previa del Informe",
+    "inspectionReport": "Informe de Inspección",
+    "reportDetails": "Detalles del Informe",
+    "reportDate": "Fecha del Informe",
+    "completedDate": "Fecha de Completado",
+    "createdBy": "Creado Por",
+    "findingSummary": "Resumen de Hallazgos",
+    "severity": "Severidad",
+    "location": "Ubicación",
+    "description": "Descripción",
+    "noDescription": "No se proporcionó descripción",
+    "open": "Abierto",
+    "resolved": "Resuelto",
+    "printReport": "Imprimir Informe",
+    "generatedOn": "Generado el",
+    "notCompleted": "Aún no completado"
   },
   "documents": {
     "title": "Biblioteca de Documentos",
@@ -1252,6 +1269,50 @@
       "quote3": "El sistema de gestión de inspecciones nos da visibilidad completa. Nuestra tasa de cumplimiento pasó del 82% al 97% en solo tres meses.",
       "name3": "Michael Rodríguez",
       "role3": "Gerente de Calidad, Summit Infrastructure"
+    },
+    "pricing": {
+      "label": "Precios",
+      "title": "Precios simples y transparentes",
+      "subtitle": "Elige el plan que se adapte a tu equipo. Sin cargos ocultos, cancela en cualquier momento.",
+      "perMonth": "mes",
+      "getStarted": "Comenzar",
+      "contactSales": "Contactar Ventas",
+      "popular": "Más Popular",
+      "starter": {
+        "name": "Inicial",
+        "description": "Perfecto para equipos pequeños que comienzan con la gestión de construcción.",
+        "features": {
+          "upTo5Projects": "Hasta 5 proyectos",
+          "equipmentTracking": "Seguimiento de equipos",
+          "basicInspections": "Inspecciones básicas",
+          "emailSupport": "Soporte por email"
+        }
+      },
+      "professional": {
+        "name": "Profesional",
+        "description": "Para equipos en crecimiento que necesitan flujos avanzados y analíticas.",
+        "features": {
+          "unlimitedProjects": "Proyectos ilimitados",
+          "fullEquipmentMgmt": "Gestión completa de equipos",
+          "advancedInspections": "Inspecciones avanzadas",
+          "approvalWorkflows": "Flujos de aprobación",
+          "analyticsReports": "Analíticas e informes",
+          "prioritySupport": "Soporte prioritario"
+        }
+      },
+      "enterprise": {
+        "name": "Empresarial",
+        "description": "Para grandes organizaciones con necesidades personalizadas de seguridad e integración.",
+        "price": "Personalizado",
+        "features": {
+          "everythingInPro": "Todo en Profesional",
+          "ssoIntegration": "Integración SSO",
+          "dedicatedSupport": "Gerente de cuenta dedicado",
+          "customIntegrations": "Integraciones personalizadas",
+          "slaGuarantee": "Garantía SLA del 99.9%",
+          "onPremiseOption": "Opción de instalación local"
+        }
+      }
     }
   },
   "analytics": {

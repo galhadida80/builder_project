@@ -224,3 +224,23 @@ class PaginatedRFIResponse(BaseModel):
     page: int
     page_size: int
     total_pages: int
+
+
+class RFIDeadlineResponse(BaseModel):
+    id: UUID
+    project_id: UUID
+    rfi_number: str
+    subject: str
+    to_email: str
+    to_name: str | None = None
+    category: str
+    priority: str
+    status: str
+    due_date: datetime
+    days_overdue: int | None = None
+    days_until_due: int | None = None
+    created_at: datetime
+    sent_at: datetime | None = None
+
+    class Config:
+        from_attributes = True

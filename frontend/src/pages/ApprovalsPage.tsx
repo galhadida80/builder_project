@@ -29,6 +29,7 @@ export default function ApprovalsPage() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [actionType, setActionType] = useState<'approve' | 'reject' | null>(null)
   const [comment, setComment] = useState('')
+  const [commentTouched, setCommentTouched] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -39,14 +40,14 @@ export default function ApprovalsPage() {
   const loadData = async () => {
     try {
       setLoading(true)
-      const [approvalsData, equipmentData, materialsData] = await Promise.all([
+      const [approvalsData, equipmentRes, materialsRes] = await Promise.all([
         approvalsApi.list().catch(() => []),
-        equipmentApi.list().catch(() => []),
-        materialsApi.list().catch(() => [])
+        equipmentApi.list().catch(() => ({ items: [] as never[] })),
+        materialsApi.list().catch(() => ({ items: [] as never[] }))
       ])
       setApprovals(approvalsData)
-      setEquipment(equipmentData)
-      setMaterials(materialsData)
+      setEquipment(equipmentRes.items)
+      setMaterials(materialsRes.items)
     } catch {
       showError(t('approvals.failedToLoad'))
     } finally {
@@ -94,26 +95,39 @@ export default function ApprovalsPage() {
   const handleAction = (approval: ApprovalRequest, action: 'approve' | 'reject') => {
     setSelectedApproval(approval)
     setActionType(action)
+    setComment('')
+    setCommentTouched(false)
     setDialogOpen(true)
   }
 
   const handleSubmitAction = async () => {
-    if (!selectedApproval) return
+    if (!selectedApproval || !actionType) return
     setSubmitting(true)
+    const previousApprovals = [...approvals]
+    const optimisticStatus = actionType === 'approve' ? 'approved' : 'rejected'
+    setApprovals(prev =>
+      prev.map(a =>
+        a.id === selectedApproval.id
+          ? { ...a, currentStatus: optimisticStatus as ApprovalRequest['currentStatus'] }
+          : a
+      )
+    )
+    setDialogOpen(false)
+    const savedApproval = selectedApproval
+    const savedAction = actionType
+    setSelectedApproval(null)
+    setActionType(null)
+    setComment('')
+    showSuccess(savedAction === 'approve' ? t('approvals.approvedSuccess') : t('approvals.rejectedSuccess'))
     try {
-      if (actionType === 'approve') {
-        await approvalsApi.approve(selectedApproval.id, comment || undefined)
-        showSuccess(t('approvals.approvedSuccess'))
+      if (savedAction === 'approve') {
+        await approvalsApi.approve(savedApproval.id, comment || undefined)
       } else {
-        await approvalsApi.reject(selectedApproval.id, comment)
-        showSuccess(t('approvals.rejectedSuccess'))
+        await approvalsApi.reject(savedApproval.id, comment)
       }
-      setDialogOpen(false)
-      setSelectedApproval(null)
-      setActionType(null)
-      setComment('')
       loadData()
     } catch {
+      setApprovals(previousApprovals)
       showError(t('approvals.failedToProcess'))
     } finally {
       setSubmitting(false)
@@ -124,13 +138,19 @@ export default function ApprovalsPage() {
     return (
       <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
         <Skeleton variant="text" width={200} height={48} sx={{ mb: 1 }} />
-        <Skeleton variant="text" width={300} height={24} sx={{ mb: 4 }} />
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', md: 'repeat(4, 1fr)' }, gap: 2, mb: 4, overflow: 'hidden' }}>
+        <Skeleton variant="text" width={300} height={24} sx={{ mb: 3 }} />
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', md: 'repeat(4, 1fr)' }, gap: 1.5, mb: 3, overflow: 'hidden' }}>
           {[...Array(4)].map((_, i) => (
-            <Skeleton key={i} variant="rounded" height={100} sx={{ borderRadius: 3 }} />
+            <Skeleton key={i} variant="rounded" height={80} sx={{ borderRadius: 2 }} />
           ))}
         </Box>
-        <Skeleton variant="rounded" height={400} sx={{ borderRadius: 3 }} />
+        <Skeleton variant="rounded" width="100%" height={42} sx={{ borderRadius: 2, mb: 2 }} />
+        <Skeleton variant="rounded" width="100%" height={36} sx={{ borderRadius: 2, mb: 2 }} />
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+          {[...Array(3)].map((_, i) => (
+            <Skeleton key={i} variant="rounded" height={120} sx={{ borderRadius: 2 }} />
+          ))}
+        </Box>
       </Box>
     )
   }
@@ -201,7 +221,7 @@ export default function ApprovalsPage() {
             size="small"
           />
 
-          <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+          <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 1.5 }} role="list" aria-label={t('approvals.title')}>
             {displayedApprovals.length === 0 ? (
               <EmptyState
                 title={tabValue === 'pending' ? t('approvals.noPending') : t('approvals.noApprovals')}
@@ -216,7 +236,8 @@ export default function ApprovalsPage() {
                 const progress = Math.round((completedSteps / totalSteps) * 100)
 
                 return (
-                  <Card key={approval.id} hoverable>
+                  <Box key={approval.id} role="listitem">
+                  <Card hoverable>
                     <Box sx={{ p: 2 }}>
                       <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-start', gap: { xs: 2, sm: 0 } }}>
                         <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start', flex: 1, minWidth: 0 }}>
@@ -375,6 +396,7 @@ export default function ApprovalsPage() {
                       )}
                     </Box>
                   </Card>
+                  </Box>
                 )
               })
             )}
@@ -409,7 +431,10 @@ export default function ApprovalsPage() {
             label={actionType === 'approve' ? t('approvals.commentsOptional') : t('approvals.rejectionReason')}
             value={comment}
             onChange={(e) => setComment(e.target.value)}
+            onBlur={() => setCommentTouched(true)}
             required={actionType === 'reject'}
+            error={actionType === 'reject' && commentTouched && !comment.trim()}
+            helperText={actionType === 'reject' && commentTouched && !comment.trim() ? t('approvals.rejectionReasonRequired') : undefined}
             placeholder={actionType === 'approve'
               ? t('approvals.commentsPlaceholder')
               : t('approvals.rejectionPlaceholder')}

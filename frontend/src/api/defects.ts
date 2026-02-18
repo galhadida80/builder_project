@@ -1,5 +1,6 @@
 import { apiClient } from './client'
 import type { Defect, DefectSummary } from '../types'
+import type { PaginatedResponse } from './types'
 
 export interface DefectCreateData {
   description: string
@@ -29,14 +30,24 @@ export interface DefectUpdateData {
   followup_contact_id?: string
 }
 
+export interface DefectListParams {
+  status?: string
+  category?: string
+  severity?: string
+  page?: number
+  pageSize?: number
+}
+
 export const defectsApi = {
-  list: async (projectId: string, filters?: { status?: string; category?: string; severity?: string }): Promise<Defect[]> => {
-    const params = new URLSearchParams()
-    if (filters?.status) params.set('status', filters.status)
-    if (filters?.category) params.set('category', filters.category)
-    if (filters?.severity) params.set('severity', filters.severity)
-    const qs = params.toString()
-    const response = await apiClient.get(`/projects/${projectId}/defects${qs ? `?${qs}` : ''}`)
+  list: async (projectId: string, params?: DefectListParams): Promise<PaginatedResponse<Defect>> => {
+    const qs = new URLSearchParams()
+    if (params?.status) qs.set('status', params.status)
+    if (params?.category) qs.set('category', params.category)
+    if (params?.severity) qs.set('severity', params.severity)
+    if (params?.page) qs.set('page', String(params.page))
+    if (params?.pageSize) qs.set('page_size', String(params.pageSize))
+    const query = qs.toString()
+    const response = await apiClient.get(`/projects/${projectId}/defects${query ? `?${query}` : ''}`)
     return response.data
   },
 

@@ -236,7 +236,11 @@ export default function ContactsPage() {
 
   const handleSaveGroup = async () => {
     if (!projectId) return
-    if (!groupFormData.name.trim()) return
+    if (!groupFormData.name.trim()) {
+      setErrors(prev => ({ ...prev, groupName: t('validation.fieldRequired') }))
+      return
+    }
+    setErrors(prev => ({ ...prev, groupName: null }))
     setGroupSaving(true)
     try {
       if (editingGroup) {
@@ -677,7 +681,12 @@ export default function ContactsPage() {
             label={t('common.name')}
             required
             value={groupFormData.name}
-            onChange={(e) => setGroupFormData({ ...groupFormData, name: e.target.value })}
+            onChange={(e) => {
+              setGroupFormData({ ...groupFormData, name: e.target.value })
+              if (errors.groupName && e.target.value.trim()) setErrors(prev => ({ ...prev, groupName: null }))
+            }}
+            error={!!errors.groupName}
+            helperText={errors.groupName}
           />
           <TextField
             fullWidth

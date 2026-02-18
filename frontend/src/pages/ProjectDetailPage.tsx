@@ -50,12 +50,12 @@ export default function ProjectDetailPage() {
   useEffect(() => {
     if (!projectId || !isOverview) return
     Promise.all([
-      equipmentApi.list(projectId).catch(() => []),
-      materialsApi.list(projectId).catch(() => []),
+      equipmentApi.list(projectId).catch(() => ({ items: [] as never[] })),
+      materialsApi.list(projectId).catch(() => ({ items: [] as never[] })),
       meetingsApi.list(projectId).catch(() => [])
-    ]).then(([eq, mat, meet]) => {
-      setEquipment(eq)
-      setMaterials(mat)
+    ]).then(([eqRes, matRes, meet]) => {
+      setEquipment(eqRes.items)
+      setMaterials(matRes.items)
       setMeetings(meet)
     })
   }, [projectId, isOverview])

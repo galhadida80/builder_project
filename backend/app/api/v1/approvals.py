@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+from datetime import datetime, timedelta
 from typing import Optional
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -19,7 +20,7 @@ from app.models.equipment import ApprovalStatus, Equipment
 from app.models.material import Material
 from app.models.project import ProjectMember
 from app.models.user import User
-from app.schemas.approval import ApprovalRequestResponse, ApprovalStepResponse
+from app.schemas.approval import ApprovalRequestResponse, ApprovalStepResponse, PendingReminderResponse
 from app.services.audit_service import create_audit_log
 from app.services.notification_service import notify_contact, notify_user
 from app.utils.localization import get_language_from_request, translate_message
@@ -92,6 +93,49 @@ async def list_approvals(
         .order_by(ApprovalRequest.created_at.desc())
     )
     return result.scalars().all()
+
+
+@router.get("/projects/{project_id}/approvals/pending-reminders", response_model=list[PendingReminderResponse])
+async def get_pending_reminders(
+    project_id: UUID,
+    days: int = Query(3, ge=1, le=30, description="Minimum days pending to include"),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    await verify_project_access(project_id, current_user, db)
+    cutoff = datetime.utcnow() - timedelta(days=days)
+    result = await db.execute(
+        select(ApprovalRequest)
+        .options(
+            selectinload(ApprovalRequest.created_by),
+            selectinload(ApprovalRequest.steps).selectinload(ApprovalStep.approved_by)
+        )
+        .where(
+            ApprovalRequest.project_id == project_id,
+            ApprovalRequest.current_status.in_([
+                ApprovalStatus.SUBMITTED.value,
+                ApprovalStatus.UNDER_REVIEW.value
+            ]),
+            ApprovalRequest.created_at <= cutoff
+        )
+        .order_by(ApprovalRequest.created_at.asc())
+    )
+    approvals = result.scalars().all()
+    now = datetime.utcnow()
+    return [
+        PendingReminderResponse(
+            id=approval.id,
+            project_id=approval.project_id,
+            entity_type=approval.entity_type,
+            entity_id=approval.entity_id,
+            current_status=approval.current_status,
+            created_at=approval.created_at,
+            days_pending=(now - approval.created_at).days,
+            created_by=approval.created_by,
+            steps=approval.steps
+        )
+        for approval in approvals
+    ]
 
 
 @router.get("/projects/{project_id}/approvals/{approval_id}", response_model=ApprovalRequestResponse)
