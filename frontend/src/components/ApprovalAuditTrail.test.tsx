@@ -24,6 +24,10 @@ vi.mock('./ui/EmptyState', () => ({
   ),
 }))
 
+vi.mock('../utils/dateLocale', () => ({
+  getDateLocale: () => 'en-US',
+}))
+
 const makeAction = (overrides: Partial<ApprovalAction> = {}): ApprovalAction => ({
   id: 'action-1',
   action: 'submitted',

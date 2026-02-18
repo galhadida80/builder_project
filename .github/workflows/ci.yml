@@ -53,6 +53,7 @@ jobs:
         working-directory: backend
         env:
           GEMINI_API_KEY: dummy-key-for-ci
+          RATE_LIMIT_ENABLED: "false"
         run: pytest --tb=short -q
 
   frontend:
