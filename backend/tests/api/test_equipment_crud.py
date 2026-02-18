@@ -217,21 +217,21 @@ class TestListEquipmentExtended:
     async def test_list_empty_project(self, admin_client, project):
         resp = await admin_client.get(eq_url(str(project.id)))
         assert resp.status_code == 200
-        assert resp.json() == []
+        assert resp.json()["items"] == []
 
     @pytest.mark.asyncio
     async def test_list_returns_correct_count(self, admin_client, project):
         for i in range(5):
             await create_eq(admin_client, project.id, name=f"Eq {i}")
         resp = await admin_client.get(eq_url(str(project.id)))
-        assert len(resp.json()) == 5
+        assert len(resp.json()["items"]) == 5
 
     @pytest.mark.asyncio
     async def test_list_is_ordered_by_created_at_desc(self, admin_client, project):
         for i in range(3):
             await create_eq(admin_client, project.id, name=f"Equipment {i}")
         resp = await admin_client.get(eq_url(str(project.id)))
-        data = resp.json()
+        data = resp.json()["items"]
         dates = [d["createdAt"] for d in data]
         assert dates == sorted(dates, reverse=True)
 
@@ -242,24 +242,27 @@ class TestListEquipmentExtended:
         await create_eq(admin_client, other.id, name="Project B Equipment")
         resp_a = await admin_client.get(eq_url(str(project.id)))
         resp_b = await admin_client.get(eq_url(str(other.id)))
-        assert len(resp_a.json()) == 1
-        assert resp_a.json()[0]["name"] == "Project A Equipment"
-        assert len(resp_b.json()) == 1
-        assert resp_b.json()[0]["name"] == "Project B Equipment"
+        assert len(resp_a.json()["items"]) == 1
+        assert resp_a.json()["items"][0]["name"] == "Project A Equipment"
+        assert len(resp_b.json()["items"]) == 1
+        assert resp_b.json()["items"][0]["name"] == "Project B Equipment"
 
     @pytest.mark.asyncio
     async def test_list_each_item_has_camel_case(self, admin_client, project):
         await create_eq(admin_client, project.id)
         resp = await admin_client.get(eq_url(str(project.id)))
-        for item in resp.json():
+        for item in resp.json()["items"]:
             assert "equipmentType" in item
             assert "modelNumber" in item
             assert "serialNumber" in item
 
     @pytest.mark.asyncio
-    async def test_list_response_is_array_type(self, admin_client, project):
+    async def test_list_response_is_paginated(self, admin_client, project):
         resp = await admin_client.get(eq_url(str(project.id)))
-        assert isinstance(resp.json(), list)
+        data = resp.json()
+        assert isinstance(data["items"], list)
+        assert "total" in data
+        assert "page" in data
 
 
 class TestFlatListExtended:
@@ -423,7 +426,7 @@ class TestDeleteEquipmentExtended:
         eq = await create_eq(admin_client, project.id)
         await admin_client.delete(eq_detail(str(project.id), eq["id"]))
         resp = await admin_client.get(eq_url(str(project.id)))
-        assert len(resp.json()) == 0
+        assert len(resp.json()["items"]) == 0
 
     @pytest.mark.asyncio
     async def test_delete_nonexistent_returns_404(self, admin_client, project):
@@ -436,8 +439,8 @@ class TestDeleteEquipmentExtended:
         eq2 = await create_eq(admin_client, project.id, name="Remove")
         await admin_client.delete(eq_detail(str(project.id), eq2["id"]))
         resp = await admin_client.get(eq_url(str(project.id)))
-        assert len(resp.json()) == 1
-        assert resp.json()[0]["name"] == "Keep"
+        assert len(resp.json()["items"]) == 1
+        assert resp.json()["items"][0]["name"] == "Keep"
 
     @pytest.mark.asyncio
     async def test_delete_double_delete_returns_404(self, admin_client, project):
@@ -1003,7 +1006,7 @@ class TestCRUDWorkflows:
             resp = await admin_client.delete(eq_detail(pid, eid))
             assert resp.status_code == 200
         resp = await admin_client.get(eq_url(pid))
-        assert resp.json() == []
+        assert resp.json()["items"] == []
 
 
 class TestEdgeCasesExtended:
@@ -1033,7 +1036,7 @@ class TestEdgeCasesExtended:
             resp = await admin_client.post(eq_url(str(project.id)), json={"name": "Same Name"})
             assert resp.status_code == 200
         resp = await admin_client.get(eq_url(str(project.id)))
-        same = [e for e in resp.json() if e["name"] == "Same Name"]
+        same = [e for e in resp.json()["items"] if e["name"] == "Same Name"]
         assert len(same) == 3
 
     @pytest.mark.asyncio
@@ -1190,7 +1193,7 @@ class TestMultipleEquipmentExtended:
         for i in range(count):
             await create_eq(admin_client, project.id, name=f"Eq-{i}")
         resp = await admin_client.get(eq_url(str(project.id)))
-        assert len(resp.json()) == count
+        assert len(resp.json()["items"]) == count
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize("delete_idx", [0, 1, 2])
@@ -1201,7 +1204,7 @@ class TestMultipleEquipmentExtended:
             ids.append(eq["id"])
         await admin_client.delete(eq_detail(str(project.id), ids[delete_idx]))
         resp = await admin_client.get(eq_url(str(project.id)))
-        remaining = [e["id"] for e in resp.json()]
+        remaining = [e["id"] for e in resp.json()["items"]]
         assert ids[delete_idx] not in remaining
         assert len(remaining) == 2
 
@@ -1344,7 +1347,7 @@ class TestStatusFilterEquipment:
         await make_equipment_in_db(db, project.id, admin_user.id, name="Approved Eq", status=ApprovalStatus.APPROVED.value)
         resp = await admin_client.get(eq_url(str(project.id)), params={"status": "draft"})
         assert resp.status_code == 200
-        items = resp.json()
+        items = resp.json()["items"]
         assert all(item["status"] == "draft" for item in items)
         names = [item["name"] for item in items]
         assert "Draft Eq" in names
@@ -1356,7 +1359,7 @@ class TestStatusFilterEquipment:
         await make_equipment_in_db(db, project.id, admin_user.id, name="Approved Eq", status=ApprovalStatus.APPROVED.value)
         resp = await admin_client.get(eq_url(str(project.id)), params={"status": "approved"})
         assert resp.status_code == 200
-        items = resp.json()
+        items = resp.json()["items"]
         assert all(item["status"] == "approved" for item in items)
         names = [item["name"] for item in items]
         assert "Approved Eq" in names
@@ -1369,7 +1372,7 @@ class TestStatusFilterEquipment:
         await make_equipment_in_db(db, project.id, admin_user.id, name="Eq Rejected", status=ApprovalStatus.REJECTED.value)
         resp = await admin_client.get(eq_url(str(project.id)))
         assert resp.status_code == 200
-        names = [item["name"] for item in resp.json()]
+        names = [item["name"] for item in resp.json()["items"]]
         assert "Eq Draft" in names
         assert "Eq Approved" in names
         assert "Eq Rejected" in names
@@ -1380,7 +1383,7 @@ class TestStatusFilterEquipment:
         await make_equipment_in_db(db, project.id, admin_user.id, name="Draft Eq", status=ApprovalStatus.DRAFT.value)
         resp = await admin_client.get(eq_url(str(project.id)), params={"status": "rejected"})
         assert resp.status_code == 200
-        items = resp.json()
+        items = resp.json()["items"]
         assert all(item["status"] == "rejected" for item in items)
         names = [item["name"] for item in items]
         assert "Rejected Eq" in names
@@ -1391,14 +1394,14 @@ class TestStatusFilterEquipment:
         await make_equipment_in_db(db, project.id, admin_user.id, name="Some Eq", status=ApprovalStatus.DRAFT.value)
         resp = await admin_client.get(eq_url(str(project.id)), params={"status": "nonexistent_status"})
         assert resp.status_code == 200
-        assert resp.json() == []
+        assert resp.json()["items"] == []
 
     @pytest.mark.asyncio
     async def test_status_filter_case_sensitive(self, admin_client, project, db, admin_user):
         await make_equipment_in_db(db, project.id, admin_user.id, name="Draft Eq", status=ApprovalStatus.DRAFT.value)
         resp = await admin_client.get(eq_url(str(project.id)), params={"status": "DRAFT"})
         assert resp.status_code == 200
-        assert resp.json() == []
+        assert resp.json()["items"] == []
 
     @pytest.mark.asyncio
     async def test_status_filter_submitted_returns_only_submitted(self, admin_client, project, db, admin_user):
@@ -1406,7 +1409,7 @@ class TestStatusFilterEquipment:
         await make_equipment_in_db(db, project.id, admin_user.id, name="Draft Eq", status=ApprovalStatus.DRAFT.value)
         resp = await admin_client.get(eq_url(str(project.id)), params={"status": "submitted"})
         assert resp.status_code == 200
-        items = resp.json()
+        items = resp.json()["items"]
         assert all(item["status"] == "submitted" for item in items)
         names = [item["name"] for item in items]
         assert "Submitted Eq" in names
@@ -1448,6 +1451,6 @@ class TestStatusFilterEquipment:
         await make_equipment_in_db(db, project.id, admin_user.id, name="Approved Only", status=ApprovalStatus.APPROVED.value)
         resp = await admin_client.get(eq_url(str(project.id)), params={"status": "draft"})
         assert resp.status_code == 200
-        items = resp.json()
+        items = resp.json()["items"]
         assert len(items) == 3
         assert all(item["status"] == "draft" for item in items)

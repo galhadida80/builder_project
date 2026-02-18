@@ -1555,6 +1555,8 @@ class TestMetricsResponse:
             total_equipment=20, approved_equipment=15,
             total_materials=30, approved_materials=25,
             total_meetings=5, approval_rate=0.75,
+            total_rfis=8, open_rfis=3, closed_rfis=5,
+            total_approvals=12, pending_approvals=4, approved_approvals=8,
         )
         assert obj.approval_rate == 0.75
 
@@ -1584,6 +1586,7 @@ class TestDistributionsResponse:
         obj = DistributionsResponse(
             inspection_status=items, equipment_status=items,
             material_status=items, project_status=items,
+            rfi_status=items, approval_status=items,
         )
         assert len(obj.inspection_status) == 1
 

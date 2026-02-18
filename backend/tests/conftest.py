@@ -21,6 +21,7 @@ from app.models.user import User
 
 # Force fake email provider for all tests (avoid hitting real SendGrid)
 get_settings().email_provider = "fake"
+get_settings().google_pubsub_verify = False
 
 compiles(JSONB, "sqlite")(lambda element, compiler, **kw: compiler.visit_JSON(element, **kw))
 compiles(PG_UUID, "sqlite")(lambda element, compiler, **kw: "VARCHAR(36)")

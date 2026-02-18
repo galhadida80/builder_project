@@ -459,21 +459,21 @@ class TestListMaterialExtended:
     async def test_list_empty(self, admin_client, project):
         resp = await admin_client.get(mat_url(str(project.id)))
         assert resp.status_code == 200
-        assert resp.json() == []
+        assert resp.json()["items"] == []
 
     @pytest.mark.asyncio
     async def test_list_correct_count(self, admin_client, project):
         for i in range(4):
             await create_mat(admin_client, project.id, name=f"Mat {i}")
         resp = await admin_client.get(mat_url(str(project.id)))
-        assert len(resp.json()) == 4
+        assert len(resp.json()["items"]) == 4
 
     @pytest.mark.asyncio
     async def test_list_ordered_by_created_at_desc(self, admin_client, project):
         for i in range(3):
             await create_mat(admin_client, project.id, name=f"Ordered {i}")
         resp = await admin_client.get(mat_url(str(project.id)))
-        dates = [m["createdAt"] for m in resp.json()]
+        dates = [m["createdAt"] for m in resp.json()["items"]]
         assert dates == sorted(dates, reverse=True)
 
     @pytest.mark.asyncio
@@ -483,21 +483,24 @@ class TestListMaterialExtended:
         await create_mat(admin_client, other.id, name="Proj B Mat")
         resp_a = await admin_client.get(mat_url(str(project.id)))
         resp_b = await admin_client.get(mat_url(str(other.id)))
-        assert len(resp_a.json()) == 1
-        assert resp_a.json()[0]["name"] == "Proj A Mat"
-        assert len(resp_b.json()) == 1
-        assert resp_b.json()[0]["name"] == "Proj B Mat"
+        assert len(resp_a.json()["items"]) == 1
+        assert resp_a.json()["items"][0]["name"] == "Proj A Mat"
+        assert len(resp_b.json()["items"]) == 1
+        assert resp_b.json()["items"][0]["name"] == "Proj B Mat"
 
     @pytest.mark.asyncio
-    async def test_list_response_is_array(self, admin_client, project):
+    async def test_list_response_is_paginated(self, admin_client, project):
         resp = await admin_client.get(mat_url(str(project.id)))
-        assert isinstance(resp.json(), list)
+        data = resp.json()
+        assert isinstance(data["items"], list)
+        assert "total" in data
+        assert "page" in data
 
     @pytest.mark.asyncio
     async def test_list_items_have_camel_case(self, admin_client, project):
         await create_mat(admin_client, project.id)
         resp = await admin_client.get(mat_url(str(project.id)))
-        item = resp.json()[0]
+        item = resp.json()["items"][0]
         assert "materialType" in item
         assert "modelNumber" in item
         assert "storageLocation" in item
@@ -510,7 +513,7 @@ class TestListMaterialExtended:
         for i in range(count):
             await make_material_in_db(db, project.id, admin_user.id, name=f"Batch {i}")
         resp = await admin_client.get(mat_url(str(project.id)))
-        assert len(resp.json()) == count
+        assert len(resp.json()["items"]) == count
 
 
 class TestFlatListMaterialExtended:
@@ -704,7 +707,7 @@ class TestDeleteMaterialExtended:
         mat = await create_mat(admin_client, project.id)
         await admin_client.delete(mat_detail(str(project.id), mat["id"]))
         resp = await admin_client.get(mat_url(str(project.id)))
-        assert len(resp.json()) == 0
+        assert len(resp.json()["items"]) == 0
 
     @pytest.mark.asyncio
     async def test_delete_nonexistent_returns_404(self, admin_client, project):
@@ -717,8 +720,8 @@ class TestDeleteMaterialExtended:
         m2 = await create_mat(admin_client, project.id, name="Remove")
         await admin_client.delete(mat_detail(str(project.id), m2["id"]))
         resp = await admin_client.get(mat_url(str(project.id)))
-        assert len(resp.json()) == 1
-        assert resp.json()[0]["name"] == "Keep"
+        assert len(resp.json()["items"]) == 1
+        assert resp.json()["items"][0]["name"] == "Keep"
 
     @pytest.mark.asyncio
     async def test_delete_double_delete_returns_404(self, admin_client, project):
@@ -1113,7 +1116,7 @@ class TestCRUDWorkflowsExtended:
             resp = await admin_client.delete(mat_detail(pid, mid))
             assert resp.status_code == 200
         resp = await admin_client.get(mat_url(pid))
-        assert resp.json() == []
+        assert resp.json()["items"] == []
 
 
 class TestEdgeCasesExtended:
@@ -1134,7 +1137,7 @@ class TestEdgeCasesExtended:
             )
             assert resp.status_code == 200
         resp = await admin_client.get(mat_url(str(project.id)))
-        same = [m for m in resp.json() if m["name"] == "Same Name"]
+        same = [m for m in resp.json()["items"] if m["name"] == "Same Name"]
         assert len(same) == 3
 
     @pytest.mark.asyncio
@@ -1229,7 +1232,7 @@ class TestMultipleMaterialsExtended:
         for i in range(count):
             await create_mat(admin_client, project.id, name=f"Mat-{i}")
         resp = await admin_client.get(mat_url(str(project.id)))
-        assert len(resp.json()) == count
+        assert len(resp.json()["items"]) == count
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize("delete_idx", [0, 1, 2])
@@ -1240,7 +1243,7 @@ class TestMultipleMaterialsExtended:
             ids.append(mat["id"])
         await admin_client.delete(mat_detail(str(project.id), ids[delete_idx]))
         resp = await admin_client.get(mat_url(str(project.id)))
-        remaining = [m["id"] for m in resp.json()]
+        remaining = [m["id"] for m in resp.json()["items"]]
         assert ids[delete_idx] not in remaining
         assert len(remaining) == 2
 
@@ -1372,7 +1375,7 @@ class TestStatusFilterMaterials:
         await make_material_in_db(db, project.id, admin_user.id, name="Approved Mat", status=ApprovalStatus.APPROVED.value)
         resp = await admin_client.get(mat_url(str(project.id)), params={"status": "draft"})
         assert resp.status_code == 200
-        items = resp.json()
+        items = resp.json()["items"]
         assert all(item["status"] == "draft" for item in items)
         names = [item["name"] for item in items]
         assert "Draft Mat" in names
@@ -1384,7 +1387,7 @@ class TestStatusFilterMaterials:
         await make_material_in_db(db, project.id, admin_user.id, name="Approved Mat", status=ApprovalStatus.APPROVED.value)
         resp = await admin_client.get(mat_url(str(project.id)), params={"status": "approved"})
         assert resp.status_code == 200
-        items = resp.json()
+        items = resp.json()["items"]
         assert all(item["status"] == "approved" for item in items)
         names = [item["name"] for item in items]
         assert "Approved Mat" in names
@@ -1397,7 +1400,7 @@ class TestStatusFilterMaterials:
         await make_material_in_db(db, project.id, admin_user.id, name="Mat Rejected", status=ApprovalStatus.REJECTED.value)
         resp = await admin_client.get(mat_url(str(project.id)))
         assert resp.status_code == 200
-        names = [item["name"] for item in resp.json()]
+        names = [item["name"] for item in resp.json()["items"]]
         assert "Mat Draft" in names
         assert "Mat Approved" in names
         assert "Mat Rejected" in names
@@ -1408,7 +1411,7 @@ class TestStatusFilterMaterials:
         await make_material_in_db(db, project.id, admin_user.id, name="Draft Mat", status=ApprovalStatus.DRAFT.value)
         resp = await admin_client.get(mat_url(str(project.id)), params={"status": "rejected"})
         assert resp.status_code == 200
-        items = resp.json()
+        items = resp.json()["items"]
         assert all(item["status"] == "rejected" for item in items)
         names = [item["name"] for item in items]
         assert "Rejected Mat" in names
@@ -1419,14 +1422,14 @@ class TestStatusFilterMaterials:
         await make_material_in_db(db, project.id, admin_user.id, name="Some Mat", status=ApprovalStatus.DRAFT.value)
         resp = await admin_client.get(mat_url(str(project.id)), params={"status": "nonexistent_status"})
         assert resp.status_code == 200
-        assert resp.json() == []
+        assert resp.json()["items"] == []
 
     @pytest.mark.asyncio
     async def test_status_filter_case_sensitive(self, admin_client, project, db, admin_user):
         await make_material_in_db(db, project.id, admin_user.id, name="Draft Mat", status=ApprovalStatus.DRAFT.value)
         resp = await admin_client.get(mat_url(str(project.id)), params={"status": "DRAFT"})
         assert resp.status_code == 200
-        assert resp.json() == []
+        assert resp.json()["items"] == []
 
     @pytest.mark.asyncio
     async def test_status_filter_submitted_returns_only_submitted(self, admin_client, project, db, admin_user):
@@ -1434,7 +1437,7 @@ class TestStatusFilterMaterials:
         await make_material_in_db(db, project.id, admin_user.id, name="Draft Mat", status=ApprovalStatus.DRAFT.value)
         resp = await admin_client.get(mat_url(str(project.id)), params={"status": "submitted"})
         assert resp.status_code == 200
-        items = resp.json()
+        items = resp.json()["items"]
         assert all(item["status"] == "submitted" for item in items)
         names = [item["name"] for item in items]
         assert "Submitted Mat" in names
@@ -1476,6 +1479,6 @@ class TestStatusFilterMaterials:
         await make_material_in_db(db, project.id, admin_user.id, name="Approved Only", status=ApprovalStatus.APPROVED.value)
         resp = await admin_client.get(mat_url(str(project.id)), params={"status": "draft"})
         assert resp.status_code == 200
-        items = resp.json()
+        items = resp.json()["items"]
         assert len(items) == 3
         assert all(item["status"] == "draft" for item in items)
