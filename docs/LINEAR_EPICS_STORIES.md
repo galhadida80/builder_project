@@ -18,11 +18,11 @@ Complete UI/UX overhaul for BuilderOps Construction Operations Platform based on
 As a developer, I need to implement the new color system with CSS variables so that all components use consistent colors across the application.
 
 **Acceptance Criteria:**
-- [ ] Define CSS custom properties for all colors (primary, secondary, accent, semantic)
-- [ ] Implement Construction Navy palette (#0F172A, #334155, #0369A1)
-- [ ] Add Safety Orange for alerts (#F97316)
-- [ ] Create semantic colors (success, warning, error, info)
-- [ ] Support both light and dark mode variables
+- [x] Define CSS custom properties for all colors (primary, secondary, accent, semantic)
+- [x] Implement Construction Navy palette (#0F172A, #334155, #0369A1)
+- [x] Add Safety Orange for alerts (#F97316)
+- [x] Create semantic colors (success, warning, error, info)
+- [x] Support both light and dark mode variables
 **Estimate:** 2 points
 **Labels:** design-system, frontend
 
@@ -32,11 +32,11 @@ As a developer, I need to implement the new color system with CSS variables so t
 As a developer, I need to set up the typography system with Plus Jakarta Sans (English) and Noto Sans Hebrew (RTL) so that the app supports bilingual content.
 
 **Acceptance Criteria:**
-- [ ] Import Google Fonts (Plus Jakarta Sans, Noto Sans Hebrew)
-- [ ] Define type scale (Display, H1-H4, Body, Small, Tiny)
-- [ ] Configure font weights and line heights
-- [ ] Set up RTL font-family switching
-- [ ] Create typography utility classes
+- [x] Import Google Fonts (Plus Jakarta Sans, Noto Sans Hebrew)
+- [x] Define type scale (Display, H1-H4, Body, Small, Tiny)
+- [x] Configure font weights and line heights
+- [x] Set up RTL font-family switching
+- [x] Create typography utility classes
 **Estimate:** 2 points
 **Labels:** design-system, typography, i18n
 
@@ -46,11 +46,11 @@ As a developer, I need to set up the typography system with Plus Jakarta Sans (E
 As a developer, I need a token system for spacing, shadows, and borders so that components maintain visual consistency.
 
 **Acceptance Criteria:**
-- [ ] Define spacing scale (xs through 3xl)
-- [ ] Create shadow depth levels (sm, md, lg, xl)
-- [ ] Set border radius tokens (sm, md, lg, xl)
-- [ ] Configure transition timing tokens
-- [ ] Document all tokens in design system
+- [x] Define spacing scale (xs through 3xl)
+- [x] Create shadow depth levels (sm, md, lg, xl)
+- [x] Set border radius tokens (sm, md, lg, xl)
+- [x] Configure transition timing tokens
+- [x] Document all tokens in design system
 **Estimate:** 1 point
 **Labels:** design-system, tokens
 
@@ -60,11 +60,11 @@ As a developer, I need a token system for spacing, shadows, and borders so that 
 As a user, I want to switch between light and dark modes so that I can use the app comfortably in different lighting conditions.
 
 **Acceptance Criteria:**
-- [ ] Create theme context provider
-- [ ] Implement theme toggle component
-- [ ] Persist theme preference in localStorage
-- [ ] Apply dark mode colors throughout app
-- [ ] Respect system preference (prefers-color-scheme)
+- [x] Create theme context provider
+- [x] Implement theme toggle component
+- [x] Persist theme preference in localStorage
+- [x] Apply dark mode colors throughout app
+- [x] Respect system preference (prefers-color-scheme)
 **Estimate:** 3 points
 **Labels:** design-system, theming, accessibility
 
@@ -83,12 +83,12 @@ As a user, I want to switch between light and dark modes so that I can use the a
 As a visitor, I want to see an impressive hero section so that I immediately understand the product value proposition.
 
 **Acceptance Criteria:**
-- [ ] Dark navy background with construction imagery overlay
-- [ ] Headline: "Build Smarter. Inspect Faster. Deliver Excellence."
-- [ ] Two CTAs: "Request Demo" (primary) and "Login" (secondary)
-- [ ] Trust logos carousel at bottom
-- [ ] Glassmorphism navigation bar
-- [ ] Responsive for mobile/tablet/desktop
+- [x] Dark navy background with construction imagery overlay
+- [x] Headline: "Build Smarter. Inspect Faster. Deliver Excellence."
+- [x] Two CTAs: "Request Demo" (primary) and "Login" (secondary)
+- [x] Trust logos carousel at bottom
+- [x] Glassmorphism navigation bar
+- [x] Responsive for mobile/tablet/desktop
 **Estimate:** 3 points
 **Labels:** landing-page, marketing
 **Design Reference:** `design-assets/landing/01-hero-dark.png`
@@ -99,11 +99,11 @@ As a visitor, I want to see an impressive hero section so that I immediately und
 As a visitor, I want to see the key features in an engaging layout so that I understand what the platform offers.
 
 **Acceptance Criteria:**
-- [ ] Asymmetric bento grid layout (2 large, 4 medium cards)
-- [ ] 6 features: Project Management, Equipment Tracking, Inspection System, Approval Workflows, Team Collaboration, Analytics
-- [ ] Glassmorphism card effect with hover states
-- [ ] SVG icons for each feature (Lucide/Heroicons)
-- [ ] Responsive grid (3-col desktop, 2-col tablet, 1-col mobile)
+- [x] Asymmetric bento grid layout (2 large, 4 medium cards)
+- [x] 6 features: Project Management, Equipment Tracking, Inspection System, Approval Workflows, Team Collaboration, Analytics
+- [x] Glassmorphism card effect with hover states
+- [x] SVG icons for each feature (Lucide/Heroicons)
+- [x] Responsive grid (3-col desktop, 2-col tablet, 1-col mobile)
 **Estimate:** 3 points
 **Labels:** landing-page, components
 **Design Reference:** `design-assets/landing/02-features-bento.png`
@@ -114,12 +114,12 @@ As a visitor, I want to see the key features in an engaging layout so that I und
 As a visitor, I want to see pricing options so that I can choose the right plan for my needs.
 
 **Acceptance Criteria:**
-- [ ] Three pricing cards: Starter, Professional, Enterprise
-- [ ] "Most Popular" badge on Professional tier
-- [ ] Feature list with checkmarks for each tier
-- [ ] CTA buttons on each card
-- [ ] Professional card elevated with emphasis styling
-- [ ] Responsive layout
+- [x] Three pricing cards: Starter, Professional, Enterprise
+- [x] "Most Popular" badge on Professional tier
+- [x] Feature list with checkmarks for each tier
+- [x] CTA buttons on each card
+- [x] Professional card elevated with emphasis styling
+- [x] Responsive layout
 **Estimate:** 2 points
 **Labels:** landing-page, pricing
 **Design Reference:** `design-assets/landing/03-pricing.png`
@@ -130,11 +130,11 @@ As a visitor, I want to see pricing options so that I can choose the right plan 
 As a visitor, I want to see testimonials from real clients so that I can trust the platform.
 
 **Acceptance Criteria:**
-- [ ] Testimonial cards with quote, photo, name, title
-- [ ] 5-star rating display
-- [ ] Company logos
-- [ ] Carousel/slider navigation
-- [ ] Auto-play with pause on hover
+- [x] Testimonial cards with quote, photo, name, title
+- [x] 5-star rating display
+- [x] Company logos
+- [x] Carousel/slider navigation
+- [x] Auto-play with pause on hover
 **Estimate:** 2 points
 **Labels:** landing-page, social-proof
 **Design Reference:** `design-assets/landing/04-testimonials.png`
@@ -145,11 +145,11 @@ As a visitor, I want to see testimonials from real clients so that I can trust t
 As a visitor, I want to see the mobile app so that I know I can use it in the field.
 
 **Acceptance Criteria:**
-- [ ] iPhone and Android device mockups
-- [ ] Floating phone display at angle
-- [ ] App store badges (iOS/Android)
-- [ ] Feature highlights for mobile
-- [ ] Light gradient background
+- [x] iPhone and Android device mockups
+- [x] Floating phone display at angle
+- [x] App store badges (iOS/Android)
+- [x] Feature highlights for mobile
+- [x] Light gradient background
 **Estimate:** 2 points
 **Labels:** landing-page, mobile
 **Design Reference:** `design-assets/landing/05-mobile-preview.png`
@@ -160,11 +160,11 @@ As a visitor, I want to see the mobile app so that I know I can use it in the fi
 As a visitor, I want a clear final CTA so that I can request a demo easily.
 
 **Acceptance Criteria:**
-- [ ] Dark navy background
-- [ ] "Ready to Transform Your Construction Operations?" headline
-- [ ] Email input field with submit button
-- [ ] Demo calendar widget preview
-- [ ] Trust badges and security icons
+- [x] Dark navy background
+- [x] "Ready to Transform Your Construction Operations?" headline
+- [x] Email input field with submit button
+- [x] Demo calendar widget preview
+- [x] Trust badges and security icons
 **Estimate:** 1 point
 **Labels:** landing-page, conversion
 **Design Reference:** `design-assets/landing/06-cta-section.png`
@@ -184,14 +184,14 @@ As a visitor, I want a clear final CTA so that I can request a demo easily.
 As an executive, I want a dark mode dashboard so that I can view KPIs and project status at a glance.
 
 **Acceptance Criteria:**
-- [ ] Bento grid layout with KPI cards
-- [ ] Active Projects count widget
-- [ ] Pending Approvals counter
-- [ ] Completion Rate percentage ring
-- [ ] Revenue/budget line chart
-- [ ] Project location map widget
-- [ ] Risk alerts panel with severity indicators
-- [ ] Dark navy theme (#0F172A background)
+- [x] Bento grid layout with KPI cards
+- [x] Active Projects count widget
+- [x] Pending Approvals counter
+- [x] Completion Rate percentage ring
+- [x] Revenue/budget line chart
+- [x] Project location map widget
+- [x] Risk alerts panel with severity indicators
+- [x] Dark navy theme (#0F172A background)
 **Estimate:** 5 points
 **Labels:** dashboard, executive, dark-mode
 **Design Reference:** `design-assets/dashboard/07-executive-dark.png`
@@ -202,10 +202,10 @@ As an executive, I want a dark mode dashboard so that I can view KPIs and projec
 As an executive, I want a light mode option so that I can use the dashboard in bright environments.
 
 **Acceptance Criteria:**
-- [ ] Same layout as dark mode
-- [ ] Light background (#F8FAFC)
-- [ ] Adjusted colors for light theme contrast
-- [ ] Theme toggle integration
+- [x] Same layout as dark mode
+- [x] Light background (#F8FAFC)
+- [x] Adjusted colors for light theme contrast
+- [x] Theme toggle integration
 **Estimate:** 2 points
 **Labels:** dashboard, executive, light-mode
 **Design Reference:** `design-assets/dashboard/08-executive-light.png`
@@ -216,12 +216,12 @@ As an executive, I want a light mode option so that I can use the dashboard in b
 As a project manager, I want a dashboard focused on active projects so that I can manage my workload effectively.
 
 **Acceptance Criteria:**
-- [ ] Active projects card grid
-- [ ] Project cards with progress bars and status badges
-- [ ] Timeline mini-view (simplified Gantt)
-- [ ] Team workload distribution bars
-- [ ] Approval queue widget
-- [ ] Quick filters bar
+- [x] Active projects card grid
+- [x] Project cards with progress bars and status badges
+- [x] Timeline mini-view (simplified Gantt)
+- [x] Team workload distribution bars
+- [x] Approval queue widget
+- [x] Quick filters bar
 **Estimate:** 5 points
 **Labels:** dashboard, project-manager
 **Design Reference:** `design-assets/dashboard/09-project-manager.png`
@@ -232,12 +232,12 @@ As a project manager, I want a dashboard focused on active projects so that I ca
 As a field inspector, I want a mobile-optimized dashboard so that I can quickly access today's inspections on-site.
 
 **Acceptance Criteria:**
-- [ ] Mobile-first responsive design
-- [ ] Today's inspections list with times/locations
-- [ ] Large touch-friendly action buttons (44px min)
-- [ ] Quick actions: Start Inspection, Take Photo, Report Issue
-- [ ] Offline mode indicator
-- [ ] Bottom navigation bar
+- [x] Mobile-first responsive design
+- [x] Today's inspections list with times/locations
+- [x] Large touch-friendly action buttons (44px min)
+- [x] Quick actions: Start Inspection, Take Photo, Report Issue
+- [x] Offline mode indicator
+- [x] Bottom navigation bar
 **Estimate:** 3 points
 **Labels:** dashboard, mobile, inspector
 **Design Reference:** `design-assets/dashboard/10-inspector-mobile.png`
@@ -248,12 +248,12 @@ As a field inspector, I want a mobile-optimized dashboard so that I can quickly 
 As a user, I want an analytics dashboard so that I can visualize project data and trends.
 
 **Acceptance Criteria:**
-- [ ] Line chart for progress over time
-- [ ] Bar chart for budget comparison
-- [ ] Pie chart for task distribution
-- [ ] KPI comparison cards with trends
-- [ ] Date range selector
-- [ ] Export buttons (CSV, PDF)
+- [x] Line chart for progress over time
+- [x] Bar chart for budget comparison
+- [x] Pie chart for task distribution
+- [x] KPI comparison cards with trends
+- [x] Date range selector
+- [x] Export buttons (CSV, PDF)
 **Estimate:** 3 points
 **Labels:** dashboard, analytics, charts
 **Design Reference:** `design-assets/dashboard/11-analytics.png`
@@ -264,11 +264,11 @@ As a user, I want an analytics dashboard so that I can visualize project data an
 As a manager, I want to see team workload so that I can balance assignments appropriately.
 
 **Acceptance Criteria:**
-- [ ] Team member cards with avatars
-- [ ] Workload distribution bars
-- [ ] Availability calendar grid
-- [ ] Project assignment tags
-- [ ] Filter by department/role
+- [x] Team member cards with avatars
+- [x] Workload distribution bars
+- [x] Availability calendar grid
+- [x] Project assignment tags
+- [x] Filter by department/role
 **Estimate:** 3 points
 **Labels:** dashboard, team, workload
 **Design Reference:** `design-assets/dashboard/12-team-workload.png`
@@ -288,13 +288,13 @@ As a manager, I want to see team workload so that I can balance assignments appr
 As an approver, I want to see all pending approvals so that I can process them efficiently.
 
 **Acceptance Criteria:**
-- [ ] List/table view of pending approvals
-- [ ] Columns: type, project, submitter, date, priority
-- [ ] Filter tabs: All, Equipment, Materials, Documents
-- [ ] Status badges (Pending, Urgent)
-- [ ] Quick action buttons (Approve, Reject, Review)
-- [ ] Search and filter bar
-- [ ] Pagination
+- [x] List/table view of pending approvals
+- [x] Columns: type, project, submitter, date, priority
+- [x] Filter tabs: All, Equipment, Materials, Documents
+- [x] Status badges (Pending, Urgent)
+- [x] Quick action buttons (Approve, Reject, Review)
+- [x] Search and filter bar
+- [x] Pagination
 **Estimate:** 3 points
 **Labels:** approvals, list-view
 **Design Reference:** `design-assets/dashboard/13-approval-queue.png`
@@ -305,12 +305,12 @@ As an approver, I want to see all pending approvals so that I can process them e
 As a user, I want to see notifications so that I stay informed about important updates.
 
 **Acceptance Criteria:**
-- [ ] Slide-out panel from header
-- [ ] Notification list with icons, titles, timestamps
-- [ ] Category tabs: All, Approvals, Inspections, Updates
-- [ ] Unread counter badge
-- [ ] Mark all as read functionality
-- [ ] Click to navigate to relevant item
+- [x] Slide-out panel from header
+- [x] Notification list with icons, titles, timestamps
+- [x] Category tabs: All, Approvals, Inspections, Updates
+- [x] Unread counter badge
+- [x] Mark all as read functionality
+- [x] Click to navigate to relevant item
 **Estimate:** 2 points
 **Labels:** notifications, real-time
 **Design Reference:** `design-assets/dashboard/14-notifications.png`
@@ -321,12 +321,12 @@ As a user, I want to see notifications so that I stay informed about important u
 As a user, I want to see the approval progress so that I know where my request stands.
 
 **Acceptance Criteria:**
-- [ ] Horizontal stepper component
-- [ ] Steps: Draft → Submitted → Under Review → Approved
-- [ ] Current step highlighted
-- [ ] Completed steps with checkmarks
-- [ ] Step details on expansion
-- [ ] Action buttons for current step
+- [x] Horizontal stepper component
+- [x] Steps: Draft → Submitted → Under Review → Approved
+- [x] Current step highlighted
+- [x] Completed steps with checkmarks
+- [x] Step details on expansion
+- [x] Action buttons for current step
 **Estimate:** 3 points
 **Labels:** approvals, workflow
 **Design Reference:** `design-assets/approval/26-approval-stepper.png`
@@ -337,12 +337,12 @@ As a user, I want to see the approval progress so that I know where my request s
 As a reviewer, I want to view documents and add comments so that I can make informed approval decisions.
 
 **Acceptance Criteria:**
-- [ ] Split view layout
-- [ ] Left panel: document/PDF preview with zoom
-- [ ] Right panel: comments thread
-- [ ] Comment with user avatars and timestamps
-- [ ] Reply to comments
-- [ ] Action bar: Approve, Reject, Request Changes
+- [x] Split view layout
+- [x] Left panel: document/PDF preview with zoom
+- [x] Right panel: comments thread
+- [x] Comment with user avatars and timestamps
+- [x] Reply to comments
+- [x] Action bar: Approve, Reject, Request Changes
 **Estimate:** 3 points
 **Labels:** approvals, documents
 **Design Reference:** `design-assets/approval/27-document-review.png`
@@ -353,11 +353,11 @@ As a reviewer, I want to view documents and add comments so that I can make info
 As an admin, I want to see the complete approval history so that I can audit decisions and ensure compliance.
 
 **Acceptance Criteria:**
-- [ ] Vertical timeline of actions
-- [ ] Entry: user avatar, action, timestamp, status
-- [ ] Action types: Submitted, Approved, Rejected, Commented
-- [ ] Filter by date range and action type
-- [ ] Export audit log button
+- [x] Vertical timeline of actions
+- [x] Entry: user avatar, action, timestamp, status
+- [x] Action types: Submitted, Approved, Rejected, Commented
+- [x] Filter by date range and action type
+- [x] Export audit log button
 **Estimate:** 2 points
 **Labels:** approvals, audit
 **Design Reference:** `design-assets/approval/28-audit-trail.png`
@@ -377,12 +377,12 @@ As an admin, I want to see the complete approval history so that I can audit dec
 As a user, I want to see a project overview so that I can quickly understand project status.
 
 **Acceptance Criteria:**
-- [ ] Hero section with project photo
-- [ ] Progress ring showing percentage complete
-- [ ] Project name, address, dates
-- [ ] Status timeline with milestones
-- [ ] Tabbed navigation: Overview, Equipment, Inspections, Team
-- [ ] Key metrics cards: Budget, Timeline, Team Size
+- [x] Hero section with project photo
+- [x] Progress ring showing percentage complete
+- [x] Project name, address, dates
+- [x] Status timeline with milestones
+- [x] Tabbed navigation: Overview, Equipment, Inspections, Team
+- [x] Key metrics cards: Budget, Timeline, Team Size
 **Estimate:** 3 points
 **Labels:** project, overview
 **Design Reference:** `design-assets/project/15-project-overview.png`
@@ -393,13 +393,13 @@ As a user, I want to see a project overview so that I can quickly understand pro
 As a user, I want to view and manage equipment so that I can track assets across projects.
 
 **Acceptance Criteria:**
-- [ ] Data table with sortable columns
-- [ ] Columns: name, model, serial, location, status
-- [ ] Status badges: Approved, Pending, Rejected
-- [ ] Search and filter dropdowns
-- [ ] Add Equipment button
-- [ ] Row actions: View, Edit, Delete
-- [ ] Pagination
+- [x] Data table with sortable columns
+- [x] Columns: name, model, serial, location, status
+- [x] Status badges: Approved, Pending, Rejected
+- [x] Search and filter dropdowns
+- [x] Add Equipment button
+- [x] Row actions: View, Edit, Delete
+- [x] Pagination
 **Estimate:** 3 points
 **Labels:** project, equipment
 **Design Reference:** `design-assets/project/16-equipment-list.png`
@@ -410,13 +410,13 @@ As a user, I want to view and manage equipment so that I can track assets across
 As a user, I want to view materials in a visual grid so that I can quickly assess inventory status.
 
 **Acceptance Criteria:**
-- [ ] Card grid layout
-- [ ] Material photo, name, quantity
-- [ ] Progress bar for quantity level
-- [ ] Storage location indicator
-- [ ] Low stock alert badge (orange)
-- [ ] Filter chips: All, Concrete, Steel, Lumber, etc.
-- [ ] Add Material button
+- [x] Card grid layout
+- [x] Material photo, name, quantity
+- [x] Progress bar for quantity level
+- [x] Storage location indicator
+- [x] Low stock alert badge (orange)
+- [x] Filter chips: All, Concrete, Steel, Lumber, etc.
+- [x] Add Material button
 **Estimate:** 3 points
 **Labels:** project, materials
 **Design Reference:** `design-assets/project/17-material-inventory.png`
@@ -427,13 +427,13 @@ As a user, I want to view materials in a visual grid so that I can quickly asses
 As a project manager, I want to see a Gantt chart so that I can visualize project timeline and dependencies.
 
 **Acceptance Criteria:**
-- [ ] Horizontal timeline with task bars
-- [ ] Task groups (collapsible)
-- [ ] Dependencies shown with arrows
-- [ ] Milestone markers (diamonds)
-- [ ] Today line indicator
-- [ ] Zoom controls (day/week/month)
-- [ ] Task list sidebar
+- [x] Horizontal timeline with task bars
+- [x] Task groups (collapsible)
+- [x] Dependencies shown with arrows
+- [x] Milestone markers (diamonds)
+- [x] Today line indicator
+- [x] Zoom controls (day/week/month)
+- [x] Task list sidebar
 **Estimate:** 5 points
 **Labels:** project, timeline, gantt
 **Design Reference:** `design-assets/project/18-gantt-timeline.png`
@@ -444,13 +444,13 @@ As a project manager, I want to see a Gantt chart so that I can visualize projec
 As a user, I want to see all team members so that I can contact and assign tasks to them.
 
 **Acceptance Criteria:**
-- [ ] Card grid of team members
-- [ ] Avatar, name, role, contact info
-- [ ] Role color coding
-- [ ] Project assignment tags
-- [ ] Search by name
-- [ ] Filter by role
-- [ ] Invite Team Member button
+- [x] Card grid of team members
+- [x] Avatar, name, role, contact info
+- [x] Role color coding
+- [x] Project assignment tags
+- [x] Search by name
+- [x] Filter by role
+- [x] Invite Team Member button
 **Estimate:** 2 points
 **Labels:** project, team
 **Design Reference:** `design-assets/project/19-team-members.png`
@@ -461,12 +461,12 @@ As a user, I want to see all team members so that I can contact and assign tasks
 As a user, I want to manage project documents so that I can store and find files easily.
 
 **Acceptance Criteria:**
-- [ ] Split view: folder tree + file list + preview
-- [ ] Folder structure: Contracts, Blueprints, Permits, Reports
-- [ ] File list with name, type, size, date, uploader
-- [ ] Preview panel for selected file
-- [ ] Drag and drop upload area
-- [ ] Search and filter by type
+- [x] Split view: folder tree + file list + preview
+- [x] Folder structure: Contracts, Blueprints, Permits, Reports
+- [x] File list with name, type, size, date, uploader
+- [x] Preview panel for selected file
+- [x] Drag and drop upload area
+- [x] Search and filter by type
 **Estimate:** 2 points
 **Labels:** project, documents
 **Design Reference:** `design-assets/project/20-document-library.png`
@@ -486,14 +486,14 @@ As a user, I want to manage project documents so that I can store and find files
 As an inspector, I want to complete checklists on my mobile device so that I can work efficiently on-site.
 
 **Acceptance Criteria:**
-- [ ] Mobile-optimized layout
-- [ ] Collapsible sections: Structural, Electrical, Plumbing
-- [ ] Checklist items with toggle switches
-- [ ] Photo capture button with camera integration
-- [ ] Notes text area per item
-- [ ] Digital signature capture at bottom
-- [ ] Progress bar showing completion
-- [ ] Offline capability indicators
+- [x] Mobile-optimized layout
+- [x] Collapsible sections: Structural, Electrical, Plumbing
+- [x] Checklist items with toggle switches
+- [x] Photo capture button with camera integration
+- [x] Notes text area per item
+- [x] Digital signature capture at bottom
+- [x] Progress bar showing completion
+- [x] Offline capability indicators
 **Estimate:** 5 points
 **Labels:** inspection, mobile, checklist
 **Design Reference:** `design-assets/inspection/21-checklist-mobile.png`
@@ -504,13 +504,13 @@ As an inspector, I want to complete checklists on my mobile device so that I can
 As an inspector, I want to document findings with details so that issues are properly tracked.
 
 **Acceptance Criteria:**
-- [ ] Finding card component
-- [ ] Severity badge: Critical (red), High (orange), Medium (yellow), Low (gray)
-- [ ] Photo gallery with add photo
-- [ ] Location pin with floor/area
-- [ ] Description text area
-- [ ] Inspector info and timestamp
-- [ ] Actions: Assign, Resolve, Add Photo
+- [x] Finding card component
+- [x] Severity badge: Critical (red), High (orange), Medium (yellow), Low (gray)
+- [x] Photo gallery with add photo
+- [x] Location pin with floor/area
+- [x] Description text area
+- [x] Inspector info and timestamp
+- [x] Actions: Assign, Resolve, Add Photo
 **Estimate:** 3 points
 **Labels:** inspection, findings
 **Design Reference:** `design-assets/inspection/22-finding-card.png`
@@ -521,14 +521,14 @@ As an inspector, I want to document findings with details so that issues are pro
 As a user, I want to preview and export inspection reports so that I can share them with stakeholders.
 
 **Acceptance Criteria:**
-- [ ] PDF-style report layout
-- [ ] Company logo header
-- [ ] Inspection summary section
-- [ ] Findings table with severity counts
-- [ ] Photo grid section
-- [ ] Digital signature display
-- [ ] Export to PDF button
-- [ ] Print functionality
+- [x] PDF-style report layout
+- [x] Company logo header
+- [x] Inspection summary section
+- [x] Findings table with severity counts
+- [x] Photo grid section
+- [x] Digital signature display
+- [x] Export to PDF button
+- [x] Print functionality
 **Estimate:** 3 points
 **Labels:** inspection, reports
 **Design Reference:** `design-assets/inspection/23-report-preview.png`
@@ -539,12 +539,12 @@ As a user, I want to preview and export inspection reports so that I can share t
 As a manager, I want to assign consultants to inspections so that the right experts are scheduled.
 
 **Acceptance Criteria:**
-- [ ] Consultant list with avatar, name, specialty
-- [ ] Filter by specialty dropdown
-- [ ] Availability status indicators
-- [ ] Weekly calendar view for scheduling
-- [ ] Time slot selection
-- [ ] Assign button
+- [x] Consultant list with avatar, name, specialty
+- [x] Filter by specialty dropdown
+- [x] Availability status indicators
+- [x] Weekly calendar view for scheduling
+- [x] Time slot selection
+- [x] Assign button
 **Estimate:** 2 points
 **Labels:** inspection, scheduling
 **Design Reference:** `design-assets/inspection/24-consultant-assignment.png`
@@ -555,13 +555,13 @@ As a manager, I want to assign consultants to inspections so that the right expe
 As a user, I want to see inspection history so that I can track all inspections for a project.
 
 **Acceptance Criteria:**
-- [ ] Vertical timeline component
-- [ ] Date markers
-- [ ] Inspection nodes with status dots (green/red/yellow)
-- [ ] Inspector avatar and name
-- [ ] Inspection type label
-- [ ] Click to view details
-- [ ] Filter by date range
+- [x] Vertical timeline component
+- [x] Date markers
+- [x] Inspection nodes with status dots (green/red/yellow)
+- [x] Inspector avatar and name
+- [x] Inspection type label
+- [x] Click to view details
+- [x] Filter by date range
 **Estimate:** 2 points
 **Labels:** inspection, history
 **Design Reference:** `design-assets/inspection/25-history-timeline.png`
@@ -581,12 +581,12 @@ As a user, I want to see inspection history so that I can track all inspections 
 As a Hebrew-speaking user, I want the interface to display correctly in RTL so that I can use the app naturally.
 
 **Acceptance Criteria:**
-- [ ] HTML dir="rtl" attribute switching
-- [ ] CSS logical properties (margin-inline-start, etc.)
-- [ ] Sidebar on right side for RTL
-- [ ] Navigation mirrored appropriately
-- [ ] Icons that indicate direction should flip
-- [ ] Numbers and phone numbers remain LTR
+- [x] HTML dir="rtl" attribute switching
+- [x] CSS logical properties (margin-inline-start, etc.)
+- [x] Sidebar on right side for RTL
+- [x] Navigation mirrored appropriately
+- [x] Icons that indicate direction should flip
+- [x] Numbers and phone numbers remain LTR
 **Estimate:** 3 points
 **Labels:** i18n, rtl
 **Design Reference:** `design-assets/mobile/29-hebrew-rtl.png`
@@ -597,11 +597,11 @@ As a Hebrew-speaking user, I want the interface to display correctly in RTL so t
 As a Hebrew user, I want all UI text in Hebrew so that I can use the app in my native language.
 
 **Acceptance Criteria:**
-- [ ] i18n framework setup (react-intl or i18next)
-- [ ] Hebrew translation file with all UI strings
-- [ ] Language switcher in settings
-- [ ] Proper Hebrew font rendering (Noto Sans Hebrew)
-- [ ] Date/time formatting for Hebrew locale
+- [x] i18n framework setup (react-intl or i18next)
+- [x] Hebrew translation file with all UI strings
+- [x] Language switcher in settings
+- [x] Proper Hebrew font rendering (Noto Sans Hebrew)
+- [x] Date/time formatting for Hebrew locale
 **Estimate:** 3 points
 **Labels:** i18n, translation
 
@@ -611,10 +611,10 @@ As a Hebrew user, I want all UI text in Hebrew so that I can use the app in my n
 As a user, I want to switch between English and Hebrew so that I can use my preferred language.
 
 **Acceptance Criteria:**
-- [ ] Language toggle in header/settings
-- [ ] Flag or text indicator (EN/עב)
-- [ ] Persist preference in user settings
-- [ ] Seamless switch without page reload
+- [x] Language toggle in header/settings
+- [x] Flag or text indicator (EN/עב)
+- [x] Persist preference in user settings
+- [x] Seamless switch without page reload
 **Estimate:** 2 points
 **Labels:** i18n, component
 
@@ -633,11 +633,11 @@ As a user, I want to switch between English and Hebrew so that I can use my pref
 As a mobile user, I want the app to work well on my phone so that I can use it on construction sites.
 
 **Acceptance Criteria:**
-- [ ] Breakpoints: 375px, 640px, 768px, 1024px, 1280px
-- [ ] Touch targets minimum 44x44px
-- [ ] Mobile navigation (hamburger menu or bottom nav)
-- [ ] Responsive tables (card view on mobile)
-- [ ] No horizontal scroll issues
+- [x] Breakpoints: 375px, 640px, 768px, 1024px, 1280px
+- [x] Touch targets minimum 44x44px
+- [x] Mobile navigation (hamburger menu or bottom nav)
+- [x] Responsive tables (card view on mobile)
+- [x] No horizontal scroll issues
 **Estimate:** 3 points
 **Labels:** mobile, responsive
 
@@ -647,12 +647,12 @@ As a mobile user, I want the app to work well on my phone so that I can use it o
 As a field worker, I want visual feedback when offline so that I know my data is being saved locally.
 
 **Acceptance Criteria:**
-- [ ] Offline banner/indicator
-- [ ] Sync status icon in header
-- [ ] Queued items counter
-- [ ] Last synced timestamp
-- [ ] Sync Now button (disabled when offline)
-- [ ] Visual distinction for locally-saved items
+- [x] Offline banner/indicator
+- [x] Sync status icon in header
+- [x] Queued items counter
+- [x] Last synced timestamp
+- [x] Sync Now button (disabled when offline)
+- [x] Visual distinction for locally-saved items
 **Estimate:** 3 points
 **Labels:** mobile, offline
 **Design Reference:** `design-assets/mobile/30-offline-mode.png`
@@ -663,11 +663,11 @@ As a field worker, I want visual feedback when offline so that I know my data is
 As a user, I want to install the app on my device so that I can access it like a native app.
 
 **Acceptance Criteria:**
-- [ ] Web app manifest configured
-- [ ] Service worker for caching
-- [ ] Offline page fallback
-- [ ] Install prompt handling
-- [ ] App icons for all sizes
+- [x] Web app manifest configured
+- [x] Service worker for caching
+- [x] Offline page fallback
+- [x] Install prompt handling
+- [x] App icons for all sizes
 **Estimate:** 2 points
 **Labels:** mobile, pwa
 
@@ -677,11 +677,11 @@ As a user, I want to install the app on my device so that I can access it like a
 As a mobile user, I want smooth touch interactions so that the app feels responsive.
 
 **Acceptance Criteria:**
-- [ ] touch-action: manipulation for tap delay
-- [ ] Swipe gestures where appropriate
-- [ ] Pull-to-refresh on list views
-- [ ] 8px minimum gap between touch targets
-- [ ] Haptic feedback on key actions (if supported)
+- [x] touch-action: manipulation for tap delay
+- [x] Swipe gestures where appropriate
+- [x] Pull-to-refresh on list views
+- [x] 8px minimum gap between touch targets
+- [x] Haptic feedback on key actions (if supported)
 **Estimate:** 2 points
 **Labels:** mobile, touch
 
@@ -700,14 +700,14 @@ As a mobile user, I want smooth touch interactions so that the app feels respons
 As a developer, I need button components so that CTAs are consistent across the app.
 
 **Acceptance Criteria:**
-- [ ] Primary button (filled blue)
-- [ ] Secondary button (outlined)
-- [ ] Tertiary button (text only)
-- [ ] Danger button (red)
-- [ ] Loading state with spinner
-- [ ] Disabled state
-- [ ] Icon button variant
-- [ ] Size variants (sm, md, lg)
+- [x] Primary button (filled blue)
+- [x] Secondary button (outlined)
+- [x] Tertiary button (text only)
+- [x] Danger button (red)
+- [x] Loading state with spinner
+- [x] Disabled state
+- [x] Icon button variant
+- [x] Size variants (sm, md, lg)
 **Estimate:** 2 points
 **Labels:** components, buttons
 
@@ -717,12 +717,12 @@ As a developer, I need button components so that CTAs are consistent across the 
 As a developer, I need card components so that content containers are consistent.
 
 **Acceptance Criteria:**
-- [ ] Base card with variants
-- [ ] Glassmorphism card option
-- [ ] KPI card (metric, label, trend)
-- [ ] Feature card (icon, title, description)
-- [ ] Project card (image, title, progress, status)
-- [ ] Hover states with lift effect
+- [x] Base card with variants
+- [x] Glassmorphism card option
+- [x] KPI card (metric, label, trend)
+- [x] Feature card (icon, title, description)
+- [x] Project card (image, title, progress, status)
+- [x] Hover states with lift effect
 **Estimate:** 3 points
 **Labels:** components, cards
 
@@ -732,14 +732,14 @@ As a developer, I need card components so that content containers are consistent
 As a developer, I need form components so that data entry is consistent and accessible.
 
 **Acceptance Criteria:**
-- [ ] Text input with label
-- [ ] Textarea
-- [ ] Select/dropdown
-- [ ] Checkbox and radio
-- [ ] Date picker
-- [ ] File upload
-- [ ] Error states and validation messages
-- [ ] Focus states for accessibility
+- [x] Text input with label
+- [x] Textarea
+- [x] Select/dropdown
+- [x] Checkbox and radio
+- [x] Date picker
+- [x] File upload
+- [x] Error states and validation messages
+- [x] Focus states for accessibility
 **Estimate:** 3 points
 **Labels:** components, forms
 
@@ -749,12 +749,12 @@ As a developer, I need form components so that data entry is consistent and acce
 As a developer, I need data components so that information is displayed consistently.
 
 **Acceptance Criteria:**
-- [ ] Data table with sorting and pagination
-- [ ] Badge/chip component
-- [ ] Status indicator
-- [ ] Progress bar and ring
-- [ ] Avatar component
-- [ ] Empty state component
+- [x] Data table with sorting and pagination
+- [x] Badge/chip component
+- [x] Status indicator
+- [x] Progress bar and ring
+- [x] Avatar component
+- [x] Empty state component
 **Estimate:** 3 points
 **Labels:** components, data
 
@@ -764,12 +764,12 @@ As a developer, I need data components so that information is displayed consiste
 As a developer, I need navigation components so that app navigation is consistent.
 
 **Acceptance Criteria:**
-- [ ] Top navbar with glassmorphism option
-- [ ] Sidebar navigation (collapsible)
-- [ ] Bottom navigation (mobile)
-- [ ] Breadcrumbs
-- [ ] Tabs component
-- [ ] Stepper/wizard component
+- [x] Top navbar with glassmorphism option
+- [x] Sidebar navigation (collapsible)
+- [x] Bottom navigation (mobile)
+- [x] Breadcrumbs
+- [x] Tabs component
+- [x] Stepper/wizard component
 **Estimate:** 2 points
 **Labels:** components, navigation
 
@@ -788,11 +788,11 @@ As a developer, I need navigation components so that app navigation is consisten
 As a user, I want smooth transitions so that the app feels polished and professional.
 
 **Acceptance Criteria:**
-- [ ] Define transition tokens (fast: 150ms, normal: 200ms, slow: 300ms)
-- [ ] Page transitions (fade, slide)
-- [ ] Modal open/close animations
-- [ ] Accordion expand/collapse
-- [ ] Respect prefers-reduced-motion
+- [x] Define transition tokens (fast: 150ms, normal: 200ms, slow: 300ms)
+- [x] Page transitions (fade, slide)
+- [x] Modal open/close animations
+- [x] Accordion expand/collapse
+- [x] Respect prefers-reduced-motion
 **Estimate:** 2 points
 **Labels:** animation, transitions
 
@@ -802,12 +802,12 @@ As a user, I want smooth transitions so that the app feels polished and professi
 As a user, I want feedback on my interactions so that the app feels responsive.
 
 **Acceptance Criteria:**
-- [ ] Button hover/active states
-- [ ] Card hover lift effect
-- [ ] Loading states (skeletons, spinners)
-- [ ] Success/error feedback
-- [ ] Number count-up animations
-- [ ] Chart animations on load
+- [x] Button hover/active states
+- [x] Card hover lift effect
+- [x] Loading states (skeletons, spinners)
+- [x] Success/error feedback
+- [x] Number count-up animations
+- [x] Chart animations on load
 **Estimate:** 3 points
 **Labels:** animation, micro-interactions
 
@@ -839,10 +839,10 @@ INBOUND:  Reply → Gmail → Pub/Sub → Webhook → FastAPI → Database → N
 As a developer, I need database models for RFIs so that I can store and track all RFI data.
 
 **Acceptance Criteria:**
-- [ ] Create `RFI` model with: id, project_id, rfi_number, email_thread_id, email_message_id, subject, question, category, priority, to_email, to_name, cc_emails, status, due_date, attachments
-- [ ] Create `RFIResponse` model with: id, rfi_id, email_message_id, response_text, from_email, from_name, is_internal, source
-- [ ] Create `RFIEmailLog` model for audit trail
-- [ ] Create Alembic migration
+- [x] Create `RFI` model with: id, project_id, rfi_number, email_thread_id, email_message_id, subject, question, category, priority, to_email, to_name, cc_emails, status, due_date, attachments
+- [x] Create `RFIResponse` model with: id, rfi_id, email_message_id, response_text, from_email, from_name, is_internal, source
+- [x] Create `RFIEmailLog` model for audit trail
+- [x] Create Alembic migration
 **Estimate:** 3 points
 **Labels:** backend, database, rfi
 
@@ -852,9 +852,9 @@ As a developer, I need database models for RFIs so that I can store and track al
 As a developer, I need Pydantic schemas for RFI validation.
 
 **Acceptance Criteria:**
-- [ ] Create RFIBase, RFICreate, RFIUpdate schemas
-- [ ] Create RFIResponse schema with nested responses
-- [ ] Add validation for email addresses and RFI number format
+- [x] Create RFIBase, RFICreate, RFIUpdate schemas
+- [x] Create RFIResponse schema with nested responses
+- [x] Add validation for email addresses and RFI number format
 **Estimate:** 2 points
 **Labels:** backend, schemas, rfi
 
@@ -864,10 +864,10 @@ As a developer, I need Pydantic schemas for RFI validation.
 As a developer, I need a Gmail API service to send and receive RFI emails.
 
 **Acceptance Criteria:**
-- [ ] Create GmailService class with service account auth
-- [ ] Implement send_rfi_email() with threading headers
-- [ ] Implement get_message(), get_thread(), setup_watch()
-- [ ] Add X-RFI-Number custom header
+- [x] Create GmailService class with service account auth
+- [x] Implement send_rfi_email() with threading headers
+- [x] Implement get_message(), get_thread(), setup_watch()
+- [x] Add X-RFI-Number custom header
 **Estimate:** 5 points
 **Labels:** backend, email, gmail-api, rfi
 
@@ -877,10 +877,10 @@ As a developer, I need a Gmail API service to send and receive RFI emails.
 As a developer, I need an email parser to process incoming emails.
 
 **Acceptance Criteria:**
-- [ ] Create RFIEmailParser class
-- [ ] Parse headers, body, attachments from Gmail messages
-- [ ] Extract RFI number from subject or X-RFI-Number header
-- [ ] Distinguish new emails vs replies
+- [x] Create RFIEmailParser class
+- [x] Parse headers, body, attachments from Gmail messages
+- [x] Extract RFI number from subject or X-RFI-Number header
+- [x] Distinguish new emails vs replies
 **Estimate:** 3 points
 **Labels:** backend, parser, email, rfi
 
@@ -890,10 +890,10 @@ As a developer, I need an email parser to process incoming emails.
 As a developer, I need an RFI service for business logic.
 
 **Acceptance Criteria:**
-- [ ] Implement generate_rfi_number() - format: RFI-YYYY-NNNNN
-- [ ] Implement create_and_send_rfi()
-- [ ] Implement process_incoming_email()
-- [ ] Handle status transitions
+- [x] Implement generate_rfi_number() - format: RFI-YYYY-NNNNN
+- [x] Implement create_and_send_rfi()
+- [x] Implement process_incoming_email()
+- [x] Handle status transitions
 **Estimate:** 5 points
 **Labels:** backend, service, rfi
 
@@ -903,10 +903,10 @@ As a developer, I need an RFI service for business logic.
 As a developer, I need a webhook to receive Gmail notifications.
 
 **Acceptance Criteria:**
-- [ ] Create POST /api/v1/webhooks/gmail/push endpoint
-- [ ] Parse Pub/Sub message format
-- [ ] Process emails in background task
-- [ ] Return 200 OK quickly for Pub/Sub
+- [x] Create POST /api/v1/webhooks/gmail/push endpoint
+- [x] Parse Pub/Sub message format
+- [x] Process emails in background task
+- [x] Return 200 OK quickly for Pub/Sub
 **Estimate:** 3 points
 **Labels:** backend, webhook, pubsub, rfi
 
@@ -916,11 +916,11 @@ As a developer, I need a webhook to receive Gmail notifications.
 As a developer, I need REST API endpoints for RFI management.
 
 **Acceptance Criteria:**
-- [ ] GET/POST /projects/{project_id}/rfis
-- [ ] GET/PATCH /rfis/{rfi_id}
-- [ ] POST /rfis/{rfi_id}/send
-- [ ] POST /rfis/{rfi_id}/responses
-- [ ] GET /rfis/{rfi_id}/email-log
+- [x] GET/POST /projects/{project_id}/rfis
+- [x] GET/PATCH /rfis/{rfi_id}
+- [x] POST /rfis/{rfi_id}/send
+- [x] POST /rfis/{rfi_id}/responses
+- [x] GET /rfis/{rfi_id}/email-log
 **Estimate:** 3 points
 **Labels:** backend, api, rfi
 
@@ -930,9 +930,9 @@ As a developer, I need REST API endpoints for RFI management.
 As a user, I want notifications when RFI responses arrive.
 
 **Acceptance Criteria:**
-- [ ] Implement notify_rfi_response()
-- [ ] Implement notify_rfi_due_soon()
-- [ ] Implement notify_rfi_overdue()
+- [x] Implement notify_rfi_response()
+- [x] Implement notify_rfi_due_soon()
+- [x] Implement notify_rfi_overdue()
 **Estimate:** 3 points
 **Labels:** backend, notifications, rfi
 
@@ -942,10 +942,10 @@ As a user, I want notifications when RFI responses arrive.
 As a DevOps engineer, I need to configure GCP services.
 
 **Acceptance Criteria:**
-- [ ] Create GCP project, enable APIs
-- [ ] Create service account with domain-wide delegation
-- [ ] Create Pub/Sub topic and subscription
-- [ ] Document configuration steps
+- [x] Create GCP project, enable APIs
+- [x] Create service account with domain-wide delegation
+- [x] Create Pub/Sub topic and subscription
+- [x] Document configuration steps
 **Estimate:** 3 points
 **Labels:** devops, gcp, infrastructure, rfi
 
@@ -955,10 +955,10 @@ As a DevOps engineer, I need to configure GCP services.
 As a user, I want to view all RFIs for a project.
 
 **Acceptance Criteria:**
-- [ ] Create /projects/{projectId}/rfis route
-- [ ] Data table with RFI Number, Subject, To, Status, Priority, Due Date
-- [ ] Status badges, filters, search, pagination
-- [ ] "New RFI" button
+- [x] Create /projects/{projectId}/rfis route
+- [x] Data table with RFI Number, Subject, To, Status, Priority, Due Date
+- [x] Status badges, filters, search, pagination
+- [x] "New RFI" button
 **Estimate:** 3 points
 **Labels:** frontend, page, rfi
 
@@ -968,10 +968,10 @@ As a user, I want to view all RFIs for a project.
 As a user, I want to view RFI details and conversation thread.
 
 **Acceptance Criteria:**
-- [ ] Header with RFI info and action buttons
-- [ ] Original question section with attachments
-- [ ] Chronological conversation thread
-- [ ] Reply input with rich text editor
+- [x] Header with RFI info and action buttons
+- [x] Original question section with attachments
+- [x] Chronological conversation thread
+- [x] Reply input with rich text editor
 **Estimate:** 5 points
 **Labels:** frontend, page, rfi
 
@@ -981,9 +981,9 @@ As a user, I want to view RFI details and conversation thread.
 As a user, I want to create new RFIs through a form.
 
 **Acceptance Criteria:**
-- [ ] Form fields: to_email, subject, category, priority, due_date, question, attachments
-- [ ] Form validation
-- [ ] Save as Draft and Send Now buttons
+- [x] Form fields: to_email, subject, category, priority, due_date, question, attachments
+- [x] Form validation
+- [x] Save as Draft and Send Now buttons
 **Estimate:** 3 points
 **Labels:** frontend, component, rfi
 
@@ -993,8 +993,8 @@ As a user, I want to create new RFIs through a form.
 As a developer, I need a frontend API client for RFI operations.
 
 **Acceptance Criteria:**
-- [ ] Create frontend/src/api/rfi.ts
-- [ ] Implement all CRUD functions with TypeScript types
+- [x] Create frontend/src/api/rfi.ts
+- [x] Implement all CRUD functions with TypeScript types
 **Estimate:** 2 points
 **Labels:** frontend, api, rfi
 
@@ -1004,8 +1004,8 @@ As a developer, I need a frontend API client for RFI operations.
 As a user, I want to see RFI statistics on my dashboard.
 
 **Acceptance Criteria:**
-- [ ] Display counts: Open, Overdue, Answered Today, Closed This Month
-- [ ] Click to navigate to filtered RFI list
+- [x] Display counts: Open, Overdue, Answered Today, Closed This Month
+- [x] Click to navigate to filtered RFI list
 **Estimate:** 2 points
 **Labels:** frontend, dashboard, rfi
 
@@ -1015,9 +1015,9 @@ As a user, I want to see RFI statistics on my dashboard.
 As a user, I want to access RFIs from project navigation.
 
 **Acceptance Criteria:**
-- [ ] Add "RFIs" tab to project detail page
-- [ ] Show pending count badge
-- [ ] Update router
+- [x] Add "RFIs" tab to project detail page
+- [x] Show pending count badge
+- [x] Update router
 **Estimate:** 1 point
 **Labels:** frontend, navigation, rfi
 
@@ -1027,9 +1027,9 @@ As a user, I want to access RFIs from project navigation.
 As a developer, I need integration tests for the RFI system.
 
 **Acceptance Criteria:**
-- [ ] Test CRUD, email sending, webhook processing
-- [ ] Test email parsing and RFI matching logic
-- [ ] Test status transitions and notifications
+- [x] Test CRUD, email sending, webhook processing
+- [x] Test email parsing and RFI matching logic
+- [x] Test status transitions and notifications
 **Estimate:** 3 points
 **Labels:** backend, testing, rfi
 
@@ -1142,7 +1142,7 @@ As a field user, I want to chat with project data via WhatsApp.
 **Description:** Automated daily email summarizing all activity/progress across projects. Cloud Scheduler triggers at 6 PM Israel time (Sun-Thu). Skips projects with no activity.
 **Priority:** P2 - Medium
 **Estimate:** 10 points
-**Status:** Complete (except Cloud Scheduler manual setup)
+**Status:** Complete
 
 ### User Stories:
 
@@ -1224,14 +1224,14 @@ As a DevOps engineer, I need the scheduler secret configured in settings and CD 
 As a DevOps engineer, I need to create the Cloud Scheduler job to trigger daily summaries.
 
 **Acceptance Criteria:**
-- [ ] Cloud Scheduler job in me-west1 region
-- [ ] Schedule: 0 18 * * 0-4 (6 PM Sun-Thu Israeli work week)
-- [ ] Timezone: Asia/Jerusalem
-- [ ] HTTP POST with X-Scheduler-Secret header
-- [ ] Attempt deadline: 300s
+- [x] Cloud Scheduler job in europe-west1 region
+- [x] Schedule: 0 18 * * 0-4 (6 PM Sun-Thu Israeli work week)
+- [x] Timezone: Asia/Jerusalem
+- [x] HTTP POST with X-Scheduler-Secret header
+- [x] Attempt deadline: 300s
 **Estimate:** 1 point
 **Labels:** devops, gcp, daily-summary
-**Status:** Planned
+**Status:** Done
 
 ---
 
@@ -1450,14 +1450,14 @@ As a user, I want to pull RFIs from ACC into BuilderOps so all project communica
 As a backend developer, I need a single project-scoped endpoint (`GET /analytics/projects/{project_id}/dashboard-stats`) returning equipment/material/RFI distributions, findings severity, weekly activity trend, area progress by floor, and overall progress so the frontend can render charts in one call.
 
 **Acceptance Criteria:**
-- [ ] Equipment status distribution (GROUP BY status)
-- [ ] Material status distribution (GROUP BY status)
-- [ ] RFI status distribution (GROUP BY status)
-- [ ] Findings severity distribution (JOIN inspection for project scope)
-- [ ] 14-day activity trend from audit_logs grouped by day
-- [ ] Area progress grouped by floor_number with AVG(current_progress)
-- [ ] Overall progress as AVG of all area current_progress
-- [ ] Project membership check (403 for non-members)
+- [x] Equipment status distribution (GROUP BY status)
+- [x] Material status distribution (GROUP BY status)
+- [x] RFI status distribution (GROUP BY status)
+- [x] Findings severity distribution (JOIN inspection for project scope)
+- [x] 14-day activity trend from audit_logs grouped by day
+- [x] Area progress grouped by floor_number with AVG(current_progress)
+- [x] Overall progress as AVG of all area current_progress
+- [x] Project membership check (403 for non-members)
 **Estimate:** 3 points
 **Labels:** backend, analytics, api
 
@@ -1467,14 +1467,14 @@ As a backend developer, I need a single project-scoped endpoint (`GET /analytics
 As a project manager, I want to see visual charts on the dashboard including activity trend line, progress gauge, status donut charts, area progress bars, and findings severity bars so I can assess project health at a glance.
 
 **Acceptance Criteria:**
-- [ ] Activity trend line chart (14-day, 4 series)
-- [ ] Overall progress circular gauge
-- [ ] Equipment/Material/RFI status donut charts (3 across)
-- [ ] Area progress by floor bar chart
-- [ ] Findings severity bar chart
-- [ ] Charts only render when a project is selected
-- [ ] Loading skeletons while data fetches
-- [ ] Responsive grid layout (mobile to desktop)
+- [x] Activity trend line chart (14-day, 4 series)
+- [x] Overall progress circular gauge
+- [x] Equipment/Material/RFI status donut charts (3 across)
+- [x] Area progress by floor bar chart
+- [x] Findings severity bar chart
+- [x] Charts only render when a project is selected
+- [x] Loading skeletons while data fetches
+- [x] Responsive grid layout (mobile to desktop)
 **Estimate:** 3 points
 **Labels:** frontend, dashboard, charts
 
@@ -1484,10 +1484,10 @@ As a project manager, I want to see visual charts on the dashboard including act
 As a user, I want dashboard chart titles and labels translated in English, Hebrew, and Spanish so the charts are localized.
 
 **Acceptance Criteria:**
-- [ ] English translations under `dashboard.charts.*`
-- [ ] Hebrew translations with correct RTL support
-- [ ] Spanish translations
-- [ ] Keys: activityTrend, equipmentStatus, materialStatus, rfiStatus, areaProgress, findingsSeverity, overallProgress, noData, floor, avgProgress, findings, floorsTracked
+- [x] English translations under `dashboard.charts.*`
+- [x] Hebrew translations with correct RTL support
+- [x] Spanish translations
+- [x] Keys: activityTrend, equipmentStatus, materialStatus, rfiStatus, areaProgress, findingsSeverity, overallProgress, noData, floor, avgProgress, findings, floorsTracked
 **Estimate:** 2 points
 **Labels:** frontend, i18n
 

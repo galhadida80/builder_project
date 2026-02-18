@@ -22,11 +22,11 @@ import { validateRequired, validateMinLength, type ValidationError, hasErrors } 
 import {
   AddIcon, ReportProblemIcon, CheckCircleIcon, WarningIcon, ErrorIcon,
   HourglassEmptyIcon, VisibilityIcon, PictureAsPdfIcon, CameraAltIcon,
-  CloseIcon,
+  CloseIcon, AutoAwesomeIcon,
 } from '@/icons'
 import {
   Box, Typography, Skeleton, Chip, MenuItem, IconButton, LinearProgress,
-  TextField as MuiTextField, Autocomplete, TablePagination,
+  TextField as MuiTextField, Autocomplete, TablePagination, CircularProgress,
 } from '@/mui'
 
 function compressImage(file: File, maxWidth = 1920, quality = 0.8): Promise<File> {
@@ -71,7 +71,7 @@ const CATEGORY_OPTIONS = [
 const SEVERITY_OPTIONS = ['low', 'medium', 'high', 'critical']
 
 export default function DefectsPage() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { projectId } = useParams()
   const navigate = useNavigate()
   const { showError, showSuccess, showWarning } = useToast()
@@ -92,6 +92,7 @@ export default function DefectsPage() {
   const [submitting, setSubmitting] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
 
+  const [analyzing, setAnalyzing] = useState(false)
   const [pendingPhotos, setPendingPhotos] = useState<File[]>([])
   const [photoPreviews, setPhotoPreviews] = useState<string[]>([])
 
@@ -140,6 +141,26 @@ export default function DefectsPage() {
     setPendingPhotos([])
     setPhotoPreviews([])
   }, [photoPreviews])
+
+  const handleAnalyze = async () => {
+    if (!projectId || pendingPhotos.length === 0) return
+    setAnalyzing(true)
+    try {
+      const lang = (i18n.language || 'en').slice(0, 2)
+      const result = await defectsApi.analyzeImage(projectId, pendingPhotos[0], lang)
+      setForm(prev => ({
+        ...prev,
+        category: result.category,
+        severity: result.severity,
+        description: result.description,
+      }))
+      showSuccess(t('defects.analyzeSuccess'))
+    } catch {
+      showError(t('defects.analyzeFailed'))
+    } finally {
+      setAnalyzing(false)
+    }
+  }
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: { 'image/*': [] },
@@ -484,6 +505,28 @@ export default function DefectsPage() {
                   getRowId={(row) => row.id}
                   onRowClick={(row) => navigate(`/projects/${projectId}/defects/${row.id}`)}
                   pagination={false}
+                  renderMobileCard={(row) => (
+                    <Box
+                      onClick={() => navigate(`/projects/${projectId}/defects/${row.id}`)}
+                      sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider', cursor: 'pointer', '&:active': { bgcolor: 'action.pressed' } }}
+                    >
+                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Typography variant="body2" fontWeight={700}>#{row.defectNumber}</Typography>
+                          <Chip size="small" label={t(`defects.categories.${row.category}`, { defaultValue: row.category })} sx={{ fontWeight: 500, fontSize: '0.7rem', height: 22 }} />
+                        </Box>
+                        <StatusBadge status={row.status} />
+                      </Box>
+                      <Typography variant="body2" sx={{ mb: 1, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                        {row.description}
+                      </Typography>
+                      <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                        <SeverityBadge severity={row.severity} />
+                        {row.area && <Chip label={row.area.name} size="small" variant="outlined" sx={{ fontSize: '0.7rem', height: 22 }} />}
+                        {row.assignedContact && <Chip label={row.assignedContact.contactName} size="small" variant="outlined" sx={{ fontSize: '0.7rem', height: 22 }} />}
+                      </Box>
+                    </Box>
+                  )}
                 />
                 <TablePagination
                   component="div"
@@ -674,6 +717,23 @@ export default function DefectsPage() {
                     </IconButton>
                   </Box>
                 ))}
+              </Box>
+            )}
+
+            {pendingPhotos.length > 0 && (
+              <Box sx={{ mt: 1.5 }}>
+                <Button
+                  variant="secondary"
+                  size="small"
+                  icon={analyzing ? <CircularProgress size={16} /> : <AutoAwesomeIcon />}
+                  onClick={handleAnalyze}
+                  disabled={analyzing}
+                >
+                  {analyzing ? t('defects.analyzing') : t('defects.analyzeImage')}
+                </Button>
+                <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>
+                  {t('defects.analyzeHint')}
+                </Typography>
               </Box>
             )}
 

@@ -67,7 +67,6 @@ export default function SettingsPage() {
                   >
                     <MenuItem value="en">{t('common.english')}</MenuItem>
                     <MenuItem value="he">{t('common.hebrew')}</MenuItem>
-                    <MenuItem value="es">{t('settings.spanish')}</MenuItem>
                   </Select>
                 </FormControl>
               </ListItemSecondaryAction>

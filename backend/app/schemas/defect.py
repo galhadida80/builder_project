@@ -125,6 +125,12 @@ class DefectSummaryResponse(CamelCaseModel):
     by_category: dict[str, int]
 
 
+class DefectAnalysisResponse(BaseModel):
+    category: str
+    severity: str
+    description: str
+
+
 class PaginatedDefectResponse(BaseModel):
     items: list[DefectResponse]
     total: int

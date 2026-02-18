@@ -114,7 +114,7 @@ async def register(
     except Exception:
         logger.warning("Failed to send welcome email", exc_info=True)
 
-    access_token = create_access_token(user.id)
+    access_token = create_access_token(user.id, user.is_super_admin)
 
     return TokenResponse(
         access_token=access_token,
@@ -153,7 +153,7 @@ async def login(data: UserLogin, request: Request, db: AsyncSession = Depends(ge
             detail=error_message
         )
 
-    access_token = create_access_token(user.id)
+    access_token = create_access_token(user.id, user.is_super_admin)
 
     return TokenResponse(
         access_token=access_token,
@@ -471,7 +471,7 @@ async def webauthn_login_complete(
     stored_credential.sign_count = verification.new_sign_count
     await db.commit()
 
-    access_token = create_access_token(user.id)
+    access_token = create_access_token(user.id, user.is_super_admin)
     return TokenResponse(
         access_token=access_token,
         user=UserResponse.model_validate(user),

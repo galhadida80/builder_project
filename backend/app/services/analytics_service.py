@@ -56,6 +56,7 @@ async def get_entity_trends(
     entity_type: str,
     project_id: UUID | None,
     days: int = 30,
+    user_id: UUID | None = None,
 ) -> list[dict]:
     model = ENTITY_MODEL_MAP.get(entity_type)
     if model is None:
@@ -73,6 +74,11 @@ async def get_entity_trends(
 
     if project_id is not None and hasattr(model, "project_id"):
         query = query.where(model.project_id == project_id)
+    elif user_id is not None and hasattr(model, "project_id"):
+        accessible_projects = select(ProjectMember.project_id).where(
+            ProjectMember.user_id == user_id
+        )
+        query = query.where(model.project_id.in_(accessible_projects))
 
     result = await db.execute(query)
     rows = result.all()

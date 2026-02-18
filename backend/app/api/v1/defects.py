@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File
 from fastapi.responses import Response
 from sqlalchemy import case, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -18,6 +18,7 @@ from app.models.defect import Defect, DefectAssignee
 from app.models.project import Project
 from app.models.user import User
 from app.schemas.defect import (
+    DefectAnalysisResponse,
     DefectCreate,
     DefectResponse,
     DefectSummaryResponse,
@@ -31,6 +32,7 @@ from app.services.notification_service import (
     notify_project_admins,
     notify_user,
 )
+from app.services.ai_service import analyze_defect_image
 from app.services.storage_service import StorageBackend, get_storage_backend
 
 router = APIRouter()
@@ -180,6 +182,38 @@ async def export_defects_pdf(
         content=pdf_bytes,
         media_type="application/pdf",
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
+ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp"}
+
+
+@router.post("/projects/{project_id}/defects/analyze-image", response_model=DefectAnalysisResponse)
+async def analyze_defect_image_endpoint(
+    project_id: UUID,
+    file: UploadFile = File(...),
+    language: str = Query("en"),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    await verify_project_access(project_id, current_user, db)
+
+    if file.content_type not in ALLOWED_IMAGE_TYPES:
+        raise HTTPException(status_code=400, detail=f"Invalid image type. Allowed: {', '.join(ALLOWED_IMAGE_TYPES)}")
+
+    content = await file.read()
+    if len(content) > 10 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="Image too large. Maximum 10MB.")
+
+    try:
+        result = analyze_defect_image(content, file.content_type, language)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Image analysis failed: {str(e)}")
+
+    return DefectAnalysisResponse(
+        category=result["category"],
+        severity=result["severity"],
+        description=result["description"],
     )
 
 

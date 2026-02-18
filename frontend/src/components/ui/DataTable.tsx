@@ -40,6 +40,7 @@ interface DataTableProps<T> {
   getRowId: (row: T) => string | number
   onRowClick?: (row: T) => void
   renderExpandedRow?: (row: T) => React.ReactNode | null
+  renderMobileCard?: (row: T) => React.ReactNode
   pagination?: boolean
   pageSize?: number
   emptyMessage?: string
@@ -141,6 +142,7 @@ export function DataTable<T>({
   getRowId,
   onRowClick,
   renderExpandedRow,
+  renderMobileCard,
   pagination = true,
   pageSize = 10,
   emptyMessage,
@@ -271,6 +273,34 @@ export function DataTable<T>({
           icon={emptyIcon}
         />
       </StyledTableContainer>
+    )
+  }
+
+  if (isMobile && renderMobileCard) {
+    return (
+      <Paper elevation={0} sx={{ borderRadius: 3 }}>
+        {displayedRows.map((row) => {
+          const rowId = getRowId(row)
+          return (
+            <Fragment key={rowId}>
+              {renderMobileCard(row)}
+            </Fragment>
+          )
+        })}
+        {pagination && (
+          <StyledTablePagination
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={rows.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            labelRowsPerPage={t('table.rowsPerPage')}
+            labelDisplayedRows={({ from, to, count }) => `${from}-${to} ${t('table.of')} ${count !== -1 ? count : `>${to}`}`}
+          />
+        )}
+      </Paper>
     )
   }
 

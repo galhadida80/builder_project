@@ -492,6 +492,31 @@ export default function EquipmentPage() {
               onRowClick={handleViewDetails}
               emptyMessage={t('equipment.noEquipmentFound')}
               pagination={false}
+              renderMobileCard={(row) => (
+                <Box
+                  onClick={() => handleViewDetails(row)}
+                  sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider', cursor: 'pointer', '&:active': { bgcolor: 'action.pressed' } }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
+                    <Box sx={{ width: 40, height: 40, borderRadius: 2, bgcolor: 'primary.light', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <BuildIcon sx={{ fontSize: 20, color: 'primary.main' }} />
+                    </Box>
+                    <Box sx={{ minWidth: 0, flex: 1 }}>
+                      <Typography variant="body2" fontWeight={600} noWrap>{row.name}</Typography>
+                      <Typography variant="caption" color="text.secondary" noWrap>
+                        {row.equipmentType || t('equipment.noTypeSpecified')}
+                      </Typography>
+                    </Box>
+                    <StatusBadge status={row.status} />
+                  </Box>
+                  {(row.manufacturer || row.modelNumber) && (
+                    <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', ml: 7 }}>
+                      {row.manufacturer && <Chip label={row.manufacturer} size="small" variant="outlined" sx={{ fontSize: '0.7rem', height: 22 }} />}
+                      {row.modelNumber && <Chip label={row.modelNumber} size="small" variant="outlined" sx={{ fontSize: '0.7rem', height: 22 }} />}
+                    </Box>
+                  )}
+                </Box>
+              )}
             />
             {totalEquipment > 0 && (
               <TablePagination

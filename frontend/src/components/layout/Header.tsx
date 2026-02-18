@@ -8,7 +8,7 @@ import { ThemeToggle } from '../common/ThemeToggle'
 import { LanguageSwitcher } from '../common/LanguageSwitcher'
 import { NotificationsPanel } from '../notifications/NotificationsPanel'
 import { useNotifications } from '../../hooks/useNotifications'
-import { MenuIcon, NotificationsIcon, PersonIcon, SettingsIcon, LogoutIcon } from '@/icons'
+import { NotificationsIcon, PersonIcon, SettingsIcon, LogoutIcon } from '@/icons'
 import { AppBar, Toolbar, Typography, IconButton, Avatar, Badge, Menu, MenuItem, Divider, ListItemIcon, Box } from '@/mui'
 
 interface HeaderProps {
@@ -17,11 +17,9 @@ interface HeaderProps {
   projects: Project[]
   onProjectChange: (projectId: string) => void
   onLogout: () => void
-  onMenuToggle?: () => void
-  isMobile?: boolean
 }
 
-export default memo(function Header({ user, currentProject, projects, onProjectChange, onLogout, onMenuToggle, isMobile }: HeaderProps) {
+export default memo(function Header({ user, currentProject, projects, onProjectChange, onLogout }: HeaderProps) {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { showInfo } = useToast()
@@ -58,11 +56,6 @@ export default memo(function Header({ user, currentProject, projects, onProjectC
     >
       <Toolbar sx={{ justifyContent: 'space-between', px: { xs: 0.5, sm: 2 }, gap: 0.5, minHeight: { xs: 56, sm: 64 }, minWidth: 0, '& .MuiIconButton-root:focus-visible': { outline: (theme) => `2px solid ${theme.palette.primary.main}`, outlineOffset: 2, borderRadius: '50%' } }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 0, flex: 1, overflow: 'hidden' }}>
-          {isMobile && (
-            <IconButton aria-label={t('common.openNavMenu')} onClick={onMenuToggle} edge="start" size="small" sx={{ flexShrink: 0 }}>
-              <MenuIcon />
-            </IconButton>
-          )}
           <ProjectSelector
             projects={projects}
             currentProject={currentProject}

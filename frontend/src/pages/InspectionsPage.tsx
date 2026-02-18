@@ -401,6 +401,18 @@ export default function InspectionsPage() {
                   getRowId={(row) => row.id}
                   pagination={false}
                   emptyVariant='empty'
+                  renderMobileCard={(row) => (
+                    <Box sx={{ p: 1.5, borderBottom: '1px solid', borderColor: 'divider', display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                      <Box sx={{ width: 28, height: 28, borderRadius: '50%', bgcolor: 'primary.main', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 600, flexShrink: 0 }}>
+                        {row.stageOrder}
+                      </Box>
+                      <Box sx={{ minWidth: 0, flex: 1 }}>
+                        <Typography variant="body2" fontWeight={500}>{row.name}</Typography>
+                        <Typography variant="caption" color="text.secondary" dir="rtl">{row.nameHe}</Typography>
+                      </Box>
+                      <Chip size="small" label={row.isActive ? t('inspections.active') : t('inspections.inactive')} color={row.isActive ? 'success' : 'default'} sx={{ fontWeight: 500, fontSize: '0.7rem', height: 22 }} />
+                    </Box>
+                  )}
                 />
               </>
             ) : (
@@ -450,6 +462,51 @@ export default function InspectionsPage() {
                 rows={filteredInspections}
                 getRowId={(row) => row.id}
                 emptyVariant='empty'
+                renderMobileCard={(row) => {
+                  const statusConfig: Record<string, { color: 'info' | 'warning' | 'success' | 'error' }> = {
+                    pending: { color: 'info' },
+                    in_progress: { color: 'warning' },
+                    completed: { color: 'success' },
+                    failed: { color: 'error' },
+                  }
+                  const config = statusConfig[row.status] || statusConfig.pending
+                  return (
+                    <Box
+                      onClick={() => setPreviewInspection(row)}
+                      sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider', cursor: 'pointer', '&:active': { bgcolor: 'action.pressed' } }}
+                    >
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
+                        <Box sx={{ width: 40, height: 40, borderRadius: 2, bgcolor: 'primary.light', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <AssignmentIcon sx={{ fontSize: 20, color: 'primary.main' }} />
+                        </Box>
+                        <Box sx={{ minWidth: 0, flex: 1 }}>
+                          <Typography variant="body2" fontWeight={600} noWrap>
+                            {row.consultantType?.name || t('inspections.unknown')}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {new Date(row.scheduledDate).toLocaleDateString(getDateLocale())}
+                          </Typography>
+                        </Box>
+                        <Chip
+                          size="small"
+                          label={t(`common.statuses.${row.status}`, { defaultValue: row.status.replace('_', ' ') })}
+                          color={config.color}
+                          sx={{ fontWeight: 500, fontSize: '0.7rem', height: 24 }}
+                        />
+                      </Box>
+                      <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', ml: 7 }}>
+                        {row.currentStage && <Chip label={row.currentStage} size="small" variant="outlined" sx={{ fontSize: '0.7rem', height: 22 }} />}
+                        {row.findings && row.findings.length > 0 && (
+                          <>
+                            {row.findings.filter(f => f.severity === 'critical').length > 0 && <SeverityBadge severity="critical" />}
+                            {row.findings.filter(f => f.severity === 'high').length > 0 && <SeverityBadge severity="high" />}
+                            {row.findings.filter(f => f.severity === 'medium').length > 0 && <SeverityBadge severity="medium" />}
+                          </>
+                        )}
+                      </Box>
+                    </Box>
+                  )
+                }}
               />
             )}
           </Box>

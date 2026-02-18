@@ -20,7 +20,7 @@ class UserBase(BaseModel):
     email: EmailStr
     full_name: Optional[str] = Field(default=None, max_length=MAX_NAME_LENGTH)
     company: SanitizedStrOptional = Field(default=None, max_length=255)
-    language: Literal["en", "he", "es"] | None = None
+    language: Literal["en", "he"] | None = None
 
     @field_validator('full_name', mode='before')
     @classmethod
@@ -69,7 +69,7 @@ class UserUpdate(BaseModel):
     full_name: Optional[str] = Field(None, min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
     phone: PhoneStr = Field(None, max_length=50)
     company: SanitizedStrOptional = Field(None, max_length=255)
-    language: Literal["en", "he", "es"] | None = None
+    language: Literal["en", "he"] | None = None
 
     @field_validator('full_name', mode='before')
     @classmethod

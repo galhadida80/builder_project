@@ -232,7 +232,36 @@ export default function TasksPage() {
             {filteredTasks.length === 0 ? (
               <EmptyState title={t('tasks.noTasks')} description={t('tasks.noTasksDescription')} />
             ) : (
-              <DataTable columns={columns} rows={filteredTasks} getRowId={(row) => row.id} />
+              <DataTable
+                columns={columns}
+                rows={filteredTasks}
+                getRowId={(row) => row.id}
+                renderMobileCard={(row) => {
+                  const c = PRIORITY_COLORS[row.priority] || PRIORITY_COLORS.low
+                  const overdue = isOverdue(row)
+                  return (
+                    <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
+                        <Typography variant="body2" fontWeight={700}>#{row.taskNumber}</Typography>
+                        <StatusBadge status={row.status} />
+                      </Box>
+                      <Typography variant="body2" noWrap sx={{ mb: 1, fontWeight: 500 }}>{row.title}</Typography>
+                      <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                        <Chip size="small" label={t(`tasks.priorities.${row.priority}`, { defaultValue: row.priority })} sx={{ bgcolor: c.bg, color: c.text, fontWeight: 600, fontSize: '0.7rem', height: 22 }} />
+                        {row.assignee && <Chip label={row.assignee.fullName} size="small" variant="outlined" sx={{ fontSize: '0.7rem', height: 22 }} />}
+                        {row.dueDate && (
+                          <Chip
+                            label={new Date(row.dueDate).toLocaleDateString(getDateLocale())}
+                            size="small"
+                            variant="outlined"
+                            sx={{ fontSize: '0.7rem', height: 22, ...(overdue && { borderColor: 'error.main', color: 'error.main' }) }}
+                          />
+                        )}
+                      </Box>
+                    </Box>
+                  )
+                }}
+              />
             )}
           </Box>
         </Box>

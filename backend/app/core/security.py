@@ -36,9 +36,13 @@ def get_password_hash(password: str) -> str:
     ).decode("utf-8")
 
 
-def create_access_token(user_id: UUID) -> str:
+def create_access_token(user_id: UUID, is_super_admin: bool = False) -> str:
     expire = datetime.utcnow() + timedelta(days=ACCESS_TOKEN_EXPIRE_DAYS)
-    to_encode = {"sub": str(user_id), "exp": expire}
+    to_encode = {
+        "sub": str(user_id),
+        "exp": expire,
+        "admin": is_super_admin,
+    }
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 

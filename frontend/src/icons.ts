@@ -4,6 +4,7 @@ export {
   AccessTime as AccessTimeIcon,
   AccountTree as AccountTreeIcon,
   Add as AddIcon,
+  AutoAwesome as AutoAwesomeIcon,
   AttachMoney as AttachMoneyIcon,
   AddCircle as AddCircleIcon,
   AddCircleOutline as AddCircleOutlineIcon,

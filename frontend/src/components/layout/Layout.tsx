@@ -76,8 +76,6 @@ export default function Layout() {
         projects={projects}
         onProjectChange={handleProjectChange}
         onLogout={handleLogout}
-        onMenuToggle={handleDrawerToggle}
-        isMobile={isMobile}
       />
       <Sidebar
         projectId={projectId}

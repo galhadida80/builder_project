@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 
-export type SupportedLanguage = 'en' | 'he' | 'es'
+export type SupportedLanguage = 'en' | 'he'
 
 export interface UseLanguageReturn {
   language: SupportedLanguage

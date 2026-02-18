@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useParams } from 'react-router-dom'
 import { EmptyState } from '../components/ui/EmptyState'
 import { TeamMemberCard, type TeamMember } from '../components/TeamMemberCard'
 import { teamMembersApi } from '../api/teamMembers'
@@ -10,17 +11,18 @@ import { Box, Typography, Skeleton, Grid } from '@/mui'
 export default function TeamMembersPage() {
   const { t } = useTranslation()
   const { showError } = useToast()
+  const { projectId } = useParams<{ projectId: string }>()
   const [loading, setLoading] = useState(true)
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([])
 
   useEffect(() => {
     loadTeamMembers()
-  }, [])
+  }, [projectId])
 
   const loadTeamMembers = async () => {
     try {
       setLoading(true)
-      const data = await teamMembersApi.list()
+      const data = await teamMembersApi.list(projectId)
       setTeamMembers(data)
     } catch (error) {
       showError(t('teamMembers.failedToLoad'))

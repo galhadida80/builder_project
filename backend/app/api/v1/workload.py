@@ -44,21 +44,29 @@ async def get_team_members(
             for member, user in rows
         ]
     else:
-        result = await db.execute(select(User).where(User.is_active == True))
-        users = result.scalars().all()
+        user_project_ids = select(ProjectMember.project_id).where(
+            ProjectMember.user_id == current_user.id
+        )
+        result = await db.execute(
+            select(ProjectMember, User)
+            .join(User, ProjectMember.user_id == User.id)
+            .where(ProjectMember.project_id.in_(user_project_ids))
+            .distinct(ProjectMember.user_id)
+        )
+        rows = result.all()
         return [
             TeamMemberResponse(
-                id=user.id,
+                id=member.id,
                 userId=user.id,
                 user=UserInfo(id=user.id, email=user.email, fullName=user.full_name),
-                role=user.role or "team_member",
-                teamName=user.company or "General",
+                role=member.role or "team_member",
+                teamName=member.role or "General",
                 workloadPercent=75,
                 assignedHours=30,
                 availableHours=40,
                 createdAt=datetime.utcnow().isoformat()
             )
-            for user in users
+            for member, user in rows
         ]
 
 

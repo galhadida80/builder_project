@@ -469,6 +469,34 @@ export default function RFIPage() {
               getRowId={(row) => row.id}
               onRowClick={handleViewDetails}
               emptyVariant='empty'
+              renderMobileCard={(row) => (
+                <Box
+                  onClick={() => handleViewDetails(row)}
+                  sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider', cursor: 'pointer', '&:active': { bgcolor: 'action.pressed' } }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
+                    <Box sx={{ width: 40, height: 40, borderRadius: 2, bgcolor: 'primary.light', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <EmailIcon sx={{ fontSize: 20, color: 'primary.main' }} />
+                    </Box>
+                    <Box sx={{ minWidth: 0, flex: 1 }}>
+                      <Typography variant="body2" fontWeight={600}>{row.rfi_number}</Typography>
+                      <Typography variant="body2" noWrap>{row.subject}</Typography>
+                    </Box>
+                    <StatusBadge status={row.status} />
+                  </Box>
+                  <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', ml: 7 }}>
+                    <Chip label={t(`rfis.categories.${row.category}`, { defaultValue: row.category })} size="small" variant="outlined" sx={{ fontSize: '0.7rem', height: 22 }} />
+                    <StatusBadge status={row.priority} />
+                    {isOverdue(row) && <Chip label={t('rfis.overdue')} size="small" color="error" sx={{ height: 22, fontSize: '0.7rem' }} />}
+                    {row.due_date && !isOverdue(row) && (
+                      <Chip label={formatDate(row.due_date)} size="small" variant="outlined" sx={{ fontSize: '0.7rem', height: 22 }} />
+                    )}
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center' }}>
+                      {t('rfis.to')}: {row.to_name || row.to_email}
+                    </Typography>
+                  </Box>
+                </Box>
+              )}
             />
           </Box>
 

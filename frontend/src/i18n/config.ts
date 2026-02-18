@@ -2,14 +2,12 @@ import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import enTranslations from './locales/en.json'
 import heTranslations from './locales/he.json'
-import esTranslations from './locales/es.json'
 
-export type LanguageCode = 'en' | 'he' | 'es'
+export type LanguageCode = 'en' | 'he'
 
 export const SUPPORTED_LANGUAGES: { code: LanguageCode; name: string; flag: string }[] = [
   { code: 'en', name: 'English', flag: '🇺🇸' },
   { code: 'he', name: 'עברית', flag: '🇮🇱' },
-  { code: 'es', name: 'Español', flag: '🇪🇸' },
 ]
 
 export const RTL_LANGUAGES: LanguageCode[] = ['he']
@@ -26,13 +24,10 @@ i18n
       he: {
         translation: heTranslations,
       },
-      es: {
-        translation: esTranslations,
-      },
     },
     lng: 'he',
     fallbackLng: 'en',
-    supportedLngs: ['en', 'he', 'es'],
+    supportedLngs: ['en', 'he'],
     interpolation: {
       escapeValue: false, // React already handles escaping
     },

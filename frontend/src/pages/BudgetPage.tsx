@@ -185,7 +185,31 @@ export default function BudgetPage() {
           <TabPanel value="budget" activeValue={activeTab}>
             {items.length === 0
               ? <EmptyState title={t('budget.noItems', { defaultValue: 'No budget items' })} description={t('budget.noItemsDesc', { defaultValue: 'Add your first budget item to start tracking costs.' })} />
-              : <DataTable columns={itemCols} rows={items} getRowId={(r) => r.id} onRowClick={handleRowClick} renderExpandedRow={(row) => {
+              : <DataTable columns={itemCols} rows={items} getRowId={(r) => r.id} onRowClick={handleRowClick} renderMobileCard={(row) => (
+                  <Box
+                    onClick={() => handleRowClick(row)}
+                    sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider', cursor: 'pointer', '&:active': { bgcolor: 'action.pressed' } }}
+                  >
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
+                      <Typography variant="body2" fontWeight={600} noWrap sx={{ flex: 1, mr: 1 }}>{row.name}</Typography>
+                      <Chip size="small" label={t(`budget.categories.${row.category}`, { defaultValue: row.category })} sx={{ bgcolor: CAT_COLORS[row.category] || '#9e9e9e', color: '#fff', fontWeight: 500, fontSize: '0.7rem', height: 22 }} />
+                    </Box>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
+                      <Box>
+                        <Typography variant="caption" color="text.secondary">{t('budget.budgeted', { defaultValue: 'Budgeted' })}</Typography>
+                        <Typography variant="body2" fontWeight={500}>{fmt(row.budgetedAmount)}</Typography>
+                      </Box>
+                      <Box sx={{ textAlign: 'center' }}>
+                        <Typography variant="caption" color="text.secondary">{t('budget.actual', { defaultValue: 'Actual' })}</Typography>
+                        <Typography variant="body2">{fmt(row.actualAmount)}</Typography>
+                      </Box>
+                      <Box sx={{ textAlign: 'right' }}>
+                        <Typography variant="caption" color="text.secondary">{t('budget.remaining', { defaultValue: 'Remaining' })}</Typography>
+                        <Typography variant="body2" color={row.remainingAmount >= 0 ? 'success.main' : 'error.main'} fontWeight={500}>{fmt(row.remainingAmount)}</Typography>
+                      </Box>
+                    </Box>
+                  </Box>
+                )} renderExpandedRow={(row) => {
                   if (expanded !== row.id) return null
                   const costs = costEntries[row.id] || []
                   return (
@@ -212,7 +236,23 @@ export default function BudgetPage() {
           <TabPanel value="changeOrders" activeValue={activeTab}>
             {changeOrders.length === 0
               ? <EmptyState title={t('budget.noCOs', { defaultValue: 'No change orders' })} description={t('budget.noCOsDesc', { defaultValue: 'Create a change order to track budget adjustments.' })} />
-              : <DataTable columns={coCols} rows={changeOrders} getRowId={(r) => r.id} />
+              : <DataTable columns={coCols} rows={changeOrders} getRowId={(r) => r.id} renderMobileCard={(row) => (
+                  <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
+                      <Typography variant="body2" fontWeight={700}>CO-{row.changeOrderNumber}</Typography>
+                      <Chip size="small" label={t(`budget.statuses.${row.status}`, { defaultValue: row.status })} color={CO_STATUS_COLORS[row.status] || 'default'} sx={{ fontSize: '0.7rem', height: 22 }} />
+                    </Box>
+                    <Typography variant="body2" noWrap sx={{ mb: 0.5 }}>{row.title}</Typography>
+                    <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                      <Typography variant="body2" fontWeight={600} color={row.amount >= 0 ? 'success.main' : 'error.main'}>{fmt(row.amount)}</Typography>
+                      {row.requestedDate && (
+                        <Typography variant="caption" color="text.secondary">
+                          {new Date(row.requestedDate).toLocaleDateString(getDateLocale())}
+                        </Typography>
+                      )}
+                    </Box>
+                  </Box>
+                )} />
             }
           </TabPanel>
         </Box>

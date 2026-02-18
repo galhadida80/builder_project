@@ -8,13 +8,14 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.security import get_current_user
+from app.core.security import get_current_user, verify_project_access
 from app.db.session import get_db
 from app.models.analytics import CustomKpiDefinition
 from app.models.defect import Defect
 from app.models.equipment import Equipment
 from app.models.inspection import Inspection
 from app.models.material import Material
+from app.models.project import ProjectMember
 from app.models.rfi import RFI
 from app.models.user import User
 from app.schemas.analytics_bi import (
@@ -51,7 +52,9 @@ async def get_trends(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    data = await get_entity_trends(db, entity_type, project_id, days)
+    if project_id:
+        await verify_project_access(project_id, current_user, db)
+    data = await get_entity_trends(db, entity_type, project_id, days, user_id=current_user.id)
     return TrendAnalysisResponse(
         entity_type=entity_type,
         period=f"{days}d",
@@ -74,6 +77,9 @@ async def create_kpi_definition(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    if payload.project_id:
+        await verify_project_access(payload.project_id, current_user, db)
+
     kpi = CustomKpiDefinition(
         name=payload.name,
         description=payload.description,
@@ -97,9 +103,17 @@ async def list_kpi_definitions(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    query = select(CustomKpiDefinition)
+    accessible_projects = select(ProjectMember.project_id).where(
+        ProjectMember.user_id == current_user.id
+    )
+    query = select(CustomKpiDefinition).where(
+        CustomKpiDefinition.project_id.in_(accessible_projects)
+    )
     if project_id is not None:
-        query = query.where(CustomKpiDefinition.project_id == project_id)
+        await verify_project_access(project_id, current_user, db)
+        query = select(CustomKpiDefinition).where(
+            CustomKpiDefinition.project_id == project_id
+        )
     result = await db.execute(query.order_by(CustomKpiDefinition.created_at.desc()))
     return result.scalars().all()
 
@@ -117,6 +131,9 @@ async def update_kpi_definition(
     kpi = result.scalar_one_or_none()
     if kpi is None:
         raise HTTPException(status_code=404, detail="KPI definition not found")
+
+    if kpi.project_id:
+        await verify_project_access(kpi.project_id, current_user, db)
 
     update_data = payload.model_dump(exclude_unset=True)
     for field, value in update_data.items():
@@ -140,6 +157,9 @@ async def delete_kpi_definition(
     if kpi is None:
         raise HTTPException(status_code=404, detail="KPI definition not found")
 
+    if kpi.project_id:
+        await verify_project_access(kpi.project_id, current_user, db)
+
     await db.delete(kpi)
     await db.flush()
 
@@ -150,9 +170,17 @@ async def get_kpi_values(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    query = select(CustomKpiDefinition)
+    accessible_projects = select(ProjectMember.project_id).where(
+        ProjectMember.user_id == current_user.id
+    )
+    query = select(CustomKpiDefinition).where(
+        CustomKpiDefinition.project_id.in_(accessible_projects)
+    )
     if project_id is not None:
-        query = query.where(CustomKpiDefinition.project_id == project_id)
+        await verify_project_access(project_id, current_user, db)
+        query = select(CustomKpiDefinition).where(
+            CustomKpiDefinition.project_id == project_id
+        )
 
     result = await db.execute(query)
     kpis = result.scalars().all()
@@ -183,9 +211,17 @@ async def export_csv(
     if model is None:
         raise HTTPException(status_code=400, detail=f"Unsupported entity type: {entity_type}")
 
+    if project_id:
+        await verify_project_access(project_id, current_user, db)
+
     query = select(model)
     if project_id is not None and hasattr(model, "project_id"):
         query = query.where(model.project_id == project_id)
+    elif hasattr(model, "project_id"):
+        accessible_projects = select(ProjectMember.project_id).where(
+            ProjectMember.user_id == current_user.id
+        )
+        query = query.where(model.project_id.in_(accessible_projects))
 
     result = await db.execute(query)
     rows = result.scalars().all()

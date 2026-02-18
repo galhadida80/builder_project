@@ -16,7 +16,7 @@ export function LanguageToggle() {
     setAnchorEl(null)
   }
 
-  const handleSelect = (lng: 'en' | 'he' | 'es') => {
+  const handleSelect = (lng: 'en' | 'he') => {
     i18n.changeLanguage(lng)
     handleClose()
   }
@@ -27,8 +27,6 @@ export function LanguageToggle() {
         return '🇺🇸'
       case 'he':
         return '🇮🇱'
-      case 'es':
-        return '🇪🇸'
       default:
         return '🌐'
     }
@@ -40,8 +38,6 @@ export function LanguageToggle() {
         return 'English'
       case 'he':
         return 'עברית'
-      case 'es':
-        return 'Español'
       default:
         return lng.toUpperCase()
     }
@@ -89,15 +85,6 @@ export function LanguageToggle() {
             {getLanguageFlag('he')}
           </ListItemIcon>
           <ListItemText>{getLanguageName('he')}</ListItemText>
-        </MenuItem>
-        <MenuItem
-          onClick={() => handleSelect('es')}
-          selected={i18n.language === 'es'}
-        >
-          <ListItemIcon sx={{ fontSize: '1.5rem' }}>
-            {getLanguageFlag('es')}
-          </ListItemIcon>
-          <ListItemText>{getLanguageName('es')}</ListItemText>
         </MenuItem>
       </Menu>
     </>

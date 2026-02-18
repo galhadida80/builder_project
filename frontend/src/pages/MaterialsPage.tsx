@@ -544,6 +544,32 @@ export default function MaterialsPage() {
               emptyDescription={t('materials.noResultsDescription')}
               emptyAction={{ label: t('materials.addMaterial'), onClick: handleOpenCreate }}
               pagination={false}
+              renderMobileCard={(row) => (
+                <Box
+                  onClick={() => handleViewDetails(row)}
+                  sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider', cursor: 'pointer', '&:active': { bgcolor: 'action.pressed' } }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
+                    <Box sx={{ width: 40, height: 40, borderRadius: 2, bgcolor: 'warning.light', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <InventoryIcon sx={{ fontSize: 20, color: 'warning.main' }} />
+                    </Box>
+                    <Box sx={{ minWidth: 0, flex: 1 }}>
+                      <Typography variant="body2" fontWeight={600} noWrap>{row.name}</Typography>
+                      <Typography variant="caption" color="text.secondary" noWrap>
+                        {row.materialType || t('materials.noTypeSpecified')}
+                      </Typography>
+                    </Box>
+                    <StatusBadge status={row.status} />
+                  </Box>
+                  <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', ml: 7 }}>
+                    {row.manufacturer && <Chip label={row.manufacturer} size="small" variant="outlined" sx={{ fontSize: '0.7rem', height: 22 }} />}
+                    {row.quantity && (
+                      <Chip label={`${Number(row.quantity).toLocaleString()} ${row.unit || ''}`} size="small" variant="outlined" sx={{ fontSize: '0.7rem', height: 22 }} />
+                    )}
+                    {row.storageLocation && <Chip label={row.storageLocation} size="small" variant="outlined" sx={{ fontSize: '0.7rem', height: 22 }} />}
+                  </Box>
+                </Box>
+              )}
             />
             {totalMaterials > 0 && (
               <TablePagination

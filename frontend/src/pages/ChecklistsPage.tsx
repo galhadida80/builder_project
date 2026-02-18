@@ -560,6 +560,38 @@ export default function ChecklistsPage() {
                       </Box>
                     ) : null
                   }
+                  renderMobileCard={(row) => (
+                    <Box
+                      onClick={() => setExpandedId(expandedId === row.id ? null : row.id)}
+                      sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider', cursor: 'pointer', '&:active': { bgcolor: 'action.hover' } }}
+                    >
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
+                        <Box sx={{ width: 36, height: 36, borderRadius: 2, bgcolor: 'primary.light', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <ChecklistIcon sx={{ fontSize: 18, color: 'primary.main' }} />
+                        </Box>
+                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                          <Typography variant="body2" fontWeight={600} noWrap>{row.name}</Typography>
+                          {row.category && <Typography variant="caption" color="text.secondary" noWrap>{row.category}</Typography>}
+                        </Box>
+                        <IconButton size="small">
+                          {expandedId === row.id ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                        </IconButton>
+                      </Box>
+                      <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                        <Chip size="small" label={row.group} />
+                        <Chip size="small" label={row.level} variant="outlined" />
+                        <Chip size="small" label={`${row.subsections.length} ${t('checklists.subsections')}`} variant="outlined" color="primary" />
+                        <Chip size="small" label={`${getItemCount(row)} ${t('checklists.items')}`} variant="outlined" color="info" />
+                      </Box>
+                      <Collapse in={expandedId === row.id}>
+                        <Box sx={{ mt: 1.5 }}>
+                          {row.subsections.slice().sort((a, b) => a.order - b.order).map((sub: ChecklistSubSection) => (
+                            <SubsectionCard key={sub.id} subsection={sub} />
+                          ))}
+                        </Box>
+                      </Collapse>
+                    </Box>
+                  )}
                 />
               )}
             </>
@@ -621,6 +653,49 @@ export default function ChecklistsPage() {
                   rows={filteredInstances}
                   getRowId={(row) => row.id}
                   onRowClick={(row) => openDrawer(row)}
+                  renderMobileCard={(row) => {
+                    const { percent, completed, total } = getInstanceProgress(row)
+                    return (
+                      <Box
+                        onClick={() => openDrawer(row)}
+                        sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider', cursor: 'pointer', '&:active': { bgcolor: 'action.hover' } }}
+                      >
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
+                          <Box sx={{ width: 36, height: 36, borderRadius: 2, bgcolor: 'info.light', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <AssignmentIcon sx={{ fontSize: 18, color: 'info.main' }} />
+                          </Box>
+                          <Box sx={{ flex: 1, minWidth: 0 }}>
+                            <Typography variant="body2" fontWeight={600} noWrap>{getTemplateName(row.template_id)}</Typography>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
+                              <Chip size="small" label={row.unit_identifier} variant="outlined" sx={{ fontWeight: 500, height: 22 }} />
+                              <StatusBadge status={row.status} />
+                            </Box>
+                          </Box>
+                          <IconButton
+                            size="small"
+                            color="error"
+                            aria-label={t('checklists.deleteChecklist')}
+                            onClick={(e) => { e.stopPropagation(); setDeleteTargetId(row.id); setDeleteModalOpen(true) }}
+                          >
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        </Box>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                          <LinearProgress
+                            variant="determinate"
+                            value={percent}
+                            sx={{ flex: 1, height: 6, borderRadius: 3, bgcolor: 'action.hover', '& .MuiLinearProgress-bar': { borderRadius: 3, bgcolor: percent === 100 ? 'success.main' : 'primary.main' } }}
+                          />
+                          <Typography variant="caption" color="text.secondary" sx={{ minWidth: 44, textAlign: 'right' }}>
+                            {completed}/{total}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {new Date(row.created_at).toLocaleDateString(getDateLocale())}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    )
+                  }}
                 />
               )}
             </>

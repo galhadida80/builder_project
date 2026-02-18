@@ -38,6 +38,12 @@ export interface DefectListParams {
   pageSize?: number
 }
 
+export interface DefectAnalysisResult {
+  category: string
+  severity: string
+  description: string
+}
+
 export const defectsApi = {
   list: async (projectId: string, params?: DefectListParams): Promise<PaginatedResponse<Defect>> => {
     const qs = new URLSearchParams()
@@ -82,6 +88,17 @@ export const defectsApi = {
 
   removeAssignee: async (projectId: string, defectId: string, contactId: string): Promise<void> => {
     await apiClient.delete(`/projects/${projectId}/defects/${defectId}/assignees/${contactId}`)
+  },
+
+  analyzeImage: async (projectId: string, file: File, language: string = 'en'): Promise<DefectAnalysisResult> => {
+    const formData = new FormData()
+    formData.append('file', file)
+    const response = await apiClient.post(
+      `/projects/${projectId}/defects/analyze-image?language=${language}`,
+      formData,
+      { headers: { 'Content-Type': 'multipart/form-data' } },
+    )
+    return response.data
   },
 
   exportPdf: async (projectId: string, filters?: { status?: string; category?: string; severity?: string }): Promise<void> => {
