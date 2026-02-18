@@ -520,7 +520,7 @@ class TestTeamMembers:
         assert resp.status_code == 200
         assert isinstance(resp.json(), list)
 
-    async def test_list_team_members_returns_users(self, admin_client: AsyncClient, admin_user: User):
+    async def test_list_team_members_returns_users(self, admin_client: AsyncClient, admin_user: User, project: Project):
         resp = await admin_client.get(team_members_url())
         data = resp.json()
         assert len(data) >= 1
