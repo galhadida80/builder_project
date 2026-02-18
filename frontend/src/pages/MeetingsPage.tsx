@@ -1,22 +1,26 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import dayjs from 'dayjs'
 import { Card, KPICard } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { StatusBadge } from '../components/ui/StatusBadge'
 import { PageHeader } from '../components/ui/Breadcrumbs'
 import { TextField } from '../components/ui/TextField'
 import { FormModal, ConfirmModal } from '../components/ui/Modal'
-import { Tabs } from '../components/ui/Tabs'
+import { Tabs, SegmentedTabs } from '../components/ui/Tabs'
 import { EmptyState } from '../components/ui/EmptyState'
 import { AvatarGroup } from '../components/ui/Avatar'
+import { MeetingCalendarGrid } from '../components/meetings/MeetingCalendarGrid'
+import { MeetingCalendarAgenda } from '../components/meetings/MeetingCalendarAgenda'
+import { useResponsive } from '../hooks/useResponsive'
 import { meetingsApi } from '../api/meetings'
 import type { Meeting } from '../types'
 import { validateMeetingForm, hasErrors, type ValidationError } from '../utils/validation'
 import { useToast } from '../components/common/ToastProvider'
 import { parseValidationErrors } from '../utils/apiErrors'
 import { getDateLocale } from '../utils/dateLocale'
-import { AddIcon, EditIcon, DeleteIcon, EventIcon, LocationOnIcon, AccessTimeIcon, CalendarMonthIcon, CloseIcon, DownloadIcon } from '@/icons'
+import { AddIcon, EditIcon, DeleteIcon, EventIcon, LocationOnIcon, AccessTimeIcon, CalendarMonthIcon, CloseIcon, DownloadIcon, ViewListIcon } from '@/icons'
 import { Box, Typography, MenuItem, TextField as MuiTextField, Skeleton, Chip, IconButton, Drawer, Divider } from '@/mui'
 
 export default function MeetingsPage() {
@@ -32,6 +36,9 @@ export default function MeetingsPage() {
     { value: 'other', label: t('meetings.typeOther') },
   ]
 
+  const { isMobile } = useResponsive()
+  const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list')
+  const [calendarMonth, setCalendarMonth] = useState(dayjs())
   const [loading, setLoading] = useState(true)
   const [meetings, setMeetings] = useState<Meeting[]>([])
   const [tabValue, setTabValue] = useState('upcoming')
@@ -217,6 +224,12 @@ export default function MeetingsPage() {
     }
   }
 
+  const handleDayClick = (date: dayjs.Dayjs) => {
+    resetForm()
+    setFormData((prev) => ({ ...prev, date: date.format('YYYY-MM-DD') }))
+    setDialogOpen(true)
+  }
+
   if (loading) {
     return (
       <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
@@ -243,9 +256,21 @@ export default function MeetingsPage() {
         subtitle={t('meetings.subtitle')}
         breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('meetings.title') }]}
         actions={
-          <Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>
-            {t('meetings.scheduleMeeting')}
-          </Button>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
+              <SegmentedTabs
+                items={[
+                  { label: t('meetings.listView'), value: 'list', icon: <ViewListIcon sx={{ fontSize: 18 }} /> },
+                  { label: t('meetings.calendarView'), value: 'calendar', icon: <CalendarMonthIcon sx={{ fontSize: 18 }} /> },
+                ]}
+                value={viewMode}
+                onChange={(v) => setViewMode(v as 'list' | 'calendar')}
+              />
+            </Box>
+            <Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>
+              {t('meetings.scheduleMeeting')}
+            </Button>
+          </Box>
         }
       />
 
@@ -277,124 +302,144 @@ export default function MeetingsPage() {
         />
       </Box>
 
-      <Card>
-        <Box sx={{ p: 2 }}>
-          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, gap: { xs: 1, sm: 0 }, mb: 2 }}>
-            <Tabs
-              items={[
-                { label: t('meetings.upcomingMeetings'), value: 'upcoming', badge: upcomingMeetings.length },
-                { label: t('meetings.pastMeetings'), value: 'past', badge: pastMeetings.length },
-              ]}
-              value={tabValue}
-              onChange={setTabValue}
-              size="small"
-            />
-            <Chip label={`${displayedMeetings.length} ${t('meetings.meetingCount')}`} size="small" sx={{ alignSelf: { xs: 'flex-start', sm: 'center' } }} />
-          </Box>
-
-          {displayedMeetings.length === 0 ? (
-            <EmptyState
-              title={tabValue === 'upcoming' ? t('meetings.noUpcoming') : t('meetings.noPast')}
-              description={tabValue === 'upcoming' ? t('meetings.scheduleFirstMeeting') : t('meetings.pastMeetingsWillAppear')}
-              icon={<EventIcon sx={{ color: 'text.secondary' }} />}
-              action={tabValue === 'upcoming' ? { label: t('meetings.scheduleMeeting'), onClick: handleOpenCreate } : undefined}
-            />
-          ) : (
-            <Box
-              sx={{
-                display: 'grid',
-                gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' },
-                gap: 2,
-              }}
-            >
-              {displayedMeetings.map((meeting) => (
-                <Card key={meeting.id} hoverable onClick={() => handleMeetingClick(meeting)}>
-                  <Box sx={{ p: 2 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1.5, gap: 1 }}>
-                      <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-start', minWidth: 0, flex: 1 }}>
-                        <Box
-                          sx={{
-                            width: 44,
-                            height: 44,
-                            borderRadius: 2,
-                            bgcolor: 'primary.main',
-                            color: 'white',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                          }}
-                        >
-                          <Typography variant="h6" sx={{ lineHeight: 1, fontWeight: 700 }}>
-                            {new Date(meeting.scheduledDate).getDate()}
-                          </Typography>
-                          <Typography variant="caption" sx={{ lineHeight: 1, fontSize: '0.6rem', textTransform: 'uppercase' }}>
-                            {new Date(meeting.scheduledDate).toLocaleDateString(getDateLocale(), { month: 'short' })}
-                          </Typography>
-                        </Box>
-                        <Box sx={{ minWidth: 0 }}>
-                          <Typography variant="body2" fontWeight={600} sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                            {meeting.title}
-                          </Typography>
-                          <Chip
-                            label={getMeetingTypeLabel(meeting.meetingType)}
-                            size="small"
-                            variant="outlined"
-                            sx={{ mt: 0.5, fontSize: '0.7rem' }}
-                          />
-                        </Box>
-                      </Box>
-                      <StatusBadge status={meeting.status} size="small" />
-                    </Box>
-
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mb: 1.5 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <AccessTimeIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-                        <Typography variant="body2" color="text.secondary">
-                          {formatTime(meeting.scheduledDate)}
-                        </Typography>
-                      </Box>
-                      {meeting.location && (
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <LocationOnIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-                          <Typography variant="body2" color="text.secondary">
-                            {meeting.location}
-                          </Typography>
-                        </Box>
-                      )}
-                    </Box>
-
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <AvatarGroup
-                        users={[{ name: 'User' }]}
-                        max={4}
-                        size="small"
-                      />
-                      <Box sx={{ display: 'flex', gap: 0.5 }}>
-                        <IconButton
-                          size="small"
-                          onClick={(e) => { e.stopPropagation(); handleOpenEdit(meeting); }}
-                          aria-label={t('meetings.editMeeting')}
-                        >
-                          <EditIcon fontSize="small" />
-                        </IconButton>
-                        <IconButton
-                          size="small"
-                          onClick={(e) => { e.stopPropagation(); handleDeleteClick(meeting); }}
-                          aria-label={t('meetings.deleteMeeting')}
-                          color="error"
-                        >
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
-                      </Box>
-                    </Box>
-                  </Box>
-                </Card>
-              ))}
+      {viewMode === 'calendar' ? (
+        isMobile ? (
+          <MeetingCalendarAgenda
+            meetings={meetings}
+            currentMonth={calendarMonth}
+            onMonthChange={setCalendarMonth}
+            onMeetingClick={handleMeetingClick}
+            onDayClick={handleDayClick}
+          />
+        ) : (
+          <MeetingCalendarGrid
+            meetings={meetings}
+            currentMonth={calendarMonth}
+            onMonthChange={setCalendarMonth}
+            onMeetingClick={handleMeetingClick}
+            onDayClick={handleDayClick}
+          />
+        )
+      ) : (
+        <Card>
+          <Box sx={{ p: 2 }}>
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, gap: { xs: 1, sm: 0 }, mb: 2 }}>
+              <Tabs
+                items={[
+                  { label: t('meetings.upcomingMeetings'), value: 'upcoming', badge: upcomingMeetings.length },
+                  { label: t('meetings.pastMeetings'), value: 'past', badge: pastMeetings.length },
+                ]}
+                value={tabValue}
+                onChange={setTabValue}
+                size="small"
+              />
+              <Chip label={`${displayedMeetings.length} ${t('meetings.meetingCount')}`} size="small" sx={{ alignSelf: { xs: 'flex-start', sm: 'center' } }} />
             </Box>
-          )}
-        </Box>
-      </Card>
+
+            {displayedMeetings.length === 0 ? (
+              <EmptyState
+                title={tabValue === 'upcoming' ? t('meetings.noUpcoming') : t('meetings.noPast')}
+                description={tabValue === 'upcoming' ? t('meetings.scheduleFirstMeeting') : t('meetings.pastMeetingsWillAppear')}
+                icon={<EventIcon sx={{ color: 'text.secondary' }} />}
+                action={tabValue === 'upcoming' ? { label: t('meetings.scheduleMeeting'), onClick: handleOpenCreate } : undefined}
+              />
+            ) : (
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' },
+                  gap: 2,
+                }}
+              >
+                {displayedMeetings.map((meeting) => (
+                  <Card key={meeting.id} hoverable onClick={() => handleMeetingClick(meeting)}>
+                    <Box sx={{ p: 2 }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1.5, gap: 1 }}>
+                        <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-start', minWidth: 0, flex: 1 }}>
+                          <Box
+                            sx={{
+                              width: 44,
+                              height: 44,
+                              borderRadius: 2,
+                              bgcolor: 'primary.main',
+                              color: 'white',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}
+                          >
+                            <Typography variant="h6" sx={{ lineHeight: 1, fontWeight: 700 }}>
+                              {new Date(meeting.scheduledDate).getDate()}
+                            </Typography>
+                            <Typography variant="caption" sx={{ lineHeight: 1, fontSize: '0.6rem', textTransform: 'uppercase' }}>
+                              {new Date(meeting.scheduledDate).toLocaleDateString(getDateLocale(), { month: 'short' })}
+                            </Typography>
+                          </Box>
+                          <Box sx={{ minWidth: 0 }}>
+                            <Typography variant="body2" fontWeight={600} sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {meeting.title}
+                            </Typography>
+                            <Chip
+                              label={getMeetingTypeLabel(meeting.meetingType)}
+                              size="small"
+                              variant="outlined"
+                              sx={{ mt: 0.5, fontSize: '0.7rem' }}
+                            />
+                          </Box>
+                        </Box>
+                        <StatusBadge status={meeting.status} size="small" />
+                      </Box>
+
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mb: 1.5 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <AccessTimeIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
+                          <Typography variant="body2" color="text.secondary">
+                            {formatTime(meeting.scheduledDate)}
+                          </Typography>
+                        </Box>
+                        {meeting.location && (
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <LocationOnIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
+                            <Typography variant="body2" color="text.secondary">
+                              {meeting.location}
+                            </Typography>
+                          </Box>
+                        )}
+                      </Box>
+
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <AvatarGroup
+                          users={[{ name: 'User' }]}
+                          max={4}
+                          size="small"
+                        />
+                        <Box sx={{ display: 'flex', gap: 0.5 }}>
+                          <IconButton
+                            size="small"
+                            onClick={(e) => { e.stopPropagation(); handleOpenEdit(meeting); }}
+                            aria-label={t('meetings.editMeeting')}
+                          >
+                            <EditIcon fontSize="small" />
+                          </IconButton>
+                          <IconButton
+                            size="small"
+                            onClick={(e) => { e.stopPropagation(); handleDeleteClick(meeting); }}
+                            aria-label={t('meetings.deleteMeeting')}
+                            color="error"
+                          >
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        </Box>
+                      </Box>
+                    </Box>
+                  </Card>
+                ))}
+              </Box>
+            )}
+          </Box>
+        </Card>
+      )}
 
       <Drawer
         anchor="right"

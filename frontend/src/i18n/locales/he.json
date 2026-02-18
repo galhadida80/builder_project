@@ -438,7 +438,11 @@
       "google": "הוסף ליומן Google",
       "outlook": "הוסף ל-Outlook",
       "downloadIcs": "הורד קובץ .ics"
-    }
+    },
+    "listView": "רשימה",
+    "calendarView": "לוח שנה",
+    "calendarToday": "היום",
+    "calendarMoreMeetings": "+{{count}} עוד"
   },
   "dashboard": {
     "title": "לוח בקרה",
@@ -936,7 +940,6 @@
     "settingsUpdated": "ההגדרות עודכנו בהצלחה",
     "languageChanged": "השפה שונתה בהצלחה",
     "themeUpdated": "ערכת הנושא עודכנה בהצלחה",
-    "spanish": "ספרדית",
     "system": "מערכת",
     "light": "בהיר",
     "dark": "כהה"
@@ -1949,7 +1952,12 @@
     "dropHere": "שחרר תמונות כאן...",
     "maxPhotos": "הגעת למקסימום {{max}} תמונות",
     "uploadingPhotos": "מעלה תמונות...",
-    "photoUploadPartialFail": "{{count}} תמונה/ות נכשלו בהעלאה"
+    "photoUploadPartialFail": "{{count}} תמונה/ות נכשלו בהעלאה",
+    "analyzeImage": "ניתוח תמונה",
+    "analyzing": "מנתח...",
+    "analyzeSuccess": "התמונה נותחה - בדוק וערוך את התוצאות",
+    "analyzeFailed": "ניתוח התמונה נכשל",
+    "analyzeHint": "AI יזהה קטגוריה, חומרה ותיאור"
   },
   "webauthn": {
     "setupTitle": "כניסה ביומטרית",

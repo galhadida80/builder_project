@@ -321,7 +321,11 @@
       "google": "Add to Google Calendar",
       "outlook": "Add to Outlook",
       "downloadIcs": "Download .ics File"
-    }
+    },
+    "listView": "List",
+    "calendarView": "Calendar",
+    "calendarToday": "Today",
+    "calendarMoreMeetings": "+{{count}} more"
   },
   "validation": {
     "checkFields": "Please fix the highlighted errors",
@@ -817,7 +821,6 @@
     "settingsUpdated": "Settings updated successfully",
     "languageChanged": "Language changed successfully",
     "themeUpdated": "Theme updated successfully",
-    "spanish": "Spanish",
     "system": "System",
     "light": "Light",
     "dark": "Dark"
@@ -1897,7 +1900,12 @@
     "dropHere": "Drop photos here...",
     "maxPhotos": "Maximum {{max}} photos reached",
     "uploadingPhotos": "Uploading photos...",
-    "photoUploadPartialFail": "{{count}} photo(s) failed to upload"
+    "photoUploadPartialFail": "{{count}} photo(s) failed to upload",
+    "analyzeImage": "Analyze Image",
+    "analyzing": "Analyzing...",
+    "analyzeSuccess": "Image analyzed - review and edit the results",
+    "analyzeFailed": "Failed to analyze image",
+    "analyzeHint": "AI will detect category, severity and description"
   },
   "webauthn": {
     "setupTitle": "Biometric Login",
