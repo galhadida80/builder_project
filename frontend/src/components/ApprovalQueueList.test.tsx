@@ -4,12 +4,16 @@ import { renderWithProviders } from '../test/test-utils'
 import { ApprovalQueueList } from './ApprovalQueueList'
 import { approvalsApi } from '../api/approvals'
 
-vi.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (key: string, opts?: Record<string, unknown>) => opts?.count !== undefined ? `${key}(${opts.count})` : opts?.action ? `${key}(${opts.action})` : key,
-    i18n: { language: 'en' },
-  }),
-}))
+vi.mock('react-i18next', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('react-i18next')>()
+  return {
+    ...actual,
+    useTranslation: () => ({
+      t: (key: string, opts?: Record<string, unknown>) => opts?.count !== undefined ? `${key}(${opts.count})` : opts?.action ? `${key}(${opts.action})` : key,
+      i18n: { language: 'en' },
+    }),
+  }
+})
 
 vi.mock('../components/common/ToastProvider', () => ({
   useToast: () => ({ showError: vi.fn(), showSuccess: vi.fn() }),

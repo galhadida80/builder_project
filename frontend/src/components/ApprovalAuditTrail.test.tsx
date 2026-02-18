@@ -3,9 +3,13 @@ import { screen } from '@testing-library/react'
 import { ApprovalAuditTrail, ApprovalAction } from './ApprovalAuditTrail'
 import { renderWithProviders } from '../test/test-utils'
 
-vi.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: (key: string) => key, i18n: { language: 'en' } }),
-}))
+vi.mock('react-i18next', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('react-i18next')>()
+  return {
+    ...actual,
+    useTranslation: () => ({ t: (key: string) => key, i18n: { language: 'en' } }),
+  }
+})
 
 vi.mock('./ui/Avatar', () => ({
   Avatar: ({ name }: { name: string }) => <div data-testid="avatar">{name}</div>,

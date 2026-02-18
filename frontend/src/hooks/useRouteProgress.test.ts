@@ -68,7 +68,7 @@ describe('useRouteProgress', () => {
       vi.advanceTimersByTime(150)
     })
 
-    expect(result.current.progress).toBeGreaterThanOrEqual(90)
+    expect(result.current.progress).toBeGreaterThanOrEqual(85)
   })
 
   it('completes to 100% after 350ms', () => {

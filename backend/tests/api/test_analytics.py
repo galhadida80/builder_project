@@ -10,10 +10,12 @@ ENDPOINTS = ["/metrics", "/project-trends", "/distributions"]
 
 METRICS_FIELDS = ["total_projects", "active_projects", "total_inspections", "pending_inspections",
     "completed_inspections", "total_equipment", "approved_equipment", "total_materials",
-    "approved_materials", "total_meetings", "approval_rate"]
-METRICS_INT_FIELDS = METRICS_FIELDS[:-1]
+    "approved_materials", "total_meetings", "approval_rate", "total_rfis", "open_rfis",
+    "closed_rfis", "total_approvals", "pending_approvals", "approved_approvals"]
+METRICS_INT_FIELDS = [f for f in METRICS_FIELDS if f != "approval_rate"]
 TREND_FIELDS = ["date", "inspections", "equipment_submissions", "material_submissions"]
-DIST_FIELDS = ["inspection_status", "equipment_status", "material_status", "project_status"]
+DIST_FIELDS = ["inspection_status", "equipment_status", "material_status", "project_status",
+    "rfi_status", "approval_status"]
 TODAY = date.today()
 LAST_MONTH = TODAY - timedelta(days=30)
 NEXT_WEEK = TODAY + timedelta(days=7)

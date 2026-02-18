@@ -4,12 +4,16 @@ import { renderWithProviders } from '../test/test-utils'
 import InspectorDashboard from './InspectorDashboard'
 import { inspectionsApi } from '../api/inspections'
 
-vi.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (key: string) => key,
-    i18n: { language: 'en' },
-  }),
-}))
+vi.mock('react-i18next', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('react-i18next')>()
+  return {
+    ...actual,
+    useTranslation: () => ({
+      t: (key: string) => key,
+      i18n: { language: 'en' },
+    }),
+  }
+})
 
 vi.mock('../contexts/ProjectContext', () => ({
   useProject: () => ({ selectedProjectId: 'test-project-id' }),
