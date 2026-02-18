@@ -39,6 +39,10 @@ vi.mock('../components/ui/EmptyState', () => ({
   ),
 }))
 
+vi.mock('../utils/dateLocale', () => ({
+  getDateLocale: () => 'en-US',
+}))
+
 
 const today = new Date()
 today.setHours(10, 0, 0, 0)

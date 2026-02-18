@@ -38,15 +38,18 @@ def get_client_identifier(request: Request) -> str:
 
 @lru_cache
 def get_rate_limiter() -> Limiter:
-    storage_uri = settings.redis_url
-    try:
-        if settings.rate_limit_enabled and storage_uri.startswith("redis://"):
-            import redis
-            r = redis.from_url(storage_uri, socket_connect_timeout=2)
-            r.ping()
-    except Exception:
-        logger.warning("Redis unavailable, falling back to in-memory rate limiting")
+    if not settings.rate_limit_enabled:
         storage_uri = "memory://"
+    else:
+        storage_uri = settings.redis_url
+        if storage_uri.startswith("redis://"):
+            try:
+                import redis
+                r = redis.from_url(storage_uri, socket_connect_timeout=2)
+                r.ping()
+            except Exception:
+                logger.warning("Redis unavailable, falling back to in-memory rate limiting")
+                storage_uri = "memory://"
 
     limiter = Limiter(
         key_func=get_client_identifier,
