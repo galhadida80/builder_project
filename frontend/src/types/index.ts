@@ -2,7 +2,7 @@ export type UserRole = 'project_admin' | 'contractor' | 'consultant' | 'supervis
 
 export type ApprovalStatus = 'draft' | 'submitted' | 'under_review' | 'approved' | 'rejected' | 'revision_requested'
 
-export type MeetingStatus = 'scheduled' | 'invitations_sent' | 'completed' | 'cancelled'
+export type MeetingStatus = 'scheduled' | 'invitations_sent' | 'pending_votes' | 'completed' | 'cancelled'
 
 export type AreaStatus = 'not_started' | 'in_progress' | 'awaiting_approval' | 'completed'
 
@@ -139,6 +139,23 @@ export interface Material {
   approvals?: ApprovalStep[]
 }
 
+export interface MeetingTimeSlot {
+  id: string
+  meetingId: string
+  slotNumber: number
+  proposedStart: string
+  proposedEnd?: string
+  voteCount: number
+}
+
+export interface MeetingTimeVote {
+  id: string
+  meetingId: string
+  attendeeId: string
+  timeSlotId?: string
+  votedAt?: string
+}
+
 export interface Meeting {
   id: string
   projectId: string
@@ -152,9 +169,12 @@ export interface Meeting {
   summary?: string
   actionItems?: ActionItem[]
   status: MeetingStatus
+  hasTimeSlots: boolean
   createdAt: string
   createdBy?: User
   attendees?: MeetingAttendee[]
+  timeSlots?: MeetingTimeSlot[]
+  timeVotes?: MeetingTimeVote[]
 }
 
 export interface MeetingAttendee {

@@ -18,7 +18,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { meetingsApi } from '../api/meetings'
 import { teamMembersApi } from '../api/teamMembers'
 import { filesApi, type FileRecord } from '../api/files'
-import type { Meeting, MeetingAttendee } from '../types'
+import type { Meeting, MeetingAttendee, MeetingTimeSlot } from '../types'
 import { validateMeetingForm, hasErrors, type ValidationError } from '../utils/validation'
 import { useToast } from '../components/common/ToastProvider'
 import { parseValidationErrors } from '../utils/apiErrors'
@@ -26,11 +26,12 @@ import { getDateLocale } from '../utils/dateLocale'
 import {
   AddIcon, EditIcon, DeleteIcon, EventIcon, LocationOnIcon,
   AccessTimeIcon, CalendarMonthIcon, CloseIcon, DownloadIcon,
-  ViewListIcon, PersonAddIcon, AddPhotoAlternateIcon,
+  ViewListIcon, PersonAddIcon, AddPhotoAlternateIcon, CheckCircleIcon,
 } from '@/icons'
 import {
   Box, Typography, MenuItem, TextField as MuiTextField, Skeleton,
   Chip, IconButton, Drawer, Divider, Autocomplete, Avatar,
+  Switch, FormControlLabel, LinearProgress,
 } from '@/mui'
 
 interface TeamMemberOption {
@@ -90,6 +91,13 @@ export default function MeetingsPage() {
   const [meetingPhotos, setMeetingPhotos] = useState<FileRecord[]>([])
   const [photoUrls, setPhotoUrls] = useState<Record<string, string>>({})
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [proposeTimeSlots, setProposeTimeSlots] = useState(false)
+  const [timeSlotInputs, setTimeSlotInputs] = useState([
+    { date: '', time: '' },
+    { date: '', time: '' },
+    { date: '', time: '' },
+  ])
+  const [confirmingSlot, setConfirmingSlot] = useState(false)
 
   useEffect(() => {
     loadMeetings()
@@ -112,7 +120,7 @@ export default function MeetingsPage() {
     if (!projectId) return
     try {
       const members = await teamMembersApi.list(projectId)
-      setTeamMembers(members.map(m => ({ id: m.id, name: m.name, email: m.email })))
+      setTeamMembers(members.map((m: any) => ({ id: m.userId, name: m.user?.fullName || m.user?.email || '', email: m.user?.email })))
     } catch {
       // non-critical
     }
@@ -154,6 +162,8 @@ export default function MeetingsPage() {
     setErrors({})
     setEditingMeeting(null)
     setSelectedAttendees([])
+    setProposeTimeSlots(false)
+    setTimeSlotInputs([{ date: '', time: '' }, { date: '', time: '' }, { date: '', time: '' }])
   }
 
   const handleCloseDialog = () => {
@@ -194,14 +204,25 @@ export default function MeetingsPage() {
       title: formData.title,
       description: formData.description
     })
-    if (!formData.date) validationErrors.date = t('meetings.dateRequired')
-    if (!formData.startTime) validationErrors.startTime = t('meetings.startTimeRequired')
+
+    if (proposeTimeSlots && !editingMeeting) {
+      const filledSlots = timeSlotInputs.filter(s => s.date && s.time)
+      if (filledSlots.length < 2) {
+        validationErrors.date = t('meetings.atLeastTwoSlots')
+      }
+    } else {
+      if (!formData.date) validationErrors.date = t('meetings.dateRequired')
+      if (!formData.startTime) validationErrors.startTime = t('meetings.startTimeRequired')
+    }
+
     setErrors(validationErrors)
     if (hasErrors(validationErrors)) return
 
     setSaving(true)
     try {
-      const scheduled_date = `${formData.date}T${formData.startTime}:00`
+      const scheduled_date = proposeTimeSlots && !editingMeeting && timeSlotInputs[0].date && timeSlotInputs[0].time
+        ? `${timeSlotInputs[0].date}T${timeSlotInputs[0].time}:00`
+        : `${formData.date}T${formData.startTime}:00`
       if (editingMeeting) {
         await meetingsApi.update(projectId, editingMeeting.id, {
           title: formData.title,
@@ -212,6 +233,12 @@ export default function MeetingsPage() {
         })
         showSuccess(t('meetings.updatedSuccessfully'))
       } else {
+        const time_slots = proposeTimeSlots
+          ? timeSlotInputs
+              .filter(s => s.date && s.time)
+              .map(s => ({ proposed_start: `${s.date}T${s.time}:00` }))
+          : undefined
+
         await meetingsApi.create(projectId, {
           title: formData.title,
           meeting_type: formData.meetingType || undefined,
@@ -219,8 +246,11 @@ export default function MeetingsPage() {
           location: formData.location || undefined,
           scheduled_date,
           attendee_ids: selectedAttendees.map(a => a.id),
+          time_slots,
         })
-        if (selectedAttendees.length > 0) {
+        if (proposeTimeSlots && selectedAttendees.length > 0) {
+          showSuccess(t('meetings.voteEmailsSent', { count: selectedAttendees.length }))
+        } else if (selectedAttendees.length > 0) {
           showSuccess(t('meetings.invitationSent', { count: selectedAttendees.length }))
         } else {
           showSuccess(t('meetings.scheduledSuccessfully'))
@@ -276,6 +306,21 @@ export default function MeetingsPage() {
     }
   }
 
+  const handleConfirmTimeSlot = async (slot: MeetingTimeSlot) => {
+    if (!projectId || !selectedMeeting) return
+    setConfirmingSlot(true)
+    try {
+      const updated = await meetingsApi.confirmTimeSlot(projectId, selectedMeeting.id, slot.id)
+      setSelectedMeeting(updated)
+      showSuccess(t('meetings.timeConfirmed'))
+      loadMeetings()
+    } catch {
+      showError(t('meetings.failedToSave', { action: 'confirm' }))
+    } finally {
+      setConfirmingSlot(false)
+    }
+  }
+
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!projectId || !selectedMeeting || !e.target.files) return
     for (const file of Array.from(e.target.files)) {
@@ -288,7 +333,7 @@ export default function MeetingsPage() {
     loadMeetingPhotos(selectedMeeting.id)
   }
 
-  const upcomingMeetings = meetings.filter(m => m.status === 'scheduled' || m.status === 'invitations_sent')
+  const upcomingMeetings = meetings.filter(m => m.status === 'scheduled' || m.status === 'invitations_sent' || m.status === 'pending_votes')
   const pastMeetings = meetings.filter(m => m.status === 'completed' || m.status === 'cancelled')
   const displayedMeetings = tabValue === 'upcoming' ? upcomingMeetings : pastMeetings
 
@@ -678,6 +723,66 @@ export default function MeetingsPage() {
               )}
             </Box>
 
+            {/* Time Slot Votes */}
+            {selectedMeeting.hasTimeSlots && selectedMeeting.timeSlots && selectedMeeting.timeSlots.length > 0 && (
+              <>
+                <Divider sx={{ my: 2 }} />
+                <Box sx={{ mb: 3 }}>
+                  <Typography variant="caption" color="text.secondary" fontWeight={600}>
+                    {t('meetings.timeSlotVotes').toUpperCase()}
+                  </Typography>
+                  <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                    {selectedMeeting.timeSlots.map((slot) => {
+                      const totalVotes = selectedMeeting.timeSlots!.reduce((sum, s) => sum + s.voteCount, 0)
+                      const pct = totalVotes > 0 ? (slot.voteCount / totalVotes) * 100 : 0
+                      const voterNames = (selectedMeeting.timeVotes || [])
+                        .filter(v => v.timeSlotId === slot.id)
+                        .map(v => {
+                          const att = selectedMeeting.attendees?.find(a => a.id === v.attendeeId)
+                          return att?.user?.fullName || att?.email || ''
+                        })
+                        .filter(Boolean)
+
+                      return (
+                        <Box key={slot.id} sx={{ p: 1.5, borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
+                            <Typography variant="body2" fontWeight={600}>
+                              {t('meetings.option')} {slot.slotNumber}
+                            </Typography>
+                            <Chip label={`${slot.voteCount} ${t('meetings.votes')}`} size="small" />
+                          </Box>
+                          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                            {new Date(slot.proposedStart).toLocaleDateString(getDateLocale(), { weekday: 'short', month: 'short', day: 'numeric' })}
+                            {' '}
+                            {new Date(slot.proposedStart).toLocaleTimeString(getDateLocale(), { hour: '2-digit', minute: '2-digit' })}
+                            {slot.proposedEnd && ` - ${new Date(slot.proposedEnd).toLocaleTimeString(getDateLocale(), { hour: '2-digit', minute: '2-digit' })}`}
+                          </Typography>
+                          <LinearProgress variant="determinate" value={pct} sx={{ mb: 0.5, borderRadius: 1, height: 6 }} />
+                          {voterNames.length > 0 && (
+                            <Typography variant="caption" color="text.secondary">
+                              {voterNames.join(', ')}
+                            </Typography>
+                          )}
+                          {selectedMeeting.status === 'pending_votes' && selectedMeeting.createdBy?.id === currentUser?.id && (
+                            <Button
+                              variant="primary"
+                              size="small"
+                              icon={<CheckCircleIcon />}
+                              onClick={() => handleConfirmTimeSlot(slot)}
+                              disabled={confirmingSlot}
+                              sx={{ mt: 1 }}
+                            >
+                              {t('meetings.confirmThisTime')}
+                            </Button>
+                          )}
+                        </Box>
+                      )
+                    })}
+                  </Box>
+                </Box>
+              </>
+            )}
+
             {/* Current user RSVP actions */}
             {currentUserAttendee && (
               <>
@@ -836,40 +941,87 @@ export default function MeetingsPage() {
             error={!!errors.location}
             helperText={errors.location}
           />
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr 1fr' }, gap: 2 }}>
-            <TextField
-              fullWidth
-              label={t('meetings.date')}
-              type="date"
-              InputLabelProps={{ shrink: true }}
-              required
-              value={formData.date}
-              onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-              onBlur={() => validateField('date', formData.date)}
-              error={!!errors.date}
-              helperText={errors.date}
+          {!editingMeeting && (
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={proposeTimeSlots}
+                  onChange={(e) => setProposeTimeSlots(e.target.checked)}
+                />
+              }
+              label={t('meetings.proposeTimeSlots')}
             />
-            <TextField
-              fullWidth
-              label={t('meetings.startTime')}
-              type="time"
-              InputLabelProps={{ shrink: true }}
-              required
-              value={formData.startTime}
-              onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
-              onBlur={() => validateField('startTime', formData.startTime)}
-              error={!!errors.startTime}
-              helperText={errors.startTime}
-            />
-            <TextField
-              fullWidth
-              label={t('meetings.endTime')}
-              type="time"
-              InputLabelProps={{ shrink: true }}
-              value={formData.endTime}
-              onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
-            />
-          </Box>
+          )}
+
+          {proposeTimeSlots && !editingMeeting ? (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+              {timeSlotInputs.map((slot, idx) => (
+                <Box key={idx} sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5 }}>
+                  <TextField
+                    fullWidth
+                    label={`${t('meetings.option')} ${idx + 1} - ${t('meetings.date')}`}
+                    type="date"
+                    InputLabelProps={{ shrink: true }}
+                    required={idx < 2}
+                    value={slot.date}
+                    onChange={(e) => {
+                      const updated = [...timeSlotInputs]
+                      updated[idx] = { ...updated[idx], date: e.target.value }
+                      setTimeSlotInputs(updated)
+                    }}
+                  />
+                  <TextField
+                    fullWidth
+                    label={t('meetings.time')}
+                    type="time"
+                    InputLabelProps={{ shrink: true }}
+                    required={idx < 2}
+                    value={slot.time}
+                    onChange={(e) => {
+                      const updated = [...timeSlotInputs]
+                      updated[idx] = { ...updated[idx], time: e.target.value }
+                      setTimeSlotInputs(updated)
+                    }}
+                  />
+                </Box>
+              ))}
+            </Box>
+          ) : (
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr 1fr' }, gap: 2 }}>
+              <TextField
+                fullWidth
+                label={t('meetings.date')}
+                type="date"
+                InputLabelProps={{ shrink: true }}
+                required
+                value={formData.date}
+                onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                onBlur={() => validateField('date', formData.date)}
+                error={!!errors.date}
+                helperText={errors.date}
+              />
+              <TextField
+                fullWidth
+                label={t('meetings.startTime')}
+                type="time"
+                InputLabelProps={{ shrink: true }}
+                required
+                value={formData.startTime}
+                onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
+                onBlur={() => validateField('startTime', formData.startTime)}
+                error={!!errors.startTime}
+                helperText={errors.startTime}
+              />
+              <TextField
+                fullWidth
+                label={t('meetings.endTime')}
+                type="time"
+                InputLabelProps={{ shrink: true }}
+                value={formData.endTime}
+                onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
+              />
+            </Box>
+          )}
 
           {/* Attendee Picker (create mode only) */}
           {!editingMeeting && (

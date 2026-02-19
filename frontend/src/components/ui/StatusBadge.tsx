@@ -19,6 +19,7 @@ export type StatusType =
   | 'in_progress'
   | 'cancelled'
   | 'invitations_sent'
+  | 'pending_votes'
   | 'open'
   | 'closed'
   | 'waiting_response'
@@ -59,6 +60,7 @@ const statusConfig: Record<StatusType, { label: string; color: ChipProps['color'
   in_progress: { label: 'In Progress', color: 'info', icon: <PendingIcon /> },
   cancelled: { label: 'Cancelled', color: 'error', icon: <CancelIcon /> },
   invitations_sent: { label: 'Invitations Sent', color: 'info', icon: <PendingIcon /> },
+  pending_votes: { label: 'Pending Votes', color: 'warning', icon: <HourglassEmptyIcon /> },
   open: { label: 'Open', color: 'info', icon: <PendingIcon /> },
   closed: { label: 'Closed', color: 'default', icon: <CheckCircleIcon /> },
   waiting_response: { label: 'Waiting Response', color: 'warning', icon: <HourglassEmptyIcon /> },

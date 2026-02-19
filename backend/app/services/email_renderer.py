@@ -108,6 +108,32 @@ STRINGS = {
             "footer": "זוהי הזמנת פגישה אוטומטית מ-BuilderOps.",
         },
     },
+    "meeting_vote": {
+        "en": {
+            "subject": "Vote for Meeting Time: {title}",
+            "title": "Choose a Meeting Time",
+            "greeting": "Hi {name}, please vote for your preferred meeting time.",
+            "meeting_label": "Meeting",
+            "organized_by": "Organized by",
+            "location_label": "Location",
+            "description_label": "Description",
+            "vote_prompt": "Select your preferred time slot:",
+            "option": "Option",
+            "footer": "This is an automated meeting scheduling request from BuilderOps.",
+        },
+        "he": {
+            "subject": "הצבע על מועד לפגישה: {title}",
+            "title": "בחר מועד לפגישה",
+            "greeting": "שלום {name}, אנא הצבע על המועד המועדף עליך לפגישה.",
+            "meeting_label": "פגישה",
+            "organized_by": "מאורגן על ידי",
+            "location_label": "מיקום",
+            "description_label": "תיאור",
+            "vote_prompt": "בחר את המועד המועדף:",
+            "option": "אפשרות",
+            "footer": "זוהי בקשת תזמון פגישה אוטומטית מ-BuilderOps.",
+        },
+    },
     "notification": {
         "en": {
             "project_label": "Project",
@@ -439,6 +465,45 @@ def render_meeting_invitation_email(
         organizer_name=organizer_name,
         rsvp_token=rsvp_token,
         rsvp_base_url=frontend_url,
+        lang=language,
+        direction=direction,
+        align=align,
+    )
+    return subject, html
+
+
+SLOT_COLORS = ["#2563EB", "#7C3AED", "#0891B2"]
+
+
+def render_meeting_vote_email(
+    meeting_title: str,
+    meeting_location: str,
+    meeting_description: str,
+    attendee_name: str,
+    organizer_name: str,
+    vote_token: str,
+    time_slots: list,
+    backend_url: str,
+    language: str = "en",
+) -> tuple[str, str]:
+    s = STRINGS["meeting_vote"].get(language, STRINGS["meeting_vote"]["en"])
+    direction = "rtl" if language == "he" else "ltr"
+    align = "right" if language == "he" else "left"
+
+    subject = s["subject"].format(title=meeting_title)
+
+    template = env.get_template("meeting_vote.html")
+    html = template.render(
+        strings=s,
+        attendee_name=attendee_name,
+        meeting_title=meeting_title,
+        meeting_location=meeting_location,
+        meeting_description=meeting_description,
+        organizer_name=organizer_name,
+        vote_token=vote_token,
+        vote_base_url=backend_url,
+        time_slots=time_slots,
+        slot_colors=SLOT_COLORS,
         lang=language,
         direction=direction,
         align=align,

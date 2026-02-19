@@ -1,6 +1,11 @@
 import { apiClient } from './client'
 import type { Meeting } from '../types'
 
+interface TimeSlotInput {
+  proposed_start: string
+  proposed_end?: string
+}
+
 interface MeetingCreate {
   title: string
   description?: string
@@ -9,6 +14,7 @@ interface MeetingCreate {
   scheduled_date: string
   scheduled_time?: string
   attendee_ids?: string[]
+  time_slots?: TimeSlotInput[]
 }
 
 interface MeetingUpdate {
@@ -97,5 +103,12 @@ export const meetingsApi = {
 
   getIcalUrl: (projectId: string, meetingId: string): string => {
     return `/api/v1/projects/${projectId}/meetings/${meetingId}/ical`
+  },
+
+  confirmTimeSlot: async (projectId: string, meetingId: string, timeSlotId: string): Promise<Meeting> => {
+    const response = await apiClient.post(`/projects/${projectId}/meetings/${meetingId}/confirm-time`, {
+      time_slot_id: timeSlotId,
+    })
+    return response.data
   },
 }

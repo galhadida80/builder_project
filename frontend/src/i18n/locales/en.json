@@ -346,7 +346,15 @@
       "yourResponse": "Your RSVP",
       "respondToInvitation": "Respond to this meeting invitation",
       "organizedBy": "Organized by"
-    }
+    },
+    "proposeTimeSlots": "Propose multiple time options",
+    "option": "Option",
+    "votes": "votes",
+    "timeSlotVotes": "Time Slot Votes",
+    "confirmThisTime": "Confirm This Time",
+    "timeConfirmed": "Meeting time confirmed!",
+    "voteEmailsSent": "Vote emails sent to {{count}} attendees",
+    "atLeastTwoSlots": "At least 2 time slots are required"
   },
   "validation": {
     "checkFields": "Please fix the highlighted errors",

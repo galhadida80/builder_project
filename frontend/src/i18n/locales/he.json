@@ -463,7 +463,15 @@
       "yourResponse": "התגובה שלך",
       "respondToInvitation": "השב להזמנה לפגישה",
       "organizedBy": "מאורגן על ידי"
-    }
+    },
+    "proposeTimeSlots": "הצע מספר מועדים",
+    "option": "אפשרות",
+    "votes": "הצבעות",
+    "timeSlotVotes": "הצבעות על מועדים",
+    "confirmThisTime": "אשר מועד זה",
+    "timeConfirmed": "מועד הפגישה אושר!",
+    "voteEmailsSent": "מיילי הצבעה נשלחו ל-{{count}} משתתפים",
+    "atLeastTwoSlots": "נדרשים לפחות 2 מועדים"
   },
   "dashboard": {
     "title": "לוח בקרה",

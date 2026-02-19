@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block header_content %}
+<p style="margin:0;font-size:22px;font-weight:700;color:#FFFFFF;">{{ strings.title }}</p>
+{% endblock %}
+
+{% block content %}
+<p style="margin:0 0 20px;font-size:15px;color:#334155;line-height:1.6;">{{ strings.greeting.format(name=attendee_name) }}</p>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;background-color:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
+<tr><td style="padding:20px;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+      <td style="padding:6px 0;">
+        <span style="font-size:12px;font-weight:600;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;">{{ strings.meeting_label }}</span><br/>
+        <span style="font-size:15px;color:#0F172A;font-weight:600;">{{ meeting_title }}</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:6px 0;">
+        <span style="font-size:12px;font-weight:600;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;">{{ strings.organized_by }}</span><br/>
+        <span style="font-size:14px;color:#334155;">{{ organizer_name }}</span>
+      </td>
+    </tr>
+    {% if meeting_location %}
+    <tr>
+      <td style="padding:6px 0;">
+        <span style="font-size:12px;font-weight:600;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;">{{ strings.location_label }}</span><br/>
+        <span style="font-size:14px;color:#334155;">{{ meeting_location }}</span>
+      </td>
+    </tr>
+    {% endif %}
+    {% if meeting_description %}
+    <tr>
+      <td style="padding:6px 0;">
+        <span style="font-size:12px;font-weight:600;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;">{{ strings.description_label }}</span><br/>
+        <span style="font-size:14px;color:#334155;">{{ meeting_description }}</span>
+      </td>
+    </tr>
+    {% endif %}
+  </table>
+</td></tr>
+</table>
+
+<p style="margin:0 0 16px;font-size:14px;color:#475569;font-weight:600;">{{ strings.vote_prompt }}</p>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+{% for slot in time_slots %}
+<tr>
+  <td style="padding:6px 0;">
+    <a href="{{ vote_base_url }}/api/v1/meetings/vote/{{ vote_token }}?slot={{ slot.id }}" style="display:block;text-align:center;padding:14px 12px;background-color:{{ slot_colors[loop.index0] }};color:#FFFFFF;text-decoration:none;border-radius:8px;font-size:14px;font-weight:600;">
+      {{ strings.option }} {{ slot.slot_number }}: {{ slot.proposed_start.strftime('%b %d, %Y at %H:%M') }}{% if slot.proposed_end %} - {{ slot.proposed_end.strftime('%H:%M') }}{% endif %}
+    </a>
+  </td>
+</tr>
+{% endfor %}
+</table>
+{% endblock %}
+
+{% block cta %}{% endblock %}
+
+{% block footer %}{{ strings.footer }}{% endblock %}

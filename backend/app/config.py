@@ -53,12 +53,13 @@ class Settings(BaseSettings):
     chat_max_history: int = 50
 
     frontend_base_url: str = "http://localhost:5173"
+    backend_base_url: str = "http://localhost:8000"
 
     email_provider: str = "fake"
     rfi_email_domain: str = "gmail.com"
-    rfi_email_address: str = "builderops26@gmail.com"
+    rfi_email_address: str = "kodkod800@gmail.com"
     sendgrid_api_key: str = ""
-    sendgrid_from_email: str = "builderops26@gmail.com"
+    sendgrid_from_email: str = "kodkod800@gmail.com"
     sendgrid_from_name: str = "BuilderOps"
 
     scheduler_secret: str = "dev-scheduler-secret-change-in-production"

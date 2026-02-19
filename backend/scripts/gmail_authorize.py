@@ -1,20 +1,20 @@
 """
-One-time OAuth 2.0 authorization for builderops26@gmail.com.
+One-time OAuth 2.0 authorization for Gmail API.
 
 Usage:
-    1. Create an OAuth 2.0 Client ID (Desktop app) in GCP Console
-    2. Run: python gmail_authorize.py --client-id YOUR_ID --client-secret YOUR_SECRET
-    3. Authorize in the browser
-    4. Copy the printed refresh_token and store as GMAIL_REFRESH_TOKEN secret
+    python gmail_authorize.py
+    - Opens browser for Google OAuth consent
+    - Receives auth code via local server
+    - Prints refresh token + client credentials
 
-Required scopes: gmail.send, gmail.readonly, gmail.modify
+Uses the Google Cloud SDK's public OAuth client (Desktop type).
 """
-import argparse
 import json
 import sys
+import webbrowser
 
-import urllib.parse
 import http.server
+import urllib.parse
 import urllib.request
 
 SCOPES = [
@@ -22,6 +22,9 @@ SCOPES = [
     "https://www.googleapis.com/auth/gmail.readonly",
     "https://www.googleapis.com/auth/gmail.modify",
 ]
+
+GCLOUD_CLIENT_ID = "764086051850-6qr4p6gpi6hn506pt8ejuq83di341hur.apps.googleusercontent.com"
+GCLOUD_CLIENT_SECRET = "d-FL95Q19q7MQmFpd7hHD0Ty"
 
 REDIRECT_URI = "http://localhost:8090"
 AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth"
@@ -39,7 +42,8 @@ def get_authorization_code(client_id: str) -> str:
     })
     url = f"{AUTH_URL}?{params}"
 
-    print(f"\nOpen this URL in your browser:\n\n{url}\n")
+    print(f"\nOpening browser for authorization...")
+    webbrowser.open(url)
 
     code = None
 
@@ -58,7 +62,7 @@ def get_authorization_code(client_id: str) -> str:
             pass
 
     server = http.server.HTTPServer(("localhost", 8090), Handler)
-    print("Waiting for authorization callback on http://localhost:8090 ...")
+    print("Waiting for callback on http://localhost:8090 ...")
     server.handle_request()
 
     if not code:
@@ -85,23 +89,26 @@ def exchange_code_for_tokens(client_id: str, client_secret: str, code: str) -> d
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Gmail OAuth 2.0 authorization")
-    parser.add_argument("--client-id", required=True, help="OAuth 2.0 Client ID")
-    parser.add_argument("--client-secret", required=True, help="OAuth 2.0 Client Secret")
-    args = parser.parse_args()
+    client_id = GCLOUD_CLIENT_ID
+    client_secret = GCLOUD_CLIENT_SECRET
 
-    code = get_authorization_code(args.client_id)
-    tokens = exchange_code_for_tokens(args.client_id, args.client_secret, code)
+    if len(sys.argv) >= 3:
+        client_id = sys.argv[1]
+        client_secret = sys.argv[2]
+
+    code = get_authorization_code(client_id)
+    tokens = exchange_code_for_tokens(client_id, client_secret, code)
 
     refresh_token = tokens.get("refresh_token")
     if not refresh_token:
-        print("ERROR: No refresh_token in response. Did you use prompt=consent?")
+        print("ERROR: No refresh_token in response.")
         print(f"Response: {json.dumps(tokens, indent=2)}")
         sys.exit(1)
 
     print("\n=== SUCCESS ===")
-    print(f"Refresh Token: {refresh_token}")
-    print("\nStore this as GMAIL_REFRESH_TOKEN in GitHub Secrets and .env")
+    print(f"GMAIL_CLIENT_ID={client_id}")
+    print(f"GMAIL_CLIENT_SECRET={client_secret}")
+    print(f"GMAIL_REFRESH_TOKEN={refresh_token}")
 
 
 if __name__ == "__main__":
