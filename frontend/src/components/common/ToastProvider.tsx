@@ -33,6 +33,7 @@ export function ToastProvider({ children }: ToastProviderProps) {
   const [message, setMessage] = useState('')
   const [severity, setSeverity] = useState<ToastSeverity>('info')
   const [isExiting, setIsExiting] = useState(false)
+  const [toastKey, setToastKey] = useState(0)
   const exitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const showToast = useCallback((msg: string, sev: ToastSeverity = 'info') => {
@@ -40,10 +41,11 @@ export function ToastProvider({ children }: ToastProviderProps) {
       clearTimeout(exitTimerRef.current)
       exitTimerRef.current = null
     }
+    setIsExiting(false)
     setMessage(msg)
     setSeverity(sev)
-    setIsExiting(false)
     setOpen(true)
+    setToastKey(prev => prev + 1)
   }, [])
 
   const showError = useCallback((msg: string) => {
@@ -62,7 +64,10 @@ export function ToastProvider({ children }: ToastProviderProps) {
     showToast(msg, 'warning')
   }, [showToast])
 
-  const handleClose = () => {
+  const handleClose = (_event?: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === 'clickaway') return
+    if (isExiting) return
+
     setIsExiting(true)
     if (exitTimerRef.current) {
       clearTimeout(exitTimerRef.current)
@@ -78,8 +83,9 @@ export function ToastProvider({ children }: ToastProviderProps) {
     <ToastContext.Provider value={{ showToast, showError, showSuccess, showInfo, showWarning }}>
       {children}
       <Snackbar
+        key={toastKey}
         open={open}
-        autoHideDuration={5000}
+        autoHideDuration={4000}
         onClose={handleClose}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         sx={{

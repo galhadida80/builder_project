@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { withMinDuration } from '../utils/async'
 import { getDateLocale } from '../utils/dateLocale'
 import { useAuth } from '../contexts/AuthContext'
 import { useToast } from '../components/common/ToastProvider'
@@ -55,11 +56,11 @@ export default function ProfilePage() {
     setErrors({})
     setSaving(true)
     try {
-      await authApi.updateProfile({
+      await withMinDuration(authApi.updateProfile({
         full_name: formData.fullName || undefined,
         phone: formData.phone || undefined,
         company: formData.company || undefined,
-      })
+      }))
       await refreshUser()
       setEditing(false)
       showSuccess(t('profile.updateSuccess'))

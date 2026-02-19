@@ -16,6 +16,7 @@ import type { Contact, ContactGroupListItem, ContactGroup } from '../types'
 import { useToast } from '../components/common/ToastProvider'
 import { validateContactForm, hasErrors,  type ValidationError } from '../utils/validation'
 import { parseValidationErrors } from '../utils/apiErrors'
+import { withMinDuration } from '../utils/async'
 import { AddIcon, EditIcon, DeleteIcon, PersonIcon, GroupIcon, AssignmentIcon } from '@/icons'
 import { Box, Typography, MenuItem, TextField as MuiTextField, Skeleton, Chip, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Autocomplete, Tab as MuiTab, Tabs as MuiTabs, useMediaQuery, useTheme } from '@/mui'
 
@@ -165,10 +166,10 @@ export default function ContactsPage() {
         user_id: formData.userId || undefined
       }
       if (editingContact) {
-        await contactsApi.update(projectId, editingContact.id, payload)
+        await withMinDuration(contactsApi.update(projectId, editingContact.id, payload))
         showSuccess(t('contacts.updateSuccess'))
       } else {
-        await contactsApi.create(projectId, payload)
+        await withMinDuration(contactsApi.create(projectId, payload))
         showSuccess(t('contacts.createSuccess'))
       }
       handleCloseDialog()
@@ -195,7 +196,7 @@ export default function ContactsPage() {
     if (!projectId || !contactToDelete) return
     setDeleting(true)
     try {
-      await contactsApi.delete(projectId, contactToDelete.id)
+      await withMinDuration(contactsApi.delete(projectId, contactToDelete.id))
       showSuccess(t('contacts.deleteSuccess'))
       setDeleteDialogOpen(false)
       setContactToDelete(null)
@@ -252,18 +253,18 @@ export default function ContactsPage() {
     setGroupSaving(true)
     try {
       if (editingGroup) {
-        await contactGroupsApi.update(projectId, editingGroup.id, {
+        await withMinDuration(contactGroupsApi.update(projectId, editingGroup.id, {
           name: groupFormData.name,
           description: groupFormData.description || undefined,
           contact_ids: groupFormData.contactIds,
-        })
+        }))
         showSuccess(t('contactGroups.updateSuccess'))
       } else {
-        await contactGroupsApi.create(projectId, {
+        await withMinDuration(contactGroupsApi.create(projectId, {
           name: groupFormData.name,
           description: groupFormData.description || undefined,
           contact_ids: groupFormData.contactIds,
-        })
+        }))
         showSuccess(t('contactGroups.createSuccess'))
       }
       setGroupDialogOpen(false)
@@ -284,7 +285,7 @@ export default function ContactsPage() {
     if (!projectId || !groupToDelete) return
     setDeletingGroup(true)
     try {
-      await contactGroupsApi.delete(projectId, groupToDelete.id)
+      await withMinDuration(contactGroupsApi.delete(projectId, groupToDelete.id))
       showSuccess(t('contactGroups.deleteSuccess'))
       setDeleteGroupDialogOpen(false)
       setGroupToDelete(null)

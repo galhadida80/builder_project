@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { withMinDuration } from '../utils/async'
 import { getDateLocale } from '../utils/dateLocale'
 import { Card, KPICard } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
@@ -124,7 +125,7 @@ export default function TasksPage() {
     if (!projectId || !deleteTask) return
     setDeleting(true)
     try {
-      await tasksApi.delete(projectId, deleteTask.id)
+      await withMinDuration(tasksApi.delete(projectId, deleteTask.id))
       showSuccess(t('tasks.deleteSuccess'))
       setDeleteTask(null)
       loadData()

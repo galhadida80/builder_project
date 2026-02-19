@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { withMinDuration } from '../utils/async'
 import { Card, KPICard } from '../components/ui/Card'
 import { PageHeader } from '../components/ui/Breadcrumbs'
 import { SearchField } from '../components/ui/TextField'
@@ -77,7 +78,7 @@ export default function DocumentLibraryPage() {
     if (!fileToDelete) return
     setDeleting(true)
     try {
-      await deleteFile(fileToDelete.id)
+      await withMinDuration(deleteFile(fileToDelete.id))
       showSuccess(t('documents.deleteSuccess', { name: fileToDelete.filename }))
       setDeleteModalOpen(false)
       setFileToDelete(null)

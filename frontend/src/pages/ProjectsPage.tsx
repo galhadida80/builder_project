@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { withMinDuration } from '../utils/async'
 import { getDateLocale } from '../utils/dateLocale'
 import { Card, KPICard } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
@@ -99,23 +100,23 @@ export default function ProjectsPage() {
     setSaving(true)
     try {
       if (editingProject) {
-        await projectsApi.update(editingProject.id, {
+        await withMinDuration(projectsApi.update(editingProject.id, {
           name: formData.name,
           description: formData.description || undefined,
           address: formData.address || undefined,
           start_date: formData.startDate || undefined,
           estimated_end_date: formData.estimatedEndDate || undefined
-        })
+        }))
         showSuccess(t('pages.projects.updateSuccess'))
       } else {
-        await projectsApi.create({
+        await withMinDuration(projectsApi.create({
           name: formData.name,
           code: formData.code,
           description: formData.description || undefined,
           address: formData.address || undefined,
           start_date: formData.startDate || undefined,
           estimated_end_date: formData.estimatedEndDate || undefined
-        })
+        }))
         showSuccess(t('pages.projects.createSuccess'))
       }
       handleCloseDialog()
@@ -150,7 +151,7 @@ export default function ProjectsPage() {
     if (!projectToDelete) return
     setDeleting(true)
     try {
-      await projectsApi.delete(projectToDelete.id)
+      await withMinDuration(projectsApi.delete(projectToDelete.id))
       showSuccess(t('pages.projects.deleteSuccess'))
       setDeleteDialogOpen(false)
       setProjectToDelete(null)

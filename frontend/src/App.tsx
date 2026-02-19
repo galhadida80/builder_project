@@ -48,6 +48,7 @@ import OrganizationDetailPage from './pages/OrganizationDetailPage'
 import ReportsPage from './pages/ReportsPage'
 
 const BIMPage = lazy(() => import('./pages/BIMPage'))
+const QuantityExtractionPage = lazy(() => import('./pages/QuantityExtractionPage'))
 
 function ProtectedRoute() {
   const { user, loading } = useAuth()
@@ -104,6 +105,7 @@ function AppRoutes() {
               <Route path="budget" element={<BudgetPage />} />
               <Route path="bim" element={<Suspense fallback={<LoadingPage />}><BIMPage /></Suspense>} />
               <Route path="reports" element={<ReportsPage />} />
+              <Route path="quantities" element={<Suspense fallback={<LoadingPage />}><QuantityExtractionPage /></Suspense>} />
             </Route>
 
             <Route path="/organizations" element={<OrganizationsPage />} />

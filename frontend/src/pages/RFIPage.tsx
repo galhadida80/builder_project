@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { withMinDuration } from '../utils/async'
 import { getDateLocale } from '../utils/dateLocale'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
@@ -217,7 +218,7 @@ export default function RFIPage() {
     setSaving(true)
     try {
       if (editingRfi) {
-        await rfiApi.update(editingRfi.id, {
+        await withMinDuration(rfiApi.update(editingRfi.id, {
           subject: formData.subject,
           question: formData.question,
           to_email: formData.to_email,
@@ -228,17 +229,17 @@ export default function RFIPage() {
           location: formData.location || undefined,
           drawing_reference: formData.drawing_reference || undefined,
           specification_reference: formData.specification_reference || undefined,
-        })
+        }))
         showSuccess(t('rfis.updateSuccess'))
       } else {
-        await rfiApi.create(projectId, {
+        await withMinDuration(rfiApi.create(projectId, {
           ...formData,
           due_date: formData.due_date || undefined,
           to_name: formData.to_name || undefined,
           location: formData.location || undefined,
           drawing_reference: formData.drawing_reference || undefined,
           specification_reference: formData.specification_reference || undefined,
-        })
+        }))
         showSuccess(t('rfis.createSuccess'))
       }
       handleCloseDialog()
@@ -267,7 +268,7 @@ export default function RFIPage() {
     if (!rfiToDelete) return
     setDeleting(true)
     try {
-      await rfiApi.delete(rfiToDelete.id)
+      await withMinDuration(rfiApi.delete(rfiToDelete.id))
       showSuccess(t('rfis.deleteSuccess'))
       setDeleteDialogOpen(false)
       setRfiToDelete(null)

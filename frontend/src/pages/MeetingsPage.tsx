@@ -22,6 +22,7 @@ import type { Meeting, MeetingAttendee, MeetingTimeSlot } from '../types'
 import { validateMeetingForm, hasErrors, type ValidationError } from '../utils/validation'
 import { useToast } from '../components/common/ToastProvider'
 import { parseValidationErrors } from '../utils/apiErrors'
+import { withMinDuration } from '../utils/async'
 import { getDateLocale } from '../utils/dateLocale'
 import {
   AddIcon, EditIcon, DeleteIcon, EventIcon, LocationOnIcon,
@@ -224,13 +225,13 @@ export default function MeetingsPage() {
         ? `${timeSlotInputs[0].date}T${timeSlotInputs[0].time}:00`
         : `${formData.date}T${formData.startTime}:00`
       if (editingMeeting) {
-        await meetingsApi.update(projectId, editingMeeting.id, {
+        await withMinDuration(meetingsApi.update(projectId, editingMeeting.id, {
           title: formData.title,
           meeting_type: formData.meetingType || undefined,
           description: formData.description || undefined,
           location: formData.location || undefined,
           scheduled_date
-        })
+        }))
         showSuccess(t('meetings.updatedSuccessfully'))
       } else {
         const time_slots = proposeTimeSlots
@@ -239,7 +240,7 @@ export default function MeetingsPage() {
               .map(s => ({ proposed_start: `${s.date}T${s.time}:00` }))
           : undefined
 
-        await meetingsApi.create(projectId, {
+        await withMinDuration(meetingsApi.create(projectId, {
           title: formData.title,
           meeting_type: formData.meetingType || undefined,
           description: formData.description || undefined,
@@ -247,7 +248,7 @@ export default function MeetingsPage() {
           scheduled_date,
           attendee_ids: selectedAttendees.map(a => a.id),
           time_slots,
-        })
+        }))
         if (proposeTimeSlots && selectedAttendees.length > 0) {
           showSuccess(t('meetings.voteEmailsSent', { count: selectedAttendees.length }))
         } else if (selectedAttendees.length > 0) {
@@ -281,7 +282,7 @@ export default function MeetingsPage() {
     if (!projectId || !meetingToDelete) return
     setDeleting(true)
     try {
-      await meetingsApi.delete(projectId, meetingToDelete.id)
+      await withMinDuration(meetingsApi.delete(projectId, meetingToDelete.id))
       showSuccess(t('meetings.deletedSuccessfully'))
       setDeleteDialogOpen(false)
       setMeetingToDelete(null)

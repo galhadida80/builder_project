@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { withMinDuration } from '../utils/async'
 import { getDateLocale } from '../utils/dateLocale'
 import { organizationsApi } from '../api/organizations'
 import type { Organization, OrganizationMember } from '../types'
@@ -60,10 +61,10 @@ export default function OrganizationDetailPage() {
     if (!orgId || !memberForm.userId.trim()) return
     setSaving(true)
     try {
-      await organizationsApi.addMember(orgId, {
+      await withMinDuration(organizationsApi.addMember(orgId, {
         user_id: memberForm.userId,
         role: memberForm.role,
-      })
+      }))
       showSuccess(t('organizations.memberAdded', 'Member added'))
       setAddMemberOpen(false)
       setMemberForm({ userId: '', role: 'org_member' })
@@ -80,7 +81,7 @@ export default function OrganizationDetailPage() {
     if (!orgId || !removeMemberId) return
     setRemovingMember(true)
     try {
-      await organizationsApi.removeMember(orgId, removeMemberId)
+      await withMinDuration(organizationsApi.removeMember(orgId, removeMemberId))
       showSuccess(t('organizations.memberRemoved', 'Member removed'))
       setRemoveMemberId(null)
       const updated = await organizationsApi.listMembers(orgId)

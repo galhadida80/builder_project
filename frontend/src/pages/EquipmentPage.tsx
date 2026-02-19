@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
+import { withMinDuration } from '../utils/async'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { DataTable, Column } from '../components/ui/DataTable'
@@ -208,11 +209,11 @@ export default function EquipmentPage() {
 
       let entityId: string
       if (editingEquipment) {
-        const updated = await equipmentApi.update(projectId, editingEquipment.id, payload)
+        const updated = await withMinDuration(equipmentApi.update(projectId, editingEquipment.id, payload))
         entityId = updated.id
         showSuccess(t('equipment.equipmentUpdatedSuccessfully'))
       } else {
-        const created = await equipmentApi.create(projectId, payload)
+        const created = await withMinDuration(equipmentApi.create(projectId, payload))
         entityId = created.id
         showSuccess(t('equipment.equipmentCreatedSuccessfully'))
       }
@@ -247,7 +248,7 @@ export default function EquipmentPage() {
     if (!projectId || !equipmentToDelete) return
     setDeleting(true)
     try {
-      await equipmentApi.delete(projectId, equipmentToDelete.id)
+      await withMinDuration(equipmentApi.delete(projectId, equipmentToDelete.id))
       showSuccess(t('equipment.equipmentDeletedSuccessfully'))
       setDeleteDialogOpen(false)
       setEquipmentToDelete(null)

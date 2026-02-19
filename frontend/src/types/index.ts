@@ -799,6 +799,52 @@ export interface OrganizationMember {
   user?: User
 }
 
+export interface QuantityDoorWindow {
+  doorType?: string
+  windowType?: string
+  widthCm?: number
+  heightCm?: number
+  quantity: number
+}
+
+export interface QuantityRoomFinishes {
+  floorMaterial?: string
+  wallMaterial?: string
+  ceilingMaterial?: string
+}
+
+export interface QuantityRoomData {
+  name: string
+  roomType?: string
+  areaSqm?: number
+  perimeterM?: number
+  heightM?: number
+  doors: QuantityDoorWindow[]
+  windows: QuantityDoorWindow[]
+  finishes?: QuantityRoomFinishes
+}
+
+export interface QuantityFloorData {
+  floorNumber: number
+  floorName?: string
+  totalAreaSqm?: number
+  rooms: QuantityRoomData[]
+}
+
+export interface QuantitySummary {
+  totalFloors: number
+  totalRooms: number
+  totalAreaSqm: number
+  totalDoors: number
+  totalWindows: number
+}
+
+export interface QuantityExtractionResponse {
+  floors: QuantityFloorData[]
+  summary: QuantitySummary
+  processingTimeMs: number
+}
+
 export interface CustomKpiDefinition {
   id: string
   projectId?: string

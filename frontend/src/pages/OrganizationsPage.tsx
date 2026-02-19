@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { withMinDuration } from '../utils/async'
 import { organizationsApi } from '../api/organizations'
 import type { Organization } from '../types'
 import { useToast } from '../components/common/ToastProvider'
@@ -43,11 +44,11 @@ export default function OrganizationsPage() {
     if (!formData.name.trim() || !formData.code.trim()) return
     setSaving(true)
     try {
-      await organizationsApi.create({
+      await withMinDuration(organizationsApi.create({
         name: formData.name,
         code: formData.code,
         description: formData.description || undefined,
-      })
+      }))
       showSuccess(t('organizations.createSuccess', 'Organization created'))
       setDialogOpen(false)
       setFormData({ name: '', code: '', description: '' })

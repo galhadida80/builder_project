@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { withMinDuration } from '../utils/async'
 import { getDateLocale } from '../utils/dateLocale'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
@@ -112,7 +113,7 @@ export default function RFIDetailPage() {
     if (!rfiId) return
     setClosingRfi(true)
     try {
-      await rfiApi.closeRfi(rfiId)
+      await withMinDuration(rfiApi.closeRfi(rfiId))
       showSuccess(t('rfiDetail.closedSuccess'))
       setCloseDialogOpen(false)
       await loadRfiDetail()
@@ -127,7 +128,7 @@ export default function RFIDetailPage() {
     if (!rfiId) return
     setReopeningRfi(true)
     try {
-      await rfiApi.reopenRfi(rfiId)
+      await withMinDuration(rfiApi.reopenRfi(rfiId))
       showSuccess(t('rfiDetail.reopenedSuccess'))
       setReopenDialogOpen(false)
       await loadRfiDetail()

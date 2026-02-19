@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { withMinDuration } from '../utils/async'
 import { getDateLocale } from '../utils/dateLocale'
 import { PageHeader } from '../components/ui/Breadcrumbs'
 import { ConfirmModal } from '../components/ui/Modal'
@@ -134,7 +135,7 @@ export default function BIMPage() {
     if (!deleteModel || !projectId) return
     setDeleting(true)
     try {
-      await bimApi.delete(projectId, deleteModel.id)
+      await withMinDuration(bimApi.delete(projectId, deleteModel.id))
       setModels((prev) => prev.filter((m) => m.id !== deleteModel.id))
       if (selectedModel?.id === deleteModel.id) setSelectedModel(null)
       showSuccess(t('bim.deleteSuccess'))

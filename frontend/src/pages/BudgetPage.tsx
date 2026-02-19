@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { withMinDuration } from '../utils/async'
 import { getDateLocale } from '../utils/dateLocale'
 import { Card, KPICard } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
@@ -96,9 +97,9 @@ export default function BudgetPage() {
     if (!projectId || !deleteTarget) return
     setDeleting(true)
     try {
-      if (deleteTarget.type === 'item') await budgetApi.deleteItem(projectId, deleteTarget.id)
-      else if (deleteTarget.type === 'co') await budgetApi.deleteChangeOrder(projectId, deleteTarget.id)
-      else await budgetApi.deleteCostEntry(projectId, deleteTarget.id)
+      if (deleteTarget.type === 'item') await withMinDuration(budgetApi.deleteItem(projectId, deleteTarget.id))
+      else if (deleteTarget.type === 'co') await withMinDuration(budgetApi.deleteChangeOrder(projectId, deleteTarget.id))
+      else await withMinDuration(budgetApi.deleteCostEntry(projectId, deleteTarget.id))
       showSuccess(t('budget.deleted', { defaultValue: 'Deleted' })); setDeleteTarget(null); loadData()
     } catch { showError(t('budget.deleteFailed', { defaultValue: 'Failed to delete' })) }
     finally { setDeleting(false) }

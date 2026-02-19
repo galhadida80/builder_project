@@ -13,6 +13,7 @@ import type { ConstructionArea, AreaStatus } from '../types'
 import { validateAreaForm, hasErrors, VALIDATION, type ValidationError } from '../utils/validation'
 import { useToast } from '../components/common/ToastProvider'
 import { parseValidationErrors } from '../utils/apiErrors'
+import { withMinDuration } from '../utils/async'
 import { AddIcon, ExpandMoreIcon, ExpandLessIcon, ApartmentIcon, LocalParkingIcon, RoofingIcon, FoundationIcon, EditIcon, DeleteIcon, AccountTreeIcon, CheckCircleIcon, PendingActionsIcon, TrendingUpIcon } from '@/icons'
 import { Box, Typography, Chip, Collapse, IconButton, MenuItem, TextField as MuiTextField, Skeleton } from '@/mui'
 
@@ -261,10 +262,10 @@ export default function AreasPage() {
       }
 
       if (editingArea) {
-        await areasApi.update(projectId, editingArea.id, payload)
+        await withMinDuration(areasApi.update(projectId, editingArea.id, payload))
         showSuccess(t('areas.areaUpdatedSuccessfully'))
       } else {
-        await areasApi.create(projectId, payload)
+        await withMinDuration(areasApi.create(projectId, payload))
         showSuccess(t('areas.areaCreatedSuccessfully'))
       }
       handleCloseDialog()
@@ -292,7 +293,7 @@ export default function AreasPage() {
 
     setDeleting(true)
     try {
-      await areasApi.delete(projectId, areaToDelete.id)
+      await withMinDuration(areasApi.delete(projectId, areaToDelete.id))
       showSuccess(t('areas.areaDeletedSuccessfully'))
       setDeleteDialogOpen(false)
       setAreaToDelete(null)

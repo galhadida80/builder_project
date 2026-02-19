@@ -15,6 +15,7 @@ import { apiClient } from '../api/client'
 import type { ConsultantAssignment } from '../types/consultantAssignment'
 import type { User, Project } from '../types'
 import { useToast } from '../components/common/ToastProvider'
+import { withMinDuration } from '../utils/async'
 import { AddIcon, ViewListIcon, CalendarMonthIcon, AssignmentIcon, PeopleIcon, WorkIcon, PendingActionsIcon } from '@/icons'
 import { Box, Typography, Skeleton, Chip, IconButton, ToggleButton, ToggleButtonGroup, MenuItem, TextField as MuiTextField } from '@/mui'
 
@@ -132,10 +133,10 @@ export default function ConsultantAssignmentsPage() {
       }
 
       if (editingAssignment) {
-        await consultantAssignmentsApi.update(editingAssignment.id, payload)
+        await withMinDuration(consultantAssignmentsApi.update(editingAssignment.id, payload))
         showSuccess(t('consultantAssignments.updateSuccess'))
       } else {
-        await consultantAssignmentsApi.create(payload)
+        await withMinDuration(consultantAssignmentsApi.create(payload))
         showSuccess(t('consultantAssignments.createSuccess'))
       }
 
@@ -158,7 +159,7 @@ export default function ConsultantAssignmentsPage() {
 
     setDeleting(true)
     try {
-      await consultantAssignmentsApi.delete(assignmentToDelete.id)
+      await withMinDuration(consultantAssignmentsApi.delete(assignmentToDelete.id))
       showSuccess(t('consultantAssignments.deleteSuccess'))
       setDeleteDialogOpen(false)
       setAssignmentToDelete(null)

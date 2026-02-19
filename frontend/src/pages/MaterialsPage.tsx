@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
+import { withMinDuration } from '../utils/async'
 import { Card, KPICard } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { DataTable, Column } from '../components/ui/DataTable'
@@ -224,11 +225,11 @@ export default function MaterialsPage() {
 
       let entityId: string
       if (editingMaterial) {
-        const updated = await materialsApi.update(projectId, editingMaterial.id, payload)
+        const updated = await withMinDuration(materialsApi.update(projectId, editingMaterial.id, payload))
         entityId = updated.id
         showSuccess(t('materials.materialUpdatedSuccessfully'))
       } else {
-        const created = await materialsApi.create(projectId, payload)
+        const created = await withMinDuration(materialsApi.create(projectId, payload))
         entityId = created.id
         showSuccess(t('materials.materialCreatedSuccessfully'))
       }
@@ -263,7 +264,7 @@ export default function MaterialsPage() {
     if (!projectId || !materialToDelete) return
     setDeleting(true)
     try {
-      await materialsApi.delete(projectId, materialToDelete.id)
+      await withMinDuration(materialsApi.delete(projectId, materialToDelete.id))
       showSuccess(t('materials.materialDeletedSuccessfully'))
       setDeleteDialogOpen(false)
       setMaterialToDelete(null)

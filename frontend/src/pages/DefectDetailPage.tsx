@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { withMinDuration } from '../utils/async'
 import { getDateLocale } from '../utils/dateLocale'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
@@ -100,7 +101,7 @@ export default function DefectDetailPage() {
     if (!projectId || !defectId) return
     setDeleting(true)
     try {
-      await defectsApi.delete(projectId, defectId)
+      await withMinDuration(defectsApi.delete(projectId, defectId))
       showSuccess(t('defects.deleted'))
       navigate(`/projects/${projectId}/defects`)
     } catch {
