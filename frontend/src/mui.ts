@@ -58,6 +58,7 @@ export {
   Select,
   Skeleton,
   Slide,
+  Slider,
   Snackbar,
   Stack,
   Step,

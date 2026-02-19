@@ -1,5 +1,5 @@
 from app.models.approval import ApprovalRequest, ApprovalStep
-from app.models.area import AreaProgress, ConstructionArea
+from app.models.area import AreaChecklistAssignment, AreaProgress, ConstructionArea
 from app.models.audit import AuditLog
 from app.models.bim import AutodeskConnection, BimModel
 from app.models.chat import ChatConversation, ChatMessage
@@ -73,6 +73,7 @@ __all__ = [
     "ApprovalStep",
     "ConstructionArea",
     "AreaProgress",
+    "AreaChecklistAssignment",
     "File",
     "InspectionConsultantType",
     "InspectionStageTemplate",

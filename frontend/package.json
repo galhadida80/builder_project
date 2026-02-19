@@ -32,6 +32,7 @@
     "@types/three": "^0.160.0",
     "axios": "^1.6.7",
     "dayjs": "^1.11.10",
+    "fabric": "^6.9.1",
     "firebase": "^10.7.2",
     "gantt-task-react": "^0.3.9",
     "html2canvas": "^1.4.1",

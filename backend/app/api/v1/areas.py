@@ -13,6 +13,7 @@ from app.models.audit import AuditAction
 from app.models.project import ProjectMember
 from app.models.user import User
 from app.schemas.area import AreaCreate, AreaProgressCreate, AreaProgressResponse, AreaResponse, AreaUpdate
+from app.services.area_structure_service import validate_area_hierarchy
 from app.services.audit_service import create_audit_log, get_model_dict
 from app.utils.localization import get_language_from_request, translate_message
 
@@ -47,6 +48,11 @@ async def create_area(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    if data.area_level:
+        error = await validate_area_hierarchy(db, data.parent_id, data.area_level, project_id)
+        if error:
+            raise HTTPException(status_code=400, detail=error)
+
     area = ConstructionArea(**data.model_dump(), project_id=project_id)
     db.add(area)
     await db.flush()
@@ -103,8 +109,15 @@ async def update_area(
         error_message = translate_message('resources.area_not_found', language)
         raise HTTPException(status_code=404, detail=error_message)
 
+    update_data = data.model_dump(exclude_unset=True)
+    new_level = update_data.get("area_level", area.area_level)
+    if new_level:
+        error = await validate_area_hierarchy(db, area.parent_id, new_level, project_id)
+        if error:
+            raise HTTPException(status_code=400, detail=error)
+
     old_values = get_model_dict(area)
-    for key, value in data.model_dump(exclude_unset=True).items():
+    for key, value in update_data.items():
         setattr(area, key, value)
 
     await create_audit_log(db, current_user, "area", area.id, AuditAction.UPDATE,

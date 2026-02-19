@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { keyframeAnimations, createTransition, duration, easing, createAnimation } from '../../utils/animations'
 import { CheckCircleIcon, PendingIcon, CancelIcon, HourglassEmptyIcon, EditIcon, ErrorIcon, WarningIcon } from '@/icons'
 import { Chip, ChipProps, styled } from '@/mui'
@@ -37,39 +38,39 @@ interface StatusBadgeProps {
   showIcon?: boolean
 }
 
-// Only statuses that genuinely need attention should pulse
 const activeStatuses: StatusType[] = [
   'urgent',
   'critical',
 ]
 
-const statusConfig: Record<StatusType, { label: string; color: ChipProps['color']; icon: React.ReactNode }> = {
-  draft: { label: 'Draft', color: 'default', icon: <EditIcon /> },
-  pending: { label: 'Pending', color: 'warning', icon: <PendingIcon /> },
-  submitted: { label: 'Submitted', color: 'info', icon: <HourglassEmptyIcon /> },
-  under_review: { label: 'Under Review', color: 'info', icon: <HourglassEmptyIcon /> },
-  approved: { label: 'Approved', color: 'success', icon: <CheckCircleIcon /> },
-  rejected: { label: 'Rejected', color: 'error', icon: <CancelIcon /> },
-  revision_requested: { label: 'Revision Requested', color: 'warning', icon: <EditIcon /> },
-  active: { label: 'Active', color: 'success', icon: <CheckCircleIcon /> },
-  inactive: { label: 'Inactive', color: 'default', icon: <CancelIcon /> },
-  completed: { label: 'Completed', color: 'success', icon: <CheckCircleIcon /> },
-  on_hold: { label: 'On Hold', color: 'warning', icon: <PendingIcon /> },
-  archived: { label: 'Archived', color: 'default', icon: <CancelIcon /> },
-  scheduled: { label: 'Scheduled', color: 'info', icon: <HourglassEmptyIcon /> },
-  in_progress: { label: 'In Progress', color: 'info', icon: <PendingIcon /> },
-  cancelled: { label: 'Cancelled', color: 'error', icon: <CancelIcon /> },
-  invitations_sent: { label: 'Invitations Sent', color: 'info', icon: <PendingIcon /> },
-  pending_votes: { label: 'Pending Votes', color: 'warning', icon: <HourglassEmptyIcon /> },
-  open: { label: 'Open', color: 'info', icon: <PendingIcon /> },
-  closed: { label: 'Closed', color: 'default', icon: <CheckCircleIcon /> },
-  waiting_response: { label: 'Waiting Response', color: 'warning', icon: <HourglassEmptyIcon /> },
-  answered: { label: 'Answered', color: 'success', icon: <CheckCircleIcon /> },
-  urgent: { label: 'Urgent', color: 'error', icon: <ErrorIcon /> },
-  critical: { label: 'Critical', color: 'error', icon: <ErrorIcon /> },
-  high: { label: 'High', color: 'error', icon: <WarningIcon /> },
-  medium: { label: 'Medium', color: 'warning', icon: <WarningIcon /> },
-  low: { label: 'Low', color: 'default', icon: <CheckCircleIcon /> },
+const statusConfig: Record<string, { color: ChipProps['color']; icon: React.ReactNode }> = {
+  draft: { color: 'default', icon: <EditIcon /> },
+  pending: { color: 'warning', icon: <PendingIcon /> },
+  submitted: { color: 'info', icon: <HourglassEmptyIcon /> },
+  under_review: { color: 'info', icon: <HourglassEmptyIcon /> },
+  approved: { color: 'success', icon: <CheckCircleIcon /> },
+  rejected: { color: 'error', icon: <CancelIcon /> },
+  revision_requested: { color: 'warning', icon: <EditIcon /> },
+  active: { color: 'success', icon: <CheckCircleIcon /> },
+  inactive: { color: 'default', icon: <CancelIcon /> },
+  completed: { color: 'success', icon: <CheckCircleIcon /> },
+  on_hold: { color: 'warning', icon: <PendingIcon /> },
+  archived: { color: 'default', icon: <CancelIcon /> },
+  scheduled: { color: 'info', icon: <HourglassEmptyIcon /> },
+  in_progress: { color: 'info', icon: <PendingIcon /> },
+  cancelled: { color: 'error', icon: <CancelIcon /> },
+  invitations_sent: { color: 'info', icon: <PendingIcon /> },
+  pending_votes: { color: 'warning', icon: <HourglassEmptyIcon /> },
+  open: { color: 'info', icon: <PendingIcon /> },
+  closed: { color: 'default', icon: <CheckCircleIcon /> },
+  waiting_response: { color: 'warning', icon: <HourglassEmptyIcon /> },
+  answered: { color: 'success', icon: <CheckCircleIcon /> },
+  not_applicable: { color: 'default', icon: <CancelIcon /> },
+  urgent: { color: 'error', icon: <ErrorIcon /> },
+  critical: { color: 'error', icon: <ErrorIcon /> },
+  high: { color: 'error', icon: <WarningIcon /> },
+  medium: { color: 'warning', icon: <WarningIcon /> },
+  low: { color: 'default', icon: <CheckCircleIcon /> },
 }
 
 const StyledChip = styled(Chip)(() => ({
@@ -82,12 +83,14 @@ const StyledChip = styled(Chip)(() => ({
 }))
 
 export function StatusBadge({ status, size = 'small', showIcon = false }: StatusBadgeProps) {
-  const config = statusConfig[status] || { label: status, color: 'default', icon: null }
+  const { t } = useTranslation()
+  const config = statusConfig[status] || { color: 'default', icon: null }
+  const label = t(`common.statuses.${status}`, status)
   const shouldPulse = activeStatuses.includes(status)
 
   return (
     <StyledChip
-      label={config.label}
+      label={label}
       color={config.color}
       size={size}
       icon={showIcon ? config.icon as React.ReactElement : undefined}

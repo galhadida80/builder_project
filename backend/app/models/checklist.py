@@ -1,6 +1,7 @@
 import uuid
 from datetime import datetime, timezone
 from enum import Enum
+from typing import Optional
 
 from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
@@ -91,11 +92,13 @@ class ChecklistInstance(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     created_by_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
+    area_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("construction_areas.id", ondelete="SET NULL"), nullable=True)
 
     template = relationship("ChecklistTemplate", back_populates="instances")
     project = relationship("Project")
     created_by = relationship("User", foreign_keys=[created_by_id])
     responses = relationship("ChecklistItemResponse", back_populates="instance", cascade="all, delete-orphan")
+    area = relationship("ConstructionArea", back_populates="checklist_instances")
 
 
 

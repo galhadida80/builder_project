@@ -2,8 +2,9 @@ import { useState, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDropzone } from 'react-dropzone'
 import { Button } from '../ui/Button'
-import { CameraAltIcon, DeleteIcon, CloudUploadIcon } from '@/icons'
-import { Box, Typography, IconButton, Grid, Card, CardMedia, CardActions, styled } from '@/mui'
+import { ImageAnnotator } from './ImageAnnotator'
+import { CameraAltIcon, DeleteIcon, CloudUploadIcon, EditIcon } from '@/icons'
+import { Box, Typography, IconButton, Grid, Card, CardMedia, styled } from '@/mui'
 
 interface PhotoFile {
   file: File
@@ -48,9 +49,6 @@ const PhotoPreview = styled(Card)(({ theme }) => ({
 }))
 
 const DeleteButton = styled(IconButton)(({ theme }) => ({
-  position: 'absolute',
-  top: theme.spacing(1),
-  right: theme.spacing(1),
   backgroundColor: theme.palette.error.main,
   color: theme.palette.common.white,
   '&:hover': {
@@ -116,6 +114,7 @@ export function PhotoCapture({
   const { t } = useTranslation()
   const [photos, setPhotos] = useState<PhotoFile[]>([])
   const [compressing, setCompressing] = useState(false)
+  const [annotatingIndex, setAnnotatingIndex] = useState<number | null>(null)
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
@@ -201,6 +200,22 @@ export function PhotoCapture({
     }
   }
 
+  const handleAnnotationSave = (blob: Blob) => {
+    if (annotatingIndex === null) return
+    const oldPhoto = photos[annotatingIndex]
+    URL.revokeObjectURL(oldPhoto.preview)
+    const annotatedFile = new File([blob], `annotated_${oldPhoto.file.name}`, { type: 'image/png', lastModified: Date.now() })
+    const newPreview = URL.createObjectURL(blob)
+    const updatedPhotos = photos.map((p, i) =>
+      i === annotatingIndex ? { file: annotatedFile, preview: newPreview, compressed: blob } : p
+    )
+    setPhotos(updatedPhotos)
+    setAnnotatingIndex(null)
+    if (onPhotosChange) {
+      onPhotosChange(updatedPhotos.map((p) => p.compressed ? new File([p.compressed], p.file.name, { type: 'image/jpeg', lastModified: Date.now() }) : p.file))
+    }
+  }
+
   return (
     <Box>
       {photos.length < maxPhotos && (
@@ -257,19 +272,39 @@ export function PhotoCapture({
                     alt={`Photo ${index + 1}`}
                     sx={{ objectFit: 'cover' }}
                   />
-                  <DeleteButton
-                    aria-label={t('common.delete')}
-                    size="small"
-                    onClick={() => removePhoto(index)}
-                    disabled={disabled}
-                  >
-                    <DeleteIcon fontSize="small" />
-                  </DeleteButton>
+                  <Box sx={{ position: 'absolute', top: 8, right: 8, display: 'flex', gap: 0.5 }}>
+                    <IconButton
+                      aria-label={t('checklists.annotateImage')}
+                      size="small"
+                      onClick={() => setAnnotatingIndex(index)}
+                      disabled={disabled}
+                      sx={{ bgcolor: 'primary.main', color: 'white', '&:hover': { bgcolor: 'primary.dark' } }}
+                    >
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                    <DeleteButton
+                      aria-label={t('common.delete')}
+                      size="small"
+                      onClick={() => removePhoto(index)}
+                      disabled={disabled}
+                    >
+                      <DeleteIcon fontSize="small" />
+                    </DeleteButton>
+                  </Box>
                 </PhotoPreview>
               </Grid>
             ))}
           </Grid>
         </Box>
+      )}
+
+      {annotatingIndex !== null && (
+        <ImageAnnotator
+          imageUrl={photos[annotatingIndex].preview}
+          open
+          onClose={() => setAnnotatingIndex(null)}
+          onSave={handleAnnotationSave}
+        />
       )}
     </Box>
   )

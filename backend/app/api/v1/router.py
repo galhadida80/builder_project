@@ -5,6 +5,7 @@ from app.api.v1 import (
     analytics,
     analytics_bi,
     approvals,
+    area_structure,
     areas,
     audit,
     auth,
@@ -53,6 +54,7 @@ api_router.include_router(materials.router, tags=["materials"])
 api_router.include_router(meetings.router, tags=["meetings"])
 api_router.include_router(approvals.router, tags=["approvals"])
 api_router.include_router(areas.router, tags=["areas"])
+api_router.include_router(area_structure.router, tags=["area_structure"])
 api_router.include_router(contacts.router, tags=["contacts"])
 api_router.include_router(contact_groups.router, tags=["contact_groups"])
 api_router.include_router(files.router, tags=["files"])

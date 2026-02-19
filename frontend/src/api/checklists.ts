@@ -35,8 +35,9 @@ export const checklistsApi = {
   },
 
   // Instance methods
-  getInstances: async (projectId: string): Promise<ChecklistInstance[]> => {
-    const response = await apiClient.get(`/projects/${projectId}/checklist-instances`)
+  getInstances: async (projectId: string, areaId?: string): Promise<ChecklistInstance[]> => {
+    const params = areaId ? { area_id: areaId } : undefined
+    const response = await apiClient.get(`/projects/${projectId}/checklist-instances`, { params })
     return response.data
   },
 
@@ -67,6 +68,15 @@ export const checklistsApi = {
 
   updateResponse: async (instanceId: string, responseId: string, data: ChecklistItemResponseUpdate): Promise<ChecklistItemResponse> => {
     const response = await apiClient.put(`/checklist-instances/${instanceId}/responses/${responseId}`, data)
+    return response.data
+  },
+
+  // PDF export
+  exportPdf: async (projectId: string, instanceId: string): Promise<Blob> => {
+    const response = await apiClient.get(
+      `/projects/${projectId}/checklist-instances/${instanceId}/export-pdf`,
+      { responseType: 'blob' }
+    )
     return response.data
   },
 

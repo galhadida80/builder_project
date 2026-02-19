@@ -140,6 +140,21 @@ export default function MobileChecklistPage() {
 
   const progress = calculateProgress()
 
+  const handleInlineStatusChange = async (item: ChecklistItemTemplate, status: string, notes?: string) => {
+    if (!instance) return
+    try {
+      const existingResponse = instance.responses.find((r) => r.item_template_id === item.id)
+      if (existingResponse) {
+        await updateResponse(existingResponse.id, { status, notes: notes || existingResponse.notes })
+      } else {
+        await createResponse({ item_template_id: item.id, status, notes })
+      }
+      setSnackbar({ open: true, message: t('checklist.responseSaved', 'Response saved'), severity: 'success' })
+    } catch {
+      setSnackbar({ open: true, message: t('checklist.failedToSave'), severity: 'error' })
+    }
+  }
+
   const handleItemClick = (item: ChecklistItemTemplate) => {
     setSelectedItem(item)
 
@@ -406,7 +421,10 @@ export default function MobileChecklistPage() {
             section={section}
             responses={instance.responses}
             defaultExpanded={false}
-            onItemClick={handleItemClick}
+            onStatusChange={handleInlineStatusChange}
+            onPhotosChange={(_item, files) => setItemPhotos(files)}
+            onSignatureChange={(_item, sig) => setSignature(sig)}
+            savingResponse={uploadingPhotos}
           />
         ))}
 

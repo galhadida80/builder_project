@@ -1105,7 +1105,7 @@ As a user, I want a chat interface to ask questions about my project data in nat
 - [x] User/assistant message bubbles with AI icon
 - [x] Quick suggestion chips for common queries
 - [x] Conversation history list with load/delete
-- [x] i18n translations for EN, HE, ES
+- [x] i18n translations for EN and HE
 **Estimate:** 3 points
 **Labels:** frontend, ai-chat, ui
 
@@ -1239,7 +1239,7 @@ As a DevOps engineer, I need to create the Cloud Scheduler job to trigger daily 
 **Description:** Import BIM model data from Autodesk Revit files (.rvt) into BuilderOps. Users upload Revit files, view 3D models in-browser, and extract structured data (rooms→areas, assets→equipment, types→materials). Includes two-way RFI sync with Autodesk Construction Cloud (ACC). Uses Autodesk Platform Services (APS) APIs: Model Derivative, AEC Data Model (GraphQL), Viewer SDK v7, and ACC RFI v3.
 **Priority:** P1 - High
 **Estimate:** 44 points
-**Status:** Planned
+**Status:** In Progress (9/11 stories done — ACC RFI Sync remaining)
 
 ### Architecture Overview
 ```
@@ -1265,12 +1265,12 @@ Auth:   2-legged OAuth (server) + 3-legged OAuth (user ACC access)
 As a developer, I need an APS authentication service so that the backend can communicate with Autodesk APIs securely.
 
 **Acceptance Criteria:**
-- [ ] Create `backend/app/services/autodesk_service.py` with 2-legged OAuth token management
-- [ ] Implement token caching with expiry (tokens last 1 hour)
-- [ ] Add APS config to Settings: `aps_client_id`, `aps_client_secret`
-- [ ] Create 3-legged OAuth flow for user ACC access (authorize URL, callback, token exchange)
-- [ ] Store user APS tokens in `autodesk_connections` table (user_id, access_token, refresh_token, expires_at)
-- [ ] Alembic migration for `autodesk_connections` table
+- [x] Create `backend/app/services/aps_service.py` with 2-legged OAuth token management
+- [x] Implement token caching with expiry (tokens last 1 hour)
+- [x] Add APS config to Settings: `aps_client_id`, `aps_client_secret`
+- [x] Create 3-legged OAuth flow for user ACC access (authorize URL, callback, token exchange)
+- [x] Store user APS tokens in `autodesk_connections` table (user_id, access_token, refresh_token, expires_at)
+- [x] Alembic migration for `autodesk_connections` table
 **Estimate:** 5 points
 **Labels:** backend, autodesk, auth
 
@@ -1280,12 +1280,12 @@ As a developer, I need an APS authentication service so that the backend can com
 As a user, I want to upload .rvt files so that they can be translated and viewed in 3D.
 
 **Acceptance Criteria:**
-- [ ] POST /projects/{project_id}/bim/upload accepts .rvt files (max 500MB)
-- [ ] Upload file to GCS bucket (`builderops-bim-models/{project_id}/`)
-- [ ] Create `bim_models` DB table: id, project_id, filename, file_size, gcs_path, urn, translation_status, uploaded_by, created_at
-- [ ] Register file with APS using Data Management API (get URN)
-- [ ] Return BIM model record with status "uploaded"
-- [ ] Alembic migration for `bim_models` table
+- [x] POST /projects/{project_id}/bim/upload accepts .rvt files (max 500MB)
+- [x] Upload file to GCS bucket (`builderops-bim-models/{project_id}/`)
+- [x] Create `bim_models` DB table: id, project_id, filename, file_size, gcs_path, urn, translation_status, uploaded_by, created_at
+- [x] Register file with APS using Data Management API (get URN)
+- [x] Return BIM model record with status "uploaded"
+- [x] Alembic migration for `bim_models` table
 **Estimate:** 5 points
 **Labels:** backend, autodesk, upload
 
@@ -1295,12 +1295,12 @@ As a user, I want to upload .rvt files so that they can be translated and viewed
 As a developer, I need to translate uploaded .rvt files to SVF2 format so the 3D viewer can display them.
 
 **Acceptance Criteria:**
-- [ ] POST /projects/{project_id}/bim/{model_id}/translate triggers Model Derivative API
-- [ ] Set `generateMasterViews: true` to include rooms/spaces in output
-- [ ] Poll translation status and update `bim_models.translation_status` (pending→processing→complete→failed)
-- [ ] GET /projects/{project_id}/bim/{model_id}/status returns current status with progress percentage
-- [ ] Extract and store model metadata (categories, element counts) in `bim_models.metadata` JSONB column
-- [ ] Handle translation errors with user-friendly messages
+- [x] POST /projects/{project_id}/bim/{model_id}/translate triggers Model Derivative API
+- [x] Set `generateMasterViews: true` to include rooms/spaces in output
+- [x] Poll translation status and update `bim_models.translation_status` (pending→processing→complete→failed)
+- [x] GET /projects/{project_id}/bim/{model_id}/status returns current status with progress percentage
+- [x] Extract and store model metadata (categories, element counts) in `bim_models.metadata` JSONB column
+- [x] Handle translation errors with user-friendly messages
 **Estimate:** 5 points
 **Labels:** backend, autodesk, model-derivative
 
@@ -1310,14 +1310,14 @@ As a developer, I need to translate uploaded .rvt files to SVF2 format so the 3D
 As a user, I want to view my Revit model in 3D in the browser so that I can explore the building design interactively.
 
 **Acceptance Criteria:**
-- [ ] Create `frontend/src/components/bim/ForgeViewer.tsx` component
-- [ ] Load Autodesk Viewer SDK v7 dynamically
-- [ ] Initialize viewer with SVF2 URN from backend
-- [ ] Toolbar: orbit, pan, zoom, section plane, isolate, explode
-- [ ] Click element → show properties panel (name, category, parameters)
-- [ ] Selection events emit selected element data to parent component
-- [ ] Responsive layout (full-width in BIM page, resizable split view)
-- [ ] Loading skeleton while model loads
+- [x] Create `frontend/src/components/bim/ForgeViewer.tsx` component
+- [x] Load Autodesk Viewer SDK v7 dynamically
+- [x] Initialize viewer with SVF2 URN from backend
+- [x] Toolbar: orbit, pan, zoom, section plane, isolate, explode
+- [x] Click element → show properties panel (name, category, parameters)
+- [x] Selection events emit selected element data to parent component
+- [x] Responsive layout (full-width in BIM page, resizable split view)
+- [x] Loading skeleton while model loads
 **Estimate:** 5 points
 **Labels:** frontend, autodesk, viewer, bim
 
@@ -1327,14 +1327,14 @@ As a user, I want to view my Revit model in 3D in the browser so that I can expl
 As a user, I want a dedicated BIM page in my project to upload, manage, and view Revit models.
 
 **Acceptance Criteria:**
-- [ ] Create /projects/{projectId}/bim route
-- [ ] Model list: cards with filename, upload date, status badge, file size
-- [ ] Upload button with drag-and-drop zone (.rvt only)
-- [ ] Click model → opens viewer in split/full-screen view
-- [ ] Translation progress indicator (spinner + percentage)
-- [ ] Delete model action with confirmation
-- [ ] Add "BIM" tab to project sidebar navigation
-- [ ] i18n translations for EN, HE, ES
+- [x] Create /projects/{projectId}/bim route
+- [x] Model list: cards with filename, upload date, status badge, file size
+- [x] Upload button with drag-and-drop zone (.rvt, .ifc, .nwd, .nwc, .dwg)
+- [x] Click model → opens viewer in split/full-screen view
+- [x] Translation progress indicator (spinner + percentage)
+- [x] Delete model action with confirmation
+- [x] Add "BIM" tab to project sidebar navigation
+- [x] i18n translations for EN and HE
 **Estimate:** 3 points
 **Labels:** frontend, page, bim
 
@@ -1344,13 +1344,13 @@ As a user, I want a dedicated BIM page in my project to upload, manage, and view
 As a user, I want to extract rooms from my Revit model and import them as construction areas so I don't have to enter area data manually.
 
 **Acceptance Criteria:**
-- [ ] GET /projects/{project_id}/bim/{model_id}/extract/rooms queries Model Derivative metadata
-- [ ] Filter elements by Revit category "Rooms" or "Spaces"
-- [ ] Extract: room name→area_name, room number→area_code, level→floor_number, area→square meters
-- [ ] Return preview list of extracted rooms with mapped BuilderOps fields
-- [ ] POST /projects/{project_id}/bim/{model_id}/import/areas accepts confirmed room selections
-- [ ] Bulk-create ConstructionArea records, skip duplicates by area_code
-- [ ] Track import history: source_model_id on created areas
+- [x] GET /projects/{project_id}/bim/{model_id}/extract queries Model Derivative metadata
+- [x] Filter elements by Revit category "Rooms" or "Spaces"
+- [x] Extract: room name→area_name, room number→area_code, level→floor_number, area→square meters
+- [x] Return preview list of extracted rooms with mapped BuilderOps fields
+- [x] POST /projects/{project_id}/bim/{model_id}/import/areas accepts confirmed room selections
+- [x] Bulk-create ConstructionArea records, skip duplicates by name
+- [x] Track import history with import result counts
 **Estimate:** 5 points
 **Labels:** backend, autodesk, extraction, areas
 
@@ -1360,12 +1360,12 @@ As a user, I want to extract rooms from my Revit model and import them as constr
 As a user, I want to extract equipment assets from my Revit model (HVAC, electrical panels, plumbing fixtures) so they appear in my equipment tracking page.
 
 **Acceptance Criteria:**
-- [ ] GET /projects/{project_id}/bim/{model_id}/extract/equipment queries Model Derivative metadata
-- [ ] Filter by Revit categories: Mechanical Equipment, Electrical Equipment, Plumbing Fixtures, Fire Protection
-- [ ] Extract: family name→equipment_type, type name→model_number, instance params→specifications
+- [x] GET /projects/{project_id}/bim/{model_id}/extract queries Model Derivative metadata for equipment
+- [x] Filter by Revit categories: Mechanical Equipment, Electrical Equipment, Plumbing Fixtures, Fire Protection
+- [x] Extract: family name→equipment_type, type name→model_number, manufacturer
 - [ ] Match against existing equipment templates by name similarity (fuzzy match)
 - [ ] Return preview with auto-mapped fields and confidence scores
-- [ ] POST /projects/{project_id}/bim/{model_id}/import/equipment creates Equipment records
+- [x] POST /projects/{project_id}/bim/{model_id}/import/equipment creates Equipment records
 - [ ] Link to matched equipment template when confidence > 80%
 **Estimate:** 5 points
 **Labels:** backend, autodesk, extraction, equipment
@@ -1376,12 +1376,12 @@ As a user, I want to extract equipment assets from my Revit model (HVAC, electri
 As a user, I want to extract material information from my Revit model (concrete types, steel grades, finishes) so they appear in my materials inventory.
 
 **Acceptance Criteria:**
-- [ ] GET /projects/{project_id}/bim/{model_id}/extract/materials queries Model Derivative metadata
-- [ ] Filter by Revit categories: Materials, Structural Foundations, Walls, Floors, Ceilings
-- [ ] Extract: material name, material class, quantities from schedules
+- [x] GET /projects/{project_id}/bim/{model_id}/extract queries Model Derivative metadata for materials
+- [x] Filter by Revit categories: Materials, Finishes
+- [x] Extract: material name, material class, manufacturer, model number
 - [ ] Match against existing material templates by name similarity
-- [ ] Return preview with auto-mapped fields
-- [ ] POST /projects/{project_id}/bim/{model_id}/import/materials creates Material records
+- [x] Return preview with extracted fields
+- [x] POST /projects/{project_id}/bim/{model_id}/import/materials creates Material records
 **Estimate:** 3 points
 **Labels:** backend, autodesk, extraction, materials
 
@@ -1391,14 +1391,14 @@ As a user, I want to extract material information from my Revit model (concrete 
 As a user, I want a step-by-step import wizard so I can review, map, and confirm extracted BIM data before it's imported.
 
 **Acceptance Criteria:**
-- [ ] Multi-step wizard dialog: Select Model → Choose Data Type → Review & Map → Confirm
-- [ ] Step 1: Select which BIM model to extract from
-- [ ] Step 2: Choose extraction type (Areas / Equipment / Materials)
-- [ ] Step 3: Table showing extracted items with editable field mappings, checkboxes to include/exclude
-- [ ] Highlight items that match existing records (duplicate detection)
+- [x] Multi-step wizard dialog: Extract → Review & Select → Confirm & Import
+- [x] Step 1: Extract data from BIM model
+- [x] Step 2: Tabbed review for Areas / Equipment / Materials with checkboxes
+- [x] Step 3: Confirm and import selected items
+- [x] Duplicate detection (skips existing records)
 - [ ] Auto-mapped fields shown in green, manual fields in yellow, unmapped in red
-- [ ] Step 4: Summary count + "Import N items" confirmation
-- [ ] Progress bar during import with success/error counts
+- [x] Progress tracking with success/error counts
+- [x] Toast notifications for results
 - [ ] 3D viewer sidebar: clicking row highlights element in viewer
 **Estimate:** 5 points
 **Labels:** frontend, autodesk, wizard, bim
@@ -1486,10 +1486,467 @@ As a user, I want dashboard chart titles and labels translated in English, Hebre
 **Acceptance Criteria:**
 - [x] English translations under `dashboard.charts.*`
 - [x] Hebrew translations with correct RTL support
-- [x] Spanish translations
 - [x] Keys: activityTrend, equipmentStatus, materialStatus, rfiStatus, areaProgress, findingsSeverity, overallProgress, noData, floor, avgProgress, findings, floorsTracked
 **Estimate:** 2 points
 **Labels:** frontend, i18n
+
+---
+
+## EPIC 16: Defect Tracking & AI Analysis
+**Description:** Track construction defects with photo documentation, AI-powered image analysis, multi-assignee workflows, severity tracking, and PDF export. Enables field teams to document and manage deficiencies throughout the project lifecycle.
+**Priority:** P0 - Critical
+**Estimate:** 15 points
+**Status:** Done
+
+### User Stories:
+
+#### US-16.1: Defect Database Models
+**Title:** Create Defect Database Models and Migration
+**Description:**
+As a developer, I need database models for defects with assignee tracking.
+
+**Acceptance Criteria:**
+- [x] Defect model: id, project_id, defect_number, category, defect_type, description, status, severity, is_repeated, due_date, resolved_at
+- [x] Relations: area_id, reporter_id, assigned_contact_id, followup_contact_id, checklist_instance_id
+- [x] DefectAssignee junction table for multiple assignees
+- [x] Alembic migration 025
+**Estimate:** 3 points
+**Labels:** backend, database, defects
+
+#### US-16.2: Defect CRUD API with AI Analysis
+**Title:** Create Defect API Endpoints
+**Description:**
+As a developer, I need REST API endpoints for defect management including AI image analysis.
+
+**Acceptance Criteria:**
+- [x] GET/POST /projects/{project_id}/defects (list with pagination, create)
+- [x] GET/PUT/DELETE /projects/{project_id}/defects/{defect_id}
+- [x] GET /projects/{project_id}/defects/summary (stats)
+- [x] GET /projects/{project_id}/defects/export-pdf
+- [x] POST /projects/{project_id}/defects/analyze-image (AI analysis)
+- [x] POST/DELETE assignees endpoints
+**Estimate:** 5 points
+**Labels:** backend, api, defects, ai
+
+#### US-16.3: Defect Frontend Pages
+**Title:** Build Defect List and Detail Pages
+**Description:**
+As a user, I want to view, create, and manage defects with a KPI dashboard and photo documentation.
+
+**Acceptance Criteria:**
+- [x] DefectsPage with KPI stats cards (total, open, in progress, resolved, critical)
+- [x] Data table with filters, search, status tabs
+- [x] AI image analysis integration
+- [x] PDF export functionality
+- [x] DefectDetailPage with photo uploads, audit history, status changes
+- [x] i18n translations for EN and HE
+**Estimate:** 7 points
+**Labels:** frontend, page, defects
+
+---
+
+## EPIC 17: Task Management
+**Description:** Project task management with dependencies, priority tracking, time estimation, bulk operations, and assignee workflows. Supports finish-to-start and other dependency types.
+**Priority:** P1 - High
+**Estimate:** 10 points
+**Status:** Done
+
+### User Stories:
+
+#### US-17.1: Task Database Models
+**Title:** Create Task and Dependency Models
+**Description:**
+As a developer, I need database models for tasks with dependency tracking.
+
+**Acceptance Criteria:**
+- [x] Task model: id, project_id, task_number, title, description, status, priority, assignee_id, reporter_id, start_date, due_date, completed_at, estimated_hours, actual_hours
+- [x] TaskDependency model: task_id, depends_on_id, dependency_type (finish_to_start, etc.)
+- [x] Alembic migration 028
+**Estimate:** 2 points
+**Labels:** backend, database, tasks
+
+#### US-17.2: Task CRUD API
+**Title:** Create Task Management API Endpoints
+**Description:**
+As a developer, I need REST API endpoints for task CRUD, dependencies, and bulk operations.
+
+**Acceptance Criteria:**
+- [x] GET/POST /projects/{project_id}/tasks (list with filters, create)
+- [x] GET/PUT/DELETE /projects/{project_id}/tasks/{task_id}
+- [x] GET /projects/{project_id}/tasks/summary
+- [x] POST/DELETE task dependency endpoints
+- [x] POST /projects/{project_id}/tasks/bulk (bulk update status/assignee)
+**Estimate:** 3 points
+**Labels:** backend, api, tasks
+
+#### US-17.3: Task Management Page
+**Title:** Build Task Management Frontend
+**Description:**
+As a user, I want to manage project tasks with a KPI dashboard and multiple views.
+
+**Acceptance Criteria:**
+- [x] TasksPage with KPI dashboard and status tabs
+- [x] Create/edit/delete task dialogs
+- [x] Dependency management
+- [x] i18n translations for EN and HE
+**Estimate:** 5 points
+**Labels:** frontend, page, tasks
+
+---
+
+## EPIC 18: Budget & Cost Tracking
+**Description:** Comprehensive budget management with line items, cost entries, and change orders. Track budgeted vs actual spending by category with approval workflows for change orders.
+**Priority:** P1 - High
+**Estimate:** 12 points
+**Status:** Done
+
+### User Stories:
+
+#### US-18.1: Budget Database Models
+**Title:** Create Budget, Cost, and Change Order Models
+**Description:**
+As a developer, I need database models for budget tracking.
+
+**Acceptance Criteria:**
+- [x] BudgetLineItem: id, project_id, name, category, description, budgeted_amount, sort_order
+- [x] CostEntry: id, budget_item_id, project_id, description, amount, entry_date, vendor, reference_number
+- [x] ChangeOrder: id, project_id, change_order_number, title, description, amount, status, budget_item_id, requested_by_id, approved_by_id
+- [x] Alembic migration 029
+**Estimate:** 3 points
+**Labels:** backend, database, budget
+
+#### US-18.2: Budget CRUD API
+**Title:** Create Budget Management API Endpoints
+**Description:**
+As a developer, I need REST API endpoints for budget items, costs, and change orders.
+
+**Acceptance Criteria:**
+- [x] GET/POST/PUT/DELETE /projects/{project_id}/budget (line items)
+- [x] GET /projects/{project_id}/budget/summary
+- [x] POST/GET/DELETE cost entries per budget item
+- [x] GET/POST/PUT/DELETE /projects/{project_id}/change-orders
+**Estimate:** 4 points
+**Labels:** backend, api, budget
+
+#### US-18.3: Budget Management Page
+**Title:** Build Budget Tracking Frontend
+**Description:**
+As a project manager, I want to track budget, costs, and change orders in one page.
+
+**Acceptance Criteria:**
+- [x] BudgetPage with tabs for budget items, cost entries, change orders
+- [x] Category filtering
+- [x] Budget vs actual comparison
+- [x] i18n translations for EN and HE
+**Estimate:** 5 points
+**Labels:** frontend, page, budget
+
+---
+
+## EPIC 19: Organizations & Multi-tenancy
+**Description:** Organization-level management allowing users to group projects under organizations with role-based membership (org_admin, org_member).
+**Priority:** P2 - Medium
+**Estimate:** 8 points
+**Status:** Done
+
+### User Stories:
+
+#### US-19.1: Organization Database Models
+**Title:** Create Organization and Membership Models
+**Description:**
+As a developer, I need database models for organizations.
+
+**Acceptance Criteria:**
+- [x] Organization: id, name, code (unique), description, logo_url, settings (JSONB)
+- [x] OrganizationMember: organization_id, user_id, role (org_admin/org_member)
+- [x] Alembic migration 030
+**Estimate:** 2 points
+**Labels:** backend, database, organizations
+
+#### US-19.2: Organization CRUD API
+**Title:** Create Organization Management API Endpoints
+**Description:**
+As a developer, I need REST API endpoints for organization and member management.
+
+**Acceptance Criteria:**
+- [x] GET/POST /organizations (list, create)
+- [x] GET/PUT /organizations/{org_id}
+- [x] GET/POST/PUT/DELETE member endpoints
+**Estimate:** 3 points
+**Labels:** backend, api, organizations
+
+#### US-19.3: Organization Frontend Pages
+**Title:** Build Organization Management UI
+**Description:**
+As an admin, I want to manage organizations and their members.
+
+**Acceptance Criteria:**
+- [x] OrganizationsPage with list and create dialog
+- [x] OrganizationDetailPage with member management
+- [x] i18n translations for EN and HE
+**Estimate:** 3 points
+**Labels:** frontend, page, organizations
+
+---
+
+## EPIC 20: Meeting Enhancements (RSVP & Time Slots)
+**Description:** Enhanced meeting system with RSVP tokens for external attendees, attendance status tracking (pending/accepted/declined/tentative), and time slot voting for scheduling.
+**Priority:** P1 - High
+**Estimate:** 8 points
+**Status:** Done
+
+### User Stories:
+
+#### US-20.1: RSVP System
+**Title:** Add RSVP Tokens and Attendance Status
+**Description:**
+As a meeting organizer, I want attendees to RSVP via unique tokens.
+
+**Acceptance Criteria:**
+- [x] attendance_status field (pending/accepted/declined/tentative) replaces boolean confirmed
+- [x] email field for non-user attendees
+- [x] rsvp_token (unique) for public RSVP links
+- [x] rsvp_responded_at timestamp
+- [x] Alembic migration 033
+**Estimate:** 3 points
+**Labels:** backend, meetings, rsvp
+
+#### US-20.2: Time Slot Voting
+**Title:** Implement Meeting Time Slot Voting
+**Description:**
+As a meeting organizer, I want to propose multiple time slots and let attendees vote.
+
+**Acceptance Criteria:**
+- [x] meeting_time_slots table: id, meeting_id, slot_number, proposed_start, proposed_end, vote_count
+- [x] meeting_time_votes table: id, meeting_id, attendee_id, time_slot_id, vote_token, voted_at
+- [x] has_time_slots boolean on meetings table
+- [x] Alembic migration 034
+**Estimate:** 3 points
+**Labels:** backend, meetings, scheduling
+
+#### US-20.3: Public RSVP Page
+**Title:** Build Public RSVP Page
+**Description:**
+As an attendee, I want to respond to meeting invitations via a public link.
+
+**Acceptance Criteria:**
+- [x] MeetingRSVPPage with token validation
+- [x] Accept/Decline/Tentative actions
+- [x] i18n translations for EN and HE
+**Estimate:** 2 points
+**Labels:** frontend, page, meetings
+
+---
+
+## EPIC 21: Reports & Compliance
+**Description:** Project-level reporting with inspection summaries, approval status, RFI aging analysis, and compliance audit trails. Supports date-range filtering and CSV export.
+**Priority:** P1 - High
+**Estimate:** 6 points
+**Status:** Done
+
+### User Stories:
+
+#### US-21.1: Report API Endpoints
+**Title:** Create Project Report API Endpoints
+**Description:**
+As a developer, I need API endpoints for generating various project reports.
+
+**Acceptance Criteria:**
+- [x] GET /projects/{project_id}/reports/inspection-summary (date range)
+- [x] GET /projects/{project_id}/reports/approval-status
+- [x] GET /projects/{project_id}/reports/rfi-aging
+- [x] GET /projects/{project_id}/reports/compliance-audit
+- [x] GET /projects/{project_id}/reports/export (CSV)
+- [x] GET /projects/{project_id}/reports/compliance-audit/export (CSV)
+**Estimate:** 3 points
+**Labels:** backend, api, reports
+
+#### US-21.2: Reports Page
+**Title:** Build Reports Page with CSV Export
+**Description:**
+As a project manager, I want to view and export project reports.
+
+**Acceptance Criteria:**
+- [x] ReportsPage with report type selector
+- [x] Date range filtering
+- [x] CSV download functionality
+- [x] i18n translations for EN and HE
+**Estimate:** 3 points
+**Labels:** frontend, page, reports
+
+---
+
+## EPIC 22: Contact Groups & Discussions
+**Description:** Group contacts for bulk operations and threaded discussions on any entity with real-time WebSocket updates.
+**Priority:** P2 - Medium
+**Estimate:** 6 points
+**Status:** Done
+
+### User Stories:
+
+#### US-22.1: Contact Groups
+**Title:** Create Contact Group System
+**Description:**
+As a user, I want to organize contacts into groups for bulk operations.
+
+**Acceptance Criteria:**
+- [x] ContactGroup model: id, project_id, name, description
+- [x] ContactGroupMember junction table
+- [x] GET/POST/PUT/DELETE group endpoints + member management (7 endpoints)
+- [x] Alembic migration 024
+**Estimate:** 3 points
+**Labels:** backend, contacts, groups
+
+#### US-22.2: Threaded Discussions
+**Title:** Implement Entity-Agnostic Threaded Discussions
+**Description:**
+As a user, I want to comment on any entity with threaded replies and real-time updates.
+
+**Acceptance Criteria:**
+- [x] Discussion model: project_id, entity_type, entity_id, author_id, parent_id (nested replies), content
+- [x] GET/POST/PUT/DELETE discussion endpoints with WebSocket broadcast
+- [x] Author-only edit/delete
+- [x] Alembic migration 032
+**Estimate:** 3 points
+**Labels:** backend, discussions, websocket
+
+---
+
+## EPIC 23: Security Enhancements
+**Description:** WebAuthn passwordless authentication and password reset flow for enhanced security.
+**Priority:** P2 - Medium
+**Estimate:** 5 points
+**Status:** Done
+
+### User Stories:
+
+#### US-23.1: WebAuthn Passwordless Auth
+**Title:** Implement WebAuthn/FIDO2 Authentication
+**Description:**
+As a user, I want to log in with biometrics or security keys.
+
+**Acceptance Criteria:**
+- [x] WebAuthnCredential model: credential_id, public_key, sign_count, device_name, transports
+- [x] POST /webauthn/register/begin and /complete endpoints
+- [x] POST /webauthn/login/begin and /complete endpoints
+- [x] Alembic migration 027
+**Estimate:** 3 points
+**Labels:** backend, auth, security
+
+#### US-23.2: Password Reset System
+**Title:** Implement Password Reset Flow
+**Description:**
+As a user, I want to reset my password via email link.
+
+**Acceptance Criteria:**
+- [x] PasswordResetToken model with expiry
+- [x] Reset request and confirm endpoints
+- [x] ResetPasswordPage frontend
+- [x] Alembic migration 018
+**Estimate:** 2 points
+**Labels:** backend, frontend, auth
+
+---
+
+## EPIC 24: Quantity Extraction (AI Tool)
+**Description:** AI-powered PDF quantity extraction tool for extracting room and floor quantities from construction documents.
+**Priority:** P2 - Medium
+**Estimate:** 3 points
+**Status:** Done
+
+### User Stories:
+
+#### US-24.1: Quantity Extraction Tool
+**Title:** Implement AI PDF Quantity Extraction
+**Description:**
+As a user, I want to upload PDFs and extract room/floor quantities using AI.
+
+**Acceptance Criteria:**
+- [x] POST /tools/extract-quantities endpoint (PDF upload)
+- [x] AI-powered room/floor quantity extraction
+- [x] QuantityExtractionPage with drag-drop upload and results display
+- [x] i18n translations for EN and HE
+**Estimate:** 3 points
+**Labels:** backend, frontend, ai, tools
+
+---
+
+## EPIC 25: Project Structure & Checklist Integration
+**Description:** Connect project structure hierarchy (buildings, floors, units) with checklist system. Wizard for defining project structure, area-checklist assignments, and per-area checklist progress tracking.
+**Priority:** P1 - High
+**Estimate:** 18 points
+**Status:** Done
+
+### User Stories:
+
+#### US-25.1: Area-Checklist Migration & Models
+**Title:** Database Schema for Area-Checklist Integration
+**Description:**
+As a developer, I need the database foundation linking areas to checklists.
+
+**Acceptance Criteria:**
+- [x] Migration 035: area_level, status, order columns on construction_areas
+- [x] Migration 035: area_id FK on checklist_instances
+- [x] Migration 035: area_checklist_assignments table
+- [x] AreaChecklistAssignment model with relationships
+- [x] Updated schemas for areas and checklists
+**Estimate:** 3 points
+**Labels:** backend, database
+
+#### US-25.2: Area Structure Service & API
+**Title:** Bulk Area Creation and Hierarchy Validation
+**Description:**
+As a user, I want to create project structure in bulk and validate area hierarchy rules.
+
+**Acceptance Criteria:**
+- [x] area_structure_service.py with hierarchy validation
+- [x] Bulk area tree creation (recursive)
+- [x] Auto-create checklists based on area type assignments
+- [x] Checklist progress computation per area
+- [x] 6 new API endpoints for area structure management
+**Estimate:** 5 points
+**Labels:** backend, api
+
+#### US-25.3: Project Structure Wizard
+**Title:** 5-Step Wizard for Defining Project Structure
+**Description:**
+As a project admin, I want a guided wizard to define buildings, floors, units, and shared areas.
+
+**Acceptance Criteria:**
+- [x] BuildingsStep: define buildings with floor count and amenities
+- [x] FloorsUnitsStep: define units per floor
+- [x] CommonAreasStep: add shared areas (parking, garden, etc.)
+- [x] ChecklistAssignmentStep: assign templates to area types
+- [x] StructurePreview: review and create
+- [x] Mobile-first responsive design
+**Estimate:** 5 points
+**Labels:** frontend, wizard
+
+#### US-25.4: Enhanced Areas Page
+**Title:** Area-Checklist Integration in AreasPage
+**Description:**
+As a user, I want to see checklist progress per area and manage checklist assignments.
+
+**Acceptance Criteria:**
+- [x] AreaActionMenu with checklist operations
+- [x] AreaDetailDrawer with checklist summary
+- [x] AreaChecklistSummary component
+- [x] Link to structure wizard from empty state
+**Estimate:** 3 points
+**Labels:** frontend
+
+#### US-25.5: Area Picker in ChecklistsPage
+**Title:** Area-Aware Checklist Instance Creation
+**Description:**
+As a user, I want to link checklist instances to specific areas when creating them.
+
+**Acceptance Criteria:**
+- [x] AreaPickerAutocomplete shared component
+- [x] Area picker in create instance modal
+- [x] Auto-fill unit_identifier from area path
+- [x] area_id sent in create payload
+**Estimate:** 2 points
+**Labels:** frontend
 
 ---
 
@@ -1510,24 +1967,46 @@ As a user, I want dashboard chart titles and labels translated in English, Hebre
 | 11. RFI System (Email Integration) | 16 | 46 | Done |
 | 12. AI Chat with Project Data | 7 | 26 | Done (Phase 1) |
 | 13. Daily Work Summary Email | 6 | 11 | Done |
-| 14. Autodesk Revit/BIM Integration | 11 | 47 | Planned |
+| 14. Autodesk Revit/BIM Integration | 11 | 47 | In Progress (9/11) |
 | 15. BI Dashboard & Reporting | 3 | 8 | Done |
-| **TOTAL** | **89 stories** | **262 points** | |
+| 16. Defect Tracking & AI Analysis | 3 | 15 | Done |
+| 17. Task Management | 3 | 10 | Done |
+| 18. Budget & Cost Tracking | 3 | 12 | Done |
+| 19. Organizations & Multi-tenancy | 3 | 8 | Done |
+| 20. Meeting Enhancements (RSVP) | 3 | 8 | Done |
+| 21. Reports & Compliance | 2 | 6 | Done |
+| 22. Contact Groups & Discussions | 2 | 6 | Done |
+| 23. Security Enhancements | 2 | 5 | Done |
+| 24. Quantity Extraction (AI Tool) | 1 | 3 | Done |
+| 25. Project Structure & Checklist Integration | 5 | 18 | Done |
+| **TOTAL** | **111 stories** | **353 points** | |
 
 ---
 
-## Priority Order (Recommended)
+## Completion History
 
-1. **Sprint 1:** Epic 1 (Design System) + Epic 9 (Components) - Foundation
-2. **Sprint 2:** Epic 3 (Dashboards) - Core functionality
-3. **Sprint 3:** Epic 6 (Inspections) + Epic 4 (Approvals) - Key features
-4. **Sprint 4:** Epic 5 (Project Pages) - Project management
-5. **Sprint 5:** Epic 7 (RTL) + Epic 8 (Mobile) - Internationalization
-6. **Sprint 6:** Epic 2 (Landing) + Epic 10 (Animations) - Polish
-7. **Sprint 7:** Epic 11 (RFI System) - Email-integrated RFI workflow
-8. **Sprint 8:** Epic 12 (AI Chat) - Project data chat with Gemini
-9. **Sprint 9:** Epic 13 (Daily Summary) - Automated daily email reports
-10. **Sprint 10:** Epic 14 (BIM Integration) Phase 1 - Auth + Upload + Viewer (US-14.1 to 14.5)
-11. **Sprint 11:** Epic 14 (BIM Integration) Phase 2 - Data Extraction + Import Wizard (US-14.6 to 14.9)
-12. **Sprint 12:** Epic 14 (BIM Integration) Phase 3 - ACC RFI Sync (US-14.10 to 14.11)
-13. **Sprint 13:** Epic 15 (BI Dashboard) - Dashboard charts and analytics
+| Sprint | Epics Delivered | Status |
+|--------|----------------|--------|
+| Sprint 1 | Epic 1 (Design System) + Epic 9 (Components) | Done |
+| Sprint 2 | Epic 3 (Dashboards) | Done |
+| Sprint 3 | Epic 6 (Inspections) + Epic 4 (Approvals) | Done |
+| Sprint 4 | Epic 5 (Project Pages) | Done |
+| Sprint 5 | Epic 7 (RTL) + Epic 8 (Mobile) | Done |
+| Sprint 6 | Epic 2 (Landing) + Epic 10 (Animations) | Done |
+| Sprint 7 | Epic 11 (RFI System) | Done |
+| Sprint 8 | Epic 12 (AI Chat) | Done (Phase 1) |
+| Sprint 9 | Epic 13 (Daily Summary) + Epic 15 (BI Dashboard) | Done |
+| Sprint 10 | Epic 14 (BIM) Phase 1+2 (US-14.1 to 14.9) | Done |
+| Sprint 11 | Epic 16 (Defects) + Epic 17 (Tasks) + Epic 18 (Budget) | Done |
+| Sprint 12 | Epic 19 (Orgs) + Epic 20 (Meetings) + Epic 21 (Reports) | Done |
+| Sprint 13 | Epic 22 (Groups/Discussions) + Epic 23 (Security) + Epic 24 (Qty Extract) | Done |
+
+## Remaining Work
+
+| Item | Epic | Stories | Points |
+|------|------|---------|--------|
+| ACC RFI Sync - Outbound | 14 (US-14.10) | 1 | 3 |
+| ACC RFI Sync - Inbound | 14 (US-14.11) | 1 | 3 |
+| BIM Template Fuzzy Matching | 14 (US-14.7, 14.8) | — | — |
+| WhatsApp AI Chat | 12 (US-12.7) | 1 | 5 |
+| Custom KPIs Dashboard | — | — | — |

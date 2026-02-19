@@ -1,6 +1,9 @@
+import logging
+import weasyprint
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import Response
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -18,7 +21,7 @@ from app.models.checklist import (
     ChecklistSubSection,
     ChecklistTemplate,
 )
-from app.models.project import ProjectMember
+from app.models.project import Project, ProjectMember
 from app.models.user import User
 from app.schemas.checklist import (
     ChecklistInstanceCreate,
@@ -38,6 +41,8 @@ from app.schemas.checklist import (
     ChecklistTemplateUpdate,
 )
 from app.services.audit_service import create_audit_log, get_model_dict
+from app.services.email_renderer import render_checklist_email, render_checklist_pdf_html
+from app.services.email_service import EmailService
 from app.services.notification_service import notify_project_admins, notify_user
 
 router = APIRouter()
@@ -498,16 +503,20 @@ async def list_all_checklist_instances(
 @router.get("/projects/{project_id}/checklist-instances", response_model=list[ChecklistInstanceResponse])
 async def list_checklist_instances(
     project_id: UUID,
+    area_id: UUID | None = None,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     await verify_project_access(project_id, current_user, db)
-    result = await db.execute(
+    query = (
         select(ChecklistInstance)
         .options(selectinload(ChecklistInstance.created_by), selectinload(ChecklistInstance.responses))
         .where(ChecklistInstance.project_id == project_id)
-        .order_by(ChecklistInstance.created_at.desc())
     )
+    if area_id:
+        query = query.where(ChecklistInstance.area_id == area_id)
+    query = query.order_by(ChecklistInstance.created_at.desc())
+    result = await db.execute(query)
     return result.scalars().all()
 
 
@@ -574,6 +583,39 @@ async def update_checklist_instance(
         setattr(checklist_instance, attr, value)
 
     if checklist_instance.status == "completed" and old_values.get("status") != "completed":
+        project_result = await db.execute(select(Project).where(Project.id == project_id))
+        project = project_result.scalar_one_or_none()
+        p_name = project.name if project else ""
+
+        tpl_result = await db.execute(
+            select(ChecklistTemplate).where(ChecklistTemplate.id == checklist_instance.template_id)
+        )
+        tpl = tpl_result.scalar_one_or_none()
+        cl_name = tpl.name if tpl else checklist_instance.unit_identifier
+
+        try:
+            email_service = EmailService()
+            if email_service.enabled:
+                admin_result = await db.execute(
+                    select(User).join(ProjectMember, ProjectMember.user_id == User.id).where(
+                        ProjectMember.project_id == project_id,
+                        User.is_active == True,
+                    )
+                )
+                for admin in admin_result.scalars().all():
+                    lang = admin.language or "en"
+                    subject, html = render_checklist_email(
+                        checklist_name=cl_name,
+                        unit_identifier=checklist_instance.unit_identifier,
+                        status="completed",
+                        project_name=p_name,
+                        is_completed=True,
+                        language=lang,
+                    )
+                    email_service.send_notification(to_email=admin.email, subject=subject, body_html=html)
+        except Exception:
+            logging.getLogger(__name__).exception("Failed to send checklist completion email")
+
         await notify_project_admins(
             db, project_id, "update",
             f"Checklist completed: {checklist_instance.unit_identifier}",
@@ -608,6 +650,89 @@ async def delete_checklist_instance(
 
     await db.delete(checklist_instance)
     return {"message": "Checklist instance deleted"}
+
+
+@router.get("/projects/{project_id}/checklist-instances/{instance_id}/export-pdf")
+async def export_checklist_pdf(
+    project_id: UUID,
+    instance_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    await verify_project_access(project_id, current_user, db)
+
+    result = await db.execute(
+        select(ChecklistInstance)
+        .options(selectinload(ChecklistInstance.responses))
+        .where(ChecklistInstance.id == instance_id, ChecklistInstance.project_id == project_id)
+    )
+    instance = result.scalar_one_or_none()
+    if not instance:
+        raise HTTPException(status_code=404, detail="Checklist instance not found")
+
+    tpl_result = await db.execute(
+        select(ChecklistTemplate)
+        .options(selectinload(ChecklistTemplate.subsections).selectinload(ChecklistSubSection.items))
+        .where(ChecklistTemplate.id == instance.template_id)
+    )
+    template = tpl_result.scalar_one_or_none()
+    if not template:
+        raise HTTPException(status_code=404, detail="Checklist template not found")
+
+    project_result = await db.execute(select(Project).where(Project.id == project_id))
+    project = project_result.scalar_one_or_none()
+    project_name = project.name if project else ""
+    language = current_user.language or "en"
+
+    sections = []
+    total_items = 0
+    completed_items = 0
+    for sub in sorted(template.subsections, key=lambda s: s.order):
+        items_data = []
+        section_completed = 0
+        for item in sub.items:
+            resp = next((r for r in instance.responses if r.item_template_id == item.id), None)
+            status = resp.status if resp else "pending"
+            if status in ("approved", "not_applicable"):
+                section_completed += 1
+                completed_items += 1
+            total_items += 1
+            items_data.append({
+                "name": item.name,
+                "description": item.description or "",
+                "status": status,
+                "notes": resp.notes if resp else "",
+                "image_urls": resp.image_urls if resp else [],
+                "signature_url": resp.signature_url if resp else None,
+            })
+        sections.append({
+            "order": sub.order,
+            "name": sub.name,
+            "items": items_data,
+            "completed": section_completed,
+            "total": len(sub.items),
+        })
+
+    html = render_checklist_pdf_html(
+        checklist_name=template.name,
+        unit_identifier=instance.unit_identifier,
+        project_name=project_name,
+        instance_status=instance.status,
+        created_at=instance.created_at.strftime("%Y-%m-%d"),
+        sections=sections,
+        progress_completed=completed_items,
+        progress_total=total_items,
+        language=language,
+    )
+
+    pdf_bytes = weasyprint.HTML(string=html).write_pdf()
+
+    filename = f"checklist_{instance.unit_identifier}_{instance.created_at.strftime('%Y%m%d')}.pdf"
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
 
 
 @router.post("/checklist-instances/{instance_id}/responses", response_model=ChecklistItemResponseResponse, status_code=201)
@@ -716,17 +841,57 @@ async def update_checklist_item_response(
     if data.status and data.status != old_status:
         response.completed_by_id = current_user.id
 
-    if data.status == "rejected" and old_status != "rejected" and instance.created_by_id:
-        creator_result = await db.execute(select(User).where(User.id == instance.created_by_id))
-        creator = creator_result.scalar_one_or_none()
-        if creator:
-            await notify_user(
-                db, creator.id, "update",
-                f"Checklist item rejected: {instance.unit_identifier}",
-                f"A checklist item in '{instance.unit_identifier}' has been rejected.",
-                entity_type="checklist_instance", entity_id=instance.id,
-                email=creator.email, language=creator.language or "en",
+    if data.status and data.status != old_status and data.status != "pending":
+        project_result = await db.execute(select(Project).where(Project.id == instance.project_id))
+        project = project_result.scalar_one_or_none()
+        project_name = project.name if project else ""
+
+        item_result = await db.execute(
+            select(ChecklistItemTemplate).where(ChecklistItemTemplate.id == response.item_template_id)
+        )
+        item_template = item_result.scalar_one_or_none()
+        item_name = item_template.name if item_template else ""
+
+        section_name = ""
+        if item_template:
+            section_result = await db.execute(
+                select(ChecklistSubSection).where(ChecklistSubSection.id == item_template.subsection_id)
             )
+            section = section_result.scalar_one_or_none()
+            section_name = section.name if section else ""
+
+        template_result = await db.execute(
+            select(ChecklistTemplate).where(ChecklistTemplate.id == instance.template_id)
+        )
+        checklist_template = template_result.scalar_one_or_none()
+        checklist_name = checklist_template.name if checklist_template else instance.unit_identifier
+
+        try:
+            email_service = EmailService()
+            if email_service.enabled:
+                admin_result = await db.execute(
+                    select(User).join(ProjectMember, ProjectMember.user_id == User.id).where(
+                        ProjectMember.project_id == instance.project_id,
+                        User.is_active == True,
+                    )
+                )
+                admins = admin_result.scalars().all()
+                for admin in admins:
+                    lang = admin.language or "en"
+                    subject, html = render_checklist_email(
+                        checklist_name=checklist_name,
+                        unit_identifier=instance.unit_identifier,
+                        status=data.status,
+                        project_name=project_name,
+                        section_name=section_name,
+                        item_name=item_name,
+                        notes=response.notes or "",
+                        image_urls=response.image_urls or [],
+                        language=lang,
+                    )
+                    email_service.send_notification(to_email=admin.email, subject=subject, body_html=html)
+        except Exception:
+            logging.getLogger(__name__).exception("Failed to send checklist notification email")
 
     await create_audit_log(db, current_user, "checklist_item_response", response.id, AuditAction.UPDATE,
                           project_id=instance.project_id, old_values=old_values, new_values=get_model_dict(response))

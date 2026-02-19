@@ -45,6 +45,7 @@ import OrganizationDetailPage from './pages/OrganizationDetailPage'
 import ReportsPage from './pages/ReportsPage'
 
 const BIMPage = lazy(() => import('./pages/BIMPage'))
+const ProjectStructureWizardPage = lazy(() => import('./pages/ProjectStructureWizardPage'))
 const QuantityExtractionPage = lazy(() => import('./pages/QuantityExtractionPage'))
 
 function ProtectedRoute() {
@@ -104,6 +105,7 @@ function AppRoutes() {
               <Route path="bim" element={<Suspense fallback={<LoadingPage />}><BIMPage /></Suspense>} />
               <Route path="reports" element={<ReportsPage />} />
               <Route path="quantities" element={<Suspense fallback={<LoadingPage />}><QuantityExtractionPage /></Suspense>} />
+              <Route path="structure-wizard" element={<Suspense fallback={<LoadingPage />}><ProjectStructureWizardPage /></Suspense>} />
             </Route>
 
             <Route path="/organizations" element={<OrganizationsPage />} />

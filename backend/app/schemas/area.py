@@ -56,12 +56,15 @@ class AreaBase(BaseModel):
         return validate_code(v)
 class AreaCreate(AreaBase):
     parent_id: Optional[UUID] = None
+    area_level: Optional[str] = Field(default=None, max_length=50)
 class AreaUpdate(BaseModel):
     name: Optional[str] = Field(default=None, min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
     area_type: Optional[str] = Field(default=None, max_length=50)
     floor_number: Optional[int] = Field(default=None, ge=-99, le=999)
     area_code: Optional[str] = Field(default=None, max_length=MAX_CODE_LENGTH)
     total_units: Optional[int] = Field(default=None, ge=1, le=10000)
+    area_level: Optional[str] = Field(default=None, max_length=50)
+    status: Optional[str] = Field(default=None, max_length=50)
 
     @field_validator('name', 'area_type', mode='before')
     @classmethod
@@ -84,6 +87,59 @@ class AreaResponse(CamelCaseModel):
     area_code: Optional[str] = None
     total_units: int = 1
     current_progress: Decimal = Decimal(0)
+    area_level: Optional[str] = None
+    status: str = "not_started"
+    order: int = 0
     created_at: datetime
     children: list["AreaResponse"] = []
     progress_updates: list[AreaProgressResponse] = []
+
+
+class AreaChecklistAssignmentCreate(BaseModel):
+    area_type: str = Field(max_length=100)
+    template_id: UUID
+    auto_create: bool = True
+
+    @field_validator('area_type', mode='before')
+    @classmethod
+    def sanitize_area_type(cls, v: Optional[str]) -> Optional[str]:
+        return sanitize_string(v)
+
+
+class AreaChecklistAssignmentResponse(CamelCaseModel):
+    id: UUID
+    project_id: UUID
+    area_type: str
+    template_id: UUID
+    auto_create: bool
+    created_at: datetime
+    created_by_id: Optional[UUID] = None
+
+
+class BulkAreaNode(BaseModel):
+    name: str = Field(min_length=1, max_length=255)
+    area_type: Optional[str] = None
+    area_level: Optional[str] = None
+    floor_number: Optional[int] = None
+    area_code: Optional[str] = None
+    total_units: int = 1
+    children: list["BulkAreaNode"] = []
+
+    @field_validator('name', 'area_type', mode='before')
+    @classmethod
+    def sanitize_text(cls, v: Optional[str]) -> Optional[str]:
+        return sanitize_string(v)
+
+
+class BulkAreaCreate(BaseModel):
+    areas: list[BulkAreaNode] = Field(max_length=500)
+    auto_assign_checklists: bool = True
+
+
+class BulkAreaCreateResponse(CamelCaseModel):
+    created_count: int
+    checklist_instances_created: int
+    areas: list[AreaResponse]
+
+
+BulkAreaNode.model_rebuild()

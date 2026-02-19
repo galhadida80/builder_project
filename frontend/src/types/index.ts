@@ -225,7 +225,10 @@ export interface ConstructionArea {
   projectId: string
   parentId?: string
   name: string
-  areaType?: 'apartment' | 'facade' | 'basement' | 'parking' | 'roof' | 'infrastructure' | 'common_area'
+  areaType?: string
+  areaLevel?: string
+  status?: string
+  order?: number
   floorNumber?: number
   areaCode?: string
   totalUnits?: number
@@ -471,6 +474,7 @@ export interface ChecklistInstance {
   template_id: string
   project_id: string
   unit_identifier: string
+  area_id?: string
   status: string
   metadata?: Record<string, unknown>
   created_at: string
@@ -482,11 +486,72 @@ export interface ChecklistInstance {
 export interface ChecklistInstanceCreate {
   template_id: string
   unit_identifier: string
+  area_id?: string
 }
 
 export interface ChecklistInstanceUpdate {
   unit_identifier?: string
   status?: string
+  area_id?: string
+}
+
+export interface BuildingDefinition {
+  name: string
+  floorCount: number
+  hasBasement: boolean
+  hasParking: boolean
+  hasLobby: boolean
+}
+
+export interface FloorDefinition {
+  buildingIndex: number
+  floorNumber: number
+  unitCount: number
+  unitType: string
+}
+
+export interface CommonAreaDefinition {
+  name: string
+  areaType: string
+}
+
+export interface AreaChecklistAssignment {
+  id: string
+  projectId: string
+  areaType: string
+  templateId: string
+  autoCreate: boolean
+  createdAt: string
+  createdById?: string
+}
+
+export interface BulkAreaNode {
+  name: string
+  area_type?: string
+  area_level?: string
+  floor_number?: number
+  area_code?: string
+  total_units?: number
+  children?: BulkAreaNode[]
+}
+
+export interface BulkAreaCreate {
+  areas: BulkAreaNode[]
+  auto_assign_checklists: boolean
+}
+
+export interface BulkAreaCreateResponse {
+  createdCount: number
+  checklistInstancesCreated: number
+  areas: ConstructionArea[]
+}
+
+export interface AreaChecklistSummary {
+  totalInstances: number
+  completedInstances: number
+  totalItems: number
+  completedItems: number
+  completionPercentage: number
 }
 
 export interface ChecklistItemResponse {

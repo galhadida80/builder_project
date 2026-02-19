@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Card, KPICard } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
@@ -8,13 +8,16 @@ import { FormModal, ConfirmModal } from '../components/ui/Modal'
 import { PageHeader } from '../components/ui/Breadcrumbs'
 import { ProgressBar, CircularProgressDisplay } from '../components/ui/ProgressBar'
 import { EmptyState } from '../components/ui/EmptyState'
+import { AreaActionMenu } from '../components/areas/AreaActionMenu'
+import { AreaDetailDrawer } from '../components/areas/AreaDetailDrawer'
 import { areasApi } from '../api/areas'
+import { areaStructureApi } from '../api/areaStructure'
 import type { ConstructionArea, AreaStatus } from '../types'
 import { validateAreaForm, hasErrors, VALIDATION, type ValidationError } from '../utils/validation'
 import { useToast } from '../components/common/ToastProvider'
 import { parseValidationErrors } from '../utils/apiErrors'
 import { withMinDuration } from '../utils/async'
-import { AddIcon, ExpandMoreIcon, ExpandLessIcon, ApartmentIcon, LocalParkingIcon, RoofingIcon, FoundationIcon, EditIcon, DeleteIcon, AccountTreeIcon, CheckCircleIcon, PendingActionsIcon, TrendingUpIcon } from '@/icons'
+import { AddIcon, ExpandMoreIcon, ExpandLessIcon, ApartmentIcon, LocalParkingIcon, RoofingIcon, FoundationIcon, EditIcon, DeleteIcon, AccountTreeIcon, CheckCircleIcon, PendingActionsIcon, TrendingUpIcon, ChecklistIcon } from '@/icons'
 import { Box, Typography, Chip, Collapse, IconButton, MenuItem, TextField as MuiTextField, Skeleton } from '@/mui'
 
 const AREA_TYPE_ICONS: Record<string, React.ReactNode> = {
@@ -40,10 +43,15 @@ interface AreaNodeProps {
   level: number
   onEdit: (area: ConstructionArea) => void
   onDelete: (area: ConstructionArea) => void
+  onOpenDrawer: (area: ConstructionArea) => void
+  onAssignChecklist: (area: ConstructionArea) => void
+  onCreateInstances: (area: ConstructionArea) => void
+  onViewChecklists: (area: ConstructionArea) => void
+  onBulkCreate: (area: ConstructionArea) => void
   t: (key: string, options?: Record<string, unknown>) => string
 }
 
-function AreaNode({ area, level, onEdit, onDelete, t }: AreaNodeProps) {
+function AreaNode({ area, level, onEdit, onDelete, onOpenDrawer, onAssignChecklist, onCreateInstances, onViewChecklists, onBulkCreate, t }: AreaNodeProps) {
   const [expanded, setExpanded] = useState(true)
   const hasChildren = area.children && area.children.length > 0
   const overallProgress: number = area.currentProgress ?? 0
@@ -53,7 +61,7 @@ function AreaNode({ area, level, onEdit, onDelete, t }: AreaNodeProps) {
 
   return (
     <Box sx={{ marginInlineStart: { xs: level * 1.5, sm: level * 3 } }}>
-      <Card hoverable sx={{ mb: 1 }}>
+      <Card hoverable sx={{ mb: 1 }} onClick={() => onOpenDrawer(area)}>
         <Box sx={{ p: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: { xs: 1, sm: 0 } }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 2 } }}>
@@ -61,7 +69,7 @@ function AreaNode({ area, level, onEdit, onDelete, t }: AreaNodeProps) {
                 <IconButton
                   size="small"
                   aria-label={expanded ? t('common.collapse') : t('common.expand')}
-                  onClick={() => setExpanded(!expanded)}
+                  onClick={(e) => { e.stopPropagation(); setExpanded(!expanded) }}
                   sx={{
                     bgcolor: 'action.hover',
                     '&:hover': { bgcolor: 'action.selected' }
@@ -114,6 +122,16 @@ function AreaNode({ area, level, onEdit, onDelete, t }: AreaNodeProps) {
             </Box>
 
             <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 3 } }}>
+              <Chip
+                icon={<ChecklistIcon sx={{ fontSize: 14 }} />}
+                label={t('areaChecklists.viewChecklists')}
+                size="small"
+                variant="outlined"
+                color="info"
+                onClick={(e) => { e.stopPropagation(); onOpenDrawer(area) }}
+                sx={{ display: { xs: 'none', sm: 'flex' }, height: 24, fontSize: '0.7rem' }}
+              />
+
               <Box sx={{ width: { xs: 100, sm: 160 } }}>
                 <ProgressBar
                   value={overallProgress}
@@ -130,13 +148,20 @@ function AreaNode({ area, level, onEdit, onDelete, t }: AreaNodeProps) {
                 sx={{ fontWeight: 500, minWidth: { xs: 'auto', sm: 100 }, display: { xs: 'none', sm: 'flex' } }}
               />
 
-              <Box sx={{ display: 'flex', gap: 0.5 }}>
+              <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }} onClick={(e) => e.stopPropagation()}>
                 <IconButton size="small" aria-label={t('areas.editArea')} onClick={() => onEdit(area)} title={t('areas.editArea')}>
                   <EditIcon fontSize="small" />
                 </IconButton>
                 <IconButton size="small" aria-label={t('areas.deleteArea')} onClick={() => onDelete(area)} title={t('areas.deleteArea')} color="error">
                   <DeleteIcon fontSize="small" />
                 </IconButton>
+                <AreaActionMenu
+                  area={area}
+                  onAssignChecklist={() => onAssignChecklist(area)}
+                  onCreateInstances={() => onCreateInstances(area)}
+                  onViewChecklists={() => onViewChecklists(area)}
+                  onBulkCreate={() => onBulkCreate(area)}
+                />
               </Box>
             </Box>
           </Box>
@@ -146,7 +171,19 @@ function AreaNode({ area, level, onEdit, onDelete, t }: AreaNodeProps) {
       {hasChildren && (
         <Collapse in={expanded}>
           {area.children!.map(child => (
-            <AreaNode key={child.id} area={child} level={level + 1} onEdit={onEdit} onDelete={onDelete} t={t} />
+            <AreaNode
+              key={child.id}
+              area={child}
+              level={level + 1}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              onOpenDrawer={onOpenDrawer}
+              onAssignChecklist={onAssignChecklist}
+              onCreateInstances={onCreateInstances}
+              onViewChecklists={onViewChecklists}
+              onBulkCreate={onBulkCreate}
+              t={t}
+            />
           ))}
         </Collapse>
       )}
@@ -157,6 +194,7 @@ function AreaNode({ area, level, onEdit, onDelete, t }: AreaNodeProps) {
 export default function AreasPage() {
   const { projectId } = useParams()
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const { showError, showSuccess } = useToast()
   const [loading, setLoading] = useState(true)
   const [areas, setAreas] = useState<ConstructionArea[]>([])
@@ -167,6 +205,8 @@ export default function AreasPage() {
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [errors, setErrors] = useState<ValidationError>({})
+  const [drawerOpen, setDrawerOpen] = useState(false)
+  const [selectedArea, setSelectedArea] = useState<ConstructionArea | null>(null)
   const [formData, setFormData] = useState({
     name: '',
     areaCode: '',
@@ -303,6 +343,45 @@ export default function AreasPage() {
     }
   }
 
+  const handleOpenDrawer = (area: ConstructionArea) => {
+    setSelectedArea(area)
+    setDrawerOpen(true)
+  }
+
+  const handleAssignChecklist = (area: ConstructionArea) => {
+    setSelectedArea(area)
+    setDrawerOpen(true)
+  }
+
+  const handleCreateInstances = async (area: ConstructionArea) => {
+    if (!projectId) return
+    try {
+      const result = await areaStructureApi.createAreaChecklists(projectId, area.id)
+      showSuccess(t('areaChecklists.checklistsCreated', { count: result.checklists_created }))
+    } catch {
+      showError(t('checklists.failedToCreate'))
+    }
+  }
+
+  const handleViewChecklists = (area: ConstructionArea) => {
+    setSelectedArea(area)
+    setDrawerOpen(true)
+  }
+
+  const handleBulkCreate = async (area: ConstructionArea) => {
+    if (!projectId || !area.children) return
+    try {
+      let totalCreated = 0
+      for (const child of area.children) {
+        const result = await areaStructureApi.createAreaChecklists(projectId, child.id)
+        totalCreated += result.checklists_created
+      }
+      showSuccess(t('areaChecklists.checklistsCreated', { count: totalCreated }))
+    } catch {
+      showError(t('checklists.failedToCreate'))
+    }
+  }
+
   const allAreas = getAllAreas(areas)
   const completedAreas = allAreas.filter(a => (a.currentProgress ?? 0) === 100).length
   const inProgressAreas = allAreas.filter(a => {
@@ -335,9 +414,14 @@ export default function AreasPage() {
         subtitle={t('areas.subtitle')}
         breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('areas.title') }]}
         actions={
-          <Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>
-            {t('areas.addArea')}
-          </Button>
+          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+            <Button variant="secondary" icon={<AccountTreeIcon />} onClick={() => navigate(`/projects/${projectId}/structure-wizard`)}>
+              {t('areas.structureWizard')}
+            </Button>
+            <Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>
+              {t('areas.addArea')}
+            </Button>
+          </Box>
         }
       />
 
@@ -451,6 +535,7 @@ export default function AreasPage() {
               title={t('areas.noAreasYet')}
               description={t('areas.noAreasDescription')}
               action={{ label: t('areas.addFirstArea'), onClick: handleOpenCreate }}
+              secondaryAction={{ label: t('areas.structureWizard'), onClick: () => navigate(`/projects/${projectId}/structure-wizard`) }}
             />
           ) : (
             <Box>
@@ -461,6 +546,11 @@ export default function AreasPage() {
                   level={0}
                   onEdit={handleOpenEdit}
                   onDelete={handleDeleteClick}
+                  onOpenDrawer={handleOpenDrawer}
+                  onAssignChecklist={handleAssignChecklist}
+                  onCreateInstances={handleCreateInstances}
+                  onViewChecklists={handleViewChecklists}
+                  onBulkCreate={handleBulkCreate}
                   t={t}
                 />
               ))}
@@ -557,6 +647,13 @@ export default function AreasPage() {
         confirmLabel={t('common.delete')}
         variant="danger"
         loading={deleting}
+      />
+
+      <AreaDetailDrawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        area={selectedArea}
+        projectId={projectId!}
       />
     </Box>
   )

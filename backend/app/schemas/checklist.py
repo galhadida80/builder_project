@@ -165,12 +165,14 @@ class ChecklistInstanceBase(BaseModel):
 
 class ChecklistInstanceCreate(ChecklistInstanceBase):
     template_id: UUID
+    area_id: UUID | None = None
 
 
 class ChecklistInstanceUpdate(BaseModel):
     unit_identifier: str | None = Field(default=None, min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
     status: Literal["pending", "in_progress", "completed", "cancelled"] | None = None
     metadata: dict | None = None
+    area_id: UUID | None = None
 
     @field_validator('unit_identifier', mode='before')
     @classmethod
@@ -184,6 +186,7 @@ class ChecklistInstanceResponse(BaseModel):
     project_id: UUID
     unit_identifier: str
     status: str
+    area_id: UUID | None = None
     metadata: dict | None = Field(default=None, validation_alias="extra_data")
     created_at: datetime
     updated_at: datetime

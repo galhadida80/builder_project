@@ -146,6 +146,92 @@ STRINGS = {
             "footer": "זוהי הודעה אוטומטית מ-BuilderOps.",
         },
     },
+    "checklist_pdf": {
+        "en": {
+            "title": "Checklist Report",
+            "generated": "Generated",
+            "checklist_label": "Checklist",
+            "unit_label": "Unit",
+            "project_label": "Project",
+            "status_label": "Status",
+            "created_label": "Created",
+            "progress_label": "Progress",
+            "item_label": "Item",
+            "details_label": "Details",
+            "signature_label": "Signature",
+            "footer": "Automated report",
+            "statuses": {
+                "pending": "Pending",
+                "approved": "Approved",
+                "rejected": "Rejected",
+                "not_applicable": "N/A",
+                "in_progress": "In Progress",
+                "completed": "Completed",
+            },
+        },
+        "he": {
+            "title": "דוח צ'קליסט",
+            "generated": "נוצר",
+            "checklist_label": "צ'קליסט",
+            "unit_label": "יחידה",
+            "project_label": "פרויקט",
+            "status_label": "סטטוס",
+            "created_label": "נוצר",
+            "progress_label": "התקדמות",
+            "item_label": "פריט",
+            "details_label": "פרטים",
+            "signature_label": "חתימה",
+            "footer": "דוח אוטומטי",
+            "statuses": {
+                "pending": "ממתין",
+                "approved": "אושר",
+                "rejected": "נדחה",
+                "not_applicable": "לא רלוונטי",
+                "in_progress": "בתהליך",
+                "completed": "הושלם",
+            },
+        },
+    },
+    "checklist_notification": {
+        "en": {
+            "title": "Checklist Update",
+            "subject_item": "Checklist item {status}: {checklist_name}",
+            "subject_completed": "Checklist completed: {checklist_name}",
+            "project_label": "Project",
+            "checklist_label": "Checklist",
+            "unit_label": "Unit",
+            "section_label": "Section",
+            "item_label": "Item",
+            "status_label": "Status",
+            "notes_label": "Notes",
+            "attachments_label": "Attachments",
+            "more_files": "more files",
+            "status_approved": "Approved",
+            "status_rejected": "Rejected",
+            "status_completed": "Completed",
+            "cta": "View Checklist",
+            "footer": "This is an automated checklist notification from BuilderOps.",
+        },
+        "he": {
+            "title": "עדכון צ'קליסט",
+            "subject_item": "פריט צ'קליסט {status}: {checklist_name}",
+            "subject_completed": "צ'קליסט הושלם: {checklist_name}",
+            "project_label": "פרויקט",
+            "checklist_label": "צ'קליסט",
+            "unit_label": "יחידה",
+            "section_label": "סעיף",
+            "item_label": "פריט",
+            "status_label": "סטטוס",
+            "notes_label": "הערות",
+            "attachments_label": "קבצים מצורפים",
+            "more_files": "קבצים נוספים",
+            "status_approved": "אושר",
+            "status_rejected": "נדחה",
+            "status_completed": "הושלם",
+            "cta": "צפה בצ'קליסט",
+            "footer": "זוהי הודעה אוטומטית מ-BuilderOps על צ'קליסט.",
+        },
+    },
     "rfi": {
         "en": {
             "title": "Request for Information",
@@ -509,3 +595,87 @@ def render_meeting_vote_email(
         align=align,
     )
     return subject, html
+
+
+def render_checklist_email(
+    checklist_name: str,
+    unit_identifier: str,
+    status: str,
+    project_name: str,
+    action_url: str = "",
+    section_name: str = "",
+    item_name: str = "",
+    notes: str = "",
+    image_urls: list | None = None,
+    message: str = "",
+    is_completed: bool = False,
+    language: str = "en",
+) -> tuple[str, str]:
+    s = STRINGS["checklist_notification"].get(language, STRINGS["checklist_notification"]["en"])
+    direction = "rtl" if language == "he" else "ltr"
+    align = "right" if language == "he" else "left"
+
+    status_labels = {"approved": s["status_approved"], "rejected": s["status_rejected"], "completed": s["status_completed"]}
+    status_display = status_labels.get(status, status)
+
+    if is_completed:
+        subject = s["subject_completed"].format(checklist_name=checklist_name)
+    else:
+        subject = s["subject_item"].format(status=status_display, checklist_name=checklist_name)
+
+    template = env.get_template("checklist_notification.html")
+    html = template.render(
+        strings=s,
+        checklist_name=checklist_name,
+        unit_identifier=unit_identifier,
+        status=status,
+        project_name=project_name,
+        action_url=action_url,
+        section_name=section_name,
+        item_name=item_name,
+        notes=notes,
+        image_urls=image_urls or [],
+        message=message,
+        lang=language,
+        direction=direction,
+        align=align,
+    )
+    return subject, html
+
+
+def render_checklist_pdf_html(
+    checklist_name: str,
+    unit_identifier: str,
+    project_name: str,
+    instance_status: str,
+    created_at: str,
+    sections: list,
+    progress_completed: int,
+    progress_total: int,
+    language: str = "en",
+) -> str:
+    from datetime import datetime
+
+    s = STRINGS["checklist_pdf"].get(language, STRINGS["checklist_pdf"]["en"])
+    direction = "rtl" if language == "he" else "ltr"
+    align = "right" if language == "he" else "left"
+    progress_percent = round(progress_completed / progress_total * 100) if progress_total > 0 else 0
+
+    template = env.get_template("checklist_pdf.html")
+    return template.render(
+        s=s,
+        checklist_name=checklist_name,
+        unit_identifier=unit_identifier,
+        project_name=project_name,
+        instance_status=instance_status,
+        created_at=created_at,
+        generated_at=datetime.now().strftime("%Y-%m-%d %H:%M"),
+        sections=sections,
+        progress_completed=progress_completed,
+        progress_total=progress_total,
+        progress_percent=progress_percent,
+        year=datetime.now().year,
+        lang=language,
+        direction=direction,
+        align=align,
+    )

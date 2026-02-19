@@ -11,8 +11,7 @@ import { StatusBadge } from '../components/ui/StatusBadge'
 import { FormModal, ConfirmModal } from '../components/ui/Modal'
 import { Button } from '../components/ui/Button'
 import { ChecklistSection } from '../components/checklist/ChecklistSection'
-import { PhotoCapture } from '../components/checklist/PhotoCapture'
-import { SignaturePad } from '../components/checklist/SignaturePad'
+import { AreaPickerAutocomplete } from '../components/areas/AreaPickerAutocomplete'
 import { checklistsApi } from '../api/checklists'
 import type {
   ChecklistTemplate,
@@ -33,6 +32,7 @@ import {
   CheckCircleIcon,
   PendingIcon,
   HourglassEmptyIcon,
+  PictureAsPdfIcon,
 } from '@/icons'
 import {
   Box,
@@ -45,8 +45,6 @@ import {
   Tab,
   Drawer,
   LinearProgress,
-  ToggleButton,
-  ToggleButtonGroup,
   TextField,
   Autocomplete,
 } from '@/mui'
@@ -72,6 +70,7 @@ export default function ChecklistsPage() {
   const [createLoading, setCreateLoading] = useState(false)
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null)
   const [unitIdentifier, setUnitIdentifier] = useState('')
+  const [selectedAreaId, setSelectedAreaId] = useState<string | null>(null)
 
   // Delete modal
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
@@ -82,11 +81,10 @@ export default function ChecklistsPage() {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [selectedInstance, setSelectedInstance] = useState<ChecklistInstance | null>(null)
   const [selectedTemplate, setSelectedTemplate] = useState<ChecklistTemplate | null>(null)
-  const [activeItemId, setActiveItemId] = useState<string | null>(null)
-  const [itemNotes, setItemNotes] = useState('')
   const [itemPhotos, setItemPhotos] = useState<File[]>([])
   const [itemSignature, setItemSignature] = useState<string | null>(null)
   const [savingResponse, setSavingResponse] = useState(false)
+  const [exportingPdf, setExportingPdf] = useState(false)
 
   useEffect(() => {
     if (projectId) loadData()
@@ -179,12 +177,14 @@ export default function ChecklistsPage() {
       const newInstance = await checklistsApi.createInstance(projectId, {
         template_id: selectedTemplateId,
         unit_identifier: unitIdentifier.trim(),
+        area_id: selectedAreaId || undefined,
       })
       setInstances((prev) => [newInstance, ...prev])
       showSuccess(t('checklists.checklistCreated'))
       setCreateModalOpen(false)
       setSelectedTemplateId(null)
       setUnitIdentifier('')
+      setSelectedAreaId(null)
     } catch {
       showError(t('checklists.failedToCreate'))
     } finally {
@@ -214,36 +214,20 @@ export default function ChecklistsPage() {
     const tpl = templates.find((t) => t.id === instance.template_id)
     setSelectedInstance(instance)
     setSelectedTemplate(tpl || null)
-    setActiveItemId(null)
     setDrawerOpen(true)
   }
 
-  // Item response handlers
-  const handleItemClick = (item: ChecklistItemTemplate) => {
-    if (activeItemId === item.id) {
-      setActiveItemId(null)
-      return
-    }
-    setActiveItemId(item.id)
-    setItemNotes('')
-    const existingResponse = selectedInstance?.responses.find((r) => r.item_template_id === item.id)
-    if (existingResponse?.notes) setItemNotes(existingResponse.notes)
-    setItemPhotos([])
-    setItemSignature(existingResponse?.signature_url || null)
-  }
-
-  const handleStatusChange = async (item: ChecklistItemTemplate, status: string) => {
+  const handleStatusChange = async (item: ChecklistItemTemplate, status: string, notes?: string) => {
     if (!selectedInstance || !projectId || savingResponse) return
     setSavingResponse(true)
-    const isActiveItem = activeItemId === item.id
     try {
       const existingResponse = selectedInstance.responses.find((r) => r.item_template_id === item.id)
       let updatedResponse: ChecklistItemResponse
       if (existingResponse) {
         updatedResponse = await checklistsApi.updateResponse(selectedInstance.id, existingResponse.id, {
           status,
-          notes: isActiveItem ? (itemNotes || undefined) : (existingResponse.notes || undefined),
-          signature_url: isActiveItem ? (itemSignature || undefined) : (existingResponse.signature_url || undefined),
+          notes: notes || existingResponse.notes || undefined,
+          signature_url: itemSignature || existingResponse.signature_url || undefined,
         })
         setSelectedInstance((prev) => {
           if (!prev) return prev
@@ -260,8 +244,8 @@ export default function ChecklistsPage() {
         updatedResponse = await checklistsApi.createResponse(selectedInstance.id, {
           item_template_id: item.id,
           status,
-          notes: isActiveItem ? (itemNotes || undefined) : undefined,
-          signature_url: isActiveItem ? (itemSignature || undefined) : undefined,
+          notes: notes || undefined,
+          signature_url: itemSignature || undefined,
         })
         setSelectedInstance((prev) => {
           if (!prev) return prev
@@ -294,6 +278,26 @@ export default function ChecklistsPage() {
   }
 
   const getItemCount = (tpl: ChecklistTemplate) => tpl.subsections.reduce((sum, sub) => sum + sub.items.length, 0)
+
+  const handleExportPdf = async () => {
+    if (!selectedInstance || !projectId || exportingPdf) return
+    setExportingPdf(true)
+    try {
+      const blob = await checklistsApi.exportPdf(projectId, selectedInstance.id)
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `checklist_${selectedInstance.unit_identifier}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+    } catch {
+      showError(t('checklists.failedToLoad'))
+    } finally {
+      setExportingPdf(false)
+    }
+  }
 
   // Template columns
   const templateColumns: Column<ChecklistTemplate>[] = [
@@ -409,6 +413,19 @@ export default function ChecklistsPage() {
       minWidth: 140,
       render: (row) => (
         <Chip size="small" label={row.unit_identifier} variant="outlined" sx={{ fontWeight: 500 }} />
+      ),
+    },
+    {
+      id: 'area',
+      label: t('areaChecklists.areaPath'),
+      minWidth: 120,
+      hideOnMobile: true,
+      render: (row) => (
+        row.area_id ? (
+          <Chip size="small" label={row.area_id.substring(0, 8)} variant="outlined" color="info" sx={{ fontSize: '0.7rem' }} />
+        ) : (
+          <Typography variant="caption" color="text.disabled">-</Typography>
+        )
       ),
     },
     {
@@ -708,7 +725,7 @@ export default function ChecklistsPage() {
       {/* Create Instance Modal */}
       <FormModal
         open={createModalOpen}
-        onClose={() => { setCreateModalOpen(false); setSelectedTemplateId(null); setUnitIdentifier('') }}
+        onClose={() => { setCreateModalOpen(false); setSelectedTemplateId(null); setUnitIdentifier(''); setSelectedAreaId(null) }}
         onSubmit={handleCreateInstance}
         title={t('checklists.newChecklist')}
         submitLabel={t('buttons.create')}
@@ -726,11 +743,22 @@ export default function ChecklistsPage() {
               <TextField {...params} label={t('checklists.selectTemplate')} required />
             )}
           />
+          <AreaPickerAutocomplete
+            value={selectedAreaId}
+            onChange={(areaId, area) => {
+              setSelectedAreaId(areaId)
+              if (area && !unitIdentifier) {
+                setUnitIdentifier(area.name)
+              }
+            }}
+            projectId={projectId!}
+          />
           <TextField
             label={t('checklists.unitIdentifier')}
             value={unitIdentifier}
             onChange={(e) => setUnitIdentifier(e.target.value)}
             placeholder={t('checklists.unitIdentifierHint')}
+            helperText={t('areaChecklists.orEnterCustom')}
             required
             fullWidth
           />
@@ -769,16 +797,29 @@ export default function ChecklistsPage() {
                     <StatusBadge status={selectedInstance.status} />
                   </Box>
                 </Box>
-                <IconButton
-                  aria-label={t('common.close')}
-                  onClick={() => setDrawerOpen(false)}
-                  sx={{
-                    bgcolor: 'action.hover',
-                    '&:hover': { bgcolor: 'action.selected' },
-                  }}
-                >
-                  <CloseIcon />
-                </IconButton>
+                <Box sx={{ display: 'flex', gap: 0.5 }}>
+                  <IconButton
+                    aria-label={t('checklists.exportPdf')}
+                    onClick={handleExportPdf}
+                    disabled={exportingPdf}
+                    sx={{
+                      bgcolor: 'action.hover',
+                      '&:hover': { bgcolor: 'action.selected' },
+                    }}
+                  >
+                    <PictureAsPdfIcon />
+                  </IconButton>
+                  <IconButton
+                    aria-label={t('common.close')}
+                    onClick={() => setDrawerOpen(false)}
+                    sx={{
+                      bgcolor: 'action.hover',
+                      '&:hover': { bgcolor: 'action.selected' },
+                    }}
+                  >
+                    <CloseIcon />
+                  </IconButton>
+                </Box>
               </Box>
 
               {/* Progress */}
@@ -807,105 +848,23 @@ export default function ChecklistsPage() {
               </Box>
             </Box>
 
-            {/* Body — Sections */}
+            {/* Body — Sections with inline forms */}
             <Box sx={{ flex: 1, overflow: 'auto', p: 2 }}>
               {selectedTemplate.subsections
                 .slice()
                 .sort((a, b) => a.order - b.order)
                 .map((section) => (
-                  <Box key={section.id}>
-                    <ChecklistSection
-                      section={section}
-                      responses={selectedInstance.responses}
-                      defaultExpanded
-                      onItemClick={handleItemClick}
-                    />
-                    {/* Inline item response form */}
-                    {section.items.map((item) =>
-                      activeItemId === item.id ? (
-                        <Box
-                          key={`form-${item.id}`}
-                          sx={{
-                            mx: 2,
-                            mb: 2,
-                            mt: -1,
-                            p: 2,
-                            borderRadius: 2,
-                            border: 1,
-                            borderColor: 'primary.light',
-                            bgcolor: 'background.paper',
-                          }}
-                        >
-                          <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1.5 }}>
-                            {item.name}
-                          </Typography>
-
-                          {/* Status selector */}
-                          <ToggleButtonGroup
-                            value={
-                              selectedInstance.responses.find((r) => r.item_template_id === item.id)?.status || 'pending'
-                            }
-                            exclusive
-                            onChange={(_, val) => {
-                              if (val) handleStatusChange(item, val)
-                            }}
-                            size="small"
-                            sx={{ mb: 2, flexWrap: 'wrap', gap: 0.5, '& .MuiToggleButton-root': { borderRadius: '8px !important', border: '1px solid', borderColor: 'divider' } }}
-                          >
-                            <ToggleButton value="pending" sx={{ textTransform: 'none', fontSize: '0.75rem', px: { xs: 1, sm: 1.5 } }}>
-                              {t('checklists.statusPending')}
-                            </ToggleButton>
-                            <ToggleButton value="approved" color="success" sx={{ textTransform: 'none', fontSize: '0.75rem', px: { xs: 1, sm: 1.5 } }}>
-                              {t('checklists.statusApproved')}
-                            </ToggleButton>
-                            <ToggleButton value="rejected" color="error" sx={{ textTransform: 'none', fontSize: '0.75rem', px: { xs: 1, sm: 1.5 } }}>
-                              {t('checklists.statusRejected')}
-                            </ToggleButton>
-                            <ToggleButton value="not_applicable" sx={{ textTransform: 'none', fontSize: '0.75rem', px: { xs: 1, sm: 1.5 } }}>
-                              {t('checklists.statusNotApplicable')}
-                            </ToggleButton>
-                          </ToggleButtonGroup>
-
-                          {/* Notes */}
-                          {(item.must_note || itemNotes) && (
-                            <TextField
-                              fullWidth
-                              multiline
-                              rows={2}
-                              size="small"
-                              label={t('common.notes')}
-                              placeholder={t('checklists.addNotes')}
-                              value={itemNotes}
-                              onChange={(e) => setItemNotes(e.target.value)}
-                              sx={{ mb: 2 }}
-                            />
-                          )}
-
-                          {/* Photo */}
-                          {item.must_image && (
-                            <Box sx={{ mb: 2 }}>
-                              <PhotoCapture
-                                maxPhotos={5}
-                                onPhotosChange={(files) => setItemPhotos(files)}
-                                disabled={savingResponse}
-                              />
-                            </Box>
-                          )}
-
-                          {/* Signature */}
-                          {item.must_signature && (
-                            <Box sx={{ mb: 2 }}>
-                              <SignaturePad
-                                onSignatureChange={(sig) => setItemSignature(sig)}
-                                required
-                                disabled={savingResponse}
-                              />
-                            </Box>
-                          )}
-                        </Box>
-                      ) : null
-                    )}
-                  </Box>
+                  <ChecklistSection
+                    key={section.id}
+                    section={section}
+                    responses={selectedInstance.responses}
+                    defaultExpanded
+                    onStatusChange={handleStatusChange}
+                    onPhotosChange={(_item, files) => setItemPhotos(files)}
+                    onSignatureChange={(_item, sig) => setItemSignature(sig)}
+                    savingResponse={savingResponse}
+                    readOnly={selectedInstance.status === 'completed'}
+                  />
                 ))}
             </Box>
 
