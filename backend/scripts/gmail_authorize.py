@@ -42,7 +42,7 @@ def get_authorization_code(client_id: str) -> str:
     })
     url = f"{AUTH_URL}?{params}"
 
-    print(f"\nOpening browser for authorization...")
+    print("\nOpening browser for authorization...")
     webbrowser.open(url)
 
     code = None
