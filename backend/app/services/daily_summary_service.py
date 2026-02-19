@@ -293,4 +293,4 @@ async def _get_overall_progress(db: AsyncSession, project_id: uuid.UUID) -> floa
         .where(ConstructionArea.project_id == project_id)
     )
     avg = result.scalar()
-    return round(float(avg), 1) if avg else 0.0
+    return round(float(avg), 1) if avg is not None else 0.0

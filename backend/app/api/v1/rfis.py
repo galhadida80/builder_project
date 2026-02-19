@@ -12,7 +12,7 @@ from app.core.permissions import Permission, check_permission, require_permissio
 from app.core.security import get_current_user, verify_project_access
 from app.db.session import get_db
 from app.models.project import ProjectMember
-from app.models.rfi import RFI, RFIEmailLog
+from app.models.rfi import RFI, RFIEmailLog, RFIResponse as RFIResponseModel
 from app.models.user import User
 from app.schemas.rfi import (
     PaginatedRFIResponse,
@@ -56,7 +56,6 @@ async def get_project_rfis(
         page_size=page_size
     )
 
-    from app.models.rfi import RFIResponse as RFIResponseModel
     rfi_ids = [rfi.id for rfi in rfis]
     count_result = await db.execute(
         select(RFIResponseModel.rfi_id, func.count(RFIResponseModel.id).label("cnt"))

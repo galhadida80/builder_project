@@ -357,6 +357,7 @@ async def remove_project_member(
         raise HTTPException(status_code=404, detail="Member not found")
 
     await db.delete(member)
+    await db.commit()
     return {"message": "Member removed"}
 
 

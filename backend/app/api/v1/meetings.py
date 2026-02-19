@@ -355,6 +355,7 @@ async def update_meeting(
     await create_audit_log(db, current_user, "meeting", meeting.id, AuditAction.UPDATE,
                           project_id=project_id, old_values=old_values, new_values=get_model_dict(meeting))
 
+    await db.flush()
     await db.refresh(meeting, ["created_by", "attendees", "time_slots", "time_votes"])
     return meeting
 

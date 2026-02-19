@@ -288,7 +288,7 @@ export default function RFIPage() {
   }
 
   const isOverdue = (rfi: RFIListItem) => {
-    if (!rfi.due_date || rfi.status === 'closed' || rfi.status === 'answered') return false
+    if (!rfi.due_date || rfi.status === 'closed' || rfi.status === 'answered' || rfi.status === 'cancelled') return false
     return new Date(rfi.due_date) < new Date()
   }
 
