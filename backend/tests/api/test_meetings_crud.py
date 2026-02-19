@@ -28,8 +28,8 @@ def attendee_url(project_id: str, meeting_id: str, user_id: str) -> str:
     return f"{API_V1}/projects/{project_id}/meetings/{meeting_id}/attendees/{user_id}"
 
 
-def confirm_url(project_id: str, meeting_id: str, user_id: str) -> str:
-    return f"{API_V1}/projects/{project_id}/meetings/{meeting_id}/attendees/{user_id}/confirm"
+def rsvp_url(project_id: str, meeting_id: str, user_id: str) -> str:
+    return f"{API_V1}/projects/{project_id}/meetings/{meeting_id}/attendees/{user_id}/rsvp"
 
 
 def valid_meeting_payload(**overrides) -> dict:
@@ -772,7 +772,7 @@ class TestMeetingAttendees:
         data = resp.json()
         assert data["userId"] == str(admin_user.id)
         assert data["role"] == "organizer"
-        assert data["confirmed"] is False
+        assert data["attendanceStatus"] == "pending"
 
     @pytest.mark.asyncio
     async def test_add_attendee_without_role(self, admin_client: AsyncClient, project: Project, admin_user: User):
@@ -806,22 +806,24 @@ class TestMeetingAttendees:
         assert resp.status_code == 404
 
     @pytest.mark.asyncio
-    async def test_confirm_attendance(self, admin_client: AsyncClient, project: Project, admin_user: User):
+    async def test_rsvp_attendance(self, admin_client: AsyncClient, project: Project, admin_user: User):
         created = await create_meeting_via_api(admin_client, str(project.id))
         await admin_client.post(
             attendees_url(str(project.id), created["id"]),
             json={"user_id": str(admin_user.id), "role": "participant"},
         )
         resp = await admin_client.put(
-            confirm_url(str(project.id), created["id"], str(admin_user.id))
+            rsvp_url(str(project.id), created["id"], str(admin_user.id)),
+            json={"status": "accepted"},
         )
         assert resp.status_code == 200
 
     @pytest.mark.asyncio
-    async def test_confirm_nonexistent_attendee(self, admin_client: AsyncClient, project: Project):
+    async def test_rsvp_nonexistent_attendee(self, admin_client: AsyncClient, project: Project):
         created = await create_meeting_via_api(admin_client, str(project.id))
         resp = await admin_client.put(
-            confirm_url(str(project.id), created["id"], str(uuid.uuid4()))
+            rsvp_url(str(project.id), created["id"], str(uuid.uuid4())),
+            json={"status": "accepted"},
         )
         assert resp.status_code == 404
 
@@ -973,9 +975,10 @@ class TestAuthRequirements:
         assert resp.status_code == 401
 
     @pytest.mark.asyncio
-    async def test_confirm_attendance_requires_auth(self, client: AsyncClient, project: Project):
+    async def test_rsvp_attendance_requires_auth(self, client: AsyncClient, project: Project):
         resp = await client.put(
-            confirm_url(str(project.id), FAKE_MEETING_ID, str(uuid.uuid4()))
+            rsvp_url(str(project.id), FAKE_MEETING_ID, str(uuid.uuid4())),
+            json={"status": "accepted"},
         )
         assert resp.status_code == 401
 

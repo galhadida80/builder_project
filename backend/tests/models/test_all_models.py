@@ -456,7 +456,7 @@ class TestMeetingAttendeeModel:
         )
         fetched = result.scalar_one()
         assert fetched.role == "lead"
-        assert fetched.confirmed is False
+        assert fetched.attendance_status == "pending"
 
 
 # ---------------------------------------------------------------------------
