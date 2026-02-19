@@ -59,6 +59,7 @@ class InspectionConsultantTypeResponse(CamelCaseModel):
     name: str
     name_he: str
     category: str | None = None
+    is_active: bool = True
     created_at: datetime
     updated_at: datetime
     stages: list[InspectionStageResponse] = []

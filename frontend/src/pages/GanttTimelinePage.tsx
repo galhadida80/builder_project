@@ -148,7 +148,7 @@ export default function GanttTimelinePage() {
 
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
+                <Typography variant="body2" color="text.secondary" sx={{ me: 1 }}>
                   {t('gantt.zoom')}:
                 </Typography>
                 <IconButton
@@ -185,7 +185,7 @@ export default function GanttTimelinePage() {
                 <Select
                   value={filterValue}
                   onChange={(e) => setFilterValue(e.target.value)}
-                  startAdornment={<FilterListIcon sx={{ mr: 1, fontSize: 18, color: 'text.secondary' }} />}
+                  startAdornment={<FilterListIcon sx={{ me: 1, fontSize: 18, color: 'text.secondary' }} />}
                   sx={{ fontSize: '0.875rem' }}
                 >
                   <MenuItem value="all">{t('gantt.allTasks')}</MenuItem>

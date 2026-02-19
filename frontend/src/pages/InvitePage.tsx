@@ -99,7 +99,7 @@ export default function InvitePage() {
               <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
                 {t('invite.invitedAs')}
               </Typography>
-              <Chip label={t(`roles.${invitation.role}`, { defaultValue: invitation.role.replace('_', ' ') })} color="primary" sx={{ mb: 2, textTransform: 'capitalize' }} />
+              <Chip label={t(`roles.${invitation.role}`, { defaultValue: invitation.role.replace(/_/g, ' ') })} color="primary" sx={{ mb: 2, textTransform: 'capitalize' }} />
 
               <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
                 {t('invite.forEmail')}: <strong>{invitation.email}</strong>

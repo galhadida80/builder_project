@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Button } from '../components/ui/Button'
@@ -47,13 +47,6 @@ export default function LoginPage() {
     }
   }, [])
 
-  useEffect(() => {
-    if (webauthnAvailable && webauthnEmail && tab === 'signin' && !biometricAttempted.current) {
-      biometricAttempted.current = true
-      handleBiometricLogin(webauthnEmail)
-    }
-  }, [webauthnAvailable, webauthnEmail, tab])
-
   const resetForm = () => {
     setEmail('')
     setPassword('')
@@ -90,7 +83,7 @@ export default function LoginPage() {
     }
   }
 
-  const handleBiometricLogin = async (biometricEmail: string) => {
+  const handleBiometricLogin = useCallback(async (biometricEmail: string) => {
     setBiometricLoading(true)
     setError(null)
     try {
@@ -101,7 +94,14 @@ export default function LoginPage() {
     } finally {
       setBiometricLoading(false)
     }
-  }
+  }, [loginWithWebAuthn, navigateAfterLogin])
+
+  useEffect(() => {
+    if (webauthnAvailable && webauthnEmail && tab === 'signin' && !biometricAttempted.current) {
+      biometricAttempted.current = true
+      handleBiometricLogin(webauthnEmail)
+    }
+  }, [webauthnAvailable, webauthnEmail, tab, handleBiometricLogin])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -132,6 +132,7 @@ export default function LoginPage() {
     if (password !== confirmPassword) {
       setError(t('passwordsMismatch'))
       setLoading(false)
+      submittingRef.current = false
       return
     }
 
@@ -139,6 +140,7 @@ export default function LoginPage() {
     if (!pwResult.success) {
       setPasswordErrors(pwResult.error.issues.map((i) => i.message))
       setLoading(false)
+      submittingRef.current = false
       return
     }
     setPasswordErrors([])

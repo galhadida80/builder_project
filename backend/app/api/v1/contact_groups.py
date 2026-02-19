@@ -156,6 +156,7 @@ async def delete_contact_group(
     if not group:
         raise HTTPException(status_code=404, detail="Contact group not found")
     await db.delete(group)
+    await db.commit()
     return {"message": "Contact group deleted"}
 
 
@@ -208,6 +209,7 @@ async def remove_member(
     if not member:
         raise HTTPException(status_code=404, detail="Member not found in group")
     await db.delete(member)
+    await db.commit()
     return {"message": "Member removed"}
 
 

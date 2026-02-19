@@ -84,6 +84,9 @@ def analyze_defect_image(file_content: bytes, file_type: str, language: str = "e
     response = client.models.generate_content(model=model_name, contents=contents)
     elapsed_ms = int((time.time() - start) * 1000)
 
+    if not response.text:
+        return {"category": "other", "severity": "medium", "description": "", "processing_time_ms": elapsed_ms}
+
     text = response.text.strip()
     if text.startswith("```"):
         text = text.split("\n", 1)[1] if "\n" in text else text[3:]
@@ -121,6 +124,9 @@ def analyze_document(file_content: bytes, file_type: str, analysis_type: str, mo
     start = time.time()
     response = client.models.generate_content(model=model_name, contents=contents)
     elapsed_ms = int((time.time() - start) * 1000)
+
+    if not response.text:
+        return {"result": {"extracted_text": "", "key_findings": [], "metadata": {}}, "processing_time_ms": elapsed_ms, "model_used": model_name}
 
     text = response.text.strip()
     if text.startswith("```"):

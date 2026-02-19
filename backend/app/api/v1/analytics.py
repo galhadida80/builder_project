@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Path, Query
+from fastapi import APIRouter, Depends, HTTPException, Path, Query
 from sqlalchemy import Date, case, cast, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -397,7 +397,6 @@ async def get_dashboard_stats(
         )
     )
     if not membership.scalar_one_or_none() and not current_user.is_super_admin:
-        from fastapi import HTTPException
         raise HTTPException(status_code=403, detail="Not a project member")
 
     equip_result = await db.execute(
@@ -453,32 +452,38 @@ async def get_dashboard_stats(
 
     today = datetime.now(timezone.utc).date()
     start_date = today - timedelta(days=13)
+    day_start = datetime.combine(start_date, datetime.min.time())
+    day_end = datetime.combine(today + timedelta(days=1), datetime.min.time())
+
+    activity_result = await db.execute(
+        select(
+            cast(AuditLog.created_at, Date).label("day"),
+            AuditLog.entity_type,
+            func.count().label("cnt"),
+        )
+        .where(
+            AuditLog.project_id == project_id,
+            AuditLog.entity_type.in_(["equipment", "material", "inspection", "rfi"]),
+            AuditLog.created_at >= day_start,
+            AuditLog.created_at < day_end,
+        )
+        .group_by(cast(AuditLog.created_at, Date), AuditLog.entity_type)
+    )
+    activity_map = {}
+    for row in activity_result.all():
+        key = (str(row.day), row.entity_type)
+        activity_map[key] = row.cnt
+
     weekly_activity = []
     for day_offset in range(14):
         day = start_date + timedelta(days=day_offset)
-        day_start = datetime.combine(day, datetime.min.time())
-        day_end = datetime.combine(day + timedelta(days=1), datetime.min.time())
-
-        counts = {}
-        for entity_type in ["equipment", "material", "inspection", "rfi"]:
-            result = await db.execute(
-                select(func.count())
-                .select_from(AuditLog)
-                .where(
-                    AuditLog.project_id == project_id,
-                    AuditLog.entity_type == entity_type,
-                    AuditLog.created_at >= day_start,
-                    AuditLog.created_at < day_end,
-                )
-            )
-            counts[entity_type] = result.scalar() or 0
-
+        day_str = day.isoformat()
         weekly_activity.append(WeeklyActivityPoint(
-            date=day.isoformat(),
-            equipment=counts["equipment"],
-            materials=counts["material"],
-            inspections=counts["inspection"],
-            rfis=counts["rfi"],
+            date=day_str,
+            equipment=activity_map.get((day_str, "equipment"), 0),
+            materials=activity_map.get((day_str, "material"), 0),
+            inspections=activity_map.get((day_str, "inspection"), 0),
+            rfis=activity_map.get((day_str, "rfi"), 0),
         ))
 
     area_result = await db.execute(

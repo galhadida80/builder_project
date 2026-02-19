@@ -1,3 +1,5 @@
+import i18next from 'i18next'
+
 export const VALIDATION = {
   MIN_NAME_LENGTH: 2,
   MAX_NAME_LENGTH: 255,
@@ -50,21 +52,21 @@ export const sanitizeString = (value: string | undefined | null): string => {
 
 export const validateRequired = (value: string | undefined | null, fieldName: string): string | null => {
   if (!value || value.trim() === '') {
-    return `${fieldName} is required`
+    return i18next.t('validation.fieldRequired', { defaultValue: `${fieldName} is required` })
   }
   return null
 }
 
 export const validateMinLength = (value: string | undefined | null, min: number, fieldName: string): string | null => {
   if (value && value.trim().length < min) {
-    return `${fieldName} must be at least ${min} characters`
+    return i18next.t('validation.tooShort', { min, defaultValue: `${fieldName} must be at least ${min} characters` })
   }
   return null
 }
 
 export const validateMaxLength = (value: string | undefined | null, max: number, fieldName: string): string | null => {
   if (value && value.length > max) {
-    return `${fieldName} must be less than ${max} characters`
+    return i18next.t('validation.tooLong', { max, defaultValue: `${fieldName} must be less than ${max} characters` })
   }
   return null
 }
@@ -72,7 +74,7 @@ export const validateMaxLength = (value: string | undefined | null, max: number,
 export const validateNumberRange = (value: number | undefined | null, min: number, max: number, fieldName: string): string | null => {
   if (value === undefined || value === null) return null
   if (value < min || value > max) {
-    return `${fieldName} must be between ${min} and ${max}`
+    return i18next.t('validation.invalidRange', { min, max, defaultValue: `${fieldName} must be between ${min} and ${max}` })
   }
   return null
 }
@@ -81,7 +83,7 @@ export const validateCode = (value: string | undefined | null, fieldName: string
   if (!value) return null
   const trimmed = value.trim()
   if (!/^[A-Za-z0-9][A-Za-z0-9\-_]*[A-Za-z0-9]?$/.test(trimmed)) {
-    return `${fieldName} must contain only letters, numbers, hyphens, and underscores`
+    return i18next.t('validation.codeFormat', { defaultValue: `${fieldName} must contain only letters, numbers, hyphens, and underscores` })
   }
   return null
 }
@@ -90,7 +92,7 @@ export const validateSerialNumber = (value: string | undefined | null, fieldName
   if (!value) return null
   const trimmed = value.trim()
   if (!/^[A-Za-z0-9][A-Za-z0-9\-_]*[A-Za-z0-9]?$/.test(trimmed)) {
-    return `${fieldName} must contain only letters, numbers, hyphens, and underscores`
+    return i18next.t('validation.codeFormat', { defaultValue: `${fieldName} must contain only letters, numbers, hyphens, and underscores` })
   }
   return null
 }
@@ -98,7 +100,7 @@ export const validateSerialNumber = (value: string | undefined | null, fieldName
 export const validatePhone = (value: string | undefined | null): string | null => {
   if (!value || !value.trim()) return null
   if (!/^[\d\s\-+().]+$/.test(value)) {
-    return 'Phone must contain only digits, spaces, and standard phone characters'
+    return i18next.t('validation.invalidPhone', { defaultValue: 'Phone must contain only digits, spaces, and standard phone characters' })
   }
   let digits = value.replace(/[\s\-().]/g, '')
   if (digits.startsWith('+972')) {
@@ -107,7 +109,7 @@ export const validatePhone = (value: string | undefined | null): string | null =
     digits = '0' + digits.slice(3)
   }
   if (!/^0[2-9]\d{7,8}$/.test(digits)) {
-    return 'Please enter a valid Israeli phone number (e.g. 050-1234567, 02-1234567)'
+    return i18next.t('validation.invalidPhoneFormat', { defaultValue: 'Please enter a valid Israeli phone number (e.g. 050-1234567, 02-1234567)' })
   }
   return null
 }
@@ -115,7 +117,7 @@ export const validatePhone = (value: string | undefined | null): string | null =
 export const validateEmail = (value: string | undefined | null): string | null => {
   if (!value) return null
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-    return 'Please enter a valid email address'
+    return i18next.t('validation.invalidEmail', { defaultValue: 'Please enter a valid email address' })
   }
   return null
 }
@@ -126,7 +128,7 @@ export const validateRequiredEmail = (value: string | undefined | null, fieldNam
 
 export const validatePositiveNumber = (value: number | undefined | null, fieldName: string): string | null => {
   if (value !== undefined && value !== null && value < 0) {
-    return `${fieldName} must be a positive number`
+    return i18next.t('validation.positiveNumber', { defaultValue: `${fieldName} must be a positive number` })
   }
   return null
 }
@@ -136,7 +138,7 @@ export const validateDateRange = (startDate: string | undefined | null, endDate:
   const start = new Date(startDate)
   const end = new Date(endDate)
   if (end < start) {
-    return 'End date must be after start date'
+    return i18next.t('validation.endDateAfterStart', { defaultValue: 'End date must be after start date' })
   }
   return null
 }
@@ -147,7 +149,7 @@ const RFI_PRIORITIES = ['low', 'medium', 'high', 'urgent']
 export const validateEnum = (value: string | undefined | null, allowed: string[], fieldName: string): string | null => {
   if (!value) return null
   if (!allowed.includes(value)) {
-    return `${fieldName} must be one of: ${allowed.join(', ')}`
+    return i18next.t('validation.invalidOption', { options: allowed.join(', '), defaultValue: `${fieldName} must be one of: ${allowed.join(', ')}` })
   }
   return null
 }

@@ -59,7 +59,8 @@ async def list_materials(
     if status:
         base_filter = and_(base_filter, Material.status == status)
     if search:
-        search_filter = f"%{search}%"
+        escaped = search.replace("%", "\\%").replace("_", "\\_")
+        search_filter = f"%{escaped}%"
         base_filter = and_(
             base_filter,
             or_(
@@ -230,15 +231,19 @@ async def submit_material_for_approval(
     db.add(approval_request)
     await db.flush()
 
-    step1 = ApprovalStep(
-        approval_request_id=approval_request.id, step_order=1,
-        approver_role="consultant", contact_id=body.consultant_contact_id
-    )
-    step2 = ApprovalStep(
-        approval_request_id=approval_request.id, step_order=2,
-        approver_role="inspector", contact_id=body.inspector_contact_id
-    )
-    db.add_all([step1, step2])
+    steps = []
+    if body.consultant_contact_id:
+        steps.append(ApprovalStep(
+            approval_request_id=approval_request.id, step_order=1,
+            approver_role="consultant", contact_id=body.consultant_contact_id
+        ))
+    if body.inspector_contact_id:
+        steps.append(ApprovalStep(
+            approval_request_id=approval_request.id, step_order=len(steps) + 1,
+            approver_role="inspector", contact_id=body.inspector_contact_id
+        ))
+    if steps:
+        db.add_all(steps)
 
     consultant_result = await db.execute(select(Contact).where(Contact.id == body.consultant_contact_id))
     consultant = consultant_result.scalar_one_or_none()

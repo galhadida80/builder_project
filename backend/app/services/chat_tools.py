@@ -667,7 +667,10 @@ async def search_documents(db: AsyncSession, project_id: uuid.UUID, **kwargs) ->
         .where(DocumentAnalysis.project_id == project_id)
         .where(DocumentAnalysis.status == "completed")
         .where(
-            cast(DocumentAnalysis.result, String).ilike(f"%{query_text}%")
+            cast(DocumentAnalysis.result, String).ilike(
+                f"%{query_text.replace('%', '\\%').replace('_', '\\_')}%",
+                escape="\\"
+            )
         )
         .order_by(DocumentAnalysis.created_at.desc())
         .limit(limit)

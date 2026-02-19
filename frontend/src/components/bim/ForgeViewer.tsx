@@ -99,7 +99,7 @@ export default function ForgeViewer({ urn, getToken }: ForgeViewerProps) {
         viewer.start()
         viewerRef.current = viewer
 
-        const encodedUrn = btoa(urn).replace(/=/g, '')
+        const encodedUrn = btoa(urn).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
         const documentId = `urn:${encodedUrn}`
 
         window.Autodesk.Viewing.Document.load(

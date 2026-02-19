@@ -102,6 +102,20 @@ export default function TemplatePicker<T extends TemplateBase>({
 }: TemplatePickerProps<T>) {
   const { t } = useTranslation()
 
+  const categoryKeyMap = useMemo(() => {
+    const map = new Map<string, string>()
+    templates.forEach(tmpl => {
+      const cat = tmpl.category || 'general'
+      if (!map.has(cat)) {
+        const key = `templatePicker.categories.${cat}`
+        const translated = t(key)
+        const label = translated !== key ? translated : (cat === 'general' ? 'General' : formatCategoryFallback(cat))
+        map.set(label, cat)
+      }
+    })
+    return map
+  }, [templates, t])
+
   const formatCategory = useCallback((category: string | null): string => {
     if (!category) {
       const key = 'templatePicker.categories.general'
@@ -255,33 +269,36 @@ export default function TemplatePicker<T extends TemplateBase>({
             </li>
           )
         }}
-        renderGroup={(params) => (
-          <li key={params.key}>
-            <Box
-              sx={{
-                position: 'sticky',
-                top: -8,
-                px: 2,
-                py: 1,
-                bgcolor: 'background.default',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 1,
-                borderBottom: '1px solid',
-                borderColor: 'divider',
-                zIndex: 1,
-              }}
-            >
-              <Box sx={{ color: getCategoryColor(params.group.toLowerCase().replace(/ /g, '_')), display: 'flex' }}>
-                {getCategoryIcon(params.group.toLowerCase().replace(/ /g, '_'))}
+        renderGroup={(params) => {
+          const originalKey = categoryKeyMap.get(params.group) || null
+          return (
+            <li key={params.key}>
+              <Box
+                sx={{
+                  position: 'sticky',
+                  top: -8,
+                  px: 2,
+                  py: 1,
+                  bgcolor: 'background.default',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                  borderBottom: '1px solid',
+                  borderColor: 'divider',
+                  zIndex: 1,
+                }}
+              >
+                <Box sx={{ color: getCategoryColor(originalKey), display: 'flex' }}>
+                  {getCategoryIcon(originalKey)}
+                </Box>
+                <Typography variant="caption" fontWeight={700} color="text.secondary" textTransform="uppercase" letterSpacing={0.5}>
+                  {params.group}
+                </Typography>
               </Box>
-              <Typography variant="caption" fontWeight={700} color="text.secondary" textTransform="uppercase" letterSpacing={0.5}>
-                {params.group}
-              </Typography>
-            </Box>
-            <ul style={{ padding: 0 }}>{params.children}</ul>
-          </li>
-        )}
+              <ul style={{ padding: 0 }}>{params.children}</ul>
+            </li>
+          )
+        }}
         noOptionsText={noOptionsTextProp || t('templatePicker.noResults')}
         sx={{
           '& .MuiAutocomplete-listbox': {

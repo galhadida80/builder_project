@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import TYPE_CHECKING, Optional
 
@@ -105,9 +105,9 @@ class RFI(Base):
 
     attachments: Mapped[Optional[list]] = mapped_column(JSONB, default=list)
 
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+        DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc)
     )
     sent_at: Mapped[Optional[datetime]] = mapped_column(DateTime)
 
@@ -165,7 +165,7 @@ class RFIResponse(Base):
     is_cc_participant: Mapped[bool] = mapped_column(Boolean, default=False)
     source: Mapped[str] = mapped_column(String(50), default="email")
 
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
     received_at: Mapped[Optional[datetime]] = mapped_column(DateTime)
 
     rfi: Mapped["RFI"] = relationship("RFI", back_populates="responses")
@@ -197,6 +197,6 @@ class RFIEmailLog(Base):
     raw_payload: Mapped[Optional[dict]] = mapped_column(JSONB)
     error_message: Mapped[Optional[str]] = mapped_column(Text)
 
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     rfi: Mapped[Optional["RFI"]] = relationship("RFI", back_populates="email_logs")

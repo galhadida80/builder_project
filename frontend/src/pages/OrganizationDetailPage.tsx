@@ -152,7 +152,7 @@ export default function OrganizationDetailPage() {
             <Chip label={org.code} size="small" variant="outlined" />
             <Chip
               icon={<GroupIcon sx={{ fontSize: 14 }} />}
-              label={`${org.memberCount} ${t('organizations.members', 'members')}`}
+              label={`${members.length} ${t('organizations.members', 'members')}`}
               size="small"
             />
           </Box>
@@ -260,7 +260,7 @@ export default function OrganizationDetailPage() {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {projects.map((project: any) => (
+                    {projects.map((project) => (
                       <TableRow key={project.id} hover sx={{ cursor: 'pointer' }} onClick={() => navigate(`/projects/${project.id}`)}>
                         <TableCell>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>

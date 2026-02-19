@@ -269,13 +269,13 @@ export default function BudgetPage() {
             {CATEGORIES.map(c => <MenuItem key={c} value={c}>{t(`budget.categories.${c}`, { defaultValue: c })}</MenuItem>)}
           </MuiTextField>
           <TextField fullWidth label={t('budget.description', { defaultValue: 'Description' })} multiline rows={2} value={itemForm.description || ''} onChange={(e) => setItemForm({ ...itemForm, description: e.target.value || undefined })} />
-          <TextField fullWidth label={t('budget.budgetedAmount', { defaultValue: 'Budgeted Amount' })} type="number" value={itemForm.budgeted_amount || ''} onChange={(e) => setItemForm({ ...itemForm, budgeted_amount: parseFloat(e.target.value) || 0 })} required />
+          <TextField fullWidth label={t('budget.budgetedAmount', { defaultValue: 'Budgeted Amount' })} type="number" value={itemForm.budgeted_amount} onChange={(e) => setItemForm({ ...itemForm, budgeted_amount: e.target.value === '' ? 0 : parseFloat(e.target.value) })} required />
         </Box>
       </FormModal>
 
-      <FormModal open={costDialog} onClose={() => setCostDialog(false)} onSubmit={handleSaveCost} title={t('budget.addCost', { defaultValue: 'Add Cost Entry' })} submitDisabled={costForm.amount == null}>
+      <FormModal open={costDialog} onClose={() => setCostDialog(false)} onSubmit={handleSaveCost} title={t('budget.addCost', { defaultValue: 'Add Cost Entry' })} submitDisabled={!costForm.amount || costForm.amount <= 0}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1 }}>
-          <TextField fullWidth label={t('budget.amount', { defaultValue: 'Amount' })} type="number" value={costForm.amount || ''} onChange={(e) => setCostForm({ ...costForm, amount: parseFloat(e.target.value) || 0 })} required />
+          <TextField fullWidth label={t('budget.amount', { defaultValue: 'Amount' })} type="number" value={costForm.amount} onChange={(e) => setCostForm({ ...costForm, amount: e.target.value === '' ? 0 : parseFloat(e.target.value) })} required />
           <TextField fullWidth label={t('budget.date', { defaultValue: 'Date' })} type="date" InputLabelProps={{ shrink: true }} value={costForm.entry_date} onChange={(e) => setCostForm({ ...costForm, entry_date: e.target.value })} />
           <TextField fullWidth label={t('budget.vendor', { defaultValue: 'Vendor' })} value={costForm.vendor || ''} onChange={(e) => setCostForm({ ...costForm, vendor: e.target.value || undefined })} />
           <TextField fullWidth label={t('budget.description', { defaultValue: 'Description' })} value={costForm.description || ''} onChange={(e) => setCostForm({ ...costForm, description: e.target.value || undefined })} />

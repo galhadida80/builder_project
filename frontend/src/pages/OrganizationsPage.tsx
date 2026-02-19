@@ -41,9 +41,18 @@ export default function OrganizationsPage() {
   }
 
   const handleCreate = async () => {
-    if (!formData.name.trim() || !formData.code.trim()) return
-    if (formData.name.length > 100 || formData.code.length > 20) return
-    if (!/^[A-Z0-9-]+$/.test(formData.code)) return
+    if (!formData.name.trim() || !formData.code.trim()) {
+      showError(t('organizations.fillRequired', 'Please fill in all required fields'))
+      return
+    }
+    if (formData.name.length > 100 || formData.code.length > 20) {
+      showError(t('organizations.fieldTooLong', 'Field exceeds maximum length'))
+      return
+    }
+    if (!/^[A-Z0-9-]+$/.test(formData.code)) {
+      showError(t('organizations.invalidCode', 'Code must contain only uppercase letters, numbers, and dashes'))
+      return
+    }
     setSaving(true)
     try {
       await withMinDuration(organizationsApi.create({

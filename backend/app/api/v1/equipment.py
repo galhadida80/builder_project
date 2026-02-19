@@ -35,6 +35,8 @@ router = APIRouter()
 async def list_all_equipment(
     project_id: Optional[UUID] = Query(None),
     status: Optional[str] = Query(None),
+    limit: int = Query(100, ge=1, le=1000),
+    offset: int = Query(0, ge=0),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -45,8 +47,11 @@ async def list_all_equipment(
     if project_id:
         query = query.where(Equipment.project_id == project_id)
     if status:
+        valid_statuses = {s.value for s in ApprovalStatus}
+        if status not in valid_statuses:
+            raise HTTPException(status_code=400, detail=f"Invalid status. Must be one of: {', '.join(valid_statuses)}")
         query = query.where(Equipment.status == status)
-    result = await db.execute(query.order_by(Equipment.created_at.desc()))
+    result = await db.execute(query.order_by(Equipment.created_at.desc()).limit(limit).offset(offset))
     return result.scalars().all()
 
 
@@ -66,7 +71,8 @@ async def list_equipment(
     if status:
         base_filter = and_(base_filter, Equipment.status == status)
     if search:
-        search_filter = f"%{search}%"
+        escaped = search.replace("%", "\\%").replace("_", "\\_")
+        search_filter = f"%{escaped}%"
         base_filter = and_(
             base_filter,
             or_(
@@ -237,15 +243,19 @@ async def submit_equipment_for_approval(
     db.add(approval_request)
     await db.flush()
 
-    step1 = ApprovalStep(
-        approval_request_id=approval_request.id, step_order=1,
-        approver_role="consultant", contact_id=body.consultant_contact_id
-    )
-    step2 = ApprovalStep(
-        approval_request_id=approval_request.id, step_order=2,
-        approver_role="inspector", contact_id=body.inspector_contact_id
-    )
-    db.add_all([step1, step2])
+    steps = []
+    if body.consultant_contact_id:
+        steps.append(ApprovalStep(
+            approval_request_id=approval_request.id, step_order=1,
+            approver_role="consultant", contact_id=body.consultant_contact_id
+        ))
+    if body.inspector_contact_id:
+        steps.append(ApprovalStep(
+            approval_request_id=approval_request.id, step_order=len(steps) + 1,
+            approver_role="inspector", contact_id=body.inspector_contact_id
+        ))
+    if steps:
+        db.add_all(steps)
 
     consultant_result = await db.execute(select(Contact).where(Contact.id == body.consultant_contact_id))
     consultant = consultant_result.scalar_one_or_none()

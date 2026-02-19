@@ -98,7 +98,7 @@ async def get_project_admin_emails(db: AsyncSession, project_id) -> list[dict]:
         )
     )
     admins = result.scalars().all()
-    return [{"user_id": str(a.id), "email": a.email} for a in admins]
+    return [{"user_id": a.id, "email": a.email} for a in admins]
 
 
 async def check_approval_deadlines(db: AsyncSession) -> list[dict]:

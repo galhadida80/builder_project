@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 
 from sqlalchemy import DateTime, ForeignKey, Integer, String, Text
@@ -37,7 +37,7 @@ class InspectionStage(Base):
     description: Mapped[str | None] = mapped_column(Text)
     order: Mapped[int] = mapped_column(Integer, nullable=False)
     required_documentation: Mapped[dict | None] = mapped_column(JSONB, default=dict)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     consultant_type = relationship("InspectionConsultantType", back_populates="stages")
 
@@ -53,8 +53,8 @@ class Inspection(Base):
     current_stage: Mapped[str | None] = mapped_column(String(255))
     status: Mapped[str] = mapped_column(String(50), default=InspectionStatus.PENDING.value)
     notes: Mapped[str | None] = mapped_column(Text)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     created_by_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
 
     project = relationship("Project", back_populates="inspections")
@@ -74,8 +74,8 @@ class Finding(Base):
     status: Mapped[str] = mapped_column(String(50), default=FindingStatus.OPEN.value)
     location: Mapped[str | None] = mapped_column(String(255))
     photos: Mapped[list | None] = mapped_column(JSONB, default=list)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     created_by_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
 
     inspection = relationship("Inspection", back_populates="findings")

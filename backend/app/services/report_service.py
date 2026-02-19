@@ -135,7 +135,10 @@ async def generate_rfi_aging_report(db: AsyncSession, project_id: UUID) -> dict:
     aging_items = []
 
     for rfi in open_rfis:
-        age_days = (now - rfi.created_at).days
+        created = rfi.created_at
+        if created.tzinfo is None:
+            created = created.replace(tzinfo=timezone.utc)
+        age_days = (now - created).days
         priority = rfi.priority or "medium"
 
         if priority not in priority_groups:

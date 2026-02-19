@@ -365,7 +365,13 @@
     "tooShort": "Must be at least {{min}} characters",
     "tooLong": "Must be less than {{max}} characters",
     "invalidEmail": "Please enter a valid email address",
-    "invalidRange": "Value must be between {{min}} and {{max}}"
+    "invalidRange": "Value must be between {{min}} and {{max}}",
+    "invalidPhone": "Phone must contain only digits, spaces, and standard phone characters",
+    "invalidPhoneFormat": "Please enter a valid Israeli phone number (e.g. 050-1234567, 02-1234567)",
+    "positiveNumber": "Must be a positive number",
+    "endDateAfterStart": "End date must be after start date",
+    "codeFormat": "Must contain only letters, numbers, hyphens, and underscores",
+    "invalidOption": "Must be one of: {{options}}"
   },
   "common": {
     "welcome": "Welcome",
@@ -439,7 +445,8 @@
       "in_progress": "In Progress",
       "failed": "Failed",
       "draft": "Draft",
-      "cancelled": "Cancelled"
+      "cancelled": "Cancelled",
+      "archived": "Archived"
     },
     "openNavMenu": "Open navigation menu",
     "userMenu": "User menu",

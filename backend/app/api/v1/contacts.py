@@ -105,26 +105,44 @@ async def import_contacts_csv(
     reader = csv.DictReader(io.StringIO(text))
 
     imported_count = 0
-    for row in reader:
+    errors = []
+    for line_num, row in enumerate(reader, start=2):
         contact_name = (row.get("contact_name") or "").strip()
         contact_type = (row.get("contact_type") or "").strip()
         if not contact_name or not contact_type:
+            continue
+
+        email = (row.get("email") or "").strip() or None
+        if email and ("@" not in email or len(email) > 255):
+            errors.append(f"Row {line_num}: invalid email '{email}'")
+            continue
+
+        phone = (row.get("phone") or "").strip() or None
+        if phone and len(phone) > 50:
+            errors.append(f"Row {line_num}: phone too long")
+            continue
+
+        if len(contact_name) > 255 or len(contact_type) > 100:
+            errors.append(f"Row {line_num}: field too long")
             continue
 
         contact = Contact(
             project_id=project_id,
             contact_name=contact_name,
             contact_type=contact_type,
-            company_name=(row.get("company_name") or "").strip() or None,
-            role_description=(row.get("role_description") or "").strip() or None,
-            email=(row.get("email") or "").strip() or None,
-            phone=(row.get("phone") or "").strip() or None,
+            company_name=(row.get("company_name") or "").strip()[:255] or None,
+            role_description=(row.get("role_description") or "").strip()[:255] or None,
+            email=email,
+            phone=phone,
         )
         db.add(contact)
         imported_count += 1
 
     await db.commit()
-    return {"imported_count": imported_count}
+    result = {"imported_count": imported_count}
+    if errors:
+        result["errors"] = errors[:20]
+    return result
 
 
 @router.post("/projects/{project_id}/contacts", response_model=ContactResponse)
@@ -204,6 +222,7 @@ async def update_contact(
                           project_id=project_id, old_values=old_values, new_values=get_model_dict(contact))
 
     await db.commit()
+    await db.refresh(contact, ["user"])
     return contact
 
 

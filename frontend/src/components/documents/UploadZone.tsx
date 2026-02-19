@@ -2,10 +2,9 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDropzone } from 'react-dropzone'
 import { useToast } from '../common/ToastProvider'
-import { ProgressBar } from '../ui/ProgressBar'
 import { formatFileSize } from '../../utils/fileUtils'
 import { CloudUploadIcon } from '@/icons'
-import { Box, Typography, Paper, CircularProgress, styled, alpha } from '@/mui'
+import { Box, Typography, Paper, CircularProgress, LinearProgress, styled, alpha } from '@/mui'
 
 interface UploadZoneProps {
   onUpload: (file: File) => Promise<void>
@@ -53,7 +52,6 @@ export function UploadZone({
   const { t } = useTranslation()
   const { showError } = useToast()
   const [uploading, setUploading] = useState(false)
-  const [uploadProgress, setUploadProgress] = useState(0)
   const [currentFileName, setCurrentFileName] = useState('')
   const [uploadQueue, setUploadQueue] = useState<File[]>([])
   const [uploadedCount, setUploadedCount] = useState(0)
@@ -66,7 +64,7 @@ export function UploadZone({
         const errors = rejection.errors
 
         if (errors.some((e: any) => e.code === 'file-too-large')) {
-          showError(t('upload.fileTooLarge', { name: file.name, size: maxSize / (1024 * 1024) }))
+          showError(t('upload.fileTooLarge', { name: file.name, maxSize: formatFileSize(maxSize) }))
         } else if (errors.some((e: any) => e.code === 'file-invalid-type')) {
           showError(t('upload.invalidType', { name: file.name }))
         } else {
@@ -86,7 +84,6 @@ export function UploadZone({
     for (let i = 0; i < acceptedFiles.length; i++) {
       const file = acceptedFiles[i]
       setCurrentFileName(file.name)
-      setUploadProgress(0)
 
       try {
         await onUpload(file)
@@ -99,7 +96,6 @@ export function UploadZone({
 
     // Reset state after all uploads complete
     setUploading(false)
-    setUploadProgress(0)
     setCurrentFileName('')
     setUploadQueue([])
     setUploadedCount(0)
@@ -137,7 +133,7 @@ export function UploadZone({
               </Typography>
             )}
             <Box sx={{ mt: 2, px: 4 }}>
-              <ProgressBar value={uploadProgress} showValue={false} />
+              <LinearProgress />
             </Box>
           </Box>
         ) : (

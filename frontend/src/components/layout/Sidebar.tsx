@@ -205,7 +205,7 @@ export default memo(function Sidebar({ projectId, mobileOpen = false, onMobileCl
               return (
                 <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }} data-tour={item.tourId}>
                   <ListItemButton
-                    selected={location.pathname === fullPath}
+                    selected={location.pathname.startsWith(fullPath)}
                     onClick={() => handleNavigation(item.path, true)}
                     sx={{
                       borderRadius: 2,

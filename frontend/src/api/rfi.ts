@@ -27,12 +27,12 @@ export interface RFI {
   created_by?: {
     id: string
     email: string
-    display_name: string
+    fullName: string
   }
   assigned_to?: {
     id: string
     email: string
-    display_name: string
+    fullName: string
   }
   responses?: RFIResponseData[]
 }
@@ -49,7 +49,7 @@ export interface RFIResponseData {
   responder?: {
     id: string
     email: string
-    display_name: string
+    fullName: string
   }
   is_internal: boolean
   is_cc_participant: boolean

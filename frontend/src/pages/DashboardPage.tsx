@@ -43,39 +43,42 @@ export default function DashboardPage() {
   const [statsLoading, setStatsLoading] = useState(false)
 
   useEffect(() => {
-    loadDashboardData()
+    let stale = false
+    const load = async () => {
+      try {
+        setLoading(true)
+        const pid = selectedProjectId
+        const [equipmentData, materialsData, meetingsData, approvalsData, auditData, teamData] = await Promise.all([
+          equipmentApi.list(pid),
+          materialsApi.list(pid),
+          meetingsApi.list(pid),
+          approvalsApi.list(pid),
+          pid ? auditApi.listByProject(pid, { limit: 10 }) : auditApi.listAll({ limit: 10 }),
+          workloadApi.getTeamMembers(pid)
+        ])
+        if (stale) return
+        setEquipment(equipmentData.items)
+        setMaterials(materialsData.items)
+        setMeetings(meetingsData)
+        setApprovals(approvalsData)
+        setAuditLogs(auditData)
+        setTeamMembers(teamData)
+      } catch (error) {
+        if (stale) return
+        console.error('Failed to load dashboard data:', error)
+        showError(t('dashboard.failedToLoad'))
+      } finally {
+        if (!stale) setLoading(false)
+      }
+    }
+    load()
     if (selectedProjectId) {
       loadDashboardStats()
     } else {
       setDashboardStats(null)
     }
+    return () => { stale = true }
   }, [selectedProjectId])
-
-  const loadDashboardData = async () => {
-    try {
-      setLoading(true)
-      const pid = selectedProjectId
-      const [equipmentData, materialsData, meetingsData, approvalsData, auditData, teamData] = await Promise.all([
-        equipmentApi.list(pid),
-        materialsApi.list(pid),
-        meetingsApi.list(pid),
-        approvalsApi.list(pid),
-        pid ? auditApi.listByProject(pid, { limit: 10 }) : auditApi.listAll({ limit: 10 }),
-        workloadApi.getTeamMembers(pid)
-      ])
-      setEquipment(equipmentData.items)
-      setMaterials(materialsData.items)
-      setMeetings(meetingsData)
-      setApprovals(approvalsData)
-      setAuditLogs(auditData)
-      setTeamMembers(teamData)
-    } catch (error) {
-      console.error('Failed to load dashboard data:', error)
-      showError(t('dashboard.failedToLoad'))
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const loadDashboardStats = async () => {
     if (!selectedProjectId) return
@@ -92,7 +95,8 @@ export default function DashboardPage() {
 
   const pendingApprovals = approvals.filter(a => a.currentStatus !== 'approved' && a.currentStatus !== 'rejected')
   const sevenDaysFromNow = new Date(Date.now() + 7 * 86400000)
-  const upcomingMeetings = meetings.filter(m => (m.status === 'scheduled' || m.status === 'invitations_sent') && new Date(m.scheduledDate) <= sevenDaysFromNow)
+  const now = new Date()
+  const upcomingMeetings = meetings.filter(m => (m.status === 'scheduled' || m.status === 'invitations_sent') && new Date(m.scheduledDate) >= now && new Date(m.scheduledDate) <= sevenDaysFromNow)
   const equipmentPending = equipment.filter(e => e.status !== 'approved' && e.status !== 'draft')
   const materialsPending = materials.filter(m => m.status !== 'approved' && m.status !== 'draft')
   const completionRate = equipment.length > 0

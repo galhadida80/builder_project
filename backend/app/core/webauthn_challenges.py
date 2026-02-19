@@ -3,6 +3,7 @@ from typing import Optional
 
 CHALLENGE_TTL = 300
 
+# WARNING: In-memory store — not shared across workers. Use Redis for multi-worker deployments.
 challenges: dict[str, tuple[bytes, float]] = {}
 
 

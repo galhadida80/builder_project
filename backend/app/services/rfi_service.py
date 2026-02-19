@@ -276,7 +276,7 @@ class RFIService:
                 for a in parsed.attachments
             ],
             source='email',
-            is_internal=bool(responder),
+            is_internal=False,
             is_cc_participant=is_cc,
             received_at=datetime.now(timezone.utc)
         )
@@ -327,7 +327,7 @@ class RFIService:
         )
         self.db.add(response)
 
-        if send_email and self.email_service.enabled:
+        if send_email and not is_internal and self.email_service.enabled:
             try:
                 rfi_from_email = await self.generate_rfi_from_email(rfi.project_id, rfi.rfi_number)
                 logger.info(f"Sending RFI response email: reply_to={rfi_from_email}")
@@ -361,6 +361,10 @@ class RFIService:
         return response
 
     async def update_status(self, rfi_id: uuid.UUID, status: str) -> RFI:
+        valid_statuses = {s.value for s in RFIStatus}
+        if status not in valid_statuses:
+            raise ValueError(f"Invalid status: {status}. Must be one of: {', '.join(valid_statuses)}")
+
         result = await self.db.execute(select(RFI).where(RFI.id == rfi_id))
         rfi = result.scalar_one_or_none()
         if not rfi:
@@ -370,6 +374,8 @@ class RFIService:
 
         if status == RFIStatus.CLOSED.value:
             rfi.closed_at = datetime.now(timezone.utc)
+        elif rfi.closed_at and status in (RFIStatus.OPEN.value, RFIStatus.WAITING_RESPONSE.value):
+            rfi.closed_at = None
 
         await self.db.commit()
         await self.db.refresh(rfi)

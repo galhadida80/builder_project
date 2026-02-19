@@ -199,13 +199,12 @@ export default function DefectsPage() {
     if (!projectId) return
     setLoading(true)
     try {
-      const params: { status?: string; category?: string; search?: string; page: number; pageSize: number } = {
+      const params: { status?: string; category?: string; page: number; pageSize: number } = {
         page,
         pageSize: rowsPerPage,
       }
       if (activeTab !== 'all') params.status = activeTab
       if (categoryFilter) params.category = categoryFilter
-      if (searchQuery) params.search = searchQuery
       const result = await defectsApi.list(projectId, params)
       setDefects(result.items)
       setTotalDefects(result.total)
@@ -531,7 +530,7 @@ export default function DefectsPage() {
                 />
                 <TablePagination
                   component="div"
-                  count={totalDefects}
+                  count={searchQuery ? filteredDefects.length : totalDefects}
                   page={page - 1}
                   rowsPerPage={rowsPerPage}
                   onPageChange={(_, newPage) => setPage(newPage + 1)}

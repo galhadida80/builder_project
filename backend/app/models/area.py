@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from decimal import Decimal
 from enum import Enum
 from typing import Optional
@@ -32,7 +32,7 @@ class ConstructionArea(Base):
     area_code: Mapped[Optional[str]] = mapped_column(String(50))
     total_units: Mapped[int] = mapped_column(Integer, default=1)
     current_progress: Mapped[Decimal] = mapped_column(Numeric(5, 2), default=0)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     project = relationship("Project", back_populates="areas")
     parent = relationship("ConstructionArea", remote_side=[id], backref="children")
@@ -47,7 +47,7 @@ class AreaProgress(Base):
     progress_percentage: Mapped[Decimal] = mapped_column(Numeric(5, 2), default=0)
     notes: Mapped[Optional[str]] = mapped_column(Text)
     photos: Mapped[Optional[list]] = mapped_column(JSONB, default=list)
-    reported_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    reported_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
     reported_by_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
 
     area = relationship("ConstructionArea", back_populates="progress_updates")

@@ -39,7 +39,7 @@ class ProjectInvitation(Base):
         DateTime, default=lambda: datetime.now(timezone.utc) + timedelta(days=7)
     )
     accepted_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     project = relationship("Project")
     invited_by = relationship("User", foreign_keys=[invited_by_id])

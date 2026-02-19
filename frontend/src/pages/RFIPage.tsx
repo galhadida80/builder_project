@@ -137,9 +137,7 @@ export default function RFIPage() {
   }
 
   useEffect(() => {
-    if (!loading) {
-      loadRfis()
-    }
+    loadRfis()
   }, [activeTab, search])
 
   const resetForm = () => {
@@ -186,7 +184,7 @@ export default function RFIPage() {
         question: fullRfi.question,
         to_email: fullRfi.to_email,
         to_name: fullRfi.to_name || '',
-        cc_emails: [],
+        cc_emails: fullRfi.cc_emails || [],
         category: fullRfi.category,
         priority: fullRfi.priority,
         due_date: fullRfi.due_date || '',

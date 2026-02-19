@@ -225,8 +225,9 @@ export default function ChecklistsPage() {
       return
     }
     setActiveItemId(item.id)
+    setItemNotes('')
     const existingResponse = selectedInstance?.responses.find((r) => r.item_template_id === item.id)
-    setItemNotes(existingResponse?.notes || '')
+    if (existingResponse?.notes) setItemNotes(existingResponse.notes)
     setItemPhotos([])
     setItemSignature(existingResponse?.signature_url || null)
   }

@@ -74,6 +74,7 @@ async def create_project(
     await create_audit_log(db, current_user, "project", project.id, AuditAction.CREATE,
                           project_id=project.id, new_values=get_model_dict(project))
 
+    await db.commit()
     await db.refresh(project, ["members"])
     return project
 
@@ -212,9 +213,23 @@ async def get_project_overview(
         inspections_data.total + equipment_data.total +
         materials_data.total + checklists_data.total
     )
+    equipment_approved_result = await db.execute(
+        select(
+            func.count(case((Equipment.status == ApprovalStatus.APPROVED.value, 1))).label("approved")
+        ).where(Equipment.project_id == project_id)
+    )
+    equipment_approved = equipment_approved_result.scalar() or 0
+
+    materials_approved_result = await db.execute(
+        select(
+            func.count(case((Material.status == ApprovalStatus.APPROVED.value, 1))).label("approved")
+        ).where(Material.project_id == project_id)
+    )
+    materials_approved = materials_approved_result.scalar() or 0
+
     completed_items = (
-        inspections_data.completed + equipment_data.submitted +
-        materials_data.submitted + checklists_data.completed
+        inspections_data.completed + equipment_approved +
+        materials_approved + checklists_data.completed
     )
     overall_percentage = (completed_items / total_items * 100) if total_items > 0 else 0.0
 
@@ -309,6 +324,15 @@ async def add_project_member(
     caller: ProjectMember = require_permission(Permission.MANAGE_MEMBERS),
     db: AsyncSession = Depends(get_db),
 ):
+    existing = await db.execute(
+        select(ProjectMember).where(
+            ProjectMember.project_id == project_id,
+            ProjectMember.user_id == data.user_id,
+        )
+    )
+    if existing.scalar_one_or_none():
+        raise HTTPException(status_code=409, detail="User is already a member of this project")
+
     member = ProjectMember(project_id=project_id, user_id=data.user_id, role=data.role)
     db.add(member)
     await db.flush()

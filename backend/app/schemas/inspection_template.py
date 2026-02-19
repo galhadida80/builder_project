@@ -3,18 +3,16 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field, field_validator
 
-from app.core.validators import MAX_DESCRIPTION_LENGTH, MAX_NAME_LENGTH, MIN_NAME_LENGTH, sanitize_string
+from app.core.validators import MAX_DESCRIPTION_LENGTH, MAX_NAME_LENGTH, MIN_NAME_LENGTH, CamelCaseModel, sanitize_string
 
 
-class InspectionConsultantTypeResponse(BaseModel):
+class InspectionConsultantTypeResponse(CamelCaseModel):
     id: UUID
     name: str
     name_he: str
     category: str | None = None
+    is_active: bool = True
     created_at: datetime
-
-    class Config:
-        from_attributes = True
 
 
 class InspectionStageTemplateBase(BaseModel):
@@ -47,18 +45,15 @@ class InspectionStageTemplateUpdate(BaseModel):
         return sanitize_string(v)
 
 
-class InspectionStageTemplateResponse(BaseModel):
+class InspectionStageTemplateResponse(CamelCaseModel):
     id: UUID
     consultant_type_id: UUID
     name: str
     name_he: str
     description: str | None = None
-    display_order: int
+    stage_order: int
     created_at: datetime
     updated_at: datetime
-
-    class Config:
-        from_attributes = True
 
 
 class ProjectInspectionCreate(BaseModel):
@@ -84,7 +79,7 @@ class ProjectInspectionUpdate(BaseModel):
         return sanitize_string(v)
 
 
-class ProjectInspectionResponse(BaseModel):
+class ProjectInspectionResponse(CamelCaseModel):
     id: UUID
     project_id: UUID
     stage_id: UUID
@@ -92,9 +87,6 @@ class ProjectInspectionResponse(BaseModel):
     scheduled_date: date | None = None
     created_at: datetime
     updated_at: datetime
-
-    class Config:
-        from_attributes = True
 
 
 class InspectionFindingCreate(BaseModel):
@@ -123,7 +115,7 @@ class InspectionFindingUpdate(BaseModel):
         return sanitize_string(v)
 
 
-class InspectionFindingResponse(BaseModel):
+class InspectionFindingResponse(CamelCaseModel):
     id: UUID
     inspection_id: UUID
     finding_type: str
@@ -133,23 +125,18 @@ class InspectionFindingResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
 
-
-class InspectionConsultantTypeWithStages(BaseModel):
+class InspectionConsultantTypeWithStages(CamelCaseModel):
     id: UUID
     name: str
     name_he: str
     category: str | None = None
+    is_active: bool = True
     created_at: datetime
     stages: list[InspectionStageTemplateResponse] = []
 
-    class Config:
-        from_attributes = True
 
-
-class ProjectInspectionWithFindings(BaseModel):
+class ProjectInspectionWithFindings(CamelCaseModel):
     id: UUID
     project_id: UUID
     stage_id: UUID
@@ -158,6 +145,3 @@ class ProjectInspectionWithFindings(BaseModel):
     created_at: datetime
     updated_at: datetime
     findings: list[InspectionFindingResponse] = []
-
-    class Config:
-        from_attributes = True

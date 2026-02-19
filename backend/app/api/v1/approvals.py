@@ -197,6 +197,7 @@ async def process_approval_step(
     if data.action == "approve":
         step.status = "approved"
         step.approved_by_id = current_user.id
+        step.approved_at = datetime.now(timezone.utc)
         step.comments = data.comments
 
         next_step_result = await db.execute(
@@ -345,6 +346,7 @@ async def approve_request(
 
     step.status = "approved"
     step.approved_by_id = current_user.id
+    step.approved_at = datetime.now(timezone.utc)
     if data:
         step.comments = data.comments
 
@@ -427,6 +429,7 @@ async def reject_request(
 
     step.status = "rejected"
     step.approved_by_id = current_user.id
+    step.approved_at = datetime.now(timezone.utc)
     if data:
         step.comments = data.comments
     approval_request.current_status = ApprovalStatus.REJECTED.value

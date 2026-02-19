@@ -19,8 +19,8 @@ export const checklistsApi = {
     return response.data
   },
 
-  getTemplate: async (templateId: string): Promise<ChecklistTemplate> => {
-    const response = await apiClient.get(`/checklist-templates/${templateId}`)
+  getTemplate: async (projectId: string, templateId: string): Promise<ChecklistTemplate> => {
+    const response = await apiClient.get(`/projects/${projectId}/checklist-templates/${templateId}`)
     return response.data
   },
 
@@ -29,8 +29,8 @@ export const checklistsApi = {
     return response.data
   },
 
-  updateTemplate: async (templateId: string, data: ChecklistTemplateUpdate): Promise<ChecklistTemplate> => {
-    const response = await apiClient.put(`/checklist-templates/${templateId}`, data)
+  updateTemplate: async (projectId: string, templateId: string, data: ChecklistTemplateUpdate): Promise<ChecklistTemplate> => {
+    const response = await apiClient.put(`/projects/${projectId}/checklist-templates/${templateId}`, data)
     return response.data
   },
 

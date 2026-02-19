@@ -1,3 +1,4 @@
+import html as html_mod
 import logging
 import uuid as uuid_mod
 from datetime import datetime, timezone
@@ -390,6 +391,12 @@ async def add_attendee(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    meeting_result = await db.execute(
+        select(Meeting).where(Meeting.id == meeting_id, Meeting.project_id == project_id)
+    )
+    if not meeting_result.scalar_one_or_none():
+        raise HTTPException(status_code=404, detail="Meeting not found")
+
     existing_result = await db.execute(
         select(MeetingAttendee).where(
             MeetingAttendee.meeting_id == meeting_id,
@@ -425,6 +432,12 @@ async def remove_attendee(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    meeting_result = await db.execute(
+        select(Meeting).where(Meeting.id == meeting_id, Meeting.project_id == project_id)
+    )
+    if not meeting_result.scalar_one_or_none():
+        raise HTTPException(status_code=404, detail="Meeting not found")
+
     result = await db.execute(
         select(MeetingAttendee).where(
             MeetingAttendee.meeting_id == meeting_id,
@@ -527,7 +540,7 @@ async def rsvp_by_token(
     )
 
 
-@router.get("/meetings/vote/{token}", response_class=HTMLResponse)
+@router.post("/meetings/vote/{token}", response_class=HTMLResponse)
 async def vote_for_time_slot(
     token: str,
     slot: UUID = Query(..., description="Time slot ID to vote for"),
@@ -712,21 +725,23 @@ async def get_meeting_calendar_links(
 def render_vote_result_html(message: str, meeting_title: str = "Meeting", error: bool = False) -> str:
     color = "#DC2626" if error else "#16A34A"
     icon = "&#10060;" if error else "&#9989;"
+    safe_title = html_mod.escape(meeting_title)
+    safe_message = html_mod.escape(message)
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vote - {meeting_title}</title></head>
+<title>Vote - {safe_title}</title></head>
 <body style="margin:0;padding:0;background-color:#F1F5F9;font-family:Arial,Helvetica,sans-serif;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#F1F5F9;">
 <tr><td align="center" style="padding:48px 16px;">
 <table role="presentation" width="500" cellpadding="0" cellspacing="0" style="max-width:500px;width:100%;background-color:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.06),0 4px 16px rgba(0,0,0,0.04);">
 <tr><td style="background:#0F172A;padding:24px 32px;">
 <p style="margin:0;font-size:12px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:#64748B;">BuilderOps</p>
-<p style="margin:8px 0 0;font-size:18px;font-weight:700;color:#FFFFFF;">{meeting_title}</p>
+<p style="margin:8px 0 0;font-size:18px;font-weight:700;color:#FFFFFF;">{safe_title}</p>
 </td></tr>
 <tr><td style="padding:40px 32px;text-align:center;">
 <p style="font-size:48px;margin:0 0 16px;">{icon}</p>
-<p style="font-size:16px;color:#334155;line-height:1.6;margin:0;">{message}</p>
+<p style="font-size:16px;color:#334155;line-height:1.6;margin:0;">{safe_message}</p>
 </td></tr>
 <tr><td style="background-color:#F8FAFC;padding:16px 32px;text-align:center;border-top:1px solid #E2E8F0;">
 <p style="margin:0;color:#94A3B8;font-size:12px;">You can close this page.</p>

@@ -139,15 +139,15 @@ async def login(data: UserLogin, request: Request, db: AsyncSession = Depends(ge
             detail=error_message
         )
 
-    if not verify_password(data.password, user.password_hash):
+    if not user.is_active:
         error_message = translate_message('invalid_credentials', language)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=error_message
         )
 
-    if not user.is_active:
-        error_message = translate_message('account_inactive', language)
+    if not verify_password(data.password, user.password_hash):
+        error_message = translate_message('invalid_credentials', language)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=error_message
@@ -178,6 +178,8 @@ async def update_current_user(
         user.phone = data.phone
     if data.company is not None:
         user.company = data.company
+    if data.language is not None:
+        user.language = data.language
     await db.commit()
     await db.refresh(user)
     return user

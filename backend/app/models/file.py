@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from sqlalchemy import DateTime, ForeignKey, Integer, String
@@ -22,7 +22,7 @@ class File(Base):
     file_type: Mapped[Optional[str]] = mapped_column(String(100))
     file_size: Mapped[Optional[int]] = mapped_column(Integer)
     storage_path: Mapped[str] = mapped_column(String(500), nullable=False)
-    uploaded_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    uploaded_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
     uploaded_by_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
 
     uploaded_by = relationship("User", foreign_keys=[uploaded_by_id])

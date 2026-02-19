@@ -105,7 +105,7 @@ export default function DocumentReviewPage() {
 
     try {
       const newComment = await documentReviewsApi.createComment(projectId, documentId, {
-        commentText: text,
+        comment_text: text,
       })
 
       // Optimistic update
@@ -122,8 +122,8 @@ export default function DocumentReviewPage() {
 
     try {
       const newComment = await documentReviewsApi.createComment(projectId, documentId, {
-        commentText: text,
-        parentCommentId,
+        comment_text: text,
+        parent_comment_id: parentCommentId,
       })
 
       // Add reply to the parent comment
@@ -159,7 +159,7 @@ export default function DocumentReviewPage() {
 
     try {
       const updatedComment = await documentReviewsApi.updateComment(commentId, {
-        commentText: text,
+        comment_text: text,
       })
 
       // Update comment in state
@@ -387,7 +387,7 @@ export default function DocumentReviewPage() {
           <ArrowBackIcon />
         </IconButton>
         <Typography variant="body2" color="text.secondary">
-          Back to Project
+          {t('documentReview.backToProject', 'Back to Project')}
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mx: 1 }}>
           /

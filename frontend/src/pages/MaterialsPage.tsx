@@ -44,6 +44,7 @@ export default function MaterialsPage() {
   const [page, setPage] = useState(1)
   const [rowsPerPage, setRowsPerPage] = useState(20)
   const [search, setSearch] = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
   const [selectedMaterial, setSelectedMaterial] = useState<Material | null>(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -81,8 +82,13 @@ export default function MaterialsPage() {
   }, [materialTemplates, formData.templateId])
 
   useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 300)
+    return () => clearTimeout(timer)
+  }, [search])
+
+  useEffect(() => {
     loadMaterials()
-  }, [projectId, page, rowsPerPage, activeTab, search])
+  }, [projectId, page, rowsPerPage, activeTab, debouncedSearch])
 
   useEffect(() => {
     const loadFiles = async () => {
@@ -119,7 +125,7 @@ export default function MaterialsPage() {
           params.status = activeTab
         }
       }
-      if (search) params.search = search
+      if (debouncedSearch) params.search = debouncedSearch
       const result = await materialsApi.list(projectId!, params)
       setMaterials(result.items)
       setTotalMaterials(result.total)
@@ -287,24 +293,16 @@ export default function MaterialsPage() {
   const handleConfirmSubmit = async (consultantContactId?: string, inspectorContactId?: string) => {
     if (!projectId || !selectedMaterial) return
     setSubmitting(true)
-    const previousMaterials = [...materials]
-    const previousSelected = { ...selectedMaterial }
-    setMaterials(prev => prev.map(m =>
-      m.id === selectedMaterial.id ? { ...m, status: 'submitted' } : m
-    ))
-    setSelectedMaterial({ ...selectedMaterial, status: 'submitted' })
     setContactDialogOpen(false)
     setDrawerOpen(false)
-    showSuccess(t('materials.materialSubmittedSuccessfully'))
     try {
       const body: { consultant_contact_id?: string; inspector_contact_id?: string } = {}
       if (consultantContactId) body.consultant_contact_id = consultantContactId
       if (inspectorContactId) body.inspector_contact_id = inspectorContactId
       await materialsApi.submit(projectId, selectedMaterial.id, body)
+      showSuccess(t('materials.materialSubmittedSuccessfully'))
       loadMaterials()
     } catch {
-      setMaterials(previousMaterials)
-      setSelectedMaterial(previousSelected)
       showError(t('materials.failedToSubmitMaterial'))
     } finally {
       setSubmitting(false)
@@ -808,7 +806,7 @@ export default function MaterialsPage() {
             <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1.5, fontWeight: 600 }}>
               {t('materials.approvalTimeline')}
             </Typography>
-            <ApprovalStepper status={selectedMaterial.status as 'draft' | 'submitted' | 'under_review' | 'approved' | 'rejected'} />
+            <ApprovalStepper status={(selectedMaterial.status === 'revision_requested' ? 'rejected' : selectedMaterial.status) as 'draft' | 'submitted' | 'under_review' | 'approved' | 'rejected'} />
 
             <Box sx={{ mt: 3, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
               {selectedMaterial.status === 'draft' && (

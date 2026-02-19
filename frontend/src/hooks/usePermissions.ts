@@ -27,6 +27,10 @@ interface UsePermissionsResult {
 
 const cache = new Map<string, PermissionsData>()
 
+export function clearPermissionsCache() {
+  cache.clear()
+}
+
 export function usePermissions(projectId?: string, memberId?: string): UsePermissionsResult {
   const [data, setData] = useState<PermissionsData | null>(null)
   const [loading, setLoading] = useState(false)
@@ -57,6 +61,15 @@ export function usePermissions(projectId?: string, memberId?: string): UsePermis
   useEffect(() => {
     fetchPermissions()
   }, [fetchPermissions])
+
+  useEffect(() => {
+    const handleLogout = () => {
+      cache.clear()
+      setData(null)
+    }
+    window.addEventListener('auth:logout', handleLogout)
+    return () => window.removeEventListener('auth:logout', handleLogout)
+  }, [])
 
   const can = useCallback(
     (permission: string) => data?.permissions.includes(permission) ?? false,

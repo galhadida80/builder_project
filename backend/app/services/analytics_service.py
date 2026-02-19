@@ -105,21 +105,32 @@ async def get_project_benchmarks(db: AsyncSession, user: User) -> list[dict]:
     projects_result = await db.execute(project_query)
     projects = projects_result.all()
 
-    benchmarks = []
-    for project in projects:
-        metrics = {}
-        for entity_type, model in ENTITY_MODEL_MAP.items():
-            if not hasattr(model, "project_id"):
-                continue
-            count_result = await db.execute(
-                select(func.count(model.id))
-                .where(model.project_id == project.id)
-            )
-            metrics[f"{entity_type}_count"] = float(count_result.scalar() or 0)
+    if not projects:
+        return []
 
+    project_ids = [p.id for p in projects]
+    project_name_map = {p.id: p.name for p in projects}
+
+    metrics_map = {pid: {} for pid in project_ids}
+    for entity_type, model in ENTITY_MODEL_MAP.items():
+        if not hasattr(model, "project_id"):
+            continue
+        result = await db.execute(
+            select(model.project_id, func.count(model.id))
+            .where(model.project_id.in_(project_ids))
+            .group_by(model.project_id)
+        )
+        for row in result.all():
+            metrics_map[row[0]][f"{entity_type}_count"] = float(row[1])
+
+    benchmarks = []
+    for pid in project_ids:
+        metrics = {}
+        for entity_type in ENTITY_MODEL_MAP:
+            metrics[f"{entity_type}_count"] = metrics_map.get(pid, {}).get(f"{entity_type}_count", 0.0)
         benchmarks.append({
-            "project_id": project.id,
-            "project_name": project.name,
+            "project_id": pid,
+            "project_name": project_name_map[pid],
             "metrics": metrics,
         })
 

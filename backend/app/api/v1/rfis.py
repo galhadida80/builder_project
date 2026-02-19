@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -56,15 +56,17 @@ async def get_project_rfis(
         page_size=page_size
     )
 
+    from app.models.rfi import RFIResponse as RFIResponseModel
+    rfi_ids = [rfi.id for rfi in rfis]
+    count_result = await db.execute(
+        select(RFIResponseModel.rfi_id, func.count(RFIResponseModel.id).label("cnt"))
+        .where(RFIResponseModel.rfi_id.in_(rfi_ids))
+        .group_by(RFIResponseModel.rfi_id)
+    )
+    response_counts = {row.rfi_id: row.cnt for row in count_result.all()}
+
     rfi_responses = []
     for rfi in rfis:
-        response_count_result = await db.execute(
-            select(RFI)
-            .options(selectinload(RFI.responses))
-            .where(RFI.id == rfi.id)
-        )
-        rfi_with_responses = response_count_result.scalar_one()
-
         rfi_responses.append(RFIListResponse(
             id=rfi.id,
             project_id=rfi.project_id,
@@ -79,7 +81,7 @@ async def get_project_rfis(
             created_at=rfi.created_at,
             sent_at=rfi.sent_at,
             responded_at=rfi.responded_at,
-            response_count=len(rfi_with_responses.responses),
+            response_count=response_counts.get(rfi.id, 0),
             related_equipment_id=rfi.related_equipment_id,
             related_material_id=rfi.related_material_id
         ))

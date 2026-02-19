@@ -39,6 +39,7 @@ export default function EquipmentPage() {
   const [page, setPage] = useState(1)
   const [rowsPerPage, setRowsPerPage] = useState(20)
   const [search, setSearch] = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
   const [selectedEquipment, setSelectedEquipment] = useState<Equipment | null>(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -73,8 +74,13 @@ export default function EquipmentPage() {
   }, [equipmentTemplates, formData.templateId])
 
   useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 300)
+    return () => clearTimeout(timer)
+  }, [search])
+
+  useEffect(() => {
     loadEquipment()
-  }, [projectId, page, rowsPerPage, activeTab, search])
+  }, [projectId, page, rowsPerPage, activeTab, debouncedSearch])
 
   useEffect(() => {
     const loadFiles = async () => {
@@ -111,7 +117,7 @@ export default function EquipmentPage() {
           params.status = activeTab
         }
       }
-      if (search) params.search = search
+      if (debouncedSearch) params.search = debouncedSearch
       const result = await equipmentApi.list(projectId!, params)
       setEquipment(result.items)
       setTotalEquipment(result.total)
@@ -271,24 +277,16 @@ export default function EquipmentPage() {
   const handleConfirmSubmit = async (consultantContactId?: string, inspectorContactId?: string) => {
     if (!projectId || !selectedEquipment) return
     setSubmitting(true)
-    const previousEquipment = [...equipment]
-    const previousSelected = { ...selectedEquipment }
-    setEquipment(prev => prev.map(eq =>
-      eq.id === selectedEquipment.id ? { ...eq, status: 'submitted' } : eq
-    ))
-    setSelectedEquipment({ ...selectedEquipment, status: 'submitted' })
     setContactDialogOpen(false)
     setDrawerOpen(false)
-    showSuccess(t('equipment.equipmentSubmittedSuccessfully'))
     try {
       const body: { consultant_contact_id?: string; inspector_contact_id?: string } = {}
       if (consultantContactId) body.consultant_contact_id = consultantContactId
       if (inspectorContactId) body.inspector_contact_id = inspectorContactId
       await equipmentApi.submit(projectId, selectedEquipment.id, body)
+      showSuccess(t('equipment.equipmentSubmittedSuccessfully'))
       loadEquipment()
     } catch {
-      setEquipment(previousEquipment)
-      setSelectedEquipment(previousSelected)
       showError(t('equipment.failedToSubmitEquipment'))
     } finally {
       setSubmitting(false)
@@ -740,7 +738,7 @@ export default function EquipmentPage() {
             <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1.5, fontWeight: 600 }}>
               {t('equipment.approvalTimeline')}
             </Typography>
-            <ApprovalStepper status={selectedEquipment.status as 'draft' | 'submitted' | 'under_review' | 'approved' | 'rejected'} />
+            <ApprovalStepper status={(selectedEquipment.status === 'revision_requested' ? 'rejected' : selectedEquipment.status) as 'draft' | 'submitted' | 'under_review' | 'approved' | 'rejected'} />
 
             <Box sx={{ mt: 3, display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
               {selectedEquipment.status === 'draft' && (

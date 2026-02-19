@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, useRef, ReactNode } from 'react'
+import { createContext, useContext, useState, useCallback, useRef, useEffect, ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { slideInUp, fadeOut, duration, easing } from '@/utils/animations'
 import { Snackbar, Alert } from '@/mui'
@@ -17,9 +17,8 @@ const ToastContext = createContext<ToastContextType | undefined>(undefined)
 
 export function useToast() {
   const context = useContext(ToastContext)
-  const { t } = useTranslation()
   if (!context) {
-    throw new Error(t('errors.toastProviderError') || 'useToast must be used within a ToastProvider')
+    throw new Error('useToast must be used within a ToastProvider')
   }
   return context
 }
@@ -29,12 +28,22 @@ interface ToastProviderProps {
 }
 
 export function ToastProvider({ children }: ToastProviderProps) {
+  const { i18n } = useTranslation()
+  const isRtl = i18n.dir() === 'rtl'
   const [open, setOpen] = useState(false)
   const [message, setMessage] = useState('')
   const [severity, setSeverity] = useState<ToastSeverity>('info')
   const [isExiting, setIsExiting] = useState(false)
   const [toastKey, setToastKey] = useState(0)
   const exitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (exitTimerRef.current) {
+        clearTimeout(exitTimerRef.current)
+      }
+    }
+  }, [])
 
   const showToast = useCallback((msg: string, sev: ToastSeverity = 'info') => {
     if (exitTimerRef.current) {
@@ -87,7 +96,7 @@ export function ToastProvider({ children }: ToastProviderProps) {
         open={open}
         autoHideDuration={4000}
         onClose={handleClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        anchorOrigin={{ vertical: 'bottom', horizontal: isRtl ? 'left' : 'right' }}
         sx={{
           '& .MuiSnackbarContent-root, & .MuiPaper-root': {
             animation: isExiting

@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from urllib.parse import quote
+from uuid import uuid4
 
 
 def generate_ical_event(meeting_data: dict) -> str:
@@ -15,10 +16,16 @@ def generate_ical_event(meeting_data: dict) -> str:
     else:
         dt_start = scheduled_date
 
+    if dt_start.tzinfo is None:
+        dt_start = dt_start.replace(tzinfo=timezone.utc)
+    else:
+        dt_start = dt_start.astimezone(timezone.utc)
+
     dt_end = dt_start + timedelta(hours=1)
     now = datetime.now(timezone.utc)
 
-    dt_format = "%Y%m%dT%H%M%S"
+    dt_format = "%Y%m%dT%H%M%SZ"
+    uid = f"{uuid4()}@builderops"
     lines = [
         "BEGIN:VCALENDAR",
         "VERSION:2.0",
@@ -26,6 +33,7 @@ def generate_ical_event(meeting_data: dict) -> str:
         "CALSCALE:GREGORIAN",
         "METHOD:REQUEST",
         "BEGIN:VEVENT",
+        f"UID:{uid}",
         f"DTSTART:{dt_start.strftime(dt_format)}",
         f"DTEND:{dt_end.strftime(dt_format)}",
         f"DTSTAMP:{now.strftime(dt_format)}",
@@ -64,6 +72,11 @@ def generate_google_calendar_url(meeting_data: dict) -> str:
     else:
         dt_start = scheduled_date
 
+    if dt_start.tzinfo is None:
+        dt_start = dt_start.replace(tzinfo=timezone.utc)
+    else:
+        dt_start = dt_start.astimezone(timezone.utc)
+
     dt_end = dt_start + timedelta(hours=1)
     dt_format = "%Y%m%dT%H%M%SZ"
 
@@ -94,6 +107,11 @@ def generate_outlook_url(meeting_data: dict) -> str:
         dt_start = datetime.fromisoformat(scheduled_date.replace("Z", "+00:00"))
     else:
         dt_start = scheduled_date
+
+    if dt_start.tzinfo is None:
+        dt_start = dt_start.replace(tzinfo=timezone.utc)
+    else:
+        dt_start = dt_start.astimezone(timezone.utc)
 
     dt_end = dt_start + timedelta(hours=1)
     iso_format = "%Y-%m-%dT%H:%M:%SZ"

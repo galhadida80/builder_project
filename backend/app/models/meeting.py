@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Optional
 
@@ -35,8 +35,8 @@ class Meeting(Base):
     summary: Mapped[Optional[str]] = mapped_column(Text)
     action_items: Mapped[Optional[dict]] = mapped_column(JSONB, default=list)
     status: Mapped[str] = mapped_column(String(50), default=MeetingStatus.SCHEDULED.value)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     created_by_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
 
     has_time_slots: Mapped[bool] = mapped_column(Boolean, default=False)
@@ -86,7 +86,7 @@ class MeetingTimeVote(Base):
     time_slot_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("meeting_time_slots.id", ondelete="CASCADE"))
     vote_token: Mapped[str] = mapped_column(String(255), unique=True, index=True)
     voted_at: Mapped[Optional[datetime]] = mapped_column(DateTime)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     meeting = relationship("Meeting", back_populates="time_votes")
     attendee = relationship("MeetingAttendee")

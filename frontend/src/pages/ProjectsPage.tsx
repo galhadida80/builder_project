@@ -144,7 +144,7 @@ export default function ProjectsPage() {
     const project = selectedProject
     setProjectToDelete(project)
     setDeleteDialogOpen(true)
-    handleMenuClose()
+    setAnchorEl(null)
   }
 
   const handleConfirmDelete = async () => {
@@ -188,6 +188,7 @@ export default function ProjectsPage() {
   const activeProjects = projects.filter(p => p.status === 'active').length
   const completedProjects = projects.filter(p => p.status === 'completed').length
   const onHoldProjects = projects.filter(p => p.status === 'on_hold').length
+  const archivedProjects = projects.filter(p => p.status === 'archived').length
 
   if (loading) {
     return (
@@ -254,6 +255,14 @@ export default function ProjectsPage() {
           icon={<FolderIcon />}
           color="info"
         />
+        {archivedProjects > 0 && (
+          <KPICard
+            title={t('common.statuses.archived')}
+            value={archivedProjects}
+            icon={<FolderIcon />}
+            color="warning"
+          />
+        )}
       </Box>
 
       <Card>
@@ -292,6 +301,7 @@ export default function ProjectsPage() {
               { label: t('pages.projects.active'), value: 'active', badge: activeProjects },
               { label: t('pages.projects.onHold'), value: 'on_hold', badge: onHoldProjects },
               { label: t('pages.projects.completed'), value: 'completed', badge: completedProjects },
+              ...(archivedProjects > 0 ? [{ label: t('common.statuses.archived'), value: 'archived', badge: archivedProjects }] : []),
             ]}
             value={statusFilter}
             onChange={setStatusFilter}

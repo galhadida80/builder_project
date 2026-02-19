@@ -88,10 +88,11 @@ export default function MobileChecklistPage() {
       if (!projectId || !inspectionId) return
       try {
         const instances = await checklistsApi.getInstances(projectId)
-        const match = instances.find(inst => inst.unit_identifier === inspectionId)
+        const match = instances.find(inst => inst.id === inspectionId)
+          || instances.find(inst => inst.unit_identifier === inspectionId)
         if (match) {
           setChecklistInstanceId(match.id)
-          const tpl = await checklistsApi.getTemplate(match.template_id)
+          const tpl = await checklistsApi.getTemplate(projectId, match.template_id)
           setTemplate(tpl)
         } else {
           setSnackbar({
@@ -126,7 +127,7 @@ export default function MobileChecklistPage() {
 
       items.forEach((item: ChecklistItemTemplate) => {
         const response = instance.responses.find((r) => r.item_template_id === item.id)
-        if (response && response.status !== 'pending') {
+        if (response && (response.status === 'approved' || response.status === 'not_applicable')) {
           completedItems++
         }
       })

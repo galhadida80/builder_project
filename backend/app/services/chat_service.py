@@ -145,16 +145,23 @@ class ChatDeps:
     message_id: uuid.UUID
 
 
-settings = get_settings()
+def _create_agent() -> Agent:
+    try:
+        settings = get_settings()
+        provider = GoogleProvider(api_key=settings.gemini_api_key)
+        model = GoogleModel(settings.gemini_model, provider=provider)
+    except Exception:
+        logger.warning("Gemini settings not configured, chat agent using placeholder model")
+        provider = GoogleProvider(api_key="not-configured")
+        model = GoogleModel("gemini-2.0-flash", provider=provider)
+    return Agent(
+        model,
+        system_prompt=SYSTEM_PROMPT,
+        deps_type=ChatDeps,
+    )
 
-provider = GoogleProvider(api_key=settings.gemini_api_key)
-model = GoogleModel(settings.gemini_model, provider=provider)
 
-agent = Agent(
-    model,
-    system_prompt=SYSTEM_PROMPT,
-    deps_type=ChatDeps,
-)
+agent = _create_agent()
 
 
 @agent.system_prompt
@@ -660,13 +667,13 @@ async def load_conversation_history(db: AsyncSession, conversation_id: uuid.UUID
         if msg.tool_results:
             history_json.extend(msg.tool_results)
         else:
-            history_json.append(make_message_dict(msg.role, msg.content))
+            history_json.append(make_message_dict(msg.role, msg.content, msg.created_at))
 
     return ModelMessagesTypeAdapter.validate_python(history_json)
 
 
-def make_message_dict(role: str, content: str) -> dict:
-    ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+def make_message_dict(role: str, content: str, created_at: datetime | None = None) -> dict:
+    ts = (created_at or datetime.now(timezone.utc)).strftime("%Y-%m-%dT%H:%M:%SZ")
     if role == "user":
         return {"kind": "request", "parts": [{"part_kind": "user-prompt", "content": content, "timestamp": ts}]}
     return {"kind": "response", "parts": [{"part_kind": "text", "content": content or ""}]}

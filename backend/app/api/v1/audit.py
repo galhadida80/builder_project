@@ -32,7 +32,7 @@ async def list_audit_logs(
     user_id: Optional[UUID] = None,
     start_date: Optional[datetime] = None,
     end_date: Optional[datetime] = None,
-    limit: int = 100,
+    limit: int = Query(100, ge=1, le=1000),
     offset: int = 0,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
@@ -66,7 +66,7 @@ async def list_audit_logs(
 @router.get("/projects/{project_id}/audit/export")
 async def export_audit_logs(
     project_id: UUID,
-    format: str = Query("csv", pattern="^(csv|json)$"),
+    export_format: str = Query("csv", alias="format", pattern="^(csv|json)$"),
     entity_type: Optional[str] = None,
     action: Optional[str] = None,
     user_id: Optional[UUID] = None,
@@ -97,7 +97,7 @@ async def export_audit_logs(
     result = await db.execute(query)
     logs = result.scalars().all()
 
-    if format == "json":
+    if export_format == "json":
         rows = [
             {
                 "id": str(log.id),
@@ -156,7 +156,7 @@ async def list_all_audit_logs(
     user_id: Optional[UUID] = None,
     start_date: Optional[datetime] = None,
     end_date: Optional[datetime] = None,
-    limit: int = 100,
+    limit: int = Query(100, ge=1, le=1000),
     offset: int = 0,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)

@@ -269,11 +269,11 @@ export default function RFIDetailPage() {
           }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
               <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.main', fontSize: '0.75rem' }}>
-                {getInitials(rfi.created_by?.display_name, rfi.created_by?.email)}
+                {getInitials(rfi.created_by?.fullName, rfi.created_by?.email)}
               </Avatar>
               <Box>
                 <Typography variant="body2" fontWeight={600}>
-                  {rfi.created_by?.display_name || rfi.created_by?.email || 'Unknown'}
+                  {rfi.created_by?.fullName || rfi.created_by?.email || 'Unknown'}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
                   {t('rfiDetail.originalQuestion')}

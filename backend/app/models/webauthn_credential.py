@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import DateTime, ForeignKey, Integer, LargeBinary, String, Text
 from sqlalchemy.dialects.postgresql import UUID
@@ -18,6 +18,6 @@ class WebAuthnCredential(Base):
     sign_count: Mapped[int] = mapped_column(Integer, default=0)
     device_name: Mapped[str] = mapped_column(String(255), default="Device")
     transports: Mapped[str | None] = mapped_column(Text, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     user = relationship("User", backref="webauthn_credentials")

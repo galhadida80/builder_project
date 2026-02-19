@@ -445,7 +445,7 @@ export default function DefectDetailPage() {
           <Box
             component="img"
             src={lightboxUrl}
-            alt="Defect photo"
+            alt={t('defects.defectPhoto', 'Defect photo')}
             sx={{ maxWidth: '90vw', maxHeight: '90vh', objectFit: 'contain', borderRadius: 2 }}
             onClick={() => setLightboxUrl(null)}
           />

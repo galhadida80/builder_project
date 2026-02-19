@@ -14,12 +14,12 @@ export interface DocumentReview {
 }
 
 export interface CreateCommentRequest {
-  commentText: string
-  parentCommentId?: string | null
+  comment_text: string
+  parent_comment_id?: string | null
 }
 
 export interface UpdateCommentRequest {
-  commentText: string
+  comment_text: string
 }
 
 export interface UpdateReviewStatusRequest {

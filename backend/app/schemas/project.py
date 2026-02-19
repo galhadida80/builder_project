@@ -16,6 +16,7 @@ from app.core.validators import (
     sanitize_string,
     validate_code,
 )
+from app.models.project import ProjectStatus
 from app.schemas.user import UserResponse
 
 
@@ -46,6 +47,16 @@ class ProjectUpdate(BaseModel):
     estimated_end_date: Optional[date] = None
     status: Optional[str] = Field(default=None, max_length=50)
     daily_summary_enabled: Optional[bool] = None
+
+    @field_validator('status', mode='before')
+    @classmethod
+    def validate_status(cls, v: Optional[str]) -> Optional[str]:
+        if v is None:
+            return v
+        valid = {s.value for s in ProjectStatus}
+        if v not in valid:
+            raise ValueError(f"Invalid status: {v}. Must be one of: {', '.join(valid)}")
+        return v
 
     @field_validator('name', 'description', 'address', mode='before')
     @classmethod

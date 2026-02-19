@@ -40,13 +40,17 @@ export const analyticsApi = {
     if (projectId) params.set('project_id', projectId)
     const response = await apiClient.get(`/analytics/export?${params.toString()}`, { responseType: 'blob' })
     const blob = new Blob([response.data], { type: 'text/csv' })
-    const url = window.URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `${entityType}_export.csv`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    window.URL.revokeObjectURL(url)
+    let url: string | null = null
+    try {
+      url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `${entityType}_export.csv`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+    } finally {
+      if (url) window.URL.revokeObjectURL(url)
+    }
   },
 }

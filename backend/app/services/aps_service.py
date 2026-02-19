@@ -1,3 +1,4 @@
+import asyncio
 import base64
 import time
 import urllib.parse
@@ -13,6 +14,7 @@ APS_BASE_URL = "https://developer.api.autodesk.com"
 class APSService:
     cached_token: Optional[str] = None
     token_expires_at: float = 0
+    token_lock: Optional[asyncio.Lock] = None
 
     def __init__(self, settings: Settings):
         self.client_id = settings.aps_client_id
@@ -23,22 +25,29 @@ class APSService:
         if APSService.cached_token and time.time() < APSService.token_expires_at:
             return APSService.cached_token
 
-        async with httpx.AsyncClient() as client:
-            resp = await client.post(
-                f"{APS_BASE_URL}/authentication/v2/token",
-                data={
-                    "grant_type": "client_credentials",
-                    "scope": "data:read data:write data:create bucket:read bucket:create",
-                },
-                headers={"Content-Type": "application/x-www-form-urlencoded"},
-                auth=(self.client_id, self.client_secret),
-            )
-            resp.raise_for_status()
-            data = resp.json()
+        if APSService.token_lock is None:
+            APSService.token_lock = asyncio.Lock()
 
-        APSService.cached_token = data["access_token"]
-        APSService.token_expires_at = time.time() + data.get("expires_in", 3600) - 60
-        return APSService.cached_token
+        async with APSService.token_lock:
+            if APSService.cached_token and time.time() < APSService.token_expires_at:
+                return APSService.cached_token
+
+            async with httpx.AsyncClient() as client:
+                resp = await client.post(
+                    f"{APS_BASE_URL}/authentication/v2/token",
+                    data={
+                        "grant_type": "client_credentials",
+                        "scope": "data:read data:write data:create bucket:read bucket:create",
+                    },
+                    headers={"Content-Type": "application/x-www-form-urlencoded"},
+                    auth=(self.client_id, self.client_secret),
+                )
+                resp.raise_for_status()
+                data = resp.json()
+
+            APSService.cached_token = data["access_token"]
+            APSService.token_expires_at = time.time() + data.get("expires_in", 3600) - 60
+            return APSService.cached_token
 
     async def ensure_bucket(self, bucket_key: str) -> dict[str, Any]:
         token = await self.get_2legged_token()

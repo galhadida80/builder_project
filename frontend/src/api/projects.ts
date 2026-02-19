@@ -20,7 +20,7 @@ interface ProjectUpdate {
 }
 
 interface MemberCreate {
-  userId: string
+  user_id: string
   role: string
 }
 

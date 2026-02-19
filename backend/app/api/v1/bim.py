@@ -91,6 +91,13 @@ async def get_bim_model_content(
     if not model.storage_path:
         raise HTTPException(status_code=404, detail="Model file not found in storage")
 
+    MAX_INLINE_SIZE = 50 * 1024 * 1024
+    if model.file_size and model.file_size > MAX_INLINE_SIZE:
+        raise HTTPException(
+            status_code=413,
+            detail=f"File too large for inline download ({model.file_size} bytes). Max: {MAX_INLINE_SIZE} bytes."
+        )
+
     content = await storage.get_file_content(model.storage_path)
     return Response(
         content=content,
@@ -114,11 +121,21 @@ async def upload_bim_model(
     if ext not in ALLOWED_EXTENSIONS:
         raise HTTPException(status_code=400, detail=f"File type {ext} not allowed. Allowed: {', '.join(ALLOWED_EXTENSIONS)}")
 
+    content_type = file.content_type or "application/octet-stream"
+    allowed_mimes = {
+        "application/octet-stream",
+        "application/x-ifc",
+        "model/ifc",
+        "application/acad",
+        "application/x-navisworks",
+    }
+    if content_type not in allowed_mimes and not content_type.startswith("application/"):
+        raise HTTPException(status_code=400, detail=f"Invalid content type: {content_type}")
+
     content = await file.read()
     file_size = len(content)
     if file_size > MAX_BIM_FILE_SIZE:
         raise HTTPException(status_code=400, detail="File size exceeds 500MB limit")
-    content_type = file.content_type or "application/octet-stream"
 
     bim_model = BimModel(
         project_id=project_id,

@@ -1,6 +1,8 @@
+from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -11,6 +13,11 @@ from app.models.project import Project, ProjectMember
 from app.models.user import User
 from app.schemas.project import ProjectResponse
 from app.schemas.user import UserResponse
+
+
+class AdminUserUpdate(BaseModel):
+    is_active: Optional[bool] = None
+    is_super_admin: Optional[bool] = None
 
 router = APIRouter()
 
@@ -27,7 +34,7 @@ async def list_all_users(
 @router.patch("/users/{user_id}", response_model=UserResponse)
 async def update_user(
     user_id: UUID,
-    data: dict,
+    data: AdminUserUpdate,
     admin: User = Depends(get_current_admin_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -39,10 +46,10 @@ async def update_user(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    allowed_fields = {"is_active", "is_super_admin"}
-    for key, value in data.items():
-        if key in allowed_fields and isinstance(value, bool):
-            setattr(user, key, value)
+    if data.is_active is not None:
+        user.is_active = data.is_active
+    if data.is_super_admin is not None:
+        user.is_super_admin = data.is_super_admin
 
     await db.commit()
     await db.refresh(user)

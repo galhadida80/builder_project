@@ -68,7 +68,7 @@ export default function ApprovalsPage() {
     if (searchQuery) {
       filtered = filtered.filter(a => {
         const entity = getEntityDetails(a)
-        return entity?.name.toLowerCase().includes(searchQuery.toLowerCase())
+        return entity?.name?.toLowerCase().includes(searchQuery.toLowerCase())
       })
     }
     return filtered
@@ -289,7 +289,7 @@ export default function ApprovalsPage() {
                           </Box>
                         </Box>
 
-                        {tabValue === 'pending' && (
+                        {approval.currentStatus !== 'approved' && approval.currentStatus !== 'rejected' && (
                           <Box sx={{ display: 'flex', gap: 1, ml: { xs: 0, sm: 2 }, flexShrink: 0 }}>
                             <Button
                               variant="success"

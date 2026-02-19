@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import dayjs from 'dayjs'
@@ -100,6 +100,7 @@ export default function MeetingsPage() {
   const [confirmingSlot, setConfirmingSlot] = useState(false)
 
   useEffect(() => {
+    if (!projectId) return
     loadMeetings()
     loadTeamMembers()
   }, [projectId])
@@ -297,9 +298,9 @@ export default function MeetingsPage() {
   }
 
   const handleRsvp = async (attendee: MeetingAttendee, status: string) => {
-    if (!projectId || !selectedMeeting) return
+    if (!projectId || !selectedMeeting || !attendee.userId) return
     try {
-      await meetingsApi.rsvpAttendee(projectId, selectedMeeting.id, attendee.userId || '', status)
+      await meetingsApi.rsvpAttendee(projectId, selectedMeeting.id, attendee.userId, status)
       showSuccess(t('meetings.rsvp.confirmMessage'))
       const updated = await meetingsApi.get(projectId, selectedMeeting.id)
       setSelectedMeeting(updated)
@@ -336,15 +337,20 @@ export default function MeetingsPage() {
     loadMeetingPhotos(selectedMeeting.id)
   }
 
-  const now = new Date()
-  const upcomingMeetings = meetings.filter(m =>
-    (m.status === 'scheduled' || m.status === 'invitations_sent' || m.status === 'pending_votes') &&
-    m.scheduledDate && new Date(m.scheduledDate) >= now
-  )
-  const pastMeetings = meetings.filter(m =>
-    m.status === 'completed' || m.status === 'cancelled' ||
-    (m.scheduledDate && new Date(m.scheduledDate) < now)
-  )
+  const upcomingMeetings = useMemo(() => {
+    const now = new Date()
+    return meetings.filter(m =>
+      (m.status === 'scheduled' || m.status === 'invitations_sent' || m.status === 'pending_votes') &&
+      m.scheduledDate && new Date(m.scheduledDate) >= now
+    )
+  }, [meetings])
+  const pastMeetings = useMemo(() => {
+    const now = new Date()
+    return meetings.filter(m =>
+      m.status === 'completed' || m.status === 'cancelled' ||
+      (m.scheduledDate && new Date(m.scheduledDate) < now)
+    )
+  }, [meetings])
   const displayedMeetings = tabValue === 'upcoming' ? upcomingMeetings : pastMeetings
 
   const getMeetingTypeLabel = (type?: string) => {
@@ -794,7 +800,7 @@ export default function MeetingsPage() {
             )}
 
             {/* Current user RSVP actions */}
-            {currentUserAttendee && (
+            {currentUserAttendee && selectedMeeting.status !== 'cancelled' && selectedMeeting.status !== 'completed' && (
               <>
                 <Divider sx={{ my: 2 }} />
                 <Box sx={{ mb: 3 }}>

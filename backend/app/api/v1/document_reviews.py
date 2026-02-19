@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -119,6 +120,10 @@ async def update_document_review(
 
     for key, value in data.model_dump(exclude_unset=True).items():
         setattr(review, key, value)
+
+    if data.status is not None:
+        review.reviewed_by_id = current_user.id
+        review.reviewed_at = datetime.now(timezone.utc)
 
     await create_audit_log(
         db, current_user, "document_review", review.id, AuditAction.UPDATE,
