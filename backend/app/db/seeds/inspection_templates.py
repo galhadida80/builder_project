@@ -3,7 +3,7 @@
 Data source: פיקוחים עליונים - כמות בדיקות.xlsx
 22 consultant types with real Hebrew stage descriptions.
 """
-from sqlalchemy import delete, select
+from sqlalchemy import select
 
 from app.db.session import AsyncSessionLocal
 from app.models.inspection_template import InspectionConsultantType, InspectionStageTemplate
@@ -270,37 +270,49 @@ CONSULTANT_DATA = [
 async def seed_inspection_templates():
     async with AsyncSessionLocal() as session:
         try:
-            result = await session.execute(select(InspectionConsultantType))
-            existing = result.scalars().all()
+            types_created = 0
+            stages_created = 0
 
-            if existing:
-                await session.execute(delete(InspectionStageTemplate))
-                await session.execute(delete(InspectionConsultantType))
-                await session.flush()
-                print("Cleared old inspection templates for reseed")
-
-            total_stages = 0
             for data in CONSULTANT_DATA:
-                consultant = InspectionConsultantType(
-                    name=data["name"],
-                    name_he=data["name_he"],
-                    category=data["category"],
+                result = await session.execute(
+                    select(InspectionConsultantType)
+                    .where(InspectionConsultantType.name == data["name"])
                 )
-                session.add(consultant)
-                await session.flush()
+                consultant = result.scalar_one_or_none()
 
-                for order, (name_en, name_he) in enumerate(data["stages"], start=1):
-                    stage = InspectionStageTemplate(
-                        consultant_type_id=consultant.id,
-                        name=name_en,
-                        name_he=name_he,
-                        stage_order=order,
+                if consultant:
+                    consultant.name_he = data["name_he"]
+                    consultant.category = data["category"]
+                else:
+                    consultant = InspectionConsultantType(
+                        name=data["name"],
+                        name_he=data["name_he"],
+                        category=data["category"],
                     )
-                    session.add(stage)
-                    total_stages += 1
+                    session.add(consultant)
+                    await session.flush()
+                    types_created += 1
+
+                existing_stages = await session.execute(
+                    select(InspectionStageTemplate)
+                    .where(InspectionStageTemplate.consultant_type_id == consultant.id)
+                )
+                if not existing_stages.scalars().first():
+                    for order, (name_en, name_he) in enumerate(data["stages"], start=1):
+                        stage = InspectionStageTemplate(
+                            consultant_type_id=consultant.id,
+                            name=name_en,
+                            name_he=name_he,
+                            stage_order=order,
+                        )
+                        session.add(stage)
+                        stages_created += 1
 
             await session.commit()
-            print(f"Seeded {len(CONSULTANT_DATA)} consultant types with {total_stages} stages")
+            if types_created or stages_created:
+                print(f"Seeded {types_created} consultant types with {stages_created} stages")
+            else:
+                print("Inspection templates already up to date")
 
         except Exception as e:
             await session.rollback()
