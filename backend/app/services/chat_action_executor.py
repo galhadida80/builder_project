@@ -22,7 +22,7 @@ VALID_EQUIPMENT_STATUSES = {"draft", "submitted", "under_review", "approved", "r
 VALID_MATERIAL_STATUSES = {"draft", "submitted", "under_review", "approved", "rejected", "revision_requested"}
 VALID_RFI_STATUSES = {"draft", "open", "waiting_response", "answered", "closed", "cancelled"}
 VALID_INSPECTION_STATUSES = {"pending", "in_progress", "completed", "failed"}
-VALID_MEETING_STATUSES = {"scheduled", "invitations_sent", "completed", "cancelled"}
+VALID_MEETING_STATUSES = {"scheduled", "invitations_sent", "pending_votes", "completed", "cancelled"}
 VALID_DEFECT_STATUSES = {"open", "in_progress", "resolved", "closed", "rejected"}
 
 

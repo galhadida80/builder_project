@@ -46,9 +46,7 @@ interface AreaNodeProps {
 function AreaNode({ area, level, onEdit, onDelete, t }: AreaNodeProps) {
   const [expanded, setExpanded] = useState(true)
   const hasChildren = area.children && area.children.length > 0
-  const overallProgress: number = area.progress && area.progress.length > 0
-    ? Math.round(area.progress.reduce((sum, p) => sum + p.progressPercent, 0) / area.progress.length)
-    : 0
+  const overallProgress: number = area.currentProgress ?? 0
   const areaTypeIcon = AREA_TYPE_ICONS[area.areaType || ''] || <ApartmentIcon />
   const derivedStatus: AreaStatus = overallProgress === 100 ? 'completed' : overallProgress > 0 ? 'in_progress' : 'not_started'
   const statusColor = STATUS_COLORS[derivedStatus] || 'default'
@@ -306,27 +304,13 @@ export default function AreasPage() {
   }
 
   const allAreas = getAllAreas(areas)
-  const completedAreas = allAreas.filter(a => {
-    const progress = a.progress && a.progress.length > 0
-      ? a.progress.reduce((s, p) => s + p.progressPercent, 0) / a.progress.length
-      : 0
-    return progress === 100
-  }).length
-
+  const completedAreas = allAreas.filter(a => (a.currentProgress ?? 0) === 100).length
   const inProgressAreas = allAreas.filter(a => {
-    const progress = a.progress && a.progress.length > 0
-      ? a.progress.reduce((s, p) => s + p.progressPercent, 0) / a.progress.length
-      : 0
-    return progress > 0 && progress < 100
+    const p = a.currentProgress ?? 0
+    return p > 0 && p < 100
   }).length
-
   const overallProgress = allAreas.length > 0
-    ? Math.round(allAreas.reduce((sum, area) => {
-        const areaProgress = area.progress && area.progress.length > 0
-          ? area.progress.reduce((s, p) => s + p.progressPercent, 0) / area.progress.length
-          : 0
-        return sum + areaProgress
-      }, 0) / allAreas.length)
+    ? Math.round(allAreas.reduce((sum, a) => sum + (a.currentProgress ?? 0), 0) / allAreas.length)
     : 0
 
   if (loading) {

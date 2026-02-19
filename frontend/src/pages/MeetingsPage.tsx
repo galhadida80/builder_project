@@ -891,7 +891,7 @@ export default function MeetingsPage() {
                     <Button variant="secondary" fullWidth icon={<DownloadIcon />} onClick={async () => {
                       try {
                         const res = await fetch(calendarLinks.ics_download_url, {
-                          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+                          headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
                         })
                         const blob = await res.blob()
                         const url = URL.createObjectURL(blob)

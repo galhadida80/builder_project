@@ -170,7 +170,7 @@ async def get_overdue_rfis(
             priority=rfi.priority,
             status=rfi.status,
             due_date=rfi.due_date,
-            days_overdue=(now - rfi.due_date).days,
+            days_overdue=(now - rfi.due_date.replace(tzinfo=timezone.utc)).days if rfi.due_date else 0,
             created_at=rfi.created_at,
             sent_at=rfi.sent_at
         )
@@ -212,7 +212,7 @@ async def get_upcoming_deadline_rfis(
             priority=rfi.priority,
             status=rfi.status,
             due_date=rfi.due_date,
-            days_until_due=(rfi.due_date - now).days,
+            days_until_due=(rfi.due_date.replace(tzinfo=timezone.utc) - now).days if rfi.due_date else 0,
             created_at=rfi.created_at,
             sent_at=rfi.sent_at
         )

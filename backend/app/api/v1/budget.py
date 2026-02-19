@@ -121,7 +121,7 @@ async def update_budget_item(
         setattr(item, key, value)
 
     await db.flush()
-    await db.refresh(item)
+    await db.refresh(item, ["cost_entries"])
 
     actual = sum(entry.amount for entry in item.cost_entries)
     remaining = item.budgeted_amount - actual

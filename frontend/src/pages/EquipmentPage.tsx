@@ -111,11 +111,7 @@ export default function EquipmentPage() {
         pageSize: rowsPerPage,
       }
       if (activeTab !== 'all') {
-        if (activeTab === 'under_review') {
-          params.status = 'submitted'
-        } else {
-          params.status = activeTab
-        }
+        params.status = activeTab
       }
       if (debouncedSearch) params.search = debouncedSearch
       const result = await equipmentApi.list(projectId!, params)

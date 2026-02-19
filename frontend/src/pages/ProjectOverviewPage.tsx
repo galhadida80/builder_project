@@ -93,21 +93,6 @@ export default function ProjectOverviewPage() {
     loadData()
   }, [projectId])
 
-  const loadOverviewData = async () => {
-    if (!projectId) return
-
-    try {
-      setLoading(true)
-      const response = await apiClient.get(`/projects/${projectId}/overview`)
-      setOverviewData(response.data)
-    } catch (error) {
-      console.error('Failed to load project overview:', error)
-      showError(t('overview.failedToLoad'))
-    } finally {
-      setLoading(false)
-    }
-  }
-
   if (loading) {
     return (
       <Box sx={{ p: 3 }}>
@@ -147,11 +132,15 @@ export default function ProjectOverviewPage() {
 
   const completedItems =
     progress.inspectionsCompleted +
-    progress.equipmentSubmitted +
-    progress.materialsSubmitted +
     progress.checklistsCompleted
 
-  const pendingItems = totalItems - completedItems
+  const inProgressItems =
+    progress.equipmentSubmitted +
+    progress.materialsSubmitted +
+    (progress.inspectionsTotal - progress.inspectionsCompleted > 0
+      ? progress.inspectionsTotal - progress.inspectionsCompleted : 0)
+
+  const pendingItems = totalItems - completedItems - inProgressItems
 
   const summaryContent = (
     <Grid container spacing={3}>
@@ -183,7 +172,7 @@ export default function ProjectOverviewPage() {
               </Box>
               <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'action.hover', borderRadius: 2 }}>
                 <Typography variant="h5" fontWeight={700} color="info.main">
-                  {progress.inspectionsTotal - progress.inspectionsCompleted}
+                  {inProgressItems}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
                   {t('overview.inProgress')}

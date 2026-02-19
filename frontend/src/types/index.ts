@@ -210,13 +210,14 @@ export interface ApprovalStep {
   id: string
   approvalRequestId: string
   stepOrder: number
-  approverId?: string
-  approver?: User
+  approvedById?: string
+  approvedBy?: User
   approverRole?: UserRole
+  contactId?: string
   status: ApprovalStatus
   comments?: string
-  decidedAt?: string
-  createdAt: string
+  approvedAt?: string
+  createdAt?: string
 }
 
 export interface ConstructionArea {
@@ -228,20 +229,19 @@ export interface ConstructionArea {
   floorNumber?: number
   areaCode?: string
   totalUnits?: number
+  currentProgress?: number
   children?: ConstructionArea[]
-  progress?: AreaProgress[]
+  progressUpdates?: AreaProgress[]
 }
 
 export interface AreaProgress {
   id: string
   areaId: string
-  taskCategory: string
-  taskName: string
-  progressPercent: number
-  status: AreaStatus
+  progressPercentage: number
   notes?: string
-  updatedAt: string
-  updatedBy?: User
+  photos?: string[]
+  reportedAt: string
+  reportedBy?: User
 }
 
 export interface FileAttachment {
@@ -520,9 +520,9 @@ export interface ChecklistItemResponseUpdate {
 
 export interface InspectionHistoryEvent {
   id: string
-  inspectionId: string
+  entityType: string
+  entityId: string
   action: string
-  description: string
   userId?: string
   user?: User
   oldValues?: Record<string, unknown>

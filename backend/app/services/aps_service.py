@@ -69,7 +69,7 @@ class APSService:
         token = await self.get_2legged_token()
         async with httpx.AsyncClient(timeout=300.0) as client:
             resp = await client.put(
-                f"{APS_BASE_URL}/oss/v2/buckets/{bucket_key}/objects/{object_key}",
+                f"{APS_BASE_URL}/oss/v2/buckets/{bucket_key}/objects/{urllib.parse.quote(object_key, safe='')}",
                 content=content,
                 headers={
                     "Authorization": f"Bearer {token}",

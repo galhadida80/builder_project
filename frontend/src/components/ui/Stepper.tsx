@@ -27,13 +27,13 @@ export interface ApprovalStepResponse {
   id: string
   approvalRequestId: string
   stepOrder: number
-  approverId?: string
-  approver?: UserResponse
+  approvedById?: string
+  approvedBy?: UserResponse
   approverRole?: string
   status: string
   comments?: string
-  decidedAt?: string
-  createdAt: string
+  approvedAt?: string
+  createdAt?: string
 }
 
 export interface ApprovalRequestResponse {
@@ -400,19 +400,19 @@ export function ApprovalWorkflowStepper({
 
       {/* Step Details Panel - Shows approver info and comments for completed steps */}
       {sortedSteps.some((step) =>
-        step.status !== 'pending' && (step.comments || step.approver || step.decidedAt)
+        step.status !== 'pending' && (step.comments || step.approvedBy || step.approvedAt)
       ) && (
         <Box sx={{ mt: 3 }}>
           {sortedSteps
             .filter((step) => step.status !== 'pending')
             .map((step) => {
               // Handle missing approver info gracefully
-              const approverName = step.approver?.name ||
-                step.approver?.email ||
-                (step.approverId ? `User ${step.approverId.slice(0, 8)}` : 'Unknown approver')
+              const approverName = step.approvedBy?.name ||
+                step.approvedBy?.email ||
+                (step.approvedById ? `User ${step.approvedById.slice(0, 8)}` : 'Unknown approver')
 
-              const formattedDate = step.decidedAt
-                ? new Date(step.decidedAt).toLocaleString(getDateLocale(), {
+              const formattedDate = step.approvedAt
+                ? new Date(step.approvedAt).toLocaleString(getDateLocale(), {
                     month: 'short',
                     day: 'numeric',
                     year: 'numeric',
@@ -553,17 +553,17 @@ export function ApprovalWorkflowStepper({
 function getStepDescription(step: ApprovalStepResponse): string {
   // Helper to get approver name with fallback for missing info
   const getApproverName = (): string => {
-    if (step.approver?.name) return step.approver.name
-    if (step.approver?.email) return step.approver.email
-    if (step.approverId) return `User ${step.approverId.slice(0, 8)}`
+    if (step.approvedBy?.name) return step.approvedBy.name
+    if (step.approvedBy?.email) return step.approvedBy.email
+    if (step.approvedById) return `User ${step.approvedById.slice(0, 8)}`
     return 'Unknown'
   }
 
   switch (step.status) {
     case 'approved':
-      if (step.decidedAt) {
+      if (step.approvedAt) {
         try {
-          const date = new Date(step.decidedAt).toLocaleDateString(getDateLocale())
+          const date = new Date(step.approvedAt).toLocaleDateString(getDateLocale())
           const approverName = getApproverName()
           return `Approved by ${approverName} on ${date}`
         } catch {
@@ -574,9 +574,9 @@ function getStepDescription(step: ApprovalStepResponse): string {
       return 'Approved'
 
     case 'rejected':
-      if (step.decidedAt) {
+      if (step.approvedAt) {
         try {
-          const date = new Date(step.decidedAt).toLocaleDateString(getDateLocale())
+          const date = new Date(step.approvedAt).toLocaleDateString(getDateLocale())
           const approverName = getApproverName()
           return `Rejected by ${approverName} on ${date}`
         } catch {
@@ -590,7 +590,7 @@ function getStepDescription(step: ApprovalStepResponse): string {
       return `Revision requested by ${getApproverName()}`
 
     case 'pending':
-      if (step.approver || step.approverId) {
+      if (step.approvedBy || step.approvedById) {
         return `Assigned to ${getApproverName()}`
       }
       return 'Pending assignment'

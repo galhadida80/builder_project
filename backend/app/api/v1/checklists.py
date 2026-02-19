@@ -5,6 +5,8 @@ from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from fastapi import status as http_status
+
 from app.core.permissions import Permission, check_permission, require_permission
 from app.core.security import get_current_user, verify_project_access
 from app.db.session import get_db
@@ -39,6 +41,20 @@ from app.services.audit_service import create_audit_log, get_model_dict
 from app.services.notification_service import notify_project_admins, notify_user
 
 router = APIRouter()
+
+
+async def check_template_permission(permission: Permission, project_id, user_id, db, current_user):
+    if project_id is None:
+        if not current_user.is_super_admin:
+            raise HTTPException(status_code=http_status.HTTP_403_FORBIDDEN, detail="Only admins can modify global templates")
+        return
+    await check_permission(permission, project_id, user_id, db)
+
+
+async def verify_template_access(project_id, current_user, db):
+    if project_id is None:
+        return
+    await verify_project_access(project_id, current_user, db)
 
 
 @router.get("/checklist-templates", response_model=list[ChecklistTemplateResponse])
@@ -136,6 +152,8 @@ async def update_checklist_template(
     checklist_template = result.scalar_one_or_none()
     if not checklist_template:
         raise HTTPException(status_code=404, detail="Checklist template not found")
+    if checklist_template.project_id is None and not current_user.is_super_admin:
+        raise HTTPException(status_code=http_status.HTTP_403_FORBIDDEN, detail="Only admins can modify global templates")
 
     old_values = get_model_dict(checklist_template)
     for key, value in data.model_dump(exclude_unset=True).items():
@@ -164,6 +182,8 @@ async def delete_checklist_template(
     checklist_template = result.scalar_one_or_none()
     if not checklist_template:
         raise HTTPException(status_code=404, detail="Checklist template not found")
+    if checklist_template.project_id is None and not current_user.is_super_admin:
+        raise HTTPException(status_code=http_status.HTTP_403_FORBIDDEN, detail="Only admins can delete global templates")
 
     await create_audit_log(db, current_user, "checklist_template", checklist_template.id, AuditAction.DELETE,
                           project_id=project_id, old_values=get_model_dict(checklist_template))
@@ -184,7 +204,7 @@ async def create_checklist_subsection(
     if not template:
         raise HTTPException(status_code=404, detail="Checklist template not found")
 
-    await check_permission(Permission.CREATE, template.project_id, current_user.id, db)
+    await check_template_permission(Permission.CREATE, template.project_id, current_user.id, db, current_user)
 
     dump = data.model_dump()
     if "metadata" in dump:
@@ -210,7 +230,7 @@ async def list_checklist_subsections(
     template = template_result.scalar_one_or_none()
     if not template:
         raise HTTPException(status_code=404, detail="Checklist template not found")
-    await verify_project_access(template.project_id, current_user, db)
+    await verify_template_access(template.project_id, current_user, db)
 
     result = await db.execute(
         select(ChecklistSubSection)
@@ -232,7 +252,7 @@ async def get_checklist_subsection(
     template = template_result.scalar_one_or_none()
     if not template:
         raise HTTPException(status_code=404, detail="Checklist template not found")
-    await verify_project_access(template.project_id, current_user, db)
+    await verify_template_access(template.project_id, current_user, db)
 
     result = await db.execute(
         select(ChecklistSubSection)
@@ -264,7 +284,7 @@ async def update_checklist_subsection(
     template_result = await db.execute(select(ChecklistTemplate).where(ChecklistTemplate.id == template_id))
     template = template_result.scalar_one()
 
-    await check_permission(Permission.EDIT, template.project_id, current_user.id, db)
+    await check_template_permission(Permission.EDIT, template.project_id, current_user.id, db, current_user)
 
     old_values = get_model_dict(subsection)
 
@@ -297,7 +317,7 @@ async def delete_checklist_subsection(
     template_result = await db.execute(select(ChecklistTemplate).where(ChecklistTemplate.id == template_id))
     template = template_result.scalar_one()
 
-    await check_permission(Permission.DELETE, template.project_id, current_user.id, db)
+    await check_template_permission(Permission.DELETE, template.project_id, current_user.id, db, current_user)
 
     await create_audit_log(db, current_user, "checklist_subsection", subsection.id, AuditAction.DELETE,
                           project_id=template.project_id, old_values=get_model_dict(subsection))
@@ -322,7 +342,7 @@ async def create_checklist_item_template(
     if not subsection:
         raise HTTPException(status_code=404, detail="Checklist subsection not found")
 
-    await check_permission(Permission.CREATE, subsection.template.project_id, current_user.id, db)
+    await check_template_permission(Permission.CREATE, subsection.template.project_id, current_user.id, db, current_user)
 
     dump = data.model_dump()
     if "metadata" in dump:
@@ -352,7 +372,7 @@ async def list_checklist_item_templates(
     subsection = sub_result.scalar_one_or_none()
     if not subsection:
         raise HTTPException(status_code=404, detail="Checklist subsection not found")
-    await verify_project_access(subsection.template.project_id, current_user, db)
+    await verify_template_access(subsection.template.project_id, current_user, db)
 
     result = await db.execute(
         select(ChecklistItemTemplate)
@@ -377,7 +397,7 @@ async def get_checklist_item_template(
     subsection = sub_result.scalar_one_or_none()
     if not subsection:
         raise HTTPException(status_code=404, detail="Checklist subsection not found")
-    await verify_project_access(subsection.template.project_id, current_user, db)
+    await verify_template_access(subsection.template.project_id, current_user, db)
 
     result = await db.execute(
         select(ChecklistItemTemplate)
@@ -418,7 +438,7 @@ async def update_checklist_item_template(
     )
     subsection = subsection_result.scalar_one()
 
-    await check_permission(Permission.EDIT, subsection.template.project_id, current_user.id, db)
+    await check_template_permission(Permission.EDIT, subsection.template.project_id, current_user.id, db, current_user)
 
     await create_audit_log(db, current_user, "checklist_item_template", item.id, AuditAction.UPDATE,
                           project_id=subsection.template.project_id, old_values=old_values, new_values=get_model_dict(item))
@@ -449,7 +469,7 @@ async def delete_checklist_item_template(
     )
     subsection = subsection_result.scalar_one()
 
-    await check_permission(Permission.DELETE, subsection.template.project_id, current_user.id, db)
+    await check_template_permission(Permission.DELETE, subsection.template.project_id, current_user.id, db, current_user)
 
     await create_audit_log(db, current_user, "checklist_item_template", item.id, AuditAction.DELETE,
                           project_id=subsection.template.project_id, old_values=get_model_dict(item))
@@ -537,7 +557,9 @@ async def update_checklist_instance(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    result = await db.execute(select(ChecklistInstance).where(ChecklistInstance.id == instance_id))
+    result = await db.execute(select(ChecklistInstance).where(
+        ChecklistInstance.id == instance_id, ChecklistInstance.project_id == project_id
+    ))
     checklist_instance = result.scalar_one_or_none()
     if not checklist_instance:
         raise HTTPException(status_code=404, detail="Checklist instance not found")
@@ -570,7 +592,9 @@ async def delete_checklist_instance(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    result = await db.execute(select(ChecklistInstance).where(ChecklistInstance.id == instance_id))
+    result = await db.execute(select(ChecklistInstance).where(
+        ChecklistInstance.id == instance_id, ChecklistInstance.project_id == project_id
+    ))
     checklist_instance = result.scalar_one_or_none()
     if not checklist_instance:
         raise HTTPException(status_code=404, detail="Checklist instance not found")

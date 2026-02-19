@@ -19,7 +19,7 @@ interface AreaUpdate {
 }
 
 interface ProgressCreate {
-  progressPercentage: number
+  progress_percentage: number
   notes?: string
   photos?: string[]
 }

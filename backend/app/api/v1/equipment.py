@@ -311,6 +311,12 @@ async def create_checklist(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    eq_result = await db.execute(
+        select(Equipment).where(Equipment.id == equipment_id, Equipment.project_id == project_id)
+    )
+    if not eq_result.scalar_one_or_none():
+        raise HTTPException(status_code=404, detail="Equipment not found in this project")
+
     checklist = EquipmentChecklist(
         equipment_id=equipment_id,
         checklist_name=data.checklist_name,
