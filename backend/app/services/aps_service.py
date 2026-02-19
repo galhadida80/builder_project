@@ -14,7 +14,7 @@ APS_BASE_URL = "https://developer.api.autodesk.com"
 class APSService:
     cached_token: Optional[str] = None
     token_expires_at: float = 0
-    token_lock: Optional[asyncio.Lock] = None
+    token_lock: asyncio.Lock = asyncio.Lock()
 
     def __init__(self, settings: Settings):
         self.client_id = settings.aps_client_id
@@ -24,9 +24,6 @@ class APSService:
     async def get_2legged_token(self) -> str:
         if APSService.cached_token and time.time() < APSService.token_expires_at:
             return APSService.cached_token
-
-        if APSService.token_lock is None:
-            APSService.token_lock = asyncio.Lock()
 
         async with APSService.token_lock:
             if APSService.cached_token and time.time() < APSService.token_expires_at:

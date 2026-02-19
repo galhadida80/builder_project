@@ -130,7 +130,7 @@ async def get_pending_reminders(
             entity_id=approval.entity_id,
             current_status=approval.current_status,
             created_at=approval.created_at,
-            days_pending=(now - approval.created_at).days,
+            days_pending=(now - approval.created_at.replace(tzinfo=timezone.utc)).days,
             created_by=approval.created_by,
             steps=approval.steps
         )

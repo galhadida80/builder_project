@@ -249,6 +249,7 @@ async def create_defect(
     for contact_id in data.assignee_ids:
         db.add(DefectAssignee(defect_id=defect.id, contact_id=contact_id))
     await db.flush()
+    await db.commit()
 
     await create_audit_log(
         db, current_user, "defect", defect.id, AuditAction.CREATE,
@@ -383,6 +384,7 @@ async def update_defect(
                 project_name=project_name,
             )
 
+    await db.commit()
     result = await db.execute(
         select(Defect).options(*DEFECT_LOAD_OPTIONS).where(Defect.id == defect.id)
     )
@@ -409,6 +411,7 @@ async def delete_defect(
         project_id=project_id, old_values=get_model_dict(defect),
     )
     await db.delete(defect)
+    await db.commit()
     return {"message": "Defect deleted"}
 
 
@@ -439,6 +442,7 @@ async def add_assignee(
 
     db.add(DefectAssignee(defect_id=defect_id, contact_id=contact_id))
     await db.flush()
+    await db.commit()
 
     contact = await db.get(Contact, contact_id)
     if contact:
@@ -483,4 +487,5 @@ async def remove_assignee(
         raise HTTPException(status_code=404, detail="Assignee not found")
 
     await db.delete(assignee)
+    await db.commit()
     return {"message": "Assignee removed"}

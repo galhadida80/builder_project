@@ -412,7 +412,7 @@ export default function ApprovalsPage() {
         title={actionType === 'approve' ? t('approvals.approveRequest') : t('approvals.rejectRequest')}
         submitLabel={actionType === 'approve' ? t('approvals.confirmApproval') : t('approvals.confirmRejection')}
         loading={submitting}
-        submitDisabled={actionType === 'reject' && !comment}
+        submitDisabled={actionType === 'reject' && !comment.trim()}
       >
         <Box sx={{ pt: 1 }}>
           {selectedApproval && (

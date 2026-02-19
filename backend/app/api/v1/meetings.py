@@ -302,6 +302,7 @@ async def create_meeting(
             frontend_url,
         )
         meeting.status = "invitations_sent"
+        await db.flush()
 
     return meeting
 
@@ -564,7 +565,7 @@ async def vote_for_time_slot(
         select(MeetingTimeSlot).where(
             MeetingTimeSlot.id == slot,
             MeetingTimeSlot.meeting_id == vote.meeting_id,
-        )
+        ).with_for_update()
     )
     chosen_slot = slot_result.scalar_one_or_none()
     if not chosen_slot:
@@ -573,7 +574,7 @@ async def vote_for_time_slot(
     old_slot_id = vote.time_slot_id
     if old_slot_id and old_slot_id != slot:
         old_slot_result = await db.execute(
-            select(MeetingTimeSlot).where(MeetingTimeSlot.id == old_slot_id)
+            select(MeetingTimeSlot).where(MeetingTimeSlot.id == old_slot_id).with_for_update()
         )
         old_slot = old_slot_result.scalar_one_or_none()
         if old_slot and old_slot.vote_count > 0:

@@ -123,7 +123,7 @@ export function EmptyState({
         sx={{
           color: 'text.secondary',
           maxWidth: 320,
-          mb: action ? 3 : 0,
+          mb: (action || secondaryAction) ? 3 : 0,
         }}
       >
         {description || translated.description}

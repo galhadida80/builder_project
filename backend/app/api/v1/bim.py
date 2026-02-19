@@ -229,7 +229,7 @@ async def get_translation_status(
 
     if model.translation_status == TranslationStatus.TRANSLATING.value and model.urn:
         status_data = await aps.get_translation_status(model.urn)
-        model.translation_status = status_data["status"]
+        model.translation_status = TranslationStatus(status_data["status"]).value
         model.translation_progress = status_data["progress"]
         await db.commit()
 

@@ -477,9 +477,11 @@ export default function EquipmentPage() {
             items={[
               { label: t('common.all'), value: 'all' },
               { label: t('equipment.draft'), value: 'draft' },
+              { label: t('equipment.submitted'), value: 'submitted' },
               { label: t('equipment.underReview'), value: 'under_review' },
               { label: t('equipment.approved'), value: 'approved' },
               { label: t('equipment.rejected'), value: 'rejected' },
+              { label: t('equipment.revisionRequested'), value: 'revision_requested' },
             ]}
             value={activeTab}
             onChange={(val) => { setActiveTab(val); setPage(1) }}

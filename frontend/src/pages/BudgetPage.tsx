@@ -99,7 +99,7 @@ export default function BudgetPage() {
     try {
       if (deleteTarget.type === 'item') await withMinDuration(budgetApi.deleteItem(projectId, deleteTarget.id))
       else if (deleteTarget.type === 'co') await withMinDuration(budgetApi.deleteChangeOrder(projectId, deleteTarget.id))
-      else await withMinDuration(budgetApi.deleteCostEntry(projectId, deleteTarget.id))
+      else { await withMinDuration(budgetApi.deleteCostEntry(projectId, deleteTarget.id)); if (expanded) loadCosts(expanded) }
       showSuccess(t('budget.deleted', { defaultValue: 'Deleted' })); setDeleteTarget(null); loadData()
     } catch { showError(t('budget.deleteFailed', { defaultValue: 'Failed to delete' })) }
     finally { setDeleting(false) }
@@ -262,7 +262,7 @@ export default function BudgetPage() {
         </Box>
       </Card>
 
-      <FormModal open={itemDialog} onClose={() => { setItemDialog(false); setEditItem(null) }} onSubmit={handleSaveItem} title={editItem ? t('budget.editItem', { defaultValue: 'Edit Budget Item' }) : t('budget.addItem', { defaultValue: 'Add Budget Item' })} submitDisabled={!itemForm.name || itemForm.budgeted_amount == null}>
+      <FormModal open={itemDialog} onClose={() => { setItemDialog(false); setEditItem(null) }} onSubmit={handleSaveItem} title={editItem ? t('budget.editItem', { defaultValue: 'Edit Budget Item' }) : t('budget.addItem', { defaultValue: 'Add Budget Item' })} submitDisabled={!itemForm.name || !itemForm.budgeted_amount || itemForm.budgeted_amount <= 0}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1 }}>
           <TextField fullWidth label={t('budget.name', { defaultValue: 'Name' })} value={itemForm.name} onChange={(e) => setItemForm({ ...itemForm, name: e.target.value })} required />
           <MuiTextField select fullWidth label={t('budget.category', { defaultValue: 'Category' })} value={itemForm.category} onChange={(e) => setItemForm({ ...itemForm, category: e.target.value })}>

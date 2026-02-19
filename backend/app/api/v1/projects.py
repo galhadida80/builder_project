@@ -121,6 +121,7 @@ async def update_project(
     await create_audit_log(db, current_user, "project", project.id, AuditAction.UPDATE,
                           project_id=project.id, old_values=old_values, new_values=get_model_dict(project))
 
+    await db.commit()
     await db.refresh(project, ["members"])
     return project
 
@@ -336,6 +337,7 @@ async def add_project_member(
     member = ProjectMember(project_id=project_id, user_id=data.user_id, role=data.role)
     db.add(member)
     await db.flush()
+    await db.commit()
     await db.refresh(member, ["user"])
     return member
 

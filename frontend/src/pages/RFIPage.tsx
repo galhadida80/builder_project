@@ -61,7 +61,7 @@ export default function RFIPage() {
 
   useEffect(() => {
     loadRfis()
-  }, [projectId, page])
+  }, [projectId, page, activeTab, search])
 
   useEffect(() => {
     loadSummary()
@@ -135,10 +135,6 @@ export default function RFIPage() {
       }))
     } catch { /* ignore */ }
   }
-
-  useEffect(() => {
-    loadRfis()
-  }, [activeTab, search])
 
   const resetForm = () => {
     setFormData({

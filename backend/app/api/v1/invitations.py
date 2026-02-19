@@ -153,7 +153,7 @@ async def validate_invitation(token: str, db: AsyncSession = Depends(get_db)):
     if invitation.status != InvitationStatus.PENDING.value:
         raise HTTPException(status_code=400, detail=f"Invitation is {invitation.status}")
 
-    if invitation.expires_at < datetime.now(timezone.utc):
+    if invitation.expires_at.replace(tzinfo=timezone.utc) < datetime.now(timezone.utc):
         invitation.status = InvitationStatus.EXPIRED.value
         await db.commit()
         raise HTTPException(status_code=400, detail="Invitation has expired")
@@ -185,7 +185,7 @@ async def accept_invitation(
     if invitation.status != InvitationStatus.PENDING.value:
         raise HTTPException(status_code=400, detail=f"Invitation is {invitation.status}")
 
-    if invitation.expires_at < datetime.now(timezone.utc):
+    if invitation.expires_at.replace(tzinfo=timezone.utc) < datetime.now(timezone.utc):
         invitation.status = InvitationStatus.EXPIRED.value
         await db.commit()
         raise HTTPException(status_code=400, detail="Invitation has expired")

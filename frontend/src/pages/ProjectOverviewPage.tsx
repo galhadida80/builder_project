@@ -130,9 +130,9 @@ export default function ProjectOverviewPage() {
     progress.materialsTotal +
     progress.checklistsTotal
 
-  const completedItems =
-    progress.inspectionsCompleted +
-    progress.checklistsCompleted
+  const completedItems = totalItems > 0
+    ? Math.round(progress.overallPercentage / 100 * totalItems)
+    : 0
 
   const inProgressItems =
     progress.equipmentSubmitted +
@@ -140,7 +140,7 @@ export default function ProjectOverviewPage() {
     (progress.inspectionsTotal - progress.inspectionsCompleted > 0
       ? progress.inspectionsTotal - progress.inspectionsCompleted : 0)
 
-  const pendingItems = totalItems - completedItems - inProgressItems
+  const pendingItems = Math.max(0, totalItems - completedItems - inProgressItems)
 
   const summaryContent = (
     <Grid container spacing={3}>

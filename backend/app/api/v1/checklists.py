@@ -62,6 +62,8 @@ async def list_all_checklist_templates(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    if not current_user.is_super_admin:
+        raise HTTPException(status_code=http_status.HTTP_403_FORBIDDEN, detail="Only admins can list all templates")
     result = await db.execute(
         select(ChecklistTemplate)
         .options(
@@ -483,6 +485,8 @@ async def list_all_checklist_instances(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    if not current_user.is_super_admin:
+        raise HTTPException(status_code=http_status.HTTP_403_FORBIDDEN, detail="Only admins can list all instances")
     result = await db.execute(
         select(ChecklistInstance)
         .options(selectinload(ChecklistInstance.created_by), selectinload(ChecklistInstance.responses))
@@ -569,7 +573,7 @@ async def update_checklist_instance(
         attr = "extra_data" if key == "metadata" else key
         setattr(checklist_instance, attr, value)
 
-    if data.status == "completed" and old_values.get("status") != "completed":
+    if checklist_instance.status == "completed" and old_values.get("status") != "completed":
         await notify_project_admins(
             db, project_id, "update",
             f"Checklist completed: {checklist_instance.unit_identifier}",
@@ -619,6 +623,14 @@ async def create_checklist_item_response(
         raise HTTPException(status_code=404, detail="Checklist instance not found")
 
     await check_permission(Permission.CREATE, instance.project_id, current_user.id, db)
+
+    item_check = await db.execute(
+        select(ChecklistItemTemplate)
+        .join(ChecklistSubSection, ChecklistItemTemplate.subsection_id == ChecklistSubSection.id)
+        .where(ChecklistItemTemplate.id == data.item_template_id, ChecklistSubSection.template_id == instance.template_id)
+    )
+    if not item_check.scalar_one_or_none():
+        raise HTTPException(status_code=400, detail="Item template does not belong to this checklist template")
 
     response = ChecklistItemResponse(**data.model_dump(), instance_id=instance_id, completed_by_id=current_user.id)
     db.add(response)

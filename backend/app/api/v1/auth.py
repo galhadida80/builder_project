@@ -87,7 +87,7 @@ async def register(
         )
         invitation = inv_result.scalar_one_or_none()
         if invitation and invitation.status == InvitationStatus.PENDING.value:
-            if invitation.email.lower() == email.lower() and invitation.expires_at > datetime.now(timezone.utc):
+            if invitation.email.lower() == email.lower() and invitation.expires_at.replace(tzinfo=timezone.utc) > datetime.now(timezone.utc):
                 member = ProjectMember(
                     project_id=invitation.project_id,
                     user_id=user.id,
@@ -248,7 +248,7 @@ async def reset_password(
     )
     reset_token = result.scalar_one_or_none()
 
-    if not reset_token or reset_token.used_at or reset_token.expires_at < datetime.now(timezone.utc):
+    if not reset_token or reset_token.used_at or reset_token.expires_at.replace(tzinfo=timezone.utc) < datetime.now(timezone.utc):
         error_message = translate_message('invalid_reset_token', language)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

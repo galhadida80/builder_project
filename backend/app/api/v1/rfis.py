@@ -307,7 +307,7 @@ async def update_rfi_status(
         await service.update_status(rfi_id, status_data.status)
         return await service.get_rfi(rfi_id)
     except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.post("/rfis/{rfi_id}/responses", response_model=RFIResponseSchema, status_code=201)

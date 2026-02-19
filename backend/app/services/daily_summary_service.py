@@ -189,7 +189,7 @@ async def _get_rfi_stats(
         .where(
             RFI.project_id == project_id,
             RFI.status.in_(["open", "waiting_response"]),
-            RFI.due_date < datetime.combine(summary_date, datetime.min.time()),
+            RFI.due_date < datetime.combine(summary_date, datetime.min.time(), tzinfo=timezone.utc),
         )
     )
     return {
@@ -263,8 +263,8 @@ async def _get_pending_approvals_count(db: AsyncSession, project_id: uuid.UUID) 
 async def _get_upcoming_meetings(
     db: AsyncSession, project_id: uuid.UUID, summary_date: date
 ) -> list[dict]:
-    start = datetime.combine(summary_date, datetime.min.time())
-    end = datetime.combine(summary_date + timedelta(days=7), datetime.min.time())
+    start = datetime.combine(summary_date, datetime.min.time(), tzinfo=timezone.utc)
+    end = datetime.combine(summary_date + timedelta(days=7), datetime.min.time(), tzinfo=timezone.utc)
     result = await db.execute(
         select(Meeting)
         .where(
