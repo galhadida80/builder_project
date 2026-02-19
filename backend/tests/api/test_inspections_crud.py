@@ -201,8 +201,8 @@ class TestCreateInspection:
         ct = await create_consultant_type(db)
         data = await create_inspection_via_api(admin_client, str(project.id), str(ct.id))
         assert data["status"] == "pending"
-        assert data["consultant_type_id"] == str(ct.id)
-        assert data["project_id"] == str(project.id)
+        assert data["consultantTypeId"] == str(ct.id)
+        assert data["projectId"] == str(project.id)
         assert "id" in data
 
     async def test_create_inspection_with_notes(
@@ -219,7 +219,7 @@ class TestCreateInspection:
         ct = await create_consultant_type(db)
         payload = valid_inspection_payload(str(ct.id), current_stage="Foundation")
         data = await create_inspection_via_api(admin_client, str(project.id), str(ct.id), payload)
-        assert data["current_stage"] == "Foundation"
+        assert data["currentStage"] == "Foundation"
 
     async def test_create_inspection_missing_consultant_type_id(
         self, admin_client: AsyncClient, project: Project
@@ -274,15 +274,15 @@ class TestCreateInspection:
     ):
         ct = await create_consultant_type(db)
         data = await create_inspection_via_api(admin_client, str(project.id), str(ct.id))
-        assert data["created_by"] is not None
+        assert data["createdBy"] is not None
 
     async def test_create_inspection_includes_consultant_type(
         self, admin_client: AsyncClient, project: Project, db: AsyncSession
     ):
         ct = await create_consultant_type(db)
         data = await create_inspection_via_api(admin_client, str(project.id), str(ct.id))
-        assert data["consultant_type"] is not None
-        assert data["consultant_type"]["name"] == "Structural Engineer"
+        assert data["consultantType"] is not None
+        assert data["consultantType"]["name"] == "Structural Engineer"
 
     async def test_create_inspection_empty_findings(
         self, admin_client: AsyncClient, project: Project, db: AsyncSession
@@ -371,7 +371,7 @@ class TestListInspections:
         await create_inspection_via_api(admin_client, str(project.id), str(ct.id))
         resp = await admin_client.get(inspections_url(str(project.id)))
         data = resp.json()
-        assert data[0]["consultant_type"] is not None
+        assert data[0]["consultantType"] is not None
 
 
 class TestGetInspection:
@@ -414,8 +414,8 @@ class TestGetInspection:
         resp = await admin_client.get(inspection_detail_url(str(project.id), created["id"]))
         data = resp.json()
         expected_fields = [
-            "id", "project_id", "consultant_type_id", "scheduled_date",
-            "status", "created_at", "updated_at", "findings", "consultant_type",
+            "id", "projectId", "consultantTypeId", "scheduledDate",
+            "status", "createdAt", "updatedAt", "findings", "consultantType",
         ]
         for field in expected_fields:
             assert field in data, f"Missing field: {field}"
@@ -472,7 +472,7 @@ class TestUpdateInspection:
             json={"current_stage": "Framing"},
         )
         assert resp.status_code == 200
-        assert resp.json()["current_stage"] == "Framing"
+        assert resp.json()["currentStage"] == "Framing"
 
     async def test_update_inspection_not_found(self, admin_client: AsyncClient, project: Project):
         resp = await admin_client.put(
@@ -533,7 +533,7 @@ class TestCompleteInspection:
         assert resp.status_code == 200
         data = resp.json()
         assert data["status"] == "completed"
-        assert data["completed_date"] is not None
+        assert data["completedDate"] is not None
 
     async def test_complete_inspection_not_found(self, admin_client: AsyncClient, project: Project):
         resp = await admin_client.post(inspection_complete_url(str(project.id), FAKE_INSPECTION_ID))
@@ -554,7 +554,7 @@ class TestCompleteInspection:
         created = await create_inspection_via_api(admin_client, str(project.id), str(ct.id))
         resp = await admin_client.post(inspection_complete_url(str(project.id), created["id"]))
         data = resp.json()
-        assert data["completed_date"] is not None
+        assert data["completedDate"] is not None
 
 
 class TestDeleteInspection:
@@ -683,8 +683,8 @@ class TestInspectionSummary:
         resp = await admin_client.get(inspection_summary_url(str(project.id)))
         assert resp.status_code == 200
         data = resp.json()
-        assert data["total_inspections"] == 0
-        assert data["pending_count"] == 0
+        assert data["totalInspections"] == 0
+        assert data["pendingCount"] == 0
 
     async def test_summary_counts_statuses(
         self, admin_client: AsyncClient, project: Project, db: AsyncSession
@@ -698,9 +698,9 @@ class TestInspectionSummary:
         await admin_client.post(inspection_complete_url(str(project.id), insp2["id"]))
         resp = await admin_client.get(inspection_summary_url(str(project.id)))
         data = resp.json()
-        assert data["total_inspections"] == 2
-        assert data["pending_count"] == 1
-        assert data["completed_count"] == 1
+        assert data["totalInspections"] == 2
+        assert data["pendingCount"] == 1
+        assert data["completedCount"] == 1
 
     async def test_summary_includes_findings_by_severity(
         self, admin_client: AsyncClient, project: Project, db: AsyncSession
@@ -717,9 +717,9 @@ class TestInspectionSummary:
         )
         resp = await admin_client.get(inspection_summary_url(str(project.id)))
         data = resp.json()
-        assert "findings_by_severity" in data
-        assert data["findings_by_severity"].get("high", 0) >= 1
-        assert data["findings_by_severity"].get("low", 0) >= 1
+        assert "findingsBySeverity" in data
+        assert data["findingsBySeverity"].get("high", 0) >= 1
+        assert data["findingsBySeverity"].get("low", 0) >= 1
 
     async def test_summary_no_access(self, user_client: AsyncClient):
         resp = await user_client.get(inspection_summary_url(FAKE_PROJECT_ID))
@@ -815,7 +815,7 @@ class TestFindings:
             json=valid_finding_payload(),
         )
         data = resp.json()
-        assert data["created_by"] is not None
+        assert data["createdBy"] is not None
 
     async def test_add_multiple_findings(
         self, admin_client: AsyncClient, project: Project, db: AsyncSession
@@ -1186,7 +1186,7 @@ class TestInspectionEdgeCases:
         ct = await create_consultant_type(db)
         payload = valid_inspection_payload(str(ct.id), current_stage=None)
         data = await create_inspection_via_api(admin_client, str(project.id), str(ct.id), payload)
-        assert data["current_stage"] is None
+        assert data["currentStage"] is None
 
     async def test_finding_with_description(
         self, admin_client: AsyncClient, project: Project, db: AsyncSession
@@ -1228,8 +1228,8 @@ class TestInspectionEdgeCases:
             json=valid_finding_payload(),
         )
         data = resp.json()
-        assert data["created_at"] is not None
-        assert data["updated_at"] is not None
+        assert data["createdAt"] is not None
+        assert data["updatedAt"] is not None
 
     async def test_finding_response_has_inspection_id(
         self, admin_client: AsyncClient, project: Project, db: AsyncSession
@@ -1240,7 +1240,7 @@ class TestInspectionEdgeCases:
             findings_url(str(project.id), insp["id"]),
             json=valid_finding_payload(),
         )
-        assert resp.json()["inspection_id"] == insp["id"]
+        assert resp.json()["inspectionId"] == insp["id"]
 
 
 class TestInspectionResponseFields:
@@ -1258,22 +1258,22 @@ class TestInspectionResponseFields:
     ):
         ct = await create_consultant_type(db)
         data = await create_inspection_via_api(admin_client, str(project.id), str(ct.id))
-        assert data["created_at"] is not None
-        assert data["updated_at"] is not None
+        assert data["createdAt"] is not None
+        assert data["updatedAt"] is not None
 
     async def test_inspection_response_completed_date_null_initially(
         self, admin_client: AsyncClient, project: Project, db: AsyncSession
     ):
         ct = await create_consultant_type(db)
         data = await create_inspection_via_api(admin_client, str(project.id), str(ct.id))
-        assert data["completed_date"] is None
+        assert data["completedDate"] is None
 
     async def test_summary_response_structure(self, admin_client: AsyncClient, project: Project):
         resp = await admin_client.get(inspection_summary_url(str(project.id)))
         data = resp.json()
         expected_keys = [
-            "total_inspections", "pending_count", "in_progress_count",
-            "completed_count", "failed_count", "findings_by_severity", "overdue_count",
+            "totalInspections", "pendingCount", "inProgressCount",
+            "completedCount", "failedCount", "findingsBySeverity", "overdueCount",
         ]
         for key in expected_keys:
             assert key in data, f"Missing key: {key}"
@@ -1339,7 +1339,7 @@ class TestInspectionSummaryEdgeCases:
         )
         resp = await admin_client.get(inspection_summary_url(str(project.id)))
         data = resp.json()
-        assert data["failed_count"] == 1
+        assert data["failedCount"] == 1
 
     async def test_summary_with_in_progress_inspections(
         self, admin_client: AsyncClient, project: Project, db: AsyncSession
@@ -1352,7 +1352,7 @@ class TestInspectionSummaryEdgeCases:
         )
         resp = await admin_client.get(inspection_summary_url(str(project.id)))
         data = resp.json()
-        assert data["in_progress_count"] == 1
+        assert data["inProgressCount"] == 1
 
     async def test_summary_all_statuses_represented(
         self, admin_client: AsyncClient, project: Project, db: AsyncSession
@@ -1373,11 +1373,11 @@ class TestInspectionSummaryEdgeCases:
                     )
         resp = await admin_client.get(inspection_summary_url(str(project.id)))
         data = resp.json()
-        assert data["total_inspections"] == 4
-        assert data["pending_count"] == 1
-        assert data["in_progress_count"] == 1
-        assert data["completed_count"] == 1
-        assert data["failed_count"] == 1
+        assert data["totalInspections"] == 4
+        assert data["pendingCount"] == 1
+        assert data["inProgressCount"] == 1
+        assert data["completedCount"] == 1
+        assert data["failedCount"] == 1
 
     async def test_summary_empty_findings_by_severity(
         self, admin_client: AsyncClient, project: Project, db: AsyncSession
@@ -1386,7 +1386,7 @@ class TestInspectionSummaryEdgeCases:
         await create_inspection_via_api(admin_client, str(project.id), str(ct.id))
         resp = await admin_client.get(inspection_summary_url(str(project.id)))
         data = resp.json()
-        assert data["findings_by_severity"] == {}
+        assert data["findingsBySeverity"] == {}
 
 
 class TestUpdateFindingEdgeCases:
@@ -1456,8 +1456,8 @@ class TestMultipleConsultantTypes:
             admin_client, str(project.id), str(ct2.id),
             valid_inspection_payload(str(ct2.id), notes="Electrical inspection")
         )
-        assert insp1["consultant_type_id"] == str(ct1.id)
-        assert insp2["consultant_type_id"] == str(ct2.id)
+        assert insp1["consultantTypeId"] == str(ct1.id)
+        assert insp2["consultantTypeId"] == str(ct2.id)
 
     async def test_summary_across_consultant_types(
         self, admin_client: AsyncClient, project: Project, db: AsyncSession
@@ -1480,7 +1480,7 @@ class TestMultipleConsultantTypes:
             valid_inspection_payload(str(ct2.id), notes="Plumbing inspection")
         )
         resp = await admin_client.get(inspection_summary_url(str(project.id)))
-        assert resp.json()["total_inspections"] == 2
+        assert resp.json()["totalInspections"] == 2
 
 
 class TestInspectionOptionalFields:
@@ -1508,7 +1508,7 @@ class TestInspectionOptionalFields:
             admin_client, str(project.id), str(ct.id),
             valid_inspection_payload(str(ct.id), scheduled_date="2026-01-15T14:30:00"),
         )
-        assert "2026-01-15" in data["scheduled_date"]
+        assert "2026-01-15" in data["scheduledDate"]
 
 
 class TestInspectionCompleteEndpoint:
@@ -1528,7 +1528,7 @@ class TestInspectionCompleteEndpoint:
         ct = await create_consultant_type(db)
         insp = await create_inspection_via_api(admin_client, str(project.id), str(ct.id))
         resp = await admin_client.post(inspection_complete_url(str(project.id), insp["id"]))
-        assert resp.json()["completed_date"] is not None
+        assert resp.json()["completedDate"] is not None
 
     async def test_complete_nonexistent_inspection(
         self, admin_client: AsyncClient, project: Project
@@ -1554,7 +1554,7 @@ class TestInspectionCompleteEndpoint:
         insp = await create_inspection_via_api(admin_client, str(project.id), str(ct.id))
         await admin_client.post(inspection_complete_url(str(project.id), insp["id"]))
         resp = await admin_client.get(inspection_summary_url(str(project.id)))
-        assert resp.json()["completed_count"] == 1
+        assert resp.json()["completedCount"] == 1
 
     async def test_complete_removes_from_pending(
         self, admin_client: AsyncClient, project: Project, db: AsyncSession
@@ -1610,7 +1610,7 @@ class TestFindingSeverities:
                 json=valid_finding_payload(severity=sev, title=f"Finding {sev}"),
             )
         resp = await admin_client.get(inspection_summary_url(str(project.id)))
-        by_sev = resp.json()["findings_by_severity"]
+        by_sev = resp.json()["findingsBySeverity"]
         assert by_sev.get("low", 0) >= 1
         assert by_sev.get("high", 0) >= 1
         assert by_sev.get("critical", 0) >= 1
@@ -1658,7 +1658,7 @@ class TestInspectionDeleteBehavior:
         )
         await admin_client.delete(inspection_detail_url(str(project.id), insp2["id"]))
         resp = await admin_client.get(inspection_summary_url(str(project.id)))
-        assert resp.json()["total_inspections"] == 1
+        assert resp.json()["totalInspections"] == 1
 
 
 class TestInspectionListOrdering:
@@ -1699,5 +1699,5 @@ class TestInspectionListOrdering:
         insp = await create_inspection_via_api(admin_client, str(project.id), str(ct.id))
         resp = await admin_client.get(inspection_detail_url(str(project.id), insp["id"]))
         data = resp.json()
-        assert data["created_by"] is not None
-        assert data["created_by"]["email"] == "admin@test.com"
+        assert data["createdBy"] is not None
+        assert data["createdBy"]["email"] == "admin@test.com"

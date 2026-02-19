@@ -663,7 +663,7 @@ class TestRFIResponses:
         await admin_client.patch(rfi_status_url(created["id"]), json={"status": "open"})
         resp = await admin_client.post(
             rfi_responses_url(created["id"]),
-            json={"response_text": "The concrete mix ratio is 1:2:4."},
+            json={"response_text": "The concrete mix ratio is 1:2:4.", "is_internal": True},
             params={"send_email": False},
         )
         assert resp.status_code == 201

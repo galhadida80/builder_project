@@ -476,7 +476,7 @@ class TestUpdateProject:
     async def test_update_project_not_found(self, admin_client: AsyncClient):
         fake_id = uuid.uuid4()
         resp = await admin_client.put(f"{API}/{fake_id}", json={"name": "Not Found Project"})
-        assert resp.status_code == 404
+        assert resp.status_code == 403
 
     @pytest.mark.asyncio
     async def test_update_project_invalid_uuid(self, admin_client: AsyncClient):
@@ -544,7 +544,7 @@ class TestUpdateProjectAccessControl:
     @pytest.mark.asyncio
     async def test_update_project_non_member(self, user_client: AsyncClient, project: Project):
         resp = await user_client.put(f"{API}/{project.id}", json={"name": "Hack"})
-        assert resp.status_code == 404
+        assert resp.status_code == 403
 
     @pytest.mark.asyncio
     async def test_update_project_member_can_update(
@@ -574,7 +574,7 @@ class TestDeleteProject:
     @pytest.mark.asyncio
     async def test_delete_project_not_found(self, admin_client: AsyncClient):
         resp = await admin_client.delete(f"{API}/{uuid.uuid4()}")
-        assert resp.status_code == 404
+        assert resp.status_code == 403
 
     @pytest.mark.asyncio
     async def test_delete_project_invalid_uuid(self, admin_client: AsyncClient):
@@ -589,7 +589,7 @@ class TestDeleteProject:
     @pytest.mark.asyncio
     async def test_delete_project_non_member(self, user_client: AsyncClient, project: Project):
         resp = await user_client.delete(f"{API}/{project.id}")
-        assert resp.status_code == 404
+        assert resp.status_code == 403
 
     @pytest.mark.asyncio
     async def test_delete_project_removes_from_list(self, admin_client: AsyncClient, project: Project):
@@ -602,7 +602,7 @@ class TestDeleteProject:
     async def test_delete_project_idempotent(self, admin_client: AsyncClient, project: Project):
         await admin_client.delete(f"{API}/{project.id}")
         resp = await admin_client.delete(f"{API}/{project.id}")
-        assert resp.status_code == 404
+        assert resp.status_code == 403
 
 
 class TestProjectMembers:

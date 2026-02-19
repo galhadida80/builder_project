@@ -451,6 +451,7 @@ async def update_checklist_item_template(
     await create_audit_log(db, current_user, "checklist_item_template", item.id, AuditAction.UPDATE,
                           project_id=subsection.template.project_id, old_values=old_values, new_values=get_model_dict(item))
 
+    await db.flush()
     await db.refresh(item)
     return item
 

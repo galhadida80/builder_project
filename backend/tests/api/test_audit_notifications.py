@@ -871,7 +871,7 @@ class TestAuditLogPaginationAdvanced:
         await create_audit_log_in_db(db, project.id, admin_user.id)
         await db.commit()
         resp = await admin_client.get(project_audit_url(str(project.id)), params={"limit": 0})
-        assert len(resp.json()) == 0
+        assert resp.status_code == 422
 
     async def test_limit_one(self, admin_client: AsyncClient, project: Project, admin_user: User, db: AsyncSession):
         for _ in range(5):

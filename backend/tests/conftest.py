@@ -13,6 +13,7 @@ from sqlalchemy.pool import StaticPool
 
 from app.config import get_settings
 from app.db.session import Base, get_db
+from app.middleware.rate_limiter import get_rate_limiter
 from app.main import app
 from app.models.equipment_submission import EquipmentSubmission
 from app.models.equipment_template import EquipmentTemplate
@@ -22,6 +23,8 @@ from app.models.user import User
 # Force fake email provider for all tests (avoid hitting real SendGrid)
 get_settings().email_provider = "fake"
 get_settings().google_pubsub_verify = False
+get_settings().rate_limit_enabled = False
+get_rate_limiter().enabled = False
 
 compiles(JSONB, "sqlite")(lambda element, compiler, **kw: compiler.visit_JSON(element, **kw))
 compiles(PG_UUID, "sqlite")(lambda element, compiler, **kw: "VARCHAR(36)")

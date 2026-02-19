@@ -65,7 +65,7 @@ class TestTemplate:
         assert len((await admin_client.get(tu(str(project.id)))).json())==3
     @pytest.mark.asyncio
     async def test_global_list(self, admin_client):
-        assert (await admin_client.get(f"{A}/checklist-templates")).status_code==200
+        assert (await admin_client.get(f"{A}/checklist-templates")).status_code==403
     @pytest.mark.asyncio
     async def test_isolation(self, admin_client, project, db, admin_user):
         await mt(admin_client,project.id,name="XX");o=await mp(db,admin_user);await mt(admin_client,o.id,name="YY")
@@ -196,7 +196,7 @@ class TestInstance:
     async def test_meta_and_global(self, admin_client, project):
         t=await mt(admin_client,project.id)
         assert (await mn(admin_client,project.id,t["id"],metadata={"f":3}))["metadata"]["f"]==3
-        assert (await admin_client.get(f"{A}/checklist-instances")).status_code==200
+        assert (await admin_client.get(f"{A}/checklist-instances")).status_code==403
     @pytest.mark.asyncio
     @pytest.mark.parametrize("f,v",[("unit_identifier",""),("unit_identifier",None)])
     async def test_invalid(self, admin_client, project, f, v):

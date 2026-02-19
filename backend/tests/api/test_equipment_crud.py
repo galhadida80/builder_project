@@ -483,7 +483,10 @@ class TestSubmitForApprovalExtended:
     @pytest.mark.asyncio
     async def test_submit_creates_two_steps(self, admin_client, project, db):
         eq = await create_eq(admin_client, project.id)
-        await admin_client.post(eq_submit(str(project.id), eq["id"]), json={"consultant_contact_id": "00000000-0000-0000-0000-000000000001"})
+        await admin_client.post(eq_submit(str(project.id), eq["id"]), json={
+            "consultant_contact_id": "00000000-0000-0000-0000-000000000001",
+            "inspector_contact_id": "00000000-0000-0000-0000-000000000002",
+        })
         result = await db.execute(
             select(ApprovalRequest).where(ApprovalRequest.entity_id == uuid.UUID(eq["id"]))
         )
@@ -1438,11 +1441,10 @@ class TestStatusFilterEquipment:
         assert "All Approved" in names
 
     @pytest.mark.asyncio
-    async def test_flat_list_status_filter_nonexistent_returns_empty(self, admin_client, project, db, admin_user):
+    async def test_flat_list_status_filter_nonexistent_returns_400(self, admin_client, project, db, admin_user):
         await make_equipment_in_db(db, project.id, admin_user.id, name="Some Eq", status=ApprovalStatus.DRAFT.value)
         resp = await admin_client.get(f"{API}/equipment", params={"status": "no_such_status"})
-        assert resp.status_code == 200
-        assert resp.json() == []
+        assert resp.status_code == 400
 
     @pytest.mark.asyncio
     async def test_status_filter_multiple_items_same_status(self, admin_client, project, db, admin_user):
