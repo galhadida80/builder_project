@@ -636,6 +636,7 @@ async def confirm_time_slot(
     await create_audit_log(db, current_user, "meeting", meeting.id, AuditAction.UPDATE,
                           project_id=project_id, new_values={"status": "scheduled", "scheduled_date": str(chosen_slot.proposed_start)})
 
+    await db.flush()
     await db.refresh(meeting, ["created_by", "attendees", "time_slots", "time_votes"])
     return meeting
 

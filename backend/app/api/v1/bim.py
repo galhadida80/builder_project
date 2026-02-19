@@ -166,7 +166,7 @@ async def upload_bim_model(
         try:
             await aps.ensure_bucket(bucket_key)
             obj_details = await aps.upload_object(bucket_key, object_key, content, content_type)
-            bim_model.urn = obj_details.get("objectId", "")
+            bim_model.urn = obj_details.get("objectId") or None
         except Exception:
             bim_model.urn = None
 
