@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 
 {% block header_content %}
-<h1 style="margin:0;color:#ffffff;font-size:24px;font-weight:700;">{{ strings.greeting }}</h1>
+<h1 style="margin:0;color:#ffffff;font-size:24px;font-weight:700;letter-spacing:-0.3px;">{{ strings.greeting }}</h1>
 {% endblock %}
 
 {% block content %}
-<p style="margin:0 0 24px;color:#424242;font-size:15px;line-height:1.7;">{{ strings.message }}</p>
+<p style="margin:0 0 28px;color:#334155;font-size:15px;line-height:1.7;">{{ strings.message }}</p>
 <div style="text-align:center;">
-<a href="{{ frontend_url }}/dashboard" style="display:inline-block;background-color:#1565c0;color:#ffffff;text-decoration:none;padding:12px 32px;border-radius:6px;font-size:14px;font-weight:600;">{{ strings.cta }}</a>
+<a href="{{ frontend_url }}/dashboard" style="display:inline-block;background:#0369A1;color:#ffffff;text-decoration:none;padding:14px 36px;border-radius:8px;font-size:14px;font-weight:600;letter-spacing:0.3px;">{{ strings.cta }}</a>
 </div>
 {% endblock %}
 

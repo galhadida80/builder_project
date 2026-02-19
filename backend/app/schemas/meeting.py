@@ -28,6 +28,8 @@ class ActionItem(BaseModel):
     @classmethod
     def sanitize_text(cls, v: str) -> str:
         return sanitize_string(v) or ''
+
+
 class MeetingAttendeeCreate(BaseModel):
     user_id: UUID
     role: Optional[str] = Field(default=None, max_length=100)
@@ -36,13 +38,23 @@ class MeetingAttendeeCreate(BaseModel):
     @classmethod
     def sanitize_text(cls, v: Optional[str]) -> Optional[str]:
         return sanitize_string(v)
+
+
 class MeetingAttendeeResponse(CamelCaseModel):
     id: UUID
     meeting_id: UUID
     user_id: Optional[UUID] = None
     user: Optional[UserResponse] = None
     role: Optional[str] = None
-    confirmed: bool = False
+    attendance_status: str = "pending"
+    email: Optional[str] = None
+    rsvp_responded_at: Optional[datetime] = None
+
+
+class RSVPRequest(BaseModel):
+    status: Literal["accepted", "declined", "tentative"]
+
+
 class MeetingBase(BaseModel):
     title: str = Field(min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
     description: Optional[str] = Field(default=None, max_length=MAX_DESCRIPTION_LENGTH)
@@ -55,8 +67,12 @@ class MeetingBase(BaseModel):
     @classmethod
     def sanitize_text(cls, v: Optional[str]) -> Optional[str]:
         return sanitize_string(v)
+
+
 class MeetingCreate(MeetingBase):
-    pass
+    attendee_ids: list[str] = Field(default_factory=list)
+
+
 class MeetingUpdate(BaseModel):
     title: Optional[str] = Field(default=None, min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
     description: Optional[str] = Field(default=None, max_length=MAX_DESCRIPTION_LENGTH)
@@ -72,6 +88,8 @@ class MeetingUpdate(BaseModel):
     @classmethod
     def sanitize_text(cls, v: Optional[str]) -> Optional[str]:
         return sanitize_string(v)
+
+
 class MeetingResponse(CamelCaseModel):
     id: UUID
     project_id: UUID
@@ -88,3 +106,12 @@ class MeetingResponse(CamelCaseModel):
     created_at: datetime
     created_by: Optional[UserResponse] = None
     attendees: list[MeetingAttendeeResponse] = []
+
+
+class RSVPInfoResponse(CamelCaseModel):
+    meeting_title: str
+    meeting_date: datetime
+    meeting_location: Optional[str] = None
+    organizer_name: Optional[str] = None
+    attendee_name: Optional[str] = None
+    attendance_status: str

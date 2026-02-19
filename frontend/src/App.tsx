@@ -33,6 +33,7 @@ import ProfilePage from './pages/ProfilePage'
 import InvitePage from './pages/InvitePage'
 import AdminUsersPage from './pages/AdminUsersPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
+import MeetingRSVPPage from './pages/MeetingRSVPPage'
 import { lazy, Suspense } from 'react'
 import { LoadingPage } from './components/common/LoadingPage'
 import { ErrorBoundary } from './components/common/ErrorBoundary'
@@ -77,6 +78,7 @@ function AppRoutes() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/invite" element={<InvitePage />} />
+        <Route path="/meetings/rsvp/:token" element={<MeetingRSVPPage />} />
 
         <Route element={<ProtectedRoute />}>
           <Route element={<Layout />}>

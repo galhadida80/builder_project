@@ -36,6 +36,7 @@ export default function RFIPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [rfiToDelete, setRfiToDelete] = useState<RFIListItem | null>(null)
   const [saving, setSaving] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const [activeTab, setActiveTab] = useState('all')
   const [errors, setErrors] = useState<ValidationError>({})
   const [formData, setFormData] = useState<RFICreate & { cc_emails: string[] }>({
@@ -264,6 +265,7 @@ export default function RFIPage() {
 
   const handleConfirmDelete = async () => {
     if (!rfiToDelete) return
+    setDeleting(true)
     try {
       await rfiApi.delete(rfiToDelete.id)
       showSuccess(t('rfis.deleteSuccess'))
@@ -273,6 +275,8 @@ export default function RFIPage() {
       loadSummary()
     } catch {
       showError(t('rfis.failedToDeleteDraft'))
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -663,6 +667,7 @@ export default function RFIPage() {
         message={t('rfis.deleteConfirmationMessage', { number: rfiToDelete?.rfi_number })}
         confirmLabel={t('common.delete')}
         variant="danger"
+        loading={deleting}
       />
     </Box>
   )

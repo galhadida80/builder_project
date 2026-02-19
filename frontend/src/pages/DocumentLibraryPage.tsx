@@ -23,6 +23,7 @@ export default function DocumentLibraryPage() {
   const [search, setSearch] = useState('')
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [fileToDelete, setFileToDelete] = useState<FileRecord | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   const {
     folders,
@@ -74,6 +75,7 @@ export default function DocumentLibraryPage() {
 
   const handleConfirmDelete = async () => {
     if (!fileToDelete) return
+    setDeleting(true)
     try {
       await deleteFile(fileToDelete.id)
       showSuccess(t('documents.deleteSuccess', { name: fileToDelete.filename }))
@@ -81,6 +83,8 @@ export default function DocumentLibraryPage() {
       setFileToDelete(null)
     } catch (error) {
       showError(t('documents.deleteFailed', { name: fileToDelete.filename }))
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -229,6 +233,7 @@ export default function DocumentLibraryPage() {
         message={t('documents.deleteConfirmation', { name: fileToDelete?.filename })}
         confirmLabel={t('common.delete')}
         variant="danger"
+        loading={deleting}
       />
     </Box>
   )

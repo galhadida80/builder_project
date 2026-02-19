@@ -325,7 +325,28 @@
     "listView": "List",
     "calendarView": "Calendar",
     "calendarToday": "Today",
-    "calendarMoreMeetings": "+{{count}} more"
+    "calendarMoreMeetings": "+{{count}} more",
+    "selectAttendees": "Select Attendees",
+    "createdBy": "Created by",
+    "photos": "Photos",
+    "addPhotos": "Add Photos",
+    "invitationSent": "Invitations sent to {{count}} attendees",
+    "noAttendees": "No attendees yet",
+    "rsvp": {
+      "pending": "Pending",
+      "accepted": "Accepted",
+      "declined": "Declined",
+      "tentative": "Maybe",
+      "accept": "Accept",
+      "decline": "Decline",
+      "tentativeAction": "Maybe",
+      "title": "Meeting RSVP",
+      "confirmMessage": "Your response has been recorded",
+      "expired": "This RSVP link is no longer valid",
+      "yourResponse": "Your RSVP",
+      "respondToInvitation": "Respond to this meeting invitation",
+      "organizedBy": "Organized by"
+    }
   },
   "validation": {
     "checkFields": "Please fix the highlighted errors",
@@ -1594,8 +1615,8 @@
     "role": "Role",
     "sendButton": "Send Invitation",
     "createFailed": "Failed to create invitation",
-    "created": "Invitation created successfully!",
-    "shareLink": "Share this link with the team member:",
+    "created": "Invitation sent successfully! An email was sent to the invitee.",
+    "shareLink": "You can also share this link directly:",
     "copied": "Link copied to clipboard!"
   },
   "permissions": {

@@ -18,6 +18,10 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialog-paper': {
     borderRadius: 16,
     boxShadow: theme.shadows[8],
+    overflow: 'hidden',
+    maxHeight: 'calc(100% - 64px)',
+    display: 'flex',
+    flexDirection: 'column',
   },
   '& .MuiBackdrop-root': {
     backgroundColor: 'rgba(0, 0, 0, 0.6)',
@@ -35,6 +39,8 @@ const StyledDialogTitle = styled(DialogTitle)(({ theme }) => ({
 
 const StyledDialogContent = styled(DialogContent)(({ theme }) => ({
   padding: theme.spacing(3),
+  overflowY: 'auto',
+  flex: 1,
 }))
 
 const StyledDialogActions = styled(DialogActions)(({ theme }) => ({

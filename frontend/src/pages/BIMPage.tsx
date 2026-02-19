@@ -45,6 +45,7 @@ export default function BIMPage() {
   const [uploading, setUploading] = useState(false)
   const [selectedModel, setSelectedModel] = useState<BimModel | null>(null)
   const [deleteModel, setDeleteModel] = useState<BimModel | null>(null)
+  const [deleting, setDeleting] = useState(false)
   const [importModel, setImportModel] = useState<BimModel | null>(null)
   const [pollingIds, setPollingIds] = useState<Set<string>>(new Set())
 
@@ -131,6 +132,7 @@ export default function BIMPage() {
 
   const handleDelete = async () => {
     if (!deleteModel || !projectId) return
+    setDeleting(true)
     try {
       await bimApi.delete(projectId, deleteModel.id)
       setModels((prev) => prev.filter((m) => m.id !== deleteModel.id))
@@ -138,6 +140,8 @@ export default function BIMPage() {
       showSuccess(t('bim.deleteSuccess'))
     } catch {
       showError(t('bim.deleteFailed'))
+    } finally {
+      setDeleting(false)
     }
     setDeleteModel(null)
   }
@@ -356,6 +360,7 @@ export default function BIMPage() {
         title={t('bim.deleteConfirmation')}
         message={t('bim.deleteConfirmationMessage', { name: deleteModel?.filename })}
         variant="danger"
+        loading={deleting}
       />
     </Box>
   )

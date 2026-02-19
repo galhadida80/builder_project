@@ -1,7 +1,8 @@
+import logging
 from datetime import datetime
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -13,6 +14,11 @@ from app.models.invitation import InvitationStatus, ProjectInvitation
 from app.models.project import Project, ProjectMember
 from app.models.user import User
 from app.schemas.invitation import InvitationCreate, InvitationResponse
+from app.services.email_renderer import render_invitation_email
+from app.services.email_service import EmailService
+from app.utils.localization import get_language_from_request
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 settings = get_settings()
@@ -41,6 +47,8 @@ def invitation_to_response(inv: ProjectInvitation) -> InvitationResponse:
 async def create_invitation(
     project_id: UUID,
     data: InvitationCreate,
+    request: Request,
+    background_tasks: BackgroundTasks,
     member: ProjectMember = require_permission(Permission.MANAGE_MEMBERS),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
@@ -69,6 +77,29 @@ async def create_invitation(
     db.add(invitation)
     await db.commit()
     await db.refresh(invitation)
+
+    invite_url = build_invite_url(invitation.token)
+    language = get_language_from_request(request)
+    try:
+        email_service = EmailService()
+        if email_service.enabled:
+            invited_by_name = current_user.full_name or current_user.email
+            subject, body_html = render_invitation_email(
+                project_name=project.name,
+                role=data.role,
+                invited_by=invited_by_name,
+                invite_url=invite_url,
+                language=language,
+            )
+            background_tasks.add_task(
+                email_service.send_notification,
+                to_email=data.email,
+                subject=subject,
+                body_html=body_html,
+            )
+    except Exception:
+        logger.warning("Failed to send invitation email to %s", data.email, exc_info=True)
+
     return invitation_to_response(invitation)
 
 

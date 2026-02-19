@@ -9,6 +9,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.api.v1.router import api_router
 from app.config import get_settings
+from app.core.logging import RequestLoggingMiddleware, setup_logging
 from app.db.seeds.checklist_templates import seed_checklist_templates
 from app.db.seeds.consultant_types import seed_consultant_types
 from app.db.seeds.equipment_templates import seed_equipment_templates
@@ -18,8 +19,9 @@ from app.middleware.rate_limiter import get_rate_limiter
 from app.services.mcp_server import mcp
 from app.utils.localization import get_language_from_request
 
-logger = logging.getLogger(__name__)
 settings = get_settings()
+setup_logging(settings.environment)
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -109,6 +111,7 @@ limiter = get_rate_limiter()
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
+app.add_middleware(RequestLoggingMiddleware)
 app.add_middleware(LanguageDetectionMiddleware)
 app.add_middleware(SecurityHeadersMiddleware)
 cors_origins = ["*"] if settings.cors_origins == "*" else [o.strip() for o in settings.cors_origins.split(",")]

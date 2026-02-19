@@ -106,6 +106,7 @@ export {
   PendingActions as PendingActionsIcon,
   People as PeopleIcon,
   Person as PersonIcon,
+  PersonAdd as PersonAddIcon,
   Phone as PhoneIcon,
   PhoneIphone as PhoneIphoneIcon,
   PictureAsPdf as PictureAsPdfIcon,

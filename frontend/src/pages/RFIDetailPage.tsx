@@ -46,6 +46,8 @@ export default function RFIDetailPage() {
   const [isInternal, setIsInternal] = useState(false)
   const [closeDialogOpen, setCloseDialogOpen] = useState(false)
   const [reopenDialogOpen, setReopenDialogOpen] = useState(false)
+  const [closingRfi, setClosingRfi] = useState(false)
+  const [reopeningRfi, setReopeningRfi] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
   const [sending, setSending] = useState(false)
 
@@ -108,6 +110,7 @@ export default function RFIDetailPage() {
 
   const handleCloseRfi = async () => {
     if (!rfiId) return
+    setClosingRfi(true)
     try {
       await rfiApi.closeRfi(rfiId)
       showSuccess(t('rfiDetail.closedSuccess'))
@@ -115,11 +118,14 @@ export default function RFIDetailPage() {
       await loadRfiDetail()
     } catch {
       showError(t('rfiDetail.failedToClose'))
+    } finally {
+      setClosingRfi(false)
     }
   }
 
   const handleReopenRfi = async () => {
     if (!rfiId) return
+    setReopeningRfi(true)
     try {
       await rfiApi.reopenRfi(rfiId)
       showSuccess(t('rfiDetail.reopenedSuccess'))
@@ -127,6 +133,8 @@ export default function RFIDetailPage() {
       await loadRfiDetail()
     } catch {
       showError(t('rfiDetail.failedToReopen'))
+    } finally {
+      setReopeningRfi(false)
     }
   }
 
@@ -463,6 +471,7 @@ export default function RFIDetailPage() {
         title={t('rfiDetail.closeRfi')}
         message={t('rfiDetail.closeConfirmation')}
         confirmLabel={t('rfiDetail.closeRfi')}
+        loading={closingRfi}
       />
       <ConfirmModal
         open={reopenDialogOpen}
@@ -471,6 +480,7 @@ export default function RFIDetailPage() {
         title={t('rfiDetail.reopenRfi')}
         message={t('rfiDetail.reopenConfirmation')}
         confirmLabel={t('rfiDetail.reopenRfi')}
+        loading={reopeningRfi}
       />
     </Box>
   )

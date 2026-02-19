@@ -37,6 +37,7 @@ export default function BudgetPage() {
   const [costDialog, setCostDialog] = useState(false)
   const [coDialog, setCoDialog] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<{ type: string; id: string } | null>(null)
+  const [deleting, setDeleting] = useState(false)
   const [editItem, setEditItem] = useState<BudgetLineItem | null>(null)
   const [editCO, setEditCO] = useState<ChangeOrder | null>(null)
   const [costItemId, setCostItemId] = useState('')
@@ -93,12 +94,14 @@ export default function BudgetPage() {
 
   const handleDelete = async () => {
     if (!projectId || !deleteTarget) return
+    setDeleting(true)
     try {
       if (deleteTarget.type === 'item') await budgetApi.deleteItem(projectId, deleteTarget.id)
       else if (deleteTarget.type === 'co') await budgetApi.deleteChangeOrder(projectId, deleteTarget.id)
       else await budgetApi.deleteCostEntry(projectId, deleteTarget.id)
       showSuccess(t('budget.deleted', { defaultValue: 'Deleted' })); setDeleteTarget(null); loadData()
     } catch { showError(t('budget.deleteFailed', { defaultValue: 'Failed to delete' })) }
+    finally { setDeleting(false) }
   }
 
   const openEditItem = (item: BudgetLineItem) => { setEditItem(item); setItemForm({ name: item.name, category: item.category, description: item.description, budgeted_amount: item.budgetedAmount }); setItemDialog(true) }
@@ -293,7 +296,7 @@ export default function BudgetPage() {
         </Box>
       </FormModal>
 
-      <ConfirmModal open={!!deleteTarget} onClose={() => setDeleteTarget(null)} onConfirm={handleDelete} title={t('budget.confirmDelete', { defaultValue: 'Confirm Delete' })} message={t('budget.deleteMessage', { defaultValue: 'Are you sure? This cannot be undone.' })} />
+      <ConfirmModal open={!!deleteTarget} onClose={() => setDeleteTarget(null)} onConfirm={handleDelete} title={t('budget.confirmDelete', { defaultValue: 'Confirm Delete' })} message={t('budget.deleteMessage', { defaultValue: 'Are you sure? This cannot be undone.' })} loading={deleting} />
     </Box>
   )
 }

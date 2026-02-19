@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block header_content %}
+<h1 style="margin:0;color:#ffffff;font-size:24px;font-weight:700;letter-spacing:-0.3px;">{{ strings.title }}</h1>
+{% endblock %}
+
+{% block content %}
+<p style="margin:0 0 20px;color:#334155;font-size:15px;line-height:1.7;">{{ strings.intro }}</p>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;margin-bottom:24px;">
+<tr>
+<td style="padding:14px 18px;border-bottom:1px solid #E2E8F0;">
+<p style="margin:0 0 2px;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">{{ strings.project_label }}</p>
+<p style="margin:0;font-size:14px;color:#0F172A;font-weight:600;">{{ project_name }}</p>
+</td>
+</tr>
+<tr>
+<td style="padding:14px 18px;border-bottom:1px solid #E2E8F0;">
+<p style="margin:0 0 2px;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">{{ strings.role_label }}</p>
+<p style="margin:0;font-size:14px;color:#334155;font-weight:500;">{{ role }}</p>
+</td>
+</tr>
+<tr>
+<td style="padding:14px 18px;">
+<p style="margin:0 0 2px;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">{{ strings.invited_by_label }}</p>
+<p style="margin:0;font-size:14px;color:#334155;">{{ invited_by }}</p>
+</td>
+</tr>
+</table>
+
+<div style="text-align:center;margin:28px 0;">
+<a href="{{ invite_url }}" style="display:inline-block;background:#0369A1;color:#ffffff;text-decoration:none;padding:14px 36px;border-radius:8px;font-size:14px;font-weight:600;letter-spacing:0.3px;">{{ strings.cta }}</a>
+</div>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
+<tr><td style="padding:14px 18px;">
+<p style="margin:0 0 6px;color:#64748B;font-size:13px;line-height:1.5;">{{ strings.expires }}</p>
+<p style="margin:0;color:#64748B;font-size:13px;line-height:1.5;">{{ strings.ignore }}</p>
+</td></tr>
+</table>
+{% endblock %}
+
+{% block footer %}{{ strings.footer }}{% endblock %}

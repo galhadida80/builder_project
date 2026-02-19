@@ -11,12 +11,14 @@ from app.config import get_settings
 logger = logging.getLogger(__name__)
 
 try:
-    from google.oauth2 import service_account
+    from google.oauth2.credentials import Credentials
     from googleapiclient.discovery import build
     GOOGLE_APIS_AVAILABLE = True
 except ImportError:
     GOOGLE_APIS_AVAILABLE = False
     logger.warning("Google API libraries not installed. Gmail integration will be disabled.")
+
+TOKEN_URI = "https://oauth2.googleapis.com/token"
 
 
 class GmailService:
@@ -30,9 +32,10 @@ class GmailService:
         self.settings = get_settings()
         self._service = None
         self._enabled = bool(
-            GOOGLE_APIS_AVAILABLE and
-            self.settings.rfi_email_address and
-            self.settings.google_service_account_file
+            GOOGLE_APIS_AVAILABLE
+            and self.settings.gmail_client_id
+            and self.settings.gmail_client_secret
+            and self.settings.gmail_refresh_token
         )
 
     @property
@@ -45,12 +48,15 @@ class GmailService:
             raise RuntimeError("Gmail service is not configured")
 
         if self._service is None:
-            credentials = service_account.Credentials.from_service_account_file(
-                self.settings.google_service_account_file,
-                scopes=self.SCOPES
+            credentials = Credentials(
+                token=None,
+                refresh_token=self.settings.gmail_refresh_token,
+                token_uri=TOKEN_URI,
+                client_id=self.settings.gmail_client_id,
+                client_secret=self.settings.gmail_client_secret,
+                scopes=self.SCOPES,
             )
-            delegated_credentials = credentials.with_subject(self.settings.rfi_email_address)
-            self._service = build('gmail', 'v1', credentials=delegated_credentials)
+            self._service = build('gmail', 'v1', credentials=credentials)
         return self._service
 
     def send_rfi_email(
@@ -62,7 +68,8 @@ class GmailService:
         cc_emails: Optional[list[str]] = None,
         attachments: Optional[list[dict]] = None,
         in_reply_to: Optional[str] = None,
-        references: Optional[str] = None
+        references: Optional[str] = None,
+        reply_to: Optional[str] = None
     ) -> dict:
         if not self._enabled:
             logger.warning("Gmail service not enabled, simulating email send")
@@ -74,8 +81,11 @@ class GmailService:
 
         message = MIMEMultipart('mixed')
         message['To'] = to_email
-        message['From'] = f"RFI System <{self.settings.rfi_email_address}>"
+        message['From'] = f"BuilderOps <{self.settings.rfi_email_address}>"
         message['Subject'] = f"[{rfi_number}] {subject}"
+
+        if reply_to:
+            message['Reply-To'] = reply_to
 
         if cc_emails:
             message['Cc'] = ', '.join(cc_emails)
@@ -117,6 +127,46 @@ class GmailService:
             logger.error(f"Failed to send email: {e}")
             raise
 
+    def send_notification_email(
+        self,
+        to_email: str,
+        subject: str,
+        body_html: str,
+        body_text: Optional[str] = None
+    ) -> dict:
+        if not self._enabled:
+            logger.warning("Gmail service not enabled, simulating notification send")
+            return {
+                'message_id': 'simulated-notification',
+                'thread_id': 'simulated-thread-notification',
+                'email_message_id': '<simulated-notification@localhost>'
+            }
+
+        message = MIMEMultipart('alternative')
+        message['To'] = to_email
+        message['From'] = f"BuilderOps <{self.settings.rfi_email_address}>"
+        message['Subject'] = subject
+
+        if body_text:
+            message.attach(MIMEText(body_text, 'plain'))
+        message.attach(MIMEText(body_html, 'html'))
+
+        raw_message = base64.urlsafe_b64encode(message.as_bytes()).decode('utf-8')
+
+        try:
+            result = self.service.users().messages().send(
+                userId='me',
+                body={'raw': raw_message}
+            ).execute()
+            return {
+                'message_id': result['id'],
+                'thread_id': result['threadId'],
+                'email_message_id': message['Message-ID']
+            }
+        except Exception as e:
+            logger.error(f"Failed to send notification email: {e}")
+            raise
+
     def setup_watch(self, topic_name: str) -> dict:
         if not self._enabled:
             raise RuntimeError("Gmail service is not configured")
@@ -126,6 +176,24 @@ class GmailService:
             'topicName': topic_name
         }
         return self.service.users().watch(userId='me', body=request).execute()
+
+    def renew_watch(self) -> dict:
+        if not self._enabled:
+            logger.info("Gmail service not enabled, skipping watch renewal")
+            return {"status": "skipped"}
+
+        topic = self.settings.google_pubsub_topic
+        if not topic:
+            logger.warning("No Pub/Sub topic configured, skipping watch renewal")
+            return {"status": "no_topic"}
+
+        try:
+            result = self.setup_watch(topic)
+            logger.info(f"Gmail watch renewed, expiration: {result.get('expiration')}")
+            return {"status": "renewed", "expiration": result.get("expiration")}
+        except Exception as e:
+            logger.error(f"Failed to renew Gmail watch: {e}")
+            return {"status": "error", "error": str(e)}
 
     def get_message(self, message_id: str) -> dict:
         if not self._enabled:

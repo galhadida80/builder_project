@@ -36,6 +36,7 @@ export default function ConsultantAssignmentsPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [assignmentToDelete, setAssignmentToDelete] = useState<ConsultantAssignment | null>(null)
   const [saving, setSaving] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   // Data for form dropdowns
   const [consultants, setConsultants] = useState<User[]>([])
@@ -155,6 +156,7 @@ export default function ConsultantAssignmentsPage() {
   const handleConfirmDelete = async () => {
     if (!assignmentToDelete) return
 
+    setDeleting(true)
     try {
       await consultantAssignmentsApi.delete(assignmentToDelete.id)
       showSuccess(t('consultantAssignments.deleteSuccess'))
@@ -163,6 +165,8 @@ export default function ConsultantAssignmentsPage() {
       loadAssignments()
     } catch (error) {
       showError(t('consultantAssignments.failedToDelete'))
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -440,6 +444,7 @@ export default function ConsultantAssignmentsPage() {
         message={t('consultantAssignments.deleteConfirmation')}
         confirmLabel={t('common.delete')}
         variant="danger"
+        loading={deleting}
       />
     </Box>
   )

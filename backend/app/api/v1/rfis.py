@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime, timedelta
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -29,6 +29,7 @@ from app.schemas.rfi import (
 )
 from app.services.email_service import EmailService
 from app.services.rfi_service import RFIService
+from app.utils.localization import get_language_from_request
 
 router = APIRouter(tags=["rfis"])
 
@@ -259,6 +260,7 @@ async def update_rfi(
 @router.post("/rfis/{rfi_id}/send", response_model=RFIResponse)
 async def send_rfi(
     rfi_id: uuid.UUID,
+    request: Request,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
@@ -269,9 +271,10 @@ async def send_rfi(
 
     await check_permission(Permission.EDIT, rfi.project_id, current_user.id, db)
 
+    language = get_language_from_request(request)
     service = RFIService(db)
     try:
-        rfi = await service.send_rfi(rfi_id)
+        rfi = await service.send_rfi(rfi_id, language=language)
         return await service.get_rfi(rfi.id)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -305,6 +308,7 @@ async def update_rfi_status(
 async def add_rfi_response(
     rfi_id: uuid.UUID,
     response_data: RFIResponseCreate,
+    request: Request,
     send_email: bool = Query(True),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
@@ -318,12 +322,14 @@ async def add_rfi_response(
 
     service = RFIService(db)
     try:
+        language = get_language_from_request(request)
         response = await service.add_internal_response(
             rfi_id=rfi_id,
             user_id=current_user.id,
             response_text=response_data.response_text,
             attachments=response_data.attachments,
-            send_email=send_email
+            send_email=send_email,
+            language=language,
         )
         return response
     except ValueError as e:

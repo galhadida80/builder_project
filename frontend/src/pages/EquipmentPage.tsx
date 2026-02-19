@@ -45,6 +45,7 @@ export default function EquipmentPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [equipmentToDelete, setEquipmentToDelete] = useState<Equipment | null>(null)
   const [saving, setSaving] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [errors, setErrors] = useState<ValidationError>({})
   const [activeTab, setActiveTab] = useState('all')
@@ -244,6 +245,7 @@ export default function EquipmentPage() {
 
   const handleConfirmDelete = async () => {
     if (!projectId || !equipmentToDelete) return
+    setDeleting(true)
     try {
       await equipmentApi.delete(projectId, equipmentToDelete.id)
       showSuccess(t('equipment.equipmentDeletedSuccessfully'))
@@ -253,6 +255,8 @@ export default function EquipmentPage() {
       loadEquipment()
     } catch {
       showError(t('equipment.failedToDeleteEquipment'))
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -995,6 +999,7 @@ export default function EquipmentPage() {
         message={t('equipment.deleteConfirmationMessage', { name: equipmentToDelete?.name })}
         confirmLabel={t('common.delete')}
         variant="danger"
+        loading={deleting}
       />
 
       <ContactSelectorDialog

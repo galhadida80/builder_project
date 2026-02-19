@@ -8,6 +8,7 @@ interface MeetingCreate {
   location?: string
   scheduled_date: string
   scheduled_time?: string
+  attendee_ids?: string[]
 }
 
 interface MeetingUpdate {
@@ -25,6 +26,15 @@ interface MeetingUpdate {
 interface AttendeeCreate {
   userId: string
   role?: string
+}
+
+interface RSVPInfo {
+  meetingTitle: string
+  meetingDate: string
+  meetingLocation?: string
+  organizerName?: string
+  attendeeName?: string
+  attendanceStatus: string
 }
 
 export const meetingsApi = {
@@ -62,8 +72,21 @@ export const meetingsApi = {
     await apiClient.delete(`/projects/${projectId}/meetings/${meetingId}/attendees/${userId}`)
   },
 
-  confirmAttendance: async (projectId: string, meetingId: string, userId: string) => {
-    const response = await apiClient.put(`/projects/${projectId}/meetings/${meetingId}/attendees/${userId}/confirm`)
+  rsvpAttendee: async (projectId: string, meetingId: string, userId: string, status: string) => {
+    const response = await apiClient.put(
+      `/projects/${projectId}/meetings/${meetingId}/attendees/${userId}/rsvp`,
+      { status }
+    )
+    return response.data
+  },
+
+  getRsvpInfo: async (token: string): Promise<RSVPInfo> => {
+    const response = await apiClient.get(`/meetings/rsvp/${token}`)
+    return response.data
+  },
+
+  rsvpByToken: async (token: string, status: string): Promise<RSVPInfo> => {
+    const response = await apiClient.post(`/meetings/rsvp/${token}`, { status })
     return response.data
   },
 

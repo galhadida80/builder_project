@@ -1,80 +1,71 @@
 {% extends "base.html" %}
 
 {% block header %}
-<tr><td style="background:#0F172A;padding:32px 32px 28px;border-radius:8px 8px 0 0;">
+<tr><td style="background:#0F172A;padding:32px 32px 28px;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-<tr>
-<td style="vertical-align:middle;">
-<p style="margin:0;font-size:13px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#94A3B8;">BuilderOps</p>
-</td>
-</tr>
-<tr>
-<td style="padding-top:16px;">
-<h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;letter-spacing:-0.3px;">Request for Information</h1>
-<p style="margin:6px 0 0;color:#94A3B8;font-size:14px;font-weight:500;">{{ rfi.rfi_number }}</p>
-</td>
-</tr>
+<tr><td>
+<p style="margin:0 0 16px;font-size:12px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:#64748B;">BuilderOps</p>
+<h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;letter-spacing:-0.3px;">{{ strings.title }}</h1>
+<p style="margin:8px 0 0;color:#94A3B8;font-size:14px;font-weight:500;">{{ rfi.rfi_number }}</p>
+</td></tr>
 </table>
 </td></tr>
 {% endblock %}
 
 {% block content %}
 {% if is_response %}
+
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
-<tr><td style="padding:16px 20px;background:#F0F9FF;border-radius:8px;border-left:4px solid #0369A1;">
-<p style="margin:0 0 4px;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:#0369A1;">Response</p>
+<tr><td style="padding:18px 20px;background:#F0F9FF;border-radius:8px;border-{{ 'right' if direction == 'rtl' else 'left' }}:4px solid #0369A1;">
+<p style="margin:0 0 8px;font-size:11px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:#0369A1;">{{ strings.response }}</p>
 <p style="margin:0;color:#334155;font-size:14px;line-height:1.7;">{{ response_text | replace('\n', '<br>') }}</p>
 </td></tr>
 </table>
 
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
 <tr><td style="padding-top:16px;border-top:1px solid #E2E8F0;">
-<p style="margin:0;color:#94A3B8;font-size:12px;">Reference: <strong style="color:#64748B;">{{ rfi.rfi_number }}</strong></p>
+<p style="margin:0;color:#94A3B8;font-size:12px;">{{ strings.reference }}: <strong style="color:#64748B;">{{ rfi.rfi_number }}</strong></p>
 </td></tr>
 </table>
 
 {% else %}
 
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;margin-bottom:28px;">
 <tr>
-<td width="50%" style="padding:12px 16px;border-bottom:1px solid #F1F5F9;vertical-align:top;">
-<p style="margin:0 0 2px;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">Category</p>
-<p style="margin:0;font-size:14px;color:#334155;font-weight:500;">
-<span style="display:inline-block;background:#EFF6FF;color:#1D4ED8;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:600;">{{ rfi.category | title }}</span>
-</p>
+<td width="50%" style="padding:14px 18px;border-bottom:1px solid #E2E8F0;vertical-align:top;">
+<p style="margin:0 0 4px;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">{{ strings.category }}</p>
+<span style="display:inline-block;background:#EFF6FF;color:#1D4ED8;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:600;">{{ rfi.category | title }}</span>
 </td>
-<td width="50%" style="padding:12px 16px;border-bottom:1px solid #F1F5F9;vertical-align:top;">
-<p style="margin:0 0 2px;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">Priority</p>
-<p style="margin:0;font-size:14px;color:#334155;font-weight:500;">
+<td width="50%" style="padding:14px 18px;border-bottom:1px solid #E2E8F0;vertical-align:top;">
+<p style="margin:0 0 4px;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">{{ strings.priority }}</p>
 {% if rfi.priority == 'urgent' %}
-<span style="display:inline-block;background:#FEF2F2;color:#DC2626;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:600;">{{ rfi.priority | title }}</span>
+<span style="display:inline-block;background:#FEF2F2;color:#DC2626;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:600;">{{ strings.priority_urgent }}</span>
 {% elif rfi.priority == 'high' %}
-<span style="display:inline-block;background:#FFF7ED;color:#EA580C;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:600;">{{ rfi.priority | title }}</span>
+<span style="display:inline-block;background:#FFF7ED;color:#EA580C;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:600;">{{ strings.priority_high }}</span>
 {% elif rfi.priority == 'medium' %}
-<span style="display:inline-block;background:#FFFBEB;color:#D97706;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:600;">{{ rfi.priority | title }}</span>
+<span style="display:inline-block;background:#FFFBEB;color:#D97706;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:600;">{{ strings.priority_medium }}</span>
 {% else %}
-<span style="display:inline-block;background:#F0FDF4;color:#16A34A;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:600;">{{ rfi.priority | title }}</span>
+<span style="display:inline-block;background:#F0FDF4;color:#16A34A;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:600;">{{ strings.priority_low }}</span>
 {% endif %}
-</p>
 </td>
 </tr>
 <tr>
-<td width="50%" style="padding:12px 16px;border-bottom:1px solid #F1F5F9;vertical-align:top;">
-<p style="margin:0 0 2px;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">Due Date</p>
+<td width="50%" style="padding:14px 18px;border-bottom:1px solid #E2E8F0;vertical-align:top;">
+<p style="margin:0 0 4px;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">{{ strings.due_date }}</p>
 <p style="margin:0;font-size:14px;color:#334155;font-weight:500;">{{ due_date }}</p>
 </td>
-<td width="50%" style="padding:12px 16px;border-bottom:1px solid #F1F5F9;vertical-align:top;">
-<p style="margin:0 0 2px;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">Location</p>
+<td width="50%" style="padding:14px 18px;border-bottom:1px solid #E2E8F0;vertical-align:top;">
+<p style="margin:0 0 4px;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">{{ strings.location }}</p>
 <p style="margin:0;font-size:14px;color:#334155;font-weight:500;">{{ location }}</p>
 </td>
 </tr>
 <tr>
-<td width="50%" style="padding:12px 16px;vertical-align:top;">
-<p style="margin:0 0 2px;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">Drawing Ref</p>
+<td width="50%" style="padding:14px 18px;vertical-align:top;">
+<p style="margin:0 0 4px;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">{{ strings.drawing_ref }}</p>
 <p style="margin:0;font-size:14px;color:#334155;font-weight:500;">{{ drawing_ref }}</p>
 </td>
-<td width="50%" style="padding:12px 16px;vertical-align:top;">
-<p style="margin:0 0 2px;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">Spec Ref</p>
+<td width="50%" style="padding:14px 18px;vertical-align:top;">
+<p style="margin:0 0 4px;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">{{ strings.spec_ref }}</p>
 <p style="margin:0;font-size:14px;color:#334155;font-weight:500;">{{ spec_ref }}</p>
 </td>
 </tr>
@@ -82,9 +73,9 @@
 
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
 <tr><td>
-<p style="margin:0 0 10px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#0F172A;">Question</p>
+<p style="margin:0 0 10px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#0F172A;">{{ strings.question }}</p>
 </td></tr>
-<tr><td style="padding:16px 20px;background:#F8FAFC;border-radius:8px;border-left:4px solid #0369A1;">
+<tr><td style="padding:18px 20px;background:#F8FAFC;border-radius:8px;border-{{ 'right' if direction == 'rtl' else 'left' }}:4px solid #0369A1;">
 <p style="margin:0;color:#334155;font-size:14px;line-height:1.7;">{{ rfi.question | replace('\n', '<br>') }}</p>
 </td></tr>
 </table>
@@ -92,9 +83,9 @@
 {% if rfi.attachments and rfi.attachments | length > 0 %}
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
 <tr><td>
-<p style="margin:0 0 10px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#0F172A;">Attachments ({{ rfi.attachments | length }})</p>
+<p style="margin:0 0 10px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#0F172A;">{{ strings.attachments }} ({{ rfi.attachments | length }})</p>
 </td></tr>
-<tr><td style="padding:12px 16px;background:#F8FAFC;border-radius:8px;">
+<tr><td style="padding:14px 18px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
 <p style="margin:0;color:#64748B;font-size:13px;line-height:1.8;">
 {% for att in rfi.attachments %}
 {{ att.filename if att is mapping else att }}{% if not loop.last %}, {% endif %}
@@ -106,17 +97,17 @@
 
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
 <tr><td style="text-align:center;padding:8px 0 16px;">
-<a href="{{ frontend_url }}/projects/{{ rfi.project_id }}/rfis/{{ rfi.id }}" style="display:inline-block;background:#0369A1;color:#ffffff;text-decoration:none;padding:14px 36px;border-radius:8px;font-size:14px;font-weight:600;letter-spacing:0.3px;">View &amp; Respond to RFI</a>
+<a href="{{ frontend_url }}/projects/{{ rfi.project_id }}/rfis/{{ rfi.id }}" style="display:inline-block;background:#0369A1;color:#ffffff;text-decoration:none;padding:14px 36px;border-radius:8px;font-size:14px;font-weight:600;letter-spacing:0.3px;">{{ strings.cta }}</a>
 </td></tr>
 </table>
 
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
 <tr><td style="padding-top:20px;border-top:1px solid #E2E8F0;">
 <p style="margin:0 0 4px;color:#94A3B8;font-size:12px;line-height:1.6;">
-Please reply directly to this email. Your response will be automatically tracked.
+{{ strings.reply_note }}
 </p>
 <p style="margin:0;color:#94A3B8;font-size:12px;">
-Reference: <strong style="color:#64748B;">{{ rfi.rfi_number }}</strong>
+{{ strings.reference }}: <strong style="color:#64748B;">{{ rfi.rfi_number }}</strong>
 </p>
 </td></tr>
 </table>
@@ -124,6 +115,4 @@ Reference: <strong style="color:#64748B;">{{ rfi.rfi_number }}</strong>
 {% endif %}
 {% endblock %}
 
-{% block footer %}
-&copy; 2026 BuilderOps. All rights reserved.
-{% endblock %}
+{% block footer %}&copy; 2026 {{ strings.footer }}{% endblock %}

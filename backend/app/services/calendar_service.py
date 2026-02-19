@@ -8,6 +8,7 @@ def generate_ical_event(meeting_data: dict) -> str:
     location = meeting_data.get("location", "")
     scheduled_date = meeting_data.get("scheduled_date")
     attendees = meeting_data.get("attendees", [])
+    organizer = meeting_data.get("organizer", {})
 
     if isinstance(scheduled_date, str):
         dt_start = datetime.fromisoformat(scheduled_date.replace("Z", "+00:00"))
@@ -33,11 +34,16 @@ def generate_ical_event(meeting_data: dict) -> str:
         f"LOCATION:{escape_ical_text(location)}",
     ]
 
+    if organizer.get("email"):
+        org_name = escape_ical_text(organizer.get("name", ""))
+        lines.append(f"ORGANIZER;CN={org_name}:mailto:{organizer['email']}")
+
     for attendee in attendees:
         email = attendee.get("email", "")
         name = attendee.get("name", "")
+        partstat = attendee.get("partstat", "NEEDS-ACTION")
         if email:
-            lines.append(f"ATTENDEE;CN={escape_ical_text(name)}:mailto:{email}")
+            lines.append(f"ATTENDEE;CN={escape_ical_text(name)};PARTSTAT={partstat};RSVP=TRUE:mailto:{email}")
 
     lines.extend([
         "END:VEVENT",

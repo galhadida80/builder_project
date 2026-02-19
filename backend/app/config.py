@@ -67,6 +67,11 @@ class Settings(BaseSettings):
     aps_client_secret: str = ""
     aps_callback_url: str = "http://localhost:8000/api/v1/bim/callback"
 
+    gmail_client_id: str = ""
+    gmail_client_secret: str = ""
+    gmail_refresh_token: str = ""
+
+    google_pubsub_topic: str = ""
     google_pubsub_audience: str = ""
     google_pubsub_verify: bool = True
 

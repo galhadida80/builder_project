@@ -13,6 +13,7 @@ from app.services.approval_reminder_service import check_approval_deadlines
 from app.services.daily_summary_service import collect_project_daily_summary
 from app.services.email_renderer import render_daily_summary_email
 from app.services.email_service import EmailService
+from app.services.gmail_service import GmailService
 from app.services.rfi_deadline_service import check_rfi_deadlines
 
 logger = logging.getLogger(__name__)
@@ -31,6 +32,10 @@ async def trigger_daily_summary(
 
     if summary_date is None:
         summary_date = date.today()
+
+    gmail = GmailService()
+    watch_result = gmail.renew_watch()
+    logger.info(f"Gmail watch renewal: {watch_result}")
 
     projects_result = await db.execute(
         select(Project).where(

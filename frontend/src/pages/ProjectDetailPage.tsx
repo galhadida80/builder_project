@@ -18,8 +18,9 @@ import { validateProjectForm, hasErrors, VALIDATION, type ValidationError } from
 import { getDateLocale } from '../utils/dateLocale'
 import { parseValidationErrors } from '../utils/apiErrors'
 import type { Project, Equipment, Material, Meeting } from '../types'
-import { ArrowBackIcon, EditIcon, LocationOnIcon, CalendarTodayIcon, GroupIcon, ConstructionIcon, InventoryIcon, EventIcon, WarningAmberIcon } from '@/icons'
+import { ArrowBackIcon, EditIcon, LocationOnIcon, CalendarTodayIcon, GroupIcon, ConstructionIcon, InventoryIcon, EventIcon, WarningAmberIcon, PersonAddIcon } from '@/icons'
 import { Box, Typography, Chip, Skeleton, IconButton } from '@/mui'
+import InviteMemberDialog from '../components/InviteMemberDialog'
 
 export default function ProjectDetailPage() {
   const { projectId } = useParams()
@@ -37,6 +38,7 @@ export default function ProjectDetailPage() {
   const [editSaving, setEditSaving] = useState(false)
   const [editErrors, setEditErrors] = useState<ValidationError>({})
   const [editForm, setEditForm] = useState({ name: '', code: '', description: '', address: '', startDate: '', estimatedEndDate: '' })
+  const [inviteOpen, setInviteOpen] = useState(false)
 
   const isOverview = !outlet
   const dateLocale = getDateLocale()
@@ -203,11 +205,18 @@ export default function ProjectDetailPage() {
                 )}
               </Box>
             </Box>
-            <Button variant="secondary" icon={<EditIcon />} onClick={handleOpenEdit} sx={{ bgcolor: 'rgba(255,255,255,0.1)', color: 'white', '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' }, flexShrink: 0 }}>
-              <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
-                {t('projectDetail.editProject')}
-              </Box>
-            </Button>
+            <Box sx={{ display: 'flex', gap: 1, flexShrink: 0 }}>
+              <Button variant="secondary" icon={<PersonAddIcon />} onClick={() => setInviteOpen(true)} sx={{ bgcolor: 'rgba(255,255,255,0.1)', color: 'white', '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' } }}>
+                <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
+                  {t('invite.dialogTitle')}
+                </Box>
+              </Button>
+              <Button variant="secondary" icon={<EditIcon />} onClick={handleOpenEdit} sx={{ bgcolor: 'rgba(255,255,255,0.1)', color: 'white', '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' } }}>
+                <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
+                  {t('projectDetail.editProject')}
+                </Box>
+              </Button>
+            </Box>
           </Box>
         </Box>
       </Card>
@@ -293,9 +302,14 @@ export default function ProjectDetailPage() {
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
                   {t('projectDetail.teamDescription')}
                 </Typography>
-                <Button variant="secondary" size="small" onClick={() => handleNavTo('contacts')}>
-                  {t('projectDetail.viewTeam')}
-                </Button>
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <Button variant="secondary" size="small" onClick={() => handleNavTo('contacts')}>
+                    {t('projectDetail.viewTeam')}
+                  </Button>
+                  <Button variant="primary" size="small" icon={<PersonAddIcon />} onClick={() => setInviteOpen(true)}>
+                    {t('invite.dialogTitle')}
+                  </Button>
+                </Box>
               </Box>
             </Card>
           </Box>
@@ -372,6 +386,14 @@ export default function ProjectDetailPage() {
           </Box>
         </Box>
       </FormModal>
+
+      {projectId && (
+        <InviteMemberDialog
+          open={inviteOpen}
+          onClose={() => setInviteOpen(false)}
+          projectId={projectId}
+        />
+      )}
     </Box>
   )
 }

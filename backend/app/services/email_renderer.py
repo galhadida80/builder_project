@@ -48,6 +48,66 @@ STRINGS = {
             "footer": ".זוהי הודעה אוטומטית מ-BuilderOps",
         },
     },
+    "invitation": {
+        "en": {
+            "subject": "You're invited to join {project_name} on BuilderOps",
+            "title": "Project Invitation",
+            "intro": "{invited_by} has invited you to join the project \"{project_name}\" on BuilderOps.",
+            "project_label": "Project",
+            "role_label": "Role",
+            "invited_by_label": "Invited by",
+            "cta": "Accept Invitation",
+            "expires": "This invitation expires in 7 days.",
+            "ignore": "If you don't recognize this invitation, you can safely ignore it.",
+            "footer": "This is an automated message from BuilderOps.",
+        },
+        "he": {
+            "subject": "הוזמנת להצטרף ל-{project_name} ב-BuilderOps",
+            "title": "הזמנה לפרויקט",
+            "intro": "{invited_by} הזמין/ה אותך להצטרף לפרויקט \"{project_name}\" ב-BuilderOps.",
+            "project_label": "פרויקט",
+            "role_label": "תפקיד",
+            "invited_by_label": "הוזמנת על ידי",
+            "cta": "קבל הזמנה",
+            "expires": ".הזמנה זו תפוג בעוד 7 ימים",
+            "ignore": ".אם אינך מזהה הזמנה זו, ניתן להתעלם ממנה",
+            "footer": ".זוהי הודעה אוטומטית מ-BuilderOps",
+        },
+    },
+    "meeting_invitation": {
+        "en": {
+            "subject": "Meeting Invitation: {title}",
+            "title": "Meeting Invitation",
+            "greeting": "Hi {name}, you've been invited to a meeting.",
+            "meeting_label": "Meeting",
+            "organized_by": "Organized by",
+            "date_label": "Date",
+            "time_label": "Time",
+            "location_label": "Location",
+            "description_label": "Description",
+            "rsvp_prompt": "Will you attend?",
+            "accept": "Accept",
+            "tentative": "Maybe",
+            "decline": "Decline",
+            "footer": "This is an automated meeting invitation from BuilderOps.",
+        },
+        "he": {
+            "subject": "הזמנה לפגישה: {title}",
+            "title": "הזמנה לפגישה",
+            "greeting": "שלום {name}, הוזמנת לפגישה.",
+            "meeting_label": "פגישה",
+            "organized_by": "מאורגן על ידי",
+            "date_label": "תאריך",
+            "time_label": "שעה",
+            "location_label": "מיקום",
+            "description_label": "תיאור",
+            "rsvp_prompt": "האם תשתתף/י?",
+            "accept": "אשתתף",
+            "tentative": "אולי",
+            "decline": "לא אשתתף",
+            "footer": "זוהי הזמנת פגישה אוטומטית מ-BuilderOps.",
+        },
+    },
     "notification": {
         "en": {
             "project_label": "Project",
@@ -58,6 +118,48 @@ STRINGS = {
             "project_label": "פרויקט",
             "cta": "צפה ב-BuilderOps",
             "footer": "זוהי הודעה אוטומטית מ-BuilderOps.",
+        },
+    },
+    "rfi": {
+        "en": {
+            "title": "Request for Information",
+            "category": "Category",
+            "priority": "Priority",
+            "due_date": "Due Date",
+            "location": "Location",
+            "drawing_ref": "Drawing Ref",
+            "spec_ref": "Spec Ref",
+            "question": "Question",
+            "attachments": "Attachments",
+            "cta": "View & Respond to RFI",
+            "reply_note": "Please reply directly to this email. Your response will be automatically tracked.",
+            "reference": "Reference",
+            "response": "Response",
+            "footer": "BuilderOps. All rights reserved.",
+            "priority_urgent": "Urgent",
+            "priority_high": "High",
+            "priority_medium": "Medium",
+            "priority_low": "Low",
+        },
+        "he": {
+            "title": "בקשת מידע",
+            "category": "קטגוריה",
+            "priority": "עדיפות",
+            "due_date": "תאריך יעד",
+            "location": "מיקום",
+            "drawing_ref": "הפניה לשרטוט",
+            "spec_ref": "הפניה למפרט",
+            "question": "שאלה",
+            "attachments": "קבצים מצורפים",
+            "cta": "צפה והגב לבקשת מידע",
+            "reply_note": ".השב ישירות לאימייל זה. התשובה שלך תיעקב אוטומטית",
+            "reference": "הפניה",
+            "response": "תשובה",
+            "footer": ".BuilderOps. כל הזכויות שמורות",
+            "priority_urgent": "דחוף",
+            "priority_high": "גבוהה",
+            "priority_medium": "בינונית",
+            "priority_low": "נמוכה",
         },
     },
     "daily_summary": {
@@ -172,7 +274,11 @@ def render_password_reset_email(reset_url: str, language: str) -> tuple[str, str
     return s["subject"], html
 
 
-def render_rfi_email(rfi, frontend_url: str = "") -> tuple[str, str]:
+def render_rfi_email(rfi, frontend_url: str = "", language: str = "en") -> tuple[str, str]:
+    s = STRINGS["rfi"].get(language, STRINGS["rfi"]["en"])
+    direction = "rtl" if language == "he" else "ltr"
+    align = "right" if language == "he" else "left"
+
     due_date = rfi.due_date.strftime("%Y-%m-%d") if rfi.due_date else "N/A"
     location = rfi.location or "N/A"
     drawing_ref = rfi.drawing_reference or "N/A"
@@ -184,28 +290,34 @@ def render_rfi_email(rfi, frontend_url: str = "") -> tuple[str, str]:
     template = env.get_template("rfi.html")
     html = template.render(
         rfi=rfi,
+        strings=s,
         is_response=False,
         due_date=due_date,
         location=location,
         drawing_ref=drawing_ref,
         spec_ref=spec_ref,
         frontend_url=frontend_url,
-        lang="en",
-        direction="ltr",
-        align="left",
+        lang=language,
+        direction=direction,
+        align=align,
     )
     return f"RFI: {rfi.subject}", html
 
 
-def render_rfi_response_email(rfi, response_text: str) -> tuple[str, str]:
+def render_rfi_response_email(rfi, response_text: str, language: str = "en") -> tuple[str, str]:
+    s = STRINGS["rfi"].get(language, STRINGS["rfi"]["en"])
+    direction = "rtl" if language == "he" else "ltr"
+    align = "right" if language == "he" else "left"
+
     template = env.get_template("rfi.html")
     html = template.render(
         rfi=rfi,
+        strings=s,
         response_text=response_text,
         is_response=True,
-        lang="en",
-        direction="ltr",
-        align="left",
+        lang=language,
+        direction=direction,
+        align=align,
     )
     return f"Re: {rfi.subject}", html
 
@@ -251,6 +363,31 @@ def render_daily_summary_email(
     return subject, html
 
 
+def render_invitation_email(
+    project_name: str, role: str, invited_by: str, invite_url: str, language: str = "en"
+) -> tuple[str, str]:
+    s = STRINGS["invitation"].get(language, STRINGS["invitation"]["en"])
+    direction = "rtl" if language == "he" else "ltr"
+    align = "right" if language == "he" else "left"
+
+    subject = s["subject"].format(project_name=project_name)
+    intro = s["intro"].format(invited_by=invited_by, project_name=project_name)
+    strings = {**s, "intro": intro}
+
+    template = env.get_template("invitation.html")
+    html = template.render(
+        strings=strings,
+        project_name=project_name,
+        role=role,
+        invited_by=invited_by,
+        invite_url=invite_url,
+        lang=language,
+        direction=direction,
+        align=align,
+    )
+    return subject, html
+
+
 def render_notification_email(
     title: str, message: str, action_url: str, project_name: str = "", language: str = "en"
 ) -> tuple[str, str]:
@@ -270,3 +407,40 @@ def render_notification_email(
         align=align,
     )
     return title, html
+
+
+def render_meeting_invitation_email(
+    meeting_title: str,
+    meeting_date: str,
+    meeting_time: str,
+    meeting_location: str,
+    meeting_description: str,
+    attendee_name: str,
+    organizer_name: str,
+    rsvp_token: str,
+    frontend_url: str,
+    language: str = "en",
+) -> tuple[str, str]:
+    s = STRINGS["meeting_invitation"].get(language, STRINGS["meeting_invitation"]["en"])
+    direction = "rtl" if language == "he" else "ltr"
+    align = "right" if language == "he" else "left"
+
+    subject = s["subject"].format(title=meeting_title)
+
+    template = env.get_template("meeting_invitation.html")
+    html = template.render(
+        strings=s,
+        attendee_name=attendee_name,
+        meeting_title=meeting_title,
+        meeting_date=meeting_date,
+        meeting_time=meeting_time,
+        meeting_location=meeting_location,
+        meeting_description=meeting_description,
+        organizer_name=organizer_name,
+        rsvp_token=rsvp_token,
+        rsvp_base_url=frontend_url,
+        lang=language,
+        direction=direction,
+        align=align,
+    )
+    return subject, html

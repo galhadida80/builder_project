@@ -32,6 +32,7 @@ export default function ContactsPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [contactToDelete, setContactToDelete] = useState<Contact | null>(null)
   const [saving, setSaving] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const [errors, setErrors] = useState<ValidationError>({})
   const [projectUsers, setProjectUsers] = useState<{ id: string; email: string; fullName?: string }[]>([])
   const [formData, setFormData] = useState({
@@ -53,6 +54,7 @@ export default function ContactsPage() {
   const [groupToDelete, setGroupToDelete] = useState<ContactGroupListItem | null>(null)
   const [groupFormData, setGroupFormData] = useState({ name: '', description: '', contactIds: [] as string[] })
   const [groupSaving, setGroupSaving] = useState(false)
+  const [deletingGroup, setDeletingGroup] = useState(false)
 
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
@@ -191,6 +193,7 @@ export default function ContactsPage() {
 
   const handleConfirmDelete = async () => {
     if (!projectId || !contactToDelete) return
+    setDeleting(true)
     try {
       await contactsApi.delete(projectId, contactToDelete.id)
       showSuccess(t('contacts.deleteSuccess'))
@@ -199,6 +202,8 @@ export default function ContactsPage() {
       loadContacts()
     } catch {
       showError(t('contacts.failedToDelete'))
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -277,6 +282,7 @@ export default function ContactsPage() {
 
   const handleConfirmDeleteGroup = async () => {
     if (!projectId || !groupToDelete) return
+    setDeletingGroup(true)
     try {
       await contactGroupsApi.delete(projectId, groupToDelete.id)
       showSuccess(t('contactGroups.deleteSuccess'))
@@ -285,6 +291,8 @@ export default function ContactsPage() {
       loadGroups()
     } catch {
       showError(t('contactGroups.failedToDelete'))
+    } finally {
+      setDeletingGroup(false)
     }
   }
 
@@ -725,6 +733,7 @@ export default function ContactsPage() {
         message={t('contacts.deleteConfirmationMessage', { name: contactToDelete?.contactName })}
         confirmLabel={t('common.delete')}
         variant="danger"
+        loading={deleting}
       />
 
       <FormModal
@@ -793,6 +802,7 @@ export default function ContactsPage() {
         message={t('contactGroups.deleteConfirmation', { name: groupToDelete?.name })}
         confirmLabel={t('common.delete')}
         variant="danger"
+        loading={deletingGroup}
       />
     </Box>
   )

@@ -4,6 +4,8 @@ from dataclasses import dataclass
 from email.utils import parseaddr
 from typing import Optional
 
+PLUS_TAG_PATTERN = re.compile(r'\+rfi-(.+)-(\d{5})@', re.IGNORECASE)
+
 
 @dataclass
 class ParsedEmail:
@@ -18,6 +20,8 @@ class ParsedEmail:
     in_reply_to: Optional[str]
     references: Optional[str]
     rfi_number: Optional[str]
+    plus_tag_project_code: Optional[str]
+    plus_tag_seq: Optional[str]
     attachments: list[dict]
     received_at: str
 
@@ -43,6 +47,7 @@ class RFIEmailParser:
         subject = headers.get('subject', '')
 
         rfi_number = self._extract_rfi_number(headers, subject)
+        plus_project_code, plus_seq = self._extract_plus_tag(headers)
         body_text, body_html, attachments = self._extract_body_and_attachments(
             gmail_message['payload'],
             gmail_message['id']
@@ -60,6 +65,8 @@ class RFIEmailParser:
             in_reply_to=headers.get('in-reply-to'),
             references=headers.get('references'),
             rfi_number=rfi_number,
+            plus_tag_project_code=plus_project_code,
+            plus_tag_seq=plus_seq,
             attachments=attachments,
             received_at=headers.get('date', '')
         )
@@ -79,6 +86,13 @@ class RFIEmailParser:
             return match.group(1).upper()
 
         return None
+
+    def _extract_plus_tag(self, headers: dict) -> tuple[Optional[str], Optional[str]]:
+        to_header = headers.get('to', '')
+        plus_match = PLUS_TAG_PATTERN.search(to_header)
+        if plus_match:
+            return plus_match.group(1).upper(), plus_match.group(2)
+        return None, None
 
     def _extract_body_and_attachments(
         self,

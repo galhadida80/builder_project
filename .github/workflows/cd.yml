@@ -60,7 +60,11 @@ jobs:
             --set-env-vars "GCS_PROJECT_ID=${{ env.PROJECT_ID }}" \
             --set-env-vars "SECRET_KEY=${{ secrets.SECRET_KEY }}" \
             --set-env-vars "ENVIRONMENT=production" \
-            --set-env-vars "EMAIL_PROVIDER=${{ secrets.EMAIL_PROVIDER || 'fake' }}" \
+            --set-env-vars "EMAIL_PROVIDER=gmail" \
+            --set-env-vars "GMAIL_CLIENT_ID=${{ secrets.GMAIL_CLIENT_ID }}" \
+            --set-env-vars "GMAIL_CLIENT_SECRET=${{ secrets.GMAIL_CLIENT_SECRET }}" \
+            --set-env-vars "GMAIL_REFRESH_TOKEN=${{ secrets.GMAIL_REFRESH_TOKEN }}" \
+            --set-env-vars "GOOGLE_PUBSUB_TOPIC=projects/builderops-poc-il/topics/gmail-rfi-notifications" \
             --set-env-vars "SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }}" \
             --set-env-vars "SENDGRID_FROM_EMAIL=builderops26@gmail.com" \
             --set-env-vars "SENDGRID_FROM_NAME=BuilderOps" \

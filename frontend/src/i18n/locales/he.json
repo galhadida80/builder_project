@@ -442,7 +442,28 @@
     "listView": "רשימה",
     "calendarView": "לוח שנה",
     "calendarToday": "היום",
-    "calendarMoreMeetings": "+{{count}} עוד"
+    "calendarMoreMeetings": "+{{count}} עוד",
+    "selectAttendees": "בחר משתתפים",
+    "createdBy": "נוצר על ידי",
+    "photos": "תמונות",
+    "addPhotos": "הוסף תמונות",
+    "invitationSent": "הזמנות נשלחו ל-{{count}} משתתפים",
+    "noAttendees": "אין משתתפים עדיין",
+    "rsvp": {
+      "pending": "ממתין",
+      "accepted": "אושר",
+      "declined": "נדחה",
+      "tentative": "אולי",
+      "accept": "אשתתף",
+      "decline": "לא אשתתף",
+      "tentativeAction": "אולי",
+      "title": "אישור השתתפות בפגישה",
+      "confirmMessage": "תגובתך נרשמה",
+      "expired": "קישור אישור ההשתתפות אינו תקף יותר",
+      "yourResponse": "התגובה שלך",
+      "respondToInvitation": "השב להזמנה לפגישה",
+      "organizedBy": "מאורגן על ידי"
+    }
   },
   "dashboard": {
     "title": "לוח בקרה",
@@ -1668,8 +1689,8 @@
     "role": "תפקיד",
     "sendButton": "שלח הזמנה",
     "createFailed": "יצירת ההזמנה נכשלה",
-    "created": "ההזמנה נוצרה בהצלחה!",
-    "shareLink": "שתף קישור זה עם חבר הצוות:",
+    "created": "ההזמנה נשלחה בהצלחה! אימייל נשלח למוזמן.",
+    "shareLink": "ניתן גם לשתף את הקישור ישירות:",
     "copied": "הקישור הועתק ללוח!"
   },
   "permissions": {

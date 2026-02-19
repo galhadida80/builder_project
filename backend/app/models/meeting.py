@@ -5,7 +5,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Optional
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, String, Text
+from sqlalchemy import DateTime, ForeignKey, String, Text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -50,7 +50,10 @@ class MeetingAttendee(Base):
     meeting_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("meetings.id", ondelete="CASCADE"))
     user_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
     role: Mapped[Optional[str]] = mapped_column(String(100))
-    confirmed: Mapped[bool] = mapped_column(Boolean, default=False)
+    attendance_status: Mapped[str] = mapped_column(String(20), default="pending")
+    email: Mapped[Optional[str]] = mapped_column(String(255))
+    rsvp_token: Mapped[Optional[str]] = mapped_column(String(255), unique=True, index=True)
+    rsvp_responded_at: Mapped[Optional[datetime]] = mapped_column(DateTime)
 
     meeting = relationship("Meeting", back_populates="attendees")
     user = relationship("User", foreign_keys=[user_id])

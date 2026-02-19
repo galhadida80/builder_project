@@ -166,6 +166,7 @@ export default function AreasPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [areaToDelete, setAreaToDelete] = useState<ConstructionArea | null>(null)
   const [saving, setSaving] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const [errors, setErrors] = useState<ValidationError>({})
   const [formData, setFormData] = useState({
     name: '',
@@ -289,6 +290,7 @@ export default function AreasPage() {
   const handleConfirmDelete = async () => {
     if (!projectId || !areaToDelete) return
 
+    setDeleting(true)
     try {
       await areasApi.delete(projectId, areaToDelete.id)
       showSuccess(t('areas.areaDeletedSuccessfully'))
@@ -297,6 +299,8 @@ export default function AreasPage() {
       loadAreas()
     } catch {
       showError(t('areas.failedToDeleteArea'))
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -567,6 +571,7 @@ export default function AreasPage() {
         }
         confirmLabel={t('common.delete')}
         variant="danger"
+        loading={deleting}
       />
     </Box>
   )

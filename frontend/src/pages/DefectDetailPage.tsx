@@ -34,6 +34,7 @@ export default function DefectDetailPage() {
   const [history, setHistory] = useState<AuditLog[]>([])
   const [statusDialogOpen, setStatusDialogOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const [newStatus, setNewStatus] = useState('')
   const [uploading, setUploading] = useState(false)
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null)
@@ -97,12 +98,15 @@ export default function DefectDetailPage() {
 
   const handleDelete = async () => {
     if (!projectId || !defectId) return
+    setDeleting(true)
     try {
       await defectsApi.delete(projectId, defectId)
       showSuccess(t('defects.deleted'))
       navigate(`/projects/${projectId}/defects`)
     } catch {
       showError(t('defects.deleteFailed'))
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -427,6 +431,7 @@ export default function DefectDetailPage() {
         title={t('defects.confirmDelete')}
         message={t('defects.confirmDeleteMessage')}
         variant="danger"
+        loading={deleting}
       />
 
       <Dialog

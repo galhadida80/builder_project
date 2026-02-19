@@ -32,6 +32,7 @@ export default function OrganizationDetailPage() {
   const [memberForm, setMemberForm] = useState({ userId: '', role: 'org_member' })
   const [saving, setSaving] = useState(false)
   const [removeMemberId, setRemoveMemberId] = useState<string | null>(null)
+  const [removingMember, setRemovingMember] = useState(false)
 
   useEffect(() => {
     if (orgId) loadData()
@@ -77,6 +78,7 @@ export default function OrganizationDetailPage() {
 
   const handleRemoveMember = async () => {
     if (!orgId || !removeMemberId) return
+    setRemovingMember(true)
     try {
       await organizationsApi.removeMember(orgId, removeMemberId)
       showSuccess(t('organizations.memberRemoved', 'Member removed'))
@@ -85,6 +87,8 @@ export default function OrganizationDetailPage() {
       setMembers(updated)
     } catch {
       showError(t('organizations.failedToRemoveMember', 'Failed to remove member'))
+    } finally {
+      setRemovingMember(false)
     }
   }
 
@@ -308,6 +312,7 @@ export default function OrganizationDetailPage() {
         message={t('organizations.removeMemberConfirm', 'Are you sure you want to remove this member from the organization?')}
         confirmLabel={t('common.delete', 'Remove')}
         variant="danger"
+        loading={removingMember}
       />
     </Box>
   )

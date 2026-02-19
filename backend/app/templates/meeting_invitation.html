@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block header_content %}
+<p style="margin:0;font-size:22px;font-weight:700;color:#FFFFFF;">{{ strings.title }}</p>
+{% endblock %}
+
+{% block content %}
+<p style="margin:0 0 20px;font-size:15px;color:#334155;line-height:1.6;">{{ strings.greeting.format(name=attendee_name) }}</p>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;background-color:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
+<tr><td style="padding:20px;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+      <td style="padding:6px 0;">
+        <span style="font-size:12px;font-weight:600;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;">{{ strings.meeting_label }}</span><br/>
+        <span style="font-size:15px;color:#0F172A;font-weight:600;">{{ meeting_title }}</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:6px 0;">
+        <span style="font-size:12px;font-weight:600;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;">{{ strings.organized_by }}</span><br/>
+        <span style="font-size:14px;color:#334155;">{{ organizer_name }}</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:6px 0;">
+        <span style="font-size:12px;font-weight:600;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;">{{ strings.date_label }}</span><br/>
+        <span style="font-size:14px;color:#334155;">{{ meeting_date }}</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:6px 0;">
+        <span style="font-size:12px;font-weight:600;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;">{{ strings.time_label }}</span><br/>
+        <span style="font-size:14px;color:#334155;">{{ meeting_time }}</span>
+      </td>
+    </tr>
+    {% if meeting_location %}
+    <tr>
+      <td style="padding:6px 0;">
+        <span style="font-size:12px;font-weight:600;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;">{{ strings.location_label }}</span><br/>
+        <span style="font-size:14px;color:#334155;">{{ meeting_location }}</span>
+      </td>
+    </tr>
+    {% endif %}
+    {% if meeting_description %}
+    <tr>
+      <td style="padding:6px 0;">
+        <span style="font-size:12px;font-weight:600;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;">{{ strings.description_label }}</span><br/>
+        <span style="font-size:14px;color:#334155;">{{ meeting_description }}</span>
+      </td>
+    </tr>
+    {% endif %}
+  </table>
+</td></tr>
+</table>
+
+<p style="margin:0 0 16px;font-size:14px;color:#475569;font-weight:600;">{{ strings.rsvp_prompt }}</p>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+<tr>
+  <td style="padding:4px;" width="33%">
+    <a href="{{ rsvp_base_url }}/meetings/rsvp/{{ rsvp_token }}?action=accepted" style="display:block;text-align:center;padding:12px 8px;background-color:#16A34A;color:#FFFFFF;text-decoration:none;border-radius:8px;font-size:14px;font-weight:600;">{{ strings.accept }}</a>
+  </td>
+  <td style="padding:4px;" width="33%">
+    <a href="{{ rsvp_base_url }}/meetings/rsvp/{{ rsvp_token }}?action=tentative" style="display:block;text-align:center;padding:12px 8px;background-color:#D97706;color:#FFFFFF;text-decoration:none;border-radius:8px;font-size:14px;font-weight:600;">{{ strings.tentative }}</a>
+  </td>
+  <td style="padding:4px;" width="33%">
+    <a href="{{ rsvp_base_url }}/meetings/rsvp/{{ rsvp_token }}?action=declined" style="display:block;text-align:center;padding:12px 8px;background-color:#DC2626;color:#FFFFFF;text-decoration:none;border-radius:8px;font-size:14px;font-weight:600;">{{ strings.decline }}</a>
+  </td>
+</tr>
+</table>
+{% endblock %}
+
+{% block cta %}{% endblock %}
+
+{% block footer %}{{ strings.footer }}{% endblock %}

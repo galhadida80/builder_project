@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import dayjs from 'dayjs'
@@ -14,19 +14,43 @@ import { AvatarGroup } from '../components/ui/Avatar'
 import { MeetingCalendarGrid } from '../components/meetings/MeetingCalendarGrid'
 import { MeetingCalendarAgenda } from '../components/meetings/MeetingCalendarAgenda'
 import { useResponsive } from '../hooks/useResponsive'
+import { useAuth } from '../contexts/AuthContext'
 import { meetingsApi } from '../api/meetings'
-import type { Meeting } from '../types'
+import { teamMembersApi } from '../api/teamMembers'
+import { filesApi, type FileRecord } from '../api/files'
+import type { Meeting, MeetingAttendee } from '../types'
 import { validateMeetingForm, hasErrors, type ValidationError } from '../utils/validation'
 import { useToast } from '../components/common/ToastProvider'
 import { parseValidationErrors } from '../utils/apiErrors'
 import { getDateLocale } from '../utils/dateLocale'
-import { AddIcon, EditIcon, DeleteIcon, EventIcon, LocationOnIcon, AccessTimeIcon, CalendarMonthIcon, CloseIcon, DownloadIcon, ViewListIcon } from '@/icons'
-import { Box, Typography, MenuItem, TextField as MuiTextField, Skeleton, Chip, IconButton, Drawer, Divider } from '@/mui'
+import {
+  AddIcon, EditIcon, DeleteIcon, EventIcon, LocationOnIcon,
+  AccessTimeIcon, CalendarMonthIcon, CloseIcon, DownloadIcon,
+  ViewListIcon, PersonAddIcon, AddPhotoAlternateIcon,
+} from '@/icons'
+import {
+  Box, Typography, MenuItem, TextField as MuiTextField, Skeleton,
+  Chip, IconButton, Drawer, Divider, Autocomplete, Avatar,
+} from '@/mui'
+
+interface TeamMemberOption {
+  id: string
+  name: string
+  email?: string
+}
+
+const RSVP_COLORS: Record<string, 'success' | 'warning' | 'error' | 'default'> = {
+  accepted: 'success',
+  tentative: 'warning',
+  declined: 'error',
+  pending: 'default',
+}
 
 export default function MeetingsPage() {
   const { projectId } = useParams()
   const { showError, showSuccess } = useToast()
   const { t } = useTranslation()
+  const { user: currentUser } = useAuth()
 
   const meetingTypes = [
     { value: 'site_inspection', label: t('meetings.typeSiteInspection') },
@@ -49,6 +73,7 @@ export default function MeetingsPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [meetingToDelete, setMeetingToDelete] = useState<Meeting | null>(null)
   const [saving, setSaving] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const [errors, setErrors] = useState<ValidationError>({})
   const [formData, setFormData] = useState({
     title: '',
@@ -60,8 +85,15 @@ export default function MeetingsPage() {
     endTime: ''
   })
 
+  const [teamMembers, setTeamMembers] = useState<TeamMemberOption[]>([])
+  const [selectedAttendees, setSelectedAttendees] = useState<TeamMemberOption[]>([])
+  const [meetingPhotos, setMeetingPhotos] = useState<FileRecord[]>([])
+  const [photoUrls, setPhotoUrls] = useState<Record<string, string>>({})
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
   useEffect(() => {
     loadMeetings()
+    loadTeamMembers()
   }, [projectId])
 
   const loadMeetings = async () => {
@@ -73,6 +105,36 @@ export default function MeetingsPage() {
       showError(t('meetings.failedToLoad'))
     } finally {
       setLoading(false)
+    }
+  }
+
+  const loadTeamMembers = async () => {
+    if (!projectId) return
+    try {
+      const members = await teamMembersApi.list(projectId)
+      setTeamMembers(members.map(m => ({ id: m.id, name: m.name, email: m.email })))
+    } catch {
+      // non-critical
+    }
+  }
+
+  const loadMeetingPhotos = async (meetingId: string) => {
+    if (!projectId) return
+    try {
+      const files = await filesApi.list(projectId, 'meeting', meetingId)
+      const imageFiles = files.filter(f => f.fileType?.startsWith('image/'))
+      setMeetingPhotos(imageFiles)
+      const urls: Record<string, string> = {}
+      for (const file of imageFiles) {
+        try {
+          urls[file.id] = await filesApi.getFileBlob(projectId, file.id)
+        } catch {
+          // skip failed
+        }
+      }
+      setPhotoUrls(urls)
+    } catch {
+      setMeetingPhotos([])
     }
   }
 
@@ -91,6 +153,7 @@ export default function MeetingsPage() {
     setFormData({ title: '', meetingType: '', description: '', location: '', date: '', startTime: '', endTime: '' })
     setErrors({})
     setEditingMeeting(null)
+    setSelectedAttendees([])
   }
 
   const handleCloseDialog = () => {
@@ -154,9 +217,14 @@ export default function MeetingsPage() {
           meeting_type: formData.meetingType || undefined,
           description: formData.description || undefined,
           location: formData.location || undefined,
-          scheduled_date
+          scheduled_date,
+          attendee_ids: selectedAttendees.map(a => a.id),
         })
-        showSuccess(t('meetings.scheduledSuccessfully'))
+        if (selectedAttendees.length > 0) {
+          showSuccess(t('meetings.invitationSent', { count: selectedAttendees.length }))
+        } else {
+          showSuccess(t('meetings.scheduledSuccessfully'))
+        }
       }
       handleCloseDialog()
       loadMeetings()
@@ -181,6 +249,7 @@ export default function MeetingsPage() {
 
   const handleConfirmDelete = async () => {
     if (!projectId || !meetingToDelete) return
+    setDeleting(true)
     try {
       await meetingsApi.delete(projectId, meetingToDelete.id)
       showSuccess(t('meetings.deletedSuccessfully'))
@@ -189,7 +258,34 @@ export default function MeetingsPage() {
       loadMeetings()
     } catch {
       showError(t('meetings.failedToDelete'))
+    } finally {
+      setDeleting(false)
     }
+  }
+
+  const handleRsvp = async (attendee: MeetingAttendee, status: string) => {
+    if (!projectId || !selectedMeeting) return
+    try {
+      await meetingsApi.rsvpAttendee(projectId, selectedMeeting.id, attendee.userId || '', status)
+      showSuccess(t('meetings.rsvp.confirmMessage'))
+      const updated = await meetingsApi.get(projectId, selectedMeeting.id)
+      setSelectedMeeting(updated)
+      loadMeetings()
+    } catch {
+      showError(t('meetings.failedToSave', { action: 'RSVP' }))
+    }
+  }
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!projectId || !selectedMeeting || !e.target.files) return
+    for (const file of Array.from(e.target.files)) {
+      try {
+        await filesApi.upload(projectId, 'meeting', selectedMeeting.id, file)
+      } catch {
+        showError(t('meetings.failedToSave', { action: 'upload' }))
+      }
+    }
+    loadMeetingPhotos(selectedMeeting.id)
   }
 
   const upcomingMeetings = meetings.filter(m => m.status === 'scheduled' || m.status === 'invitations_sent')
@@ -208,19 +304,27 @@ export default function MeetingsPage() {
     return new Date(dateString).toLocaleDateString(getDateLocale(), { weekday: 'long', month: 'long', day: 'numeric' })
   }
 
+  const getRsvpLabel = (status: string) => {
+    const key = `meetings.rsvp.${status}` as const
+    return t(key)
+  }
+
   const [calendarLinks, setCalendarLinks] = useState<{ google_url: string; outlook_url: string; ics_download_url: string } | null>(null)
 
   const handleMeetingClick = async (meeting: Meeting) => {
     setSelectedMeeting(meeting)
     setDetailsOpen(true)
     setCalendarLinks(null)
+    setMeetingPhotos([])
+    setPhotoUrls({})
     if (projectId) {
       try {
         const links = await meetingsApi.getCalendarLinks(projectId, meeting.id)
         setCalendarLinks(links)
       } catch {
-        // calendar links are optional, don't block the UI
+        // calendar links are optional
       }
+      loadMeetingPhotos(meeting.id)
     }
   }
 
@@ -229,6 +333,10 @@ export default function MeetingsPage() {
     setFormData((prev) => ({ ...prev, date: date.format('YYYY-MM-DD') }))
     setDialogOpen(true)
   }
+
+  const currentUserAttendee = selectedMeeting?.attendees?.find(
+    a => a.userId === currentUser?.id
+  )
 
   if (loading) {
     return (
@@ -410,7 +518,7 @@ export default function MeetingsPage() {
 
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <AvatarGroup
-                          users={[{ name: 'User' }]}
+                          users={(meeting.attendees || []).map(a => ({ name: a.user?.fullName || a.email || 'User' }))}
                           max={4}
                           size="small"
                         />
@@ -441,6 +549,7 @@ export default function MeetingsPage() {
         </Card>
       )}
 
+      {/* Details Drawer */}
       <Drawer
         anchor="right"
         open={detailsOpen}
@@ -449,7 +558,7 @@ export default function MeetingsPage() {
         PaperProps={{ sx: { width: { xs: '100%', sm: 420 }, borderRadius: '16px 0 0 16px' } }}
       >
         {selectedMeeting && (
-          <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
+          <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 }, overflowY: 'auto', height: '100%' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
               <Typography variant="h6" fontWeight={600}>{t('meetings.details')}</Typography>
               <IconButton aria-label={t('meetings.closeMeetingDetails')} onClick={() => setDetailsOpen(false)} size="small">
@@ -486,6 +595,18 @@ export default function MeetingsPage() {
                 </Box>
               </Box>
             </Box>
+
+            {selectedMeeting.createdBy && (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
+                <Avatar sx={{ width: 28, height: 28, fontSize: 12 }}>
+                  {selectedMeeting.createdBy.fullName?.charAt(0) || '?'}
+                </Avatar>
+                <Box>
+                  <Typography variant="caption" color="text.secondary">{t('meetings.createdBy')}</Typography>
+                  <Typography variant="body2" fontWeight={500}>{selectedMeeting.createdBy.fullName}</Typography>
+                </Box>
+              </Box>
+            )}
 
             {selectedMeeting.description && (
               <Box sx={{ mb: 3 }}>
@@ -530,11 +651,108 @@ export default function MeetingsPage() {
 
             <Divider sx={{ my: 2 }} />
 
+            {/* Attendees with RSVP status */}
             <Box sx={{ mb: 3 }}>
               <Typography variant="caption" color="text.secondary" fontWeight={600}>{t('meetings.attendees').toUpperCase()}</Typography>
-              <Box sx={{ mt: 1 }}>
-                <AvatarGroup users={[{ name: 'User' }]} max={10} size="medium" />
+              {(selectedMeeting.attendees && selectedMeeting.attendees.length > 0) ? (
+                <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
+                  {selectedMeeting.attendees.map((att) => (
+                    <Box key={att.id} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Avatar sx={{ width: 28, height: 28, fontSize: 12 }}>
+                          {(att.user?.fullName || att.email || '?').charAt(0)}
+                        </Avatar>
+                        <Typography variant="body2">{att.user?.fullName || att.email}</Typography>
+                      </Box>
+                      <Chip
+                        label={getRsvpLabel(att.attendanceStatus)}
+                        size="small"
+                        color={RSVP_COLORS[att.attendanceStatus] || 'default'}
+                        variant={att.attendanceStatus === 'pending' ? 'outlined' : 'filled'}
+                      />
+                    </Box>
+                  ))}
+                </Box>
+              ) : (
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>{t('meetings.noAttendees')}</Typography>
+              )}
+            </Box>
+
+            {/* Current user RSVP actions */}
+            {currentUserAttendee && (
+              <>
+                <Divider sx={{ my: 2 }} />
+                <Box sx={{ mb: 3 }}>
+                  <Typography variant="caption" color="text.secondary" fontWeight={600}>{t('meetings.rsvp.yourResponse').toUpperCase()}</Typography>
+                  <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
+                    <Button
+                      variant={currentUserAttendee.attendanceStatus === 'accepted' ? 'primary' : 'secondary'}
+                      size="small"
+                      onClick={() => handleRsvp(currentUserAttendee, 'accepted')}
+                    >
+                      {t('meetings.rsvp.accept')}
+                    </Button>
+                    <Button
+                      variant={currentUserAttendee.attendanceStatus === 'tentative' ? 'primary' : 'secondary'}
+                      size="small"
+                      onClick={() => handleRsvp(currentUserAttendee, 'tentative')}
+                    >
+                      {t('meetings.rsvp.tentativeAction')}
+                    </Button>
+                    <Button
+                      variant={currentUserAttendee.attendanceStatus === 'declined' ? 'danger' : 'secondary'}
+                      size="small"
+                      onClick={() => handleRsvp(currentUserAttendee, 'declined')}
+                    >
+                      {t('meetings.rsvp.decline')}
+                    </Button>
+                  </Box>
+                </Box>
+              </>
+            )}
+
+            {/* Meeting Photos */}
+            <Divider sx={{ my: 2 }} />
+            <Box sx={{ mb: 3 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                <Typography variant="caption" color="text.secondary" fontWeight={600}>{t('meetings.photos').toUpperCase()}</Typography>
+                <IconButton size="small" onClick={() => fileInputRef.current?.click()}>
+                  <AddPhotoAlternateIcon fontSize="small" />
+                </IconButton>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  hidden
+                  onChange={handlePhotoUpload}
+                />
               </Box>
+              {meetingPhotos.length > 0 ? (
+                <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1 }}>
+                  {meetingPhotos.map(photo => (
+                    <Box
+                      key={photo.id}
+                      sx={{
+                        aspectRatio: '1',
+                        borderRadius: 1,
+                        overflow: 'hidden',
+                        bgcolor: 'action.hover',
+                      }}
+                    >
+                      {photoUrls[photo.id] && (
+                        <img
+                          src={photoUrls[photo.id]}
+                          alt={photo.filename}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        />
+                      )}
+                    </Box>
+                  ))}
+                </Box>
+              ) : (
+                <Typography variant="body2" color="text.secondary">{t('meetings.addPhotos')}</Typography>
+              )}
             </Box>
 
             {calendarLinks && (
@@ -569,6 +787,7 @@ export default function MeetingsPage() {
         )}
       </Drawer>
 
+      {/* Create/Edit Form Modal */}
       <FormModal
         open={dialogOpen}
         onClose={handleCloseDialog}
@@ -651,6 +870,55 @@ export default function MeetingsPage() {
               onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
             />
           </Box>
+
+          {/* Attendee Picker (create mode only) */}
+          {!editingMeeting && (
+            <Autocomplete
+              multiple
+              options={teamMembers}
+              getOptionLabel={(opt) => opt.name}
+              value={selectedAttendees}
+              onChange={(_, val) => setSelectedAttendees(val)}
+              renderOption={(props, option) => (
+                <li {...props} key={option.id}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Avatar sx={{ width: 28, height: 28, fontSize: 12 }}>{option.name.charAt(0)}</Avatar>
+                    <Box>
+                      <Typography variant="body2">{option.name}</Typography>
+                      {option.email && <Typography variant="caption" color="text.secondary">{option.email}</Typography>}
+                    </Box>
+                  </Box>
+                </li>
+              )}
+              renderTags={(value, getTagProps) =>
+                value.map((opt, index) => (
+                  <Chip
+                    {...getTagProps({ index })}
+                    key={opt.id}
+                    label={opt.name}
+                    size="small"
+                    avatar={<Avatar sx={{ width: 20, height: 20, fontSize: 10 }}>{opt.name.charAt(0)}</Avatar>}
+                  />
+                ))
+              }
+              renderInput={(params) => (
+                <MuiTextField
+                  {...params}
+                  label={t('meetings.selectAttendees')}
+                  placeholder={selectedAttendees.length === 0 ? t('meetings.selectAttendees') : ''}
+                  InputProps={{
+                    ...params.InputProps,
+                    startAdornment: (
+                      <>
+                        <PersonAddIcon sx={{ fontSize: 20, color: 'text.secondary', mr: 0.5 }} />
+                        {params.InputProps.startAdornment}
+                      </>
+                    ),
+                  }}
+                />
+              )}
+            />
+          )}
         </Box>
       </FormModal>
 
@@ -662,6 +930,7 @@ export default function MeetingsPage() {
         message={t('meetings.deleteConfirmationMessage', { title: meetingToDelete?.title || '' })}
         confirmLabel={t('common.delete')}
         variant="danger"
+        loading={deleting}
       />
     </Box>
   )

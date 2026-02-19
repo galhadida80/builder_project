@@ -445,7 +445,7 @@ export default function AuditLogPage() {
         PaperProps={{ sx: { width: { xs: '100%', sm: 420 }, borderRadius: { xs: 0, sm: '16px 0 0 16px' } } }}
       >
         {selectedLog && (
-          <Box sx={{ p: { xs: 2, sm: 2, md: 3 } }}>
+          <Box sx={{ p: { xs: 2, sm: 2, md: 3 }, overflowY: 'auto', height: '100%' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
               <Typography variant="h6" fontWeight={600}>{t('auditLog.auditDetails')}</Typography>
               <IconButton aria-label={t('common.close')} onClick={() => setDetailsOpen(false)} size="small">

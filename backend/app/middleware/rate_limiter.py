@@ -38,18 +38,23 @@ def get_client_identifier(request: Request) -> str:
 
 @lru_cache
 def get_rate_limiter() -> Limiter:
+    storage_uri = "memory://"
+
     if not settings.rate_limit_enabled:
-        storage_uri = "memory://"
-    else:
-        storage_uri = settings.redis_url
-        if storage_uri.startswith("redis://"):
+        pass
+    elif "localhost" in settings.redis_url or "127.0.0.1" in settings.redis_url:
+        if settings.environment == "production":
+            logger.info("Skipping localhost Redis in production, using in-memory rate limiting")
+        else:
             try:
                 import redis
-                r = redis.from_url(storage_uri, socket_connect_timeout=2)
+                r = redis.from_url(settings.redis_url, socket_connect_timeout=1)
                 r.ping()
+                storage_uri = settings.redis_url
             except Exception:
                 logger.warning("Redis unavailable, falling back to in-memory rate limiting")
-                storage_uri = "memory://"
+    elif settings.redis_url.startswith("redis://"):
+        storage_uri = settings.redis_url
 
     limiter = Limiter(
         key_func=get_client_identifier,

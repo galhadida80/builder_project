@@ -34,6 +34,7 @@ export default function ProjectsPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [projectToDelete, setProjectToDelete] = useState<Project | null>(null)
   const [saving, setSaving] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const [errors, setErrors] = useState<ValidationError>({})
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [statusFilter, setStatusFilter] = useState('all')
@@ -147,6 +148,7 @@ export default function ProjectsPage() {
 
   const handleConfirmDelete = async () => {
     if (!projectToDelete) return
+    setDeleting(true)
     try {
       await projectsApi.delete(projectToDelete.id)
       showSuccess(t('pages.projects.deleteSuccess'))
@@ -155,6 +157,8 @@ export default function ProjectsPage() {
       refreshProjects()
     } catch {
       showError(t('pages.projects.failedToDelete'))
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -515,6 +519,7 @@ export default function ProjectsPage() {
         message={t('pages.projects.deleteConfirmationMessage', { name: projectToDelete?.name })}
         confirmLabel={t('pages.projects.deleteProject')}
         variant="danger"
+        loading={deleting}
       />
     </Box>
   )

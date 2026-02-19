@@ -1,17 +1,17 @@
 {% extends "base.html" %}
 
 {% block header_content %}
-<h1 style="margin:0;color:#ffffff;font-size:24px;font-weight:700;">{{ title }}</h1>
+<h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;letter-spacing:-0.3px;">{{ title }}</h1>
 {% if project_name %}
-<p style="margin:8px 0 0;color:#bbdefb;font-size:14px;">{{ strings.project_label }}: {{ project_name }}</p>
+<p style="margin:8px 0 0;color:#94A3B8;font-size:13px;font-weight:500;">{{ strings.project_label }}: <span style="color:#CBD5E1;">{{ project_name }}</span></p>
 {% endif %}
 {% endblock %}
 
 {% block content %}
-<p style="margin:0 0 24px;color:#424242;font-size:15px;line-height:1.7;">{{ message }}</p>
+<p style="margin:0 0 28px;color:#334155;font-size:15px;line-height:1.7;">{{ message }}</p>
 {% if action_url %}
-<div style="text-align:center;margin:24px 0;">
-<a href="{{ action_url }}" style="display:inline-block;background-color:#1565c0;color:#ffffff;text-decoration:none;padding:12px 32px;border-radius:6px;font-size:14px;font-weight:600;">{{ strings.cta }}</a>
+<div style="text-align:center;margin:28px 0 4px;">
+<a href="{{ action_url }}" style="display:inline-block;background:#0369A1;color:#ffffff;text-decoration:none;padding:14px 36px;border-radius:8px;font-size:14px;font-weight:600;letter-spacing:0.3px;">{{ strings.cta }}</a>
 </div>
 {% endif %}
 {% endblock %}

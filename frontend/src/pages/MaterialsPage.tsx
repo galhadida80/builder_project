@@ -50,6 +50,7 @@ export default function MaterialsPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [materialToDelete, setMaterialToDelete] = useState<Material | null>(null)
   const [saving, setSaving] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [errors, setErrors] = useState<ValidationError>({})
   const [activeTab, setActiveTab] = useState('all')
@@ -260,6 +261,7 @@ export default function MaterialsPage() {
 
   const handleConfirmDelete = async () => {
     if (!projectId || !materialToDelete) return
+    setDeleting(true)
     try {
       await materialsApi.delete(projectId, materialToDelete.id)
       showSuccess(t('materials.materialDeletedSuccessfully'))
@@ -269,6 +271,8 @@ export default function MaterialsPage() {
       loadMaterials()
     } catch {
       showError(t('materials.failedToDeleteMaterial'))
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -597,7 +601,7 @@ export default function MaterialsPage() {
         PaperProps={{ sx: { width: { xs: '100%', sm: 480 }, borderRadius: '16px 0 0 16px' } }}
       >
         {selectedMaterial && (
-          <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
+          <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 }, overflowY: 'auto', height: '100%' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
               <Typography variant="h6" fontWeight={600}>{t('materials.details')}</Typography>
               <IconButton aria-label={t('common.close')} onClick={handleCloseDrawer} size="small">
@@ -1086,6 +1090,7 @@ export default function MaterialsPage() {
         message={t('materials.deleteConfirmationMessage', { name: materialToDelete?.name })}
         confirmLabel={t('common.delete')}
         variant="danger"
+        loading={deleting}
       />
 
       <ContactSelectorDialog

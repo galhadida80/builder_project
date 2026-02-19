@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.config import get_settings
+from app.models.project import Project
 from app.models.rfi import RFI, RFIEmailLog, RFIResponse, RFIStatus
 from app.models.user import User
 from app.services.email_renderer import render_rfi_email, render_rfi_response_email
@@ -26,7 +27,14 @@ class RFIService:
         self.settings = get_settings()
 
     async def generate_rfi_from_email(self, project_id: uuid.UUID, rfi_number: str) -> str:
-        return self.settings.rfi_email_address
+        result = await self.db.execute(
+            select(Project.code).where(Project.id == project_id)
+        )
+        project_code = result.scalar_one()
+        seq = rfi_number.split("-")[-1]
+        tag = f"rfi-{project_code}-{seq}".lower()
+        local, domain = self.settings.rfi_email_address.split("@")
+        return f"{local}+{tag}@{domain}"
 
     async def generate_rfi_number(self) -> str:
         try:
@@ -95,7 +103,7 @@ class RFIService:
         await self.db.refresh(rfi)
         return rfi
 
-    async def send_rfi(self, rfi_id: uuid.UUID) -> RFI:
+    async def send_rfi(self, rfi_id: uuid.UUID, language: str = "en") -> RFI:
         result = await self.db.execute(
             select(RFI)
             .options(selectinload(RFI.created_by))
@@ -109,7 +117,7 @@ class RFIService:
         if rfi.status not in [RFIStatus.DRAFT.value, RFIStatus.OPEN.value]:
             raise ValueError(f"Cannot send RFI with status: {rfi.status}")
 
-        _, email_html = render_rfi_email(rfi)
+        _, email_html = render_rfi_email(rfi, language=language)
         rfi_from_email = await self.generate_rfi_from_email(rfi.project_id, rfi.rfi_number)
 
         try:
@@ -204,6 +212,19 @@ class RFIService:
             if rfi:
                 return rfi
 
+        if parsed.plus_tag_project_code and parsed.plus_tag_seq:
+            result = await self.db.execute(
+                select(RFI)
+                .join(Project, RFI.project_id == Project.id)
+                .where(
+                    func.upper(Project.code) == parsed.plus_tag_project_code,
+                    RFI.rfi_number.like(f"%-{parsed.plus_tag_seq}")
+                )
+            )
+            rfi = result.scalar_one_or_none()
+            if rfi:
+                return rfi
+
         if parsed.in_reply_to:
             result = await self.db.execute(
                 select(RFI).where(RFI.email_message_id == parsed.in_reply_to)
@@ -278,7 +299,8 @@ class RFIService:
         user_id: uuid.UUID,
         response_text: str,
         attachments: Optional[list[dict]] = None,
-        send_email: bool = True
+        send_email: bool = True,
+        language: str = "en",
     ) -> RFIResponse:
         result = await self.db.execute(
             select(RFI).options(selectinload(RFI.created_by)).where(RFI.id == rfi_id)
@@ -312,7 +334,7 @@ class RFIService:
                     rfi_number=rfi.rfi_number,
                     to_email=rfi.to_email,
                     subject=f"Re: {rfi.subject}",
-                    body_html=render_rfi_response_email(rfi, response_text)[1],
+                    body_html=render_rfi_response_email(rfi, response_text, language=language)[1],
                     in_reply_to=rfi.email_message_id,
                     references=rfi.email_message_id,
                     reply_to=rfi_from_email
