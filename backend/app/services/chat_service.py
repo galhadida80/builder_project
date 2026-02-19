@@ -665,6 +665,8 @@ async def load_conversation_history(db: AsyncSession, conversation_id: uuid.UUID
     for i, msg in enumerate(messages):
         if i in skip_next_user:
             continue
+        if msg.role == "assistant" and not msg.content and not msg.tool_results:
+            continue
         if msg.tool_results:
             history_json.extend(msg.tool_results)
         else:
@@ -731,7 +733,13 @@ async def send_message(db: AsyncSession, project_id: uuid.UUID, user_id: uuid.UU
     )
 
     logger.info(f"Chat request | project={project_id} conv={conversation.id} message='{message[:100]}'")
-    result = await agent.run(message, deps=deps, message_history=message_history)
+    try:
+        result = await agent.run(message, deps=deps, message_history=message_history)
+    except Exception:
+        await db.delete(assistant_msg)
+        await db.delete(user_msg)
+        await db.flush()
+        raise
 
     usage = result.usage()
     tool_count = len([p for m in result.new_messages() for p in getattr(m, "parts", []) if hasattr(p, "tool_name")])

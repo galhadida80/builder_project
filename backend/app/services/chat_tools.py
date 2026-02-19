@@ -713,7 +713,10 @@ async def get_full_project_context(db: AsyncSession, project_id: uuid.UUID) -> s
     rfi_status = await count_rfis_by_status(db, project_id)
     insp_status = await count_inspections_by_status(db, project_id)
     defect_status = await count_defects_by_status(db, project_id)
-    meetings = await get_meetings(db, project_id, upcoming="true", limit="5")
+    try:
+        meetings = await get_meetings(db, project_id, upcoming="true", limit="5")
+    except Exception:
+        meetings = {"count": 0, "items": []}
     approvals = await get_approval_queue(db, project_id)
     areas = await get_area_progress(db, project_id, limit="50")
     contacts = await list_contacts(db, project_id, limit="30")
