@@ -35,6 +35,7 @@ from app.services.notification_service import (
 )
 from app.services.ai_service import analyze_defect_image
 from app.services.storage_service import StorageBackend, get_storage_backend
+from app.utils import utcnow
 
 router = APIRouter()
 
@@ -187,7 +188,7 @@ async def export_defects_pdf(
     defects = list(result.scalars().all())
 
     pdf_bytes = await generate_defects_report_pdf(db, defects, project, storage)
-    filename = f"defects_report_{project.code}_{datetime.now(timezone.utc).strftime('%Y%m%d')}.pdf"
+    filename = f"defects_report_{project.code}_{utcnow().strftime('%Y%m%d')}.pdf"
     return Response(
         content=pdf_bytes,
         media_type="application/pdf",
@@ -337,7 +338,7 @@ async def update_defect(
         setattr(defect, key, value)
 
     if data.status == "resolved" and old_status != "resolved":
-        defect.resolved_at = datetime.now(timezone.utc)
+        defect.resolved_at = utcnow()
 
     await create_audit_log(
         db, current_user, "defect", defect.id, AuditAction.UPDATE,

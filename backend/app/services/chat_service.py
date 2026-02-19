@@ -15,6 +15,7 @@ from app.config import get_settings
 from app.models.chat import ChatConversation, ChatMessage
 from app.models.chat_action import ChatAction
 from app.services.chat_tools import TOOL_REGISTRY, get_full_project_context
+from app.utils import utcnow
 
 logger = logging.getLogger(__name__)
 
@@ -673,7 +674,7 @@ async def load_conversation_history(db: AsyncSession, conversation_id: uuid.UUID
 
 
 def make_message_dict(role: str, content: str, created_at: datetime | None = None) -> dict:
-    ts = (created_at or datetime.now(timezone.utc)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    ts = (created_at or utcnow()).strftime("%Y-%m-%dT%H:%M:%SZ")
     if role == "user":
         return {"kind": "request", "parts": [{"part_kind": "user-prompt", "content": content, "timestamp": ts}]}
     return {"kind": "response", "parts": [{"part_kind": "text", "content": content or ""}]}
@@ -753,7 +754,7 @@ async def send_message(db: AsyncSession, project_id: uuid.UUID, user_id: uuid.UU
     assistant_msg.tool_calls = tool_names if tool_names else None
     assistant_msg.tool_results = serialized
 
-    conversation.updated_at = datetime.now(timezone.utc)
+    conversation.updated_at = utcnow()
 
     await db.flush()
     actions_result = await db.execute(

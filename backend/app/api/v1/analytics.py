@@ -29,6 +29,7 @@ from app.schemas.analytics import (
     TrendDataPoint,
     WeeklyActivityPoint,
 )
+from app.utils import utcnow
 
 router = APIRouter()
 
@@ -182,7 +183,7 @@ async def get_project_trends(
 
     # Default to last 30 days if no dates provided
     if not end_date:
-        end_datetime = datetime.now(timezone.utc)
+        end_datetime = utcnow()
     else:
         end_datetime = datetime.fromisoformat(end_date)
 
@@ -450,7 +451,7 @@ async def get_dashboard_stats(
         for row in findings_result.all()
     ]
 
-    today = datetime.now(timezone.utc).date()
+    today = utcnow().date()
     start_date = today - timedelta(days=13)
     day_start = datetime.combine(start_date, datetime.min.time())
     day_end = datetime.combine(today + timedelta(days=1), datetime.min.time())

@@ -17,6 +17,7 @@ from app.schemas.invitation import InvitationCreate, InvitationResponse
 from app.services.email_renderer import render_invitation_email
 from app.services.email_service import EmailService
 from app.utils.localization import get_language_from_request
+from app.utils import utcnow
 
 logger = logging.getLogger(__name__)
 
@@ -153,7 +154,7 @@ async def validate_invitation(token: str, db: AsyncSession = Depends(get_db)):
     if invitation.status != InvitationStatus.PENDING.value:
         raise HTTPException(status_code=400, detail=f"Invitation is {invitation.status}")
 
-    if invitation.expires_at.replace(tzinfo=timezone.utc) < datetime.now(timezone.utc):
+    if invitation.expires_at < utcnow():
         invitation.status = InvitationStatus.EXPIRED.value
         await db.commit()
         raise HTTPException(status_code=400, detail="Invitation has expired")
@@ -185,7 +186,7 @@ async def accept_invitation(
     if invitation.status != InvitationStatus.PENDING.value:
         raise HTTPException(status_code=400, detail=f"Invitation is {invitation.status}")
 
-    if invitation.expires_at.replace(tzinfo=timezone.utc) < datetime.now(timezone.utc):
+    if invitation.expires_at < utcnow():
         invitation.status = InvitationStatus.EXPIRED.value
         await db.commit()
         raise HTTPException(status_code=400, detail="Invitation has expired")
@@ -201,7 +202,7 @@ async def accept_invitation(
     )
     if existing_member.scalar_one_or_none():
         invitation.status = InvitationStatus.ACCEPTED.value
-        invitation.accepted_at = datetime.now(timezone.utc)
+        invitation.accepted_at = utcnow()
         await db.commit()
         return {"message": "Already a member of this project", "projectId": str(invitation.project_id)}
 
@@ -212,6 +213,6 @@ async def accept_invitation(
     )
     db.add(member)
     invitation.status = InvitationStatus.ACCEPTED.value
-    invitation.accepted_at = datetime.now(timezone.utc)
+    invitation.accepted_at = utcnow()
     await db.commit()
     return {"message": "Invitation accepted", "projectId": str(invitation.project_id)}

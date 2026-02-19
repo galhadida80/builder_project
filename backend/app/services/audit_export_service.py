@@ -11,6 +11,7 @@ from app.models.audit import AuditLog
 from app.models.equipment_submission import EquipmentSubmission
 from app.models.inspection import Inspection
 from app.models.material_template import MaterialApprovalSubmission
+from app.utils import utcnow
 
 
 def compute_checksum(data: list[dict]) -> str:
@@ -119,7 +120,7 @@ async def generate_audit_package(
         "project_id": str(project_id),
         "date_from": date_from.isoformat(),
         "date_to": date_to.isoformat(),
-        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_at": utcnow().isoformat(),
         "audit_logs": {
             "count": len(audit_log_data),
             "checksum": compute_checksum(audit_log_data),

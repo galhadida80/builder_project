@@ -6,6 +6,7 @@ from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.session import Base
+from app.utils import utcnow
 
 
 class MaterialTemplate(Base):
@@ -19,8 +20,8 @@ class MaterialTemplate(Base):
     required_documents: Mapped[list] = mapped_column(JSONB, default=list)
     required_specifications: Mapped[list] = mapped_column(JSONB, default=list)
     submission_checklist: Mapped[list] = mapped_column(JSONB, default=list)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow())
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow(), onupdate=lambda: utcnow())
 
     approving_consultants = relationship("MaterialTemplateConsultant", back_populates="template", cascade="all, delete-orphan")
     approval_submissions = relationship("MaterialApprovalSubmission", back_populates="template")
@@ -52,8 +53,8 @@ class MaterialApprovalSubmission(Base):
     status: Mapped[str] = mapped_column(String(50), default="draft")
     submitted_by_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
     submitted_at: Mapped[datetime | None] = mapped_column(DateTime)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow())
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow(), onupdate=lambda: utcnow())
 
     project = relationship("Project")
     template = relationship("MaterialTemplate", back_populates="approval_submissions")
@@ -71,7 +72,7 @@ class MaterialApprovalDecision(Base):
     approver_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
     decision: Mapped[str] = mapped_column(String(50), nullable=False)
     comments: Mapped[str | None] = mapped_column(Text)
-    decided_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
+    decided_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow())
 
     submission = relationship("MaterialApprovalSubmission", back_populates="decisions")
     consultant_type = relationship("ConsultantType")

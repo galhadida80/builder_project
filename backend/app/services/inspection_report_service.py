@@ -5,6 +5,7 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 from weasyprint import HTML
 
 from app.models.inspection import Inspection
+from app.utils import utcnow
 
 TEMPLATES_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates")
 
@@ -96,7 +97,7 @@ def build_inspection_context(inspection: Inspection, strings: dict) -> dict:
 
 def generate_inspections_report_pdf(inspections: list[Inspection], project) -> bytes:
     s = STRINGS
-    today = datetime.now(timezone.utc).strftime("%d/%m/%Y")
+    today = utcnow().strftime("%d/%m/%Y")
 
     inspection_items = [build_inspection_context(insp, s) for insp in inspections]
 

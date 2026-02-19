@@ -34,6 +34,7 @@ from app.services.email_renderer import render_password_reset_email, render_welc
 from app.services.email_service import EmailService
 from app.utils.localization import get_language_from_request, translate_message
 from app.middleware.rate_limiter import get_rate_limiter
+from app.utils import utcnow
 
 logger = logging.getLogger(__name__)
 
@@ -87,7 +88,7 @@ async def register(
         )
         invitation = inv_result.scalar_one_or_none()
         if invitation and invitation.status == InvitationStatus.PENDING.value:
-            if invitation.email.lower() == email.lower() and invitation.expires_at.replace(tzinfo=timezone.utc) > datetime.now(timezone.utc):
+            if invitation.email.lower() == email.lower() and invitation.expires_at > utcnow():
                 member = ProjectMember(
                     project_id=invitation.project_id,
                     user_id=user.id,
@@ -95,7 +96,7 @@ async def register(
                 )
                 db.add(member)
                 invitation.status = InvitationStatus.ACCEPTED.value
-                invitation.accepted_at = datetime.now(timezone.utc)
+                invitation.accepted_at = utcnow()
 
     await db.commit()
     await db.refresh(user)
@@ -207,13 +208,13 @@ async def forgot_password(
             )
         )
         for old_token in old_tokens_result.scalars().all():
-            old_token.used_at = datetime.now(timezone.utc)
+            old_token.used_at = utcnow()
 
         token = secrets.token_urlsafe(48)
         reset_token = PasswordResetToken(
             user_id=user.id,
             token=token,
-            expires_at=datetime.now(timezone.utc) + timedelta(hours=1),
+            expires_at=utcnow() + timedelta(hours=1),
         )
         db.add(reset_token)
         await db.commit()
@@ -248,7 +249,7 @@ async def reset_password(
     )
     reset_token = result.scalar_one_or_none()
 
-    if not reset_token or reset_token.used_at or reset_token.expires_at.replace(tzinfo=timezone.utc) < datetime.now(timezone.utc):
+    if not reset_token or reset_token.used_at or reset_token.expires_at < utcnow():
         error_message = translate_message('invalid_reset_token', language)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -267,7 +268,7 @@ async def reset_password(
 
     password = validate_password(data.new_password)
     user.password_hash = get_password_hash(password)
-    reset_token.used_at = datetime.now(timezone.utc)
+    reset_token.used_at = utcnow()
 
     await db.commit()
 

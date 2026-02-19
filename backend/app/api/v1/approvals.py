@@ -24,6 +24,7 @@ from app.schemas.approval import ApprovalRequestResponse, ApprovalStepResponse, 
 from app.services.audit_service import create_audit_log
 from app.services.notification_service import notify_contact, notify_user
 from app.utils.localization import get_language_from_request, translate_message
+from app.utils import utcnow
 
 router = APIRouter()
 
@@ -103,7 +104,7 @@ async def get_pending_reminders(
     current_user: User = Depends(get_current_user)
 ):
     await verify_project_access(project_id, current_user, db)
-    cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+    cutoff = utcnow() - timedelta(days=days)
     result = await db.execute(
         select(ApprovalRequest)
         .options(
@@ -121,7 +122,7 @@ async def get_pending_reminders(
         .order_by(ApprovalRequest.created_at.asc())
     )
     approvals = result.scalars().all()
-    now = datetime.now(timezone.utc)
+    now = utcnow()
     return [
         PendingReminderResponse(
             id=approval.id,
@@ -130,7 +131,7 @@ async def get_pending_reminders(
             entity_id=approval.entity_id,
             current_status=approval.current_status,
             created_at=approval.created_at,
-            days_pending=(now - approval.created_at.replace(tzinfo=timezone.utc)).days,
+            days_pending=(now - approval.created_at).days,
             created_by=approval.created_by,
             steps=approval.steps
         )
@@ -197,7 +198,7 @@ async def process_approval_step(
     if data.action == "approve":
         step.status = "approved"
         step.approved_by_id = current_user.id
-        step.approved_at = datetime.now(timezone.utc)
+        step.approved_at = utcnow()
         step.comments = data.comments
 
         next_step_result = await db.execute(
@@ -234,7 +235,7 @@ async def process_approval_step(
     elif data.action == "reject":
         step.status = "rejected"
         step.approved_by_id = current_user.id
-        step.approved_at = datetime.now(timezone.utc)
+        step.approved_at = utcnow()
         step.comments = data.comments
         approval_request.current_status = ApprovalStatus.REJECTED.value
         await update_entity_status(db, approval_request.entity_type, approval_request.entity_id, ApprovalStatus.REJECTED.value)
@@ -248,7 +249,7 @@ async def process_approval_step(
     elif data.action == "revision":
         step.status = "revision_requested"
         step.approved_by_id = current_user.id
-        step.approved_at = datetime.now(timezone.utc)
+        step.approved_at = utcnow()
         step.comments = data.comments
         approval_request.current_status = ApprovalStatus.REVISION_REQUESTED.value
         await update_entity_status(db, approval_request.entity_type, approval_request.entity_id, ApprovalStatus.REVISION_REQUESTED.value)
@@ -348,7 +349,7 @@ async def approve_request(
 
     step.status = "approved"
     step.approved_by_id = current_user.id
-    step.approved_at = datetime.now(timezone.utc)
+    step.approved_at = utcnow()
     if data:
         step.comments = data.comments
 
@@ -431,7 +432,7 @@ async def reject_request(
 
     step.status = "rejected"
     step.approved_by_id = current_user.id
-    step.approved_at = datetime.now(timezone.utc)
+    step.approved_at = utcnow()
     if data:
         step.comments = data.comments
     approval_request.current_status = ApprovalStatus.REJECTED.value

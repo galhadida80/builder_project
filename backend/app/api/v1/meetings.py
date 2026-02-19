@@ -37,6 +37,7 @@ from app.services.calendar_service import (
 from app.services.email_renderer import render_meeting_invitation_email, render_meeting_vote_email
 from app.services.email_service import EmailService
 from app.utils.localization import get_language_from_request, translate_message
+from app.utils import utcnow
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -476,7 +477,7 @@ async def rsvp_attendee(
         raise HTTPException(status_code=404, detail="Attendee not found")
 
     attendee.attendance_status = data.status
-    attendee.rsvp_responded_at = datetime.now(timezone.utc)
+    attendee.rsvp_responded_at = utcnow()
     await db.flush()
     await db.refresh(attendee, ["user"])
     return attendee
@@ -529,7 +530,7 @@ async def rsvp_by_token(
         raise HTTPException(status_code=404, detail="Invalid RSVP token")
 
     attendee.attendance_status = data.status
-    attendee.rsvp_responded_at = datetime.now(timezone.utc)
+    attendee.rsvp_responded_at = utcnow()
     await db.flush()
 
     meeting = attendee.meeting
@@ -585,7 +586,7 @@ async def vote_for_time_slot(
         chosen_slot.vote_count += 1
 
     vote.time_slot_id = slot
-    vote.voted_at = datetime.now(timezone.utc)
+    vote.voted_at = utcnow()
     await db.commit()
 
     slot_label = chosen_slot.proposed_start.strftime("%b %d, %Y at %H:%M")

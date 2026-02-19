@@ -4,15 +4,19 @@ import { renderWithProviders } from '../../test/test-utils'
 import AnalyticsDashboard from './AnalyticsDashboard'
 import { analyticsService } from '../../services/analyticsService'
 
+const mockT = (key: string) => key
+const mockI18n = { language: 'en' }
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string) => key,
-    i18n: { language: 'en' },
+    t: mockT,
+    i18n: mockI18n,
   }),
 }))
 
+const mockShowError = vi.fn()
+const mockShowSuccess = vi.fn()
 vi.mock('../../components/common/ToastProvider', () => ({
-  useToast: () => ({ showError: vi.fn(), showSuccess: vi.fn() }),
+  useToast: () => ({ showError: mockShowError, showSuccess: mockShowSuccess }),
 }))
 
 vi.mock('../../services/analyticsService', () => ({

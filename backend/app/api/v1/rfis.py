@@ -30,6 +30,7 @@ from app.schemas.rfi import (
 from app.services.email_service import EmailService
 from app.services.rfi_service import RFIService
 from app.utils.localization import get_language_from_request
+from app.utils import utcnow
 
 router = APIRouter(tags=["rfis"])
 
@@ -145,7 +146,7 @@ async def get_overdue_rfis(
     current_user: User = Depends(get_current_user)
 ):
     await verify_project_access(project_id, current_user, db)
-    now = datetime.now(timezone.utc)
+    now = utcnow()
     result = await db.execute(
         select(RFI)
         .where(
@@ -169,7 +170,7 @@ async def get_overdue_rfis(
             priority=rfi.priority,
             status=rfi.status,
             due_date=rfi.due_date,
-            days_overdue=(now - rfi.due_date.replace(tzinfo=timezone.utc)).days if rfi.due_date else 0,
+            days_overdue=(now - rfi.due_date).days if rfi.due_date else 0,
             created_at=rfi.created_at,
             sent_at=rfi.sent_at
         )
@@ -185,7 +186,7 @@ async def get_upcoming_deadline_rfis(
     current_user: User = Depends(get_current_user)
 ):
     await verify_project_access(project_id, current_user, db)
-    now = datetime.now(timezone.utc)
+    now = utcnow()
     deadline = now + timedelta(days=days)
     result = await db.execute(
         select(RFI)
@@ -211,7 +212,7 @@ async def get_upcoming_deadline_rfis(
             priority=rfi.priority,
             status=rfi.status,
             due_date=rfi.due_date,
-            days_until_due=(rfi.due_date.replace(tzinfo=timezone.utc) - now).days if rfi.due_date else 0,
+            days_until_due=(rfi.due_date - now).days if rfi.due_date else 0,
             created_at=rfi.created_at,
             sent_at=rfi.sent_at
         )

@@ -7,6 +7,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.session import Base
+from app.utils import utcnow
 
 
 class BudgetLineItem(Base):
@@ -20,8 +21,8 @@ class BudgetLineItem(Base):
     budgeted_amount: Mapped[Decimal] = mapped_column(Numeric(14, 2), nullable=False)
     sort_order: Mapped[int] = mapped_column(Integer, default=0)
     created_by_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow())
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow(), onupdate=lambda: utcnow())
 
     project = relationship("Project", backref="budget_items")
     created_by = relationship("User", foreign_keys=[created_by_id])
@@ -40,8 +41,8 @@ class CostEntry(Base):
     vendor: Mapped[str | None] = mapped_column(String(255), nullable=True)
     reference_number: Mapped[str | None] = mapped_column(String(100), nullable=True)
     created_by_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow())
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow(), onupdate=lambda: utcnow())
 
     budget_item = relationship("BudgetLineItem", back_populates="cost_entries")
     project = relationship("Project")
@@ -64,8 +65,8 @@ class ChangeOrder(Base):
     requested_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     approved_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     created_by_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow())
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow(), onupdate=lambda: utcnow())
 
     project = relationship("Project", backref="change_orders")
     budget_item = relationship("BudgetLineItem", foreign_keys=[budget_item_id])

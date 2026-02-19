@@ -9,6 +9,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.session import Base
+from app.utils import utcnow
 
 
 class File(Base):
@@ -22,7 +23,7 @@ class File(Base):
     file_type: Mapped[Optional[str]] = mapped_column(String(100))
     file_size: Mapped[Optional[int]] = mapped_column(Integer)
     storage_path: Mapped[str] = mapped_column(String(500), nullable=False)
-    uploaded_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
+    uploaded_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow())
     uploaded_by_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
 
     uploaded_by = relationship("User", foreign_keys=[uploaded_by_id])

@@ -17,6 +17,7 @@ from app.models.material_template import MaterialApprovalSubmission
 from app.models.meeting import Meeting
 from app.models.project import Project, ProjectMember
 from app.models.rfi import RFI
+from app.utils import utcnow
 
 
 async def get_project_summary(db: AsyncSession, project_id: uuid.UUID, **kwargs) -> dict:
@@ -374,7 +375,7 @@ async def get_meetings(db: AsyncSession, project_id: uuid.UUID, **kwargs) -> dic
 
     query = select(Meeting).where(Meeting.project_id == project_id)
     if upcoming:
-        query = query.where(Meeting.scheduled_date >= datetime.now(timezone.utc)).order_by(Meeting.scheduled_date.asc())
+        query = query.where(Meeting.scheduled_date >= utcnow()).order_by(Meeting.scheduled_date.asc())
     else:
         query = query.order_by(Meeting.scheduled_date.desc())
     query = query.limit(limit)
@@ -668,7 +669,7 @@ async def search_documents(db: AsyncSession, project_id: uuid.UUID, **kwargs) ->
         .where(DocumentAnalysis.status == "completed")
         .where(
             cast(DocumentAnalysis.result, String).ilike(
-                f"%{query_text.replace('%', '\\%').replace('_', '\\_')}%",
+                "%" + query_text.replace("%", "\\%").replace("_", "\\_") + "%",
                 escape="\\"
             )
         )

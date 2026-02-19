@@ -7,6 +7,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.session import Base
 from app.models.equipment import ApprovalStatus
+from app.utils import utcnow
 
 
 class EquipmentSubmission(Base):
@@ -20,8 +21,8 @@ class EquipmentSubmission(Base):
     specifications: Mapped[dict | None] = mapped_column(JSONB, default=dict)
     status: Mapped[str] = mapped_column(String(50), default=ApprovalStatus.DRAFT.value)
     notes: Mapped[str | None] = mapped_column(Text)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow())
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow(), onupdate=lambda: utcnow())
     created_by_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
 
     project = relationship("Project")

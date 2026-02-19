@@ -13,14 +13,15 @@ echo "=== Pre-loading route modules ==="
 python3 -u -c "
 import importlib
 modules = [
-    'admin', 'analytics', 'analytics_bi', 'approvals', 'areas', 'audit',
-    'auth', 'bim', 'bim_extract', 'budget', 'chat', 'checklists',
-    'consultant_assignments', 'consultant_types', 'contact_groups', 'contacts',
-    'daily_summary', 'defects', 'discussions', 'document_analysis',
-    'document_reviews', 'equipment', 'equipment_templates', 'files',
-    'inspections', 'invitations', 'material_templates', 'materials',
-    'meetings', 'notifications', 'organizations', 'projects', 'reports',
-    'rfis', 'tasks_api', 'webhooks', 'workload', 'ws',
+    'admin', 'analytics', 'analytics_bi', 'approvals', 'area_structure',
+    'areas', 'audit', 'auth', 'bim', 'bim_extract', 'budget', 'chat',
+    'checklists', 'consultant_assignments', 'consultant_types',
+    'contact_groups', 'contacts', 'daily_summary', 'defects', 'discussions',
+    'document_analysis', 'document_reviews', 'equipment',
+    'equipment_templates', 'files', 'inspections', 'invitations',
+    'material_templates', 'materials', 'meetings', 'notifications',
+    'organizations', 'projects', 'quantity_extraction', 'reports', 'rfis',
+    'tasks_api', 'webhooks', 'workload', 'ws',
 ]
 for mod in modules:
     importlib.import_module(f'app.api.v1.{mod}')

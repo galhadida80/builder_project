@@ -33,6 +33,7 @@ from app.schemas.inspection import (
 )
 from app.services.audit_service import create_audit_log, get_model_dict
 from app.services.inspection_report_service import generate_inspections_report_pdf
+from app.utils import utcnow
 
 router = APIRouter()
 
@@ -194,7 +195,7 @@ async def get_inspection_summary(
             func.sum(case((Inspection.status == InspectionStatus.COMPLETED.value, 1), else_=0)).label('completed'),
             func.sum(case((Inspection.status == InspectionStatus.FAILED.value, 1), else_=0)).label('failed'),
             func.sum(case((
-                (Inspection.scheduled_date < datetime.now(timezone.utc)) &
+                (Inspection.scheduled_date < utcnow()) &
                 (Inspection.status != InspectionStatus.COMPLETED.value), 1
             ), else_=0)).label('overdue')
         )
@@ -277,7 +278,7 @@ async def export_inspections_pdf(
     inspections = list(result.scalars().all())
 
     pdf_bytes = generate_inspections_report_pdf(inspections, project)
-    filename = f"inspections_report_{project.code}_{datetime.now(timezone.utc).strftime('%Y%m%d')}.pdf"
+    filename = f"inspections_report_{project.code}_{utcnow().strftime('%Y%m%d')}.pdf"
     return Response(
         content=pdf_bytes,
         media_type="application/pdf",
@@ -403,7 +404,7 @@ async def complete_inspection(
 
     old_values = get_model_dict(inspection)
     inspection.status = InspectionStatus.COMPLETED.value
-    inspection.completed_date = datetime.now(timezone.utc)
+    inspection.completed_date = utcnow()
 
     await create_audit_log(db, current_user, "inspection", inspection.id, AuditAction.UPDATE,
                           project_id=project_id, old_values=old_values, new_values=get_model_dict(inspection))

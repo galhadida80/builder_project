@@ -10,6 +10,7 @@ from app.models.equipment_submission import EquipmentSubmission
 from app.models.inspection import Inspection, Finding
 from app.models.material_template import MaterialApprovalSubmission
 from app.models.rfi import RFI
+from app.utils import utcnow
 
 
 async def generate_inspection_summary(
@@ -130,15 +131,12 @@ async def generate_rfi_aging_report(db: AsyncSession, project_id: UUID) -> dict:
     )
     open_rfis = result.scalars().all()
 
-    now = datetime.now(timezone.utc)
+    now = utcnow()
     priority_groups = {}
     aging_items = []
 
     for rfi in open_rfis:
-        created = rfi.created_at
-        if created.tzinfo is None:
-            created = created.replace(tzinfo=timezone.utc)
-        age_days = (now - created).days
+        age_days = (now - rfi.created_at).days
         priority = rfi.priority or "medium"
 
         if priority not in priority_groups:

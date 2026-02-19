@@ -10,6 +10,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.session import Base
+from app.utils import utcnow
 
 
 class NotificationCategory(str, Enum):
@@ -31,7 +32,7 @@ class Notification(Base):
     related_entity_type: Mapped[Optional[str]] = mapped_column(String(100))
     related_entity_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True))
     is_read: Mapped[bool] = mapped_column(Boolean, default=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow())
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow(), onupdate=lambda: utcnow())
 
     user = relationship("User", foreign_keys=[user_id])

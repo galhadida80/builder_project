@@ -10,6 +10,7 @@ from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.session import Base
+from app.utils import utcnow
 
 
 class AuditAction(str, Enum):
@@ -34,6 +35,6 @@ class AuditLog(Base):
     new_values: Mapped[Optional[dict]] = mapped_column(JSONB)
     ip_address: Mapped[Optional[str]] = mapped_column(String(45))
     user_agent: Mapped[Optional[str]] = mapped_column(Text)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow())
 
     user = relationship("User", foreign_keys=[user_id])

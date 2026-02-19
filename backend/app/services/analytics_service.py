@@ -12,6 +12,7 @@ from app.models.material import Material
 from app.models.project import Project, ProjectMember
 from app.models.rfi import RFI
 from app.models.user import User
+from app.utils import utcnow
 
 ENTITY_MODEL_MAP = {
     "equipment": Equipment,
@@ -62,7 +63,7 @@ async def get_entity_trends(
     if model is None:
         return []
 
-    start_date = datetime.now(timezone.utc) - timedelta(days=days)
+    start_date = utcnow() - timedelta(days=days)
     date_trunc = func.date_trunc("day", model.created_at)
 
     query = (

@@ -21,6 +21,7 @@ from app.schemas.document_review import (
     DocumentReviewUpdate,
 )
 from app.services.audit_service import create_audit_log, get_model_dict
+from app.utils import utcnow
 
 router = APIRouter()
 
@@ -123,7 +124,7 @@ async def update_document_review(
 
     if data.status is not None:
         review.reviewed_by_id = current_user.id
-        review.reviewed_at = datetime.now(timezone.utc)
+        review.reviewed_at = utcnow()
 
     await create_audit_log(
         db, current_user, "document_review", review.id, AuditAction.UPDATE,

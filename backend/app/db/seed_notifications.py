@@ -10,6 +10,7 @@ from sqlalchemy import select
 from app.db.session import AsyncSessionLocal
 from app.models.notification import Notification, NotificationCategory
 from app.models.user import User
+from app.utils import utcnow
 
 # Sample notification data for testing
 SAMPLE_NOTIFICATIONS = [
@@ -131,7 +132,7 @@ async def seed_notifications():
                     continue
 
                 # Calculate created_at based on hours_ago
-                created_at = datetime.now(timezone.utc) - timedelta(hours=notification_data["hours_ago"])
+                created_at = utcnow() - timedelta(hours=notification_data["hours_ago"])
 
                 # Create new notification
                 notification = Notification(

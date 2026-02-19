@@ -11,6 +11,7 @@ from app.db.session import get_db
 from app.models.project import ProjectMember
 from app.models.user import User
 from app.schemas.workload import TeamMemberResponse, UserInfo, WorkloadResponse
+from app.utils import utcnow
 
 router = APIRouter()
 
@@ -39,7 +40,7 @@ async def get_team_members(
                 workloadPercent=75,
                 assignedHours=30,
                 availableHours=40,
-                createdAt=datetime.now(timezone.utc).isoformat()
+                createdAt=utcnow().isoformat()
             )
             for member, user in rows
         ]
@@ -65,7 +66,7 @@ async def get_team_members(
                 workloadPercent=75,
                 assignedHours=30,
                 availableHours=40,
-                createdAt=datetime.now(timezone.utc).isoformat()
+                createdAt=utcnow().isoformat()
             )
             for member, user in rows
         ]
@@ -106,7 +107,7 @@ async def get_project_members(
             workloadPercent=75,
             assignedHours=30,
             availableHours=40,
-            createdAt=datetime.now(timezone.utc).isoformat()
+            createdAt=utcnow().isoformat()
         )
         for member, user in rows
     ]

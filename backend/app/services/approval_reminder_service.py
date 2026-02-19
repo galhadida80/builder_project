@@ -10,6 +10,7 @@ from app.models.material_template import MaterialApprovalSubmission
 from app.models.notification import Notification
 from app.models.project import ProjectMember, UserRole
 from app.models.user import User
+from app.utils import utcnow
 
 logger = logging.getLogger(__name__)
 
@@ -102,7 +103,7 @@ async def get_project_admin_emails(db: AsyncSession, project_id) -> list[dict]:
 
 
 async def check_approval_deadlines(db: AsyncSession) -> list[dict]:
-    now = datetime.now(timezone.utc)
+    now = utcnow()
     reminder_threshold = now - timedelta(days=REMINDER_DAYS)
     escalation_threshold = now - timedelta(days=ESCALATION_DAYS)
 

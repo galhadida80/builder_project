@@ -15,6 +15,7 @@ from app.models.user import User
 from app.services.email_renderer import render_rfi_email, render_rfi_response_email
 from app.services.email_service import EmailService
 from app.services.rfi_email_parser import ParsedEmail, RFIEmailParser
+from app.utils import utcnow
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +42,7 @@ class RFIService:
             await self.db.execute(text("SELECT pg_advisory_xact_lock(hashtext('rfi_number_gen'))"))
         except Exception:
             pass
-        year = datetime.now(timezone.utc).year
+        year = utcnow().year
         prefix = f"RFI-{year}-"
         result = await self.db.execute(
             select(func.max(RFI.rfi_number)).where(
@@ -133,7 +134,7 @@ class RFIService:
 
             rfi.email_thread_id = email_result['thread_id']
             rfi.email_message_id = email_result['email_message_id']
-            rfi.sent_at = datetime.now(timezone.utc)
+            rfi.sent_at = utcnow()
             rfi.status = RFIStatus.WAITING_RESPONSE.value
 
             email_log = RFIEmailLog(
@@ -278,12 +279,12 @@ class RFIService:
             source='email',
             is_internal=False,
             is_cc_participant=is_cc,
-            received_at=datetime.now(timezone.utc)
+            received_at=utcnow()
         )
         self.db.add(response)
 
         rfi.status = RFIStatus.ANSWERED.value
-        rfi.responded_at = datetime.now(timezone.utc)
+        rfi.responded_at = utcnow()
 
         return response
 
@@ -373,7 +374,7 @@ class RFIService:
         rfi.status = status
 
         if status == RFIStatus.CLOSED.value:
-            rfi.closed_at = datetime.now(timezone.utc)
+            rfi.closed_at = utcnow()
         elif rfi.closed_at and status in (RFIStatus.OPEN.value, RFIStatus.WAITING_RESPONSE.value):
             rfi.closed_at = None
 
@@ -452,7 +453,7 @@ class RFIService:
         overdue_result = await self.db.execute(
             select(func.count(RFI.id)).where(
                 RFI.project_id == project_id,
-                RFI.due_date < datetime.now(timezone.utc),
+                RFI.due_date < utcnow(),
                 RFI.status.in_([RFIStatus.OPEN.value, RFIStatus.WAITING_RESPONSE.value])
             )
         )

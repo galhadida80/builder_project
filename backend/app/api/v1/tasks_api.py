@@ -20,6 +20,7 @@ from app.schemas.task import (
     TaskSummaryResponse,
     TaskUpdate,
 )
+from app.utils import utcnow
 
 router = APIRouter()
 
@@ -168,7 +169,7 @@ async def update_task(
         setattr(task, key, value)
 
     if data.status == "completed" and old_status != "completed":
-        task.completed_at = datetime.now(timezone.utc)
+        task.completed_at = utcnow()
 
     result = await db.execute(
         select(Task).options(*TASK_LOAD_OPTIONS).where(Task.id == task.id)
@@ -292,7 +293,7 @@ async def bulk_update_tasks(
             old_status = task.status
             task.status = data.status
             if data.status == "completed" and old_status != "completed":
-                task.completed_at = datetime.now(timezone.utc)
+                task.completed_at = utcnow()
         if data.assignee_id is not None:
             task.assignee_id = data.assignee_id
 

@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.bim import BimModel
 from app.services.aps_service import APSService
+from app.utils import utcnow
 
 
 ROOM_CATEGORIES = {"Revit Rooms", "Rooms", "Revit Spaces", "Spaces"}
@@ -182,7 +183,7 @@ async def extract_bim_metadata(
     material_items = map_materials(properties_list, category_map)
 
     metadata = {
-        "extracted_at": datetime.now(timezone.utc).isoformat(),
+        "extracted_at": utcnow().isoformat(),
         "view_guid": view_guid,
         "areas": areas,
         "equipment": equipment_items,

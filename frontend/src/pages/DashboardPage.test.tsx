@@ -99,8 +99,9 @@ const mockMaterials = {
   total: 1, page: 1, page_size: 20, total_pages: 1,
 }
 
+const threeDaysFromNow = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString()
 const mockMeetings = [
-  { id: 'mtg-1', projectId: 'p1', title: 'Site Review', status: 'scheduled', scheduledDate: '2025-06-15T10:00:00Z', createdAt: '2024-01-01' },
+  { id: 'mtg-1', projectId: 'p1', title: 'Site Review', status: 'scheduled', scheduledDate: threeDaysFromNow, createdAt: '2024-01-01' },
 ]
 
 const mockApprovals = [

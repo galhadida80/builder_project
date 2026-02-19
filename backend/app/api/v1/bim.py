@@ -24,6 +24,7 @@ from app.schemas.bim import (
 from app.services.aps_service import APSService
 from app.services.audit_service import create_audit_log
 from app.services.storage_service import StorageBackend, generate_storage_path, get_storage_backend
+from app.utils import utcnow
 
 router = APIRouter()
 
@@ -312,13 +313,13 @@ async def oauth_callback(
     )
     connection = result.scalar_one_or_none()
 
-    expires_at = datetime.now(timezone.utc) + timedelta(seconds=token_data.get("expires_in", 3600))
+    expires_at = utcnow() + timedelta(seconds=token_data.get("expires_in", 3600))
 
     if connection:
         connection.access_token = token_data["access_token"]
         connection.refresh_token = token_data.get("refresh_token")
         connection.token_expires_at = expires_at
-        connection.updated_at = datetime.now(timezone.utc)
+        connection.updated_at = utcnow()
     else:
         connection = AutodeskConnection(
             user_id=user_id,

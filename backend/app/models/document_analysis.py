@@ -9,6 +9,7 @@ from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.session import Base
+from app.utils import utcnow
 
 
 class DocumentAnalysis(Base):
@@ -23,5 +24,5 @@ class DocumentAnalysis(Base):
     status: Mapped[str] = mapped_column(String(50), default="pending")
     error_message: Mapped[Optional[str]] = mapped_column(Text)
     processing_time_ms: Mapped[Optional[int]] = mapped_column(Integer)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow())
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow(), onupdate=lambda: utcnow())

@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from urllib.parse import quote
 from uuid import uuid4
+from app.utils import utcnow
 
 
 def generate_ical_event(meeting_data: dict) -> str:
@@ -22,7 +23,7 @@ def generate_ical_event(meeting_data: dict) -> str:
         dt_start = dt_start.astimezone(timezone.utc)
 
     dt_end = dt_start + timedelta(hours=1)
-    now = datetime.now(timezone.utc)
+    now = utcnow()
 
     dt_format = "%Y%m%dT%H%M%SZ"
     uid = f"{uuid4()}@builderops"

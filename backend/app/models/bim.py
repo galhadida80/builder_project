@@ -10,6 +10,7 @@ from sqlalchemy.dialects.postgresql import JSON, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.session import Base
+from app.utils import utcnow
 
 
 class TranslationStatus(str, enum.Enum):
@@ -32,8 +33,8 @@ class BimModel(Base):
     translation_progress: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     metadata_json: Mapped[Optional[Any]] = mapped_column("metadata", JSON, nullable=True)
     uploaded_by_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow())
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow(), onupdate=lambda: utcnow())
 
     project = relationship("Project", foreign_keys=[project_id])
     uploaded_by = relationship("User", foreign_keys=[uploaded_by_id])
@@ -48,7 +49,7 @@ class AutodeskConnection(Base):
     refresh_token: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     token_expires_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     acc_account_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow())
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow(), onupdate=lambda: utcnow())
 
     user = relationship("User", foreign_keys=[user_id])

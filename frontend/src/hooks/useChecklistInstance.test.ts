@@ -185,7 +185,7 @@ describe('useChecklistInstance', () => {
     const file = new File(['test'], 'test.jpg', { type: 'image/jpeg' })
     const storagePath = await result.current.uploadFile('project-1', file)
 
-    expect(storagePath).toBe('uploads/test.jpg')
+    expect(storagePath).toBe('file-1')
     expect(checklistsApi.uploadFile).toHaveBeenCalledWith('project-1', file)
   })
 

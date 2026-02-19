@@ -12,6 +12,7 @@ from app.models.defect import Defect
 from app.models.file import File
 from app.models.project import Project
 from app.services.storage_service import StorageBackend
+from app.utils import utcnow
 
 logger = logging.getLogger(__name__)
 
@@ -185,7 +186,7 @@ async def generate_defects_report_pdf(
     storage: StorageBackend,
 ) -> bytes:
     s = STRINGS
-    today = datetime.now(timezone.utc).strftime("%d/%m/%Y")
+    today = utcnow().strftime("%d/%m/%Y")
 
     defect_ids = [d.id for d in defects]
     photos_map = await load_defect_photos(db, storage, defect_ids)

@@ -9,6 +9,7 @@ from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.session import Base
+from app.utils import utcnow
 
 
 class ChatConversation(Base):
@@ -22,8 +23,8 @@ class ChatConversation(Base):
     project_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("projects.id", ondelete="CASCADE"))
     user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"))
     title: Mapped[Optional[str]] = mapped_column(String(255))
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow())
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow(), onupdate=lambda: utcnow())
 
     messages: Mapped[list["ChatMessage"]] = relationship(
         "ChatMessage", back_populates="conversation", cascade="all, delete-orphan", order_by="ChatMessage.created_at"
@@ -42,6 +43,6 @@ class ChatMessage(Base):
     content: Mapped[Optional[str]] = mapped_column(Text)
     tool_calls: Mapped[Optional[list]] = mapped_column(JSONB)
     tool_results: Mapped[Optional[list]] = mapped_column(JSONB)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow())
 
     conversation: Mapped["ChatConversation"] = relationship("ChatConversation", back_populates="messages")

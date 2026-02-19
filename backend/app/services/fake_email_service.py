@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Optional
 
 from app.config import get_settings
+from app.utils import utcnow
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +45,7 @@ class FakeEmailService:
             'attachments_count': len(attachments) if attachments else 0,
             'in_reply_to': in_reply_to,
             'references': references,
-            'sent_at': datetime.now(timezone.utc).isoformat(),
+            'sent_at': utcnow().isoformat(),
             'status': 'sent'
         }
 
@@ -83,7 +84,7 @@ class FakeEmailService:
             'subject': subject,
             'body_html': body_html,
             'body_text': body_text,
-            'sent_at': datetime.now(timezone.utc).isoformat(),
+            'sent_at': utcnow().isoformat(),
             'status': 'sent'
         }
 
@@ -104,7 +105,7 @@ class FakeEmailService:
         }
 
     def _save_email_to_file(self, email_data: dict):
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')
+        timestamp = utcnow().strftime('%Y%m%d_%H%M%S')
         filename = f"{timestamp}_{email_data['message_id'].split('@')[0]}.json"
         filepath = self.email_log_dir / filename
 

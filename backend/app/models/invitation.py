@@ -10,6 +10,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.session import Base
+from app.utils import utcnow
 
 
 class InvitationStatus(str, Enum):
@@ -36,10 +37,10 @@ class ProjectInvitation(Base):
         UUID(as_uuid=True), ForeignKey("users.id"), nullable=False
     )
     expires_at: Mapped[datetime] = mapped_column(
-        DateTime, default=lambda: datetime.now(timezone.utc) + timedelta(days=7)
+        DateTime, default=lambda: utcnow() + timedelta(days=7)
     )
     accepted_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow())
 
     project = relationship("Project")
     invited_by = relationship("User", foreign_keys=[invited_by_id])

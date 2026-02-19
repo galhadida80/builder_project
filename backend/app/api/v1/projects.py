@@ -35,6 +35,7 @@ from app.schemas.project_overview import (
     TimelineEvent,
 )
 from app.services.audit_service import create_audit_log, get_model_dict
+from app.utils import utcnow
 
 router = APIRouter()
 
@@ -290,9 +291,9 @@ async def get_project_overview(
     days_elapsed = None
     days_remaining = None
     if project.start_date:
-        days_elapsed = (datetime.now(timezone.utc).date() - project.start_date).days
+        days_elapsed = (utcnow().date() - project.start_date).days
     if project.estimated_end_date:
-        days_remaining = (project.estimated_end_date - datetime.now(timezone.utc).date()).days
+        days_remaining = (project.estimated_end_date - utcnow().date()).days
 
     stats = ProjectStats(
         total_inspections=inspections_data.total,
@@ -314,7 +315,7 @@ async def get_project_overview(
         timeline=timeline,
         team_stats=team_stats,
         stats=stats,
-        last_updated=datetime.now(timezone.utc)
+        last_updated=utcnow()
     )
 
 

@@ -10,6 +10,7 @@ from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.session import Base
+from app.utils import utcnow
 
 if TYPE_CHECKING:
     from app.models.equipment import Equipment
@@ -105,9 +106,9 @@ class RFI(Base):
 
     attachments: Mapped[Optional[list]] = mapped_column(JSONB, default=list)
 
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow())
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc)
+        DateTime, default=lambda: utcnow(), onupdate=lambda: utcnow()
     )
     sent_at: Mapped[Optional[datetime]] = mapped_column(DateTime)
 
@@ -165,7 +166,7 @@ class RFIResponse(Base):
     is_cc_participant: Mapped[bool] = mapped_column(Boolean, default=False)
     source: Mapped[str] = mapped_column(String(50), default="email")
 
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow())
     received_at: Mapped[Optional[datetime]] = mapped_column(DateTime)
 
     rfi: Mapped["RFI"] = relationship("RFI", back_populates="responses")
@@ -197,6 +198,6 @@ class RFIEmailLog(Base):
     raw_payload: Mapped[Optional[dict]] = mapped_column(JSONB)
     error_message: Mapped[Optional[str]] = mapped_column(Text)
 
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow())
 
     rfi: Mapped[Optional["RFI"]] = relationship("RFI", back_populates="email_logs")

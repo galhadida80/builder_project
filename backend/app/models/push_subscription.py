@@ -8,6 +8,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.session import Base
+from app.utils import utcnow
 
 
 class PushSubscription(Base):
@@ -18,6 +19,6 @@ class PushSubscription(Base):
     endpoint: Mapped[str] = mapped_column(String(500), nullable=False)
     p256dh_key: Mapped[str] = mapped_column(String(255), nullable=False)
     auth_key: Mapped[str] = mapped_column(String(255), nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow())
 
     user = relationship("User", foreign_keys=[user_id])

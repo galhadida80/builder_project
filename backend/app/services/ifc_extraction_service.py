@@ -6,6 +6,7 @@ from typing import Any, Optional
 import ifcopenshell
 
 from app.services.storage_service import StorageBackend
+from app.utils import utcnow
 
 
 IFC_EQUIPMENT_TYPES = {
@@ -186,7 +187,7 @@ def parse_ifc_file(file_bytes: bytes) -> dict[str, Any]:
     total = len(areas) + len(equipment_items) + len(material_items)
 
     return {
-        "extracted_at": datetime.now(timezone.utc).isoformat(),
+        "extracted_at": utcnow().isoformat(),
         "areas": areas,
         "equipment": equipment_items,
         "materials": material_items,
