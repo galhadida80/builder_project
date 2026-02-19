@@ -60,7 +60,7 @@ def get_rate_limiter() -> Limiter:
         key_func=get_client_identifier,
         storage_uri=storage_uri,
         enabled=settings.rate_limit_enabled,
-        headers_enabled=True,
+        headers_enabled=False,
     )
 
     logger.info(

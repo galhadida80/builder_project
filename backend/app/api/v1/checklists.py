@@ -1,5 +1,6 @@
 import logging
 import weasyprint
+from urllib.parse import quote
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -708,7 +709,7 @@ async def export_checklist_pdf(
         sections.append({
             "order": sub.order,
             "name": sub.name,
-            "items": items_data,
+            "check_items": items_data,
             "completed": section_completed,
             "total": len(sub.items),
         })
@@ -728,10 +729,11 @@ async def export_checklist_pdf(
     pdf_bytes = weasyprint.HTML(string=html).write_pdf()
 
     filename = f"checklist_{instance.unit_identifier}_{instance.created_at.strftime('%Y%m%d')}.pdf"
+    encoded_filename = quote(filename)
     return Response(
         content=pdf_bytes,
         media_type="application/pdf",
-        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+        headers={"Content-Disposition": f"attachment; filename*=UTF-8''{encoded_filename}"},
     )
 
 
