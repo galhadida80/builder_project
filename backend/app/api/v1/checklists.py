@@ -43,7 +43,7 @@ from app.schemas.checklist import (
 from app.services.audit_service import create_audit_log, get_model_dict
 from app.services.email_renderer import render_checklist_email, render_checklist_pdf_html
 from app.services.email_service import EmailService
-from app.services.notification_service import notify_project_admins, notify_user
+from app.services.notification_service import notify_project_admins
 
 router = APIRouter()
 

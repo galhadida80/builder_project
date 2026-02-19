@@ -1,7 +1,7 @@
 import logging
 import uuid
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime
 
 from pydantic_ai import Agent, RunContext
 from pydantic_ai.messages import ModelMessagesTypeAdapter

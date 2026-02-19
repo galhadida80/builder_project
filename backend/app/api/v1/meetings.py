@@ -1,7 +1,6 @@
 import html as html_mod
 import logging
 import uuid as uuid_mod
-from datetime import datetime, timezone
 from uuid import UUID
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, Request

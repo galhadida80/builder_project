@@ -1,6 +1,5 @@
 import base64
 import logging
-from datetime import datetime, timezone
 from uuid import UUID
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape

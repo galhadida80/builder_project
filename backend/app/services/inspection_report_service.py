@@ -1,5 +1,4 @@
 import os
-from datetime import datetime, timezone
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from weasyprint import HTML

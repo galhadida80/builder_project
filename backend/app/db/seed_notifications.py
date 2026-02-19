@@ -3,7 +3,7 @@ Seed script to populate sample notifications for testing.
 Run with: python app/db/seed_notifications.py
 """
 import asyncio
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta
 
 from sqlalchemy import select
 

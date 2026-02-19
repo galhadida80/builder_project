@@ -13,7 +13,6 @@ from app.models.user import User
 from app.schemas.area import (
     AreaChecklistAssignmentCreate,
     AreaChecklistAssignmentResponse,
-    AreaResponse,
     BulkAreaCreate,
     BulkAreaCreateResponse,
 )
