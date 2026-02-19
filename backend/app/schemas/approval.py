@@ -34,8 +34,8 @@ class ApprovalStepResponse(CamelCaseModel):
     id: UUID
     approval_request_id: UUID
     step_order: int
-    approver_id: Optional[UUID] = None
-    approver: Optional[UserResponse] = None
+    approved_by_id: Optional[UUID] = None
+    approved_by: Optional[UserResponse] = None
     approver_role: Optional[str] = None
     contact_id: Optional[UUID] = None
     status: str

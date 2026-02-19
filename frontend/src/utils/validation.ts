@@ -82,7 +82,7 @@ export const validateNumberRange = (value: number | undefined | null, min: numbe
 export const validateCode = (value: string | undefined | null, fieldName: string): string | null => {
   if (!value) return null
   const trimmed = value.trim()
-  if (!/^[A-Za-z0-9][A-Za-z0-9\-_]*[A-Za-z0-9]?$/.test(trimmed)) {
+  if (!/^[A-Za-z0-9]([A-Za-z0-9\-_]*[A-Za-z0-9])?$/.test(trimmed)) {
     return i18next.t('validation.codeFormat', { defaultValue: `${fieldName} must contain only letters, numbers, hyphens, and underscores` })
   }
   return null
@@ -91,7 +91,7 @@ export const validateCode = (value: string | undefined | null, fieldName: string
 export const validateSerialNumber = (value: string | undefined | null, fieldName: string): string | null => {
   if (!value) return null
   const trimmed = value.trim()
-  if (!/^[A-Za-z0-9][A-Za-z0-9\-_]*[A-Za-z0-9]?$/.test(trimmed)) {
+  if (!/^[A-Za-z0-9]([A-Za-z0-9\-_]*[A-Za-z0-9])?$/.test(trimmed)) {
     return i18next.t('validation.codeFormat', { defaultValue: `${fieldName} must contain only letters, numbers, hyphens, and underscores` })
   }
   return null

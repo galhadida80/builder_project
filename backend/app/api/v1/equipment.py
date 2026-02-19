@@ -257,8 +257,16 @@ async def submit_equipment_for_approval(
     if steps:
         db.add_all(steps)
 
-    consultant_result = await db.execute(select(Contact).where(Contact.id == body.consultant_contact_id))
-    consultant = consultant_result.scalar_one_or_none()
+    if body.consultant_contact_id:
+        consultant_result = await db.execute(select(Contact).where(Contact.id == body.consultant_contact_id))
+        consultant = consultant_result.scalar_one_or_none()
+    else:
+        consultant = None
+    if body.inspector_contact_id:
+        inspector_result = await db.execute(select(Contact).where(Contact.id == body.inspector_contact_id))
+        inspector = inspector_result.scalar_one_or_none()
+    else:
+        inspector = None
     if consultant:
         language = get_language_from_request(request)
         if language == "he":
@@ -269,6 +277,19 @@ async def submit_equipment_for_approval(
             notif_body = f"Equipment '{equipment.name}' has been submitted and requires your review."
         await notify_contact(
             db, consultant, "approval",
+            notif_title, notif_body,
+            entity_type="equipment", entity_id=equipment.id,
+        )
+    if inspector:
+        language = get_language_from_request(request)
+        if language == "he":
+            notif_title = f"ציוד ממתין לבדיקתך: {equipment.name}"
+            notif_body = f"ציוד '{equipment.name}' הוגש ודורש את בדיקתך."
+        else:
+            notif_title = f"Equipment awaiting your inspection: {equipment.name}"
+            notif_body = f"Equipment '{equipment.name}' has been submitted and requires your inspection."
+        await notify_contact(
+            db, inspector, "approval",
             notif_title, notif_body,
             entity_type="equipment", entity_id=equipment.id,
         )

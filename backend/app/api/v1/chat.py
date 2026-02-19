@@ -115,6 +115,7 @@ async def execute_chat_action(
         if "error" in exec_result:
             action.status = "failed"
             action.result = exec_result
+            await db.commit()
             raise HTTPException(status_code=400, detail=exec_result["error"])
         action.status = "executed"
         action.result = exec_result
@@ -126,6 +127,7 @@ async def execute_chat_action(
         logger.error(f"Action execution error: {e}", exc_info=True)
         action.status = "failed"
         action.result = {"error": str(e)}
+        await db.commit()
         raise HTTPException(status_code=500, detail="Action execution failed")
 
     await db.commit()

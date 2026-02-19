@@ -301,6 +301,7 @@ async def create_meeting(
             organizer_name,
             frontend_url,
         )
+        meeting.status = "invitations_sent"
 
     return meeting
 

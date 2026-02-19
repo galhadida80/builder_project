@@ -888,7 +888,20 @@ export default function MeetingsPage() {
                     <Button variant="secondary" fullWidth icon={<EventIcon />} onClick={() => window.open(calendarLinks.outlook_url, '_blank')}>
                       {t('meetings.calendar.outlook')}
                     </Button>
-                    <Button variant="secondary" fullWidth icon={<DownloadIcon />} onClick={() => window.open(calendarLinks.ics_download_url, '_blank')}>
+                    <Button variant="secondary" fullWidth icon={<DownloadIcon />} onClick={async () => {
+                      try {
+                        const res = await fetch(calendarLinks.ics_download_url, {
+                          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+                        })
+                        const blob = await res.blob()
+                        const url = URL.createObjectURL(blob)
+                        const a = document.createElement('a')
+                        a.href = url
+                        a.download = 'meeting.ics'
+                        a.click()
+                        URL.revokeObjectURL(url)
+                      } catch { /* ignore */ }
+                    }}>
                       {t('meetings.calendar.downloadIcs')}
                     </Button>
                   </Box>

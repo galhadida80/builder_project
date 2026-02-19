@@ -196,11 +196,11 @@ async def get_budget_summary(
 
     approved_co_result = await db.execute(
         select(
-            func.coalesce(func.sum(ChangeOrder.amount), 0).label("approved_co"),
+            func.count().label("approved_co"),
         )
         .where(ChangeOrder.project_id == project_id, ChangeOrder.status == "approved")
     )
-    approved_co = approved_co_result.scalar() or Decimal("0")
+    approved_co = approved_co_result.scalar() or 0
 
     total_budgeted = budget_row.total_budgeted
     total_actual = cost_row.total_actual

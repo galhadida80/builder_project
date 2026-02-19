@@ -112,7 +112,7 @@ async def get_checklist_template(
             selectinload(ChecklistTemplate.created_by),
             selectinload(ChecklistTemplate.subsections).selectinload(ChecklistSubSection.items),
         )
-        .where(ChecklistTemplate.id == template_id, ChecklistTemplate.project_id == project_id)
+        .where(ChecklistTemplate.id == template_id, or_(ChecklistTemplate.project_id == project_id, ChecklistTemplate.project_id.is_(None)))
     )
     checklist_template = result.scalar_one_or_none()
     if not checklist_template:
@@ -129,7 +129,10 @@ async def update_checklist_template(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    result = await db.execute(select(ChecklistTemplate).where(ChecklistTemplate.id == template_id))
+    result = await db.execute(select(ChecklistTemplate).where(
+        ChecklistTemplate.id == template_id,
+        or_(ChecklistTemplate.project_id == project_id, ChecklistTemplate.project_id.is_(None))
+    ))
     checklist_template = result.scalar_one_or_none()
     if not checklist_template:
         raise HTTPException(status_code=404, detail="Checklist template not found")
@@ -154,7 +157,10 @@ async def delete_checklist_template(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    result = await db.execute(select(ChecklistTemplate).where(ChecklistTemplate.id == template_id))
+    result = await db.execute(select(ChecklistTemplate).where(
+        ChecklistTemplate.id == template_id,
+        or_(ChecklistTemplate.project_id == project_id, ChecklistTemplate.project_id.is_(None))
+    ))
     checklist_template = result.scalar_one_or_none()
     if not checklist_template:
         raise HTTPException(status_code=404, detail="Checklist template not found")

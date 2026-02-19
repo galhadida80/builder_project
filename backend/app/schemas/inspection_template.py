@@ -20,7 +20,7 @@ class InspectionStageTemplateBase(BaseModel):
     name: str = Field(min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
     name_he: str = Field(min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
     description: str | None = Field(default=None, max_length=MAX_DESCRIPTION_LENGTH)
-    display_order: int = Field(ge=0)
+    stage_order: int = Field(ge=0)
 
     @field_validator('name', 'name_he', 'description', mode='before')
     @classmethod
@@ -37,7 +37,7 @@ class InspectionStageTemplateUpdate(BaseModel):
     name: str | None = Field(default=None, min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
     name_he: str | None = Field(default=None, min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
     description: str | None = Field(default=None, max_length=MAX_DESCRIPTION_LENGTH)
-    display_order: int | None = Field(default=None, ge=0)
+    stage_order: int | None = Field(default=None, ge=0)
 
     @field_validator('name', 'name_he', 'description', mode='before')
     @classmethod
@@ -52,6 +52,7 @@ class InspectionStageTemplateResponse(CamelCaseModel):
     name_he: str
     description: str | None = None
     stage_order: int
+    is_active: bool = True
     created_at: datetime
     updated_at: datetime
 

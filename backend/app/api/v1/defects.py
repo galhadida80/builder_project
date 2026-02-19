@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime, timezone
 from typing import Optional
 from uuid import UUID
@@ -206,7 +207,7 @@ async def analyze_defect_image_endpoint(
         raise HTTPException(status_code=400, detail="Image too large. Maximum 10MB.")
 
     try:
-        result = analyze_defect_image(content, file.content_type, language)
+        result = await asyncio.to_thread(analyze_defect_image, content, file.content_type, language)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Image analysis failed: {str(e)}")
 

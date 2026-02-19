@@ -149,12 +149,12 @@ export default function LoginPage() {
       await register(email, password, fullName, inviteToken || undefined)
       if (inviteToken) {
         try {
-          const result = await invitationsApi.accept(inviteToken)
-          if (result.projectId) {
-            navigate(`/projects/${result.projectId}/overview`)
+          const projects = await projectsApi.list()
+          if (projects.length > 0) {
+            navigate(`/projects/${projects[0].id}/overview`)
             return
           }
-        } catch { /* ignore invite accept errors */ }
+        } catch { /* ignore */ }
       }
       navigate('/projects?new=true')
     } catch (err: unknown) {

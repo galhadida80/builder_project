@@ -127,9 +127,14 @@ interface PageHeaderProps {
   subtitle?: string
 }
 
-export function PageHeader({ title, actions, subtitle }: PageHeaderProps) {
+export function PageHeader({ title, breadcrumbs, actions, subtitle }: PageHeaderProps) {
   return (
     <Box sx={{ mb: 3, maxWidth: '100%', overflow: 'hidden' }}>
+      {breadcrumbs && breadcrumbs.length > 0 && (
+        <Box sx={{ mb: 1 }}>
+          <Breadcrumbs items={breadcrumbs} />
+        </Box>
+      )}
       <Box sx={{
         display: 'flex',
         flexDirection: { xs: 'column', sm: 'row' },

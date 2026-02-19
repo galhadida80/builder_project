@@ -28,9 +28,14 @@ router = APIRouter()
 async def list_all_materials(
     project_id: Optional[UUID] = Query(None),
     status: Optional[str] = Query(None),
+    limit: int = Query(100, ge=1, le=1000),
+    offset: int = Query(0, ge=0),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    valid_statuses = {"draft", "submitted", "under_review", "approved", "rejected", "revision_requested"}
+    if status and status not in valid_statuses:
+        raise HTTPException(status_code=400, detail=f"Invalid status. Must be one of: {sorted(valid_statuses)}")
     user_project_ids = select(ProjectMember.project_id).where(ProjectMember.user_id == current_user.id)
     query = select(Material).options(
         selectinload(Material.created_by)
@@ -39,7 +44,7 @@ async def list_all_materials(
         query = query.where(Material.project_id == project_id)
     if status:
         query = query.where(Material.status == status)
-    result = await db.execute(query.order_by(Material.created_at.desc()))
+    result = await db.execute(query.order_by(Material.created_at.desc()).limit(limit).offset(offset))
     return result.scalars().all()
 
 
@@ -245,8 +250,16 @@ async def submit_material_for_approval(
     if steps:
         db.add_all(steps)
 
-    consultant_result = await db.execute(select(Contact).where(Contact.id == body.consultant_contact_id))
-    consultant = consultant_result.scalar_one_or_none()
+    if body.consultant_contact_id:
+        consultant_result = await db.execute(select(Contact).where(Contact.id == body.consultant_contact_id))
+        consultant = consultant_result.scalar_one_or_none()
+    else:
+        consultant = None
+    if body.inspector_contact_id:
+        inspector_result = await db.execute(select(Contact).where(Contact.id == body.inspector_contact_id))
+        inspector = inspector_result.scalar_one_or_none()
+    else:
+        inspector = None
     if consultant:
         language = get_language_from_request(request)
         if language == "he":
@@ -257,6 +270,19 @@ async def submit_material_for_approval(
             notif_body = f"Material '{material.name}' has been submitted and requires your review."
         await notify_contact(
             db, consultant, "approval",
+            notif_title, notif_body,
+            entity_type="material", entity_id=material.id,
+        )
+    if inspector:
+        language = get_language_from_request(request)
+        if language == "he":
+            notif_title = f"חומר ממתין לבדיקתך: {material.name}"
+            notif_body = f"חומר '{material.name}' הוגש ודורש את בדיקתך."
+        else:
+            notif_title = f"Material awaiting your inspection: {material.name}"
+            notif_body = f"Material '{material.name}' has been submitted and requires your inspection."
+        await notify_contact(
+            db, inspector, "approval",
             notif_title, notif_body,
             entity_type="material", entity_id=material.id,
         )
