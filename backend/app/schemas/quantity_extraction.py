@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import field_validator
 
 from app.core.validators import CamelCaseModel
 
@@ -9,6 +9,13 @@ class DoorWindow(CamelCaseModel):
     width_cm: int | None = None
     height_cm: int | None = None
     quantity: int = 1
+
+    @field_validator("quantity", mode="before")
+    @classmethod
+    def default_quantity(cls, v):
+        if v is None:
+            return 1
+        return v
 
 
 class RoomFinishes(CamelCaseModel):
