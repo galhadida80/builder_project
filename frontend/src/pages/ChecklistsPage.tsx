@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { getDateLocale } from '../utils/dateLocale'
@@ -45,6 +45,7 @@ import {
   Tab,
   Drawer,
   LinearProgress,
+  CircularProgress,
   TextField,
   Autocomplete,
 } from '@/mui'
@@ -60,7 +61,9 @@ export default function ChecklistsPage() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('templates')
   const [templates, setTemplates] = useState<ChecklistTemplate[]>([])
   const [instances, setInstances] = useState<ChecklistInstance[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
+  const [showSkeleton, setShowSkeleton] = useState(false)
+  const skeletonTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
@@ -88,11 +91,23 @@ export default function ChecklistsPage() {
 
   useEffect(() => {
     if (projectId) loadData()
+    return () => {
+      if (skeletonTimer.current) {
+        clearTimeout(skeletonTimer.current)
+        skeletonTimer.current = null
+      }
+    }
   }, [projectId])
 
   const loadData = async () => {
     if (!projectId) return
+    if (skeletonTimer.current) {
+      clearTimeout(skeletonTimer.current)
+      skeletonTimer.current = null
+    }
     setLoading(true)
+    setShowSkeleton(false)
+    skeletonTimer.current = setTimeout(() => setShowSkeleton(true), 300)
     try {
       const [tplData, instData] = await Promise.all([
         checklistsApi.getTemplates(projectId),
@@ -103,6 +118,11 @@ export default function ChecklistsPage() {
     } catch {
       showError(t('checklists.failedToLoad'))
     } finally {
+      if (skeletonTimer.current) {
+        clearTimeout(skeletonTimer.current)
+        skeletonTimer.current = null
+      }
+      setShowSkeleton(false)
       setLoading(false)
     }
   }
@@ -495,7 +515,7 @@ export default function ChecklistsPage() {
     },
   ]
 
-  if (loading) {
+  if (showSkeleton) {
     return (
       <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
         <Skeleton variant="text" width={350} height={48} sx={{ mb: 1 }} />
@@ -807,7 +827,7 @@ export default function ChecklistsPage() {
                       '&:hover': { bgcolor: 'action.selected' },
                     }}
                   >
-                    <PictureAsPdfIcon />
+                    {exportingPdf ? <CircularProgress size={24} /> : <PictureAsPdfIcon />}
                   </IconButton>
                   <IconButton
                     aria-label={t('common.close')}

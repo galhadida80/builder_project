@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { ChecklistSubSection, ChecklistItemTemplate, ChecklistItemResponse } from '../../types'
 import { ExpandMoreIcon, ExpandLessIcon, CheckCircleIcon, RadioButtonUncheckedIcon, CancelIcon } from '@/icons'
-import { Box, Typography, Collapse, LinearProgress, IconButton, Chip, ToggleButton, ToggleButtonGroup, TextField } from '@/mui'
+import { Box, Typography, Collapse, LinearProgress, CircularProgress, IconButton, Chip, ToggleButton, ToggleButtonGroup, TextField } from '@/mui'
 import { styled } from '@/mui'
 import { PhotoCapture } from './PhotoCapture'
 import { SignaturePad } from './SignaturePad'
@@ -273,7 +273,7 @@ export function ChecklistSection({
                         onChange={(_, val) => { if (val) handleStatusChange(item, val) }}
                         size="small"
                         disabled={savingResponse}
-                        sx={{ mb: 2, flexWrap: 'wrap', gap: 0.5, '& .MuiToggleButton-root': { borderRadius: '8px !important', border: '1px solid', borderColor: 'divider' } }}
+                        sx={{ mb: 1, flexWrap: 'wrap', gap: 0.5, '& .MuiToggleButton-root': { borderRadius: '8px !important', border: '1px solid', borderColor: 'divider' } }}
                       >
                         <ToggleButton value="approved" color="success" sx={{ textTransform: 'none', fontSize: '0.75rem', px: { xs: 1, sm: 1.5 } }}>
                           {t('checklists.statusApproved')}
@@ -288,6 +288,15 @@ export function ChecklistSection({
                           {t('checklists.statusPending')}
                         </ToggleButton>
                       </ToggleButtonGroup>
+
+                      {savingResponse && (
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                          <CircularProgress size={14} />
+                          <Typography variant="caption" color="text.secondary">
+                            {t('common.saving')}
+                          </Typography>
+                        </Box>
+                      )}
 
                       {/* Comment field - always visible */}
                       <TextField
