@@ -123,7 +123,7 @@ async def import_contacts_csv(
         db.add(contact)
         imported_count += 1
 
-    await db.flush()
+    await db.commit()
     return {"imported_count": imported_count}
 
 
@@ -203,6 +203,7 @@ async def update_contact(
     await create_audit_log(db, current_user, "contact", contact.id, AuditAction.UPDATE,
                           project_id=project_id, old_values=old_values, new_values=get_model_dict(contact))
 
+    await db.commit()
     return contact
 
 
@@ -228,4 +229,5 @@ async def delete_contact(
                           project_id=project_id, old_values=get_model_dict(contact))
 
     await db.delete(contact)
+    await db.commit()
     return {"message": "Contact deleted"}

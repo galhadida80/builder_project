@@ -15,9 +15,20 @@ const ProjectContext = createContext<ProjectContextType | undefined>(undefined)
 
 export function ProjectProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth()
-  const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>()
+  const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>(
+    () => localStorage.getItem('selectedProjectId') || undefined
+  )
   const [projects, setProjects] = useState<Project[]>([])
   const [projectsLoading, setProjectsLoading] = useState(true)
+
+  const handleSetSelectedProjectId = useCallback((id: string | undefined) => {
+    setSelectedProjectId(id)
+    if (id) {
+      localStorage.setItem('selectedProjectId', id)
+    } else {
+      localStorage.removeItem('selectedProjectId')
+    }
+  }, [])
 
   const refreshProjects = useCallback(async () => {
     if (!user) {
@@ -25,6 +36,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
       setProjectsLoading(false)
       return
     }
+    setProjectsLoading(true)
     try {
       const data = await projectsApi.list()
       setProjects(data)
@@ -41,11 +53,11 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo(() => ({
     selectedProjectId,
-    setSelectedProjectId,
+    setSelectedProjectId: handleSetSelectedProjectId,
     projects,
     projectsLoading,
     refreshProjects,
-  }), [selectedProjectId, projects, projectsLoading, refreshProjects])
+  }), [selectedProjectId, handleSetSelectedProjectId, projects, projectsLoading, refreshProjects])
 
   return (
     <ProjectContext.Provider value={value}>

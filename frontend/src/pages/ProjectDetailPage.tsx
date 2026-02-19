@@ -46,7 +46,7 @@ export default function ProjectDetailPage() {
   useEffect(() => {
     if (!projectId || projectId === loadedProjectId.current) return
     loadedProjectId.current = projectId
-    projectsApi.get(projectId).then(setProject).catch(() => null)
+    projectsApi.get(projectId).then(setProject).catch(() => { loadedProjectId.current = null })
   }, [projectId])
 
   useEffect(() => {

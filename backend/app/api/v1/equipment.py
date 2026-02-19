@@ -197,7 +197,9 @@ async def delete_equipment(
                           project_id=project_id, old_values=get_model_dict(equipment))
 
     await db.delete(equipment)
-    return {"message": "Equipment deleted"}
+    language = get_language_from_request(request)
+    msg = "ציוד נמחק בהצלחה" if language == "he" else "Equipment deleted"
+    return {"message": msg}
 
 
 @router.post("/projects/{project_id}/equipment/{equipment_id}/submit", response_model=EquipmentResponse)
@@ -218,6 +220,9 @@ async def submit_equipment_for_approval(
         language = get_language_from_request(request)
         error_message = translate_message('resources.equipment_not_found', language)
         raise HTTPException(status_code=404, detail=error_message)
+
+    if equipment.status != "draft":
+        raise HTTPException(status_code=400, detail="Only draft equipment can be submitted")
 
     old_status = equipment.status
     equipment.status = ApprovalStatus.SUBMITTED.value
@@ -245,10 +250,16 @@ async def submit_equipment_for_approval(
     consultant_result = await db.execute(select(Contact).where(Contact.id == body.consultant_contact_id))
     consultant = consultant_result.scalar_one_or_none()
     if consultant:
+        language = get_language_from_request(request)
+        if language == "he":
+            notif_title = f"ציוד ממתין לאישורך: {equipment.name}"
+            notif_body = f"ציוד '{equipment.name}' הוגש ודורש את בדיקתך."
+        else:
+            notif_title = f"Equipment awaiting your approval: {equipment.name}"
+            notif_body = f"Equipment '{equipment.name}' has been submitted and requires your review."
         await notify_contact(
             db, consultant, "approval",
-            f"Equipment awaiting your approval: {equipment.name}",
-            f"Equipment '{equipment.name}' has been submitted and requires your review.",
+            notif_title, notif_body,
             entity_type="equipment", entity_id=equipment.id,
         )
 

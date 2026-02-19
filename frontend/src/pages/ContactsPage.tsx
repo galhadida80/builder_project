@@ -612,10 +612,10 @@ export default function ContactsPage() {
                         </TableCell>
                         <TableCell align="center" onClick={(e) => e.stopPropagation()}>
                           <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center' }}>
-                            <IconButton size="small" aria-label={t('contacts.editGroup')} onClick={() => handleOpenGroupEdit(group)}>
+                            <IconButton size="small" aria-label={t('contactGroups.editGroup')} onClick={() => handleOpenGroupEdit(group)}>
                               <EditIcon fontSize="small" />
                             </IconButton>
-                            <IconButton size="small" aria-label={t('contacts.deleteGroup')} onClick={() => handleDeleteGroupClick(group)} color="error">
+                            <IconButton size="small" aria-label={t('contactGroups.deleteGroup')} onClick={() => handleDeleteGroupClick(group)} color="error">
                               <DeleteIcon fontSize="small" />
                             </IconButton>
                           </Box>

@@ -134,7 +134,7 @@ class BudgetSummaryResponse(CamelCaseModel):
     total_budgeted: Decimal
     total_actual: Decimal
     total_variance: Decimal
-    total_change_orders: Decimal
+    total_change_orders: int
     approved_change_orders: Decimal
     line_item_count: int
     cost_entry_count: int

@@ -40,7 +40,7 @@ class ApprovalStepResponse(CamelCaseModel):
     contact_id: Optional[UUID] = None
     status: str
     comments: Optional[str] = None
-    decided_at: Optional[datetime] = None
+    approved_at: Optional[datetime] = None
     created_at: Optional[datetime] = None
 
 

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 from uuid import UUID
 
@@ -103,7 +103,7 @@ async def get_pending_reminders(
     current_user: User = Depends(get_current_user)
 ):
     await verify_project_access(project_id, current_user, db)
-    cutoff = datetime.utcnow() - timedelta(days=days)
+    cutoff = datetime.now(timezone.utc) - timedelta(days=days)
     result = await db.execute(
         select(ApprovalRequest)
         .options(
@@ -121,7 +121,7 @@ async def get_pending_reminders(
         .order_by(ApprovalRequest.created_at.asc())
     )
     approvals = result.scalars().all()
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     return [
         PendingReminderResponse(
             id=approval.id,
@@ -268,6 +268,7 @@ async def process_approval_step(
         new_values={"status": step.status, "action": data.action, "comments": data.comments}
     )
 
+    await db.commit()
     await db.refresh(step, ["approved_by"])
     return step
 

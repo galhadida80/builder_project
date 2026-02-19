@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 from uuid import UUID
 
@@ -56,7 +56,8 @@ async def create_consultant_type(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Create a new inspection consultant type (admin-level, no project-specific permission check)"""
+    if not current_user.is_super_admin:
+        raise HTTPException(status_code=403, detail="Only super admins can create consultant types")
     consultant_type = InspectionConsultantType(**data.model_dump(exclude_unset=True))
     db.add(consultant_type)
     await db.flush()
@@ -193,7 +194,7 @@ async def get_inspection_summary(
             func.sum(case((Inspection.status == InspectionStatus.COMPLETED.value, 1), else_=0)).label('completed'),
             func.sum(case((Inspection.status == InspectionStatus.FAILED.value, 1), else_=0)).label('failed'),
             func.sum(case((
-                (Inspection.scheduled_date < datetime.utcnow()) &
+                (Inspection.scheduled_date < datetime.now(timezone.utc)) &
                 (Inspection.status != InspectionStatus.COMPLETED.value), 1
             ), else_=0)).label('overdue')
         )
@@ -276,7 +277,7 @@ async def export_inspections_pdf(
     inspections = list(result.scalars().all())
 
     pdf_bytes = generate_inspections_report_pdf(inspections, project)
-    filename = f"inspections_report_{project.code}_{datetime.utcnow().strftime('%Y%m%d')}.pdf"
+    filename = f"inspections_report_{project.code}_{datetime.now(timezone.utc).strftime('%Y%m%d')}.pdf"
     return Response(
         content=pdf_bytes,
         media_type="application/pdf",
@@ -402,7 +403,7 @@ async def complete_inspection(
 
     old_values = get_model_dict(inspection)
     inspection.status = InspectionStatus.COMPLETED.value
-    inspection.completed_date = datetime.utcnow()
+    inspection.completed_date = datetime.now(timezone.utc)
 
     await create_audit_log(db, current_user, "inspection", inspection.id, AuditAction.UPDATE,
                           project_id=project_id, old_values=old_values, new_values=get_model_dict(inspection))

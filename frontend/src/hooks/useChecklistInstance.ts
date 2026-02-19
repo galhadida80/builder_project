@@ -102,7 +102,7 @@ export const useChecklistInstance = (projectId: string | undefined, instanceId: 
     async (projectId: string, file: File): Promise<string> => {
       try {
         const fileAttachment = await checklistsApi.uploadFile(projectId, file)
-        return fileAttachment.storagePath
+        return fileAttachment.id
       } catch (err) {
         console.error('Failed to upload file:', err)
         throw new Error('Failed to upload file. Please try again.')

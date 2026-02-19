@@ -108,8 +108,6 @@ export default function TeamWorkloadView() {
         <KPICard
           title={t('teamWorkload.avgWorkload')}
           value={`${avgWorkload}%`}
-          trend={avgWorkload > 90 ? -5 : avgWorkload < 60 ? 10 : 0}
-          trendLabel={t('teamWorkload.vsLastWeek')}
           icon={<TrendingUpIcon />}
           color={avgWorkload > 90 ? 'error' : avgWorkload < 60 ? 'success' : 'warning'}
         />

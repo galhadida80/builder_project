@@ -43,7 +43,7 @@ export default function DefectDetailPage() {
 
   useEffect(() => {
     loadDetail()
-  }, [defectId])
+  }, [projectId, defectId])
 
   const loadDetail = async () => {
     if (!projectId || !defectId) return
@@ -87,10 +87,10 @@ export default function DefectDetailPage() {
     const previousStatus = defect.status
     setDefect({ ...defect, status: newStatus as Defect['status'] })
     setStatusDialogOpen(false)
-    showSuccess(t('defects.statusUpdated'))
     try {
       const updated = await defectsApi.update(projectId, defectId, { status: newStatus })
       setDefect(updated)
+      showSuccess(t('defects.statusUpdated'))
     } catch {
       setDefect(prev => prev ? { ...prev, status: previousStatus } : null)
       showError(t('defects.updateFailed'))

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, memo } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { getDateLocale } from '../../utils/dateLocale'
 import ChatMessage from './ChatMessage'
@@ -6,62 +6,8 @@ import ChatInput from './ChatInput'
 import { chatApi } from '../../api/chat'
 import type { ChatMessage as ChatMessageType, ChatAction, Conversation } from '../../api/chat'
 import { CloseIcon, ArrowBackIcon, AddIcon, HistoryIcon, DeleteOutlineIcon, SmartToyIcon } from '@/icons'
-import { Box, Drawer, Typography, IconButton, Chip, Stack, Divider, List, ListItemButton, ListItemText, styled, keyframes, useMediaQuery } from '@/mui'
+import { Box, Drawer, Typography, IconButton, Chip, Stack, Divider, List, ListItemButton, ListItemText, useMediaQuery } from '@/mui'
 import { useTheme } from '@/mui'
-
-const dotBounce = keyframes`
-  0%, 60%, 100% { transform: translateY(0); opacity: 0.3; }
-  30% { transform: translateY(-6px); opacity: 0.8; }
-`
-
-const Dot = styled('span')<{ delay: number }>(({ delay }) => ({
-  width: 8,
-  height: 8,
-  borderRadius: '50%',
-  backgroundColor: 'currentColor',
-  opacity: 0.5,
-  display: 'inline-block',
-  animation: `${dotBounce} 1.4s infinite`,
-  animationDelay: `${delay}s`,
-}))
-
-const TypingIndicator = memo(function TypingIndicator() {
-  return (
-    <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start', mb: 1.5 }}>
-      <Box
-        sx={{
-          width: 32,
-          height: 32,
-          borderRadius: '50%',
-          bgcolor: 'primary.main',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexShrink: 0,
-          mt: 0.5,
-        }}
-      >
-        <SmartToyIcon sx={{ fontSize: 18, color: 'white' }} />
-      </Box>
-      <Box
-        sx={{
-          px: 2,
-          py: 1.5,
-          borderRadius: '16px 16px 16px 4px',
-          bgcolor: 'action.hover',
-          display: 'flex',
-          gap: 0.5,
-          alignItems: 'center',
-          color: 'text.secondary',
-        }}
-      >
-        <Dot delay={0} />
-        <Dot delay={0.2} />
-        <Dot delay={0.4} />
-      </Box>
-    </Box>
-  )
-})
 
 const DRAWER_WIDTH = 420
 

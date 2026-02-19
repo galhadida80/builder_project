@@ -44,9 +44,6 @@ export default function DashboardPage() {
 
   useEffect(() => {
     loadDashboardData()
-  }, [selectedProjectId])
-
-  useEffect(() => {
     if (selectedProjectId) {
       loadDashboardStats()
     } else {
@@ -94,7 +91,8 @@ export default function DashboardPage() {
   }
 
   const pendingApprovals = approvals.filter(a => a.currentStatus !== 'approved' && a.currentStatus !== 'rejected')
-  const upcomingMeetings = meetings.filter(m => m.status === 'scheduled' || m.status === 'invitations_sent')
+  const sevenDaysFromNow = new Date(Date.now() + 7 * 86400000)
+  const upcomingMeetings = meetings.filter(m => (m.status === 'scheduled' || m.status === 'invitations_sent') && new Date(m.scheduledDate) <= sevenDaysFromNow)
   const equipmentPending = equipment.filter(e => e.status !== 'approved' && e.status !== 'draft')
   const materialsPending = materials.filter(m => m.status !== 'approved' && m.status !== 'draft')
   const completionRate = equipment.length > 0
@@ -111,7 +109,7 @@ export default function DashboardPage() {
       { label: t('nav.equipment'), values: dashboardStats.weeklyActivity.map(p => p.equipment) },
       { label: t('nav.materials'), values: dashboardStats.weeklyActivity.map(p => p.materials) },
       { label: t('nav.inspections'), values: dashboardStats.weeklyActivity.map(p => p.inspections) },
-      { label: 'RFIs', values: dashboardStats.weeklyActivity.map(p => p.rfis) },
+      { label: t('nav.rfis'), values: dashboardStats.weeklyActivity.map(p => p.rfis) },
     ]
     return { data, labels }
   }, [dashboardStats, dateLocale, t])
@@ -344,7 +342,9 @@ export default function DashboardPage() {
                   {pendingApprovals.slice(0, 5).map((approval, index) => {
                     const entity = approval.entityType === 'equipment'
                       ? equipment.find(e => e.id === approval.entityId)
-                      : materials.find(m => m.id === approval.entityId)
+                      : approval.entityType === 'material'
+                      ? materials.find(m => m.id === approval.entityId)
+                      : null
                     const completedSteps = approval.steps?.filter(s => s.status === 'approved').length || 0
                     const totalSteps = approval.steps?.length || 1
                     const progress = Math.round((completedSteps / totalSteps) * 100)
@@ -377,7 +377,7 @@ export default function DashboardPage() {
                           secondary={
                             <Box sx={{ mt: 1 }}>
                               <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-                                {t('dashboard.stepOfTotal', { current: completedSteps + 1, total: totalSteps })}
+                                {t('dashboard.stepOfTotal', { current: Math.min(completedSteps + 1, totalSteps), total: totalSteps })}
                               </Typography>
                               <ProgressBar value={progress} showValue={false} size="small" />
                             </Box>
@@ -740,7 +740,7 @@ export default function DashboardPage() {
               </Box>
               <Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                  <Typography variant="caption" color="text.secondary">{t('dashboard.inspectionsDone')}</Typography>
+                  <Typography variant="caption" color="text.secondary">{t('dashboard.materialsApproved')}</Typography>
                   <Typography variant="caption" fontWeight={600}>
                     {materials.length > 0 ? Math.round((materials.filter(m => m.status === 'approved').length / materials.length) * 100) : 0}%
                   </Typography>

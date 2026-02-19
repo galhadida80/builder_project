@@ -40,7 +40,7 @@ export const documentReviewsApi = {
     status: ReviewStatus
   ): Promise<DocumentReview> => {
     const response = await apiClient.patch(
-      `/projects/${projectId}/documents/${documentId}/review-status`,
+      `/projects/${projectId}/documents/${documentId}/review`,
       { status }
     )
     return response.data
@@ -78,7 +78,7 @@ export const documentReviewsApi = {
 
   // Toggle comment resolved status
   toggleResolveComment: async (commentId: string, resolved: boolean): Promise<Comment> => {
-    const response = await apiClient.patch(`/comments/${commentId}/resolve`, { is_resolved: resolved })
+    const response = await apiClient.put(`/comments/${commentId}`, { is_resolved: resolved })
     return response.data
   },
 }

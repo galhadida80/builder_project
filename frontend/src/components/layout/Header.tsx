@@ -50,7 +50,7 @@ export default memo(function Header({ user, currentProject, projects, onProjectC
         borderBottom: '1px solid',
         borderColor: 'divider',
         bgcolor: 'background.paper',
-        ml: { xs: 0, md: '260px' },
+        ms: { xs: 0, md: '260px' },
         width: { xs: '100%', md: 'calc(100% - 260px)' },
       }}
     >

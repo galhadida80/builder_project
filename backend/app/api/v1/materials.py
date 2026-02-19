@@ -190,7 +190,9 @@ async def delete_material(
                           project_id=project_id, old_values=get_model_dict(material))
 
     await db.delete(material)
-    return {"message": "Material deleted"}
+    language = get_language_from_request(request)
+    msg = "חומר נמחק בהצלחה" if language == "he" else "Material deleted"
+    return {"message": msg}
 
 
 @router.post("/projects/{project_id}/materials/{material_id}/submit", response_model=MaterialResponse)
@@ -211,6 +213,9 @@ async def submit_material_for_approval(
         language = get_language_from_request(request)
         error_message = translate_message('resources.material_not_found', language)
         raise HTTPException(status_code=404, detail=error_message)
+
+    if material.status != "draft":
+        raise HTTPException(status_code=400, detail="Only draft materials can be submitted")
 
     old_status = material.status
     material.status = ApprovalStatus.SUBMITTED.value
@@ -238,10 +243,16 @@ async def submit_material_for_approval(
     consultant_result = await db.execute(select(Contact).where(Contact.id == body.consultant_contact_id))
     consultant = consultant_result.scalar_one_or_none()
     if consultant:
+        language = get_language_from_request(request)
+        if language == "he":
+            notif_title = f"חומר ממתין לאישורך: {material.name}"
+            notif_body = f"חומר '{material.name}' הוגש ודורש את בדיקתך."
+        else:
+            notif_title = f"Material awaiting your approval: {material.name}"
+            notif_body = f"Material '{material.name}' has been submitted and requires your review."
         await notify_contact(
             db, consultant, "approval",
-            f"Material awaiting your approval: {material.name}",
-            f"Material '{material.name}' has been submitted and requires your review.",
+            notif_title, notif_body,
             entity_type="material", entity_id=material.id,
         )
 

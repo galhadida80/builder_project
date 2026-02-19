@@ -76,7 +76,21 @@ export default function ProjectOverviewPage() {
   const dateLocale = getDateLocale()
 
   useEffect(() => {
-    loadOverviewData()
+    const loadData = async () => {
+      if (!projectId) return
+
+      try {
+        setLoading(true)
+        const response = await apiClient.get(`/projects/${projectId}/overview`)
+        setOverviewData(response.data)
+      } catch (error) {
+        console.error('Failed to load project overview:', error)
+        showError(t('overview.failedToLoad'))
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadData()
   }, [projectId])
 
   const loadOverviewData = async () => {

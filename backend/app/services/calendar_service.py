@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from urllib.parse import quote
 
 
@@ -16,9 +16,9 @@ def generate_ical_event(meeting_data: dict) -> str:
         dt_start = scheduled_date
 
     dt_end = dt_start + timedelta(hours=1)
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
 
-    dt_format = "%Y%m%dT%H%M%SZ"
+    dt_format = "%Y%m%dT%H%M%S"
     lines = [
         "BEGIN:VCALENDAR",
         "VERSION:2.0",

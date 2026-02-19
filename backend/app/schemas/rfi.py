@@ -82,6 +82,29 @@ class RFIUpdate(BaseModel):
     def sanitize_text(cls, v: str | None) -> str | None:
         return sanitize_string(v)
 
+    @field_validator("category", mode="before")
+    @classmethod
+    def validate_category(cls, v: str | None) -> str | None:
+        if v is None:
+            return v
+        valid_categories = [
+            "design", "structural", "mep", "architectural",
+            "specifications", "schedule", "cost", "other"
+        ]
+        if v.lower() not in valid_categories:
+            return "other"
+        return v.lower()
+
+    @field_validator("priority", mode="before")
+    @classmethod
+    def validate_priority(cls, v: str | None) -> str | None:
+        if v is None:
+            return v
+        valid_priorities = ["low", "medium", "high", "urgent"]
+        if v.lower() not in valid_priorities:
+            return "medium"
+        return v.lower()
+
 
 class RFIStatusUpdate(BaseModel):
     status: str = Field(min_length=1, max_length=50)
@@ -108,7 +131,7 @@ class RFIResponseBase(BaseModel):
 
 
 class RFIResponseCreate(RFIResponseBase):
-    pass
+    is_internal: bool = False
 
 
 class RFIResponseSchema(BaseModel):

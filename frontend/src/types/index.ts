@@ -68,7 +68,7 @@ export interface Contact {
   contactType: string
   companyName?: string
   contactName: string
-  email: string
+  email?: string
   phone?: string
   roleDescription?: string
   isPrimary: boolean
@@ -410,6 +410,7 @@ export interface Folder {
   updatedAt: string
 }
 
+// Checklist types use snake_case intentionally because backend schemas use BaseModel (not CamelCaseModel)
 export interface ChecklistItemTemplate {
   id: string
   subsection_id: string

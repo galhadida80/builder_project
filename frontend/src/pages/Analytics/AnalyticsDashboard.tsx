@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import dayjs, { Dayjs } from 'dayjs'
 import { useTranslation } from 'react-i18next'
 import DateRangeSelector from './components/DateRangeSelector'
@@ -25,11 +25,7 @@ export default function AnalyticsDashboard() {
     equipmentStatus: DistributionData[]
   } | null>(null)
 
-  useEffect(() => {
-    loadAnalyticsData()
-  }, [startDate, endDate])
-
-  const loadAnalyticsData = async () => {
+  const loadAnalyticsData = useCallback(async () => {
     try {
       setLoading(true)
       const params = {
@@ -46,12 +42,16 @@ export default function AnalyticsDashboard() {
       setMetricsData(metrics)
       setTrendsData(trends)
       setDistributionsData(distributions)
-    } catch (error) {
+    } catch {
       showError(t('analytics.failedToLoad'))
     } finally {
       setLoading(false)
     }
-  }
+  }, [startDate, endDate, showError, t])
+
+  useEffect(() => {
+    loadAnalyticsData()
+  }, [loadAnalyticsData])
 
   const handleDateChange = (newStartDate: Dayjs | null, newEndDate: Dayjs | null) => {
     setStartDate(newStartDate)

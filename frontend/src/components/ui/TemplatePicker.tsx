@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { ReactElement } from 'react'
 import { SearchIcon, DescriptionIcon, SettingsIcon, ChecklistIcon, FoundationIcon, PlumbingIcon, ElectricalServicesIcon, AcUnitIcon, FireExtinguisherIcon, DoorFrontIcon, SecurityIcon, ElevatorIcon, SmartToyIcon, KitchenIcon, DeckIcon, WindowIcon, PersonIcon, FormatPaintIcon, InventoryIcon, WaterDropIcon, ThermostatIcon, SquareFootIcon, RoofingIcon, BathtubIcon, CableIcon, GridViewIcon, CategoryIcon } from '@/icons'
@@ -21,6 +21,7 @@ interface TemplatePickerProps<T extends TemplateBase> {
   onChange: (template: T | null) => void
   label: string
   placeholder: string
+  noOptionsText?: string
 }
 
 const CATEGORY_ICONS: Record<string, ReactElement> = {
@@ -83,7 +84,7 @@ function getCategoryColor(category: string | null): string {
   return CATEGORY_COLORS[category] || '#9E9E9E'
 }
 
-function formatCategory(category: string | null): string {
+function formatCategoryFallback(category: string | null): string {
   if (!category) return 'General'
   return category
     .split('_')
@@ -97,8 +98,20 @@ export default function TemplatePicker<T extends TemplateBase>({
   onChange,
   label,
   placeholder,
+  noOptionsText: noOptionsTextProp,
 }: TemplatePickerProps<T>) {
   const { t } = useTranslation()
+
+  const formatCategory = useCallback((category: string | null): string => {
+    if (!category) {
+      const key = 'templatePicker.categories.general'
+      const translated = t(key)
+      return translated !== key ? translated : 'General'
+    }
+    const key = `templatePicker.categories.${category}`
+    const translated = t(key)
+    return translated !== key ? translated : formatCategoryFallback(category)
+  }, [t])
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null)
 
   const categories = useMemo(() => {
@@ -269,7 +282,7 @@ export default function TemplatePicker<T extends TemplateBase>({
             <ul style={{ padding: 0 }}>{params.children}</ul>
           </li>
         )}
-        noOptionsText={t('materials.noMaterialsFound')}
+        noOptionsText={noOptionsTextProp || t('templatePicker.noResults')}
         sx={{
           '& .MuiAutocomplete-listbox': {
             maxHeight: 350,

@@ -1,6 +1,6 @@
 import logging
 import uuid as uuid_mod
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import UUID
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, Request
@@ -132,11 +132,6 @@ def send_meeting_vote_emails(
         return
 
     backend_url = settings.backend_base_url
-
-    attendee_map = {}
-    for vote in vote_records:
-        if vote.attendee:
-            attendee_map[vote.attendee_id] = vote
 
     for vote in vote_records:
         att = vote.attendee
@@ -315,7 +310,7 @@ async def get_meeting(
     meeting_id: UUID,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
-    request: Request = None
+    request: Request = None,
 ):
     await verify_project_access(project_id, current_user, db)
     result = await db.execute(
@@ -395,6 +390,15 @@ async def add_attendee(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    existing_result = await db.execute(
+        select(MeetingAttendee).where(
+            MeetingAttendee.meeting_id == meeting_id,
+            MeetingAttendee.user_id == data.user_id,
+        )
+    )
+    if existing_result.scalar_one_or_none():
+        raise HTTPException(status_code=409, detail="User is already an attendee")
+
     user_result = await db.execute(select(User).where(User.id == data.user_id))
     user = user_result.scalar_one_or_none()
 
@@ -456,7 +460,7 @@ async def rsvp_attendee(
         raise HTTPException(status_code=404, detail="Attendee not found")
 
     attendee.attendance_status = data.status
-    attendee.rsvp_responded_at = datetime.utcnow()
+    attendee.rsvp_responded_at = datetime.now(timezone.utc)
     await db.flush()
     await db.refresh(attendee, ["user"])
     return attendee
@@ -509,8 +513,8 @@ async def rsvp_by_token(
         raise HTTPException(status_code=404, detail="Invalid RSVP token")
 
     attendee.attendance_status = data.status
-    attendee.rsvp_responded_at = datetime.utcnow()
-    await db.commit()
+    attendee.rsvp_responded_at = datetime.now(timezone.utc)
+    await db.flush()
 
     meeting = attendee.meeting
     return RSVPInfoResponse(
@@ -565,7 +569,7 @@ async def vote_for_time_slot(
         chosen_slot.vote_count += 1
 
     vote.time_slot_id = slot
-    vote.voted_at = datetime.utcnow()
+    vote.voted_at = datetime.now(timezone.utc)
     await db.commit()
 
     slot_label = chosen_slot.proposed_start.strftime("%b %d, %Y at %H:%M")

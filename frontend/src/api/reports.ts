@@ -27,6 +27,14 @@ export const reportsApi = {
     return url
   },
 
+  exportCsv: async (projectId: string, reportType: string, dateFrom?: string, dateTo?: string): Promise<Blob> => {
+    const response = await apiClient.get(`/projects/${projectId}/reports/export`, {
+      params: { report_type: reportType, format: 'csv', date_from: dateFrom, date_to: dateTo },
+      responseType: 'blob',
+    })
+    return response.data
+  },
+
   getComplianceAudit: async (projectId: string, dateFrom: string, dateTo: string) => {
     const response = await apiClient.get(`/projects/${projectId}/reports/compliance-audit`, {
       params: { date_from: dateFrom, date_to: dateTo },

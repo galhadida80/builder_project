@@ -30,7 +30,7 @@ interface MeetingUpdate {
 }
 
 interface AttendeeCreate {
-  userId: string
+  user_id: string
   role?: string
 }
 

@@ -109,6 +109,11 @@ export function ReferenceDataProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (user) {
       loadAll()
+    } else {
+      setEquipmentTemplates([])
+      setMaterialTemplates([])
+      setConsultantTypes([])
+      Object.values(CACHE_KEYS).forEach(key => localStorage.removeItem(key))
     }
   }, [loadAll, user])
 

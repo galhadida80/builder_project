@@ -165,7 +165,7 @@ export default function ChecklistsPage() {
       const tpl = templates.find((t) => t.id === instance.template_id)
       if (!tpl) return { completed: 0, total: 0, percent: 0 }
       const total = tpl.subsections.reduce((s, sub) => s + sub.items.length, 0)
-      const completed = instance.responses.filter((r) => r.status !== 'pending').length
+      const completed = instance.responses.filter((r) => r.status === 'approved' || r.status === 'not_applicable').length
       return { completed, total, percent: total > 0 ? Math.round((completed / total) * 100) : 0 }
     },
     [templates]
@@ -234,14 +234,15 @@ export default function ChecklistsPage() {
   const handleStatusChange = async (item: ChecklistItemTemplate, status: string) => {
     if (!selectedInstance || !projectId || savingResponse) return
     setSavingResponse(true)
+    const isActiveItem = activeItemId === item.id
     try {
       const existingResponse = selectedInstance.responses.find((r) => r.item_template_id === item.id)
       let updatedResponse: ChecklistItemResponse
       if (existingResponse) {
         updatedResponse = await checklistsApi.updateResponse(selectedInstance.id, existingResponse.id, {
           status,
-          notes: itemNotes || undefined,
-          signature_url: itemSignature || undefined,
+          notes: isActiveItem ? (itemNotes || undefined) : (existingResponse.notes || undefined),
+          signature_url: isActiveItem ? (itemSignature || undefined) : (existingResponse.signature_url || undefined),
         })
         setSelectedInstance((prev) => {
           if (!prev) return prev
@@ -258,8 +259,8 @@ export default function ChecklistsPage() {
         updatedResponse = await checklistsApi.createResponse(selectedInstance.id, {
           item_template_id: item.id,
           status,
-          notes: itemNotes || undefined,
-          signature_url: itemSignature || undefined,
+          notes: isActiveItem ? (itemNotes || undefined) : undefined,
+          signature_url: isActiveItem ? (itemSignature || undefined) : undefined,
         })
         setSelectedInstance((prev) => {
           if (!prev) return prev

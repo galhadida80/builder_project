@@ -42,6 +42,8 @@ export default function OrganizationsPage() {
 
   const handleCreate = async () => {
     if (!formData.name.trim() || !formData.code.trim()) return
+    if (formData.name.length > 100 || formData.code.length > 20) return
+    if (!/^[A-Z0-9-]+$/.test(formData.code)) return
     setSaving(true)
     try {
       await withMinDuration(organizationsApi.create({
@@ -185,13 +187,16 @@ export default function OrganizationsPage() {
             required
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            inputProps={{ maxLength: 100 }}
           />
           <TextField
             fullWidth
             label={t('organizations.code', 'Code')}
             required
             value={formData.code}
-            onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
+            onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, '') })}
+            inputProps={{ maxLength: 20 }}
+            error={formData.code.length > 0 && !/^[A-Z0-9-]+$/.test(formData.code)}
             helperText={t('organizations.codeHint', 'Unique identifier (e.g., ACME-CORP)')}
           />
           <TextField

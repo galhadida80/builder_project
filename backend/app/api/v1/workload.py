@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Depends, Query
@@ -39,7 +39,7 @@ async def get_team_members(
                 workloadPercent=75,
                 assignedHours=30,
                 availableHours=40,
-                createdAt=datetime.utcnow().isoformat()
+                createdAt=datetime.now(timezone.utc).isoformat()
             )
             for member, user in rows
         ]
@@ -65,7 +65,7 @@ async def get_team_members(
                 workloadPercent=75,
                 assignedHours=30,
                 availableHours=40,
-                createdAt=datetime.utcnow().isoformat()
+                createdAt=datetime.now(timezone.utc).isoformat()
             )
             for member, user in rows
         ]
@@ -106,7 +106,7 @@ async def get_project_members(
             workloadPercent=75,
             assignedHours=30,
             availableHours=40,
-            createdAt=datetime.utcnow().isoformat()
+            createdAt=datetime.now(timezone.utc).isoformat()
         )
         for member, user in rows
     ]

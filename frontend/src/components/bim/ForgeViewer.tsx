@@ -65,6 +65,8 @@ export default function ForgeViewer({ urn, getToken }: ForgeViewerProps) {
   const { t } = useTranslation()
   const containerRef = useRef<HTMLDivElement>(null)
   const viewerRef = useRef<Autodesk.Viewing.GuiViewer3D | null>(null)
+  const getTokenRef = useRef(getToken)
+  getTokenRef.current = getToken
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -78,7 +80,7 @@ export default function ForgeViewer({ urn, getToken }: ForgeViewerProps) {
 
         if (cancelled || !containerRef.current) return
 
-        const token = await getToken()
+        const token = await getTokenRef.current()
 
         await new Promise<void>((resolve) => {
           window.Autodesk.Viewing.Initializer(
@@ -133,7 +135,7 @@ export default function ForgeViewer({ urn, getToken }: ForgeViewerProps) {
         viewerRef.current = null
       }
     }
-  }, [urn, getToken, t])
+  }, [urn, t])
 
   return (
     <Box sx={{ position: 'relative', width: '100%', height: 600, borderRadius: 2, overflow: 'hidden', bgcolor: 'grey.100' }}>

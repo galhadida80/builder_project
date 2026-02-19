@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Hero } from '../components/Hero'
@@ -69,7 +69,7 @@ export default function LandingPage() {
     { value: '3.2M', label: t('landing.stats.inspectionsCompleted') },
   ]
 
-  const TESTIMONIALS = [
+  const TESTIMONIALS = useMemo(() => [
     {
       quote: t('landing.testimonials.quote1'),
       name: t('landing.testimonials.name1'),
@@ -88,7 +88,7 @@ export default function LandingPage() {
       role: t('landing.testimonials.role3'),
       initials: 'MR',
     },
-  ]
+  ], [t])
 
   const trustLogos = [
     { name: 'Turner Construction', imageUrl: turnerLogo, alt: 'Turner Construction logo' },
@@ -323,7 +323,7 @@ export default function LandingPage() {
                   mb: 1.5,
                 }}
               >
-                Mobile
+                {t('landing.mobile')}
               </Typography>
               <Typography
                 variant="h3"

@@ -301,6 +301,7 @@ class RFIService:
         attachments: Optional[list[dict]] = None,
         send_email: bool = True,
         language: str = "en",
+        is_internal: bool = True,
     ) -> RFIResponse:
         result = await self.db.execute(
             select(RFI).options(selectinload(RFI.created_by)).where(RFI.id == rfi_id)
@@ -322,7 +323,7 @@ class RFIService:
             responder_id=user.id,
             attachments=attachments or [],
             source='crm',
-            is_internal=True
+            is_internal=is_internal
         )
         self.db.add(response)
 

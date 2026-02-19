@@ -155,7 +155,7 @@ export default function RFIDetailPage() {
 
   const formatFullDate = (date?: string) => {
     if (!date) return '-'
-    return new Date(date).toLocaleDateString(getDateLocale(), { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+    return new Date(date).toLocaleString(getDateLocale(), { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })
   }
 
   const getInitials = (name?: string, email?: string) => {
@@ -234,7 +234,7 @@ export default function RFIDetailPage() {
         {/* Details bar */}
         <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', ml: 7 }}>
           <Chip size="small" label={rfi.subject} sx={{ maxWidth: 300, fontWeight: 500 }} />
-          <Chip size="small" label={RFI_CATEGORY_OPTIONS.find(c => c.value === rfi.category)?.label || rfi.category} variant="outlined" />
+          <Chip size="small" label={RFI_CATEGORY_OPTIONS.find(c => c.value === rfi.category)?.labelKey ? t(RFI_CATEGORY_OPTIONS.find(c => c.value === rfi.category)!.labelKey) : rfi.category} variant="outlined" />
           {rfi.due_date && (
             <Chip size="small" icon={<ScheduleIcon />} label={formatDate(rfi.due_date)} variant="outlined" color={new Date(rfi.due_date) < new Date() ? 'error' : 'default'} />
           )}

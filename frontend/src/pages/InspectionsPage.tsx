@@ -56,8 +56,8 @@ export default function InspectionsPage() {
       ])
       setInspections(projectInspections)
       setSummary(inspSummary)
-    } catch (error) {
-      console.error('Failed to load inspections:', error)
+    } catch {
+      showError(t('inspections.failedToLoad'))
     } finally {
       setLoading(false)
     }
@@ -545,7 +545,7 @@ export default function InspectionsPage() {
           <TextField
             fullWidth
             label={t('inspections.scheduledDate')}
-            type="date"
+            type="datetime-local"
             InputLabelProps={{ shrink: true }}
             value={newInspection.scheduledDate}
             onChange={(e) => setNewInspection({ ...newInspection, scheduledDate: e.target.value })}

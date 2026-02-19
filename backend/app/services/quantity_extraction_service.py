@@ -1,4 +1,5 @@
 import json
+import re
 import time
 
 from google import genai
@@ -80,11 +81,15 @@ def extract_quantities(file_content: bytes, file_type: str, language: str = "he"
     response = client.models.generate_content(model=model_name, contents=contents)
     elapsed_ms = int((time.time() - start) * 1000)
 
-    text = response.text.strip()
-    if text.startswith("```"):
-        text = text.split("\n", 1)[1] if "\n" in text else text[3:]
-        if text.endswith("```"):
-            text = text[:-3].strip()
+    if not response.text:
+        raise ValueError("AI model returned no response")
 
-    result = json.loads(text)
+    text = response.text.strip()
+    text = re.sub(r"^```(?:json)?\s*\n?", "", text)
+    text = re.sub(r"\n?```\s*$", "", text).strip()
+
+    try:
+        result = json.loads(text)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Failed to parse AI response as JSON: {e}")
     return {"result": result, "processing_time_ms": elapsed_ms}

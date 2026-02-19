@@ -228,28 +228,28 @@ export const rfiApi = {
 }
 
 export const RFI_STATUS_OPTIONS = [
-  { value: 'draft', label: 'Draft', color: 'default' },
-  { value: 'open', label: 'Open', color: 'info' },
-  { value: 'waiting_response', label: 'Waiting Response', color: 'warning' },
-  { value: 'answered', label: 'Answered', color: 'success' },
-  { value: 'closed', label: 'Closed', color: 'default' },
-  { value: 'cancelled', label: 'Cancelled', color: 'error' },
+  { value: 'draft', labelKey: 'rfi.status.draft', color: 'default' },
+  { value: 'open', labelKey: 'rfi.status.open', color: 'info' },
+  { value: 'waiting_response', labelKey: 'rfi.status.waitingResponse', color: 'warning' },
+  { value: 'answered', labelKey: 'rfi.status.answered', color: 'success' },
+  { value: 'closed', labelKey: 'rfi.status.closed', color: 'default' },
+  { value: 'cancelled', labelKey: 'rfi.status.cancelled', color: 'error' },
 ] as const
 
 export const RFI_PRIORITY_OPTIONS = [
-  { value: 'low', label: 'Low', color: 'default' },
-  { value: 'medium', label: 'Medium', color: 'info' },
-  { value: 'high', label: 'High', color: 'warning' },
-  { value: 'urgent', label: 'Urgent', color: 'error' },
+  { value: 'low', labelKey: 'rfi.priority.low', color: 'default' },
+  { value: 'medium', labelKey: 'rfi.priority.medium', color: 'info' },
+  { value: 'high', labelKey: 'rfi.priority.high', color: 'warning' },
+  { value: 'urgent', labelKey: 'rfi.priority.urgent', color: 'error' },
 ] as const
 
 export const RFI_CATEGORY_OPTIONS = [
-  { value: 'design', label: 'Design' },
-  { value: 'structural', label: 'Structural' },
-  { value: 'mep', label: 'MEP' },
-  { value: 'architectural', label: 'Architectural' },
-  { value: 'specifications', label: 'Specifications' },
-  { value: 'schedule', label: 'Schedule' },
-  { value: 'cost', label: 'Cost' },
-  { value: 'other', label: 'Other' },
+  { value: 'design', labelKey: 'rfi.category.design' },
+  { value: 'structural', labelKey: 'rfi.category.structural' },
+  { value: 'mep', labelKey: 'rfi.category.mep' },
+  { value: 'architectural', labelKey: 'rfi.category.architectural' },
+  { value: 'specifications', labelKey: 'rfi.category.specifications' },
+  { value: 'schedule', labelKey: 'rfi.category.schedule' },
+  { value: 'cost', labelKey: 'rfi.category.cost' },
+  { value: 'other', labelKey: 'rfi.category.other' },
 ] as const

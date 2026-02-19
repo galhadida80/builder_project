@@ -8,12 +8,14 @@ import { ChecklistSection } from '../components/checklist/ChecklistSection'
 import { PhotoCapture } from '../components/checklist/PhotoCapture'
 import { SignaturePad } from '../components/checklist/SignaturePad'
 import { useChecklistInstance } from '../hooks/useChecklistInstance'
+import { checklistsApi } from '../api/checklists'
 import { inspectionsApi } from '../api/inspections'
 import type {
   ChecklistItemTemplate,
   ChecklistItemResponse,
   ChecklistItemResponseCreate,
   ChecklistItemResponseUpdate,
+  ChecklistTemplate,
 } from '../types'
 import { CheckCircleIcon, AssignmentIcon, ArrowBackIcon, SendIcon } from '@/icons'
 import { Box, Typography, LinearProgress, Skeleton, Alert, Snackbar, FormControlLabel, Radio, RadioGroup, styled } from '@/mui'
@@ -21,7 +23,7 @@ import { Box, Typography, LinearProgress, Skeleton, Alert, Snackbar, FormControl
 const MobileContainer = styled(Box)(({ theme }) => ({
   minHeight: '100dvh',
   backgroundColor: theme.palette.background.default,
-  paddingBottom: theme.spacing(10), // Space for fixed bottom bar
+  paddingBottom: theme.spacing(10),
 }))
 
 const Header = styled(Box)(({ theme }) => ({
@@ -63,6 +65,7 @@ export default function MobileChecklistPage() {
   const navigate = useNavigate()
   const { t } = useTranslation()
   const [checklistInstanceId, setChecklistInstanceId] = useState<string | undefined>(undefined)
+  const [template, setTemplate] = useState<ChecklistTemplate | null>(null)
   const { instance, loading, error, createResponse, updateResponse, uploadFile, refetch } =
     useChecklistInstance(projectId, checklistInstanceId)
 
@@ -72,27 +75,32 @@ export default function MobileChecklistPage() {
   const [submitting, setSubmitting] = useState(false)
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' })
 
-  // Item response form state
   const [itemStatus, setItemStatus] = useState<string>('pending')
   const [itemNotes, setItemNotes] = useState('')
   const [itemPhotos, setItemPhotos] = useState<File[]>([])
   const [itemPhotoUrls, setItemPhotoUrls] = useState<string[]>([])
   const [uploadingPhotos, setUploadingPhotos] = useState(false)
 
-  // Signature state
   const [signature, setSignature] = useState<string | null>(null)
 
-  // Load checklist instance for the inspection
   useEffect(() => {
     const loadChecklistInstance = async () => {
       if (!projectId || !inspectionId) return
-
       try {
-        // For now, we'll use the inspectionId as the checklistInstanceId
-        // In a real implementation, you might need to fetch this from an endpoint
-        setChecklistInstanceId(inspectionId)
-      } catch (err) {
-        console.error('Failed to load checklist instance:', err)
+        const instances = await checklistsApi.getInstances(projectId)
+        const match = instances.find(inst => inst.unit_identifier === inspectionId)
+        if (match) {
+          setChecklistInstanceId(match.id)
+          const tpl = await checklistsApi.getTemplate(match.template_id)
+          setTemplate(tpl)
+        } else {
+          setSnackbar({
+            open: true,
+            message: t('checklist.notFound', 'No checklist found for this inspection'),
+            severity: 'error',
+          })
+        }
+      } catch {
         setSnackbar({
           open: true,
           message: t('checklist.failedToLoad'),
@@ -102,19 +110,17 @@ export default function MobileChecklistPage() {
     }
 
     loadChecklistInstance()
-  }, [projectId, inspectionId])
+  }, [projectId, inspectionId, t])
 
-  // Calculate progress
+  const subsections = template?.subsections || []
+
   const calculateProgress = () => {
-    if (!instance?.responses) return { completed: 0, total: 0, percentage: 0 }
-
-    const template = instance as any
-    const subsections = template?.subsections || []
+    if (!instance?.responses || subsections.length === 0) return { completed: 0, total: 0, percentage: 0 }
 
     let totalItems = 0
     let completedItems = 0
 
-    subsections.forEach((section: any) => {
+    subsections.forEach((section) => {
       const items = section.items || []
       totalItems += items.length
 
@@ -133,11 +139,9 @@ export default function MobileChecklistPage() {
 
   const progress = calculateProgress()
 
-  // Handle item click
   const handleItemClick = (item: ChecklistItemTemplate) => {
     setSelectedItem(item)
 
-    // Load existing response if available
     const existingResponse = instance?.responses.find((r) => r.item_template_id === item.id)
     if (existingResponse) {
       setItemStatus(existingResponse.status || 'pending')
@@ -153,14 +157,12 @@ export default function MobileChecklistPage() {
     setItemModalOpen(true)
   }
 
-  // Handle save item response
   const handleSaveItemResponse = async () => {
     if (!selectedItem || !instance) return
 
     setUploadingPhotos(true)
 
     try {
-      // Upload photos first
       let uploadedUrls = [...itemPhotoUrls]
       if (itemPhotos.length > 0 && projectId) {
         const uploadPromises = itemPhotos.map((file) => uploadFile(projectId, file))
@@ -168,11 +170,9 @@ export default function MobileChecklistPage() {
         uploadedUrls = [...uploadedUrls, ...paths]
       }
 
-      // Check if response already exists
       const existingResponse = instance.responses.find((r) => r.item_template_id === selectedItem.id)
 
       if (existingResponse) {
-        // Update existing response
         const updateData: ChecklistItemResponseUpdate = {
           status: itemStatus,
           notes: itemNotes,
@@ -180,7 +180,6 @@ export default function MobileChecklistPage() {
         }
         await updateResponse(existingResponse.id, updateData)
       } else {
-        // Create new response
         const createData: ChecklistItemResponseCreate = {
           item_template_id: selectedItem.id,
           status: itemStatus,
@@ -192,17 +191,15 @@ export default function MobileChecklistPage() {
 
       setSnackbar({
         open: true,
-        message: 'Response saved successfully',
+        message: t('checklist.responseSaved', 'Response saved successfully'),
         severity: 'success',
       })
 
-      // Reset form
       setItemModalOpen(false)
       setSelectedItem(null)
       setItemPhotos([])
       setItemPhotoUrls([])
-    } catch (err) {
-      console.error('Failed to save response:', err)
+    } catch {
       setSnackbar({
         open: true,
         message: t('checklist.failedToSave'),
@@ -213,16 +210,12 @@ export default function MobileChecklistPage() {
     }
   }
 
-  // Handle submit checklist
   const handleSubmitChecklist = async () => {
     if (!instance || !projectId || !inspectionId) return
 
-    // Validate that all required items are completed
-    const template = instance as any
-    const subsections = template?.subsections || []
     const incompleteItems: string[] = []
 
-    subsections.forEach((section: any) => {
+    subsections.forEach((section) => {
       const items = section.items || []
       items.forEach((item: ChecklistItemTemplate) => {
         const response = instance.responses.find((r) => r.item_template_id === item.id)
@@ -230,27 +223,25 @@ export default function MobileChecklistPage() {
           incompleteItems.push(item.name)
         }
 
-        // Check for required fields
         if (response) {
           if (item.must_image && (!response.image_urls || response.image_urls.length === 0)) {
-            incompleteItems.push(`${item.name} (photo required)`)
+            incompleteItems.push(`${item.name} (${t('checklist.photoRequired', 'photo required')})`)
           }
           if (item.must_note && !response.notes) {
-            incompleteItems.push(`${item.name} (note required)`)
+            incompleteItems.push(`${item.name} (${t('checklist.noteRequired', 'note required')})`)
           }
         }
       })
     })
 
-    // Check for signature requirement
-    const hasSignatureRequirement = subsections.some((section: any) =>
+    const hasSignatureRequirement = subsections.some((section) =>
       section.items?.some((item: ChecklistItemTemplate) => item.must_signature)
     )
 
     if (hasSignatureRequirement && !signature) {
       setSnackbar({
         open: true,
-        message: 'Signature is required before submission',
+        message: t('checklist.signatureRequired', 'Signature is required before submission'),
         severity: 'error',
       })
       setSignatureModalOpen(true)
@@ -260,9 +251,7 @@ export default function MobileChecklistPage() {
     if (incompleteItems.length > 0) {
       setSnackbar({
         open: true,
-        message: `Please complete all required items: ${incompleteItems.slice(0, 3).join(', ')}${
-          incompleteItems.length > 3 ? '...' : ''
-        }`,
+        message: t('checklist.completeRequired', 'Please complete all required items'),
         severity: 'error',
       })
       return
@@ -271,21 +260,18 @@ export default function MobileChecklistPage() {
     setSubmitting(true)
 
     try {
-      // Complete the inspection
       await inspectionsApi.completeInspection(projectId, inspectionId)
 
       setSnackbar({
         open: true,
-        message: 'Checklist submitted successfully!',
+        message: t('checklist.submitSuccess', 'Checklist submitted successfully'),
         severity: 'success',
       })
 
-      // Navigate back after a short delay
       setTimeout(() => {
         navigate(`/projects/${projectId}/inspections`)
       }, 2000)
-    } catch (err) {
-      console.error('Failed to submit checklist:', err)
+    } catch {
       setSnackbar({
         open: true,
         message: t('checklist.failedToSubmit'),
@@ -296,7 +282,6 @@ export default function MobileChecklistPage() {
     }
   }
 
-  // Loading state
   if (loading) {
     return (
       <MobileContainer>
@@ -313,7 +298,6 @@ export default function MobileChecklistPage() {
     )
   }
 
-  // Error state
   if (error) {
     return (
       <MobileContainer>
@@ -323,7 +307,7 @@ export default function MobileChecklistPage() {
             icon={<ArrowBackIcon />}
             onClick={() => navigate(`/projects/${projectId}/inspections`)}
           >
-            Back
+            {t('common.back', 'Back')}
           </Button>
         </Header>
         <Content>
@@ -332,7 +316,7 @@ export default function MobileChecklistPage() {
           </Alert>
           <Box sx={{ mt: 2 }}>
             <Button variant="primary" onClick={refetch} fullWidth>
-              Retry
+              {t('common.retry', 'Retry')}
             </Button>
           </Box>
         </Content>
@@ -340,7 +324,6 @@ export default function MobileChecklistPage() {
     )
   }
 
-  // No instance state
   if (!instance) {
     return (
       <MobileContainer>
@@ -350,24 +333,20 @@ export default function MobileChecklistPage() {
             icon={<ArrowBackIcon />}
             onClick={() => navigate(`/projects/${projectId}/inspections`)}
           >
-            Back
+            {t('common.back', 'Back')}
           </Button>
         </Header>
         <Content>
           <Alert severity="warning" sx={{ borderRadius: 2 }}>
-            No checklist found for this inspection
+            {t('checklist.notFound', 'No checklist found for this inspection')}
           </Alert>
         </Content>
       </MobileContainer>
     )
   }
 
-  const template = instance as any
-  const subsections = template?.subsections || []
-
   return (
     <MobileContainer>
-      {/* Header */}
       <Header>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
           <Button
@@ -376,31 +355,29 @@ export default function MobileChecklistPage() {
             onClick={() => navigate(`/projects/${projectId}/inspections`)}
             size="small"
           >
-            Back
+            {t('common.back', 'Back')}
           </Button>
           <Box sx={{ flex: 1 }}>
             <Typography variant="h6" fontWeight={600}>
-              Inspection Checklist
+              {t('checklist.inspectionChecklist', 'Inspection Checklist')}
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              {template?.name || 'Checklist'}
+              {template?.name || t('checklist.checklist', 'Checklist')}
             </Typography>
           </Box>
         </Box>
       </Header>
 
-      {/* Content */}
       <Content>
-        {/* Progress */}
         <ProgressContainer>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
             <AssignmentIcon color="primary" />
             <Box sx={{ flex: 1 }}>
               <Typography variant="subtitle2" fontWeight={600}>
-                Overall Progress
+                {t('checklist.overallProgress', 'Overall Progress')}
               </Typography>
               <Typography variant="caption" color="text.secondary">
-                {progress.completed} of {progress.total} items completed
+                {t('checklist.itemsCompleted', '{{completed}} of {{total}} items completed', { completed: progress.completed, total: progress.total })}
               </Typography>
             </Box>
             <Typography variant="h6" fontWeight={600} color="primary">
@@ -422,8 +399,7 @@ export default function MobileChecklistPage() {
           />
         </ProgressContainer>
 
-        {/* Sections */}
-        {subsections.map((section: any) => (
+        {subsections.map((section) => (
           <ChecklistSection
             key={section.id}
             section={section}
@@ -433,8 +409,7 @@ export default function MobileChecklistPage() {
           />
         ))}
 
-        {/* Signature Section */}
-        {subsections.some((section: any) =>
+        {subsections.some((section) =>
           section.items?.some((item: ChecklistItemTemplate) => item.must_signature)
         ) && (
           <Box sx={{ mt: 3 }}>
@@ -444,13 +419,12 @@ export default function MobileChecklistPage() {
               fullWidth
               icon={signature ? <CheckCircleIcon /> : undefined}
             >
-              {signature ? 'Signature Captured' : 'Add Signature'}
+              {signature ? t('checklist.signatureCaptured', 'Signature Captured') : t('checklist.addSignature', 'Add Signature')}
             </Button>
           </Box>
         )}
       </Content>
 
-      {/* Bottom Bar */}
       <BottomBar>
         <Button
           variant="primary"
@@ -461,28 +435,27 @@ export default function MobileChecklistPage() {
           fullWidth
           size="large"
         >
-          Submit Checklist
+          {t('checklist.submitChecklist', 'Submit Checklist')}
         </Button>
         {progress.percentage < 100 && (
           <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center', mt: 1 }}>
-            Complete all items to submit
+            {t('checklist.completeAllItems', 'Complete all items to submit')}
           </Typography>
         )}
       </BottomBar>
 
-      {/* Item Response Modal */}
       <Modal
         open={itemModalOpen}
         onClose={() => setItemModalOpen(false)}
-        title={selectedItem?.name || 'Item Response'}
+        title={selectedItem?.name || t('checklist.itemResponse', 'Item Response')}
         maxWidth="sm"
         actions={
           <>
             <Button variant="secondary" onClick={() => setItemModalOpen(false)}>
-              Cancel
+              {t('common.cancel', 'Cancel')}
             </Button>
             <Button variant="primary" onClick={handleSaveItemResponse} loading={uploadingPhotos}>
-              Save
+              {t('common.save', 'Save')}
             </Button>
           </>
         }
@@ -494,23 +467,21 @@ export default function MobileChecklistPage() {
             </Alert>
           )}
 
-          {/* Status Selection */}
           <Box>
             <Typography variant="subtitle2" fontWeight="medium" gutterBottom>
-              Status *
+              {t('common.status')} *
             </Typography>
             <RadioGroup value={itemStatus} onChange={(e) => setItemStatus(e.target.value)}>
-              <FormControlLabel value="approved" control={<Radio />} label="Approved" />
-              <FormControlLabel value="rejected" control={<Radio />} label="Rejected" />
-              <FormControlLabel value="not_applicable" control={<Radio />} label="N/A" />
+              <FormControlLabel value="approved" control={<Radio />} label={t('checklist.statusApproved', 'Approved')} />
+              <FormControlLabel value="rejected" control={<Radio />} label={t('checklist.statusRejected', 'Rejected')} />
+              <FormControlLabel value="not_applicable" control={<Radio />} label={t('checklist.statusNA', 'N/A')} />
             </RadioGroup>
           </Box>
 
-          {/* Notes */}
           <Box>
             <TextField
               fullWidth
-              label={selectedItem?.must_note ? 'Notes *' : 'Notes'}
+              label={selectedItem?.must_note ? `${t('common.notes', 'Notes')} *` : t('common.notes', 'Notes')}
               multiline
               rows={3}
               value={itemNotes}
@@ -519,11 +490,10 @@ export default function MobileChecklistPage() {
             />
           </Box>
 
-          {/* Photo Capture */}
           {selectedItem?.must_image && (
             <Box>
               <Typography variant="subtitle2" fontWeight="medium" gutterBottom>
-                Photos {selectedItem.must_image && '*'}
+                {t('checklist.photos', 'Photos')} {selectedItem.must_image && '*'}
               </Typography>
               <PhotoCapture
                 maxPhotos={5}
@@ -535,16 +505,15 @@ export default function MobileChecklistPage() {
         </Box>
       </Modal>
 
-      {/* Signature Modal */}
       <Modal
         open={signatureModalOpen}
         onClose={() => setSignatureModalOpen(false)}
-        title="Inspector Signature"
+        title={t('checklist.inspectorSignature', 'Inspector Signature')}
         maxWidth="sm"
         actions={
           <>
             <Button variant="secondary" onClick={() => setSignatureModalOpen(false)}>
-              Cancel
+              {t('common.cancel', 'Cancel')}
             </Button>
             <Button
               variant="primary"
@@ -552,30 +521,29 @@ export default function MobileChecklistPage() {
                 setSignatureModalOpen(false)
                 setSnackbar({
                   open: true,
-                  message: 'Signature saved',
+                  message: t('checklist.signatureSaved', 'Signature saved'),
                   severity: 'success',
                 })
               }}
               disabled={!signature}
             >
-              Save Signature
+              {t('checklist.saveSignature', 'Save Signature')}
             </Button>
           </>
         }
       >
         <Box>
           <Alert severity="info" sx={{ mb: 3, borderRadius: 2 }}>
-            Please sign below to certify that you have completed this inspection checklist
+            {t('checklist.signatureInstructions', 'Please sign below to certify that you have completed this inspection checklist')}
           </Alert>
           <SignaturePad
             onSignatureChange={setSignature}
             required={true}
-            label="Inspector Signature"
+            label={t('checklist.inspectorSignature', 'Inspector Signature')}
           />
         </Box>
       </Modal>
 
-      {/* Snackbar */}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={4000}

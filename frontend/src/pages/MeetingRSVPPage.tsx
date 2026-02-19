@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { meetingsApi } from '../api/meetings'
+import { getDateLocale } from '../utils/dateLocale'
 import { Box, Typography, CircularProgress } from '@/mui'
 import { Button } from '../components/ui/Button'
 import { Card } from '../components/ui/Card'
@@ -38,7 +39,7 @@ export default function MeetingRSVPPage() {
       setInfo(data)
 
       const action = searchParams.get('action')
-      if (action && ['accepted', 'declined', 'tentative'].includes(action)) {
+      if (action && ['accepted', 'declined', 'tentative'].includes(action) && data.attendanceStatus === 'pending') {
         await submitRsvp(action)
       }
     } catch {
@@ -62,14 +63,16 @@ export default function MeetingRSVPPage() {
     }
   }
 
+  const dateLocale = getDateLocale()
+
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString(undefined, {
+    return new Date(dateString).toLocaleDateString(dateLocale, {
       weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
     })
   }
 
   const formatTime = (dateString: string) => {
-    return new Date(dateString).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
+    return new Date(dateString).toLocaleTimeString(dateLocale, { hour: '2-digit', minute: '2-digit' })
   }
 
   if (loading) {

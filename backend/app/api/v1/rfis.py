@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
@@ -144,7 +144,7 @@ async def get_overdue_rfis(
     current_user: User = Depends(get_current_user)
 ):
     await verify_project_access(project_id, current_user, db)
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     result = await db.execute(
         select(RFI)
         .where(
@@ -184,7 +184,7 @@ async def get_upcoming_deadline_rfis(
     current_user: User = Depends(get_current_user)
 ):
     await verify_project_access(project_id, current_user, db)
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     deadline = now + timedelta(days=days)
     result = await db.execute(
         select(RFI)
@@ -248,6 +248,10 @@ async def update_rfi(
     await check_permission(Permission.EDIT, rfi.project_id, current_user.id, db)
 
     update_data = rfi_data.model_dump(exclude_unset=True)
+    if rfi.status != "draft":
+        allowed_fields = {"priority", "category", "due_date"}
+        update_data = {k: v for k, v in update_data.items() if k in allowed_fields}
+
     for field, value in update_data.items():
         setattr(rfi, field, value)
 

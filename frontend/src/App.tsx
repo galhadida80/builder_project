@@ -52,7 +52,7 @@ const QuantityExtractionPage = lazy(() => import('./pages/QuantityExtractionPage
 
 function ProtectedRoute() {
   const { user, loading } = useAuth()
-  if (loading) return null
+  if (loading) return <LoadingPage />
   if (!user) {
     return <Navigate to="/login" replace />
   }
@@ -61,7 +61,7 @@ function ProtectedRoute() {
 
 function SuperAdminRoute() {
   const { user, isSuperAdmin, loading } = useAuth()
-  if (loading) return null
+  if (loading) return <LoadingPage />
   if (!user || !isSuperAdmin) {
     return <Navigate to="/dashboard" replace />
   }
@@ -87,6 +87,7 @@ function AppRoutes() {
             <Route path="/projects" element={<ProjectsPage />} />
 
             <Route path="/projects/:projectId" element={<ProjectDetailPage />}>
+              <Route index element={<Navigate to="overview" replace />} />
               <Route path="overview" element={<ProjectOverviewPage />} />
               <Route path="timeline" element={<GanttTimelinePage />} />
               <Route path="equipment" element={<EquipmentPage />} />

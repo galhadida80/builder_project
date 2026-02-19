@@ -23,6 +23,7 @@ export default function IFCViewer({ projectId, modelId, filename }: IFCViewerPro
     let renderer: THREE.WebGLRenderer | null = null
     let animationId: number | null = null
     let ifcApi: IfcAPI | null = null
+    let resizeHandler: (() => void) | null = null
 
     async function init() {
       const container = containerRef.current
@@ -66,6 +67,7 @@ export default function IFCViewer({ projectId, modelId, filename }: IFCViewerPro
         camera.updateProjectionMatrix()
         renderer.setSize(w, h)
       }
+      resizeHandler = handleResize
       window.addEventListener('resize', handleResize)
 
       try {
@@ -162,16 +164,13 @@ export default function IFCViewer({ projectId, modelId, filename }: IFCViewerPro
           setLoading(false)
         }
       }
-
-      return () => {
-        window.removeEventListener('resize', handleResize)
-      }
     }
 
     init()
 
     return () => {
       cancelled = true
+      if (resizeHandler) window.removeEventListener('resize', resizeHandler)
       if (animationId !== null) cancelAnimationFrame(animationId)
       if (renderer) {
         renderer.dispose()

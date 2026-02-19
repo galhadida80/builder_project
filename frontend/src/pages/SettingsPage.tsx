@@ -60,7 +60,7 @@ export default function SettingsPage() {
                 secondary={t('settings.languageDescription')}
               />
               <ListItemSecondaryAction>
-                <FormControl size="small" sx={{ minWidth: 120 }}>
+                <FormControl size="small" sx={{ minWidth: { xs: 100, sm: 120 } }}>
                   <Select
                     value={i18n.language}
                     onChange={(e) => handleLanguageChange(e.target.value)}
@@ -78,7 +78,7 @@ export default function SettingsPage() {
                 secondary={t('settings.themeDescription')}
               />
               <ListItemSecondaryAction>
-                <FormControl size="small" sx={{ minWidth: 120 }}>
+                <FormControl size="small" sx={{ minWidth: { xs: 100, sm: 120 } }}>
                   <Select
                     value={mode}
                     onChange={(e) => {

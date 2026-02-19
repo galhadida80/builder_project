@@ -27,7 +27,8 @@ export interface MaterialTemplate {
   id: string
   name: string
   name_he: string
-  category: string
+  description?: string | null
+  category: string | null
   is_active: boolean
   required_documents: DocumentDefinition[]
   required_specifications: SpecificationDefinition[]

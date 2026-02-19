@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 from uuid import UUID
 
@@ -80,7 +80,10 @@ async def get_task_summary(
             func.sum(case((Task.status == "completed", 1), else_=0)).label("completed_count"),
             func.sum(case((Task.status == "on_hold", 1), else_=0)).label("on_hold_count"),
             func.sum(case(
-                (Task.due_date < func.current_date(), 1),
+                (
+                    (Task.due_date < func.current_date()) & (Task.status.notin_(["completed", "cancelled"])),
+                    1,
+                ),
                 else_=0,
             )).label("overdue_count"),
         )
@@ -165,7 +168,7 @@ async def update_task(
         setattr(task, key, value)
 
     if data.status == "completed" and old_status != "completed":
-        task.completed_at = datetime.utcnow()
+        task.completed_at = datetime.now(timezone.utc)
 
     result = await db.execute(
         select(Task).options(*TASK_LOAD_OPTIONS).where(Task.id == task.id)
@@ -289,7 +292,7 @@ async def bulk_update_tasks(
             old_status = task.status
             task.status = data.status
             if data.status == "completed" and old_status != "completed":
-                task.completed_at = datetime.utcnow()
+                task.completed_at = datetime.now(timezone.utc)
         if data.assignee_id is not None:
             task.assignee_id = data.assignee_id
 

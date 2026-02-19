@@ -27,7 +27,8 @@ export default function OrganizationDetailPage() {
   const [loading, setLoading] = useState(true)
   const [org, setOrg] = useState<Organization | null>(null)
   const [members, setMembers] = useState<OrganizationMember[]>([])
-  const [projects, setProjects] = useState<any[]>([])
+  const [projects, setProjects] = useState<Array<{ id: string; name: string; code?: string; status?: string; createdAt?: string }>>([])
+
   const [tabIndex, setTabIndex] = useState(0)
   const [addMemberOpen, setAddMemberOpen] = useState(false)
   const [memberForm, setMemberForm] = useState({ userId: '', role: 'org_member' })
@@ -110,6 +111,7 @@ export default function OrganizationDetailPage() {
           variant="no-results"
           title={t('organizations.notFound', 'Organization not found')}
           description={t('organizations.notFoundDescription', 'This organization does not exist or you do not have access')}
+          action={{ label: t('common.back', 'Back'), onClick: () => navigate('/organizations') }}
         />
       </Box>
     )

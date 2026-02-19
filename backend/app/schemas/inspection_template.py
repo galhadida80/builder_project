@@ -10,7 +10,7 @@ class InspectionConsultantTypeResponse(BaseModel):
     id: UUID
     name: str
     name_he: str
-    category: str
+    category: str | None = None
     created_at: datetime
 
     class Config:
@@ -141,7 +141,7 @@ class InspectionConsultantTypeWithStages(BaseModel):
     id: UUID
     name: str
     name_he: str
-    category: str
+    category: str | None = None
     created_at: datetime
     stages: list[InspectionStageTemplateResponse] = []
 

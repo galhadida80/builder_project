@@ -42,7 +42,10 @@ router = APIRouter()
 
 
 @router.get("/checklist-templates", response_model=list[ChecklistTemplateResponse])
-async def list_all_checklist_templates(db: AsyncSession = Depends(get_db)):
+async def list_all_checklist_templates(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     result = await db.execute(
         select(ChecklistTemplate)
         .options(
@@ -450,7 +453,10 @@ async def delete_checklist_item_template(
 
 
 @router.get("/checklist-instances", response_model=list[ChecklistInstanceResponse])
-async def list_all_checklist_instances(db: AsyncSession = Depends(get_db)):
+async def list_all_checklist_instances(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     result = await db.execute(
         select(ChecklistInstance)
         .options(selectinload(ChecklistInstance.created_by), selectinload(ChecklistInstance.responses))

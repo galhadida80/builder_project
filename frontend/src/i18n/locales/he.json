@@ -257,6 +257,7 @@
     "draft": "טיוטה",
     "underReview": "בבדיקה",
     "approved": "אושר",
+    "rejected": "נדחה",
     "noEquipmentFound": "לא נמצא ציוד",
     "noTypeSpecified": "לא צוין סוג",
     "details": "פרטי הציוד",
@@ -316,6 +317,7 @@
     "pending": "ממתין",
     "underReview": "בבדיקה",
     "approved": "אושר",
+    "rejected": "נדחה",
     "noMaterialsFound": "לא נמצאו חומרים",
     "noTypeSpecified": "לא צוין סוג",
     "searchPlaceholder": "חיפוש חומרים...",
@@ -491,6 +493,7 @@
     "completionRate": "אחוז השלמה",
     "of": "מתוך",
     "approved": "אושר",
+    "materialsApproved": "חומרים שאושרו",
     "quickActions": "פעולות מהירות",
     "newInspection": "בדיקה חדשה",
     "next7Days": "7 הימים הקרובים",
@@ -797,10 +800,68 @@
     "typeDate": "תאריך",
     "templateField": "שדה תבנית"
   },
+  "mobileChecklist": {
+    "responseSaved": "תגובה נשמרה בהצלחה",
+    "signatureRequired": "חתימה נדרשת לפני שליחה",
+    "submitted": "צ'קליסט נשלח בהצלחה!",
+    "notFound": "לא נמצא צ'קליסט לביקורת זו",
+    "back": "חזרה",
+    "inspectionChecklist": "צ'קליסט ביקורת",
+    "overallProgress": "התקדמות כללית",
+    "submitChecklist": "שלח צ'קליסט",
+    "completeAllItems": "השלם את כל הפריטים כדי לשלוח",
+    "cancel": "ביטול",
+    "save": "שמירה",
+    "inspectorSignature": "חתימת מפקח",
+    "saveSignature": "שמור חתימה",
+    "signatureCaptured": "חתימה נקלטה",
+    "addSignature": "הוסף חתימה",
+    "approved": "אושר",
+    "rejected": "נדחה",
+    "notApplicable": "לא רלוונטי",
+    "status": "סטטוס",
+    "notes": "הערות",
+    "photos": "תמונות",
+    "retry": "נסה שוב",
+    "signatureSaved": "חתימה נשמרה"
+  },
+  "upload": {
+    "uploading": "מעלה {{name}}",
+    "filesUploaded": "{{current}} מתוך {{total}} קבצים הועלו",
+    "dropHere": "שחרר קבצים כאן",
+    "dragAndDrop": "גרור ושחרר קבצים כאן",
+    "orClickBrowse": "או לחץ לעיון",
+    "maxFileSize": "גודל קובץ מקסימלי: {{size}}",
+    "fileTooLarge": "{{name}} גדול מדי. גודל מקסימלי {{maxSize}}",
+    "invalidType": "{{name}} - סוג קובץ לא נתמך",
+    "uploadFailed": "העלאת {{name}} נכשלה"
+  },
   "templatePicker": {
     "specs": "מפרטים",
     "docs": "מסמכים",
-    "checks": "בדיקות"
+    "checks": "בדיקות",
+    "noResults": "לא נמצאו תוצאות",
+    "categories": {
+      "structural": "מבנה",
+      "plumbing": "אינסטלציה",
+      "electrical": "חשמל",
+      "fire_safety": "בטיחות אש",
+      "hvac": "מיזוג אוויר",
+      "finishing": "גמר",
+      "concrete": "בטון",
+      "waterproofing": "איטום",
+      "insulation": "בידוד",
+      "steel": "פלדה",
+      "earthwork": "עבודות עפר",
+      "landscaping": "גינון",
+      "elevator": "מעלית",
+      "facade": "חזית",
+      "flooring": "ריצוף",
+      "painting": "צביעה",
+      "windows_doors": "חלונות ודלתות",
+      "roofing": "גגות",
+      "general": "כללי"
+    }
   },
   "contactSelector": {
     "selectApprovers": "בחירת מאשרים",
@@ -1096,7 +1157,7 @@
     "drawingReference": "הפניה לשרטוט",
     "specificationReference": "הפניה למפרט",
     "deleteRfi": "מחק בקשה",
-    "deleteConfirmationMessage": "האם אתה בטוח שברצונך למחוק בקשה זו? פעולה זו לא ניתנת לביטול.",
+    "deleteConfirmationMessage": "האם אתה בטוח שברצונך למחוק RFI מספר {{number}}? פעולה זו אינה ניתנת לביטול.",
     "ccEmails": "כתובות דוא\"ל בהעתק",
     "addEmailPlaceholder": "הוסף דוא\"ל...",
     "attachments": "קבצים מצורפים",
@@ -1108,9 +1169,11 @@
     "statuses": {
       "draft": "טיוטה",
       "open": "פתוח",
+      "in_progress": "בטיפול",
       "waiting": "ממתין",
       "answered": "נענה",
-      "closed": "סגור"
+      "closed": "סגור",
+      "cancelled": "בוטל"
     },
     "categories": {
       "design": "עיצוב",
@@ -1208,7 +1271,8 @@
     "statusRejected": "נדחה",
     "statusNotApplicable": "לא רלוונטי",
     "addNotes": "הוסף הערות...",
-    "templateName": "תבנית"
+    "templateName": "תבנית",
+    "deleteChecklist": "מחק צ'קליסט"
   },
   "documentReview": {
     "failedToLoadDocument": "נכשל בטעינת המסמך. אנא נסה שוב.",
@@ -1223,7 +1287,14 @@
     "zoomOut": "הקטן תצוגה",
     "rotate": "סובב מסמך",
     "downloadDocument": "הורד מסמך",
-    "printDocument": "הדפס מסמך"
+    "printDocument": "הדפס מסמך",
+    "approveTitle": "אישור מסמך?",
+    "approveConfirm": "האם אתה בטוח שברצונך לאשר מסמך זה?",
+    "rejectTitle": "דחיית מסמך?",
+    "rejectConfirm": "האם אתה בטוח שברצונך לדחות מסמך זה?",
+    "backToProject": "חזרה לפרויקט",
+    "confirm": "אישור",
+    "cancel": "ביטול"
   },
   "inspections": {
     "title": "בדיקות",
@@ -1435,6 +1506,7 @@
     "overCapacity": "מעבר לקיבולת"
   },
   "landing": {
+    "mobile": "נייד",
     "signIn": "התחבר",
     "heroTitle": "בנה חכם יותר\nבדוק מהר יותר\nספק מצוינות",
     "heroSubtitle": "ייעל את ניהול הבנייה שלך עם הפלטפורמה המקיפה שלנו. מתכנון פרויקט ועד בדיקה סופית, אנחנו כאן בשבילך.",

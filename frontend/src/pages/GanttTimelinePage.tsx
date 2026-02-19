@@ -12,15 +12,25 @@ import type { Meeting } from '../types'
 import { ZoomInIcon, ZoomOutIcon, FilterListIcon, TimelineIcon } from '@/icons'
 import { Box, Typography, IconButton, MenuItem, Select, FormControl, Skeleton } from '@/mui'
 
+const addDays = (dateStr: string, days: number): string => {
+  const d = new Date(dateStr)
+  d.setDate(d.getDate() + days)
+  return d.toISOString().split('T')[0]
+}
+
 const convertMeetingsToTasks = (meetings: Meeting[]): { tasks: GanttTask[], links: GanttLink[] } => {
-  const tasks: GanttTask[] = meetings.map(meeting => ({
-    id: meeting.id,
-    text: meeting.title,
-    start: meeting.scheduledDate?.split('T')[0] || new Date().toISOString().split('T')[0],
-    end: meeting.scheduledDate?.split('T')[0] || new Date().toISOString().split('T')[0],
-    type: (meeting.meetingType as string) === 'milestone' ? 'milestone' : 'task',
-    progress: meeting.status === 'completed' ? 100 : (meeting.status as string) === 'in_progress' ? 50 : 0,
-  }))
+  const tasks: GanttTask[] = meetings.map(meeting => {
+    const startDate = meeting.scheduledDate?.split('T')[0] || new Date().toISOString().split('T')[0]
+    const isMilestone = (meeting.meetingType as string) === 'milestone'
+    return {
+      id: meeting.id,
+      text: meeting.title,
+      start: startDate,
+      end: isMilestone ? startDate : addDays(startDate, 1),
+      type: isMilestone ? 'milestone' : 'task',
+      progress: meeting.status === 'completed' ? 100 : (meeting.status as string) === 'in_progress' ? 50 : 0,
+    }
+  })
 
   return { tasks, links: [] }
 }
@@ -190,7 +200,12 @@ export default function GanttTimelinePage() {
 
         <Box sx={{ p: 0, minHeight: 400, height: 'calc(100dvh - 320px)' }}>
           {tasks.length > 0 ? (
-            <GanttChart tasks={tasks} links={links} scales={currentScales} />
+            <GanttChart tasks={filterValue === 'all' ? tasks : tasks.filter(task => {
+              if (filterValue === 'in-progress') return (task.progress ?? 0) > 0 && (task.progress ?? 0) < 100
+              if (filterValue === 'completed') return (task.progress ?? 0) === 100
+              if (filterValue === 'milestones') return task.type === 'milestone'
+              return true
+            })} links={links} scales={currentScales} />
           ) : (
             <Box sx={{ p: 4 }}>
               <EmptyState

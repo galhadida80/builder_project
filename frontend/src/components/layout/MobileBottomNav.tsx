@@ -99,11 +99,12 @@ export default function MobileBottomNav({ projectId, onMenuOpen }: MobileBottomN
           },
         }}
       >
-        {tabs.map((tab, i) => (
+        {tabs.map((tab) => (
           <BottomNavigationAction
             key={tab.labelKey}
             label={t(tab.labelKey)}
             icon={tab.icon}
+            aria-label={tab.action === 'menu' ? t('common.openNavMenu') : undefined}
           />
         ))}
       </BottomNavigation>

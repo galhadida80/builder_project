@@ -174,7 +174,7 @@ export const validateProjectForm = (data: { name?: string; code?: string; descri
   return errors
 }
 
-export const validateEquipmentForm = (data: { name?: string; notes?: string; serialNumber?: string; equipment_type?: string; manufacturer?: string; model_number?: string }): ValidationError => {
+export const validateEquipmentForm = (data: { name?: string; notes?: string; serialNumber?: string; equipmentType?: string; manufacturer?: string; modelNumber?: string }): ValidationError => {
   const errors: ValidationError = {}
 
   errors.name = validateRequired(data.name, 'Equipment Name')
@@ -184,15 +184,15 @@ export const validateEquipmentForm = (data: { name?: string; notes?: string; ser
   errors.serialNumber = validateSerialNumber(data.serialNumber, 'Serial Number')
     || validateMaxLength(data.serialNumber, VALIDATION.MAX_SERIAL_NUMBER_LENGTH, 'Serial Number')
 
-  errors.equipment_type = validateMaxLength(data.equipment_type, VALIDATION.MAX_TYPE_LENGTH, 'Type')
+  errors.equipmentType = validateMaxLength(data.equipmentType, VALIDATION.MAX_TYPE_LENGTH, 'Type')
   errors.manufacturer = validateMaxLength(data.manufacturer, VALIDATION.MAX_MANUFACTURER_LENGTH, 'Manufacturer')
-  errors.model_number = validateMaxLength(data.model_number, VALIDATION.MAX_MODEL_NUMBER_LENGTH, 'Model')
+  errors.modelNumber = validateMaxLength(data.modelNumber, VALIDATION.MAX_MODEL_NUMBER_LENGTH, 'Model')
   errors.notes = validateMaxLength(data.notes, VALIDATION.MAX_NOTES_LENGTH, 'Notes')
 
   return errors
 }
 
-export const validateMaterialForm = (data: { name?: string; notes?: string; quantity?: number; material_type?: string; manufacturer?: string; model_number?: string; unit?: string; storage_location?: string }): ValidationError => {
+export const validateMaterialForm = (data: { name?: string; notes?: string; quantity?: number; materialType?: string; manufacturer?: string; modelNumber?: string; unit?: string; storageLocation?: string }): ValidationError => {
   const errors: ValidationError = {}
 
   errors.name = validateRequired(data.name, 'Material Name')
@@ -201,11 +201,11 @@ export const validateMaterialForm = (data: { name?: string; notes?: string; quan
 
   errors.notes = validateMaxLength(data.notes, VALIDATION.MAX_NOTES_LENGTH, 'Notes')
   errors.quantity = validateNumberRange(data.quantity, 0, 999999999, 'Quantity')
-  errors.material_type = validateMaxLength(data.material_type, VALIDATION.MAX_TYPE_LENGTH, 'Type')
+  errors.materialType = validateMaxLength(data.materialType, VALIDATION.MAX_TYPE_LENGTH, 'Type')
   errors.manufacturer = validateMaxLength(data.manufacturer, VALIDATION.MAX_MANUFACTURER_LENGTH, 'Manufacturer')
-  errors.model_number = validateMaxLength(data.model_number, VALIDATION.MAX_MODEL_NUMBER_LENGTH, 'Model')
+  errors.modelNumber = validateMaxLength(data.modelNumber, VALIDATION.MAX_MODEL_NUMBER_LENGTH, 'Model')
   errors.unit = validateMaxLength(data.unit, VALIDATION.MAX_UNIT_LENGTH, 'Unit')
-  errors.storage_location = validateMaxLength(data.storage_location, VALIDATION.MAX_LOCATION_LENGTH, 'Storage Location')
+  errors.storageLocation = validateMaxLength(data.storageLocation, VALIDATION.MAX_LOCATION_LENGTH, 'Storage Location')
 
   return errors
 }

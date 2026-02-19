@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { DocumentReviewPanel, type ReviewStatus, type Comment } from '../components/DocumentReviewPanel'
 import { EmptyState } from '../components/ui/EmptyState'
 import { filesApi } from '../api/files'
 import { documentReviewsApi } from '../api/documentReviews'
+import { useAuth } from '../contexts/AuthContext'
 import type { FileRecord } from '../api/files'
 import { ArrowBackIcon } from '@/icons'
 import { Box, Typography, Skeleton, IconButton, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button } from '@/mui'
@@ -21,6 +22,8 @@ export default function DocumentReviewPage() {
   const [comments, setComments] = useState<Comment[]>([])
   const [commentsLoading, setCommentsLoading] = useState(false)
   const [reviewStatus, setReviewStatus] = useState<ReviewStatus>('pending')
+  const { user } = useAuth()
+  const blobUrlRef = useRef<string>('')
   const [currentUserId, setCurrentUserId] = useState<string | undefined>()
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean
@@ -37,7 +40,7 @@ export default function DocumentReviewPage() {
   useEffect(() => {
     loadDocumentAndReview()
     return () => {
-      if (blobUrl) URL.revokeObjectURL(blobUrl)
+      if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current)
     }
   }, [projectId, documentId])
 
@@ -63,6 +66,7 @@ export default function DocumentReviewPage() {
       // Fetch file content as blob for viewer
       try {
         const url = await filesApi.getFileBlob(projectId, documentId)
+        blobUrlRef.current = url
         setBlobUrl(url)
       } catch {
         // Fall back to storage path
@@ -73,17 +77,7 @@ export default function DocumentReviewPage() {
         setComments(reviewData.comments || [])
       }
 
-      // Get current user ID from token (basic implementation)
-      // In a real app, this would come from an auth context
-      const token = localStorage.getItem('authToken')
-      if (token) {
-        try {
-          const payload = JSON.parse(atob(token.split('.')[1]))
-          setCurrentUserId(payload.sub || payload.user_id)
-        } catch {
-          // Invalid token format
-        }
-      }
+      setCurrentUserId(user?.id)
     } catch (err) {
       console.error('Failed to load document or review:', err)
       setError(t('documentReview.failedToLoadDocument'))
@@ -251,27 +245,26 @@ export default function DocumentReviewPage() {
   }
 
   const handleRequestStatusChange = (status: ReviewStatus) => {
-    // Determine confirmation message based on status
-    const messages = {
+    const messages: Record<ReviewStatus, { title: string; message: string }> = {
       approved: {
-        title: 'Approve Document?',
-        message: 'Are you sure you want to approve this document? This action will mark the document as approved.',
+        title: t('documentReview.approveTitle', 'Approve Document?'),
+        message: t('documentReview.approveMessage', 'Are you sure you want to approve this document? This action will mark the document as approved.'),
       },
       rejected: {
-        title: 'Reject Document?',
-        message: 'Are you sure you want to reject this document? This action will mark the document as rejected.',
+        title: t('documentReview.rejectTitle', 'Reject Document?'),
+        message: t('documentReview.rejectMessage', 'Are you sure you want to reject this document? This action will mark the document as rejected.'),
       },
       changes_requested: {
-        title: 'Request Changes?',
-        message: 'Are you sure you want to request changes? The document owner will be notified to make revisions.',
+        title: t('documentReview.requestChangesTitle', 'Request Changes?'),
+        message: t('documentReview.requestChangesMessage', 'Are you sure you want to request changes? The document owner will be notified to make revisions.'),
       },
       pending: {
-        title: 'Reset Status?',
-        message: 'Are you sure you want to reset the document status to pending?',
+        title: t('documentReview.resetStatusTitle', 'Reset Status?'),
+        message: t('documentReview.resetStatusMessage', 'Are you sure you want to reset the document status to pending?'),
       },
       in_review: {
-        title: 'Mark In Review?',
-        message: 'Are you sure you want to mark this document as in review?',
+        title: t('documentReview.markInReviewTitle', 'Mark In Review?'),
+        message: t('documentReview.markInReviewMessage', 'Are you sure you want to mark this document as in review?'),
       },
     }
 
@@ -350,14 +343,14 @@ export default function DocumentReviewPage() {
             <ArrowBackIcon />
           </IconButton>
           <Typography variant="body2" color="text.secondary">
-            Back to Project
+            {t('documentReview.backToProject', 'Back to Project')}
           </Typography>
         </Box>
         <EmptyState
           variant="error"
           title={t('documentReview.documentNotFound')}
-          description={error || "The document you're looking for doesn't exist or has been removed"}
-          action={{ label: 'Back to Project', onClick: handleBack }}
+          description={error || t('documentReview.documentNotFoundDescription', "The document you're looking for doesn't exist or has been removed")}
+          action={{ label: t('documentReview.backToProject', 'Back to Project'), onClick: handleBack }}
         />
       </Box>
     )
@@ -377,7 +370,7 @@ export default function DocumentReviewPage() {
     <Box>
       <Box sx={{
         position: 'fixed',
-        top: 64, // Assuming header height
+        top: { xs: 56, sm: 64 },
         left: 0,
         right: 0,
         zIndex: 10,
@@ -440,10 +433,10 @@ export default function DocumentReviewPage() {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCancelStatusChange} color="inherit">
-            Cancel
+            {t('common.cancel', 'Cancel')}
           </Button>
           <Button onClick={handleConfirmStatusChange} variant="contained" color="primary" autoFocus>
-            Confirm
+            {t('common.confirm', 'Confirm')}
           </Button>
         </DialogActions>
       </Dialog>

@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 from uuid import UUID
 
@@ -118,7 +118,7 @@ async def execute_chat_action(
             raise HTTPException(status_code=400, detail=exec_result["error"])
         action.status = "executed"
         action.result = exec_result
-        action.executed_at = datetime.utcnow()
+        action.executed_at = datetime.now(timezone.utc)
         action.executed_by_id = current_user.id
     except HTTPException:
         raise
@@ -128,6 +128,7 @@ async def execute_chat_action(
         action.result = {"error": str(e)}
         raise HTTPException(status_code=500, detail="Action execution failed")
 
+    await db.commit()
     return ChatActionResponse.model_validate(action, from_attributes=True)
 
 
@@ -154,9 +155,10 @@ async def reject_chat_action(
 
     action.status = "rejected"
     action.result = {"reason": body.reason} if body.reason else None
-    action.executed_at = datetime.utcnow()
+    action.executed_at = datetime.now(timezone.utc)
     action.executed_by_id = current_user.id
 
+    await db.commit()
     return ChatActionResponse.model_validate(action, from_attributes=True)
 
 
@@ -275,4 +277,5 @@ async def delete_conversation(
         raise HTTPException(status_code=404, detail="Conversation not found")
 
     await db.delete(conversation)
+    await db.commit()
     return {"detail": "Conversation deleted"}

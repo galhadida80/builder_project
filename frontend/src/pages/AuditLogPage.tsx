@@ -117,7 +117,7 @@ export default function AuditLogPage() {
   const loadLogs = async () => {
     try {
       setLoading(true)
-      const data = await auditApi.listAll()
+      const data = await auditApi.listAll({ limit: 1000 })
       setLogs(data)
     } catch {
       showError(t('auditLog.failedToLoad'))
@@ -275,7 +275,7 @@ export default function AuditLogPage() {
         />
         <KPICard
           title={t('auditLog.usersActive')}
-          value={new Set(logs.map(l => l.user?.id)).size}
+          value={new Set(logs.map(l => l.user?.id).filter(Boolean)).size}
           icon={<CheckCircleIcon />}
           color="success"
         />

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -100,6 +100,7 @@ async def get_project(
 async def update_project(
     project_id: UUID,
     data: ProjectUpdate,
+    member: ProjectMember = require_permission(Permission.EDIT),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
@@ -126,6 +127,7 @@ async def update_project(
 @router.delete("/{project_id}")
 async def delete_project(
     project_id: UUID,
+    member: ProjectMember = require_permission(Permission.DELETE),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
@@ -272,9 +274,9 @@ async def get_project_overview(
     days_elapsed = None
     days_remaining = None
     if project.start_date:
-        days_elapsed = (datetime.utcnow().date() - project.start_date).days
+        days_elapsed = (datetime.now(timezone.utc).date() - project.start_date).days
     if project.estimated_end_date:
-        days_remaining = (project.estimated_end_date - datetime.utcnow().date()).days
+        days_remaining = (project.estimated_end_date - datetime.now(timezone.utc).date()).days
 
     stats = ProjectStats(
         total_inspections=inspections_data.total,
@@ -296,7 +298,7 @@ async def get_project_overview(
         timeline=timeline,
         team_stats=team_stats,
         stats=stats,
-        last_updated=datetime.utcnow()
+        last_updated=datetime.now(timezone.utc)
     )
 
 

@@ -219,10 +219,10 @@ export default function TasksPage() {
           <Tabs
             items={[
               { label: t('common.all'), value: 'all', badge: tasks.length },
-              { label: t('tasks.notStarted'), value: 'not_started', badge: tasks.filter(t => t.status === 'not_started').length },
-              { label: t('tasks.inProgress'), value: 'in_progress', badge: tasks.filter(t => t.status === 'in_progress').length },
-              { label: t('tasks.completed'), value: 'completed', badge: tasks.filter(t => t.status === 'completed').length },
-              { label: t('tasks.onHold'), value: 'on_hold', badge: tasks.filter(t => t.status === 'on_hold').length },
+              { label: t('tasks.notStarted'), value: 'not_started', badge: tasks.filter(tk => tk.status === 'not_started').length },
+              { label: t('tasks.inProgress'), value: 'in_progress', badge: tasks.filter(tk => tk.status === 'in_progress').length },
+              { label: t('tasks.completed'), value: 'completed', badge: tasks.filter(tk => tk.status === 'completed').length },
+              { label: t('tasks.onHold'), value: 'on_hold', badge: tasks.filter(tk => tk.status === 'on_hold').length },
             ]}
             value={activeTab}
             onChange={setActiveTab}
@@ -285,7 +285,7 @@ export default function TasksPage() {
             {PRIORITY_OPTIONS.map((p) => <MenuItem key={p} value={p}>{t(`tasks.priorities.${p}`, { defaultValue: p })}</MenuItem>)}
           </MuiTextField>
           {editingTask && (
-            <MuiTextField select fullWidth label={t('common.status')} value={(form as any).status || editingTask.status} onChange={(e) => setForm({ ...form, status: e.target.value } as any)}>
+            <MuiTextField select fullWidth label={t('common.status')} value={(form as TaskCreateData & { status?: string }).status || editingTask.status} onChange={(e) => setForm({ ...form, status: e.target.value } as TaskCreateData & { status?: string })}>
               {STATUS_OPTIONS.map((s) => <MenuItem key={s} value={s}>{t(`tasks.statuses.${s}`, { defaultValue: s })}</MenuItem>)}
             </MuiTextField>
           )}

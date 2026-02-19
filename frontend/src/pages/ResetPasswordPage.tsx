@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '../components/ui/Button'
 import { TextField } from '../components/ui/TextField'
 import { authApi } from '../api/auth'
+import { passwordSchema } from '../schemas/validation'
 import { LockIcon, VisibilityIcon, VisibilityOffIcon, ConstructionIcon } from '@/icons'
 import { Box, Typography, Alert, Link, Fade, IconButton } from '@/mui'
 
@@ -25,8 +26,9 @@ export default function ResetPasswordPage() {
       setError(t('passwordsMismatch'))
       return
     }
-    if (password.length < 8) {
-      setError(t('passwordMinLength'))
+    const pwResult = passwordSchema.safeParse(password)
+    if (!pwResult.success) {
+      setError(pwResult.error.issues[0].message)
       return
     }
     setLoading(true)
@@ -80,7 +82,11 @@ export default function ResetPasswordPage() {
           </Typography>
 
           <Box sx={{ mt: 3 }}>
-            {success ? (
+            {!token ? (
+              <Alert severity="error" sx={{ borderRadius: 2 }}>
+                {t('invalidResetToken')}
+              </Alert>
+            ) : success ? (
               <Box sx={{ textAlign: 'center' }}>
                 <Alert severity="success" sx={{ mb: 3, borderRadius: 2 }}>
                   {t('passwordResetSuccess')}

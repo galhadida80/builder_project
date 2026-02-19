@@ -1,8 +1,8 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Path, Query
-from sqlalchemy import case, func, select
+from sqlalchemy import Date, case, cast, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import get_current_user
@@ -182,7 +182,7 @@ async def get_project_trends(
 
     # Default to last 30 days if no dates provided
     if not end_date:
-        end_datetime = datetime.utcnow()
+        end_datetime = datetime.now(timezone.utc)
     else:
         end_datetime = datetime.fromisoformat(end_date)
 
@@ -195,113 +195,62 @@ async def get_project_trends(
         ProjectMember.user_id == current_user.id
     ).scalar_subquery()
 
-    # Generate daily data points
+    def build_daily_count(model, date_col, extra_filters=None):
+        q = (
+            select(cast(date_col, Date).label("day"), func.count().label("cnt"))
+            .where(model.project_id.in_(accessible_projects))
+            .where(date_col >= start_datetime)
+            .where(date_col < end_datetime + timedelta(days=1))
+        )
+        if extra_filters:
+            for f in extra_filters:
+                q = q.where(f)
+        return q.group_by(cast(date_col, Date))
+
+    inspection_q = build_daily_count(Inspection, Inspection.created_at)
+    equipment_q = build_daily_count(Equipment, Equipment.created_at)
+    material_q = build_daily_count(Material, Material.created_at)
+    rfi_created_q = build_daily_count(RFI, RFI.created_at)
+    rfi_closed_q = build_daily_count(RFI, RFI.updated_at, [RFI.status == RFIStatus.CLOSED.value])
+
+    equip_sub_q = build_daily_count(EquipmentApprovalSubmission, EquipmentApprovalSubmission.submitted_at)
+    mat_sub_q = build_daily_count(MaterialApprovalSubmission, MaterialApprovalSubmission.submitted_at)
+
+    decided_statuses = ("approved", "rejected", "conditionally_approved")
+    equip_dec_q = build_daily_count(
+        EquipmentApprovalSubmission, EquipmentApprovalSubmission.updated_at,
+        [EquipmentApprovalSubmission.status.in_(decided_statuses)],
+    )
+    mat_dec_q = build_daily_count(
+        MaterialApprovalSubmission, MaterialApprovalSubmission.updated_at,
+        [MaterialApprovalSubmission.status.in_(decided_statuses)],
+    )
+
+    results = {}
+    for key, q in [
+        ("inspections", inspection_q), ("equipment", equipment_q),
+        ("materials", material_q), ("rfi_created", rfi_created_q),
+        ("rfi_closed", rfi_closed_q), ("equip_sub", equip_sub_q),
+        ("mat_sub", mat_sub_q), ("equip_dec", equip_dec_q), ("mat_dec", mat_dec_q),
+    ]:
+        res = await db.execute(q)
+        results[key] = {str(row.day): row.cnt for row in res.all()}
+
     data_points = []
     current_date = start_datetime
-
     while current_date <= end_datetime:
-        next_date = current_date + timedelta(days=1)
-
-        # Count inspections created on this day
-        inspection_count = await db.execute(
-            select(func.count())
-            .select_from(Inspection)
-            .where(Inspection.project_id.in_(accessible_projects))
-            .where(Inspection.created_at >= current_date)
-            .where(Inspection.created_at < next_date)
-        )
-        inspections = inspection_count.scalar() or 0
-
-        # Count equipment submissions on this day
-        equipment_count = await db.execute(
-            select(func.count())
-            .select_from(Equipment)
-            .where(Equipment.project_id.in_(accessible_projects))
-            .where(Equipment.created_at >= current_date)
-            .where(Equipment.created_at < next_date)
-        )
-        equipment_submissions = equipment_count.scalar() or 0
-
-        # Count material submissions on this day
-        material_count = await db.execute(
-            select(func.count())
-            .select_from(Material)
-            .where(Material.project_id.in_(accessible_projects))
-            .where(Material.created_at >= current_date)
-            .where(Material.created_at < next_date)
-        )
-        material_submissions = material_count.scalar() or 0
-
-        # Count RFIs created on this day
-        rfi_created_count = await db.execute(
-            select(func.count())
-            .select_from(RFI)
-            .where(RFI.project_id.in_(accessible_projects))
-            .where(RFI.created_at >= current_date)
-            .where(RFI.created_at < next_date)
-        )
-        rfi_created = rfi_created_count.scalar() or 0
-
-        # Count RFIs closed on this day
-        rfi_closed_count = await db.execute(
-            select(func.count())
-            .select_from(RFI)
-            .where(RFI.project_id.in_(accessible_projects))
-            .where(RFI.status == RFIStatus.CLOSED.value)
-            .where(RFI.updated_at >= current_date)
-            .where(RFI.updated_at < next_date)
-        )
-        rfi_closed = rfi_closed_count.scalar() or 0
-
-        # Count approval submissions submitted on this day (equipment + material)
-        equip_sub_count = await db.execute(
-            select(func.count())
-            .select_from(EquipmentApprovalSubmission)
-            .where(EquipmentApprovalSubmission.project_id.in_(accessible_projects))
-            .where(EquipmentApprovalSubmission.submitted_at >= current_date)
-            .where(EquipmentApprovalSubmission.submitted_at < next_date)
-        )
-        mat_sub_count = await db.execute(
-            select(func.count())
-            .select_from(MaterialApprovalSubmission)
-            .where(MaterialApprovalSubmission.project_id.in_(accessible_projects))
-            .where(MaterialApprovalSubmission.submitted_at >= current_date)
-            .where(MaterialApprovalSubmission.submitted_at < next_date)
-        )
-        approvals_submitted = (equip_sub_count.scalar() or 0) + (mat_sub_count.scalar() or 0)
-
-        # Count approval submissions decided on this day
-        decided_statuses = ("approved", "rejected", "conditionally_approved")
-        equip_decided_count = await db.execute(
-            select(func.count())
-            .select_from(EquipmentApprovalSubmission)
-            .where(EquipmentApprovalSubmission.project_id.in_(accessible_projects))
-            .where(EquipmentApprovalSubmission.status.in_(decided_statuses))
-            .where(EquipmentApprovalSubmission.updated_at >= current_date)
-            .where(EquipmentApprovalSubmission.updated_at < next_date)
-        )
-        mat_decided_count = await db.execute(
-            select(func.count())
-            .select_from(MaterialApprovalSubmission)
-            .where(MaterialApprovalSubmission.project_id.in_(accessible_projects))
-            .where(MaterialApprovalSubmission.status.in_(decided_statuses))
-            .where(MaterialApprovalSubmission.updated_at >= current_date)
-            .where(MaterialApprovalSubmission.updated_at < next_date)
-        )
-        approvals_decided = (equip_decided_count.scalar() or 0) + (mat_decided_count.scalar() or 0)
-
+        day_str = current_date.strftime('%Y-%m-%d')
         data_points.append(TrendDataPoint(
-            date=current_date.strftime('%Y-%m-%d'),
-            inspections=inspections,
-            equipment_submissions=equipment_submissions,
-            material_submissions=material_submissions,
-            rfi_created=rfi_created,
-            rfi_closed=rfi_closed,
-            approvals_submitted=approvals_submitted,
-            approvals_decided=approvals_decided,
+            date=day_str,
+            inspections=results["inspections"].get(day_str, 0),
+            equipment_submissions=results["equipment"].get(day_str, 0),
+            material_submissions=results["materials"].get(day_str, 0),
+            rfi_created=results["rfi_created"].get(day_str, 0),
+            rfi_closed=results["rfi_closed"].get(day_str, 0),
+            approvals_submitted=results["equip_sub"].get(day_str, 0) + results["mat_sub"].get(day_str, 0),
+            approvals_decided=results["equip_dec"].get(day_str, 0) + results["mat_dec"].get(day_str, 0),
         ))
-
-        current_date = next_date
+        current_date += timedelta(days=1)
 
     return ProjectTrendsResponse(data_points=data_points)
 
@@ -502,7 +451,7 @@ async def get_dashboard_stats(
         for row in findings_result.all()
     ]
 
-    today = datetime.utcnow().date()
+    today = datetime.now(timezone.utc).date()
     start_date = today - timedelta(days=13)
     weekly_activity = []
     for day_offset in range(14):

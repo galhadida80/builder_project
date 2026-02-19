@@ -145,7 +145,9 @@ export default function EquipmentPage() {
   const handleOpenEdit = (eq: Equipment, e?: React.MouseEvent) => {
     if (e) e.stopPropagation()
     setEditingEquipment(eq)
+    // Match by name_he first, fall back to name if no match (should use template_id in future)
     const matchingTemplate = equipmentTemplates.find(t => t.name_he === eq.equipmentType)
+      || equipmentTemplates.find(t => t.name === eq.equipmentType)
     setFormData({
       name: eq.name,
       templateId: matchingTemplate?.id || '',
@@ -186,9 +188,9 @@ export default function EquipmentPage() {
       name: formData.name,
       notes: formData.notes,
       serialNumber: formData.serialNumber,
-      equipment_type: selectedTemplate?.name_he || '',
+      equipmentType: selectedTemplate?.name_he || '',
       manufacturer: formData.manufacturer,
-      model_number: formData.modelNumber,
+      modelNumber: formData.modelNumber,
     })
     setErrors(validationErrors)
     if (hasErrors(validationErrors)) return
@@ -483,6 +485,7 @@ export default function EquipmentPage() {
               { label: t('equipment.draft'), value: 'draft' },
               { label: t('equipment.underReview'), value: 'under_review' },
               { label: t('equipment.approved'), value: 'approved' },
+              { label: t('equipment.rejected'), value: 'rejected' },
             ]}
             value={activeTab}
             onChange={(val) => { setActiveTab(val); setPage(1) }}

@@ -198,6 +198,15 @@ async def forgot_password(
     user = result.scalar_one_or_none()
 
     if user and user.is_active:
+        old_tokens_result = await db.execute(
+            select(PasswordResetToken).where(
+                PasswordResetToken.user_id == user.id,
+                PasswordResetToken.used_at.is_(None),
+            )
+        )
+        for old_token in old_tokens_result.scalars().all():
+            old_token.used_at = datetime.utcnow()
+
         token = secrets.token_urlsafe(48)
         reset_token = PasswordResetToken(
             user_id=user.id,

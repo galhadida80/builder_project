@@ -5,10 +5,12 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from app.core.permissions import Permission, require_permission
 from app.core.security import get_current_user, verify_project_access
 from app.db.session import get_db
 from app.models.contact import Contact
 from app.models.contact_group import ContactGroup, ContactGroupMember
+from app.models.project import ProjectMember
 from app.models.user import User
 from app.schemas.contact_group import (
     AddMembersRequest,
@@ -71,10 +73,10 @@ async def list_contact_groups(
 async def create_contact_group(
     project_id: UUID,
     data: ContactGroupCreate,
+    member: ProjectMember = require_permission(Permission.CREATE),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    await verify_project_access(project_id, current_user, db)
     await validate_contacts_belong_to_project(db, project_id, data.contact_ids)
 
     group = ContactGroup(
@@ -111,10 +113,10 @@ async def update_contact_group(
     project_id: UUID,
     group_id: UUID,
     data: ContactGroupUpdate,
+    member: ProjectMember = require_permission(Permission.EDIT),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(ContactGroup).where(ContactGroup.id == group_id, ContactGroup.project_id == project_id)
     )
@@ -143,10 +145,10 @@ async def update_contact_group(
 async def delete_contact_group(
     project_id: UUID,
     group_id: UUID,
+    member: ProjectMember = require_permission(Permission.DELETE),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(ContactGroup).where(ContactGroup.id == group_id, ContactGroup.project_id == project_id)
     )

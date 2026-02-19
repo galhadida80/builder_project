@@ -25,6 +25,8 @@ export default function LoginPage() {
   const [fullName, setFullName] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [biometricLoading, setBiometricLoading] = useState(false)
+  const submittingRef = useRef(false)
   const [error, setError] = useState<string | null>(null)
   const [errorCode, setErrorCode] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
@@ -89,7 +91,7 @@ export default function LoginPage() {
   }
 
   const handleBiometricLogin = async (biometricEmail: string) => {
-    setLoading(true)
+    setBiometricLoading(true)
     setError(null)
     try {
       await loginWithWebAuthn(biometricEmail)
@@ -97,12 +99,14 @@ export default function LoginPage() {
     } catch {
       // silently fail — user can use password
     } finally {
-      setLoading(false)
+      setBiometricLoading(false)
     }
   }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (submittingRef.current) return
+    submittingRef.current = true
     setLoading(true)
     setError(null)
 
@@ -114,11 +118,14 @@ export default function LoginPage() {
       setError(error.response?.data?.detail || t('invalidCredentials'))
     } finally {
       setLoading(false)
+      submittingRef.current = false
     }
   }
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (submittingRef.current) return
+    submittingRef.current = true
     setLoading(true)
     setError(null)
 
@@ -160,6 +167,7 @@ export default function LoginPage() {
       }
     } finally {
       setLoading(false)
+      submittingRef.current = false
     }
   }
 
@@ -467,6 +475,20 @@ export default function LoginPage() {
 
               {tab === 'signin' ? (
                 forgotPasswordMode ? (
+                  <form onSubmit={async (e) => {
+                    e.preventDefault()
+                    if (!forgotPasswordEmail) return
+                    setLoading(true)
+                    setError(null)
+                    try {
+                      await authApi.forgotPassword(forgotPasswordEmail)
+                      setSuccess(t('resetLinkSent'))
+                    } catch {
+                      setSuccess(t('resetLinkSent'))
+                    } finally {
+                      setLoading(false)
+                    }
+                  }}>
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
                     <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
                       {t('forgotPasswordDescription')}
@@ -484,21 +506,9 @@ export default function LoginPage() {
                     />
                     <Button
                       fullWidth
+                      type="submit"
                       variant="primary"
                       loading={loading}
-                      onClick={async () => {
-                        if (!forgotPasswordEmail) return
-                        setLoading(true)
-                        setError(null)
-                        try {
-                          await authApi.forgotPassword(forgotPasswordEmail)
-                          setSuccess(t('resetLinkSent'))
-                        } catch {
-                          setSuccess(t('resetLinkSent'))
-                        } finally {
-                          setLoading(false)
-                        }
-                      }}
                       sx={{
                         py: 1.5,
                         fontSize: '0.9375rem',
@@ -524,6 +534,7 @@ export default function LoginPage() {
                       {t('backToSignIn')}
                     </Link>
                   </Box>
+                  </form>
                 ) : (
                 <>
                 <form onSubmit={handleLogin}>
@@ -621,7 +632,7 @@ export default function LoginPage() {
                       fullWidth
                       variant="secondary"
                       icon={<FingerprintIcon />}
-                      loading={loading}
+                      loading={biometricLoading}
                       onClick={() => handleBiometricLogin(webauthnEmail)}
                       sx={{
                         py: 1.5,

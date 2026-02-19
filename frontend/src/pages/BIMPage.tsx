@@ -74,7 +74,7 @@ export default function BIMPage() {
   useEffect(() => {
     if (pollingIds.size === 0 || !projectId) return
     const interval = setInterval(async () => {
-      for (const modelId of pollingIds) {
+      await Promise.all([...pollingIds].map(async (modelId) => {
         try {
           const status = await bimApi.getStatus(projectId, modelId)
           setModels((prev) =>
@@ -97,7 +97,7 @@ export default function BIMPage() {
         } catch {
           // silent polling failure
         }
-      }
+      }))
     }, 5000)
     return () => clearInterval(interval)
   }, [pollingIds, projectId, showSuccess, t])

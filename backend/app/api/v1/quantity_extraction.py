@@ -13,7 +13,7 @@ MAX_FILE_SIZE = 20 * 1024 * 1024  # 20MB
 @router.post("/tools/extract-quantities", response_model=QuantityExtractionResponse)
 async def extract_quantities_endpoint(
     file: UploadFile = File(...),
-    language: str = Query(default="he", regex="^(he|en)$"),
+    language: str = Query(default="he", pattern="^(he|en)$"),
     current_user: User = Depends(get_current_user),
 ):
     if not file.content_type or file.content_type != "application/pdf":

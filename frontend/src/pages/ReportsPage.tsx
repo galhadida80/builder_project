@@ -66,10 +66,19 @@ export default function ReportsPage() {
     }
   }
 
-  const handleExportCsv = () => {
+  const handleExportCsv = async () => {
     if (!projectId) return
-    const url = reportsApi.getExportUrl(projectId, reportType, dateFrom || undefined, dateTo || undefined)
-    window.open(url, '_blank')
+    try {
+      const blob = await reportsApi.exportCsv(projectId, reportType, dateFrom || undefined, dateTo || undefined)
+      const url = URL.createObjectURL(blob)
+      const a = window.document.createElement('a')
+      a.href = url
+      a.download = `${reportType}-report.csv`
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch {
+      showError(t('reports.exportFailed', 'Export failed'))
+    }
   }
 
   const renderInspectionSummary = (data: Record<string, unknown>) => {

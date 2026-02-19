@@ -44,7 +44,7 @@ class InspectionConsultantTypeUpdate(BaseModel):
         return sanitize_string(v)
 
 
-class InspectionStageResponse(BaseModel):
+class InspectionStageResponse(CamelCaseModel):
     id: UUID
     consultant_type_id: UUID
     name: str
@@ -53,11 +53,8 @@ class InspectionStageResponse(BaseModel):
     required_documentation: dict | None = None
     created_at: datetime
 
-    class Config:
-        from_attributes = True
 
-
-class InspectionConsultantTypeResponse(BaseModel):
+class InspectionConsultantTypeResponse(CamelCaseModel):
     id: UUID
     name: str
     name_he: str
@@ -65,9 +62,6 @@ class InspectionConsultantTypeResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     stages: list[InspectionStageResponse] = []
-
-    class Config:
-        from_attributes = True
 
 
 # InspectionStage Schemas
@@ -132,7 +126,7 @@ class FindingUpdate(BaseModel):
         return sanitize_string(v)
 
 
-class FindingResponse(BaseModel):
+class FindingResponse(CamelCaseModel):
     id: UUID
     inspection_id: UUID
     title: str
@@ -144,9 +138,6 @@ class FindingResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     created_by: UserResponse | None = None
-
-    class Config:
-        from_attributes = True
 
 
 # Inspection Schemas
@@ -181,7 +172,7 @@ class InspectionUpdate(BaseModel):
         return sanitize_string(v)
 
 
-class InspectionResponse(BaseModel):
+class InspectionResponse(CamelCaseModel):
     id: UUID
     project_id: UUID
     consultant_type_id: UUID
@@ -196,12 +187,9 @@ class InspectionResponse(BaseModel):
     consultant_type: InspectionConsultantTypeResponse | None = None
     findings: list[FindingResponse] = []
 
-    class Config:
-        from_attributes = True
-
 
 # Dashboard Summary Schema
-class InspectionSummaryResponse(BaseModel):
+class InspectionSummaryResponse(CamelCaseModel):
     total_inspections: int
     pending_count: int
     in_progress_count: int

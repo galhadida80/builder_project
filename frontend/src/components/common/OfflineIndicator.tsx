@@ -26,7 +26,7 @@ export function OfflineIndicator() {
 
   if (!isOnline) {
     return (
-      <Box sx={{ position: 'fixed', bottom: 16, left: '50%', transform: 'translateX(-50%)', zIndex: 9999 }}>
+      <Box sx={{ position: 'fixed', bottom: { xs: 80, md: 16 }, left: '50%', transform: 'translateX(-50%)', zIndex: 9999 }}>
         <Alert
           severity="warning"
           icon={<SignalWifiOffIcon />}
@@ -45,7 +45,7 @@ export function OfflineIndicator() {
 
   if (syncing) {
     return (
-      <Box sx={{ position: 'fixed', bottom: 16, left: '50%', transform: 'translateX(-50%)', zIndex: 9999 }}>
+      <Box sx={{ position: 'fixed', bottom: { xs: 80, md: 16 }, left: '50%', transform: 'translateX(-50%)', zIndex: 9999 }}>
         <Alert severity="info" icon={<SyncIcon />} sx={{ borderRadius: 2, boxShadow: 3 }}>
           <Typography variant="body2">{t('offline.syncing')}</Typography>
         </Alert>

@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile
@@ -29,6 +29,7 @@ router = APIRouter()
 
 ALLOWED_EXTENSIONS = {".rvt", ".ifc", ".nwd", ".nwc", ".dwg"}
 IFC_EXTENSION = ".ifc"
+MAX_BIM_FILE_SIZE = 500 * 1024 * 1024  # 500MB
 
 
 def get_aps_service(settings: Settings = Depends(get_settings)) -> APSService:
@@ -115,6 +116,8 @@ async def upload_bim_model(
 
     content = await file.read()
     file_size = len(content)
+    if file_size > MAX_BIM_FILE_SIZE:
+        raise HTTPException(status_code=400, detail="File size exceeds 500MB limit")
     content_type = file.content_type or "application/octet-stream"
 
     bim_model = BimModel(
@@ -150,10 +153,13 @@ async def upload_bim_model(
         except Exception:
             bim_model.urn = None
 
+    try:
+        await create_audit_log(db, current_user, "bim_model", bim_model.id, AuditAction.CREATE, project_id=project_id)
+    except Exception:
+        pass
+
     await db.commit()
     await db.refresh(bim_model, attribute_names=["uploaded_by"])
-
-    await create_audit_log(db, current_user, "bim_model", bim_model.id, AuditAction.CREATE, project_id=project_id)
 
     return bim_model
 
@@ -289,13 +295,13 @@ async def oauth_callback(
     )
     connection = result.scalar_one_or_none()
 
-    expires_at = datetime.utcnow() + timedelta(seconds=token_data.get("expires_in", 3600))
+    expires_at = datetime.now(timezone.utc) + timedelta(seconds=token_data.get("expires_in", 3600))
 
     if connection:
         connection.access_token = token_data["access_token"]
         connection.refresh_token = token_data.get("refresh_token")
         connection.token_expires_at = expires_at
-        connection.updated_at = datetime.utcnow()
+        connection.updated_at = datetime.now(timezone.utc)
     else:
         connection = AutodeskConnection(
             user_id=user_id,

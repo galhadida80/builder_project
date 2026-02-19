@@ -73,6 +73,7 @@
     "completionRate": "Completion Rate",
     "of": "of",
     "approved": "approved",
+    "materialsApproved": "Materials Approved",
     "quickActions": "Quick Actions",
     "newInspection": "New Inspection",
     "next7Days": "Next 7 days",
@@ -139,6 +140,7 @@
     "draft": "Draft",
     "underReview": "Under Review",
     "approved": "Approved",
+    "rejected": "Rejected",
     "noEquipmentFound": "No equipment found",
     "noTypeSpecified": "No type specified",
     "details": "Equipment Details",
@@ -198,6 +200,7 @@
     "pending": "Pending",
     "underReview": "Under Review",
     "approved": "Approved",
+    "rejected": "Rejected",
     "noMaterialsFound": "No materials found",
     "noTypeSpecified": "No type specified",
     "searchPlaceholder": "Search materials...",
@@ -678,10 +681,68 @@
     "typeDate": "Date",
     "templateField": "Template field"
   },
+  "mobileChecklist": {
+    "responseSaved": "Response saved successfully",
+    "signatureRequired": "Signature is required before submitting",
+    "submitted": "Checklist submitted successfully!",
+    "notFound": "No checklist found for this inspection",
+    "back": "Back",
+    "inspectionChecklist": "Inspection Checklist",
+    "overallProgress": "Overall Progress",
+    "submitChecklist": "Submit Checklist",
+    "completeAllItems": "Complete all items to submit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "inspectorSignature": "Inspector Signature",
+    "saveSignature": "Save Signature",
+    "signatureCaptured": "Signature captured",
+    "addSignature": "Add Signature",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "notApplicable": "Not Applicable",
+    "status": "Status",
+    "notes": "Notes",
+    "photos": "Photos",
+    "retry": "Retry",
+    "signatureSaved": "Signature saved"
+  },
+  "upload": {
+    "uploading": "Uploading {{name}}",
+    "filesUploaded": "{{current}} of {{total}} files uploaded",
+    "dropHere": "Drop files here",
+    "dragAndDrop": "Drag & drop files here",
+    "orClickBrowse": "or click to browse",
+    "maxFileSize": "Maximum file size: {{size}}",
+    "fileTooLarge": "{{name}} is too large. Maximum size is {{maxSize}}",
+    "invalidType": "{{name}} has an unsupported file type",
+    "uploadFailed": "Failed to upload {{name}}"
+  },
   "templatePicker": {
     "specs": "Specs",
     "docs": "Docs",
-    "checks": "Checks"
+    "checks": "Checks",
+    "noResults": "No results found",
+    "categories": {
+      "structural": "Structural",
+      "plumbing": "Plumbing",
+      "electrical": "Electrical",
+      "fire_safety": "Fire Safety",
+      "hvac": "HVAC",
+      "finishing": "Finishing",
+      "concrete": "Concrete",
+      "waterproofing": "Waterproofing",
+      "insulation": "Insulation",
+      "steel": "Steel",
+      "earthwork": "Earthwork",
+      "landscaping": "Landscaping",
+      "elevator": "Elevator",
+      "facade": "Facade",
+      "flooring": "Flooring",
+      "painting": "Painting",
+      "windows_doors": "Windows & Doors",
+      "roofing": "Roofing",
+      "general": "General"
+    }
   },
   "contactSelector": {
     "selectApprovers": "Select Approvers",
@@ -977,7 +1038,7 @@
     "drawingReference": "Drawing Reference",
     "specificationReference": "Specification Reference",
     "deleteRfi": "Delete RFI",
-    "deleteConfirmationMessage": "Are you sure you want to delete this RFI? This action cannot be undone.",
+    "deleteConfirmationMessage": "Are you sure you want to delete RFI #{{number}}? This action cannot be undone.",
     "ccEmails": "CC Emails",
     "addEmailPlaceholder": "Add email...",
     "attachments": "Attachments",
@@ -989,9 +1050,11 @@
     "statuses": {
       "draft": "Draft",
       "open": "Open",
+      "in_progress": "In Progress",
       "waiting": "Waiting",
       "answered": "Answered",
-      "closed": "Closed"
+      "closed": "Closed",
+      "cancelled": "Cancelled"
     },
     "categories": {
       "design": "Design",
@@ -1089,7 +1152,8 @@
     "statusRejected": "Rejected",
     "statusNotApplicable": "N/A",
     "addNotes": "Add notes...",
-    "templateName": "Template"
+    "templateName": "Template",
+    "deleteChecklist": "Delete Checklist"
   },
   "documentReview": {
     "failedToLoadDocument": "Failed to load document. Please try again.",
@@ -1104,7 +1168,14 @@
     "zoomOut": "Zoom out",
     "rotate": "Rotate document",
     "downloadDocument": "Download document",
-    "printDocument": "Print document"
+    "printDocument": "Print document",
+    "approveTitle": "Approve Document?",
+    "approveConfirm": "Are you sure you want to approve this document?",
+    "rejectTitle": "Reject Document?",
+    "rejectConfirm": "Are you sure you want to reject this document?",
+    "backToProject": "Back to Project",
+    "confirm": "Confirm",
+    "cancel": "Cancel"
   },
   "inspections": {
     "title": "Inspections",
@@ -1316,6 +1387,7 @@
     "overCapacity": "over capacity"
   },
   "landing": {
+    "mobile": "Mobile",
     "signIn": "Sign In",
     "heroTitle": "Build Smarter\nInspect Faster\nDeliver Excellence",
     "heroSubtitle": "Streamline your construction management with our comprehensive platform. From project planning to final inspection, we've got you covered.",
@@ -1657,6 +1729,12 @@
     "settings": "Settings",
     "logout": "Logout",
     "viewAllNotifications": "View All Notifications",
+    "notifications_equipment_pending": "Equipment pending approval",
+    "notifications_equipment_detail": "New equipment requires your review",
+    "notifications_meeting_scheduled": "Meeting scheduled",
+    "notifications_meeting_detail": "A new meeting has been scheduled",
+    "notifications_material_delivery": "Material delivery update",
+    "notifications_material_detail": "Material delivery status changed",
     "noNewNotifications": "No new notifications",
     "profileComingSoon": "Profile page coming soon!",
     "settingsComingSoon": "Settings page coming soon!"

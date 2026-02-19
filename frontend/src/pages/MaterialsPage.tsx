@@ -153,7 +153,9 @@ export default function MaterialsPage() {
   const handleOpenEdit = (material: Material, e?: React.MouseEvent) => {
     if (e) e.stopPropagation()
     setEditingMaterial(material)
+    // Match by name_he first, fall back to name if no match (should use template_id in future)
     const matchingTemplate = materialTemplates.find(t => t.name_he === material.materialType)
+      || materialTemplates.find(t => t.name === material.materialType)
     setFormData({
       name: material.name,
       templateId: matchingTemplate?.id || '',
@@ -197,11 +199,11 @@ export default function MaterialsPage() {
       name: formData.name,
       notes: formData.notes,
       quantity: formData.quantity ? parseFloat(formData.quantity) : undefined,
-      material_type: selectedTemplate?.name_he,
+      materialType: selectedTemplate?.name_he,
       manufacturer: formData.manufacturer,
-      model_number: formData.modelNumber,
+      modelNumber: formData.modelNumber,
       unit: formData.unit,
-      storage_location: formData.storageLocation,
+      storageLocation: formData.storageLocation,
     })
     setErrors(validationErrors)
     if (hasErrors(validationErrors)) return
@@ -532,6 +534,7 @@ export default function MaterialsPage() {
               { label: t('materials.draft'), value: 'draft' },
               { label: t('materials.pending'), value: 'pending' },
               { label: t('materials.approved'), value: 'approved' },
+              { label: t('materials.rejected'), value: 'rejected' },
             ]}
             value={activeTab}
             onChange={(val) => { setActiveTab(val); setPage(1) }}

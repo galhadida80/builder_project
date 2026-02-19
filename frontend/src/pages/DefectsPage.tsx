@@ -177,7 +177,7 @@ export default function DefectsPage() {
 
   useEffect(() => {
     if (projectId) loadDefects()
-  }, [projectId, page, rowsPerPage, activeTab, categoryFilter])
+  }, [projectId, page, rowsPerPage, activeTab, categoryFilter, searchQuery])
 
   const loadReferenceData = async () => {
     if (!projectId) return
@@ -199,12 +199,13 @@ export default function DefectsPage() {
     if (!projectId) return
     setLoading(true)
     try {
-      const params: { status?: string; category?: string; page: number; pageSize: number } = {
+      const params: { status?: string; category?: string; search?: string; page: number; pageSize: number } = {
         page,
         pageSize: rowsPerPage,
       }
       if (activeTab !== 'all') params.status = activeTab
       if (categoryFilter) params.category = categoryFilter
+      if (searchQuery) params.search = searchQuery
       const result = await defectsApi.list(projectId, params)
       setDefects(result.items)
       setTotalDefects(result.total)

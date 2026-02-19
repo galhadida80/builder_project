@@ -61,9 +61,12 @@ export default function RFIPage() {
 
   useEffect(() => {
     loadRfis()
+  }, [projectId, page])
+
+  useEffect(() => {
     loadSummary()
     loadContactsAndGroups()
-  }, [projectId, page])
+  }, [projectId])
 
   const loadRfis = async () => {
     if (!projectId) return
@@ -511,7 +514,7 @@ export default function RFIPage() {
                 {t('common.previous')}
               </Button>
               <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', px: 2 }}>
-                {t('rfis.pageOf', { page, totalPages })}
+                {t('rfis.pageOf', { current: page, total: totalPages })}
               </Typography>
               <Button variant="secondary" size="small" disabled={page === totalPages} onClick={() => setPage(p => p + 1)}>
                 {t('common.next')}
@@ -604,7 +607,7 @@ export default function RFIPage() {
               helperText={errors.category}
             >
               {RFI_CATEGORY_OPTIONS.map(cat => (
-                <MenuItem key={cat.value} value={cat.value}>{t(`rfis.categories.${cat.value}`, { defaultValue: cat.label })}</MenuItem>
+                <MenuItem key={cat.value} value={cat.value}>{t(cat.labelKey)}</MenuItem>
               ))}
             </MuiTextField>
             <MuiTextField
@@ -617,7 +620,7 @@ export default function RFIPage() {
               helperText={errors.priority}
             >
               {RFI_PRIORITY_OPTIONS.map(p => (
-                <MenuItem key={p.value} value={p.value}>{t(`rfis.priorities.${p.value}`, { defaultValue: p.label })}</MenuItem>
+                <MenuItem key={p.value} value={p.value}>{t(p.labelKey)}</MenuItem>
               ))}
             </MuiTextField>
           </Box>

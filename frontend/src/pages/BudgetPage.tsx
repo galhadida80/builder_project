@@ -20,7 +20,7 @@ import { Box, Typography, Skeleton, Chip, MenuItem, IconButton, TextField as Mui
 const CATEGORIES: BudgetCategory[] = ['labor', 'materials', 'equipment', 'subcontractor', 'permits', 'overhead', 'other']
 const CAT_COLORS: Record<string, string> = { labor: '#1976d2', materials: '#2e7d32', equipment: '#ed6c02', subcontractor: '#9c27b0', permits: '#0288d1', overhead: '#757575', other: '#9e9e9e' }
 const CO_STATUS_COLORS: Record<string, 'default' | 'info' | 'success' | 'error'> = { draft: 'default', submitted: 'info', approved: 'success', rejected: 'error' }
-const fmt = (n: number) => `$${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+const fmt = (n: number) => n.toLocaleString(undefined, { style: 'currency', currency: 'ILS', minimumFractionDigits: 2, maximumFractionDigits: 2 })
 const today = () => new Date().toISOString().slice(0, 10)
 
 export default function BudgetPage() {
@@ -262,7 +262,7 @@ export default function BudgetPage() {
         </Box>
       </Card>
 
-      <FormModal open={itemDialog} onClose={() => { setItemDialog(false); setEditItem(null) }} onSubmit={handleSaveItem} title={editItem ? t('budget.editItem', { defaultValue: 'Edit Budget Item' }) : t('budget.addItem', { defaultValue: 'Add Budget Item' })} submitDisabled={!itemForm.name || !itemForm.budgeted_amount}>
+      <FormModal open={itemDialog} onClose={() => { setItemDialog(false); setEditItem(null) }} onSubmit={handleSaveItem} title={editItem ? t('budget.editItem', { defaultValue: 'Edit Budget Item' }) : t('budget.addItem', { defaultValue: 'Add Budget Item' })} submitDisabled={!itemForm.name || itemForm.budgeted_amount == null}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1 }}>
           <TextField fullWidth label={t('budget.name', { defaultValue: 'Name' })} value={itemForm.name} onChange={(e) => setItemForm({ ...itemForm, name: e.target.value })} required />
           <MuiTextField select fullWidth label={t('budget.category', { defaultValue: 'Category' })} value={itemForm.category} onChange={(e) => setItemForm({ ...itemForm, category: e.target.value })}>
@@ -273,7 +273,7 @@ export default function BudgetPage() {
         </Box>
       </FormModal>
 
-      <FormModal open={costDialog} onClose={() => setCostDialog(false)} onSubmit={handleSaveCost} title={t('budget.addCost', { defaultValue: 'Add Cost Entry' })} submitDisabled={!costForm.amount}>
+      <FormModal open={costDialog} onClose={() => setCostDialog(false)} onSubmit={handleSaveCost} title={t('budget.addCost', { defaultValue: 'Add Cost Entry' })} submitDisabled={costForm.amount == null}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1 }}>
           <TextField fullWidth label={t('budget.amount', { defaultValue: 'Amount' })} type="number" value={costForm.amount || ''} onChange={(e) => setCostForm({ ...costForm, amount: parseFloat(e.target.value) || 0 })} required />
           <TextField fullWidth label={t('budget.date', { defaultValue: 'Date' })} type="date" InputLabelProps={{ shrink: true }} value={costForm.entry_date} onChange={(e) => setCostForm({ ...costForm, entry_date: e.target.value })} />
@@ -283,7 +283,7 @@ export default function BudgetPage() {
         </Box>
       </FormModal>
 
-      <FormModal open={coDialog} onClose={() => { setCoDialog(false); setEditCO(null) }} onSubmit={handleSaveCO} title={editCO ? t('budget.editCO', { defaultValue: 'Edit Change Order' }) : t('budget.addChangeOrder', { defaultValue: 'Add Change Order' })} submitDisabled={!coForm.title || !coForm.amount}>
+      <FormModal open={coDialog} onClose={() => { setCoDialog(false); setEditCO(null) }} onSubmit={handleSaveCO} title={editCO ? t('budget.editCO', { defaultValue: 'Edit Change Order' }) : t('budget.addChangeOrder', { defaultValue: 'Add Change Order' })} submitDisabled={!coForm.title || coForm.amount == null}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1 }}>
           <TextField fullWidth label={t('budget.coTitle', { defaultValue: 'Title' })} value={coForm.title} onChange={(e) => setCoForm({ ...coForm, title: e.target.value })} required />
           <TextField fullWidth label={t('budget.amount', { defaultValue: 'Amount' })} type="number" value={coForm.amount || ''} onChange={(e) => setCoForm({ ...coForm, amount: parseFloat(e.target.value) || 0 })} required />

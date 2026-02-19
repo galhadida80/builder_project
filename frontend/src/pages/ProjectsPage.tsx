@@ -11,7 +11,6 @@ import { SearchField, TextField } from '../components/ui/TextField'
 import { FormModal, ConfirmModal } from '../components/ui/Modal'
 import { Tabs, SegmentedTabs } from '../components/ui/Tabs'
 import { EmptyState } from '../components/ui/EmptyState'
-import { ProgressBar } from '../components/ui/ProgressBar'
 import { projectsApi } from '../api/projects'
 import { useProject } from '../contexts/ProjectContext'
 import type { Project } from '../types'
@@ -142,7 +141,8 @@ export default function ProjectsPage() {
   }
 
   const handleDeleteClick = () => {
-    setProjectToDelete(selectedProject)
+    const project = selectedProject
+    setProjectToDelete(project)
     setDeleteDialogOpen(true)
     handleMenuClose()
   }
@@ -336,9 +336,6 @@ export default function ProjectsPage() {
                         </Typography>
                       </Box>
                     )}
-                    <Box sx={{ width: 100, flexShrink: 0, display: { xs: 'none', sm: 'block' } }}>
-                      <ProgressBar value={project.status === 'completed' ? 100 : project.status === 'active' ? 50 : 0} showValue={false} size="small" />
-                    </Box>
                     <StatusBadge status={project.status} size="small" />
                     <IconButton size="small" aria-label={t('common.viewMenu')} onClick={(e) => handleMenuOpen(e, project)} sx={{ flexShrink: 0, ml: -0.5 }}>
                       <MoreVertIcon sx={{ fontSize: 18 }} />
@@ -418,10 +415,7 @@ export default function ProjectsPage() {
                       )}
                     </Box>
 
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
-                      <Box sx={{ flex: 1, minWidth: 0 }}>
-                        <ProgressBar value={project.status === 'completed' ? 100 : project.status === 'active' ? 50 : 0} showValue={false} size="small" />
-                      </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
                       <StatusBadge status={project.status} size="small" />
                     </Box>
                   </Box>
@@ -434,8 +428,7 @@ export default function ProjectsPage() {
 
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
         <MenuItem onClick={() => selectedProject && handleOpenEdit(selectedProject)}>{t('pages.projects.editProject')}</MenuItem>
-        <MenuItem onClick={handleMenuClose}>{t('pages.projects.viewTeam')}</MenuItem>
-        <MenuItem onClick={handleMenuClose}>{t('pages.projects.exportReport')}</MenuItem>
+        <MenuItem onClick={() => { const pid = selectedProject?.id; handleMenuClose(); if (pid) navigate(`/projects/${pid}/contacts`); }}>{t('pages.projects.viewTeam')}</MenuItem>
         <MenuItem onClick={handleDeleteClick} sx={{ color: 'error.main' }}>{t('pages.projects.deleteProject')}</MenuItem>
       </Menu>
 

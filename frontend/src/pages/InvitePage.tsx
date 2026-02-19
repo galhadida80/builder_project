@@ -41,9 +41,7 @@ export default function InvitePage() {
     try {
       const result = await invitationsApi.accept(token)
       setSuccess(true)
-      if (result.projectId) {
-        setTimeout(() => navigate(`/projects/${result.projectId}/overview`), 1500)
-      }
+      setTimeout(() => navigate(result.projectId ? `/projects/${result.projectId}/overview` : '/dashboard'), 1500)
     } catch (err: unknown) {
       const e = err as { response?: { data?: { detail?: string } } }
       setError(e.response?.data?.detail || t('invite.acceptFailed'))

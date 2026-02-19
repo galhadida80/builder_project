@@ -12,7 +12,7 @@ export default function ApprovalQueuePage() {
   }
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
       <PageHeader
         title={t('approvalQueue.title')}
         subtitle={t('approvalQueue.subtitle')}

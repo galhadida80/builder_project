@@ -119,7 +119,7 @@ export default function Layout() {
             sx={{
               position: 'fixed',
               bottom: { xs: 80, md: 24 },
-              right: { xs: 16, md: 24 },
+              insetInlineEnd: { xs: 16, md: 24 },
               zIndex: 1100,
               display: chatOpen ? 'none' : 'flex',
               '&:focus-visible': {

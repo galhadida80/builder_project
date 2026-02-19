@@ -31,6 +31,9 @@ async def update_user(
     admin: User = Depends(get_current_admin_user),
     db: AsyncSession = Depends(get_db),
 ):
+    if user_id == admin.id:
+        raise HTTPException(status_code=400, detail="Cannot modify your own account")
+
     result = await db.execute(select(User).where(User.id == user_id))
     user = result.scalar_one_or_none()
     if not user:

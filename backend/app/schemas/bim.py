@@ -15,7 +15,6 @@ class BimModelResponse(CamelCaseModel):
     project_id: UUID
     filename: str
     file_size: Optional[int] = None
-    storage_path: Optional[str] = None
     urn: Optional[str] = None
     translation_status: str = "uploaded"
     translation_progress: int = 0

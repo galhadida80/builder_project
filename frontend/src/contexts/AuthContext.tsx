@@ -44,6 +44,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     refreshUser()
   }, [refreshUser])
 
+  useEffect(() => {
+    const handleForceLogout = () => {
+      setUser(null)
+      navigate('/login')
+    }
+    window.addEventListener('auth:logout', handleForceLogout)
+    return () => window.removeEventListener('auth:logout', handleForceLogout)
+  }, [navigate])
+
   const login = useCallback(async (email: string, password: string) => {
     const response = await authApi.login(email, password)
     localStorage.setItem('authToken', response.accessToken)
@@ -52,7 +61,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const loginWithWebAuthn = useCallback(async (email: string) => {
-    const { options } = await authApi.webauthnLoginBegin(email)
+    let options
+    try {
+      const result = await authApi.webauthnLoginBegin(email)
+      options = result.options
+    } catch (err) {
+      console.warn('WebAuthn login begin failed:', err)
+      throw err
+    }
     const credential = await navigator.credentials.get({ publicKey: options }) as PublicKeyCredential
     if (!credential) throw new Error('No credential returned')
     const response = await authApi.webauthnLoginComplete(email, credential)
@@ -72,6 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(() => {
     localStorage.removeItem('authToken')
     localStorage.removeItem('userId')
+    localStorage.removeItem('webauthn_email')
     setUser(null)
     navigate('/login')
   }, [navigate])

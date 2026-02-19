@@ -84,7 +84,6 @@ export default function MeetingsPage() {
     location: '',
     date: '',
     startTime: '',
-    endTime: ''
   })
 
   const [teamMembers, setTeamMembers] = useState<TeamMemberOption[]>([])
@@ -152,6 +151,8 @@ export default function MeetingsPage() {
     const allErrors = validateMeetingForm({
       title: testData.title,
       description: testData.description,
+      meeting_type: testData.meetingType,
+      location: testData.location,
     })
     if (field === 'date' && !testData.date) allErrors.date = t('meetings.dateRequired')
     if (field === 'startTime' && !testData.startTime) allErrors.startTime = t('meetings.startTimeRequired')
@@ -159,7 +160,7 @@ export default function MeetingsPage() {
   }
 
   const resetForm = () => {
-    setFormData({ title: '', meetingType: '', description: '', location: '', date: '', startTime: '', endTime: '' })
+    setFormData({ title: '', meetingType: '', description: '', location: '', date: '', startTime: '' })
     setErrors({})
     setEditingMeeting(null)
     setSelectedAttendees([])
@@ -192,7 +193,6 @@ export default function MeetingsPage() {
       location: meeting.location || '',
       date: `${year}-${month}-${day}`,
       startTime: `${hours}:${minutes}`,
-      endTime: ''
     })
     setErrors({})
     setDialogOpen(true)
@@ -203,7 +203,9 @@ export default function MeetingsPage() {
     if (!projectId) return
     const validationErrors = validateMeetingForm({
       title: formData.title,
-      description: formData.description
+      description: formData.description,
+      meeting_type: formData.meetingType,
+      location: formData.location,
     })
 
     if (proposeTimeSlots && !editingMeeting) {
@@ -334,8 +336,15 @@ export default function MeetingsPage() {
     loadMeetingPhotos(selectedMeeting.id)
   }
 
-  const upcomingMeetings = meetings.filter(m => m.status === 'scheduled' || m.status === 'invitations_sent' || m.status === 'pending_votes')
-  const pastMeetings = meetings.filter(m => m.status === 'completed' || m.status === 'cancelled')
+  const now = new Date()
+  const upcomingMeetings = meetings.filter(m =>
+    (m.status === 'scheduled' || m.status === 'invitations_sent' || m.status === 'pending_votes') &&
+    m.scheduledDate && new Date(m.scheduledDate) >= now
+  )
+  const pastMeetings = meetings.filter(m =>
+    m.status === 'completed' || m.status === 'cancelled' ||
+    (m.scheduledDate && new Date(m.scheduledDate) < now)
+  )
   const displayedMeetings = tabValue === 'upcoming' ? upcomingMeetings : pastMeetings
 
   const getMeetingTypeLabel = (type?: string) => {
@@ -988,7 +997,7 @@ export default function MeetingsPage() {
               ))}
             </Box>
           ) : (
-            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr 1fr' }, gap: 2 }}>
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
               <TextField
                 fullWidth
                 label={t('meetings.date')}
@@ -1012,14 +1021,6 @@ export default function MeetingsPage() {
                 onBlur={() => validateField('startTime', formData.startTime)}
                 error={!!errors.startTime}
                 helperText={errors.startTime}
-              />
-              <TextField
-                fullWidth
-                label={t('meetings.endTime')}
-                type="time"
-                InputLabelProps={{ shrink: true }}
-                value={formData.endTime}
-                onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
               />
             </Box>
           )}

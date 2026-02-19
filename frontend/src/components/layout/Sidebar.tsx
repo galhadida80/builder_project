@@ -325,7 +325,7 @@ export default memo(function Sidebar({ projectId, mobileOpen = false, onMobileCl
             fontSize: '0.65rem',
           }}
         >
-          v1.0.0
+          {import.meta.env.VITE_APP_VERSION || 'v1.0.0'}
         </Typography>
       </Box>
     </>
@@ -364,7 +364,7 @@ export default memo(function Sidebar({ projectId, mobileOpen = false, onMobileCl
           width: DRAWER_WIDTH,
           boxSizing: 'border-box',
           bgcolor: 'background.paper',
-          borderRight: '1px solid',
+          borderInlineEnd: '1px solid',
           borderColor: 'divider',
         },
       }}

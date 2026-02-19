@@ -31,7 +31,7 @@ apiClient.interceptors.response.use(
       const isAlreadyOnLogin = window.location.pathname === '/login' || window.location.pathname === '/'
       if (!isAuthEndpoint && !isAlreadyOnLogin) {
         localStorage.removeItem('authToken')
-        window.location.href = '/login'
+        window.dispatchEvent(new CustomEvent('auth:logout'))
       }
     }
     return Promise.reject(error)

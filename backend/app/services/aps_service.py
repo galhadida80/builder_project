@@ -11,17 +11,17 @@ APS_BASE_URL = "https://developer.api.autodesk.com"
 
 
 class APSService:
+    cached_token: Optional[str] = None
+    token_expires_at: float = 0
 
     def __init__(self, settings: Settings):
         self.client_id = settings.aps_client_id
         self.client_secret = settings.aps_client_secret
         self.callback_url = settings.aps_callback_url
-        self.cached_token: Optional[str] = None
-        self.token_expires_at: float = 0
 
     async def get_2legged_token(self) -> str:
-        if self.cached_token and time.time() < self.token_expires_at:
-            return self.cached_token
+        if APSService.cached_token and time.time() < APSService.token_expires_at:
+            return APSService.cached_token
 
         async with httpx.AsyncClient() as client:
             resp = await client.post(
@@ -36,9 +36,9 @@ class APSService:
             resp.raise_for_status()
             data = resp.json()
 
-        self.cached_token = data["access_token"]
-        self.token_expires_at = time.time() + data.get("expires_in", 3600) - 60
-        return self.cached_token
+        APSService.cached_token = data["access_token"]
+        APSService.token_expires_at = time.time() + data.get("expires_in", 3600) - 60
+        return APSService.cached_token
 
     async def ensure_bucket(self, bucket_key: str) -> dict[str, Any]:
         token = await self.get_2legged_token()
@@ -110,7 +110,10 @@ class APSService:
 
         status = data.get("status", "pending")
         progress_str = data.get("progress", "0%")
-        progress = int(progress_str.replace("%", "").replace("complete", "100")) if isinstance(progress_str, str) else 0
+        try:
+            progress = int(progress_str.replace("%", "").replace("complete", "100")) if isinstance(progress_str, str) else 0
+        except (ValueError, TypeError):
+            progress = 0
 
         status_map = {
             "pending": "translating",

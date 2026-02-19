@@ -34,6 +34,7 @@ export interface DefectListParams {
   status?: string
   category?: string
   severity?: string
+  search?: string
   page?: number
   pageSize?: number
 }
@@ -50,6 +51,7 @@ export const defectsApi = {
     if (params?.status) qs.set('status', params.status)
     if (params?.category) qs.set('category', params.category)
     if (params?.severity) qs.set('severity', params.severity)
+    if (params?.search) qs.set('search', params.search)
     if (params?.page) qs.set('page', String(params.page))
     if (params?.pageSize) qs.set('page_size', String(params.pageSize))
     const query = qs.toString()

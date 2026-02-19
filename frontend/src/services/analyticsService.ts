@@ -13,6 +13,12 @@ interface MetricsBackendResponse {
   approved_materials: number
   total_meetings: number
   approval_rate: number
+  total_rfis: number
+  open_rfis: number
+  closed_rfis: number
+  total_approvals: number
+  pending_approvals: number
+  approved_approvals: number
 }
 
 interface TrendDataPointBackend {
@@ -20,6 +26,10 @@ interface TrendDataPointBackend {
   inspections: number
   equipment_submissions: number
   material_submissions: number
+  rfi_created: number
+  rfi_closed: number
+  approvals_submitted: number
+  approvals_decided: number
 }
 
 interface ProjectTrendsBackendResponse {
@@ -36,6 +46,8 @@ interface DistributionsBackendResponse {
   equipment_status: DistributionItemBackend[]
   material_status: DistributionItemBackend[]
   project_status: DistributionItemBackend[]
+  rfi_status: DistributionItemBackend[]
+  approval_status: DistributionItemBackend[]
 }
 
 // Frontend types (camelCase for application use)
@@ -93,7 +105,7 @@ export const analyticsService = {
     return {
       totalProjects: data.total_projects,
       activeInspections: data.pending_inspections,
-      pendingRFIs: data.total_materials - data.approved_materials,
+      pendingRFIs: data.open_rfis ?? 0,
       approvalRate: data.approval_rate,
       equipmentUtilization: data.total_equipment > 0 ? Math.round((data.approved_equipment / data.total_equipment) * 100) : 0,
       budgetStatus: 0,
@@ -117,7 +129,7 @@ export const analyticsService = {
     return response.data.data_points.map(point => ({
       date: point.date,
       inspectionsCompleted: point.inspections,
-      rfisSubmitted: point.material_submissions, // Using material submissions as proxy for RFIs
+      rfisSubmitted: point.rfi_created,
     }))
   },
 
@@ -141,7 +153,7 @@ export const analyticsService = {
     // Transform backend response to frontend format
     const data = response.data
     return {
-      rfiStatus: data.material_status.map((item, index) => ({
+      rfiStatus: data.rfi_status.map((item, index) => ({
         id: index,
         label: item.label,
         value: item.value,

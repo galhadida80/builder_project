@@ -104,27 +104,28 @@ export default function ApprovalsPage() {
     if (!selectedApproval || !actionType) return
     setSubmitting(true)
     const previousApprovals = [...approvals]
-    const optimisticStatus = actionType === 'approve' ? 'approved' : 'rejected'
+    const savedApproval = selectedApproval
+    const savedAction = actionType
+    const savedComment = comment
+    const optimisticStatus = savedAction === 'approve' ? 'approved' : 'rejected'
     setApprovals(prev =>
       prev.map(a =>
-        a.id === selectedApproval.id
+        a.id === savedApproval.id
           ? { ...a, currentStatus: optimisticStatus as ApprovalRequest['currentStatus'] }
           : a
       )
     )
     setDialogOpen(false)
-    const savedApproval = selectedApproval
-    const savedAction = actionType
     setSelectedApproval(null)
     setActionType(null)
     setComment('')
-    showSuccess(savedAction === 'approve' ? t('approvals.approvedSuccess') : t('approvals.rejectedSuccess'))
     try {
       if (savedAction === 'approve') {
-        await approvalsApi.approve(savedApproval.id, comment || undefined)
+        await approvalsApi.approve(savedApproval.id, savedComment || undefined)
       } else {
-        await approvalsApi.reject(savedApproval.id, comment)
+        await approvalsApi.reject(savedApproval.id, savedComment)
       }
+      showSuccess(savedAction === 'approve' ? t('approvals.approvedSuccess') : t('approvals.rejectedSuccess'))
       loadData()
     } catch {
       setApprovals(previousApprovals)

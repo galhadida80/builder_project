@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useDropzone } from 'react-dropzone'
 import { useToast } from '../common/ToastProvider'
 import { ProgressBar } from '../ui/ProgressBar'
@@ -49,6 +50,7 @@ export function UploadZone({
   maxSize = 100 * 1024 * 1024, // 100MB default
   accept,
 }: UploadZoneProps) {
+  const { t } = useTranslation()
   const { showError } = useToast()
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
@@ -64,11 +66,11 @@ export function UploadZone({
         const errors = rejection.errors
 
         if (errors.some((e: any) => e.code === 'file-too-large')) {
-          showError(`${file.name} is too large. Maximum size is ${maxSize / (1024 * 1024)}MB`)
+          showError(t('upload.fileTooLarge', { name: file.name, size: maxSize / (1024 * 1024) }))
         } else if (errors.some((e: any) => e.code === 'file-invalid-type')) {
-          showError(`${file.name} has an unsupported file type`)
+          showError(t('upload.invalidType', { name: file.name }))
         } else {
-          showError(`${file.name} could not be uploaded`)
+          showError(t('upload.uploadFailed', { name: file.name }))
         }
       })
     }
@@ -91,7 +93,7 @@ export function UploadZone({
         setUploadedCount(i + 1)
         // Parent component handles success notification
       } catch (error) {
-        showError(`Failed to upload ${file.name}`)
+        showError(t('upload.uploadFailed', { name: file.name }))
       }
     }
 
@@ -127,11 +129,11 @@ export function UploadZone({
               <CircularProgress size={40} />
             </Box>
             <Typography variant="body1" fontWeight={600} color="text.primary" gutterBottom>
-              Uploading {currentFileName}
+              {t('upload.uploading', { name: currentFileName })}
             </Typography>
             {uploadQueue.length > 1 && (
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                {uploadedCount} of {uploadQueue.length} files uploaded
+                {t('upload.filesUploaded', { current: uploadedCount, total: uploadQueue.length })}
               </Typography>
             )}
             <Box sx={{ mt: 2, px: 4 }}>
@@ -144,13 +146,13 @@ export function UploadZone({
               <CloudUploadIcon sx={{ fontSize: 32, color: 'primary.main' }} />
             </IconWrapper>
             <Typography variant="h6" fontWeight={600} color="text.primary" gutterBottom>
-              {isDragActive ? 'Drop files here' : 'Drag & drop files here'}
+              {isDragActive ? t('upload.dropHere') : t('upload.dragAndDrop')}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-              or click to browse
+              {t('upload.orClickBrowse')}
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              Maximum file size: {formatFileSize(maxSize)}
+              {t('upload.maxFileSize', { size: formatFileSize(maxSize) })}
             </Typography>
           </>
         )}
