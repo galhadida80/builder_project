@@ -55,9 +55,8 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
   }, [language, direction])
 
   useEffect(() => {
-    const currentLang = i18n.language as LanguageCode
-    if (currentLang !== language) {
-      setLanguage(currentLang)
+    if (i18n.language !== language) {
+      i18n.changeLanguage(language).catch(console.error)
     }
   }, [])
 

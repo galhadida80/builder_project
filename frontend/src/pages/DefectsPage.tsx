@@ -199,12 +199,13 @@ export default function DefectsPage() {
     if (!projectId) return
     setLoading(true)
     try {
-      const params: { status?: string; category?: string; page: number; pageSize: number } = {
+      const params: { status?: string; category?: string; search?: string; page: number; pageSize: number } = {
         page,
         pageSize: rowsPerPage,
       }
       if (activeTab !== 'all') params.status = activeTab
       if (categoryFilter) params.category = categoryFilter
+      if (searchQuery) params.search = searchQuery
       const result = await defectsApi.list(projectId, params)
       setDefects(result.items)
       setTotalDefects(result.total)
@@ -276,17 +277,7 @@ export default function DefectsPage() {
     }
   }
 
-  const filteredDefects = searchQuery
-    ? defects.filter(d => {
-        const q = searchQuery.toLowerCase()
-        return (
-          d.description.toLowerCase().includes(q) ||
-          String(d.defectNumber).includes(q) ||
-          d.area?.name?.toLowerCase().includes(q) ||
-          d.assignedContact?.contactName?.toLowerCase().includes(q)
-        )
-      })
-    : defects
+  const filteredDefects = defects
 
   const columns: Column<Defect>[] = [
     {

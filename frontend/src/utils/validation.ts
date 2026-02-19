@@ -28,17 +28,17 @@ export const VALIDATION = {
 }
 
 const DANGEROUS_PATTERNS = [
-  /<script[^>]*>.*?<\/script>/gi,
+  /<script[^>]*>[\s\S]*?<\/script>/gi,
   /javascript:/gi,
   /on\w+\s*=/gi,
   /<iframe[^>]*>/gi,
   /<img[^>]*>/gi,
-  /<svg[^>]*>.*?<\/svg>/gi,
+  /<svg[^>]*>[\s\S]*?<\/svg>/gi,
   /<object[^>]*>/gi,
   /<embed[^>]*>/gi,
   /<link[^>]*>/gi,
   /<meta[^>]*>/gi,
-  /<style[^>]*>.*?<\/style>/gi,
+  /<style[^>]*>[\s\S]*?<\/style>/gi,
 ]
 
 export const sanitizeString = (value: string | undefined | null): string => {

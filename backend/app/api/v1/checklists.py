@@ -425,12 +425,6 @@ async def update_checklist_item_template(
     if not item:
         raise HTTPException(status_code=404, detail="Checklist item template not found")
 
-    old_values = get_model_dict(item)
-
-    for key, value in data.model_dump(exclude_unset=True).items():
-        attr = "extra_data" if key == "metadata" else key
-        setattr(item, attr, value)
-
     subsection_result = await db.execute(
         select(ChecklistSubSection)
         .options(selectinload(ChecklistSubSection.template))
@@ -439,6 +433,12 @@ async def update_checklist_item_template(
     subsection = subsection_result.scalar_one()
 
     await check_template_permission(Permission.EDIT, subsection.template.project_id, current_user.id, db, current_user)
+
+    old_values = get_model_dict(item)
+
+    for key, value in data.model_dump(exclude_unset=True).items():
+        attr = "extra_data" if key == "metadata" else key
+        setattr(item, attr, value)
 
     await create_audit_log(db, current_user, "checklist_item_template", item.id, AuditAction.UPDATE,
                           project_id=subsection.template.project_id, old_values=old_values, new_values=get_model_dict(item))

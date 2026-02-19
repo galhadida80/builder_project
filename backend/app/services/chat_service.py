@@ -423,7 +423,7 @@ async def propose_update_inspection_status(ctx: RunContext[ChatDeps], entity_id:
 
 @agent.tool
 async def propose_update_meeting_status(ctx: RunContext[ChatDeps], entity_id: str, new_status: str, reason: str) -> dict:
-    """Propose changing a meeting's status. Status values: scheduled, invitations_sent, completed, cancelled. The user must approve."""
+    """Propose changing a meeting's status. Status values: scheduled, invitations_sent, pending_votes, completed, cancelled. The user must approve."""
     action = ChatAction(
         conversation_id=ctx.deps.conversation_id,
         message_id=ctx.deps.message_id,

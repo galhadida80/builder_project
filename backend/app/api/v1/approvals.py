@@ -234,6 +234,7 @@ async def process_approval_step(
     elif data.action == "reject":
         step.status = "rejected"
         step.approved_by_id = current_user.id
+        step.approved_at = datetime.now(timezone.utc)
         step.comments = data.comments
         approval_request.current_status = ApprovalStatus.REJECTED.value
         await update_entity_status(db, approval_request.entity_type, approval_request.entity_id, ApprovalStatus.REJECTED.value)
@@ -247,6 +248,7 @@ async def process_approval_step(
     elif data.action == "revision":
         step.status = "revision_requested"
         step.approved_by_id = current_user.id
+        step.approved_at = datetime.now(timezone.utc)
         step.comments = data.comments
         approval_request.current_status = ApprovalStatus.REVISION_REQUESTED.value
         await update_entity_status(db, approval_request.entity_type, approval_request.entity_id, ApprovalStatus.REVISION_REQUESTED.value)

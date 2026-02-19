@@ -13,11 +13,11 @@ import { useTheme, useMediaQuery } from '@/mui'
 
 interface TimelineEvent {
   id: string
-  type: string
+  eventType: string
   title: string
   description?: string
   date: string
-  user?: string
+  userName?: string
 }
 
 // Backend response interfaces (camelCase from CamelCaseModel)

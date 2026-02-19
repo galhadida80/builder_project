@@ -5,7 +5,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File
 from fastapi.responses import Response
-from sqlalchemy import case, func, select
+from sqlalchemy import String, case, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -63,6 +63,7 @@ async def list_defects(
     status: Optional[str] = Query(None),
     category: Optional[str] = Query(None),
     severity: Optional[str] = Query(None),
+    search: Optional[str] = Query(None),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
@@ -78,6 +79,14 @@ async def list_defects(
         base_query = base_query.where(Defect.category == category)
     if severity:
         base_query = base_query.where(Defect.severity == severity)
+    if search:
+        search_filter = f"%{search}%"
+        base_query = base_query.where(
+            or_(
+                Defect.description.ilike(search_filter),
+                func.cast(Defect.defect_number, String).ilike(search_filter),
+            )
+        )
 
     # Get total count
     count_query = select(func.count()).select_from(base_query.subquery())
