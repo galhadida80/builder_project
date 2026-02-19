@@ -1,6 +1,6 @@
 import hashlib
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import UUID
 
 from sqlalchemy import select
@@ -119,7 +119,7 @@ async def generate_audit_package(
         "project_id": str(project_id),
         "date_from": date_from.isoformat(),
         "date_to": date_to.isoformat(),
-        "generated_at": datetime.utcnow().isoformat(),
+        "generated_at": datetime.now(timezone.utc).isoformat(),
         "audit_logs": {
             "count": len(audit_log_data),
             "checksum": compute_checksum(audit_log_data),

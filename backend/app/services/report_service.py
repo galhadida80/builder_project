@@ -1,6 +1,6 @@
 import io
 import csv
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import UUID
 
 from sqlalchemy import select
@@ -130,7 +130,7 @@ async def generate_rfi_aging_report(db: AsyncSession, project_id: UUID) -> dict:
     )
     open_rfis = result.scalars().all()
 
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     priority_groups = {}
     aging_items = []
 

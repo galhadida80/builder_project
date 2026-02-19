@@ -334,6 +334,7 @@ async def add_rfi_response(
             attachments=response_data.attachments,
             send_email=send_email,
             language=language,
+            is_internal=response_data.is_internal,
         )
         return response
     except ValueError as e:

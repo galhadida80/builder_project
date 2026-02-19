@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import String, cast, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -374,7 +374,7 @@ async def get_meetings(db: AsyncSession, project_id: uuid.UUID, **kwargs) -> dic
 
     query = select(Meeting).where(Meeting.project_id == project_id)
     if upcoming:
-        query = query.where(Meeting.scheduled_date >= datetime.utcnow()).order_by(Meeting.scheduled_date.asc())
+        query = query.where(Meeting.scheduled_date >= datetime.now(timezone.utc)).order_by(Meeting.scheduled_date.asc())
     else:
         query = query.order_by(Meeting.scheduled_date.desc())
     query = query.limit(limit)

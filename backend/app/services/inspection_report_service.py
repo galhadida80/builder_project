@@ -1,5 +1,5 @@
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from weasyprint import HTML
@@ -96,7 +96,7 @@ def build_inspection_context(inspection: Inspection, strings: dict) -> dict:
 
 def generate_inspections_report_pdf(inspections: list[Inspection], project) -> bytes:
     s = STRINGS
-    today = datetime.utcnow().strftime("%d/%m/%Y")
+    today = datetime.now(timezone.utc).strftime("%d/%m/%Y")
 
     inspection_items = [build_inspection_context(insp, s) for insp in inspections]
 

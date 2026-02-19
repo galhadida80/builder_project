@@ -1,7 +1,7 @@
 import logging
 import re
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from sqlalchemy import func, or_, select, text
@@ -41,7 +41,7 @@ class RFIService:
             await self.db.execute(text("SELECT pg_advisory_xact_lock(hashtext('rfi_number_gen'))"))
         except Exception:
             pass
-        year = datetime.utcnow().year
+        year = datetime.now(timezone.utc).year
         prefix = f"RFI-{year}-"
         result = await self.db.execute(
             select(func.max(RFI.rfi_number)).where(
@@ -133,7 +133,7 @@ class RFIService:
 
             rfi.email_thread_id = email_result['thread_id']
             rfi.email_message_id = email_result['email_message_id']
-            rfi.sent_at = datetime.utcnow()
+            rfi.sent_at = datetime.now(timezone.utc)
             rfi.status = RFIStatus.WAITING_RESPONSE.value
 
             email_log = RFIEmailLog(
@@ -278,12 +278,12 @@ class RFIService:
             source='email',
             is_internal=bool(responder),
             is_cc_participant=is_cc,
-            received_at=datetime.utcnow()
+            received_at=datetime.now(timezone.utc)
         )
         self.db.add(response)
 
         rfi.status = RFIStatus.ANSWERED.value
-        rfi.responded_at = datetime.utcnow()
+        rfi.responded_at = datetime.now(timezone.utc)
 
         return response
 
@@ -369,7 +369,7 @@ class RFIService:
         rfi.status = status
 
         if status == RFIStatus.CLOSED.value:
-            rfi.closed_at = datetime.utcnow()
+            rfi.closed_at = datetime.now(timezone.utc)
 
         await self.db.commit()
         await self.db.refresh(rfi)
@@ -446,7 +446,7 @@ class RFIService:
         overdue_result = await self.db.execute(
             select(func.count(RFI.id)).where(
                 RFI.project_id == project_id,
-                RFI.due_date < datetime.utcnow(),
+                RFI.due_date < datetime.now(timezone.utc),
                 RFI.status.in_([RFIStatus.OPEN.value, RFIStatus.WAITING_RESPONSE.value])
             )
         )

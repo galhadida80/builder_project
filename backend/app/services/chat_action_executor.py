@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from decimal import Decimal
 
 from sqlalchemy import func, select
@@ -63,7 +63,7 @@ async def handle_update_equipment_status(db: AsyncSession, action: ChatAction, u
         return {"error": "Equipment not found"}
     old_status = entity.status
     entity.status = new_status
-    entity.updated_at = datetime.utcnow()
+    entity.updated_at = datetime.now(timezone.utc)
     db.add(AuditLog(
         project_id=project_id, user_id=user_id, entity_type="equipment",
         entity_id=entity.id, action="status_change",
@@ -84,7 +84,7 @@ async def handle_update_material_status(db: AsyncSession, action: ChatAction, us
         return {"error": "Material not found"}
     old_status = entity.status
     entity.status = new_status
-    entity.updated_at = datetime.utcnow()
+    entity.updated_at = datetime.now(timezone.utc)
     db.add(AuditLog(
         project_id=project_id, user_id=user_id, entity_type="material",
         entity_id=entity.id, action="status_change",
@@ -105,9 +105,9 @@ async def handle_update_rfi_status(db: AsyncSession, action: ChatAction, user_id
         return {"error": "RFI not found"}
     old_status = entity.status
     entity.status = new_status
-    entity.updated_at = datetime.utcnow()
+    entity.updated_at = datetime.now(timezone.utc)
     if new_status == "closed":
-        entity.closed_at = datetime.utcnow()
+        entity.closed_at = datetime.now(timezone.utc)
     db.add(AuditLog(
         project_id=project_id, user_id=user_id, entity_type="rfi",
         entity_id=entity.id, action="status_change",
@@ -128,9 +128,9 @@ async def handle_update_inspection_status(db: AsyncSession, action: ChatAction, 
         return {"error": "Inspection not found"}
     old_status = entity.status
     entity.status = new_status
-    entity.updated_at = datetime.utcnow()
+    entity.updated_at = datetime.now(timezone.utc)
     if new_status == "completed":
-        entity.completed_date = datetime.utcnow()
+        entity.completed_date = datetime.now(timezone.utc)
     db.add(AuditLog(
         project_id=project_id, user_id=user_id, entity_type="inspection",
         entity_id=entity.id, action="status_change",
@@ -151,7 +151,7 @@ async def handle_update_meeting_status(db: AsyncSession, action: ChatAction, use
         return {"error": "Meeting not found"}
     old_status = entity.status
     entity.status = new_status
-    entity.updated_at = datetime.utcnow()
+    entity.updated_at = datetime.now(timezone.utc)
     db.add(AuditLog(
         project_id=project_id, user_id=user_id, entity_type="meeting",
         entity_id=entity.id, action="status_change",
@@ -224,7 +224,7 @@ async def handle_create_meeting(db: AsyncSession, action: ChatAction, user_id: u
         project_id=project_id,
         title=params.get("title", ""),
         description=params.get("description", ""),
-        scheduled_date=scheduled or datetime.utcnow(),
+        scheduled_date=scheduled or datetime.now(timezone.utc),
         location=params.get("location", ""),
         status="scheduled",
         created_by_id=user_id,
@@ -247,7 +247,7 @@ async def handle_schedule_inspection(db: AsyncSession, action: ChatAction, user_
     inspection = Inspection(
         project_id=project_id,
         consultant_type_id=uuid.UUID(params["consultant_type_id"]),
-        scheduled_date=scheduled or datetime.utcnow(),
+        scheduled_date=scheduled or datetime.now(timezone.utc),
         notes=params.get("notes", ""),
         status="pending",
         created_by_id=user_id,
@@ -277,7 +277,7 @@ async def handle_approve_submission(db: AsyncSession, action: ChatAction, user_i
             return {"error": "Equipment submission not found"}
         old_status = submission.status
         submission.status = "approved"
-        submission.updated_at = datetime.utcnow()
+        submission.updated_at = datetime.now(timezone.utc)
         db.add(EquipmentApprovalDecision(
             submission_id=submission.id,
             approver_id=user_id,
@@ -294,7 +294,7 @@ async def handle_approve_submission(db: AsyncSession, action: ChatAction, user_i
             return {"error": "Material submission not found"}
         old_status = submission.status
         submission.status = "approved"
-        submission.updated_at = datetime.utcnow()
+        submission.updated_at = datetime.now(timezone.utc)
     else:
         return {"error": f"Unknown submission entity_type: {entity_type}"}
 
@@ -431,9 +431,9 @@ async def handle_update_defect_status(db: AsyncSession, action: ChatAction, user
         return {"error": "Defect not found"}
     old_status = entity.status
     entity.status = new_status
-    entity.updated_at = datetime.utcnow()
+    entity.updated_at = datetime.now(timezone.utc)
     if new_status == "resolved":
-        entity.resolved_at = datetime.utcnow()
+        entity.resolved_at = datetime.now(timezone.utc)
     db.add(AuditLog(
         project_id=project_id, user_id=user_id, entity_type="defect",
         entity_id=entity.id, action="status_change",

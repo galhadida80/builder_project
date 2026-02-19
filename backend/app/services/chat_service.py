@@ -1,7 +1,7 @@
 import logging
 import uuid
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 
 from pydantic_ai import Agent, RunContext
 from pydantic_ai.messages import ModelMessagesTypeAdapter
@@ -666,7 +666,7 @@ async def load_conversation_history(db: AsyncSession, conversation_id: uuid.UUID
 
 
 def make_message_dict(role: str, content: str) -> dict:
-    ts = datetime.utcnow().isoformat() + "Z"
+    ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     if role == "user":
         return {"kind": "request", "parts": [{"part_kind": "user-prompt", "content": content, "timestamp": ts}]}
     return {"kind": "response", "parts": [{"part_kind": "text", "content": content or ""}]}
@@ -746,7 +746,7 @@ async def send_message(db: AsyncSession, project_id: uuid.UUID, user_id: uuid.UU
     assistant_msg.tool_calls = tool_names if tool_names else None
     assistant_msg.tool_results = serialized
 
-    conversation.updated_at = datetime.utcnow()
+    conversation.updated_at = datetime.now(timezone.utc)
 
     await db.flush()
     actions_result = await db.execute(

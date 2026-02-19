@@ -3,7 +3,7 @@ Seed script to populate sample notifications for testing.
 Run with: python app/db/seed_notifications.py
 """
 import asyncio
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from sqlalchemy import select
 
@@ -131,7 +131,7 @@ async def seed_notifications():
                     continue
 
                 # Calculate created_at based on hours_ago
-                created_at = datetime.utcnow() - timedelta(hours=notification_data["hours_ago"])
+                created_at = datetime.now(timezone.utc) - timedelta(hours=notification_data["hours_ago"])
 
                 # Create new notification
                 notification = Notification(

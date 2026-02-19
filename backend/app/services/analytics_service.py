@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from uuid import UUID
 
 from sqlalchemy import func, select
@@ -62,7 +62,7 @@ async def get_entity_trends(
     if model is None:
         return []
 
-    start_date = datetime.utcnow() - timedelta(days=days)
+    start_date = datetime.now(timezone.utc) - timedelta(days=days)
     date_trunc = func.date_trunc("day", model.created_at)
 
     query = (

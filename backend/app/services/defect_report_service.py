@@ -1,6 +1,6 @@
 import base64
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import UUID
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -185,7 +185,7 @@ async def generate_defects_report_pdf(
     storage: StorageBackend,
 ) -> bytes:
     s = STRINGS
-    today = datetime.utcnow().strftime("%d/%m/%Y")
+    today = datetime.now(timezone.utc).strftime("%d/%m/%Y")
 
     defect_ids = [d.id for d in defects]
     photos_map = await load_defect_photos(db, storage, defect_ids)

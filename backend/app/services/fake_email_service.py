@@ -1,7 +1,7 @@
 import json
 import logging
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
@@ -44,7 +44,7 @@ class FakeEmailService:
             'attachments_count': len(attachments) if attachments else 0,
             'in_reply_to': in_reply_to,
             'references': references,
-            'sent_at': datetime.utcnow().isoformat(),
+            'sent_at': datetime.now(timezone.utc).isoformat(),
             'status': 'sent'
         }
 
@@ -83,7 +83,7 @@ class FakeEmailService:
             'subject': subject,
             'body_html': body_html,
             'body_text': body_text,
-            'sent_at': datetime.utcnow().isoformat(),
+            'sent_at': datetime.now(timezone.utc).isoformat(),
             'status': 'sent'
         }
 
@@ -104,7 +104,7 @@ class FakeEmailService:
         }
 
     def _save_email_to_file(self, email_data: dict):
-        timestamp = datetime.utcnow().strftime('%Y%m%d_%H%M%S')
+        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')
         filename = f"{timestamp}_{email_data['message_id'].split('@')[0]}.json"
         filepath = self.email_log_dir / filename
 

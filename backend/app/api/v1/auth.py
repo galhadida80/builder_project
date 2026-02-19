@@ -1,7 +1,7 @@
 import base64
 import logging
 import secrets
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 from uuid import UUID
 
@@ -87,7 +87,7 @@ async def register(
         )
         invitation = inv_result.scalar_one_or_none()
         if invitation and invitation.status == InvitationStatus.PENDING.value:
-            if invitation.email.lower() == email.lower() and invitation.expires_at > datetime.utcnow():
+            if invitation.email.lower() == email.lower() and invitation.expires_at > datetime.now(timezone.utc):
                 member = ProjectMember(
                     project_id=invitation.project_id,
                     user_id=user.id,
@@ -95,7 +95,7 @@ async def register(
                 )
                 db.add(member)
                 invitation.status = InvitationStatus.ACCEPTED.value
-                invitation.accepted_at = datetime.utcnow()
+                invitation.accepted_at = datetime.now(timezone.utc)
 
     await db.commit()
     await db.refresh(user)
@@ -205,13 +205,13 @@ async def forgot_password(
             )
         )
         for old_token in old_tokens_result.scalars().all():
-            old_token.used_at = datetime.utcnow()
+            old_token.used_at = datetime.now(timezone.utc)
 
         token = secrets.token_urlsafe(48)
         reset_token = PasswordResetToken(
             user_id=user.id,
             token=token,
-            expires_at=datetime.utcnow() + timedelta(hours=1),
+            expires_at=datetime.now(timezone.utc) + timedelta(hours=1),
         )
         db.add(reset_token)
         await db.commit()
@@ -246,7 +246,7 @@ async def reset_password(
     )
     reset_token = result.scalar_one_or_none()
 
-    if not reset_token or reset_token.used_at or reset_token.expires_at < datetime.utcnow():
+    if not reset_token or reset_token.used_at or reset_token.expires_at < datetime.now(timezone.utc):
         error_message = translate_message('invalid_reset_token', language)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -265,7 +265,7 @@ async def reset_password(
 
     password = validate_password(data.new_password)
     user.password_hash = get_password_hash(password)
-    reset_token.used_at = datetime.utcnow()
+    reset_token.used_at = datetime.now(timezone.utc)
 
     await db.commit()
 

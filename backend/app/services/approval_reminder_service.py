@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -102,7 +102,7 @@ async def get_project_admin_emails(db: AsyncSession, project_id) -> list[dict]:
 
 
 async def check_approval_deadlines(db: AsyncSession) -> list[dict]:
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     reminder_threshold = now - timedelta(days=REMINDER_DAYS)
     escalation_threshold = now - timedelta(days=ESCALATION_DAYS)
 
