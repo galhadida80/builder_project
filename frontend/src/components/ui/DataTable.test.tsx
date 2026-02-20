@@ -239,7 +239,7 @@ describe('DataTable', () => {
         />,
       )
       // Navigate to page 2 (second page has only 1 row: Item 06)
-      const nextPageBtn = screen.getByRole('button', { name: /next page/i })
+      const nextPageBtn = screen.getByRole('button', { name: /goToNextPage/i })
       fireEvent.click(nextPageBtn)
 
       // Verify we're on page 2 showing last item

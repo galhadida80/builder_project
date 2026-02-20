@@ -113,6 +113,7 @@ interface SeverityBadgeProps {
 }
 
 export function SeverityBadge({ severity, size = 'small' }: SeverityBadgeProps) {
+  const { t } = useTranslation()
   const colors: Record<string, { bg: string; text: string }> = {
     critical: { bg: '#FEE2E2', text: '#DC2626' },
     high: { bg: '#FFEDD5', text: '#EA580C' },
@@ -124,7 +125,7 @@ export function SeverityBadge({ severity, size = 'small' }: SeverityBadgeProps) 
 
   return (
     <Chip
-      label={severity.charAt(0).toUpperCase() + severity.slice(1)}
+      label={t(`defects.severities.${severity}`, { defaultValue: severity.charAt(0).toUpperCase() + severity.slice(1) })}
       size={size}
       sx={{
         bgcolor: config.bg,
@@ -144,12 +145,13 @@ interface PriorityBadgeProps {
 }
 
 export function PriorityBadge({ priority, size = 'small' }: PriorityBadgeProps) {
-  const labels = ['Urgent', 'High', 'Medium', 'Low']
+  const { t } = useTranslation()
+  const labelKeys = ['common.statuses.urgent', 'common.statuses.high', 'common.statuses.medium', 'common.statuses.low']
   const colors = ['error', 'warning', 'info', 'default'] as const
 
   return (
     <StyledChip
-      label={labels[priority - 1]}
+      label={t(labelKeys[priority - 1])}
       color={colors[priority - 1]}
       size={size}
       sx={{ borderRadius: 1.5 }}

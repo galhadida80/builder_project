@@ -382,7 +382,7 @@ export default function ChecklistsPage() {
       label: t('checklists.level'),
       minWidth: 120,
       hideOnMobile: true,
-      render: (row) => <Typography variant="body2">{row.level}</Typography>,
+      render: (row) => <Typography variant="body2">{t(`checklists.levels.${row.level}`, { defaultValue: row.level })}</Typography>,
     },
     {
       id: 'subsections',

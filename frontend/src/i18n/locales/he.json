@@ -184,11 +184,19 @@
     "selectLanguage": "בחר שפה",
     "viewDetails": "הצג פרטים",
     "toggleNavigation": "החלף ניווט",
-    "loadingPage": "טוען עמוד..."
+    "loadingPage": "טוען עמוד...",
+    "expand": "הרחב",
+    "collapse": "כווץ",
+    "more": "עוד"
   },
   "table": {
     "rowsPerPage": "שורות בעמוד:",
-    "of": "מתוך"
+    "of": "מתוך",
+    "goToPreviousPage": "עבור לעמוד הקודם",
+    "goToNextPage": "עבור לעמוד הבא"
+  },
+  "accessibility": {
+    "viewDetails": "הצג פרטים"
   },
   "pwa": {
     "installIOS": "התקן את BuilderOps ב-iOS",
@@ -321,7 +329,9 @@
     "failedToDownloadFile": "נכשל בהורדת הקובץ",
     "failedToOpenFile": "נכשל בפתיחת הקובץ",
     "failedToUploadFile": "נכשל בהעלאת הקובץ",
-    "fileUploadedSuccessfully": "הקובץ הועלה בהצלחה!"
+    "fileUploadedSuccessfully": "הקובץ הועלה בהצלחה!",
+    "submitted": "הוגש",
+    "revisionRequested": "נדרש תיקון"
   },
   "materials": {
     "title": "חומרים",
@@ -1105,6 +1115,15 @@
     "noHistoryDescription": "לא בוצעו פעולות על אישור זה עדיין.",
     "viewDetails": "צפה בפרטים"
   },
+  "approvalAuditTrail": {
+    "submitted": "הוגש",
+    "approved": "אושר",
+    "rejected": "נדחה",
+    "commented": "הוערה",
+    "revised": "תוקן",
+    "resubmitted": "הוגש מחדש",
+    "changes": "שינויים"
+  },
   "contacts": {
     "title": "אנשי קשר",
     "subtitle": "ניהול אנשי קשר ובעלי עניין בפרויקט",
@@ -1229,7 +1248,11 @@
     "draftNotSent": "RFI זה הוא טיוטה ועדיין לא נשלח",
     "selectRecipient": "בחר נמען מאנשי קשר",
     "selectGroup": "מלא מקבוצת אנשי קשר",
-    "selectGroupHint": "איש הקשר הראשון הופך לנמען, השאר מתווספים כהעתק"
+    "selectGroupHint": "איש הקשר הראשון הופך לנמען, השאר מתווספים כהעתק",
+    "rfiStats": "סטטיסטיקות RFI",
+    "selectProjectForStats": "בחר פרויקט כדי לצפות בסטטיסטיקות RFI",
+    "noProjectSelected": "לא נבחר פרויקט",
+    "openRfis": "בקשות פתוחות"
   },
   "contactGroups": {
     "title": "קבוצות אנשי קשר",
@@ -1316,7 +1339,12 @@
     "toolCircle": "עיגול",
     "toolText": "טקסט",
     "exportPdf": "ייצוא PDF",
-    "exportingPdf": "מייצא PDF..."
+    "exportingPdf": "מייצא PDF...",
+    "levels": {
+      "project": "פרויקט",
+      "area": "אזור",
+      "unit": "יחידה"
+    }
   },
   "documentReview": {
     "failedToLoadDocument": "נכשל בטעינת המסמך. אנא נסה שוב.",
@@ -1338,7 +1366,9 @@
     "rejectConfirm": "האם אתה בטוח שברצונך לדחות מסמך זה?",
     "backToProject": "חזרה לפרויקט",
     "confirm": "אישור",
-    "cancel": "ביטול"
+    "cancel": "ביטול",
+    "changesRequested": "נדרשים שינויים",
+    "requestChanges": "בקש שינויים"
   },
   "inspections": {
     "title": "בדיקות",
@@ -1444,6 +1474,17 @@
   },
   "notifications": {
     "closePanel": "סגור פאנל התראות",
+    "justNow": "עכשיו",
+    "minutesAgo": "לפני {{count}} דק׳",
+    "hoursAgo": "לפני {{count}} שע׳",
+    "daysAgo": "לפני {{count}} ימים",
+    "weeksAgo": "לפני {{count}} שבועות",
+    "categories": {
+      "approval": "אישור",
+      "inspection": "בדיקה",
+      "update": "עדכון",
+      "general": "כללי"
+    },
     "push": {
       "title": "התראות דחיפה",
       "notSupported": "התראות דחיפה אינן נתמכות בדפדפן זה",
@@ -1923,7 +1964,15 @@
     "requiresAttention": "בקשת האישור דורשת טיפול",
     "revisionRequested": "נדרש תיקון",
     "by": "על ידי",
-    "on": "ב-"
+    "on": "ב-",
+    "approvedByOn": "אושר על ידי {{name}} ב-{{date}}",
+    "approvedBy": "אושר על ידי {{name}}",
+    "rejectedByOn": "נדחה על ידי {{name}} ב-{{date}}",
+    "rejectedBy": "נדחה על ידי {{name}}",
+    "revisionRequestedBy": "נדרש תיקון על ידי {{name}}",
+    "assignedTo": "הוקצה ל-{{name}}",
+    "pendingAssignment": "ממתין להקצאה",
+    "stepNumber": "שלב {{number}}"
   },
   "emptyState": {
     "noProjectSelected": "לא נבחר פרויקט",
@@ -2087,6 +2136,8 @@
       "hvac": "מיזוג אוויר",
       "lighting": "תאורה",
       "solar_system": "מערכת סולרית",
+      "structural": "שלד",
+      "electrical": "חשמל",
       "other": "אחר"
     },
     "exportPdf": "ייצוא PDF",
@@ -2541,7 +2592,12 @@
     "noBuildings": "לא נוספו בניינים עדיין",
     "noBuildingsDescription": "הוסיפו בניין כדי להתחיל",
     "noCommonAreas": "אין אזורים משותפים",
-    "noCommonAreasDescription": "הוסיפו אזורים משותפים כמו חניה, גינה או מסחרי"
+    "noCommonAreasDescription": "הוסיפו אזורים משותפים כמו חניה, גינה או מסחרי",
+    "basement": "מרתף",
+    "floorNumber": "קומה {{number}}",
+    "parking": "חניה",
+    "lobby": "לובי",
+    "buildingNumber": "בניין {{number}}"
   },
   "areaChecklists": {
     "assignChecklist": "שיוך צ׳קליסט",

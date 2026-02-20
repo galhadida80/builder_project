@@ -298,6 +298,7 @@ export function DataTable<T>({
             onRowsPerPageChange={handleChangeRowsPerPage}
             labelRowsPerPage={t('table.rowsPerPage')}
             labelDisplayedRows={({ from, to, count }) => `${from}-${to} ${t('table.of')} ${count !== -1 ? count : `>${to}`}`}
+            getItemAriaLabel={(type) => type === 'next' ? t('table.goToNextPage') : t('table.goToPreviousPage')}
           />
         )}
       </Paper>
@@ -422,6 +423,7 @@ export function DataTable<T>({
           onRowsPerPageChange={handleChangeRowsPerPage}
           labelRowsPerPage={t('table.rowsPerPage')}
           labelDisplayedRows={({ from, to, count }) => `${from}-${to} ${t('table.of')} ${count !== -1 ? count : `>${to}`}`}
+          getItemAriaLabel={(type) => type === 'next' ? t('table.goToNextPage') : t('table.goToPreviousPage')}
         />
       )}
     </StyledTableContainer>

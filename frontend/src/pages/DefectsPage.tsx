@@ -529,6 +529,7 @@ export default function DefectsPage() {
                   rowsPerPageOptions={[10, 20, 50, 100]}
                   labelRowsPerPage={t('table.rowsPerPage')}
                   labelDisplayedRows={({ from, to, count }) => `${from}-${to} ${t('table.of')} ${count !== -1 ? count : `>${to}`}`}
+                  getItemAriaLabel={(type) => type === 'next' ? t('table.goToNextPage') : t('table.goToPreviousPage')}
                 />
               </>
             )}

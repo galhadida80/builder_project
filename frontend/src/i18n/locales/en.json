@@ -176,7 +176,9 @@
     "failedToDownloadFile": "Failed to download file",
     "failedToOpenFile": "Failed to open file",
     "failedToUploadFile": "Failed to upload file",
-    "fileUploadedSuccessfully": "File uploaded successfully!"
+    "fileUploadedSuccessfully": "File uploaded successfully!",
+    "submitted": "Submitted",
+    "revisionRequested": "Revision Requested"
   },
   "materials": {
     "title": "Materials",
@@ -487,11 +489,19 @@
     "selectLanguage": "Select language",
     "viewDetails": "View details",
     "toggleNavigation": "Toggle navigation",
-    "loadingPage": "Loading page..."
+    "loadingPage": "Loading page...",
+    "expand": "Expand",
+    "collapse": "Collapse",
+    "more": "More"
   },
   "table": {
     "rowsPerPage": "Rows per page:",
-    "of": "of"
+    "of": "of",
+    "goToPreviousPage": "Go to previous page",
+    "goToNextPage": "Go to next page"
+  },
+  "accessibility": {
+    "viewDetails": "View details"
   },
   "pwa": {
     "installIOS": "Install BuilderOps on iOS",
@@ -1110,7 +1120,11 @@
     "draftNotSent": "This RFI is a draft and has not been sent yet",
     "selectRecipient": "Select Recipient from Contacts",
     "selectGroup": "Fill from Contact Group",
-    "selectGroupHint": "First contact becomes recipient, rest added as CC"
+    "selectGroupHint": "First contact becomes recipient, rest added as CC",
+    "rfiStats": "RFI Statistics",
+    "selectProjectForStats": "Select a project to view RFI statistics",
+    "noProjectSelected": "No project selected",
+    "openRfis": "Open RFIs"
   },
   "contactGroups": {
     "title": "Contact Groups",
@@ -1197,7 +1211,12 @@
     "toolCircle": "Circle",
     "toolText": "Text",
     "exportPdf": "Export PDF",
-    "exportingPdf": "Exporting PDF..."
+    "exportingPdf": "Exporting PDF...",
+    "levels": {
+      "project": "Project",
+      "area": "Area",
+      "unit": "Unit"
+    }
   },
   "documentReview": {
     "failedToLoadDocument": "Failed to load document. Please try again.",
@@ -1219,7 +1238,9 @@
     "rejectConfirm": "Are you sure you want to reject this document?",
     "backToProject": "Back to Project",
     "confirm": "Confirm",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "changesRequested": "Changes Requested",
+    "requestChanges": "Request Changes"
   },
   "inspections": {
     "title": "Inspections",
@@ -1325,6 +1346,17 @@
   },
   "notifications": {
     "closePanel": "Close notifications panel",
+    "justNow": "Just now",
+    "minutesAgo": "{{count}}m ago",
+    "hoursAgo": "{{count}}h ago",
+    "daysAgo": "{{count}}d ago",
+    "weeksAgo": "{{count}}w ago",
+    "categories": {
+      "approval": "Approval",
+      "inspection": "Inspection",
+      "update": "Update",
+      "general": "General"
+    },
     "push": {
       "title": "Push Notifications",
       "notSupported": "Push notifications are not supported in this browser",
@@ -1877,7 +1909,15 @@
     "requiresAttention": "Approval request requires attention",
     "revisionRequested": "Revision Requested",
     "by": "by",
-    "on": "on"
+    "on": "on",
+    "approvedByOn": "Approved by {{name}} on {{date}}",
+    "approvedBy": "Approved by {{name}}",
+    "rejectedByOn": "Rejected by {{name}} on {{date}}",
+    "rejectedBy": "Rejected by {{name}}",
+    "revisionRequestedBy": "Revision requested by {{name}}",
+    "assignedTo": "Assigned to {{name}}",
+    "pendingAssignment": "Pending assignment",
+    "stepNumber": "Step {{number}}"
   },
   "emptyState": {
     "noProjectSelected": "No Project Selected",
@@ -2041,6 +2081,8 @@
       "hvac": "HVAC",
       "lighting": "Lighting",
       "solar_system": "Solar System",
+      "structural": "Structural",
+      "electrical": "Electrical",
       "other": "Other"
     },
     "exportPdf": "Export PDF",
@@ -2495,7 +2537,12 @@
     "noBuildings": "No buildings added yet",
     "noBuildingsDescription": "Add a building to get started",
     "noCommonAreas": "No common areas",
-    "noCommonAreasDescription": "Add shared areas like parking, garden or commercial"
+    "noCommonAreasDescription": "Add shared areas like parking, garden or commercial",
+    "basement": "Basement",
+    "floorNumber": "Floor {{number}}",
+    "parking": "Parking",
+    "lobby": "Lobby",
+    "buildingNumber": "Building {{number}}"
   },
   "areaChecklists": {
     "assignChecklist": "Assign Checklist",
