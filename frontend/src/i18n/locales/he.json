@@ -246,7 +246,8 @@
     "budget": "תקציב",
     "organizations": "ארגונים",
     "reports": "דוחות",
-    "quantityExtraction": "חילוץ כמויות"
+    "quantityExtraction": "חילוץ כמויות",
+    "kpis": "מדדי ביצוע"
   },
   "mobileNav": {
     "dashboard": "לוח בקרה",
@@ -2561,6 +2562,63 @@
     "areaPath": "נתיב אזור",
     "customLocation": "מיקום מותאם אישית",
     "orEnterCustom": "או הזינו מיקום מותאם אישית"
+  },
+  "kpi": {
+    "pageTitle": "מדדי ביצוע (KPI)",
+    "pageSubtitle": "הגדרה ומעקב אחר מדדי ביצוע מותאמים אישית",
+    "addKpi": "הוסף מדד",
+    "editKpi": "ערוך מדד",
+    "createFirst": "צור את מדד הביצוע הראשון שלך",
+    "noKpis": "אין מדדי ביצוע",
+    "noKpisDescription": "הגדר מדדים מותאמים אישית למעקב אחר ביצועי הפרויקט",
+    "name": "שם",
+    "description": "תיאור",
+    "entityType": "סוג ישות",
+    "calculation": "חישוב",
+    "fieldName": "שם שדה",
+    "targetValue": "ערך יעד",
+    "warningThreshold": "סף אזהרה",
+    "unit": "יחידה",
+    "icon": "אייקון",
+    "color": "צבע",
+    "filterStatus": "סינון לפי סטטוס",
+    "displayOrder": "סדר תצוגה",
+    "entityTypes": {
+      "equipment": "ציוד",
+      "material": "חומרים",
+      "inspection": "בדיקות",
+      "rfi": "בקשות מידע",
+      "defect": "ליקויים",
+      "task": "משימות",
+      "budget": "תקציב",
+      "checklist": "צ'קליסטים",
+      "area": "אזורים"
+    },
+    "calculations": {
+      "count": "ספירה",
+      "sum": "סכום",
+      "average": "ממוצע"
+    },
+    "statuses": {
+      "onTrack": "בכיוון",
+      "warning": "אזהרה",
+      "offTrack": "חריגה",
+      "noTarget": "ללא יעד"
+    },
+    "confirmDelete": "מחיקת מדד",
+    "confirmDeleteMessage": "האם אתה בטוח שברצונך למחוק מדד זה?",
+    "createSuccess": "מדד נוצר בהצלחה",
+    "createFailed": "יצירת מדד נכשלה",
+    "updateSuccess": "מדד עודכן בהצלחה",
+    "updateFailed": "עדכון מדד נכשל",
+    "deleteSuccess": "מדד נמחק",
+    "deleteFailed": "מחיקת מדד נכשלה",
+    "loadFailed": "טעינת מדדים נכשלה",
+    "showInactive": "הצג לא פעילים",
+    "hideInactive": "הסתר לא פעילים",
+    "inactive": "לא פעיל",
+    "of": "מתוך",
+    "last14Days": "14 ימים אחרונים"
   },
   "areaLevels": {
     "building": "בניין",

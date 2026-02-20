@@ -1,7 +1,7 @@
 import { memo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { DashboardIcon, FolderIcon, BuildIcon, InventoryIcon, EventIcon, CheckCircleIcon, AccountTreeIcon, ContactsIcon, HistoryIcon, SettingsIcon, AssignmentIcon, ConstructionIcon, EmailIcon, ViewInArIcon, ChecklistIcon, ReportProblemIcon, TaskAltIcon, AccountBalanceIcon, BusinessIcon, HelpOutlineIcon, ReceiptLongIcon } from '@/icons'
+import { DashboardIcon, FolderIcon, BuildIcon, InventoryIcon, EventIcon, CheckCircleIcon, AccountTreeIcon, ContactsIcon, HistoryIcon, SettingsIcon, AssignmentIcon, ConstructionIcon, EmailIcon, ViewInArIcon, ChecklistIcon, ReportProblemIcon, TaskAltIcon, AccountBalanceIcon, BusinessIcon, HelpOutlineIcon, ReceiptLongIcon, ShowChartIcon } from '@/icons'
 import { Box, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, Typography } from '@/mui'
 import HelpDrawer from '../help/HelpDrawer'
 
@@ -33,6 +33,7 @@ const projectNavItems: NavItem[] = [
   { label: 'nav.defects', path: '/defects', icon: <ReportProblemIcon /> },
   { label: 'nav.tasks', path: '/tasks', icon: <TaskAltIcon /> },
   { label: 'nav.budget', path: '/budget', icon: <AccountBalanceIcon /> },
+  { label: 'nav.kpis', path: '/kpis', icon: <ShowChartIcon /> },
   { label: 'nav.bim', path: '/bim', icon: <ViewInArIcon /> },
   { label: 'nav.quantityExtraction', path: '/quantities', icon: <ReceiptLongIcon /> },
 ]

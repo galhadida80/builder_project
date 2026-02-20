@@ -22,15 +22,20 @@ from app.schemas.analytics_bi import (
     BenchmarkResponse,
     KpiCreate,
     KpiResponse,
+    KpiSnapshotPoint,
+    KpiSnapshotResponse,
     KpiUpdate,
     KpiValueResponse,
     TrendAnalysisResponse,
     TrendPoint,
 )
 from app.services.analytics_service import (
+    compute_kpi_status,
     compute_kpi_value,
     get_entity_trends,
+    get_kpi_trend,
     get_project_benchmarks,
+    record_kpi_snapshots,
 )
 
 router = APIRouter()
@@ -89,6 +94,12 @@ async def create_kpi_definition(
         calculation=payload.calculation,
         field_name=payload.field_name,
         project_id=payload.project_id,
+        target_value=payload.target_value,
+        warning_threshold=payload.warning_threshold,
+        unit=payload.unit,
+        display_order=payload.display_order,
+        icon=payload.icon,
+        color=payload.color,
         created_by_id=current_user.id,
     )
     db.add(kpi)
@@ -114,7 +125,7 @@ async def list_kpi_definitions(
         query = select(CustomKpiDefinition).where(
             CustomKpiDefinition.project_id == project_id
         )
-    result = await db.execute(query.order_by(CustomKpiDefinition.created_at.desc()))
+    result = await db.execute(query.order_by(CustomKpiDefinition.display_order, CustomKpiDefinition.created_at.desc()))
     return result.scalars().all()
 
 
@@ -182,12 +193,15 @@ async def get_kpi_values(
             CustomKpiDefinition.project_id == project_id
         )
 
-    result = await db.execute(query)
+    result = await db.execute(query.order_by(CustomKpiDefinition.display_order))
     kpis = result.scalars().all()
 
     values = []
     for kpi in kpis:
         computed = await compute_kpi_value(db, kpi)
+        status = compute_kpi_status(computed, kpi.target_value, kpi.warning_threshold)
+        trend_data = await get_kpi_trend(db, kpi.id, days=14)
+        trend = [KpiSnapshotPoint(snapshot_date=t["snapshot_date"], value=t["value"]) for t in trend_data]
         values.append(
             KpiValueResponse(
                 kpi_id=kpi.id,
@@ -195,9 +209,51 @@ async def get_kpi_values(
                 value=computed,
                 entity_type=kpi.entity_type,
                 kpi_type=kpi.kpi_type,
+                target_value=kpi.target_value,
+                warning_threshold=kpi.warning_threshold,
+                unit=kpi.unit,
+                icon=kpi.icon,
+                color=kpi.color,
+                status=status,
+                trend=trend,
             )
         )
     return values
+
+
+@router.post("/kpi-snapshots/record", status_code=200)
+async def record_snapshots(
+    project_id: UUID = Query(..., description="Project to record snapshots for"),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    await verify_project_access(project_id, current_user, db)
+    count = await record_kpi_snapshots(db, project_id)
+    return {"recorded": count}
+
+
+@router.get("/kpi-definitions/{kpi_id}/history", response_model=list[KpiSnapshotResponse])
+async def get_kpi_history(
+    kpi_id: UUID,
+    days: int = Query(30, ge=1, le=365, description="Number of days to look back"),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    result = await db.execute(
+        select(CustomKpiDefinition).where(CustomKpiDefinition.id == kpi_id)
+    )
+    kpi = result.scalar_one_or_none()
+    if kpi is None:
+        raise HTTPException(status_code=404, detail="KPI definition not found")
+
+    if kpi.project_id:
+        await verify_project_access(kpi.project_id, current_user, db)
+
+    trend_data = await get_kpi_trend(db, kpi_id, days=days)
+    return [
+        KpiSnapshotResponse(kpi_id=kpi_id, value=t["value"], snapshot_date=t["snapshot_date"])
+        for t in trend_data
+    ]
 
 
 @router.get("/export")

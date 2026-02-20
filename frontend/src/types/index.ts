@@ -921,7 +921,42 @@ export interface CustomKpiDefinition {
   filterConfig?: Record<string, unknown>
   calculation: string
   fieldName?: string
+  targetValue?: number
+  warningThreshold?: number
+  unit?: string
+  displayOrder: number
+  isActive: boolean
+  icon?: string
+  color?: string
   createdById: string
   createdAt: string
   updatedAt: string
+}
+
+export type KpiStatus = 'on_track' | 'warning' | 'off_track' | 'no_target'
+
+export interface KpiSnapshotPoint {
+  snapshotDate: string
+  value: number
+}
+
+export interface KpiValue {
+  kpiId: string
+  name: string
+  value: number
+  entityType: string
+  kpiType: string
+  targetValue?: number
+  warningThreshold?: number
+  unit?: string
+  icon?: string
+  color?: string
+  status: KpiStatus
+  trend: KpiSnapshotPoint[]
+}
+
+export interface KpiSnapshot {
+  kpiId: string
+  value: number
+  snapshotDate: string
 }

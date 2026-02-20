@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 from typing import Literal, Optional
 from uuid import UUID
 
@@ -9,7 +9,8 @@ from pydantic import BaseModel, Field
 from app.core.validators import CamelCaseModel, MAX_NAME_LENGTH, MAX_DESCRIPTION_LENGTH
 
 KPI_TYPES = Literal["count", "ratio", "average", "sum"]
-ENTITY_TYPES = Literal["equipment", "material", "inspection", "rfi", "defect", "task", "budget"]
+ENTITY_TYPES = Literal["equipment", "material", "inspection", "rfi", "defect", "task", "budget", "checklist", "area"]
+KPI_STATUS = Literal["on_track", "warning", "off_track", "no_target"]
 
 
 class KpiCreate(BaseModel):
@@ -21,6 +22,12 @@ class KpiCreate(BaseModel):
     calculation: str = Field(default="count", max_length=50)
     field_name: Optional[str] = Field(None, max_length=100)
     project_id: Optional[UUID] = None
+    target_value: Optional[float] = None
+    warning_threshold: Optional[float] = None
+    unit: Optional[str] = Field(None, max_length=50)
+    display_order: int = 0
+    icon: Optional[str] = Field(None, max_length=50)
+    color: Optional[str] = Field(None, max_length=20)
 
 
 class KpiUpdate(BaseModel):
@@ -32,6 +39,13 @@ class KpiUpdate(BaseModel):
     calculation: Optional[str] = Field(None, max_length=50)
     field_name: Optional[str] = Field(None, max_length=100)
     project_id: Optional[UUID] = None
+    target_value: Optional[float] = None
+    warning_threshold: Optional[float] = None
+    unit: Optional[str] = Field(None, max_length=50)
+    display_order: Optional[int] = None
+    is_active: Optional[bool] = None
+    icon: Optional[str] = Field(None, max_length=50)
+    color: Optional[str] = Field(None, max_length=20)
 
 
 class KpiResponse(CamelCaseModel):
@@ -44,9 +58,21 @@ class KpiResponse(CamelCaseModel):
     filter_config: Optional[dict] = None
     calculation: str
     field_name: Optional[str] = None
+    target_value: Optional[float] = None
+    warning_threshold: Optional[float] = None
+    unit: Optional[str] = None
+    display_order: int = 0
+    is_active: bool = True
+    icon: Optional[str] = None
+    color: Optional[str] = None
     created_by_id: UUID
     created_at: datetime
     updated_at: datetime
+
+
+class KpiSnapshotPoint(CamelCaseModel):
+    snapshot_date: date
+    value: float
 
 
 class KpiValueResponse(CamelCaseModel):
@@ -55,6 +81,19 @@ class KpiValueResponse(CamelCaseModel):
     value: float
     entity_type: str
     kpi_type: str
+    target_value: Optional[float] = None
+    warning_threshold: Optional[float] = None
+    unit: Optional[str] = None
+    icon: Optional[str] = None
+    color: Optional[str] = None
+    status: KPI_STATUS = "no_target"
+    trend: list[KpiSnapshotPoint] = []
+
+
+class KpiSnapshotResponse(CamelCaseModel):
+    kpi_id: UUID
+    value: float
+    snapshot_date: date
 
 
 class TrendPoint(CamelCaseModel):

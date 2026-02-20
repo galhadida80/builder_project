@@ -2009,4 +2009,4 @@ As a user, I want to link checklist instances to specific areas when creating th
 | ACC RFI Sync - Inbound | 14 (US-14.11) | 1 | 3 |
 | BIM Template Fuzzy Matching | 14 (US-14.7, 14.8) | — | — |
 | WhatsApp AI Chat | 12 (US-12.7) | 1 | 5 |
-| Custom KPIs Dashboard | — | — | — |
+| Custom KPIs Dashboard | 26 | 4 | 8 | Done |

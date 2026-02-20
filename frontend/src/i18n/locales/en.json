@@ -549,7 +549,8 @@
     "budget": "Budget",
     "organizations": "Organizations",
     "reports": "Reports",
-    "quantityExtraction": "Quantity Extraction"
+    "quantityExtraction": "Quantity Extraction",
+    "kpis": "KPIs"
   },
   "mobileNav": {
     "dashboard": "Dashboard",
@@ -2515,6 +2516,63 @@
     "areaPath": "Area Path",
     "customLocation": "Custom Location",
     "orEnterCustom": "or enter a custom location"
+  },
+  "kpi": {
+    "pageTitle": "Custom KPIs",
+    "pageSubtitle": "Define and track custom key performance indicators",
+    "addKpi": "Add KPI",
+    "editKpi": "Edit KPI",
+    "createFirst": "Create your first KPI",
+    "noKpis": "No KPIs",
+    "noKpisDescription": "Define custom metrics to track your project performance",
+    "name": "Name",
+    "description": "Description",
+    "entityType": "Entity Type",
+    "calculation": "Calculation",
+    "fieldName": "Field Name",
+    "targetValue": "Target Value",
+    "warningThreshold": "Warning Threshold",
+    "unit": "Unit",
+    "icon": "Icon",
+    "color": "Color",
+    "filterStatus": "Filter by Status",
+    "displayOrder": "Display Order",
+    "entityTypes": {
+      "equipment": "Equipment",
+      "material": "Materials",
+      "inspection": "Inspections",
+      "rfi": "RFIs",
+      "defect": "Defects",
+      "task": "Tasks",
+      "budget": "Budget",
+      "checklist": "Checklists",
+      "area": "Areas"
+    },
+    "calculations": {
+      "count": "Count",
+      "sum": "Sum",
+      "average": "Average"
+    },
+    "statuses": {
+      "onTrack": "On Track",
+      "warning": "Warning",
+      "offTrack": "Off Track",
+      "noTarget": "No Target"
+    },
+    "confirmDelete": "Delete KPI",
+    "confirmDeleteMessage": "Are you sure you want to delete this KPI?",
+    "createSuccess": "KPI created successfully",
+    "createFailed": "Failed to create KPI",
+    "updateSuccess": "KPI updated successfully",
+    "updateFailed": "Failed to update KPI",
+    "deleteSuccess": "KPI deleted",
+    "deleteFailed": "Failed to delete KPI",
+    "loadFailed": "Failed to load KPIs",
+    "showInactive": "Show inactive",
+    "hideInactive": "Hide inactive",
+    "inactive": "Inactive",
+    "of": "of",
+    "last14Days": "Last 14 days"
   },
   "areaLevels": {
     "building": "Building",

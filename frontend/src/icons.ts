@@ -131,6 +131,7 @@ export {
   SignalWifiOff as SignalWifiOffIcon,
   SmartToy as SmartToyIcon,
   Speed as SpeedIcon,
+  ShowChart as ShowChartIcon,
   SquareFoot as SquareFootIcon,
   Star as StarIcon,
   SwapHoriz as SwapHorizIcon,

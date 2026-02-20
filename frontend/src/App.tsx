@@ -43,6 +43,7 @@ import BudgetPage from './pages/BudgetPage'
 import OrganizationsPage from './pages/OrganizationsPage'
 import OrganizationDetailPage from './pages/OrganizationDetailPage'
 import ReportsPage from './pages/ReportsPage'
+import CustomKPIPage from './pages/CustomKPIPage'
 
 const BIMPage = lazy(() => import('./pages/BIMPage'))
 const ProjectStructureWizardPage = lazy(() => import('./pages/ProjectStructureWizardPage'))
@@ -102,6 +103,7 @@ function AppRoutes() {
               <Route path="defects/:defectId" element={<DefectDetailPage />} />
               <Route path="tasks" element={<TasksPage />} />
               <Route path="budget" element={<BudgetPage />} />
+              <Route path="kpis" element={<CustomKPIPage />} />
               <Route path="bim" element={<Suspense fallback={<LoadingPage />}><BIMPage /></Suspense>} />
               <Route path="reports" element={<ReportsPage />} />
               <Route path="quantities" element={<Suspense fallback={<LoadingPage />}><QuantityExtractionPage /></Suspense>} />
