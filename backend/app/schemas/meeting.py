@@ -109,7 +109,7 @@ class MeetingBase(BaseModel):
 
 class MeetingCreate(MeetingBase):
     attendee_ids: list[str] = Field(default_factory=list)
-    time_slots: Optional[list[TimeSlotInput]] = Field(default=None, max_length=3)
+    time_slots: Optional[list[TimeSlotInput]] = Field(default=None, max_length=10)
 
 
 class MeetingUpdate(BaseModel):

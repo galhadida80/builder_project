@@ -95,7 +95,6 @@ export default function MeetingsPage() {
   const [timeSlotInputs, setTimeSlotInputs] = useState([
     { date: '', time: '' },
     { date: '', time: '' },
-    { date: '', time: '' },
   ])
   const [confirmingSlot, setConfirmingSlot] = useState(false)
 
@@ -166,7 +165,7 @@ export default function MeetingsPage() {
     setEditingMeeting(null)
     setSelectedAttendees([])
     setProposeTimeSlots(false)
-    setTimeSlotInputs([{ date: '', time: '' }, { date: '', time: '' }, { date: '', time: '' }])
+    setTimeSlotInputs([{ date: '', time: '' }, { date: '', time: '' }])
   }
 
   const handleCloseDialog = () => {
@@ -948,35 +947,57 @@ export default function MeetingsPage() {
           {proposeTimeSlots && !editingMeeting ? (
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
               {timeSlotInputs.map((slot, idx) => (
-                <Box key={idx} sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5 }}>
-                  <TextField
-                    fullWidth
-                    label={`${t('meetings.option')} ${idx + 1} - ${t('meetings.date')}`}
-                    type="date"
-                    InputLabelProps={{ shrink: true }}
-                    required={idx < 2}
-                    value={slot.date}
-                    onChange={(e) => {
-                      const updated = [...timeSlotInputs]
-                      updated[idx] = { ...updated[idx], date: e.target.value }
-                      setTimeSlotInputs(updated)
-                    }}
-                  />
-                  <TextField
-                    fullWidth
-                    label={t('meetings.time')}
-                    type="time"
-                    InputLabelProps={{ shrink: true }}
-                    required={idx < 2}
-                    value={slot.time}
-                    onChange={(e) => {
-                      const updated = [...timeSlotInputs]
-                      updated[idx] = { ...updated[idx], time: e.target.value }
-                      setTimeSlotInputs(updated)
-                    }}
-                  />
+                <Box key={idx} sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                  <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5, flex: 1 }}>
+                    <TextField
+                      fullWidth
+                      label={`${t('meetings.option')} ${idx + 1} - ${t('meetings.date')}`}
+                      type="date"
+                      InputLabelProps={{ shrink: true }}
+                      required={idx < 2}
+                      value={slot.date}
+                      onChange={(e) => {
+                        const updated = [...timeSlotInputs]
+                        updated[idx] = { ...updated[idx], date: e.target.value }
+                        setTimeSlotInputs(updated)
+                      }}
+                    />
+                    <TextField
+                      fullWidth
+                      label={t('meetings.time')}
+                      type="time"
+                      InputLabelProps={{ shrink: true }}
+                      required={idx < 2}
+                      value={slot.time}
+                      onChange={(e) => {
+                        const updated = [...timeSlotInputs]
+                        updated[idx] = { ...updated[idx], time: e.target.value }
+                        setTimeSlotInputs(updated)
+                      }}
+                    />
+                  </Box>
+                  {timeSlotInputs.length > 2 && (
+                    <IconButton
+                      size="small"
+                      color="error"
+                      onClick={() => setTimeSlotInputs(timeSlotInputs.filter((_, i) => i !== idx))}
+                    >
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  )}
                 </Box>
               ))}
+              {timeSlotInputs.length < 10 && (
+                <Button
+                  variant="outlined"
+                  size="small"
+                  startIcon={<AddIcon />}
+                  onClick={() => setTimeSlotInputs([...timeSlotInputs, { date: '', time: '' }])}
+                  sx={{ alignSelf: 'flex-start' }}
+                >
+                  {t('meetings.addOption')}
+                </Button>
+              )}
             </Box>
           ) : (
             <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>

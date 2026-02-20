@@ -366,7 +366,8 @@
     "confirmThisTime": "Confirm This Time",
     "timeConfirmed": "Meeting time confirmed!",
     "voteEmailsSent": "Vote emails sent to {{count}} attendees",
-    "atLeastTwoSlots": "At least 2 time slots are required"
+    "atLeastTwoSlots": "At least 2 time slots are required",
+    "addOption": "Add Option"
   },
   "validation": {
     "checkFields": "Please fix the highlighted errors",

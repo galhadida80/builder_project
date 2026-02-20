@@ -512,7 +512,8 @@
     "confirmThisTime": "אשר מועד זה",
     "timeConfirmed": "מועד הפגישה אושר!",
     "voteEmailsSent": "מיילי הצבעה נשלחו ל-{{count}} משתתפים",
-    "atLeastTwoSlots": "נדרשים לפחות 2 מועדים"
+    "atLeastTwoSlots": "נדרשים לפחות 2 מועדים",
+    "addOption": "הוסף אפשרות"
   },
   "dashboard": {
     "title": "לוח בקרה",
