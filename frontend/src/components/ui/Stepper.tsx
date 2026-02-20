@@ -363,8 +363,8 @@ export function ApprovalWorkflowStepper({
 
   // Map approval steps to stepper format
   const steps: StepItem[] = sortedSteps.map((step) => ({
-    label: step.approverRole || `Step ${step.stepOrder}`,
-    description: getStepDescription(step),
+    label: step.approverRole || t('stepper.stepNumber', { number: step.stepOrder }),
+    description: getStepDescription(step, t),
     error: step.status === 'rejected',
   }))
 
@@ -550,13 +550,12 @@ export function ApprovalWorkflowStepper({
  * Helper function to generate step description based on status and approver info
  * Handles edge cases: missing approver data, missing dates, unknown statuses
  */
-function getStepDescription(step: ApprovalStepResponse): string {
-  // Helper to get approver name with fallback for missing info
+function getStepDescription(step: ApprovalStepResponse, t: (key: string, opts?: Record<string, unknown>) => string): string {
   const getApproverName = (): string => {
     if (step.approvedBy?.name) return step.approvedBy.name
     if (step.approvedBy?.email) return step.approvedBy.email
-    if (step.approvedById) return `User ${step.approvedById.slice(0, 8)}`
-    return 'Unknown'
+    if (step.approvedById) return step.approvedById.slice(0, 8)
+    return t('approvals.unknown')
   }
 
   switch (step.status) {
@@ -565,38 +564,35 @@ function getStepDescription(step: ApprovalStepResponse): string {
         try {
           const date = new Date(step.approvedAt).toLocaleDateString(getDateLocale())
           const approverName = getApproverName()
-          return `Approved by ${approverName} on ${date}`
+          return t('stepper.approvedByOn', { name: approverName, date })
         } catch {
-          // Handle invalid date
-          return `Approved by ${getApproverName()}`
+          return t('stepper.approvedBy', { name: getApproverName() })
         }
       }
-      return 'Approved'
+      return t('common.statuses.approved')
 
     case 'rejected':
       if (step.approvedAt) {
         try {
           const date = new Date(step.approvedAt).toLocaleDateString(getDateLocale())
           const approverName = getApproverName()
-          return `Rejected by ${approverName} on ${date}`
+          return t('stepper.rejectedByOn', { name: approverName, date })
         } catch {
-          // Handle invalid date
-          return `Rejected by ${getApproverName()}`
+          return t('stepper.rejectedBy', { name: getApproverName() })
         }
       }
-      return 'Rejected'
+      return t('common.statuses.rejected')
 
     case 'revision_requested':
-      return `Revision requested by ${getApproverName()}`
+      return t('stepper.revisionRequestedBy', { name: getApproverName() })
 
     case 'pending':
       if (step.approvedBy || step.approvedById) {
-        return `Assigned to ${getApproverName()}`
+        return t('stepper.assignedTo', { name: getApproverName() })
       }
-      return 'Pending assignment'
+      return t('stepper.pendingAssignment')
 
     default:
-      // Handle unknown status gracefully
-      return step.status ? `Status: ${step.status}` : 'Pending'
+      return step.status ? t(`common.statuses.${step.status}`) : t('common.statuses.pending')
   }
 }

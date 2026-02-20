@@ -7,6 +7,7 @@ import {
   FormHelperText,
   Fade,
 } from '@/mui'
+import { useTranslation } from 'react-i18next'
 import { transitions, animations, borderRadius } from '../../theme/tokens'
 import { styled } from '@/mui'
 
@@ -111,13 +112,14 @@ export function StatusSelect({
   onChange,
   ...props
 }: Omit<SelectProps, 'options'>) {
+  const { t } = useTranslation()
   const statusOptions: SelectOption[] = [
-    { value: 'draft', label: 'Draft' },
-    { value: 'pending', label: 'Pending' },
-    { value: 'submitted', label: 'Submitted' },
-    { value: 'under_review', label: 'Under Review' },
-    { value: 'approved', label: 'Approved' },
-    { value: 'rejected', label: 'Rejected' },
+    { value: 'draft', label: t('common.statuses.draft') },
+    { value: 'pending', label: t('common.statuses.pending') },
+    { value: 'submitted', label: t('common.statuses.submitted') },
+    { value: 'under_review', label: t('common.statuses.under_review') },
+    { value: 'approved', label: t('common.statuses.approved') },
+    { value: 'rejected', label: t('common.statuses.rejected') },
   ]
 
   return <Select options={statusOptions} value={value} onChange={onChange} {...props} />
@@ -128,11 +130,12 @@ export function PrioritySelect({
   onChange,
   ...props
 }: Omit<SelectProps, 'options'>) {
+  const { t } = useTranslation()
   const priorityOptions: SelectOption[] = [
-    { value: 1, label: 'Urgent' },
-    { value: 2, label: 'High' },
-    { value: 3, label: 'Medium' },
-    { value: 4, label: 'Low' },
+    { value: 1, label: t('common.statuses.urgent') },
+    { value: 2, label: t('common.statuses.high') },
+    { value: 3, label: t('common.statuses.medium') },
+    { value: 4, label: t('common.statuses.low') },
   ]
 
   return <Select options={priorityOptions} value={value} onChange={onChange} {...props} />

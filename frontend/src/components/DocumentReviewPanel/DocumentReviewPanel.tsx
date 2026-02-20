@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { DocumentViewer } from './DocumentViewer'
 import { CommentsPanel } from './CommentsPanel'
 import { Button } from '../ui/Button'
@@ -122,6 +123,7 @@ export function DocumentReviewPanel({
   onReject,
   onRequestChanges,
 }: DocumentReviewPanelProps) {
+  const { t } = useTranslation()
   const isApproved = reviewStatus === 'approved'
   const isRejected = reviewStatus === 'rejected'
   const changesRequested = reviewStatus === 'changes_requested'
@@ -176,7 +178,7 @@ export function DocumentReviewPanel({
                 },
               }}
             >
-              {isApproved ? 'Approved' : 'Approve'}
+              {isApproved ? t('common.statuses.approved') : t('approvals.approve')}
             </Button>
           )}
 
@@ -198,7 +200,7 @@ export function DocumentReviewPanel({
                 },
               }}
             >
-              {changesRequested ? 'Changes Requested' : 'Request Changes'}
+              {changesRequested ? t('documentReview.changesRequested') : t('documentReview.requestChanges')}
             </Button>
           )}
 
@@ -220,7 +222,7 @@ export function DocumentReviewPanel({
                 },
               }}
             >
-              {isRejected ? 'Rejected' : 'Reject'}
+              {isRejected ? t('common.statuses.rejected') : t('approvals.reject')}
             </Button>
           )}
         </ApprovalButtonsContainer>

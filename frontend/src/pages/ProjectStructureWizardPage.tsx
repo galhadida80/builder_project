@@ -142,7 +142,7 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
   }
 }
 
-function buildBulkTree(state: WizardState): BulkAreaNode[] {
+function buildBulkTree(state: WizardState, t: (key: string, opts?: Record<string, unknown>) => string): BulkAreaNode[] {
   const nodes: BulkAreaNode[] = []
 
   state.buildings.forEach((building, bIdx) => {
@@ -166,8 +166,8 @@ function buildBulkTree(state: WizardState): BulkAreaNode[] {
 
       floorChildren.push({
         name: isBasement
-          ? 'Basement'
-          : `Floor ${floorNumber}`,
+          ? t('structureWizard.basement')
+          : t('structureWizard.floorNumber', { number: floorNumber }),
         area_type: isBasement ? 'basement' : 'floor',
         area_level: 'floor',
         floor_number: floorNumber,
@@ -178,7 +178,7 @@ function buildBulkTree(state: WizardState): BulkAreaNode[] {
 
     if (building.hasParking) {
       floorChildren.push({
-        name: 'Parking',
+        name: t('structureWizard.parking'),
         area_type: 'parking',
         area_level: 'zone',
       })
@@ -186,14 +186,14 @@ function buildBulkTree(state: WizardState): BulkAreaNode[] {
 
     if (building.hasLobby) {
       floorChildren.push({
-        name: 'Lobby',
+        name: t('structureWizard.lobby'),
         area_type: 'lobby',
         area_level: 'zone',
       })
     }
 
     nodes.push({
-      name: building.name || `Building ${bIdx + 1}`,
+      name: building.name || t('structureWizard.buildingNumber', { number: bIdx + 1 }),
       area_type: 'building',
       area_level: 'building',
       children: floorChildren.length > 0 ? floorChildren : undefined,
@@ -280,7 +280,7 @@ export default function ProjectStructureWizardPage() {
     if (!projectId) return
     setLoading(true)
     try {
-      const tree = buildBulkTree(state)
+      const tree = buildBulkTree(state, t)
       await areaStructureApi.bulkCreateAreas(projectId, {
         areas: tree,
         auto_assign_checklists: state.autoAssignChecklists,
@@ -371,7 +371,7 @@ export default function ProjectStructureWizardPage() {
         title={t('structureWizard.title')}
         subtitle={t('structureWizard.subtitle')}
         breadcrumbs={[
-          { label: t('nav.areas', { defaultValue: 'Areas' }), href: `/projects/${projectId}/areas` },
+          { label: t('nav.areas'), href: `/projects/${projectId}/areas` },
           { label: t('structureWizard.title') },
         ]}
       />

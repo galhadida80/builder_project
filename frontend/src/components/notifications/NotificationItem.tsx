@@ -52,30 +52,30 @@ const CategoryBadge = styled(Box, {
   color: 'white',
 }))
 
-const categoryConfig: Record<NotificationCategory, { icon: React.ReactNode; color: string; label: string }> = {
+const categoryConfig: Record<NotificationCategory, { icon: React.ReactNode; color: string; labelKey: string }> = {
   approval: {
     icon: <CheckCircleIcon sx={{ fontSize: 12 }} />,
     color: '#16A34A',
-    label: 'Approval',
+    labelKey: 'notifications.categories.approval',
   },
   inspection: {
     icon: <WarningIcon sx={{ fontSize: 12 }} />,
     color: '#EA580C',
-    label: 'Inspection',
+    labelKey: 'notifications.categories.inspection',
   },
   update: {
     icon: <UpdateIcon sx={{ fontSize: 12 }} />,
     color: '#0369A1',
-    label: 'Update',
+    labelKey: 'notifications.categories.update',
   },
   general: {
     icon: <InfoIcon sx={{ fontSize: 12 }} />,
     color: '#7C3AED',
-    label: 'General',
+    labelKey: 'notifications.categories.general',
   },
 }
 
-function getRelativeTime(timestamp: string): string {
+function getRelativeTime(timestamp: string, t: (key: string, opts?: Record<string, unknown>) => string): string {
   const now = new Date()
   const date = new Date(timestamp)
   const diffInMs = now.getTime() - date.getTime()
@@ -83,11 +83,11 @@ function getRelativeTime(timestamp: string): string {
   const diffInHours = Math.floor(diffInMs / 3600000)
   const diffInDays = Math.floor(diffInMs / 86400000)
 
-  if (diffInMinutes < 1) return 'Just now'
-  if (diffInMinutes < 60) return `${diffInMinutes}m ago`
-  if (diffInHours < 24) return `${diffInHours}h ago`
-  if (diffInDays < 7) return `${diffInDays}d ago`
-  if (diffInDays < 30) return `${Math.floor(diffInDays / 7)}w ago`
+  if (diffInMinutes < 1) return t('notifications.justNow')
+  if (diffInMinutes < 60) return t('notifications.minutesAgo', { count: diffInMinutes })
+  if (diffInHours < 24) return t('notifications.hoursAgo', { count: diffInHours })
+  if (diffInDays < 7) return t('notifications.daysAgo', { count: diffInDays })
+  if (diffInDays < 30) return t('notifications.weeksAgo', { count: Math.floor(diffInDays / 7) })
   return date.toLocaleDateString(getDateLocale())
 }
 
@@ -154,7 +154,7 @@ export function NotificationItem({ notification, onClick, onActionClick }: Notif
                 letterSpacing: '0.5px',
               }}
             >
-              {config.label}
+              {t(config.labelKey)}
             </Typography>
             <Typography
               variant="body2"
@@ -194,7 +194,7 @@ export function NotificationItem({ notification, onClick, onActionClick }: Notif
                 display: 'block',
               }}
             >
-              {getRelativeTime(notification.createdAt)}
+              {getRelativeTime(notification.createdAt, t)}
             </Typography>
           </Box>
         }

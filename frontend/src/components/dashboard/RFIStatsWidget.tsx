@@ -42,7 +42,7 @@ export default function RFIStatsWidget({ projectId }: RFIStatsWidgetProps) {
       loadRFIStats()
     } else {
       setLoading(false)
-      setError('No project selected')
+      setError(t('rfis.noProjectSelected'))
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId])
@@ -62,10 +62,10 @@ export default function RFIStatsWidget({ projectId }: RFIStatsWidgetProps) {
       <Card>
         <Box sx={{ p: 2.5 }}>
           <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
-            RFI Statistics
+            {t('rfis.rfiStats')}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Select a project to view RFI statistics
+            {t('rfis.selectProjectForStats')}
           </Typography>
         </Box>
       </Card>
@@ -77,7 +77,7 @@ export default function RFIStatsWidget({ projectId }: RFIStatsWidgetProps) {
       <Card>
         <Box sx={{ p: 2.5 }}>
           <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
-            RFI Statistics
+            {t('rfis.rfiStats')}
           </Typography>
           <Box
             sx={{
@@ -102,7 +102,7 @@ export default function RFIStatsWidget({ projectId }: RFIStatsWidgetProps) {
       <Card>
         <Box sx={{ p: 2.5 }}>
           <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
-            RFI Statistics
+            {t('rfis.rfiStats')}
           </Typography>
           <Typography variant="body2" color="error" sx={{ mb: 2 }}>
             {error || t('rfis.failedToLoadStats')}
@@ -113,7 +113,7 @@ export default function RFIStatsWidget({ projectId }: RFIStatsWidgetProps) {
             sx={{ cursor: 'pointer', textDecoration: 'underline' }}
             onClick={loadRFIStats}
           >
-            Retry
+            {t('common.refresh')}
           </Typography>
         </Box>
       </Card>
@@ -124,7 +124,7 @@ export default function RFIStatsWidget({ projectId }: RFIStatsWidgetProps) {
     <Card>
       <Box sx={{ p: 2.5 }}>
         <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
-          RFI Statistics
+          {t('rfis.rfiStats')}
         </Typography>
         <Box
           sx={{
@@ -134,28 +134,28 @@ export default function RFIStatsWidget({ projectId }: RFIStatsWidgetProps) {
           }}
         >
           <KPICard
-            title="Open RFIs"
+            title={t('rfis.openRfis')}
             value={stats.open_count}
             icon={<InfoOutlinedIcon />}
             color="info"
             onClick={() => handleStatClick('open')}
           />
           <KPICard
-            title="Overdue"
+            title={t('rfis.overdue')}
             value={stats.overdue_count}
             icon={<WarningAmberIcon />}
             color="error"
             onClick={handleOverdueClick}
           />
           <KPICard
-            title="Answered"
+            title={t('rfis.statuses.answered')}
             value={stats.answered_count}
             icon={<CheckCircleOutlineIcon />}
             color="success"
             onClick={() => handleStatClick('answered')}
           />
           <KPICard
-            title="Closed"
+            title={t('rfis.statuses.closed')}
             value={stats.closed_count}
             icon={<TaskAltIcon />}
             color="primary"

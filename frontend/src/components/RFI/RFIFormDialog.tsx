@@ -21,32 +21,15 @@ import { contactGroupsApi } from '../../api/contactGroups'
 import type { Contact, ContactGroupListItem } from '../../types'
 import { Box, Stack, Autocomplete, Chip, Typography, IconButton, List, ListItem, ListItemText, ListItemSecondaryAction, Alert, TextField as MuiTextField } from '@/mui'
 
-// Category options for RFI classification
-const RFI_CATEGORY_OPTIONS: SelectOption[] = [
-  { value: 'design', label: 'Design' },
-  { value: 'structural', label: 'Structural' },
-  { value: 'mep', label: 'MEP' },
-  { value: 'architectural', label: 'Architectural' },
-  { value: 'specifications', label: 'Specifications' },
-  { value: 'schedule', label: 'Schedule' },
-  { value: 'cost', label: 'Cost' },
-  { value: 'other', label: 'Other' },
-]
-
-// Priority options for RFI urgency
-const RFI_PRIORITY_OPTIONS: SelectOption[] = [
-  { value: 'urgent', label: 'Urgent' },
-  { value: 'high', label: 'High' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'low', label: 'Low' },
-]
+const RFI_CATEGORY_KEYS = ['design', 'structural', 'mep', 'architectural', 'specifications', 'schedule', 'cost', 'other'] as const
+const RFI_PRIORITY_KEYS = ['urgent', 'high', 'medium', 'low'] as const
 
 // Zod validation schema for RFI form data
 const rfiFormSchema = z.object({
   // Required fields
-  subject: z.string().min(1, 'Subject is required'),
-  question: z.string().min(1, 'Question is required'),
-  toEmail: z.string().email('Valid email address is required'),
+  subject: z.string().min(1),
+  question: z.string().min(1),
+  toEmail: z.string().email(),
 
   // Optional fields
   toName: z.string().optional(),
@@ -84,6 +67,16 @@ export function RFIFormDialog({
   projectId,
 }: RFIFormDialogProps) {
   const { t, i18n } = useTranslation()
+
+  const rfiCategoryOptions: SelectOption[] = RFI_CATEGORY_KEYS.map(key => ({
+    value: key,
+    label: t(`rfis.categories.${key}`),
+  }))
+  const rfiPriorityOptions: SelectOption[] = RFI_PRIORITY_KEYS.map(key => ({
+    value: key,
+    label: t(`rfis.priorities.${key}`),
+  }))
+
   const [projectContacts, setProjectContacts] = useState<Contact[]>([])
   const [contactGroups, setContactGroups] = useState<ContactGroupListItem[]>([])
 
@@ -410,7 +403,7 @@ export function RFIFormDialog({
               <Select
                 {...field}
                 label={t('rfis.category')}
-                options={RFI_CATEGORY_OPTIONS}
+                options={rfiCategoryOptions}
                 error={!!fieldState.error}
                 helperText={fieldState.error?.message}
                 disabled={isFormLoading}
@@ -425,7 +418,7 @@ export function RFIFormDialog({
               <Select
                 {...field}
                 label={t('rfis.priority')}
-                options={RFI_PRIORITY_OPTIONS}
+                options={rfiPriorityOptions}
                 error={!!fieldState.error}
                 helperText={fieldState.error?.message}
                 disabled={isFormLoading}

@@ -26,36 +26,30 @@ interface ApprovalAuditTrailProps {
   sx?: SxProps<Theme>
 }
 
-const ACTION_CONFIG: Record<ApprovalAction['action'], { icon: React.ReactNode; color: 'success' | 'error' | 'warning' | 'info' | 'default'; label: string }> = {
+const ACTION_CONFIG: Record<ApprovalAction['action'], { icon: React.ReactNode; color: 'success' | 'error' | 'warning' | 'info' | 'default' }> = {
   submitted: {
     icon: <PendingIcon sx={{ fontSize: 18 }} />,
     color: 'info',
-    label: 'Submitted',
   },
   approved: {
     icon: <ApprovedIcon sx={{ fontSize: 18 }} />,
     color: 'success',
-    label: 'Approved',
   },
   rejected: {
     icon: <RejectedIcon sx={{ fontSize: 18 }} />,
     color: 'error',
-    label: 'Rejected',
   },
   commented: {
     icon: <CommentIcon sx={{ fontSize: 18 }} />,
     color: 'info',
-    label: 'Commented',
   },
   revised: {
     icon: <HistoryIcon sx={{ fontSize: 18 }} />,
     color: 'warning',
-    label: 'Revised',
   },
   resubmitted: {
     icon: <PendingIcon sx={{ fontSize: 18 }} />,
     color: 'info',
-    label: 'Resubmitted',
   },
 }
 
