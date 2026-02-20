@@ -15,12 +15,6 @@ import {
   TextField as MuiTextField,
   Skeleton,
   Chip,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
 } from '@/mui'
 
 export default function ReportsPage() {
@@ -87,55 +81,45 @@ export default function ReportsPage() {
     const findings = (data.findings || []) as Array<Record<string, string>>
 
     return (
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5 }}>
           <Card>
             <Box sx={{ p: 2 }}>
-              <Typography variant="subtitle2" color="text.secondary">{t('reports.totalInspections')}</Typography>
-              <Typography variant="h4" fontWeight={700}>{data.total_inspections as number}</Typography>
-              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 1 }}>
+              <Typography variant="caption" color="text.secondary">{t('reports.totalInspections')}</Typography>
+              <Typography variant="h5" fontWeight={700}>{data.total_inspections as number}</Typography>
+              <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mt: 1 }}>
                 {Object.entries(statusBreakdown).map(([status, count]) => (
-                  <Chip key={status} label={`${status}: ${count}`} size="small" variant="outlined" />
+                  <Chip key={status} label={`${status}: ${count}`} size="small" variant="outlined" sx={{ height: 20, fontSize: '0.6rem' }} />
                 ))}
               </Box>
             </Box>
           </Card>
           <Card>
             <Box sx={{ p: 2 }}>
-              <Typography variant="subtitle2" color="text.secondary">{t('reports.totalFindings')}</Typography>
-              <Typography variant="h4" fontWeight={700}>{data.total_findings as number}</Typography>
-              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 1 }}>
+              <Typography variant="caption" color="text.secondary">{t('reports.totalFindings')}</Typography>
+              <Typography variant="h5" fontWeight={700}>{data.total_findings as number}</Typography>
+              <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mt: 1 }}>
                 {Object.entries(severityBreakdown).map(([severity, count]) => (
-                  <Chip key={severity} label={`${severity}: ${count}`} size="small" color={severity === 'critical' ? 'error' : 'default'} variant="outlined" />
+                  <Chip key={severity} label={`${severity}: ${count}`} size="small" color={severity === 'critical' ? 'error' : 'default'} variant="outlined" sx={{ height: 20, fontSize: '0.6rem' }} />
                 ))}
               </Box>
             </Box>
           </Card>
         </Box>
-        {findings.length > 0 && (
-          <TableContainer>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell>{t('reports.finding')}</TableCell>
-                  <TableCell>{t('reports.severity')}</TableCell>
-                  <TableCell>{t('reports.status')}</TableCell>
-                  <TableCell>{t('reports.location')}</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {findings.map((f) => (
-                  <TableRow key={f.id}>
-                    <TableCell>{f.title}</TableCell>
-                    <TableCell><Chip label={f.severity} size="small" color={f.severity === 'critical' ? 'error' : 'default'} /></TableCell>
-                    <TableCell>{f.status}</TableCell>
-                    <TableCell>{f.location || '-'}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        )}
+        {findings.length > 0 && findings.map((f) => (
+          <Card key={f.id}>
+            <Box sx={{ p: 2 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 0.5 }}>
+                <Typography variant="body2" fontWeight={600}>{f.title}</Typography>
+                <Chip label={f.severity} size="small" color={f.severity === 'critical' ? 'error' : 'default'} sx={{ height: 20, fontSize: '0.6rem' }} />
+              </Box>
+              <Box sx={{ display: 'flex', gap: 1, mt: 0.5 }}>
+                <Typography variant="caption" color="text.secondary">{f.status}</Typography>
+                {f.location && <Typography variant="caption" color="text.secondary">{f.location}</Typography>}
+              </Box>
+            </Box>
+          </Card>
+        ))}
       </Box>
     )
   }
@@ -149,45 +133,34 @@ export default function ReportsPage() {
     ]
 
     return (
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5 }}>
           <Card>
             <Box sx={{ p: 2 }}>
-              <Typography variant="subtitle2" color="text.secondary">{t('reports.equipmentSubmissions')}</Typography>
-              <Typography variant="h4" fontWeight={700}>{data.total_equipment_submissions as number}</Typography>
+              <Typography variant="caption" color="text.secondary">{t('reports.equipmentSubmissions')}</Typography>
+              <Typography variant="h5" fontWeight={700}>{data.total_equipment_submissions as number}</Typography>
             </Box>
           </Card>
           <Card>
             <Box sx={{ p: 2 }}>
-              <Typography variant="subtitle2" color="text.secondary">{t('reports.materialSubmissions')}</Typography>
-              <Typography variant="h4" fontWeight={700}>{data.total_material_submissions as number}</Typography>
+              <Typography variant="caption" color="text.secondary">{t('reports.materialSubmissions')}</Typography>
+              <Typography variant="h5" fontWeight={700}>{data.total_material_submissions as number}</Typography>
             </Box>
           </Card>
         </Box>
-        {allItems.length > 0 && (
-          <TableContainer>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell>{t('reports.name')}</TableCell>
-                  <TableCell>{t('reports.type')}</TableCell>
-                  <TableCell>{t('reports.status')}</TableCell>
-                  <TableCell>{t('reports.createdAt')}</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {allItems.map((item) => (
-                  <TableRow key={item.id}>
-                    <TableCell>{item.name}</TableCell>
-                    <TableCell><Chip label={item.type} size="small" variant="outlined" /></TableCell>
-                    <TableCell>{item.status}</TableCell>
-                    <TableCell>{item.created_at ? new Date(item.created_at).toLocaleDateString() : '-'}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        )}
+        {allItems.map((item) => (
+          <Card key={item.id}>
+            <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Box>
+                <Typography variant="body2" fontWeight={600}>{item.name}</Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {item.type} {item.created_at ? ` · ${new Date(item.created_at).toLocaleDateString()}` : ''}
+                </Typography>
+              </Box>
+              <Chip label={item.status} size="small" variant="outlined" sx={{ height: 20, fontSize: '0.6rem' }} />
+            </Box>
+          </Card>
+        ))}
       </Box>
     )
   }
@@ -197,58 +170,48 @@ export default function ReportsPage() {
     const priorityBreakdown = (data.priority_breakdown || {}) as Record<string, { count: number; avg_age_days: number }>
 
     return (
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' }, gap: 2 }}>
-          <Card>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+        <Box sx={{ display: 'flex', gap: 1.5, overflowX: 'auto', pb: 0.5 }}>
+          <Card sx={{ minWidth: 120, flex: 1 }}>
             <Box sx={{ p: 2 }}>
-              <Typography variant="subtitle2" color="text.secondary">{t('reports.totalOpenRfis')}</Typography>
-              <Typography variant="h4" fontWeight={700}>{data.total_open_rfis as number}</Typography>
+              <Typography variant="caption" color="text.secondary">{t('reports.totalOpenRfis')}</Typography>
+              <Typography variant="h5" fontWeight={700}>{data.total_open_rfis as number}</Typography>
             </Box>
           </Card>
           {Object.entries(priorityBreakdown).map(([priority, info]) => (
-            <Card key={priority}>
+            <Card key={priority} sx={{ minWidth: 120, flex: 1 }}>
               <Box sx={{ p: 2 }}>
-                <Typography variant="subtitle2" color="text.secondary">{priority.toUpperCase()}</Typography>
+                <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', fontSize: '0.6rem', fontWeight: 700 }}>{priority}</Typography>
                 <Typography variant="h5" fontWeight={700}>{info.count}</Typography>
-                <Typography variant="body2" color="text.secondary">
+                <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.6rem' }}>
                   {t('reports.avgAge')}: {info.avg_age_days} {t('reports.days')}
                 </Typography>
               </Box>
             </Card>
           ))}
         </Box>
-        {items.length > 0 && (
-          <TableContainer>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell>{t('reports.rfiNumber')}</TableCell>
-                  <TableCell>{t('reports.subject')}</TableCell>
-                  <TableCell>{t('reports.priority')}</TableCell>
-                  <TableCell>{t('reports.ageDays')}</TableCell>
-                  <TableCell>{t('reports.status')}</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {items.map((item) => (
-                  <TableRow key={item.id as string}>
-                    <TableCell>{item.rfi_number as string}</TableCell>
-                    <TableCell>{item.subject as string}</TableCell>
-                    <TableCell>
-                      <Chip
-                        label={item.priority as string}
-                        size="small"
-                        color={(item.priority === 'urgent' || item.priority === 'high') ? 'error' : 'default'}
-                      />
-                    </TableCell>
-                    <TableCell>{item.age_days as number}</TableCell>
-                    <TableCell>{item.status as string}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        )}
+        {items.map((item) => {
+          const isUrgent = item.priority === 'urgent' || item.priority === 'high'
+          return (
+            <Card key={item.id as string} sx={{ borderInlineStart: '4px solid', borderInlineStartColor: isUrgent ? 'error.main' : 'info.main' }}>
+              <Box sx={{ p: 2 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 0.5 }}>
+                  <Box>
+                    <Chip label={item.rfi_number as string} size="small" sx={{ height: 20, fontSize: '0.6rem', fontWeight: 700, mb: 0.5 }} />
+                    <Typography variant="body2" fontWeight={600}>{item.subject as string}</Typography>
+                  </Box>
+                  <Typography variant="caption" fontWeight={700} color={isUrgent ? 'error.main' : 'text.secondary'}>
+                    {item.age_days as number} {t('reports.days')}
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', gap: 1, mt: 0.5 }}>
+                  <Chip label={item.priority as string} size="small" color={isUrgent ? 'error' : 'default'} sx={{ height: 20, fontSize: '0.6rem' }} />
+                  <Typography variant="caption" color="text.secondary">{item.status as string}</Typography>
+                </Box>
+              </Box>
+            </Card>
+          )
+        })}
       </Box>
     )
   }
@@ -266,16 +229,18 @@ export default function ReportsPage() {
       <PageHeader
         title={t('reports.title')}
         subtitle={t('reports.subtitle')}
-        breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('reports.title') }]}
       />
 
-      <Card>
+      <Card sx={{ mb: 2 }}>
         <Box sx={{ p: 2 }}>
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr 1fr auto auto' }, gap: 2, alignItems: 'center', mb: 3 }}>
+          <Typography variant="body2" fontWeight={700} sx={{ mb: 2, borderInlineStart: '4px solid', borderColor: 'primary.main', ps: 1.5 }}>
+            {t('reports.reportType')}
+          </Typography>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <MuiTextField
               select
               fullWidth
-              label={t('reports.reportType')}
+              size="small"
               value={reportType}
               onChange={(e) => { setReportType(e.target.value); setReportData(null) }}
             >
@@ -283,9 +248,10 @@ export default function ReportsPage() {
             </MuiTextField>
 
             {reportType !== 'rfi-aging' && (
-              <>
+              <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5 }}>
                 <MuiTextField
                   fullWidth
+                  size="small"
                   type="date"
                   label={t('reports.dateFrom')}
                   InputLabelProps={{ shrink: true }}
@@ -294,42 +260,44 @@ export default function ReportsPage() {
                 />
                 <MuiTextField
                   fullWidth
+                  size="small"
                   type="date"
                   label={t('reports.dateTo')}
                   InputLabelProps={{ shrink: true }}
                   value={dateTo}
                   onChange={(e) => setDateTo(e.target.value)}
                 />
-              </>
+              </Box>
             )}
 
-            <Button variant="primary" icon={<SearchIcon />} onClick={handleGenerate}>
-              {t('reports.generate')}
-            </Button>
-
-            {reportData && (
-              <Button variant="secondary" icon={<DownloadIcon />} onClick={handleExportCsv}>
-                {t('reports.exportCsv')}
+            <Box sx={{ display: 'flex', gap: 1.5 }}>
+              <Button variant="primary" icon={<SearchIcon />} onClick={handleGenerate} fullWidth>
+                {t('reports.generate')}
               </Button>
-            )}
-          </Box>
-
-          {loading ? (
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <Skeleton variant="rounded" height={100} />
-              <Skeleton variant="rounded" height={200} />
+              {reportData && (
+                <Button variant="secondary" icon={<DownloadIcon />} onClick={handleExportCsv}>
+                  CSV
+                </Button>
+              )}
             </Box>
-          ) : reportData ? (
-            renderReport()
-          ) : (
-            <EmptyState
-              title={t('reports.noReportGenerated')}
-              description={t('reports.selectAndGenerate')}
-              icon={<AssessmentIcon sx={{ color: 'text.secondary' }} />}
-            />
-          )}
+          </Box>
         </Box>
       </Card>
+
+      {loading ? (
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+          <Skeleton variant="rounded" height={80} sx={{ borderRadius: 2 }} />
+          <Skeleton variant="rounded" height={200} sx={{ borderRadius: 2 }} />
+        </Box>
+      ) : reportData ? (
+        renderReport()
+      ) : (
+        <EmptyState
+          title={t('reports.noReportGenerated')}
+          description={t('reports.selectAndGenerate')}
+          icon={<AssessmentIcon sx={{ color: 'text.secondary' }} />}
+        />
+      )}
     </Box>
   )
 }

@@ -6,7 +6,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { useToast } from '../components/common/ToastProvider'
 import { authApi, WebAuthnCredential } from '../api/auth'
 import { profileSchema, validateWithSchema } from '../schemas/validation'
-import { PersonIcon, EmailIcon, PhoneIcon, BusinessIcon, EditIcon, SaveIcon, FingerprintIcon, DeleteIcon } from '@/icons'
+import { PersonIcon, EmailIcon, PhoneIcon, BusinessIcon, EditIcon, SaveIcon, FingerprintIcon, DeleteIcon, CameraAltIcon } from '@/icons'
 import { Box, Typography, Paper, Avatar, TextField, Button, Divider, Chip, IconButton, CircularProgress } from '@/mui'
 
 export default function ProfilePage() {
@@ -103,179 +103,169 @@ export default function ProfilePage() {
   }
 
   return (
-    <Box sx={{ p: { xs: 2, sm: 3 } }}>
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5, fontSize: { xs: '1.75rem', sm: '2.125rem' } }}>
-          {t('profile.title')}
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
-          {t('profile.subtitle')}
-        </Typography>
+    <Box sx={{ pb: { xs: 12, sm: 4 } }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', pt: { xs: 4, sm: 5 }, pb: 3, px: 2 }}>
+        <Box sx={{ position: 'relative', mb: 2 }}>
+          <Avatar
+            sx={{
+              width: { xs: 100, sm: 120 },
+              height: { xs: 100, sm: 120 },
+              bgcolor: 'primary.main',
+              fontSize: { xs: '2rem', sm: '2.5rem' },
+              border: '3px solid',
+              borderColor: 'primary.main',
+            }}
+          >
+            {getInitials(user?.fullName || user?.email || '')}
+          </Avatar>
+          <IconButton
+            size="small"
+            sx={{
+              position: 'absolute',
+              bottom: 0,
+              insetInlineStart: 0,
+              bgcolor: 'primary.main',
+              color: 'white',
+              border: '2px solid',
+              borderColor: 'background.default',
+              '&:hover': { bgcolor: 'primary.dark' },
+              width: 32,
+              height: 32,
+            }}
+          >
+            <CameraAltIcon sx={{ fontSize: 16 }} />
+          </IconButton>
+        </Box>
+        <Typography variant="h5" fontWeight={700}>{user?.fullName || user?.email}</Typography>
+        {user?.role && (
+          <Chip
+            label={user.role}
+            size="small"
+            sx={{ mt: 1, bgcolor: 'rgba(242,140,38,0.15)', color: 'primary.main', fontWeight: 600, fontSize: '0.75rem' }}
+          />
+        )}
+        {user?.company && (
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>{user.company}</Typography>
+        )}
       </Box>
 
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, maxWidth: 800 }}>
-        <Paper sx={{ p: 3 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 3 }}>
-            <Avatar sx={{ width: 80, height: 80, bgcolor: 'primary.main', fontSize: '1.5rem' }}>
-              {getInitials(user?.fullName || user?.email || '')}
-            </Avatar>
-            <Box>
-              <Typography variant="h6" fontWeight={600}>{user?.fullName || user?.email}</Typography>
-              <Typography variant="body2" color="text.secondary">{user?.email}</Typography>
-              {user?.role && <Chip label={user.role} size="small" sx={{ mt: 0.5 }} />}
-            </Box>
-          </Box>
-
-          <Divider sx={{ mb: 3 }} />
-
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-              <PersonIcon sx={{ color: 'text.secondary' }} />
-              {editing ? (
+      <Box sx={{ maxWidth: 600, mx: 'auto', px: 2 }}>
+        <Paper sx={{ borderRadius: 3, overflow: 'hidden', mb: 3 }}>
+          {editing ? (
+            <Box sx={{ p: 2.5, display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <PersonIcon sx={{ color: 'primary.main' }} />
                 <TextField
-                  fullWidth
-                  size="small"
-                  label={t('profile.fullName')}
-                  value={formData.fullName}
+                  fullWidth size="small" label={t('profile.fullName')} value={formData.fullName}
                   onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                  error={!!errors.fullName}
-                  helperText={errors.fullName}
+                  error={!!errors.fullName} helperText={errors.fullName}
                 />
-              ) : (
-                <Box>
-                  <Typography variant="caption" color="text.secondary">{t('profile.fullName')}</Typography>
-                  <Typography variant="body1">{user?.fullName || '—'}</Typography>
-                </Box>
-              )}
-            </Box>
-
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-              <EmailIcon sx={{ color: 'text.secondary' }} />
-              <Box>
-                <Typography variant="caption" color="text.secondary">{t('profile.email')}</Typography>
-                <Typography variant="body1">{user?.email}</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <PhoneIcon sx={{ color: 'primary.main' }} />
+                <TextField
+                  fullWidth size="small" label={t('profile.phone')} value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  error={!!errors.phone} helperText={errors.phone}
+                />
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <BusinessIcon sx={{ color: 'primary.main' }} />
+                <TextField
+                  fullWidth size="small" label={t('profile.company')} value={formData.company}
+                  onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                  error={!!errors.company} helperText={errors.company}
+                />
+              </Box>
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 1 }}>
+                <Button variant="outlined" size="small" onClick={() => setEditing(false)}>{t('common.cancel')}</Button>
+                <Button variant="contained" size="small" startIcon={<SaveIcon />} onClick={handleSave} disabled={saving}>
+                  {saving ? t('common.loading') : t('common.save')}
+                </Button>
               </Box>
             </Box>
-
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-              <PhoneIcon sx={{ color: 'text.secondary' }} />
-              {editing ? (
-                <TextField
-                  fullWidth
-                  size="small"
-                  label={t('profile.phone')}
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  error={!!errors.phone}
-                  helperText={errors.phone}
-                />
-              ) : (
-                <Box>
-                  <Typography variant="caption" color="text.secondary">{t('profile.phone')}</Typography>
-                  <Typography variant="body1">{user?.phone || '—'}</Typography>
-                </Box>
-              )}
-            </Box>
-
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-              <BusinessIcon sx={{ color: 'text.secondary' }} />
-              {editing ? (
-                <TextField
-                  fullWidth
-                  size="small"
-                  label={t('profile.company')}
-                  value={formData.company}
-                  onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                  error={!!errors.company}
-                  helperText={errors.company}
-                />
-              ) : (
-                <Box>
-                  <Typography variant="caption" color="text.secondary">{t('profile.company')}</Typography>
-                  <Typography variant="body1">{user?.company || '—'}</Typography>
-                </Box>
-              )}
-            </Box>
-          </Box>
-
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
-            {editing ? (
-              <Button variant="contained" startIcon={<SaveIcon />} onClick={handleSave} disabled={saving}>
-                {saving ? t('common.loading') : t('common.save')}
-              </Button>
-            ) : (
-              <Button variant="outlined" startIcon={<EditIcon />} onClick={() => setEditing(true)}>
-                {t('profile.editProfile')}
-              </Button>
-            )}
-          </Box>
+          ) : (
+            <>
+              <ProfileRow icon={<EmailIcon sx={{ color: 'primary.main' }} />} label={t('profile.email')} value={user?.email || '—'} />
+              <Divider />
+              <ProfileRow icon={<PhoneIcon sx={{ color: 'primary.main' }} />} label={t('profile.phone')} value={user?.phone || '—'} />
+              <Divider />
+              <ProfileRow icon={<PersonIcon sx={{ color: 'primary.main' }} />} label={t('profile.fullName')} value={user?.fullName || '—'} />
+              <Divider />
+              <ProfileRow icon={<BusinessIcon sx={{ color: 'primary.main' }} />} label={t('profile.company')} value={user?.company || '—'} />
+            </>
+          )}
         </Paper>
 
+        {!editing && (
+          <Button
+            variant="outlined"
+            fullWidth
+            startIcon={<EditIcon />}
+            onClick={() => setEditing(true)}
+            sx={{ mb: 3, borderRadius: 3, py: 1.25, fontWeight: 700, borderWidth: 2, borderColor: 'primary.main', color: 'primary.main' }}
+          >
+            {t('profile.editProfile')}
+          </Button>
+        )}
+
         {webauthnSupported && (
-          <Paper sx={{ p: 3 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
-              <FingerprintIcon sx={{ color: 'primary.main' }} />
-              <Typography variant="h6" fontWeight={600}>
-                {t('webauthn.setupTitle')}
-              </Typography>
-            </Box>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 2.5 }}>
-              {t('webauthn.setupDescription')}
-            </Typography>
-
-            {loadingCredentials ? (
-              <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
-                <CircularProgress size={24} />
+          <Paper sx={{ borderRadius: 3, overflow: 'hidden', mb: 3 }}>
+            <Box sx={{ p: 2.5 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
+                <FingerprintIcon sx={{ color: 'primary.main' }} />
+                <Typography variant="subtitle2" fontWeight={600}>{t('webauthn.setupTitle')}</Typography>
               </Box>
-            ) : (
-              <>
-                {credentials.length > 0 && (
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2.5 }}>
-                    {credentials.map((cred) => (
-                      <Box
-                        key={cred.id}
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          p: 1.5,
-                          borderRadius: 2,
-                          bgcolor: 'action.hover',
-                        }}
-                      >
-                        <Box>
-                          <Typography variant="body2" fontWeight={500}>
-                            {cred.deviceName}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            {t('webauthn.registeredOn')}: {new Date(cred.createdAt).toLocaleDateString(getDateLocale())}
-                          </Typography>
-                        </Box>
-                        <IconButton
-                          aria-label={t('webauthn.deleteDevice')}
-                          size="small"
-                          color="error"
-                          onClick={() => handleDeleteCredential(cred.id)}
-                        >
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
-                      </Box>
-                    ))}
-                  </Box>
-                )}
+              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
+                {t('webauthn.setupDescription')}
+              </Typography>
 
-                <Button
-                  variant="outlined"
-                  startIcon={<FingerprintIcon />}
-                  onClick={handleRegisterBiometric}
-                  disabled={registering}
-                >
-                  {registering ? t('webauthn.registering') : t('webauthn.setupButton')}
-                </Button>
-              </>
-            )}
+              {loadingCredentials ? (
+                <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
+                  <CircularProgress size={24} />
+                </Box>
+              ) : (
+                <>
+                  {credentials.length > 0 && (
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
+                      {credentials.map((cred) => (
+                        <Box
+                          key={cred.id}
+                          sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 1.5, borderRadius: 2, bgcolor: 'action.hover' }}
+                        >
+                          <Box>
+                            <Typography variant="body2" fontWeight={500}>{cred.deviceName}</Typography>
+                            <Typography variant="caption" color="text.secondary">
+                              {t('webauthn.registeredOn')}: {new Date(cred.createdAt).toLocaleDateString(getDateLocale())}
+                            </Typography>
+                          </Box>
+                          <IconButton aria-label={t('webauthn.deleteDevice')} size="small" color="error" onClick={() => handleDeleteCredential(cred.id)}>
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        </Box>
+                      ))}
+                    </Box>
+                  )}
+                  <Button variant="outlined" startIcon={<FingerprintIcon />} onClick={handleRegisterBiometric} disabled={registering}>
+                    {registering ? t('webauthn.registering') : t('webauthn.setupButton')}
+                  </Button>
+                </>
+              )}
+            </Box>
           </Paper>
         )}
+      </Box>
+    </Box>
+  )
+}
+
+function ProfileRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 2, py: 1.5 }}>
+      {icon}
+      <Box sx={{ flex: 1, minWidth: 0 }}>
+        <Typography variant="caption" color="text.secondary">{label}</Typography>
+        <Typography variant="body2" fontWeight={500}>{value}</Typography>
       </Box>
     </Box>
   )

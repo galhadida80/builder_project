@@ -4,44 +4,45 @@
 <meta charset="utf-8">
 <style>
 @page { size: A4; margin: 20mm 15mm; }
-body { font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: #1E293B; line-height: 1.5; direction: {{ direction }}; }
-.header { background: #0F172A; color: white; padding: 24px; border-radius: 8px; margin-bottom: 24px; }
-.header h1 { margin: 0; font-size: 22px; letter-spacing: -0.3px; }
-.header .subtitle { color: #94A3B8; font-size: 13px; margin-top: 6px; }
-.meta-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
-.meta-table td { padding: 6px 12px; border: 1px solid #E2E8F0; }
-.meta-table .label { background: #F8FAFC; color: #64748B; font-weight: 600; width: 140px; }
-.meta-table .value { color: #1E293B; }
-.section { margin-bottom: 20px; page-break-inside: avoid; }
-.section-title { background: #F1F5F9; padding: 10px 16px; border-radius: 6px; font-size: 14px; font-weight: 700; color: #0F172A; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
-.section-order { background: #0369A1; color: white; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; }
-.item-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
-.item-table th { background: #F8FAFC; color: #64748B; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 12px; text-align: {{ align }}; border: 1px solid #E2E8F0; }
-.item-table td { padding: 8px 12px; border: 1px solid #E2E8F0; vertical-align: top; }
-.status-badge { display: inline-block; padding: 2px 10px; border-radius: 10px; font-size: 10px; font-weight: 700; }
+body { font-family: 'Segoe UI', Arial, Helvetica, sans-serif; font-size: 12px; color: #1E293B; line-height: 1.5; direction: {{ direction }}; }
+.header { background: linear-gradient(135deg, #0F172A, #1E293B); color: white; padding: 28px; border-radius: 12px; margin-bottom: 24px; }
+.header .brand { font-size: 11px; font-weight: 800; letter-spacing: 2.5px; text-transform: uppercase; color: #3B82F6; margin: 0 0 16px; }
+.header h1 { margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.3px; }
+.header .subtitle { color: #94A3B8; font-size: 13px; margin-top: 8px; }
+.meta-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; border-radius: 10px; overflow: hidden; border: 1px solid #E2E8F0; }
+.meta-table td { padding: 10px 16px; border-bottom: 1px solid #E2E8F0; }
+.meta-table .label { background: #F8FAFC; color: #64748B; font-weight: 700; width: 140px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+.meta-table .value { color: #1E293B; font-weight: 500; }
+.section { margin-bottom: 24px; page-break-inside: avoid; }
+.section-title { background: #F1F5F9; padding: 12px 18px; border-radius: 10px; font-size: 14px; font-weight: 800; color: #0F172A; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.section-order { background: linear-gradient(135deg, #0369A1, #0EA5E9); color: white; width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; }
+.item-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; border-radius: 10px; overflow: hidden; border: 1px solid #E2E8F0; }
+.item-table th { background: #F8FAFC; color: #64748B; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; padding: 10px 14px; text-align: {{ align }}; border-bottom: 2px solid #E2E8F0; font-weight: 700; }
+.item-table td { padding: 10px 14px; border-bottom: 1px solid #F1F5F9; vertical-align: top; }
+.status-badge { display: inline-block; padding: 3px 12px; border-radius: 20px; font-size: 10px; font-weight: 700; }
 .status-approved { background: #DCFCE7; color: #166534; }
 .status-rejected { background: #FEE2E2; color: #991B1B; }
 .status-pending { background: #DBEAFE; color: #1E40AF; }
 .status-na { background: #F1F5F9; color: #64748B; }
-.progress-bar { background: #E2E8F0; border-radius: 4px; height: 8px; margin-top: 4px; }
-.progress-fill { background: #0369A1; border-radius: 4px; height: 8px; }
-.progress-complete { background: #16A34A; }
+.progress-bar { background: #E2E8F0; border-radius: 6px; height: 10px; margin-top: 6px; }
+.progress-fill { background: linear-gradient(90deg, #0369A1, #0EA5E9); border-radius: 6px; height: 10px; }
+.progress-complete { background: linear-gradient(90deg, #16A34A, #22C55E); }
 .images { margin-top: 6px; }
-.images img { width: 80px; height: 60px; object-fit: cover; border-radius: 4px; border: 1px solid #E2E8F0; margin: 0 4px 4px 0; }
-.signature img { max-width: 200px; max-height: 80px; border: 1px solid #E2E8F0; border-radius: 4px; }
-.notes { color: #475569; font-size: 11px; font-style: italic; margin-top: 4px; }
-.footer { text-align: center; color: #94A3B8; font-size: 10px; margin-top: 30px; padding-top: 12px; border-top: 1px solid #E2E8F0; }
+.images img { width: 80px; height: 60px; object-fit: cover; border-radius: 6px; border: 2px solid #E2E8F0; margin: 0 4px 4px 0; }
+.signature img { max-width: 200px; max-height: 80px; border: 2px solid #E2E8F0; border-radius: 6px; }
+.notes { color: #475569; font-size: 11px; font-style: italic; margin-top: 6px; }
+.footer { text-align: center; color: #94A3B8; font-size: 10px; margin-top: 32px; padding-top: 16px; border-top: 2px solid #E2E8F0; }
 </style>
 </head>
 <body>
 <div class="header">
-<p style="margin:0 0 12px;font-size:11px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:#64748B;">BuilderOps</p>
+<p class="brand">BuilderOps</p>
 <h1>{{ s.title }}</h1>
 <div class="subtitle">{{ s.generated }}: {{ generated_at }}</div>
 </div>
 
 <table class="meta-table">
-<tr><td class="label">{{ s.checklist_label }}</td><td class="value">{{ checklist_name }}</td></tr>
+<tr><td class="label">{{ s.checklist_label }}</td><td class="value"><strong>{{ checklist_name }}</strong></td></tr>
 <tr><td class="label">{{ s.unit_label }}</td><td class="value">{{ unit_identifier }}</td></tr>
 <tr><td class="label">{{ s.project_label }}</td><td class="value">{{ project_name }}</td></tr>
 <tr><td class="label">{{ s.status_label }}</td><td class="value">
@@ -51,7 +52,7 @@ body { font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: #1E293
 </td></tr>
 <tr><td class="label">{{ s.created_label }}</td><td class="value">{{ created_at }}</td></tr>
 <tr><td class="label">{{ s.progress_label }}</td><td class="value">
-{{ progress_completed }}/{{ progress_total }} ({{ progress_percent }}%)
+<strong>{{ progress_completed }}/{{ progress_total }}</strong> ({{ progress_percent }}%)
 <div class="progress-bar"><div class="progress-fill {% if progress_percent == 100 %}progress-complete{% endif %}" style="width:{{ progress_percent }}%"></div></div>
 </td></tr>
 </table>

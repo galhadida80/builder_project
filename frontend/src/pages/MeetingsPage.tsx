@@ -490,92 +490,59 @@ export default function MeetingsPage() {
           />
         )
       ) : (
-        <Card>
-          <Box sx={{ p: 2 }}>
-            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, gap: { xs: 1, sm: 0 }, mb: 2 }}>
-              <Tabs
-                items={[
-                  { label: t('meetings.upcomingMeetings'), value: 'upcoming', badge: upcomingMeetings.length },
-                  { label: t('meetings.pastMeetings'), value: 'past', badge: pastMeetings.length },
-                ]}
-                value={tabValue}
-                onChange={setTabValue}
-                size="small"
-              />
-              <Chip label={`${displayedMeetings.length} ${t('meetings.meetingCount')}`} size="small" sx={{ alignSelf: { xs: 'flex-start', sm: 'center' } }} />
-            </Box>
+        <>
+          <Tabs
+            items={[
+              { label: t('meetings.upcomingMeetings'), value: 'upcoming', badge: upcomingMeetings.length },
+              { label: t('meetings.pastMeetings'), value: 'past', badge: pastMeetings.length },
+            ]}
+            value={tabValue}
+            onChange={setTabValue}
+            size="small"
+          />
 
-            {displayedMeetings.length === 0 ? (
+          {displayedMeetings.length === 0 ? (
+            <Box sx={{ mt: 2 }}>
               <EmptyState
                 title={tabValue === 'upcoming' ? t('meetings.noUpcoming') : t('meetings.noPast')}
                 description={tabValue === 'upcoming' ? t('meetings.scheduleFirstMeeting') : t('meetings.pastMeetingsWillAppear')}
                 icon={<EventIcon sx={{ color: 'text.secondary' }} />}
                 action={tabValue === 'upcoming' ? { label: t('meetings.scheduleMeeting'), onClick: handleOpenCreate } : undefined}
               />
-            ) : (
-              <Box
-                sx={{
-                  display: 'grid',
-                  gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' },
-                  gap: 2,
-                }}
-              >
-                {displayedMeetings.map((meeting) => (
-                  <Card key={meeting.id} hoverable onClick={() => handleMeetingClick(meeting)}>
+            </Box>
+          ) : (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mt: 2 }}>
+              {displayedMeetings.map((meeting) => {
+                const isNow = meeting.status === 'scheduled' && (() => {
+                  const now = new Date()
+                  const start = new Date(meeting.scheduledDate)
+                  return now >= start && now <= new Date(start.getTime() + 2 * 60 * 60 * 1000)
+                })()
+                const borderColor = isNow ? 'primary.main' : meeting.status === 'completed' ? 'success.main' : meeting.status === 'cancelled' ? 'error.main' : 'divider'
+
+                return (
+                  <Card key={meeting.id} hoverable onClick={() => handleMeetingClick(meeting)}
+                    sx={{ borderInlineStart: '4px solid', borderInlineStartColor: borderColor }}
+                  >
                     <Box sx={{ p: 2 }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1.5, gap: 1 }}>
-                        <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-start', minWidth: 0, flex: 1 }}>
-                          <Box
-                            sx={{
-                              width: 44,
-                              height: 44,
-                              borderRadius: 2,
-                              bgcolor: 'primary.main',
-                              color: 'white',
-                              display: 'flex',
-                              flexDirection: 'column',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                            }}
-                          >
-                            <Typography variant="h6" sx={{ lineHeight: 1, fontWeight: 700 }}>
-                              {new Date(meeting.scheduledDate).getDate()}
-                            </Typography>
-                            <Typography variant="caption" sx={{ lineHeight: 1, fontSize: '0.6rem', textTransform: 'uppercase' }}>
-                              {new Date(meeting.scheduledDate).toLocaleDateString(getDateLocale(), { month: 'short' })}
-                            </Typography>
-                          </Box>
-                          <Box sx={{ minWidth: 0 }}>
-                            <Typography variant="body2" fontWeight={600} sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                              {meeting.title}
-                            </Typography>
-                            <Chip
-                              label={getMeetingTypeLabel(meeting.meetingType)}
-                              size="small"
-                              variant="outlined"
-                              sx={{ mt: 0.5, fontSize: '0.7rem' }}
-                            />
-                          </Box>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                        <Box>
+                          <Typography variant="caption" sx={{ color: isNow ? 'primary.main' : 'text.secondary', fontWeight: 700, letterSpacing: 0.5 }}>
+                            {formatTime(meeting.scheduledDate)}
+                          </Typography>
+                          <Typography variant="body1" fontWeight={700} sx={{ lineHeight: 1.3, mt: 0.25 }}>
+                            {meeting.title}
+                          </Typography>
                         </Box>
                         <StatusBadge status={meeting.status} size="small" />
                       </Box>
 
-                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mb: 1.5 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <AccessTimeIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-                          <Typography variant="body2" color="text.secondary">
-                            {formatTime(meeting.scheduledDate)}
-                          </Typography>
+                      {meeting.location && (
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+                          <LocationOnIcon sx={{ fontSize: 16, color: 'text.disabled' }} />
+                          <Typography variant="caption" color="text.secondary">{meeting.location}</Typography>
                         </Box>
-                        {meeting.location && (
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <LocationOnIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-                            <Typography variant="body2" color="text.secondary">
-                              {meeting.location}
-                            </Typography>
-                          </Box>
-                        )}
-                      </Box>
+                      )}
 
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <AvatarGroup
@@ -583,31 +550,27 @@ export default function MeetingsPage() {
                           max={4}
                           size="small"
                         />
-                        <Box sx={{ display: 'flex', gap: 0.5 }}>
-                          <IconButton
-                            size="small"
-                            onClick={(e) => { e.stopPropagation(); handleOpenEdit(meeting); }}
-                            aria-label={t('meetings.editMeeting')}
-                          >
-                            <EditIcon fontSize="small" />
+                        <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
+                          {meeting.attendees && meeting.attendees.length > 0 && (
+                            <Typography variant="caption" color="text.disabled" sx={{ fontSize: '0.65rem' }}>
+                              {meeting.attendees.filter(a => a.attendanceStatus === 'accepted').length}/{meeting.attendees.length}
+                            </Typography>
+                          )}
+                          <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleOpenEdit(meeting) }} aria-label={t('meetings.editMeeting')}>
+                            <EditIcon sx={{ fontSize: 16 }} />
                           </IconButton>
-                          <IconButton
-                            size="small"
-                            onClick={(e) => { e.stopPropagation(); handleDeleteClick(meeting); }}
-                            aria-label={t('meetings.deleteMeeting')}
-                            color="error"
-                          >
-                            <DeleteIcon fontSize="small" />
+                          <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleDeleteClick(meeting) }} aria-label={t('meetings.deleteMeeting')} color="error">
+                            <DeleteIcon sx={{ fontSize: 16 }} />
                           </IconButton>
                         </Box>
                       </Box>
                     </Box>
                   </Card>
-                ))}
-              </Box>
-            )}
-          </Box>
-        </Card>
+                )
+              })}
+            </Box>
+          )}
+        </>
       )}
 
       {/* Details Drawer */}

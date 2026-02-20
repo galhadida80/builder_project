@@ -617,6 +617,9 @@
     "minutesAgo": "{{count}}m ago",
     "hoursAgo": "{{count}}h ago",
     "daysAgo": "{{count}}d ago",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "nChanges": "{{count}} change(s)",
     "actions": {
       "create": "Create",
       "update": "Update",
@@ -971,7 +974,14 @@
     "themeUpdated": "Theme updated successfully",
     "system": "System",
     "light": "Light",
-    "dark": "Dark"
+    "dark": "Dark",
+    "security": "Security",
+    "changePassword": "Change Password",
+    "passkey": "Security Key (Passkey)",
+    "info": "Info",
+    "version": "Version",
+    "privacyPolicy": "Privacy Policy",
+    "logout": "Log Out"
   },
   "approvals": {
     "title": "Approvals",
@@ -1078,6 +1088,7 @@
     "searchPlaceholder": "Search RFIs...",
     "newRfi": "New RFI",
     "noRfis": "No RFIs Found",
+    "noRfisDescription": "Create a new RFI to get started",
     "pageOf": "Page {{current}} of {{total}}",
     "details": "Details",
     "question": "Question",
@@ -1254,7 +1265,16 @@
     "confirm": "Confirm",
     "cancel": "Cancel",
     "changesRequested": "Changes Requested",
-    "requestChanges": "Request Changes"
+    "requestChanges": "Request Changes",
+    "title": "Document Review",
+    "approve": "Approve Document",
+    "reject": "Reject Document",
+    "statusPending": "Pending review",
+    "statusInReview": "In review",
+    "statusApproved": "Approved",
+    "statusRejected": "Rejected",
+    "statusChanges": "Changes requested",
+    "documentNotFoundDescription": "The document you're looking for doesn't exist or has been removed"
   },
   "inspections": {
     "title": "Inspections",
@@ -1458,7 +1478,13 @@
     "highOverRange": "High/Over (91%+)",
     "memberName": "Name",
     "role": "Role",
-    "team": "Team"
+    "team": "Team",
+    "activeTasks": "Active tasks",
+    "overloaded": "Overloaded",
+    "slightlyHigh": "Slightly high",
+    "balanced": "Balanced",
+    "available": "Available",
+    "workload": "Workload"
   },
   "workloadCalendar": {
     "title": "Workload Calendar",
@@ -1593,7 +1619,8 @@
     "endDate": "End Date",
     "endDateError": "End date must be after start date",
     "exporting": "Exporting...",
-    "exportPdf": "Export PDF"
+    "exportPdf": "Export PDF",
+    "ok": "OK"
   },
   "gantt": {
     "title": "Project Timeline",
@@ -1811,7 +1838,19 @@
     "joined": "Joined",
     "failedToLoadUsers": "Failed to load users",
     "failedToUpdateUser": "Failed to update user",
-    "superAdminLabel": "Super Admin"
+    "superAdminLabel": "Super Admin",
+    "adminPanel": "Admin Panel",
+    "adminModeActive": "Admin mode active",
+    "totalUsers": "Users",
+    "activeUsers": "Active",
+    "pendingUsers": "Pending",
+    "searchUsers": "Search users...",
+    "filterAll": "All",
+    "filterAdmin": "Admin",
+    "filterActive": "Active",
+    "filterInactive": "Inactive",
+    "activeNow": "Active",
+    "inactive": "Inactive"
   },
   "header": {
     "notifications": "Notifications",
@@ -1849,6 +1888,7 @@
     "ccRecipients": "CC Recipients",
     "specificationRef": "Specification Ref",
     "conversationThread": "Conversation Thread",
+    "sentBy": "Sent by",
     "noResponses": "No responses yet",
     "addResponse": "Add Response",
     "responsePlaceholder": "Type your response here...",
@@ -1875,15 +1915,22 @@
     "addEmail": "Add email..."
   },
   "inspector": {
-    "title": "Field Inspector",
+    "title": "Inspector Dashboard",
     "offline": "OFFLINE",
-    "startInspection": "START INSPECTION",
-    "takePhoto": "TAKE PHOTO",
-    "reportIssue": "REPORT ISSUE",
-    "todaySchedule": "Today's Schedule",
+    "startInspection": "Start Inspection",
+    "takePhoto": "Take Photo",
+    "reportIssue": "Report Issue",
+    "todaySchedule": "Today's Inspections",
     "noInspections": "No inspections scheduled",
     "noInspectionsDescription": "You have no inspections scheduled for today",
-    "inspection": "Inspection"
+    "inspection": "Inspection",
+    "goodMorning": "Good morning",
+    "scheduledInspections": "scheduled inspections",
+    "upcoming": "Upcoming",
+    "scheduled": "Scheduled",
+    "monthInspections": "This month",
+    "defectsFound": "Defects found",
+    "complianceRate": "Compliance"
   },
   "pmDashboard": {
     "title": "Project Manager Dashboard",
@@ -2348,6 +2395,7 @@
     "noOrganizations": "No organizations yet",
     "noOrganizationsDescription": "Create your first organization to get started",
     "codeHint": "Unique identifier (e.g., ACME-CORP)",
+    "searchPlaceholder": "Search organization...",
     "notFound": "Organization not found",
     "notFoundDescription": "This organization does not exist or you do not have access",
     "membersTab": "Members",

@@ -122,7 +122,7 @@ class BulkAreaNode(BaseModel):
     area_level: Optional[str] = None
     floor_number: Optional[int] = None
     area_code: Optional[str] = None
-    total_units: int = 1
+    total_units: int = Field(default=1, ge=1, le=10000)
     children: list["BulkAreaNode"] = []
 
     @field_validator('name', 'area_type', mode='before')

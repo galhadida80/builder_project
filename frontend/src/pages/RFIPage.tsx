@@ -5,12 +5,12 @@ import { withMinDuration } from '../utils/async'
 import { getDateLocale } from '../utils/dateLocale'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
-import { DataTable, Column } from '../components/ui/DataTable'
 import { StatusBadge } from '../components/ui/StatusBadge'
 import { PageHeader } from '../components/ui/Breadcrumbs'
 import { SearchField, TextField } from '../components/ui/TextField'
 import { FormModal, ConfirmModal } from '../components/ui/Modal'
 import { Tabs } from '../components/ui/Tabs'
+import { EmptyState } from '../components/ui/EmptyState'
 import { rfiApi, RFI_PRIORITY_OPTIONS, RFI_CATEGORY_OPTIONS } from '../api/rfi'
 import type { RFIListItem, RFI, RFICreate, RFISummary } from '../api/rfi'
 import { contactsApi } from '../api/contacts'
@@ -20,7 +20,7 @@ import { useToast } from '../components/common/ToastProvider'
 import { parseValidationErrors } from '../utils/apiErrors'
 import HelpTooltip from '../components/help/HelpTooltip'
 import { validateRFIForm, hasErrors, type ValidationError } from '../utils/validation'
-import { AddIcon, VisibilityIcon, EditIcon, DeleteIcon, EmailIcon, AccessTimeIcon } from '@/icons'
+import { AddIcon, DeleteIcon, EmailIcon } from '@/icons'
 import { Box, Typography, Divider, MenuItem, TextField as MuiTextField, Skeleton, Chip, IconButton, Autocomplete } from '@/mui'
 
 export default function RFIPage() {
@@ -292,122 +292,6 @@ export default function RFIPage() {
     return new Date(rfi.due_date) < new Date()
   }
 
-  const columns: Column<RFIListItem>[] = [
-    {
-      id: 'rfi_number',
-      label: t('rfis.rfiNumber'),
-      minWidth: 140,
-      render: (row) => (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <Box
-            sx={{
-              width: 40,
-              height: 40,
-              borderRadius: 2,
-              bgcolor: 'primary.light',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <EmailIcon sx={{ fontSize: 20, color: 'primary.main' }} />
-          </Box>
-          <Box>
-            <Typography variant="body2" fontWeight={500}>{row.rfi_number}</Typography>
-            {isOverdue(row) && (
-              <Chip label={t('rfis.overdue')} size="small" color="error" sx={{ height: 18, fontSize: 10 }} />
-            )}
-          </Box>
-        </Box>
-      ),
-    },
-    {
-      id: 'subject',
-      label: t('rfis.subject'),
-      minWidth: 250,
-      render: (row) => (
-        <Box>
-          <Typography variant="body2" fontWeight={500} noWrap sx={{ maxWidth: 300 }}>
-            {row.subject}
-          </Typography>
-          <Typography variant="caption" color="text.secondary">
-            {t('rfis.to')}: {row.to_name || row.to_email}
-          </Typography>
-        </Box>
-      ),
-    },
-    {
-      id: 'category',
-      label: t('rfis.category'),
-      minWidth: 110,
-      hideOnMobile: true,
-      render: (row) => {
-        return <Chip label={t(`rfis.categories.${row.category}`, { defaultValue: row.category })} size="small" variant="outlined" />
-      },
-    },
-    {
-      id: 'priority',
-      label: t('rfis.priority'),
-      minWidth: 100,
-      hideOnMobile: true,
-      render: (row) => <StatusBadge status={row.priority} />,
-    },
-    {
-      id: 'status',
-      label: t('rfis.status'),
-      minWidth: 130,
-      render: (row) => <StatusBadge status={row.status} />,
-    },
-    {
-      id: 'due_date',
-      label: t('rfis.dueDate'),
-      minWidth: 110,
-      hideOnMobile: true,
-      render: (row) => (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-          {row.due_date && <AccessTimeIcon sx={{ fontSize: 16, color: isOverdue(row) ? 'error.main' : 'text.secondary' }} />}
-          <Typography variant="body2" color={isOverdue(row) ? 'error.main' : 'text.primary'}>
-            {formatDate(row.due_date)}
-          </Typography>
-        </Box>
-      ),
-    },
-    {
-      id: 'responses',
-      label: t('rfis.responses'),
-      minWidth: 90,
-      align: 'center',
-      hideOnMobile: true,
-      render: (row) => (
-        <Chip label={row.response_count} size="small" color={row.response_count > 0 ? 'success' : 'default'} />
-      ),
-    },
-    {
-      id: 'actions',
-      label: '',
-      minWidth: 120,
-      align: 'right',
-      hideOnMobile: true,
-      render: (row) => (
-        <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
-          <IconButton size="small" aria-label={t('common.viewDetails')} onClick={(e) => { e.stopPropagation(); handleViewDetails(row); }}>
-            <VisibilityIcon fontSize="small" />
-          </IconButton>
-          {row.status === 'draft' && (
-            <>
-              <IconButton size="small" aria-label={t('rfis.editRfi')} onClick={(e) => handleOpenEdit(row, e)}>
-                <EditIcon fontSize="small" />
-              </IconButton>
-              <IconButton size="small" aria-label={t('rfis.deleteRfi')} onClick={(e) => handleDeleteClick(row, e)} color="error">
-                <DeleteIcon fontSize="small" />
-              </IconButton>
-            </>
-          )}
-        </Box>
-      ),
-    },
-  ]
-
   if (loading && rfis.length === 0) {
     return (
       <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
@@ -416,6 +300,18 @@ export default function RFIPage() {
         <Skeleton variant="rounded" height={500} sx={{ borderRadius: 3 }} />
       </Box>
     )
+  }
+
+  const PRIORITY_BORDER: Record<string, string> = {
+    urgent: 'error.main',
+    high: 'primary.main',
+    medium: 'warning.main',
+    low: 'info.main',
+  }
+
+  const getInitials = (name?: string) => {
+    if (!name) return '?'
+    return name.split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase()
   }
 
   return (
@@ -434,89 +330,105 @@ export default function RFIPage() {
         <HelpTooltip helpKey="help.tooltips.rfiForm" />
       </Box>
 
-      <Card>
-        <Box sx={{ p: 2.5 }}>
-          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, gap: { xs: 1.5, sm: 0 }, mb: 3 }}>
-            <SearchField
-              placeholder={t('rfis.searchPlaceholder')}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexShrink: 0, alignSelf: { xs: 'flex-start', sm: 'center' } }}>
-              {summary && summary.overdue_count > 0 && (
-                <Chip label={`${summary.overdue_count} ${t('rfis.overdue')}`} size="small" color="error" />
-              )}
-              <Chip label={`${total} ${t('nav.rfis')}`} size="small" />
-            </Box>
+      {summary && (
+        <Box sx={{ display: 'flex', gap: 1.5, mb: 3, overflowX: 'auto', pb: 0.5 }}>
+          <Box sx={{ flex: 1, minWidth: 100, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 2 }}>
+            <Typography variant="caption" color="text.secondary">{t('rfis.statuses.open')}</Typography>
+            <Typography variant="h5" fontWeight={700}>{summary.open_count}</Typography>
           </Box>
+          <Box sx={{ flex: 1, minWidth: 100, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 2 }}>
+            <Typography variant="caption" color="success.main">{t('rfis.statuses.answered')}</Typography>
+            <Typography variant="h5" fontWeight={700} color="success.main">{summary.answered_count}</Typography>
+          </Box>
+          <Box sx={{ flex: 1, minWidth: 100, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 2 }}>
+            <Typography variant="caption" color="error.main">{t('rfis.overdue')}</Typography>
+            <Typography variant="h5" fontWeight={700} color="error.main">{summary.overdue_count}</Typography>
+          </Box>
+        </Box>
+      )}
 
-          <Tabs
-            items={[
-              { label: t('common.all'), value: 'all', badge: summary?.total_rfis || 0 },
-              { label: t('rfis.statuses.draft'), value: 'draft', badge: summary?.draft_count || 0 },
-              { label: t('rfis.statuses.open'), value: 'open', badge: summary?.open_count || 0 },
-              { label: t('rfis.statuses.waiting'), value: 'waiting_response', badge: summary?.waiting_response_count || 0 },
-              { label: t('rfis.statuses.answered'), value: 'answered', badge: summary?.answered_count || 0 },
-              { label: t('rfis.statuses.closed'), value: 'closed', badge: summary?.closed_count || 0 },
-            ]}
-            value={activeTab}
-            onChange={(val) => { setActiveTab(val); setPage(1); }}
-            size="small"
+      <Tabs
+        items={[
+          { label: t('common.all'), value: 'all', badge: summary?.total_rfis || 0 },
+          { label: t('rfis.statuses.open'), value: 'open', badge: summary?.open_count || 0 },
+          { label: t('rfis.statuses.answered'), value: 'answered', badge: summary?.answered_count || 0 },
+          { label: t('rfis.statuses.closed'), value: 'closed', badge: summary?.closed_count || 0 },
+        ]}
+        value={activeTab}
+        onChange={(val) => { setActiveTab(val); setPage(1) }}
+        size="small"
+      />
+
+      <Box sx={{ mt: 1.5, mb: 2 }}>
+        <SearchField
+          placeholder={t('rfis.searchPlaceholder')}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </Box>
+
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+        {rfis.length === 0 ? (
+          <EmptyState
+            title={t('rfis.noRfis')}
+            description={t('rfis.noRfisDescription')}
+            icon={<EmailIcon sx={{ color: 'text.secondary' }} />}
+            action={{ label: t('rfis.newRfi'), onClick: handleOpenCreate }}
           />
-
-          <Box sx={{ mt: 2 }}>
-            <DataTable
-              columns={columns}
-              rows={rfis}
-              getRowId={(row) => row.id}
-              onRowClick={handleViewDetails}
-              emptyVariant='empty'
-              renderMobileCard={(row) => (
-                <Box
-                  onClick={() => handleViewDetails(row)}
-                  sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider', cursor: 'pointer', '&:active': { bgcolor: 'action.pressed' } }}
-                >
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
-                    <Box sx={{ width: 40, height: 40, borderRadius: 2, bgcolor: 'primary.light', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                      <EmailIcon sx={{ fontSize: 20, color: 'primary.main' }} />
+        ) : (
+          rfis.map((row) => (
+            <Card key={row.id} hoverable onClick={() => handleViewDetails(row)}
+              sx={{ borderInlineStart: '4px solid', borderInlineStartColor: PRIORITY_BORDER[row.priority] || 'divider' }}
+            >
+              <Box sx={{ p: 2 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                  <Chip label={row.rfi_number} size="small" sx={{ bgcolor: 'action.hover', fontWeight: 700, fontSize: '0.65rem', textTransform: 'uppercase' }} />
+                  <StatusBadge status={row.priority} />
+                </Box>
+                <Typography variant="body1" fontWeight={700} sx={{ lineHeight: 1.3, mb: 1 }}>{row.subject}</Typography>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, mb: 1.5 }}>
+                  <Chip label={t(`rfis.categories.${row.category}`, { defaultValue: row.category })} size="small" variant="outlined" sx={{ fontSize: '0.65rem', height: 22 }} />
+                  <StatusBadge status={row.status} size="small" />
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pt: 1.5, borderTop: '1px solid', borderColor: 'divider' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Box sx={{ width: 28, height: 28, borderRadius: '50%', bgcolor: 'primary.main', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 700 }}>
+                      {getInitials(row.to_name)}
                     </Box>
-                    <Box sx={{ minWidth: 0, flex: 1 }}>
-                      <Typography variant="body2" fontWeight={600}>{row.rfi_number}</Typography>
-                      <Typography variant="body2" noWrap>{row.subject}</Typography>
-                    </Box>
-                    <StatusBadge status={row.status} />
+                    <Typography variant="caption" color="text.secondary">{row.to_name || row.to_email}</Typography>
                   </Box>
-                  <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', ml: 7 }}>
-                    <Chip label={t(`rfis.categories.${row.category}`, { defaultValue: row.category })} size="small" variant="outlined" sx={{ fontSize: '0.7rem', height: 22 }} />
-                    <StatusBadge status={row.priority} />
-                    {isOverdue(row) && <Chip label={t('rfis.overdue')} size="small" color="error" sx={{ height: 22, fontSize: '0.7rem' }} />}
-                    {row.due_date && !isOverdue(row) && (
-                      <Chip label={formatDate(row.due_date)} size="small" variant="outlined" sx={{ fontSize: '0.7rem', height: 22 }} />
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    {row.due_date && (
+                      <Typography variant="caption" color={isOverdue(row) ? 'error.main' : 'text.secondary'} fontWeight={isOverdue(row) ? 700 : 400}>
+                        {formatDate(row.due_date)}
+                      </Typography>
                     )}
-                    <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center' }}>
-                      {t('rfis.to')}: {row.to_name || row.to_email}
-                    </Typography>
+                    {row.status === 'draft' && (
+                      <IconButton size="small" onClick={(e) => handleDeleteClick(row, e)} color="error">
+                        <DeleteIcon sx={{ fontSize: 16 }} />
+                      </IconButton>
+                    )}
                   </Box>
                 </Box>
-              )}
-            />
-          </Box>
+              </Box>
+            </Card>
+          ))
+        )}
+      </Box>
 
-          {totalPages > 1 && (
-            <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1, mt: 2 }}>
-              <Button variant="secondary" size="small" disabled={page === 1} onClick={() => setPage(p => p - 1)}>
-                {t('common.previous')}
-              </Button>
-              <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', px: 2 }}>
-                {t('rfis.pageOf', { current: page, total: totalPages })}
-              </Typography>
-              <Button variant="secondary" size="small" disabled={page === totalPages} onClick={() => setPage(p => p + 1)}>
-                {t('common.next')}
-              </Button>
-            </Box>
-          )}
+      {totalPages > 1 && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1, mt: 2 }}>
+          <Button variant="secondary" size="small" disabled={page === 1} onClick={() => setPage(p => p - 1)}>
+            {t('common.previous')}
+          </Button>
+          <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', px: 2 }}>
+            {t('rfis.pageOf', { current: page, total: totalPages })}
+          </Typography>
+          <Button variant="secondary" size="small" disabled={page === totalPages} onClick={() => setPage(p => p + 1)}>
+            {t('common.next')}
+          </Button>
         </Box>
-      </Card>
+      )}
 
       <FormModal
         open={dialogOpen}

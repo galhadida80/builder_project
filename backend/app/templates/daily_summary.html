@@ -1,30 +1,35 @@
 {% extends "base.html" %}
 
 {% macro stat_card(label, value, color="#0F172A", bg="#F8FAFC") %}
-<td style="text-align:center;padding:8px;width:25%;">
-  <div style="background:{{ bg }};border-radius:8px;padding:14px 8px;">
-    <div style="font-size:24px;font-weight:700;color:{{ color }};letter-spacing:-0.5px;">{{ value }}</div>
-    <div style="font-size:11px;color:#64748B;margin-top:4px;font-weight:500;text-transform:uppercase;letter-spacing:0.3px;">{{ label }}</div>
+<td style="text-align:center;padding:4px;width:25%;">
+  <div style="background:{{ bg }};border-radius:10px;padding:16px 8px;">
+    <div style="font-size:28px;font-weight:800;color:{{ color }};letter-spacing:-0.5px;">{{ value }}</div>
+    <div style="font-size:11px;color:#64748B;margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;">{{ label }}</div>
   </div>
 </td>
 {% endmacro %}
 
 {% macro section_title(title) %}
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0 12px;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:28px 0 14px;">
 <tr><td>
-  <p style="margin:0;font-size:13px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:#0F172A;">{{ title }}</p>
-  <div style="height:2px;background:linear-gradient(90deg,#0369A1 0%,#E2E8F0 100%);border-radius:2px;margin-top:8px;"></div>
+  <p style="margin:0;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#0F172A;">{{ title }}</p>
+  <div style="height:3px;background:linear-gradient(90deg,#0369A1 0%,#E2E8F0 100%);border-radius:3px;margin-top:8px;"></div>
 </td></tr>
 </table>
 {% endmacro %}
 
 {% block header %}
-<tr><td style="background:#0F172A;padding:32px 32px 28px;">
+<tr><td style="background:linear-gradient(135deg,#0F172A 0%,#1E293B 100%);padding:36px 36px 30px;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
 <tr><td>
-  <p style="margin:0 0 16px;font-size:12px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:#64748B;">BuilderOps</p>
-  <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;letter-spacing:-0.3px;">{{ s.title }}</h1>
-  <p style="margin:8px 0 0;color:#94A3B8;font-size:14px;font-weight:500;">{{ s.project }}: <span style="color:#CBD5E1;">{{ project_name }}</span> &middot; {{ s.date }}: {{ summary_date }}</p>
+  <p style="margin:0 0 20px;font-size:11px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:#3B82F6;">BUILDEROPS</p>
+  <p style="margin:0 0 8px;font-size:28px;">&#128203;</p>
+  <h1 style="margin:0 0 8px;color:#ffffff;font-size:24px;font-weight:800;letter-spacing:-0.3px;">{{ s.title }}</h1>
+  <p style="margin:0;color:#94A3B8;font-size:14px;font-weight:500;">
+    {{ s.project }}: <span style="color:#CBD5E1;font-weight:600;">{{ project_name }}</span>
+    &nbsp;&#183;&nbsp;
+    {{ s.date }}: <span style="color:#CBD5E1;font-weight:600;">{{ summary_date }}</span>
+  </p>
 </td></tr>
 </table>
 </td></tr>
@@ -35,17 +40,17 @@
 {# 1. Activity overview #}
 {% if audit_entries %}
 {{ section_title(s.activity_overview) }}
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #E2E8F0;border-radius:8px;overflow:hidden;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #E2E8F0;border-radius:12px;overflow:hidden;">
   <tr style="background:#F8FAFC;">
-    <th style="padding:10px 16px;text-align:{{ align }};font-size:11px;font-weight:600;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;">{{ s.entity_type }}</th>
-    <th style="padding:10px 16px;text-align:{{ align }};font-size:11px;font-weight:600;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;">{{ s.action }}</th>
-    <th style="padding:10px 12px;text-align:center;font-size:11px;font-weight:600;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;">{{ s.count }}</th>
+    <th style="padding:12px 18px;text-align:{{ align }};font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;">{{ s.entity_type }}</th>
+    <th style="padding:12px 18px;text-align:{{ align }};font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;">{{ s.action }}</th>
+    <th style="padding:12px 14px;text-align:center;font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;">{{ s.count }}</th>
   </tr>
   {% for entry in audit_entries[:15] %}
   <tr>
-    <td style="padding:10px 16px;border-top:1px solid #F1F5F9;font-size:13px;color:#334155;font-weight:500;">{{ entry.entity_type }}</td>
-    <td style="padding:10px 16px;border-top:1px solid #F1F5F9;font-size:13px;color:#334155;">{{ entry.action }}</td>
-    <td style="padding:10px 12px;border-top:1px solid #F1F5F9;font-size:14px;text-align:center;font-weight:700;color:#0F172A;">{{ entry.count }}</td>
+    <td style="padding:12px 18px;border-top:1px solid #F1F5F9;font-size:13px;color:#334155;font-weight:600;">{{ entry.entity_type }}</td>
+    <td style="padding:12px 18px;border-top:1px solid #F1F5F9;font-size:13px;color:#334155;">{{ entry.action }}</td>
+    <td style="padding:12px 14px;border-top:1px solid #F1F5F9;font-size:15px;text-align:center;font-weight:800;color:#0F172A;">{{ entry.count }}</td>
   </tr>
   {% endfor %}
 </table>
@@ -55,7 +60,7 @@
 {% if has_equip_materials %}
 {{ section_title(s.equipment_materials) }}
 
-<p style="margin:0 0 8px;font-size:12px;font-weight:600;color:#334155;text-transform:uppercase;letter-spacing:0.3px;">{{ s.equipment }}</p>
+<p style="margin:0 0 8px;font-size:12px;font-weight:700;color:#334155;text-transform:uppercase;letter-spacing:0.3px;">{{ s.equipment }}</p>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:16px;">
   <tr>
     {{ stat_card(s.created, equipment.created, "#0369A1", "#F0F9FF") }}
@@ -64,7 +69,7 @@
   </tr>
 </table>
 
-<p style="margin:0 0 8px;font-size:12px;font-weight:600;color:#334155;text-transform:uppercase;letter-spacing:0.3px;">{{ s.materials }}</p>
+<p style="margin:0 0 8px;font-size:12px;font-weight:700;color:#334155;text-transform:uppercase;letter-spacing:0.3px;">{{ s.materials }}</p>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
   <tr>
     {{ stat_card(s.created, materials.created, "#0369A1", "#F0F9FF") }}
@@ -107,20 +112,20 @@
 {{ section_title(s.pending_approvals) }}
 {% set alert_bg = "#FFFBEB" if pending.total > 5 else "#F8FAFC" %}
 {% set alert_border = "#F59E0B" if pending.total > 5 else "#E2E8F0" %}
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:{{ alert_bg }};border-radius:8px;border:1px solid {{ alert_border }};">
-  <tr><td style="padding:16px 20px;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:{{ alert_bg }};border-radius:12px;border:1px solid {{ alert_border }};">
+  <tr><td style="padding:18px 22px;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
       <tr>
-        <td style="padding:4px 0;font-size:13px;color:#334155;">{{ s.equipment_pending }}</td>
-        <td style="padding:4px 0;font-size:14px;font-weight:700;color:#0F172A;text-align:{{ 'left' if direction == 'rtl' else 'right' }};">{{ pending.equipment }}</td>
+        <td style="padding:6px 0;font-size:14px;color:#334155;">{{ s.equipment_pending }}</td>
+        <td style="padding:6px 0;font-size:15px;font-weight:800;color:#0F172A;text-align:{{ 'left' if direction == 'rtl' else 'right' }};">{{ pending.equipment }}</td>
       </tr>
       <tr>
-        <td style="padding:4px 0;font-size:13px;color:#334155;">{{ s.material_pending }}</td>
-        <td style="padding:4px 0;font-size:14px;font-weight:700;color:#0F172A;text-align:{{ 'left' if direction == 'rtl' else 'right' }};">{{ pending.materials }}</td>
+        <td style="padding:6px 0;font-size:14px;color:#334155;">{{ s.material_pending }}</td>
+        <td style="padding:6px 0;font-size:15px;font-weight:800;color:#0F172A;text-align:{{ 'left' if direction == 'rtl' else 'right' }};">{{ pending.materials }}</td>
       </tr>
       <tr>
-        <td style="padding:8px 0 0;border-top:1px solid {{ alert_border }};font-size:14px;font-weight:700;color:{% if pending.total > 5 %}#D97706{% else %}#0F172A{% endif %};">{{ s.total_pending }}</td>
-        <td style="padding:8px 0 0;border-top:1px solid {{ alert_border }};font-size:18px;font-weight:700;color:{% if pending.total > 5 %}#D97706{% else %}#0F172A{% endif %};text-align:{{ 'left' if direction == 'rtl' else 'right' }};">{{ pending.total }}</td>
+        <td style="padding:10px 0 0;border-top:1px solid {{ alert_border }};font-size:15px;font-weight:800;color:{% if pending.total > 5 %}#D97706{% else %}#0F172A{% endif %};">{{ s.total_pending }}</td>
+        <td style="padding:10px 0 0;border-top:1px solid {{ alert_border }};font-size:20px;font-weight:800;color:{% if pending.total > 5 %}#D97706{% else %}#0F172A{% endif %};text-align:{{ 'left' if direction == 'rtl' else 'right' }};">{{ pending.total }}</td>
       </tr>
     </table>
   </td></tr>
@@ -130,17 +135,17 @@
 {# 6. Upcoming meetings #}
 {{ section_title(s.upcoming_meetings) }}
 {% if meetings %}
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #E2E8F0;border-radius:8px;overflow:hidden;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #E2E8F0;border-radius:12px;overflow:hidden;">
   <tr style="background:#F8FAFC;">
-    <th style="padding:10px 16px;text-align:{{ align }};font-size:11px;font-weight:600;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;">{{ s.upcoming_meetings.split("(")[0].strip() }}</th>
-    <th style="padding:10px 16px;text-align:{{ align }};font-size:11px;font-weight:600;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;">{{ s.meeting_type }}</th>
-    <th style="padding:10px 16px;text-align:{{ align }};font-size:11px;font-weight:600;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;">{{ s.scheduled }}</th>
+    <th style="padding:12px 18px;text-align:{{ align }};font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;">{{ s.upcoming_meetings.split("(")[0].strip() }}</th>
+    <th style="padding:12px 18px;text-align:{{ align }};font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;">{{ s.meeting_type }}</th>
+    <th style="padding:12px 18px;text-align:{{ align }};font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;">{{ s.scheduled }}</th>
   </tr>
   {% for m in meetings[:7] %}
   <tr>
-    <td style="padding:10px 16px;border-top:1px solid #F1F5F9;font-size:13px;font-weight:500;color:#334155;">{{ m.title }}</td>
-    <td style="padding:10px 16px;border-top:1px solid #F1F5F9;font-size:13px;color:#334155;">{{ m.meeting_type | default("", true) }}</td>
-    <td style="padding:10px 16px;border-top:1px solid #F1F5F9;font-size:13px;color:#334155;">{{ m.scheduled_date }}</td>
+    <td style="padding:12px 18px;border-top:1px solid #F1F5F9;font-size:13px;font-weight:600;color:#334155;">{{ m.title }}</td>
+    <td style="padding:12px 18px;border-top:1px solid #F1F5F9;font-size:13px;color:#334155;">{{ m.meeting_type | default("", true) }}</td>
+    <td style="padding:12px 18px;border-top:1px solid #F1F5F9;font-size:13px;color:#334155;">{{ m.scheduled_date }}</td>
   </tr>
   {% endfor %}
 </table>
@@ -161,16 +166,16 @@
   {% set bar_color = "#DC2626" %}
   {% set bar_bg = "#FEE2E2" %}
 {% endif %}
-<div style="background:{{ bar_bg }};border-radius:12px;height:24px;overflow:hidden;margin:8px 0;">
-  <div style="background:{{ bar_color }};height:100%;width:{{ pct }}%;border-radius:12px;transition:width 0.3s;"></div>
+<div style="background:{{ bar_bg }};border-radius:14px;height:28px;overflow:hidden;margin:8px 0;">
+  <div style="background:{{ bar_color }};height:100%;width:{{ pct }}%;border-radius:14px;"></div>
 </div>
-<p style="text-align:center;font-size:16px;font-weight:700;color:{{ bar_color }};margin:8px 0 0;">{{ "%.1f" | format(pct) }}%</p>
+<p style="text-align:center;font-size:18px;font-weight:800;color:{{ bar_color }};margin:8px 0 0;">{{ "%.1f" | format(pct) }}%</p>
 
 {% endblock %}
 
 {% block cta %}
-<tr><td style="padding:0 32px 28px;text-align:center;">
-  <a href="{{ frontend_url }}" style="display:inline-block;background:#0369A1;color:#ffffff;text-decoration:none;padding:14px 36px;border-radius:8px;font-size:14px;font-weight:600;letter-spacing:0.3px;">{{ s.view_in_app }}</a>
+<tr><td style="padding:0 36px 32px;text-align:center;">
+  <a href="{{ frontend_url }}" style="display:inline-block;background:linear-gradient(135deg,#0369A1,#0EA5E9);color:#ffffff;text-decoration:none;padding:14px 40px;border-radius:12px;font-size:15px;font-weight:700;letter-spacing:0.3px;box-shadow:0 4px 12px rgba(3,105,161,0.3);">{{ s.view_in_app }}</a>
 </td></tr>
 {% endblock %}
 

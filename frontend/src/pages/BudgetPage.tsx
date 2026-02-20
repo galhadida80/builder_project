@@ -3,10 +3,9 @@ import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { withMinDuration } from '../utils/async'
 import { getDateLocale } from '../utils/dateLocale'
-import { Card, KPICard } from '../components/ui/Card'
+import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
-import { DataTable, Column } from '../components/ui/DataTable'
-import { Tabs, TabPanel } from '../components/ui/Tabs'
+import { Tabs } from '../components/ui/Tabs'
 import { FormModal, ConfirmModal } from '../components/ui/Modal'
 import { PageHeader } from '../components/ui/Breadcrumbs'
 import { EmptyState } from '../components/ui/EmptyState'
@@ -14,7 +13,7 @@ import { TextField } from '../components/ui/TextField'
 import { budgetApi, BudgetItemCreateData, CostEntryCreateData, ChangeOrderCreateData, ChangeOrderUpdateData } from '../api/budget'
 import type { BudgetLineItem, BudgetSummary, ChangeOrder, CostEntry, BudgetCategory } from '../types'
 import { useToast } from '../components/common/ToastProvider'
-import { AddIcon, EditIcon, DeleteIcon, AccountBalanceIcon, AttachMoneyIcon, ReceiptLongIcon, TrendingUpIcon } from '@/icons'
+import { AddIcon, EditIcon, DeleteIcon, AttachMoneyIcon } from '@/icons'
 import { Box, Typography, Skeleton, Chip, MenuItem, IconButton, TextField as MuiTextField } from '@/mui'
 
 const CATEGORIES: BudgetCategory[] = ['labor', 'materials', 'equipment', 'subcontractor', 'permits', 'overhead', 'other']
@@ -115,35 +114,6 @@ export default function BudgetPage() {
     if (next && !costEntries[row.id]) loadCosts(row.id)
   }
 
-  const itemCols: Column<BudgetLineItem>[] = [
-    { id: 'name', label: t('budget.name', { defaultValue: 'Name' }), minWidth: 160, render: (r) => <Typography variant="body2" fontWeight={600}>{r.name}</Typography> },
-    { id: 'category', label: t('budget.category', { defaultValue: 'Category' }), minWidth: 120, render: (r) => <Chip size="small" label={t(`budget.categories.${r.category}`, { defaultValue: r.category })} sx={{ bgcolor: CAT_COLORS[r.category] || '#9e9e9e', color: '#fff', fontWeight: 500 }} /> },
-    { id: 'budgetedAmount', label: t('budget.budgeted', { defaultValue: 'Budgeted' }), minWidth: 120, sortable: true, render: (r) => <Typography variant="body2">{fmt(r.budgetedAmount)}</Typography> },
-    { id: 'actualAmount', label: t('budget.actual', { defaultValue: 'Actual' }), minWidth: 120, hideOnMobile: true, render: (r) => <Typography variant="body2">{fmt(r.actualAmount)}</Typography> },
-    { id: 'remainingAmount', label: t('budget.remaining', { defaultValue: 'Remaining' }), minWidth: 120, hideOnMobile: true, render: (r) => <Typography variant="body2" color={r.remainingAmount >= 0 ? 'success.main' : 'error.main'}>{fmt(r.remainingAmount)}</Typography> },
-    { id: 'actions', label: '', minWidth: 130, align: 'right', render: (r) => (
-      <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
-        <IconButton size="small" aria-label={t('budget.addCost')} onClick={(e) => { e.stopPropagation(); openAddCost(r.id) }}><AttachMoneyIcon fontSize="small" /></IconButton>
-        <IconButton size="small" aria-label={t('budget.editItem')} onClick={(e) => { e.stopPropagation(); openEditItem(r) }}><EditIcon fontSize="small" /></IconButton>
-        <IconButton size="small" aria-label={t('common.delete')} onClick={(e) => { e.stopPropagation(); setDeleteTarget({ type: 'item', id: r.id }) }}><DeleteIcon fontSize="small" /></IconButton>
-      </Box>
-    )},
-  ]
-
-  const coCols: Column<ChangeOrder>[] = [
-    { id: 'changeOrderNumber', label: '#', minWidth: 60, sortable: true, render: (r) => <Typography variant="body2" fontWeight={600}>CO-{r.changeOrderNumber}</Typography> },
-    { id: 'title', label: t('budget.coTitle', { defaultValue: 'Title' }), minWidth: 180 },
-    { id: 'amount', label: t('budget.amount', { defaultValue: 'Amount' }), minWidth: 120, sortable: true, render: (r) => <Typography variant="body2" color={r.amount >= 0 ? 'success.main' : 'error.main'}>{fmt(r.amount)}</Typography> },
-    { id: 'status', label: t('common.status', { defaultValue: 'Status' }), minWidth: 110, render: (r) => <Chip size="small" label={t(`budget.statuses.${r.status}`, { defaultValue: r.status })} color={CO_STATUS_COLORS[r.status] || 'default'} /> },
-    { id: 'requestedDate', label: t('budget.date', { defaultValue: 'Date' }), minWidth: 100, hideOnMobile: true, render: (r) => <Typography variant="body2">{r.requestedDate ? new Date(r.requestedDate).toLocaleDateString(getDateLocale()) : '-'}</Typography> },
-    { id: 'actions', label: '', minWidth: 90, align: 'right', render: (r) => (
-      <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
-        <IconButton size="small" aria-label={t('budget.editChangeOrder')} onClick={(e) => { e.stopPropagation(); openEditCO(r) }}><EditIcon fontSize="small" /></IconButton>
-        <IconButton size="small" aria-label={t('common.delete')} onClick={(e) => { e.stopPropagation(); setDeleteTarget({ type: 'co', id: r.id }) }}><DeleteIcon fontSize="small" /></IconButton>
-      </Box>
-    )},
-  ]
-
   if (loading) return (
     <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
       <Skeleton variant="text" width={350} height={48} sx={{ mb: 1 }} />
@@ -154,12 +124,19 @@ export default function BudgetPage() {
     </Box>
   )
 
+  const usagePct = summary ? (summary.totalBudgeted > 0 ? Math.round((summary.totalActual / summary.totalBudgeted) * 100) : 0) : 0
+  const categorySummary = items.reduce((acc, item) => {
+    if (!acc[item.category]) acc[item.category] = { budgeted: 0, actual: 0 }
+    acc[item.category].budgeted += item.budgetedAmount
+    acc[item.category].actual += item.actualAmount
+    return acc
+  }, {} as Record<string, { budgeted: number; actual: number }>)
+
   return (
     <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 }, maxWidth: '100%', overflow: 'hidden' }}>
       <PageHeader
         title={t('budget.title', { defaultValue: 'Budget & Cost Tracking' })}
         subtitle={t('budget.subtitle', { defaultValue: 'Manage budget items, costs, and change orders' })}
-        breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('budget.title', { defaultValue: 'Budget' }) }]}
         actions={
           <Button variant="primary" icon={<AddIcon />} onClick={() => {
             if (activeTab === 'budget') { setEditItem(null); setItemForm({ name: '', category: 'other', budgeted_amount: 0 }); setItemDialog(true) }
@@ -171,96 +148,112 @@ export default function BudgetPage() {
       />
 
       {summary && (
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 1.5, mb: 3 }}>
-          <KPICard title={t('budget.totalBudget', { defaultValue: 'Total Budget' })} value={fmt(summary.totalBudgeted)} icon={<AccountBalanceIcon />} color="primary" />
-          <KPICard title={t('budget.totalSpent', { defaultValue: 'Total Spent' })} value={fmt(summary.totalActual)} icon={<AttachMoneyIcon />} color="warning" />
-          <KPICard title={t('budget.variance', { defaultValue: 'Variance' })} value={fmt(summary.totalVariance)} icon={<TrendingUpIcon />} color={summary.totalVariance >= 0 ? 'success' : 'error'} />
-          <KPICard title={t('budget.changeOrders', { defaultValue: 'Change Orders' })} value={`${summary.approvedChangeOrders}/${summary.totalChangeOrders}`} icon={<ReceiptLongIcon />} color="info" />
+        <Card sx={{ mb: 3, p: 3 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+            <Box>
+              <Typography variant="caption" color="text.secondary">{t('budget.budgetUsage', { defaultValue: 'Budget Usage' })}: {usagePct}%</Typography>
+              <Typography variant="h4" fontWeight={700}>{fmt(summary.totalBudgeted)}</Typography>
+              <Chip size="small" label={usagePct <= 100 ? t('budget.onBudget', { defaultValue: 'On Budget' }) : t('budget.overBudget', { defaultValue: 'Over Budget' })} color={usagePct <= 100 ? 'success' : 'error'} sx={{ mt: 0.5 }} />
+            </Box>
+            <Box sx={{ position: 'relative', width: 80, height: 80 }}>
+              <svg viewBox="0 0 96 96" style={{ width: '100%', height: '100%' }}>
+                <circle cx="48" cy="48" r="40" fill="transparent" stroke="currentColor" strokeWidth="8" style={{ color: 'var(--mui-palette-divider, #333)' }} />
+                <circle cx="48" cy="48" r="40" fill="transparent" stroke="currentColor" strokeWidth="8" strokeDasharray="251.2" strokeDashoffset={251.2 - (251.2 * Math.min(usagePct, 100)) / 100} strokeLinecap="round" style={{ color: 'var(--mui-palette-primary-main, #f28c26)', transform: 'rotate(-90deg)', transformOrigin: 'center' }} />
+              </svg>
+              <Typography variant="body1" fontWeight={700} sx={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{usagePct}%</Typography>
+            </Box>
+          </Box>
+          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, pt: 2, borderTop: '1px solid', borderColor: 'divider' }}>
+            <Box>
+              <Typography variant="caption" color="text.secondary">{t('budget.totalSpent', { defaultValue: 'Spent' })}</Typography>
+              <Typography variant="h6" fontWeight={600}>{fmt(summary.totalActual)}</Typography>
+            </Box>
+            <Box>
+              <Typography variant="caption" color="text.secondary">{t('budget.remaining', { defaultValue: 'Remaining' })}</Typography>
+              <Typography variant="h6" fontWeight={600}>{fmt(summary.totalVariance)}</Typography>
+            </Box>
+          </Box>
+        </Card>
+      )}
+
+      <Tabs items={[
+        { label: t('budget.budgetItems', { defaultValue: 'Budget Items' }), value: 'budget', badge: items.length },
+        { label: t('budget.changeOrders', { defaultValue: 'Change Orders' }), value: 'changeOrders', badge: changeOrders.length },
+      ]} value={activeTab} onChange={setActiveTab} size="small" />
+
+      {activeTab === 'budget' && (
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mt: 2 }}>
+          {items.length === 0 ? (
+            <EmptyState title={t('budget.noItems', { defaultValue: 'No budget items' })} description={t('budget.noItemsDesc', { defaultValue: 'Add your first budget item to start tracking costs.' })} />
+          ) : (
+            items.map((row) => {
+              const pct = row.budgetedAmount > 0 ? Math.round((row.actualAmount / row.budgetedAmount) * 100) : 0
+              return (
+                <Card key={row.id} hoverable onClick={() => handleRowClick(row)}>
+                  <Box sx={{ p: 2 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                      <Typography variant="body2" fontWeight={600}>{row.name}</Typography>
+                      <Typography variant="caption" fontWeight={600} color="primary.main">{pct}%</Typography>
+                    </Box>
+                    <Box sx={{ height: 8, bgcolor: 'divider', borderRadius: 4, overflow: 'hidden', mb: 1 }}>
+                      <Box sx={{ height: '100%', bgcolor: CAT_COLORS[row.category] || '#9e9e9e', borderRadius: 4, width: `${Math.min(pct, 100)}%`, transition: 'width 300ms' }} />
+                    </Box>
+                    <Typography variant="caption" color="text.secondary">{fmt(row.actualAmount)} / {fmt(row.budgetedAmount)}</Typography>
+                    <Box sx={{ display: 'flex', gap: 0.5, mt: 1, justifyContent: 'flex-end' }}>
+                      <IconButton size="small" onClick={(e) => { e.stopPropagation(); openAddCost(row.id) }}><AttachMoneyIcon sx={{ fontSize: 16 }} /></IconButton>
+                      <IconButton size="small" onClick={(e) => { e.stopPropagation(); openEditItem(row) }}><EditIcon sx={{ fontSize: 16 }} /></IconButton>
+                      <IconButton size="small" onClick={(e) => { e.stopPropagation(); setDeleteTarget({ type: 'item', id: row.id }) }}><DeleteIcon sx={{ fontSize: 16 }} /></IconButton>
+                    </Box>
+                    {expanded === row.id && (
+                      <Box sx={{ mt: 1.5, pt: 1.5, borderTop: '1px solid', borderColor: 'divider' }}>
+                        <Typography variant="caption" fontWeight={600}>{t('budget.costEntries', { defaultValue: 'Cost Entries' })}</Typography>
+                        {(costEntries[row.id] || []).length === 0
+                          ? <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>{t('budget.noCosts', { defaultValue: 'No cost entries yet' })}</Typography>
+                          : (costEntries[row.id] || []).map(c => (
+                            <Box key={c.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 0.75, borderBottom: '1px solid', borderColor: 'divider' }}>
+                              <Box>
+                                <Typography variant="body2">{c.description || c.vendor || '-'}</Typography>
+                                <Typography variant="caption" color="text.secondary">{new Date(c.entryDate).toLocaleDateString(getDateLocale())}</Typography>
+                              </Box>
+                              <Typography variant="body2" fontWeight={600}>{fmt(c.amount)}</Typography>
+                            </Box>
+                          ))}
+                      </Box>
+                    )}
+                  </Box>
+                </Card>
+              )
+            })
+          )}
         </Box>
       )}
 
-      <Card>
-        <Box sx={{ p: 2 }}>
-          <Tabs items={[
-            { label: t('budget.budgetItems', { defaultValue: 'Budget Items' }), value: 'budget', badge: items.length },
-            { label: t('budget.changeOrders', { defaultValue: 'Change Orders' }), value: 'changeOrders', badge: changeOrders.length },
-          ]} value={activeTab} onChange={setActiveTab} size="small" />
-
-          <TabPanel value="budget" activeValue={activeTab}>
-            {items.length === 0
-              ? <EmptyState title={t('budget.noItems', { defaultValue: 'No budget items' })} description={t('budget.noItemsDesc', { defaultValue: 'Add your first budget item to start tracking costs.' })} />
-              : <DataTable columns={itemCols} rows={items} getRowId={(r) => r.id} onRowClick={handleRowClick} renderMobileCard={(row) => (
-                  <Box
-                    onClick={() => handleRowClick(row)}
-                    sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider', cursor: 'pointer', '&:active': { bgcolor: 'action.pressed' } }}
-                  >
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
-                      <Typography variant="body2" fontWeight={600} noWrap sx={{ flex: 1, mr: 1 }}>{row.name}</Typography>
-                      <Chip size="small" label={t(`budget.categories.${row.category}`, { defaultValue: row.category })} sx={{ bgcolor: CAT_COLORS[row.category] || '#9e9e9e', color: '#fff', fontWeight: 500, fontSize: '0.7rem', height: 22 }} />
-                    </Box>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
-                      <Box>
-                        <Typography variant="caption" color="text.secondary">{t('budget.budgeted', { defaultValue: 'Budgeted' })}</Typography>
-                        <Typography variant="body2" fontWeight={500}>{fmt(row.budgetedAmount)}</Typography>
-                      </Box>
-                      <Box sx={{ textAlign: 'center' }}>
-                        <Typography variant="caption" color="text.secondary">{t('budget.actual', { defaultValue: 'Actual' })}</Typography>
-                        <Typography variant="body2">{fmt(row.actualAmount)}</Typography>
-                      </Box>
-                      <Box sx={{ textAlign: 'right' }}>
-                        <Typography variant="caption" color="text.secondary">{t('budget.remaining', { defaultValue: 'Remaining' })}</Typography>
-                        <Typography variant="body2" color={row.remainingAmount >= 0 ? 'success.main' : 'error.main'} fontWeight={500}>{fmt(row.remainingAmount)}</Typography>
-                      </Box>
+      {activeTab === 'changeOrders' && (
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mt: 2 }}>
+          {changeOrders.length === 0 ? (
+            <EmptyState title={t('budget.noCOs', { defaultValue: 'No change orders' })} description={t('budget.noCOsDesc', { defaultValue: 'Create a change order to track budget adjustments.' })} />
+          ) : (
+            changeOrders.map((co) => (
+              <Card key={co.id}>
+                <Box sx={{ p: 2 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                    <Typography variant="body2" fontWeight={700}>CO-{co.changeOrderNumber}</Typography>
+                    <Chip size="small" label={t(`budget.statuses.${co.status}`, { defaultValue: co.status })} color={CO_STATUS_COLORS[co.status] || 'default'} />
+                  </Box>
+                  <Typography variant="body2" sx={{ mb: 1 }}>{co.title}</Typography>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="body1" fontWeight={700} color={co.amount >= 0 ? 'success.main' : 'error.main'}>{fmt(co.amount)}</Typography>
+                    <Box sx={{ display: 'flex', gap: 0.5 }}>
+                      <IconButton size="small" onClick={() => openEditCO(co)}><EditIcon sx={{ fontSize: 16 }} /></IconButton>
+                      <IconButton size="small" onClick={() => setDeleteTarget({ type: 'co', id: co.id })}><DeleteIcon sx={{ fontSize: 16 }} /></IconButton>
                     </Box>
                   </Box>
-                )} renderExpandedRow={(row) => {
-                  if (expanded !== row.id) return null
-                  const costs = costEntries[row.id] || []
-                  return (
-                    <Box sx={{ p: 2, bgcolor: 'action.hover' }}>
-                      <Typography variant="subtitle2" sx={{ mb: 1 }}>{t('budget.costEntries', { defaultValue: 'Cost Entries' })} ({costs.length})</Typography>
-                      {costs.length === 0 ? <Typography variant="body2" color="text.secondary">{t('budget.noCosts', { defaultValue: 'No cost entries yet' })}</Typography> : costs.map(c => (
-                        <Box key={c.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 0.5, borderBottom: '1px solid', borderColor: 'divider' }}>
-                          <Box>
-                            <Typography variant="body2">{c.description || c.vendor || '-'}</Typography>
-                            <Typography variant="caption" color="text.secondary">{new Date(c.entryDate).toLocaleDateString(getDateLocale())}{c.vendor ? ` - ${c.vendor}` : ''}</Typography>
-                          </Box>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <Typography variant="body2" fontWeight={600}>{fmt(c.amount)}</Typography>
-                            <IconButton size="small" aria-label={t('common.delete')} onClick={() => setDeleteTarget({ type: 'cost', id: c.id })}><DeleteIcon fontSize="small" /></IconButton>
-                          </Box>
-                        </Box>
-                      ))}
-                    </Box>
-                  )
-                }} />
-            }
-          </TabPanel>
-
-          <TabPanel value="changeOrders" activeValue={activeTab}>
-            {changeOrders.length === 0
-              ? <EmptyState title={t('budget.noCOs', { defaultValue: 'No change orders' })} description={t('budget.noCOsDesc', { defaultValue: 'Create a change order to track budget adjustments.' })} />
-              : <DataTable columns={coCols} rows={changeOrders} getRowId={(r) => r.id} renderMobileCard={(row) => (
-                  <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
-                      <Typography variant="body2" fontWeight={700}>CO-{row.changeOrderNumber}</Typography>
-                      <Chip size="small" label={t(`budget.statuses.${row.status}`, { defaultValue: row.status })} color={CO_STATUS_COLORS[row.status] || 'default'} sx={{ fontSize: '0.7rem', height: 22 }} />
-                    </Box>
-                    <Typography variant="body2" noWrap sx={{ mb: 0.5 }}>{row.title}</Typography>
-                    <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                      <Typography variant="body2" fontWeight={600} color={row.amount >= 0 ? 'success.main' : 'error.main'}>{fmt(row.amount)}</Typography>
-                      {row.requestedDate && (
-                        <Typography variant="caption" color="text.secondary">
-                          {new Date(row.requestedDate).toLocaleDateString(getDateLocale())}
-                        </Typography>
-                      )}
-                    </Box>
-                  </Box>
-                )} />
-            }
-          </TabPanel>
+                </Box>
+              </Card>
+            ))
+          )}
         </Box>
-      </Card>
+      )}
 
       <FormModal open={itemDialog} onClose={() => { setItemDialog(false); setEditItem(null) }} onSubmit={handleSaveItem} title={editItem ? t('budget.editItem', { defaultValue: 'Edit Budget Item' }) : t('budget.addItem', { defaultValue: 'Add Budget Item' })} submitDisabled={!itemForm.name || !itemForm.budgeted_amount || itemForm.budgeted_amount <= 0}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1 }}>

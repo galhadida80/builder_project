@@ -90,6 +90,9 @@ async def create_invitation(
                 invited_by=invited_by_name,
                 invite_url=invite_url,
                 language=language,
+                project_code=project.code,
+                project_address=project.address or "",
+                project_description=project.description or "",
             )
             background_tasks.add_task(
                 email_service.send_notification,

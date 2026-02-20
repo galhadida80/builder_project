@@ -195,7 +195,7 @@ async def get_inspection_summary(
             func.sum(case((Inspection.status == InspectionStatus.COMPLETED.value, 1), else_=0)).label('completed'),
             func.sum(case((Inspection.status == InspectionStatus.FAILED.value, 1), else_=0)).label('failed'),
             func.sum(case((
-                (Inspection.scheduled_date < utcnow()) &
+                (Inspection.scheduled_date < func.now()) &
                 (Inspection.status != InspectionStatus.COMPLETED.value), 1
             ), else_=0)).label('overdue')
         )

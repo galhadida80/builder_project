@@ -3,13 +3,10 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { withMinDuration } from '../utils/async'
 import { getDateLocale } from '../utils/dateLocale'
-import { Card, KPICard } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { StatusBadge } from '../components/ui/StatusBadge'
-import { PageHeader } from '../components/ui/Breadcrumbs'
 import { SearchField, TextField } from '../components/ui/TextField'
 import { FormModal, ConfirmModal } from '../components/ui/Modal'
-import { Tabs, SegmentedTabs } from '../components/ui/Tabs'
 import { EmptyState } from '../components/ui/EmptyState'
 import { projectsApi } from '../api/projects'
 import { useProject } from '../contexts/ProjectContext'
@@ -17,8 +14,8 @@ import type { Project } from '../types'
 import { validateProjectForm, hasErrors, VALIDATION, type ValidationError } from '../utils/validation'
 import { parseValidationErrors } from '../utils/apiErrors'
 import { useToast } from '../components/common/ToastProvider'
-import { AddIcon, LocationOnIcon, CalendarTodayIcon, MoreVertIcon, FolderIcon, GridViewIcon, ViewListIcon } from '@/icons'
-import { Box, Typography, Menu, MenuItem, IconButton, Skeleton, Chip } from '@/mui'
+import { AddIcon, LocationOnIcon, CalendarTodayIcon, MoreVertIcon, AssignmentIcon } from '@/icons'
+import { Box, Typography, Menu, MenuItem, IconButton, Skeleton, Chip, Paper } from '@/mui'
 
 export default function ProjectsPage() {
   const { t } = useTranslation()
@@ -36,7 +33,6 @@ export default function ProjectsPage() {
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [errors, setErrors] = useState<ValidationError>({})
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [statusFilter, setStatusFilter] = useState('all')
   const [formData, setFormData] = useState({
     name: '',
@@ -188,253 +184,159 @@ export default function ProjectsPage() {
   const activeProjects = projects.filter(p => p.status === 'active').length
   const completedProjects = projects.filter(p => p.status === 'completed').length
   const onHoldProjects = projects.filter(p => p.status === 'on_hold').length
-  const archivedProjects = projects.filter(p => p.status === 'archived').length
+
+  const statusFilters = [
+    { label: t('common.all'), value: 'all', count: projects.length },
+    { label: t('pages.projects.active'), value: 'active', count: activeProjects },
+    { label: t('pages.projects.completed'), value: 'completed', count: completedProjects },
+    { label: t('pages.projects.onHold'), value: 'on_hold', count: onHoldProjects },
+  ]
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active': return 'success.main'
+      case 'completed': return 'info.main'
+      case 'on_hold': return 'warning.main'
+      default: return 'text.secondary'
+    }
+  }
 
   if (loading) {
     return (
       <Box sx={{ p: { xs: 2, sm: 3 }, maxWidth: '100%', overflow: 'hidden' }}>
-        <Skeleton variant="text" width="60%" height={48} sx={{ mb: 1, maxWidth: 200 }} />
-        <Skeleton variant="text" width="80%" height={24} sx={{ mb: 4, maxWidth: 300 }} />
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', md: 'repeat(4, 1fr)' }, gap: 2, mb: 4, overflow: 'hidden' }}>
-          {[...Array(4)].map((_, i) => (
-            <Skeleton key={i} variant="rounded" height={100} sx={{ borderRadius: 3 }} />
-          ))}
+        <Skeleton variant="text" width={160} height={32} sx={{ mb: 1 }} />
+        <Skeleton variant="rounded" width="100%" height={48} sx={{ mb: 2, borderRadius: 3 }} />
+        <Box sx={{ display: 'flex', gap: 1, mb: 3 }}>
+          {[...Array(4)].map((_, i) => <Skeleton key={i} variant="rounded" width={70} height={36} sx={{ borderRadius: 5 }} />)}
         </Box>
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(4, 1fr)' }, gap: 3 }}>
-          {[...Array(6)].map((_, i) => (
-            <Skeleton key={i} variant="rounded" height={200} sx={{ borderRadius: 3 }} />
-          ))}
-        </Box>
+        {[...Array(3)].map((_, i) => <Skeleton key={i} variant="rounded" height={160} sx={{ mb: 2, borderRadius: 3 }} />)}
       </Box>
     )
   }
 
   return (
     <Box sx={{ p: { xs: 2, sm: 3 }, maxWidth: '100%', overflow: 'hidden' }}>
-      <PageHeader
-        title={t('pages.projects.title')}
-        subtitle={t('pages.projects.subtitle')}
-        breadcrumbs={[{ label: t('nav.dashboard'), href: '/dashboard' }, { label: t('nav.projects') }]}
-        actions={
-          <Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>
-            {t('pages.projects.createNewProject')}
-          </Button>
-        }
-      />
-
-      <Box
-        sx={{
-          display: 'grid',
-          gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', md: 'repeat(4, 1fr)' },
-          gap: 1.5,
-          mb: 3,
-          overflow: 'hidden',
-        }}
-      >
-        <KPICard
-          title={t('pages.projects.totalProjects')}
-          value={projects.length}
-          icon={<FolderIcon />}
-          color="primary"
-        />
-        <KPICard
-          title={t('pages.projects.active')}
-          value={activeProjects}
-          icon={<FolderIcon />}
-          color="success"
-        />
-        <KPICard
-          title={t('pages.projects.onHold')}
-          value={onHoldProjects}
-          icon={<FolderIcon />}
-          color="warning"
-        />
-        <KPICard
-          title={t('pages.projects.completed')}
-          value={completedProjects}
-          icon={<FolderIcon />}
-          color="info"
-        />
-        {archivedProjects > 0 && (
-          <KPICard
-            title={t('common.statuses.archived')}
-            value={archivedProjects}
-            icon={<FolderIcon />}
-            color="warning"
-          />
-        )}
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2.5 }}>
+        <Typography variant="h5" sx={{ fontWeight: 700, fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>
+          {t('pages.projects.title')}
+        </Typography>
+        <IconButton
+          onClick={handleOpenCreate}
+          sx={{
+            bgcolor: 'primary.main',
+            color: 'primary.contrastText',
+            width: 44,
+            height: 44,
+            '&:hover': { bgcolor: 'primary.dark' },
+            boxShadow: 2,
+          }}
+        >
+          <AddIcon />
+        </IconButton>
       </Box>
 
-      <Card>
-        <Box sx={{ p: 2 }}>
-          <Box sx={{
-            display: 'flex',
-            flexDirection: { xs: 'column', sm: 'row' },
-            justifyContent: 'space-between',
-            alignItems: { xs: 'stretch', sm: 'center' },
-            gap: { xs: 1, sm: 1.5 },
-            mb: 2,
-          }}>
-            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', minWidth: 0, flex: 1 }}>
-              <SearchField
-                placeholder={t('pages.projects.searchPlaceholder')}
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </Box>
-            <Box sx={{ display: 'flex', gap: { xs: 1, sm: 2 }, alignItems: 'center', flexShrink: 0, justifyContent: { xs: 'space-between', sm: 'flex-end' } }}>
-              <Chip label={`${filteredProjects.length} ${t('nav.projects').toLowerCase()}`} size="small" />
-              <SegmentedTabs
-                items={[
-                  { label: t('common.gridView'), value: 'grid', icon: <GridViewIcon sx={{ fontSize: 18 }} /> },
-                  { label: t('common.listView'), value: 'list', icon: <ViewListIcon sx={{ fontSize: 18 }} /> },
-                ]}
-                value={viewMode}
-                onChange={(v) => setViewMode(v as 'grid' | 'list')}
-              />
-            </Box>
-          </Box>
+      <SearchField
+        placeholder={t('pages.projects.searchPlaceholder')}
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        sx={{ mb: 2 }}
+      />
 
-          <Tabs
-            items={[
-              { label: t('common.all'), value: 'all', badge: projects.length },
-              { label: t('pages.projects.active'), value: 'active', badge: activeProjects },
-              { label: t('pages.projects.onHold'), value: 'on_hold', badge: onHoldProjects },
-              { label: t('pages.projects.completed'), value: 'completed', badge: completedProjects },
-              ...(archivedProjects > 0 ? [{ label: t('common.statuses.archived'), value: 'archived', badge: archivedProjects }] : []),
-            ]}
-            value={statusFilter}
-            onChange={setStatusFilter}
-            size="small"
+      <Box sx={{ display: 'flex', gap: 1, overflowX: 'auto', pb: 1, mb: 2, '&::-webkit-scrollbar': { display: 'none' }, msOverflowStyle: 'none', scrollbarWidth: 'none' }}>
+        {statusFilters.map((filter) => (
+          <Chip
+            key={filter.value}
+            label={filter.label}
+            onClick={() => setStatusFilter(filter.value)}
+            sx={{
+              borderRadius: 5,
+              fontWeight: statusFilter === filter.value ? 600 : 400,
+              bgcolor: statusFilter === filter.value ? 'primary.main' : 'action.selected',
+              color: statusFilter === filter.value ? 'primary.contrastText' : 'text.primary',
+              '&:hover': { bgcolor: statusFilter === filter.value ? 'primary.dark' : 'action.hover' },
+              whiteSpace: 'nowrap',
+              px: 1,
+            }}
           />
+        ))}
+      </Box>
 
-          {filteredProjects.length === 0 ? (
-            <Box sx={{ mt: 4 }}>
-              <EmptyState
-                variant="no-results"
-                title={t('pages.projects.noProjectsFound')}
-                description={t('pages.projects.noProjectsDescription')}
-                action={{ label: t('pages.projects.createProject'), onClick: handleOpenCreate }}
-              />
-            </Box>
-          ) : viewMode === 'list' ? (
-            <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 1 }}>
-              {filteredProjects.map((project) => (
-                <Card key={project.id} hoverable onClick={() => handleProjectClick(project.id)}>
-                  <Box sx={{ px: 2, py: 1.25, display: 'flex', alignItems: 'center', gap: 2, minWidth: 0 }}>
-                    <Box sx={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                      <Typography
-                        variant="body2"
-                        fontWeight={600}
-                        sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 }}
-                      >
-                        {project.name}
-                      </Typography>
-                      <Chip label={project.code} size="small" variant="outlined" sx={{ fontSize: '0.65rem', height: 20, flexShrink: 0 }} />
-                    </Box>
-                    {project.address && (
-                      <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 0.5, flexShrink: 0, maxWidth: 200 }}>
-                        <LocationOnIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
-                        <Typography variant="caption" color="text.secondary" noWrap>{project.address}</Typography>
-                      </Box>
-                    )}
-                    {project.startDate && (
-                      <Box sx={{ display: { xs: 'none', sm: 'flex' }, alignItems: 'center', gap: 0.5, flexShrink: 0 }}>
-                        <CalendarTodayIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
-                        <Typography variant="caption" color="text.secondary" noWrap>
-                          {new Date(project.startDate).toLocaleDateString(getDateLocale())}
-                        </Typography>
-                      </Box>
-                    )}
-                    <StatusBadge status={project.status} size="small" />
-                    <IconButton size="small" aria-label={t('common.viewMenu')} onClick={(e) => handleMenuOpen(e, project)} sx={{ flexShrink: 0, ml: -0.5 }}>
-                      <MoreVertIcon sx={{ fontSize: 18 }} />
-                    </IconButton>
-                  </Box>
-                </Card>
-              ))}
-            </Box>
-          ) : (
-            <Box
+      {filteredProjects.length === 0 ? (
+        <Box sx={{ mt: 4 }}>
+          <EmptyState
+            variant="no-results"
+            title={t('pages.projects.noProjectsFound')}
+            description={t('pages.projects.noProjectsDescription')}
+            action={{ label: t('pages.projects.createProject'), onClick: handleOpenCreate }}
+          />
+        </Box>
+      ) : (
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          {filteredProjects.map((project) => (
+            <Paper
+              key={project.id}
+              onClick={() => handleProjectClick(project.id)}
               sx={{
-                mt: 2,
-                display: 'grid',
-                gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(4, 1fr)' },
-                gap: 1.5,
+                borderRadius: 3,
+                overflow: 'hidden',
+                cursor: 'pointer',
+                borderInlineStart: project.status === 'active' ? '4px solid' : 'none',
+                borderInlineStartColor: 'primary.main',
+                transition: 'box-shadow 0.2s',
+                '&:hover': { boxShadow: 3 },
               }}
             >
-              {filteredProjects.map((project) => (
-                <Card key={project.id} hoverable onClick={() => handleProjectClick(project.id)}>
-                  <Box sx={{ p: 1.75, minWidth: 0 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1, minWidth: 0 }}>
-                      <Box sx={{ flex: 1, minWidth: 0 }}>
-                        <Typography
-                          variant="body2"
-                          fontWeight={600}
-                          sx={{
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                            minWidth: 0,
-                            mb: 0.25,
-                          }}
-                        >
-                          {project.name}
-                        </Typography>
-                        <Chip label={project.code} size="small" variant="outlined" sx={{ fontSize: '0.65rem', height: 20 }} />
-                      </Box>
-                      <IconButton size="small" aria-label={t('common.viewMenu')} onClick={(e) => handleMenuOpen(e, project)} sx={{ flexShrink: 0, mt: -0.5, mr: -0.5 }}>
-                        <MoreVertIcon sx={{ fontSize: 18 }} />
-                      </IconButton>
-                    </Box>
-
-                    {project.description && (
-                      <Typography
-                        variant="caption"
-                        color="text.secondary"
-                        sx={{
-                          mb: 1,
-                          display: '-webkit-box',
-                          overflow: 'hidden',
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: 'vertical',
-                          lineHeight: 1.4,
-                        }}
-                      >
-                        {project.description}
-                      </Typography>
-                    )}
-
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mb: 1.25 }}>
-                      {project.address && (
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 0 }}>
-                          <LocationOnIcon sx={{ fontSize: 14, color: 'text.secondary', flexShrink: 0 }} />
-                          <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                            {project.address}
-                          </Typography>
-                        </Box>
-                      )}
-                      {project.startDate && (
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 0 }}>
-                          <CalendarTodayIcon sx={{ fontSize: 14, color: 'text.secondary', flexShrink: 0 }} />
-                          <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem' }}>
-                            {new Date(project.startDate).toLocaleDateString(getDateLocale())}
-                            {project.estimatedEndDate && <> - {new Date(project.estimatedEndDate).toLocaleDateString(getDateLocale())}</>}
-                          </Typography>
-                        </Box>
-                      )}
-                    </Box>
-
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
-                      <StatusBadge status={project.status} size="small" />
-                    </Box>
+              <Box sx={{ p: 2 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 0.5 }}>
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Typography variant="body1" fontWeight={700} noWrap>{project.name}</Typography>
+                    <Chip label={project.code} size="small" variant="outlined" sx={{ fontSize: '0.65rem', height: 20, mt: 0.5 }} />
                   </Box>
-                </Card>
-              ))}
-            </Box>
-          )}
+                  <IconButton size="small" onClick={(e) => handleMenuOpen(e, project)} sx={{ mt: -0.5, mr: -0.5 }}>
+                    <MoreVertIcon sx={{ fontSize: 18 }} />
+                  </IconButton>
+                </Box>
+
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1, mb: 2 }}>
+                  <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: getStatusColor(project.status), flexShrink: 0 }} />
+                  <StatusBadge status={project.status} size="small" />
+                </Box>
+
+                {project.description && (
+                  <Typography variant="caption" color="text.secondary" sx={{ display: '-webkit-box', overflow: 'hidden', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', mb: 1.5, lineHeight: 1.4 }}>
+                    {project.description}
+                  </Typography>
+                )}
+
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mb: 2 }}>
+                  {project.address && (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <LocationOnIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                      <Typography variant="caption" color="text.secondary" noWrap>{project.address}</Typography>
+                    </Box>
+                  )}
+                  {project.startDate && (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <CalendarTodayIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                      <Typography variant="caption" color="text.secondary">
+                        {new Date(project.startDate).toLocaleDateString(getDateLocale())}
+                        {project.estimatedEndDate && <> - {new Date(project.estimatedEndDate).toLocaleDateString(getDateLocale())}</>}
+                      </Typography>
+                    </Box>
+                  )}
+                </Box>
+
+                <Box sx={{ borderTop: 1, borderColor: 'divider', pt: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'text.secondary' }}>
+                    <AssignmentIcon sx={{ fontSize: 18 }} />
+                    <Typography variant="caption">{t('pages.projects.projectCode')}: {project.code}</Typography>
+                  </Box>
+                </Box>
+              </Box>
+            </Paper>
+          ))}
         </Box>
-      </Card>
+      )}
 
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
         <MenuItem onClick={() => selectedProject && handleOpenEdit(selectedProject)}>{t('pages.projects.editProject')}</MenuItem>
@@ -452,64 +354,40 @@ export default function ProjectsPage() {
       >
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
           <TextField
-            fullWidth
-            label={t('pages.projects.projectName')}
-            required
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            fullWidth label={t('pages.projects.projectName')} required
+            value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             error={!!errors.name || formData.name.length > VALIDATION.MAX_NAME_LENGTH}
             helperText={errors.name || (formData.name.length > 0 ? `${formData.name.length}/${VALIDATION.MAX_NAME_LENGTH}` : undefined)}
             inputProps={{ maxLength: VALIDATION.MAX_NAME_LENGTH }}
           />
           <TextField
-            fullWidth
-            label={t('pages.projects.projectCode')}
-            required
-            disabled={!!editingProject}
-            value={formData.code}
-            onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
+            fullWidth label={t('pages.projects.projectCode')} required disabled={!!editingProject}
+            value={formData.code} onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
             error={!!errors.code}
             helperText={editingProject ? t('pages.projects.codeCannotBeChanged') : (errors.code || t('pages.projects.codeHint'))}
             inputProps={{ maxLength: VALIDATION.MAX_CODE_LENGTH }}
           />
           <TextField
-            fullWidth
-            label={t('pages.projects.description')}
-            multiline
-            rows={3}
-            value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            fullWidth label={t('pages.projects.description')} multiline rows={3}
+            value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             error={!!errors.description}
             helperText={errors.description || (formData.description.length > 0 ? `${formData.description.length}/${VALIDATION.MAX_DESCRIPTION_LENGTH}` : undefined)}
           />
           <TextField
-            fullWidth
-            label={t('pages.projects.address')}
-            value={formData.address}
-            onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-            error={!!errors.address}
-            helperText={errors.address}
+            fullWidth label={t('pages.projects.address')}
+            value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+            error={!!errors.address} helperText={errors.address}
           />
           <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
             <TextField
-              fullWidth
-              label={t('pages.projects.startDate')}
-              type="date"
-              InputLabelProps={{ shrink: true }}
-              value={formData.startDate}
-              onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-              error={!!errors.startDate}
-              helperText={errors.startDate}
+              fullWidth label={t('pages.projects.startDate')} type="date" InputLabelProps={{ shrink: true }}
+              value={formData.startDate} onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+              error={!!errors.startDate} helperText={errors.startDate}
             />
             <TextField
-              fullWidth
-              label={t('pages.projects.endDate')}
-              type="date"
-              InputLabelProps={{ shrink: true }}
-              value={formData.estimatedEndDate}
-              onChange={(e) => setFormData({ ...formData, estimatedEndDate: e.target.value })}
-              error={!!errors.estimatedEndDate}
-              helperText={errors.estimatedEndDate}
+              fullWidth label={t('pages.projects.endDate')} type="date" InputLabelProps={{ shrink: true }}
+              value={formData.estimatedEndDate} onChange={(e) => setFormData({ ...formData, estimatedEndDate: e.target.value })}
+              error={!!errors.estimatedEndDate} helperText={errors.estimatedEndDate}
             />
           </Box>
         </Box>

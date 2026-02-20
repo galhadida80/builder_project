@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Card } from '../components/ui/Card'
+import { Tabs } from '../components/ui/Tabs'
 import { GanttChart } from '../components/ui/GanttChart'
 import { PageHeader } from '../components/ui/Breadcrumbs'
 import { EmptyState } from '../components/ui/EmptyState'
@@ -9,8 +10,8 @@ import { meetingsApi } from '../api/meetings'
 import { useToast } from '../components/common/ToastProvider'
 import type { GanttTask, GanttLink, GanttScale } from '../types/timeline'
 import type { Meeting } from '../types'
-import { ZoomInIcon, ZoomOutIcon, FilterListIcon, TimelineIcon } from '@/icons'
-import { Box, Typography, IconButton, MenuItem, Select, FormControl, Skeleton } from '@/mui'
+import { ZoomInIcon, ZoomOutIcon, TimelineIcon } from '@/icons'
+import { Box, Typography, IconButton, Skeleton } from '@/mui'
 
 const addDays = (dateStr: string, days: number): string => {
   const d = new Date(dateStr)
@@ -102,7 +103,7 @@ export default function GanttTimelinePage() {
 
   if (!projectId) {
     return (
-      <Box sx={{ p: 3 }}>
+      <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
         <EmptyState
           variant="not-found"
           title={t('gantt.projectNotFound')}
@@ -112,104 +113,78 @@ export default function GanttTimelinePage() {
     )
   }
 
-  const handleZoomIn = () => {
-    setZoomLevel((prev) => Math.min(prev + 1, zoomLevels.length - 1))
-  }
-
-  const handleZoomOut = () => {
-    setZoomLevel((prev) => Math.max(prev - 1, 0))
-  }
+  const handleZoomIn = () => setZoomLevel((prev) => Math.min(prev + 1, zoomLevels.length - 1))
+  const handleZoomOut = () => setZoomLevel((prev) => Math.max(prev - 1, 0))
 
   const currentScales = zoomLevels[zoomLevel].scales
 
-  if (loading) {
-    return (
-      <Box sx={{ p: 3 }}>
-        <Skeleton variant="text" width={300} height={48} sx={{ mb: 1 }} />
-        <Skeleton variant="text" width={400} height={24} sx={{ mb: 3 }} />
-        <Skeleton variant="rounded" height={600} sx={{ borderRadius: 3 }} />
-      </Box>
-    )
-  }
+  const filteredTasks = filterValue === 'all' ? tasks : tasks.filter(task => {
+    if (filterValue === 'in-progress') return (task.progress ?? 0) > 0 && (task.progress ?? 0) < 100
+    if (filterValue === 'completed') return (task.progress ?? 0) === 100
+    if (filterValue === 'milestones') return task.type === 'milestone'
+    return true
+  })
+
+  const completedCount = tasks.filter(tk => (tk.progress ?? 0) === 100).length
+  const inProgressCount = tasks.filter(tk => (tk.progress ?? 0) > 0 && (tk.progress ?? 0) < 100).length
+  const overallProgress = tasks.length > 0 ? Math.round(tasks.reduce((sum, tk) => sum + (tk.progress ?? 0), 0) / tasks.length) : 0
+
+  if (loading) return (
+    <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
+      <Skeleton variant="text" width={250} height={48} sx={{ mb: 1 }} />
+      <Skeleton variant="text" width={300} height={24} sx={{ mb: 3 }} />
+      <Skeleton variant="rounded" height={48} sx={{ borderRadius: 2, mb: 2 }} />
+      <Skeleton variant="rounded" height={400} sx={{ borderRadius: 2 }} />
+    </Box>
+  )
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 }, maxWidth: '100%', overflow: 'hidden' }}>
       <PageHeader
         title={t('gantt.title')}
         subtitle={t('gantt.subtitle')}
+        actions={
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <IconButton
+              size="small"
+              onClick={handleZoomOut}
+              disabled={zoomLevel === 0}
+              sx={{ bgcolor: 'action.hover', '&:hover': { bgcolor: 'action.selected' } }}
+            >
+              <ZoomOutIcon fontSize="small" />
+            </IconButton>
+            <IconButton
+              size="small"
+              onClick={handleZoomIn}
+              disabled={zoomLevel === zoomLevels.length - 1}
+              sx={{ bgcolor: 'action.hover', '&:hover': { bgcolor: 'action.selected' } }}
+            >
+              <ZoomInIcon fontSize="small" />
+            </IconButton>
+          </Box>
+        }
       />
 
-      <Card sx={{ mt: 3 }}>
-        <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Typography variant="h6" fontWeight={600}>
-              {t('gantt.constructionSchedule')}
-            </Typography>
+      <Tabs
+        items={[
+          { label: t('gantt.allTasks'), value: 'all', badge: tasks.length },
+          { label: t('gantt.inProgress'), value: 'in-progress', badge: inProgressCount },
+          { label: t('common.completed'), value: 'completed', badge: completedCount },
+          { label: t('gantt.milestonesOnly'), value: 'milestones' },
+        ]}
+        value={filterValue}
+        onChange={setFilterValue}
+        size="small"
+      />
 
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                <Typography variant="body2" color="text.secondary" sx={{ me: 1 }}>
-                  {t('gantt.zoom')}:
-                </Typography>
-                <IconButton
-                  size="small"
-                  aria-label={t('gantt.zoomOut')}
-                  onClick={handleZoomOut}
-                  disabled={zoomLevel === 0}
-                  title={t('gantt.zoomOut')}
-                  sx={{
-                    bgcolor: 'action.hover',
-                    '&:hover': { bgcolor: 'action.selected' },
-                    '&:disabled': { opacity: 0.5 },
-                  }}
-                >
-                  <ZoomOutIcon fontSize="small" />
-                </IconButton>
-                <IconButton
-                  size="small"
-                  aria-label={t('gantt.zoomIn')}
-                  onClick={handleZoomIn}
-                  disabled={zoomLevel === zoomLevels.length - 1}
-                  title={t('gantt.zoomIn')}
-                  sx={{
-                    bgcolor: 'action.hover',
-                    '&:hover': { bgcolor: 'action.selected' },
-                    '&:disabled': { opacity: 0.5 },
-                  }}
-                >
-                  <ZoomInIcon fontSize="small" />
-                </IconButton>
-              </Box>
-
-              <FormControl size="small" sx={{ minWidth: 150 }}>
-                <Select
-                  value={filterValue}
-                  onChange={(e) => setFilterValue(e.target.value)}
-                  startAdornment={<FilterListIcon sx={{ me: 1, fontSize: 18, color: 'text.secondary' }} />}
-                  sx={{ fontSize: '0.875rem' }}
-                >
-                  <MenuItem value="all">{t('gantt.allTasks')}</MenuItem>
-                  <MenuItem value="in-progress">{t('gantt.inProgress')}</MenuItem>
-                  <MenuItem value="completed">{t('common.completed')}</MenuItem>
-                  <MenuItem value="milestones">{t('gantt.milestonesOnly')}</MenuItem>
-                </Select>
-              </FormControl>
-            </Box>
-          </Box>
-        </Box>
-
-        <Box sx={{ p: 0, minHeight: 400, height: 'calc(100dvh - 320px)' }}>
-          {tasks.length > 0 ? (
-            <GanttChart tasks={filterValue === 'all' ? tasks : tasks.filter(task => {
-              if (filterValue === 'in-progress') return (task.progress ?? 0) > 0 && (task.progress ?? 0) < 100
-              if (filterValue === 'completed') return (task.progress ?? 0) === 100
-              if (filterValue === 'milestones') return task.type === 'milestone'
-              return true
-            })} links={links} scales={currentScales} />
+      <Card sx={{ mt: 1.5 }}>
+        <Box sx={{ p: 0, minHeight: 350, height: { xs: 'calc(100dvh - 360px)', md: 'calc(100dvh - 320px)' } }}>
+          {filteredTasks.length > 0 ? (
+            <GanttChart tasks={filteredTasks} links={links} scales={currentScales} />
           ) : (
             <Box sx={{ p: 4 }}>
               <EmptyState
-                icon={<TimelineIcon sx={{ fontSize: 64 }} />}
+                icon={<TimelineIcon sx={{ fontSize: 48 }} />}
                 title={t('gantt.noData')}
                 description={t('gantt.noDataDescription')}
               />
@@ -219,49 +194,26 @@ export default function GanttTimelinePage() {
       </Card>
 
       {tasks.length > 0 && (
-        <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 3, px: 2 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Box
-              sx={{
-                width: 20,
-                height: 12,
-                bgcolor: 'primary.main',
-                borderRadius: 0.5,
-              }}
-            />
-            <Typography variant="caption" color="text.secondary">
-              {t('gantt.task')}
+        <Card sx={{ mt: 1.5, p: 2 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+            <Typography variant="caption" fontWeight={700} color="text.secondary">
+              {tasks.length} {t('gantt.task')}
             </Typography>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: 'success.main' }} />
+                <Typography variant="caption" color="text.secondary">{completedCount} {t('common.completed')}</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: 'primary.main' }} />
+                <Typography variant="caption" color="text.secondary">{inProgressCount} {t('gantt.inProgress')}</Typography>
+              </Box>
+            </Box>
           </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Box
-              sx={{
-                width: 12,
-                height: 12,
-                bgcolor: 'warning.main',
-                transform: 'rotate(45deg)',
-                border: '2px solid',
-                borderColor: 'warning.dark',
-              }}
-            />
-            <Typography variant="caption" color="text.secondary">
-              {t('gantt.milestone')}
-            </Typography>
+          <Box sx={{ height: 6, bgcolor: 'divider', borderRadius: 3, overflow: 'hidden' }}>
+            <Box sx={{ height: '100%', bgcolor: 'primary.main', borderRadius: 3, width: `${overallProgress}%`, transition: 'width 300ms' }} />
           </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Box
-              sx={{
-                width: 20,
-                height: 12,
-                bgcolor: 'success.main',
-                borderRadius: 0.5,
-              }}
-            />
-            <Typography variant="caption" color="text.secondary">
-              {t('common.completed')}
-            </Typography>
-          </Box>
-        </Box>
+        </Card>
       )}
     </Box>
   )

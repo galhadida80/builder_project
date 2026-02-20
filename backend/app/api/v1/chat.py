@@ -22,7 +22,6 @@ from app.schemas.chat import (
 from app.schemas.chat_action import ChatActionResponse
 from app.services.chat_action_executor import execute_action
 from app.services.chat_service import send_message
-from app.utils import utcnow
 
 logger = logging.getLogger(__name__)
 
@@ -119,7 +118,7 @@ async def execute_chat_action(
             raise HTTPException(status_code=400, detail=exec_result["error"])
         action.status = "executed"
         action.result = exec_result
-        action.executed_at = utcnow()
+        action.executed_at = func.now()
         action.executed_by_id = current_user.id
     except HTTPException:
         raise
@@ -131,6 +130,7 @@ async def execute_chat_action(
         raise HTTPException(status_code=500, detail="Action execution failed")
 
     await db.commit()
+    await db.refresh(action)
     return ChatActionResponse.model_validate(action, from_attributes=True)
 
 
@@ -157,10 +157,11 @@ async def reject_chat_action(
 
     action.status = "rejected"
     action.result = {"reason": body.reason} if body.reason else None
-    action.executed_at = utcnow()
+    action.executed_at = func.now()
     action.executed_by_id = current_user.id
 
     await db.commit()
+    await db.refresh(action)
     return ChatActionResponse.model_validate(action, from_attributes=True)
 
 

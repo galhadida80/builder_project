@@ -8,7 +8,7 @@ import { documentReviewsApi } from '../api/documentReviews'
 import { useAuth } from '../contexts/AuthContext'
 import type { FileRecord } from '../api/files'
 import { ArrowBackIcon } from '@/icons'
-import { Box, Typography, Skeleton, IconButton, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button } from '@/mui'
+import { Box, Typography, Skeleton, IconButton, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button, Chip } from '@/mui'
 
 export default function DocumentReviewPage() {
   const { projectId, documentId } = useParams<{ projectId: string; documentId: string }>()
@@ -324,80 +324,99 @@ export default function DocumentReviewPage() {
 
   if (loading) {
     return (
-      <Box sx={{ p: 3 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-          <Skeleton variant="circular" width={32} height={32} />
-          <Skeleton variant="text" width={150} height={24} />
-        </Box>
-        <Skeleton variant="text" width={300} height={48} sx={{ mb: 2 }} />
-        <Skeleton variant="rounded" width="100%" height={600} sx={{ borderRadius: 3 }} />
+      <Box sx={{ maxWidth: 600, mx: 'auto', p: 2 }}>
+        <Skeleton variant="rounded" height={48} sx={{ borderRadius: 2, mb: 2 }} />
+        <Skeleton variant="rounded" height={80} sx={{ borderRadius: 2, mb: 2 }} />
+        <Skeleton variant="rounded" width="100%" height={400} sx={{ borderRadius: 3 }} />
       </Box>
     )
   }
 
   if (error || !document) {
     return (
-      <Box sx={{ p: 3 }}>
+      <Box sx={{ maxWidth: 600, mx: 'auto', p: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
           <IconButton aria-label={t('common.back')} onClick={handleBack} size="small">
             <ArrowBackIcon />
           </IconButton>
           <Typography variant="body2" color="text.secondary">
-            {t('documentReview.backToProject', 'Back to Project')}
+            {t('documentReview.backToProject')}
           </Typography>
         </Box>
         <EmptyState
           variant="error"
           title={t('documentReview.documentNotFound')}
-          description={error || t('documentReview.documentNotFoundDescription', "The document you're looking for doesn't exist or has been removed")}
-          action={{ label: t('documentReview.backToProject', 'Back to Project'), onClick: handleBack }}
+          description={error || t('documentReview.documentNotFoundDescription')}
+          action={{ label: t('documentReview.backToProject'), onClick: handleBack }}
         />
       </Box>
     )
   }
 
-  // Use blob URL for authenticated viewing, fall back to storage path for external URLs
   const documentUrl = blobUrl || (document.storagePath.startsWith('http') ? document.storagePath : '')
 
-  // Determine document type
   const documentType = document.fileType.toLowerCase().includes('pdf')
     ? 'pdf'
     : document.fileType.toLowerCase().match(/png|jpg|jpeg|gif|webp/)
     ? 'image'
     : document.fileType
 
+  const statusConfig: Record<string, { label: string; color: string }> = {
+    pending: { label: t('documentReview.statusPending', 'Pending review'), color: 'primary.main' },
+    in_review: { label: t('documentReview.statusInReview', 'In review'), color: 'info.main' },
+    approved: { label: t('documentReview.statusApproved', 'Approved'), color: 'success.main' },
+    rejected: { label: t('documentReview.statusRejected', 'Rejected'), color: 'error.main' },
+    changes_requested: { label: t('documentReview.statusChanges', 'Changes requested'), color: 'warning.main' },
+  }
+
+  const currentStatus = statusConfig[reviewStatus] || statusConfig.pending
+
   return (
-    <Box>
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <Box sx={{
-        position: 'fixed',
-        top: { xs: 56, sm: 64 },
-        left: 0,
-        right: 0,
-        zIndex: 10,
-        bgcolor: 'background.paper',
-        borderBottom: 1,
-        borderColor: 'divider',
-        px: 3,
-        py: 1,
-        display: 'flex',
-        alignItems: 'center',
-        gap: 1
+        position: 'sticky', top: 0, zIndex: 20,
+        bgcolor: 'background.default',
+        borderBottom: 1, borderColor: 'divider',
+        px: 2, py: 1.5,
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
-        <IconButton aria-label={t('common.back')} onClick={handleBack} size="small">
-          <ArrowBackIcon />
-        </IconButton>
-        <Typography variant="body2" color="text.secondary">
-          {t('documentReview.backToProject', 'Back to Project')}
-        </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mx: 1 }}>
-          /
-        </Typography>
-        <Typography variant="body1" fontWeight={600}>
-          {document.filename}
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <IconButton aria-label={t('common.back')} onClick={handleBack} size="small">
+            <ArrowBackIcon />
+          </IconButton>
+          <Typography variant="body1" fontWeight={700} letterSpacing='-0.02em'>
+            {t('documentReview.title', 'Document Review')}
+          </Typography>
+        </Box>
+        <Box sx={{ display: 'flex', gap: 0.5 }}>
+          <IconButton size="small" onClick={handleDownload}>
+            <Box component="span" className="material-icons" sx={{ fontSize: 22, color: 'text.secondary' }}>download</Box>
+          </IconButton>
+        </Box>
       </Box>
 
-      <Box sx={{ mt: 7 }}> {/* Offset for fixed header */}
+      <Box sx={{
+        p: 2, borderBottom: 1, borderColor: 'divider',
+        bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(30,30,30,0.5)' : 'rgba(0,0,0,0.02)',
+      }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <Box>
+            <Typography variant="body1" fontWeight={700}>{document.filename}</Typography>
+          </Box>
+          <Chip
+            label={currentStatus.label}
+            size="small"
+            sx={{
+              fontWeight: 700, fontSize: '0.65rem', height: 24,
+              bgcolor: `${currentStatus.color}20`,
+              color: currentStatus.color,
+              borderRadius: 4,
+            }}
+          />
+        </Box>
+      </Box>
+
+      <Box sx={{ flex: 1, pb: 20 }}>
         <DocumentReviewPanel
           documentUrl={documentUrl}
           documentName={document.filename}
@@ -420,7 +439,47 @@ export default function DocumentReviewPage() {
         />
       </Box>
 
-      {/* Confirmation Dialog */}
+      <Box sx={{
+        position: 'fixed', bottom: 0, insetInline: 0,
+        bgcolor: 'background.default', borderTop: 1, borderColor: 'divider',
+        p: 2, pb: 4, zIndex: 20,
+      }}>
+        <Box sx={{ display: 'flex', gap: 1.5, maxWidth: 600, mx: 'auto' }}>
+          <Button
+            onClick={() => handleRequestStatusChange('approved')}
+            variant="contained"
+            color="success"
+            sx={{
+              flex: 1, fontWeight: 700, borderRadius: 3, py: 1.5,
+              textTransform: 'none',
+            }}
+          >
+            {t('documentReview.approve', 'Approve')}
+          </Button>
+          <Button
+            onClick={() => handleRequestStatusChange('changes_requested')}
+            variant="outlined"
+            color="primary"
+            sx={{
+              flex: 1, fontWeight: 700, borderRadius: 3, py: 1.5,
+              textTransform: 'none', borderWidth: 2,
+            }}
+          >
+            {t('documentReview.requestChanges', 'Request changes')}
+          </Button>
+        </Box>
+        <Button
+          onClick={() => handleRequestStatusChange('rejected')}
+          color="error"
+          sx={{
+            mt: 1, width: '100%', maxWidth: 600, mx: 'auto', display: 'flex',
+            fontWeight: 700, textTransform: 'none',
+          }}
+        >
+          {t('documentReview.reject', 'Reject')}
+        </Button>
+      </Box>
+
       <Dialog
         open={confirmDialog.open}
         onClose={handleCancelStatusChange}
@@ -433,10 +492,10 @@ export default function DocumentReviewPage() {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCancelStatusChange} color="inherit">
-            {t('common.cancel', 'Cancel')}
+            {t('common.cancel')}
           </Button>
           <Button onClick={handleConfirmStatusChange} variant="contained" color="primary" autoFocus>
-            {t('common.confirm', 'Confirm')}
+            {t('common.confirm')}
           </Button>
         </DialogActions>
       </Dialog>

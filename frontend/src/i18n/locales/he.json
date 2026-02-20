@@ -736,6 +736,9 @@
     "minutesAgo": "לפני {{count}} דק׳",
     "hoursAgo": "לפני {{count}} שע׳",
     "daysAgo": "לפני {{count}} ימים",
+    "today": "היום",
+    "yesterday": "אתמול",
+    "nChanges": "{{count}} שינויים",
     "actions": {
       "create": "יצירה",
       "update": "עדכון",
@@ -1090,7 +1093,14 @@
     "themeUpdated": "ערכת הנושא עודכנה בהצלחה",
     "system": "מערכת",
     "light": "בהיר",
-    "dark": "כהה"
+    "dark": "כהה",
+    "security": "אבטחה",
+    "changePassword": "שנה סיסמה",
+    "passkey": "מפתח אבטחה (Passkey)",
+    "info": "מידע",
+    "version": "גרסה",
+    "privacyPolicy": "מדיניות פרטיות",
+    "logout": "התנתק"
   },
   "approvals": {
     "title": "אישורים",
@@ -1206,6 +1216,7 @@
     "searchPlaceholder": "חיפוש בקשות מידע...",
     "newRfi": "בקשה חדשה",
     "noRfis": "לא נמצאו בקשות מידע",
+    "noRfisDescription": "צור בקשת מידע חדשה כדי להתחיל",
     "pageOf": "עמוד {{current}} מתוך {{total}}",
     "details": "פרטים",
     "question": "שאלה",
@@ -1382,7 +1393,16 @@
     "confirm": "אישור",
     "cancel": "ביטול",
     "changesRequested": "נדרשים שינויים",
-    "requestChanges": "בקש שינויים"
+    "requestChanges": "בקש שינויים",
+    "title": "סקירת מסמך",
+    "approve": "אשר מסמך",
+    "reject": "דחה מסמך",
+    "statusPending": "ממתין לסקירה",
+    "statusInReview": "בסקירה",
+    "statusApproved": "מאושר",
+    "statusRejected": "נדחה",
+    "statusChanges": "נדרשים שינויים",
+    "documentNotFoundDescription": "המסמך שחיפשת לא קיים או הוסר"
   },
   "inspections": {
     "title": "בדיקות",
@@ -1586,7 +1606,13 @@
     "highOverRange": "גבוה/מעבר (91%+)",
     "memberName": "שם",
     "role": "תפקיד",
-    "team": "צוות"
+    "team": "צוות",
+    "activeTasks": "משימות פעילות",
+    "overloaded": "עומס יתר",
+    "slightlyHigh": "גבוה מעט",
+    "balanced": "מאוזן",
+    "available": "זמין",
+    "workload": "עומס עבודה"
   },
   "workloadCalendar": {
     "title": "לוח עומס עבודה",
@@ -1721,7 +1747,8 @@
     "endDate": "תאריך סיום",
     "endDateError": "תאריך הסיום חייב להיות אחרי תאריך ההתחלה",
     "exporting": "מייצא...",
-    "exportPdf": "ייצוא PDF"
+    "exportPdf": "ייצוא PDF",
+    "ok": "תקין"
   },
   "gantt": {
     "title": "ציר זמן פרויקט",
@@ -1894,7 +1921,19 @@
     "joined": "הצטרף",
     "failedToLoadUsers": "נכשל בטעינת משתמשים",
     "failedToUpdateUser": "נכשל בעדכון משתמש",
-    "superAdminLabel": "מנהל על"
+    "superAdminLabel": "מנהל על",
+    "adminPanel": "פאנל מנהל מערכת",
+    "adminModeActive": "מצב ניהול פעיל",
+    "totalUsers": "משתמשים",
+    "activeUsers": "פעילים",
+    "pendingUsers": "ממתינים",
+    "searchUsers": "חיפוש משתמשים...",
+    "filterAll": "הכל",
+    "filterAdmin": "מנהל",
+    "filterActive": "פעיל",
+    "filterInactive": "לא פעיל",
+    "activeNow": "פעיל",
+    "inactive": "לא פעיל"
   },
   "rfiDetail": {
     "notFound": "בקשת מידע לא נמצאה",
@@ -1904,6 +1943,7 @@
     "ccRecipients": "נמענים בהעתק",
     "specificationRef": "הפניה למפרט",
     "conversationThread": "שרשור שיחה",
+    "sentBy": "נשלח על ידי",
     "noResponses": "אין תגובות עדיין",
     "addResponse": "הוסף תגובה",
     "responsePlaceholder": "הקלד את תגובתך כאן...",
@@ -1930,15 +1970,22 @@
     "addEmail": "הוסף דוא\"ל..."
   },
   "inspector": {
-    "title": "מפקח שטח",
+    "title": "לוח מפקח",
     "offline": "לא מקוון",
-    "startInspection": "התחל בדיקה",
+    "startInspection": "התחל ביקורת",
     "takePhoto": "צלם תמונה",
     "reportIssue": "דווח על בעיה",
-    "todaySchedule": "לוח זמנים להיום",
-    "noInspections": "אין בדיקות מתוזמנות",
-    "noInspectionsDescription": "אין לך בדיקות מתוזמנות להיום",
-    "inspection": "בדיקה"
+    "todaySchedule": "הביקורות של היום",
+    "noInspections": "אין ביקורות מתוזמנות",
+    "noInspectionsDescription": "אין לך ביקורות מתוזמנות להיום",
+    "inspection": "ביקורת",
+    "goodMorning": "בוקר טוב",
+    "scheduledInspections": "ביקורות מתוזמנות",
+    "upcoming": "בקרוב",
+    "scheduled": "מתוזמן",
+    "monthInspections": "ביקורות החודש",
+    "defectsFound": "ליקויים שנמצאו",
+    "complianceRate": "אחוז עמידה"
   },
   "pmDashboard": {
     "title": "לוח בקרה - מנהל פרויקט",
@@ -2403,6 +2450,7 @@
     "noOrganizations": "אין ארגונים עדיין",
     "noOrganizationsDescription": "צור את הארגון הראשון שלך כדי להתחיל",
     "codeHint": "מזהה ייחודי (לדוגמה: ACME-CORP)",
+    "searchPlaceholder": "חיפוש ארגון...",
     "notFound": "ארגון לא נמצא",
     "notFoundDescription": "ארגון זה אינו קיים או שאין לך גישה",
     "membersTab": "חברים",

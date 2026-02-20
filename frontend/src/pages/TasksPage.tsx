@@ -3,10 +3,8 @@ import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { withMinDuration } from '../utils/async'
 import { getDateLocale } from '../utils/dateLocale'
-import { Card, KPICard } from '../components/ui/Card'
+import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
-import { DataTable, Column } from '../components/ui/DataTable'
-import { StatusBadge } from '../components/ui/StatusBadge'
 import { Tabs } from '../components/ui/Tabs'
 import { FormModal, ConfirmModal } from '../components/ui/Modal'
 import { PageHeader } from '../components/ui/Breadcrumbs'
@@ -17,8 +15,7 @@ import { projectsApi } from '../api/projects'
 import type { Task, TaskSummary, ProjectMember } from '../types'
 import { useToast } from '../components/common/ToastProvider'
 import {
-  AddIcon, TaskAltIcon, CheckCircleIcon, HourglassEmptyIcon,
-  WarningIcon, EditIcon, DeleteIcon,
+  AddIcon, CheckCircleIcon, WarningIcon, EditIcon, DeleteIcon,
 } from '@/icons'
 import {
   Box, Typography, Skeleton, Chip, MenuItem,
@@ -137,7 +134,8 @@ export default function TasksPage() {
   }
 
   const filteredTasks = tasks.filter(task => {
-    if (activeTab !== 'all' && task.status !== activeTab) return false
+    if (activeTab === 'overdue' && !isOverdue(task)) return false
+    else if (activeTab !== 'all' && activeTab !== 'overdue' && task.status !== activeTab) return false
     if (searchQuery) {
       const q = searchQuery.toLowerCase()
       return (
@@ -151,31 +149,6 @@ export default function TasksPage() {
 
   const isOverdue = (task: Task) =>
     task.dueDate && task.status !== 'completed' && task.status !== 'cancelled' && new Date(task.dueDate) < new Date()
-
-  const columns: Column<Task>[] = [
-    { id: 'taskNumber', label: '#', minWidth: 60, sortable: true,
-      render: (row) => <Typography variant="body2" fontWeight={600}>#{row.taskNumber}</Typography> },
-    { id: 'title', label: t('tasks.title'), minWidth: 200,
-      render: (row) => <Typography variant="body2" noWrap sx={{ maxWidth: 280 }}>{row.title}</Typography> },
-    { id: 'status', label: t('common.status'), minWidth: 120,
-      render: (row) => <StatusBadge status={row.status} /> },
-    { id: 'priority', label: t('tasks.priority'), minWidth: 100, hideOnMobile: true,
-      render: (row) => {
-        const c = PRIORITY_COLORS[row.priority] || PRIORITY_COLORS.low
-        return <Chip size="small" label={t(`tasks.priorities.${row.priority}`, { defaultValue: row.priority })} sx={{ bgcolor: c.bg, color: c.text, fontWeight: 600, fontSize: '0.7rem' }} />
-      } },
-    { id: 'assignee', label: t('tasks.assignee'), minWidth: 140, hideOnMobile: true,
-      render: (row) => <Typography variant="body2" color={row.assignee ? 'text.primary' : 'text.secondary'}>{row.assignee?.fullName || '-'}</Typography> },
-    { id: 'dueDate', label: t('tasks.dueDate'), minWidth: 110, sortable: true, hideOnMobile: true,
-      render: (row) => <Typography variant="body2" color={isOverdue(row) ? 'error.main' : 'text.primary'} fontWeight={isOverdue(row) ? 600 : 400}>{row.dueDate ? new Date(row.dueDate).toLocaleDateString(getDateLocale()) : '-'}</Typography> },
-    { id: 'actions', label: '', minWidth: 90, align: 'right', hideOnMobile: true,
-      render: (row) => (
-        <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
-          <IconButton size="small" aria-label={t('tasks.editTask')} onClick={(e) => { e.stopPropagation(); openEditDialog(row) }}><EditIcon fontSize="small" /></IconButton>
-          <IconButton size="small" aria-label={t('common.delete')} onClick={(e) => { e.stopPropagation(); setDeleteTask(row) }}><DeleteIcon fontSize="small" color="error" /></IconButton>
-        </Box>
-      ) },
-  ]
 
   if (loading) return (
     <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
@@ -201,72 +174,105 @@ export default function TasksPage() {
       />
 
       {summary && (
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 1.5, mb: 3 }}>
-          <KPICard title={t('tasks.total')} value={summary.total} icon={<TaskAltIcon />} color="primary" />
-          <KPICard title={t('tasks.inProgress')} value={summary.inProgressCount} icon={<HourglassEmptyIcon />} color="info" />
-          <KPICard title={t('tasks.completed')} value={summary.completedCount} icon={<CheckCircleIcon />} color="success" />
-          <KPICard title={t('tasks.overdue')} value={summary.overdueCount} icon={<WarningIcon />} color="error" />
+        <Box sx={{ display: 'flex', gap: 1.5, mb: 3, overflowX: 'auto', pb: 0.5 }}>
+          <Box sx={{ flex: 1, minWidth: 100, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 2 }}>
+            <Typography variant="caption" color="text.secondary">{t('tasks.total')}</Typography>
+            <Typography variant="h5" fontWeight={700}>{summary.total}</Typography>
+          </Box>
+          <Box sx={{ flex: 1, minWidth: 100, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 2 }}>
+            <Typography variant="caption" color="primary.main">{t('tasks.inProgress')}</Typography>
+            <Typography variant="h5" fontWeight={700} color="primary.main">{summary.inProgressCount}</Typography>
+          </Box>
+          <Box sx={{ flex: 1, minWidth: 100, bgcolor: 'error.light', border: '1px solid', borderColor: 'error.main', borderRadius: 2, p: 2, opacity: 0.9 }}>
+            <Typography variant="caption" color="error.main">{t('tasks.overdue')}</Typography>
+            <Typography variant="h5" fontWeight={700} color="error.main">{summary.overdueCount}</Typography>
+          </Box>
         </Box>
       )}
 
-      <Card>
-        <Box sx={{ p: 2 }}>
-          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, gap: 1, mb: 2 }}>
-            <Typography variant="h6" fontWeight={600}>{t('tasks.list')}</Typography>
-            <SearchField placeholder={t('tasks.searchPlaceholder')} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
-          </Box>
+      <Tabs
+        items={[
+          { label: t('common.all'), value: 'all', badge: tasks.length },
+          { label: t('tasks.inProgress'), value: 'in_progress', badge: tasks.filter(tk => tk.status === 'in_progress').length },
+          { label: t('tasks.overdue'), value: 'overdue', badge: tasks.filter(tk => isOverdue(tk)).length },
+          { label: t('tasks.completed'), value: 'completed', badge: tasks.filter(tk => tk.status === 'completed').length },
+        ]}
+        value={activeTab}
+        onChange={setActiveTab}
+        size="small"
+      />
 
-          <Tabs
-            items={[
-              { label: t('common.all'), value: 'all', badge: tasks.length },
-              { label: t('tasks.notStarted'), value: 'not_started', badge: tasks.filter(tk => tk.status === 'not_started').length },
-              { label: t('tasks.inProgress'), value: 'in_progress', badge: tasks.filter(tk => tk.status === 'in_progress').length },
-              { label: t('tasks.completed'), value: 'completed', badge: tasks.filter(tk => tk.status === 'completed').length },
-              { label: t('tasks.onHold'), value: 'on_hold', badge: tasks.filter(tk => tk.status === 'on_hold').length },
-            ]}
-            value={activeTab}
-            onChange={setActiveTab}
-            size="small"
-          />
+      <Box sx={{ mt: 1.5, mb: 2 }}>
+        <SearchField placeholder={t('tasks.searchPlaceholder')} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+      </Box>
 
-          <Box sx={{ mt: 2 }}>
-            {filteredTasks.length === 0 ? (
-              <EmptyState title={t('tasks.noTasks')} description={t('tasks.noTasksDescription')} />
-            ) : (
-              <DataTable
-                columns={columns}
-                rows={filteredTasks}
-                getRowId={(row) => row.id}
-                renderMobileCard={(row) => {
-                  const c = PRIORITY_COLORS[row.priority] || PRIORITY_COLORS.low
-                  const overdue = isOverdue(row)
-                  return (
-                    <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
-                        <Typography variant="body2" fontWeight={700}>#{row.taskNumber}</Typography>
-                        <StatusBadge status={row.status} />
-                      </Box>
-                      <Typography variant="body2" noWrap sx={{ mb: 1, fontWeight: 500 }}>{row.title}</Typography>
-                      <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
-                        <Chip size="small" label={t(`tasks.priorities.${row.priority}`, { defaultValue: row.priority })} sx={{ bgcolor: c.bg, color: c.text, fontWeight: 600, fontSize: '0.7rem', height: 22 }} />
-                        {row.assignee && <Chip label={row.assignee.fullName} size="small" variant="outlined" sx={{ fontSize: '0.7rem', height: 22 }} />}
-                        {row.dueDate && (
-                          <Chip
-                            label={new Date(row.dueDate).toLocaleDateString(getDateLocale())}
-                            size="small"
-                            variant="outlined"
-                            sx={{ fontSize: '0.7rem', height: 22, ...(overdue && { borderColor: 'error.main', color: 'error.main' }) }}
-                          />
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+        {filteredTasks.length === 0 ? (
+          <EmptyState title={t('tasks.noTasks')} description={t('tasks.noTasksDescription')} />
+        ) : (
+          filteredTasks.map((task) => {
+            const c = PRIORITY_COLORS[task.priority] || PRIORITY_COLORS.low
+            const overdue = isOverdue(task)
+            const isComplete = task.status === 'completed'
+            const borderColor = task.priority === 'urgent' ? '#DC2626' : task.priority === 'high' ? '#f28c26' : task.priority === 'medium' ? '#2563EB' : '#64748B'
+
+            return (
+              <Card key={task.id} hoverable onClick={() => openEditDialog(task)}
+                sx={{ borderInlineStart: '4px solid', borderInlineStartColor: borderColor, opacity: isComplete ? 0.6 : 1 }}
+              >
+                <Box sx={{ p: 2 }}>
+                  <Box sx={{ display: 'flex', gap: 1.5 }}>
+                    <Box
+                      sx={{
+                        width: 24, height: 24, borderRadius: '50%', flexShrink: 0, mt: 0.25,
+                        border: '2px solid',
+                        borderColor: isComplete ? 'success.main' : 'divider',
+                        bgcolor: isComplete ? 'success.main' : 'transparent',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      }}
+                    >
+                      {isComplete && <CheckCircleIcon sx={{ fontSize: 16, color: 'white' }} />}
+                    </Box>
+                    <Box sx={{ flex: 1, minWidth: 0 }}>
+                      <Typography variant="body2" fontWeight={700} sx={{ lineHeight: 1.3, mb: 0.75, ...(isComplete && { textDecoration: 'line-through', color: 'text.disabled' }) }}>
+                        {task.title}
+                      </Typography>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1, mb: 1, fontSize: '0.65rem' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: c.text }} />
+                          <Typography variant="caption" sx={{ color: c.text, fontWeight: 700, fontSize: '0.65rem' }}>
+                            {t(`tasks.priorities.${task.priority}`, { defaultValue: task.priority })}
+                          </Typography>
+                        </Box>
+                        {task.dueDate && (
+                          <Typography variant="caption" sx={{ color: overdue ? 'error.main' : 'primary.main', fontWeight: 500, fontSize: '0.65rem', display: 'flex', alignItems: 'center', gap: 0.25 }}>
+                            <WarningIcon sx={{ fontSize: 12, display: overdue ? 'inline' : 'none' }} />
+                            {new Date(task.dueDate).toLocaleDateString(getDateLocale())}
+                          </Typography>
                         )}
                       </Box>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        {task.assignee ? (
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Box sx={{ width: 24, height: 24, borderRadius: '50%', bgcolor: 'action.hover', border: '1px solid', borderColor: 'divider', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.55rem', fontWeight: 700 }}>
+                              {task.assignee.fullName?.charAt(0) || '?'}
+                            </Box>
+                            <Typography variant="caption" color="text.secondary">{task.assignee.fullName}</Typography>
+                          </Box>
+                        ) : <Box />}
+                        <Box sx={{ display: 'flex', gap: 0.5 }}>
+                          <IconButton size="small" onClick={(e) => { e.stopPropagation(); openEditDialog(task) }}><EditIcon sx={{ fontSize: 16 }} /></IconButton>
+                          <IconButton size="small" onClick={(e) => { e.stopPropagation(); setDeleteTask(task) }}><DeleteIcon sx={{ fontSize: 16 }} color="error" /></IconButton>
+                        </Box>
+                      </Box>
                     </Box>
-                  )
-                }}
-              />
-            )}
-          </Box>
-        </Box>
-      </Card>
+                  </Box>
+                </Box>
+              </Card>
+            )
+          })
+        )}
+      </Box>
 
       <FormModal
         open={dialogOpen}

@@ -64,7 +64,7 @@ async def handle_update_equipment_status(db: AsyncSession, action: ChatAction, u
         return {"error": "Equipment not found"}
     old_status = entity.status
     entity.status = new_status
-    entity.updated_at = utcnow()
+    entity.updated_at = func.now()
     db.add(AuditLog(
         project_id=project_id, user_id=user_id, entity_type="equipment",
         entity_id=entity.id, action="status_change",
@@ -85,7 +85,7 @@ async def handle_update_material_status(db: AsyncSession, action: ChatAction, us
         return {"error": "Material not found"}
     old_status = entity.status
     entity.status = new_status
-    entity.updated_at = utcnow()
+    entity.updated_at = func.now()
     db.add(AuditLog(
         project_id=project_id, user_id=user_id, entity_type="material",
         entity_id=entity.id, action="status_change",
@@ -106,9 +106,9 @@ async def handle_update_rfi_status(db: AsyncSession, action: ChatAction, user_id
         return {"error": "RFI not found"}
     old_status = entity.status
     entity.status = new_status
-    entity.updated_at = utcnow()
+    entity.updated_at = func.now()
     if new_status == "closed":
-        entity.closed_at = utcnow()
+        entity.closed_at = func.now()
     db.add(AuditLog(
         project_id=project_id, user_id=user_id, entity_type="rfi",
         entity_id=entity.id, action="status_change",
@@ -129,9 +129,9 @@ async def handle_update_inspection_status(db: AsyncSession, action: ChatAction, 
         return {"error": "Inspection not found"}
     old_status = entity.status
     entity.status = new_status
-    entity.updated_at = utcnow()
+    entity.updated_at = func.now()
     if new_status == "completed":
-        entity.completed_date = utcnow()
+        entity.completed_date = func.now()
     db.add(AuditLog(
         project_id=project_id, user_id=user_id, entity_type="inspection",
         entity_id=entity.id, action="status_change",
@@ -152,7 +152,7 @@ async def handle_update_meeting_status(db: AsyncSession, action: ChatAction, use
         return {"error": "Meeting not found"}
     old_status = entity.status
     entity.status = new_status
-    entity.updated_at = utcnow()
+    entity.updated_at = func.now()
     db.add(AuditLog(
         project_id=project_id, user_id=user_id, entity_type="meeting",
         entity_id=entity.id, action="status_change",
@@ -220,7 +220,8 @@ async def handle_create_meeting(db: AsyncSession, action: ChatAction, user_id: u
     params = action.parameters
     scheduled = params.get("scheduled_date")
     if scheduled:
-        scheduled = datetime.fromisoformat(scheduled)
+        dt = datetime.fromisoformat(scheduled)
+        scheduled = dt.replace(tzinfo=None) if dt.tzinfo else dt
     meeting = Meeting(
         project_id=project_id,
         title=params.get("title", ""),
@@ -244,7 +245,8 @@ async def handle_schedule_inspection(db: AsyncSession, action: ChatAction, user_
     params = action.parameters
     scheduled = params.get("scheduled_date")
     if scheduled:
-        scheduled = datetime.fromisoformat(scheduled)
+        dt = datetime.fromisoformat(scheduled)
+        scheduled = dt.replace(tzinfo=None) if dt.tzinfo else dt
     inspection = Inspection(
         project_id=project_id,
         consultant_type_id=uuid.UUID(params["consultant_type_id"]),
@@ -278,7 +280,7 @@ async def handle_approve_submission(db: AsyncSession, action: ChatAction, user_i
             return {"error": "Equipment submission not found"}
         old_status = submission.status
         submission.status = "approved"
-        submission.updated_at = utcnow()
+        submission.updated_at = func.now()
         db.add(EquipmentApprovalDecision(
             submission_id=submission.id,
             approver_id=user_id,
@@ -295,7 +297,7 @@ async def handle_approve_submission(db: AsyncSession, action: ChatAction, user_i
             return {"error": "Material submission not found"}
         old_status = submission.status
         submission.status = "approved"
-        submission.updated_at = utcnow()
+        submission.updated_at = func.now()
     else:
         return {"error": f"Unknown submission entity_type: {entity_type}"}
 
@@ -432,9 +434,9 @@ async def handle_update_defect_status(db: AsyncSession, action: ChatAction, user
         return {"error": "Defect not found"}
     old_status = entity.status
     entity.status = new_status
-    entity.updated_at = utcnow()
+    entity.updated_at = func.now()
     if new_status == "resolved":
-        entity.resolved_at = utcnow()
+        entity.resolved_at = func.now()
     db.add(AuditLog(
         project_id=project_id, user_id=user_id, entity_type="defect",
         entity_id=entity.id, action="status_change",

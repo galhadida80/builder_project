@@ -453,7 +453,7 @@ class RFIService:
         overdue_result = await self.db.execute(
             select(func.count(RFI.id)).where(
                 RFI.project_id == project_id,
-                RFI.due_date < utcnow(),
+                RFI.due_date < func.now(),
                 RFI.status.in_([RFIStatus.OPEN.value, RFIStatus.WAITING_RESPONSE.value])
             )
         )

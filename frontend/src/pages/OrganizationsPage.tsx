@@ -5,23 +5,24 @@ import { withMinDuration } from '../utils/async'
 import { organizationsApi } from '../api/organizations'
 import type { Organization } from '../types'
 import { useToast } from '../components/common/ToastProvider'
-import { PageHeader } from '../components/ui/Breadcrumbs'
 import { Button } from '../components/ui/Button'
-import { Card } from '../components/ui/Card'
 import { EmptyState } from '../components/ui/EmptyState'
-import { TextField } from '../components/ui/TextField'
+import { TextField, SearchField } from '../components/ui/TextField'
 import { FormModal } from '../components/ui/Modal'
-import { BusinessIcon, AddIcon, GroupIcon, FolderIcon } from '@/icons'
-import { Box, Typography, Skeleton, Chip } from '@/mui'
+import { BusinessIcon, AddIcon, GroupIcon, ApartmentIcon, ChevronLeftIcon, ChevronRightIcon } from '@/icons'
+import { Box, Typography, Skeleton, Chip, Fab, useTheme } from '@/mui'
 
 export default function OrganizationsPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const theme = useTheme()
+  const isRtl = theme.direction === 'rtl'
   const { showError, showSuccess } = useToast()
   const [loading, setLoading] = useState(true)
   const [organizations, setOrganizations] = useState<Organization[]>([])
   const [dialogOpen, setDialogOpen] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [search, setSearch] = useState('')
   const [formData, setFormData] = useState({ name: '', code: '', description: '' })
 
   useEffect(() => {
@@ -34,7 +35,7 @@ export default function OrganizationsPage() {
       const data = await organizationsApi.list()
       setOrganizations(data)
     } catch {
-      showError(t('organizations.failedToLoad', 'Failed to load organizations'))
+      showError(t('organizations.failedToLoad'))
     } finally {
       setLoading(false)
     }
@@ -60,139 +61,153 @@ export default function OrganizationsPage() {
         code: formData.code,
         description: formData.description || undefined,
       }))
-      showSuccess(t('organizations.createSuccess', 'Organization created'))
+      showSuccess(t('organizations.createSuccess'))
       setDialogOpen(false)
       setFormData({ name: '', code: '', description: '' })
       loadOrganizations()
     } catch {
-      showError(t('organizations.failedToCreate', 'Failed to create organization'))
+      showError(t('organizations.failedToCreate'))
     } finally {
       setSaving(false)
     }
   }
 
+  const filtered = organizations.filter(org =>
+    org.name.toLowerCase().includes(search.toLowerCase()) ||
+    org.code.toLowerCase().includes(search.toLowerCase())
+  )
+
+  const ChevronIcon = isRtl ? ChevronLeftIcon : ChevronRightIcon
+
   if (loading) {
     return (
-      <Box sx={{ p: { xs: 2, sm: 3 } }}>
-        <Skeleton variant="text" width={250} height={48} sx={{ mb: 1 }} />
-        <Skeleton variant="text" width={350} height={24} sx={{ mb: 4 }} />
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 2 }}>
-          {[...Array(6)].map((_, i) => (
-            <Skeleton key={i} variant="rounded" height={180} sx={{ borderRadius: 3 }} />
-          ))}
-        </Box>
+      <Box sx={{ p: { xs: 2, sm: 3 }, maxWidth: 600, mx: 'auto' }}>
+        <Skeleton variant="text" width={150} height={36} sx={{ mb: 2 }} />
+        <Skeleton variant="rounded" height={48} sx={{ borderRadius: 2, mb: 3 }} />
+        {[...Array(3)].map((_, i) => (
+          <Skeleton key={i} variant="rounded" height={100} sx={{ borderRadius: 3, mb: 2 }} />
+        ))}
       </Box>
     )
   }
 
   return (
-    <Box sx={{ p: { xs: 2, sm: 3 }, maxWidth: '100%', overflow: 'hidden' }}>
-      <PageHeader
-        title={t('organizations.title', 'Organizations')}
-        subtitle={t('organizations.subtitle', 'Manage your organizations and teams')}
-        breadcrumbs={[
-          { label: t('nav.dashboard', 'Dashboard'), href: '/dashboard' },
-          { label: t('organizations.title', 'Organizations') },
-        ]}
-        actions={
-          <Button variant="primary" icon={<AddIcon />} onClick={() => setDialogOpen(true)}>
-            {t('organizations.create', 'Create Organization')}
-          </Button>
-        }
-      />
+    <Box sx={{ maxWidth: 600, mx: 'auto', pb: 10 }}>
+      <Box sx={{
+        position: 'sticky', top: 0, zIndex: 20,
+        bgcolor: 'background.default', px: { xs: 2, sm: 3 }, py: 2,
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        borderBottom: 1, borderColor: 'divider',
+      }}>
+        <Typography variant="h6" fontWeight={700} letterSpacing='-0.02em'>
+          {t('organizations.title')}
+        </Typography>
+        <Fab size="small" color="primary" onClick={() => setDialogOpen(true)} sx={{ boxShadow: 3 }}>
+          <AddIcon />
+        </Fab>
+      </Box>
 
-      {organizations.length === 0 ? (
-        <Box sx={{ mt: 4 }}>
-          <EmptyState
-            variant="no-results"
-            title={t('organizations.noOrganizations', 'No organizations yet')}
-            description={t('organizations.noOrganizationsDescription', 'Create your first organization to get started')}
-            action={{ label: t('organizations.create', 'Create Organization'), onClick: () => setDialogOpen(true) }}
-          />
-        </Box>
-      ) : (
-        <Box
-          sx={{
-            display: 'grid',
-            gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(4, 1fr)' },
-            gap: 2,
-          }}
-        >
-          {organizations.map((org) => (
-            <Card key={org.id} hoverable onClick={() => navigate(`/organizations/${org.id}`)}>
-              <Box sx={{ p: 2 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1.5 }}>
-                  <Box
-                    sx={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: 2,
-                      bgcolor: 'primary.main',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0,
-                    }}
-                  >
-                    <BusinessIcon sx={{ color: 'white', fontSize: 22 }} />
-                  </Box>
-                  <Box sx={{ minWidth: 0, flex: 1 }}>
-                    <Typography variant="body2" fontWeight={600} noWrap>
-                      {org.name}
-                    </Typography>
-                    <Chip label={org.code} size="small" variant="outlined" sx={{ fontSize: '0.65rem', height: 20, mt: 0.25 }} />
-                  </Box>
+      <Box sx={{ px: { xs: 2, sm: 3 }, py: 2 }}>
+        <SearchField
+          placeholder={t('organizations.searchPlaceholder', 'Search organization...')}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </Box>
+
+      <Box sx={{ px: { xs: 2, sm: 3 } }}>
+        {filtered.length === 0 ? (
+          <Box sx={{ mt: 4 }}>
+            <EmptyState
+              variant="no-results"
+              title={t('organizations.noOrganizations')}
+              description={t('organizations.noOrganizationsDescription')}
+              action={{ label: t('organizations.create'), onClick: () => setDialogOpen(true) }}
+            />
+          </Box>
+        ) : (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {filtered.map((org) => (
+              <Box
+                key={org.id}
+                onClick={() => navigate(`/organizations/${org.id}`)}
+                sx={{
+                  bgcolor: 'background.paper',
+                  border: 1, borderColor: 'divider', borderRadius: 3,
+                  p: 2, display: 'flex', alignItems: 'flex-start', gap: 2,
+                  cursor: 'pointer', transition: 'background-color 150ms',
+                  '&:hover': { bgcolor: 'action.hover' },
+                  '&:active': { bgcolor: 'action.selected' },
+                }}
+              >
+                <Box sx={{
+                  width: 56, height: 56, borderRadius: '50%',
+                  bgcolor: 'primary.main', opacity: 0.1,
+                  position: 'absolute',
+                }} />
+                <Box sx={{
+                  width: 56, height: 56, borderRadius: '50%',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  flexShrink: 0, position: 'relative',
+                  border: 1, borderColor: 'primary.main',
+                  bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(242,140,38,0.1)' : 'rgba(242,140,38,0.08)',
+                }}>
+                  <BusinessIcon sx={{ color: 'primary.main', fontSize: 28 }} />
                 </Box>
 
-                {org.description && (
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    sx={{
-                      display: '-webkit-box',
-                      overflow: 'hidden',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
-                      lineHeight: 1.4,
-                      mb: 1.5,
-                    }}
-                  >
-                    {org.description}
-                  </Typography>
-                )}
-
-                <Box sx={{ display: 'flex', gap: 2, mt: 'auto' }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                    <GroupIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-                    <Typography variant="caption" color="text.secondary">
-                      {org.memberCount} {t('organizations.members', 'members')}
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
+                    <Typography variant="body1" fontWeight={700} noWrap>
+                      {org.name}
                     </Typography>
+                    <ChevronIcon sx={{ color: 'text.disabled', fontSize: 20 }} />
                   </Box>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                    <FolderIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-                    <Typography variant="caption" color="text.secondary">
-                      {t('organizations.projects', 'Projects')}
-                    </Typography>
+
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, mb: 1.5 }}>
+                    <Chip
+                      label={org.code}
+                      size="small"
+                      sx={{
+                        height: 22, fontSize: '0.65rem', fontWeight: 700,
+                        bgcolor: 'primary.main', color: 'primary.contrastText',
+                        textTransform: 'uppercase',
+                      }}
+                    />
+                  </Box>
+
+                  <Box sx={{ display: 'flex', gap: 3 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <ApartmentIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
+                      <Typography variant="caption" color="text.secondary">
+                        {t('organizations.projects')}
+                      </Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <GroupIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
+                      <Typography variant="caption" color="text.secondary">
+                        {org.memberCount} {t('organizations.members')}
+                      </Typography>
+                    </Box>
                   </Box>
                 </Box>
               </Box>
-            </Card>
-          ))}
-        </Box>
-      )}
+            ))}
+          </Box>
+        )}
+      </Box>
 
       <FormModal
         open={dialogOpen}
         onClose={() => { setDialogOpen(false); setFormData({ name: '', code: '', description: '' }) }}
         onSubmit={handleCreate}
-        title={t('organizations.create', 'Create Organization')}
-        submitLabel={t('organizations.create', 'Create Organization')}
+        title={t('organizations.create')}
+        submitLabel={t('organizations.create')}
         loading={saving}
       >
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
           <TextField
             fullWidth
-            label={t('organizations.name', 'Name')}
+            label={t('organizations.name')}
             required
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -200,17 +215,17 @@ export default function OrganizationsPage() {
           />
           <TextField
             fullWidth
-            label={t('organizations.code', 'Code')}
+            label={t('organizations.code')}
             required
             value={formData.code}
             onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, '') })}
             inputProps={{ maxLength: 20 }}
             error={formData.code.length > 0 && !/^[A-Z0-9-]+$/.test(formData.code)}
-            helperText={t('organizations.codeHint', 'Unique identifier (e.g., ACME-CORP)')}
+            helperText={t('organizations.codeHint')}
           />
           <TextField
             fullWidth
-            label={t('organizations.description', 'Description')}
+            label={t('organizations.description')}
             multiline
             rows={3}
             value={formData.description}

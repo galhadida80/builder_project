@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { EmptyState } from '../components/ui/EmptyState'
 
@@ -8,8 +7,8 @@ import type { Inspection } from '../types'
 import { inspectionsApi } from '../api/inspections'
 import { getDateLocale } from '../utils/dateLocale'
 import { useProject } from '../contexts/ProjectContext'
-import { CheckCircleIcon, CameraAltIcon, ReportProblemIcon, LocationOnIcon, AccessTimeIcon, AssignmentIcon, SignalWifiOffIcon } from '@/icons'
-import { Box, Typography, Skeleton, Chip, List, ListItem, ListItemText } from '@/mui'
+import { EngineeringIcon, NotificationsIcon, CalendarTodayIcon, LocationOnIcon, AssignmentIcon, SignalWifiOffIcon, TrendingUpIcon, WarningIcon } from '@/icons'
+import { Box, Typography, Skeleton, Chip } from '@/mui'
 
 export default function InspectorDashboard() {
   const { t } = useTranslation()
@@ -46,7 +45,6 @@ export default function InspectorDashboard() {
       setLoading(true)
       const allInspections = await inspectionsApi.getProjectInspections(projectId)
 
-      // Filter to show only today's inspections
       const today = new Date()
       today.setHours(0, 0, 0, 0)
       const tomorrow = new Date(today)
@@ -58,23 +56,11 @@ export default function InspectorDashboard() {
       })
 
       setInspections(todayInspections)
-    } catch (error) {
+    } catch {
       setInspections([])
     } finally {
       setLoading(false)
     }
-  }
-
-  const handleStartInspection = () => {
-    // Placeholder for start inspection action
-  }
-
-  const handleTakePhoto = () => {
-    // Placeholder for take photo action
-  }
-
-  const handleReportIssue = () => {
-    // Placeholder for report issue action
   }
 
   const formatTime = (dateString: string) => {
@@ -88,293 +74,189 @@ export default function InspectorDashboard() {
 
   if (loading) {
     return (
-      <>
-        <Box
-          sx={{
-            maxWidth: '428px',
-            margin: '0 auto',
-            minHeight: '100dvh',
-            bgcolor: 'background.default',
-            px: { xs: 2, sm: 3 },
-            py: { xs: 2, sm: 2.5 },
-            pb: { xs: 10, sm: 12 },
-          }}
-        >
-          {/* Header skeleton */}
-          <Box sx={{ mb: 3 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
-              <Skeleton variant="text" width={150} height={36} />
-              <Skeleton variant="rounded" width={80} height={24} sx={{ borderRadius: '12px' }} />
-            </Box>
-            <Skeleton variant="text" width={180} height={20} />
-          </Box>
-          {/* Quick action buttons skeleton */}
-          <Box sx={{ mb: 4 }}>
-            <Skeleton variant="rounded" height={56} sx={{ mb: 1.5, borderRadius: '8px' }} />
-            <Skeleton variant="rounded" height={56} sx={{ mb: 1.5, borderRadius: '8px' }} />
-            <Skeleton variant="rounded" height={56} sx={{ borderRadius: '8px' }} />
-          </Box>
-          {/* Schedule section skeleton */}
-          <Skeleton variant="text" width={150} height={28} sx={{ mb: 2 }} />
-          <Skeleton variant="rounded" height={130} sx={{ mb: 2, borderRadius: '12px' }} />
-          <Skeleton variant="rounded" height={130} sx={{ borderRadius: '12px' }} />
+      <Box sx={{ maxWidth: 428, mx: 'auto', px: 2, py: 2, pb: 10 }}>
+        <Skeleton variant="text" width={200} height={36} sx={{ mb: 1 }} />
+        <Skeleton variant="text" width={160} height={20} sx={{ mb: 3 }} />
+        <Skeleton variant="rounded" height={220} sx={{ borderRadius: 3, mb: 3 }} />
+        <Box sx={{ display: 'flex', gap: 1.5, mb: 3 }}>
+          {[...Array(3)].map((_, i) => (
+            <Skeleton key={i} variant="rounded" height={72} sx={{ flex: 1, borderRadius: 3 }} />
+          ))}
         </Box>
-      </>
+      </Box>
     )
   }
 
   return (
-    <>
-      <Box
-        sx={{
-          maxWidth: '428px',
-          margin: '0 auto',
-          minHeight: '100dvh',
-          bgcolor: 'background.default',
-          display: 'flex',
-          flexDirection: 'column',
-          px: { xs: 2, sm: 3 },
-          py: { xs: 2, sm: 2.5 },
-          pb: { xs: 10, sm: 12 },
-        }}
-      >
-        {/* Header */}
-        <Box sx={{ mb: 3 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
-            <Typography
-              variant="h5"
-              sx={{
-                fontWeight: 700,
-                color: 'text.primary',
-                fontSize: { xs: '1.5rem', sm: '1.75rem' },
-              }}
-            >
-              {t('inspector.title')}
-            </Typography>
-            {isOffline && (
-              <Chip
-                icon={<SignalWifiOffIcon sx={{ fontSize: 14 }} />}
-                label={t('inspector.offline')}
-                size="small"
-                sx={{
-                  bgcolor: 'error.main',
-                  color: 'white',
-                  fontWeight: 600,
-                  fontSize: '0.7rem',
-                  height: 24,
-                  px: 1,
-                  '& .MuiChip-icon': {
-                    color: 'white',
-                    marginLeft: '4px',
-                  },
-                  '& .MuiChip-label': {
-                    px: '6px',
-                  },
-                }}
-              />
-            )}
+    <Box sx={{ maxWidth: 428, mx: 'auto', pb: 10, display: 'flex', flexDirection: 'column' }}>
+      <Box sx={{
+        position: 'sticky', top: 0, zIndex: 20,
+        bgcolor: 'background.default', px: 2, py: 1.5,
+        borderBottom: 1, borderColor: 'divider',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <EngineeringIcon sx={{ color: 'primary.main', fontSize: 24 }} />
+          <Typography variant="h6" fontWeight={700} letterSpacing='-0.02em'>
+            {t('inspector.title')}
+          </Typography>
+        </Box>
+        {isOffline ? (
+          <Chip
+            icon={<SignalWifiOffIcon sx={{ fontSize: 14 }} />}
+            label={t('inspector.offline')}
+            size="small"
+            sx={{ bgcolor: 'error.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', height: 24 }}
+          />
+        ) : (
+          <Box sx={{ position: 'relative', p: 1 }}>
+            <NotificationsIcon sx={{ color: 'text.secondary', fontSize: 22 }} />
+            <Box sx={{ position: 'absolute', top: 8, insetInlineEnd: 8, width: 8, height: 8, bgcolor: 'primary.main', borderRadius: '50%' }} />
           </Box>
-          <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
-            {new Date().toLocaleDateString(getDateLocale(), {
-              weekday: 'long',
-              month: 'long',
-              day: 'numeric',
-            })}
-          </Typography>
-        </Box>
+        )}
+      </Box>
 
-        {/* Quick Action Buttons */}
-        <Box sx={{ mb: 4 }}>
-          <Button
-            variant="success"
-            fullWidth
-            size="large"
-            icon={<CheckCircleIcon sx={{ fontSize: 20 }} />}
-            onClick={handleStartInspection}
-            sx={{
-              mb: 1.5,
-              py: 1.75,
-              minHeight: 56,
-              fontSize: '0.95rem',
-              fontWeight: 600,
-              letterSpacing: '0.5px',
-            }}
-          >
-            {t('inspector.startInspection')}
-          </Button>
-          <Button
-            variant="primary"
-            fullWidth
-            size="large"
-            icon={<CameraAltIcon sx={{ fontSize: 20 }} />}
-            onClick={handleTakePhoto}
-            sx={{
-              mb: 1.5,
-              py: 1.75,
-              minHeight: 56,
-              fontSize: '0.95rem',
-              fontWeight: 600,
-              letterSpacing: '0.5px',
-            }}
-          >
-            {t('inspector.takePhoto')}
-          </Button>
-          <Button
-            variant="danger"
-            fullWidth
-            size="large"
-            icon={<ReportProblemIcon sx={{ fontSize: 20 }} />}
-            onClick={handleReportIssue}
-            sx={{
-              py: 1.75,
-              minHeight: 56,
-              fontSize: '0.95rem',
-              fontWeight: 600,
-              letterSpacing: '0.5px',
-            }}
-          >
-            {t('inspector.reportIssue')}
-          </Button>
-        </Box>
+      <Box sx={{ px: 2, py: 3 }}>
+        <Typography variant="h5" fontWeight={700}>
+          {t('inspector.goodMorning', 'Good morning')}
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+          {new Date().toLocaleDateString(getDateLocale(), { weekday: 'long', month: 'long', day: 'numeric' })}
+        </Typography>
+      </Box>
 
-        {/* Today's Schedule */}
-        <Box sx={{ mb: 2 }}>
-          <Typography
-            variant="h6"
-            sx={{
-              fontWeight: 600,
-              color: 'text.primary',
-              mb: 2,
-              fontSize: { xs: '1.125rem', sm: '1.25rem' },
-            }}
-          >
-            {t('inspector.todaySchedule')}
-          </Typography>
+      <Box sx={{ px: 2, mb: 3 }}>
+        <Box sx={{
+          bgcolor: 'background.paper', borderRadius: 3, overflow: 'hidden',
+          border: 1, borderColor: 'divider',
+        }}>
+          <Box sx={{
+            p: 2, borderBottom: 1, borderColor: 'divider',
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          }}>
+            <Box>
+              <Typography variant="body1" fontWeight={700}>
+                {t('inspector.todaySchedule')}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                {inspections.length} {t('inspector.scheduledInspections', 'scheduled inspections')}
+              </Typography>
+            </Box>
+            <CalendarTodayIcon sx={{ color: 'primary.main', fontSize: 22 }} />
+          </Box>
 
           {inspections.length === 0 ? (
-            <Card>
-              <Box sx={{ p: 3, textAlign: 'center' }}>
-                <EmptyState
-                  icon={<AssignmentIcon sx={{ fontSize: 48, color: 'text.secondary' }} />}
-                  title={t('inspector.noInspections')}
-                  description={t('inspector.noInspectionsDescription')}
-                />
-              </Box>
-            </Card>
+            <Box sx={{ p: 3 }}>
+              <EmptyState
+                icon={<AssignmentIcon sx={{ fontSize: 48, color: 'text.secondary' }} />}
+                title={t('inspector.noInspections')}
+                description={t('inspector.noInspectionsDescription')}
+              />
+            </Box>
           ) : (
-            <List disablePadding sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              {inspections.map((inspection) => (
-                <Card key={inspection.id}>
-                  <ListItem
+            <Box>
+              {inspections.map((inspection, idx) => {
+                const isFirst = idx === 0
+                return (
+                  <Box
+                    key={inspection.id}
                     sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'flex-start',
-                      px: { xs: 2, sm: 2.5 },
-                      py: 2,
+                      p: 2,
+                      borderBottom: idx < inspections.length - 1 ? 1 : 0,
+                      borderColor: 'divider',
+                      ...(isFirst && {
+                        bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(242,140,38,0.05)' : 'rgba(242,140,38,0.03)',
+                        borderInlineStart: 4, borderInlineStartColor: 'primary.main',
+                      }),
                     }}
                   >
-                    <Box sx={{ display: 'flex', alignItems: 'flex-start', width: '100%', mb: 1.5 }}>
-                      <Box
-                        sx={{
-                          width: 40,
-                          height: 40,
-                          borderRadius: 2,
-                          bgcolor: 'primary.light',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          flexShrink: 0,
-                          mr: 1.5,
-                        }}
-                      >
-                        <AssignmentIcon sx={{ fontSize: 20, color: 'primary.main' }} />
-                      </Box>
-                      <Box sx={{ flex: 1, minWidth: 0 }}>
-                        <Typography
-                          variant="body1"
-                          fontWeight={600}
-                          sx={{
-                            mb: 0.5,
-                            fontSize: '1rem',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                          }}
-                        >
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                      <Box>
+                        <Typography variant="caption" color={isFirst ? 'primary.main' : 'text.secondary'} fontWeight={500}>
+                          {formatTime(inspection.scheduledDate)}
+                          {inspection.currentStage && ` · ${inspection.currentStage}`}
+                        </Typography>
+                        <Typography variant="body2" fontWeight={600} sx={{ mt: 0.25 }}>
                           {inspection.consultantType?.name || t('inspector.inspection')}
                         </Typography>
-                        {inspection.consultantType?.nameHe && (
-                          <Typography
-                            variant="caption"
-                            color="text.secondary"
-                            dir="rtl"
-                            sx={{
-                              display: 'block',
-                              fontSize: '0.75rem',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap',
-                            }}
-                          >
-                            {inspection.consultantType.nameHe}
-                          </Typography>
-                        )}
                       </Box>
-                    </Box>
-
-                    <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 1 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <AccessTimeIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
-                        <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
-                          {formatTime(inspection.scheduledDate)}
-                        </Typography>
-                      </Box>
-                      {inspection.currentStage && (
-                        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
-                          <LocationOnIcon sx={{ fontSize: 18, color: 'text.secondary', flexShrink: 0, mt: 0.25 }} />
-                          <Typography
-                            variant="body2"
-                            color="text.secondary"
-                            sx={{
-                              fontSize: '0.875rem',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              display: '-webkit-box',
-                              WebkitLineClamp: 2,
-                              WebkitBoxOrient: 'vertical',
-                            }}
-                          >
-                            {inspection.currentStage}
-                          </Typography>
-                        </Box>
+                      {isFirst ? (
+                        <Chip
+                          label={t('inspector.upcoming', 'Upcoming')}
+                          size="small"
+                          sx={{
+                            bgcolor: 'primary.main', color: 'primary.contrastText',
+                            fontWeight: 700, fontSize: '0.6rem', height: 22,
+                          }}
+                        />
+                      ) : (
+                        <Chip
+                          label={t('inspector.scheduled', 'Scheduled')}
+                          size="small"
+                          sx={{ fontWeight: 700, fontSize: '0.6rem', height: 22, bgcolor: 'action.hover' }}
+                        />
                       )}
                     </Box>
-
-                    {inspection.notes && (
-                      <Typography
-                        variant="caption"
-                        color="text.secondary"
-                        sx={{
-                          mt: 1.5,
-                          fontSize: '0.75rem',
-                          display: '-webkit-box',
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: 'vertical',
-                          overflow: 'hidden',
-                          lineHeight: 1.5,
-                        }}
-                      >
-                        {inspection.notes}
-                      </Typography>
+                    {isFirst && (
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
+                        {inspection.currentStage && (
+                          <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                            <LocationOnIcon sx={{ fontSize: 14 }} />
+                            {inspection.currentStage}
+                          </Typography>
+                        )}
+                        <Button variant="primary" size="small" sx={{ fontWeight: 700 }}>
+                          {t('inspector.startInspection')}
+                        </Button>
+                      </Box>
                     )}
-                  </ListItem>
-                </Card>
-              ))}
-            </List>
+                  </Box>
+                )
+              })}
+            </Box>
           )}
         </Box>
       </Box>
-    </>
+
+      <Box sx={{ display: 'flex', gap: 1.5, px: 2, mb: 3, overflowX: 'auto' }}>
+        <Box sx={{
+          minWidth: 130, flexShrink: 0, bgcolor: 'background.paper', p: 2, borderRadius: 3,
+          border: 1, borderColor: 'divider',
+        }}>
+          <Typography variant="caption" color="text.secondary" fontSize="0.65rem" fontWeight={500}>
+            {t('inspector.monthInspections', 'This month')}
+          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 0.5, mt: 0.5 }}>
+            <Typography variant="h5" fontWeight={700} lineHeight={1}>
+              {inspections.length}
+            </Typography>
+            <TrendingUpIcon sx={{ color: 'success.main', fontSize: 16 }} />
+          </Box>
+        </Box>
+        <Box sx={{
+          minWidth: 130, flexShrink: 0, bgcolor: 'background.paper', p: 2, borderRadius: 3,
+          border: 1, borderColor: 'divider',
+        }}>
+          <Typography variant="caption" color="text.secondary" fontSize="0.65rem" fontWeight={500}>
+            {t('inspector.defectsFound', 'Defects found')}
+          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 0.5, mt: 0.5 }}>
+            <Typography variant="h5" fontWeight={700} lineHeight={1}>0</Typography>
+            <WarningIcon sx={{ color: 'warning.main', fontSize: 16 }} />
+          </Box>
+        </Box>
+        <Box sx={{
+          minWidth: 130, flexShrink: 0, bgcolor: 'background.paper', p: 2, borderRadius: 3,
+          border: 1, borderColor: 'divider',
+        }}>
+          <Typography variant="caption" color="text.secondary" fontSize="0.65rem" fontWeight={500}>
+            {t('inspector.complianceRate', 'Compliance')}
+          </Typography>
+          <Typography variant="h5" fontWeight={700} lineHeight={1} color="primary.main" sx={{ mt: 0.5 }}>
+            --
+          </Typography>
+        </Box>
+      </Box>
+    </Box>
   )
 }

@@ -83,21 +83,20 @@ export default function AnalyticsDashboard() {
 
   if (loading) {
     return (
-      <Box sx={{ p: 3 }}>
-        <Skeleton variant="text" width={300} height={48} sx={{ mb: 1 }} />
-        <Skeleton variant="text" width={400} height={24} sx={{ mb: 4 }} />
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 3, mb: 3 }}>
+      <Box sx={{ maxWidth: 600, mx: 'auto', p: { xs: 2, sm: 3 } }}>
+        <Skeleton variant="rounded" height={48} sx={{ borderRadius: 2, mb: 3 }} />
+        <Box sx={{ display: 'flex', gap: 1, mb: 3 }}>
           {[...Array(4)].map((_, i) => (
-            <Skeleton key={i} variant="rounded" height={140} sx={{ borderRadius: 3 }} />
+            <Skeleton key={i} variant="rounded" height={36} width={70} sx={{ borderRadius: 4 }} />
           ))}
         </Box>
-        <Box sx={{ display: 'grid', gridTemplateColumns: '1fr', gap: 3, mb: 3 }}>
-          <Skeleton variant="rounded" height={400} sx={{ borderRadius: 3 }} />
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1.5, mb: 3 }}>
+          {[...Array(4)].map((_, i) => (
+            <Skeleton key={i} variant="rounded" height={100} sx={{ borderRadius: 3 }} />
+          ))}
         </Box>
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' }, gap: 3 }}>
-          <Skeleton variant="rounded" height={400} sx={{ borderRadius: 3 }} />
-          <Skeleton variant="rounded" height={400} sx={{ borderRadius: 3 }} />
-        </Box>
+        <Skeleton variant="rounded" height={250} sx={{ borderRadius: 3, mb: 2 }} />
+        <Skeleton variant="rounded" height={250} sx={{ borderRadius: 3 }} />
       </Box>
     )
   }
@@ -105,31 +104,24 @@ export default function AnalyticsDashboard() {
   const trendsChartData = getTrendsChartData()
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 2 }}>
-        <Box>
-          <Typography
-            variant="h4"
-            sx={{
-              fontWeight: 700,
-              color: 'text.primary',
-              mb: 0.5,
-            }}
-          >
+    <Box sx={{ maxWidth: 600, mx: 'auto', pb: 10 }}>
+      <Box sx={{
+        position: 'sticky', top: 0, zIndex: 20,
+        bgcolor: 'background.default', px: { xs: 2, sm: 3 }, py: 2,
+        borderBottom: 1, borderColor: 'divider',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <AssessmentIcon sx={{ color: 'primary.main', fontSize: 24 }} />
+          <Typography variant="h6" fontWeight={700} letterSpacing='-0.02em'>
             {t('analytics.title')}
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            {t('analytics.subtitle')}
           </Typography>
         </Box>
         <ExportButton />
       </Box>
 
       <Box id="dashboard-content">
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-            {t('analytics.dateRange')}
-          </Typography>
+        <Box sx={{ px: { xs: 2, sm: 3 }, pt: 2 }}>
           <DateRangeSelector
             startDate={startDate}
             endDate={endDate}
@@ -137,93 +129,121 @@ export default function AnalyticsDashboard() {
           />
         </Box>
 
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-            {t('analytics.keyMetrics')}
-          </Typography>
-          <Grid container spacing={3}>
-            <Grid item xs={12} sm={6} md={3}>
-              <AnalyticsKPICard
-                title={t('analytics.totalProjects')}
-                value={metricsData?.totalProjects ?? 0}
-                trend={metricsData?.trends?.totalProjects}
-                trendLabel={t('analytics.vsLastPeriod')}
-                icon={<AssessmentIcon />}
-                color="primary"
-                loading={loading}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <AnalyticsKPICard
-                title={t('analytics.activeInspections')}
-                value={metricsData?.activeInspections ?? 0}
-                trend={metricsData?.trends?.activeInspections}
-                trendLabel={t('analytics.vsLastPeriod')}
-                icon={<CheckCircleIcon />}
-                color="success"
-                loading={loading}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <AnalyticsKPICard
-                title={t('analytics.pendingRFIs')}
-                value={metricsData?.pendingRFIs ?? 0}
-                trend={metricsData?.trends?.pendingRFIs}
-                trendLabel={t('analytics.vsLastPeriod')}
-                icon={<PendingActionsIcon />}
-                color="warning"
-                loading={loading}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <AnalyticsKPICard
-                title={t('analytics.approvalRate')}
-                value={metricsData?.approvalRate ? `${metricsData.approvalRate.toFixed(1)}%` : '0%'}
-                trend={metricsData?.trends?.approvalRate}
-                trendLabel={t('analytics.vsLastPeriod')}
-                icon={<TrendingUpIcon />}
-                color="info"
-                loading={loading}
-              />
-            </Grid>
-          </Grid>
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1.5, px: { xs: 2, sm: 3 }, py: 3 }}>
+          <Box sx={{
+            bgcolor: 'background.paper', border: 1, borderColor: 'divider', p: 2, borderRadius: 3,
+            display: 'flex', flexDirection: 'column', gap: 1.5,
+          }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <AssessmentIcon sx={{ color: 'primary.main', fontSize: 20 }} />
+              {metricsData?.trends?.totalProjects !== undefined && (
+                <Typography variant="caption" fontWeight={700} color="success.main">
+                  +{metricsData.trends.totalProjects}
+                </Typography>
+              )}
+            </Box>
+            <Box>
+              <Typography variant="h4" fontWeight={700} lineHeight={1}>
+                {metricsData?.totalProjects ?? 0}
+              </Typography>
+              <Typography variant="caption" color="text.secondary" fontSize="0.65rem" sx={{ mt: 0.5 }}>
+                {t('analytics.totalProjects')}
+              </Typography>
+            </Box>
+          </Box>
+
+          <Box sx={{
+            bgcolor: 'background.paper', border: 1, borderColor: 'divider', p: 2, borderRadius: 3,
+            display: 'flex', flexDirection: 'column', gap: 1.5,
+          }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <CheckCircleIcon sx={{ color: 'primary.main', fontSize: 20 }} />
+              {metricsData?.trends?.activeInspections !== undefined && (
+                <Typography variant="caption" fontWeight={700} color="success.main">
+                  {metricsData.trends.activeInspections}%
+                </Typography>
+              )}
+            </Box>
+            <Box>
+              <Typography variant="h4" fontWeight={700} lineHeight={1}>
+                {metricsData?.activeInspections ?? 0}
+              </Typography>
+              <Typography variant="caption" color="text.secondary" fontSize="0.65rem" sx={{ mt: 0.5 }}>
+                {t('analytics.activeInspections')}
+              </Typography>
+            </Box>
+          </Box>
+
+          <Box sx={{
+            bgcolor: 'background.paper', border: 1, borderColor: 'divider', p: 2, borderRadius: 3,
+            display: 'flex', flexDirection: 'column', gap: 1.5,
+          }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <PendingActionsIcon sx={{ color: 'primary.main', fontSize: 20 }} />
+              {metricsData?.trends?.pendingRFIs !== undefined && (
+                <Typography variant="caption" fontWeight={700} color="primary.main">
+                  {metricsData.trends.pendingRFIs}%
+                </Typography>
+              )}
+            </Box>
+            <Box>
+              <Typography variant="h4" fontWeight={700} lineHeight={1}>
+                {metricsData?.pendingRFIs ?? 0}
+              </Typography>
+              <Typography variant="caption" color="text.secondary" fontSize="0.65rem" sx={{ mt: 0.5 }}>
+                {t('analytics.pendingRFIs')}
+              </Typography>
+            </Box>
+          </Box>
+
+          <Box sx={{
+            bgcolor: 'background.paper', border: 1, borderColor: 'divider', p: 2, borderRadius: 3,
+            display: 'flex', flexDirection: 'column', gap: 1.5,
+          }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <TrendingUpIcon sx={{ color: 'primary.main', fontSize: 20 }} />
+              {metricsData?.trends?.approvalRate !== undefined && (
+                <Typography variant="caption" fontWeight={700} color="success.main">
+                  {t('analytics.ok', 'OK')}
+                </Typography>
+              )}
+            </Box>
+            <Box>
+              <Typography variant="h4" fontWeight={700} lineHeight={1}>
+                {metricsData?.approvalRate ? `${metricsData.approvalRate.toFixed(0)}%` : '0%'}
+              </Typography>
+              <Typography variant="caption" color="text.secondary" fontSize="0.65rem" sx={{ mt: 0.5 }}>
+                {t('analytics.approvalRate')}
+              </Typography>
+            </Box>
+          </Box>
         </Box>
 
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-            {t('analytics.metricsOverTime')}
-          </Typography>
-          <Grid container spacing={3}>
+        <Box sx={{ px: { xs: 2, sm: 3 }, mb: 3 }}>
+          <ProjectMetricsChart
+            title={t('analytics.inspectionsAndRfis')}
+            data={trendsChartData.data}
+            xAxisLabels={trendsChartData.xAxisLabels}
+            height={250}
+            loading={loading}
+          />
+        </Box>
+
+        <Box sx={{ px: { xs: 2, sm: 3 }, mb: 3 }}>
+          <Grid container spacing={2}>
             <Grid item xs={12}>
-              <ProjectMetricsChart
-                title={t('analytics.inspectionsAndRfis')}
-                data={trendsChartData.data}
-                xAxisLabels={trendsChartData.xAxisLabels}
-                height={350}
-                loading={loading}
-              />
-            </Grid>
-          </Grid>
-        </Box>
-
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-            {t('analytics.distributionAnalysis')}
-          </Typography>
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
               <DistributionChart
                 title={t('analytics.rfiStatus')}
                 data={distributionsData?.rfiStatus ?? []}
-                height={350}
+                height={280}
                 loading={loading}
               />
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12}>
               <DistributionChart
                 title={t('analytics.equipmentStatus')}
                 data={distributionsData?.equipmentStatus ?? []}
-                height={350}
+                height={280}
                 innerRadius={60}
                 loading={loading}
               />
@@ -231,8 +251,8 @@ export default function AnalyticsDashboard() {
           </Grid>
         </Box>
 
-        <Box sx={{ mt: 3 }}>
-          <Typography variant="body2" color="text.secondary">
+        <Box sx={{ px: { xs: 2, sm: 3 }, pb: 2 }}>
+          <Typography variant="caption" color="text.secondary">
             {t('analytics.selectedRange')}: {startDate?.format('MMM DD, YYYY')} - {endDate?.format('MMM DD, YYYY')}
           </Typography>
         </Box>

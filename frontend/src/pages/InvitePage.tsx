@@ -4,8 +4,8 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '../components/ui/Button'
 import { useAuth } from '../contexts/AuthContext'
 import { invitationsApi, InvitationValidation } from '../api/invitations'
-import { ConstructionIcon, GroupAddIcon } from '@/icons'
-import { Box, Typography, Alert, CircularProgress, Card, CardContent, Chip } from '@/mui'
+import { ConstructionIcon, EmailIcon } from '@/icons'
+import { Box, Typography, Alert, CircularProgress, Chip } from '@/mui'
 
 export default function InvitePage() {
   const { t } = useTranslation()
@@ -52,7 +52,7 @@ export default function InvitePage() {
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100dvh' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100dvh', bgcolor: 'background.default' }}>
         <CircularProgress />
       </Box>
     )
@@ -63,48 +63,128 @@ export default function InvitePage() {
       sx={{
         minHeight: '100dvh',
         display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+        flexDirection: 'column',
         bgcolor: 'background.default',
-        p: 3,
       }}
     >
-      <Card sx={{ maxWidth: 480, width: '100%' }}>
-        <CardContent sx={{ p: 4, textAlign: 'center' }}>
-          <Box sx={{ mb: 3 }}>
+      {/* Header */}
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          py: 4,
+          gap: 1,
+        }}
+      >
+        <Box
+          sx={{
+            bgcolor: 'primary.main',
+            p: 1,
+            borderRadius: 2,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'primary.contrastText',
+          }}
+        >
+          <ConstructionIcon sx={{ fontSize: 28 }} />
+        </Box>
+        <Typography sx={{ fontWeight: 700, fontSize: '1.25rem', letterSpacing: '-0.01em', color: 'text.primary' }}>
+          BuilderOps
+        </Typography>
+      </Box>
+
+      {/* Main content */}
+      <Box sx={{ flex: 1, px: { xs: 2.5, sm: 4 }, pb: 5, maxWidth: 480, mx: 'auto', width: '100%' }}>
+        {/* Invitation Card */}
+        <Box
+          sx={{
+            bgcolor: 'background.paper',
+            borderRadius: 3,
+            border: '1px solid',
+            borderColor: 'divider',
+            p: 3,
+            boxShadow: (theme) => theme.palette.mode === 'dark'
+              ? '0 8px 32px rgba(0,0,0,0.4)'
+              : '0 8px 32px rgba(0,0,0,0.08)',
+            mb: 3,
+          }}
+        >
+          {/* Icon + Title */}
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', mb: 3 }}>
             <Box
               sx={{
-                width: 56, height: 56, borderRadius: 2, bgcolor: 'primary.main',
-                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                color: 'white', mb: 2,
+                width: 48,
+                height: 48,
+                borderRadius: '50%',
+                bgcolor: (theme) => `${theme.palette.primary.main}1A`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                mb: 2,
               }}
             >
-              <GroupAddIcon sx={{ fontSize: 28 }} />
+              <EmailIcon sx={{ fontSize: 24, color: 'primary.main' }} />
             </Box>
-            <Typography variant="h5" fontWeight={700}>
+            <Typography sx={{ fontSize: '1.5rem', fontWeight: 700, color: 'text.primary', mb: 0.5 }}>
               {t('invite.title')}
             </Typography>
+            {error && !invitation && (
+              <Typography variant="body2" color="text.secondary">
+                {error}
+              </Typography>
+            )}
           </Box>
 
-          {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-          {success && <Alert severity="success" sx={{ mb: 2 }}>{t('invite.accepted')}</Alert>}
+          {error && invitation && <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>{error}</Alert>}
+          {success && <Alert severity="success" sx={{ mb: 2, borderRadius: 2 }}>{t('invite.accepted')}</Alert>}
 
           {invitation && !success && (
-            <Box>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
-                <ConstructionIcon color="primary" />
-                <Typography variant="h6">{invitation.projectName}</Typography>
+            <>
+              {/* Project details nested card */}
+              <Box
+                sx={{
+                  bgcolor: (theme) => theme.palette.mode === 'dark'
+                    ? 'rgba(15,23,42,0.5)'
+                    : 'grey.50',
+                  borderRadius: 2,
+                  p: 2.5,
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  mb: 3,
+                }}
+              >
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                      <ConstructionIcon sx={{ fontSize: 20, color: 'primary.main' }} />
+                      <Typography sx={{ fontWeight: 700, fontSize: '1.1rem', color: 'text.primary' }}>
+                        {invitation.projectName}
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Chip
+                    label={t(`roles.${invitation.role}`, { defaultValue: invitation.role.replace(/_/g, ' ') })}
+                    sx={{
+                      bgcolor: 'primary.main',
+                      color: 'primary.contrastText',
+                      fontWeight: 700,
+                      fontSize: '0.65rem',
+                      height: 24,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em',
+                    }}
+                  />
+                </Box>
               </Box>
 
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                {t('invite.invitedAs')}
-              </Typography>
-              <Chip label={t(`roles.${invitation.role}`, { defaultValue: invitation.role.replace(/_/g, ' ') })} color="primary" sx={{ mb: 2, textTransform: 'capitalize' }} />
-
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+              {/* Invitation email */}
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 3, textAlign: 'center' }}>
                 {t('invite.forEmail')}: <strong>{invitation.email}</strong>
               </Typography>
 
+              {/* Actions */}
               {user ? (
                 user.email.toLowerCase() === invitation.email.toLowerCase() ? (
                   <Button
@@ -112,12 +192,17 @@ export default function InvitePage() {
                     variant="primary"
                     onClick={handleAccept}
                     loading={accepting}
-                    sx={{ py: 1.5 }}
+                    sx={{
+                      py: 2,
+                      fontWeight: 700,
+                      borderRadius: 3,
+                      fontSize: '1rem',
+                    }}
                   >
                     {t('invite.acceptButton')}
                   </Button>
                 ) : (
-                  <Alert severity="warning">
+                  <Alert severity="warning" sx={{ borderRadius: 2 }}>
                     {t('invite.emailMismatch')}
                   </Alert>
                 )
@@ -127,7 +212,7 @@ export default function InvitePage() {
                     fullWidth
                     variant="primary"
                     onClick={() => navigate(`/login?invite=${token}&tab=signin`)}
-                    sx={{ py: 1.5 }}
+                    sx={{ py: 2, fontWeight: 700, borderRadius: 3 }}
                   >
                     {t('signIn')}
                   </Button>
@@ -135,16 +220,16 @@ export default function InvitePage() {
                     fullWidth
                     variant="secondary"
                     onClick={() => navigate(`/login?invite=${token}&tab=signup`)}
-                    sx={{ py: 1.5 }}
+                    sx={{ py: 2, fontWeight: 700, borderRadius: 3 }}
                   >
                     {t('signUp')}
                   </Button>
                 </Box>
               )}
-            </Box>
+            </>
           )}
-        </CardContent>
-      </Card>
+        </Box>
+      </Box>
     </Box>
   )
 }

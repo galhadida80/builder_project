@@ -1,7 +1,7 @@
 from datetime import date, timedelta
 from uuid import UUID
 
-from sqlalchemy import func, select
+from sqlalchemy import func, select, text
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -145,12 +145,11 @@ async def get_entity_trends(
     if model is None:
         return []
 
-    start_date = utcnow() - timedelta(days=days)
     date_trunc = func.date_trunc("day", model.created_at)
 
     query = (
         select(date_trunc.label("day"), func.count(model.id).label("count"))
-        .where(model.created_at >= start_date)
+        .where(model.created_at >= func.now() - text(f"interval '{days} days'"))
         .group_by(date_trunc)
         .order_by(date_trunc)
     )

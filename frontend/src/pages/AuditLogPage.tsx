@@ -1,30 +1,27 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Card, KPICard } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { Avatar } from '../components/ui/Avatar'
-import { PageHeader } from '../components/ui/Breadcrumbs'
-import { SearchField } from '../components/ui/TextField'
 import { EmptyState } from '../components/ui/EmptyState'
 import { auditApi } from '../api/audit'
 import { getDateLocale } from '../utils/dateLocale'
 import { useToast } from '../components/common/ToastProvider'
 import type { AuditLog } from '../types'
-import { AddCircleIcon, EditIcon, DeleteIcon, CheckCircleIcon, CancelIcon, SwapHorizIcon, CloseIcon, HistoryIcon, FileDownloadIcon, ChevronRightIcon, ChevronLeftIcon } from '@/icons'
-import { Box, Typography, MenuItem, TextField as MuiTextField, Skeleton, Chip, Drawer, Divider, IconButton, Pagination, useTheme, useMediaQuery } from '@/mui'
+import { AddCircleIcon, EditIcon, DeleteIcon, CheckCircleIcon, CancelIcon, SwapHorizIcon, CloseIcon, FileDownloadIcon, SearchIcon } from '@/icons'
+import { Box, Typography, Skeleton, Chip, Drawer, Divider, IconButton, Pagination, useTheme, useMediaQuery, TextField, InputAdornment } from '@/mui'
 
-const actionConfig: Record<string, { icon: React.ReactNode; color: 'success' | 'info' | 'error' | 'warning' | 'default'; bg: string }> = {
-  create: { icon: <AddCircleIcon sx={{ fontSize: 18 }} />, color: 'success', bg: 'success.light' },
-  update: { icon: <EditIcon sx={{ fontSize: 18 }} />, color: 'info', bg: 'info.light' },
-  delete: { icon: <DeleteIcon sx={{ fontSize: 18 }} />, color: 'error', bg: 'error.light' },
-  status_change: { icon: <SwapHorizIcon sx={{ fontSize: 18 }} />, color: 'warning', bg: 'warning.light' },
-  approval: { icon: <CheckCircleIcon sx={{ fontSize: 18 }} />, color: 'success', bg: 'success.light' },
-  rejection: { icon: <CancelIcon sx={{ fontSize: 18 }} />, color: 'error', bg: 'error.light' },
+const actionConfig: Record<string, { icon: React.ReactNode; color: 'success' | 'info' | 'error' | 'warning' | 'default'; borderColor: string }> = {
+  create: { icon: <AddCircleIcon sx={{ fontSize: 18 }} />, color: 'success', borderColor: '#4caf50' },
+  update: { icon: <EditIcon sx={{ fontSize: 18 }} />, color: 'info', borderColor: '#2196f3' },
+  delete: { icon: <DeleteIcon sx={{ fontSize: 18 }} />, color: 'error', borderColor: '#f44336' },
+  status_change: { icon: <SwapHorizIcon sx={{ fontSize: 18 }} />, color: 'warning', borderColor: '#ff9800' },
+  approval: { icon: <CheckCircleIcon sx={{ fontSize: 18 }} />, color: 'success', borderColor: '#4caf50' },
+  rejection: { icon: <CancelIcon sx={{ fontSize: 18 }} />, color: 'error', borderColor: '#f44336' },
 }
 
 const entityTypes = ['equipment', 'material', 'meeting', 'project', 'contact', 'area', 'inspection', 'rfi', 'defect', 'file', 'approval']
 const actionTypes = ['create', 'update', 'delete', 'status_change', 'approval', 'rejection']
-const PAGE_SIZE = 15
+const PAGE_SIZE = 20
 
 const FIELD_LABEL_KEYS: Record<string, string> = {
   filename: 'auditLog.fieldLabels.filename',
@@ -81,7 +78,6 @@ const FIELD_LABEL_KEYS: Record<string, string> = {
 }
 
 const HIDDEN_FIELDS = new Set(['id', 'project_id', 'entity_id', 'created_by_id', 'updated_by_id', 'consultant_type_id', 'related_equipment_id', 'related_material_id', 'area_id', 'user_id'])
-
 const STATUS_FIELDS = new Set(['status'])
 
 const isUUID = (val: unknown): boolean =>
@@ -127,8 +123,12 @@ export default function AuditLogPage() {
   }
 
   const filteredLogs = logs.filter(log => {
-    const matchesSearch = log.user?.fullName?.toLowerCase().includes(search.toLowerCase()) ||
-      log.entityType.toLowerCase().includes(search.toLowerCase())
+    const q = search.toLowerCase()
+    const matchesSearch = !q ||
+      log.user?.fullName?.toLowerCase().includes(q) ||
+      log.entityType.toLowerCase().includes(q) ||
+      t(`auditLog.entities.${log.entityType}`).toLowerCase().includes(q) ||
+      t(`auditLog.actions.${log.action}`).toLowerCase().includes(q)
     const matchesEntity = !entityFilter || log.entityType === entityFilter
     const matchesAction = !actionFilter || log.action === actionFilter
     return matchesSearch && matchesEntity && matchesAction
@@ -136,11 +136,6 @@ export default function AuditLogPage() {
 
   const totalPages = Math.ceil(filteredLogs.length / PAGE_SIZE)
   const paginatedLogs = filteredLogs.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
-
-  const handleViewDetails = (log: AuditLog) => {
-    setSelectedLog(log)
-    setDetailsOpen(true)
-  }
 
   const formatChanges = (oldValues?: Record<string, unknown>, newValues?: Record<string, unknown>) => {
     const changes: { field: string; old: unknown; new: unknown }[] = []
@@ -155,30 +150,63 @@ export default function AuditLogPage() {
     return changes
   }
 
+  const getVisibleChanges = (log: AuditLog) =>
+    formatChanges(log.oldValues, log.newValues)
+      .filter(c => !HIDDEN_FIELDS.has(c.field))
+      .filter(c => !(isUUID(c.old) || isUUID(c.new)))
+      .filter(c => !(isNullish(c.old) && isNullish(c.new)))
+
+  const formatVal = (field: string, val: unknown) => {
+    if (isNullish(val)) return ''
+    if (isISODate(val)) return new Date(String(val)).toLocaleString(dateLocale)
+    if (STATUS_FIELDS.has(field)) return t(`statuses.${String(val)}`, { defaultValue: String(val).replace(/_/g, ' ') })
+    return String(val)
+  }
+
+  const translateField = (field: string) =>
+    FIELD_LABEL_KEYS[field] ? t(FIELD_LABEL_KEYS[field]) : field.replace(/_/g, ' ').replace(/\b\w/g, ch => ch.toUpperCase())
+
+  const dayGroups = useMemo(() => {
+    const today = new Date()
+    const yesterday = new Date(today)
+    yesterday.setDate(yesterday.getDate() - 1)
+
+    const groups: { label: string; count: number; logs: AuditLog[] }[] = []
+    const map = new Map<string, AuditLog[]>()
+
+    for (const log of paginatedLogs) {
+      const dateKey = new Date(log.createdAt).toDateString()
+      if (!map.has(dateKey)) map.set(dateKey, [])
+      map.get(dateKey)!.push(log)
+    }
+
+    for (const [dateKey, dayLogs] of map) {
+      let label: string
+      if (dateKey === today.toDateString()) label = t('auditLog.today')
+      else if (dateKey === yesterday.toDateString()) label = t('auditLog.yesterday')
+      else {
+        const d = new Date(dateKey)
+        label = d.toLocaleDateString(dateLocale, { weekday: 'long', month: 'short', day: 'numeric' })
+      }
+      groups.push({ label, count: dayLogs.length, logs: dayLogs })
+    }
+    return groups
+  }, [paginatedLogs, t, dateLocale])
+
+  const handleViewDetails = (log: AuditLog) => {
+    setSelectedLog(log)
+    setDetailsOpen(true)
+  }
+
   const handleExportCSV = useCallback(() => {
     if (filteredLogs.length === 0) return
     const headers = [
-      t('auditLog.timestamp'),
-      t('auditLog.user'),
-      t('auditLog.action'),
-      t('auditLog.entity'),
-      t('auditLog.entityId'),
-      t('auditLog.changes'),
+      t('auditLog.timestamp'), t('auditLog.user'), t('auditLog.action'),
+      t('auditLog.entity'), t('auditLog.entityId'), t('auditLog.changes'),
     ]
     const rows = filteredLogs.map(log => {
-      const changes = formatChanges(log.oldValues, log.newValues)
-        .filter(c => !HIDDEN_FIELDS.has(c.field))
-        .filter(c => !(isUUID(c.old) || isUUID(c.new)))
-        .filter(c => !(isNullish(c.old) && isNullish(c.new)))
-      const formatCsvVal = (field: string, val: unknown) => {
-        if (isNullish(val)) return ''
-        if (isISODate(val)) return new Date(String(val)).toLocaleString(dateLocale)
-        if (STATUS_FIELDS.has(field)) return t(`statuses.${String(val)}`, { defaultValue: String(val) })
-        return String(val)
-      }
-      const translateField = (field: string) =>
-        FIELD_LABEL_KEYS[field] ? t(FIELD_LABEL_KEYS[field]) : field.replace(/_/g, ' ').replace(/\b\w/g, ch => ch.toUpperCase())
-      const changesText = changes.map(c => `${translateField(c.field)}: ${formatCsvVal(c.field, c.old)} → ${formatCsvVal(c.field, c.new)}`).join('; ')
+      const changes = getVisibleChanges(log)
+      const changesText = changes.map(c => `${translateField(c.field)}: ${formatVal(c.field, c.old)} → ${formatVal(c.field, c.new)}`).join('; ')
       return [
         new Date(log.createdAt).toLocaleString(dateLocale),
         log.user?.fullName || log.user?.email || '',
@@ -189,17 +217,11 @@ export default function AuditLogPage() {
       ]
     })
     const escapeCsv = (val: string) => {
-      if (val.includes(',') || val.includes('"') || val.includes('\n')) {
-        return `"${val.replace(/"/g, '""')}"`
-      }
+      if (val.includes(',') || val.includes('"') || val.includes('\n')) return `"${val.replace(/"/g, '""')}"`
       return val
     }
-    const csvContent = [
-      headers.map(escapeCsv).join(','),
-      ...rows.map(row => row.map(escapeCsv).join(',')),
-    ].join('\n')
-    const BOM = '\uFEFF'
-    const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' })
+    const csvContent = [headers.map(escapeCsv).join(','), ...rows.map(row => row.map(escapeCsv).join(','))].join('\n')
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
@@ -208,12 +230,6 @@ export default function AuditLogPage() {
     URL.revokeObjectURL(url)
     showSuccess(t('auditLog.exportSuccess'))
   }, [filteredLogs, dateLocale, t, showSuccess])
-
-  const todayLogs = logs.filter(log => {
-    const today = new Date()
-    const logDate = new Date(log.createdAt)
-    return logDate.toDateString() === today.toDateString()
-  }).length
 
   const formatRelativeTime = (dateStr: string) => {
     const date = new Date(dateStr)
@@ -232,211 +248,248 @@ export default function AuditLogPage() {
 
   if (loading) {
     return (
-      <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
-        <Skeleton variant="text" width={200} height={48} sx={{ mb: 1 }} />
-        <Skeleton variant="text" width={350} height={24} sx={{ mb: 4 }} />
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(3, 1fr)', md: 'repeat(3, 1fr)' }, gap: { xs: 1, md: 2 }, mb: 4 }}>
-          {[...Array(3)].map((_, i) => (
-            <Skeleton key={i} variant="rounded" height={100} sx={{ borderRadius: 3 }} />
-          ))}
-        </Box>
-        <Skeleton variant="rounded" height={400} sx={{ borderRadius: 3 }} />
+      <Box sx={{ maxWidth: 600, mx: 'auto', p: { xs: 2, sm: 3 } }}>
+        <Skeleton variant="rounded" height={48} sx={{ borderRadius: 2, mb: 2 }} />
+        <Skeleton variant="rounded" height={44} sx={{ borderRadius: 2, mb: 2 }} />
+        <Skeleton variant="rounded" height={36} sx={{ borderRadius: 2, mb: 3 }} />
+        {[...Array(4)].map((_, i) => (
+          <Skeleton key={i} variant="rounded" height={90} sx={{ borderRadius: 3, mb: 1.5 }} />
+        ))}
       </Box>
     )
   }
 
   return (
-    <Box sx={{ p: { xs: 1, sm: 2, md: 3 }, maxWidth: '100%', overflow: 'hidden' }}>
-      <PageHeader
-        title={t('auditLog.pageTitle')}
-        subtitle={t('auditLog.subtitle')}
-        breadcrumbs={[{ label: t('nav.dashboard'), href: '/dashboard' }, { label: t('auditLog.pageTitle') }]}
-      />
+    <Box sx={{ maxWidth: 600, mx: 'auto', pb: 10 }}>
+      {/* Sticky header */}
+      <Box sx={{
+        position: 'sticky', top: 0, zIndex: 20,
+        bgcolor: 'background.default', px: { xs: 2, sm: 3 }, pt: 2, pb: 1.5,
+        borderBottom: 1, borderColor: 'divider',
+      }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
+          <Typography variant="h6" fontWeight={700} letterSpacing='-0.02em'>
+            {t('auditLog.pageTitle')}
+          </Typography>
+          <Button
+            variant="secondary"
+            size="small"
+            icon={<FileDownloadIcon />}
+            onClick={handleExportCSV}
+            disabled={filteredLogs.length === 0}
+          >
+            <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
+              {t('auditLog.export')}
+            </Box>
+          </Button>
+        </Box>
 
-      <Box
-        sx={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
-          gap: { xs: 1, md: 2 },
-          mb: { xs: 2, md: 4 },
-        }}
-      >
-        <KPICard
-          title={t('auditLog.totalEntries')}
-          value={logs.length}
-          icon={<HistoryIcon />}
-          color="primary"
+        {/* Search bar */}
+        <TextField
+          fullWidth
+          size="small"
+          placeholder={t('auditLog.searchPlaceholder')}
+          value={search}
+          onChange={(e) => { setSearch(e.target.value); setPage(1) }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon sx={{ fontSize: 20, color: 'text.disabled' }} />
+              </InputAdornment>
+            ),
+          }}
+          sx={{
+            mb: 1.5,
+            '& .MuiOutlinedInput-root': { borderRadius: 2, bgcolor: 'background.paper' },
+          }}
         />
-        <KPICard
-          title={t('auditLog.todayActivity')}
-          value={todayLogs}
-          icon={<EditIcon />}
-          color="info"
-        />
-        <KPICard
-          title={t('auditLog.usersActive')}
-          value={new Set(logs.map(l => l.user?.id).filter(Boolean)).size}
-          icon={<CheckCircleIcon />}
-          color="success"
-        />
+
+        {/* Entity filter chips - scrollable */}
+        <Box sx={{ display: 'flex', gap: 0.75, overflowX: 'auto', pb: 0.5, '&::-webkit-scrollbar': { display: 'none' } }}>
+          <Chip
+            label={t('auditLog.allEntities')}
+            size="small"
+            variant={!entityFilter ? 'filled' : 'outlined'}
+            color={!entityFilter ? 'primary' : 'default'}
+            onClick={() => { setEntityFilter(''); setPage(1) }}
+            sx={{ fontWeight: 500, flexShrink: 0 }}
+          />
+          {entityTypes.map(et => (
+            <Chip
+              key={et}
+              label={t(`auditLog.entities.${et}`)}
+              size="small"
+              variant={entityFilter === et ? 'filled' : 'outlined'}
+              color={entityFilter === et ? 'primary' : 'default'}
+              onClick={() => { setEntityFilter(entityFilter === et ? '' : et); setPage(1) }}
+              sx={{ fontWeight: 500, flexShrink: 0 }}
+            />
+          ))}
+        </Box>
+
+        {/* Action filter chips - scrollable */}
+        <Box sx={{ display: 'flex', gap: 0.75, overflowX: 'auto', pt: 0.75, pb: 0.5, '&::-webkit-scrollbar': { display: 'none' } }}>
+          <Chip
+            label={t('auditLog.allActions')}
+            size="small"
+            variant={!actionFilter ? 'filled' : 'outlined'}
+            color={!actionFilter ? 'secondary' : 'default'}
+            onClick={() => { setActionFilter(''); setPage(1) }}
+            sx={{ fontWeight: 500, flexShrink: 0 }}
+          />
+          {actionTypes.map(at => {
+            const cfg = actionConfig[at]
+            return (
+              <Chip
+                key={at}
+                label={t(`auditLog.actions.${at}`)}
+                size="small"
+                variant={actionFilter === at ? 'filled' : 'outlined'}
+                color={actionFilter === at ? cfg?.color || 'default' : 'default'}
+                onClick={() => { setActionFilter(actionFilter === at ? '' : at); setPage(1) }}
+                sx={{ fontWeight: 500, flexShrink: 0 }}
+              />
+            )
+          })}
+        </Box>
       </Box>
 
-      <Card>
-        <Box sx={{ p: { xs: 1.5, sm: 2, md: 2.5 } }}>
-          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, gap: { xs: 1, sm: 2 }, mb: 2 }}>
-            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: { xs: 1, sm: 2 }, alignItems: { xs: 'stretch', sm: 'center' }, flex: 1, minWidth: 0 }}>
-              <SearchField
-                placeholder={t('auditLog.searchPlaceholder')}
-                value={search}
-                onChange={(e) => { setSearch(e.target.value); setPage(1) }}
-              />
-              <Box sx={{ display: 'flex', gap: 1, flexShrink: 0 }}>
-                <MuiTextField
-                  select
-                  value={entityFilter}
-                  onChange={(e) => { setEntityFilter(e.target.value); setPage(1) }}
+      {/* Entries count */}
+      <Box sx={{ px: { xs: 2, sm: 3 }, pt: 1.5 }}>
+        <Typography variant="body2" color="text.secondary" fontWeight={500}>
+          {t('auditLog.entriesLabel', { count: filteredLogs.length })}
+        </Typography>
+      </Box>
+
+      {filteredLogs.length === 0 ? (
+        <Box sx={{ px: 2, pt: 2 }}>
+          <EmptyState
+            variant="no-results"
+            title={t('auditLog.noLogsFound')}
+            description={t('auditLog.tryAdjustingSearch')}
+          />
+        </Box>
+      ) : (
+        <Box sx={{ px: { xs: 2, sm: 3 }, pt: 1 }}>
+          {dayGroups.map((group) => (
+            <Box key={group.label} sx={{ mb: 2 }}>
+              {/* Day header */}
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 1.5 }}>
+                <Typography variant="subtitle2" fontWeight={700} color="text.primary">
+                  {group.label}
+                </Typography>
+                <Chip
+                  label={group.count}
                   size="small"
-                  sx={{ minWidth: { xs: 0, sm: 140 }, flex: { xs: 1, sm: 'none' } }}
-                >
-                  <MenuItem value="">{t('auditLog.allEntities')}</MenuItem>
-                  {entityTypes.map(type => (
-                    <MenuItem key={type} value={type}>{t(`auditLog.entities.${type}`, { defaultValue: type })}</MenuItem>
-                  ))}
-                </MuiTextField>
-                <MuiTextField
-                  select
-                  value={actionFilter}
-                  onChange={(e) => { setActionFilter(e.target.value); setPage(1) }}
-                  size="small"
-                  sx={{ minWidth: { xs: 0, sm: 140 }, flex: { xs: 1, sm: 'none' } }}
-                >
-                  <MenuItem value="">{t('auditLog.allActions')}</MenuItem>
-                  {actionTypes.map(type => (
-                    <MenuItem key={type} value={type}>{t(`auditLog.actions.${type}`, { defaultValue: type.replace('_', ' ') })}</MenuItem>
-                  ))}
-                </MuiTextField>
+                  sx={{ height: 20, minWidth: 20, fontSize: '0.7rem', fontWeight: 700, bgcolor: 'action.selected' }}
+                />
+                <Divider sx={{ flex: 1 }} />
               </Box>
-            </Box>
-            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexShrink: 0, alignSelf: { xs: 'flex-start', sm: 'center' } }}>
-              <Chip label={t('auditLog.entriesLabel', { count: filteredLogs.length })} size="small" />
-              <Button
-                variant="secondary"
-                size="small"
-                icon={<FileDownloadIcon />}
-                onClick={handleExportCSV}
-                disabled={filteredLogs.length === 0}
-              >
-                <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
-                  {t('auditLog.export')}
-                </Box>
-              </Button>
-            </Box>
-          </Box>
 
-          {filteredLogs.length === 0 ? (
-            <EmptyState
-              variant="no-results"
-              title={t('auditLog.noLogsFound')}
-              description={t('auditLog.tryAdjustingSearch')}
-            />
-          ) : (
-            <>
-              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                {paginatedLogs.map((log, idx) => {
-                  const config = actionConfig[log.action] || actionConfig.update
-                  const changes = formatChanges(log.oldValues, log.newValues)
-                  const actionLabel = t(`auditLog.actions.${log.action}`, { defaultValue: log.action.replace('_', ' ') })
-                  const entityLabel = t(`auditLog.entities.${log.entityType}`, { defaultValue: log.entityType })
+              {/* Day entries */}
+              {group.logs.map((log) => {
+                const config = actionConfig[log.action] || actionConfig.update
+                const actionLabel = t(`auditLog.actions.${log.action}`, { defaultValue: log.action.replace('_', ' ') })
+                const entityLabel = t(`auditLog.entities.${log.entityType}`, { defaultValue: log.entityType })
+                const timeStr = new Date(log.createdAt).toLocaleTimeString(dateLocale, { hour: '2-digit', minute: '2-digit' })
+                const changes = getVisibleChanges(log)
+                const firstChange = changes[0]
 
-                  return (
-                    <Box
-                      key={log.id}
-                      onClick={() => handleViewDetails(log)}
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: { xs: 1.5, sm: 2 },
-                        py: { xs: 1.5, sm: 2 },
-                        px: { xs: 0.5, sm: 1 },
-                        cursor: 'pointer',
-                        borderBottom: idx < paginatedLogs.length - 1 ? '1px solid' : 'none',
-                        borderColor: 'divider',
-                        borderRadius: 1,
-                        transition: 'background-color 150ms ease-out',
-                        '&:hover': { bgcolor: 'action.hover' },
-                        touchAction: 'manipulation',
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          width: { xs: 36, sm: 40 },
-                          height: { xs: 36, sm: 40 },
-                          borderRadius: '50%',
-                          bgcolor: config.bg,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: `${config.color}.main`,
-                          flexShrink: 0,
-                        }}
-                      >
-                        {config.icon}
+                return (
+                  <Box
+                    key={log.id}
+                    onClick={() => handleViewDetails(log)}
+                    sx={{
+                      display: 'flex', gap: 1.5, mb: 1, cursor: 'pointer',
+                      bgcolor: 'background.paper', borderRadius: 3,
+                      border: 1, borderColor: 'divider',
+                      borderInlineStart: 4,
+                      borderInlineStartColor: config.borderColor,
+                      p: 1.5,
+                      transition: 'background-color 150ms, box-shadow 150ms',
+                      '&:hover': { bgcolor: 'action.hover', boxShadow: 1 },
+                      minHeight: 48,
+                    }}
+                  >
+                    {/* User avatar */}
+                    <Avatar name={log.user?.fullName || '?'} size="small" />
+
+                    {/* Content */}
+                    <Box sx={{ flex: 1, minWidth: 0 }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.25 }}>
+                        <Typography variant="body2" fontWeight={600} noWrap sx={{ flex: 1 }}>
+                          {log.user?.fullName || t('common.unknown')}
+                        </Typography>
+                        <Typography variant="caption" color="text.disabled" sx={{ flexShrink: 0, [isRtl ? 'mr' : 'ml']: 1 }}>
+                          {timeStr}
+                        </Typography>
                       </Box>
 
-                      <Box sx={{ flex: 1, minWidth: 0 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, flexWrap: 'wrap' }}>
-                          <Typography variant="body2" fontWeight={600} noWrap sx={{ maxWidth: { xs: 120, sm: 'none' } }}>
-                            {log.user?.fullName || t('common.unknown')}
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary" sx={{ textTransform: 'lowercase' }}>
-                            {actionLabel}
-                          </Typography>
-                          <Chip
-                            label={entityLabel}
-                            size="small"
-                            variant="outlined"
-                            sx={{ height: 22, fontSize: '0.7rem', textTransform: 'capitalize' }}
-                          />
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: firstChange ? 0.75 : 0 }}>
+                        <Box sx={{ color: `${config.color}.main`, display: 'flex', alignItems: 'center' }}>
+                          {config.icon}
                         </Box>
-
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.25 }}>
-                          <Typography variant="caption" color="text.disabled">
-                            {formatRelativeTime(log.createdAt)}
+                        <Typography variant="caption" fontWeight={500} color="text.secondary">
+                          {actionLabel}
+                        </Typography>
+                        <Chip
+                          label={entityLabel}
+                          size="small"
+                          sx={{
+                            height: 18, fontSize: '0.6rem', fontWeight: 600,
+                            bgcolor: 'action.hover', textTransform: 'capitalize',
+                          }}
+                        />
+                        {changes.length > 1 && (
+                          <Typography variant="caption" color="text.disabled" sx={{ flexShrink: 0 }}>
+                            {t('auditLog.nChanges', { count: changes.length })}
                           </Typography>
-                          {changes.length > 0 && (
-                            <Chip
-                              label={t('auditLog.fieldsChanged', { count: changes.length })}
-                              size="small"
-                              sx={{ height: 20, fontSize: '0.65rem', bgcolor: 'action.hover' }}
-                            />
+                        )}
+                      </Box>
+
+                      {/* Inline change preview */}
+                      {firstChange && (
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: 'wrap' }}>
+                          <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem' }}>
+                            {translateField(firstChange.field)}:
+                          </Typography>
+                          {!isNullish(firstChange.old) && (
+                            <Typography variant="caption" sx={{ fontSize: '0.65rem', color: 'error.main', textDecoration: 'line-through' }} noWrap>
+                              {formatVal(firstChange.field, firstChange.old)}
+                            </Typography>
+                          )}
+                          {!isNullish(firstChange.old) && !isNullish(firstChange.new) && (
+                            <Typography variant="caption" color="text.disabled" sx={{ fontSize: '0.65rem' }}>→</Typography>
+                          )}
+                          {!isNullish(firstChange.new) && (
+                            <Typography variant="caption" sx={{ fontSize: '0.65rem', color: 'success.main', fontWeight: 600 }} noWrap>
+                              {formatVal(firstChange.field, firstChange.new)}
+                            </Typography>
                           )}
                         </Box>
-                      </Box>
-
-                      <Box sx={{ color: 'text.disabled', flexShrink: 0 }}>
-                        {isRtl ? <ChevronLeftIcon fontSize="small" /> : <ChevronRightIcon fontSize="small" />}
-                      </Box>
+                      )}
                     </Box>
-                  )
-                })}
-              </Box>
-
-              {totalPages > 1 && (
-                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, pt: 2, borderTop: '1px solid', borderColor: 'divider' }}>
-                  <Pagination
-                    count={totalPages}
-                    page={page}
-                    onChange={(_, p) => setPage(p)}
-                    size={isMobile ? 'small' : 'medium'}
-                    color="primary"
-                  />
-                </Box>
-              )}
-            </>
-          )}
+                  </Box>
+                )
+              })}
+            </Box>
+          ))}
         </Box>
-      </Card>
+      )}
 
+      {totalPages > 1 && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, px: 2 }}>
+          <Pagination
+            count={totalPages}
+            page={page}
+            onChange={(_, p) => setPage(p)}
+            size={isMobile ? 'small' : 'medium'}
+            color="primary"
+          />
+        </Box>
+      )}
+
+      {/* Details drawer */}
       <Drawer
         anchor="right"
         open={detailsOpen}
@@ -444,102 +497,81 @@ export default function AuditLogPage() {
         sx={{ zIndex: 1400 }}
         PaperProps={{ sx: { width: { xs: '100%', sm: 420 }, borderRadius: { xs: 0, sm: '16px 0 0 16px' } } }}
       >
-        {selectedLog && (
-          <Box sx={{ p: { xs: 2, sm: 2, md: 3 }, overflowY: 'auto', height: '100%' }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-              <Typography variant="h6" fontWeight={600}>{t('auditLog.auditDetails')}</Typography>
-              <IconButton aria-label={t('common.close')} onClick={() => setDetailsOpen(false)} size="small">
-                <CloseIcon />
-              </IconButton>
-            </Box>
-
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
-              {(() => {
-                const config = actionConfig[selectedLog.action] || actionConfig.update
-                return (
-                  <Box
-                    sx={{
-                      width: 48,
-                      height: 48,
-                      borderRadius: 2,
-                      bgcolor: config.bg,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: `${config.color}.main`,
-                    }}
-                  >
-                    {config.icon}
-                  </Box>
-                )
-              })()}
-              <Box>
-                <Typography variant="h6" fontWeight={600} sx={{ textTransform: 'capitalize' }}>
-                  {t(`auditLog.actions.${selectedLog.action}`, { defaultValue: selectedLog.action.replace('_', ' ') })} {t(`auditLog.entities.${selectedLog.entityType}`, { defaultValue: selectedLog.entityType })}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  {new Date(selectedLog.createdAt).toLocaleString(dateLocale)}
-                </Typography>
+        {selectedLog && (() => {
+          const config = actionConfig[selectedLog.action] || actionConfig.update
+          const changes = getVisibleChanges(selectedLog)
+          return (
+            <Box sx={{ p: { xs: 2, sm: 2, md: 3 }, overflowY: 'auto', height: '100%' }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                <Typography variant="h6" fontWeight={600}>{t('auditLog.auditDetails')}</Typography>
+                <IconButton aria-label={t('common.close')} onClick={() => setDetailsOpen(false)} size="small">
+                  <CloseIcon />
+                </IconButton>
               </Box>
-            </Box>
 
-            <Divider sx={{ my: 2 }} />
-
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 3 }}>
-              <Box>
-                <Typography variant="caption" color="text.secondary" fontWeight={600}>{t('auditLog.user').toUpperCase()}</Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
-                  <Avatar name={selectedLog.user?.fullName || t('common.unknown')} size="small" />
-                  <Typography variant="body2">{selectedLog.user?.fullName || t('common.unknown')}</Typography>
+              {/* Action header */}
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+                <Box sx={{
+                  width: 48, height: 48, borderRadius: 2,
+                  bgcolor: `${config.color}.light`,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: `${config.color}.main`,
+                }}>
+                  {config.icon}
+                </Box>
+                <Box>
+                  <Typography variant="h6" fontWeight={600} sx={{ textTransform: 'capitalize' }}>
+                    {t(`auditLog.actions.${selectedLog.action}`, { defaultValue: selectedLog.action.replace('_', ' ') })} {t(`auditLog.entities.${selectedLog.entityType}`, { defaultValue: selectedLog.entityType })}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    {new Date(selectedLog.createdAt).toLocaleString(dateLocale)}
+                  </Typography>
                 </Box>
               </Box>
-              <Box>
-                <Typography variant="caption" color="text.secondary" fontWeight={600}>{t('auditLog.entity').toUpperCase()}</Typography>
-                <Chip
-                  label={t(`auditLog.entities.${selectedLog.entityType}`, { defaultValue: selectedLog.entityType })}
-                  size="small"
-                  sx={{ mt: 0.5 }}
-                />
-              </Box>
-            </Box>
 
-            {(selectedLog.oldValues || selectedLog.newValues) && (
-              <>
-                <Divider sx={{ my: 2 }} />
-                <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ mb: 1.5, display: 'block' }}>
-                  {t('auditLog.changes').toUpperCase()}
-                </Typography>
-                {formatChanges(selectedLog.oldValues, selectedLog.newValues)
-                  .filter(change => !HIDDEN_FIELDS.has(change.field))
-                  .filter(change => !(isUUID(change.old) || isUUID(change.new)))
-                  .filter(change => !(isNullish(change.old) && isNullish(change.new)))
-                  .map(change => {
+              <Divider sx={{ my: 2 }} />
+
+              {/* User & entity */}
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 3 }}>
+                <Box>
+                  <Typography variant="caption" color="text.secondary" fontWeight={600}>{t('auditLog.user').toUpperCase()}</Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
+                    <Avatar name={selectedLog.user?.fullName || t('common.unknown')} size="small" />
+                    <Typography variant="body2">{selectedLog.user?.fullName || t('common.unknown')}</Typography>
+                  </Box>
+                </Box>
+                <Box>
+                  <Typography variant="caption" color="text.secondary" fontWeight={600}>{t('auditLog.entity').toUpperCase()}</Typography>
+                  <Chip
+                    label={t(`auditLog.entities.${selectedLog.entityType}`, { defaultValue: selectedLog.entityType })}
+                    size="small"
+                    sx={{ mt: 0.5 }}
+                  />
+                </Box>
+              </Box>
+
+              {/* Changes */}
+              {changes.length > 0 && (
+                <>
+                  <Divider sx={{ my: 2 }} />
+                  <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ mb: 1.5, display: 'block' }}>
+                    {t('auditLog.changes').toUpperCase()}
+                  </Typography>
+                  {changes.map(change => {
                     const isCreate = isNullish(change.old) && !isNullish(change.new)
                     const isDelete = !isNullish(change.old) && isNullish(change.new)
-                    const isStatusField = STATUS_FIELDS.has(change.field)
-                    const formatVal = (val: unknown) => {
-                      if (isNullish(val)) return ''
-                      if (isISODate(val)) return new Date(String(val)).toLocaleString(dateLocale)
-                      if (isStatusField) return t(`statuses.${String(val)}`, { defaultValue: String(val).replace(/_/g, ' ') })
-                      return String(val)
-                    }
                     return (
                       <Box
                         key={change.field}
-                        sx={{
-                          p: 1.5,
-                          bgcolor: 'action.hover',
-                          borderRadius: 2,
-                          mb: 1,
-                        }}
+                        sx={{ p: 1.5, bgcolor: 'action.hover', borderRadius: 2, mb: 1 }}
                       >
                         <Typography variant="caption" color="text.secondary" fontWeight={600}>
-                          {FIELD_LABEL_KEYS[change.field] ? t(FIELD_LABEL_KEYS[change.field]) : change.field.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                          {translateField(change.field)}
                         </Typography>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5, flexWrap: 'wrap' }}>
                           {!isNullish(change.old) && (
                             <Chip
-                              label={formatVal(change.old)}
+                              label={formatVal(change.field, change.old)}
                               size="small"
                               sx={{ bgcolor: 'error.light', color: 'error.dark', fontSize: '0.7rem', maxWidth: '100%' }}
                             />
@@ -549,7 +581,7 @@ export default function AuditLogPage() {
                           )}
                           {!isNullish(change.new) && (
                             <Chip
-                              label={formatVal(change.new)}
+                              label={formatVal(change.field, change.new)}
                               size="small"
                               sx={{ bgcolor: 'success.light', color: 'success.dark', fontSize: '0.7rem', maxWidth: '100%' }}
                             />
@@ -558,10 +590,11 @@ export default function AuditLogPage() {
                       </Box>
                     )
                   })}
-              </>
-            )}
-          </Box>
-        )}
+                </>
+              )}
+            </Box>
+          )
+        })()}
       </Drawer>
     </Box>
   )

@@ -14,8 +14,7 @@ import { auditApi } from '../api'
 import type { Defect, Contact, AuditLog } from '../types'
 import { useToast } from '../components/common/ToastProvider'
 import {
-  ArrowBackIcon, PersonIcon, ScheduleIcon, LocationOnIcon,
-  AddPhotoAlternateIcon, DeleteIcon, ImageIcon, EditIcon,
+  ArrowBackIcon, AddPhotoAlternateIcon, DeleteIcon, ImageIcon, EditIcon,
 } from '@/icons'
 import {
   Box, Typography, Divider, Chip, IconButton, Skeleton, Avatar,
@@ -195,62 +194,47 @@ export default function DefectDetailPage() {
         {t('defects.backToList')}
       </Button>
 
+      <Box sx={{ mb: 3, bgcolor: defect.status === 'open' ? 'error.main' : defect.status === 'in_progress' ? 'warning.main' : 'success.main', color: 'white', px: 2, py: 1.5, borderRadius: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: 'white', ...(defect.status === 'open' && { animation: 'pulse 2s infinite' }) }} />
+          <StatusBadge status={defect.status} />
+        </Box>
+        <SeverityBadge severity={defect.severity} />
+      </Box>
+
       <Card sx={{ mb: 3 }}>
         <Box sx={{ p: { xs: 2, md: 3 } }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 2, mb: 3 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 2, mb: 2 }}>
             <Box>
-              <Typography variant="h5" fontWeight={700} sx={{ mb: 1, fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>
-                {t('defects.defectNumber', { number: defect.defectNumber })}
+              <Chip size="small" label={`#${defect.defectNumber}`} sx={{ fontFamily: 'monospace', fontWeight: 600, mb: 1 }} color="primary" variant="outlined" />
+              <Typography variant="h5" fontWeight={700} sx={{ fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>
+                {defect.description}
               </Typography>
-              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                <StatusBadge status={defect.status} />
-                <SeverityBadge severity={defect.severity} />
-                <Chip
-                  size="small"
-                  label={t(`defects.categories.${defect.category}`, { defaultValue: defect.category })}
-                />
-                {defect.isRepeated && (
-                  <Chip size="small" label={t('defects.repeated')} color="warning" />
-                )}
+              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 1 }}>
+                <Chip size="small" label={t(`defects.categories.${defect.category}`, { defaultValue: defect.category })} />
+                {defect.isRepeated && <Chip size="small" label={t('defects.repeated')} color="warning" />}
               </Box>
             </Box>
             <Box sx={{ display: 'flex', gap: 1 }}>
-              <Button
-                variant="secondary"
-                size="small"
-                icon={<EditIcon />}
-                onClick={() => { setNewStatus(defect.status); setStatusDialogOpen(true) }}
-              >
+              <Button variant="secondary" size="small" icon={<EditIcon />} onClick={() => { setNewStatus(defect.status); setStatusDialogOpen(true) }}>
                 {t('defects.changeStatus')}
               </Button>
-              <Button
-                variant="tertiary"
-                size="small"
-                icon={<DeleteIcon />}
-                onClick={() => setDeleteDialogOpen(true)}
-                sx={{ color: 'error.main' }}
-              >
+              <Button variant="tertiary" size="small" icon={<DeleteIcon />} onClick={() => setDeleteDialogOpen(true)} sx={{ color: 'error.main' }}>
                 {t('common.delete')}
               </Button>
             </Box>
           </Box>
 
-          <Divider sx={{ mb: 3 }} />
+          <Divider sx={{ mb: 2 }} />
 
-          <Typography variant="body1" sx={{ mb: 3, whiteSpace: 'pre-wrap' }}>
-            {defect.description}
-          </Typography>
-
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2, mb: 3 }}>
-            <InfoItem icon={<LocationOnIcon />} label={t('defects.location')} value={defect.area ? `${defect.area.name}${defect.area.floorNumber != null ? ` / ${t('defects.floor')} ${defect.area.floorNumber}` : ''}` : '-'} />
-            <InfoItem icon={<PersonIcon />} label={t('defects.reporter')} value={defect.reporter?.contactName || '-'} />
-            <InfoItem icon={<PersonIcon />} label={t('defects.primaryAssignee')} value={defect.assignedContact?.contactName || '-'} />
-            <InfoItem icon={<PersonIcon />} label={t('defects.followupPerson')} value={defect.followupContact?.contactName || '-'} />
-            <InfoItem icon={<ScheduleIcon />} label={t('defects.dueDate')} value={defect.dueDate ? new Date(defect.dueDate).toLocaleDateString(getDateLocale()) : '-'} />
-            <InfoItem icon={<ScheduleIcon />} label={t('defects.createdAt')} value={new Date(defect.createdAt).toLocaleDateString(getDateLocale())} />
-            {defect.resolvedAt && (
-              <InfoItem icon={<ScheduleIcon />} label={t('defects.resolvedAt')} value={new Date(defect.resolvedAt).toLocaleDateString(getDateLocale())} />
-            )}
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1.5 }}>
+            <DetailCell label={t('defects.location')} value={defect.area ? `${defect.area.name}${defect.area.floorNumber != null ? ` / ${t('defects.floor')} ${defect.area.floorNumber}` : ''}` : '-'} />
+            <DetailCell label={t('defects.reporter')} value={defect.reporter?.contactName || '-'} />
+            <DetailCell label={t('defects.primaryAssignee')} value={defect.assignedContact?.contactName || '-'} />
+            <DetailCell label={t('defects.followupPerson')} value={defect.followupContact?.contactName || '-'} />
+            <DetailCell label={t('defects.dueDate')} value={defect.dueDate ? new Date(defect.dueDate).toLocaleDateString(getDateLocale()) : '-'} />
+            <DetailCell label={t('defects.createdAt')} value={new Date(defect.createdAt).toLocaleDateString(getDateLocale())} />
+            {defect.resolvedAt && <DetailCell label={t('defects.resolvedAt')} value={new Date(defect.resolvedAt).toLocaleDateString(getDateLocale())} />}
           </Box>
         </Box>
       </Card>
@@ -379,25 +363,25 @@ export default function DefectDetailPage() {
 
       {history.length > 0 && (
         <Card>
-          <Box sx={{ p: 3 }}>
-            <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
+          <Box sx={{ p: { xs: 2, md: 3 } }}>
+            <Typography variant="h6" fontWeight={600} sx={{ mb: 3 }}>
               {t('defects.activity')}
             </Typography>
-            {history.map((entry) => (
-              <Box key={entry.id} sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'flex-start' }}>
-                <Avatar sx={{ width: 32, height: 32, fontSize: '0.75rem', bgcolor: 'primary.light' }}>
-                  {entry.user?.fullName?.charAt(0) || '?'}
-                </Avatar>
-                <Box>
-                  <Typography variant="body2" fontWeight={500}>
-                    {entry.user?.fullName || t('defects.system')} - {entry.action}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    {new Date(entry.createdAt).toLocaleString(getDateLocale())}
+            <Box sx={{ position: 'relative', pl: 3 }}>
+              <Box sx={{ position: 'absolute', left: 5, top: 8, bottom: 8, width: 2, bgcolor: 'divider' }} />
+              {history.map((entry, idx) => (
+                <Box key={entry.id} sx={{ position: 'relative', mb: idx < history.length - 1 ? 3 : 0 }}>
+                  <Box sx={{ position: 'absolute', left: -27, top: 4, width: 12, height: 12, borderRadius: '50%', bgcolor: idx === 0 ? 'primary.main' : 'text.disabled', border: '3px solid', borderColor: 'background.paper' }} />
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', mb: 0.25 }}>
+                    <Typography variant="body2" fontWeight={600}>{entry.action}</Typography>
+                    <Typography variant="caption" color="text.secondary">{new Date(entry.createdAt).toLocaleString(getDateLocale())}</Typography>
+                  </Box>
+                  <Typography variant="body2" color="text.secondary">
+                    {entry.user?.fullName || t('defects.system')}
                   </Typography>
                 </Box>
-              </Box>
-            ))}
+              ))}
+            </Box>
           </Box>
         </Card>
       )}
@@ -455,14 +439,11 @@ export default function DefectDetailPage() {
   )
 }
 
-function InfoItem({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+function DetailCell({ label, value }: { label: string; value: string }) {
   return (
-    <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
-      <Box sx={{ color: 'text.secondary', display: 'flex' }}>{icon}</Box>
-      <Box>
-        <Typography variant="caption" color="text.secondary">{label}</Typography>
-        <Typography variant="body2" fontWeight={500}>{value}</Typography>
-      </Box>
+    <Box sx={{ p: 1.5, bgcolor: 'action.hover', borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
+      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.25 }}>{label}</Typography>
+      <Typography variant="body2" fontWeight={500}>{value}</Typography>
     </Box>
   )
 }

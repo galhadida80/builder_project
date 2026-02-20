@@ -1,19 +1,26 @@
 {% extends "base.html" %}
 
 {% block header_content %}
-<h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;letter-spacing:-0.3px;">{{ title }}</h1>
+<p style="margin:0 0 8px;font-size:28px;">&#128276;</p>
+<h1 style="margin:0 0 6px;color:#ffffff;font-size:24px;font-weight:800;letter-spacing:-0.3px;">{{ title }}</h1>
 {% if project_name %}
-<p style="margin:8px 0 0;color:#94A3B8;font-size:13px;font-weight:500;">{{ strings.project_label }}: <span style="color:#CBD5E1;">{{ project_name }}</span></p>
+<p style="margin:0;color:#94A3B8;font-size:13px;">{{ strings.project_label }}: <span style="color:#CBD5E1;font-weight:600;">{{ project_name }}</span></p>
 {% endif %}
 {% endblock %}
 
 {% block content %}
-<p style="margin:0 0 28px;color:#334155;font-size:15px;line-height:1.7;">{{ message }}</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+<tr><td style="padding:20px;background:#F8FAFC;border-radius:12px;border-{{ 'right' if direction == 'rtl' else 'left' }}:4px solid #0369A1;">
+<p style="margin:0;color:#334155;font-size:15px;line-height:1.7;">{{ message }}</p>
+</td></tr>
+</table>
+
 {% if action_url %}
-<div style="text-align:center;margin:28px 0 4px;">
-<a href="{{ action_url }}" style="display:inline-block;background:#0369A1;color:#ffffff;text-decoration:none;padding:14px 36px;border-radius:8px;font-size:14px;font-weight:600;letter-spacing:0.3px;">{{ strings.cta }}</a>
+<div style="text-align:center;margin:0 0 24px;">
+<a href="{{ action_url }}" style="display:inline-block;background:linear-gradient(135deg,#0369A1,#0EA5E9);color:#ffffff;text-decoration:none;padding:14px 40px;border-radius:12px;font-size:15px;font-weight:700;letter-spacing:0.3px;box-shadow:0 4px 12px rgba(3,105,161,0.3);">{{ strings.cta }}</a>
 </div>
 {% endif %}
 {% endblock %}
 
 {% block footer %}{{ strings.footer }}{% endblock %}
+{% block footer_auto %}{{ strings.auto_message }}{% endblock %}

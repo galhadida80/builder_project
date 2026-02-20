@@ -2,15 +2,16 @@ import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { getDateLocale } from '../utils/dateLocale'
-import { Card, KPICard } from '../components/ui/Card'
+import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { DataTable, Column } from '../components/ui/DataTable'
 import { SeverityBadge } from '../components/ui/StatusBadge'
-import { Tabs } from '../components/ui/Tabs'
 import { FormModal } from '../components/ui/Modal'
 import { PageHeader } from '../components/ui/Breadcrumbs'
 import { EmptyState } from '../components/ui/EmptyState'
 import { TextField, SearchField } from '../components/ui/TextField'
+import SummaryBar from '../components/ui/SummaryBar'
+import FilterChips from '../components/ui/FilterChips'
 import { InspectionHistoryTimeline } from '../components/InspectionHistoryTimeline'
 import InspectionReportPreview from '../components/InspectionReportPreview'
 import { inspectionsApi } from '../api/inspections'
@@ -23,13 +24,15 @@ import { useToast } from '../components/common/ToastProvider'
 import { useReferenceData } from '../contexts/ReferenceDataContext'
 import HelpTooltip from '../components/help/HelpTooltip'
 import { AddIcon, CheckCircleIcon, WarningIcon, ErrorIcon, ScheduleIcon, AssignmentIcon, DescriptionIcon } from '@/icons'
-import { Box, Typography, Skeleton, Chip, Alert, MenuItem, TextField as MuiTextField, IconButton, Tooltip } from '@/mui'
+import { Box, Typography, Skeleton, Chip, Alert, MenuItem, TextField as MuiTextField, IconButton, Tooltip, useMediaQuery, useTheme } from '@/mui'
 
 export default function InspectionsPage() {
   const { t } = useTranslation()
   const { projectId } = useParams()
   const { showError, showSuccess } = useToast()
   const { consultantTypes } = useReferenceData()
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const [inspections, setInspections] = useState<Inspection[]>([])
   const [summary, setSummary] = useState<InspectionSummary | null>(null)
   const [selectedType, setSelectedType] = useState<InspectionConsultantType | null>(null)
@@ -322,21 +325,13 @@ export default function InspectionsPage() {
       </Box>
 
       {summary && (
-        <Box
-          sx={{
-            display: 'grid',
-            gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', md: 'repeat(3, 1fr)', lg: 'repeat(6, 1fr)' },
-            gap: 1.5,
-            mb: 3,
-            overflow: 'hidden',
-          }}
-        >
-          <KPICard title={t('inspections.totalInspections')} value={summary.totalInspections} icon={<AssignmentIcon />} color="primary" />
-          <KPICard title={t('inspections.pending')} value={summary.pendingCount} icon={<ScheduleIcon />} color="info" />
-          <KPICard title={t('inspections.inProgress')} value={summary.inProgressCount} icon={<WarningIcon />} color="warning" />
-          <KPICard title={t('inspections.completed')} value={summary.completedCount} icon={<CheckCircleIcon />} color="success" />
-          <KPICard title={t('inspections.overdue')} value={summary.overdueCount} icon={<ErrorIcon />} color="error" />
-          <KPICard title={t('inspections.criticalFindings')} value={summary.findingsBySeverity?.critical || 0} icon={<ErrorIcon />} color="error" />
+        <Box sx={{ mb: 2 }}>
+          <SummaryBar items={[
+            { label: t('inspections.totalInspections'), value: summary.totalInspections },
+            { label: t('inspections.pending'), value: summary.pendingCount },
+            { label: t('inspections.completed'), value: summary.completedCount, color: theme.palette.success.main },
+            { label: t('inspections.overdue'), value: summary.overdueCount, color: theme.palette.error.main },
+          ]} />
         </Box>
       )}
 
@@ -440,18 +435,19 @@ export default function InspectionsPage() {
             </Box>
           </Box>
 
-          <Tabs
-            items={[
-              { label: t('common.all'), value: 'all', badge: inspections.length },
-              { label: t('inspections.pending'), value: 'pending', badge: inspections.filter(i => i.status === 'pending').length },
-              { label: t('inspections.inProgress'), value: 'in_progress', badge: inspections.filter(i => i.status === 'in_progress').length },
-              { label: t('inspections.completed'), value: 'completed', badge: inspections.filter(i => i.status === 'completed').length },
-              { label: t('inspections.timeline'), value: 'timeline' },
-            ]}
-            value={activeTab}
-            onChange={setActiveTab}
-            size="small"
-          />
+          <Box sx={{ mb: 2 }}>
+            <FilterChips
+              items={[
+                { label: t('common.all'), value: 'all', count: inspections.length },
+                { label: t('inspections.pending'), value: 'pending', count: inspections.filter(i => i.status === 'pending').length },
+                { label: t('inspections.inProgress'), value: 'in_progress', count: inspections.filter(i => i.status === 'in_progress').length },
+                { label: t('inspections.completed'), value: 'completed', count: inspections.filter(i => i.status === 'completed').length },
+                { label: t('inspections.timeline'), value: 'timeline' },
+              ]}
+              value={activeTab}
+              onChange={setActiveTab}
+            />
+          </Box>
 
           <Box sx={{ mt: 2 }}>
             {activeTab === 'timeline' ? (
@@ -470,10 +466,31 @@ export default function InspectionsPage() {
                     failed: { color: 'error' },
                   }
                   const config = statusConfig[row.status] || statusConfig.pending
+                  const isInProgress = row.status === 'in_progress'
                   return (
                     <Box
                       onClick={() => setPreviewInspection(row)}
-                      sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider', cursor: 'pointer', '&:active': { bgcolor: 'action.pressed' } }}
+                      sx={{
+                        p: 2,
+                        borderBottom: '1px solid',
+                        borderColor: 'divider',
+                        cursor: 'pointer',
+                        position: 'relative',
+                        overflow: 'hidden',
+                        '&:active': { bgcolor: 'action.pressed' },
+                        ...(isInProgress && {
+                          '&::before': {
+                            content: '""',
+                            position: 'absolute',
+                            right: 0,
+                            top: 0,
+                            width: 4,
+                            height: '100%',
+                            bgcolor: 'primary.main',
+                            borderRadius: '0 4px 4px 0',
+                          },
+                        }),
+                      }}
                     >
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
                         <Box sx={{ width: 40, height: 40, borderRadius: 2, bgcolor: 'primary.light', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>

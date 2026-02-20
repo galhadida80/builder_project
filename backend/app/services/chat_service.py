@@ -8,7 +8,7 @@ from pydantic_ai.messages import ModelMessagesTypeAdapter
 from pydantic_ai.models.gemini import GeminiModel as GoogleModel
 from pydantic_ai.providers.google_gla import GoogleGLAProvider as GoogleProvider
 from pydantic_core import to_jsonable_python
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import get_settings
@@ -762,7 +762,7 @@ async def send_message(db: AsyncSession, project_id: uuid.UUID, user_id: uuid.UU
     assistant_msg.tool_calls = tool_names if tool_names else None
     assistant_msg.tool_results = serialized
 
-    conversation.updated_at = utcnow()
+    conversation.updated_at = func.now()
 
     await db.flush()
     actions_result = await db.execute(

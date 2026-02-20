@@ -15,22 +15,17 @@ import {
   ArrowBackIcon,
   EmailIcon,
   SendIcon,
-  CloseIcon,
-  RefreshIcon,
   LockIcon,
   FileDownloadIcon,
-  PersonIcon,
   ScheduleIcon,
 } from '@/icons'
 import {
   Box,
   Typography,
-  Divider,
   Chip,
   IconButton,
   Skeleton,
   Avatar,
-  Tooltip,
 } from '@/mui'
 
 export default function RFIDetailPage() {
@@ -184,229 +179,131 @@ export default function RFIDetailPage() {
     )
   }
 
+  const priorityBannerColor = rfi.priority === 'urgent' ? 'error' : rfi.priority === 'high' ? 'warning' : null
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: 'calc(100dvh - 64px)', maxWidth: 900, mx: 'auto', px: { xs: 1, sm: 2, md: 3 } }}>
       {/* Header */}
       <Box sx={{ py: 2, flexShrink: 0 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1.5 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
           <IconButton aria-label={t('common.back')} onClick={() => navigate(`/projects/${projectId}/rfis`)} size="small">
             <ArrowBackIcon />
           </IconButton>
-          <Avatar sx={{ bgcolor: 'primary.main', width: 40, height: 40 }}>
-            <EmailIcon sx={{ fontSize: 20 }} />
-          </Avatar>
-          <Box sx={{ flex: 1, minWidth: 0 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Typography variant="subtitle1" fontWeight={700} noWrap>
-                {rfi.rfi_number}
-              </Typography>
-              <StatusBadge status={rfi.status} />
-              <StatusBadge status={rfi.priority} />
-            </Box>
-            <Typography variant="caption" color="text.secondary" noWrap>
-              {t('rfis.to')}: {rfi.to_name || rfi.to_email}
-            </Typography>
-          </Box>
-          <Box sx={{ display: 'flex', gap: 0.5, flexShrink: 0 }}>
-            <Tooltip title={t('common.refresh')}>
-              <IconButton size="small" aria-label={t('common.refresh')} onClick={handleRefresh} disabled={refreshing}>
-                <RefreshIcon fontSize="small" sx={{ animation: refreshing ? 'spin 1s linear infinite' : 'none', '@keyframes spin': { '100%': { transform: 'rotate(360deg)' } } }} />
-              </IconButton>
-            </Tooltip>
-            {rfi.status === 'draft' && (
-              <Button variant="primary" size="small" icon={<SendIcon />} loading={sending} onClick={handleSendRfi}>
-                {t('rfis.sendRfi')}
-              </Button>
-            )}
-            {rfi.status !== 'closed' && rfi.status !== 'draft' && (
-              <Button variant="secondary" size="small" onClick={() => setCloseDialogOpen(true)}>
-                {t('rfiDetail.closeRfi')}
-              </Button>
-            )}
-            {rfi.status === 'closed' && (
-              <Button variant="secondary" size="small" onClick={() => setReopenDialogOpen(true)}>
-                {t('rfiDetail.reopenRfi')}
-              </Button>
-            )}
-          </Box>
-        </Box>
-
-        {/* Details bar */}
-        <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', ml: 7 }}>
-          <Chip size="small" label={rfi.subject} sx={{ maxWidth: 300, fontWeight: 500 }} />
-          <Chip size="small" label={RFI_CATEGORY_OPTIONS.find(c => c.value === rfi.category)?.labelKey ? t(RFI_CATEGORY_OPTIONS.find(c => c.value === rfi.category)!.labelKey) : rfi.category} variant="outlined" />
-          {rfi.due_date && (
-            <Chip size="small" icon={<ScheduleIcon />} label={formatDate(rfi.due_date)} variant="outlined" color={new Date(rfi.due_date) < new Date() ? 'error' : 'default'} />
-          )}
-          {rfi.cc_emails && rfi.cc_emails.length > 0 && (
-            <Chip size="small" label={`CC: ${rfi.cc_emails.length}`} variant="outlined" />
-          )}
-          {rfi.location && <Chip size="small" label={rfi.location} variant="outlined" />}
+          <Typography variant="subtitle1" fontWeight={700}>{rfi.rfi_number}</Typography>
+          <StatusBadge status={rfi.status} />
         </Box>
       </Box>
 
-      <Divider />
+      {/* Priority Banner */}
+      {priorityBannerColor && (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 1.5, mb: 2, bgcolor: `${priorityBannerColor}.main`, borderRadius: 2, opacity: 0.15, border: '1px solid', borderColor: `${priorityBannerColor}.main` }}>
+          <Typography variant="body2" fontWeight={700} color={`${priorityBannerColor}.main`}>
+            {t(`rfis.priorities.${rfi.priority}`, { defaultValue: rfi.priority })}
+          </Typography>
+        </Box>
+      )}
 
       {/* Thread Area */}
-      <Box sx={{ flex: 1, overflow: 'auto', py: 2, px: { xs: 0.5, sm: 1 } }}>
-        {/* Original question card */}
-        <Box sx={{
-          border: '1px solid',
-          borderColor: 'divider',
-          borderRadius: 2,
-          mb: 2,
-          overflow: 'hidden',
-        }}>
-          <Box sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            px: 2,
-            py: 1.5,
-            bgcolor: 'primary.50',
-            borderBottom: '1px solid',
-            borderColor: 'divider',
-          }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-              <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.main', fontSize: '0.75rem' }}>
-                {getInitials(rfi.created_by?.fullName, rfi.created_by?.email)}
-              </Avatar>
-              <Box>
-                <Typography variant="body2" fontWeight={600}>
-                  {rfi.created_by?.fullName || rfi.created_by?.email || 'Unknown'}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  {t('rfiDetail.originalQuestion')}
-                </Typography>
-              </Box>
+      <Box sx={{ flex: 1, overflow: 'auto', pb: 2 }}>
+        {/* Question Card */}
+        <Card sx={{ mb: 2 }}>
+          <Box sx={{ p: 2 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1.5 }}>
+              <Chip label={RFI_CATEGORY_OPTIONS.find(c => c.value === rfi.category)?.labelKey ? t(RFI_CATEGORY_OPTIONS.find(c => c.value === rfi.category)!.labelKey) : rfi.category} size="small" variant="outlined" sx={{ fontSize: '0.65rem' }} />
+              <Typography variant="caption" color="text.secondary">{t('rfiDetail.originalQuestion')}</Typography>
             </Box>
-            <Typography variant="caption" color="text.secondary">
+            <Typography variant="h6" fontWeight={700} sx={{ lineHeight: 1.3, mb: 1 }}>{rfi.subject}</Typography>
+            <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', mb: 1.5 }}>{rfi.question}</Typography>
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <ScheduleIcon sx={{ fontSize: 14 }} />
               {formatFullDate(rfi.sent_at || rfi.created_at)}
             </Typography>
           </Box>
-          <Box sx={{ px: 2, py: 2 }}>
-            <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
-              {rfi.question}
-            </Typography>
-          </Box>
-        </Box>
+        </Card>
 
-        {/* Sent event */}
-        {rfi.sent_at && (
-          <Box sx={{ textAlign: 'center', my: 1.5 }}>
-            <Chip
-              size="small"
-              label={`${t('rfis.sentRfi')} ${formatFullDate(rfi.sent_at)}`}
-              sx={{ bgcolor: 'background.paper', fontSize: '0.7rem' }}
-            />
-          </Box>
-        )}
-
-        {/* Response cards */}
-        {rfi.responses?.map((response) => (
-          <Box
-            key={response.id}
-            sx={{
-              border: '1px solid',
-              borderColor: 'divider',
-              borderRadius: 2,
-              mb: 2,
-              overflow: 'hidden',
-              ...(response.is_internal && {
-                borderLeft: '4px solid',
-                borderLeftColor: 'warning.main',
-              }),
-            }}
-          >
-            <Box sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              px: 2,
-              py: 1.5,
-              bgcolor: response.is_internal ? 'warning.50' : 'grey.50',
-              borderBottom: '1px solid',
-              borderColor: 'divider',
-            }}>
+        {/* Info Section */}
+        <Card sx={{ mb: 2 }}>
+          <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, pb: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
+              <Avatar sx={{ width: 40, height: 40, bgcolor: 'primary.main', fontSize: '0.8rem' }}>
+                {getInitials(rfi.to_name, rfi.to_email)}
+              </Avatar>
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="caption" color="text.secondary">{t('rfis.to')}</Typography>
+                <Typography variant="body2" fontWeight={700}>{rfi.to_name || rfi.to_email}</Typography>
+              </Box>
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, pb: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
+              <Avatar sx={{ width: 40, height: 40, bgcolor: 'info.main', fontSize: '0.8rem' }}>
+                {getInitials(rfi.created_by?.fullName, rfi.created_by?.email)}
+              </Avatar>
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="caption" color="text.secondary">{t('rfiDetail.sentBy')}</Typography>
+                <Typography variant="body2" fontWeight={700}>{rfi.created_by?.fullName || rfi.created_by?.email || 'Unknown'}</Typography>
+              </Box>
+            </Box>
+            {rfi.due_date && (
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                <Avatar sx={{ width: 32, height: 32, bgcolor: response.is_internal ? 'warning.main' : 'info.main', fontSize: '0.75rem' }}>
-                  {getInitials(response.from_name, response.from_email)}
-                </Avatar>
+                <Box sx={{ width: 40, height: 40, borderRadius: '50%', bgcolor: new Date(rfi.due_date) < new Date() ? 'error.light' : 'action.hover', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <ScheduleIcon sx={{ fontSize: 20, color: new Date(rfi.due_date) < new Date() ? 'error.main' : 'text.secondary' }} />
+                </Box>
                 <Box>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                    <Typography variant="body2" fontWeight={600}>
-                      {response.from_name || response.from_email}
-                    </Typography>
-                    {response.is_internal && (
-                      <Chip
-                        icon={<LockIcon sx={{ fontSize: '12px !important' }} />}
-                        label={t('rfiDetail.internal')}
-                        size="small"
-                        color="warning"
-                        sx={{ height: 20, fontSize: '0.65rem' }}
-                      />
-                    )}
-                    {response.is_cc_participant && (
-                      <Chip label="CC" size="small" variant="outlined" sx={{ height: 20, fontSize: '0.6rem' }} />
-                    )}
-                  </Box>
-                  {response.from_email && response.from_name && (
-                    <Typography variant="caption" color="text.secondary">
-                      {response.from_email}
-                    </Typography>
-                  )}
+                  <Typography variant="caption" color="text.secondary">{t('rfis.dueDate')}</Typography>
+                  <Typography variant="body2" fontWeight={700} color={new Date(rfi.due_date) < new Date() ? 'error.main' : 'text.primary'}>{formatDate(rfi.due_date)}</Typography>
                 </Box>
               </Box>
-              <Typography variant="caption" color="text.secondary" sx={{ flexShrink: 0 }}>
-                {formatFullDate(response.created_at)}
-              </Typography>
-            </Box>
-            <Box sx={{ px: 2, py: 2 }}>
-              <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
-                {response.response_text}
-              </Typography>
+            )}
+          </Box>
+        </Card>
 
-              {response.attachments && response.attachments.length > 0 && (
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 2, pt: 1.5, borderTop: '1px solid', borderColor: 'divider' }}>
-                  {response.attachments.map((att) => (
-                    <Chip
-                      key={att.id}
-                      icon={<FileDownloadIcon />}
-                      label={att.filename}
-                      size="small"
-                      variant="outlined"
-                      clickable
-                      component="a"
-                      href={att.url}
-                      target="_blank"
-                      sx={{ fontSize: '0.7rem' }}
-                    />
-                  ))}
+        {/* Response cards */}
+        {rfi.responses && rfi.responses.length > 0 && (
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1.5, px: 0.5 }}>{t('rfiDetail.addResponse')}</Typography>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              {rfi.responses.map((response) => (
+                <Box key={response.id} sx={{ display: 'flex', gap: 1.5 }}>
+                  <Avatar sx={{ width: 32, height: 32, bgcolor: response.is_internal ? 'warning.main' : 'primary.main', fontSize: '0.7rem', flexShrink: 0, mt: 0.5 }}>
+                    {getInitials(response.from_name, response.from_email)}
+                  </Avatar>
+                  <Card sx={{ flex: 1, ...(response.is_internal && { borderInlineStart: '3px solid', borderInlineStartColor: 'warning.main' }) }}>
+                    <Box sx={{ p: 1.5 }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          <Typography variant="caption" fontWeight={700} color="primary.main">{response.from_name || response.from_email}</Typography>
+                          {response.is_internal && <Chip icon={<LockIcon sx={{ fontSize: '10px !important' }} />} label={t('rfiDetail.internal')} size="small" color="warning" sx={{ height: 18, fontSize: '0.6rem' }} />}
+                        </Box>
+                        <Typography variant="caption" color="text.disabled">{formatFullDate(response.created_at)}</Typography>
+                      </Box>
+                      <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', fontSize: '0.8rem', lineHeight: 1.6 }}>{response.response_text}</Typography>
+                      {response.attachments && response.attachments.length > 0 && (
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 1 }}>
+                          {response.attachments.map((att) => (
+                            <Chip key={att.id} icon={<FileDownloadIcon />} label={att.filename} size="small" variant="outlined" clickable component="a" href={att.url} target="_blank" sx={{ fontSize: '0.65rem' }} />
+                          ))}
+                        </Box>
+                      )}
+                    </Box>
+                  </Card>
                 </Box>
-              )}
+              ))}
             </Box>
           </Box>
-        ))}
+        )}
 
         {/* No responses yet */}
         {(!rfi.responses || rfi.responses.length === 0) && rfi.status !== 'draft' && (
-          <Box sx={{ textAlign: 'center', py: 4 }}>
-            <PersonIcon sx={{ fontSize: 40, color: 'text.disabled', mb: 1 }} />
-            <Typography variant="body2" color="text.secondary">
-              {t('rfiDetail.noResponses')}
-            </Typography>
-          </Box>
+          <Card sx={{ mb: 2 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 4, px: 2, border: '1px dashed', borderColor: 'divider', borderRadius: 2, m: 1 }}>
+              <ScheduleIcon sx={{ fontSize: 40, color: 'text.disabled', mb: 1 }} />
+              <Typography variant="body2" color="text.secondary">{t('rfiDetail.noResponses')}</Typography>
+            </Box>
+          </Card>
         )}
 
-        {/* Draft banner */}
         {rfi.status === 'draft' && (
           <Box sx={{ textAlign: 'center', py: 3 }}>
-            <Chip
-              icon={<EmailIcon />}
-              label={t('rfis.draftNotSent')}
-              color="warning"
-              variant="outlined"
-            />
+            <Chip icon={<EmailIcon />} label={t('rfis.draftNotSent')} color="warning" variant="outlined" />
           </Box>
         )}
 
@@ -415,54 +312,33 @@ export default function RFIDetailPage() {
 
       {/* Add Response Form */}
       {rfi.status !== 'closed' && rfi.status !== 'draft' && (
-        <>
-          <Divider />
-          <Box sx={{ p: 2, bgcolor: 'background.paper', flexShrink: 0 }}>
-            <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1.5 }}>
-              {t('rfiDetail.addResponse')}
-            </Typography>
-            <Box sx={{ display: 'flex', gap: 1, mb: 1.5 }}>
-              <Chip
-                label={t('rfiDetail.external')}
-                onClick={() => setIsInternal(false)}
-                color={!isInternal ? 'primary' : 'default'}
-                variant={!isInternal ? 'filled' : 'outlined'}
-                size="small"
-              />
-              <Chip
-                label={t('rfiDetail.internal')}
-                onClick={() => setIsInternal(true)}
-                color={isInternal ? 'warning' : 'default'}
-                variant={isInternal ? 'filled' : 'outlined'}
-                size="small"
-                icon={<LockIcon />}
-              />
-            </Box>
-            <TextField
-              fullWidth
-              multiline
-              minRows={2}
-              maxRows={6}
-              size="small"
-              placeholder={t('rfiDetail.responsePlaceholder')}
-              value={replyText}
-              onChange={(e) => setReplyText(e.target.value)}
-              sx={{ mb: 1.5 }}
-            />
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <Button
-                variant="primary"
-                size="small"
-                icon={<SendIcon />}
-                loading={replySending}
-                disabled={!replyText.trim()}
-                onClick={handleSendReply}
-              >
-                {t('rfiDetail.sendResponse')}
-              </Button>
-            </Box>
+        <Box sx={{ p: 2, bgcolor: 'background.paper', flexShrink: 0, borderTop: '1px solid', borderColor: 'divider' }}>
+          <Box sx={{ display: 'flex', gap: 1, mb: 1.5 }}>
+            <Chip label={t('rfiDetail.external')} onClick={() => setIsInternal(false)} color={!isInternal ? 'primary' : 'default'} variant={!isInternal ? 'filled' : 'outlined'} size="small" />
+            <Chip label={t('rfiDetail.internal')} onClick={() => setIsInternal(true)} color={isInternal ? 'warning' : 'default'} variant={isInternal ? 'filled' : 'outlined'} size="small" icon={<LockIcon />} />
           </Box>
-        </>
+          <TextField fullWidth multiline minRows={2} maxRows={6} size="small" placeholder={t('rfiDetail.responsePlaceholder')} value={replyText} onChange={(e) => setReplyText(e.target.value)} sx={{ mb: 1.5 }} />
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <Button variant="primary" size="small" icon={<SendIcon />} loading={replySending} disabled={!replyText.trim()} onClick={handleSendReply}>{t('rfiDetail.sendResponse')}</Button>
+          </Box>
+        </Box>
+      )}
+
+      {/* Bottom Actions - matches Stitch design */}
+      {rfi.status === 'draft' && (
+        <Box sx={{ p: 2, borderTop: '1px solid', borderColor: 'divider', display: 'flex', gap: 1.5, flexShrink: 0 }}>
+          <Button variant="primary" fullWidth icon={<SendIcon />} loading={sending} onClick={handleSendRfi}>{t('rfis.sendRfi')}</Button>
+        </Box>
+      )}
+      {rfi.status !== 'closed' && rfi.status !== 'draft' && (
+        <Box sx={{ p: 2, borderTop: '1px solid', borderColor: 'divider', display: 'flex', gap: 1.5, flexShrink: 0 }}>
+          <Button variant="secondary" fullWidth onClick={() => setCloseDialogOpen(true)}>{t('rfiDetail.closeRfi')}</Button>
+        </Box>
+      )}
+      {rfi.status === 'closed' && (
+        <Box sx={{ p: 2, borderTop: '1px solid', borderColor: 'divider', display: 'flex', gap: 1.5, flexShrink: 0 }}>
+          <Button variant="secondary" fullWidth onClick={() => setReopenDialogOpen(true)}>{t('rfiDetail.reopenRfi')}</Button>
+        </Box>
       )}
 
       <ConfirmModal

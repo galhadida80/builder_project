@@ -1,28 +1,14 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Hero } from '../components/Hero'
 import { Button } from '../components/ui/Button'
-import turnerLogo from '../assets/logos/turner.svg'
-import bechtelLogo from '../assets/logos/bechtel.svg'
-import fluorLogo from '../assets/logos/fluor.svg'
-import kiewitLogo from '../assets/logos/kiewit.svg'
-import skanskaLogo from '../assets/logos/skanska.svg'
 import {
   ConstructionIcon, SpeedIcon, SecurityIcon, GroupsIcon,
   AssignmentTurnedInIcon, BarChartIcon, ArrowForwardIcon,
-  PhoneIphoneIcon, FormatQuoteIcon, CheckCircleOutlineIcon,
+  FormatQuoteIcon, CheckCircleOutlineIcon, StarIcon,
+  SearchIcon, SmartToyIcon,
 } from '@/icons'
 import { Box, Container, Typography, Grid, Avatar } from '@/mui'
-
-const BENTO_LAYOUT = [
-  { xs: 12, md: 8, minHeight: { xs: 180, md: 220 } },
-  { xs: 12, md: 4, minHeight: { xs: 160, md: 220 } },
-  { xs: 12, md: 4, minHeight: { xs: 160, md: 200 } },
-  { xs: 12, md: 8, minHeight: { xs: 180, md: 200 } },
-  { xs: 12, sm: 6, md: 4, minHeight: { xs: 160, md: 180 } },
-  { xs: 12, sm: 6, md: 4, minHeight: { xs: 160, md: 180 } },
-]
 
 export default function LandingPage() {
   const { t } = useTranslation()
@@ -30,43 +16,12 @@ export default function LandingPage() {
   const [activeTestimonial, setActiveTestimonial] = useState(0)
 
   const FEATURES = [
-    {
-      icon: <SpeedIcon sx={{ fontSize: 28 }} />,
-      title: t('landing.features.realTimeTracking'),
-      description: t('landing.features.realTimeTrackingDesc'),
-    },
-    {
-      icon: <ConstructionIcon sx={{ fontSize: 28 }} />,
-      title: t('landing.features.equipmentManagement'),
-      description: t('landing.features.equipmentManagementDesc'),
-    },
-    {
-      icon: <SecurityIcon sx={{ fontSize: 28 }} />,
-      title: t('landing.features.inspectionSystem'),
-      description: t('landing.features.inspectionSystemDesc'),
-    },
-    {
-      icon: <GroupsIcon sx={{ fontSize: 28 }} />,
-      title: t('landing.features.teamCollaboration'),
-      description: t('landing.features.teamCollaborationDesc'),
-    },
-    {
-      icon: <AssignmentTurnedInIcon sx={{ fontSize: 28 }} />,
-      title: t('landing.features.approvalWorkflows'),
-      description: t('landing.features.approvalWorkflowsDesc'),
-    },
-    {
-      icon: <BarChartIcon sx={{ fontSize: 28 }} />,
-      title: t('landing.features.analyticsReports'),
-      description: t('landing.features.analyticsReportsDesc'),
-    },
-  ]
-
-  const STATS = [
-    { value: '500+', label: t('landing.stats.constructionTeams') },
-    { value: '12K+', label: t('landing.stats.projectsManaged') },
-    { value: '98%', label: t('landing.stats.onTimeDelivery') },
-    { value: '3.2M', label: t('landing.stats.inspectionsCompleted') },
+    { icon: <ConstructionIcon sx={{ fontSize: 28 }} />, title: t('landing.features.equipmentManagement') },
+    { icon: <SearchIcon sx={{ fontSize: 28 }} />, title: t('landing.features.inspectionSystem') },
+    { icon: <SmartToyIcon sx={{ fontSize: 28 }} />, title: t('landing.features.teamCollaboration') },
+    { icon: <AssignmentTurnedInIcon sx={{ fontSize: 28 }} />, title: t('landing.features.approvalWorkflows') },
+    { icon: <BarChartIcon sx={{ fontSize: 28 }} />, title: t('landing.features.analyticsReports') },
+    { icon: <SpeedIcon sx={{ fontSize: 28 }} />, title: t('landing.features.realTimeTracking') },
   ]
 
   const TESTIMONIALS = useMemo(() => [
@@ -90,14 +45,6 @@ export default function LandingPage() {
     },
   ], [t])
 
-  const trustLogos = [
-    { name: 'Turner Construction', imageUrl: turnerLogo, alt: 'Turner Construction logo' },
-    { name: 'Bechtel', imageUrl: bechtelLogo, alt: 'Bechtel logo' },
-    { name: 'Fluor', imageUrl: fluorLogo, alt: 'Fluor logo' },
-    { name: 'Kiewit', imageUrl: kiewitLogo, alt: 'Kiewit logo' },
-    { name: 'Skanska', imageUrl: skanskaLogo, alt: 'Skanska logo' },
-  ]
-
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveTestimonial((prev) => (prev + 1) % TESTIMONIALS.length)
@@ -106,105 +53,196 @@ export default function LandingPage() {
   }, [TESTIMONIALS.length])
 
   return (
-    <Box sx={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column' }}>
-      {/* Floating Nav */}
+    <Box sx={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', bgcolor: 'background.default' }}>
+      {/* Sticky Nav */}
       <Box
         sx={{
-          position: 'absolute',
+          position: 'sticky',
           top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 10,
-          py: 2.5,
-          px: { xs: 2, md: 4 },
+          zIndex: 50,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          px: 2,
+          py: 1.5,
+          bgcolor: (theme) => theme.palette.mode === 'dark'
+            ? 'rgba(15,23,42,0.8)'
+            : 'rgba(248,250,252,0.8)',
+          backdropFilter: 'blur(12px)',
+          borderBottom: '1px solid',
+          borderColor: (theme) => `${theme.palette.primary.main}1A`,
         }}
       >
-        <Container maxWidth="lg">
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-              <Box
-                sx={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: 2,
-                  bgcolor: 'rgba(255,255,255,0.15)',
-                  backdropFilter: 'blur(8px)',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'white',
-                }}
-              >
-                <ConstructionIcon sx={{ fontSize: 22 }} />
-              </Box>
-              <Typography
-                sx={{ color: 'white', fontWeight: 700, fontSize: '1.125rem', letterSpacing: '-0.01em' }}
-              >
-                BuilderOps
-              </Typography>
-            </Box>
-            <Button
-              variant="secondary"
-              onClick={() => navigate('/login')}
-              sx={{
-                borderColor: 'rgba(255,255,255,0.4)',
-                color: 'white',
-                px: 3,
-                borderRadius: 2,
-                backdropFilter: 'blur(4px)',
-                bgcolor: 'rgba(255,255,255,0.08)',
-                '&:hover': {
-                  borderColor: 'white',
-                  bgcolor: 'rgba(255,255,255,0.15)',
-                },
-              }}
-            >
-              {t('landing.signIn')}
-            </Button>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Box
+            sx={{
+              bgcolor: 'primary.main',
+              p: 0.75,
+              borderRadius: 2,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'primary.contrastText',
+            }}
+          >
+            <ConstructionIcon sx={{ fontSize: 24 }} />
           </Box>
-        </Container>
+          <Typography sx={{ fontWeight: 800, fontSize: '1.125rem', letterSpacing: '-0.01em', color: 'text.primary' }}>
+            BuilderOps
+          </Typography>
+        </Box>
+        <Button
+          variant="primary"
+          onClick={() => navigate('/login')}
+          sx={{
+            px: 2.5,
+            py: 1,
+            borderRadius: 2,
+            fontWeight: 700,
+            fontSize: '0.875rem',
+          }}
+        >
+          {t('landing.signIn')}
+        </Button>
       </Box>
 
-      {/* Hero */}
-      <Hero
-        title={t('landing.heroTitle')}
-        subtitle={t('landing.heroSubtitle')}
-        ctaPrimaryText={t('landing.getStarted')}
-        ctaPrimaryAction={() => navigate('/login')}
-        ctaSecondaryText={t('landing.requestDemo')}
-        ctaSecondaryAction={() => {}}
-        trustLogos={trustLogos}
-        showTrustLogos={true}
-      />
+      {/* Hero Section with gradient overlay */}
+      <Box
+        sx={{
+          position: 'relative',
+          overflow: 'hidden',
+          background: (theme) => theme.palette.mode === 'dark'
+            ? `linear-gradient(180deg, ${theme.palette.background.default}60 0%, ${theme.palette.background.default} 100%)`
+            : `linear-gradient(160deg, #075985 0%, #0369A1 50%, #0284C7 100%)`,
+          color: 'white',
+        }}
+      >
+        <Box
+          sx={{
+            position: 'relative',
+            zIndex: 2,
+            px: { xs: 3, md: 6 },
+            pt: { xs: 8, md: 12 },
+            pb: { xs: 6, md: 8 },
+            maxWidth: { xs: '100%', md: 600 },
+            mx: { xs: 'auto', md: 0 },
+          }}
+        >
+          <Container maxWidth="lg">
+            <Typography
+              sx={{
+                fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' },
+                fontWeight: 800,
+                lineHeight: 1.15,
+                letterSpacing: '-0.02em',
+                mb: 2,
+                whiteSpace: 'pre-line',
+                color: (theme) => theme.palette.mode === 'dark' ? 'text.primary' : 'white',
+              }}
+            >
+              {t('landing.heroTitle')}
+            </Typography>
+            <Typography
+              sx={{
+                fontSize: { xs: '1rem', md: '1.125rem' },
+                lineHeight: 1.7,
+                mb: 4,
+                opacity: 0.85,
+                maxWidth: 480,
+                color: (theme) => theme.palette.mode === 'dark' ? 'text.secondary' : 'rgba(255,255,255,0.85)',
+              }}
+            >
+              {t('landing.heroSubtitle')}
+            </Typography>
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 1.5 }}>
+              <Button
+                variant="primary"
+                size="large"
+                onClick={() => navigate('/login')}
+                sx={{
+                  py: 2,
+                  px: 4,
+                  fontSize: '1rem',
+                  fontWeight: 700,
+                  borderRadius: 3,
+                  bgcolor: (theme) => theme.palette.mode === 'dark' ? 'primary.main' : 'white',
+                  color: (theme) => theme.palette.mode === 'dark' ? 'primary.contrastText' : '#0369A1',
+                  '&:hover': {
+                    bgcolor: (theme) => theme.palette.mode === 'dark' ? 'primary.dark' : 'rgba(255,255,255,0.9)',
+                  },
+                }}
+              >
+                {t('landing.getStarted')}
+              </Button>
+              <Button
+                variant="secondary"
+                size="large"
+                onClick={() => {}}
+                sx={{
+                  py: 2,
+                  px: 4,
+                  fontSize: '1rem',
+                  fontWeight: 700,
+                  borderRadius: 3,
+                  borderColor: (theme) => theme.palette.mode === 'dark'
+                    ? `${theme.palette.primary.main}66`
+                    : 'rgba(255,255,255,0.4)',
+                  color: (theme) => theme.palette.mode === 'dark' ? 'text.primary' : 'white',
+                  '&:hover': {
+                    borderColor: (theme) => theme.palette.mode === 'dark'
+                      ? 'primary.main'
+                      : 'white',
+                  },
+                }}
+              >
+                {t('landing.requestDemo')}
+              </Button>
+            </Box>
+          </Container>
+        </Box>
+      </Box>
 
-      {/* Stats Section */}
-      <Box sx={{ bgcolor: '#075985', py: { xs: 5, md: 6 } }}>
+      {/* Features Grid (2 columns on mobile) */}
+      <Box sx={{ px: { xs: 3, md: 6 }, py: { xs: 6, md: 10 } }}>
         <Container maxWidth="lg">
-          <Grid container spacing={3}>
-            {STATS.map((stat, index) => (
-              <Grid item xs={6} md={3} key={index}>
-                <Box sx={{ textAlign: 'center' }}>
-                  <Typography
-                    sx={{
-                      fontSize: { xs: '2rem', md: '2.5rem' },
-                      fontWeight: 700,
-                      color: 'white',
-                      letterSpacing: '-0.02em',
-                      lineHeight: 1.2,
-                    }}
-                  >
-                    {stat.value}
-                  </Typography>
-                  <Typography
-                    sx={{
-                      fontSize: { xs: '0.8rem', md: '0.875rem' },
-                      color: 'rgba(255,255,255,0.6)',
-                      fontWeight: 500,
-                      mt: 0.5,
-                    }}
-                  >
-                    {stat.label}
+          <Typography
+            sx={{
+              fontSize: { xs: '1.5rem', md: '2rem' },
+              fontWeight: 700,
+              mb: { xs: 4, md: 6 },
+              textAlign: 'center',
+              color: 'text.primary',
+            }}
+          >
+            {t('landing.featuresTitle')}
+          </Typography>
+          <Grid container spacing={2}>
+            {FEATURES.map((feature, index) => (
+              <Grid item xs={6} sm={4} md={4} key={index}>
+                <Box
+                  sx={{
+                    bgcolor: 'background.paper',
+                    border: '1px solid',
+                    borderColor: (theme) => `${theme.palette.primary.main}1A`,
+                    borderRadius: 3,
+                    p: { xs: 2.5, md: 3.5 },
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    textAlign: 'center',
+                    gap: 1.5,
+                    transition: 'all 200ms ease-out',
+                    '&:hover': {
+                      borderColor: (theme) => `${theme.palette.primary.main}66`,
+                      transform: 'translateY(-2px)',
+                    },
+                  }}
+                >
+                  <Box sx={{ color: 'primary.main' }}>
+                    {feature.icon}
+                  </Box>
+                  <Typography sx={{ fontWeight: 600, fontSize: '0.875rem', lineHeight: 1.3, color: 'text.primary' }}>
+                    {feature.title}
                   </Typography>
                 </Box>
               </Grid>
@@ -213,283 +251,53 @@ export default function LandingPage() {
         </Container>
       </Box>
 
-      {/* Features Bento Grid Section */}
-      <Box sx={{ bgcolor: 'background.default', py: { xs: 8, md: 12 } }}>
-        <Container maxWidth="lg">
-          <Box sx={{ textAlign: 'center', mb: { xs: 6, md: 8 }, maxWidth: 600, mx: 'auto' }}>
-            <Typography
-              sx={{
-                fontSize: '0.8rem',
-                fontWeight: 700,
-                textTransform: 'uppercase',
-                letterSpacing: '0.1em',
-                color: 'primary.main',
-                mb: 1.5,
-              }}
-            >
-              {t('landing.featuresLabel')}
-            </Typography>
-            <Typography
-              variant="h3"
-              sx={{
-                fontWeight: 700,
-                letterSpacing: '-0.02em',
-                color: 'text.primary',
-                mb: 2,
-                fontSize: { xs: '1.5rem', md: '2rem' },
-              }}
-            >
-              {t('landing.featuresTitle')}
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-              {t('landing.featuresSubtitle')}
-            </Typography>
+      {/* Social Proof / Stats */}
+      <Box
+        sx={{
+          bgcolor: (theme) => `${theme.palette.primary.main}0D`,
+          borderTop: '1px solid',
+          borderBottom: '1px solid',
+          borderColor: (theme) => `${theme.palette.primary.main}1A`,
+          py: { xs: 6, md: 8 },
+          px: { xs: 3, md: 6 },
+        }}
+      >
+        <Container maxWidth="sm">
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              {[1, 2, 3, 4, 5].map((i) => (
+                <StarIcon key={i} sx={{ fontSize: 20, color: 'primary.main' }} />
+              ))}
+            </Box>
+            <Box sx={{ textAlign: 'center' }}>
+              <Typography sx={{ fontSize: '2rem', fontWeight: 800, color: 'primary.main' }}>
+                500+
+              </Typography>
+              <Typography sx={{ fontSize: '1rem', fontWeight: 600, color: 'text.secondary' }}>
+                {t('landing.stats.constructionTeams')}
+              </Typography>
+            </Box>
           </Box>
-
-          <Grid container spacing={3}>
-            {FEATURES.map((feature, index) => {
-              const layout = BENTO_LAYOUT[index]
-              return (
-                <Grid item xs={layout.xs} sm={layout.sm} md={layout.md} key={index}>
-                  <Box
-                    sx={{
-                      p: 3.5,
-                      borderRadius: 3,
-                      bgcolor: 'background.paper',
-                      border: '1px solid',
-                      borderColor: 'divider',
-                      height: '100%',
-                      minHeight: layout.minHeight,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      transition: 'all 200ms ease-out',
-                      cursor: 'default',
-                      '&:hover': {
-                        borderColor: 'primary.light',
-                        boxShadow: '0 8px 24px rgba(3, 105, 161, 0.08)',
-                        transform: 'translateY(-4px)',
-                      },
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        width: index === 0 ? 56 : 48,
-                        height: index === 0 ? 56 : 48,
-                        borderRadius: 2,
-                        bgcolor: 'primary.main',
-                        color: 'white',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        mb: 2.5,
-                      }}
-                    >
-                      {feature.icon}
-                    </Box>
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        fontWeight: 600,
-                        mb: 1,
-                        color: 'text.primary',
-                        fontSize: index === 0 ? '1.15rem' : '1rem',
-                      }}
-                    >
-                      {feature.title}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7, flex: 1 }}>
-                      {feature.description}
-                    </Typography>
-                  </Box>
-                </Grid>
-              )
-            })}
-          </Grid>
         </Container>
       </Box>
 
-      {/* Mobile App Preview Section */}
-      <Box sx={{ bgcolor: '#F0F9FF', py: { xs: 8, md: 12 } }}>
-        <Container maxWidth="lg">
-          <Grid container spacing={6} alignItems="center">
-            <Grid item xs={12} md={6}>
-              <Typography
-                sx={{
-                  fontSize: '0.8rem',
-                  fontWeight: 700,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.1em',
-                  color: 'primary.main',
-                  mb: 1.5,
-                }}
-              >
-                {t('landing.mobile')}
-              </Typography>
-              <Typography
-                variant="h3"
-                sx={{
-                  fontWeight: 700,
-                  letterSpacing: '-0.02em',
-                  color: 'text.primary',
-                  mb: 2,
-                  fontSize: { xs: '1.5rem', md: '2rem' },
-                }}
-              >
-                {t('landing.mobilePreview.title')}
-              </Typography>
-              <Typography
-                variant="body1"
-                color="text.secondary"
-                sx={{ lineHeight: 1.8, maxWidth: 480 }}
-              >
-                {t('landing.mobilePreview.subtitle')}
-              </Typography>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                <Box
-                  sx={{
-                    width: 260,
-                    aspectRatio: '9/18',
-                    borderRadius: '36px',
-                    bgcolor: '#1E293B',
-                    border: '4px solid #334155',
-                    position: 'relative',
-                    overflow: 'hidden',
-                    boxShadow: '0 25px 60px rgba(0,0,0,0.15)',
-                  }}
-                >
-                  {/* Notch */}
-                  <Box
-                    sx={{
-                      position: 'absolute',
-                      top: 8,
-                      left: '50%',
-                      transform: 'translateX(-50%)',
-                      width: 80,
-                      height: 24,
-                      borderRadius: '12px',
-                      bgcolor: '#334155',
-                      zIndex: 2,
-                    }}
-                  />
-                  {/* Screen content */}
-                  <Box
-                    sx={{
-                      position: 'absolute',
-                      inset: 8,
-                      borderRadius: '28px',
-                      bgcolor: '#F8FAFC',
-                      overflow: 'hidden',
-                      display: 'flex',
-                      flexDirection: 'column',
-                    }}
-                  >
-                    {/* Status bar area */}
-                    <Box sx={{ height: 32, bgcolor: '#0369A1' }} />
-                    {/* App header */}
-                    <Box
-                      sx={{
-                        bgcolor: '#0369A1',
-                        px: 2,
-                        py: 1.5,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 1,
-                      }}
-                    >
-                      <ConstructionIcon sx={{ fontSize: 16, color: 'white' }} />
-                      <Typography sx={{ color: 'white', fontSize: '0.7rem', fontWeight: 600 }}>
-                        BuilderOps
-                      </Typography>
-                    </Box>
-                    {/* Mock content */}
-                    <Box sx={{ p: 1.5, flex: 1 }}>
-                      <Box
-                        sx={{
-                          bgcolor: 'white',
-                          borderRadius: 1.5,
-                          p: 1.5,
-                          mb: 1,
-                          boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-                        }}
-                      >
-                        <Box sx={{ width: '70%', height: 8, bgcolor: '#E2E8F0', borderRadius: 1, mb: 0.8 }} />
-                        <Box sx={{ width: '50%', height: 6, bgcolor: '#F1F5F9', borderRadius: 1 }} />
-                      </Box>
-                      <Box
-                        sx={{
-                          bgcolor: 'white',
-                          borderRadius: 1.5,
-                          p: 1.5,
-                          mb: 1,
-                          boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-                        }}
-                      >
-                        <Box sx={{ width: '80%', height: 8, bgcolor: '#E2E8F0', borderRadius: 1, mb: 0.8 }} />
-                        <Box sx={{ width: '40%', height: 6, bgcolor: '#F1F5F9', borderRadius: 1 }} />
-                      </Box>
-                      <Box
-                        sx={{
-                          bgcolor: 'white',
-                          borderRadius: 1.5,
-                          p: 1.5,
-                          boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-                        }}
-                      >
-                        <Box sx={{ width: '60%', height: 8, bgcolor: '#E2E8F0', borderRadius: 1, mb: 0.8 }} />
-                        <Box sx={{ width: '45%', height: 6, bgcolor: '#F1F5F9', borderRadius: 1 }} />
-                      </Box>
-                    </Box>
-                    {/* Bottom nav */}
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        justifyContent: 'space-around',
-                        py: 1,
-                        borderTop: '1px solid #E2E8F0',
-                        bgcolor: 'white',
-                      }}
-                    >
-                      {[1, 2, 3, 4].map((i) => (
-                        <Box
-                          key={i}
-                          sx={{
-                            width: 20,
-                            height: 20,
-                            borderRadius: '50%',
-                            bgcolor: i === 1 ? '#0369A1' : '#CBD5E1',
-                          }}
-                        />
-                      ))}
-                    </Box>
-                  </Box>
-                </Box>
-              </Box>
-            </Grid>
-          </Grid>
-        </Container>
-      </Box>
-
-      {/* Testimonials Section */}
-      <Box sx={{ bgcolor: 'background.default', py: { xs: 8, md: 12 } }}>
+      {/* Testimonials */}
+      <Box sx={{ py: { xs: 6, md: 10 }, px: { xs: 3, md: 6 } }}>
         <Container maxWidth="md">
-          <Box sx={{ textAlign: 'center', mb: { xs: 4, md: 6 } }}>
-            <FormatQuoteIcon sx={{ fontSize: 40, color: 'primary.main', opacity: 0.3, mb: 1 }} />
+          <Box sx={{ textAlign: 'center', mb: 4 }}>
+            <FormatQuoteIcon sx={{ fontSize: 32, color: 'primary.main', opacity: 0.3, mb: 1 }} />
             <Typography
-              variant="h3"
               sx={{
+                fontSize: { xs: '1.25rem', md: '1.75rem' },
                 fontWeight: 700,
-                letterSpacing: '-0.02em',
                 color: 'text.primary',
-                fontSize: { xs: '1.5rem', md: '2rem' },
               }}
             >
               {t('landing.testimonials.sectionTitle')}
             </Typography>
           </Box>
 
-          <Box sx={{ position: 'relative', minHeight: 240 }}>
+          <Box sx={{ position: 'relative', minHeight: 200 }}>
             {TESTIMONIALS.map((testimonial, index) => (
               <Box
                 key={index}
@@ -505,56 +313,39 @@ export default function LandingPage() {
               >
                 <Box
                   sx={{
-                    p: { xs: 3, md: 5 },
+                    p: { xs: 3, md: 4 },
                     borderRadius: 3,
                     bgcolor: 'background.paper',
                     border: '1px solid',
                     borderColor: 'divider',
                     textAlign: 'center',
-                    position: 'relative',
-                    '&::before': {
-                      content: '"\u201C"',
-                      position: 'absolute',
-                      top: { xs: 8, md: 16 },
-                      left: { xs: 16, md: 32 },
-                      fontSize: { xs: '3rem', md: '4rem' },
-                      color: 'primary.main',
-                      opacity: 0.15,
-                      fontFamily: 'Georgia, serif',
-                      lineHeight: 1,
-                    },
                   }}
                 >
                   <Typography
-                    variant="body1"
                     sx={{
-                      fontSize: { xs: '1rem', md: '1.15rem' },
+                      fontSize: { xs: '0.95rem', md: '1.1rem' },
                       lineHeight: 1.8,
                       color: 'text.primary',
                       fontStyle: 'italic',
                       mb: 3,
-                      maxWidth: 560,
-                      mx: 'auto',
                     }}
                   >
                     {testimonial.quote}
                   </Typography>
                   <Avatar
                     sx={{
-                      width: 48,
-                      height: 48,
+                      width: 44,
+                      height: 44,
                       bgcolor: 'primary.main',
                       mx: 'auto',
-                      mb: 1.5,
-                      fontSize: '1rem',
+                      mb: 1,
+                      fontSize: '0.875rem',
                       fontWeight: 600,
                     }}
                   >
                     {testimonial.initials}
                   </Avatar>
-                  <Typography
-                    sx={{ fontWeight: 600, color: 'text.primary', fontSize: '0.95rem' }}
-                  >
+                  <Typography sx={{ fontWeight: 600, color: 'text.primary', fontSize: '0.9rem' }}>
                     {testimonial.name}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
@@ -565,7 +356,6 @@ export default function LandingPage() {
             ))}
           </Box>
 
-          {/* Dots indicator */}
           <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1, mt: 3 }}>
             {TESTIMONIALS.map((_, index) => (
               <Box
@@ -585,35 +375,33 @@ export default function LandingPage() {
         </Container>
       </Box>
 
-      {/* Pricing Section */}
-      <Box sx={{ bgcolor: '#F0F9FF', py: { xs: 8, md: 12 } }}>
+      {/* Pricing */}
+      <Box sx={{ py: { xs: 6, md: 10 }, px: { xs: 3, md: 6 }, bgcolor: 'background.paper' }}>
         <Container maxWidth="lg">
-          <Box sx={{ textAlign: 'center', mb: { xs: 6, md: 8 }, maxWidth: 600, mx: 'auto' }}>
+          <Box sx={{ textAlign: 'center', mb: { xs: 4, md: 6 }, maxWidth: 600, mx: 'auto' }}>
             <Typography
               sx={{
-                fontSize: '0.8rem',
+                fontSize: '0.75rem',
                 fontWeight: 700,
                 textTransform: 'uppercase',
                 letterSpacing: '0.1em',
                 color: 'primary.main',
-                mb: 1.5,
+                mb: 1,
               }}
             >
               {t('landing.pricing.label')}
             </Typography>
             <Typography
-              variant="h3"
               sx={{
                 fontWeight: 700,
-                letterSpacing: '-0.02em',
-                color: 'text.primary',
-                mb: 2,
                 fontSize: { xs: '1.5rem', md: '2rem' },
+                color: 'text.primary',
+                mb: 1.5,
               }}
             >
               {t('landing.pricing.title')}
             </Typography>
-            <Typography variant="body1" color="text.secondary">
+            <Typography variant="body2" color="text.secondary">
               {t('landing.pricing.subtitle')}
             </Typography>
           </Box>
@@ -623,16 +411,16 @@ export default function LandingPage() {
             <Grid item xs={12} sm={6} md={4}>
               <Box
                 sx={{
-                  p: 4,
+                  p: 3.5,
                   borderRadius: 3,
-                  bgcolor: 'background.paper',
+                  bgcolor: 'background.default',
                   border: '1px solid',
                   borderColor: 'divider',
                   height: '100%',
                   display: 'flex',
                   flexDirection: 'column',
                   transition: 'all 200ms ease-out',
-                  '&:hover': { borderColor: 'primary.light', boxShadow: '0 8px 24px rgba(3, 105, 161, 0.08)', transform: 'translateY(-4px)' },
+                  '&:hover': { borderColor: 'primary.light', transform: 'translateY(-4px)' },
                 }}
               >
                 <Typography sx={{ fontWeight: 700, fontSize: '1.25rem', color: 'text.primary', mb: 1 }}>
@@ -659,32 +447,28 @@ export default function LandingPage() {
                     </Box>
                   ))}
                 </Box>
-                <Button
-                  variant="secondary"
-                  onClick={() => navigate('/login')}
-                  sx={{ width: '100%', py: 1.5, borderRadius: 2 }}
-                >
+                <Button variant="secondary" onClick={() => navigate('/login')} sx={{ width: '100%', py: 1.5, borderRadius: 2 }}>
                   {t('landing.pricing.getStarted')}
                 </Button>
               </Box>
             </Grid>
 
-            {/* Professional (highlighted) */}
+            {/* Professional */}
             <Grid item xs={12} sm={6} md={4}>
               <Box
                 sx={{
-                  p: 4,
+                  p: 3.5,
                   borderRadius: 3,
-                  bgcolor: 'background.paper',
+                  bgcolor: 'background.default',
                   border: '2px solid',
                   borderColor: 'primary.main',
                   height: '100%',
                   display: 'flex',
                   flexDirection: 'column',
                   position: 'relative',
-                  boxShadow: '0 12px 32px rgba(3, 105, 161, 0.12)',
+                  boxShadow: (theme) => `0 12px 32px ${theme.palette.primary.main}1F`,
                   transition: 'all 200ms ease-out',
-                  '&:hover': { boxShadow: '0 16px 40px rgba(3, 105, 161, 0.18)', transform: 'translateY(-4px)' },
+                  '&:hover': { transform: 'translateY(-4px)' },
                 }}
               >
                 <Box
@@ -694,11 +478,11 @@ export default function LandingPage() {
                     left: '50%',
                     transform: 'translateX(-50%)',
                     bgcolor: 'primary.main',
-                    color: 'white',
+                    color: 'primary.contrastText',
                     px: 2.5,
                     py: 0.5,
                     borderRadius: 5,
-                    fontSize: '0.75rem',
+                    fontSize: '0.7rem',
                     fontWeight: 700,
                     textTransform: 'uppercase',
                     letterSpacing: '0.05em',
@@ -730,11 +514,7 @@ export default function LandingPage() {
                     </Box>
                   ))}
                 </Box>
-                <Button
-                  variant="primary"
-                  onClick={() => navigate('/login')}
-                  sx={{ width: '100%', py: 1.5, borderRadius: 2 }}
-                >
+                <Button variant="primary" onClick={() => navigate('/login')} sx={{ width: '100%', py: 1.5, borderRadius: 2 }}>
                   {t('landing.pricing.getStarted')}
                 </Button>
               </Box>
@@ -744,16 +524,16 @@ export default function LandingPage() {
             <Grid item xs={12} sm={6} md={4}>
               <Box
                 sx={{
-                  p: 4,
+                  p: 3.5,
                   borderRadius: 3,
-                  bgcolor: 'background.paper',
+                  bgcolor: 'background.default',
                   border: '1px solid',
                   borderColor: 'divider',
                   height: '100%',
                   display: 'flex',
                   flexDirection: 'column',
                   transition: 'all 200ms ease-out',
-                  '&:hover': { borderColor: 'primary.light', boxShadow: '0 8px 24px rgba(3, 105, 161, 0.08)', transform: 'translateY(-4px)' },
+                  '&:hover': { borderColor: 'primary.light', transform: 'translateY(-4px)' },
                 }}
               >
                 <Typography sx={{ fontWeight: 700, fontSize: '1.25rem', color: 'text.primary', mb: 1 }}>
@@ -777,11 +557,7 @@ export default function LandingPage() {
                     </Box>
                   ))}
                 </Box>
-                <Button
-                  variant="secondary"
-                  onClick={() => navigate('/login')}
-                  sx={{ width: '100%', py: 1.5, borderRadius: 2 }}
-                >
+                <Button variant="secondary" onClick={() => navigate('/login')} sx={{ width: '100%', py: 1.5, borderRadius: 2 }}>
                   {t('landing.pricing.contactSales')}
                 </Button>
               </Box>
@@ -790,47 +566,28 @@ export default function LandingPage() {
         </Container>
       </Box>
 
-      {/* Bottom CTA Section */}
+      {/* Bottom CTA */}
       <Box
         sx={{
           background: 'linear-gradient(160deg, #075985 0%, #0369A1 50%, #0284C7 100%)',
-          py: { xs: 8, md: 10 },
+          py: { xs: 6, md: 8 },
+          px: { xs: 3, md: 6 },
           position: 'relative',
-          overflow: 'hidden',
         }}
       >
-        <Box
-          sx={{
-            position: 'absolute',
-            inset: 0,
-            opacity: 0.04,
-            backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.8) 1px, transparent 0)',
-            backgroundSize: '32px 32px',
-          }}
-        />
-        <Container maxWidth="md" sx={{ position: 'relative', zIndex: 1 }}>
+        <Container maxWidth="md">
           <Box sx={{ textAlign: 'center' }}>
             <Typography
-              variant="h3"
               sx={{
                 fontWeight: 700,
                 color: 'white',
                 mb: 2,
-                letterSpacing: '-0.02em',
-                fontSize: { xs: '1.5rem', md: '2.25rem' },
+                fontSize: { xs: '1.5rem', md: '2rem' },
               }}
             >
               {t('landing.ctaTitle')}
             </Typography>
-            <Typography
-              sx={{
-                color: 'rgba(255,255,255,0.8)',
-                mb: 4,
-                fontSize: { xs: '0.95rem', md: '1.1rem' },
-                maxWidth: 500,
-                mx: 'auto',
-              }}
-            >
+            <Typography sx={{ color: 'rgba(255,255,255,0.8)', mb: 4, fontSize: '1rem', maxWidth: 480, mx: 'auto' }}>
               {t('landing.ctaSubtitle')}
             </Typography>
             <Button
@@ -840,16 +597,12 @@ export default function LandingPage() {
               sx={{
                 px: 5,
                 py: 1.75,
-                fontSize: '1.05rem',
+                fontSize: '1rem',
                 bgcolor: 'white',
                 color: '#0369A1',
                 fontWeight: 700,
-                borderRadius: 2.5,
-                boxShadow: '0 4px 14px rgba(0,0,0,0.15)',
-                '&:hover': {
-                  bgcolor: 'rgba(255,255,255,0.92)',
-                  boxShadow: '0 6px 20px rgba(0,0,0,0.2)',
-                },
+                borderRadius: 3,
+                '&:hover': { bgcolor: 'rgba(255,255,255,0.9)' },
               }}
               icon={<ArrowForwardIcon />}
               iconPosition="end"
@@ -861,24 +614,16 @@ export default function LandingPage() {
       </Box>
 
       {/* Footer */}
-      <Box sx={{ bgcolor: '#0F172A', py: 4 }}>
+      <Box sx={{ bgcolor: 'background.paper', py: 4, px: { xs: 3, md: 6 }, borderTop: '1px solid', borderColor: 'divider' }}>
         <Container maxWidth="lg">
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              flexWrap: 'wrap',
-              gap: 2,
-            }}
-          >
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <ConstructionIcon sx={{ fontSize: 18, color: 'rgba(255,255,255,0.4)' }} />
-              <Typography sx={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.8rem' }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', gap: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, opacity: 0.5 }}>
+              <ConstructionIcon sx={{ fontSize: 18, color: 'primary.main' }} />
+              <Typography sx={{ fontSize: '0.875rem', fontWeight: 800, color: 'text.primary' }}>
                 BuilderOps
               </Typography>
             </Box>
-            <Typography sx={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.75rem' }}>
+            <Typography sx={{ color: 'text.disabled', fontSize: '0.75rem' }}>
               &copy; {new Date().getFullYear()} BuilderOps. {t('landing.allRightsReserved')}
             </Typography>
           </Box>

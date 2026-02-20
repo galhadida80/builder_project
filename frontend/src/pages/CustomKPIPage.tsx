@@ -1,17 +1,22 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Box, Typography, Skeleton, Grid, Button as MuiButton, Switch, FormControlLabel, Snackbar, Alert } from '@/mui'
-import { AddIcon, ShowChartIcon } from '@/icons'
+import { PageHeader } from '../components/ui/Breadcrumbs'
+import { Button } from '../components/ui/Button'
+import { EmptyState } from '../components/ui/EmptyState'
 import { analyticsApi } from '../api/analytics'
 import KpiCard from '../components/kpi/KpiCard'
 import KpiFormDialog from '../components/kpi/KpiFormDialog'
+import { useToast } from '../components/common/ToastProvider'
 import type { CustomKpiDefinition, KpiValue } from '../types'
+import { AddIcon, ShowChartIcon } from '@/icons'
+import { Box, Typography, Skeleton, Switch, FormControlLabel } from '@/mui'
 
 export default function CustomKPIPage() {
   const { t } = useTranslation()
   const { projectId } = useParams<{ projectId: string }>()
   const pid = projectId!
+  const { showError, showSuccess } = useToast()
 
   const [kpiValues, setKpiValues] = useState<KpiValue[]>([])
   const [kpiDefs, setKpiDefs] = useState<CustomKpiDefinition[]>([])
@@ -19,7 +24,6 @@ export default function CustomKPIPage() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingKpi, setEditingKpi] = useState<CustomKpiDefinition | null>(null)
   const [showInactive, setShowInactive] = useState(false)
-  const [toast, setToast] = useState<{ message: string; severity: 'success' | 'error' } | null>(null)
 
   const loadData = useCallback(async () => {
     try {
@@ -31,7 +35,7 @@ export default function CustomKPIPage() {
       setKpiValues(values)
       setKpiDefs(defs)
     } catch {
-      setToast({ message: t('kpi.loadFailed'), severity: 'error' })
+      showError(t('kpi.loadFailed'))
     } finally {
       setLoading(false)
     }
@@ -44,11 +48,11 @@ export default function CustomKPIPage() {
   const handleCreate = async (data: Record<string, unknown>) => {
     try {
       await analyticsApi.createKpi(data)
-      setToast({ message: t('kpi.createSuccess'), severity: 'success' })
+      showSuccess(t('kpi.createSuccess'))
       setDialogOpen(false)
       loadData()
     } catch {
-      setToast({ message: t('kpi.createFailed'), severity: 'error' })
+      showError(t('kpi.createFailed'))
     }
   }
 
@@ -56,12 +60,12 @@ export default function CustomKPIPage() {
     if (!editingKpi) return
     try {
       await analyticsApi.updateKpi(editingKpi.id, data)
-      setToast({ message: t('kpi.updateSuccess'), severity: 'success' })
+      showSuccess(t('kpi.updateSuccess'))
       setEditingKpi(null)
       setDialogOpen(false)
       loadData()
     } catch {
-      setToast({ message: t('kpi.updateFailed'), severity: 'error' })
+      showError(t('kpi.updateFailed'))
     }
   }
 
@@ -69,10 +73,10 @@ export default function CustomKPIPage() {
     if (!confirm(t('kpi.confirmDeleteMessage'))) return
     try {
       await analyticsApi.deleteKpi(kpiId)
-      setToast({ message: t('kpi.deleteSuccess'), severity: 'success' })
+      showSuccess(t('kpi.deleteSuccess'))
       loadData()
     } catch {
-      setToast({ message: t('kpi.deleteFailed'), severity: 'error' })
+      showError(t('kpi.deleteFailed'))
     }
   }
 
@@ -93,72 +97,57 @@ export default function CustomKPIPage() {
 
   const hasInactive = kpiDefs.some(d => !d.isActive)
 
-  return (
-    <Box sx={{ p: { xs: 2, md: 3 } }}>
-      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, gap: 2, mb: 3 }}>
-        <Box>
-          <Typography variant="h5" sx={{ fontWeight: 700 }}>
-            {t('kpi.pageTitle')}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            {t('kpi.pageSubtitle')}
-          </Typography>
-        </Box>
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
-          {hasInactive && (
-            <FormControlLabel
-              control={<Switch checked={showInactive} onChange={(_, v) => setShowInactive(v)} size="small" />}
-              label={<Typography variant="caption">{showInactive ? t('kpi.hideInactive') : t('kpi.showInactive')}</Typography>}
-            />
-          )}
-          <MuiButton
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => { setEditingKpi(null); setDialogOpen(true) }}
-            size="small"
-          >
-            {t('kpi.addKpi')}
-          </MuiButton>
-        </Box>
+  if (loading) return (
+    <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
+      <Skeleton variant="text" width={250} height={48} sx={{ mb: 1 }} />
+      <Skeleton variant="text" width={200} height={24} sx={{ mb: 3 }} />
+      <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1.5, mb: 3 }}>
+        {[...Array(4)].map((_, i) => (
+          <Skeleton key={i} variant="rounded" height={160} sx={{ borderRadius: 2 }} />
+        ))}
       </Box>
+    </Box>
+  )
 
-      {loading ? (
-        <Grid container spacing={2}>
-          {[1, 2, 3].map(i => (
-            <Grid key={i} item xs={12} sm={6} md={4}>
-              <Skeleton variant="rounded" height={180} />
-            </Grid>
-          ))}
-        </Grid>
-      ) : filteredValues.length === 0 ? (
-        <Box sx={{ textAlign: 'center', py: 8 }}>
-          <ShowChartIcon sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
-          <Typography variant="h6" color="text.secondary" gutterBottom>
-            {t('kpi.noKpis')}
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-            {t('kpi.noKpisDescription')}
-          </Typography>
-          <MuiButton
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => { setEditingKpi(null); setDialogOpen(true) }}
-          >
-            {t('kpi.createFirst')}
-          </MuiButton>
+  return (
+    <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 }, maxWidth: '100%', overflow: 'hidden' }}>
+      <PageHeader
+        title={t('kpi.pageTitle')}
+        subtitle={t('kpi.pageSubtitle')}
+        actions={
+          <Button variant="primary" icon={<AddIcon />} onClick={() => { setEditingKpi(null); setDialogOpen(true) }}>
+            {t('kpi.addKpi')}
+          </Button>
+        }
+      />
+
+      {hasInactive && (
+        <Box sx={{ mb: 2 }}>
+          <FormControlLabel
+            control={<Switch checked={showInactive} onChange={(_, v) => setShowInactive(v)} size="small" />}
+            label={<Typography variant="caption">{showInactive ? t('kpi.hideInactive') : t('kpi.showInactive')}</Typography>}
+          />
         </Box>
+      )}
+
+      {filteredValues.length === 0 ? (
+        <EmptyState
+          icon={<ShowChartIcon sx={{ color: 'text.secondary' }} />}
+          title={t('kpi.noKpis')}
+          description={t('kpi.noKpisDescription')}
+          action={{ label: t('kpi.createFirst'), onClick: () => { setEditingKpi(null); setDialogOpen(true) } }}
+        />
       ) : (
-        <Grid container spacing={2}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 1.5 }}>
           {filteredValues.map(kv => (
-            <Grid key={kv.kpiId} item xs={12} sm={6} md={4}>
-              <KpiCard
-                kpiValue={kv}
-                onEdit={() => handleEdit(kv.kpiId)}
-                onDelete={() => handleDelete(kv.kpiId)}
-              />
-            </Grid>
+            <KpiCard
+              key={kv.kpiId}
+              kpiValue={kv}
+              onEdit={() => handleEdit(kv.kpiId)}
+              onDelete={() => handleDelete(kv.kpiId)}
+            />
           ))}
-        </Grid>
+        </Box>
       )}
 
       <KpiFormDialog
@@ -168,19 +157,6 @@ export default function CustomKPIPage() {
         editingKpi={editingKpi}
         projectId={pid}
       />
-
-      <Snackbar
-        open={!!toast}
-        autoHideDuration={4000}
-        onClose={() => setToast(null)}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        {toast ? (
-          <Alert severity={toast.severity} onClose={() => setToast(null)} variant="filled">
-            {toast.message}
-          </Alert>
-        ) : undefined}
-      </Snackbar>
     </Box>
   )
 }

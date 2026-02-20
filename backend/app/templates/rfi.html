@@ -1,12 +1,31 @@
 {% extends "base.html" %}
 
 {% block header %}
-<tr><td style="background:#0F172A;padding:32px 32px 28px;">
+<tr><td style="background:linear-gradient(135deg,#0F172A 0%,#1E293B 100%);padding:36px 36px 30px;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
 <tr><td>
-<p style="margin:0 0 16px;font-size:12px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:#64748B;">BuilderOps</p>
-<h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;letter-spacing:-0.3px;">{{ strings.title }}</h1>
-<p style="margin:8px 0 0;color:#94A3B8;font-size:14px;font-weight:500;">{{ rfi.rfi_number }}</p>
+<p style="margin:0 0 20px;font-size:11px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:#3B82F6;">BUILDEROPS</p>
+<h1 style="margin:0 0 8px;color:#ffffff;font-size:24px;font-weight:800;letter-spacing:-0.3px;">{{ strings.title }}</h1>
+<table role="presentation" cellpadding="0" cellspacing="0">
+<tr>
+<td style="padding-{{ 'left' if direction == 'rtl' else 'right' }}:10px;">
+<span style="display:inline-block;background:rgba(59,130,246,0.15);color:#60A5FA;padding:4px 14px;border-radius:8px;font-size:13px;font-weight:700;font-family:monospace;">{{ rfi.rfi_number }}</span>
+</td>
+{% if not is_response %}
+<td>
+{% if rfi.priority == 'urgent' %}
+<span style="display:inline-block;background:#FEF2F2;color:#DC2626;padding:4px 14px;border-radius:8px;font-size:12px;font-weight:700;">{{ strings.priority_urgent }}</span>
+{% elif rfi.priority == 'high' %}
+<span style="display:inline-block;background:#FFF7ED;color:#EA580C;padding:4px 14px;border-radius:8px;font-size:12px;font-weight:700;">{{ strings.priority_high }}</span>
+{% elif rfi.priority == 'medium' %}
+<span style="display:inline-block;background:#FFFBEB;color:#D97706;padding:4px 14px;border-radius:8px;font-size:12px;font-weight:700;">{{ strings.priority_medium }}</span>
+{% else %}
+<span style="display:inline-block;background:#F0FDF4;color:#16A34A;padding:4px 14px;border-radius:8px;font-size:12px;font-weight:700;">{{ strings.priority_low }}</span>
+{% endif %}
+</td>
+{% endif %}
+</tr>
+</table>
 </td></tr>
 </table>
 </td></tr>
@@ -15,10 +34,11 @@
 {% block content %}
 {% if is_response %}
 
+{# RFI Response View #}
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
-<tr><td style="padding:18px 20px;background:#F0F9FF;border-radius:8px;border-{{ 'right' if direction == 'rtl' else 'left' }}:4px solid #0369A1;">
-<p style="margin:0 0 8px;font-size:11px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:#0369A1;">{{ strings.response }}</p>
-<p style="margin:0;color:#334155;font-size:14px;line-height:1.7;">{{ response_text | replace('\n', '<br>') }}</p>
+<tr><td style="padding:20px 22px;background:#F0FDF4;border-radius:12px;border-{{ 'right' if direction == 'rtl' else 'left' }}:4px solid #16A34A;">
+<p style="margin:0 0 10px;font-size:12px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:#16A34A;">{{ strings.response }}</p>
+<p style="margin:0;color:#334155;font-size:15px;line-height:1.7;">{{ response_text | replace('\n', '<br>') }}</p>
 </td></tr>
 </table>
 
@@ -30,85 +50,108 @@
 
 {% else %}
 
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;margin-bottom:28px;">
+{# RFI Metadata Grid #}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F8FAFC;border-radius:12px;border:1px solid #E2E8F0;margin-bottom:24px;">
 <tr>
-<td width="50%" style="padding:14px 18px;border-bottom:1px solid #E2E8F0;vertical-align:top;">
-<p style="margin:0 0 4px;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">{{ strings.category }}</p>
-<span style="display:inline-block;background:#EFF6FF;color:#1D4ED8;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:600;">{{ rfi.category | title }}</span>
+<td width="50%" style="padding:14px 20px;border-bottom:1px solid #E2E8F0;vertical-align:top;">
+<p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">{{ strings.category }}</p>
+<span style="display:inline-block;background:#EFF6FF;color:#1D4ED8;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:700;">{{ rfi.category | title }}</span>
 </td>
-<td width="50%" style="padding:14px 18px;border-bottom:1px solid #E2E8F0;vertical-align:top;">
-<p style="margin:0 0 4px;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">{{ strings.priority }}</p>
+<td width="50%" style="padding:14px 20px;border-bottom:1px solid #E2E8F0;vertical-align:top;">
+<p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">{{ strings.priority }}</p>
 {% if rfi.priority == 'urgent' %}
-<span style="display:inline-block;background:#FEF2F2;color:#DC2626;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:600;">{{ strings.priority_urgent }}</span>
+<span style="display:inline-block;background:#FEF2F2;color:#DC2626;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:700;">{{ strings.priority_urgent }}</span>
 {% elif rfi.priority == 'high' %}
-<span style="display:inline-block;background:#FFF7ED;color:#EA580C;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:600;">{{ strings.priority_high }}</span>
+<span style="display:inline-block;background:#FFF7ED;color:#EA580C;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:700;">{{ strings.priority_high }}</span>
 {% elif rfi.priority == 'medium' %}
-<span style="display:inline-block;background:#FFFBEB;color:#D97706;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:600;">{{ strings.priority_medium }}</span>
+<span style="display:inline-block;background:#FFFBEB;color:#D97706;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:700;">{{ strings.priority_medium }}</span>
 {% else %}
-<span style="display:inline-block;background:#F0FDF4;color:#16A34A;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:600;">{{ strings.priority_low }}</span>
+<span style="display:inline-block;background:#F0FDF4;color:#16A34A;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:700;">{{ strings.priority_low }}</span>
 {% endif %}
 </td>
 </tr>
 <tr>
-<td width="50%" style="padding:14px 18px;border-bottom:1px solid #E2E8F0;vertical-align:top;">
-<p style="margin:0 0 4px;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">{{ strings.due_date }}</p>
-<p style="margin:0;font-size:14px;color:#334155;font-weight:500;">{{ due_date }}</p>
+<td width="50%" style="padding:14px 20px;border-bottom:1px solid #E2E8F0;vertical-align:top;">
+<p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">{{ strings.due_date }}</p>
+<p style="margin:0;font-size:14px;color:#334155;font-weight:600;">{{ due_date }}</p>
 </td>
-<td width="50%" style="padding:14px 18px;border-bottom:1px solid #E2E8F0;vertical-align:top;">
-<p style="margin:0 0 4px;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">{{ strings.location }}</p>
+<td width="50%" style="padding:14px 20px;border-bottom:1px solid #E2E8F0;vertical-align:top;">
+<p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">{{ strings.location }}</p>
 <p style="margin:0;font-size:14px;color:#334155;font-weight:500;">{{ location }}</p>
 </td>
 </tr>
 <tr>
-<td width="50%" style="padding:14px 18px;vertical-align:top;">
-<p style="margin:0 0 4px;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">{{ strings.drawing_ref }}</p>
+<td width="50%" style="padding:14px 20px;vertical-align:top;">
+<p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">{{ strings.drawing_ref }}</p>
 <p style="margin:0;font-size:14px;color:#334155;font-weight:500;">{{ drawing_ref }}</p>
 </td>
-<td width="50%" style="padding:14px 18px;vertical-align:top;">
-<p style="margin:0 0 4px;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">{{ strings.spec_ref }}</p>
+<td width="50%" style="padding:14px 20px;vertical-align:top;">
+<p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">{{ strings.spec_ref }}</p>
 <p style="margin:0;font-size:14px;color:#334155;font-weight:500;">{{ spec_ref }}</p>
 </td>
 </tr>
 </table>
 
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
+{# Sender & Recipient Info #}
+{% if sender_name or recipient_name %}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+<tr>
+{% if sender_name %}
+<td width="50%" style="padding:4px;">
+<div style="background:#F0F9FF;border-radius:10px;padding:14px 16px;">
+<p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#0369A1;">{{ strings.sent_by }}</p>
+<p style="margin:0;font-size:14px;color:#0F172A;font-weight:600;">{{ sender_name }}</p>
+</div>
+</td>
+{% endif %}
+{% if recipient_name %}
+<td width="50%" style="padding:4px;">
+<div style="background:#FFF7ED;border-radius:10px;padding:14px 16px;">
+<p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#EA580C;">{{ strings.addressed_to }}</p>
+<p style="margin:0;font-size:14px;color:#0F172A;font-weight:600;">{{ recipient_name }}</p>
+</div>
+</td>
+{% endif %}
+</tr>
+</table>
+{% endif %}
+
+{# Question #}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
 <tr><td>
-<p style="margin:0 0 10px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#0F172A;">{{ strings.question }}</p>
+<p style="margin:0 0 10px;font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#0F172A;">{{ strings.question }}</p>
 </td></tr>
-<tr><td style="padding:18px 20px;background:#F8FAFC;border-radius:8px;border-{{ 'right' if direction == 'rtl' else 'left' }}:4px solid #0369A1;">
-<p style="margin:0;color:#334155;font-size:14px;line-height:1.7;">{{ rfi.question | replace('\n', '<br>') }}</p>
+<tr><td style="padding:20px 22px;background:#F8FAFC;border-radius:12px;border-{{ 'right' if direction == 'rtl' else 'left' }}:4px solid #0369A1;">
+<p style="margin:0;color:#334155;font-size:15px;line-height:1.8;">{{ rfi.question | replace('\n', '<br>') }}</p>
 </td></tr>
 </table>
 
+{# Attachments #}
 {% if rfi.attachments and rfi.attachments | length > 0 %}
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
 <tr><td>
-<p style="margin:0 0 10px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#0F172A;">{{ strings.attachments }} ({{ rfi.attachments | length }})</p>
+<p style="margin:0 0 10px;font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#0F172A;">{{ strings.attachments }} ({{ rfi.attachments | length }})</p>
 </td></tr>
-<tr><td style="padding:14px 18px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;">
+<tr><td style="padding:14px 18px;background:#F8FAFC;border-radius:10px;border:1px solid #E2E8F0;">
 <p style="margin:0;color:#64748B;font-size:13px;line-height:1.8;">
 {% for att in rfi.attachments %}
-{{ att.filename if att is mapping else att }}{% if not loop.last %}, {% endif %}
+&#128206; {{ att.filename if att is mapping else att }}{% if not loop.last %}<br/>{% endif %}
 {% endfor %}
 </p>
 </td></tr>
 </table>
 {% endif %}
 
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
-<tr><td style="text-align:center;padding:8px 0 16px;">
-<a href="{{ frontend_url }}/projects/{{ rfi.project_id }}/rfis/{{ rfi.id }}" style="display:inline-block;background:#0369A1;color:#ffffff;text-decoration:none;padding:14px 36px;border-radius:8px;font-size:14px;font-weight:600;letter-spacing:0.3px;">{{ strings.cta }}</a>
-</td></tr>
-</table>
+{# CTA Button #}
+<div style="text-align:center;margin:0 0 24px;">
+<a href="{{ frontend_url }}/projects/{{ rfi.project_id }}/rfis/{{ rfi.id }}" style="display:inline-block;background:linear-gradient(135deg,#0369A1,#0EA5E9);color:#ffffff;text-decoration:none;padding:14px 40px;border-radius:12px;font-size:15px;font-weight:700;letter-spacing:0.3px;box-shadow:0 4px 12px rgba(3,105,161,0.3);">{{ strings.cta }}</a>
+</div>
 
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-<tr><td style="padding-top:20px;border-top:1px solid #E2E8F0;">
-<p style="margin:0 0 4px;color:#94A3B8;font-size:12px;line-height:1.6;">
-{{ strings.reply_note }}
-</p>
-<p style="margin:0;color:#94A3B8;font-size:12px;">
-{{ strings.reference }}: <strong style="color:#64748B;">{{ rfi.rfi_number }}</strong>
-</p>
+{# Reply Note & Reference #}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F0F9FF;border-radius:10px;border:1px solid #BAE6FD;">
+<tr><td style="padding:14px 18px;">
+<p style="margin:0 0 6px;color:#0369A1;font-size:13px;line-height:1.5;">{{ strings.reply_note }}</p>
+<p style="margin:0;color:#64748B;font-size:12px;">{{ strings.reference }}: <strong style="color:#0F172A;">{{ rfi.rfi_number }}</strong></p>
 </td></tr>
 </table>
 

@@ -1,10 +1,12 @@
 import { memo, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import ChatActionCard from './ChatActionCard'
 import type { ChatMessage as ChatMessageType } from '../../api/chat'
-import { SmartToyIcon, PersonIcon } from '@/icons'
-import { Box, Typography, Paper, Chip, Stack, useTheme } from '@/mui'
+import { SmartToyIcon, PersonIcon, VolumeUpIcon, StopCircleIcon } from '@/icons'
+import { Box, Typography, Paper, Chip, Stack, IconButton, Tooltip, useTheme } from '@/mui'
+import { useVoiceOutput } from '@/hooks/useVoiceOutput'
 
 function parseSuggestions(content: string): { cleanContent: string; suggestions: string[] } {
   const lines = content.split('\n')
@@ -44,15 +46,25 @@ export default memo(function ChatMessage({ message, onActionExecute, onActionRej
   const isUser = message.role === 'user'
   const actions = message.pendingActions || []
   const theme = useTheme()
+  const { t } = useTranslation()
   const isDark = theme.palette.mode === 'dark'
   const borderColor = isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)'
   const headerBg = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'
   const codeBg = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'
+  const { isSpeaking, speak, stop, isSupported: ttsSupported } = useVoiceOutput()
 
   const { cleanContent, suggestions } = useMemo(() => {
     if (!isUser && message.content) return parseSuggestions(message.content)
     return { cleanContent: message.content, suggestions: [] }
   }, [isUser, message.content])
+
+  const handleTtsClick = () => {
+    if (isSpeaking) {
+      stop()
+    } else if (message.content) {
+      speak(message.content)
+    }
+  }
 
   return (
     <Box
@@ -160,6 +172,19 @@ export default memo(function ChatMessage({ message, onActionExecute, onActionRej
               >
                 {cleanContent}
               </ReactMarkdown>
+            </Box>
+          )}
+          {!isUser && ttsSupported && (
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0.5 }}>
+              <Tooltip title={isSpeaking ? t('chat.voiceStopReading') : t('chat.voiceReadAloud')}>
+                <IconButton
+                  size="small"
+                  onClick={handleTtsClick}
+                  sx={{ width: 28, height: 28, color: isSpeaking ? 'error.main' : 'text.secondary' }}
+                >
+                  {isSpeaking ? <StopCircleIcon sx={{ fontSize: 18 }} /> : <VolumeUpIcon sx={{ fontSize: 18 }} />}
+                </IconButton>
+              </Tooltip>
             </Box>
           )}
         </Paper>

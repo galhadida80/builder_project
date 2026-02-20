@@ -3,7 +3,10 @@ import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { withMinDuration } from '../utils/async'
 import { getDateLocale } from '../utils/dateLocale'
+import { Card } from '../components/ui/Card'
+import { Button } from '../components/ui/Button'
 import { PageHeader } from '../components/ui/Breadcrumbs'
+import { EmptyState } from '../components/ui/EmptyState'
 import { ConfirmModal } from '../components/ui/Modal'
 import { bimApi } from '../api/bim'
 import { formatFileSize } from '../utils/fileUtils'
@@ -13,19 +16,7 @@ import IFCViewer from '../components/bim/IFCViewer'
 import BimImportWizard from '../components/bim/BimImportWizard'
 import type { BimModel } from '../types'
 import { CategoryIcon, CloudUploadIcon, DeleteIcon, DescriptionIcon, RotateRightIcon } from '@/icons'
-import {
-  Box,
-  Typography,
-  Skeleton,
-  Card,
-  CardContent,
-  CardActions,
-  Chip,
-  IconButton,
-  LinearProgress,
-  Tooltip,
-  CircularProgress,
-} from '@/mui'
+import { Box, Typography, Skeleton, Chip, IconButton, LinearProgress, CircularProgress } from '@/mui'
 
 const STATUS_COLORS: Record<string, 'default' | 'warning' | 'success' | 'error'> = {
   uploaded: 'default',
@@ -147,7 +138,6 @@ export default function BIMPage() {
   }
 
   const isIfc = (filename: string) => filename.toLowerCase().endsWith('.ifc')
-
   const canView = (model: BimModel) => isIfc(model.filename) || model.translationStatus === 'complete'
 
   const handleModelClick = (model: BimModel) => {
@@ -162,21 +152,25 @@ export default function BIMPage() {
     return data.accessToken
   }, [projectId, selectedModel])
 
-  if (loading) {
-    return (
-      <Box sx={{ p: 3 }}>
-        <Skeleton variant="rectangular" height={60} sx={{ mb: 2, borderRadius: 2 }} />
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 2 }}>
-          {[1, 2, 3].map((i) => (
-            <Skeleton key={i} variant="rectangular" height={160} sx={{ borderRadius: 2 }} />
-          ))}
-        </Box>
-      </Box>
-    )
+  const getFileExtension = (filename: string) => {
+    const ext = filename.split('.').pop()?.toLowerCase()
+    return ext ? `.${ext}` : ''
   }
 
+  if (loading) return (
+    <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
+      <Skeleton variant="text" width={200} height={48} sx={{ mb: 1 }} />
+      <Skeleton variant="text" width={250} height={24} sx={{ mb: 3 }} />
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+        {[...Array(3)].map((_, i) => (
+          <Skeleton key={i} variant="rounded" height={80} sx={{ borderRadius: 2 }} />
+        ))}
+      </Box>
+    </Box>
+  )
+
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 }, maxWidth: '100%', overflow: 'hidden' }}>
       <input
         ref={fileInputRef}
         type="file"
@@ -191,158 +185,167 @@ export default function BIMPage() {
         actions={
           <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
             {uploading && <CircularProgress size={20} />}
-            <Chip
+            <Button
+              variant="primary"
               icon={<CloudUploadIcon />}
-              label={uploading ? t('bim.uploading') : t('bim.upload')}
-              color="primary"
               onClick={() => !uploading && fileInputRef.current?.click()}
               disabled={uploading}
-              sx={{ cursor: 'pointer', fontWeight: 600 }}
-            />
+            >
+              {uploading ? t('bim.uploading') : t('bim.upload')}
+            </Button>
           </Box>
         }
       />
 
-      {models.length === 0 ? (
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            py: 10,
-            color: 'text.secondary',
-          }}
-        >
-          <DescriptionIcon sx={{ fontSize: 64, mb: 2, opacity: 0.3 }} />
-          <Typography variant="h6">{t('bim.noModels')}</Typography>
-          <Typography variant="body2" sx={{ mt: 1 }}>
-            {t('bim.noModelsDescription')}
-          </Typography>
-        </Box>
-      ) : (
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 2 }}>
-          {models.map((model) => (
-            <Card
-              key={model.id}
-              sx={{
-                cursor: canView(model) ? 'pointer' : 'default',
-                border: selectedModel?.id === model.id ? 2 : 1,
-                borderColor: selectedModel?.id === model.id ? 'primary.main' : 'divider',
-                transition: 'border-color 0.2s',
-                '&:hover': canView(model) ? { borderColor: 'primary.light' } : {},
-              }}
-              onClick={() => handleModelClick(model)}
-            >
-              <CardContent sx={{ pb: 1 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
-                  <Typography variant="subtitle1" fontWeight={600} noWrap sx={{ flex: 1, mr: 1 }}>
-                    {model.filename}
-                  </Typography>
-                  <Chip
-                    label={t(`bim.status.${model.translationStatus}`)}
-                    color={STATUS_COLORS[model.translationStatus] || 'default'}
-                    size="small"
-                  />
-                </Box>
-                <Typography variant="body2" color="text.secondary">
-                  {model.fileSize ? formatFileSize(model.fileSize) : '—'}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  {new Date(model.createdAt).toLocaleDateString(getDateLocale())}
-                </Typography>
-
-                {canView(model) && selectedModel?.id !== model.id && (
-                  <Typography variant="caption" color="primary" sx={{ mt: 0.5, display: 'block' }}>
-                    {t('bim.clickToView')}
-                  </Typography>
-                )}
-
-                {model.translationStatus === 'translating' && (
-                  <Box sx={{ mt: 1 }}>
-                    <LinearProgress
-                      variant="determinate"
-                      value={model.translationProgress}
-                      sx={{ height: 6, borderRadius: 3 }}
-                    />
-                    <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
-                      {t('bim.translating')} {model.translationProgress}%
-                    </Typography>
-                  </Box>
-                )}
-              </CardContent>
-              <CardActions sx={{ pt: 0, px: 2, pb: 1, justifyContent: 'flex-end' }}>
-                {model.translationStatus === 'uploaded' && model.urn && (
-                  <Tooltip title={t('bim.translate')}>
-                    <IconButton
-                      size="small"
-                      aria-label={t('bim.translate')}
-                      onClick={async (e) => {
-                        e.stopPropagation()
-                        if (!projectId) return
-                        try {
-                          await bimApi.translate(projectId, model.id)
-                          setModels((prev) =>
-                            prev.map((m) =>
-                              m.id === model.id ? { ...m, translationStatus: 'translating' } : m
-                            )
-                          )
-                          setPollingIds((prev) => new Set(prev).add(model.id))
-                        } catch {
-                          showError(t('bim.translateFailed'))
-                        }
-                      }}
-                    >
-                      <RotateRightIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
-                )}
-                {model.translationStatus === 'complete' && (
-                  <Tooltip title={t('bim.extractData')}>
-                    <IconButton
-                      size="small"
-                      color="primary"
-                      aria-label={t('bim.extractData')}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setImportModel(model)
-                      }}
-                    >
-                      <CategoryIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
-                )}
-                <Tooltip title={t('common.delete')}>
-                  <IconButton
-                    size="small"
-                    color="error"
-                    aria-label={t('common.delete')}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setDeleteModel(model)
-                    }}
-                  >
-                    <DeleteIcon fontSize="small" />
-                  </IconButton>
-                </Tooltip>
-              </CardActions>
-            </Card>
-          ))}
-        </Box>
-      )}
-
       {selectedModel && (
-        <Box sx={{ mt: 3 }}>
-          <Typography variant="h6" sx={{ mb: 1 }}>
-            {t('bim.viewer')} — {selectedModel.filename}
-          </Typography>
-          {isIfc(selectedModel.filename) ? (
-            <IFCViewer projectId={projectId!} modelId={selectedModel.id} filename={selectedModel.filename} />
-          ) : selectedModel.urn ? (
-            <ForgeViewer urn={selectedModel.urn} getToken={getViewerToken} />
-          ) : null}
-        </Box>
+        <Card sx={{ mb: 2, overflow: 'hidden' }}>
+          <Box sx={{ height: { xs: '45vh', md: '55vh' }, bgcolor: 'background.default' }}>
+            {isIfc(selectedModel.filename) ? (
+              <IFCViewer projectId={projectId!} modelId={selectedModel.id} filename={selectedModel.filename} />
+            ) : selectedModel.urn ? (
+              <ForgeViewer urn={selectedModel.urn} getToken={getViewerToken} />
+            ) : null}
+          </Box>
+          <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 1.5, borderTop: '1px solid', borderColor: 'divider' }}>
+            <Box sx={{ width: 40, height: 40, borderRadius: 2, bgcolor: 'primary.light', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <DescriptionIcon sx={{ color: 'primary.main' }} />
+            </Box>
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Typography variant="body2" fontWeight={700} noWrap>{selectedModel.filename}</Typography>
+              <Typography variant="caption" color="text.secondary">
+                {new Date(selectedModel.createdAt).toLocaleDateString(getDateLocale())} {getFileExtension(selectedModel.filename)}
+              </Typography>
+            </Box>
+            <Chip
+              label={t(`bim.status.${selectedModel.translationStatus}`)}
+              color={STATUS_COLORS[selectedModel.translationStatus] || 'default'}
+              size="small"
+            />
+          </Box>
+        </Card>
       )}
+
+      {models.length === 0 ? (
+        <EmptyState
+          icon={<DescriptionIcon sx={{ color: 'text.secondary' }} />}
+          title={t('bim.noModels')}
+          description={t('bim.noModelsDescription')}
+          action={{ label: t('bim.upload'), onClick: () => fileInputRef.current?.click() }}
+        />
+      ) : (
+        <>
+          {!selectedModel && (
+            <Typography variant="body2" fontWeight={700} sx={{ mb: 1.5 }}>
+              {models.length} {t('bim.title')}
+            </Typography>
+          )}
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+            {models.map((model) => {
+              const isSelected = selectedModel?.id === model.id
+              const viewable = canView(model)
+
+              return (
+                <Card
+                  key={model.id}
+                  hoverable={viewable}
+                  onClick={() => handleModelClick(model)}
+                  sx={{
+                    ...(isSelected && { border: '2px solid', borderColor: 'primary.main' }),
+                    cursor: viewable ? 'pointer' : 'default',
+                  }}
+                >
+                  <Box sx={{ p: 2 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                      <Box sx={{
+                        width: 40, height: 40, borderRadius: 2,
+                        bgcolor: isSelected ? 'primary.light' : 'action.hover',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        color: isSelected ? 'primary.main' : 'text.secondary',
+                      }}>
+                        <DescriptionIcon />
+                      </Box>
+                      <Box sx={{ flex: 1, minWidth: 0 }}>
+                        <Typography variant="body2" fontWeight={700} noWrap>{model.filename}</Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {getFileExtension(model.filename)} {model.fileSize ? `| ${formatFileSize(model.fileSize)}` : ''}
+                        </Typography>
+                      </Box>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0 }}>
+                        {model.translationStatus === 'translating' ? (
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                            <Typography variant="caption" fontWeight={700} color="primary.main">{model.translationProgress}%</Typography>
+                            <CircularProgress size={16} sx={{ color: 'primary.main' }} />
+                          </Box>
+                        ) : (
+                          <Chip
+                            label={t(`bim.status.${model.translationStatus}`)}
+                            color={STATUS_COLORS[model.translationStatus] || 'default'}
+                            size="small"
+                            sx={{ height: 22, fontSize: '0.65rem' }}
+                          />
+                        )}
+                      </Box>
+                    </Box>
+
+                    {model.translationStatus === 'translating' && (
+                      <LinearProgress
+                        variant="determinate"
+                        value={model.translationProgress}
+                        sx={{ height: 4, borderRadius: 2, mt: 1.5 }}
+                      />
+                    )}
+
+                    <Box sx={{ display: 'flex', gap: 0.5, mt: 1.5, justifyContent: 'flex-end' }}>
+                      {model.translationStatus === 'uploaded' && model.urn && (
+                        <IconButton
+                          size="small"
+                          onClick={async (e) => {
+                            e.stopPropagation()
+                            if (!projectId) return
+                            try {
+                              await bimApi.translate(projectId, model.id)
+                              setModels((prev) =>
+                                prev.map((m) =>
+                                  m.id === model.id ? { ...m, translationStatus: 'translating' } : m
+                                )
+                              )
+                              setPollingIds((prev) => new Set(prev).add(model.id))
+                            } catch {
+                              showError(t('bim.translateFailed'))
+                            }
+                          }}
+                        >
+                          <RotateRightIcon sx={{ fontSize: 18 }} />
+                        </IconButton>
+                      )}
+                      {model.translationStatus === 'complete' && (
+                        <IconButton
+                          size="small"
+                          color="primary"
+                          onClick={(e) => { e.stopPropagation(); setImportModel(model) }}
+                        >
+                          <CategoryIcon sx={{ fontSize: 18 }} />
+                        </IconButton>
+                      )}
+                      <IconButton
+                        size="small"
+                        color="error"
+                        onClick={(e) => { e.stopPropagation(); setDeleteModel(model) }}
+                      >
+                        <DeleteIcon sx={{ fontSize: 18 }} />
+                      </IconButton>
+                    </Box>
+                  </Box>
+                </Card>
+              )
+            })}
+          </Box>
+        </>
+      )}
+
+      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center', mt: 3 }}>
+        .rvt, .ifc, .nwd, .nwc, .dwg
+      </Typography>
 
       {importModel && (
         <BimImportWizard

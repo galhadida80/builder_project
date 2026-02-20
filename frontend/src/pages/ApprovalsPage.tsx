@@ -1,20 +1,19 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Card, KPICard } from '../components/ui/Card'
+import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { StatusBadge } from '../components/ui/StatusBadge'
 import { PageHeader } from '../components/ui/Breadcrumbs'
 import { Tabs } from '../components/ui/Tabs'
 import { EmptyState } from '../components/ui/EmptyState'
 import { FormModal } from '../components/ui/Modal'
-import { TextField, SearchField } from '../components/ui/TextField'
-import { ProgressBar } from '../components/ui/ProgressBar'
+import { TextField } from '../components/ui/TextField'
 import { approvalsApi } from '../api/approvals'
 import { equipmentApi } from '../api/equipment'
 import { materialsApi } from '../api/materials'
 import { useToast } from '../components/common/ToastProvider'
-import type { ApprovalRequest, ApprovalStep, Equipment, Material } from '../types'
-import { BuildIcon, InventoryIcon, CheckCircleIcon, CancelIcon, PendingIcon, ThumbUpIcon, ThumbDownIcon } from '@/icons'
+import type { ApprovalRequest, Equipment, Material } from '../types'
+import { BuildIcon, InventoryIcon, CheckCircleIcon, CancelIcon } from '@/icons'
 import { Box, Typography, Chip, Skeleton } from '@/mui'
 
 export default function ApprovalsPage() {
@@ -81,15 +80,6 @@ export default function ApprovalsPage() {
       return equipment.find(e => e.id === approval.entityId)
     }
     return materials.find(m => m.id === approval.entityId)
-  }
-
-  const getStepStatus = (step: ApprovalStep) => {
-    switch (step.status) {
-      case 'approved': return { icon: <CheckCircleIcon sx={{ fontSize: 18 }} />, color: 'success.main', bg: 'success.light' }
-      case 'rejected': return { icon: <CancelIcon sx={{ fontSize: 18 }} />, color: 'error.main', bg: 'error.light' }
-      case 'under_review': return { icon: <PendingIcon sx={{ fontSize: 18 }} />, color: 'warning.main', bg: 'warning.light' }
-      default: return { icon: <PendingIcon sx={{ fontSize: 18 }} />, color: 'text.disabled', bg: 'action.hover' }
-    }
   }
 
   const handleAction = (approval: ApprovalRequest, action: 'approve' | 'reject') => {
@@ -164,246 +154,103 @@ export default function ApprovalsPage() {
         breadcrumbs={[{ label: t('nav.dashboard'), href: '/dashboard' }, { label: t('nav.approvals') }]}
       />
 
-      <Box
-        sx={{
-          display: 'grid',
-          gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', md: 'repeat(4, 1fr)' },
-          gap: 1.5,
-          mb: 3,
-          overflow: 'hidden',
-        }}
-      >
-        <KPICard
-          title={t('approvals.totalRequests')}
-          value={approvals.length}
-          icon={<CheckCircleIcon />}
-          color="primary"
-        />
-        <KPICard
-          title={t('approvals.pending')}
-          value={pendingApprovals.length}
-          icon={<PendingIcon />}
-          color="warning"
-        />
-        <KPICard
-          title={t('approvals.approved')}
-          value={approvedApprovals.length}
-          icon={<ThumbUpIcon />}
-          color="success"
-        />
-        <KPICard
-          title={t('approvals.rejected')}
-          value={rejectedApprovals.length}
-          icon={<ThumbDownIcon />}
-          color="error"
-        />
-      </Box>
+      <Tabs
+        items={[
+          { label: t('approvals.pending'), value: 'pending', badge: pendingApprovals.length },
+          { label: t('approvals.approved'), value: 'approved', badge: approvedApprovals.length },
+          { label: t('approvals.rejected'), value: 'rejected', badge: rejectedApprovals.length },
+        ]}
+        value={tabValue}
+        onChange={setTabValue}
+        size="small"
+      />
 
-      <Card>
-        <Box sx={{ p: 2 }}>
-          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, gap: { xs: 1, sm: 0 }, mb: 2 }}>
-            <SearchField
-              placeholder={t('approvals.searchPlaceholder')}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <Chip label={`${displayedApprovals.length} ${t('common.items')}`} size="small" sx={{ alignSelf: { xs: 'flex-start', sm: 'center' } }} />
-          </Box>
+      {pendingApprovals.length > 0 && (
+        <Box sx={{ px: 0.5, py: 1.5, mb: 1 }}>
+          <Typography variant="caption" color="text.secondary">
+            {pendingApprovals.length} {t('approvals.pending')}
+          </Typography>
+        </Box>
+      )}
 
-          <Tabs
-            items={[
-              { label: t('approvals.pending'), value: 'pending', badge: pendingApprovals.length },
-              { label: t('approvals.approved'), value: 'approved', badge: approvedApprovals.length },
-              { label: t('approvals.rejected'), value: 'rejected', badge: rejectedApprovals.length },
-              { label: t('common.all'), value: 'all', badge: approvals.length },
-            ]}
-            value={tabValue}
-            onChange={setTabValue}
-            size="small"
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mt: 1 }} role="list" aria-label={t('approvals.title')}>
+        {displayedApprovals.length === 0 ? (
+          <EmptyState
+            title={tabValue === 'pending' ? t('approvals.noPending') : t('approvals.noApprovals')}
+            description={tabValue === 'pending' ? t('approvals.allProcessed') : t('approvals.tryAdjusting')}
+            icon={<CheckCircleIcon sx={{ color: 'success.main' }} />}
           />
+        ) : (
+          displayedApprovals.map((approval) => {
+            const entity = getEntityDetails(approval)
+            const isPending = approval.currentStatus !== 'approved' && approval.currentStatus !== 'rejected'
+            const typeColor = approval.entityType === 'equipment' ? 'info' : 'secondary'
 
-          <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 1.5 }} role="list" aria-label={t('approvals.title')}>
-            {displayedApprovals.length === 0 ? (
-              <EmptyState
-                title={tabValue === 'pending' ? t('approvals.noPending') : t('approvals.noApprovals')}
-                description={tabValue === 'pending' ? t('approvals.allProcessed') : t('approvals.tryAdjusting')}
-                icon={<CheckCircleIcon sx={{ color: 'success.main' }} />}
-              />
-            ) : (
-              displayedApprovals.map((approval) => {
-                const entity = getEntityDetails(approval)
-                const completedSteps = approval.steps?.filter(s => s.status === 'approved').length || 0
-                const totalSteps = approval.steps?.length || 1
-                const progress = Math.round((completedSteps / totalSteps) * 100)
-
-                return (
-                  <Box key={approval.id} role="listitem">
-                  <Card hoverable>
-                    <Box sx={{ p: 2 }}>
-                      <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-start', gap: { xs: 2, sm: 0 } }}>
-                        <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start', flex: 1, minWidth: 0 }}>
-                          <Box
-                            sx={{
-                              width: 48,
-                              height: 48,
-                              borderRadius: 2,
-                              bgcolor: approval.entityType === 'equipment' ? 'primary.light' : 'warning.light',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                            }}
-                          >
-                            {approval.entityType === 'equipment' ? (
-                              <BuildIcon sx={{ color: 'primary.main' }} />
-                            ) : (
-                              <InventoryIcon sx={{ color: 'warning.main' }} />
-                            )}
-                          </Box>
-                          <Box sx={{ flex: 1 }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
-                              <Typography variant="body2" fontWeight={600}>
-                                {entity?.name || t('approvals.unknown')}
-                              </Typography>
-                              <StatusBadge status={approval.currentStatus} />
-                            </Box>
-                            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                              {t('approvals.approvalRequest', { type: approval.entityType })}
-                            </Typography>
-
-                            <Box sx={{ maxWidth: 400 }}>
-                              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                                <Typography variant="caption" color="text.secondary">
-                                  {t('approvals.progress')}
-                                </Typography>
-                                <Typography variant="caption" fontWeight={600}>
-                                  {t('approvals.stepOf', { current: completedSteps, total: totalSteps })}
-                                </Typography>
-                              </Box>
-                              <ProgressBar
-                                value={progress}
-                                showValue={false}
-                                size="small"
-                                color={approval.currentStatus === 'rejected' ? 'error' : 'primary'}
-                              />
-                            </Box>
-                          </Box>
+            return (
+              <Box key={approval.id} role="listitem">
+                <Card sx={{
+                  ...(isPending && { border: '1px solid', borderColor: 'divider' }),
+                }}>
+                  <Box sx={{ p: 2 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1.5 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                        <Box sx={{
+                          width: 40, height: 40, borderRadius: 2,
+                          bgcolor: approval.entityType === 'equipment' ? 'info.light' : 'secondary.light',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          color: approval.entityType === 'equipment' ? 'info.main' : 'secondary.main',
+                        }}>
+                          {approval.entityType === 'equipment' ? <BuildIcon /> : <InventoryIcon />}
                         </Box>
-
-                        {approval.currentStatus !== 'approved' && approval.currentStatus !== 'rejected' && (
-                          <Box sx={{ display: 'flex', gap: 1, ml: { xs: 0, sm: 2 }, flexShrink: 0 }}>
-                            <Button
-                              variant="success"
-                              size="small"
-                              icon={<CheckCircleIcon />}
-                              onClick={() => handleAction(approval, 'approve')}
-                            >
-                              {t('approvals.approve')}
-                            </Button>
-                            <Button
-                              variant="danger"
-                              size="small"
-                              icon={<CancelIcon />}
-                              onClick={() => handleAction(approval, 'reject')}
-                            >
-                              {t('approvals.reject')}
-                            </Button>
-                          </Box>
-                        )}
-                      </Box>
-
-                      {approval.steps && approval.steps.length > 0 && (
-                        <Box sx={{ mt: 3, pt: 2, borderTop: 1, borderColor: 'divider' }}>
-                          <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ mb: 1.5, display: 'block' }}>
-                            {t('approvals.approvalWorkflow')}
+                        <Box>
+                          <Chip
+                            label={t('approvals.approvalRequest', { type: approval.entityType })}
+                            size="small"
+                            sx={{ height: 20, fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', mb: 0.5 }}
+                          />
+                          <Typography variant="body1" fontWeight={700} sx={{ lineHeight: 1.3 }}>
+                            {entity?.name || t('approvals.unknown')}
                           </Typography>
-                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                            {approval.steps.map((step, index) => {
-                              const status = getStepStatus(step)
-                              return (
-                                <Box
-                                  key={step.id}
-                                  sx={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    flex: 1,
-                                    minWidth: { xs: 60, sm: 80 },
-                                  }}
-                                >
-                                  <Box
-                                    sx={{
-                                      display: 'flex',
-                                      flexDirection: 'column',
-                                      alignItems: 'center',
-                                      flex: 1,
-                                    }}
-                                  >
-                                    <Box
-                                      sx={{
-                                        width: 36,
-                                        height: 36,
-                                        borderRadius: '50%',
-                                        bgcolor: status.bg,
-                                        color: status.color,
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        mb: 0.5,
-                                      }}
-                                    >
-                                      {status.icon}
-                                    </Box>
-                                    <Typography
-                                      variant="caption"
-                                      color="text.secondary"
-                                      sx={{ textAlign: 'center', fontSize: '0.65rem' }}
-                                    >
-                                      {step.approverRole ? t(`roles.${step.approverRole}`, { defaultValue: step.approverRole.replace('_', ' ') }) : ''}
-                                    </Typography>
-                                    {step.comments && (
-                                      <Typography
-                                        variant="caption"
-                                        color="text.secondary"
-                                        sx={{
-                                          textAlign: 'center',
-                                          fontSize: '0.6rem',
-                                          fontStyle: 'italic',
-                                          maxWidth: 80,
-                                          overflow: 'hidden',
-                                          textOverflow: 'ellipsis',
-                                          whiteSpace: 'nowrap',
-                                        }}
-                                      >
-                                        "{step.comments}"
-                                      </Typography>
-                                    )}
-                                  </Box>
-                                  {index < approval.steps!.length - 1 && (
-                                    <Box
-                                      sx={{
-                                        flex: 0.5,
-                                        height: 2,
-                                        bgcolor: step.status === 'approved' ? 'success.main' : 'divider',
-                                        borderRadius: 1,
-                                        mx: 1,
-                                        mt: -2,
-                                      }}
-                                    />
-                                  )}
-                                </Box>
-                              )
-                            })}
-                          </Box>
                         </Box>
+                      </Box>
+                      {isPending && (
+                        <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: 'primary.main', flexShrink: 0, mt: 0.5 }} />
                       )}
                     </Box>
-                  </Card>
+
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
+                      <StatusBadge status={approval.currentStatus} size="small" />
+                    </Box>
+
+                    {isPending && (
+                      <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5 }}>
+                        <Button
+                          variant="success"
+                          size="small"
+                          icon={<CheckCircleIcon />}
+                          onClick={() => handleAction(approval, 'approve')}
+                          fullWidth
+                        >
+                          {t('approvals.approve')}
+                        </Button>
+                        <Button
+                          variant="danger"
+                          size="small"
+                          icon={<CancelIcon />}
+                          onClick={() => handleAction(approval, 'reject')}
+                          fullWidth
+                        >
+                          {t('approvals.reject')}
+                        </Button>
+                      </Box>
+                    )}
                   </Box>
-                )
-              })
-            )}
-          </Box>
-        </Box>
-      </Card>
+                </Card>
+              </Box>
+            )
+          })
+        )}
+      </Box>
 
       <FormModal
         open={dialogOpen}
