@@ -35,3 +35,5 @@ fastmcp>=0.1.0
 ifcopenshell>=0.8.0
 weasyprint>=62.0
 webauthn>=2.0.0
+google-cloud-documentai>=2.20.0
+pdfplumber>=0.10.0

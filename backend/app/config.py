@@ -78,6 +78,10 @@ class Settings(BaseSettings):
 
     webhook_secret: str = ""
 
+    docai_processor_id: str = ""
+    docai_location: str = "eu"
+    docai_project_id: str = ""
+
     webauthn_rp_id: str = "localhost"
     webauthn_rp_name: str = "BuilderOps"
 
