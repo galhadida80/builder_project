@@ -276,7 +276,7 @@ export default function DashboardPage() {
                   data: dashboardStats!.areaProgressByFloor.map(f => `${t('dashboard.charts.floor')} ${f.floor}`),
                 }]}
                 series={[{
-                  data: dashboardStats!.areaProgressByFloor.map(f => f.avgProgress),
+                  data: dashboardStats!.areaProgressByFloor.map(f => Math.round(f.avgProgress)),
                   label: t('dashboard.charts.avgProgress'),
                   color: '#1976d2',
                 }]}

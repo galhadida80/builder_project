@@ -45,6 +45,17 @@ export interface DefectAnalysisResult {
   description: string
 }
 
+export interface DefectAnalysisItem {
+  category: string
+  severity: string
+  description: string
+}
+
+export interface MultiDefectAnalysisResult {
+  defects: DefectAnalysisItem[]
+  processingTimeMs: number
+}
+
 export const defectsApi = {
   list: async (projectId: string, params?: DefectListParams): Promise<PaginatedResponse<Defect>> => {
     const qs = new URLSearchParams()
@@ -92,7 +103,7 @@ export const defectsApi = {
     await apiClient.delete(`/projects/${projectId}/defects/${defectId}/assignees/${contactId}`)
   },
 
-  analyzeImage: async (projectId: string, file: File, language: string = 'en'): Promise<DefectAnalysisResult> => {
+  analyzeImage: async (projectId: string, file: File, language: string = 'en'): Promise<MultiDefectAnalysisResult> => {
     const formData = new FormData()
     formData.append('file', file)
     const response = await apiClient.post(

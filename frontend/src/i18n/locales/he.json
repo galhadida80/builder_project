@@ -566,7 +566,14 @@
       "material": "חומר",
       "meeting": "פגישה",
       "inspection": "בדיקה",
-      "rfi": "RFI"
+      "rfi": "RFI",
+      "defect": "ליקוי",
+      "area": "אזור",
+      "contact": "איש קשר",
+      "bim": "מודל BIM",
+      "checklist_instance": "מופע צ׳קליסט",
+      "checklist_item_response": "תגובת צ׳קליסט",
+      "file": "קובץ"
     },
     "charts": {
       "activityTrend": "פעילות שבועית",
@@ -943,7 +950,14 @@
     "closeChat": "סגור צ'אט",
     "deleteConversation": "מחק שיחה",
     "sendMessage": "שלח הודעה",
-    "toggleDetails": "הצג/הסתר פרטים"
+    "toggleDetails": "הצג/הסתר פרטים",
+    "voiceInput": "קלט קולי",
+    "voiceInputStart": "התחל הקלטה",
+    "voiceInputStop": "עצור הקלטה",
+    "voiceListening": "מקשיב...",
+    "voiceNotSupported": "הקלט הקולי אינו נתמך בדפדפן זה",
+    "voiceReadAloud": "הקראה",
+    "voiceStopReading": "עצור הקראה"
   },
   "approvalQueue": {
     "title": "תור אישורים",
@@ -2138,6 +2152,16 @@
       "solar_system": "מערכת סולרית",
       "structural": "שלד",
       "electrical": "חשמל",
+      "tiling": "חיפוי",
+      "fire_safety": "בטיחות אש",
+      "insulation": "בידוד",
+      "windows_doors": "חלונות ודלתות",
+      "drainage": "ניקוז",
+      "elevator": "מעלית",
+      "gas": "גז",
+      "accessibility": "נגישות",
+      "exterior_cladding": "חיפוי חוץ",
+      "landscaping": "פיתוח סביבתי",
       "other": "אחר"
     },
     "exportPdf": "ייצוא PDF",
@@ -2154,7 +2178,14 @@
     "analyzing": "מנתח...",
     "analyzeSuccess": "התמונה נותחה - בדוק וערוך את התוצאות",
     "analyzeFailed": "ניתוח התמונה נכשל",
-    "analyzeHint": "AI יזהה קטגוריה, חומרה ותיאור"
+    "analyzeHint": "AI יזהה קטגוריה, חומרה ותיאור",
+    "multiAnalyzeSuccess": "זוהו {{count}} ליקויים - בדוק וערוך את התוצאות",
+    "detectedDefects": "ליקויים שזוהו ({{count}})",
+    "selectDefectsHint": "בחר אילו ליקויים ליצור. ניתן לערוך כל אחד.",
+    "defectIndex": "ליקוי {{index}}",
+    "createMultiple": "צור {{count}} ליקויים",
+    "batchCreateSuccess": "{{count}} ליקויים דווחו בהצלחה",
+    "noDefectsSelected": "יש לבחור לפחות ליקוי אחד"
   },
   "webauthn": {
     "setupTitle": "כניסה ביומטרית",

@@ -676,10 +676,12 @@ export interface ContactGroup {
 export type DefectStatus = 'open' | 'in_progress' | 'resolved' | 'closed'
 export type DefectSeverity = 'low' | 'medium' | 'high' | 'critical'
 export type DefectCategory =
-  | 'concrete_structure' | 'wet_room_waterproofing' | 'plaster' | 'roof'
-  | 'painting' | 'plumbing' | 'flooring' | 'fire_passage_sealing'
-  | 'roof_waterproofing' | 'building_general' | 'moisture' | 'waterproofing'
-  | 'hvac' | 'lighting' | 'solar_system' | 'other'
+  | 'concrete_structure' | 'structural' | 'wet_room_waterproofing' | 'plaster'
+  | 'roof' | 'roof_waterproofing' | 'painting' | 'plumbing' | 'flooring'
+  | 'tiling' | 'fire_passage_sealing' | 'fire_safety' | 'building_general'
+  | 'moisture' | 'waterproofing' | 'insulation' | 'hvac' | 'electrical'
+  | 'lighting' | 'solar_system' | 'windows_doors' | 'drainage' | 'elevator'
+  | 'gas' | 'accessibility' | 'exterior_cladding' | 'landscaping' | 'other'
 
 export interface DefectContactBrief {
   id: string

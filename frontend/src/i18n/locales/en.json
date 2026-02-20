@@ -108,7 +108,14 @@
       "material": "material",
       "meeting": "a meeting",
       "inspection": "an inspection",
-      "rfi": "an RFI"
+      "rfi": "an RFI",
+      "defect": "a defect",
+      "area": "an area",
+      "contact": "a contact",
+      "bim": "a BIM model",
+      "checklist_instance": "a checklist instance",
+      "checklist_item_response": "a checklist response",
+      "file": "a file"
     },
     "charts": {
       "activityTrend": "Weekly Activity",
@@ -824,7 +831,14 @@
     "closeChat": "Close chat",
     "deleteConversation": "Delete conversation",
     "sendMessage": "Send message",
-    "toggleDetails": "Toggle details"
+    "toggleDetails": "Toggle details",
+    "voiceInput": "Voice input",
+    "voiceInputStart": "Start recording",
+    "voiceInputStop": "Stop recording",
+    "voiceListening": "Listening...",
+    "voiceNotSupported": "Voice input is not supported in this browser",
+    "voiceReadAloud": "Read aloud",
+    "voiceStopReading": "Stop reading"
   },
   "approvalQueue": {
     "title": "Approval Queue",
@@ -2083,6 +2097,16 @@
       "solar_system": "Solar System",
       "structural": "Structural",
       "electrical": "Electrical",
+      "tiling": "Tiling",
+      "fire_safety": "Fire Safety",
+      "insulation": "Insulation",
+      "windows_doors": "Windows & Doors",
+      "drainage": "Drainage",
+      "elevator": "Elevator",
+      "gas": "Gas",
+      "accessibility": "Accessibility",
+      "exterior_cladding": "Exterior Cladding",
+      "landscaping": "Landscaping",
       "other": "Other"
     },
     "exportPdf": "Export PDF",
@@ -2099,7 +2123,14 @@
     "analyzing": "Analyzing...",
     "analyzeSuccess": "Image analyzed - review and edit the results",
     "analyzeFailed": "Failed to analyze image",
-    "analyzeHint": "AI will detect category, severity and description"
+    "analyzeHint": "AI will detect category, severity and description",
+    "multiAnalyzeSuccess": "Detected {{count}} defects - review and edit the results",
+    "detectedDefects": "Detected Defects ({{count}})",
+    "selectDefectsHint": "Select which defects to create. You can edit each one.",
+    "defectIndex": "Defect {{index}}",
+    "createMultiple": "Create {{count}} Defects",
+    "batchCreateSuccess": "{{count}} defects reported successfully",
+    "noDefectsSelected": "Select at least one defect"
   },
   "webauthn": {
     "setupTitle": "Biometric Login",

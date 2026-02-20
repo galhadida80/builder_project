@@ -18,11 +18,11 @@ from app.models.defect import Defect, DefectAssignee
 from app.models.project import Project
 from app.models.user import User
 from app.schemas.defect import (
-    DefectAnalysisResponse,
     DefectCreate,
     DefectResponse,
     DefectSummaryResponse,
     DefectUpdate,
+    MultiDefectAnalysisResponse,
     PaginatedDefectResponse,
 )
 from app.services.audit_service import create_audit_log, get_model_dict
@@ -198,7 +198,7 @@ async def export_defects_pdf(
 ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp"}
 
 
-@router.post("/projects/{project_id}/defects/analyze-image", response_model=DefectAnalysisResponse)
+@router.post("/projects/{project_id}/defects/analyze-image", response_model=MultiDefectAnalysisResponse)
 async def analyze_defect_image_endpoint(
     project_id: UUID,
     file: UploadFile = File(...),
@@ -220,10 +220,9 @@ async def analyze_defect_image_endpoint(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Image analysis failed: {str(e)}")
 
-    return DefectAnalysisResponse(
-        category=result["category"],
-        severity=result["severity"],
-        description=result["description"],
+    return MultiDefectAnalysisResponse(
+        defects=result["defects"],
+        processing_time_ms=result["processing_time_ms"],
     )
 
 

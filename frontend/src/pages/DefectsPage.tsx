@@ -12,7 +12,7 @@ import { FormModal } from '../components/ui/Modal'
 import { PageHeader } from '../components/ui/Breadcrumbs'
 import { EmptyState } from '../components/ui/EmptyState'
 import { TextField, SearchField } from '../components/ui/TextField'
-import { defectsApi, DefectCreateData } from '../api/defects'
+import { defectsApi, DefectCreateData, DefectAnalysisItem } from '../api/defects'
 import { filesApi } from '../api/files'
 import { contactsApi } from '../api/contacts'
 import { areasApi } from '../api/areas'
@@ -27,6 +27,7 @@ import {
 import {
   Box, Typography, Skeleton, Chip, MenuItem, IconButton, LinearProgress,
   TextField as MuiTextField, Autocomplete, TablePagination, CircularProgress,
+  Paper, Checkbox, FormControlLabel,
 } from '@/mui'
 
 function compressImage(file: File, maxWidth = 1920, quality = 0.8): Promise<File> {
@@ -62,10 +63,12 @@ function compressImage(file: File, maxWidth = 1920, quality = 0.8): Promise<File
 const MAX_PHOTOS = 5
 
 const CATEGORY_OPTIONS = [
-  'concrete_structure', 'wet_room_waterproofing', 'plaster', 'roof',
-  'painting', 'plumbing', 'flooring', 'fire_passage_sealing',
-  'roof_waterproofing', 'building_general', 'moisture', 'waterproofing',
-  'hvac', 'lighting', 'solar_system', 'other',
+  'concrete_structure', 'structural', 'wet_room_waterproofing', 'plaster',
+  'roof', 'roof_waterproofing', 'painting', 'plumbing', 'flooring',
+  'tiling', 'fire_passage_sealing', 'fire_safety', 'building_general',
+  'moisture', 'waterproofing', 'insulation', 'hvac', 'electrical',
+  'lighting', 'solar_system', 'windows_doors', 'drainage', 'elevator',
+  'gas', 'accessibility', 'exterior_cladding', 'landscaping', 'other',
 ]
 
 const SEVERITY_OPTIONS = ['low', 'medium', 'high', 'critical']
@@ -95,6 +98,8 @@ export default function DefectsPage() {
   const [analyzing, setAnalyzing] = useState(false)
   const [pendingPhotos, setPendingPhotos] = useState<File[]>([])
   const [photoPreviews, setPhotoPreviews] = useState<string[]>([])
+  const [analysisResults, setAnalysisResults] = useState<DefectAnalysisItem[]>([])
+  const [selectedDefects, setSelectedDefects] = useState<boolean[]>([])
 
   const [formErrors, setFormErrors] = useState<ValidationError>({})
   const [form, setForm] = useState<DefectCreateData>({
@@ -148,13 +153,23 @@ export default function DefectsPage() {
     try {
       const lang = (i18n.language || 'en').slice(0, 2)
       const result = await defectsApi.analyzeImage(projectId, pendingPhotos[0], lang)
-      setForm(prev => ({
-        ...prev,
-        category: result.category,
-        severity: result.severity,
-        description: result.description,
-      }))
-      showSuccess(t('defects.analyzeSuccess'))
+      const defects = result.defects || []
+      if (defects.length <= 1) {
+        const single = defects[0] || { category: 'other', severity: 'medium', description: '' }
+        setForm(prev => ({
+          ...prev,
+          category: single.category,
+          severity: single.severity,
+          description: single.description,
+        }))
+        setAnalysisResults([])
+        setSelectedDefects([])
+        showSuccess(t('defects.analyzeSuccess'))
+      } else {
+        setAnalysisResults(defects)
+        setSelectedDefects(defects.map(() => true))
+        showSuccess(t('defects.multiAnalyzeSuccess', { count: defects.length }))
+      }
     } catch {
       showError(t('defects.analyzeFailed'))
     } finally {
@@ -216,8 +231,68 @@ export default function DefectsPage() {
     }
   }
 
+  const isMultiDefect = analysisResults.length > 1
+  const selectedCount = selectedDefects.filter(Boolean).length
+
   const handleCreate = async () => {
     if (!projectId) return
+
+    if (isMultiDefect) {
+      if (selectedCount === 0) {
+        showError(t('defects.noDefectsSelected'))
+        return
+      }
+      setSubmitting(true)
+      setUploadProgress(0)
+      try {
+        const itemsToCreate = analysisResults.filter((_, i) => selectedDefects[i])
+        const totalSteps = itemsToCreate.length + (pendingPhotos.length * itemsToCreate.length)
+        let completedSteps = 0
+
+        for (const item of itemsToCreate) {
+          const data: DefectCreateData = {
+            description: item.description,
+            category: item.category,
+            severity: item.severity,
+            area_id: form.area_id,
+            assigned_contact_id: form.assigned_contact_id,
+            followup_contact_id: form.followup_contact_id,
+            reporter_id: form.reporter_id,
+            due_date: form.due_date,
+            assignee_ids: form.assignee_ids,
+          }
+          const created = await defectsApi.create(projectId, data)
+          completedSteps++
+          setUploadProgress(Math.round((completedSteps / totalSteps) * 100))
+
+          for (const file of pendingPhotos) {
+            try {
+              await filesApi.upload(projectId, 'defect', created.id, file)
+            } catch { /* continue */ }
+            completedSteps++
+            setUploadProgress(Math.round((completedSteps / totalSteps) * 100))
+          }
+        }
+
+        showSuccess(t('defects.batchCreateSuccess', { count: itemsToCreate.length }))
+        setDialogOpen(false)
+        setForm({ description: '', category: 'other', severity: 'medium', assignee_ids: [] })
+        setFormErrors({})
+        setAnalysisResults([])
+        setSelectedDefects([])
+        clearPhotos()
+        setPage(1)
+        loadDefects()
+        loadReferenceData()
+      } catch {
+        showError(t('defects.createFailed'))
+      } finally {
+        setSubmitting(false)
+        setUploadProgress(0)
+      }
+      return
+    }
+
     const errors = validateDefectForm(form)
     setFormErrors(errors)
     if (hasErrors(errors)) return
@@ -544,62 +619,68 @@ export default function DefectsPage() {
           setDialogOpen(false)
           setForm({ description: '', category: 'other', severity: 'medium', assignee_ids: [] })
           setFormErrors({})
+          setAnalysisResults([])
+          setSelectedDefects([])
           clearPhotos()
         }}
         onSubmit={handleCreate}
         title={t('defects.reportDefect')}
-        submitLabel={t('defects.create')}
-        submitDisabled={!form.description || !form.category || !form.severity}
+        submitLabel={isMultiDefect ? t('defects.createMultiple', { count: selectedCount }) : t('defects.create')}
+        submitDisabled={isMultiDefect ? selectedCount === 0 : (!form.description || !form.category || !form.severity)}
         loading={submitting}
         maxWidth="md"
       >
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1 }}>
-          <TextField
-            fullWidth
-            label={t('defects.description')}
-            multiline
-            rows={3}
-            value={form.description}
-            onChange={(e) => setForm({ ...form, description: e.target.value })}
-            onBlur={() => validateDefectField('description')}
-            error={!!formErrors.description}
-            helperText={formErrors.description}
-            required
-          />
+          {!isMultiDefect && (
+            <>
+              <TextField
+                fullWidth
+                label={t('defects.description')}
+                multiline
+                rows={3}
+                value={form.description}
+                onChange={(e) => setForm({ ...form, description: e.target.value })}
+                onBlur={() => validateDefectField('description')}
+                error={!!formErrors.description}
+                helperText={formErrors.description}
+                required
+              />
 
-          <MuiTextField
-            select
-            fullWidth
-            label={t('defects.category')}
-            value={form.category}
-            onChange={(e) => setForm({ ...form, category: e.target.value })}
-            error={!!formErrors.category}
-            helperText={formErrors.category}
-            required
-          >
-            {CATEGORY_OPTIONS.map((cat) => (
-              <MenuItem key={cat} value={cat}>
-                {t(`defects.categories.${cat}`, { defaultValue: cat })}
-              </MenuItem>
-            ))}
-          </MuiTextField>
+              <MuiTextField
+                select
+                fullWidth
+                label={t('defects.category')}
+                value={form.category}
+                onChange={(e) => setForm({ ...form, category: e.target.value })}
+                error={!!formErrors.category}
+                helperText={formErrors.category}
+                required
+              >
+                {CATEGORY_OPTIONS.map((cat) => (
+                  <MenuItem key={cat} value={cat}>
+                    {t(`defects.categories.${cat}`, { defaultValue: cat })}
+                  </MenuItem>
+                ))}
+              </MuiTextField>
 
-          <MuiTextField
-            select
-            fullWidth
-            label={t('defects.severity')}
-            value={form.severity}
-            onChange={(e) => setForm({ ...form, severity: e.target.value })}
-            error={!!formErrors.severity}
-            helperText={formErrors.severity}
-            required
-          >
-            {SEVERITY_OPTIONS.map((sev) => (
-              <MenuItem key={sev} value={sev}>
-                {t(`defects.severities.${sev}`, { defaultValue: sev })}
-              </MenuItem>
-            ))}
-          </MuiTextField>
+              <MuiTextField
+                select
+                fullWidth
+                label={t('defects.severity')}
+                value={form.severity}
+                onChange={(e) => setForm({ ...form, severity: e.target.value })}
+                error={!!formErrors.severity}
+                helperText={formErrors.severity}
+                required
+              >
+                {SEVERITY_OPTIONS.map((sev) => (
+                  <MenuItem key={sev} value={sev}>
+                    {t(`defects.severities.${sev}`, { defaultValue: sev })}
+                  </MenuItem>
+                ))}
+              </MuiTextField>
+            </>
+          )}
 
           {areas.length > 0 && (
             <Autocomplete
@@ -738,6 +819,102 @@ export default function DefectsPage() {
               </Box>
             )}
           </Box>
+
+          {isMultiDefect && (
+            <Box>
+              <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 0.5 }}>
+                {t('defects.detectedDefects', { count: analysisResults.length })}
+              </Typography>
+              <Typography variant="caption" color="text.secondary" sx={{ mb: 1.5, display: 'block' }}>
+                {t('defects.selectDefectsHint')}
+              </Typography>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                {analysisResults.map((item, idx) => (
+                  <Paper
+                    key={idx}
+                    variant="outlined"
+                    sx={{
+                      p: 2,
+                      borderColor: selectedDefects[idx] ? 'primary.main' : 'divider',
+                      borderWidth: selectedDefects[idx] ? 2 : 1,
+                      opacity: selectedDefects[idx] ? 1 : 0.5,
+                      transition: 'all 200ms ease',
+                    }}
+                  >
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={selectedDefects[idx] || false}
+                          onChange={(e) => {
+                            const next = [...selectedDefects]
+                            next[idx] = e.target.checked
+                            setSelectedDefects(next)
+                          }}
+                        />
+                      }
+                      label={
+                        <Typography variant="subtitle2" fontWeight={600}>
+                          {t('defects.defectIndex', { index: idx + 1 })}
+                        </Typography>
+                      }
+                      sx={{ mb: 1 }}
+                    />
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, pl: 4 }}>
+                      <MuiTextField
+                        select
+                        fullWidth
+                        size="small"
+                        label={t('defects.category')}
+                        value={item.category}
+                        onChange={(e) => {
+                          const next = [...analysisResults]
+                          next[idx] = { ...next[idx], category: e.target.value }
+                          setAnalysisResults(next)
+                        }}
+                      >
+                        {CATEGORY_OPTIONS.map((cat) => (
+                          <MenuItem key={cat} value={cat}>
+                            {t(`defects.categories.${cat}`, { defaultValue: cat })}
+                          </MenuItem>
+                        ))}
+                      </MuiTextField>
+                      <MuiTextField
+                        select
+                        fullWidth
+                        size="small"
+                        label={t('defects.severity')}
+                        value={item.severity}
+                        onChange={(e) => {
+                          const next = [...analysisResults]
+                          next[idx] = { ...next[idx], severity: e.target.value }
+                          setAnalysisResults(next)
+                        }}
+                      >
+                        {SEVERITY_OPTIONS.map((sev) => (
+                          <MenuItem key={sev} value={sev}>
+                            {t(`defects.severities.${sev}`, { defaultValue: sev })}
+                          </MenuItem>
+                        ))}
+                      </MuiTextField>
+                      <MuiTextField
+                        fullWidth
+                        multiline
+                        rows={2}
+                        size="small"
+                        label={t('defects.description')}
+                        value={item.description}
+                        onChange={(e) => {
+                          const next = [...analysisResults]
+                          next[idx] = { ...next[idx], description: e.target.value }
+                          setAnalysisResults(next)
+                        }}
+                      />
+                    </Box>
+                  </Paper>
+                ))}
+              </Box>
+            </Box>
+          )}
         </Box>
       </FormModal>
     </Box>
