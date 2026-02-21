@@ -131,6 +131,57 @@ export default function MeetingsPage() {
     }
   }
 
+  const loadCalendarStatus = async () => {
+    try {
+      const status = await meetingsApi.getCalendarStatus()
+      setCalendarConnected(status.google_connected)
+      setCalendarConfigured(status.google_configured)
+    } catch {
+      // calendar status is optional
+    }
+  }
+
+  const handleConnectCalendar = async () => {
+    try {
+      const { auth_url } = await meetingsApi.getCalendarAuthUrl()
+      window.location.href = auth_url
+    } catch {
+      showError(t('meetings.calendar.notConfigured'))
+    }
+  }
+
+  const handleSyncToCalendar = async (meeting: Meeting) => {
+    if (!projectId) return
+    setSyncing(true)
+    try {
+      await meetingsApi.syncToCalendar(projectId, meeting.id)
+      showSuccess(t('meetings.calendar.syncSuccess'))
+      const updated = await meetingsApi.get(projectId, meeting.id)
+      setSelectedMeeting(updated)
+      loadMeetings()
+    } catch {
+      showError(t('meetings.calendar.syncFailed'))
+    } finally {
+      setSyncing(false)
+    }
+  }
+
+  const handleRemoveFromCalendar = async (meeting: Meeting) => {
+    if (!projectId) return
+    setSyncing(true)
+    try {
+      await meetingsApi.removeCalendarEvent(projectId, meeting.id)
+      showSuccess(t('meetings.calendar.removeSuccess'))
+      const updated = await meetingsApi.get(projectId, meeting.id)
+      setSelectedMeeting(updated)
+      loadMeetings()
+    } catch {
+      showError(t('meetings.calendar.removeFailed'))
+    } finally {
+      setSyncing(false)
+    }
+  }
+
   const loadMeetingPhotos = async (meetingId: string) => {
     if (!projectId) return
     try {
@@ -538,7 +589,19 @@ export default function MeetingsPage() {
                             {meeting.title}
                           </Typography>
                         </Box>
-                        <StatusBadge status={meeting.status} size="small" />
+                        <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
+                          {meeting.calendarSynced && (
+                            <Chip
+                              icon={<SyncIcon sx={{ fontSize: 14 }} />}
+                              label={t('meetings.calendar.synced')}
+                              size="small"
+                              color="success"
+                              variant="outlined"
+                              sx={{ height: 22, '& .MuiChip-label': { px: 0.5, fontSize: '0.65rem' } }}
+                            />
+                          )}
+                          <StatusBadge status={meeting.status} size="small" />
+                        </Box>
                       </Box>
 
                       {meeting.location && (
@@ -841,6 +904,61 @@ export default function MeetingsPage() {
               ) : (
                 <Typography variant="body2" color="text.secondary">{t('meetings.addPhotos')}</Typography>
               )}
+            </Box>
+
+            {/* Google Calendar Sync */}
+            <Divider sx={{ my: 2 }} />
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="caption" color="text.secondary" fontWeight={600}>
+                {t('meetings.calendar.syncToGoogle').toUpperCase()}
+              </Typography>
+              <Box sx={{ mt: 1 }}>
+                {calendarConnected ? (
+                  selectedMeeting.calendarSynced ? (
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                      <Chip
+                        icon={<SyncIcon />}
+                        label={t('meetings.calendar.synced')}
+                        color="success"
+                        size="small"
+                      />
+                      <Button
+                        variant="secondary"
+                        fullWidth
+                        icon={<DeleteIcon />}
+                        onClick={() => handleRemoveFromCalendar(selectedMeeting)}
+                        disabled={syncing}
+                      >
+                        {t('meetings.calendar.removeFromCalendar')}
+                      </Button>
+                    </Box>
+                  ) : (
+                    <Button
+                      variant="primary"
+                      fullWidth
+                      icon={<SyncIcon />}
+                      onClick={() => handleSyncToCalendar(selectedMeeting)}
+                      disabled={syncing}
+                    >
+                      {t('meetings.calendar.syncToGoogle')}
+                    </Button>
+                  )
+                ) : calendarConfigured ? (
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                    <Typography variant="body2" color="text.secondary">
+                      {t('meetings.calendar.connectDescription')}
+                    </Typography>
+                    <Button
+                      variant="primary"
+                      fullWidth
+                      icon={<CalendarMonthIcon />}
+                      onClick={handleConnectCalendar}
+                    >
+                      {t('meetings.calendar.connectGoogle')}
+                    </Button>
+                  </Box>
+                ) : null}
+              </Box>
             </Box>
 
             {calendarLinks && (
