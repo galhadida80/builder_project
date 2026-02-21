@@ -28,12 +28,12 @@ import {
   AddIcon, EditIcon, DeleteIcon, EventIcon, LocationOnIcon,
   AccessTimeIcon, CalendarMonthIcon, CloseIcon, DownloadIcon,
   ViewListIcon, PersonAddIcon, AddPhotoAlternateIcon, CheckCircleIcon,
-  SyncIcon,
+  SyncIcon, ContentCopyIcon, IosShareIcon,
 } from '@/icons'
 import {
   Box, Typography, MenuItem, TextField as MuiTextField, Skeleton,
   Chip, IconButton, Drawer, Divider, Autocomplete, Avatar,
-  Switch, FormControlLabel, LinearProgress,
+  Switch, FormControlLabel, LinearProgress, Popover,
 } from '@/mui'
 
 interface TeamMemberOption {
@@ -101,6 +101,9 @@ export default function MeetingsPage() {
   const [calendarConnected, setCalendarConnected] = useState(false)
   const [calendarConfigured, setCalendarConfigured] = useState(false)
   const [syncing, setSyncing] = useState(false)
+  const [bulkSyncing, setBulkSyncing] = useState(false)
+  const [subscribeAnchor, setSubscribeAnchor] = useState<HTMLElement | null>(null)
+  const [feedUrl, setFeedUrl] = useState('')
 
   const loadMeetings = async () => {
     try {
@@ -179,6 +182,36 @@ export default function MeetingsPage() {
       showError(t('meetings.calendar.removeFailed'))
     } finally {
       setSyncing(false)
+    }
+  }
+
+  const handleSubscribeClick = async (event: React.MouseEvent<HTMLElement>) => {
+    if (!projectId) return
+    setSubscribeAnchor(event.currentTarget)
+    try {
+      const { feed_url } = await meetingsApi.getIcalFeedUrl(projectId)
+      setFeedUrl(feed_url)
+    } catch {
+      showError(t('meetings.calendar.notConfigured'))
+    }
+  }
+
+  const handleCopyFeedUrl = () => {
+    navigator.clipboard.writeText(feedUrl)
+    showSuccess(t('settings.feedUrlCopied'))
+  }
+
+  const handleSyncAll = async () => {
+    if (!projectId) return
+    setBulkSyncing(true)
+    try {
+      const result = await meetingsApi.syncAllToCalendar(projectId)
+      showSuccess(t('settings.syncAllSuccess', { synced: result.synced, failed: result.failed, skipped: result.skipped }))
+      loadMeetings()
+    } catch {
+      showError(t('settings.syncAllFailed'))
+    } finally {
+      setBulkSyncing(false)
     }
   }
 
@@ -480,7 +513,7 @@ export default function MeetingsPage() {
         subtitle={t('meetings.subtitle')}
         breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('meetings.title') }]}
         actions={
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
             <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
               <SegmentedTabs
                 items={[
@@ -491,6 +524,14 @@ export default function MeetingsPage() {
                 onChange={(v) => setViewMode(v as 'list' | 'calendar')}
               />
             </Box>
+            {calendarConnected && (
+              <Button variant="secondary" icon={<SyncIcon />} onClick={handleSyncAll} disabled={bulkSyncing}>
+                {bulkSyncing ? '...' : t('settings.syncAll')}
+              </Button>
+            )}
+            <Button variant="secondary" icon={<IosShareIcon />} onClick={handleSubscribeClick}>
+              {t('settings.subscribeCalendar')}
+            </Button>
             <Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>
               {t('meetings.scheduleMeeting')}
             </Button>
@@ -1201,6 +1242,59 @@ export default function MeetingsPage() {
           )}
         </Box>
       </FormModal>
+
+      <Popover
+        open={Boolean(subscribeAnchor)}
+        anchorEl={subscribeAnchor}
+        onClose={() => setSubscribeAnchor(null)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'center' }}
+        slotProps={{ paper: { sx: { p: 2.5, maxWidth: 380, borderRadius: 3 } } }}
+      >
+        <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1 }}>
+          {t('settings.calendarFeedUrl')}
+        </Typography>
+        <Typography variant="caption" color="text.secondary" sx={{ mb: 1.5, display: 'block' }}>
+          {t('settings.feedInstructions')}
+        </Typography>
+        {feedUrl ? (
+          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+            <Box
+              sx={{
+                flex: 1,
+                p: 1,
+                borderRadius: 1,
+                bgcolor: 'action.hover',
+                fontSize: '0.7rem',
+                fontFamily: 'monospace',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {feedUrl}
+            </Box>
+            <IconButton size="small" onClick={handleCopyFeedUrl}>
+              <ContentCopyIcon sx={{ fontSize: 18 }} />
+            </IconButton>
+          </Box>
+        ) : (
+          <Typography variant="body2" color="text.secondary">...</Typography>
+        )}
+        {feedUrl && (
+          <Button
+            variant="secondary"
+            fullWidth
+            icon={<CalendarMonthIcon />}
+            sx={{ mt: 1.5 }}
+            onClick={() => {
+              window.location.href = feedUrl.replace(/^https?:\/\//, 'webcal://')
+            }}
+          >
+            {t('settings.subscribeCalendar')}
+          </Button>
+        )}
+      </Popover>
 
       <ConfirmModal
         open={deleteDialogOpen}

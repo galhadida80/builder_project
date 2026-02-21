@@ -1,16 +1,18 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useToast } from '../components/common/ToastProvider'
 import { useThemeMode } from '../theme'
 import { useAuth } from '../contexts/AuthContext'
-import { LanguageIcon, DarkModeIcon, NotificationsIcon, LockIcon, FingerprintIcon, InfoIcon, DescriptionIcon, SecurityIcon, LogoutIcon, ChevronLeftIcon, ChevronRightIcon, AdminPanelSettingsIcon, EmailIcon } from '@/icons'
-import { Box, Typography, Paper, Switch, Divider, Select, MenuItem, FormControl, useTheme } from '@/mui'
+import { meetingsApi } from '../api/meetings'
+import { LanguageIcon, DarkModeIcon, NotificationsIcon, LockIcon, FingerprintIcon, InfoIcon, DescriptionIcon, SecurityIcon, LogoutIcon, ChevronLeftIcon, ChevronRightIcon, AdminPanelSettingsIcon, EmailIcon, CalendarTodayIcon } from '@/icons'
+import { Box, Typography, Paper, Switch, Divider, Select, MenuItem, FormControl, useTheme, Button, CircularProgress } from '@/mui'
 
 export default function SettingsPage() {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
-  const { showSuccess } = useToast()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const { showSuccess, showError } = useToast()
   const { logout } = useAuth()
   const theme = useTheme()
   const isRtl = theme.direction === 'rtl'
@@ -23,7 +25,56 @@ export default function SettingsPage() {
     approvals: true,
   })
 
+  const [calendarConnected, setCalendarConnected] = useState(false)
+  const [calendarConfigured, setCalendarConfigured] = useState(false)
+  const [calendarLoading, setCalendarLoading] = useState(true)
+
   const { mode, setMode } = useThemeMode()
+
+  useEffect(() => {
+    const calendarParam = searchParams.get('calendar')
+    if (calendarParam === 'connected') {
+      showSuccess(t('settings.calendarConnectedSuccess'))
+      searchParams.delete('calendar')
+      setSearchParams(searchParams, { replace: true })
+    } else if (calendarParam === 'error') {
+      showError(t('settings.calendarError'))
+      searchParams.delete('calendar')
+      setSearchParams(searchParams, { replace: true })
+    }
+    loadCalendarStatus()
+  }, [])
+
+  const loadCalendarStatus = async () => {
+    try {
+      const status = await meetingsApi.getCalendarStatus()
+      setCalendarConnected(status.google_connected)
+      setCalendarConfigured(status.google_configured)
+    } catch {
+      // calendar status is optional
+    } finally {
+      setCalendarLoading(false)
+    }
+  }
+
+  const handleConnectCalendar = async () => {
+    try {
+      const { auth_url } = await meetingsApi.getCalendarAuthUrl()
+      window.location.href = auth_url
+    } catch {
+      showError(t('settings.calendarError'))
+    }
+  }
+
+  const handleDisconnectCalendar = async () => {
+    try {
+      await meetingsApi.disconnectCalendar()
+      setCalendarConnected(false)
+      showSuccess(t('settings.calendarDisconnected'))
+    } catch {
+      showError(t('settings.calendarError'))
+    }
+  }
 
   const handleNotificationChange = (key: keyof typeof notifications) => {
     setNotifications(prev => ({ ...prev, [key]: !prev[key] }))
@@ -115,6 +166,34 @@ export default function SettingsPage() {
             />
           </Paper>
         </Box>
+
+        {calendarConfigured && (
+          <Box>
+            <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary', textTransform: 'uppercase', letterSpacing: '0.05em', px: 1, mb: 1, display: 'block' }}>
+              {t('settings.integrations')}
+            </Typography>
+            <Paper sx={{ borderRadius: 3, overflow: 'hidden' }}>
+              <SettingsRow
+                icon={<CalendarTodayIcon sx={{ color: 'primary.main' }} />}
+                label={t('settings.googleCalendar')}
+                subtitle={calendarConnected ? t('settings.calendarConnected') : t('settings.calendarNotConnected')}
+                action={
+                  calendarLoading ? (
+                    <CircularProgress size={20} />
+                  ) : calendarConnected ? (
+                    <Button size="small" color="error" variant="outlined" onClick={handleDisconnectCalendar} sx={{ textTransform: 'none', fontSize: '0.75rem' }}>
+                      {t('settings.disconnectCalendar')}
+                    </Button>
+                  ) : (
+                    <Button size="small" variant="contained" onClick={handleConnectCalendar} sx={{ textTransform: 'none', fontSize: '0.75rem' }}>
+                      {t('settings.connectCalendar')}
+                    </Button>
+                  )
+                }
+              />
+            </Paper>
+          </Box>
+        )}
 
         <Box>
           <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary', textTransform: 'uppercase', letterSpacing: '0.05em', px: 1, mb: 1, display: 'block' }}>

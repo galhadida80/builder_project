@@ -4,8 +4,8 @@ import dayjs, { Dayjs } from 'dayjs'
 import 'dayjs/locale/he'
 import type { Meeting } from '../../types'
 import { colors } from '../../theme/tokens'
-import { ChevronLeftIcon, ChevronRightIcon, AddIcon } from '@/icons'
-import { Box, Typography, Paper, IconButton, Chip } from '@/mui'
+import { ChevronLeftIcon, ChevronRightIcon, AddIcon, SyncIcon } from '@/icons'
+import { Box, Typography, Paper, IconButton, Chip, Tooltip } from '@/mui'
 import { styled } from '@/mui'
 
 interface MeetingCalendarAgendaProps {
@@ -154,9 +154,14 @@ export function MeetingCalendarAgenda({
                       <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ flexShrink: 0 }}>
                         {dayjs(meeting.scheduledDate).format('HH:mm')}
                       </Typography>
-                      <Typography variant="body2" sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <Typography variant="body2" sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
                         {meeting.title}
                       </Typography>
+                      {meeting.calendarSynced && (
+                        <Tooltip title={t('meetings.calendar.synced')}>
+                          <SyncIcon sx={{ fontSize: 16, color: 'success.main', flexShrink: 0 }} />
+                        </Tooltip>
+                      )}
                     </Box>
                   )
                 })}

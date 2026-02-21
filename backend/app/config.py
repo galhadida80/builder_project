@@ -72,6 +72,8 @@ class Settings(BaseSettings):
     gmail_client_secret: str = ""
     gmail_refresh_token: str = ""
 
+    ical_feed_secret: str = "dev-ical-feed-secret-change-in-production"
+
     google_calendar_client_id: str = ""
     google_calendar_client_secret: str = ""
     google_calendar_redirect_uri: str = "http://localhost:8000/api/v1/calendar/callback"

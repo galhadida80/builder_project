@@ -1,3 +1,5 @@
+import hashlib
+import hmac
 import logging
 from datetime import datetime, timedelta, timezone
 from typing import Optional
@@ -371,3 +373,62 @@ def escape_ical_text(text: str) -> str:
     if not text:
         return ""
     return text.replace("\\", "\\\\").replace(";", "\\;").replace(",", "\\,").replace("\n", "\\n")
+
+
+def generate_ical_feed_token(user_id: UUID, project_id: UUID) -> str:
+    secret = get_settings().ical_feed_secret
+    message = f"{user_id}:{project_id}"
+    return hmac.new(secret.encode(), message.encode(), hashlib.sha256).hexdigest()
+
+
+def verify_ical_feed_token(user_id: UUID, project_id: UUID, token: str) -> bool:
+    expected = generate_ical_feed_token(user_id, project_id)
+    return hmac.compare_digest(expected, token)
+
+
+def generate_ical_feed(meetings: list[dict], calendar_name: str = "BuilderOps") -> str:
+    now = utcnow()
+    dt_format = "%Y%m%dT%H%M%SZ"
+    lines = [
+        "BEGIN:VCALENDAR",
+        "VERSION:2.0",
+        "PRODID:-//BuilderOps//Calendar//EN",
+        "CALSCALE:GREGORIAN",
+        "METHOD:PUBLISH",
+        f"X-WR-CALNAME:{escape_ical_text(calendar_name)}",
+    ]
+
+    for meeting_data in meetings:
+        title = meeting_data.get("title", "Meeting")
+        description = meeting_data.get("description", "")
+        location = meeting_data.get("location", "")
+        scheduled_date = meeting_data.get("scheduled_date")
+        meeting_id = meeting_data.get("id", str(uuid4()))
+
+        if isinstance(scheduled_date, str):
+            dt_start = datetime.fromisoformat(scheduled_date.replace("Z", "+00:00"))
+        else:
+            dt_start = scheduled_date
+
+        if dt_start.tzinfo is None:
+            dt_start = dt_start.replace(tzinfo=timezone.utc)
+        else:
+            dt_start = dt_start.astimezone(timezone.utc)
+
+        dt_end = dt_start + timedelta(hours=1)
+        uid = f"{meeting_id}@builderops"
+
+        lines.extend([
+            "BEGIN:VEVENT",
+            f"UID:{uid}",
+            f"DTSTART:{dt_start.strftime(dt_format)}",
+            f"DTEND:{dt_end.strftime(dt_format)}",
+            f"DTSTAMP:{now.strftime(dt_format)}",
+            f"SUMMARY:{escape_ical_text(title)}",
+            f"DESCRIPTION:{escape_ical_text(description)}",
+            f"LOCATION:{escape_ical_text(location)}",
+            "END:VEVENT",
+        ])
+
+    lines.append("END:VCALENDAR")
+    return "\r\n".join(lines)

@@ -135,4 +135,14 @@ export const meetingsApi = {
   disconnectCalendar: async (): Promise<void> => {
     await apiClient.delete('/calendar/disconnect')
   },
+
+  getIcalFeedUrl: async (projectId: string): Promise<{ feed_url: string }> => {
+    const response = await apiClient.get(`/projects/${projectId}/calendar/feed-url`)
+    return response.data
+  },
+
+  syncAllToCalendar: async (projectId: string): Promise<{ synced: number; failed: number; skipped: number }> => {
+    const response = await apiClient.post(`/projects/${projectId}/meetings/sync-all-calendar`)
+    return response.data
+  },
 }

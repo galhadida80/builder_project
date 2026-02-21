@@ -53,6 +53,7 @@ export {
   Menu,
   MenuItem,
   Paper,
+  Popover,
   Radio,
   RadioGroup,
   Select,
