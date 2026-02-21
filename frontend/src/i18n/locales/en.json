@@ -589,7 +589,17 @@
     "company": "Company",
     "editProfile": "Edit Profile",
     "updateSuccess": "Profile updated successfully",
-    "updateFailed": "Failed to update profile"
+    "updateFailed": "Failed to update profile",
+    "signature": "Signature",
+    "signatureDescription": "Your signature will be used automatically in checklists that require signing",
+    "drawSignature": "Draw Signature",
+    "changeSignature": "Change Signature",
+    "deleteSignature": "Delete Signature",
+    "signatureSaved": "Signature saved successfully",
+    "signatureDeleted": "Signature deleted",
+    "signatureSaveFailed": "Failed to save signature",
+    "signatureDeleteFailed": "Failed to delete signature",
+    "noSignature": "No signature set"
   },
   "auditLog": {
     "pageTitle": "Audit Log",
@@ -2350,6 +2360,11 @@
         "content": "Chat with the AI assistant to get quick insights about your project data and perform actions."
       }
     }
+  },
+  "notFound": {
+    "title": "Page not found",
+    "message": "The page you're looking for doesn't exist or has been moved.",
+    "backHome": "Back to Home"
   },
   "error": {
     "title": "Something went wrong",

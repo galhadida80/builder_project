@@ -36,6 +36,7 @@ import { LoadingPage } from './components/common/LoadingPage'
 import { ErrorBoundary } from './components/common/ErrorBoundary'
 import { OfflineIndicator } from './components/common/OfflineIndicator'
 import ChecklistsPage from './pages/ChecklistsPage'
+import MobileChecklistPage from './pages/MobileChecklistPage'
 import DefectsPage from './pages/DefectsPage'
 import DefectDetailPage from './pages/DefectDetailPage'
 import TasksPage from './pages/TasksPage'
@@ -44,6 +45,7 @@ import OrganizationsPage from './pages/OrganizationsPage'
 import OrganizationDetailPage from './pages/OrganizationDetailPage'
 import ReportsPage from './pages/ReportsPage'
 import CustomKPIPage from './pages/CustomKPIPage'
+import NotFoundPage from './pages/NotFoundPage'
 
 const BIMPage = lazy(() => import('./pages/BIMPage'))
 const ProjectStructureWizardPage = lazy(() => import('./pages/ProjectStructureWizardPage'))
@@ -99,6 +101,7 @@ function AppRoutes() {
               <Route path="rfis" element={<RFIPage />} />
               <Route path="rfis/:rfiId" element={<RFIDetailPage />} />
               <Route path="checklists" element={<ChecklistsPage />} />
+              <Route path="checklists/fill/:instanceId" element={<MobileChecklistPage />} />
               <Route path="defects" element={<DefectsPage />} />
               <Route path="defects/:defectId" element={<DefectDetailPage />} />
               <Route path="tasks" element={<TasksPage />} />
@@ -130,7 +133,7 @@ function AppRoutes() {
           <Route path="/projects/:projectId/documents/:documentId/review" element={<DocumentReviewPage />} />
         </Route>
 
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
       </ReferenceDataProvider>
     </ProjectProvider>
