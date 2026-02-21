@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import get_settings
 from app.models.calendar_token import UserCalendarToken
-from app.models.meeting import Meeting, MeetingAttendee
+from app.models.meeting import Meeting
 from app.utils import utcnow
 
 logger = logging.getLogger(__name__)
