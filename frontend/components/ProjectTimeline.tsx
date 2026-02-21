@@ -17,7 +17,7 @@ export interface TimelineEvent {
   entityId?: string
   entityType?: string
   userName?: string
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 }
 
 interface ProjectTimelineProps {

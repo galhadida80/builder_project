@@ -183,24 +183,29 @@ function base64urlToBuffer(base64url: string): ArrayBuffer {
 }
 
 function parseCreationOptions(opts: Record<string, unknown>): PublicKeyCredentialCreationOptions {
-  const o = opts as Record<string, any>
+  const o = opts as Record<string, unknown>
+  const challenge = o.challenge as string
+  const user = o.user as Record<string, unknown>
+  const excludeCredentials = (o.excludeCredentials || []) as Array<Record<string, unknown>>
   return {
     ...o,
-    challenge: base64urlToBuffer(o.challenge),
-    user: { ...o.user, id: base64urlToBuffer(o.user.id) },
-    excludeCredentials: (o.excludeCredentials || []).map((c: any) => ({
-      ...c, id: base64urlToBuffer(c.id),
+    challenge: base64urlToBuffer(challenge),
+    user: { ...user, id: base64urlToBuffer(user.id as string) },
+    excludeCredentials: excludeCredentials.map((c) => ({
+      ...c, id: base64urlToBuffer(c.id as string),
     })),
   } as PublicKeyCredentialCreationOptions
 }
 
 function parseRequestOptions(opts: Record<string, unknown>): PublicKeyCredentialRequestOptions {
-  const o = opts as Record<string, any>
+  const o = opts as Record<string, unknown>
+  const challenge = o.challenge as string
+  const allowCredentials = (o.allowCredentials || []) as Array<Record<string, unknown>>
   return {
     ...o,
-    challenge: base64urlToBuffer(o.challenge),
-    allowCredentials: (o.allowCredentials || []).map((c: any) => ({
-      ...c, id: base64urlToBuffer(c.id),
+    challenge: base64urlToBuffer(challenge),
+    allowCredentials: allowCredentials.map((c) => ({
+      ...c, id: base64urlToBuffer(c.id as string),
     })),
   } as PublicKeyCredentialRequestOptions
 }

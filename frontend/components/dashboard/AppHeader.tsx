@@ -54,7 +54,7 @@ interface AppHeaderProps {
 export default function AppHeader({ user, projects, currentProject, onProjectChange, onLogout }: AppHeaderProps) {
   const router = useRouter()
   const t = useTranslations()
-  const { mode, toggleMode, direction, setDirection } = useThemeContext()
+  const { mode, toggleMode, setDirection } = useThemeContext()
   const [userMenuAnchor, setUserMenuAnchor] = useState<null | HTMLElement>(null)
   const [langMenuAnchor, setLangMenuAnchor] = useState<null | HTMLElement>(null)
 

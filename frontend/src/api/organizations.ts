@@ -52,11 +52,11 @@ export const organizationsApi = {
   removeMember: async (orgId: string, memberId: string): Promise<void> => {
     await apiClient.delete(`/organizations/${orgId}/members/${memberId}`)
   },
-  listProjects: async (orgId: string): Promise<any[]> => {
+  listProjects: async (orgId: string): Promise<Record<string, unknown>[]> => {
     const response = await apiClient.get(`/organizations/${orgId}/projects`)
     return response.data
   },
-  getAnalytics: async (orgId: string): Promise<any> => {
+  getAnalytics: async (orgId: string): Promise<Record<string, unknown>> => {
     const response = await apiClient.get(`/organizations/${orgId}/analytics`)
     return response.data
   },

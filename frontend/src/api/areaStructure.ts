@@ -1,6 +1,5 @@
 import { apiClient } from './client'
 import type {
-  ConstructionArea,
   AreaChecklistAssignment,
   BulkAreaCreate,
   BulkAreaCreateResponse,

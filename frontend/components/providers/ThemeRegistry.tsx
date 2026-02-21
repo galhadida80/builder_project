@@ -81,7 +81,8 @@ export default function ThemeRegistry({ children, initialDirection = 'ltr' }: Th
 
   const theme = useMemo(() => {
     return mode === 'light' ? createLightTheme() : createDarkTheme()
-  }, [mode, direction])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode])
 
   const emotionCache = useMemo(() => createEmotionCache(direction), [direction])
 
