@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { getDateLocale } from '../utils/dateLocale'
 import { Card } from '../components/ui/Card'
@@ -18,8 +18,8 @@ import { AreaPickerAutocomplete } from '../components/areas/AreaPickerAutocomple
 import { checklistsApi } from '../api/checklists'
 import type { ChecklistTemplate, ChecklistSubSection, ChecklistInstance } from '../types'
 import { useToast } from '../components/common/ToastProvider'
-import { ChecklistIcon, AssignmentIcon, ExpandMoreIcon, ExpandLessIcon, AddIcon, DeleteIcon } from '@/icons'
-import { Box, Typography, Skeleton, Chip, Collapse, IconButton, Tabs, Tab, LinearProgress, TextField, Autocomplete, useTheme } from '@/mui'
+import { ChecklistIcon, AssignmentIcon, ExpandMoreIcon, ExpandLessIcon, AddIcon, DeleteIcon, ChevronRightIcon } from '@/icons'
+import { Box, Typography, Skeleton, Chip, Collapse, IconButton, Tabs, Tab, LinearProgress, TextField, Autocomplete, useTheme, useMediaQuery } from '@/mui'
 
 type ActiveTab = 'templates' | 'instances'
 type StatusFilter = 'all' | 'pending' | 'in_progress' | 'completed'
@@ -27,8 +27,10 @@ type StatusFilter = 'all' | 'pending' | 'in_progress' | 'completed'
 export default function ChecklistsPage() {
   const { t } = useTranslation()
   const { projectId } = useParams()
+  const navigate = useNavigate()
   const { showSuccess, showError } = useToast()
   const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
 
   const [activeTab, setActiveTab] = useState<ActiveTab>('templates')
   const [templates, setTemplates] = useState<ChecklistTemplate[]>([])
@@ -133,6 +135,10 @@ export default function ChecklistsPage() {
   }
 
   const openDrawer = (instance: ChecklistInstance) => {
+    if (isMobile) {
+      navigate(`/projects/${projectId}/checklists/fill/${instance.id}`)
+      return
+    }
     const tpl = templates.find((t) => t.id === instance.template_id)
     setSelectedInstance(instance); setSelectedTemplate(tpl || null); setDrawerOpen(true)
   }
@@ -323,6 +329,7 @@ export default function ChecklistsPage() {
                             onClick={(e) => { e.stopPropagation(); setDeleteTargetId(row.id); setDeleteModalOpen(true) }}>
                             <DeleteIcon fontSize="small" />
                           </IconButton>
+                          <ChevronRightIcon sx={{ color: 'text.disabled', fontSize: 20 }} />
                         </Box>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                           <LinearProgress variant="determinate" value={percent}

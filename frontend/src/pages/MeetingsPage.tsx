@@ -28,6 +28,7 @@ import {
   AddIcon, EditIcon, DeleteIcon, EventIcon, LocationOnIcon,
   AccessTimeIcon, CalendarMonthIcon, CloseIcon, DownloadIcon,
   ViewListIcon, PersonAddIcon, AddPhotoAlternateIcon, CheckCircleIcon,
+  SyncIcon,
 } from '@/icons'
 import {
   Box, Typography, MenuItem, TextField as MuiTextField, Skeleton,
@@ -97,11 +98,15 @@ export default function MeetingsPage() {
     { date: '', time: '' },
   ])
   const [confirmingSlot, setConfirmingSlot] = useState(false)
+  const [calendarConnected, setCalendarConnected] = useState(false)
+  const [calendarConfigured, setCalendarConfigured] = useState(false)
+  const [syncing, setSyncing] = useState(false)
 
   useEffect(() => {
     if (!projectId) return
     loadMeetings()
     loadTeamMembers()
+    loadCalendarStatus()
   }, [projectId])
 
   const loadMeetings = async () => {

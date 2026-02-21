@@ -18,6 +18,7 @@ export interface User {
   isActive: boolean
   isSuperAdmin?: boolean
   createdAt: string
+  signatureUrl?: string
 }
 
 export interface Invitation {
@@ -170,6 +171,7 @@ export interface Meeting {
   actionItems?: ActionItem[]
   status: MeetingStatus
   hasTimeSlots: boolean
+  calendarSynced: boolean
   createdAt: string
   createdBy?: User
   attendees?: MeetingAttendee[]

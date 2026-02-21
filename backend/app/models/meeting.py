@@ -41,6 +41,7 @@ class Meeting(Base):
     created_by_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
 
     has_time_slots: Mapped[bool] = mapped_column(Boolean, default=False)
+    calendar_synced: Mapped[bool] = mapped_column(Boolean, default=False)
 
     project = relationship("Project", back_populates="meetings")
     created_by = relationship("User", foreign_keys=[created_by_id])

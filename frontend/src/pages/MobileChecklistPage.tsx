@@ -7,6 +7,7 @@ import { Modal } from '../components/ui/Modal'
 import { ChecklistSection } from '../components/checklist/ChecklistSection'
 import { PhotoCapture } from '../components/checklist/PhotoCapture'
 import { SignaturePad } from '../components/checklist/SignaturePad'
+import { useAuth } from '../contexts/AuthContext'
 import { useChecklistInstance } from '../hooks/useChecklistInstance'
 import { checklistsApi } from '../api/checklists'
 import { inspectionsApi } from '../api/inspections'
@@ -61,10 +62,13 @@ const ProgressContainer = styled(Box)(({ theme }) => ({
 }))
 
 export default function MobileChecklistPage() {
-  const { projectId, inspectionId } = useParams()
+  const { projectId, inspectionId, instanceId: routeInstanceId } = useParams()
   const navigate = useNavigate()
   const { t } = useTranslation()
-  const [checklistInstanceId, setChecklistInstanceId] = useState<string | undefined>(undefined)
+  const { user } = useAuth()
+  const isDirectInstance = !!routeInstanceId
+  const backPath = isDirectInstance ? `/projects/${projectId}/checklists` : `/projects/${projectId}/inspections`
+  const [checklistInstanceId, setChecklistInstanceId] = useState<string | undefined>(routeInstanceId)
   const [template, setTemplate] = useState<ChecklistTemplate | null>(null)
   const { instance, loading, error, createResponse, updateResponse, uploadFile, refetch } =
     useChecklistInstance(projectId, checklistInstanceId)
@@ -81,11 +85,25 @@ export default function MobileChecklistPage() {
   const [itemPhotoUrls, setItemPhotoUrls] = useState<string[]>([])
   const [uploadingPhotos, setUploadingPhotos] = useState(false)
 
-  const [signature, setSignature] = useState<string | null>(null)
+  const [signature, setSignature] = useState<string | null>(user?.signatureUrl || null)
 
   useEffect(() => {
     const loadChecklistInstance = async () => {
-      if (!projectId || !inspectionId) return
+      if (!projectId) return
+
+      if (routeInstanceId) {
+        try {
+          const inst = await checklistsApi.getInstance(projectId, routeInstanceId)
+          setChecklistInstanceId(routeInstanceId)
+          const tpl = await checklistsApi.getTemplate(projectId, inst.template_id)
+          setTemplate(tpl)
+        } catch {
+          setSnackbar({ open: true, message: t('checklist.failedToLoad'), severity: 'error' })
+        }
+        return
+      }
+
+      if (!inspectionId) return
       try {
         const instances = await checklistsApi.getInstances(projectId)
         const match = instances.find(inst => inst.id === inspectionId)
@@ -95,23 +113,15 @@ export default function MobileChecklistPage() {
           const tpl = await checklistsApi.getTemplate(projectId, match.template_id)
           setTemplate(tpl)
         } else {
-          setSnackbar({
-            open: true,
-            message: t('checklist.notFound', 'No checklist found for this inspection'),
-            severity: 'error',
-          })
+          setSnackbar({ open: true, message: t('checklist.notFound', 'No checklist found for this inspection'), severity: 'error' })
         }
       } catch {
-        setSnackbar({
-          open: true,
-          message: t('checklist.failedToLoad'),
-          severity: 'error',
-        })
+        setSnackbar({ open: true, message: t('checklist.failedToLoad'), severity: 'error' })
       }
     }
 
     loadChecklistInstance()
-  }, [projectId, inspectionId, t])
+  }, [projectId, inspectionId, routeInstanceId, t])
 
   const subsections = template?.subsections || []
 
@@ -227,7 +237,8 @@ export default function MobileChecklistPage() {
   }
 
   const handleSubmitChecklist = async () => {
-    if (!instance || !projectId || !inspectionId) return
+    if (!instance || !projectId) return
+    if (!isDirectInstance && !inspectionId) return
 
     const incompleteItems: string[] = []
 
@@ -276,7 +287,11 @@ export default function MobileChecklistPage() {
     setSubmitting(true)
 
     try {
-      await inspectionsApi.completeInspection(projectId, inspectionId)
+      if (isDirectInstance) {
+        await checklistsApi.updateInstance(projectId, instance.id, { status: 'completed' })
+      } else {
+        await inspectionsApi.completeInspection(projectId, inspectionId!)
+      }
 
       setSnackbar({
         open: true,
@@ -284,8 +299,12 @@ export default function MobileChecklistPage() {
         severity: 'success',
       })
 
+      const backPath = isDirectInstance
+        ? `/projects/${projectId}/checklists`
+        : `/projects/${projectId}/inspections`
+
       setTimeout(() => {
-        navigate(`/projects/${projectId}/inspections`)
+        navigate(backPath)
       }, 2000)
     } catch {
       setSnackbar({
@@ -321,7 +340,7 @@ export default function MobileChecklistPage() {
           <Button
             variant="tertiary"
             icon={<ArrowBackIcon />}
-            onClick={() => navigate(`/projects/${projectId}/inspections`)}
+            onClick={() => navigate(backPath)}
           >
             {t('common.back', 'Back')}
           </Button>
@@ -347,7 +366,7 @@ export default function MobileChecklistPage() {
           <Button
             variant="tertiary"
             icon={<ArrowBackIcon />}
-            onClick={() => navigate(`/projects/${projectId}/inspections`)}
+            onClick={() => navigate(backPath)}
           >
             {t('common.back', 'Back')}
           </Button>
@@ -368,14 +387,14 @@ export default function MobileChecklistPage() {
           <Button
             variant="tertiary"
             icon={<ArrowBackIcon />}
-            onClick={() => navigate(`/projects/${projectId}/inspections`)}
+            onClick={() => navigate(backPath)}
             size="small"
           >
             {t('common.back', 'Back')}
           </Button>
           <Box sx={{ flex: 1 }}>
             <Typography variant="h6" fontWeight={600}>
-              {t('checklist.inspectionChecklist', 'Inspection Checklist')}
+              {isDirectInstance ? t('checklist.checklist', 'Checklist') : t('checklist.inspectionChecklist', 'Inspection Checklist')}
             </Typography>
             <Typography variant="caption" color="text.secondary">
               {template?.name || t('checklist.checklist', 'Checklist')}

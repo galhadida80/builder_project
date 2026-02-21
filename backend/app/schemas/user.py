@@ -57,6 +57,7 @@ class UserResponse(CamelCaseModel, UserBase):
     created_at: datetime
     phone: Optional[str] = None
     language: Optional[str] = None
+    signature_url: Optional[str] = None
 
 
 class TokenResponse(CamelCaseModel):

@@ -143,6 +143,7 @@ class MeetingResponse(CamelCaseModel):
     action_items: Optional[list[ActionItem]] = None
     status: str
     has_time_slots: bool = False
+    calendar_synced: bool = False
     created_at: datetime
     created_by: Optional[UserResponse] = None
     attendees: list[MeetingAttendeeResponse] = []

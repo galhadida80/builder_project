@@ -14,6 +14,7 @@ interface LoginResponse {
     isActive: boolean
     isSuperAdmin: boolean
     createdAt: string
+    signatureUrl: string | null
   }
 }
 
@@ -28,6 +29,7 @@ function transformUser(apiUser: LoginResponse['user']): User {
     isActive: apiUser.isActive,
     isSuperAdmin: apiUser.isSuperAdmin,
     createdAt: apiUser.createdAt,
+    signatureUrl: apiUser.signatureUrl || undefined,
   }
 }
 
@@ -68,6 +70,16 @@ export const authApi = {
 
   updateProfile: async (data: { full_name?: string; phone?: string; company?: string }): Promise<User> => {
     const response = await apiClient.put<LoginResponse['user']>('/auth/me', data)
+    return transformUser(response.data)
+  },
+
+  uploadSignature: async (signatureDataUrl: string): Promise<User> => {
+    const response = await apiClient.put<LoginResponse['user']>('/auth/me/signature', { signature_data: signatureDataUrl })
+    return transformUser(response.data)
+  },
+
+  deleteSignature: async (): Promise<User> => {
+    const response = await apiClient.delete<LoginResponse['user']>('/auth/me/signature')
     return transformUser(response.data)
   },
 

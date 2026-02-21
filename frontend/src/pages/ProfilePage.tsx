@@ -6,7 +6,8 @@ import { useAuth } from '../contexts/AuthContext'
 import { useToast } from '../components/common/ToastProvider'
 import { authApi, WebAuthnCredential } from '../api/auth'
 import { profileSchema, validateWithSchema } from '../schemas/validation'
-import { PersonIcon, EmailIcon, PhoneIcon, BusinessIcon, EditIcon, SaveIcon, FingerprintIcon, DeleteIcon, CameraAltIcon } from '@/icons'
+import { SignaturePad } from '../components/checklist/SignaturePad'
+import { PersonIcon, EmailIcon, PhoneIcon, BusinessIcon, EditIcon, SaveIcon, FingerprintIcon, DeleteIcon, CameraAltIcon, CreateIcon } from '@/icons'
 import { Box, Typography, Paper, Avatar, TextField, Button, Divider, Chip, IconButton, CircularProgress } from '@/mui'
 
 export default function ProfilePage() {
@@ -21,6 +22,10 @@ export default function ProfilePage() {
     phone: user?.phone || '',
     company: user?.company || '',
   })
+
+  const [signatureDrawerOpen, setSignatureDrawerOpen] = useState(false)
+  const [signatureData, setSignatureData] = useState<string | null>(null)
+  const [savingSignature, setSavingSignature] = useState(false)
 
   const [webauthnSupported] = useState(() => !!window.PublicKeyCredential)
   const [credentials, setCredentials] = useState<WebAuthnCredential[]>([])
@@ -99,6 +104,35 @@ export default function ProfilePage() {
       }
     } catch {
       showError(t('webauthn.deleteFailed'))
+    }
+  }
+
+  const handleSaveSignature = async () => {
+    if (!signatureData) return
+    setSavingSignature(true)
+    try {
+      await authApi.uploadSignature(signatureData)
+      await refreshUser()
+      setSignatureDrawerOpen(false)
+      setSignatureData(null)
+      showSuccess(t('profile.signatureSaved'))
+    } catch {
+      showError(t('profile.signatureSaveFailed'))
+    } finally {
+      setSavingSignature(false)
+    }
+  }
+
+  const handleDeleteSignature = async () => {
+    setSavingSignature(true)
+    try {
+      await authApi.deleteSignature()
+      await refreshUser()
+      showSuccess(t('profile.signatureDeleted'))
+    } catch {
+      showError(t('profile.signatureDeleteFailed'))
+    } finally {
+      setSavingSignature(false)
     }
   }
 
@@ -208,6 +242,50 @@ export default function ProfilePage() {
             {t('profile.editProfile')}
           </Button>
         )}
+
+        <Paper sx={{ borderRadius: 3, overflow: 'hidden', mb: 3 }}>
+          <Box sx={{ p: 2.5 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
+              <CreateIcon sx={{ color: 'primary.main' }} />
+              <Typography variant="subtitle2" fontWeight={600}>{t('profile.signature')}</Typography>
+            </Box>
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
+              {t('profile.signatureDescription')}
+            </Typography>
+
+            {user?.signatureUrl && !signatureDrawerOpen ? (
+              <Box>
+                <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 1.5, mb: 2, bgcolor: '#fff', textAlign: 'center' }}>
+                  <img src={user.signatureUrl} alt={t('profile.signature')} style={{ maxWidth: '100%', maxHeight: 120 }} />
+                </Box>
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <Button variant="outlined" size="small" startIcon={<EditIcon />} onClick={() => setSignatureDrawerOpen(true)}>
+                    {t('profile.changeSignature')}
+                  </Button>
+                  <Button variant="outlined" size="small" color="error" startIcon={<DeleteIcon />} onClick={handleDeleteSignature} disabled={savingSignature}>
+                    {t('profile.deleteSignature')}
+                  </Button>
+                </Box>
+              </Box>
+            ) : signatureDrawerOpen ? (
+              <Box>
+                <SignaturePad onSignatureChange={setSignatureData} label={t('profile.signature')} />
+                <Box sx={{ display: 'flex', gap: 1, mt: 2, justifyContent: 'flex-end' }}>
+                  <Button variant="outlined" size="small" onClick={() => { setSignatureDrawerOpen(false); setSignatureData(null) }}>
+                    {t('common.cancel')}
+                  </Button>
+                  <Button variant="contained" size="small" startIcon={<SaveIcon />} onClick={handleSaveSignature} disabled={!signatureData || savingSignature}>
+                    {savingSignature ? t('common.loading') : t('common.save')}
+                  </Button>
+                </Box>
+              </Box>
+            ) : (
+              <Button variant="outlined" startIcon={<CreateIcon />} onClick={() => setSignatureDrawerOpen(true)}>
+                {t('profile.drawSignature')}
+              </Button>
+            )}
+          </Box>
+        </Paper>
 
         {webauthnSupported && (
           <Paper sx={{ borderRadius: 3, overflow: 'hidden', mb: 3 }}>

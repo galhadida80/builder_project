@@ -111,4 +111,28 @@ export const meetingsApi = {
     })
     return response.data
   },
+
+  syncToCalendar: async (projectId: string, meetingId: string): Promise<{ message: string; google_event_id: string; calendar_synced: boolean }> => {
+    const response = await apiClient.post(`/projects/${projectId}/meetings/${meetingId}/sync-calendar`)
+    return response.data
+  },
+
+  removeCalendarEvent: async (projectId: string, meetingId: string): Promise<{ message: string }> => {
+    const response = await apiClient.delete(`/projects/${projectId}/meetings/${meetingId}/calendar-event`)
+    return response.data
+  },
+
+  getCalendarStatus: async (): Promise<{ google_connected: boolean; google_configured: boolean }> => {
+    const response = await apiClient.get('/calendar/status')
+    return response.data
+  },
+
+  getCalendarAuthUrl: async (): Promise<{ auth_url: string }> => {
+    const response = await apiClient.get('/calendar/auth-url')
+    return response.data
+  },
+
+  disconnectCalendar: async (): Promise<void> => {
+    await apiClient.delete('/calendar/disconnect')
+  },
 }

@@ -38,6 +38,7 @@ from app.models.material_template import (
     MaterialTemplate,
     MaterialTemplateConsultant,
 )
+from app.models.calendar_token import UserCalendarToken
 from app.models.meeting import Meeting, MeetingAttendee
 from app.models.permission_override import PermissionOverride
 from app.models.project import Project, ProjectMember
@@ -119,4 +120,5 @@ __all__ = [
     "KpiSnapshot",
     "PushSubscription",
     "Discussion",
+    "UserCalendarToken",
 ]

@@ -34,9 +34,11 @@ async def extract_quantities_endpoint(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to extract quantities: {e}")
 
-    data = result["result"]
+    data = result.get("result", {})
+    if not isinstance(data, dict):
+        data = {}
     return QuantityExtractionResponse(
         floors=data.get("floors", []),
         summary=data.get("summary", {}),
-        processing_time_ms=result["processing_time_ms"],
+        processing_time_ms=result.get("processing_time_ms", 0),
     )

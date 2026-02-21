@@ -72,6 +72,10 @@ class Settings(BaseSettings):
     gmail_client_secret: str = ""
     gmail_refresh_token: str = ""
 
+    google_calendar_client_id: str = ""
+    google_calendar_client_secret: str = ""
+    google_calendar_redirect_uri: str = "http://localhost:8000/api/v1/calendar/callback"
+
     google_pubsub_topic: str = ""
     google_pubsub_audience: str = ""
     google_pubsub_verify: bool = True

@@ -5,7 +5,7 @@ from datetime import timedelta
 from typing import Optional
 from uuid import UUID
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, Request, status
+from fastapi import APIRouter, BackgroundTasks, Body, Depends, HTTPException, Query, Request, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from webauthn import generate_authentication_options, generate_registration_options, verify_authentication_response, verify_registration_response
@@ -32,6 +32,7 @@ from app.schemas.webauthn import (
 )
 from app.services.email_renderer import render_password_reset_email, render_welcome_email
 from app.services.email_service import EmailService
+from app.services.storage_service import StorageBackend, get_storage_backend
 from app.utils.localization import get_language_from_request, translate_message
 from app.middleware.rate_limiter import get_rate_limiter
 from app.utils import utcnow
@@ -181,6 +182,61 @@ async def update_current_user(
         user.company = data.company
     if data.language is not None:
         user.language = data.language
+    await db.commit()
+    await db.refresh(user)
+    return user
+
+
+@router.put("/me/signature", response_model=UserResponse)
+async def upload_signature(
+    signature_data: str = Body(..., embed=True),
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+    storage: StorageBackend = Depends(get_storage_backend),
+):
+    if not signature_data.startswith("data:image/png;base64,"):
+        raise HTTPException(status_code=400, detail="Invalid signature format, expected base64 PNG")
+
+    raw_b64 = signature_data.split(",", 1)[1]
+    try:
+        image_bytes = base64.b64decode(raw_b64)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid base64 data")
+
+    if len(image_bytes) > 500_000:
+        raise HTTPException(status_code=400, detail="Signature image too large (max 500KB)")
+
+    if user.signature_url:
+        try:
+            await storage.delete_file(f"signatures/{user.id}.png")
+        except Exception:
+            pass
+
+    storage_path = f"signatures/{user.id}.png"
+    await storage.save_bytes(image_bytes, storage_path, content_type="image/png")
+    url = storage.get_file_url(storage_path)
+
+    user.signature_url = url
+    await db.commit()
+    await db.refresh(user)
+    return user
+
+
+@router.delete("/me/signature", response_model=UserResponse)
+async def delete_signature(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+    storage: StorageBackend = Depends(get_storage_backend),
+):
+    if not user.signature_url:
+        raise HTTPException(status_code=404, detail="No signature found")
+
+    try:
+        await storage.delete_file(f"signatures/{user.id}.png")
+    except Exception:
+        pass
+
+    user.signature_url = None
     await db.commit()
     await db.refresh(user)
     return user

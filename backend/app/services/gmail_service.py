@@ -1,5 +1,6 @@
 import base64
 import logging
+import time
 from email import encoders
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
@@ -13,12 +14,38 @@ logger = logging.getLogger(__name__)
 try:
     from google.oauth2.credentials import Credentials
     from googleapiclient.discovery import build
+    from googleapiclient.errors import HttpError
     GOOGLE_APIS_AVAILABLE = True
 except ImportError:
     GOOGLE_APIS_AVAILABLE = False
+    HttpError = None
     logger.warning("Google API libraries not installed. Gmail integration will be disabled.")
 
+GMAIL_SEND_MAX_RETRIES = 3
+GMAIL_SEND_RETRY_DELAYS = [1, 2, 4]
+
 TOKEN_URI = "https://oauth2.googleapis.com/token"
+
+
+def execute_with_retry(request):
+    for attempt in range(GMAIL_SEND_MAX_RETRIES):
+        try:
+            return request.execute()
+        except Exception as e:
+            is_retriable = (
+                HttpError is not None
+                and isinstance(e, HttpError)
+                and e.resp.status in (503, 429)
+            )
+            if not is_retriable or attempt == GMAIL_SEND_MAX_RETRIES - 1:
+                raise
+            delay = GMAIL_SEND_RETRY_DELAYS[attempt]
+            logger.warning(
+                "Gmail API returned %s, retrying in %ds (attempt %d/%d): %s",
+                e.resp.status, delay, attempt + 1, GMAIL_SEND_MAX_RETRIES, e,
+            )
+            time.sleep(delay)
+    raise RuntimeError("Unreachable")
 
 
 class GmailService:
@@ -113,10 +140,12 @@ class GmailService:
         raw_message = base64.urlsafe_b64encode(message.as_bytes()).decode('utf-8')
 
         try:
-            result = self.service.users().messages().send(
-                userId='me',
-                body={'raw': raw_message}
-            ).execute()
+            result = execute_with_retry(
+                self.service.users().messages().send(
+                    userId='me',
+                    body={'raw': raw_message}
+                )
+            )
 
             return {
                 'message_id': result['id'],
@@ -154,10 +183,12 @@ class GmailService:
         raw_message = base64.urlsafe_b64encode(message.as_bytes()).decode('utf-8')
 
         try:
-            result = self.service.users().messages().send(
-                userId='me',
-                body={'raw': raw_message}
-            ).execute()
+            result = execute_with_retry(
+                self.service.users().messages().send(
+                    userId='me',
+                    body={'raw': raw_message}
+                )
+            )
             return {
                 'message_id': result['id'],
                 'thread_id': result['threadId'],
