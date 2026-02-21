@@ -27,6 +27,10 @@ HEBREW_NUMBER_MAP = {
 }
 
 
+FLOOR_WORD_PATTERN = re.compile(r"קומה|קומת", re.UNICODE)
+FLOOR_NUMBER_WORDS = {"קרקע": 0, "מרתף": -1, "ראשונה": 1, "שנייה": 2, "שלישית": 3}
+
+
 def extract_pdf_text_and_tables(file_content: bytes) -> dict:
     pages = []
     full_text_parts = []
@@ -36,9 +40,13 @@ def extract_pdf_text_and_tables(file_content: bytes) -> dict:
             text = page.extract_text() or ""
             full_text_parts.append(text)
 
-            tables = page.extract_tables() or []
+            floor_markers = find_floor_markers(page)
+
+            found_tables = page.find_tables() or []
+            raw_tables = page.extract_tables() or []
             page_tables = []
-            for table in tables:
+
+            for t_idx, table in enumerate(raw_tables):
                 if not table or len(table) < 2:
                     continue
                 header_row = [str(cell).strip() if cell else "" for cell in table[0]]
@@ -51,17 +59,23 @@ def extract_pdf_text_and_tables(file_content: bytes) -> dict:
                     cells = [str(cell).strip() if cell else "" for cell in row]
                     rows.append(cells)
 
+                bbox_top = None
+                if t_idx < len(found_tables):
+                    bbox_top = found_tables[t_idx].bbox[1]
+
                 page_tables.append({
                     "headers": header_row,
                     "column_map": col_map,
                     "rows": rows,
                     "page": page_num + 1,
+                    "bbox_top": bbox_top,
                 })
 
             pages.append({
                 "page_number": page_num + 1,
                 "text": text,
                 "tables": page_tables,
+                "floor_markers": floor_markers,
             })
 
     return {
@@ -70,6 +84,38 @@ def extract_pdf_text_and_tables(file_content: bytes) -> dict:
         "has_hebrew": bool(re.search(r"[\u0590-\u05FF]", "\n".join(full_text_parts))),
         "total_pages": len(pages),
     }
+
+
+def find_floor_markers(page) -> list[dict]:
+    markers = []
+    words = page.extract_words() or []
+    for i, word in enumerate(words):
+        if not FLOOR_WORD_PATTERN.search(word.get("text", "")):
+            continue
+
+        y_pos = word["top"]
+        floor_num = None
+
+        nearby_texts = []
+        for j in range(max(0, i - 3), min(len(words), i + 6)):
+            w = words[j]
+            if abs(w["top"] - y_pos) < 5:
+                nearby_texts.append(w["text"])
+
+        line = " ".join(nearby_texts)
+
+        num_match = re.search(r"(\d+)", line)
+        if num_match:
+            floor_num = int(num_match.group(1))
+        else:
+            for heb_word, num in FLOOR_NUMBER_WORDS.items():
+                if heb_word in line:
+                    floor_num = num
+                    break
+
+        markers.append({"y_pos": y_pos, "floor_number": floor_num, "text": line})
+
+    return markers
 
 
 def classify_table_columns(header_row: list[str]) -> dict[int, str]:

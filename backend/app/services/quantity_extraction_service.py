@@ -136,33 +136,42 @@ def extract_quantities(file_content: bytes, file_type: str, language: str = "he"
     }
 
 
+def resolve_floor_for_table(table: dict, markers: list[dict], current_floor: int, next_seq: int) -> int:
+    table_top = table.get("bbox_top")
+    if not markers:
+        return current_floor
+
+    if table_top is not None:
+        best_marker = None
+        for marker in markers:
+            if marker["y_pos"] < table_top:
+                if best_marker is None or marker["y_pos"] > best_marker["y_pos"]:
+                    best_marker = marker
+        if best_marker:
+            if best_marker["floor_number"] is not None:
+                return best_marker["floor_number"]
+            return next_seq
+
+    return current_floor
+
+
 def parse_pdfplumber_tables(pdf_data: dict) -> dict:
     from app.services.quantity_docai_service import guess_room_type, parse_door_or_window
 
     floors = {}
     current_floor = 0
+    next_sequential_floor = 1
 
     for page in pdf_data.get("pages", []):
-        text = page.get("text", "")
-        floor_matches = list(re.finditer(r"קומה\s*[-:.]?\s*(\d+|קרקע|מרתף)", text))
-        floor_positions = []
-        for m in floor_matches:
-            val = m.group(1)
-            if val == "קרקע":
-                fnum = 0
-            elif val == "מרתף":
-                fnum = -1
-            else:
-                fnum = int(val)
-            floor_positions.append((m.start(), fnum))
-
-        if floor_positions:
-            current_floor = floor_positions[0][1]
+        markers = page.get("floor_markers", [])
 
         tables = page.get("tables", [])
         for t_idx, table in enumerate(tables):
-            if len(floor_positions) > 1 and t_idx < len(floor_positions):
-                current_floor = floor_positions[t_idx][1]
+            current_floor = resolve_floor_for_table(
+                table, markers, current_floor, next_sequential_floor
+            )
+            if current_floor >= next_sequential_floor:
+                next_sequential_floor = current_floor + 1
 
             col_map = table.get("column_map", {})
             if not col_map:
