@@ -43,6 +43,7 @@ export {
   CropSquare as CropSquareIcon,
   Create as CreateIcon,
   DarkMode as DarkModeIcon,
+  Draw as DrawIcon,
   Dashboard as DashboardIcon,
   Deck as DeckIcon,
   Delete as DeleteIcon,

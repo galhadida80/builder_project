@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useAuth } from '../../contexts/AuthContext'
 import { Button } from '../ui/Button'
 import { StatusBadge } from '../ui/StatusBadge'
 import { ChecklistSection } from './ChecklistSection'
 import { checklistsApi } from '../../api/checklists'
+import { filesApi } from '../../api/files'
 import type { ChecklistTemplate, ChecklistInstance, ChecklistItemTemplate, ChecklistItemResponse } from '../../types'
 import { useToast } from '../common/ToastProvider'
 import { CloseIcon, CheckCircleIcon, PictureAsPdfIcon } from '@/icons'
@@ -20,12 +22,13 @@ interface ChecklistFillDrawerProps {
 
 export default function ChecklistFillDrawer({ open, onClose, instance, template, projectId, onInstanceUpdate }: ChecklistFillDrawerProps) {
   const { t } = useTranslation()
+  const { user } = useAuth()
   const { showSuccess, showError } = useToast()
   const [localInstance, setLocalInstance] = useState<ChecklistInstance | null>(null)
   const [savingResponse, setSavingResponse] = useState(false)
   const [exportingPdf, setExportingPdf] = useState(false)
-  const [itemPhotos, setItemPhotos] = useState<File[]>([])
-  const [itemSignature, setItemSignature] = useState<string | null>(null)
+  const [itemPhotos, setItemPhotos] = useState<Record<string, File[]>>({})
+  const [itemSignature, setItemSignature] = useState<string | null>(user?.signatureUrl || null)
 
   const activeInstance = localInstance?.id === instance?.id ? localInstance : instance
   if (!activeInstance || !template) return null
@@ -41,19 +44,36 @@ export default function ChecklistFillDrawer({ open, onClose, instance, template,
     if (!activeInstance || savingResponse) return
     setSavingResponse(true)
     try {
+      const photoFiles = itemPhotos[item.id] || []
+      const uploadedUrls: string[] = []
+      for (const file of photoFiles) {
+        const uploaded = await filesApi.upload(projectId, 'checklist_response', item.id, file)
+        uploadedUrls.push(uploaded.storagePath)
+      }
+
       const existingResponse = activeInstance.responses.find((r) => r.item_template_id === item.id)
+      const existingUrls = existingResponse?.image_urls || []
+      const imageUrls = [...existingUrls, ...uploadedUrls]
+
       let updatedResponse: ChecklistItemResponse
       if (existingResponse) {
         updatedResponse = await checklistsApi.updateResponse(activeInstance.id, existingResponse.id, {
           status, notes: notes || existingResponse.notes || undefined,
           signature_url: itemSignature || existingResponse.signature_url || undefined,
+          image_urls: imageUrls.length > 0 ? imageUrls : undefined,
         })
       } else {
         updatedResponse = await checklistsApi.createResponse(activeInstance.id, {
           item_template_id: item.id, status, notes: notes || undefined,
           signature_url: itemSignature || undefined,
+          image_urls: imageUrls.length > 0 ? imageUrls : undefined,
         })
       }
+
+      if (photoFiles.length > 0) {
+        setItemPhotos(prev => { const next = { ...prev }; delete next[item.id]; return next })
+      }
+
       const updated = {
         ...activeInstance,
         responses: existingResponse
@@ -134,7 +154,7 @@ export default function ChecklistFillDrawer({ open, onClose, instance, template,
           {template.subsections.slice().sort((a, b) => a.order - b.order).map((section) => (
             <ChecklistSection key={section.id} section={section} responses={activeInstance.responses} defaultExpanded
               onStatusChange={handleStatusChange}
-              onPhotosChange={(_item, files) => setItemPhotos(files)}
+              onPhotosChange={(item, files) => setItemPhotos(prev => ({ ...prev, [item.id]: files }))}
               onSignatureChange={(_item, sig) => setItemSignature(sig)}
               savingResponse={savingResponse}
               readOnly={activeInstance.status === 'completed'}

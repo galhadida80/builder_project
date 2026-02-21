@@ -13,8 +13,9 @@ import { contactsApi } from '../api/contacts'
 import { auditApi } from '../api'
 import type { Defect, Contact, AuditLog } from '../types'
 import { useToast } from '../components/common/ToastProvider'
+import { PhotoAnnotator } from '../components/annotations/PhotoAnnotator'
 import {
-  ArrowBackIcon, AddPhotoAlternateIcon, DeleteIcon, ImageIcon, EditIcon,
+  ArrowBackIcon, AddPhotoAlternateIcon, DeleteIcon, ImageIcon, EditIcon, DrawIcon,
 } from '@/icons'
 import {
   Box, Typography, Divider, Chip, IconButton, Skeleton, Avatar,
@@ -39,6 +40,7 @@ export default function DefectDetailPage() {
   const [uploading, setUploading] = useState(false)
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null)
   const [thumbnails, setThumbnails] = useState<Record<string, string>>({})
+  const [annotatingFile, setAnnotatingFile] = useState<FileRecord | null>(null)
 
   useEffect(() => {
     loadDetail()
@@ -165,6 +167,24 @@ export default function DefectDetailPage() {
       setLightboxUrl(url)
     } catch {
       showError(t('defects.photoLoadFailed'))
+    }
+  }
+
+  const handleAnnotateSave = async (dataUrl: string) => {
+    if (!projectId || !defectId || !annotatingFile) return
+    try {
+      const res = await fetch(dataUrl)
+      const blob = await res.blob()
+      const file = new File([blob], 'annotated_' + annotatingFile.filename, { type: 'image/png' })
+      await filesApi.upload(projectId, 'defect', defectId, file)
+      await filesApi.delete(projectId, annotatingFile.id)
+      const updated = await filesApi.list(projectId, 'defect', defectId)
+      setPhotos(updated)
+      loadThumbnails(updated)
+      setAnnotatingFile(null)
+      showSuccess(t('annotations.annotate'))
+    } catch {
+      showError(t('defects.photoUploadFailed'))
     }
   }
 
@@ -341,16 +361,30 @@ export default function DefectDetailPage() {
                     <Typography variant="caption" color="white" sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '70%' }}>
                       {file.filename}
                     </Typography>
-                    <Tooltip title={t('common.delete')}>
-                      <IconButton
-                        aria-label={t('common.delete')}
-                        size="small"
-                        onClick={(e) => { e.stopPropagation(); handlePhotoDelete(file.id) }}
-                        sx={{ color: 'white' }}
-                      >
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
+                    <Box sx={{ display: 'flex', gap: 0.5 }}>
+                      {file.fileType?.startsWith('image/') && (
+                        <Tooltip title={t('annotations.annotate')}>
+                          <IconButton
+                            aria-label={t('annotations.annotate')}
+                            size="small"
+                            onClick={(e) => { e.stopPropagation(); setAnnotatingFile(file) }}
+                            sx={{ color: 'white' }}
+                          >
+                            <DrawIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      )}
+                      <Tooltip title={t('common.delete')}>
+                        <IconButton
+                          aria-label={t('common.delete')}
+                          size="small"
+                          onClick={(e) => { e.stopPropagation(); handlePhotoDelete(file.id) }}
+                          sx={{ color: 'white' }}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
                   </Box>
                 </Box>
               ))}
@@ -432,6 +466,20 @@ export default function DefectDetailPage() {
             alt={t('defects.defectPhoto', 'Defect photo')}
             sx={{ maxWidth: '90vw', maxHeight: '90vh', objectFit: 'contain', borderRadius: 2 }}
             onClick={() => setLightboxUrl(null)}
+          />
+        )}
+      </Dialog>
+
+      <Dialog
+        open={!!annotatingFile}
+        onClose={() => setAnnotatingFile(null)}
+        fullScreen
+      >
+        {annotatingFile && thumbnails[annotatingFile.id] && (
+          <PhotoAnnotator
+            imageUrl={thumbnails[annotatingFile.id]}
+            onSave={handleAnnotateSave}
+            onCancel={() => setAnnotatingFile(null)}
           />
         )}
       </Dialog>
