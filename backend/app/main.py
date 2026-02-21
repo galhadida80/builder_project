@@ -1,6 +1,8 @@
 import logging
 from contextlib import asynccontextmanager
 
+import sentry_sdk
+from sentry_sdk.integrations.logging import LoggingIntegration
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import _rate_limit_exceeded_handler
@@ -22,6 +24,22 @@ from app.utils.localization import get_language_from_request
 settings = get_settings()
 setup_logging(settings.environment)
 logger = logging.getLogger(__name__)
+
+sentry_logging = LoggingIntegration(
+    level=logging.INFO,
+    event_level=logging.WARNING,
+)
+
+sentry_sdk.init(
+    dsn="https://a96adf0b4773f6197325af06d676c6e5@o4510921032335360.ingest.de.sentry.io/4510921034498128",
+    send_default_pii=True,
+    enable_logs=True,
+    traces_sample_rate=1.0,
+    profile_session_sample_rate=1.0,
+    profile_lifecycle="trace",
+    environment=settings.environment,
+    integrations=[sentry_logging],
+)
 
 
 @asynccontextmanager
