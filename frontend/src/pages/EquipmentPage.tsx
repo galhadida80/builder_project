@@ -25,7 +25,7 @@ import { useToast } from '../components/common/ToastProvider'
 import { useReferenceData } from '../contexts/ReferenceDataContext'
 import type { KeyValuePair } from '../components/ui/KeyValueEditor'
 import { AddIcon, BuildIcon, EditIcon, DeleteIcon, VisibilityIcon } from '@/icons'
-import { Box, Typography, IconButton, TablePagination, useMediaQuery, useTheme } from '@/mui'
+import { Box, Typography, IconButton, TablePagination, useMediaQuery, useTheme, Fab } from '@/mui'
 
 export default function EquipmentPage() {
   const { projectId } = useParams()
@@ -203,7 +203,7 @@ export default function EquipmentPage() {
           title={t('equipment.title')}
           subtitle={t('equipment.subtitle')}
           breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('equipment.title') }]}
-          actions={<Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>{t('equipment.addEquipment')}</Button>}
+          actions={<Fab size="small" color="primary" onClick={handleOpenCreate} aria-label={t('equipment.addEquipment')}><AddIcon /></Fab>}
         />
         <HelpTooltip helpKey="help.tooltips.equipmentForm" />
       </Box>

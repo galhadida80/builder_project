@@ -39,10 +39,10 @@ function formatDate(d: Date): string {
 
 function getTaskColor(task: GanttTask): string {
   if (task.type === 'milestone') return '#F57C00'
-  if (task.type === 'project') return '#1565C0'
+  if (task.type === 'project') return '#c96d10'
   const progress = task.progress ?? 0
   if (progress >= 100) return '#2E7D32'
-  if (progress > 0) return '#1976D2'
+  if (progress > 0) return '#f28c26'
   return '#90A4AE'
 }
 

@@ -26,7 +26,7 @@ const ChartContainer = styled(Paper)(({ theme }) => ({
 }))
 
 const defaultColors = [
-  '#1976d2', // primary blue
+  '#f28c26', // primary orange
   '#2e7d32', // success green
   '#ed6c02', // warning orange
   '#9c27b0', // purple

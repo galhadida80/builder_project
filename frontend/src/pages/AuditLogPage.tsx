@@ -75,6 +75,20 @@ const FIELD_LABEL_KEYS: Record<string, string> = {
   responded_at: 'auditLog.fieldLabels.responded_at',
   total_units: 'auditLog.fieldLabels.total_units',
   area_type: 'auditLog.fieldLabels.area_type',
+  code: 'auditLog.fieldLabels.code',
+  full_name: 'auditLog.fieldLabels.full_name',
+  daily_summary_enabled: 'auditLog.fieldLabels.daily_summary_enabled',
+  start_date: 'auditLog.fieldLabels.start_date',
+  end_date: 'auditLog.fieldLabels.end_date',
+  budget: 'auditLog.fieldLabels.budget',
+  address: 'auditLog.fieldLabels.address',
+  city: 'auditLog.fieldLabels.city',
+  country: 'auditLog.fieldLabels.country',
+  language: 'auditLog.fieldLabels.language',
+  role: 'auditLog.fieldLabels.role',
+  is_active: 'auditLog.fieldLabels.is_active',
+  answer: 'auditLog.fieldLabels.answer',
+  response: 'auditLog.fieldLabels.response',
 }
 
 const HIDDEN_FIELDS = new Set(['id', 'project_id', 'entity_id', 'created_by_id', 'updated_by_id', 'consultant_type_id', 'related_equipment_id', 'related_material_id', 'area_id', 'user_id'])
@@ -248,7 +262,7 @@ export default function AuditLogPage() {
 
   if (loading) {
     return (
-      <Box sx={{ maxWidth: 600, mx: 'auto', p: { xs: 2, sm: 3 } }}>
+      <Box sx={{ maxWidth: { xs: '100%', md: 900 }, mx: 'auto', p: { xs: 2, sm: 3 } }}>
         <Skeleton variant="rounded" height={48} sx={{ borderRadius: 2, mb: 2 }} />
         <Skeleton variant="rounded" height={44} sx={{ borderRadius: 2, mb: 2 }} />
         <Skeleton variant="rounded" height={36} sx={{ borderRadius: 2, mb: 3 }} />
@@ -260,7 +274,7 @@ export default function AuditLogPage() {
   }
 
   return (
-    <Box sx={{ maxWidth: 600, mx: 'auto', pb: 10 }}>
+    <Box sx={{ maxWidth: { xs: '100%', md: 900 }, mx: 'auto', pb: 10 }}>
       {/* Sticky header */}
       <Box sx={{
         position: 'sticky', top: 0, zIndex: 20,
@@ -271,17 +285,15 @@ export default function AuditLogPage() {
           <Typography variant="h6" fontWeight={700} letterSpacing='-0.02em'>
             {t('auditLog.pageTitle')}
           </Typography>
-          <Button
-            variant="secondary"
+          <IconButton
             size="small"
-            icon={<FileDownloadIcon />}
             onClick={handleExportCSV}
             disabled={filteredLogs.length === 0}
+            aria-label={t('auditLog.export')}
+            sx={{ color: 'text.secondary' }}
           >
-            <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
-              {t('auditLog.export')}
-            </Box>
-          </Button>
+            <FileDownloadIcon fontSize="small" />
+          </IconButton>
         </Box>
 
         {/* Search bar */}
@@ -416,11 +428,11 @@ export default function AuditLogPage() {
 
                     {/* Content */}
                     <Box sx={{ flex: 1, minWidth: 0 }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.25 }}>
-                        <Typography variant="body2" fontWeight={600} noWrap sx={{ flex: 1 }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
+                        <Typography variant="body1" fontWeight={600} noWrap sx={{ flex: 1 }}>
                           {log.user?.fullName || t('common.unknown')}
                         </Typography>
-                        <Typography variant="caption" color="text.disabled" sx={{ flexShrink: 0, [isRtl ? 'mr' : 'ml']: 1 }}>
+                        <Typography variant="body2" color="text.disabled" sx={{ flexShrink: 0, [isRtl ? 'mr' : 'ml']: 1 }}>
                           {timeStr}
                         </Typography>
                       </Box>
@@ -436,7 +448,7 @@ export default function AuditLogPage() {
                           label={entityLabel}
                           size="small"
                           sx={{
-                            height: 18, fontSize: '0.6rem', fontWeight: 600,
+                            height: 22, fontSize: '0.75rem', fontWeight: 600,
                             bgcolor: 'action.hover', textTransform: 'capitalize',
                           }}
                         />
@@ -450,19 +462,19 @@ export default function AuditLogPage() {
                       {/* Inline change preview */}
                       {firstChange && (
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: 'wrap' }}>
-                          <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem' }}>
+                          <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.75rem' }}>
                             {translateField(firstChange.field)}:
                           </Typography>
                           {!isNullish(firstChange.old) && (
-                            <Typography variant="caption" sx={{ fontSize: '0.65rem', color: 'error.main', textDecoration: 'line-through' }} noWrap>
+                            <Typography variant="caption" sx={{ fontSize: '0.75rem', color: 'error.main', textDecoration: 'line-through' }} noWrap>
                               {formatVal(firstChange.field, firstChange.old)}
                             </Typography>
                           )}
                           {!isNullish(firstChange.old) && !isNullish(firstChange.new) && (
-                            <Typography variant="caption" color="text.disabled" sx={{ fontSize: '0.65rem' }}>→</Typography>
+                            <Typography variant="caption" color="text.disabled" sx={{ fontSize: '0.75rem' }}>→</Typography>
                           )}
                           {!isNullish(firstChange.new) && (
-                            <Typography variant="caption" sx={{ fontSize: '0.65rem', color: 'success.main', fontWeight: 600 }} noWrap>
+                            <Typography variant="caption" sx={{ fontSize: '0.75rem', color: 'success.main', fontWeight: 600 }} noWrap>
                               {formatVal(firstChange.field, firstChange.new)}
                             </Typography>
                           )}

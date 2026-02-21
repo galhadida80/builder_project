@@ -62,6 +62,7 @@ export function PWAInstallPrompt(): React.ReactElement | null {
         open={true}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         TransitionComponent={Slide}
+        sx={{ zIndex: 1200 }}
       >
         <Paper elevation={6} sx={{ p: 2, maxWidth: 340 }}>
           <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
@@ -92,6 +93,7 @@ export function PWAInstallPrompt(): React.ReactElement | null {
       open={open}
       anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       TransitionComponent={Slide}
+      sx={{ zIndex: 1200 }}
     >
       <Paper elevation={6} sx={{ p: 2, maxWidth: 340 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>

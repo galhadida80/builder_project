@@ -13,11 +13,11 @@ export const colors = {
     50: '#F8FAFC',
   },
   accent: {
-    primary: '#0369A1',
-    hover: '#0284C7',
-    light: '#E0F2FE',
-    dark: '#075985',
-    darker: '#0C4A6E',
+    primary: '#f28c26',
+    hover: '#e07b1a',
+    light: '#FFF3E0',
+    dark: '#c96d10',
+    darker: '#a85a0a',
   },
   teal: {
     600: '#0D9488',
@@ -65,17 +65,25 @@ export const colors = {
   },
   surface: {
     light: {
-      default: '#F8FAFC',
+      default: '#f8f7f5',
       paper: '#FFFFFF',
       elevated: '#FFFFFF',
       overlay: 'rgba(15, 23, 42, 0.5)',
     },
     dark: {
-      default: '#0F172A',
-      paper: '#1E293B',
-      elevated: '#263548',
+      default: '#1a1612',
+      paper: '#2a221a',
+      elevated: '#3d3126',
       overlay: 'rgba(0, 0, 0, 0.6)',
     },
+  },
+  warmDark: {
+    border: '#3d342a',
+    borderSubtle: '#2d2519',
+    cardBg: 'rgba(242, 140, 38, 0.05)',
+    cardBorder: 'rgba(242, 140, 38, 0.1)',
+    inputBg: 'rgba(242, 140, 38, 0.08)',
+    headerBorder: 'rgba(242, 140, 38, 0.15)',
   },
 }
 
@@ -97,6 +105,7 @@ export const shadows = {
   glass: '0 8px 32px rgba(0, 0, 0, 0.1)',
   card: '0 2px 8px rgba(0, 0, 0, 0.08)',
   cardHover: '0 8px 16px rgba(0, 0, 0, 0.12)',
+  primaryGlow: '0 4px 14px rgba(242, 140, 38, 0.25)',
 }
 
 export const borderRadius = {
@@ -156,8 +165,8 @@ export const animations = {
 
 export const typography = {
   fontFamily: {
-    english: '"Plus Jakarta Sans", system-ui, -apple-system, sans-serif',
-    hebrew: '"Noto Sans Hebrew", "Plus Jakarta Sans", system-ui, sans-serif',
+    english: '"Work Sans", system-ui, -apple-system, sans-serif',
+    hebrew: '"Noto Sans Hebrew", "Work Sans", system-ui, sans-serif',
     mono: '"Fira Code", "JetBrains Mono", monospace',
   },
   fontSize: {

@@ -25,7 +25,7 @@ import { useToast } from '../components/common/ToastProvider'
 import { useReferenceData } from '../contexts/ReferenceDataContext'
 import type { KeyValuePair } from '../components/ui/KeyValueEditor'
 import { AddIcon, InventoryIcon, VisibilityIcon, EditIcon, DeleteIcon } from '@/icons'
-import { Box, Typography, IconButton, TablePagination, useMediaQuery, useTheme } from '@/mui'
+import { Box, Typography, IconButton, TablePagination, useMediaQuery, useTheme, Fab } from '@/mui'
 
 export default function MaterialsPage() {
   const { projectId } = useParams()
@@ -172,7 +172,7 @@ export default function MaterialsPage() {
   return (
     <Box sx={{ p: { xs: 1, sm: 1.5, md: 3 }, maxWidth: '100%', overflow: 'hidden' }}>
       <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
-        <PageHeader title={t('materials.title')} subtitle={t('materials.subtitle')} breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('materials.title') }]} actions={<Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>{t('materials.addMaterial')}</Button>} />
+        <PageHeader title={t('materials.title')} subtitle={t('materials.subtitle')} breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('materials.title') }]} />
         <HelpTooltip helpKey="help.tooltips.materialForm" />
       </Box>
 
@@ -222,6 +222,15 @@ export default function MaterialsPage() {
       <ConfirmModal open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)} onConfirm={handleConfirmDelete} title={t('materials.deleteConfirmation')} message={t('materials.deleteConfirmationMessage', { name: materialToDelete?.name })} confirmLabel={t('common.delete')} variant="danger" loading={deleting} />
 
       <ContactSelectorDialog open={contactDialogOpen} onClose={() => setContactDialogOpen(false)} onConfirm={handleConfirmSubmit} projectId={projectId!} loading={submitting} />
+
+      <Fab
+        color="primary"
+        onClick={handleOpenCreate}
+        aria-label={t('materials.addMaterial')}
+        sx={{ position: 'fixed', bottom: { xs: 80, md: 24 }, insetInlineStart: 24, zIndex: 1100 }}
+      >
+        <AddIcon />
+      </Fab>
     </Box>
   )
 }

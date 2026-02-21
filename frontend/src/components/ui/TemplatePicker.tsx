@@ -51,7 +51,7 @@ const CATEGORY_ICONS: Record<string, ReactElement> = {
 
 const CATEGORY_COLORS: Record<string, string> = {
   structural: '#D32F2F',
-  plumbing: '#1976D2',
+  plumbing: '#f28c26',
   electrical: '#F9A825',
   hvac: '#00ACC1',
   fire_safety: '#E65100',

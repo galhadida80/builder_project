@@ -241,7 +241,7 @@ export default function DashboardPage() {
               <BarChart
                 xAxis={[{ scaleType: 'band' as const, data: dashboardStats!.areaProgressByFloor.map(f => `${t('dashboard.charts.floor')} ${f.floor}`) }]}
                 yAxis={[{ valueFormatter: (v: number | null) => v == null ? '' : `${Math.round(v)}%` }]}
-                series={[{ data: dashboardStats!.areaProgressByFloor.map(f => Math.round(f.avgProgress)), label: t('dashboard.charts.avgProgress'), color: '#1976d2', valueFormatter: (v: number | null) => v == null ? '' : `${Math.round(v)}%` }]}
+                series={[{ data: dashboardStats!.areaProgressByFloor.map(f => Math.round(f.avgProgress)), label: t('dashboard.charts.avgProgress'), color: '#f28c26', valueFormatter: (v: number | null) => v == null ? '' : `${Math.round(v)}%` }]}
                 height={200}
                 margin={{ top: 20, right: 10, bottom: 30, left: 40 }}
               />

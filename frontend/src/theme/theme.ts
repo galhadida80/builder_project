@@ -173,8 +173,12 @@ const baseThemeOptions: ThemeOptions = {
         },
         containedPrimary: {
           backgroundColor: colors.accent.primary,
+          boxShadow: shadows.primaryGlow,
           '&:hover': {
             backgroundColor: colors.accent.hover,
+          },
+          '&:active': {
+            transform: 'scale(0.98)',
           },
         },
         contained: {
@@ -451,8 +455,8 @@ export function createLightTheme() {
       divider: colors.primary[200],
       action: {
         hover: 'rgba(15, 23, 42, 0.04)',
-        selected: 'rgba(3, 105, 161, 0.08)',
-        focus: 'rgba(3, 105, 161, 0.12)',
+        selected: 'rgba(242, 140, 38, 0.08)',
+        focus: 'rgba(242, 140, 38, 0.12)',
       },
     },
     components: {
@@ -517,8 +521,8 @@ export function createDarkTheme() {
       divider: colors.primary[700],
       action: {
         hover: 'rgba(248, 250, 252, 0.08)',
-        selected: 'rgba(2, 132, 199, 0.16)',
-        focus: 'rgba(2, 132, 199, 0.24)',
+        selected: 'rgba(242, 140, 38, 0.16)',
+        focus: 'rgba(242, 140, 38, 0.24)',
       },
     },
     components: {
@@ -544,7 +548,7 @@ export function createDarkTheme() {
           root: {
             backgroundColor: colors.surface.dark.paper,
             borderRadius: borderRadius.lg,
-            border: `1px solid ${colors.primary[700]}`,
+            border: '1px solid rgba(242, 140, 38, 0.1)',
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)',
           },
         },
@@ -561,15 +565,16 @@ export function createDarkTheme() {
         styleOverrides: {
           paper: {
             backgroundColor: colors.surface.dark.default,
-            borderRight: `1px solid ${colors.primary[700]}`,
+            borderRight: `1px solid ${colors.warmDark.border}`,
           },
         },
       },
       MuiAppBar: {
         styleOverrides: {
           root: {
-            backgroundColor: colors.surface.dark.default,
-            borderBottom: `1px solid ${colors.primary[700]}`,
+            backgroundColor: 'rgba(26, 22, 18, 0.85)',
+            backdropFilter: 'blur(12px)',
+            borderBottom: `1px solid ${colors.warmDark.headerBorder}`,
           },
         },
       },
@@ -593,7 +598,7 @@ export function createDarkTheme() {
         styleOverrides: {
           root: {
             '& .MuiOutlinedInput-notchedOutline': {
-              borderColor: colors.primary[600],
+              borderColor: colors.warmDark.border,
             },
             '&:hover .MuiOutlinedInput-notchedOutline': {
               borderColor: colors.primary[500],
@@ -608,7 +613,7 @@ export function createDarkTheme() {
             fontWeight: typography.fontWeight.medium,
           },
           filled: {
-            backgroundColor: colors.primary[700],
+            backgroundColor: colors.warmDark.border,
           },
         },
       },

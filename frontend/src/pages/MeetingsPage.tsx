@@ -989,7 +989,7 @@ export default function MeetingsPage() {
               ))}
               {timeSlotInputs.length < 10 && (
                 <Button
-                  variant="outlined"
+                  variant="secondary"
                   size="small"
                   startIcon={<AddIcon />}
                   onClick={() => setTimeSlotInputs([...timeSlotInputs, { date: '', time: '' }])}

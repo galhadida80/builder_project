@@ -103,7 +103,7 @@ export function MaterialCard({ material, onClick, lowStockThreshold = 10 }: Mate
             size="small"
             sx={{
               mb: 2,
-              bgcolor: '#0369A1',
+              bgcolor: 'primary.main',
               color: '#FFFFFF',
               fontWeight: 600,
               fontSize: '0.75rem',

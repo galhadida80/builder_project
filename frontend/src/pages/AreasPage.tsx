@@ -197,7 +197,7 @@ export default function AreasPage() {
       </Box>
 
       <Card sx={{ mb: 2 }}>
-        <Box sx={{ p: { xs: 2, sm: 3 }, background: (th) => th.palette.mode === 'dark' ? 'linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%)' : 'linear-gradient(135deg, #0369A1 0%, #0F172A 100%)', borderRadius: 3 }}>
+        <Box sx={{ p: { xs: 2, sm: 3 }, background: (th) => th.palette.mode === 'dark' ? 'linear-gradient(135deg, #3d3126 0%, #1a1612 100%)' : 'linear-gradient(135deg, #f28c26 0%, #1a1612 100%)', borderRadius: 3 }}>
           <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'center' }, justifyContent: 'space-between', gap: 2 }}>
             <Box sx={{ minWidth: 0 }}>
               <Typography variant="h6" fontWeight={600} color="white" noWrap>{t('areas.overallProjectProgress')}</Typography>

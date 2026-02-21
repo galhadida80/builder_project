@@ -693,7 +693,21 @@
       "sent_at": "Sent At",
       "responded_at": "Responded At",
       "total_units": "Total Units",
-      "area_type": "Area Type"
+      "area_type": "Area Type",
+      "code": "Code",
+      "full_name": "Full Name",
+      "daily_summary_enabled": "Daily Summary",
+      "start_date": "Start Date",
+      "end_date": "End Date",
+      "budget": "Budget",
+      "address": "Address",
+      "city": "City",
+      "country": "Country",
+      "language": "Language",
+      "role": "Role",
+      "is_active": "Active",
+      "answer": "Answer",
+      "response": "Response"
     }
   },
   "statuses": {

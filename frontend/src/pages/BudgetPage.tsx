@@ -17,7 +17,7 @@ import { AddIcon, EditIcon, DeleteIcon, AttachMoneyIcon } from '@/icons'
 import { Box, Typography, Skeleton, Chip, MenuItem, IconButton, TextField as MuiTextField } from '@/mui'
 
 const CATEGORIES: BudgetCategory[] = ['labor', 'materials', 'equipment', 'subcontractor', 'permits', 'overhead', 'other']
-const CAT_COLORS: Record<string, string> = { labor: '#1976d2', materials: '#2e7d32', equipment: '#ed6c02', subcontractor: '#9c27b0', permits: '#0288d1', overhead: '#757575', other: '#9e9e9e' }
+const CAT_COLORS: Record<string, string> = { labor: '#f28c26', materials: '#2e7d32', equipment: '#ed6c02', subcontractor: '#9c27b0', permits: '#0288d1', overhead: '#757575', other: '#9e9e9e' }
 const CO_STATUS_COLORS: Record<string, 'default' | 'info' | 'success' | 'error'> = { draft: 'default', submitted: 'info', approved: 'success', rejected: 'error' }
 const fmt = (n: number) => n.toLocaleString(undefined, { style: 'currency', currency: 'ILS', minimumFractionDigits: 2, maximumFractionDigits: 2 })
 const today = () => new Date().toISOString().slice(0, 10)

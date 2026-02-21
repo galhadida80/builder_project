@@ -230,7 +230,7 @@ export const validateContactForm = (data: { contact_name?: string; email?: strin
   return errors
 }
 
-export const validateMeetingForm = (data: { title?: string; description?: string; meeting_type?: string; location?: string; scheduled_date?: string }): ValidationError => {
+export const validateMeetingForm = (data: { title?: string; description?: string; meeting_type?: string; location?: string }): ValidationError => {
   const errors: ValidationError = {}
 
   errors.title = validateRequired(data.title, 'Meeting Title')
@@ -240,7 +240,6 @@ export const validateMeetingForm = (data: { title?: string; description?: string
   errors.description = validateMaxLength(data.description, VALIDATION.MAX_DESCRIPTION_LENGTH, 'Description')
   errors.meeting_type = validateMaxLength(data.meeting_type, VALIDATION.MAX_MEETING_TYPE_LENGTH, 'Meeting Type')
   errors.location = validateMaxLength(data.location, VALIDATION.MAX_LOCATION_LENGTH, 'Location')
-  errors.scheduled_date = validateRequired(data.scheduled_date, 'Date')
 
   return errors
 }

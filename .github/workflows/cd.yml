@@ -70,6 +70,7 @@ jobs:
             --set-env-vars "SENDGRID_FROM_NAME=BuilderOps" \
             --set-env-vars "RFI_EMAIL_ADDRESS=kodkod800@gmail.com" \
             --set-env-vars "FRONTEND_BASE_URL=https://builderops-frontend-295612488497.me-west1.run.app" \
+            --set-env-vars "BACKEND_BASE_URL=https://builderops-backend-295612488497.me-west1.run.app" \
             --set-env-vars "CORS_ORIGINS=*" \
             --set-env-vars "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" \
             --set-env-vars "SCHEDULER_SECRET=${{ secrets.SCHEDULER_SECRET }}" \

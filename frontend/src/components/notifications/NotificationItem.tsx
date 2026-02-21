@@ -65,7 +65,7 @@ const categoryConfig: Record<NotificationCategory, { icon: React.ReactNode; colo
   },
   update: {
     icon: <UpdateIcon sx={{ fontSize: 12 }} />,
-    color: '#0369A1',
+    color: '#f28c26',
     labelKey: 'notifications.categories.update',
   },
   general: {

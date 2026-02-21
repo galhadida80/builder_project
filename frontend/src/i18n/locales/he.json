@@ -812,7 +812,21 @@
       "sent_at": "נשלח בתאריך",
       "responded_at": "נענה בתאריך",
       "total_units": "סה\"כ יחידות",
-      "area_type": "סוג אזור"
+      "area_type": "סוג אזור",
+      "code": "קוד",
+      "full_name": "שם מלא",
+      "daily_summary_enabled": "סיכום יומי",
+      "start_date": "תאריך התחלה",
+      "end_date": "תאריך סיום",
+      "budget": "תקציב",
+      "address": "כתובת",
+      "city": "עיר",
+      "country": "מדינה",
+      "language": "שפה",
+      "role": "תפקיד",
+      "is_active": "פעיל",
+      "answer": "תשובה",
+      "response": "תגובה"
     }
   },
   "statuses": {
