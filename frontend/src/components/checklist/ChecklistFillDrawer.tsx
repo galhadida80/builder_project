@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../contexts/AuthContext'
+import { authApi } from '../../api/auth'
 import { Button } from '../ui/Button'
 import { StatusBadge } from '../ui/StatusBadge'
 import { ChecklistSection } from './ChecklistSection'
@@ -28,7 +29,13 @@ export default function ChecklistFillDrawer({ open, onClose, instance, template,
   const [savingResponse, setSavingResponse] = useState(false)
   const [exportingPdf, setExportingPdf] = useState(false)
   const [itemPhotos, setItemPhotos] = useState<Record<string, File[]>>({})
-  const [itemSignature, setItemSignature] = useState<string | null>(user?.signatureUrl || null)
+  const [itemSignature, setItemSignature] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (user?.signatureUrl) {
+      authApi.getSignatureImage().then(setItemSignature).catch(() => {})
+    }
+  }, [user?.signatureUrl])
 
   const activeInstance = localInstance?.id === instance?.id ? localInstance : instance
   if (!activeInstance || !template) return null

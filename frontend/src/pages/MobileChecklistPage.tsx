@@ -8,6 +8,7 @@ import { ChecklistSection } from '../components/checklist/ChecklistSection'
 import { PhotoCapture } from '../components/checklist/PhotoCapture'
 import { SignaturePad } from '../components/checklist/SignaturePad'
 import { useAuth } from '../contexts/AuthContext'
+import { authApi } from '../api/auth'
 import { useChecklistInstance } from '../hooks/useChecklistInstance'
 import { checklistsApi } from '../api/checklists'
 import { inspectionsApi } from '../api/inspections'
@@ -85,7 +86,13 @@ export default function MobileChecklistPage() {
   const [itemPhotoUrls, setItemPhotoUrls] = useState<string[]>([])
   const [uploadingPhotos, setUploadingPhotos] = useState(false)
 
-  const [signature, setSignature] = useState<string | null>(user?.signatureUrl || null)
+  const [signature, setSignature] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (user?.signatureUrl) {
+      authApi.getSignatureImage().then(setSignature).catch(() => {})
+    }
+  }, [user?.signatureUrl])
 
   useEffect(() => {
     const loadChecklistInstance = async () => {

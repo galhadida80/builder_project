@@ -168,6 +168,16 @@ class GCSStorageBackend(StorageBackend):
 
     def get_file_url(self, storage_path: str) -> str:
         blob = self.bucket.blob(storage_path)
+        credentials = self.client._credentials
+        if hasattr(credentials, "service_account_email"):
+            from google.auth.transport import requests as auth_requests
+            credentials.refresh(auth_requests.Request())
+            return blob.generate_signed_url(
+                version="v4",
+                expiration=3600,
+                service_account_email=credentials.service_account_email,
+                access_token=credentials.token,
+            )
         return blob.generate_signed_url(expiration=3600, version="v4")
 
     async def get_file_content(self, storage_path: str) -> bytes:

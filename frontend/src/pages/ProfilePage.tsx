@@ -26,11 +26,20 @@ export default function ProfilePage() {
   const [signatureDrawerOpen, setSignatureDrawerOpen] = useState(false)
   const [signatureData, setSignatureData] = useState<string | null>(null)
   const [savingSignature, setSavingSignature] = useState(false)
+  const [signatureImageUrl, setSignatureImageUrl] = useState<string | null>(null)
 
   const [webauthnSupported] = useState(() => !!window.PublicKeyCredential)
   const [credentials, setCredentials] = useState<WebAuthnCredential[]>([])
   const [loadingCredentials, setLoadingCredentials] = useState(false)
   const [registering, setRegistering] = useState(false)
+
+  useEffect(() => {
+    if (user?.signatureUrl) {
+      authApi.getSignatureImage().then(setSignatureImageUrl).catch(() => {})
+    } else {
+      setSignatureImageUrl(null)
+    }
+  }, [user?.signatureUrl])
 
   useEffect(() => {
     if (webauthnSupported) loadCredentials()
@@ -113,6 +122,8 @@ export default function ProfilePage() {
     try {
       await authApi.uploadSignature(signatureData)
       await refreshUser()
+      const imageUrl = await authApi.getSignatureImage()
+      setSignatureImageUrl(imageUrl)
       setSignatureDrawerOpen(false)
       setSignatureData(null)
       showSuccess(t('profile.signatureSaved'))
@@ -128,6 +139,7 @@ export default function ProfilePage() {
     try {
       await authApi.deleteSignature()
       await refreshUser()
+      setSignatureImageUrl(null)
       showSuccess(t('profile.signatureDeleted'))
     } catch {
       showError(t('profile.signatureDeleteFailed'))
@@ -253,10 +265,10 @@ export default function ProfilePage() {
               {t('profile.signatureDescription')}
             </Typography>
 
-            {user?.signatureUrl && !signatureDrawerOpen ? (
+            {signatureImageUrl && !signatureDrawerOpen ? (
               <Box>
                 <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 1.5, mb: 2, bgcolor: '#fff', textAlign: 'center' }}>
-                  <img src={user.signatureUrl} alt={t('profile.signature')} style={{ maxWidth: '100%', maxHeight: 120 }} />
+                  <img src={signatureImageUrl} alt={t('profile.signature')} style={{ maxWidth: '100%', maxHeight: 120 }} />
                 </Box>
                 <Box sx={{ display: 'flex', gap: 1 }}>
                   <Button variant="outlined" size="small" startIcon={<EditIcon />} onClick={() => setSignatureDrawerOpen(true)}>

@@ -83,6 +83,16 @@ export const authApi = {
     return transformUser(response.data)
   },
 
+  getSignatureImage: async (): Promise<string> => {
+    const response = await apiClient.get('/auth/me/signature/image', { responseType: 'blob' })
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onloadend = () => resolve(reader.result as string)
+      reader.onerror = reject
+      reader.readAsDataURL(response.data)
+    })
+  },
+
   webauthnRegisterBegin: async (deviceName = 'Device'): Promise<{ options: PublicKeyCredentialCreationOptions }> => {
     const response = await apiClient.post<{ options: Record<string, unknown> }>('/auth/webauthn/register/begin', { device_name: deviceName })
     return { options: parseCreationOptions(response.data.options) }

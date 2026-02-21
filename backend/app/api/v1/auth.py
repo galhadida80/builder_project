@@ -5,7 +5,7 @@ from datetime import timedelta
 from typing import Optional
 from uuid import UUID
 
-from fastapi import APIRouter, BackgroundTasks, Body, Depends, HTTPException, Query, Request, status
+from fastapi import APIRouter, BackgroundTasks, Body, Depends, HTTPException, Query, Request, Response, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from webauthn import generate_authentication_options, generate_registration_options, verify_authentication_response, verify_registration_response
@@ -214,9 +214,8 @@ async def upload_signature(
 
     storage_path = f"signatures/{user.id}.png"
     await storage.save_bytes(image_bytes, storage_path, content_type="image/png")
-    url = storage.get_file_url(storage_path)
 
-    user.signature_url = url
+    user.signature_url = storage_path
     await db.commit()
     await db.refresh(user)
     return user
@@ -240,6 +239,20 @@ async def delete_signature(
     await db.commit()
     await db.refresh(user)
     return user
+
+
+@router.get("/me/signature/image")
+async def get_signature_image(
+    user: User = Depends(get_current_user),
+    storage: StorageBackend = Depends(get_storage_backend),
+):
+    if not user.signature_url:
+        raise HTTPException(status_code=404, detail="No signature found")
+    try:
+        content = await storage.get_file_content(user.signature_url)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Signature file not found")
+    return Response(content=content, media_type="image/png", headers={"Cache-Control": "max-age=3600"})
 
 
 @router.post("/forgot-password", response_model=MessageResponse)
