@@ -31,7 +31,7 @@ sentry_logging = LoggingIntegration(
 )
 
 sentry_sdk.init(
-    dsn="https://a96adf0b4773f6197325af06d676c6e5@o4510921032335360.ingest.de.sentry.io/4510921034498128",
+    dsn="https://18f4dcb8797d8e9fecbcc2d9d1093c42@o4510923130667008.ingest.de.sentry.io/4510923206295632",
     send_default_pii=True,
     enable_logs=True,
     traces_sample_rate=1.0,
