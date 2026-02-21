@@ -11,11 +11,8 @@ from app.config import get_settings
 from app.services.quantity_docai_service import parse_docai_tables, process_with_document_ai
 from app.services.quantity_gemini_mapper import map_semantics_with_gemini, merge_semantic_mappings
 from app.services.quantity_pdf_parser import (
-    classify_table_columns,
-    extract_dimensions_from_text,
     extract_number,
     extract_pdf_text_and_tables,
-    normalize_cell_value,
 )
 
 logger = logging.getLogger(__name__)

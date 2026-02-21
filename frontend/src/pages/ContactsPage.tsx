@@ -62,8 +62,8 @@ export default function ContactsPage() {
   useEffect(() => { loadContacts(); loadProjectUsers(); loadGroups() }, [projectId])
 
   const loadContacts = async () => { try { setLoading(true); const data = await contactsApi.list(projectId!); setContacts(data) } catch { showError(t('contacts.failedToLoad')) } finally { setLoading(false) } }
-  const loadProjectUsers = async () => { try { const res = await apiClient.get(`/projects/${projectId}/members`); const members = res.data as { user: { id: string; email: string; fullName?: string } }[]; setProjectUsers(members.map(m => m.user)) } catch {} }
-  const loadGroups = async () => { try { const data = await contactGroupsApi.list(projectId!); setGroups(data) } catch {} }
+  const loadProjectUsers = async () => { try { const res = await apiClient.get(`/projects/${projectId}/members`); const members = res.data as { user: { id: string; email: string; fullName?: string } }[]; setProjectUsers(members.map(m => m.user)) } catch { /* silent */ } }
+  const loadGroups = async () => { try { const data = await contactGroupsApi.list(projectId!); setGroups(data) } catch { /* silent */ } }
 
   const resetForm = () => { setFormData({ contactName: '', contactType: '', customType: '', companyName: '', email: '', phone: '', roleDescription: '', userId: '' }); setErrors({}); setEditingContact(null) }
   const handleCloseDialog = () => { setDialogOpen(false); resetForm() }

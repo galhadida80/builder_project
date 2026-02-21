@@ -155,7 +155,7 @@ export default function AreasPage() {
   const handleCreateInstances = async (area: ConstructionArea) => { if (!projectId) return; try { const result = await areaStructureApi.createAreaChecklists(projectId, area.id); showSuccess(t('areaChecklists.checklistsCreated', { count: result.checklists_created })) } catch { showError(t('checklists.failedToCreate')) } }
   const handleBulkCreate = async (area: ConstructionArea) => {
     if (!projectId || !area.children) return
-    try { let total = 0; for (const child of area.children) { const result = await areaStructureApi.createAreaChecklists(projectId, child.id); total += result.checklists_created }; showSuccess(t('areaChecklists.checklistsCreated', { count: total })) }
+    try { let total = 0; for (const child of area.children) { const result = await areaStructureApi.createAreaChecklists(projectId, child.id); total += result.checklists_created } showSuccess(t('areaChecklists.checklistsCreated', { count: total })) }
     catch { showError(t('checklists.failedToCreate')) }
   }
 
