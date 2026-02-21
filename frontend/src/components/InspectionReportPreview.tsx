@@ -6,6 +6,7 @@ import { CloseIcon, PrintIcon, AssignmentIcon, CheckCircleIcon, WarningIcon, Err
 import {
   Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Box, Typography,
   Divider, Chip, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, styled,
+  useMediaQuery, useTheme,
 } from '@/mui'
 import type { Inspection } from '../types'
 
@@ -38,6 +39,8 @@ const statusConfig: Record<string, { icon: React.ReactNode; color: 'default' | '
 
 export default function InspectionReportPreview({ open, onClose, inspection }: InspectionReportPreviewProps) {
   const { t } = useTranslation()
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
 
   if (!inspection) return null
 
@@ -69,6 +72,7 @@ export default function InspectionReportPreview({ open, onClose, inspection }: I
       onClose={onClose}
       maxWidth="md"
       fullWidth
+      fullScreen={isMobile}
       sx={{
         '& .MuiDialog-paper': { borderRadius: 3, maxHeight: '90vh' },
         '& .MuiBackdrop-root': { backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' },
@@ -131,7 +135,7 @@ export default function InspectionReportPreview({ open, onClose, inspection }: I
               {t('inspections.findingSummary')} ({findings.length})
             </Typography>
             {findings.length > 0 && (
-              <Box sx={{ display: 'flex', gap: 1 }}>
+              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                 {criticalCount > 0 && <Chip size="small" label={`${criticalCount} Critical`} color="error" />}
                 {highCount > 0 && <Chip size="small" label={`${highCount} High`} color="warning" />}
                 {mediumCount > 0 && <Chip size="small" label={`${mediumCount} Medium`} color="default" />}
@@ -141,55 +145,87 @@ export default function InspectionReportPreview({ open, onClose, inspection }: I
           </Box>
 
           {findings.length > 0 ? (
-            <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2 }}>
-              <Table size="small">
-                <TableHead>
-                  <TableRow sx={{ bgcolor: 'grey.50' }}>
-                    <TableCell sx={{ fontWeight: 600 }}>#</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>{t('inspections.findings')}</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>{t('inspections.severity')}</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>{t('common.status')}</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>{t('inspections.location')}</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {findings.map((finding, index) => (
-                    <TableRow key={finding.id}>
-                      <TableCell>{index + 1}</TableCell>
-                      <TableCell>
-                        <Typography variant="body2" fontWeight={500}>{finding.title}</Typography>
-                        {finding.description && (
-                          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
-                            {finding.description}
-                          </Typography>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <SeverityBadge severity={finding.severity} />
-                      </TableCell>
-                      <TableCell>
-                        <Chip
-                          size="small"
-                          label={finding.status === 'resolved' ? t('inspections.resolved') : t('inspections.open')}
-                          color={finding.status === 'resolved' ? 'success' : 'warning'}
-                          sx={{ fontWeight: 500, fontSize: '0.7rem' }}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        {finding.location ? (
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                            <LocationOnIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
-                            <Typography variant="body2" color="text.secondary">{finding.location}</Typography>
-                          </Box>
-                        ) : (
-                          <Typography variant="body2" color="text.disabled">-</Typography>
-                        )}
-                      </TableCell>
+            isMobile ? (
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                {findings.map((finding, index) => (
+                  <Paper key={finding.id} variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+                      <Typography variant="body2" fontWeight={600}>#{index + 1} {finding.title}</Typography>
+                      <SeverityBadge severity={finding.severity} />
+                    </Box>
+                    {finding.description && (
+                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
+                        {finding.description}
+                      </Typography>
+                    )}
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                      <Chip
+                        size="small"
+                        label={finding.status === 'resolved' ? t('inspections.resolved') : t('inspections.open')}
+                        color={finding.status === 'resolved' ? 'success' : 'warning'}
+                        sx={{ fontWeight: 500, fontSize: '0.7rem' }}
+                      />
+                      {finding.location && (
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          <LocationOnIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                          <Typography variant="caption" color="text.secondary">{finding.location}</Typography>
+                        </Box>
+                      )}
+                    </Box>
+                  </Paper>
+                ))}
+              </Box>
+            ) : (
+              <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2 }}>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow sx={{ bgcolor: 'grey.50' }}>
+                      <TableCell sx={{ fontWeight: 600 }}>#</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>{t('inspections.findings')}</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>{t('inspections.severity')}</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>{t('common.status')}</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>{t('inspections.location')}</TableCell>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                  </TableHead>
+                  <TableBody>
+                    {findings.map((finding, index) => (
+                      <TableRow key={finding.id}>
+                        <TableCell>{index + 1}</TableCell>
+                        <TableCell>
+                          <Typography variant="body2" fontWeight={500}>{finding.title}</Typography>
+                          {finding.description && (
+                            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+                              {finding.description}
+                            </Typography>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <SeverityBadge severity={finding.severity} />
+                        </TableCell>
+                        <TableCell>
+                          <Chip
+                            size="small"
+                            label={finding.status === 'resolved' ? t('inspections.resolved') : t('inspections.open')}
+                            color={finding.status === 'resolved' ? 'success' : 'warning'}
+                            sx={{ fontWeight: 500, fontSize: '0.7rem' }}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          {finding.location ? (
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                              <LocationOnIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                              <Typography variant="body2" color="text.secondary">{finding.location}</Typography>
+                            </Box>
+                          ) : (
+                            <Typography variant="body2" color="text.disabled">-</Typography>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )
           ) : (
             <Paper variant="outlined" sx={{ p: 3, borderRadius: 2, textAlign: 'center' }}>
               <Typography variant="body2" color="text.secondary">

@@ -310,18 +310,20 @@ export default function InspectionsPage() {
 
   return (
     <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 }, maxWidth: '100%', overflow: 'hidden' }}>
-      <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+      <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
         <PageHeader
           title={t('inspections.title')}
           subtitle={t('inspections.subtitle')}
           breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('nav.inspections') }]}
           actions={
-            <Button variant="primary" icon={<AddIcon />} onClick={() => setDialogOpen(true)}>
-              {t('inspections.scheduleInspection')}
-            </Button>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Button variant="primary" icon={<AddIcon />} onClick={() => setDialogOpen(true)}>
+                {isMobile ? undefined : t('inspections.scheduleInspection')}
+              </Button>
+              <HelpTooltip helpKey="help.tooltips.inspectionForm" />
+            </Box>
           }
         />
-        <HelpTooltip helpKey="help.tooltips.inspectionForm" />
       </Box>
 
       {summary && (
@@ -335,8 +337,21 @@ export default function InspectionsPage() {
         </Box>
       )}
 
+      <Box sx={{ display: { xs: 'flex', lg: 'none' }, overflowX: 'auto', gap: 1, pb: 1, mb: 2, '&::-webkit-scrollbar': { display: 'none' }, scrollbarWidth: 'none' }}>
+        {consultantTypes.map((type) => (
+          <Chip
+            key={type.id}
+            label={type.name}
+            onClick={() => handleTypeSelect(type)}
+            color={selectedType?.id === type.id ? 'primary' : 'default'}
+            variant={selectedType?.id === type.id ? 'filled' : 'outlined'}
+            sx={{ flexShrink: 0, fontWeight: 500 }}
+          />
+        ))}
+      </Box>
+
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '320px 1fr' }, gap: 2, mb: 3 }}>
-        <Card>
+        <Card sx={{ display: { xs: 'none', lg: 'block' } }}>
           <Box sx={{ p: 2 }}>
             <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
               {t('inspections.consultantTypes')}
