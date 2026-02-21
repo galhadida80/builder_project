@@ -96,13 +96,13 @@ async def create_checklists_for_area(
     db: AsyncSession, project_id: uuid.UUID, area: ConstructionArea, created_by_id: uuid.UUID | None
 ) -> int:
     """Create checklist instances for an area based on assignments. Returns count created."""
-    result = await db.execute(
-        select(AreaChecklistAssignment).where(
-            AreaChecklistAssignment.project_id == project_id,
-            AreaChecklistAssignment.area_type == area.area_type,
-            AreaChecklistAssignment.auto_create.is_(True),
-        )
+    query = select(AreaChecklistAssignment).where(
+        AreaChecklistAssignment.project_id == project_id,
+        AreaChecklistAssignment.auto_create.is_(True),
     )
+    if area.area_type is not None:
+        query = query.where(AreaChecklistAssignment.area_type == area.area_type)
+    result = await db.execute(query)
     assignments = result.scalars().all()
     count = 0
 
