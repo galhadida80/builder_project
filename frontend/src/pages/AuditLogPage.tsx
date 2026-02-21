@@ -12,7 +12,7 @@ import { Box, Typography, Skeleton, Chip, Drawer, Divider, IconButton, Paginatio
 
 const actionConfig: Record<string, { icon: React.ReactNode; color: 'success' | 'info' | 'error' | 'warning' | 'default'; borderColor: string }> = {
   create: { icon: <AddCircleIcon sx={{ fontSize: 18 }} />, color: 'success', borderColor: '#4caf50' },
-  update: { icon: <EditIcon sx={{ fontSize: 18 }} />, color: 'info', borderColor: '#2196f3' },
+  update: { icon: <EditIcon sx={{ fontSize: 18 }} />, color: 'info', borderColor: '#f28c26' },
   delete: { icon: <DeleteIcon sx={{ fontSize: 18 }} />, color: 'error', borderColor: '#f44336' },
   status_change: { icon: <SwapHorizIcon sx={{ fontSize: 18 }} />, color: 'warning', borderColor: '#ff9800' },
   approval: { icon: <CheckCircleIcon sx={{ fontSize: 18 }} />, color: 'success', borderColor: '#4caf50' },

@@ -22,8 +22,8 @@
   /* Focus ring styles for keyboard navigation */
   --focus-ring-width: 2px;
   --focus-ring-offset: 2px;
-  --focus-ring-color: #2196f3;
-  --focus-ring-color-dark: #90caf9;
+  --focus-ring-color: #f28c26;
+  --focus-ring-color-dark: #f5a623;
 }
 
 /* Dark mode focus ring color */

@@ -15,7 +15,7 @@ import { Box, ToggleButton, ToggleButtonGroup, IconButton, Tooltip } from '@/mui
 
 export type AnnotationTool = 'pen' | 'arrow' | 'rectangle' | 'circle' | 'text';
 
-const COLORS = ['#f44336', '#ffeb3b', '#2196f3', '#4caf50', '#ffffff', '#000000'];
+const COLORS = ['#f44336', '#ffeb3b', '#f28c26', '#4caf50', '#ffffff', '#000000'];
 const STROKE_WIDTHS = [2, 4, 6];
 
 interface AnnotationToolbarProps {

@@ -7,7 +7,7 @@ import type { Inspection } from '../types'
 import { inspectionsApi } from '../api/inspections'
 import { getDateLocale } from '../utils/dateLocale'
 import { useProject } from '../contexts/ProjectContext'
-import { EngineeringIcon, NotificationsIcon, CalendarTodayIcon, LocationOnIcon, AssignmentIcon, SignalWifiOffIcon, TrendingUpIcon, WarningIcon } from '@/icons'
+import { EngineeringIcon, NotificationsIcon, CalendarTodayIcon, LocationOnIcon, AssignmentIcon, SignalWifiOffIcon, TrendingUpIcon, WarningIcon, CameraAltIcon, ReportProblemIcon } from '@/icons'
 import { Box, Typography, Skeleton, Chip } from '@/mui'
 
 export default function InspectorDashboard() {
@@ -177,8 +177,11 @@ export default function InspectorDashboard() {
                           {inspection.currentStage && ` · ${inspection.currentStage}`}
                         </Typography>
                         <Typography variant="body2" fontWeight={600} sx={{ mt: 0.25 }}>
-                          {inspection.consultantType?.name || t('inspector.inspection')}
+                          {inspection.consultantType?.nameHe || inspection.consultantType?.name || t('inspector.inspection')}
                         </Typography>
+                        {inspection.consultantType?.nameHe && inspection.consultantType?.name && (
+                          <Typography variant="caption" color="text.secondary">{inspection.consultantType.name}</Typography>
+                        )}
                       </Box>
                       {isFirst ? (
                         <Chip
@@ -197,17 +200,15 @@ export default function InspectorDashboard() {
                         />
                       )}
                     </Box>
-                    {isFirst && (
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
-                        {inspection.currentStage && (
-                          <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                            <LocationOnIcon sx={{ fontSize: 14 }} />
-                            {inspection.currentStage}
-                          </Typography>
-                        )}
-                        <Button variant="primary" size="small" sx={{ fontWeight: 700 }}>
-                          {t('inspector.startInspection')}
-                        </Button>
+                    {inspection.notes && (
+                      <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
+                        {inspection.notes}
+                      </Typography>
+                    )}
+                    {isFirst && inspection.currentStage && (
+                      <Box sx={{ display: 'flex', alignItems: 'center', mt: 1, gap: 0.5 }}>
+                        <LocationOnIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                        <Typography variant="caption" color="text.secondary">{inspection.currentStage}</Typography>
                       </Box>
                     )}
                   </Box>
@@ -216,6 +217,21 @@ export default function InspectorDashboard() {
             </Box>
           )}
         </Box>
+      </Box>
+
+      <Box sx={{ display: 'flex', gap: 1, px: 2, mb: 3 }}>
+        <Button variant="primary" size="small" sx={{ flex: 1 , gap: 0.5 }} onClick={() => {}}>
+          <AssignmentIcon sx={{ fontSize: 16 }} />
+          {t('inspector.startInspection')}
+        </Button>
+        <Button variant="secondary" size="small" sx={{ flex: 1, gap: 0.5 }} onClick={() => {}}>
+          <CameraAltIcon sx={{ fontSize: 16 }} />
+          {t('inspector.takePhoto')}
+        </Button>
+        <Button variant="secondary" size="small" sx={{ flex: 1, gap: 0.5 }} onClick={() => {}}>
+          <ReportProblemIcon sx={{ fontSize: 16 }} />
+          {t('inspector.reportIssue')}
+        </Button>
       </Box>
 
       <Box sx={{ display: 'flex', gap: 1.5, px: 2, mb: 3, overflowX: 'auto' }}>

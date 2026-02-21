@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { EmptyState } from '../components/ui/EmptyState'
+import { KPICard } from '../components/ui/Card'
 import { workloadApi } from '../api/workload'
 import type { TeamMember } from '../types'
 import { useToast } from '../components/common/ToastProvider'
 import { useProject } from '../contexts/ProjectContext'
-import { getWorkloadColor } from '../utils/workloadCalculation'
 import { PeopleIcon, WarningIcon, CheckCircleIcon, TrendingUpIcon } from '@/icons'
-import { Box, Typography, Skeleton, Chip, Avatar, LinearProgress } from '@/mui'
+import { Box, Typography, Skeleton, Chip, Avatar, LinearProgress, Table, TableHead, TableRow, TableCell, TableBody } from '@/mui'
 
 export default function TeamWorkloadView() {
   const { t } = useTranslation()
@@ -40,6 +40,7 @@ export default function TeamWorkloadView() {
     ? Math.round(teamMembers.reduce((sum, m) => sum + m.workloadPercent, 0) / teamMembers.length)
     : 0
   const totalAssignedHours = teamMembers.reduce((sum, m) => sum + m.assignedHours, 0)
+  const overCapacityCount = teamMembers.filter(m => m.workloadPercent > 100).length
 
   const getWorkloadLabel = (pct: number) => {
     if (pct > 90) return { label: t('teamWorkload.overloaded', 'Overloaded'), color: 'error' as const }
@@ -92,34 +93,11 @@ export default function TeamWorkloadView() {
         </Typography>
       </Box>
 
-      <Box sx={{ display: 'flex', gap: 1.5, px: 2, mb: 3, overflowX: 'auto' }}>
-        <Box sx={{
-          flex: 1, minWidth: 110, bgcolor: 'background.paper', p: 1.5, borderRadius: 3,
-          border: 1, borderColor: 'divider',
-        }}>
-          <Typography variant="caption" color="text.secondary" fontSize="0.65rem">
-            {t('teamWorkload.teamMembers')}
-          </Typography>
-          <Typography variant="h6" fontWeight={700}>{totalMembers}</Typography>
-        </Box>
-        <Box sx={{
-          flex: 1, minWidth: 110, bgcolor: 'background.paper', p: 1.5, borderRadius: 3,
-          border: 1, borderColor: 'divider',
-        }}>
-          <Typography variant="caption" color="text.secondary" fontSize="0.65rem">
-            {t('teamWorkload.activeTasks', 'Active tasks')}
-          </Typography>
-          <Typography variant="h6" fontWeight={700}>{totalAssignedHours}</Typography>
-        </Box>
-        <Box sx={{
-          flex: 1, minWidth: 110, bgcolor: 'background.paper', p: 1.5, borderRadius: 3,
-          border: 1, borderColor: 'divider',
-        }}>
-          <Typography variant="caption" color="text.secondary" fontSize="0.65rem">
-            {t('teamWorkload.avgWorkload')}
-          </Typography>
-          <Typography variant="h6" fontWeight={700} color="primary.main">{avgWorkload}%</Typography>
-        </Box>
+      <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1.5, px: 2, mb: 3 }}>
+        <KPICard title={t('teamWorkload.teamMembers')} value={totalMembers} icon={<PeopleIcon />} color="primary" />
+        <KPICard title={t('teamWorkload.activeTasks', 'Active tasks')} value={totalAssignedHours} icon={<TrendingUpIcon />} color="warning" />
+        <KPICard title={t('teamWorkload.avgWorkload')} value={`${avgWorkload}%`} icon={<CheckCircleIcon />} color="success" />
+        <KPICard title={t('teamWorkload.overCapacity')} value={overCapacityCount} icon={<WarningIcon />} color="error" />
       </Box>
 
       {teamMembers.length === 0 ? (
@@ -131,78 +109,82 @@ export default function TeamWorkloadView() {
           />
         </Box>
       ) : (
-        <Box sx={{ px: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
-          {sortedMembers.map((member) => {
-            const name = member.user.fullName || member.user.email
-            const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
-            const pct = Math.round(member.workloadPercent)
-            const status = getWorkloadLabel(pct)
+        <Box sx={{ px: 2 }}>
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="body1" fontWeight={700} sx={{ mb: 1 }}>
+              {t('teamWorkload.overallCapacity')}
+            </Typography>
+            <LinearProgress
+              variant="determinate"
+              value={Math.min(100, avgWorkload)}
+              sx={{
+                height: 10, borderRadius: 5,
+                bgcolor: 'action.hover',
+                '& .MuiLinearProgress-bar': { borderRadius: 5, bgcolor: getBarColor(avgWorkload) },
+              }}
+            />
+            <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
+              {avgWorkload}% {t('teamWorkload.avgWorkload')}
+            </Typography>
+          </Box>
 
-            return (
-              <Box
-                key={member.id}
-                sx={{
-                  bgcolor: 'background.paper', border: 1, borderColor: 'divider',
-                  borderRadius: 3, p: 2,
-                }}
-              >
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                  <Box sx={{ display: 'flex', gap: 1.5 }}>
-                    <Avatar sx={{ width: 48, height: 48, bgcolor: 'primary.main', fontSize: '0.85rem' }}>
-                      {initials}
-                    </Avatar>
-                    <Box>
-                      <Typography variant="body2" fontWeight={700}>{name}</Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {t(`roles.${member.role}`, { defaultValue: member.role.replace('_', ' ') })}
-                      </Typography>
-                    </Box>
-                  </Box>
-                  <Chip
-                    icon={pct > 90 ? <WarningIcon sx={{ fontSize: '14px !important' }} /> :
-                      pct >= 40 ? <CheckCircleIcon sx={{ fontSize: '14px !important' }} /> :
-                      <TrendingUpIcon sx={{ fontSize: '14px !important' }} />}
-                    label={status.label}
-                    size="small"
-                    color={status.color}
-                    sx={{ fontWeight: 700, fontSize: '0.65rem', height: 24 }}
-                  />
-                </Box>
+          <Typography variant="body1" fontWeight={700} sx={{ mb: 1 }}>
+            {t('teamWorkload.teamOverview')}
+          </Typography>
 
-                <Box sx={{ mb: 1 }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                    <Typography variant="caption" fontWeight={500}>
-                      {t('teamWorkload.workload', 'Workload')}
-                    </Typography>
-                    <Typography variant="caption" fontWeight={700} color={getBarColor(pct)}>
-                      {pct}%
-                    </Typography>
-                  </Box>
-                  <LinearProgress
-                    variant="determinate"
-                    value={Math.min(100, pct)}
-                    sx={{
-                      height: 8, borderRadius: 4,
-                      bgcolor: 'action.hover',
-                      '& .MuiLinearProgress-bar': {
-                        borderRadius: 4,
-                        bgcolor: getBarColor(pct),
-                      },
-                    }}
-                  />
-                </Box>
-
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1.5 }}>
-                  <Typography variant="caption" color="text.secondary">
-                    {member.assignedHours}{t('common.hoursShort')} {t('teamCard.assigned', 'assigned')}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    {member.availableHours}{t('common.hoursShort')} {t('teamCard.available', 'available')}
-                  </Typography>
-                </Box>
-              </Box>
-            )
-          })}
+          <Box sx={{ overflowX: 'auto', mb: 3 }}>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>{t('teamWorkload.memberName')}</TableCell>
+                  <TableCell>{t('teamWorkload.role')}</TableCell>
+                  <TableCell>{t('teamWorkload.team')}</TableCell>
+                  <TableCell align="right">{t('teamCard.assigned')}</TableCell>
+                  <TableCell align="right">{t('teamCard.available')}</TableCell>
+                  <TableCell align="right">{t('teamCard.utilization')}</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {sortedMembers.map((member) => {
+                  const name = member.user.fullName || member.user.email
+                  const pct = Math.round(member.workloadPercent)
+                  const status = getWorkloadLabel(pct)
+                  return (
+                    <TableRow key={member.id}>
+                      <TableCell>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Avatar sx={{ width: 28, height: 28, bgcolor: 'primary.main', fontSize: '0.7rem' }}>
+                            {name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                          </Avatar>
+                          <Typography variant="body2" fontWeight={600}>{name}</Typography>
+                        </Box>
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant="caption">{t(`roles.${member.role}`, { defaultValue: member.role.replace('_', ' ') })}</Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant="caption">{member.teamName || '-'}</Typography>
+                      </TableCell>
+                      <TableCell align="right">
+                        <Typography variant="caption">{member.assignedHours}{t('common.hoursShort')}</Typography>
+                      </TableCell>
+                      <TableCell align="right">
+                        <Typography variant="caption">{member.availableHours}{t('common.hoursShort')}</Typography>
+                      </TableCell>
+                      <TableCell align="right">
+                        <Chip
+                          label={`${pct}%`}
+                          size="small"
+                          color={status.color}
+                          sx={{ fontWeight: 700, fontSize: '0.65rem', height: 22 }}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  )
+                })}
+              </TableBody>
+            </Table>
+          </Box>
         </Box>
       )}
     </Box>

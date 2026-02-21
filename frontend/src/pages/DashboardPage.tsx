@@ -161,7 +161,7 @@ export default function DashboardPage() {
         <KPICard title={t('dashboard.upcomingMeetings')} value={upcomingMeetings.length} icon={<EventIcon />} color="info" />
       </Box>
 
-      {pendingApprovals.length > 0 && (
+      {pendingApprovals.length > 0 ? (
         <Paper
           sx={{
             mb: { xs: 2.5, md: 3 },
@@ -191,6 +191,11 @@ export default function DashboardPage() {
           <Button variant="primary" size="small" sx={{ bgcolor: 'rgba(0,0,0,0.2)', color: 'inherit', '&:hover': { bgcolor: 'rgba(0,0,0,0.3)' } }}>
             {t('dashboard.review')}
           </Button>
+        </Paper>
+      ) : (
+        <Paper sx={{ mb: { xs: 2.5, md: 3 }, p: 2, borderRadius: 3, textAlign: 'center' }}>
+          <CheckCircleIcon sx={{ fontSize: 32, color: 'success.main', mb: 0.5 }} />
+          <Typography variant="body2" fontWeight={600}>{t('dashboard.allCaughtUp')}</Typography>
         </Paper>
       )}
 

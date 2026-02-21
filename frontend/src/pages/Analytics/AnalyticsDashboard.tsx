@@ -120,6 +120,12 @@ export default function AnalyticsDashboard() {
         <ExportButton />
       </Box>
 
+      <Box sx={{ px: { xs: 2, sm: 3 }, pt: 2 }}>
+        <Typography variant="body2" color="text.secondary" fontWeight={500}>
+          {t('analytics.subtitle')}
+        </Typography>
+      </Box>
+
       <Box id="dashboard-content">
         <Box sx={{ px: { xs: 2, sm: 3 }, pt: 2 }}>
           <DateRangeSelector
@@ -130,93 +136,34 @@ export default function AnalyticsDashboard() {
         </Box>
 
         <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1.5, px: { xs: 2, sm: 3 }, py: 3 }}>
-          <Box sx={{
-            bgcolor: 'background.paper', border: 1, borderColor: 'divider', p: 2, borderRadius: 3,
-            display: 'flex', flexDirection: 'column', gap: 1.5,
-          }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <AssessmentIcon sx={{ color: 'primary.main', fontSize: 20 }} />
-              {metricsData?.trends?.totalProjects !== undefined && (
-                <Typography variant="caption" fontWeight={700} color="success.main">
-                  +{metricsData.trends.totalProjects}
-                </Typography>
-              )}
-            </Box>
-            <Box>
-              <Typography variant="h4" fontWeight={700} lineHeight={1}>
-                {metricsData?.totalProjects ?? 0}
-              </Typography>
-              <Typography variant="caption" color="text.secondary" fontSize="0.65rem" sx={{ mt: 0.5 }}>
-                {t('analytics.totalProjects')}
-              </Typography>
-            </Box>
-          </Box>
-
-          <Box sx={{
-            bgcolor: 'background.paper', border: 1, borderColor: 'divider', p: 2, borderRadius: 3,
-            display: 'flex', flexDirection: 'column', gap: 1.5,
-          }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <CheckCircleIcon sx={{ color: 'primary.main', fontSize: 20 }} />
-              {metricsData?.trends?.activeInspections !== undefined && (
-                <Typography variant="caption" fontWeight={700} color="success.main">
-                  {metricsData.trends.activeInspections}%
-                </Typography>
-              )}
-            </Box>
-            <Box>
-              <Typography variant="h4" fontWeight={700} lineHeight={1}>
-                {metricsData?.activeInspections ?? 0}
-              </Typography>
-              <Typography variant="caption" color="text.secondary" fontSize="0.65rem" sx={{ mt: 0.5 }}>
-                {t('analytics.activeInspections')}
-              </Typography>
-            </Box>
-          </Box>
-
-          <Box sx={{
-            bgcolor: 'background.paper', border: 1, borderColor: 'divider', p: 2, borderRadius: 3,
-            display: 'flex', flexDirection: 'column', gap: 1.5,
-          }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <PendingActionsIcon sx={{ color: 'primary.main', fontSize: 20 }} />
-              {metricsData?.trends?.pendingRFIs !== undefined && (
-                <Typography variant="caption" fontWeight={700} color="primary.main">
-                  {metricsData.trends.pendingRFIs}%
-                </Typography>
-              )}
-            </Box>
-            <Box>
-              <Typography variant="h4" fontWeight={700} lineHeight={1}>
-                {metricsData?.pendingRFIs ?? 0}
-              </Typography>
-              <Typography variant="caption" color="text.secondary" fontSize="0.65rem" sx={{ mt: 0.5 }}>
-                {t('analytics.pendingRFIs')}
-              </Typography>
-            </Box>
-          </Box>
-
-          <Box sx={{
-            bgcolor: 'background.paper', border: 1, borderColor: 'divider', p: 2, borderRadius: 3,
-            display: 'flex', flexDirection: 'column', gap: 1.5,
-          }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <TrendingUpIcon sx={{ color: 'primary.main', fontSize: 20 }} />
-              {metricsData?.trends?.approvalRate !== undefined && (
-                <Typography variant="caption" fontWeight={700} color="success.main">
-                  {t('analytics.ok', 'OK')}
-                </Typography>
-              )}
-            </Box>
-            <Box>
-              <Typography variant="h4" fontWeight={700} lineHeight={1}>
-                {metricsData?.approvalRate ? `${metricsData.approvalRate.toFixed(0)}%` : '0%'}
-              </Typography>
-              <Typography variant="caption" color="text.secondary" fontSize="0.65rem" sx={{ mt: 0.5 }}>
-                {t('analytics.approvalRate')}
-              </Typography>
-            </Box>
-          </Box>
+          <AnalyticsKPICard
+            title={t('analytics.totalProjects')}
+            value={metricsData?.totalProjects ?? 0}
+            trend={metricsData?.trends?.totalProjects}
+            icon={<AssessmentIcon fontSize="small" />}
+            color="primary"
+          />
+          <AnalyticsKPICard
+            title={t('analytics.activeInspections')}
+            value={metricsData?.activeInspections ?? 0}
+            trend={metricsData?.trends?.activeInspections}
+            icon={<CheckCircleIcon fontSize="small" />}
+            color="success"
+          />
+          <AnalyticsKPICard
+            title={t('analytics.pendingRFIs')}
+            value={metricsData?.pendingRFIs ?? 0}
+            trend={metricsData?.trends?.pendingRFIs}
+            icon={<PendingActionsIcon fontSize="small" />}
+            color="warning"
+          />
+          <AnalyticsKPICard
+            title={t('analytics.approvalRate')}
+            value={metricsData?.approvalRate ? `${metricsData.approvalRate.toFixed(0)}%` : '0%'}
+            trend={metricsData?.trends?.approvalRate}
+            icon={<TrendingUpIcon fontSize="small" />}
+            color="primary"
+          />
         </Box>
 
         <Box sx={{ px: { xs: 2, sm: 3 }, mb: 3 }}>
