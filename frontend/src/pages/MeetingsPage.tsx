@@ -102,13 +102,6 @@ export default function MeetingsPage() {
   const [calendarConfigured, setCalendarConfigured] = useState(false)
   const [syncing, setSyncing] = useState(false)
 
-  useEffect(() => {
-    if (!projectId) return
-    loadMeetings()
-    loadTeamMembers()
-    loadCalendarStatus()
-  }, [projectId])
-
   const loadMeetings = async () => {
     try {
       setLoading(true)
@@ -140,6 +133,13 @@ export default function MeetingsPage() {
       // calendar status is optional
     }
   }
+
+  useEffect(() => {
+    if (!projectId) return
+    loadMeetings()
+    loadTeamMembers()
+    loadCalendarStatus()
+  }, [projectId])
 
   const handleConnectCalendar = async () => {
     try {
