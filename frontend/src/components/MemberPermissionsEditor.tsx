@@ -29,7 +29,7 @@ interface PermissionsData {
 
 export default function MemberPermissionsEditor({ projectId, memberId, memberRole, onSaved }: MemberPermissionsEditorProps) {
   const { t } = useTranslation()
-  const [data, setData] = useState<PermissionsData | null>(null)
+  const [, setData] = useState<PermissionsData | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -37,6 +37,7 @@ export default function MemberPermissionsEditor({ projectId, memberId, memberRol
 
   useEffect(() => {
     fetchPermissions()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId, memberId])
 
   const fetchPermissions = async () => {

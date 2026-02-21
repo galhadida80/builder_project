@@ -3,7 +3,7 @@ import { getDateLocale } from '../utils/dateLocale'
 import { Avatar } from './ui/Avatar'
 import { EmptyState } from './ui/EmptyState'
 import { CheckCircleIcon as ApprovedIcon, CancelIcon as RejectedIcon, HourglassBottomIcon as PendingIcon, CommentIcon, HistoryIcon } from '@/icons'
-import { Box, Typography, Chip, Skeleton, Avatar as MuiAvatar, SxProps, Theme } from '@/mui'
+import { Box, Typography, Chip, Skeleton, SxProps, Theme } from '@/mui'
 
 export interface ApprovalAction {
   id: string

@@ -82,3 +82,8 @@ backend/verify_*.py
 
 # Project index (auto-generated)
 project_index.json
+
+# Design and preview artifacts
+docs/plans/
+email_previews/
+stitch-designs/

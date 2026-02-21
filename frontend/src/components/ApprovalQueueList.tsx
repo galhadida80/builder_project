@@ -39,6 +39,7 @@ export function ApprovalQueueList({ onViewDetails }: ApprovalQueueListProps) {
 
   useEffect(() => {
     loadData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const loadData = async () => {
@@ -121,9 +122,10 @@ export function ApprovalQueueList({ onViewDetails }: ApprovalQueueListProps) {
         await approvalsApi.reject(selectedApproval.id, comment)
         showSuccess(t('approvalQueue.rejectedSuccess'))
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setApprovals(previousApprovals)
-      if (err?.response?.status === 403) {
+      const axiosErr = err as { response?: { status?: number } }
+      if (axiosErr?.response?.status === 403) {
         showError(t('approvalQueue.notAuthorized'))
       } else {
         showError(t('approvalQueue.failedToAction', { action: savedActionType }))

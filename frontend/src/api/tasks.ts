@@ -69,7 +69,7 @@ export const tasksApi = {
     return response.data
   },
 
-  addDependency: async (projectId: string, taskId: string, dependsOnId: string): Promise<any> => {
+  addDependency: async (projectId: string, taskId: string, dependsOnId: string): Promise<Record<string, unknown>> => {
     const response = await apiClient.post(`/projects/${projectId}/tasks/${taskId}/dependencies?depends_on_id=${dependsOnId}`)
     return response.data
   },
