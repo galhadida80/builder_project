@@ -39,7 +39,7 @@ const projectNavItems: NavItem[] = [
 ]
 
 const systemNavItems: NavItem[] = [
-  { label: 'nav.auditLog', path: '/audit', icon: <HistoryIcon /> },
+  { label: 'nav.auditLog', path: '/audit-log', icon: <HistoryIcon /> },
   { label: 'nav.settings', path: '/settings', icon: <SettingsIcon /> },
 ]
 

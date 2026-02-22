@@ -122,7 +122,7 @@ function AppRoutes() {
             <Route path="/organizations" element={<OrganizationsPage />} />
             <Route path="/organizations/:orgId" element={<OrganizationDetailPage />} />
             <Route path="/approvals" element={<ApprovalsPage />} />
-            <Route path="/audit" element={<AuditLogPage />} />
+            <Route path="/audit-log" element={<AuditLogPage />} />
             <Route path="/analytics" element={<AnalyticsDashboard />} />
             <Route path="/team-workload" element={<TeamWorkloadPage />} />
             <Route path="/inspector-dashboard" element={<InspectorDashboardPage />} />
