@@ -9,11 +9,12 @@ import ExportButton from './components/ExportButton'
 import { analyticsService, MetricsData, TrendData, DistributionData } from '../../services/analyticsService'
 import { useToast } from '../../components/common/ToastProvider'
 import { AssessmentIcon, CheckCircleIcon, PendingActionsIcon, TrendingUpIcon } from '@/icons'
-import { Box, Typography, Grid, Skeleton } from '@/mui'
+import { Box, Typography, Grid, Skeleton, Chip } from '@/mui'
 
 export default function AnalyticsDashboard() {
   const { t } = useTranslation()
   const { showError } = useToast()
+  const [activePeriod, setActivePeriod] = useState('month')
   const [startDate, setStartDate] = useState<Dayjs | null>(dayjs().subtract(30, 'day'))
   const [endDate, setEndDate] = useState<Dayjs | null>(dayjs())
   const [loading, setLoading] = useState(true)
@@ -135,6 +136,18 @@ export default function AnalyticsDashboard() {
           />
         </Box>
 
+        <Box sx={{ display: 'flex', gap: 1, px: { xs: 2, sm: 3 }, pt: 1.5, overflowX: 'auto', '&::-webkit-scrollbar': { display: 'none' } }}>
+          {[
+            { key: 'week', label: t('analytics.week') },
+            { key: 'month', label: t('analytics.month') },
+            { key: 'quarter', label: t('analytics.quarter') },
+            { key: 'year', label: t('analytics.year') },
+          ].map(p => (
+            <Chip key={p.key} label={p.label} onClick={() => setActivePeriod(p.key)}
+              sx={{ fontWeight: 600, bgcolor: activePeriod === p.key ? 'primary.main' : 'action.hover', color: activePeriod === p.key ? 'white' : 'text.primary', boxShadow: activePeriod === p.key ? '0 4px 12px rgba(242,140,38,0.2)' : 'none' }} />
+          ))}
+        </Box>
+
         <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1.5, px: { xs: 2, sm: 3 }, py: 3 }}>
           <AnalyticsKPICard
             title={t('analytics.totalProjects')}
@@ -165,6 +178,10 @@ export default function AnalyticsDashboard() {
             color="primary"
           />
         </Box>
+
+        <Typography variant="body2" fontWeight={700} sx={{ px: { xs: 2, sm: 3 }, mb: 1.5 }}>
+          {t('analytics.progressTrend')}
+        </Typography>
 
         <Box sx={{ px: { xs: 2, sm: 3 }, mb: 3 }}>
           <ProjectMetricsChart

@@ -5,15 +5,15 @@ import { useToast } from '../components/common/ToastProvider'
 import { useThemeMode } from '../theme'
 import { useAuth } from '../contexts/AuthContext'
 import { meetingsApi } from '../api/meetings'
-import { LanguageIcon, DarkModeIcon, NotificationsIcon, LockIcon, FingerprintIcon, InfoIcon, DescriptionIcon, SecurityIcon, LogoutIcon, ChevronLeftIcon, ChevronRightIcon, AdminPanelSettingsIcon, EmailIcon, CalendarTodayIcon } from '@/icons'
-import { Box, Typography, Paper, Switch, Divider, Select, MenuItem, FormControl, useTheme, Button, CircularProgress } from '@/mui'
+import { LanguageIcon, DarkModeIcon, NotificationsIcon, LockIcon, FingerprintIcon, InfoIcon, DescriptionIcon, SecurityIcon, LogoutIcon, ChevronLeftIcon, ChevronRightIcon, AdminPanelSettingsIcon, EmailIcon, CalendarTodayIcon, CameraAltIcon, EditIcon, CheckCircleIcon, ViewListIcon } from '@/icons'
+import { Box, Typography, Paper, Switch, Divider, Select, MenuItem, FormControl, useTheme, Button, CircularProgress, Avatar, Chip, IconButton } from '@/mui'
 
 export default function SettingsPage() {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const { showSuccess, showError } = useToast()
-  const { logout } = useAuth()
+  const { user, logout } = useAuth()
   const theme = useTheme()
   const isRtl = theme.direction === 'rtl'
   const ChevronIcon = isRtl ? ChevronLeftIcon : ChevronRightIcon
@@ -24,6 +24,8 @@ export default function SettingsPage() {
     rfis: true,
     approvals: true,
   })
+
+  const [dailySummary, setDailySummary] = useState(true)
 
   const [calendarConnected, setCalendarConnected] = useState(false)
   const [calendarConfigured, setCalendarConfigured] = useState(false)
@@ -98,6 +100,53 @@ export default function SettingsPage() {
       </Box>
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, maxWidth: 600 }}>
+        <Paper sx={{ borderRadius: 3, p: 3, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+          <Box sx={{ position: 'relative', mb: 1 }}>
+            <Avatar
+              sx={{ width: 100, height: 100, fontSize: '2.5rem', bgcolor: 'primary.main' }}
+            >
+              {user?.fullName?.charAt(0)?.toUpperCase() || '?'}
+            </Avatar>
+            <IconButton
+              size="small"
+              sx={{
+                position: 'absolute',
+                bottom: 0,
+                [isRtl ? 'right' : 'left']: 0,
+                bgcolor: 'primary.main',
+                color: 'primary.contrastText',
+                width: 32,
+                height: 32,
+                '&:hover': { bgcolor: 'primary.dark' },
+              }}
+            >
+              <CameraAltIcon sx={{ fontSize: 16 }} />
+            </IconButton>
+          </Box>
+          <Typography variant="h6" fontWeight={700}>
+            {user?.fullName || ''}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {user?.email || ''}
+          </Typography>
+          {user?.role && (
+            <Chip
+              label={t(`roles.${user.role}`)}
+              size="small"
+              sx={{ bgcolor: '#ed6c02', color: '#fff', fontWeight: 600, mt: 0.5 }}
+            />
+          )}
+          <Box
+            onClick={() => navigate('/profile')}
+            sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer', mt: 0.5 }}
+          >
+            <EditIcon sx={{ fontSize: 16, color: 'primary.main' }} />
+            <Typography variant="body2" color="primary.main" fontWeight={500}>
+              {t('settings.editProfile')}
+            </Typography>
+          </Box>
+        </Paper>
+
         <Box>
           <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary', textTransform: 'uppercase', letterSpacing: '0.05em', px: 1, mb: 1, display: 'block' }}>
             {t('settings.preferences')}
@@ -164,6 +213,13 @@ export default function SettingsPage() {
               subtitle={t('settings.approvalRequestsDescription')}
               action={<Switch checked={notifications.approvals} onChange={() => handleNotificationChange('approvals')} color="primary" />}
             />
+            <Divider />
+            <SettingsRow
+              icon={<ViewListIcon sx={{ color: 'primary.main' }} />}
+              label={t('settings.dailySummary')}
+              subtitle={t('settings.dailySummaryDescription')}
+              action={<Switch checked={dailySummary} onChange={() => { setDailySummary(!dailySummary); showSuccess(t('settings.settingsUpdated')); }} color="primary" />}
+            />
           </Paper>
         </Box>
 
@@ -212,6 +268,17 @@ export default function SettingsPage() {
               label={t('settings.passkey')}
               action={<ChevronIcon sx={{ color: 'text.disabled', fontSize: 20 }} />}
               onClick={() => navigate('/profile')}
+            />
+            <Divider />
+            <SettingsRow
+              icon={<CheckCircleIcon sx={{ color: 'primary.main' }} />}
+              label={t('settings.twoFactorAuth')}
+              action={
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Chip label={t('settings.active')} size="small" sx={{ bgcolor: 'success.main', color: '#fff', fontWeight: 600, fontSize: '0.7rem', height: 24 }} />
+                  <ChevronIcon sx={{ color: 'text.disabled', fontSize: 20 }} />
+                </Box>
+              }
             />
           </Paper>
         </Box>

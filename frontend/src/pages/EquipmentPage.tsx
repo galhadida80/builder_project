@@ -172,9 +172,18 @@ export default function EquipmentPage() {
     return counts
   }, [equipment])
 
+  const getCategoryColor = (equipmentType?: string): string => {
+    if (!equipmentType) return '#9CA3AF'
+    const lower = equipmentType.toLowerCase()
+    if (lower.includes('crane') || lower.includes('מנוף')) return '#f28c26'
+    if (lower.includes('heavy') || lower.includes('כבד')) return '#EAB308'
+    if (lower.includes('transport') || lower.includes('הובלה') || lower.includes('משאית')) return '#3B82F6'
+    return '#9CA3AF'
+  }
+
   const columns: Column<Equipment>[] = [
     { id: 'name', label: t('equipment.title'), minWidth: 250, render: (row) => (
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, borderLeft: `3px solid ${getCategoryColor(row.equipmentType)}`, pl: 1.5 }}>
         <Box sx={{ width: 40, height: 40, borderRadius: 2, bgcolor: 'primary.light', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <BuildIcon sx={{ fontSize: 20, color: 'primary.main' }} />
         </Box>
@@ -211,8 +220,8 @@ export default function EquipmentPage() {
       <Box sx={{ mb: 2 }}>
         <SummaryBar items={[
           { label: t('common.items'), value: totalEquipment },
-          { label: t('equipment.draft'), value: statusCounts['draft'] || 0 },
-          { label: t('equipment.approved'), value: statusCounts['approved'] || 0, color: theme.palette.success.main },
+          { label: t('equipment.pendingApproval'), value: (statusCounts['submitted'] || 0) + (statusCounts['under_review'] || 0), color: theme.palette.warning.main },
+          { label: t('equipment.totalValue'), value: '—' },
         ]} />
       </Box>
 
@@ -230,6 +239,8 @@ export default function EquipmentPage() {
             <FilterChips
               items={[
                 { label: t('common.all'), value: 'all' },
+                { label: t('equipment.onSite'), value: 'on_site' },
+                { label: t('equipment.inMaintenance'), value: 'in_maintenance' },
                 { label: t('equipment.draft'), value: 'draft' },
                 { label: t('equipment.submitted'), value: 'submitted' },
                 { label: t('equipment.underReview'), value: 'under_review' },

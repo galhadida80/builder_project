@@ -286,7 +286,15 @@
     "signatureDeleted": "החתימה נמחקה",
     "signatureSaveFailed": "נכשל בשמירת החתימה",
     "signatureDeleteFailed": "נכשל במחיקת החתימה",
-    "noSignature": "לא הוגדרה חתימה"
+    "noSignature": "לא הוגדרה חתימה",
+    "memberSince": "חבר מאז",
+    "projects": "פרויקטים",
+    "tasks": "משימות",
+    "rating": "דירוג",
+    "location": "מיקום",
+    "activeProjects": "פרויקטים פעילים",
+    "skillsTitle": "כישורים והסמכות",
+    "role": "תפקיד"
   },
   "equipment": {
     "title": "ציוד",
@@ -341,7 +349,12 @@
     "failedToUploadFile": "נכשל בהעלאת הקובץ",
     "fileUploadedSuccessfully": "הקובץ הועלה בהצלחה!",
     "submitted": "הוגש",
-    "revisionRequested": "נדרש תיקון"
+    "revisionRequested": "נדרש תיקון",
+    "onSite": "באתר",
+    "inMaintenance": "בתחזוקה",
+    "pendingApproval": "ממתין לאישור",
+    "totalValue": "ערך כולל",
+    "category": "קטגוריה"
   },
   "materials": {
     "title": "חומרים",
@@ -422,7 +435,16 @@
       "box": "קופסה",
       "pallet": "משטח",
       "roll": "גליל"
-    }
+    },
+    "deliveryStatus": "סטטוס אספקה",
+    "concrete": "בטון",
+    "steel": "פלדה",
+    "electrical": "חשמל",
+    "plumbing": "אינסטלציה",
+    "general": "כללי",
+    "allCategories": "כל הקטגוריות",
+    "pendingCount": "ממתינים",
+    "items": "פריטים"
   },
   "meetings": {
     "title": "פגישות",
@@ -537,7 +559,13 @@
     "timeConfirmed": "מועד הפגישה אושר!",
     "voteEmailsSent": "מיילי הצבעה נשלחו ל-{{count}} משתתפים",
     "atLeastTwoSlots": "נדרשים לפחות 2 מועדים",
-    "addOption": "הוסף אפשרות"
+    "addOption": "הוסף אפשרות",
+    "today": "היום",
+    "tomorrow": "מחר",
+    "now": "עכשיו",
+    "join": "הצטרף",
+    "confirmed": "אישרו",
+    "pending": "ממתינים"
   },
   "dashboard": {
     "title": "לוח בקרה",
@@ -613,7 +641,16 @@
       "avgProgress": "התקדמות ממוצעת %",
       "findings": "ממצאים",
       "floorsTracked": "קומות במעקב"
-    }
+    },
+    "greeting": "שלום, {{name}}",
+    "activeProjects": "פרויקטים פעילים",
+    "newThisMonth": "חדש החודש",
+    "criticalDefects": "ליקויים קריטיים",
+    "requiresImmediate": "{{count}} משימות דורשות טיפול מיידי",
+    "view": "צפה",
+    "featuredProject": "פרויקט הדגל",
+    "completed": "הושלם",
+    "syncedRecently": "סונכרן לפני 2 דק׳"
   },
   "pages": {
     "login": {
@@ -691,7 +728,9 @@
       "totalProjects": "סה\"כ פרויקטים",
       "active": "פעיל",
       "onHold": "בהמתנה",
-      "completed": "הושלם"
+      "completed": "הושלם",
+      "projectProgress": "התקדמות פרויקט",
+      "tasks": "משימות"
     }
   },
   "header": {
@@ -1125,7 +1164,11 @@
     "setupStructure": "הגדרת מבנה פרויקט",
     "setupStructureDescription": "הגדירו בניינים, קומות, יחידות ואזורים משותפים",
     "areaLevel": "רמת אזור",
-    "areaLevelPlaceholder": "בחרו רמת אזור"
+    "areaLevelPlaceholder": "בחרו רמת אזור",
+    "selectFloor": "בחירת קומה",
+    "allFloors": "כל הקומות",
+    "unitsInManagement": "אזורים בניהול",
+    "floorProgress": "התקדמות קומה"
   },
   "settings": {
     "title": "הגדרות",
@@ -1177,7 +1220,12 @@
     "feedInstructions": "הוסף קישור זה ליומן Apple, Google Calendar או Outlook",
     "syncAll": "סנכרן הכל ל-Google",
     "syncAllSuccess": "{{synced}} פגישות סונכרנו, {{failed}} נכשלו, {{skipped}} דולגו",
-    "syncAllFailed": "שגיאה בסנכרון פגישות"
+    "syncAllFailed": "שגיאה בסנכרון פגישות",
+    "editProfile": "ערוך פרופיל",
+    "dailySummary": "סיכום יומי",
+    "dailySummaryDescription": "קבל סיכום יומי של פעילויות הפרויקט",
+    "twoFactorAuth": "אימות דו-שלבי",
+    "active": "פעיל"
   },
   "approvals": {
     "title": "אישורים",
@@ -1214,7 +1262,16 @@
     "rejectionReasonRequired": "יש לציין סיבת דחייה",
     "noHistory": "אין היסטוריית אישורים",
     "noHistoryDescription": "לא בוצעו פעולות על אישור זה עדיין.",
-    "viewDetails": "צפה בפרטים"
+    "viewDetails": "צפה בפרטים",
+    "pendingApprovals": "ממתינים לאישור",
+    "urgentCount": "{{count}} דחופים",
+    "submittedBy": "הוגש על ידי",
+    "documents": "מסמכים",
+    "pendingSummary": "{{pending}} ממתינים לאישור",
+    "equipment": "ציוד",
+    "material": "חומרים",
+    "inspection": "בדיקות",
+    "pendingApproval": "ממתין לאישור"
   },
   "approvalAuditTrail": {
     "submitted": "הוגש",
@@ -1230,11 +1287,16 @@
     "subtitle": "ניהול אנשי קשר ובעלי עניין בפרויקט",
     "addContact": "הוסף איש קשר",
     "editContact": "ערוך איש קשר",
-    "totalContacts": "סה\"כ אנשי קשר",
+    "totalContacts": "סה\"כ {{count}} אנשי קשר",
     "searchPlaceholder": "חיפוש אנשי קשר...",
+    "searchContactsOrCompanies": "חיפוש אנשי קשר או חברות...",
+    "contractors": "קבלנים",
+    "consultants": "יועצים",
+    "suppliers": "ספקים",
     "types": {
       "contractor": "קבלן",
       "consultant": "יועץ",
+      "supplier": "ספק",
       "supervisor": "מפקח",
       "inspector": "בודק",
       "engineer": "מהנדס",
@@ -1354,7 +1416,14 @@
     "rfiStats": "סטטיסטיקות RFI",
     "selectProjectForStats": "בחר פרויקט כדי לצפות בסטטיסטיקות RFI",
     "noProjectSelected": "לא נבחר פרויקט",
-    "openRfis": "בקשות פתוחות"
+    "openRfis": "בקשות פתוחות",
+    "openCount": "פתוחות",
+    "answeredCount": "נענו",
+    "urgentCount": "דחופות",
+    "lastResponse": "תשובה אחרונה",
+    "priorityFilter": "סינון לפי דחיפות",
+    "timeAgo": "לפני {{time}}",
+    "allPriorities": "כל העדיפויות"
   },
   "contactGroups": {
     "title": "קבוצות אנשי קשר",
@@ -1423,8 +1492,16 @@
     "failedToUpdate": "נכשל בעדכון צ'קליסט",
     "failedToSave": "נכשל בשמירת תגובה",
     "completeChecklist": "השלם צ'קליסט",
-    "itemsCompleted": "{{completed}} מתוך {{total}} פריטים",
+    "itemsCompleted": "{{completed}} מתוך {{total}} פריטים הושלמו",
     "allItemsRequired": "יש להשלים את כל הפריטים הנדרשים",
+    "continueChecking": "המשך בדיקה",
+    "recommendedTemplates": "תבניות מומלצות",
+    "categories": {
+      "electrical": "חשמל",
+      "plumbing": "אינסטלציה",
+      "safety": "בטיחות",
+      "finishing": "גמר"
+    },
     "statusPending": "ממתין",
     "statusApproved": "אושר",
     "statusRejected": "נדחה",
@@ -1543,7 +1620,11 @@
     "generatedOn": "נוצר בתאריך",
     "notCompleted": "טרם הושלם",
     "createSuccess": "הבדיקה נוצרה בהצלחה",
-    "failedToCreate": "יצירת הבדיקה נכשלה"
+    "failedToCreate": "יצירת הבדיקה נכשלה",
+    "today": "היום",
+    "tomorrow": "מחר",
+    "recentlyCompleted": "הושלמו לאחרונה",
+    "scheduled": "מתוזמן"
   },
   "documents": {
     "title": "ספריית מסמכים",
@@ -1839,7 +1920,14 @@
     "endDateError": "תאריך הסיום חייב להיות אחרי תאריך ההתחלה",
     "exporting": "מייצא...",
     "exportPdf": "ייצוא PDF",
-    "ok": "תקין"
+    "ok": "תקין",
+    "week": "שבוע",
+    "month": "חודש",
+    "quarter": "רבעון",
+    "year": "שנה",
+    "progressTrend": "מגמת התקדמות פרויקטים",
+    "defectsByCategory": "ליקויים לפי קטגוריה",
+    "budgetAllocation": "חלוקת תקציב"
   },
   "gantt": {
     "title": "ציר זמן פרויקט",
@@ -2324,7 +2412,14 @@
     "defectIndex": "ליקוי {{index}}",
     "createMultiple": "צור {{count}} ליקויים",
     "batchCreateSuccess": "{{count}} ליקויים דווחו בהצלחה",
-    "noDefectsSelected": "יש לבחור לפחות ליקוי אחד"
+    "noDefectsSelected": "יש לבחור לפחות ליקוי אחד",
+    "urgent": "דחוף",
+    "contractor": "קבלן",
+    "hoursAgo": "לפני {{count}} שעות",
+    "yesterday": "אתמול",
+    "daysAgo": "לפני {{count}} ימים",
+    "justNow": "הרגע",
+    "minutesAgo": "לפני {{count}} דקות"
   },
   "webauthn": {
     "setupTitle": "כניסה ביומטרית",
@@ -2380,6 +2475,13 @@
       "high": "גבוהה",
       "urgent": "דחוף"
     },
+    "today": "להיום",
+    "thisWeek": "השבוע",
+    "later": "מאוחר יותר",
+    "myTasks": "שלי",
+    "listView": "רשימה",
+    "boardView": "לוח",
+    "subtasks": "תתי-משימות",
     "statuses": {
       "not_started": "לא התחיל",
       "in_progress": "בביצוע",
@@ -2445,6 +2547,15 @@
       "overhead": "תקורות",
       "other": "אחר"
     },
+    "budgetUtilization": "ניצול תקציב",
+    "used": "נוצל",
+    "onBudget": "בתקציב",
+    "overBudget": "חריגה",
+    "breakdownByCategory": "פירוט לפי קטגוריות",
+    "recentExpenses": "הוצאות אחרונות",
+    "labor": "עבודה",
+    "subcontractors": "קבלני משנה",
+    "fromOf": "₪{{actual}} מתוך ₪{{budgeted}}",
     "statuses": {
       "draft": "טיוטה",
       "submitted": "הוגש",
@@ -2581,6 +2692,7 @@
     "projectCreated": "נוצר",
     "userIdOrEmail": "מזהה משתמש",
     "userIdHint": "הזן מזהה משתמש להוספה",
+    "totalOrgs": "ארגונים",
     "roles": {
       "org_admin": "מנהל",
       "org_member": "חבר"
@@ -2633,7 +2745,21 @@
     "rfiNumber": "מספר RFI",
     "subject": "נושא",
     "priority": "עדיפות",
-    "ageDays": "גיל (ימים)"
+    "ageDays": "גיל (ימים)",
+    "dailyReport": "דוח יומי",
+    "weeklyReport": "דוח שבועי",
+    "monthlyReport": "דוח חודשי",
+    "customReport": "דוח מותאם",
+    "generateNow": "הפק עכשיו",
+    "selectParameters": "בחר פרמטרים",
+    "recentReports": "דוחות אחרונים",
+    "reportSettings": "הגדרות דוח",
+    "includeInReport": "כלול בדוח",
+    "overallProgress": "התקדמות כללית",
+    "defectsAndIssues": "ליקויים ומפגעים",
+    "equipmentAndMaterials": "ציוד וחומרים",
+    "budgetAndCosts": "תקציב ועלויות",
+    "format": "פורמט"
   },
   "help": {
     "title": "עזרה",
@@ -2863,7 +2989,17 @@
     "hideInactive": "הסתר לא פעילים",
     "inactive": "לא פעיל",
     "of": "מתוך",
-    "last14Days": "14 ימים אחרונים"
+    "last14Days": "14 ימים אחרונים",
+    "year": "שנה",
+    "quarter": "רבעון",
+    "month": "חודש",
+    "week": "שבוע",
+    "snapshots": "תמונות מצב",
+    "currentMonth": "חודש נוכחי",
+    "previousMonth": "חודש קודם",
+    "progress": "התקדמות",
+    "budgetStatus": "תקציב",
+    "onTrack": "תקין"
   },
   "areaLevels": {
     "building": "בניין",

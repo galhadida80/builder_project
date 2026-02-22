@@ -7,7 +7,7 @@ import { PageHeader } from '../components/ui/Breadcrumbs'
 import { EmptyState } from '../components/ui/EmptyState'
 import { reportsApi } from '../api/reports'
 import { useToast } from '../components/common/ToastProvider'
-import { AssessmentIcon, DownloadIcon, SearchIcon } from '@/icons'
+import { AssessmentIcon, CalendarTodayIcon, DateRangeIcon, CalendarMonthIcon, TuneIcon, DescriptionIcon, DownloadIcon, SearchIcon } from '@/icons'
 import {
   Box,
   Typography,
@@ -15,6 +15,7 @@ import {
   TextField as MuiTextField,
   Skeleton,
   Chip,
+  IconButton,
 } from '@/mui'
 
 export default function ReportsPage() {
@@ -231,6 +232,23 @@ export default function ReportsPage() {
         subtitle={t('reports.subtitle')}
       />
 
+      <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5, mb: 2 }}>
+        {[
+          { icon: <CalendarTodayIcon />, label: t('reports.dailyReport'), sub: t('reports.generateNow') },
+          { icon: <DateRangeIcon />, label: t('reports.weeklyReport'), sub: t('reports.generateNow') },
+          { icon: <CalendarMonthIcon />, label: t('reports.monthlyReport'), sub: t('reports.generateNow') },
+          { icon: <TuneIcon />, label: t('reports.customReport'), sub: t('reports.selectParameters') },
+        ].map((item, idx) => (
+          <Card key={idx} sx={{ textAlign: 'center', p: 2.5, cursor: 'pointer', '&:hover': { boxShadow: 3 } }}>
+            <Box sx={{ width: 48, height: 48, borderRadius: '50%', bgcolor: 'primary.light', display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 'auto', mb: 1.5, color: 'primary.main' }}>
+              {item.icon}
+            </Box>
+            <Typography variant="body2" fontWeight={700}>{item.label}</Typography>
+            <Typography variant="caption" color="text.secondary">{item.sub}</Typography>
+          </Card>
+        ))}
+      </Box>
+
       <Card sx={{ mb: 2 }}>
         <Box sx={{ p: 2 }}>
           <Typography variant="body2" fontWeight={700} sx={{ mb: 2, borderInlineStart: '4px solid', borderColor: 'primary.main', ps: 1.5 }}>
@@ -270,12 +288,12 @@ export default function ReportsPage() {
               </Box>
             )}
 
-            <Box sx={{ display: 'flex', gap: 1.5 }}>
-              <Button variant="primary" icon={<SearchIcon />} onClick={handleGenerate} fullWidth>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+              <Button variant="primary" icon={<SearchIcon />} onClick={handleGenerate} fullWidth sx={{ boxShadow: 2, py: 1.2, fontWeight: 700 }}>
                 {t('reports.generate')}
               </Button>
               {reportData && (
-                <Button variant="secondary" icon={<DownloadIcon />} onClick={handleExportCsv}>
+                <Button variant="secondary" icon={<DownloadIcon />} onClick={handleExportCsv} fullWidth>
                   CSV
                 </Button>
               )}
@@ -297,6 +315,28 @@ export default function ReportsPage() {
           description={t('reports.selectAndGenerate')}
           icon={<AssessmentIcon sx={{ color: 'text.secondary' }} />}
         />
+      )}
+
+      {reportData && (
+        <Card sx={{ mt: 2 }}>
+          <Box sx={{ p: 2 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+              <Typography variant="body2" fontWeight={700}>{t('reports.recentReports')}</Typography>
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 1.5, bgcolor: 'action.hover', borderRadius: 2 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <Box sx={{ width: 40, height: 40, borderRadius: 1, bgcolor: 'error.light', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <DescriptionIcon sx={{ color: 'error.main', fontSize: 20 }} />
+                </Box>
+                <Box>
+                  <Typography variant="body2" fontWeight={600}>{reportTypes.find(r => r.value === reportType)?.label}</Typography>
+                  <Typography variant="caption" color="text.secondary">{new Date().toLocaleDateString()}</Typography>
+                </Box>
+              </Box>
+              <IconButton size="small" onClick={handleExportCsv}><DownloadIcon fontSize="small" /></IconButton>
+            </Box>
+          </Box>
+        </Card>
       )}
     </Box>
   )

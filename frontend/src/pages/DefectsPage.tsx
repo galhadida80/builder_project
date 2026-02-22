@@ -16,11 +16,34 @@ import { defectsApi, DefectCreateData, DefectAnalysisItem } from '../api/defects
 import { filesApi } from '../api/files'
 import { contactsApi } from '../api/contacts'
 import { areasApi } from '../api/areas'
-import type { Defect, DefectSummary, Contact, ConstructionArea } from '../types'
+import type { Defect, DefectSummary, DefectSeverity, Contact, ConstructionArea } from '../types'
 import { useToast } from '../components/common/ToastProvider'
 import { validateRequired, validateMinLength, type ValidationError, hasErrors } from '../utils/validation'
 import { AddIcon, VisibilityIcon, PictureAsPdfIcon } from '@/icons'
-import { Box, Typography, Chip, MenuItem, Skeleton, TextField as MuiTextField, TablePagination, useMediaQuery, useTheme } from '@/mui'
+import { Box, Typography, Chip, MenuItem, Skeleton, TextField as MuiTextField, TablePagination, Tooltip, useMediaQuery, useTheme } from '@/mui'
+
+const SEVERITY_BORDER_COLORS: Record<DefectSeverity, string> = {
+  critical: '#DC2626',
+  high: '#EA580C',
+  medium: '#CA8A04',
+  low: '#22C55E',
+}
+
+function formatRelativeTime(dateStr: string, t: (key: string, opts?: Record<string, unknown>) => string): string {
+  const now = new Date()
+  const date = new Date(dateStr)
+  const diffMs = now.getTime() - date.getTime()
+  const diffMinutes = Math.floor(diffMs / 60000)
+  const diffHours = Math.floor(diffMs / 3600000)
+  const diffDays = Math.floor(diffMs / 86400000)
+
+  if (diffMinutes < 1) return t('defects.justNow')
+  if (diffMinutes < 60) return t('defects.minutesAgo', { count: diffMinutes })
+  if (diffHours < 24) return t('defects.hoursAgo', { count: diffHours })
+  if (diffDays === 1) return t('defects.yesterday')
+  if (diffDays < 30) return t('defects.daysAgo', { count: diffDays })
+  return date.toLocaleDateString()
+}
 
 function compressImage(file: File, maxWidth = 1920, quality = 0.8): Promise<File> {
   return new Promise((resolve) => {
@@ -227,14 +250,23 @@ export default function DefectsPage() {
   ]
 
   const columns: Column<Defect>[] = [
-    { id: 'defectNumber', label: '#', minWidth: 70, sortable: true, render: (row) => <Typography variant="body2" fontWeight={600}>#{row.defectNumber}</Typography> },
+    { id: 'defectNumber', label: '#', minWidth: 70, sortable: true, render: (row) => (
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box sx={{ width: 4, height: 28, borderRadius: 1, bgcolor: SEVERITY_BORDER_COLORS[row.severity] || SEVERITY_BORDER_COLORS.low, flexShrink: 0 }} />
+        <Typography variant="body2" fontWeight={600}>#{row.defectNumber}</Typography>
+      </Box>
+    ) },
     { id: 'category', label: t('defects.category'), minWidth: 150, render: (row) => <Chip size="small" label={t(`defects.categories.${row.category}`, { defaultValue: row.category })} sx={{ fontWeight: 500 }} /> },
-    { id: 'description', label: t('defects.description'), minWidth: 220, render: (row) => <Typography variant="body2" sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 300 }}>{row.description}</Typography> },
+    { id: 'description', label: t('defects.description'), minWidth: 220, render: (row) => <Typography variant="body2" fontWeight={600} sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 300 }}>{row.description}</Typography> },
     { id: 'location', label: t('defects.location'), minWidth: 130, hideOnMobile: true, render: (row) => <Typography variant="body2" color={row.area ? 'text.primary' : 'text.secondary'}>{row.area ? `${row.area.name}${row.area.floorNumber != null ? ` / ${t('defects.floor')} ${row.area.floorNumber}` : ''}` : '-'}</Typography> },
     { id: 'severity', label: t('defects.severity'), minWidth: 110, hideOnMobile: true, render: (row) => <SeverityBadge severity={row.severity} /> },
     { id: 'status', label: t('common.status'), minWidth: 120, render: (row) => <StatusBadge status={row.status} /> },
     { id: 'assignedContact', label: t('defects.assignedTo'), minWidth: 140, hideOnMobile: true, render: (row) => <Typography variant="body2" color={row.assignedContact ? 'text.primary' : 'text.secondary'}>{row.assignedContact?.contactName || '-'}</Typography> },
-    { id: 'createdAt', label: t('common.date'), minWidth: 100, sortable: true, hideOnMobile: true, render: (row) => <Typography variant="body2">{new Date(row.createdAt).toLocaleDateString(getDateLocale())}</Typography> },
+    { id: 'createdAt', label: t('common.date'), minWidth: 100, sortable: true, hideOnMobile: true, render: (row) => (
+      <Tooltip title={new Date(row.createdAt).toLocaleDateString(getDateLocale())} arrow>
+        <Typography variant="body2" color="text.secondary">{formatRelativeTime(row.createdAt, t)}</Typography>
+      </Tooltip>
+    ) },
     { id: 'actions', label: '', minWidth: 90, align: 'right', hideOnMobile: true, render: (row) => <Button variant="tertiary" size="small" icon={<VisibilityIcon />} onClick={(e) => { e.stopPropagation(); navigate(`/projects/${projectId}/defects/${row.id}`) }}>{t('buttons.view')}</Button> },
   ]
 

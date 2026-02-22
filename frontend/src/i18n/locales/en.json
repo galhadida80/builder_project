@@ -130,7 +130,16 @@
       "avgProgress": "Avg Progress %",
       "findings": "Findings",
       "floorsTracked": "floors tracked"
-    }
+    },
+    "greeting": "Hello, {{name}}",
+    "activeProjects": "Active Projects",
+    "newThisMonth": "New this month",
+    "criticalDefects": "Critical Defects",
+    "requiresImmediate": "{{count}} tasks require immediate attention",
+    "view": "View",
+    "featuredProject": "Featured Project",
+    "completed": "Completed",
+    "syncedRecently": "Synced 2 min ago"
   },
   "equipment": {
     "title": "Equipment",
@@ -185,7 +194,12 @@
     "failedToUploadFile": "Failed to upload file",
     "fileUploadedSuccessfully": "File uploaded successfully!",
     "submitted": "Submitted",
-    "revisionRequested": "Revision Requested"
+    "revisionRequested": "Revision Requested",
+    "onSite": "On Site",
+    "inMaintenance": "In Maintenance",
+    "pendingApproval": "Pending Approval",
+    "totalValue": "Total Value",
+    "category": "Category"
   },
   "materials": {
     "title": "Materials",
@@ -266,7 +280,16 @@
       "box": "Box",
       "pallet": "Pallet",
       "roll": "Roll"
-    }
+    },
+    "deliveryStatus": "Delivery Status",
+    "concrete": "Concrete",
+    "steel": "Steel",
+    "electrical": "Electrical",
+    "plumbing": "Plumbing",
+    "general": "General",
+    "allCategories": "All Categories",
+    "pendingCount": "Pending",
+    "items": "Items"
   },
   "meetings": {
     "title": "Meetings",
@@ -381,7 +404,13 @@
     "timeConfirmed": "Meeting time confirmed!",
     "voteEmailsSent": "Vote emails sent to {{count}} attendees",
     "atLeastTwoSlots": "At least 2 time slots are required",
-    "addOption": "Add Option"
+    "addOption": "Add Option",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "now": "Now",
+    "join": "Join",
+    "confirmed": "confirmed",
+    "pending": "pending"
   },
   "validation": {
     "checkFields": "Please fix the highlighted errors",
@@ -613,7 +642,15 @@
     "signatureDeleted": "Signature deleted",
     "signatureSaveFailed": "Failed to save signature",
     "signatureDeleteFailed": "Failed to delete signature",
-    "noSignature": "No signature set"
+    "noSignature": "No signature set",
+    "memberSince": "Member since",
+    "projects": "Projects",
+    "tasks": "Tasks",
+    "rating": "Rating",
+    "location": "Location",
+    "activeProjects": "Active Projects",
+    "skillsTitle": "Skills & Certifications",
+    "role": "Role"
   },
   "auditLog": {
     "pageTitle": "Audit Log",
@@ -985,7 +1022,11 @@
     "setupStructure": "Set Up Project Structure",
     "setupStructureDescription": "Define buildings, floors, units and shared areas",
     "areaLevel": "Area Level",
-    "areaLevelPlaceholder": "Select area level"
+    "areaLevelPlaceholder": "Select area level",
+    "selectFloor": "Select Floor",
+    "allFloors": "All Floors",
+    "unitsInManagement": "Areas in management",
+    "floorProgress": "Floor progress"
   },
   "settings": {
     "title": "Settings",
@@ -1037,7 +1078,12 @@
     "feedInstructions": "Add this URL to Apple Calendar, Google Calendar, or Outlook",
     "syncAll": "Sync All to Google",
     "syncAllSuccess": "{{synced}} meetings synced, {{failed}} failed, {{skipped}} skipped",
-    "syncAllFailed": "Failed to sync meetings"
+    "syncAllFailed": "Failed to sync meetings",
+    "editProfile": "Edit Profile",
+    "dailySummary": "Daily Summary",
+    "dailySummaryDescription": "Receive a daily summary of project activities",
+    "twoFactorAuth": "Two-Factor Auth",
+    "active": "Active"
   },
   "approvals": {
     "title": "Approvals",
@@ -1074,18 +1120,32 @@
     "rejectionReasonRequired": "A rejection reason is required",
     "noHistory": "No approval history",
     "noHistoryDescription": "No actions have been taken on this approval yet.",
-    "viewDetails": "View Details"
+    "viewDetails": "View Details",
+    "pendingApprovals": "Pending Approvals",
+    "urgentCount": "{{count}} urgent",
+    "submittedBy": "Submitted by",
+    "documents": "Documents",
+    "pendingSummary": "{{pending}} pending approval",
+    "equipment": "Equipment",
+    "material": "Materials",
+    "inspection": "Inspections",
+    "pendingApproval": "Pending Approval"
   },
   "contacts": {
     "title": "Contacts",
     "subtitle": "Manage project contacts and stakeholders",
     "addContact": "Add Contact",
     "editContact": "Edit Contact",
-    "totalContacts": "Total Contacts",
+    "totalContacts": "Total {{count}} contacts",
     "searchPlaceholder": "Search contacts...",
+    "searchContactsOrCompanies": "Search contacts or companies...",
+    "contractors": "Contractors",
+    "consultants": "Consultants",
+    "suppliers": "Suppliers",
     "types": {
       "contractor": "Contractor",
       "consultant": "Consultant",
+      "supplier": "Supplier",
       "supervisor": "Supervisor",
       "inspector": "Inspector",
       "engineer": "Engineer",
@@ -1205,7 +1265,14 @@
     "rfiStats": "RFI Statistics",
     "selectProjectForStats": "Select a project to view RFI statistics",
     "noProjectSelected": "No project selected",
-    "openRfis": "Open RFIs"
+    "openRfis": "Open RFIs",
+    "openCount": "Open",
+    "answeredCount": "Answered",
+    "urgentCount": "Urgent",
+    "lastResponse": "Last Response",
+    "priorityFilter": "Filter by Priority",
+    "timeAgo": "{{time}} ago",
+    "allPriorities": "All Priorities"
   },
   "contactGroups": {
     "title": "Contact Groups",
@@ -1274,8 +1341,16 @@
     "failedToUpdate": "Failed to update checklist",
     "failedToSave": "Failed to save response",
     "completeChecklist": "Complete Checklist",
-    "itemsCompleted": "{{completed}} of {{total}} items",
+    "itemsCompleted": "{{completed}} of {{total}} items completed",
     "allItemsRequired": "All required items must be completed",
+    "continueChecking": "Continue checking",
+    "recommendedTemplates": "Recommended Templates",
+    "categories": {
+      "electrical": "Electrical",
+      "plumbing": "Plumbing",
+      "safety": "Safety",
+      "finishing": "Finishing"
+    },
     "statusPending": "Pending",
     "statusApproved": "Approved",
     "statusRejected": "Rejected",
@@ -1394,7 +1469,11 @@
     "generatedOn": "Generated on",
     "notCompleted": "Not completed yet",
     "createSuccess": "Inspection created successfully",
-    "failedToCreate": "Failed to create inspection"
+    "failedToCreate": "Failed to create inspection",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "recentlyCompleted": "Recently Completed",
+    "scheduled": "Scheduled"
   },
   "documents": {
     "title": "Document Library",
@@ -1690,7 +1769,14 @@
     "endDateError": "End date must be after start date",
     "exporting": "Exporting...",
     "exportPdf": "Export PDF",
-    "ok": "OK"
+    "ok": "OK",
+    "week": "Week",
+    "month": "Month",
+    "quarter": "Quarter",
+    "year": "Year",
+    "progressTrend": "Project Progress Trend",
+    "defectsByCategory": "Defects by Category",
+    "budgetAllocation": "Budget Allocation"
   },
   "gantt": {
     "title": "Project Timeline",
@@ -1783,7 +1869,9 @@
       "totalProjects": "Total Projects",
       "active": "Active",
       "onHold": "On Hold",
-      "completed": "Completed"
+      "completed": "Completed",
+      "projectProgress": "Project Progress",
+      "tasks": "Tasks"
     }
   },
   "overview": {
@@ -2269,7 +2357,14 @@
     "defectIndex": "Defect {{index}}",
     "createMultiple": "Create {{count}} Defects",
     "batchCreateSuccess": "{{count}} defects reported successfully",
-    "noDefectsSelected": "Select at least one defect"
+    "noDefectsSelected": "Select at least one defect",
+    "urgent": "Urgent",
+    "contractor": "Contractor",
+    "hoursAgo": "{{count}} hours ago",
+    "yesterday": "Yesterday",
+    "daysAgo": "{{count}} days ago",
+    "justNow": "Just now",
+    "minutesAgo": "{{count}} minutes ago"
   },
   "webauthn": {
     "setupTitle": "Biometric Login",
@@ -2325,6 +2420,13 @@
       "high": "High",
       "urgent": "Urgent"
     },
+    "today": "Today",
+    "thisWeek": "This Week",
+    "later": "Later",
+    "myTasks": "My Tasks",
+    "listView": "List",
+    "boardView": "Board",
+    "subtasks": "Subtasks",
     "statuses": {
       "not_started": "Not Started",
       "in_progress": "In Progress",
@@ -2390,6 +2492,15 @@
       "overhead": "Overhead",
       "other": "Other"
     },
+    "budgetUtilization": "Budget Utilization",
+    "used": "Used",
+    "onBudget": "On Budget",
+    "overBudget": "Over Budget",
+    "breakdownByCategory": "Breakdown by Category",
+    "recentExpenses": "Recent Expenses",
+    "labor": "Labor",
+    "subcontractors": "Subcontractors",
+    "fromOf": "₪{{actual}} from ₪{{budgeted}}",
     "statuses": {
       "draft": "Draft",
       "submitted": "Submitted",
@@ -2526,6 +2637,7 @@
     "projectCreated": "Created",
     "userIdOrEmail": "User ID",
     "userIdHint": "Enter the user ID to add",
+    "totalOrgs": "organizations",
     "roles": {
       "org_admin": "Admin",
       "org_member": "Member"
@@ -2578,7 +2690,21 @@
     "rfiNumber": "RFI #",
     "subject": "Subject",
     "priority": "Priority",
-    "ageDays": "Age (Days)"
+    "ageDays": "Age (Days)",
+    "dailyReport": "Daily Report",
+    "weeklyReport": "Weekly Report",
+    "monthlyReport": "Monthly Report",
+    "customReport": "Custom Report",
+    "generateNow": "Generate now",
+    "selectParameters": "Select parameters",
+    "recentReports": "Recent Reports",
+    "reportSettings": "Report Settings",
+    "includeInReport": "Include in report",
+    "overallProgress": "Overall Progress",
+    "defectsAndIssues": "Defects & Issues",
+    "equipmentAndMaterials": "Equipment & Materials",
+    "budgetAndCosts": "Budget & Costs",
+    "format": "Format"
   },
   "help": {
     "title": "Help",
@@ -2808,7 +2934,17 @@
     "hideInactive": "Hide inactive",
     "inactive": "Inactive",
     "of": "of",
-    "last14Days": "Last 14 days"
+    "last14Days": "Last 14 days",
+    "year": "Year",
+    "quarter": "Quarter",
+    "month": "Month",
+    "week": "Week",
+    "snapshots": "Snapshots",
+    "currentMonth": "Current Month",
+    "previousMonth": "Previous Month",
+    "progress": "Progress",
+    "budgetStatus": "Budget",
+    "onTrack": "On Track"
   },
   "areaLevels": {
     "building": "Building",

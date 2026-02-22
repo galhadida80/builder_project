@@ -99,9 +99,14 @@ export default function OrganizationsPage() {
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         borderBottom: 1, borderColor: 'divider',
       }}>
-        <Typography variant="h6" fontWeight={700} letterSpacing='-0.02em'>
-          {t('organizations.title')}
-        </Typography>
+        <Box>
+          <Typography variant="h6" fontWeight={700} letterSpacing='-0.02em'>
+            {t('organizations.title')}
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            {organizations.length} {t('organizations.totalOrgs')}
+          </Typography>
+        </Box>
         <Fab size="small" color="primary" onClick={() => setDialogOpen(true)} sx={{ boxShadow: 3 }}>
           <AddIcon />
         </Fab>
@@ -113,6 +118,10 @@ export default function OrganizationsPage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
+      </Box>
+
+      <Box sx={{ display: 'flex', gap: 2, mb: 2, px: { xs: 2, sm: 3 } }}>
+        <Chip label={`${organizations.length} ${t('organizations.totalOrgs')}`} size="small" sx={{ fontWeight: 600 }} />
       </Box>
 
       <Box sx={{ px: { xs: 2, sm: 3 } }}>
@@ -127,13 +136,15 @@ export default function OrganizationsPage() {
           </Box>
         ) : (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            {filtered.map((org) => (
+            {filtered.map((org, idx) => (
               <Box
                 key={org.id}
                 onClick={() => navigate(`/organizations/${org.id}`)}
                 sx={{
                   bgcolor: 'background.paper',
-                  border: 1, borderColor: 'divider', borderRadius: 3,
+                  border: idx === 0 ? 2 : 1,
+                  borderColor: idx === 0 ? 'primary.main' : 'divider',
+                  borderRadius: 3,
                   p: 2, display: 'flex', alignItems: 'flex-start', gap: 2,
                   cursor: 'pointer', transition: 'background-color 150ms',
                   '&:hover': { bgcolor: 'action.hover' },
@@ -174,6 +185,12 @@ export default function OrganizationsPage() {
                       }}
                     />
                   </Box>
+
+                  {org.description && (
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5, mb: 1 }}>
+                      {org.description}
+                    </Typography>
+                  )}
 
                   <Box sx={{ display: 'flex', gap: 3 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>

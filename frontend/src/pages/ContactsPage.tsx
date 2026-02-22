@@ -52,11 +52,18 @@ export default function ContactsPage() {
   const contactTypes = [
     { value: 'contractor', label: t('contacts.types.contractor'), color: '#f28c26' },
     { value: 'consultant', label: t('contacts.types.consultant'), color: '#9c27b0' },
+    { value: 'supplier', label: t('contacts.types.supplier'), color: '#0288d1' },
     { value: 'supervisor', label: t('contacts.types.supervisor'), color: '#2e7d32' },
     { value: 'inspector', label: t('contacts.types.inspector'), color: '#ed6c02' },
     { value: 'engineer', label: t('contacts.types.engineer'), color: '#0288d1' },
     { value: 'manager', label: t('contacts.types.manager'), color: '#d32f2f' },
     { value: 'other', label: t('contacts.types.other'), color: '#757575' },
+  ]
+
+  const filterChipTypes = [
+    { value: 'contractor', label: t('contacts.contractors') },
+    { value: 'consultant', label: t('contacts.consultants') },
+    { value: 'supplier', label: t('contacts.suppliers') },
   ]
 
   useEffect(() => { loadContacts(); loadProjectUsers(); loadGroups() }, [projectId])
@@ -169,7 +176,7 @@ export default function ContactsPage() {
       />
 
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, gap: 1.5, mb: 3 }}>
-        <KPICard title={t('contacts.totalContacts')} value={contacts.length} icon={<GroupIcon />} color="primary" />
+        <KPICard title={t('contacts.title')} value={contacts.length} icon={<GroupIcon />} color="primary" />
         <KPICard title={t('contacts.types.contractor')} value={typeCount('contractor')} icon={<PersonIcon />} color="info" />
         <KPICard title={t('contacts.types.consultant')} value={typeCount('consultant')} icon={<PersonIcon />} color="warning" />
       </Box>
@@ -183,11 +190,11 @@ export default function ContactsPage() {
         <Card>
           <Box sx={{ p: 2 }}>
             <Box sx={{ mb: 2 }}>
-              <SearchField placeholder={t('contacts.searchPlaceholder')} value={search} onChange={(e) => setSearch(e.target.value)} />
+              <SearchField placeholder={t('contacts.searchContactsOrCompanies')} value={search} onChange={(e) => setSearch(e.target.value)} />
             </Box>
             <Box sx={{ mb: 2 }}>
               <FilterChips
-                items={[{ label: t('common.all'), value: 'all', count: contacts.length }, ...contactTypes.map(type => ({ label: type.label, value: type.value, count: typeCount(type.value) }))]}
+                items={[{ label: t('common.all'), value: 'all', count: contacts.length }, ...filterChipTypes.map(ft => ({ label: ft.label, value: ft.value, count: typeCount(ft.value) }))]}
                 value={filterType}
                 onChange={setFilterType}
               />
@@ -199,38 +206,75 @@ export default function ContactsPage() {
               <Box>
                 {groupedContacts.map((group) => (
                   <Box key={group.value}>
-                    <Typography variant="overline" color="text.secondary" sx={{ px: 2, pt: 2, pb: 1, display: 'block', fontWeight: 700, letterSpacing: 1 }}>{group.label}</Typography>
-                    {group.contacts.map((contact) => {
-                      const typeConfig = getTypeConfig(contact.contactType)
-                      return (
-                        <Box key={contact.id} sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider', display: 'flex', alignItems: 'center', justifyContent: 'space-between', '&:hover': { bgcolor: 'action.hover' } }}>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1, minWidth: 0, cursor: 'pointer' }} onClick={() => handleOpenEdit(contact)}>
-                            <Avatar name={contact.contactName} size="medium" />
-                            <Box sx={{ minWidth: 0 }}>
-                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                <Typography variant="body1" fontWeight={700} noWrap>{contact.contactName}</Typography>
-                                {contact.isPrimary && <Chip label={t('contacts.primary')} size="small" color="warning" sx={{ height: 18, fontSize: '0.6rem' }} />}
-                              </Box>
-                              <Typography variant="body2" color="text.secondary" noWrap>
-                                {[contact.companyName, contact.roleDescription].filter(Boolean).join(' - ')}
-                              </Typography>
-                            </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 2, pt: 2.5, pb: 1 }}>
+                      <Box sx={{ width: 4, height: 18, borderRadius: 2, bgcolor: group.color }} />
+                      <Typography variant="subtitle2" sx={{ fontWeight: 700, fontSize: '0.85rem', color: 'text.primary', letterSpacing: 0.5 }}>
+                        {group.label}
+                      </Typography>
+                      <Typography variant="caption" color="text.disabled" sx={{ ml: 0.5 }}>({group.contacts.length})</Typography>
+                    </Box>
+                    {group.contacts.map((contact) => (
+                      <Box
+                        key={contact.id}
+                        sx={{
+                          px: 2, py: 1.5,
+                          borderBottom: '1px solid', borderColor: 'divider',
+                          display: 'flex', alignItems: 'center', gap: 2,
+                          transition: 'background-color 0.15s ease',
+                          '&:hover': { bgcolor: 'action.hover' },
+                          '&:active': { bgcolor: 'action.selected' },
+                        }}
+                      >
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flex: 1, minWidth: 0, cursor: 'pointer' }} onClick={() => handleOpenEdit(contact)}>
+                          <Box sx={{ position: 'relative', flexShrink: 0 }}>
+                            <Avatar name={contact.contactName} size="xlarge" />
+                            <Box sx={{
+                              position: 'absolute', bottom: 2, right: 2,
+                              width: 12, height: 12, borderRadius: '50%',
+                              bgcolor: contact.userId ? 'success.main' : 'grey.400',
+                              border: '2px solid', borderColor: 'background.paper',
+                            }} />
                           </Box>
-                          <Box sx={{ display: 'flex', gap: 1, flexShrink: 0 }}>
-                            {contact.phone && (
-                              <IconButton size="small" sx={{ bgcolor: 'primary.light', color: 'primary.main', '&:hover': { bgcolor: 'primary.main', color: 'primary.contrastText' } }} onClick={() => window.open(`tel:${contact.phone}`)}>
-                                <PhoneIcon fontSize="small" />
-                              </IconButton>
-                            )}
-                            {contact.email && (
-                              <IconButton size="small" sx={{ bgcolor: 'primary.light', color: 'primary.main', '&:hover': { bgcolor: 'primary.main', color: 'primary.contrastText' } }} onClick={() => window.open(`mailto:${contact.email}`)}>
-                                <EmailIcon fontSize="small" />
-                              </IconButton>
-                            )}
+                          <Box sx={{ minWidth: 0, flex: 1 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                              <Typography variant="body1" fontWeight={700} noWrap sx={{ fontSize: '0.95rem' }}>{contact.contactName}</Typography>
+                              {contact.isPrimary && <Chip label={t('contacts.primary')} size="small" color="warning" sx={{ height: 18, fontSize: '0.6rem' }} />}
+                            </Box>
+                            <Typography variant="body2" color="text.secondary" noWrap sx={{ fontSize: '0.8rem', mt: 0.25 }}>
+                              {[contact.companyName, contact.roleDescription].filter(Boolean).join(' \u00b7 ')}
+                            </Typography>
                           </Box>
                         </Box>
-                      )
-                    })}
+                        <Box sx={{ display: 'flex', gap: 1, flexShrink: 0 }}>
+                          {contact.email && (
+                            <IconButton
+                              size="medium"
+                              onClick={() => window.open(`mailto:${contact.email}`)}
+                              sx={{
+                                width: 40, height: 40,
+                                bgcolor: '#f28c26', color: '#fff',
+                                '&:hover': { bgcolor: '#e07b1a' },
+                              }}
+                            >
+                              <EmailIcon fontSize="small" />
+                            </IconButton>
+                          )}
+                          {contact.phone && (
+                            <IconButton
+                              size="medium"
+                              onClick={() => window.open(`tel:${contact.phone}`)}
+                              sx={{
+                                width: 40, height: 40,
+                                bgcolor: '#f28c26', color: '#fff',
+                                '&:hover': { bgcolor: '#e07b1a' },
+                              }}
+                            >
+                              <PhoneIcon fontSize="small" />
+                            </IconButton>
+                          )}
+                        </Box>
+                      </Box>
+                    ))}
                   </Box>
                 ))}
               </Box>
@@ -279,6 +323,11 @@ export default function ContactsPage() {
                 </Table>
               </TableContainer>
             )}
+          </Box>
+          <Box sx={{ px: 2, py: 1.5, borderTop: '1px solid', borderColor: 'divider', bgcolor: 'grey.50' }}>
+            <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500, textAlign: 'center', fontSize: '0.8rem' }}>
+              {t('contacts.totalContacts', { count: filteredContacts.length })}
+            </Typography>
           </Box>
         </Card>
       )}

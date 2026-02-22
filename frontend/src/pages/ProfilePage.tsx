@@ -7,8 +7,8 @@ import { useToast } from '../components/common/ToastProvider'
 import { authApi, WebAuthnCredential } from '../api/auth'
 import { profileSchema, validateWithSchema } from '../schemas/validation'
 import { SignaturePad } from '../components/checklist/SignaturePad'
-import { PersonIcon, EmailIcon, PhoneIcon, BusinessIcon, EditIcon, SaveIcon, FingerprintIcon, DeleteIcon, CameraAltIcon, CreateIcon } from '@/icons'
-import { Box, Typography, Paper, Avatar, TextField, Button, Divider, Chip, IconButton, CircularProgress } from '@/mui'
+import { PersonIcon, EmailIcon, PhoneIcon, BusinessIcon, EditIcon, SaveIcon, FingerprintIcon, DeleteIcon, CameraAltIcon, CreateIcon, LocationOnIcon } from '@/icons'
+import { Box, Typography, Paper, Avatar, TextField, Button, Divider, Chip, IconButton, CircularProgress, LinearProgress } from '@/mui'
 
 export default function ProfilePage() {
   const { t } = useTranslation()
@@ -193,6 +193,28 @@ export default function ProfilePage() {
         {user?.company && (
           <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>{user.company}</Typography>
         )}
+        <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
+          {t('profile.memberSince')} {new Date(user?.createdAt || Date.now()).toLocaleDateString(undefined, { year: 'numeric', month: 'long' })}
+        </Typography>
+      </Box>
+
+      <Box sx={{ maxWidth: 600, mx: 'auto', px: 2, mb: 3 }}>
+        <Paper sx={{ borderRadius: 3, overflow: 'hidden' }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', textAlign: 'center', py: 2 }}>
+            <Box>
+              <Typography variant="h5" fontWeight={700} color="primary.main">12</Typography>
+              <Typography variant="caption" color="text.secondary">{t('profile.projects')}</Typography>
+            </Box>
+            <Box sx={{ borderInlineStart: '1px solid', borderInlineEnd: '1px solid', borderColor: 'divider' }}>
+              <Typography variant="h5" fontWeight={700} color="primary.main">156</Typography>
+              <Typography variant="caption" color="text.secondary">{t('profile.tasks')}</Typography>
+            </Box>
+            <Box>
+              <Typography variant="h5" fontWeight={700} color="primary.main">98%</Typography>
+              <Typography variant="caption" color="text.secondary">{t('profile.rating')}</Typography>
+            </Box>
+          </Box>
+        </Paper>
       </Box>
 
       <Box sx={{ maxWidth: 600, mx: 'auto', px: 2 }}>
@@ -239,6 +261,8 @@ export default function ProfilePage() {
               <ProfileRow icon={<PersonIcon sx={{ color: 'primary.main' }} />} label={t('profile.fullName')} value={user?.fullName || '—'} />
               <Divider />
               <ProfileRow icon={<BusinessIcon sx={{ color: 'primary.main' }} />} label={t('profile.company')} value={user?.company || '—'} />
+              <Divider />
+              <ProfileRow icon={<LocationOnIcon sx={{ color: 'primary.main' }} />} label={t('profile.location')} value={user?.company || '—'} />
             </>
           )}
         </Paper>
@@ -254,6 +278,36 @@ export default function ProfilePage() {
             {t('profile.editProfile')}
           </Button>
         )}
+
+        <Paper sx={{ borderRadius: 3, overflow: 'hidden', mb: 3 }}>
+          <Box sx={{ p: 2.5 }}>
+            <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 2, textAlign: 'center' }}>
+              {t('profile.activeProjects')}
+            </Typography>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <ActiveProjectRow name="Tower Alpha" role={t('profile.role') + ': Project Manager'} progress={75} />
+              <ActiveProjectRow name="Tech Park" role={t('profile.role') + ': Inspector'} progress={45} />
+            </Box>
+          </Box>
+        </Paper>
+
+        <Paper sx={{ borderRadius: 3, overflow: 'hidden', mb: 3 }}>
+          <Box sx={{ p: 2.5 }}>
+            <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 2, textAlign: 'center' }}>
+              {t('profile.skillsTitle')}
+            </Typography>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, justifyContent: 'center' }}>
+              {['Project Management', 'Safety', 'BIM', 'Budget', 'Quality Control', 'Scheduling'].map((skill) => (
+                <Chip
+                  key={skill}
+                  label={skill}
+                  variant="outlined"
+                  sx={{ borderColor: 'primary.main', color: 'primary.main', fontWeight: 500 }}
+                />
+              ))}
+            </Box>
+          </Box>
+        </Paper>
 
         <Paper sx={{ borderRadius: 3, overflow: 'hidden', mb: 3 }}>
           <Box sx={{ p: 2.5 }}>
@@ -352,11 +406,35 @@ export default function ProfilePage() {
 function ProfileRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 2, py: 1.5 }}>
-      {icon}
-      <Box sx={{ flex: 1, minWidth: 0 }}>
+      <Box sx={{ flex: 1, minWidth: 0, textAlign: 'end' }}>
         <Typography variant="caption" color="text.secondary">{label}</Typography>
         <Typography variant="body2" fontWeight={500}>{value}</Typography>
       </Box>
+      {icon}
     </Box>
+  )
+}
+
+function ActiveProjectRow({ name, role, progress }: { name: string; role: string; progress: number }) {
+  return (
+    <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, borderColor: 'primary.main' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+        <Typography variant="body2" fontWeight={700} color="primary.main">{progress}%</Typography>
+        <Box sx={{ textAlign: 'end' }}>
+          <Typography variant="subtitle2" fontWeight={700}>{name}</Typography>
+          <Typography variant="caption" color="text.secondary">{role}</Typography>
+        </Box>
+      </Box>
+      <LinearProgress
+        variant="determinate"
+        value={progress}
+        sx={{
+          height: 6,
+          borderRadius: 3,
+          bgcolor: 'action.hover',
+          '& .MuiLinearProgress-bar': { bgcolor: 'primary.main', borderRadius: 3 },
+        }}
+      />
+    </Paper>
   )
 }

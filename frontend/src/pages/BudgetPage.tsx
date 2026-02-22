@@ -14,10 +14,10 @@ import { budgetApi, BudgetItemCreateData, CostEntryCreateData, ChangeOrderCreate
 import type { BudgetLineItem, BudgetSummary, ChangeOrder, CostEntry, BudgetCategory } from '../types'
 import { useToast } from '../components/common/ToastProvider'
 import { AddIcon, EditIcon, DeleteIcon, AttachMoneyIcon } from '@/icons'
-import { Box, Typography, Skeleton, Chip, MenuItem, IconButton, TextField as MuiTextField } from '@/mui'
+import { Box, Typography, Skeleton, Chip, MenuItem, IconButton, LinearProgress, TextField as MuiTextField } from '@/mui'
 
 const CATEGORIES: BudgetCategory[] = ['labor', 'materials', 'equipment', 'subcontractor', 'permits', 'overhead', 'other']
-const CAT_COLORS: Record<string, string> = { labor: '#f28c26', materials: '#2e7d32', equipment: '#ed6c02', subcontractor: '#9c27b0', permits: '#0288d1', overhead: '#757575', other: '#9e9e9e' }
+const CAT_COLORS: Record<string, string> = { labor: '#f28c26', materials: '#1976d2', equipment: '#2e7d32', subcontractor: '#9c27b0', permits: '#0288d1', overhead: '#757575', other: '#9e9e9e' }
 const CO_STATUS_COLORS: Record<string, 'default' | 'info' | 'success' | 'error'> = { draft: 'default', submitted: 'info', approved: 'success', rejected: 'error' }
 const fmt = (n: number) => n.toLocaleString(undefined, { style: 'currency', currency: 'ILS', minimumFractionDigits: 2, maximumFractionDigits: 2 })
 const today = () => new Date().toISOString().slice(0, 10)
@@ -149,29 +149,125 @@ export default function BudgetPage() {
 
       {summary && (
         <Card sx={{ mb: 3, p: 3 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-            <Box>
-              <Typography variant="caption" color="text.secondary">{t('budget.budgetUsage', { defaultValue: 'Budget Usage' })}: {usagePct}%</Typography>
-              <Typography variant="h4" fontWeight={700}>{fmt(summary.totalBudgeted)}</Typography>
-              <Chip size="small" label={usagePct <= 100 ? t('budget.onBudget', { defaultValue: 'On Budget' }) : t('budget.overBudget', { defaultValue: 'Over Budget' })} color={usagePct <= 100 ? 'success' : 'error'} sx={{ mt: 0.5 }} />
-            </Box>
-            <Box sx={{ position: 'relative', width: 80, height: 80 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 3 }}>
+            <Typography variant="caption" color="text.secondary" sx={{ mb: 1.5, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+              {t('budget.budgetUtilization', { defaultValue: 'Budget Utilization' })}
+            </Typography>
+            <Box sx={{ position: 'relative', width: 140, height: 140, mb: 2 }}>
               <svg viewBox="0 0 96 96" style={{ width: '100%', height: '100%' }}>
-                <circle cx="48" cy="48" r="40" fill="transparent" stroke="currentColor" strokeWidth="8" style={{ color: 'var(--mui-palette-divider, #333)' }} />
-                <circle cx="48" cy="48" r="40" fill="transparent" stroke="currentColor" strokeWidth="8" strokeDasharray="251.2" strokeDashoffset={251.2 - (251.2 * Math.min(usagePct, 100)) / 100} strokeLinecap="round" style={{ color: 'var(--mui-palette-primary-main, #f28c26)', transform: 'rotate(-90deg)', transformOrigin: 'center' }} />
+                <circle cx="48" cy="48" r="40" fill="transparent" stroke="currentColor" strokeWidth="7" style={{ color: 'var(--mui-palette-divider, #e0e0e0)' }} />
+                <circle cx="48" cy="48" r="40" fill="transparent" stroke="currentColor" strokeWidth="7" strokeDasharray="251.2" strokeDashoffset={251.2 - (251.2 * Math.min(usagePct, 100)) / 100} strokeLinecap="round" style={{ color: usagePct <= 100 ? '#f28c26' : '#d32f2f', transform: 'rotate(-90deg)', transformOrigin: 'center', transition: 'stroke-dashoffset 600ms ease' }} />
               </svg>
-              <Typography variant="body1" fontWeight={700} sx={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{usagePct}%</Typography>
+              <Box sx={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                <Typography variant="h4" fontWeight={800} sx={{ lineHeight: 1 }}>{usagePct}%</Typography>
+              </Box>
             </Box>
+            <Typography variant="h4" fontWeight={700}>{fmt(summary.totalBudgeted)}</Typography>
+            <Chip
+              size="small"
+              label={usagePct <= 100 ? t('budget.onBudget', { defaultValue: 'On Budget' }) : t('budget.overBudget', { defaultValue: 'Over Budget' })}
+              sx={{
+                mt: 1,
+                bgcolor: usagePct <= 100 ? 'rgba(46,125,50,0.12)' : 'rgba(211,47,47,0.12)',
+                color: usagePct <= 100 ? '#2e7d32' : '#d32f2f',
+                fontWeight: 600,
+              }}
+            />
           </Box>
           <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, pt: 2, borderTop: '1px solid', borderColor: 'divider' }}>
-            <Box>
-              <Typography variant="caption" color="text.secondary">{t('budget.totalSpent', { defaultValue: 'Spent' })}</Typography>
+            <Box sx={{ textAlign: 'center' }}>
+              <Typography variant="caption" color="text.secondary">{t('budget.used', { defaultValue: 'Used' })}</Typography>
               <Typography variant="h6" fontWeight={600}>{fmt(summary.totalActual)}</Typography>
             </Box>
-            <Box>
+            <Box sx={{ textAlign: 'center' }}>
               <Typography variant="caption" color="text.secondary">{t('budget.remaining', { defaultValue: 'Remaining' })}</Typography>
               <Typography variant="h6" fontWeight={600}>{fmt(summary.totalVariance)}</Typography>
             </Box>
+          </Box>
+        </Card>
+      )}
+
+      {Object.keys(categorySummary).length > 0 && (
+        <Card sx={{ mb: 3, p: 3 }}>
+          <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 2 }}>
+            {t('budget.breakdownByCategory', { defaultValue: 'Breakdown by Category' })}
+          </Typography>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+            {Object.entries(categorySummary)
+              .sort(([, a], [, b]) => (b.budgeted > 0 ? b.actual / b.budgeted : 0) - (a.budgeted > 0 ? a.actual / a.budgeted : 0))
+              .map(([cat, data]) => {
+                const catPct = data.budgeted > 0 ? Math.round((data.actual / data.budgeted) * 100) : 0
+                return (
+                  <Box key={cat}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Typography variant="body2" fontWeight={600} sx={{ color: CAT_COLORS[cat] || '#9e9e9e' }}>
+                          {catPct}%
+                        </Typography>
+                        <Typography variant="body2" fontWeight={500}>
+                          {t(`budget.categories.${cat}`, { defaultValue: cat })}
+                        </Typography>
+                      </Box>
+                      <Typography variant="caption" color="text.secondary">
+                        {t('budget.fromOf', { actual: Math.round(data.actual).toLocaleString(), budgeted: Math.round(data.budgeted).toLocaleString(), defaultValue: `₪${Math.round(data.actual).toLocaleString()} from ₪${Math.round(data.budgeted).toLocaleString()}` })}
+                      </Typography>
+                    </Box>
+                    <LinearProgress
+                      variant="determinate"
+                      value={Math.min(catPct, 100)}
+                      sx={{
+                        height: 10,
+                        borderRadius: 5,
+                        bgcolor: 'divider',
+                        '& .MuiLinearProgress-bar': {
+                          borderRadius: 5,
+                          bgcolor: CAT_COLORS[cat] || '#9e9e9e',
+                          transition: 'transform 600ms ease',
+                        },
+                      }}
+                    />
+                  </Box>
+                )
+              })}
+          </Box>
+        </Card>
+      )}
+
+      {Object.values(costEntries).flat().length > 0 && (
+        <Card sx={{ mb: 3, p: 3 }}>
+          <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 2 }}>
+            {t('budget.recentExpenses', { defaultValue: 'Recent Expenses' })}
+          </Typography>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+            {Object.entries(costEntries)
+              .flatMap(([itemId, entries]) => entries.map(e => ({ ...e, itemId })))
+              .sort((a, b) => new Date(b.entryDate).getTime() - new Date(a.entryDate).getTime())
+              .slice(0, 5)
+              .map((entry) => {
+                const parentItem = items.find(i => i.id === entry.itemId)
+                return (
+                  <Box key={entry.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1.5, borderRadius: 2, bgcolor: 'action.hover' }}>
+                    <Box sx={{ minWidth: 0, flex: 1 }}>
+                      <Typography variant="body1" fontWeight={700}>{fmt(entry.amount)}</Typography>
+                      <Typography variant="body2" color="text.secondary" noWrap>{entry.description || entry.vendor || '-'}</Typography>
+                      <Typography variant="caption" color="text.secondary">{new Date(entry.entryDate).toLocaleDateString(getDateLocale())}</Typography>
+                    </Box>
+                    {parentItem && (
+                      <Chip
+                        size="small"
+                        label={t(`budget.categories.${parentItem.category}`, { defaultValue: parentItem.category })}
+                        sx={{
+                          ml: 1,
+                          bgcolor: `${CAT_COLORS[parentItem.category] || '#9e9e9e'}20`,
+                          color: CAT_COLORS[parentItem.category] || '#9e9e9e',
+                          fontWeight: 600,
+                          fontSize: '0.7rem',
+                        }}
+                      />
+                    )}
+                  </Box>
+                )
+              })}
           </Box>
         </Card>
       )}
@@ -210,12 +306,23 @@ export default function BudgetPage() {
                         {(costEntries[row.id] || []).length === 0
                           ? <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>{t('budget.noCosts', { defaultValue: 'No cost entries yet' })}</Typography>
                           : (costEntries[row.id] || []).map(c => (
-                            <Box key={c.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 0.75, borderBottom: '1px solid', borderColor: 'divider' }}>
-                              <Box>
-                                <Typography variant="body2">{c.description || c.vendor || '-'}</Typography>
+                            <Box key={c.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1, px: 1.5, mt: 0.75, borderRadius: 2, bgcolor: 'action.hover' }}>
+                              <Box sx={{ minWidth: 0, flex: 1 }}>
+                                <Typography variant="body2" fontWeight={700}>{fmt(c.amount)}</Typography>
+                                <Typography variant="body2" color="text.secondary" noWrap>{c.description || c.vendor || '-'}</Typography>
                                 <Typography variant="caption" color="text.secondary">{new Date(c.entryDate).toLocaleDateString(getDateLocale())}</Typography>
                               </Box>
-                              <Typography variant="body2" fontWeight={600}>{fmt(c.amount)}</Typography>
+                              <Chip
+                                size="small"
+                                label={t(`budget.categories.${row.category}`, { defaultValue: row.category })}
+                                sx={{
+                                  ml: 1,
+                                  bgcolor: `${CAT_COLORS[row.category] || '#9e9e9e'}20`,
+                                  color: CAT_COLORS[row.category] || '#9e9e9e',
+                                  fontWeight: 600,
+                                  fontSize: '0.7rem',
+                                }}
+                              />
                             </Box>
                           ))}
                       </Box>

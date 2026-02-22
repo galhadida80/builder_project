@@ -48,6 +48,7 @@ screenshots/
 # Data files
 *.ifc
 *.xlsx
+data/
 
 # Build cache
 tsconfig.tsbuildinfo
@@ -58,8 +59,10 @@ frontend/tsconfig.tsbuildinfo
 .agents/
 .augment/
 .claude/skills/
-.cursor/skills/
+.cursor/
+.gemini/
 .junie/
+.opencode/
 
 # Playwright MCP artifacts
 .playwright-mcp/
@@ -86,5 +89,4 @@ project_index.json
 # Design and preview artifacts
 docs/plans/
 email_previews/
-stitch-designs/
-stitch_*/
+design/

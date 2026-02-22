@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Card } from '../components/ui/Card'
@@ -30,6 +30,12 @@ const AREA_TYPE_KEYS = ['apartment', 'parking', 'roof', 'basement', 'facade', 'c
 const STATUS_COLORS: Record<string, 'success' | 'info' | 'warning' | 'default'> = {
   completed: 'success', in_progress: 'info', awaiting_approval: 'warning', not_started: 'default',
 }
+const STATUS_BORDER_COLORS: Record<string, string> = {
+  completed: '#4caf50',
+  in_progress: '#f28c26',
+  not_started: '#9e9e9e',
+  awaiting_approval: '#ff9800',
+}
 
 interface AreaNodeProps {
   area: ConstructionArea; level: number
@@ -49,7 +55,7 @@ function AreaNode({ area, level, onEdit, onDelete, onOpenDrawer, onAssignCheckli
 
   return (
     <Box sx={{ marginInlineStart: { xs: level * 1.5, sm: level * 3 } }}>
-      <Card hoverable sx={{ mb: 1 }} onClick={() => onOpenDrawer(area)}>
+      <Card hoverable sx={{ mb: 1, borderInlineStart: '4px solid', borderInlineStartColor: STATUS_BORDER_COLORS[derivedStatus] || '#9e9e9e', ...(overallProgress === 100 && { opacity: 0.85 }) }} onClick={() => onOpenDrawer(area)}>
         <Box sx={{ p: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: { xs: 1, sm: 0 } }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 2 } }}>
@@ -62,7 +68,7 @@ function AreaNode({ area, level, onEdit, onDelete, onOpenDrawer, onAssignCheckli
               <Box>
                 <Typography variant="body2" fontWeight={600}>{area.name}</Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
-                  <Chip label={area.areaCode} size="small" sx={{ height: 22, fontSize: '0.7rem', fontWeight: 600, bgcolor: 'action.hover' }} />
+                  <Chip label={area.areaCode} size="small" sx={{ height: 22, fontSize: '0.7rem', fontWeight: 600, bgcolor: `${STATUS_BORDER_COLORS[derivedStatus] || '#9e9e9e'}22`, color: STATUS_BORDER_COLORS[derivedStatus] || '#9e9e9e', border: `1px solid ${STATUS_BORDER_COLORS[derivedStatus] || '#9e9e9e'}44` }} />
                   {area.totalUnits && <Typography variant="caption" color="text.secondary">{area.totalUnits} {t('areas.units')}</Typography>}
                   {area.floorNumber !== undefined && <Typography variant="caption" color="text.secondary">{t('areas.floor')} {area.floorNumber}</Typography>}
                 </Box>
@@ -112,6 +118,7 @@ export default function AreasPage() {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [selectedArea, setSelectedArea] = useState<ConstructionArea | null>(null)
   const [statusFilter, setStatusFilter] = useState('all')
+  const [floorFilter, setFloorFilter] = useState<number | null>(null)
   const [formData, setFormData] = useState({ name: '', areaCode: '', areaType: '', parentId: '', floorNumber: '', totalUnits: '' })
 
   useEffect(() => { loadAreas() }, [projectId])
@@ -164,6 +171,27 @@ export default function AreasPage() {
   const inProgressAreas = allAreas.filter(a => { const p = a.currentProgress ?? 0; return p > 0 && p < 100 }).length
   const overallProgress = allAreas.length > 0 ? Math.round(allAreas.reduce((sum, a) => sum + (a.currentProgress ?? 0), 0) / allAreas.length) : 0
 
+  const uniqueFloors = useMemo(() => {
+    const floors = allAreas.filter(a => a.floorNumber !== undefined && a.floorNumber !== null).map(a => a.floorNumber!)
+    return [...new Set(floors)].sort((a, b) => a - b)
+  }, [allAreas])
+
+  const filterAreasByFloor = (areaList: ConstructionArea[]): ConstructionArea[] => {
+    if (floorFilter === null) return areaList
+    return areaList.reduce<ConstructionArea[]>((acc, area) => {
+      if (area.floorNumber === floorFilter) {
+        acc.push(area)
+      } else if (area.children?.length) {
+        const filteredChildren = filterAreasByFloor(area.children)
+        if (filteredChildren.length > 0) {
+          acc.push({ ...area, children: filteredChildren })
+        }
+      }
+      return acc
+    }, [])
+  }
+  const filteredAreas = filterAreasByFloor(areas)
+
   if (loading) {
     return (
       <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
@@ -195,6 +223,17 @@ export default function AreasPage() {
           { label: t('areas.overallProgress'), value: `${overallProgress}%`, color: theme.palette.primary.main },
         ]} />
       </Box>
+
+      {uniqueFloors.length > 0 && (
+        <Box sx={{ mb: 2, display: 'flex', gap: 1, overflowX: 'auto', pb: 0.5, '&::-webkit-scrollbar': { display: 'none' } }}>
+          <Chip label={t('common.all')} onClick={() => setFloorFilter(null)}
+            sx={{ bgcolor: floorFilter === null ? 'primary.main' : 'action.hover', color: floorFilter === null ? 'white' : 'text.primary', fontWeight: 600 }} />
+          {uniqueFloors.map(floor => (
+            <Chip key={floor} label={`${t('areas.floor')} ${floor}`} onClick={() => setFloorFilter(floor)}
+              sx={{ bgcolor: floorFilter === floor ? 'primary.main' : 'action.hover', color: floorFilter === floor ? 'white' : 'text.primary', fontWeight: 600 }} />
+          ))}
+        </Box>
+      )}
 
       <Card sx={{ mb: 2 }}>
         <Box sx={{ p: { xs: 2, sm: 3 }, background: (th) => th.palette.mode === 'dark' ? 'linear-gradient(135deg, #3d3126 0%, #1a1612 100%)' : 'linear-gradient(135deg, #f28c26 0%, #1a1612 100%)', borderRadius: 3 }}>
@@ -239,11 +278,11 @@ export default function AreasPage() {
             />
           </Box>
 
-          {areas.length === 0 ? (
+          {filteredAreas.length === 0 ? (
             <EmptyState variant="no-data" title={t('areas.noAreasYet')} description={t('areas.noAreasDescription')} action={{ label: t('areas.addFirstArea'), onClick: handleOpenCreate }} secondaryAction={{ label: t('areas.structureWizard'), onClick: () => navigate(`/projects/${projectId}/structure-wizard`) }} />
           ) : (
             <Box>
-              {areas.map(area => (
+              {filteredAreas.map(area => (
                 <AreaNode key={area.id} area={area} level={0} onEdit={handleOpenEdit} onDelete={handleDeleteClick} onOpenDrawer={handleOpenDrawer} onAssignChecklist={handleOpenDrawer} onCreateInstances={handleCreateInstances} onViewChecklists={handleOpenDrawer} onBulkCreate={handleBulkCreate} t={t} />
               ))}
             </Box>

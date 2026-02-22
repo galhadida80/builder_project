@@ -20,8 +20,8 @@ import { useToast } from '../components/common/ToastProvider'
 import { parseValidationErrors } from '../utils/apiErrors'
 import HelpTooltip from '../components/help/HelpTooltip'
 import { validateRFIForm, hasErrors, type ValidationError } from '../utils/validation'
-import { AddIcon, DeleteIcon, EmailIcon } from '@/icons'
-import { Box, Typography, Divider, MenuItem, TextField as MuiTextField, Skeleton, Chip, IconButton, Autocomplete, Fab } from '@/mui'
+import { AddIcon, DeleteIcon, EmailIcon, AccessTimeIcon, FilterListIcon } from '@/icons'
+import { Box, Typography, Divider, MenuItem, TextField as MuiTextField, Skeleton, Chip, IconButton, Autocomplete, Fab, Avatar, FormControl, InputLabel, Select } from '@/mui'
 
 export default function RFIPage() {
   const { t } = useTranslation()
@@ -53,6 +53,7 @@ export default function RFIPage() {
     drawing_reference: '',
     specification_reference: '',
   })
+  const [priorityFilter, setPriorityFilter] = useState('all')
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [total, setTotal] = useState(0)
@@ -292,6 +293,24 @@ export default function RFIPage() {
     return new Date(rfi.due_date) < new Date()
   }
 
+  const getRelativeTime = (dateStr: string): string => {
+    const now = new Date()
+    const date = new Date(dateStr)
+    const diffMs = now.getTime() - date.getTime()
+    const diffMins = Math.floor(diffMs / 60000)
+    const diffHours = Math.floor(diffMins / 60)
+    const diffDays = Math.floor(diffHours / 24)
+    if (diffMins < 1) return t('rfis.timeAgo', { time: '<1m' })
+    if (diffMins < 60) return t('rfis.timeAgo', { time: `${diffMins}m` })
+    if (diffHours < 24) return t('rfis.timeAgo', { time: `${diffHours}h` })
+    if (diffDays < 30) return t('rfis.timeAgo', { time: `${diffDays}d` })
+    return formatDate(dateStr)
+  }
+
+  const filteredRfis = priorityFilter === 'all' ? rfis : rfis.filter(r => r.priority === priorityFilter)
+
+  const urgentCount = summary?.by_priority?.urgent || 0
+
   if (loading && rfis.length === 0) {
     return (
       <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
@@ -304,9 +323,16 @@ export default function RFIPage() {
 
   const PRIORITY_BORDER: Record<string, string> = {
     urgent: 'error.main',
-    high: 'primary.main',
-    medium: 'warning.main',
-    low: 'info.main',
+    high: 'warning.main',
+    medium: 'info.main',
+    low: 'grey.400',
+  }
+
+  const PRIORITY_DOT_COLOR: Record<string, string> = {
+    urgent: '#d32f2f',
+    high: '#ed6c02',
+    medium: '#0288d1',
+    low: '#9e9e9e',
   }
 
   const getInitials = (name?: string) => {
@@ -331,18 +357,18 @@ export default function RFIPage() {
       </Box>
 
       {summary && (
-        <Box sx={{ display: 'flex', gap: 1.5, mb: 3, overflowX: 'auto', pb: 0.5 }}>
-          <Box sx={{ flex: 1, minWidth: 100, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 2 }}>
-            <Typography variant="caption" color="text.secondary">{t('rfis.statuses.open')}</Typography>
-            <Typography variant="h5" fontWeight={700}>{summary.open_count}</Typography>
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1.5, mb: 3 }}>
+          <Box sx={{ bgcolor: 'background.paper', border: '1px solid', borderColor: 'primary.light', borderRadius: 2.5, p: 2, textAlign: 'center', borderTop: '3px solid', borderTopColor: 'primary.main' }}>
+            <Typography variant="h4" fontWeight={800} color="primary.main">{summary.open_count}</Typography>
+            <Typography variant="caption" fontWeight={600} color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('rfis.openCount')}</Typography>
           </Box>
-          <Box sx={{ flex: 1, minWidth: 100, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 2 }}>
-            <Typography variant="caption" color="success.main">{t('rfis.statuses.answered')}</Typography>
-            <Typography variant="h5" fontWeight={700} color="success.main">{summary.answered_count}</Typography>
+          <Box sx={{ bgcolor: 'background.paper', border: '1px solid', borderColor: 'success.light', borderRadius: 2.5, p: 2, textAlign: 'center', borderTop: '3px solid', borderTopColor: 'success.main' }}>
+            <Typography variant="h4" fontWeight={800} color="success.main">{summary.answered_count}</Typography>
+            <Typography variant="caption" fontWeight={600} color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('rfis.answeredCount')}</Typography>
           </Box>
-          <Box sx={{ flex: 1, minWidth: 100, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 2 }}>
-            <Typography variant="caption" color="error.main">{t('rfis.overdue')}</Typography>
-            <Typography variant="h5" fontWeight={700} color="error.main">{summary.overdue_count}</Typography>
+          <Box sx={{ bgcolor: 'background.paper', border: '1px solid', borderColor: 'error.light', borderRadius: 2.5, p: 2, textAlign: 'center', borderTop: '3px solid', borderTopColor: 'error.main' }}>
+            <Typography variant="h4" fontWeight={800} color="error.main">{urgentCount}</Typography>
+            <Typography variant="caption" fontWeight={600} color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('rfis.urgentCount')}</Typography>
           </Box>
         </Box>
       )}
@@ -359,16 +385,42 @@ export default function RFIPage() {
         size="small"
       />
 
-      <Box sx={{ mt: 1.5, mb: 2 }}>
-        <SearchField
-          placeholder={t('rfis.searchPlaceholder')}
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+      <Box sx={{ mt: 1.5, mb: 2, display: 'flex', gap: 1.5, alignItems: 'center' }}>
+        <Box sx={{ flex: 1 }}>
+          <SearchField
+            placeholder={t('rfis.searchPlaceholder')}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </Box>
+        <FormControl size="small" sx={{ minWidth: 160 }}>
+          <InputLabel id="priority-filter-label">
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <FilterListIcon sx={{ fontSize: 16 }} />
+              {t('rfis.priorityFilter')}
+            </Box>
+          </InputLabel>
+          <Select
+            labelId="priority-filter-label"
+            value={priorityFilter}
+            label={t('rfis.priorityFilter')}
+            onChange={(e) => { setPriorityFilter(e.target.value); setPage(1) }}
+          >
+            <MenuItem value="all">{t('rfis.allPriorities')}</MenuItem>
+            {RFI_PRIORITY_OPTIONS.map(p => (
+              <MenuItem key={p.value} value={p.value}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: PRIORITY_DOT_COLOR[p.value] || 'grey.400' }} />
+                  {t(`rfis.priorities.${p.value}`)}
+                </Box>
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       </Box>
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-        {rfis.length === 0 ? (
+        {filteredRfis.length === 0 ? (
           <EmptyState
             title={t('rfis.noRfis')}
             description={t('rfis.noRfisDescription')}
@@ -376,33 +428,59 @@ export default function RFIPage() {
             action={{ label: t('rfis.newRfi'), onClick: handleOpenCreate }}
           />
         ) : (
-          rfis.map((row) => (
+          filteredRfis.map((row) => (
             <Card key={row.id} hoverable onClick={() => handleViewDetails(row)}
-              sx={{ borderInlineStart: '4px solid', borderInlineStartColor: PRIORITY_BORDER[row.priority] || 'divider' }}
+              sx={{ borderInlineStart: '4px solid', borderInlineStartColor: PRIORITY_BORDER[row.priority] || 'divider', overflow: 'visible' }}
             >
               <Box sx={{ p: 2 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
-                  <Chip label={row.rfi_number} size="small" sx={{ bgcolor: 'action.hover', fontWeight: 700, fontSize: '0.65rem', textTransform: 'uppercase' }} />
                   <StatusBadge status={row.priority} />
+                  <Chip
+                    label={`#${row.rfi_number}`}
+                    size="small"
+                    sx={{
+                      bgcolor: 'grey.100',
+                      color: 'text.primary',
+                      fontWeight: 800,
+                      fontSize: '0.7rem',
+                      letterSpacing: 0.5,
+                      border: '1px solid',
+                      borderColor: 'grey.300',
+                    }}
+                  />
                 </Box>
+
                 <Typography variant="body1" fontWeight={700} sx={{ lineHeight: 1.3, mb: 1 }}>{row.subject}</Typography>
+
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, mb: 1.5 }}>
-                  <Chip label={t(`rfis.categories.${row.category}`, { defaultValue: row.category })} size="small" variant="outlined" sx={{ fontSize: '0.65rem', height: 22 }} />
+                  <Chip
+                    label={t(`rfis.categories.${row.category}`, { defaultValue: row.category })}
+                    size="small"
+                    variant="outlined"
+                    sx={{ fontSize: '0.65rem', height: 22, borderColor: 'primary.light', color: 'primary.main' }}
+                  />
                   <StatusBadge status={row.status} size="small" />
                 </Box>
+
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pt: 1.5, borderTop: '1px solid', borderColor: 'divider' }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Box sx={{ width: 28, height: 28, borderRadius: '50%', bgcolor: 'primary.main', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 700 }}>
+                    <Avatar sx={{ width: 28, height: 28, fontSize: '0.65rem', fontWeight: 700, bgcolor: 'primary.main' }}>
                       {getInitials(row.to_name)}
-                    </Box>
+                    </Avatar>
                     <Typography variant="caption" color="text.secondary">{row.to_name || row.to_email}</Typography>
                   </Box>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                     {row.due_date && (
                       <Typography variant="caption" color={isOverdue(row) ? 'error.main' : 'text.secondary'} fontWeight={isOverdue(row) ? 700 : 400}>
                         {formatDate(row.due_date)}
                       </Typography>
                     )}
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <AccessTimeIcon sx={{ fontSize: 13, color: 'text.disabled' }} />
+                      <Typography variant="caption" color="text.disabled" sx={{ fontSize: '0.65rem' }}>
+                        {getRelativeTime(row.created_at)}
+                      </Typography>
+                    </Box>
                     {row.status === 'draft' && (
                       <IconButton size="small" onClick={(e) => handleDeleteClick(row, e)} color="error">
                         <DeleteIcon sx={{ fontSize: 16 }} />

@@ -18,11 +18,24 @@ import { AreaPickerAutocomplete } from '../components/areas/AreaPickerAutocomple
 import { checklistsApi } from '../api/checklists'
 import type { ChecklistTemplate, ChecklistSubSection, ChecklistInstance } from '../types'
 import { useToast } from '../components/common/ToastProvider'
-import { ChecklistIcon, AssignmentIcon, ExpandMoreIcon, ExpandLessIcon, AddIcon, DeleteIcon, ChevronRightIcon } from '@/icons'
-import { Box, Typography, Skeleton, Chip, Collapse, IconButton, Tabs, Tab, LinearProgress, TextField, Autocomplete, useTheme, useMediaQuery } from '@/mui'
+import { ChecklistIcon, AssignmentIcon, ExpandMoreIcon, ExpandLessIcon, AddIcon, DeleteIcon, ChevronRightIcon, ElectricalServicesIcon, PlumbingIcon, HealthAndSafetyIcon, FormatPaintIcon } from '@/icons'
+import { Box, Typography, Skeleton, Chip, Collapse, IconButton, Tabs, Tab, LinearProgress, TextField, Autocomplete, Avatar, useTheme, useMediaQuery } from '@/mui'
 
 type ActiveTab = 'templates' | 'instances'
 type StatusFilter = 'all' | 'pending' | 'in_progress' | 'completed'
+
+const STATUS_BORDER_COLORS: Record<string, string> = {
+  pending: '#9e9e9e',
+  in_progress: '#f28c26',
+  completed: '#4caf50',
+}
+
+const RECOMMENDED_CATEGORIES = [
+  { key: 'electrical', icon: ElectricalServicesIcon, color: '#f28c26' },
+  { key: 'plumbing', icon: PlumbingIcon, color: '#2196f3' },
+  { key: 'safety', icon: HealthAndSafetyIcon, color: '#f44336' },
+  { key: 'finishing', icon: FormatPaintIcon, color: '#9c27b0' },
+]
 
 export default function ChecklistsPage() {
   const { t } = useTranslation()
@@ -282,6 +295,22 @@ export default function ChecklistsPage() {
                   )}
                 />
               )}
+              <Box sx={{ mt: 3 }}>
+                <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 1.5 }}>{t('checklists.recommendedTemplates')}</Typography>
+                <Box sx={{ display: 'flex', gap: 2, overflowX: 'auto', pb: 1, '&::-webkit-scrollbar': { height: 4 }, '&::-webkit-scrollbar-thumb': { borderRadius: 2, bgcolor: 'action.disabled' } }}>
+                  {RECOMMENDED_CATEGORIES.map((cat) => {
+                    const CatIcon = cat.icon
+                    return (
+                      <Box key={cat.key} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, minWidth: 80, flexShrink: 0 }}>
+                        <Box sx={{ width: 48, height: 48, borderRadius: '50%', bgcolor: `${cat.color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <CatIcon sx={{ fontSize: 24, color: cat.color }} />
+                        </Box>
+                        <Typography variant="caption" fontWeight={500} sx={{ textAlign: 'center' }}>{t(`checklists.categories.${cat.key}`)}</Typography>
+                      </Box>
+                    )
+                  })}
+                </Box>
+              </Box>
             </>
           )}
 
@@ -311,9 +340,11 @@ export default function ChecklistsPage() {
                   onRowClick={(row) => openDrawer(row)}
                   renderMobileCard={(row) => {
                     const { percent, completed, total } = getInstanceProgress(row)
+                    const borderColor = STATUS_BORDER_COLORS[row.status] || '#9e9e9e'
+                    const isCompleted = row.status === 'completed'
                     return (
                       <Box onClick={() => openDrawer(row)}
-                        sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider', cursor: 'pointer', '&:active': { bgcolor: 'action.hover' } }}>
+                        sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider', cursor: 'pointer', borderInlineStart: `4px solid ${borderColor}`, opacity: isCompleted ? 0.8 : 1, '&:active': { bgcolor: 'action.hover' } }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
                           <Box sx={{ width: 36, height: 36, borderRadius: 2, bgcolor: 'info.light', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                             <AssignmentIcon sx={{ fontSize: 18, color: 'info.main' }} />
@@ -331,12 +362,27 @@ export default function ChecklistsPage() {
                           </IconButton>
                           <ChevronRightIcon sx={{ color: 'text.disabled', fontSize: 20 }} />
                         </Box>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                        <Box sx={{ mb: 1 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
+                            <Typography variant="caption" color="text.secondary">
+                              {t('checklists.itemsCompleted', { completed, total })}
+                            </Typography>
+                            <Typography variant="caption" sx={{ fontWeight: 700, color: '#f28c26' }}>{percent}%</Typography>
+                          </Box>
                           <LinearProgress variant="determinate" value={percent}
-                            sx={{ flex: 1, height: 6, borderRadius: 3, bgcolor: 'action.hover', '& .MuiLinearProgress-bar': { borderRadius: 3, bgcolor: percent === 100 ? 'success.main' : 'primary.main' } }} />
-                          <Typography variant="caption" color="text.secondary" sx={{ minWidth: 44, textAlign: 'right' }}>{completed}/{total}</Typography>
-                          <Typography variant="caption" color="text.secondary">{new Date(row.created_at).toLocaleDateString(getDateLocale())}</Typography>
+                            sx={{ height: 6, borderRadius: 3, bgcolor: 'action.hover', '& .MuiLinearProgress-bar': { borderRadius: 3, bgcolor: percent === 100 ? 'success.main' : '#f28c26' } }} />
                         </Box>
+                        {row.created_by && (
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                            <Avatar sx={{ width: 20, height: 20, fontSize: '0.65rem' }}>{row.created_by.fullName?.charAt(0) || '?'}</Avatar>
+                            <Typography variant="caption" color="text.secondary">{row.created_by.fullName || row.created_by.email}</Typography>
+                          </Box>
+                        )}
+                        {!isCompleted && (
+                          <Typography variant="caption" sx={{ color: '#f28c26', fontWeight: 600, cursor: 'pointer' }}>
+                            {t('checklists.continueChecking')}
+                          </Typography>
+                        )}
                       </Box>
                     )
                   }}

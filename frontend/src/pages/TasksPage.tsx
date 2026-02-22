@@ -5,7 +5,8 @@ import { withMinDuration } from '../utils/async'
 import { getDateLocale } from '../utils/dateLocale'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
-import { Tabs } from '../components/ui/Tabs'
+import { Tabs, SegmentedTabs } from '../components/ui/Tabs'
+import { useAuth } from '../contexts/AuthContext'
 import { FormModal, ConfirmModal } from '../components/ui/Modal'
 import { PageHeader } from '../components/ui/Breadcrumbs'
 import { EmptyState } from '../components/ui/EmptyState'
@@ -16,6 +17,7 @@ import type { Task, TaskSummary, ProjectMember } from '../types'
 import { useToast } from '../components/common/ToastProvider'
 import {
   AddIcon, CheckCircleIcon, WarningIcon, EditIcon, DeleteIcon,
+  ViewListIcon, GridViewIcon, AccessTimeIcon,
 } from '@/icons'
 import {
   Box, Typography, Skeleton, Chip, MenuItem,
@@ -32,10 +34,40 @@ const PRIORITY_COLORS: Record<string, { bg: string; text: string }> = {
   urgent: { bg: '#FEE2E2', text: '#DC2626' },
 }
 
+function isToday(dateStr: string) {
+  const d = new Date(dateStr)
+  const now = new Date()
+  return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate()
+}
+
+function isThisWeek(dateStr: string) {
+  const d = new Date(dateStr)
+  const now = new Date()
+  const startOfWeek = new Date(now)
+  startOfWeek.setDate(now.getDate() - now.getDay())
+  startOfWeek.setHours(0, 0, 0, 0)
+  const endOfWeek = new Date(startOfWeek)
+  endOfWeek.setDate(startOfWeek.getDate() + 7)
+  return d >= startOfWeek && d < endOfWeek && !isToday(dateStr)
+}
+
+function groupTasksByDate(taskList: Task[]) {
+  const today: Task[] = []
+  const thisWeek: Task[] = []
+  const later: Task[] = []
+  for (const task of taskList) {
+    if (task.dueDate && isToday(task.dueDate)) today.push(task)
+    else if (task.dueDate && isThisWeek(task.dueDate)) thisWeek.push(task)
+    else later.push(task)
+  }
+  return { today, thisWeek, later }
+}
+
 export default function TasksPage() {
   const { t } = useTranslation()
   const { projectId } = useParams()
   const { showError, showSuccess } = useToast()
+  const { user } = useAuth()
 
   const [tasks, setTasks] = useState<Task[]>([])
   const [summary, setSummary] = useState<TaskSummary | null>(null)
@@ -48,6 +80,7 @@ export default function TasksPage() {
   const [activeTab, setActiveTab] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [viewMode, setViewMode] = useState('list')
 
   const EMPTY_FORM: TaskCreateData = { title: '', priority: 'medium' }
   const [form, setForm] = useState<TaskCreateData>(EMPTY_FORM)
@@ -133,9 +166,13 @@ export default function TasksPage() {
     }
   }
 
+  const todayCount = tasks.filter(tk => tk.dueDate && isToday(tk.dueDate) && tk.status !== 'completed' && tk.status !== 'cancelled').length
+
   const filteredTasks = tasks.filter(task => {
     if (activeTab === 'overdue' && !isOverdue(task)) return false
-    else if (activeTab !== 'all' && activeTab !== 'overdue' && task.status !== activeTab) return false
+    else if (activeTab === 'myTasks' && task.assigneeId !== user?.id) return false
+    else if (activeTab === 'today' && !(task.dueDate && isToday(task.dueDate))) return false
+    else if (activeTab !== 'all' && activeTab !== 'overdue' && activeTab !== 'myTasks' && activeTab !== 'today' && task.status !== activeTab) return false
     if (searchQuery) {
       const q = searchQuery.toLowerCase()
       return (
@@ -147,8 +184,76 @@ export default function TasksPage() {
     return true
   })
 
+  const grouped = groupTasksByDate(filteredTasks)
+
   const isOverdue = (task: Task) =>
     task.dueDate && task.status !== 'completed' && task.status !== 'cancelled' && new Date(task.dueDate) < new Date()
+
+  const renderTaskCard = (task: Task) => {
+    const c = PRIORITY_COLORS[task.priority] || PRIORITY_COLORS.low
+    const overdue = isOverdue(task)
+    const isComplete = task.status === 'completed'
+    const borderColor = overdue ? '#DC2626' : task.priority === 'urgent' ? '#DC2626' : task.priority === 'high' ? '#f28c26' : task.priority === 'medium' ? '#2563EB' : '#64748B'
+
+    const dueTime = task.dueDate ? new Date(task.dueDate).toLocaleTimeString(getDateLocale(), { hour: '2-digit', minute: '2-digit' }) : null
+
+    return (
+      <Card key={task.id} hoverable onClick={() => openEditDialog(task)}
+        sx={{ borderInlineStart: '4px solid', borderInlineStartColor: borderColor, opacity: isComplete ? 0.6 : 1 }}
+      >
+        <Box sx={{ p: 2 }}>
+          <Box sx={{ display: 'flex', gap: 1.5 }}>
+            <Box
+              sx={{
+                width: 24, height: 24, borderRadius: '50%', flexShrink: 0, mt: 0.25,
+                border: '2px solid',
+                borderColor: isComplete ? 'success.main' : 'divider',
+                bgcolor: isComplete ? 'success.main' : 'transparent',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}
+            >
+              {isComplete && <CheckCircleIcon sx={{ fontSize: 16, color: 'white' }} />}
+            </Box>
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Typography variant="body2" fontWeight={700} sx={{ lineHeight: 1.3, mb: 0.75, ...(isComplete && { textDecoration: 'line-through', color: 'text.disabled' }) }}>
+                {task.title}
+              </Typography>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1, mb: 1, fontSize: '0.65rem' }}>
+                <Chip label={`#${task.taskNumber}`} size="small" sx={{ height: 20, fontSize: '0.65rem', fontWeight: 600 }} />
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: c.text }} />
+                  <Typography variant="caption" sx={{ color: c.text, fontWeight: 700, fontSize: '0.65rem' }}>
+                    {t(`tasks.priorities.${task.priority}`, { defaultValue: task.priority })}
+                  </Typography>
+                </Box>
+                {task.dueDate && (
+                  <Typography variant="caption" sx={{ color: overdue ? 'error.main' : 'text.secondary', fontWeight: 500, fontSize: '0.65rem', display: 'flex', alignItems: 'center', gap: 0.25 }}>
+                    {overdue && <WarningIcon sx={{ fontSize: 12 }} />}
+                    <AccessTimeIcon sx={{ fontSize: 12 }} />
+                    {isToday(task.dueDate) && dueTime ? `${t('tasks.today')} ${dueTime}` : new Date(task.dueDate).toLocaleDateString(getDateLocale())}
+                  </Typography>
+                )}
+              </Box>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                {task.assignee ? (
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Box sx={{ width: 24, height: 24, borderRadius: '50%', bgcolor: 'action.hover', border: '1px solid', borderColor: 'divider', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.55rem', fontWeight: 700 }}>
+                      {task.assignee.fullName?.charAt(0) || '?'}
+                    </Box>
+                    <Typography variant="caption" color="text.secondary">{task.assignee.fullName}</Typography>
+                  </Box>
+                ) : <Box />}
+                <Box sx={{ display: 'flex', gap: 0.5 }}>
+                  <IconButton size="small" onClick={(e) => { e.stopPropagation(); openEditDialog(task) }}><EditIcon sx={{ fontSize: 16 }} /></IconButton>
+                  <IconButton size="small" onClick={(e) => { e.stopPropagation(); setDeleteTask(task) }}><DeleteIcon sx={{ fontSize: 16 }} color="error" /></IconButton>
+                </Box>
+              </Box>
+            </Box>
+          </Box>
+        </Box>
+      </Card>
+    )
+  }
 
   if (loading) return (
     <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
@@ -173,17 +278,28 @@ export default function TasksPage() {
         }
       />
 
+      <Box sx={{ mb: 2 }}>
+        <SegmentedTabs
+          items={[
+            { label: t('tasks.listView'), value: 'list', icon: <ViewListIcon sx={{ fontSize: 18 }} /> },
+            { label: t('tasks.boardView'), value: 'board', icon: <GridViewIcon sx={{ fontSize: 18 }} /> },
+          ]}
+          value={viewMode}
+          onChange={setViewMode}
+        />
+      </Box>
+
       {summary && (
-        <Box sx={{ display: 'flex', gap: 1.5, mb: 3, overflowX: 'auto', pb: 0.5 }}>
-          <Box sx={{ flex: 1, minWidth: 100, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 2 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1.5, mb: 3 }}>
+          <Box sx={{ bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 2, textAlign: 'center' }}>
             <Typography variant="caption" color="text.secondary">{t('tasks.total')}</Typography>
             <Typography variant="h5" fontWeight={700}>{summary.total}</Typography>
           </Box>
-          <Box sx={{ flex: 1, minWidth: 100, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 2 }}>
-            <Typography variant="caption" color="primary.main">{t('tasks.inProgress')}</Typography>
-            <Typography variant="h5" fontWeight={700} color="primary.main">{summary.inProgressCount}</Typography>
+          <Box sx={{ bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 2, textAlign: 'center' }}>
+            <Typography variant="caption" sx={{ color: '#EA580C' }}>{t('tasks.today')}</Typography>
+            <Typography variant="h5" fontWeight={700} sx={{ color: '#EA580C' }}>{todayCount}</Typography>
           </Box>
-          <Box sx={{ flex: 1, minWidth: 100, bgcolor: 'error.light', border: '1px solid', borderColor: 'error.main', borderRadius: 2, p: 2, opacity: 0.9 }}>
+          <Box sx={{ bgcolor: 'background.paper', border: '2px solid', borderColor: 'error.main', borderRadius: 2, p: 2, textAlign: 'center' }}>
             <Typography variant="caption" color="error.main">{t('tasks.overdue')}</Typography>
             <Typography variant="h5" fontWeight={700} color="error.main">{summary.overdueCount}</Typography>
           </Box>
@@ -193,7 +309,8 @@ export default function TasksPage() {
       <Tabs
         items={[
           { label: t('common.all'), value: 'all', badge: tasks.length },
-          { label: t('tasks.inProgress'), value: 'in_progress', badge: tasks.filter(tk => tk.status === 'in_progress').length },
+          { label: t('tasks.myTasks'), value: 'myTasks', badge: tasks.filter(tk => tk.assigneeId === user?.id).length },
+          { label: t('tasks.today'), value: 'today', badge: todayCount },
           { label: t('tasks.overdue'), value: 'overdue', badge: tasks.filter(tk => isOverdue(tk)).length },
           { label: t('tasks.completed'), value: 'completed', badge: tasks.filter(tk => tk.status === 'completed').length },
         ]}
@@ -210,67 +327,41 @@ export default function TasksPage() {
         {filteredTasks.length === 0 ? (
           <EmptyState title={t('tasks.noTasks')} description={t('tasks.noTasksDescription')} />
         ) : (
-          filteredTasks.map((task) => {
-            const c = PRIORITY_COLORS[task.priority] || PRIORITY_COLORS.low
-            const overdue = isOverdue(task)
-            const isComplete = task.status === 'completed'
-            const borderColor = task.priority === 'urgent' ? '#DC2626' : task.priority === 'high' ? '#f28c26' : task.priority === 'medium' ? '#2563EB' : '#64748B'
-
-            return (
-              <Card key={task.id} hoverable onClick={() => openEditDialog(task)}
-                sx={{ borderInlineStart: '4px solid', borderInlineStartColor: borderColor, opacity: isComplete ? 0.6 : 1 }}
-              >
-                <Box sx={{ p: 2 }}>
-                  <Box sx={{ display: 'flex', gap: 1.5 }}>
-                    <Box
-                      sx={{
-                        width: 24, height: 24, borderRadius: '50%', flexShrink: 0, mt: 0.25,
-                        border: '2px solid',
-                        borderColor: isComplete ? 'success.main' : 'divider',
-                        bgcolor: isComplete ? 'success.main' : 'transparent',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      }}
-                    >
-                      {isComplete && <CheckCircleIcon sx={{ fontSize: 16, color: 'white' }} />}
-                    </Box>
-                    <Box sx={{ flex: 1, minWidth: 0 }}>
-                      <Typography variant="body2" fontWeight={700} sx={{ lineHeight: 1.3, mb: 0.75, ...(isComplete && { textDecoration: 'line-through', color: 'text.disabled' }) }}>
-                        {task.title}
-                      </Typography>
-                      <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1, mb: 1, fontSize: '0.65rem' }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                          <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: c.text }} />
-                          <Typography variant="caption" sx={{ color: c.text, fontWeight: 700, fontSize: '0.65rem' }}>
-                            {t(`tasks.priorities.${task.priority}`, { defaultValue: task.priority })}
-                          </Typography>
-                        </Box>
-                        {task.dueDate && (
-                          <Typography variant="caption" sx={{ color: overdue ? 'error.main' : 'primary.main', fontWeight: 500, fontSize: '0.65rem', display: 'flex', alignItems: 'center', gap: 0.25 }}>
-                            <WarningIcon sx={{ fontSize: 12, display: overdue ? 'inline' : 'none' }} />
-                            {new Date(task.dueDate).toLocaleDateString(getDateLocale())}
-                          </Typography>
-                        )}
-                      </Box>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        {task.assignee ? (
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <Box sx={{ width: 24, height: 24, borderRadius: '50%', bgcolor: 'action.hover', border: '1px solid', borderColor: 'divider', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.55rem', fontWeight: 700 }}>
-                              {task.assignee.fullName?.charAt(0) || '?'}
-                            </Box>
-                            <Typography variant="caption" color="text.secondary">{task.assignee.fullName}</Typography>
-                          </Box>
-                        ) : <Box />}
-                        <Box sx={{ display: 'flex', gap: 0.5 }}>
-                          <IconButton size="small" onClick={(e) => { e.stopPropagation(); openEditDialog(task) }}><EditIcon sx={{ fontSize: 16 }} /></IconButton>
-                          <IconButton size="small" onClick={(e) => { e.stopPropagation(); setDeleteTask(task) }}><DeleteIcon sx={{ fontSize: 16 }} color="error" /></IconButton>
-                        </Box>
-                      </Box>
-                    </Box>
+          <>
+            {grouped.today.length > 0 && (
+              <>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
+                  <Typography variant="subtitle1" fontWeight={700}>{t('tasks.today')}</Typography>
+                  <Box sx={{ bgcolor: '#EA580C', color: '#fff', borderRadius: '50%', width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700 }}>
+                    {grouped.today.length}
                   </Box>
                 </Box>
-              </Card>
-            )
-          })
+                {grouped.today.map((task) => renderTaskCard(task))}
+              </>
+            )}
+            {grouped.thisWeek.length > 0 && (
+              <>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 2 }}>
+                  <Typography variant="subtitle1" fontWeight={700}>{t('tasks.thisWeek')}</Typography>
+                  <Box sx={{ bgcolor: '#EA580C', color: '#fff', borderRadius: '50%', width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700 }}>
+                    {grouped.thisWeek.length}
+                  </Box>
+                </Box>
+                {grouped.thisWeek.map((task) => renderTaskCard(task))}
+              </>
+            )}
+            {grouped.later.length > 0 && (
+              <>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 2 }}>
+                  <Typography variant="subtitle1" fontWeight={700}>{t('tasks.later')}</Typography>
+                  <Box sx={{ bgcolor: '#EA580C', color: '#fff', borderRadius: '50%', width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700 }}>
+                    {grouped.later.length}
+                  </Box>
+                </Box>
+                {grouped.later.map((task) => renderTaskCard(task))}
+              </>
+            )}
+          </>
         )}
       </Box>
 

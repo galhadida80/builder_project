@@ -1,9 +1,21 @@
 import { useTranslation } from 'react-i18next'
 import { StatusBadge } from '../ui/StatusBadge'
 import { EmptyState } from '../ui/EmptyState'
-import { InventoryIcon, VisibilityIcon, EditIcon, DeleteIcon } from '@/icons'
-import { Box, Typography, Chip, IconButton, Skeleton } from '@/mui'
+import { getCategoryConfig } from '../../utils/materialCategory'
+import { VisibilityIcon, EditIcon, DeleteIcon } from '@/icons'
+import { Box, Typography, Chip, IconButton, Skeleton, LinearProgress } from '@/mui'
 import type { Material } from '../../types'
+
+function getStatusProgress(status: string): { value: number; color: 'inherit' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning' } {
+  switch (status) {
+    case 'draft': return { value: 15, color: 'inherit' }
+    case 'submitted': return { value: 40, color: 'warning' }
+    case 'under_review': return { value: 60, color: 'info' }
+    case 'approved': return { value: 100, color: 'success' }
+    case 'rejected': return { value: 100, color: 'error' }
+    default: return { value: 0, color: 'inherit' }
+  }
+}
 
 interface MaterialCardListProps {
   materials: Material[]
@@ -46,59 +58,75 @@ export default function MaterialCardList({ materials, loading, onView, onEdit, o
 
   return (
     <Box>
-      {materials.map((m) => (
-        <Box
-          key={m.id}
-          onClick={() => onView(m)}
-          sx={{
-            p: 2,
-            borderBottom: '1px solid',
-            borderColor: 'divider',
-            cursor: 'pointer',
-            transition: 'background-color 150ms',
-            '&:hover': { bgcolor: 'action.hover' },
-            '&:active': { bgcolor: 'action.pressed' },
-          }}
-        >
-          <Box sx={{ display: 'flex', gap: 2 }}>
-            <Box sx={{ width: 80, height: 80, borderRadius: 2, bgcolor: 'warning.light', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: '1px solid', borderColor: 'divider' }}>
-              <InventoryIcon sx={{ fontSize: 32, color: 'warning.main' }} />
-            </Box>
-            <Box sx={{ flex: 1, minWidth: 0 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 0.5 }}>
-                <Typography variant="body1" fontWeight={700} noWrap sx={{ flex: 1, mr: 1 }}>{m.name}</Typography>
-                <StatusBadge status={m.status} size="small" />
+      {materials.map((m) => {
+        const catConfig = getCategoryConfig(m.materialType)
+        const CatIcon = catConfig.icon
+        const progress = getStatusProgress(m.status)
+        return (
+          <Box
+            key={m.id}
+            onClick={() => onView(m)}
+            sx={{
+              p: 2,
+              borderBottom: '1px solid',
+              borderColor: 'divider',
+              cursor: 'pointer',
+              transition: 'background-color 150ms',
+              '&:hover': { bgcolor: 'action.hover' },
+              '&:active': { bgcolor: 'action.pressed' },
+            }}
+          >
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <Box sx={{ width: 48, height: 48, borderRadius: '50%', bgcolor: catConfig.bgColor, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <CatIcon sx={{ fontSize: 24, color: catConfig.color }} />
               </Box>
-              {m.materialType && (
-                <Chip label={m.materialType} size="small" sx={{ bgcolor: 'warning.light', color: 'warning.main', fontWeight: 600, fontSize: '0.7rem', height: 22, mb: 0.5 }} />
-              )}
-              {m.manufacturer && (
-                <Typography variant="caption" color="text.secondary" display="block">{m.manufacturer}</Typography>
-              )}
-              <Box sx={{ display: 'flex', gap: 2, mt: 0.5 }}>
-                {m.quantity && (
-                  <Typography variant="caption" color="text.secondary">
-                    {t('materials.quantity')}: {Number(m.quantity).toLocaleString()} {m.unit || ''}
+              <Box sx={{ flex: 1, minWidth: 0 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 0.5 }}>
+                  <Typography variant="body1" fontWeight={700} noWrap sx={{ flex: 1, mr: 1 }}>{m.name}</Typography>
+                  <StatusBadge status={m.status} size="small" />
+                </Box>
+                {m.materialType && (
+                  <Chip label={m.materialType} size="small" sx={{ bgcolor: catConfig.bgColor, color: catConfig.color, fontWeight: 600, fontSize: '0.7rem', height: 22, mb: 0.5 }} />
+                )}
+                {m.manufacturer && (
+                  <Typography variant="caption" color="text.secondary" display="block">
+                    {t('materials.supplier')}: {m.manufacturer}
                   </Typography>
                 )}
-                {m.storageLocation && (
-                  <Typography variant="caption" color="text.secondary">{m.storageLocation}</Typography>
-                )}
+              </Box>
+            </Box>
+
+            <Box sx={{ display: 'flex', gap: 2, mt: 1.5, pt: 1, borderTop: '1px solid', borderColor: 'divider' }}>
+              {m.quantity && (
+                <Typography variant="body2" fontWeight={600} sx={{ flex: 1 }}>
+                  {Number(m.quantity).toLocaleString()} {m.unit || ''}
+                </Typography>
+              )}
+              {m.expectedDelivery && (
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center' }}>
+                  {new Date(m.expectedDelivery).toLocaleDateString('he-IL')}
+                </Typography>
+              )}
+            </Box>
+
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1 }}>
+              <Box sx={{ flex: 1, mr: 1 }}>
+                <LinearProgress
+                  variant="determinate"
+                  value={progress.value}
+                  color={progress.color}
+                  sx={{ height: 6, borderRadius: 3, bgcolor: 'action.hover' }}
+                />
+              </Box>
+              <Box sx={{ display: 'flex', gap: 0.5 }} onClick={(e) => e.stopPropagation()}>
+                <IconButton size="small" onClick={() => onView(m)}><VisibilityIcon fontSize="small" /></IconButton>
+                <IconButton size="small" onClick={(e) => onEdit(m, e)}><EditIcon fontSize="small" /></IconButton>
+                <IconButton size="small" onClick={(e) => onDelete(m, e)} color="error"><DeleteIcon fontSize="small" /></IconButton>
               </Box>
             </Box>
           </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1.5, pt: 1.5, borderTop: '1px solid', borderColor: 'divider' }}>
-            <Typography variant="caption" color="text.secondary">
-              {m.expectedDelivery ? `${t('materials.deliveryDate')}: ${new Date(m.expectedDelivery).toLocaleDateString('he-IL')}` : ''}
-            </Typography>
-            <Box sx={{ display: 'flex', gap: 0.5 }} onClick={(e) => e.stopPropagation()}>
-              <IconButton size="small" onClick={() => onView(m)}><VisibilityIcon fontSize="small" /></IconButton>
-              <IconButton size="small" onClick={(e) => onEdit(m, e)}><EditIcon fontSize="small" /></IconButton>
-              <IconButton size="small" onClick={(e) => onDelete(m, e)} color="error"><DeleteIcon fontSize="small" /></IconButton>
-            </Box>
-          </Box>
-        </Box>
-      ))}
+        )
+      })}
     </Box>
   )
 }

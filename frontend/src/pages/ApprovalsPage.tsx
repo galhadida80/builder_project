@@ -13,8 +13,8 @@ import { equipmentApi } from '../api/equipment'
 import { materialsApi } from '../api/materials'
 import { useToast } from '../components/common/ToastProvider'
 import type { ApprovalRequest, Equipment, Material } from '../types'
-import { BuildIcon, InventoryIcon, CheckCircleIcon, CancelIcon } from '@/icons'
-import { Box, Typography, Chip, Skeleton } from '@/mui'
+import { BuildIcon, InventoryIcon, CheckCircleIcon, CancelIcon, DescriptionIcon, AccessTimeIcon } from '@/icons'
+import { Box, Typography, Chip, Skeleton, Avatar, Badge } from '@/mui'
 
 export default function ApprovalsPage() {
   const { t } = useTranslation()
@@ -152,7 +152,31 @@ export default function ApprovalsPage() {
         title={t('approvals.title')}
         subtitle={t('approvals.subtitle')}
         breadcrumbs={[{ label: t('nav.dashboard'), href: '/dashboard' }, { label: t('nav.approvals') }]}
+        actions={
+          pendingApprovals.length > 0 ? (
+            <Badge
+              badgeContent={pendingApprovals.length}
+              color="warning"
+              sx={{ '& .MuiBadge-badge': { fontSize: '0.75rem', fontWeight: 700, minWidth: 24, height: 24, borderRadius: 12 } }}
+            >
+              <Chip
+                label={t('approvals.pendingApprovals')}
+                color="warning"
+                variant="outlined"
+                sx={{ fontWeight: 600, pr: 2 }}
+              />
+            </Badge>
+          ) : undefined
+        }
       />
+
+      {pendingApprovals.length > 0 && (
+        <Box sx={{ px: 0.5, pb: 1.5, mb: 1, display: 'flex', alignItems: 'center', gap: 0.5 }}>
+          <Typography variant="body2" sx={{ color: 'warning.main', fontWeight: 600 }}>
+            {t('approvals.pendingSummary', { pending: pendingApprovals.length })}
+          </Typography>
+        </Box>
+      )}
 
       <Tabs
         items={[
@@ -165,14 +189,6 @@ export default function ApprovalsPage() {
         size="small"
       />
 
-      {pendingApprovals.length > 0 && (
-        <Box sx={{ px: 0.5, py: 1.5, mb: 1 }}>
-          <Typography variant="caption" color="text.secondary">
-            {pendingApprovals.length} {t('approvals.pending')}
-          </Typography>
-        </Box>
-      )}
-
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mt: 1 }} role="list" aria-label={t('approvals.title')}>
         {displayedApprovals.length === 0 ? (
           <EmptyState
@@ -184,42 +200,98 @@ export default function ApprovalsPage() {
           displayedApprovals.map((approval) => {
             const entity = getEntityDetails(approval)
             const isPending = approval.currentStatus !== 'approved' && approval.currentStatus !== 'rejected'
-            const typeColor = approval.entityType === 'equipment' ? 'info' : 'secondary'
+            const isUrgent = isPending && approval.steps?.some(s => s.approverRole === 'project_admin')
+            const categoryColor = approval.entityType === 'equipment'
+              ? { bg: '#e3f2fd', text: '#1565c0', label: t('approvals.equipment') }
+              : { bg: '#e8f5e9', text: '#2e7d32', label: t('approvals.material') }
+            const submitter = approval.createdBy
+            const documents = entity && 'documents' in entity ? (entity as Equipment | Material).documents : undefined
+            const docCount = documents?.length || 0
 
             return (
               <Box key={approval.id} role="listitem">
                 <Card sx={{
-                  ...(isPending && { border: '1px solid', borderColor: 'divider' }),
+                  ...(isPending && { border: '1px solid', borderColor: 'warning.light' }),
+                  ...(isUrgent && {
+                    border: '2px solid',
+                    borderColor: 'error.main',
+                    boxShadow: '0 0 12px rgba(211, 47, 47, 0.25)',
+                  }),
                 }}>
                   <Box sx={{ p: 2 }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1.5 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                        <Box sx={{
-                          width: 40, height: 40, borderRadius: 2,
-                          bgcolor: approval.entityType === 'equipment' ? 'info.light' : 'secondary.light',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          color: approval.entityType === 'equipment' ? 'info.main' : 'secondary.main',
-                        }}>
-                          {approval.entityType === 'equipment' ? <BuildIcon /> : <InventoryIcon />}
-                        </Box>
-                        <Box>
-                          <Chip
-                            label={t('approvals.approvalRequest', { type: approval.entityType })}
-                            size="small"
-                            sx={{ height: 20, fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', mb: 0.5 }}
-                          />
-                          <Typography variant="body1" fontWeight={700} sx={{ lineHeight: 1.3 }}>
-                            {entity?.name || t('approvals.unknown')}
-                          </Typography>
-                        </Box>
-                      </Box>
+                      <Chip
+                        icon={approval.entityType === 'equipment' ? <BuildIcon sx={{ fontSize: 14 }} /> : <InventoryIcon sx={{ fontSize: 14 }} />}
+                        label={categoryColor.label}
+                        size="small"
+                        sx={{
+                          height: 24,
+                          fontSize: '0.7rem',
+                          fontWeight: 700,
+                          textTransform: 'uppercase',
+                          bgcolor: categoryColor.bg,
+                          color: categoryColor.text,
+                          '& .MuiChip-icon': { color: categoryColor.text },
+                        }}
+                      />
                       {isPending && (
-                        <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: 'primary.main', flexShrink: 0, mt: 0.5 }} />
+                        <Chip
+                          label={t('approvals.pendingApproval')}
+                          size="small"
+                          sx={{
+                            height: 22,
+                            fontSize: '0.65rem',
+                            fontWeight: 600,
+                            bgcolor: 'warning.light',
+                            color: 'warning.dark',
+                            '&::before': {
+                              content: '""',
+                              width: 8,
+                              height: 8,
+                              borderRadius: '50%',
+                              bgcolor: 'warning.main',
+                              display: 'inline-block',
+                              mr: 0.5,
+                              ml: 0.5,
+                            },
+                          }}
+                        />
                       )}
                     </Box>
 
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
+                    <Typography variant="body1" fontWeight={700} sx={{ lineHeight: 1.3, mb: 1.5 }}>
+                      {entity?.name || t('approvals.unknown')}
+                    </Typography>
+
+                    {submitter && (
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+                        <Avatar
+                          sx={{ width: 28, height: 28, fontSize: '0.75rem', bgcolor: 'primary.main' }}
+                        >
+                          {submitter.fullName?.charAt(0)?.toUpperCase() || submitter.email.charAt(0).toUpperCase()}
+                        </Avatar>
+                        <Typography variant="body2" color="text.secondary">
+                          {t('approvals.submittedBy')}: {submitter.fullName || submitter.email}
+                        </Typography>
+                      </Box>
+                    )}
+
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1.5, mb: 2 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                        <AccessTimeIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
+                        <Typography variant="caption" color="text.secondary">
+                          {new Date(approval.createdAt).toLocaleDateString()}
+                        </Typography>
+                      </Box>
                       <StatusBadge status={approval.currentStatus} size="small" />
+                      {docCount > 0 && (
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          <DescriptionIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
+                          <Typography variant="caption" color="text.secondary">
+                            {docCount} {t('approvals.documents')}
+                          </Typography>
+                        </Box>
+                      )}
                     </Box>
 
                     {isPending && (

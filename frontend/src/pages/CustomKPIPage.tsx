@@ -9,7 +9,7 @@ import KpiCard from '../components/kpi/KpiCard'
 import KpiFormDialog from '../components/kpi/KpiFormDialog'
 import { useToast } from '../components/common/ToastProvider'
 import type { CustomKpiDefinition, KpiValue } from '../types'
-import { AddIcon, ShowChartIcon } from '@/icons'
+import { AddIcon, ShowChartIcon, CalendarMonthIcon } from '@/icons'
 import { Box, Typography, Skeleton, Switch, FormControlLabel } from '@/mui'
 
 export default function CustomKPIPage() {
@@ -24,6 +24,7 @@ export default function CustomKPIPage() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingKpi, setEditingKpi] = useState<CustomKpiDefinition | null>(null)
   const [showInactive, setShowInactive] = useState(false)
+  const [period, setPeriod] = useState('month')
 
   const loadData = useCallback(async () => {
     try {
@@ -121,6 +122,22 @@ export default function CustomKPIPage() {
         }
       />
 
+      <Box sx={{ mb: 2, bgcolor: 'action.hover', borderRadius: 2, p: 0.5, display: 'flex' }}>
+        {[
+          { key: 'year', label: t('kpi.year') },
+          { key: 'quarter', label: t('kpi.quarter') },
+          { key: 'month', label: t('kpi.month') },
+          { key: 'week', label: t('kpi.week') },
+        ].map(p => (
+          <Box key={p.key} onClick={() => setPeriod(p.key)}
+            sx={{ flex: 1, py: 1, textAlign: 'center', borderRadius: 1.5, cursor: 'pointer', fontWeight: 600, fontSize: '0.875rem',
+              bgcolor: period === p.key ? 'primary.main' : 'transparent', color: period === p.key ? 'white' : 'text.secondary',
+              boxShadow: period === p.key ? 1 : 0, transition: 'all 0.2s' }}>
+            {p.label}
+          </Box>
+        ))}
+      </Box>
+
       {hasInactive && (
         <Box sx={{ mb: 2 }}>
           <FormControlLabel
@@ -149,6 +166,37 @@ export default function CustomKPIPage() {
           ))}
         </Box>
       )}
+
+      <Box sx={{ mt: 4 }}>
+        <Typography variant="body2" fontWeight={700} sx={{ mb: 2 }}>
+          {t('kpi.snapshots')}
+        </Typography>
+        <Box sx={{ display: 'flex', gap: 2, overflowX: 'auto', pb: 1, '&::-webkit-scrollbar': { display: 'none' } }}>
+          {[
+            { month: t('kpi.currentMonth'), progress: `${filteredValues.length > 0 ? filteredValues[0].value?.toFixed(0) ?? '—' : '—'}`, budget: t('kpi.onTrack'), active: true },
+            { month: t('kpi.previousMonth'), progress: '—', budget: '—', active: false },
+          ].map((snap, idx) => (
+            <Box key={idx} sx={{ minWidth: 176, p: 2, borderRadius: 2, border: 1, borderColor: snap.active ? 'primary.main' : 'divider', bgcolor: 'background.paper', flexShrink: 0, opacity: snap.active ? 1 : 0.6 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+                <Box sx={{ width: 32, height: 32, borderRadius: 1, bgcolor: snap.active ? 'primary.light' : 'action.hover', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <CalendarMonthIcon sx={{ fontSize: 18, color: snap.active ? 'primary.main' : 'text.secondary' }} />
+                </Box>
+                <Typography variant="body2" fontWeight={700}>{snap.month}</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Typography variant="caption" color="text.secondary">{t('kpi.progress')}</Typography>
+                  <Typography variant="caption" fontWeight={700}>{snap.progress}</Typography>
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Typography variant="caption" color="text.secondary">{t('kpi.budgetStatus')}</Typography>
+                  <Typography variant="caption" fontWeight={700} color={snap.budget === t('kpi.onTrack') ? 'success.main' : 'text.secondary'}>{snap.budget}</Typography>
+                </Box>
+              </Box>
+            </Box>
+          ))}
+        </Box>
+      </Box>
 
       <KpiFormDialog
         open={dialogOpen}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { getDateLocale } from '../utils/dateLocale'
@@ -23,8 +23,8 @@ import { validateInspectionForm, hasErrors, type ValidationError } from '../util
 import { useToast } from '../components/common/ToastProvider'
 import { useReferenceData } from '../contexts/ReferenceDataContext'
 import HelpTooltip from '../components/help/HelpTooltip'
-import { AddIcon, CheckCircleIcon, WarningIcon, ErrorIcon, ScheduleIcon, AssignmentIcon, DescriptionIcon } from '@/icons'
-import { Box, Typography, Skeleton, Chip, Alert, MenuItem, TextField as MuiTextField, IconButton, Tooltip, useMediaQuery, useTheme } from '@/mui'
+import { AddIcon, CheckCircleIcon, WarningIcon, ErrorIcon, ScheduleIcon, AssignmentIcon, DescriptionIcon, PersonIcon, AccessTimeIcon, CalendarTodayIcon } from '@/icons'
+import { Box, Typography, Skeleton, Chip, Alert, MenuItem, TextField as MuiTextField, IconButton, Tooltip, useMediaQuery, useTheme, Divider } from '@/mui'
 
 export default function InspectionsPage() {
   const { t } = useTranslation()
@@ -111,6 +111,74 @@ export default function InspectionsPage() {
     return true
   })
 
+  const statusBorderColor: Record<string, string> = {
+    pending: theme.palette.info.main,
+    in_progress: theme.palette.warning.main,
+    completed: theme.palette.success.main,
+    failed: theme.palette.error.main,
+  }
+
+  const groupedInspections = useMemo(() => {
+    const now = new Date()
+    const todayStr = now.toDateString()
+    const tomorrow = new Date(now)
+    tomorrow.setDate(tomorrow.getDate() + 1)
+    const tomorrowStr = tomorrow.toDateString()
+
+    const groups: { key: string; label: string; inspections: Inspection[] }[] = []
+    const groupMap = new Map<string, Inspection[]>()
+    const orderKeys: string[] = []
+
+    for (const insp of filteredInspections) {
+      const date = new Date(insp.scheduledDate)
+      const dateStr = date.toDateString()
+      let groupKey: string
+
+      if (insp.status === 'completed') {
+        groupKey = 'recently_completed'
+      } else if (dateStr === todayStr) {
+        groupKey = 'today'
+      } else if (dateStr === tomorrowStr) {
+        groupKey = 'tomorrow'
+      } else {
+        groupKey = dateStr
+      }
+
+      if (!groupMap.has(groupKey)) {
+        groupMap.set(groupKey, [])
+        orderKeys.push(groupKey)
+      }
+      groupMap.get(groupKey)!.push(insp)
+    }
+
+    const priority: Record<string, number> = { today: 0, tomorrow: 1 }
+    orderKeys.sort((a, b) => {
+      const pa = priority[a] ?? (a === 'recently_completed' ? 999 : 2)
+      const pb = priority[b] ?? (b === 'recently_completed' ? 999 : 2)
+      if (pa !== pb) return pa - pb
+      if (pa === 2) return new Date(a).getTime() - new Date(b).getTime()
+      return 0
+    })
+
+    for (const key of orderKeys) {
+      let label: string
+      if (key === 'today') {
+        const formatted = now.toLocaleDateString(getDateLocale(), { month: 'short', day: 'numeric' })
+        label = `${t('inspections.today')} - ${formatted}`
+      } else if (key === 'tomorrow') {
+        const formatted = tomorrow.toLocaleDateString(getDateLocale(), { month: 'short', day: 'numeric' })
+        label = `${t('inspections.tomorrow')} - ${formatted}`
+      } else if (key === 'recently_completed') {
+        label = t('inspections.recentlyCompleted')
+      } else {
+        label = new Date(key).toLocaleDateString(getDateLocale(), { weekday: 'long', month: 'short', day: 'numeric' })
+      }
+      groups.push({ key, label, inspections: groupMap.get(key)! })
+    }
+
+    return groups
+  }, [filteredInspections, t])
+
   const inspectionColumns: Column<Inspection>[] = [
     {
       id: 'consultantType',
@@ -120,6 +188,15 @@ export default function InspectionsPage() {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <Box
             sx={{
+              width: 4,
+              height: 36,
+              borderRadius: 2,
+              bgcolor: statusBorderColor[row.status] || statusBorderColor.pending,
+              flexShrink: 0,
+            }}
+          />
+          <Box
+            sx={{
               width: 40,
               height: 40,
               borderRadius: 2,
@@ -127,6 +204,7 @@ export default function InspectionsPage() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              flexShrink: 0,
             }}
           >
             <AssignmentIcon sx={{ fontSize: 20, color: 'primary.main' }} />
@@ -327,7 +405,7 @@ export default function InspectionsPage() {
       </Box>
 
       {summary && (
-        <Box sx={{ mb: 2 }}>
+        <Box sx={{ mb: 2, '& > div': { '& > div > div': { py: { xs: 1, sm: 1.5 }, px: { xs: 1, sm: 2 } } } }}>
           <SummaryBar items={[
             { label: t('inspections.totalInspections'), value: summary.totalInspections },
             { label: t('inspections.pending'), value: summary.pendingCount },
@@ -467,79 +545,145 @@ export default function InspectionsPage() {
           <Box sx={{ mt: 2 }}>
             {activeTab === 'timeline' ? (
               <InspectionHistoryTimeline inspections={inspections} loading={loading} />
+            ) : filteredInspections.length === 0 ? (
+              <EmptyState variant="empty" />
+            ) : isMobile ? (
+              <Box>
+                {groupedInspections.map((group) => (
+                  <Box key={group.key} sx={{ mb: 2 }}>
+                    <Typography variant="subtitle2" fontWeight={700} sx={{ px: 1, py: 1, color: 'text.secondary', textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.05em' }}>
+                      {group.label}
+                    </Typography>
+                    <Divider sx={{ mb: 0.5 }} />
+                    {group.inspections.map((row) => {
+                      const chipColor: Record<string, 'info' | 'warning' | 'success' | 'error'> = {
+                        pending: 'info', in_progress: 'warning', completed: 'success', failed: 'error',
+                      }
+                      const borderColor = statusBorderColor[row.status] || statusBorderColor.pending
+                      return (
+                        <Box
+                          key={row.id}
+                          onClick={() => setPreviewInspection(row)}
+                          sx={{
+                            p: 2,
+                            borderBottom: '1px solid',
+                            borderColor: 'divider',
+                            cursor: 'pointer',
+                            position: 'relative',
+                            overflow: 'hidden',
+                            borderLeft: `4px solid ${borderColor}`,
+                            '&:active': { bgcolor: 'action.pressed' },
+                          }}
+                        >
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
+                            <Box sx={{ width: 40, height: 40, borderRadius: 2, bgcolor: 'primary.light', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                              <AssignmentIcon sx={{ fontSize: 20, color: 'primary.main' }} />
+                            </Box>
+                            <Box sx={{ minWidth: 0, flex: 1 }}>
+                              <Typography variant="body2" fontWeight={600} noWrap>
+                                {row.consultantType?.name || t('inspections.unknown')}
+                              </Typography>
+                              {row.consultantType?.nameHe && (
+                                <Typography variant="caption" color="text.secondary" dir="rtl" noWrap>
+                                  {row.consultantType.nameHe}
+                                </Typography>
+                              )}
+                            </Box>
+                            <Chip
+                              size="small"
+                              label={t(`common.statuses.${row.status}`, { defaultValue: row.status.replace('_', ' ') })}
+                              color={chipColor[row.status] || 'info'}
+                              sx={{ fontWeight: 500, fontSize: '0.7rem', height: 24 }}
+                            />
+                          </Box>
+                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, ml: 7, alignItems: 'center' }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                              <PersonIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                              <Typography variant="caption" color="text.secondary">
+                                {row.consultantType?.name || t('inspections.inspector')}
+                              </Typography>
+                            </Box>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                              <CalendarTodayIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                              <Typography variant="caption" color="text.secondary">
+                                {new Date(row.scheduledDate).toLocaleDateString(getDateLocale())}
+                              </Typography>
+                            </Box>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                              <AccessTimeIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                              <Typography variant="caption" color="text.secondary">
+                                {new Date(row.scheduledDate).toLocaleTimeString(getDateLocale(), { hour: '2-digit', minute: '2-digit' })}
+                              </Typography>
+                            </Box>
+                          </Box>
+                          {((row.currentStage) || (row.findings && row.findings.length > 0)) && (
+                            <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', ml: 7, mt: 1 }}>
+                              {row.currentStage && <Chip label={row.currentStage} size="small" variant="outlined" sx={{ fontSize: '0.7rem', height: 22 }} />}
+                              {row.findings && row.findings.length > 0 && (
+                                <>
+                                  {row.findings.filter(f => f.severity === 'critical').length > 0 && <SeverityBadge severity="critical" />}
+                                  {row.findings.filter(f => f.severity === 'high').length > 0 && <SeverityBadge severity="high" />}
+                                  {row.findings.filter(f => f.severity === 'medium').length > 0 && <SeverityBadge severity="medium" />}
+                                </>
+                              )}
+                            </Box>
+                          )}
+                        </Box>
+                      )
+                    })}
+                  </Box>
+                ))}
+              </Box>
             ) : (
-              <DataTable
-                columns={inspectionColumns}
-                rows={filteredInspections}
-                getRowId={(row) => row.id}
-                emptyVariant='empty'
-                renderMobileCard={(row) => {
-                  const statusConfig: Record<string, { color: 'info' | 'warning' | 'success' | 'error' }> = {
-                    pending: { color: 'info' },
-                    in_progress: { color: 'warning' },
-                    completed: { color: 'success' },
-                    failed: { color: 'error' },
-                  }
-                  const config = statusConfig[row.status] || statusConfig.pending
-                  const isInProgress = row.status === 'in_progress'
-                  return (
-                    <Box
-                      onClick={() => setPreviewInspection(row)}
-                      sx={{
-                        p: 2,
-                        borderBottom: '1px solid',
-                        borderColor: 'divider',
-                        cursor: 'pointer',
-                        position: 'relative',
-                        overflow: 'hidden',
-                        '&:active': { bgcolor: 'action.pressed' },
-                        ...(isInProgress && {
-                          '&::before': {
-                            content: '""',
-                            position: 'absolute',
-                            right: 0,
-                            top: 0,
-                            width: 4,
-                            height: '100%',
-                            bgcolor: 'primary.main',
-                            borderRadius: '0 4px 4px 0',
-                          },
-                        }),
+              <Box>
+                {groupedInspections.map((group) => (
+                  <Box key={group.key} sx={{ mb: 3 }}>
+                    <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1, color: 'text.secondary', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '0.05em' }}>
+                      {group.label}
+                    </Typography>
+                    <DataTable
+                      columns={inspectionColumns}
+                      rows={group.inspections}
+                      getRowId={(row) => row.id}
+                      pagination={false}
+                      emptyVariant='empty'
+                      onRowClick={(row) => setPreviewInspection(row)}
+                      renderMobileCard={(row) => {
+                        const chipColor: Record<string, 'info' | 'warning' | 'success' | 'error'> = {
+                          pending: 'info', in_progress: 'warning', completed: 'success', failed: 'error',
+                        }
+                        const borderColor = statusBorderColor[row.status] || statusBorderColor.pending
+                        return (
+                          <Box
+                            onClick={() => setPreviewInspection(row)}
+                            sx={{
+                              p: 2,
+                              borderBottom: '1px solid',
+                              borderColor: 'divider',
+                              cursor: 'pointer',
+                              borderLeft: `4px solid ${borderColor}`,
+                              '&:active': { bgcolor: 'action.pressed' },
+                            }}
+                          >
+                            <Typography variant="body2" fontWeight={600}>
+                              {row.consultantType?.name || t('inspections.unknown')}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">
+                              {new Date(row.scheduledDate).toLocaleDateString(getDateLocale())}
+                            </Typography>
+                            <Chip
+                              size="small"
+                              label={t(`common.statuses.${row.status}`, { defaultValue: row.status.replace('_', ' ') })}
+                              color={chipColor[row.status] || 'info'}
+                              sx={{ ml: 1, fontWeight: 500, fontSize: '0.7rem', height: 24 }}
+                            />
+                          </Box>
+                        )
                       }}
-                    >
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
-                        <Box sx={{ width: 40, height: 40, borderRadius: 2, bgcolor: 'primary.light', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                          <AssignmentIcon sx={{ fontSize: 20, color: 'primary.main' }} />
-                        </Box>
-                        <Box sx={{ minWidth: 0, flex: 1 }}>
-                          <Typography variant="body2" fontWeight={600} noWrap>
-                            {row.consultantType?.name || t('inspections.unknown')}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            {new Date(row.scheduledDate).toLocaleDateString(getDateLocale())}
-                          </Typography>
-                        </Box>
-                        <Chip
-                          size="small"
-                          label={t(`common.statuses.${row.status}`, { defaultValue: row.status.replace('_', ' ') })}
-                          color={config.color}
-                          sx={{ fontWeight: 500, fontSize: '0.7rem', height: 24 }}
-                        />
-                      </Box>
-                      <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', ml: 7 }}>
-                        {row.currentStage && <Chip label={row.currentStage} size="small" variant="outlined" sx={{ fontSize: '0.7rem', height: 22 }} />}
-                        {row.findings && row.findings.length > 0 && (
-                          <>
-                            {row.findings.filter(f => f.severity === 'critical').length > 0 && <SeverityBadge severity="critical" />}
-                            {row.findings.filter(f => f.severity === 'high').length > 0 && <SeverityBadge severity="high" />}
-                            {row.findings.filter(f => f.severity === 'medium').length > 0 && <SeverityBadge severity="medium" />}
-                          </>
-                        )}
-                      </Box>
-                    </Box>
-                  )
-                }}
-              />
+                    />
+                  </Box>
+                ))}
+              </Box>
             )}
           </Box>
         </Box>

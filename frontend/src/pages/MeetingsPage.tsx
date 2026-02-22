@@ -33,7 +33,8 @@ import {
 import {
   Box, Typography, MenuItem, TextField as MuiTextField, Skeleton,
   Chip, IconButton, Drawer, Divider, Autocomplete, Avatar,
-  Switch, FormControlLabel, LinearProgress, Popover,
+  Switch, FormControlLabel, LinearProgress, Popover, Badge,
+  keyframes,
 } from '@/mui'
 
 interface TeamMemberOption {
@@ -48,6 +49,12 @@ const RSVP_COLORS: Record<string, 'success' | 'warning' | 'error' | 'default'> =
   declined: 'error',
   pending: 'default',
 }
+
+const pulse = keyframes`
+  0% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.4); }
+  100% { opacity: 1; transform: scale(1); }
+`
 
 export default function MeetingsPage() {
   const { projectId } = useParams()
@@ -65,6 +72,7 @@ export default function MeetingsPage() {
 
   const { isMobile } = useResponsive()
   const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list')
+  const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [calendarMonth, setCalendarMonth] = useState(dayjs())
   const [loading, setLoading] = useState(true)
   const [meetings, setMeetings] = useState<Meeting[]>([])
@@ -441,6 +449,37 @@ export default function MeetingsPage() {
   }, [meetings])
   const displayedMeetings = tabValue === 'upcoming' ? upcomingMeetings : pastMeetings
 
+  const dateStripDays = useMemo(() => {
+    const today = dayjs()
+    return Array.from({ length: 7 }, (_, i) => today.add(i - 3, 'day'))
+  }, [])
+
+  const filteredMeetings = useMemo(() => {
+    if (!selectedDate) return displayedMeetings
+    return displayedMeetings.filter(m => dayjs(m.scheduledDate).format('YYYY-MM-DD') === selectedDate)
+  }, [displayedMeetings, selectedDate])
+
+  const groupedMeetings = useMemo(() => {
+    const groups: { key: string; label: string; meetings: Meeting[] }[] = []
+    const grouped = new Map<string, Meeting[]>()
+    for (const m of filteredMeetings) {
+      const dateKey = dayjs(m.scheduledDate).format('YYYY-MM-DD')
+      if (!grouped.has(dateKey)) grouped.set(dateKey, [])
+      grouped.get(dateKey)!.push(m)
+    }
+    const today = dayjs().format('YYYY-MM-DD')
+    const tomorrow = dayjs().add(1, 'day').format('YYYY-MM-DD')
+    for (const [dateKey, items] of grouped) {
+      let label: string
+      if (dateKey === today) label = t('meetings.today')
+      else if (dateKey === tomorrow) label = t('meetings.tomorrow')
+      else label = dayjs(dateKey).toDate().toLocaleDateString(getDateLocale(), { weekday: 'long', month: 'long', day: 'numeric' })
+      groups.push({ key: dateKey, label, meetings: items })
+    }
+    groups.sort((a, b) => a.key.localeCompare(b.key))
+    return groups
+  }, [filteredMeetings, t])
+
   const getMeetingTypeLabel = (type?: string) => {
     return meetingTypes.find(mt => mt.value === type)?.label || type || t('meetings.meeting')
   }
@@ -587,6 +626,76 @@ export default function MeetingsPage() {
         )
       ) : (
         <>
+          {/* Horizontal date strip */}
+          <Box
+            sx={{
+              display: 'flex',
+              gap: 1,
+              overflowX: 'auto',
+              pb: 1,
+              mb: 2,
+              scrollbarWidth: 'none',
+              '&::-webkit-scrollbar': { display: 'none' },
+            }}
+          >
+            {dateStripDays.map((day) => {
+              const dateKey = day.format('YYYY-MM-DD')
+              const isToday = dateKey === dayjs().format('YYYY-MM-DD')
+              const isSelected = selectedDate === dateKey
+              const hasMeetings = displayedMeetings.some(m => dayjs(m.scheduledDate).format('YYYY-MM-DD') === dateKey)
+              return (
+                <Box
+                  key={dateKey}
+                  onClick={() => setSelectedDate(isSelected ? null : dateKey)}
+                  sx={{
+                    minWidth: 52,
+                    py: 1,
+                    px: 0.5,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: 0.5,
+                    cursor: 'pointer',
+                    borderRadius: 2,
+                    bgcolor: isSelected ? 'primary.main' : 'transparent',
+                    transition: 'background-color 0.2s',
+                  }}
+                >
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      fontWeight: 600,
+                      fontSize: '0.65rem',
+                      color: isSelected ? 'white' : 'text.secondary',
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    {day.toDate().toLocaleDateString(getDateLocale(), { weekday: 'short' })}
+                  </Typography>
+                  <Box
+                    sx={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: '50%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      bgcolor: isToday && !isSelected ? 'primary.main' : 'transparent',
+                      color: isToday || isSelected ? 'white' : 'text.primary',
+                      fontWeight: 700,
+                      fontSize: '0.9rem',
+                    }}
+                  >
+                    {day.date()}
+                  </Box>
+                  {hasMeetings && (
+                    <Box sx={{ width: 5, height: 5, borderRadius: '50%', bgcolor: isSelected ? 'white' : 'primary.main' }} />
+                  )}
+                </Box>
+              )
+            })}
+          </Box>
+
           <Tabs
             items={[
               { label: t('meetings.upcomingMeetings'), value: 'upcoming', badge: upcomingMeetings.length },
@@ -597,7 +706,7 @@ export default function MeetingsPage() {
             size="small"
           />
 
-          {displayedMeetings.length === 0 ? (
+          {filteredMeetings.length === 0 ? (
             <Box sx={{ mt: 2 }}>
               <EmptyState
                 title={tabValue === 'upcoming' ? t('meetings.noUpcoming') : t('meetings.noPast')}
@@ -607,75 +716,154 @@ export default function MeetingsPage() {
               />
             </Box>
           ) : (
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mt: 2 }}>
-              {displayedMeetings.map((meeting) => {
-                const isNow = meeting.status === 'scheduled' && (() => {
-                  const now = new Date()
-                  const start = new Date(meeting.scheduledDate)
-                  return now >= start && now <= new Date(start.getTime() + 2 * 60 * 60 * 1000)
-                })()
-                const borderColor = isNow ? 'primary.main' : meeting.status === 'completed' ? 'success.main' : meeting.status === 'cancelled' ? 'error.main' : 'divider'
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
+              {groupedMeetings.map((group) => (
+                <Box key={group.key}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+                    <Typography variant="subtitle2" fontWeight={700}>
+                      {group.label}
+                    </Typography>
+                    <Badge
+                      badgeContent={group.meetings.length}
+                      color="primary"
+                      sx={{ '& .MuiBadge-badge': { position: 'static', transform: 'none', fontSize: '0.7rem', minWidth: 20, height: 20 } }}
+                    />
+                  </Box>
 
-                return (
-                  <Card key={meeting.id} hoverable onClick={() => handleMeetingClick(meeting)}
-                    sx={{ borderInlineStart: '4px solid', borderInlineStartColor: borderColor }}
-                  >
-                    <Box sx={{ p: 2 }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
-                        <Box>
-                          <Typography variant="caption" sx={{ color: isNow ? 'primary.main' : 'text.secondary', fontWeight: 700, letterSpacing: 0.5 }}>
-                            {formatTime(meeting.scheduledDate)}
-                          </Typography>
-                          <Typography variant="body1" fontWeight={700} sx={{ lineHeight: 1.3, mt: 0.25 }}>
-                            {meeting.title}
-                          </Typography>
-                        </Box>
-                        <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
-                          {meeting.calendarSynced && (
-                            <Chip
-                              icon={<SyncIcon sx={{ fontSize: 14 }} />}
-                              label={t('meetings.calendar.synced')}
-                              size="small"
-                              color="success"
-                              variant="outlined"
-                              sx={{ height: 22, '& .MuiChip-label': { px: 0.5, fontSize: '0.65rem' } }}
-                            />
-                          )}
-                          <StatusBadge status={meeting.status} size="small" />
-                        </Box>
-                      </Box>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                    {group.meetings.map((meeting) => {
+                      const isNow = meeting.status === 'scheduled' && (() => {
+                        const now = new Date()
+                        const start = new Date(meeting.scheduledDate)
+                        return now >= start && now <= new Date(start.getTime() + 2 * 60 * 60 * 1000)
+                      })()
+                      const borderColor = isNow ? 'primary.main' : meeting.status === 'completed' ? 'success.main' : meeting.status === 'cancelled' ? 'error.main' : 'divider'
+                      const acceptedCount = meeting.attendees?.filter(a => a.attendanceStatus === 'accepted').length || 0
+                      const pendingCount = meeting.attendees?.filter(a => a.attendanceStatus === 'pending').length || 0
 
-                      {meeting.location && (
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
-                          <LocationOnIcon sx={{ fontSize: 16, color: 'text.disabled' }} />
-                          <Typography variant="caption" color="text.secondary">{meeting.location}</Typography>
-                        </Box>
-                      )}
+                      return (
+                        <Card key={meeting.id} hoverable onClick={() => handleMeetingClick(meeting)}
+                          sx={{
+                            borderInlineStart: '4px solid',
+                            borderInlineStartColor: borderColor,
+                            ...(isNow && {
+                              borderInlineEnd: '4px solid',
+                              borderInlineEndColor: 'primary.main',
+                              borderInlineEndWidth: 4,
+                            }),
+                          }}
+                        >
+                          <Box sx={{ p: 2 }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                              <Box>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.25 }}>
+                                  {isNow && (
+                                    <Chip
+                                      size="small"
+                                      label={t('meetings.now')}
+                                      color="success"
+                                      icon={
+                                        <Box
+                                          sx={{
+                                            width: 8,
+                                            height: 8,
+                                            borderRadius: '50%',
+                                            bgcolor: 'success.main',
+                                            animation: `${pulse} 1.5s ease-in-out infinite`,
+                                            ml: 0.5,
+                                          }}
+                                        />
+                                      }
+                                      sx={{
+                                        height: 22,
+                                        fontWeight: 700,
+                                        fontSize: '0.7rem',
+                                        '& .MuiChip-icon': { ml: 0.5 },
+                                        '& .MuiChip-label': { px: 0.75 },
+                                      }}
+                                    />
+                                  )}
+                                  <Typography variant="caption" sx={{ color: isNow ? 'primary.main' : 'text.secondary', fontWeight: 700, letterSpacing: 0.5 }}>
+                                    {formatTime(meeting.scheduledDate)}
+                                  </Typography>
+                                </Box>
+                                <Typography variant="body1" fontWeight={700} sx={{ lineHeight: 1.3, mt: 0.25 }}>
+                                  {meeting.title}
+                                </Typography>
+                              </Box>
+                              <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
+                                {meeting.calendarSynced && (
+                                  <Chip
+                                    icon={<SyncIcon sx={{ fontSize: 14 }} />}
+                                    label={t('meetings.calendar.synced')}
+                                    size="small"
+                                    color="success"
+                                    variant="outlined"
+                                    sx={{ height: 22, '& .MuiChip-label': { px: 0.5, fontSize: '0.65rem' } }}
+                                  />
+                                )}
+                                {meeting.status === 'pending_votes' && (
+                                  <Chip
+                                    label={t('meetings.rsvp.pending')}
+                                    size="small"
+                                    color="warning"
+                                    sx={{ height: 22, fontWeight: 600, '& .MuiChip-label': { px: 0.75, fontSize: '0.65rem' } }}
+                                  />
+                                )}
+                                <StatusBadge status={meeting.status} size="small" />
+                              </Box>
+                            </Box>
 
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <AvatarGroup
-                          users={(meeting.attendees || []).map(a => ({ name: a.user?.fullName || a.email || 'User' }))}
-                          max={4}
-                          size="small"
-                        />
-                        <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
-                          {meeting.attendees && meeting.attendees.length > 0 && (
-                            <Typography variant="caption" color="text.disabled" sx={{ fontSize: '0.65rem' }}>
-                              {meeting.attendees.filter(a => a.attendanceStatus === 'accepted').length}/{meeting.attendees.length}
-                            </Typography>
-                          )}
-                          <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleOpenEdit(meeting) }} aria-label={t('meetings.editMeeting')}>
-                            <EditIcon sx={{ fontSize: 16 }} />
-                          </IconButton>
-                          <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleDeleteClick(meeting) }} aria-label={t('meetings.deleteMeeting')} color="error">
-                            <DeleteIcon sx={{ fontSize: 16 }} />
-                          </IconButton>
-                        </Box>
-                      </Box>
-                    </Box>
-                  </Card>
-                )
-              })}
+                            {meeting.location && (
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+                                <LocationOnIcon sx={{ fontSize: 16, color: 'text.disabled' }} />
+                                <Typography variant="caption" color="text.secondary">{meeting.location}</Typography>
+                              </Box>
+                            )}
+
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                                <AvatarGroup
+                                  users={(meeting.attendees || []).map(a => ({ name: a.user?.fullName || a.email || 'User' }))}
+                                  max={4}
+                                  size="small"
+                                />
+                                {meeting.attendees && meeting.attendees.length > 0 && (
+                                  <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem', whiteSpace: 'nowrap' }}>
+                                    {acceptedCount} {t('meetings.confirmed')} / {pendingCount} {t('meetings.pending')}
+                                  </Typography>
+                                )}
+                              </Box>
+                              <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
+                                {isNow && (
+                                  <Chip
+                                    label={t('meetings.join')}
+                                    color="primary"
+                                    size="small"
+                                    onClick={(e) => { e.stopPropagation(); handleMeetingClick(meeting) }}
+                                    sx={{
+                                      fontWeight: 700,
+                                      height: 28,
+                                      borderRadius: 2,
+                                      '& .MuiChip-label': { px: 1.5 },
+                                    }}
+                                  />
+                                )}
+                                <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleOpenEdit(meeting) }} aria-label={t('meetings.editMeeting')}>
+                                  <EditIcon sx={{ fontSize: 16 }} />
+                                </IconButton>
+                                <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleDeleteClick(meeting) }} aria-label={t('meetings.deleteMeeting')} color="error">
+                                  <DeleteIcon sx={{ fontSize: 16 }} />
+                                </IconButton>
+                              </Box>
+                            </Box>
+                          </Box>
+                        </Card>
+                      )
+                    })}
+                  </Box>
+                </Box>
+              ))}
             </Box>
           )}
         </>

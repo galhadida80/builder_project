@@ -3,7 +3,6 @@ import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { withMinDuration } from '../utils/async'
 import { Card } from '../components/ui/Card'
-import { Button } from '../components/ui/Button'
 import { DataTable, Column } from '../components/ui/DataTable'
 import { StatusBadge } from '../components/ui/StatusBadge'
 import { PageHeader } from '../components/ui/Breadcrumbs'
@@ -24,7 +23,8 @@ import { parseValidationErrors } from '../utils/apiErrors'
 import { useToast } from '../components/common/ToastProvider'
 import { useReferenceData } from '../contexts/ReferenceDataContext'
 import type { KeyValuePair } from '../components/ui/KeyValueEditor'
-import { AddIcon, InventoryIcon, VisibilityIcon, EditIcon, DeleteIcon } from '@/icons'
+import { getCategoryConfig, getCategoryFromType } from '../utils/materialCategory'
+import { AddIcon, VisibilityIcon, EditIcon, DeleteIcon } from '@/icons'
 import { Box, Typography, IconButton, TablePagination, useMediaQuery, useTheme, Fab } from '@/mui'
 
 export default function MaterialsPage() {
@@ -52,6 +52,7 @@ export default function MaterialsPage() {
   const [submitting, setSubmitting] = useState(false)
   const [errors, setErrors] = useState<ValidationError>({})
   const [activeTab, setActiveTab] = useState('all')
+  const [activeCategory, setActiveCategory] = useState('all')
   const [formData, setFormData] = useState({ name: '', templateId: '', manufacturer: '', modelNumber: '', quantity: '', unit: '', expectedDelivery: '', storageLocation: '', notes: '' })
   const [specificationValues, setSpecificationValues] = useState<Record<string, string | number | boolean>>({})
   const [documentFiles, setDocumentFiles] = useState<Record<string, File | null>>({})
@@ -146,15 +147,25 @@ export default function MaterialsPage() {
   }
 
   const handleViewDetails = (m: Material) => { setSelectedMaterial(m); setDrawerOpen(true) }
-  const totalQuantity = materials.reduce((sum, m) => sum + (Number(m.quantity) || 0), 0)
+
+  const filteredMaterials = useMemo(() => {
+    if (activeCategory === 'all') return materials
+    return materials.filter(m => getCategoryFromType(m.materialType) === activeCategory)
+  }, [materials, activeCategory])
+
+  const totalQuantity = filteredMaterials.reduce((sum, m) => sum + (Number(m.quantity) || 0), 0)
 
   const columns: Column<Material>[] = [
-    { id: 'name', label: t('materials.title'), minWidth: 250, render: (row) => (
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-        <Box sx={{ width: 40, height: 40, borderRadius: 2, bgcolor: 'warning.light', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><InventoryIcon sx={{ fontSize: 20, color: 'warning.main' }} /></Box>
-        <Box><Typography variant="body2" fontWeight={500}>{row.name}</Typography><Typography variant="caption" color="text.secondary">{row.materialType || t('materials.noTypeSpecified')}</Typography></Box>
-      </Box>
-    )},
+    { id: 'name', label: t('materials.title'), minWidth: 250, render: (row) => {
+      const catConfig = getCategoryConfig(row.materialType)
+      const CatIcon = catConfig.icon
+      return (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <Box sx={{ width: 48, height: 48, borderRadius: '50%', bgcolor: catConfig.bgColor, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><CatIcon sx={{ fontSize: 24, color: catConfig.color }} /></Box>
+          <Box><Typography variant="body2" fontWeight={600}>{row.name}</Typography><Typography variant="caption" color="text.secondary">{row.materialType || t('materials.noTypeSpecified')}</Typography></Box>
+        </Box>
+      )
+    }},
     { id: 'manufacturer', label: t('materials.manufacturer'), minWidth: 140, hideOnMobile: true, render: (row) => <Typography variant="body2" color={row.manufacturer ? 'text.primary' : 'text.secondary'}>{row.manufacturer || '-'}</Typography> },
     { id: 'quantity', label: t('materials.quantity'), minWidth: 120, hideOnMobile: true, render: (row) => (
       <Box><Typography variant="body2" fontWeight={500}>{row.quantity ? `${Number(row.quantity).toLocaleString()} ${row.unit || ''}` : '-'}</Typography>{row.storageLocation && <Typography variant="caption" color="text.secondary">{row.storageLocation}</Typography>}</Box>
@@ -178,9 +189,9 @@ export default function MaterialsPage() {
 
       <Box sx={{ mb: 2 }}>
         <SummaryBar items={[
-          { label: t('materials.totalMaterials'), value: totalMaterials },
-          { label: t('materials.totalQuantity'), value: totalQuantity.toLocaleString() },
-          { label: t('materials.approved'), value: materials.filter(m => m.status === 'approved').length, color: theme.palette.success.main },
+          { label: t('materials.items'), value: totalMaterials },
+          { label: t('materials.pendingCount'), value: materials.filter(m => m.status === 'submitted').length, color: theme.palette.warning.main },
+          { label: t('materials.totalQuantity'), value: `${totalQuantity.toLocaleString()} ${t('materials.items')}` },
         ]} />
       </Box>
 
@@ -189,7 +200,7 @@ export default function MaterialsPage() {
           <Box sx={{ mb: 2 }}>
             <SearchField placeholder={t('materials.searchPlaceholder')} value={search} onChange={(e) => { setSearch(e.target.value); setPage(1) }} />
           </Box>
-          <Box sx={{ mb: 2 }}>
+          <Box sx={{ mb: 1 }}>
             <FilterChips
               items={[
                 { label: t('common.all'), value: 'all' },
@@ -202,11 +213,25 @@ export default function MaterialsPage() {
               onChange={(val) => { setActiveTab(val); setPage(1) }}
             />
           </Box>
+          <Box sx={{ mb: 2 }}>
+            <FilterChips
+              items={[
+                { label: t('materials.allCategories'), value: 'all' },
+                { label: t('materials.concrete'), value: 'concrete' },
+                { label: t('materials.steel'), value: 'steel' },
+                { label: t('materials.electrical'), value: 'electrical' },
+                { label: t('materials.plumbing'), value: 'plumbing' },
+                { label: t('materials.general'), value: 'general' },
+              ]}
+              value={activeCategory}
+              onChange={(val) => { setActiveCategory(val); setPage(1) }}
+            />
+          </Box>
 
           {isMobile ? (
-            <MaterialCardList materials={materials} loading={loading} onView={handleViewDetails} onEdit={handleOpenEdit} onDelete={handleDeleteClick} onAdd={handleOpenCreate} />
+            <MaterialCardList materials={filteredMaterials} loading={loading} onView={handleViewDetails} onEdit={handleOpenEdit} onDelete={handleDeleteClick} onAdd={handleOpenCreate} />
           ) : (
-            <DataTable columns={columns} rows={materials} getRowId={(row) => row.id} onRowClick={handleViewDetails} emptyVariant="no-results" emptyTitle={t('materials.noMaterialsFound')} emptyDescription={t('materials.noResultsDescription')} emptyAction={{ label: t('materials.addMaterial'), onClick: handleOpenCreate }} pagination={false} />
+            <DataTable columns={columns} rows={filteredMaterials} getRowId={(row) => row.id} onRowClick={handleViewDetails} emptyVariant="no-results" emptyTitle={t('materials.noMaterialsFound')} emptyDescription={t('materials.noResultsDescription')} emptyAction={{ label: t('materials.addMaterial'), onClick: handleOpenCreate }} pagination={false} />
           )}
 
           {totalMaterials > 0 && (

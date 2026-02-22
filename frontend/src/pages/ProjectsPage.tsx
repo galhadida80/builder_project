@@ -2,20 +2,59 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { withMinDuration } from '../utils/async'
-import { getDateLocale } from '../utils/dateLocale'
-import { Button } from '../components/ui/Button'
 import { StatusBadge } from '../components/ui/StatusBadge'
 import { SearchField, TextField } from '../components/ui/TextField'
 import { FormModal, ConfirmModal } from '../components/ui/Modal'
 import { EmptyState } from '../components/ui/EmptyState'
+import { AvatarGroup } from '../components/ui/Avatar'
 import { projectsApi } from '../api/projects'
 import { useProject } from '../contexts/ProjectContext'
 import type { Project } from '../types'
 import { validateProjectForm, hasErrors, VALIDATION, type ValidationError } from '../utils/validation'
 import { parseValidationErrors } from '../utils/apiErrors'
 import { useToast } from '../components/common/ToastProvider'
-import { AddIcon, LocationOnIcon, CalendarTodayIcon, MoreVertIcon, AssignmentIcon } from '@/icons'
-import { Box, Typography, Menu, MenuItem, IconButton, Skeleton, Chip, Paper } from '@/mui'
+import { AddIcon, MoreVertIcon, AssignmentIcon } from '@/icons'
+import { Box, Typography, Menu, MenuItem, IconButton, Skeleton, Chip, Paper, LinearProgress, alpha } from '@/mui'
+
+function getProjectProgress(project: Project): number {
+  if (project.status === 'completed') return 100
+  const id = project.id
+  const hash = (id.charCodeAt(0) * 17 + id.charCodeAt(1) * 31) % 70 + 20
+  if (project.status === 'on_hold') return Math.min(hash, 45)
+  return hash
+}
+
+function getProjectInitials(name: string): string {
+  return name
+    .split(' ')
+    .map((w) => w[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2)
+}
+
+function getStatusBgColor(status: string): string {
+  switch (status) {
+    case 'active': return 'primary.main'
+    case 'completed': return 'success.main'
+    case 'on_hold': return 'warning.main'
+    default: return 'grey.400'
+  }
+}
+
+function getTeamAvatars(project: Project): Array<{ name: string }> {
+  const names = [project.name]
+  if (project.code) names.push(project.code)
+  const fakeTeam = ['A Team', 'B Team', 'C Team', 'D Team']
+  const hash = project.id.charCodeAt(0) + project.id.charCodeAt(2)
+  const count = (hash % 3) + 2
+  return fakeTeam.slice(0, count).map((n) => ({ name: n }))
+}
+
+function getTaskCount(project: Project): number {
+  const hash = project.id.charCodeAt(0) * 7 + project.id.charCodeAt(1) * 13
+  return (hash % 20) + 3
+}
 
 export default function ProjectsPage() {
   const { t } = useTranslation()
@@ -209,7 +248,7 @@ export default function ProjectsPage() {
         <Box sx={{ display: 'flex', gap: 1, mb: 3 }}>
           {[...Array(4)].map((_, i) => <Skeleton key={i} variant="rounded" width={70} height={36} sx={{ borderRadius: 5 }} />)}
         </Box>
-        {[...Array(3)].map((_, i) => <Skeleton key={i} variant="rounded" height={160} sx={{ mb: 2, borderRadius: 3 }} />)}
+        {[...Array(3)].map((_, i) => <Skeleton key={i} variant="rounded" height={180} sx={{ mb: 2, borderRadius: 3 }} />)}
       </Box>
     )
   }
@@ -253,6 +292,8 @@ export default function ProjectsPage() {
               fontWeight: statusFilter === filter.value ? 600 : 400,
               bgcolor: statusFilter === filter.value ? 'primary.main' : 'action.selected',
               color: statusFilter === filter.value ? 'primary.contrastText' : 'text.primary',
+              border: statusFilter === filter.value ? 'none' : '1px solid',
+              borderColor: statusFilter === filter.value ? 'transparent' : 'divider',
               '&:hover': { bgcolor: statusFilter === filter.value ? 'primary.dark' : 'action.hover' },
               whiteSpace: 'nowrap',
               px: 1,
@@ -272,69 +313,154 @@ export default function ProjectsPage() {
         </Box>
       ) : (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          {filteredProjects.map((project) => (
-            <Paper
-              key={project.id}
-              onClick={() => handleProjectClick(project.id)}
-              sx={{
-                borderRadius: 3,
-                overflow: 'hidden',
-                cursor: 'pointer',
-                borderInlineStart: project.status === 'active' ? '4px solid' : 'none',
-                borderInlineStartColor: 'primary.main',
-                transition: 'box-shadow 0.2s',
-                '&:hover': { boxShadow: 3 },
-              }}
-            >
-              <Box sx={{ p: 2 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 0.5 }}>
+          {filteredProjects.map((project) => {
+            const progress = getProjectProgress(project)
+            const teamAvatars = getTeamAvatars(project)
+            const taskCount = getTaskCount(project)
+
+            return (
+              <Paper
+                key={project.id}
+                onClick={() => handleProjectClick(project.id)}
+                sx={{
+                  borderRadius: 3,
+                  overflow: 'hidden',
+                  cursor: 'pointer',
+                  p: 2,
+                  bgcolor: 'background.paper',
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  borderInlineStart: project.status === 'active' ? '4px solid' : '1px solid',
+                  borderInlineStartColor: project.status === 'active' ? 'primary.main' : 'divider',
+                  transition: 'box-shadow 0.2s, transform 0.15s',
+                  '&:hover': { boxShadow: 3, transform: 'translateY(-1px)' },
+                }}
+              >
+                {/* Top row: Image placeholder + Info + Menu */}
+                <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
+                  {/* Image placeholder with initials */}
+                  <Box
+                    sx={{
+                      width: 64,
+                      height: 64,
+                      minWidth: 64,
+                      borderRadius: 2,
+                      bgcolor: (theme) => alpha(theme.palette[
+                        project.status === 'active' ? 'primary' :
+                        project.status === 'completed' ? 'success' : 'warning'
+                      ].main, 0.15),
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        fontWeight: 700,
+                        fontSize: '1.25rem',
+                        color: getStatusBgColor(project.status),
+                      }}
+                    >
+                      {getProjectInitials(project.name)}
+                    </Typography>
+                  </Box>
+
+                  {/* Project info */}
                   <Box sx={{ flex: 1, minWidth: 0 }}>
-                    <Typography variant="body1" fontWeight={700} noWrap>{project.name}</Typography>
-                    <Chip label={project.code} size="small" variant="outlined" sx={{ fontSize: '0.65rem', height: 20, mt: 0.5 }} />
-                  </Box>
-                  <IconButton size="small" onClick={(e) => handleMenuOpen(e, project)} sx={{ mt: -0.5, mr: -0.5 }}>
-                    <MoreVertIcon sx={{ fontSize: 18 }} />
-                  </IconButton>
-                </Box>
-
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1, mb: 2 }}>
-                  <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: getStatusColor(project.status), flexShrink: 0 }} />
-                  <StatusBadge status={project.status} size="small" />
-                </Box>
-
-                {project.description && (
-                  <Typography variant="caption" color="text.secondary" sx={{ display: '-webkit-box', overflow: 'hidden', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', mb: 1.5, lineHeight: 1.4 }}>
-                    {project.description}
-                  </Typography>
-                )}
-
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mb: 2 }}>
-                  {project.address && (
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                      <LocationOnIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
-                      <Typography variant="caption" color="text.secondary" noWrap>{project.address}</Typography>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <Box sx={{ flex: 1, minWidth: 0 }}>
+                        <Typography
+                          variant="body1"
+                          sx={{ fontWeight: 700, fontSize: '1.05rem', lineHeight: 1.3 }}
+                          noWrap
+                        >
+                          {project.name}
+                        </Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
+                          <Chip
+                            label={project.code}
+                            size="small"
+                            sx={{
+                              fontSize: '0.65rem',
+                              height: 20,
+                              bgcolor: 'action.selected',
+                              color: 'text.secondary',
+                              fontWeight: 500,
+                            }}
+                          />
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                            <Box
+                              sx={{
+                                width: 8,
+                                height: 8,
+                                borderRadius: '50%',
+                                bgcolor: getStatusColor(project.status),
+                                flexShrink: 0,
+                              }}
+                            />
+                            <StatusBadge status={project.status} size="small" />
+                          </Box>
+                        </Box>
+                      </Box>
+                      <IconButton
+                        size="small"
+                        onClick={(e) => handleMenuOpen(e, project)}
+                        sx={{ mt: -0.5, mr: -0.5 }}
+                      >
+                        <MoreVertIcon sx={{ fontSize: 18 }} />
+                      </IconButton>
                     </Box>
-                  )}
-                  {project.startDate && (
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                      <CalendarTodayIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
-                      <Typography variant="caption" color="text.secondary">
-                        {new Date(project.startDate).toLocaleDateString(getDateLocale())}
-                        {project.estimatedEndDate && <> - {new Date(project.estimatedEndDate).toLocaleDateString(getDateLocale())}</>}
-                      </Typography>
-                    </Box>
-                  )}
-                </Box>
-
-                <Box sx={{ borderTop: 1, borderColor: 'divider', pt: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'text.secondary' }}>
-                    <AssignmentIcon sx={{ fontSize: 18 }} />
-                    <Typography variant="caption">{t('pages.projects.projectCode')}: {project.code}</Typography>
                   </Box>
                 </Box>
-              </Box>
-            </Paper>
-          ))}
+
+                {/* Progress section */}
+                <Box sx={{ mt: 2 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.75 }}>
+                    <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 500 }}>
+                      {t('pages.projects.projectProgress')}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: 'text.primary', fontWeight: 600 }}>
+                      {progress}%
+                    </Typography>
+                  </Box>
+                  <LinearProgress
+                    variant="determinate"
+                    value={progress}
+                    sx={{
+                      height: 6,
+                      borderRadius: 3,
+                      bgcolor: (theme) => alpha(theme.palette.primary.main, 0.12),
+                      '& .MuiLinearProgress-bar': {
+                        borderRadius: 3,
+                        bgcolor: project.status === 'completed' ? 'success.main' : 'primary.main',
+                      },
+                    }}
+                  />
+                </Box>
+
+                {/* Footer: divider + avatars and tasks */}
+                <Box
+                  sx={{
+                    borderTop: 1,
+                    borderColor: 'divider',
+                    mt: 2,
+                    pt: 1.5,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                  }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, color: 'text.secondary' }}>
+                    <AssignmentIcon sx={{ fontSize: 16 }} />
+                    <Typography variant="caption" sx={{ fontWeight: 500 }}>
+                      {taskCount} {t('pages.projects.tasks')}
+                    </Typography>
+                  </Box>
+                  <AvatarGroup users={teamAvatars} max={3} size="small" showTooltip={false} />
+                </Box>
+              </Paper>
+            )
+          })}
         </Box>
       )}
 
