@@ -9,6 +9,8 @@ import { approvalsApi } from '../api/approvals'
 import { auditApi } from '../api/audit'
 import { workloadApi } from '../api/workload'
 import { dashboardStatsApi } from '../api/dashboardStats'
+import { projectsApi } from '../api/projects'
+import { defectsApi } from '../api/defects'
 
 vi.mock('react-i18next', async (importOriginal) => {
   const actual = await importOriginal<typeof import('react-i18next')>()
@@ -29,6 +31,10 @@ vi.mock('../contexts/ProjectContext', () => ({
   useProject: () => ({ selectedProjectId: 'test-project-id' }),
 }))
 
+vi.mock('../contexts/AuthContext', () => ({
+  useAuth: () => ({ user: { id: 'u1', fullName: 'Test User', email: 'test@test.com' }, loading: false }),
+}))
+
 vi.mock('../components/common/ToastProvider', () => ({
   useToast: () => ({ showError: vi.fn(), showWarning: vi.fn(), showSuccess: vi.fn() }),
 }))
@@ -40,6 +46,9 @@ vi.mock('../api/approvals', () => ({ approvalsApi: { list: vi.fn() } }))
 vi.mock('../api/audit', () => ({ auditApi: { listAll: vi.fn(), listByProject: vi.fn() } }))
 vi.mock('../api/workload', () => ({ workloadApi: { getTeamMembers: vi.fn() } }))
 vi.mock('../api/dashboardStats', () => ({ dashboardStatsApi: { getStats: vi.fn() } }))
+vi.mock('../api/projects', () => ({ projectsApi: { list: vi.fn() } }))
+vi.mock('../api/defects', () => ({ defectsApi: { list: vi.fn() } }))
+vi.mock('../utils/dateLocale', () => ({ getDateLocale: () => undefined }))
 
 vi.mock('@mui/x-charts/BarChart', () => ({
   BarChart: () => <div data-testid="bar-chart" />,
@@ -137,6 +146,8 @@ describe('DashboardPage', () => {
     vi.mocked(auditApi.listAll).mockResolvedValue(mockAuditLogs as never)
     vi.mocked(workloadApi.getTeamMembers).mockResolvedValue(mockTeam as never)
     vi.mocked(dashboardStatsApi.getStats).mockResolvedValue(mockDashboardStats as never)
+    vi.mocked(projectsApi.list).mockResolvedValue([] as never)
+    vi.mocked(defectsApi.list).mockResolvedValue({ items: [], total: 0 } as never)
   })
 
   it('shows loading skeletons initially', () => {
@@ -144,30 +155,21 @@ describe('DashboardPage', () => {
     expect(container.querySelectorAll('.MuiSkeleton-root').length).toBeGreaterThan(0)
   })
 
-  it('renders title and subtitle after loading', async () => {
+  it('renders greeting after loading', async () => {
     renderWithProviders(<DashboardPage />)
     await waitFor(() => {
-      expect(screen.getByText('dashboard.title')).toBeInTheDocument()
-    })
-    expect(screen.getByText('dashboard.overviewSubtitle')).toBeInTheDocument()
-  })
-
-  it('renders 4 KPI cards', async () => {
-    renderWithProviders(<DashboardPage />)
-    await waitFor(() => {
-      expect(screen.getAllByTestId('kpi-card')).toHaveLength(4)
+      expect(screen.getByText('dashboard.greeting')).toBeInTheDocument()
     })
   })
 
-  it('displays equipment count KPI', async () => {
+  it('renders active projects count', async () => {
     renderWithProviders(<DashboardPage />)
     await waitFor(() => {
-      expect(screen.getByText('dashboard.equipmentItems')).toBeInTheDocument()
+      expect(screen.getByText('dashboard.activeProjects')).toBeInTheDocument()
     })
-    expect(screen.getByText('2')).toBeInTheDocument()
   })
 
-  it('displays pending approvals count', async () => {
+  it('displays pending approvals section', async () => {
     renderWithProviders(<DashboardPage />)
     await waitFor(() => {
       expect(screen.getAllByText('dashboard.pendingApprovals').length).toBeGreaterThanOrEqual(1)
@@ -232,13 +234,10 @@ describe('DashboardPage', () => {
     })
   })
 
-  it('shows empty approvals state when all approved', async () => {
-    vi.mocked(approvalsApi.list).mockResolvedValue([
-      { id: 'a1', projectId: 'p1', entityType: 'equipment', entityId: 'eq-1', currentStatus: 'approved', createdAt: '2024-01-01', steps: [] },
-    ] as never)
+  it('renders completion rate section', async () => {
     renderWithProviders(<DashboardPage />)
     await waitFor(() => {
-      expect(screen.getByText('dashboard.allCaughtUp')).toBeInTheDocument()
+      expect(screen.getByText('dashboard.completionRate')).toBeInTheDocument()
     })
   })
 
