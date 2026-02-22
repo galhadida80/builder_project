@@ -58,6 +58,25 @@ class UserResponse(CamelCaseModel, UserBase):
     phone: Optional[str] = None
     language: Optional[str] = None
     signature_url: Optional[str] = None
+    avatar_url: Optional[str] = None
+
+
+class WorkItemBrief(CamelCaseModel):
+    id: UUID
+    entity_type: str
+    title: str
+    status: str
+    project_name: str
+    updated_at: datetime
+
+
+class WorkSummaryResponse(CamelCaseModel):
+    projects_count: int = 0
+    open_tasks: int = 0
+    open_rfis: int = 0
+    pending_approvals: int = 0
+    open_defects: int = 0
+    recent_items: list[WorkItemBrief] = []
 
 
 class TokenResponse(CamelCaseModel):

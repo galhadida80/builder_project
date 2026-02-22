@@ -15,7 +15,26 @@ interface LoginResponse {
     isSuperAdmin: boolean
     createdAt: string
     signatureUrl: string | null
+    avatarUrl: string | null
   }
+}
+
+export interface WorkItemBrief {
+  id: string
+  entityType: string
+  title: string
+  status: string
+  projectName: string
+  updatedAt: string
+}
+
+export interface WorkSummary {
+  projectsCount: number
+  openTasks: number
+  openRfis: number
+  pendingApprovals: number
+  openDefects: number
+  recentItems: WorkItemBrief[]
 }
 
 function transformUser(apiUser: LoginResponse['user']): User {
@@ -30,6 +49,7 @@ function transformUser(apiUser: LoginResponse['user']): User {
     isSuperAdmin: apiUser.isSuperAdmin,
     createdAt: apiUser.createdAt,
     signatureUrl: apiUser.signatureUrl || undefined,
+    avatarUrl: apiUser.avatarUrl || undefined,
   }
 }
 
@@ -157,6 +177,31 @@ export const authApi = {
 
   webauthnDeleteCredential: async (id: string): Promise<void> => {
     await apiClient.delete(`/auth/webauthn/credentials/${id}`)
+  },
+
+  uploadAvatar: async (dataUrl: string): Promise<User> => {
+    const response = await apiClient.put<LoginResponse['user']>('/auth/me/avatar', { avatar_data: dataUrl })
+    return transformUser(response.data)
+  },
+
+  deleteAvatar: async (): Promise<User> => {
+    const response = await apiClient.delete<LoginResponse['user']>('/auth/me/avatar')
+    return transformUser(response.data)
+  },
+
+  getAvatarImage: async (): Promise<string> => {
+    const response = await apiClient.get('/auth/me/avatar/image', { responseType: 'blob' })
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onloadend = () => resolve(reader.result as string)
+      reader.onerror = reject
+      reader.readAsDataURL(response.data)
+    })
+  },
+
+  getWorkSummary: async (): Promise<WorkSummary> => {
+    const response = await apiClient.get<WorkSummary>('/auth/me/work-summary')
+    return response.data
   },
 }
 

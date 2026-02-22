@@ -1,14 +1,14 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { withMinDuration } from '../utils/async'
 import { getDateLocale } from '../utils/dateLocale'
 import { useAuth } from '../contexts/AuthContext'
 import { useToast } from '../components/common/ToastProvider'
-import { authApi, WebAuthnCredential } from '../api/auth'
+import { authApi, WebAuthnCredential, WorkSummary } from '../api/auth'
 import { profileSchema, validateWithSchema } from '../schemas/validation'
 import { SignaturePad } from '../components/checklist/SignaturePad'
-import { PersonIcon, EmailIcon, PhoneIcon, BusinessIcon, EditIcon, SaveIcon, FingerprintIcon, DeleteIcon, CameraAltIcon, CreateIcon, LocationOnIcon } from '@/icons'
-import { Box, Typography, Paper, Avatar, TextField, Button, Divider, Chip, IconButton, CircularProgress, LinearProgress } from '@/mui'
+import { PersonIcon, EmailIcon, PhoneIcon, BusinessIcon, EditIcon, SaveIcon, FingerprintIcon, DeleteIcon, CameraAltIcon, CreateIcon, LocationOnIcon, AssignmentIcon, ApprovalIcon, TaskAltIcon, WarningAmberIcon } from '@/icons'
+import { Box, Typography, Paper, Avatar, TextField, Button, Divider, Chip, IconButton, CircularProgress } from '@/mui'
 
 export default function ProfilePage() {
   const { t } = useTranslation()
@@ -33,6 +33,13 @@ export default function ProfilePage() {
   const [loadingCredentials, setLoadingCredentials] = useState(false)
   const [registering, setRegistering] = useState(false)
 
+  const avatarInputRef = useRef<HTMLInputElement>(null)
+  const [avatarImageUrl, setAvatarImageUrl] = useState<string | null>(null)
+  const [savingAvatar, setSavingAvatar] = useState(false)
+
+  const [workSummary, setWorkSummary] = useState<WorkSummary | null>(null)
+  const [loadingWork, setLoadingWork] = useState(true)
+
   useEffect(() => {
     if (user?.signatureUrl) {
       authApi.getSignatureImage().then(setSignatureImageUrl).catch(() => {})
@@ -42,8 +49,23 @@ export default function ProfilePage() {
   }, [user?.signatureUrl])
 
   useEffect(() => {
+    if (user?.avatarUrl) {
+      authApi.getAvatarImage().then(setAvatarImageUrl).catch(() => {})
+    } else {
+      setAvatarImageUrl(null)
+    }
+  }, [user?.avatarUrl])
+
+  useEffect(() => {
     if (webauthnSupported) loadCredentials()
   }, [webauthnSupported])
+
+  useEffect(() => {
+    authApi.getWorkSummary()
+      .then(setWorkSummary)
+      .catch(() => {})
+      .finally(() => setLoadingWork(false))
+  }, [])
 
   const loadCredentials = async () => {
     setLoadingCredentials(true)
@@ -82,6 +104,44 @@ export default function ProfilePage() {
       showError(t('profile.updateFailed'))
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handleAvatarSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (e.target) e.target.value = ''
+
+    const reader = new FileReader()
+    reader.onloadend = async () => {
+      const dataUrl = reader.result as string
+      setSavingAvatar(true)
+      try {
+        await authApi.uploadAvatar(dataUrl)
+        await refreshUser()
+        const imageUrl = await authApi.getAvatarImage()
+        setAvatarImageUrl(imageUrl)
+        showSuccess(t('profile.avatarSaved'))
+      } catch {
+        showError(t('profile.avatarSaveFailed'))
+      } finally {
+        setSavingAvatar(false)
+      }
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const handleDeleteAvatar = async () => {
+    setSavingAvatar(true)
+    try {
+      await authApi.deleteAvatar()
+      await refreshUser()
+      setAvatarImageUrl(null)
+      showSuccess(t('profile.avatarSaved'))
+    } catch {
+      showError(t('profile.avatarSaveFailed'))
+    } finally {
+      setSavingAvatar(false)
     }
   }
 
@@ -148,11 +208,33 @@ export default function ProfilePage() {
     }
   }
 
+  const workCategories = [
+    { icon: <TaskAltIcon sx={{ color: 'primary.main' }} />, label: t('profile.openTasks'), count: workSummary?.openTasks ?? 0 },
+    { icon: <AssignmentIcon sx={{ color: '#2196f3' }} />, label: t('profile.openRfis'), count: workSummary?.openRfis ?? 0 },
+    { icon: <ApprovalIcon sx={{ color: '#ff9800' }} />, label: t('profile.pendingApprovals'), count: workSummary?.pendingApprovals ?? 0 },
+    { icon: <WarningAmberIcon sx={{ color: '#f44336' }} />, label: t('profile.openDefects'), count: workSummary?.openDefects ?? 0 },
+  ]
+
+  const statusColor = (status: string) => {
+    if (status === 'in_progress' || status === 'waiting_response') return 'warning'
+    if (status === 'open' || status === 'not_started' || status === 'pending') return 'info'
+    return 'default'
+  }
+
   return (
     <Box sx={{ pb: { xs: 12, sm: 4 } }}>
+      <input
+        ref={avatarInputRef}
+        type="file"
+        accept="image/png,image/jpeg"
+        hidden
+        onChange={handleAvatarSelect}
+      />
+
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', pt: { xs: 4, sm: 5 }, pb: 3, px: 2 }}>
         <Box sx={{ position: 'relative', mb: 2 }}>
           <Avatar
+            src={avatarImageUrl || undefined}
             sx={{
               width: { xs: 100, sm: 120 },
               height: { xs: 100, sm: 120 },
@@ -162,10 +244,12 @@ export default function ProfilePage() {
               borderColor: 'primary.main',
             }}
           >
-            {getInitials(user?.fullName || user?.email || '')}
+            {savingAvatar ? <CircularProgress size={32} sx={{ color: 'white' }} /> : getInitials(user?.fullName || user?.email || '')}
           </Avatar>
           <IconButton
             size="small"
+            onClick={() => avatarInputRef.current?.click()}
+            disabled={savingAvatar}
             sx={{
               position: 'absolute',
               bottom: 0,
@@ -196,22 +280,33 @@ export default function ProfilePage() {
         <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
           {t('profile.memberSince')} {new Date(user?.createdAt || Date.now()).toLocaleDateString(undefined, { year: 'numeric', month: 'long' })}
         </Typography>
+        {avatarImageUrl && (
+          <Button size="small" color="error" onClick={handleDeleteAvatar} disabled={savingAvatar} sx={{ mt: 0.5, fontSize: '0.7rem' }}>
+            {t('profile.removePhoto')}
+          </Button>
+        )}
       </Box>
 
       <Box sx={{ maxWidth: 600, mx: 'auto', px: 2, mb: 3 }}>
         <Paper sx={{ borderRadius: 3, overflow: 'hidden' }}>
           <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', textAlign: 'center', py: 2 }}>
             <Box>
-              <Typography variant="h5" fontWeight={700} color="primary.main">12</Typography>
+              <Typography variant="h5" fontWeight={700} color="primary.main">
+                {loadingWork ? '—' : workSummary?.projectsCount ?? 0}
+              </Typography>
               <Typography variant="caption" color="text.secondary">{t('profile.projects')}</Typography>
             </Box>
             <Box sx={{ borderInlineStart: '1px solid', borderInlineEnd: '1px solid', borderColor: 'divider' }}>
-              <Typography variant="h5" fontWeight={700} color="primary.main">156</Typography>
-              <Typography variant="caption" color="text.secondary">{t('profile.tasks')}</Typography>
+              <Typography variant="h5" fontWeight={700} color="primary.main">
+                {loadingWork ? '—' : workSummary?.openTasks ?? 0}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">{t('profile.openTasks')}</Typography>
             </Box>
             <Box>
-              <Typography variant="h5" fontWeight={700} color="primary.main">98%</Typography>
-              <Typography variant="caption" color="text.secondary">{t('profile.rating')}</Typography>
+              <Typography variant="h5" fontWeight={700} color="primary.main">
+                {loadingWork ? '—' : workSummary?.pendingApprovals ?? 0}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">{t('profile.pendingApprovals')}</Typography>
             </Box>
           </Box>
         </Paper>
@@ -282,30 +377,47 @@ export default function ProfilePage() {
         <Paper sx={{ borderRadius: 3, overflow: 'hidden', mb: 3 }}>
           <Box sx={{ p: 2.5 }}>
             <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 2, textAlign: 'center' }}>
-              {t('profile.activeProjects')}
+              {t('profile.myWork')}
             </Typography>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <ActiveProjectRow name="Tower Alpha" role={t('profile.role') + ': Project Manager'} progress={75} />
-              <ActiveProjectRow name="Tech Park" role={t('profile.role') + ': Inspector'} progress={45} />
-            </Box>
-          </Box>
-        </Paper>
+            {loadingWork ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
+                <CircularProgress size={24} />
+              </Box>
+            ) : (
+              <>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mb: 2 }}>
+                  {workCategories.map((cat) => (
+                    <Box key={cat.label} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 1 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                        {cat.icon}
+                        <Typography variant="body2" fontWeight={500}>{cat.label}</Typography>
+                      </Box>
+                      <Chip label={cat.count} size="small" sx={{ fontWeight: 700, minWidth: 36 }} />
+                    </Box>
+                  ))}
+                </Box>
 
-        <Paper sx={{ borderRadius: 3, overflow: 'hidden', mb: 3 }}>
-          <Box sx={{ p: 2.5 }}>
-            <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 2, textAlign: 'center' }}>
-              {t('profile.skillsTitle')}
-            </Typography>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, justifyContent: 'center' }}>
-              {['Project Management', 'Safety', 'BIM', 'Budget', 'Quality Control', 'Scheduling'].map((skill) => (
-                <Chip
-                  key={skill}
-                  label={skill}
-                  variant="outlined"
-                  sx={{ borderColor: 'primary.main', color: 'primary.main', fontWeight: 500 }}
-                />
-              ))}
-            </Box>
+                {workSummary && workSummary.recentItems.length > 0 && (
+                  <>
+                    <Divider sx={{ my: 1.5 }} />
+                    <Typography variant="caption" fontWeight={600} color="text.secondary" sx={{ display: 'block', mb: 1 }}>
+                      {t('profile.recentItems')}
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                      {workSummary.recentItems.map((item) => (
+                        <Box key={item.id} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 1, borderRadius: 1.5, bgcolor: 'action.hover' }}>
+                          <Box sx={{ minWidth: 0, flex: 1 }}>
+                            <Typography variant="body2" fontWeight={500} noWrap>{item.title}</Typography>
+                            <Typography variant="caption" color="text.secondary">{item.projectName}</Typography>
+                          </Box>
+                          <Chip label={item.status.replace('_', ' ')} size="small" color={statusColor(item.status)} sx={{ fontSize: '0.65rem', height: 20, ml: 1 }} />
+                        </Box>
+                      ))}
+                    </Box>
+                  </>
+                )}
+              </>
+            )}
           </Box>
         </Paper>
 
@@ -412,29 +524,5 @@ function ProfileRow({ icon, label, value }: { icon: React.ReactNode; label: stri
       </Box>
       {icon}
     </Box>
-  )
-}
-
-function ActiveProjectRow({ name, role, progress }: { name: string; role: string; progress: number }) {
-  return (
-    <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, borderColor: 'primary.main' }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
-        <Typography variant="body2" fontWeight={700} color="primary.main">{progress}%</Typography>
-        <Box sx={{ textAlign: 'end' }}>
-          <Typography variant="subtitle2" fontWeight={700}>{name}</Typography>
-          <Typography variant="caption" color="text.secondary">{role}</Typography>
-        </Box>
-      </Box>
-      <LinearProgress
-        variant="determinate"
-        value={progress}
-        sx={{
-          height: 6,
-          borderRadius: 3,
-          bgcolor: 'action.hover',
-          '& .MuiLinearProgress-bar': { bgcolor: 'primary.main', borderRadius: 3 },
-        }}
-      />
-    </Paper>
   )
 }

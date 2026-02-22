@@ -5,8 +5,6 @@ import sentry_sdk
 from sentry_sdk.integrations.logging import LoggingIntegration
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from slowapi import _rate_limit_exceeded_handler
-from slowapi.errors import RateLimitExceeded
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.api.v1.router import api_router
@@ -17,7 +15,6 @@ from app.db.seeds.consultant_types import seed_consultant_types
 from app.db.seeds.equipment_templates import seed_equipment_templates
 from app.db.seeds.inspection_templates import seed_inspection_templates
 from app.db.seeds.material_templates import seed_material_templates
-from app.middleware.rate_limiter import get_rate_limiter
 from app.services.mcp_server import mcp
 from app.utils.localization import get_language_from_request
 
@@ -123,11 +120,6 @@ app = FastAPI(
     docs_url=f"{settings.api_v1_prefix}/docs",
     lifespan=lifespan,
 )
-
-# Register rate limiter
-limiter = get_rate_limiter()
-app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.add_middleware(RequestLoggingMiddleware)
 app.add_middleware(LanguageDetectionMiddleware)

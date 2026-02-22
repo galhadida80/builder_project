@@ -34,13 +34,11 @@ from app.services.email_renderer import render_password_reset_email, render_welc
 from app.services.email_service import EmailService
 from app.services.storage_service import StorageBackend, get_storage_backend
 from app.utils.localization import get_language_from_request, translate_message
-from app.middleware.rate_limiter import get_rate_limiter
 from app.utils import utcnow
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
-limiter = get_rate_limiter()
 
 
 def safe_send_email(email_service: EmailService, to_email: str, subject: str, body_html: str):
@@ -51,7 +49,6 @@ def safe_send_email(email_service: EmailService, to_email: str, subject: str, bo
 
 
 @router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
-@limiter.limit("5/5minute")
 async def register(
     data: UserRegister,
     request: Request,
@@ -125,7 +122,6 @@ async def register(
 
 
 @router.post("/login", response_model=TokenResponse)
-@limiter.limit("5/5minute")
 async def login(data: UserLogin, request: Request, db: AsyncSession = Depends(get_db)):
     # Validate and sanitize input
     email = validate_email(data.email)
@@ -255,8 +251,82 @@ async def get_signature_image(
     return Response(content=content, media_type="image/png", headers={"Cache-Control": "max-age=3600"})
 
 
+@router.put("/me/avatar", response_model=UserResponse)
+async def upload_avatar(
+    avatar_data: str = Body(..., embed=True),
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+    storage: StorageBackend = Depends(get_storage_backend),
+):
+    if avatar_data.startswith("data:image/png;base64,"):
+        ext = "png"
+        content_type = "image/png"
+    elif avatar_data.startswith("data:image/jpeg;base64,"):
+        ext = "jpg"
+        content_type = "image/jpeg"
+    else:
+        raise HTTPException(status_code=400, detail="Invalid avatar format, expected base64 PNG or JPEG")
+
+    raw_b64 = avatar_data.split(",", 1)[1]
+    try:
+        image_bytes = base64.b64decode(raw_b64)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid base64 data")
+
+    if len(image_bytes) > 2_000_000:
+        raise HTTPException(status_code=400, detail="Avatar image too large (max 2MB)")
+
+    if user.avatar_url:
+        try:
+            await storage.delete_file(user.avatar_url)
+        except Exception:
+            pass
+
+    storage_path = f"avatars/{user.id}.{ext}"
+    await storage.save_bytes(image_bytes, storage_path, content_type=content_type)
+
+    user.avatar_url = storage_path
+    await db.commit()
+    await db.refresh(user)
+    return user
+
+
+@router.delete("/me/avatar", response_model=UserResponse)
+async def delete_avatar(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+    storage: StorageBackend = Depends(get_storage_backend),
+):
+    if not user.avatar_url:
+        raise HTTPException(status_code=404, detail="No avatar found")
+
+    try:
+        await storage.delete_file(user.avatar_url)
+    except Exception:
+        pass
+
+    user.avatar_url = None
+    await db.commit()
+    await db.refresh(user)
+    return user
+
+
+@router.get("/me/avatar/image")
+async def get_avatar_image(
+    user: User = Depends(get_current_user),
+    storage: StorageBackend = Depends(get_storage_backend),
+):
+    if not user.avatar_url:
+        raise HTTPException(status_code=404, detail="No avatar found")
+    try:
+        content = await storage.get_file_content(user.avatar_url)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Avatar file not found")
+    media_type = "image/jpeg" if user.avatar_url.endswith(".jpg") else "image/png"
+    return Response(content=content, media_type=media_type, headers={"Cache-Control": "max-age=3600"})
+
+
 @router.post("/forgot-password", response_model=MessageResponse)
-@limiter.limit("3/hour")
 async def forgot_password(
     data: PasswordResetRequest,
     request: Request,
@@ -305,7 +375,6 @@ async def forgot_password(
 
 
 @router.post("/reset-password", response_model=MessageResponse)
-@limiter.limit("3/hour")
 async def reset_password(
     data: PasswordResetConfirm,
     request: Request,

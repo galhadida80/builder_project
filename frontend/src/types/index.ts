@@ -19,6 +19,7 @@ export interface User {
   isSuperAdmin?: boolean
   createdAt: string
   signatureUrl?: string
+  avatarUrl?: string
 }
 
 export interface Invitation {

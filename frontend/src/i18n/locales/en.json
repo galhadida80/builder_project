@@ -650,7 +650,17 @@
     "location": "Location",
     "activeProjects": "Active Projects",
     "skillsTitle": "Skills & Certifications",
-    "role": "Role"
+    "role": "Role",
+    "avatarSaved": "Profile photo saved successfully",
+    "avatarSaveFailed": "Failed to save profile photo",
+    "changePhoto": "Change Photo",
+    "removePhoto": "Remove Photo",
+    "myWork": "My Work",
+    "openTasks": "Open Tasks",
+    "openRfis": "Open RFIs",
+    "pendingApprovals": "Pending Approvals",
+    "openDefects": "Open Defects",
+    "recentItems": "Recent Items"
   },
   "auditLog": {
     "pageTitle": "Audit Log",

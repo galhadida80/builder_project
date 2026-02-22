@@ -294,7 +294,17 @@
     "location": "מיקום",
     "activeProjects": "פרויקטים פעילים",
     "skillsTitle": "כישורים והסמכות",
-    "role": "תפקיד"
+    "role": "תפקיד",
+    "avatarSaved": "תמונת הפרופיל נשמרה בהצלחה",
+    "avatarSaveFailed": "נכשל בשמירת תמונת הפרופיל",
+    "changePhoto": "שנה תמונה",
+    "removePhoto": "הסר תמונה",
+    "myWork": "העבודה שלי",
+    "openTasks": "משימות פתוחות",
+    "openRfis": "בקשות מידע פתוחות",
+    "pendingApprovals": "אישורים ממתינים",
+    "openDefects": "ליקויים פתוחים",
+    "recentItems": "פריטים אחרונים"
   },
   "equipment": {
     "title": "ציוד",

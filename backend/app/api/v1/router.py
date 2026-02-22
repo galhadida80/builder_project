@@ -41,6 +41,7 @@ from app.api.v1 import (
     rfis,
     tasks_api,
     webhooks,
+    work_summary,
     workload,
     subcontractors,
     ws,
@@ -91,3 +92,4 @@ api_router.include_router(discussions.router, tags=["discussions"])
 api_router.include_router(quantity_extraction.router, tags=["quantity_extraction"])
 api_router.include_router(reports.router, tags=["reports"])
 api_router.include_router(subcontractors.router, tags=["subcontractors"])
+api_router.include_router(work_summary.router, prefix="/auth", tags=["auth"])
