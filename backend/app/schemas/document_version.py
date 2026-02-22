@@ -6,7 +6,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field, field_validator
 
-from app.core.validators import MAX_DESCRIPTION_LENGTH, MAX_NAME_LENGTH, CamelCaseModel, sanitize_string
+from app.core.validators import MAX_DESCRIPTION_LENGTH, CamelCaseModel, sanitize_string
 from app.schemas.user import UserResponse
 
 
