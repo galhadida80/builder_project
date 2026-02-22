@@ -40,6 +40,12 @@ class NotificationResponse(CamelCaseModel):
     updated_at: datetime
 
 
+class NotificationListResponse(CamelCaseModel):
+    items: list[NotificationResponse]
+    total: int
+    limit: int
+    offset: int
+
+
 class UnreadCountResponse(CamelCaseModel):
-    """Response model for unread count endpoint."""
     unread_count: int

@@ -5,8 +5,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.models.area import ConstructionArea
+from app.models.budget import BudgetLineItem, CostEntry
+from app.models.checklist import ChecklistInstance
 from app.models.contact import Contact
-from app.models.defect import Defect
+from app.models.defect import Defect, DefectAssignee
 from app.models.document_analysis import DocumentAnalysis
 from app.models.equipment import Equipment
 from app.models.equipment_template import EquipmentApprovalSubmission
@@ -16,6 +18,7 @@ from app.models.material_template import MaterialApprovalSubmission
 from app.models.meeting import Meeting
 from app.models.project import Project, ProjectMember
 from app.models.rfi import RFI
+from app.models.task import Task
 
 
 async def get_project_summary(db: AsyncSession, project_id: uuid.UUID, **kwargs) -> dict:
@@ -758,6 +761,144 @@ async def get_full_project_context(db: AsyncSession, project_id: uuid.UUID) -> s
     return "\n".join(lines)
 
 
+async def get_budget_summary(db: AsyncSession, project_id: uuid.UUID, **kwargs) -> dict:
+    items_result = await db.execute(
+        select(BudgetLineItem).where(BudgetLineItem.project_id == project_id)
+    )
+    items = items_result.scalars().all()
+    if not items:
+        return {"total_budget": 0, "total_spent": 0, "remaining": 0, "categories": {}}
+
+    total_budget = sum(float(i.budgeted_amount) for i in items)
+    costs_result = await db.execute(
+        select(func.sum(CostEntry.amount)).where(CostEntry.project_id == project_id)
+    )
+    total_spent = float(costs_result.scalar() or 0)
+
+    categories = {}
+    for item in items:
+        cat = item.category
+        if cat not in categories:
+            categories[cat] = {"budgeted": 0, "items_count": 0}
+        categories[cat]["budgeted"] += float(item.budgeted_amount)
+        categories[cat]["items_count"] += 1
+
+    return {
+        "total_budget": round(total_budget, 2),
+        "total_spent": round(total_spent, 2),
+        "remaining": round(total_budget - total_spent, 2),
+        "utilization_pct": round((total_spent / total_budget * 100) if total_budget else 0, 1),
+        "line_items_count": len(items),
+        "categories": categories,
+    }
+
+
+async def get_schedule_status(db: AsyncSession, project_id: uuid.UUID, **kwargs) -> dict:
+    tasks_result = await db.execute(
+        select(Task).where(Task.project_id == project_id)
+    )
+    tasks = tasks_result.scalars().all()
+    if not tasks:
+        return {"total_tasks": 0, "by_status": {}, "overdue": 0}
+
+    from datetime import date as date_type
+    today = date_type.today()
+    by_status = {}
+    overdue = 0
+    by_priority = {}
+
+    for t in tasks:
+        by_status[t.status] = by_status.get(t.status, 0) + 1
+        by_priority[t.priority] = by_priority.get(t.priority, 0) + 1
+        if t.due_date and t.due_date < today and t.status not in ("completed", "cancelled"):
+            overdue += 1
+
+    completed = by_status.get("completed", 0)
+    total = len(tasks)
+    return {
+        "total_tasks": total,
+        "by_status": by_status,
+        "by_priority": by_priority,
+        "overdue": overdue,
+        "completion_pct": round(completed / total * 100, 1) if total else 0,
+    }
+
+
+async def get_team_workload(db: AsyncSession, project_id: uuid.UUID, **kwargs) -> dict:
+    members_result = await db.execute(
+        select(ProjectMember)
+        .options(selectinload(ProjectMember.user))
+        .where(ProjectMember.project_id == project_id)
+    )
+    members = members_result.scalars().all()
+
+    workload = []
+    for m in members:
+        task_count = await db.execute(
+            select(func.count()).select_from(Task).where(
+                Task.project_id == project_id,
+                Task.assignee_id == m.user_id,
+                Task.status.notin_(["completed", "cancelled"]),
+            )
+        )
+        defect_count = await db.execute(
+            select(func.count(Defect.id.distinct()))
+            .join(DefectAssignee, DefectAssignee.defect_id == Defect.id)
+            .join(Contact, Contact.id == DefectAssignee.contact_id)
+            .where(
+                Defect.project_id == project_id,
+                Contact.user_id == m.user_id,
+            )
+        )
+        workload.append({
+            "name": m.user.full_name or m.user.email,
+            "role": m.role,
+            "active_tasks": task_count.scalar() or 0,
+            "active_defects": defect_count.scalar() or 0,
+        })
+
+    workload.sort(key=lambda x: x["active_tasks"] + x["active_defects"], reverse=True)
+    return {"team_size": len(members), "members": workload[:20]}
+
+
+async def get_safety_overview(db: AsyncSession, project_id: uuid.UUID, **kwargs) -> dict:
+    checklists_result = await db.execute(
+        select(ChecklistInstance.status, func.count(ChecklistInstance.id))
+        .where(ChecklistInstance.project_id == project_id)
+        .group_by(ChecklistInstance.status)
+    )
+    checklist_status = {row[0]: row[1] for row in checklists_result.all()}
+
+    defect_sev = await db.execute(
+        select(Defect.severity, func.count(Defect.id))
+        .where(Defect.project_id == project_id, Defect.status != "resolved")
+        .group_by(Defect.severity)
+    )
+    open_defects_severity = {row[0]: row[1] for row in defect_sev.all()}
+
+    inspections_result = await db.execute(
+        select(Inspection.status, func.count(Inspection.id))
+        .where(Inspection.project_id == project_id)
+        .group_by(Inspection.status)
+    )
+    inspection_status = {row[0]: row[1] for row in inspections_result.all()}
+
+    critical_findings = await db.execute(
+        select(func.count()).select_from(Finding).join(Inspection).where(
+            Inspection.project_id == project_id,
+            Finding.severity == "critical",
+            Finding.status != "resolved",
+        )
+    )
+
+    return {
+        "checklist_status": checklist_status,
+        "open_defects_by_severity": open_defects_severity,
+        "inspection_status": inspection_status,
+        "critical_open_findings": critical_findings.scalar() or 0,
+    }
+
+
 TOOL_REGISTRY = {
     "get_project_summary": get_project_summary,
     "count_equipment_by_status": count_equipment_by_status,
@@ -783,4 +924,8 @@ TOOL_REGISTRY = {
     "list_defects": list_defects,
     "get_defect_details": get_defect_details,
     "search_documents": search_documents,
+    "get_budget_summary": get_budget_summary,
+    "get_schedule_status": get_schedule_status,
+    "get_team_workload": get_team_workload,
+    "get_safety_overview": get_safety_overview,
 }

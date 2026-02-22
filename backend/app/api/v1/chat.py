@@ -282,3 +282,65 @@ async def delete_conversation(
     await db.delete(conversation)
     await db.commit()
     return {"detail": "Conversation deleted"}
+
+
+@router.get("/projects/{project_id}/chat/suggestions")
+async def get_chat_suggestions(
+    project_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    await verify_project_access(project_id, current_user, db)
+
+    from app.services.chat_tools import (
+        count_defects_by_status,
+        count_rfis_by_status,
+        get_approval_queue,
+        get_schedule_status,
+    )
+
+    suggestions = []
+
+    approvals = await get_approval_queue(db, project_id)
+    if approvals.get("total_pending", 0) > 0:
+        suggestions.append({
+            "type": "approval",
+            "text": f"You have {approvals['total_pending']} pending approvals. Want me to summarize them?",
+            "prompt": "Show me all pending approvals and their details",
+        })
+
+    defects = await count_defects_by_status(db, project_id)
+    critical = defects.get("by_severity", {}).get("critical", 0)
+    if critical > 0:
+        suggestions.append({
+            "type": "safety",
+            "text": f"There are {critical} critical defects. Want a safety overview?",
+            "prompt": "Give me a safety overview focusing on critical defects",
+        })
+
+    rfis = await count_rfis_by_status(db, project_id)
+    open_rfis = rfis.get("by_status", {}).get("open", 0)
+    if open_rfis > 3:
+        suggestions.append({
+            "type": "rfi",
+            "text": f"{open_rfis} RFIs are open. Need help prioritizing?",
+            "prompt": "List all open RFIs sorted by priority and age",
+        })
+
+    schedule = await get_schedule_status(db, project_id)
+    overdue = schedule.get("overdue", 0)
+    if overdue > 0:
+        suggestions.append({
+            "type": "schedule",
+            "text": f"{overdue} tasks are overdue. Want a schedule review?",
+            "prompt": "Show me all overdue tasks and their details",
+        })
+
+    if not suggestions:
+        suggestions.append({
+            "type": "general",
+            "text": "Everything looks good! Ask me about project status, budget, or schedule.",
+            "prompt": "Give me a full project summary",
+        })
+
+    return {"suggestions": suggestions[:5]}

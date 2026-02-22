@@ -24,6 +24,7 @@ from app.api.v1 import (
     discussions,
     document_analysis,
     document_reviews,
+    document_versions,
     equipment,
     equipment_templates,
     files,
@@ -41,6 +42,7 @@ from app.api.v1 import (
     tasks_api,
     webhooks,
     workload,
+    subcontractors,
     ws,
 )
 
@@ -70,6 +72,7 @@ api_router.include_router(consultant_types.router, tags=["consultant_types"])
 api_router.include_router(consultant_assignments.router, tags=["consultant_assignments"])
 api_router.include_router(document_reviews.router, tags=["document_reviews"])
 api_router.include_router(document_analysis.router, tags=["document_analysis"])
+api_router.include_router(document_versions.router, tags=["document_versions"])
 api_router.include_router(chat.router, tags=["chat"])
 api_router.include_router(inspections.router, tags=["inspections"])
 api_router.include_router(invitations.router, tags=["invitations"])
@@ -87,3 +90,4 @@ api_router.include_router(calendar.router, tags=["calendar"])
 api_router.include_router(discussions.router, tags=["discussions"])
 api_router.include_router(quantity_extraction.router, tags=["quantity_extraction"])
 api_router.include_router(reports.router, tags=["reports"])
+api_router.include_router(subcontractors.router, tags=["subcontractors"])

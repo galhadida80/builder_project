@@ -1,4 +1,4 @@
-export type NotificationCategory = 'approval' | 'inspection' | 'update' | 'general'
+export type NotificationCategory = 'approval' | 'inspection' | 'defect' | 'update' | 'general'
 
 export interface Notification {
   id: string
@@ -18,6 +18,13 @@ export interface NotificationFilters {
   isRead?: boolean
   limit?: number
   offset?: number
+}
+
+export interface NotificationListResponse {
+  items: Notification[]
+  total: number
+  limit: number
+  offset: number
 }
 
 export interface UnreadCountResponse {

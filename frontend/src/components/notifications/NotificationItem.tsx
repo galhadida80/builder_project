@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { getDateLocale } from '../../utils/dateLocale'
 import { Notification, NotificationCategory } from '../../types/notification'
-import { CheckCircleIcon, WarningIcon, UpdateIcon, InfoIcon, MoreVertIcon } from '@/icons'
+import { CheckCircleIcon, WarningIcon, UpdateIcon, InfoIcon, MoreVertIcon, ErrorOutlineIcon } from '@/icons'
 import { ListItem, ListItemAvatar, ListItemText, Box, Typography, IconButton, Avatar as MuiAvatar, styled } from '@/mui'
 
 interface NotificationItemProps {
@@ -62,6 +62,11 @@ const categoryConfig: Record<NotificationCategory, { icon: React.ReactNode; colo
     icon: <WarningIcon sx={{ fontSize: 12 }} />,
     color: '#EA580C',
     labelKey: 'notifications.categories.inspection',
+  },
+  defect: {
+    icon: <ErrorOutlineIcon sx={{ fontSize: 12 }} />,
+    color: '#DC2626',
+    labelKey: 'notifications.categories.defect',
   },
   update: {
     icon: <UpdateIcon sx={{ fontSize: 12 }} />,

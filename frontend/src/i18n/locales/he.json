@@ -710,6 +710,27 @@
     "settingsComingSoon": "דף הגדרות בקרוב!",
     "noNewNotifications": "אין התראות חדשות"
   },
+  "notificationCenter": {
+    "title": "התראות",
+    "all": "הכל",
+    "unread": "לא נקראו",
+    "read": "נקראו",
+    "searchPlaceholder": "חיפוש התראות...",
+    "markAllRead": "סמן הכל כנקרא",
+    "markRead": "סמן כנקרא",
+    "markUnread": "סמן כלא נקרא",
+    "delete": "מחק",
+    "refresh": "רענן",
+    "selectAll": "בחר הכל",
+    "selectedCount": "{{count}} נבחרו",
+    "bulkMarkedRead": "ההתראות שנבחרו סומנו כנקראו",
+    "bulkDeleted": "ההתראות שנבחרו נמחקו",
+    "allMarkedRead": "כל ההתראות סומנו כנקראו",
+    "deleted": "ההתראה נמחקה",
+    "empty": "אין התראות",
+    "emptyDescription": "אתה מעודכן! אין התראות להצגה.",
+    "fetchError": "נכשל בטעינת התראות"
+  },
   "notificationsPanel": {
     "title": "התראות",
     "all": "הכל",
@@ -1560,7 +1581,20 @@
     "createFolder": "צור תיקייה",
     "addSubfolder": "הוסף תיקיית משנה",
     "expandFolder": "הרחב תיקייה",
-    "collapseFolder": "כווץ תיקייה"
+    "collapseFolder": "כווץ תיקייה",
+    "versions": "היסטוריית גרסאות",
+    "currentVersion": "גרסה נוכחית",
+    "versionNumber": "גרסה {{number}}",
+    "uploadNewVersion": "העלה גרסה חדשה",
+    "changeSummary": "סיכום שינויים",
+    "noVersions": "אין גרסאות קודמות",
+    "annotations": "הערות",
+    "addAnnotation": "הוסף הערה",
+    "resolveAnnotation": "סמן כפתור",
+    "unresolveAnnotation": "בטל פתירה",
+    "deleteAnnotation": "מחק הערה",
+    "annotationPlaceholder": "הוסף תגובה...",
+    "noAnnotations": "אין הערות בעמוד זה"
   },
   "notifications": {
     "closePanel": "סגור פאנל התראות",
@@ -1572,6 +1606,7 @@
     "categories": {
       "approval": "אישור",
       "inspection": "בדיקה",
+      "defect": "ליקוי",
       "update": "עדכון",
       "general": "כללי"
     },
@@ -1937,7 +1972,8 @@
     "supervisor": "מפקח",
     "consultant": "יועץ",
     "contractor": "קבלן",
-    "inspector": "בודק"
+    "inspector": "בודק",
+    "subcontractor": "קבלן משנה"
   },
   "invite": {
     "title": "הזמנה לפרויקט",
@@ -2462,7 +2498,20 @@
     "changesWillSync": "השינויים יסונכרנו כשהחיבור יחודש.",
     "syncing": "מסנכרן שינויים...",
     "syncComplete": "{{count}} שינוי(ים) סונכרנו בהצלחה.",
-    "syncPartial": "{{success}} סונכרנו, {{failed}} נכשלו. יינסה שוב מאוחר יותר."
+    "syncPartial": "{{success}} סונכרנו, {{failed}} נכשלו. יינסה שוב מאוחר יותר.",
+    "pendingActions": "{{count}} ממתינים",
+    "syncNow": "סנכרן עכשיו"
+  },
+  "camera": {
+    "permissionDenied": "הגישה למצלמה נדחתה. אנא אפשר מצלמה בהגדרות הדפדפן.",
+    "capture": "צלם תמונה",
+    "retake": "צלם שוב",
+    "confirm": "השתמש בתמונה"
+  },
+  "barcode": {
+    "notSupported": "סריקת ברקוד אינה נתמכת בדפדפן זה.",
+    "scanPrompt": "כוון את המצלמה לברקוד או קוד QR",
+    "scanned": "קוד נסרק: {{code}}"
   },
   "annotations": {
     "title": "סימון תמונה",
@@ -2822,5 +2871,56 @@
     "unit": "יחידה",
     "zone": "אזור",
     "custom": "מותאם אישית"
+  },
+  "subcontractors": {
+    "title": "קבלני משנה",
+    "subtitle": "ניהול פרופילי קבלני משנה ואימות",
+    "portalTitle": "פורטל קבלן משנה",
+    "portalSubtitle": "ניהול פרופיל קבלן משנה וגישה לפרויקטים",
+    "searchPlaceholder": "חיפוש קבלני משנה...",
+    "companyName": "שם חברה",
+    "trade": "מקצוע",
+    "licenseNumber": "מספר רישיון",
+    "contactEmail": "דוא\"ל ליצירת קשר",
+    "contactPhone": "טלפון ליצירת קשר",
+    "address": "כתובת",
+    "insuranceExpiry": "תוקף ביטוח",
+    "certifications": "הסמכות",
+    "notes": "הערות",
+    "status": "סטטוס",
+    "actions": "פעולות",
+    "total": "סה\"כ קבלני משנה",
+    "verified": "מאומת",
+    "unverified": "ממתין לאימות",
+    "allTrades": "כל המקצועות",
+    "noSubcontractors": "אין קבלני משנה",
+    "noSubcontractorsDescription": "אין קבלני משנה משויכים לפרויקט זה עדיין.",
+    "toggleVerify": "שנה סטטוס אימות",
+    "verifyToggled": "סטטוס האימות עודכן",
+    "verifyFailed": "עדכון האימות נכשל",
+    "failedToLoad": "טעינת קבלני משנה נכשלה",
+    "noProfile": "לא נוצר פרופיל",
+    "noProfileDescription": "צור את פרופיל קבלן המשנה שלך כדי להתחיל לעבוד בפרויקטים.",
+    "createProfile": "צור פרופיל",
+    "editProfile": "ערוך פרופיל",
+    "requiredFields": "שם חברה ומקצוע הם שדות חובה",
+    "createSuccess": "הפרופיל נוצר בהצלחה",
+    "updateSuccess": "הפרופיל עודכן בהצלחה",
+    "saveFailed": "שמירת הפרופיל נכשלה",
+    "saving": "שומר...",
+    "save": "שמור",
+    "trades": {
+      "plumbing": "אינסטלציה",
+      "electrical": "חשמל",
+      "hvac": "מיזוג אוויר",
+      "concrete": "בטון",
+      "framing": "שלד",
+      "drywall": "גבס",
+      "painting": "צביעה",
+      "roofing": "גגות",
+      "flooring": "ריצוף",
+      "landscaping": "גינון",
+      "general": "כללי"
+    }
   }
 }

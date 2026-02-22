@@ -45,4 +45,84 @@ export const reportsApi = {
   getComplianceAuditExportUrl: (projectId: string, dateFrom: string, dateTo: string): string => {
     return `/api/v1/projects/${projectId}/reports/compliance-audit/export?date_from=${dateFrom}&date_to=${dateTo}&format=csv`
   },
+
+  listTemplates: async (projectId: string): Promise<ReportTemplate[]> => {
+    const response = await apiClient.get<ReportTemplate[]>(`/projects/${projectId}/report-templates`)
+    return response.data
+  },
+
+  createTemplate: async (projectId: string, data: ReportTemplateCreate): Promise<ReportTemplate> => {
+    const response = await apiClient.post<ReportTemplate>(`/projects/${projectId}/report-templates`, data)
+    return response.data
+  },
+
+  deleteTemplate: async (templateId: string): Promise<void> => {
+    await apiClient.delete(`/report-templates/${templateId}`)
+  },
+
+  listScheduled: async (projectId: string): Promise<ScheduledReport[]> => {
+    const response = await apiClient.get<ScheduledReport[]>(`/projects/${projectId}/scheduled-reports`)
+    return response.data
+  },
+
+  createScheduled: async (projectId: string, data: ScheduledReportCreate): Promise<ScheduledReport> => {
+    const response = await apiClient.post<ScheduledReport>(`/projects/${projectId}/scheduled-reports`, data)
+    return response.data
+  },
+
+  updateScheduled: async (reportId: string, data: Partial<ScheduledReport>): Promise<ScheduledReport> => {
+    const response = await apiClient.patch<ScheduledReport>(`/scheduled-reports/${reportId}`, data)
+    return response.data
+  },
+
+  deleteScheduled: async (reportId: string): Promise<void> => {
+    await apiClient.delete(`/scheduled-reports/${reportId}`)
+  },
+}
+
+export interface ReportTemplate {
+  id: string
+  projectId: string
+  name: string
+  description?: string
+  reportType: string
+  config: Record<string, unknown>
+  createdById?: string
+  createdBy?: { id: string; fullName: string; email: string }
+  createdAt: string
+  updatedAt: string
+}
+
+export interface ReportTemplateCreate {
+  name: string
+  description?: string
+  reportType: string
+  config?: Record<string, unknown>
+}
+
+export interface ScheduledReport {
+  id: string
+  projectId: string
+  templateId?: string
+  name: string
+  reportType: string
+  scheduleCron: string
+  recipients: string[]
+  config: Record<string, unknown>
+  isActive: boolean
+  lastRunAt?: string
+  runCount: number
+  createdById?: string
+  createdBy?: { id: string; fullName: string; email: string }
+  createdAt: string
+  updatedAt: string
+}
+
+export interface ScheduledReportCreate {
+  name: string
+  reportType: string
+  scheduleCron: string
+  templateId?: string
+  recipients?: string[]
+  config?: Record<string, unknown>
 }

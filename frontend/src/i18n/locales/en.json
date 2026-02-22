@@ -1432,7 +1432,20 @@
     "createFolder": "Create folder",
     "addSubfolder": "Add subfolder",
     "expandFolder": "Expand folder",
-    "collapseFolder": "Collapse folder"
+    "collapseFolder": "Collapse folder",
+    "versions": "Version History",
+    "currentVersion": "Current Version",
+    "versionNumber": "Version {{number}}",
+    "uploadNewVersion": "Upload New Version",
+    "changeSummary": "Change Summary",
+    "noVersions": "No previous versions",
+    "annotations": "Annotations",
+    "addAnnotation": "Add Annotation",
+    "resolveAnnotation": "Resolve",
+    "unresolveAnnotation": "Unresolve",
+    "deleteAnnotation": "Delete Annotation",
+    "annotationPlaceholder": "Add a comment...",
+    "noAnnotations": "No annotations on this page"
   },
   "notifications": {
     "closePanel": "Close notifications panel",
@@ -1444,6 +1457,7 @@
     "categories": {
       "approval": "Approval",
       "inspection": "Inspection",
+      "defect": "Defect",
       "update": "Update",
       "general": "General"
     },
@@ -1854,7 +1868,8 @@
     "supervisor": "Supervisor",
     "consultant": "Consultant",
     "contractor": "Contractor",
-    "inspector": "Inspector"
+    "inspector": "Inspector",
+    "subcontractor": "Subcontractor"
   },
   "invite": {
     "title": "Project Invitation",
@@ -1923,6 +1938,27 @@
     "noNewNotifications": "No new notifications",
     "profileComingSoon": "Profile page coming soon!",
     "settingsComingSoon": "Settings page coming soon!"
+  },
+  "notificationCenter": {
+    "title": "Notifications",
+    "all": "All",
+    "unread": "Unread",
+    "read": "Read",
+    "searchPlaceholder": "Search notifications...",
+    "markAllRead": "Mark all as read",
+    "markRead": "Mark as read",
+    "markUnread": "Mark as unread",
+    "delete": "Delete",
+    "refresh": "Refresh",
+    "selectAll": "Select all",
+    "selectedCount": "{{count}} selected",
+    "bulkMarkedRead": "Selected notifications marked as read",
+    "bulkDeleted": "Selected notifications deleted",
+    "allMarkedRead": "All notifications marked as read",
+    "deleted": "Notification deleted",
+    "empty": "No notifications",
+    "emptyDescription": "You're all caught up! No notifications to show.",
+    "fetchError": "Failed to load notifications"
   },
   "notificationsPanel": {
     "title": "Notifications",
@@ -2407,7 +2443,20 @@
     "changesWillSync": "Changes will sync when connection is restored.",
     "syncing": "Syncing offline changes...",
     "syncComplete": "{{count}} change(s) synced successfully.",
-    "syncPartial": "{{success}} synced, {{failed}} failed. Will retry later."
+    "syncPartial": "{{success}} synced, {{failed}} failed. Will retry later.",
+    "pendingActions": "{{count}} pending",
+    "syncNow": "Sync now"
+  },
+  "camera": {
+    "permissionDenied": "Camera access was denied. Please enable camera in your browser settings.",
+    "capture": "Capture Photo",
+    "retake": "Retake",
+    "confirm": "Use Photo"
+  },
+  "barcode": {
+    "notSupported": "Barcode scanning is not supported in this browser.",
+    "scanPrompt": "Point camera at a barcode or QR code",
+    "scanned": "Code scanned: {{code}}"
   },
   "annotations": {
     "title": "Annotate Photo",
@@ -2767,5 +2816,56 @@
     "unit": "Unit",
     "zone": "Zone",
     "custom": "Custom"
+  },
+  "subcontractors": {
+    "title": "Subcontractors",
+    "subtitle": "Manage subcontractor profiles and verification",
+    "portalTitle": "Subcontractor Portal",
+    "portalSubtitle": "Manage your subcontractor profile and project access",
+    "searchPlaceholder": "Search subcontractors...",
+    "companyName": "Company Name",
+    "trade": "Trade",
+    "licenseNumber": "License Number",
+    "contactEmail": "Contact Email",
+    "contactPhone": "Contact Phone",
+    "address": "Address",
+    "insuranceExpiry": "Insurance Expiry",
+    "certifications": "Certifications",
+    "notes": "Notes",
+    "status": "Status",
+    "actions": "Actions",
+    "total": "Total Subcontractors",
+    "verified": "Verified",
+    "unverified": "Pending Verification",
+    "allTrades": "All Trades",
+    "noSubcontractors": "No Subcontractors",
+    "noSubcontractorsDescription": "No subcontractors are assigned to this project yet.",
+    "toggleVerify": "Toggle Verification",
+    "verifyToggled": "Verification status updated",
+    "verifyFailed": "Failed to update verification",
+    "failedToLoad": "Failed to load subcontractors",
+    "noProfile": "No Profile Created",
+    "noProfileDescription": "Create your subcontractor profile to get started with projects.",
+    "createProfile": "Create Profile",
+    "editProfile": "Edit Profile",
+    "requiredFields": "Company name and trade are required",
+    "createSuccess": "Profile created successfully",
+    "updateSuccess": "Profile updated successfully",
+    "saveFailed": "Failed to save profile",
+    "saving": "Saving...",
+    "save": "Save",
+    "trades": {
+      "plumbing": "Plumbing",
+      "electrical": "Electrical",
+      "hvac": "HVAC",
+      "concrete": "Concrete",
+      "framing": "Framing",
+      "drywall": "Drywall",
+      "painting": "Painting",
+      "roofing": "Roofing",
+      "flooring": "Flooring",
+      "landscaping": "Landscaping",
+      "general": "General"
+    }
   }
 }

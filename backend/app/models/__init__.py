@@ -19,6 +19,7 @@ from app.models.defect import Defect, DefectAssignee
 from app.models.discussion import Discussion
 from app.models.document_analysis import DocumentAnalysis
 from app.models.document_review import DocumentComment, DocumentReview, ReviewStatus
+from app.models.document_version import DocumentAnnotation, DocumentVersion
 from app.models.equipment import Equipment, EquipmentChecklist
 from app.models.equipment_template import (
     ConsultantType,
@@ -49,6 +50,8 @@ from app.models.budget import BudgetLineItem, ChangeOrder, CostEntry
 from app.models.organization import Organization, OrganizationMember
 from app.models.task import Task, TaskDependency
 from app.models.push_subscription import PushSubscription
+from app.models.scheduled_report import ReportTemplate, ScheduledReport
+from app.models.subcontractor import SubcontractorProfile
 from app.models.webauthn_credential import WebAuthnCredential
 
 __all__ = [
@@ -121,4 +124,9 @@ __all__ = [
     "PushSubscription",
     "Discussion",
     "UserCalendarToken",
+    "DocumentVersion",
+    "DocumentAnnotation",
+    "ReportTemplate",
+    "ScheduledReport",
+    "SubcontractorProfile",
 ]

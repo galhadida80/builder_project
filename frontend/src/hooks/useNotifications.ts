@@ -39,9 +39,9 @@ export function useNotifications(
         setLoading(true)
         setError(null)
 
-        const data = await notificationsApi.getAll(category)
+        const response = await notificationsApi.getAll(category ? { category } : undefined)
 
-        setNotifications(data)
+        setNotifications(response.items)
         // API returns all notifications at once (no server-side pagination)
         setHasMore(false)
       } catch (err) {

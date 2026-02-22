@@ -35,6 +35,7 @@ import { lazy, Suspense } from 'react'
 import { LoadingPage } from './components/common/LoadingPage'
 import { ErrorBoundary } from './components/common/ErrorBoundary'
 import { OfflineIndicator } from './components/common/OfflineIndicator'
+import { OfflineQueueIndicator } from './components/common/OfflineQueueIndicator'
 import ChecklistsPage from './pages/ChecklistsPage'
 import MobileChecklistPage from './pages/MobileChecklistPage'
 import DefectsPage from './pages/DefectsPage'
@@ -45,6 +46,9 @@ import OrganizationsPage from './pages/OrganizationsPage'
 import OrganizationDetailPage from './pages/OrganizationDetailPage'
 import ReportsPage from './pages/ReportsPage'
 import CustomKPIPage from './pages/CustomKPIPage'
+import NotificationsPage from './pages/NotificationsPage'
+import SubcontractorListPage from './pages/SubcontractorListPage'
+import SubcontractorPortalPage from './pages/SubcontractorPortalPage'
 import NotFoundPage from './pages/NotFoundPage'
 
 const BIMPage = lazy(() => import('./pages/BIMPage'))
@@ -75,6 +79,7 @@ function AppRoutes() {
       <ReferenceDataProvider>
       <PWAInstallPrompt />
       <OfflineIndicator />
+      <OfflineQueueIndicator />
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
@@ -109,6 +114,7 @@ function AppRoutes() {
               <Route path="kpis" element={<CustomKPIPage />} />
               <Route path="bim" element={<Suspense fallback={<LoadingPage />}><BIMPage /></Suspense>} />
               <Route path="reports" element={<ReportsPage />} />
+              <Route path="subcontractors" element={<SubcontractorListPage />} />
               <Route path="quantities" element={<Suspense fallback={<LoadingPage />}><QuantityExtractionPage /></Suspense>} />
               <Route path="structure-wizard" element={<Suspense fallback={<LoadingPage />}><ProjectStructureWizardPage /></Suspense>} />
             </Route>
@@ -120,6 +126,8 @@ function AppRoutes() {
             <Route path="/analytics" element={<AnalyticsDashboard />} />
             <Route path="/team-workload" element={<TeamWorkloadPage />} />
             <Route path="/inspector-dashboard" element={<InspectorDashboardPage />} />
+            <Route path="/notifications" element={<NotificationsPage />} />
+            <Route path="/subcontractor-portal" element={<SubcontractorPortalPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/profile" element={<ProfilePage />} />
           </Route>

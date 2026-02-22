@@ -44,6 +44,9 @@ ROLE_PERMISSIONS: dict[str, set[str]] = {
         Permission.EDIT.value,
         Permission.VIEW_ALL.value,
     },
+    "subcontractor": {
+        Permission.CREATE.value,
+    },
 }
 
 

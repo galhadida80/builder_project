@@ -81,4 +81,15 @@ export const chatApi = {
     })
     return response.data
   },
+
+  getSuggestions: async (projectId: string): Promise<ChatSuggestion[]> => {
+    const response = await apiClient.get<{ suggestions: ChatSuggestion[] }>(`/projects/${projectId}/chat/suggestions`)
+    return response.data.suggestions
+  },
+}
+
+export interface ChatSuggestion {
+  type: string
+  text: string
+  prompt: string
 }
