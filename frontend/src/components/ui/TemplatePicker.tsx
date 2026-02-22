@@ -51,7 +51,7 @@ const CATEGORY_ICONS: Record<string, ReactElement> = {
 
 const CATEGORY_COLORS: Record<string, string> = {
   structural: '#D32F2F',
-  plumbing: '#f28c26',
+  plumbing: '#c8956a',
   electrical: '#F9A825',
   hvac: '#00ACC1',
   fire_safety: '#E65100',
@@ -176,8 +176,8 @@ export default function TemplatePicker<T extends TemplateBase>({
               fontWeight: categoryFilter === cat ? 600 : 400,
               ...(categoryFilter === cat && {
                 bgcolor: getCategoryColor(cat),
-                color: '#fff',
-                '& .MuiChip-icon': { color: '#fff' },
+                color: 'primary.contrastText',
+                '& .MuiChip-icon': { color: 'primary.contrastText' },
               }),
             }}
           />

@@ -1265,6 +1265,14 @@ export default function MeetingsPage() {
             <MenuItem value="">{t('meetings.selectType')}</MenuItem>
             {meetingTypes.map(type => <MenuItem key={type.value} value={type.value}>{type.label}</MenuItem>)}
           </MuiTextField>
+          {formData.meetingType === 'other' && (
+            <TextField
+              fullWidth
+              label={t('common.customType')}
+              value={(formData as any).customMeetingType || ''}
+              onChange={(e) => setFormData({ ...formData, customMeetingType: e.target.value } as any)}
+            />
+          )}
           <TextField
             fullWidth
             label={t('meetings.description')}

@@ -159,7 +159,7 @@ export default function ProjectDetailPage() {
             background: (theme) =>
               theme.palette.mode === 'dark'
                 ? 'linear-gradient(135deg, #3d3126 0%, #1a1612 100%)'
-                : 'linear-gradient(135deg, #f28c26 0%, #1a1612 100%)',
+                : 'linear-gradient(135deg, #c8956a 0%, #1a1612 100%)',
             borderRadius: 3,
           }}
         >

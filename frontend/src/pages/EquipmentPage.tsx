@@ -25,7 +25,7 @@ import { useToast } from '../components/common/ToastProvider'
 import { useReferenceData } from '../contexts/ReferenceDataContext'
 import type { KeyValuePair } from '../components/ui/KeyValueEditor'
 import { AddIcon, BuildIcon, EditIcon, DeleteIcon, VisibilityIcon } from '@/icons'
-import { Box, Typography, IconButton, TablePagination, useMediaQuery, useTheme, Fab } from '@/mui'
+import { Box, Typography, IconButton, TablePagination, useMediaQuery, useTheme } from '@/mui'
 
 export default function EquipmentPage() {
   const { projectId } = useParams()
@@ -175,7 +175,7 @@ export default function EquipmentPage() {
   const getCategoryColor = (equipmentType?: string): string => {
     if (!equipmentType) return '#9CA3AF'
     const lower = equipmentType.toLowerCase()
-    if (lower.includes('crane') || lower.includes('מנוף')) return '#f28c26'
+    if (lower.includes('crane') || lower.includes('מנוף')) return '#c8956a'
     if (lower.includes('heavy') || lower.includes('כבד')) return '#EAB308'
     if (lower.includes('transport') || lower.includes('הובלה') || lower.includes('משאית')) return '#3B82F6'
     return '#9CA3AF'
@@ -212,7 +212,7 @@ export default function EquipmentPage() {
           title={t('equipment.title')}
           subtitle={t('equipment.subtitle')}
           breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('equipment.title') }]}
-          actions={<Fab size="small" color="primary" onClick={handleOpenCreate} aria-label={t('equipment.addEquipment')}><AddIcon /></Fab>}
+          actions={<Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>{t('equipment.addEquipment')}</Button>}
         />
         <HelpTooltip helpKey="help.tooltips.equipmentForm" />
       </Box>

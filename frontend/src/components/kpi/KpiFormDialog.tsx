@@ -17,7 +17,7 @@ interface KpiFormDialogProps {
 
 const ENTITY_TYPES = ['equipment', 'material', 'inspection', 'rfi', 'defect', 'task', 'budget', 'checklist', 'area']
 const CALCULATIONS = ['count', 'sum', 'average']
-const COLOR_OPTIONS = ['#f28c26', '#4caf50', '#ff9800', '#f44336', '#9c27b0', '#00bcd4', '#795548', '#607d8b']
+const COLOR_OPTIONS = ['#c8956a', '#4caf50', '#ff9800', '#f44336', '#9c27b0', '#00bcd4', '#795548', '#607d8b']
 
 interface FormState {
   name: string
@@ -49,7 +49,7 @@ export default function KpiFormDialog({ open, onClose, onSubmit, editingKpi, pro
     unit: '',
     display_order: '0',
     icon: '',
-    color: '#f28c26',
+    color: '#c8956a',
     filter_status: '',
   })
 
@@ -67,14 +67,14 @@ export default function KpiFormDialog({ open, onClose, onSubmit, editingKpi, pro
         unit: editingKpi.unit || '',
         display_order: String(editingKpi.displayOrder || 0),
         icon: editingKpi.icon || '',
-        color: editingKpi.color || '#f28c26',
+        color: editingKpi.color || '#c8956a',
         filter_status: editingKpi.filterConfig?.status as string || '',
       })
     } else {
       setForm({
         name: '', description: '', kpi_type: 'count', entity_type: 'equipment',
         calculation: 'count', field_name: '', target_value: '', warning_threshold: '',
-        unit: '', display_order: '0', icon: '', color: '#f28c26', filter_status: '',
+        unit: '', display_order: '0', icon: '', color: '#c8956a', filter_status: '',
       })
     }
   }, [editingKpi, open])

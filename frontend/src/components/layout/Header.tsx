@@ -48,7 +48,7 @@ export default memo(function Header({ user, currentProject, projects, onProjectC
       sx={{
         zIndex: 1201,
         borderBottom: '1px solid',
-        borderColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(242, 140, 38, 0.15)' : 'divider',
+        borderColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(200, 149, 106, 0.15)' : 'divider',
         bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(26, 22, 18, 0.85)' : 'background.paper',
         backdropFilter: 'blur(12px)',
         ms: { xs: 0, md: '260px' },

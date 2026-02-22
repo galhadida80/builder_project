@@ -149,7 +149,7 @@ export default function DashboardPage() {
       case 'approval': return { bg: 'rgba(25,118,210,0.15)', icon: 'info.main' }
       case 'update': return { bg: 'rgba(237,108,2,0.15)', icon: 'warning.main' }
       case 'delete': return { bg: 'rgba(211,47,47,0.15)', icon: 'error.main' }
-      default: return { bg: 'rgba(242,140,38,0.15)', icon: 'primary.main' }
+      default: return { bg: 'rgba(200,149,106,0.15)', icon: 'primary.main' }
     }
   }
 
@@ -506,7 +506,7 @@ export default function DashboardPage() {
               <BarChart
                 xAxis={[{ scaleType: 'band' as const, data: dashboardStats!.areaProgressByFloor.map(f => `${t('dashboard.charts.floor')} ${f.floor}`) }]}
                 yAxis={[{ valueFormatter: (v: number | null) => v == null ? '' : `${Math.round(v)}%` }]}
-                series={[{ data: dashboardStats!.areaProgressByFloor.map(f => Math.round(f.avgProgress)), label: t('dashboard.charts.avgProgress'), color: '#f28c26', valueFormatter: (v: number | null) => v == null ? '' : `${Math.round(v)}%` }]}
+                series={[{ data: dashboardStats!.areaProgressByFloor.map(f => Math.round(f.avgProgress)), label: t('dashboard.charts.avgProgress'), color: '#c8956a', valueFormatter: (v: number | null) => v == null ? '' : `${Math.round(v)}%` }]}
                 height={200}
                 margin={{ top: 20, right: 10, bottom: 30, left: 40 }}
               />

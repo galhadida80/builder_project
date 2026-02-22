@@ -8,7 +8,7 @@ import type { Equipment } from '../../types'
 const getCategoryColor = (equipmentType?: string): string => {
   if (!equipmentType) return '#9CA3AF'
   const lower = equipmentType.toLowerCase()
-  if (lower.includes('crane') || lower.includes('מנוף')) return '#f28c26'
+  if (lower.includes('crane') || lower.includes('מנוף')) return '#c8956a'
   if (lower.includes('heavy') || lower.includes('כבד')) return '#EAB308'
   if (lower.includes('transport') || lower.includes('הובלה') || lower.includes('משאית')) return '#3B82F6'
   return '#9CA3AF'

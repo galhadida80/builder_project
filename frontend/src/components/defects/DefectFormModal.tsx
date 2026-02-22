@@ -102,6 +102,12 @@ export default function DefectFormModal({
                 <MenuItem key={cat} value={cat}>{t(`defects.categories.${cat}`, { defaultValue: cat })}</MenuItem>
               ))}
             </MuiTextField>
+            {form.category === 'other' && (
+              <TextField fullWidth label={t('common.customType')}
+                value={(form as any).custom_category || ''}
+                onChange={(e) => setForm({ ...form, custom_category: e.target.value } as any)}
+              />
+            )}
             <MuiTextField select fullWidth label={t('defects.severity')} value={form.severity}
               onChange={(e) => setForm({ ...form, severity: e.target.value })}
               error={!!formErrors.severity} helperText={formErrors.severity} required

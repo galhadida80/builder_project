@@ -48,7 +48,7 @@ function stringToColor(string: string): string {
   for (let i = 0; i < string.length; i++) {
     hash = string.charCodeAt(i) + ((hash << 5) - hash)
   }
-  const colors = ['#f28c26', '#0D9488', '#7C3AED', '#DB2777', '#EA580C', '#16A34A']
+  const colors = ['#c8956a', '#0D9488', '#7C3AED', '#DB2777', '#EA580C', '#16A34A']
   return colors[Math.abs(hash) % colors.length]
 }
 

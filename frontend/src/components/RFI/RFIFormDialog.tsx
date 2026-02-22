@@ -98,6 +98,7 @@ export function RFIFormDialog({
     formState: { errors, isSubmitting },
     reset,
     setValue,
+    watch,
   } = useForm<RFIFormData>({
     resolver: zodResolver(rfiFormSchema),
     defaultValues: initialData,
@@ -410,6 +411,14 @@ export function RFIFormDialog({
               />
             )}
           />
+
+          {watch('category') === 'other' && (
+            <TextField
+              label={t('common.customType')}
+              fullWidth
+              disabled={isFormLoading}
+            />
+          )}
 
           <Controller
             name="priority"

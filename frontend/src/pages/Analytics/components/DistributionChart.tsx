@@ -26,7 +26,7 @@ const ChartContainer = styled(Paper)(({ theme }) => ({
 }))
 
 const defaultColors = [
-  '#f28c26', // primary orange
+  '#c8956a', // primary orange
   '#2e7d32', // success green
   '#ed6c02', // warning orange
   '#9c27b0', // purple
@@ -104,16 +104,16 @@ export default function DistributionChart({
           ]}
           height={height}
           margin={{ top: 10, right: 20, bottom: 30, left: 20 }}
-          sx={{
+          sx={(theme) => ({
             width: '100%',
             '& .MuiChartsLegend-series text': {
-              fill: 'text.primary',
+              fill: theme.palette.text.primary,
               fontSize: '0.875rem',
             },
             '& .MuiChartsLegend-mark': {
               rx: 2,
             },
-          }}
+          })}
         />
       </Box>
     </ChartContainer>

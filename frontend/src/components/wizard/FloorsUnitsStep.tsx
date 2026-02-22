@@ -180,7 +180,15 @@ export function FloorsUnitsStep({ buildings, floors, onSetFloorUnits }: FloorsUn
                               {t(`areas.types.${type}`, { defaultValue: type })}
                             </MenuItem>
                           ))}
+                          <MenuItem value="other">{t('common.other')}</MenuItem>
                         </TextField>
+                        {floor.unitType === 'other' && (
+                          <TextField
+                            label={t('common.customType')}
+                            size="small"
+                            sx={{ flex: 1, minWidth: 120 }}
+                          />
+                        )}
                       </Box>
                     )
                   })}

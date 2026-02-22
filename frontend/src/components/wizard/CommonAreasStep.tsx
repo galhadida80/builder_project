@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { Card } from '../ui/Card'
+import { Button } from '../ui/Button'
 import { EmptyState } from '../ui/EmptyState'
 import {
   AddIcon,
@@ -13,7 +14,6 @@ import {
   TextField,
   MenuItem,
   IconButton,
-  Fab,
   CardContent,
 } from '@/mui'
 import type { CommonAreaDefinition } from '../../types'
@@ -100,26 +100,25 @@ export function CommonAreasStep({ commonAreas, onAdd, onUpdate, onRemove }: Comm
                     {t(`areas.types.${type}`, { defaultValue: type })}
                   </MenuItem>
                 ))}
+                <MenuItem value="other">{t('common.other')}</MenuItem>
               </TextField>
+              {area.areaType === 'other' && (
+                <TextField
+                  label={t('common.customType')}
+                  value={(area as any).customAreaType || ''}
+                  onChange={(e) => onUpdate(index, { ...area, customAreaType: e.target.value } as any)}
+                  size="small"
+                  fullWidth
+                />
+              )}
             </Box>
           </CardContent>
         </Card>
       ))}
 
-      <Fab
-        color="primary"
-        size="medium"
-        onClick={onAdd}
-        aria-label={t('structureWizard.addCommonArea')}
-        sx={{
-          position: { xs: 'fixed', sm: 'relative' },
-          bottom: { xs: 80, sm: 'auto' },
-          right: { xs: 16, sm: 'auto' },
-          alignSelf: { sm: 'flex-start' },
-        }}
-      >
-        <AddIcon />
-      </Fab>
+      <Button variant="primary" icon={<AddIcon />} onClick={onAdd}>
+        {t('structureWizard.addCommonArea')}
+      </Button>
     </Box>
   )
 }

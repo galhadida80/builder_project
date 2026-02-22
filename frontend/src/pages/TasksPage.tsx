@@ -193,7 +193,7 @@ export default function TasksPage() {
     const c = PRIORITY_COLORS[task.priority] || PRIORITY_COLORS.low
     const overdue = isOverdue(task)
     const isComplete = task.status === 'completed'
-    const borderColor = overdue ? '#DC2626' : task.priority === 'urgent' ? '#DC2626' : task.priority === 'high' ? '#f28c26' : task.priority === 'medium' ? '#2563EB' : '#64748B'
+    const borderColor = overdue ? '#DC2626' : task.priority === 'urgent' ? '#DC2626' : task.priority === 'high' ? '#c8956a' : task.priority === 'medium' ? '#2563EB' : '#64748B'
 
     const dueTime = task.dueDate ? new Date(task.dueDate).toLocaleTimeString(getDateLocale(), { hour: '2-digit', minute: '2-digit' }) : null
 
@@ -296,8 +296,8 @@ export default function TasksPage() {
             <Typography variant="h5" fontWeight={700}>{summary.total}</Typography>
           </Box>
           <Box sx={{ bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 2, textAlign: 'center' }}>
-            <Typography variant="caption" sx={{ color: '#EA580C' }}>{t('tasks.today')}</Typography>
-            <Typography variant="h5" fontWeight={700} sx={{ color: '#EA580C' }}>{todayCount}</Typography>
+            <Typography variant="caption" sx={{ color: 'primary.dark' }}>{t('tasks.today')}</Typography>
+            <Typography variant="h5" fontWeight={700} sx={{ color: 'primary.dark' }}>{todayCount}</Typography>
           </Box>
           <Box sx={{ bgcolor: 'background.paper', border: '2px solid', borderColor: 'error.main', borderRadius: 2, p: 2, textAlign: 'center' }}>
             <Typography variant="caption" color="error.main">{t('tasks.overdue')}</Typography>
@@ -332,7 +332,7 @@ export default function TasksPage() {
               <>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
                   <Typography variant="subtitle1" fontWeight={700}>{t('tasks.today')}</Typography>
-                  <Box sx={{ bgcolor: '#EA580C', color: '#fff', borderRadius: '50%', width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700 }}>
+                  <Box sx={{ bgcolor: 'primary.dark', color: 'primary.contrastText', borderRadius: '50%', width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700 }}>
                     {grouped.today.length}
                   </Box>
                 </Box>
@@ -343,7 +343,7 @@ export default function TasksPage() {
               <>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 2 }}>
                   <Typography variant="subtitle1" fontWeight={700}>{t('tasks.thisWeek')}</Typography>
-                  <Box sx={{ bgcolor: '#EA580C', color: '#fff', borderRadius: '50%', width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700 }}>
+                  <Box sx={{ bgcolor: 'primary.dark', color: 'primary.contrastText', borderRadius: '50%', width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700 }}>
                     {grouped.thisWeek.length}
                   </Box>
                 </Box>
@@ -354,7 +354,7 @@ export default function TasksPage() {
               <>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 2 }}>
                   <Typography variant="subtitle1" fontWeight={700}>{t('tasks.later')}</Typography>
-                  <Box sx={{ bgcolor: '#EA580C', color: '#fff', borderRadius: '50%', width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700 }}>
+                  <Box sx={{ bgcolor: 'primary.dark', color: 'primary.contrastText', borderRadius: '50%', width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700 }}>
                     {grouped.later.length}
                   </Box>
                 </Box>

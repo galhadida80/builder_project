@@ -17,14 +17,14 @@
   --color-dark-300: #CBD5E1;
   --color-dark-200: #E2E8F0;
   --color-dark-100: #F1F5F9;
-  --color-dark-50: #f8f7f5;
+  --color-dark-50: #f5f3f0;
 
   /* Primary Accent */
-  --color-primary: #f28c26;
-  --color-primary-hover: #e07b1a;
-  --color-primary-dark: #c96d10;
-  --color-primary-darker: #a85a0a;
-  --color-primary-light: #FFF3E0;
+  --color-primary: #c8956a;
+  --color-primary-hover: #b58456;
+  --color-primary-dark: #9c7044;
+  --color-primary-darker: #85603a;
+  --color-primary-light: #FFF7F0;
 
   /* Semantic Colors - Success */
   --color-success-main: #22C55E;

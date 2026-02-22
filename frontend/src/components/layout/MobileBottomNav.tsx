@@ -64,7 +64,7 @@ export default function MobileBottomNav({ projectId, onMenuOpen }: MobileBottomN
         right: 0,
         zIndex: 1200,
         borderTop: '1px solid',
-        borderColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(242, 140, 38, 0.15)' : 'divider',
+        borderColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(200, 149, 106, 0.15)' : 'divider',
         display: { xs: 'block', md: 'none' },
         bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(26, 22, 18, 0.9)' : 'background.paper',
         backdropFilter: 'blur(24px)',

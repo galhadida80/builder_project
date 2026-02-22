@@ -271,7 +271,7 @@ export default function ProfilePage() {
           <Chip
             label={user.role}
             size="small"
-            sx={{ mt: 1, bgcolor: 'rgba(242,140,38,0.15)', color: 'primary.main', fontWeight: 600, fontSize: '0.75rem' }}
+            sx={{ mt: 1, bgcolor: 'rgba(200,149,106,0.15)', color: 'primary.main', fontWeight: 600, fontSize: '0.75rem' }}
           />
         )}
         {user?.company && (
@@ -433,7 +433,7 @@ export default function ProfilePage() {
 
             {signatureImageUrl && !signatureDrawerOpen ? (
               <Box>
-                <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 1.5, mb: 2, bgcolor: '#fff', textAlign: 'center' }}>
+                <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 1.5, mb: 2, bgcolor: 'background.paper', textAlign: 'center' }}>
                   <img src={signatureImageUrl} alt={t('profile.signature')} style={{ maxWidth: '100%', maxHeight: 120 }} />
                 </Box>
                 <Box sx={{ display: 'flex', gap: 1 }}>

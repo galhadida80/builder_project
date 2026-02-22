@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { withMinDuration } from '../utils/async'
 import { Card } from '../components/ui/Card'
+import { Button } from '../components/ui/Button'
 import { DataTable, Column } from '../components/ui/DataTable'
 import { StatusBadge } from '../components/ui/StatusBadge'
 import { PageHeader } from '../components/ui/Breadcrumbs'
@@ -25,7 +26,7 @@ import { useReferenceData } from '../contexts/ReferenceDataContext'
 import type { KeyValuePair } from '../components/ui/KeyValueEditor'
 import { getCategoryConfig, getCategoryFromType } from '../utils/materialCategory'
 import { AddIcon, VisibilityIcon, EditIcon, DeleteIcon } from '@/icons'
-import { Box, Typography, IconButton, TablePagination, useMediaQuery, useTheme, Fab } from '@/mui'
+import { Box, Typography, IconButton, TablePagination, useMediaQuery, useTheme } from '@/mui'
 
 export default function MaterialsPage() {
   const { projectId } = useParams()
@@ -183,7 +184,7 @@ export default function MaterialsPage() {
   return (
     <Box sx={{ p: { xs: 1, sm: 1.5, md: 3 }, maxWidth: '100%', overflow: 'hidden' }}>
       <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
-        <PageHeader title={t('materials.title')} subtitle={t('materials.subtitle')} breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('materials.title') }]} />
+        <PageHeader title={t('materials.title')} subtitle={t('materials.subtitle')} breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('materials.title') }]} actions={<Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>{t('materials.addMaterial')}</Button>} />
         <HelpTooltip helpKey="help.tooltips.materialForm" />
       </Box>
 
@@ -248,14 +249,6 @@ export default function MaterialsPage() {
 
       <ContactSelectorDialog open={contactDialogOpen} onClose={() => setContactDialogOpen(false)} onConfirm={handleConfirmSubmit} projectId={projectId!} loading={submitting} />
 
-      <Fab
-        color="primary"
-        onClick={handleOpenCreate}
-        aria-label={t('materials.addMaterial')}
-        sx={{ position: 'fixed', bottom: { xs: 80, md: 24 }, insetInlineStart: 24, zIndex: 1100 }}
-      >
-        <AddIcon />
-      </Fab>
     </Box>
   )
 }

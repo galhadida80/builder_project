@@ -10,7 +10,7 @@ import { EmptyState } from '../components/ui/EmptyState'
 import { TextField, SearchField } from '../components/ui/TextField'
 import { FormModal } from '../components/ui/Modal'
 import { BusinessIcon, AddIcon, GroupIcon, ApartmentIcon, ChevronLeftIcon, ChevronRightIcon } from '@/icons'
-import { Box, Typography, Skeleton, Chip, Fab, useTheme } from '@/mui'
+import { Box, Typography, Skeleton, Chip, useTheme } from '@/mui'
 
 export default function OrganizationsPage() {
   const { t } = useTranslation()
@@ -107,9 +107,9 @@ export default function OrganizationsPage() {
             {organizations.length} {t('organizations.totalOrgs')}
           </Typography>
         </Box>
-        <Fab size="small" color="primary" onClick={() => setDialogOpen(true)} sx={{ boxShadow: 3 }}>
-          <AddIcon />
-        </Fab>
+        <Button variant="primary" icon={<AddIcon />} onClick={() => setDialogOpen(true)}>
+          {t('organizations.addOrganization')}
+        </Button>
       </Box>
 
       <Box sx={{ px: { xs: 2, sm: 3 }, py: 2 }}>
@@ -161,7 +161,7 @@ export default function OrganizationsPage() {
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   flexShrink: 0, position: 'relative',
                   border: 1, borderColor: 'primary.main',
-                  bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(242,140,38,0.1)' : 'rgba(242,140,38,0.08)',
+                  bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(200,149,106,0.1)' : 'rgba(200,149,106,0.08)',
                 }}>
                   <BusinessIcon sx={{ color: 'primary.main', fontSize: 28 }} />
                 </Box>

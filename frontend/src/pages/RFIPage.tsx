@@ -21,7 +21,7 @@ import { parseValidationErrors } from '../utils/apiErrors'
 import HelpTooltip from '../components/help/HelpTooltip'
 import { validateRFIForm, hasErrors, type ValidationError } from '../utils/validation'
 import { AddIcon, DeleteIcon, EmailIcon, AccessTimeIcon, FilterListIcon } from '@/icons'
-import { Box, Typography, Divider, MenuItem, TextField as MuiTextField, Skeleton, Chip, IconButton, Autocomplete, Fab, Avatar, FormControl, InputLabel, Select } from '@/mui'
+import { Box, Typography, Divider, MenuItem, TextField as MuiTextField, Skeleton, Chip, IconButton, Autocomplete, Avatar, FormControl, InputLabel, Select } from '@/mui'
 
 export default function RFIPage() {
   const { t } = useTranslation()
@@ -348,9 +348,9 @@ export default function RFIPage() {
           subtitle={t('rfis.subtitle')}
           breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('nav.rfis') }]}
           actions={
-            <Fab size="small" color="primary" onClick={handleOpenCreate} aria-label={t('rfis.newRfi')}>
-              <AddIcon />
-            </Fab>
+            <Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>
+              {t('rfis.addRfi')}
+            </Button>
           }
         />
         <HelpTooltip helpKey="help.tooltips.rfiForm" />

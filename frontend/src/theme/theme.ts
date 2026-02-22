@@ -455,8 +455,8 @@ export function createLightTheme() {
       divider: colors.primary[200],
       action: {
         hover: 'rgba(15, 23, 42, 0.04)',
-        selected: 'rgba(242, 140, 38, 0.08)',
-        focus: 'rgba(242, 140, 38, 0.12)',
+        selected: 'rgba(200, 149, 106, 0.08)',
+        focus: 'rgba(200, 149, 106, 0.12)',
       },
     },
     components: {
@@ -521,8 +521,8 @@ export function createDarkTheme() {
       divider: colors.primary[700],
       action: {
         hover: 'rgba(248, 250, 252, 0.08)',
-        selected: 'rgba(242, 140, 38, 0.16)',
-        focus: 'rgba(242, 140, 38, 0.24)',
+        selected: 'rgba(200, 149, 106, 0.16)',
+        focus: 'rgba(200, 149, 106, 0.24)',
       },
     },
     components: {
@@ -548,7 +548,7 @@ export function createDarkTheme() {
           root: {
             backgroundColor: colors.surface.dark.paper,
             borderRadius: borderRadius.lg,
-            border: '1px solid rgba(242, 140, 38, 0.1)',
+            border: '1px solid rgba(200, 149, 106, 0.1)',
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)',
           },
         },

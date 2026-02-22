@@ -50,7 +50,7 @@ export default function ContactsPage() {
   const [deletingGroup, setDeletingGroup] = useState(false)
 
   const contactTypes = [
-    { value: 'contractor', label: t('contacts.types.contractor'), color: '#f28c26' },
+    { value: 'contractor', label: t('contacts.types.contractor'), color: '#c8956a' },
     { value: 'consultant', label: t('contacts.types.consultant'), color: '#9c27b0' },
     { value: 'supplier', label: t('contacts.types.supplier'), color: '#0288d1' },
     { value: 'supervisor', label: t('contacts.types.supervisor'), color: '#2e7d32' },
@@ -252,8 +252,8 @@ export default function ContactsPage() {
                               onClick={() => window.open(`mailto:${contact.email}`)}
                               sx={{
                                 width: 40, height: 40,
-                                bgcolor: '#f28c26', color: '#fff',
-                                '&:hover': { bgcolor: '#e07b1a' },
+                                bgcolor: 'primary.main', color: 'primary.contrastText',
+                                '&:hover': { bgcolor: 'primary.dark' },
                               }}
                             >
                               <EmailIcon fontSize="small" />
@@ -265,8 +265,8 @@ export default function ContactsPage() {
                               onClick={() => window.open(`tel:${contact.phone}`)}
                               sx={{
                                 width: 40, height: 40,
-                                bgcolor: '#f28c26', color: '#fff',
-                                '&:hover': { bgcolor: '#e07b1a' },
+                                bgcolor: 'primary.main', color: 'primary.contrastText',
+                                '&:hover': { bgcolor: 'primary.dark' },
                               }}
                             >
                               <PhoneIcon fontSize="small" />

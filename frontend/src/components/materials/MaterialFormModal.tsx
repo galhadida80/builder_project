@@ -119,7 +119,11 @@ export default function MaterialFormModal({
           <MuiTextField fullWidth select label={t('materials.unit')} value={formData.unit} onChange={(e) => setFormData({ ...formData, unit: e.target.value })}>
             <MenuItem value="">{t('materials.selectUnit')}</MenuItem>
             {UNIT_KEYS.map(unit => <MenuItem key={unit} value={unit}>{t(`materials.units.${unit}`)}</MenuItem>)}
+            <MenuItem value="other">{t('common.other')}</MenuItem>
           </MuiTextField>
+          {formData.unit === 'other' && (
+            <TextField fullWidth label={t('common.customUnit')} value={(formData as any).customUnit || ''} onChange={(e) => setFormData({ ...formData, customUnit: e.target.value } as any)} />
+          )}
         </Box>
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
           <TextField fullWidth label={t('materials.deliveryDate')} type="date" InputLabelProps={{ shrink: true }} value={formData.expectedDelivery} onChange={(e) => setFormData({ ...formData, expectedDelivery: e.target.value })} />
