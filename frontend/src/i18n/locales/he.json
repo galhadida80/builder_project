@@ -258,7 +258,20 @@
     "organizations": "ארגונים",
     "reports": "דוחות",
     "quantityExtraction": "חילוץ כמויות",
-    "kpis": "מדדי ביצוע"
+    "blueprints": "קריאת תכניות",
+    "kpis": "מדדי ביצוע",
+    "groups": {
+      "planning": "תכנון",
+      "field": "שטח",
+      "procurement": "רכש ואישורים",
+      "people": "אנשים",
+      "documents": "מסמכים"
+    }
+  },
+  "project": {
+    "daysLeft": "{{count}} ימים נותרו",
+    "daysOverdue": "{{count}} ימים באיחור",
+    "noEndDate": "ללא תאריך יעד"
   },
   "mobileNav": {
     "dashboard": "לוח בקרה",
@@ -2889,6 +2902,70 @@
     "m": "מ'",
     "cm": "ס\"מ"
   },
+  "blueprints": {
+    "title": "קריאת תכניות",
+    "subtitle": "העלו תכנית PDF, תמונה, IFC או Revit לחילוץ נתוני בנייה",
+    "upload": "העלאת תכנית",
+    "dropHere": "גררו קובץ תכנית לכאן",
+    "orClick": "או לחצו לבחירת קובץ",
+    "acceptedFormats": "PDF, IFC, RVT, DWG, NWD, NWC, PNG, JPG",
+    "maxSize": "גודל מקסימלי: 100MB",
+    "processing": "מנתח תכנית...",
+    "processingHint": "הניתוח עשוי לקחת עד דקה",
+    "noExtractions": "אין תכניות",
+    "noExtractionsDescription": "העלו תכנית ראשונה כדי להתחיל",
+    "reExtract": "ניתוח מחדש",
+    "reExtractSuccess": "הניתוח הושלם מחדש",
+    "deleteConfirmation": "מחיקת תכנית",
+    "deleteConfirmationMessage": "האם למחוק את \"{{name}}\"? פעולה זו אינה ניתנת לביטול.",
+    "deleteSuccess": "התכנית נמחקה",
+    "deleteFailed": "מחיקת התכנית נכשלה",
+    "uploadSuccess": "התכנית הועלתה בהצלחה!",
+    "uploadFailed": "העלאת התכנית נכשלה",
+    "extractionFailed": "ניתוח התכנית נכשל",
+    "viewDetails": "צפה בפרטים",
+    "view3d": "תצוגה תלת-ממדית",
+    "version": "גרסה",
+    "processingTime": "זמן עיבוד",
+    "seconds": "שניות",
+    "source": {
+      "pdf_quantity": "תכנית PDF",
+      "bim_ifc": "מודל IFC",
+      "bim_aps": "מודל Revit/DWG",
+      "image_plan": "תכנית תמונה"
+    },
+    "status": {
+      "pending": "ממתין",
+      "processing": "בעיבוד",
+      "completed": "הושלם",
+      "failed": "נכשל"
+    },
+    "import": {
+      "title": "ייבוא לפרויקט",
+      "stepSummary": "סיכום",
+      "stepReview": "סקירה ובחירה",
+      "stepImport": "ייבוא",
+      "floors": "קומות וחדרים",
+      "areas": "אזורים",
+      "equipment": "ציוד",
+      "materials": "חומרים",
+      "name": "שם",
+      "type": "סוג",
+      "floor": "קומה",
+      "code": "קוד",
+      "manufacturer": "יצרן",
+      "model": "דגם",
+      "noItems": "לא נמצאו פריטים בקטגוריה זו",
+      "importButton": "ייבוא {{count}} פריטים",
+      "importSuccess": "יובאו {{count}} פריטים בהצלחה",
+      "importFailed": "ייבוא הפריטים נכשל",
+      "complete": "הייבוא הושלם",
+      "imported": "יובאו",
+      "skipped": "דולגו",
+      "selectAll": "בחר הכל",
+      "rooms": "חדרים"
+    }
+  },
   "structureWizard": {
     "title": "אשף מבנה הפרויקט",
     "subtitle": "הגדירו את מבנה הפרויקט בקלות",
@@ -3076,5 +3153,43 @@
       "landscaping": "גינון",
       "general": "כללי"
     }
+  },
+  "fileAttachment": {
+    "title": "קבצים מצורפים",
+    "noFiles": "אין קבצים מצורפים",
+    "upload": "העלאת קובץ",
+    "uploadSuccess": "{{count}} קבצים הועלו בהצלחה",
+    "uploadFailed": "העלאת הקובץ נכשלה",
+    "downloadFailed": "הורדת הקובץ נכשלה",
+    "previewFailed": "תצוגה מקדימה נכשלה",
+    "deleteFailed": "מחיקת הקובץ נכשלה",
+    "deleteSuccess": "הקובץ נמחק בהצלחה",
+    "failedToLoad": "טעינת הקבצים נכשלה",
+    "maxFilesReached": "מקסימום {{max}} קבצים"
+  },
+  "approvalWorkflow": {
+    "title": "תהליך אישור",
+    "submitForApproval": "שלח לאישור",
+    "resubmit": "שלח מחדש לאישור"
+  },
+  "recipientSelector": {
+    "placeholder": "חפש איש קשר...",
+    "noContacts": "לא נמצאו אנשי קשר",
+    "selected": "{{count}} נבחרו"
+  },
+  "signaturePad": {
+    "drawHere": "חתום כאן",
+    "clear": "נקה",
+    "confirm": "אשר",
+    "signed": "חתום",
+    "resign": "חתום מחדש"
+  },
+  "versionHistory": {
+    "title": "היסטוריית שינויים",
+    "noHistory": "אין היסטוריית שינויים",
+    "failedToLoad": "טעינת ההיסטוריה נכשלה",
+    "changes": "{{count}} שינויים",
+    "showAll": "הצג הכל ({{count}})",
+    "showLess": "הצג פחות"
   }
 }

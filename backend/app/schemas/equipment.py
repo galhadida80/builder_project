@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 from typing import Optional
 from uuid import UUID
 
@@ -58,6 +58,13 @@ class EquipmentBase(BaseModel):
     installation_date: Optional[datetime] = None
     warranty_expiry: Optional[datetime] = None
     notes: Optional[str] = Field(default=None, max_length=MAX_NOTES_LENGTH)
+    is_closed: Optional[bool] = False
+    approval_due_date: Optional[date] = None
+    distribution_emails: Optional[list[str]] = None
+    approver_contact_ids: Optional[list[str]] = None
+    contractor_signature_url: Optional[str] = Field(default=None, max_length=500)
+    supervisor_signature_url: Optional[str] = Field(default=None, max_length=500)
+    reminder_interval_hours: Optional[int] = Field(default=48, ge=24, le=720)
 
     @field_validator('name', 'equipment_type', 'manufacturer', 'model_number', 'serial_number', 'notes', mode='before')
     @classmethod
@@ -68,6 +75,21 @@ class EquipmentBase(BaseModel):
     @classmethod
     def sanitize_specs(cls, v: Optional[dict]) -> Optional[dict]:
         return validate_specifications(v)
+
+    @field_validator('approval_due_date', mode='before')
+    @classmethod
+    def validate_approval_date(cls, v: Optional[date]) -> Optional[date]:
+        if v is None:
+            return v
+        from datetime import timedelta
+        today = date.today()
+        min_date = today + timedelta(days=2)
+        max_date = today + timedelta(days=365)
+        if v < min_date:
+            raise ValueError("Approval date must be at least 2 days from today")
+        if v > max_date:
+            raise ValueError("Approval date must be within 1 year")
+        return v
 
 
 class EquipmentCreate(EquipmentBase):
@@ -84,6 +106,13 @@ class EquipmentUpdate(BaseModel):
     installation_date: Optional[datetime] = None
     warranty_expiry: Optional[datetime] = None
     notes: Optional[str] = Field(default=None, max_length=MAX_NOTES_LENGTH)
+    is_closed: Optional[bool] = None
+    approval_due_date: Optional[date] = None
+    distribution_emails: Optional[list[str]] = None
+    approver_contact_ids: Optional[list[str]] = None
+    contractor_signature_url: Optional[str] = Field(default=None, max_length=500)
+    supervisor_signature_url: Optional[str] = Field(default=None, max_length=500)
+    reminder_interval_hours: Optional[int] = Field(default=None, ge=24, le=720)
 
     @field_validator('name', 'equipment_type', 'manufacturer', 'model_number', 'serial_number', 'notes', mode='before')
     @classmethod
@@ -94,6 +123,21 @@ class EquipmentUpdate(BaseModel):
     @classmethod
     def sanitize_specs(cls, v: Optional[dict]) -> Optional[dict]:
         return validate_specifications(v)
+
+    @field_validator('approval_due_date', mode='before')
+    @classmethod
+    def validate_approval_date(cls, v: Optional[date]) -> Optional[date]:
+        if v is None:
+            return v
+        from datetime import timedelta
+        today = date.today()
+        min_date = today + timedelta(days=2)
+        max_date = today + timedelta(days=365)
+        if v < min_date:
+            raise ValueError("Approval date must be at least 2 days from today")
+        if v > max_date:
+            raise ValueError("Approval date must be within 1 year")
+        return v
 
 
 class EquipmentResponse(CamelCaseModel):
@@ -113,6 +157,14 @@ class EquipmentResponse(CamelCaseModel):
     updated_at: datetime
     created_by: Optional[UserResponse] = None
     checklists: list[ChecklistResponse] = []
+    is_closed: bool = False
+    approval_due_date: Optional[date] = None
+    distribution_emails: Optional[list] = None
+    approver_contact_ids: Optional[list] = None
+    contractor_signature_url: Optional[str] = None
+    supervisor_signature_url: Optional[str] = None
+    reminder_interval_hours: int = 48
+    last_reminder_sent_at: Optional[datetime] = None
 
 
 class PaginatedEquipmentResponse(BaseModel):

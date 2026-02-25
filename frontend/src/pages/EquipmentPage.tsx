@@ -24,6 +24,7 @@ import { parseValidationErrors } from '../utils/apiErrors'
 import { useToast } from '../components/common/ToastProvider'
 import { useReferenceData } from '../contexts/ReferenceDataContext'
 import type { KeyValuePair } from '../components/ui/KeyValueEditor'
+import type { Recipient } from '../components/ui/RecipientSelector'
 import { AddIcon, BuildIcon, EditIcon, DeleteIcon, VisibilityIcon } from '@/icons'
 import { Box, Typography, IconButton, TablePagination, useMediaQuery, useTheme } from '@/mui'
 
@@ -52,12 +53,17 @@ export default function EquipmentPage() {
   const [submitting, setSubmitting] = useState(false)
   const [errors, setErrors] = useState<ValidationError>({})
   const [activeTab, setActiveTab] = useState('all')
-  const [formData, setFormData] = useState({ name: '', templateId: '', manufacturer: '', modelNumber: '', serialNumber: '', notes: '' })
+  const [formData, setFormData] = useState({ name: '', templateId: '', manufacturer: '', modelNumber: '', notes: '', approvalDueDate: '' })
   const [specificationValues, setSpecificationValues] = useState<Record<string, string | number | boolean>>({})
   const [documentFiles, setDocumentFiles] = useState<Record<string, File | null>>({})
   const [checklistResponses, setChecklistResponses] = useState<Record<string, boolean>>({})
   const [customFields, setCustomFields] = useState<KeyValuePair[]>([])
   const [contactDialogOpen, setContactDialogOpen] = useState(false)
+  const [approvers, setApprovers] = useState<Recipient[]>([])
+  const [distributionList, setDistributionList] = useState<Recipient[]>([])
+  const [contractorSignature, setContractorSignature] = useState<string | null>(null)
+  const [supervisorSignature, setSupervisorSignature] = useState<string | null>(null)
+  const [isClosed, setIsClosed] = useState(false)
 
   const selectedTemplate = useMemo(() => {
     return equipmentTemplates.find(t => t.id === formData.templateId) || null
@@ -87,8 +93,9 @@ export default function EquipmentPage() {
   }
 
   const resetForm = () => {
-    setFormData({ name: '', templateId: '', manufacturer: '', modelNumber: '', serialNumber: '', notes: '' })
+    setFormData({ name: '', templateId: '', manufacturer: '', modelNumber: '', notes: '', approvalDueDate: '' })
     setSpecificationValues({}); setDocumentFiles({}); setChecklistResponses({}); setCustomFields([]); setErrors({}); setEditingEquipment(null)
+    setApprovers([]); setDistributionList([]); setContractorSignature(null); setSupervisorSignature(null); setIsClosed(false)
   }
 
   const handleOpenCreate = () => { resetForm(); setDialogOpen(true) }
@@ -97,7 +104,7 @@ export default function EquipmentPage() {
     if (e) e.stopPropagation()
     setEditingEquipment(eq)
     const matchingTemplate = equipmentTemplates.find(t => t.name_he === eq.equipmentType) || equipmentTemplates.find(t => t.name === eq.equipmentType)
-    setFormData({ name: eq.name, templateId: matchingTemplate?.id || '', manufacturer: eq.manufacturer || '', modelNumber: eq.modelNumber || '', serialNumber: eq.serialNumber || '', notes: eq.notes || '' })
+    setFormData({ name: eq.name, templateId: matchingTemplate?.id || '', manufacturer: eq.manufacturer || '', modelNumber: eq.modelNumber || '', notes: eq.notes || '', approvalDueDate: '' })
     setDocumentFiles({}); setChecklistResponses({})
     const existingSpecs = eq.specifications || {}
     const templateSpecKeys = new Set(matchingTemplate?.required_specifications?.map(s => s.name) || [])
@@ -112,25 +119,30 @@ export default function EquipmentPage() {
 
   const handleSaveEquipment = async () => {
     if (!projectId) return
-    const validationErrors = validateEquipmentForm({ name: formData.name, notes: formData.notes, serialNumber: formData.serialNumber, equipmentType: selectedTemplate?.name_he || '', manufacturer: formData.manufacturer, modelNumber: formData.modelNumber })
+    const validationErrors = validateEquipmentForm({ name: formData.name, notes: formData.notes, equipmentType: selectedTemplate?.name_he || '', manufacturer: formData.manufacturer, modelNumber: formData.modelNumber })
     setErrors(validationErrors)
     if (hasErrors(validationErrors)) return
     setSaving(true)
     try {
       const specs: Record<string, unknown> = { ...specificationValues }
       customFields.forEach(f => { specs[f.key] = f.value })
-      const payload = { name: formData.name, equipment_type: selectedTemplate?.name_he || undefined, manufacturer: formData.manufacturer || undefined, model_number: formData.modelNumber || undefined, serial_number: formData.serialNumber || undefined, specifications: Object.keys(specs).length > 0 ? specs : undefined, notes: formData.notes || undefined }
+      const payload = { name: formData.name, equipment_type: selectedTemplate?.name_he || undefined, manufacturer: formData.manufacturer || undefined, model_number: formData.modelNumber || undefined, specifications: Object.keys(specs).length > 0 ? specs : undefined, notes: formData.notes || undefined }
       let entityId: string
       if (editingEquipment) {
         const updated = await withMinDuration(equipmentApi.update(projectId, editingEquipment.id, payload))
-        entityId = updated.id; showSuccess(t('equipment.equipmentUpdatedSuccessfully'))
+        entityId = updated.id
+        setEquipment(prev => prev.map(e => e.id === updated.id ? updated : e))
+        showSuccess(t('equipment.equipmentUpdatedSuccessfully'))
       } else {
         const created = await withMinDuration(equipmentApi.create(projectId, payload))
-        entityId = created.id; showSuccess(t('equipment.equipmentCreatedSuccessfully'))
+        entityId = created.id
+        setEquipment(prev => [created, ...prev])
+        setTotalEquipment(prev => prev + 1)
+        showSuccess(t('equipment.equipmentCreatedSuccessfully'))
       }
       const filesToUpload = Object.values(documentFiles).filter((f): f is File => f !== null)
       if (filesToUpload.length > 0) await Promise.all(filesToUpload.map(file => filesApi.upload(projectId, 'equipment', entityId, file)))
-      setDialogOpen(false); resetForm(); loadEquipment()
+      setDialogOpen(false); resetForm()
     } catch (err) {
       const serverErrors = parseValidationErrors(err)
       if (Object.keys(serverErrors).length > 0) { setErrors(prev => ({ ...prev, ...serverErrors })); showError(t('validation.checkFields')); return }
@@ -292,6 +304,7 @@ export default function EquipmentPage() {
         onSubmit={handleSaveEquipment}
         saving={saving}
         editing={!!editingEquipment}
+        projectId={projectId!}
         formData={formData}
         setFormData={setFormData}
         errors={errors}
@@ -305,6 +318,16 @@ export default function EquipmentPage() {
         setChecklistResponses={setChecklistResponses}
         customFields={customFields}
         setCustomFields={setCustomFields}
+        approvers={approvers}
+        setApprovers={setApprovers}
+        distributionList={distributionList}
+        setDistributionList={setDistributionList}
+        contractorSignature={contractorSignature}
+        setContractorSignature={setContractorSignature}
+        supervisorSignature={supervisorSignature}
+        setSupervisorSignature={setSupervisorSignature}
+        isClosed={isClosed}
+        setIsClosed={setIsClosed}
       />
 
       <ConfirmModal

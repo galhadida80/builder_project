@@ -1,8 +1,8 @@
 import { memo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { DashboardIcon, FolderIcon, BuildIcon, InventoryIcon, EventIcon, CheckCircleIcon, AccountTreeIcon, ContactsIcon, HistoryIcon, SettingsIcon, AssignmentIcon, ConstructionIcon, EmailIcon, ViewInArIcon, ChecklistIcon, ReportProblemIcon, TaskAltIcon, AccountBalanceIcon, BusinessIcon, HelpOutlineIcon, ReceiptLongIcon, ShowChartIcon } from '@/icons'
-import { Box, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, Typography } from '@/mui'
+import { DashboardIcon, FolderIcon, BuildIcon, InventoryIcon, EventIcon, CheckCircleIcon, AccountTreeIcon, ContactsIcon, HistoryIcon, SettingsIcon, AssignmentIcon, ConstructionIcon, EmailIcon, ArchitectureIcon, ChecklistIcon, ReportProblemIcon, TaskAltIcon, AccountBalanceIcon, BusinessIcon, HelpOutlineIcon, ShowChartIcon, ExpandMoreIcon, ExpandLessIcon } from '@/icons'
+import { Box, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, Typography, Collapse } from '@/mui'
 import HelpDrawer from '../help/HelpDrawer'
 
 const DRAWER_WIDTH = 260
@@ -20,22 +20,51 @@ const mainNavItems: NavItem[] = [
   { label: 'nav.organizations', path: '/organizations', icon: <BusinessIcon /> },
 ]
 
-const projectNavItems: NavItem[] = [
-  { label: 'nav.equipment', path: '/equipment', icon: <BuildIcon />, tourId: 'equipment' },
-  { label: 'nav.materials', path: '/materials', icon: <InventoryIcon />, tourId: 'materials' },
-  { label: 'nav.meetings', path: '/meetings', icon: <EventIcon /> },
-  { label: 'nav.approvals', path: '/approvals', icon: <CheckCircleIcon />, tourId: 'approvals' },
-  { label: 'nav.areas', path: '/areas', icon: <AccountTreeIcon /> },
-  { label: 'nav.contacts', path: '/contacts', icon: <ContactsIcon /> },
-  { label: 'nav.inspections', path: '/inspections', icon: <AssignmentIcon /> },
-  { label: 'nav.rfis', path: '/rfis', icon: <EmailIcon /> },
-  { label: 'nav.checklists', path: '/checklists', icon: <ChecklistIcon /> },
-  { label: 'nav.defects', path: '/defects', icon: <ReportProblemIcon /> },
-  { label: 'nav.tasks', path: '/tasks', icon: <TaskAltIcon /> },
-  { label: 'nav.budget', path: '/budget', icon: <AccountBalanceIcon /> },
-  { label: 'nav.kpis', path: '/kpis', icon: <ShowChartIcon /> },
-  { label: 'nav.bim', path: '/bim', icon: <ViewInArIcon /> },
-  { label: 'nav.quantityExtraction', path: '/quantities', icon: <ReceiptLongIcon /> },
+interface NavGroup {
+  label: string
+  items: NavItem[]
+}
+
+const projectNavGroups: NavGroup[] = [
+  {
+    label: 'nav.groups.planning',
+    items: [
+      { label: 'nav.tasks', path: '/tasks', icon: <TaskAltIcon /> },
+      { label: 'nav.budget', path: '/budget', icon: <AccountBalanceIcon /> },
+      { label: 'nav.kpis', path: '/kpis', icon: <ShowChartIcon /> },
+    ],
+  },
+  {
+    label: 'nav.groups.field',
+    items: [
+      { label: 'nav.areas', path: '/areas', icon: <AccountTreeIcon /> },
+      { label: 'nav.inspections', path: '/inspections', icon: <AssignmentIcon /> },
+      { label: 'nav.defects', path: '/defects', icon: <ReportProblemIcon /> },
+      { label: 'nav.checklists', path: '/checklists', icon: <ChecklistIcon /> },
+    ],
+  },
+  {
+    label: 'nav.groups.procurement',
+    items: [
+      { label: 'nav.equipment', path: '/equipment', icon: <BuildIcon />, tourId: 'equipment' },
+      { label: 'nav.materials', path: '/materials', icon: <InventoryIcon />, tourId: 'materials' },
+      { label: 'nav.rfis', path: '/rfis', icon: <EmailIcon /> },
+      { label: 'nav.approvals', path: '/approvals', icon: <CheckCircleIcon />, tourId: 'approvals' },
+    ],
+  },
+  {
+    label: 'nav.groups.people',
+    items: [
+      { label: 'nav.contacts', path: '/contacts', icon: <ContactsIcon /> },
+      { label: 'nav.meetings', path: '/meetings', icon: <EventIcon /> },
+    ],
+  },
+  {
+    label: 'nav.groups.documents',
+    items: [
+      { label: 'nav.blueprints', path: '/blueprints', icon: <ArchitectureIcon /> },
+    ],
+  },
 ]
 
 const systemNavItems: NavItem[] = [
@@ -55,6 +84,7 @@ export default memo(function Sidebar({ projectId, mobileOpen = false, onMobileCl
   const location = useLocation()
   const navigate = useNavigate()
   const [helpOpen, setHelpOpen] = useState(false)
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({})
 
   const isActive = (path: string) => {
     if (path === '/projects' && location.pathname.startsWith('/projects')) {
@@ -200,52 +230,90 @@ export default memo(function Sidebar({ projectId, mobileOpen = false, onMobileCl
           >
             {t('nav.currentProject')}
           </Typography>
-          <List sx={{ px: 1.5, py: 0 }}>
-            {projectNavItems.map((item) => {
-              const fullPath = `/projects/${projectId}${item.path}`
+          <Box sx={{ px: 1.5, py: 0 }}>
+            {projectNavGroups.map((group) => {
+              const isGroupActive = group.items.some(item => {
+                const fullPath = `/projects/${projectId}${item.path}`
+                return location.pathname.startsWith(fullPath)
+              })
+              const isExpanded = expandedGroups[group.label] ?? true
+
               return (
-                <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }} data-tour={item.tourId}>
+                <Box key={group.label} sx={{ mb: 0.5 }}>
                   <ListItemButton
-                    selected={location.pathname.startsWith(fullPath)}
-                    onClick={() => handleNavigation(item.path, true)}
-                    sx={{
-                      borderRadius: 2,
-                      py: 1,
-                      transition: 'background-color 200ms ease-out',
-                      '&:hover': {
-                        bgcolor: 'action.hover',
-                      },
-                      '&.Mui-selected': {
-                        bgcolor: 'primary.main',
-                        color: 'primary.contrastText',
-                        '&:hover': {
-                          bgcolor: 'primary.dark',
-                        },
-                        '& .MuiListItemIcon-root': {
-                          color: 'primary.contrastText',
-                        },
-                      },
-                      '&:focus-visible': {
-                        outline: (theme) => `2px solid ${theme.palette.primary.main}`,
-                        outlineOffset: -2,
-                      },
-                    }}
+                    onClick={() => setExpandedGroups(prev => ({ ...prev, [group.label]: !isExpanded }))}
+                    sx={{ py: 0.5, px: 2, borderRadius: 1 }}
                   >
-                    <ListItemIcon sx={{ minWidth: 40, color: 'text.secondary' }}>
-                      {item.icon}
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={t(item.label)}
-                      primaryTypographyProps={{
-                        fontWeight: 500,
-                        fontSize: '0.875rem',
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        flex: 1,
+                        fontWeight: 600,
+                        fontSize: '0.65rem',
+                        letterSpacing: '0.08em',
+                        textTransform: 'uppercase',
+                        color: isGroupActive ? 'primary.main' : 'text.secondary',
                       }}
-                    />
+                    >
+                      {t(group.label)}
+                    </Typography>
+                    {isExpanded
+                      ? <ExpandLessIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
+                      : <ExpandMoreIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
+                    }
                   </ListItemButton>
-                </ListItem>
+                  <Collapse in={isExpanded}>
+                    <List sx={{ py: 0 }}>
+                      {group.items.map((item) => {
+                        const fullPath = `/projects/${projectId}${item.path}`
+                        return (
+                          <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }} data-tour={item.tourId}>
+                            <ListItemButton
+                              selected={location.pathname.startsWith(fullPath)}
+                              onClick={() => handleNavigation(item.path, true)}
+                              sx={{
+                                borderRadius: 2,
+                                py: 1,
+                                transition: 'background-color 200ms ease-out',
+                                '&:hover': {
+                                  bgcolor: 'action.hover',
+                                },
+                                '&.Mui-selected': {
+                                  bgcolor: 'primary.main',
+                                  color: 'primary.contrastText',
+                                  '&:hover': {
+                                    bgcolor: 'primary.dark',
+                                  },
+                                  '& .MuiListItemIcon-root': {
+                                    color: 'primary.contrastText',
+                                  },
+                                },
+                                '&:focus-visible': {
+                                  outline: (theme) => `2px solid ${theme.palette.primary.main}`,
+                                  outlineOffset: -2,
+                                },
+                              }}
+                            >
+                              <ListItemIcon sx={{ minWidth: 40, color: 'text.secondary' }}>
+                                {item.icon}
+                              </ListItemIcon>
+                              <ListItemText
+                                primary={t(item.label)}
+                                primaryTypographyProps={{
+                                  fontWeight: 500,
+                                  fontSize: '0.875rem',
+                                }}
+                              />
+                            </ListItemButton>
+                          </ListItem>
+                        )
+                      })}
+                    </List>
+                  </Collapse>
+                </Box>
               )
             })}
-          </List>
+          </Box>
         </>
       )}
 

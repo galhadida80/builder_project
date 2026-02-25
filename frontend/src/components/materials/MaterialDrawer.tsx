@@ -1,16 +1,13 @@
-import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '../ui/Button'
 import { StatusBadge } from '../ui/StatusBadge'
-import { ApprovalStepper } from '../ui/Stepper'
-import { filesApi } from '../../api/files'
-import { formatFileSize } from '../../utils/fileUtils'
+import FileAttachmentPanel from '../ui/FileAttachmentPanel'
+import ApprovalWorkflowSection from '../ui/ApprovalWorkflowSection'
+import EntityVersionHistory from '../ui/EntityVersionHistory'
 import { getDateLocale } from '../../utils/dateLocale'
 import type { Material } from '../../types'
-import type { FileRecord } from '../../api/files'
-import { useToast } from '../common/ToastProvider'
-import { CloseIcon, DescriptionIcon, SendIcon, InventoryIcon, CloudUploadIcon, DownloadIcon } from '@/icons'
-import { Box, Typography, Drawer, Divider, List, ListItem, ListItemText, ListItemIcon, Chip, CircularProgress, IconButton } from '@/mui'
+import { CloseIcon, SendIcon, InventoryIcon } from '@/icons'
+import { Box, Typography, Drawer, Divider, Chip, IconButton } from '@/mui'
 
 interface MaterialDrawerProps {
   open: boolean
@@ -25,40 +22,6 @@ interface MaterialDrawerProps {
 export default function MaterialDrawer({ open, onClose, material, projectId, onEdit, onSubmitForApproval, submitting }: MaterialDrawerProps) {
   const { t } = useTranslation()
   const dateLocale = getDateLocale()
-  const { showError, showSuccess } = useToast()
-  const [files, setFiles] = useState<FileRecord[]>([])
-  const [filesLoading, setFilesLoading] = useState(false)
-  const [filesError, setFilesError] = useState<string | null>(null)
-  const [uploading, setUploading] = useState(false)
-
-  useEffect(() => {
-    const loadFiles = async () => {
-      if (!open || !material || !projectId) { setFiles([]); setFilesError(null); return }
-      try {
-        setFilesLoading(true); setFilesError(null)
-        const data = await filesApi.list(projectId, 'material', material.id)
-        setFiles(data)
-      } catch { setFilesError(t('materials.failedToLoadFiles')) } finally { setFilesLoading(false) }
-    }
-    loadFiles()
-  }, [open, material, projectId])
-
-  const handleFileUpload = async () => {
-    if (!projectId || !material) return
-    const input = document.createElement('input')
-    input.type = 'file'
-    input.onchange = async (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0]
-      if (!file) return
-      setUploading(true)
-      try {
-        await filesApi.upload(projectId, 'material', material.id, file)
-        const data = await filesApi.list(projectId, 'material', material.id)
-        setFiles(data); showSuccess(t('materials.fileUploadedSuccessfully'))
-      } catch { showError(t('materials.failedToUploadFile')) } finally { setUploading(false) }
-    }
-    input.click()
-  }
 
   return (
     <Drawer anchor="right" open={open} onClose={onClose} sx={{ zIndex: 1400 }} PaperProps={{ sx: { width: { xs: '100%', sm: 480 }, borderRadius: '16px 0 0 16px' } }}>
@@ -114,37 +77,19 @@ export default function MaterialDrawer({ open, onClose, material, projectId, onE
 
           <Divider sx={{ my: 2 }} />
 
-          <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1.5, fontWeight: 600 }}>{t('materials.documents')}</Typography>
-          {filesLoading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}><CircularProgress size={24} /></Box>
-          ) : filesError ? (
-            <Typography color="error" variant="body2">{filesError}</Typography>
-          ) : files.length === 0 ? (
-            <Box sx={{ py: 2, px: 2, bgcolor: 'action.hover', borderRadius: 2, textAlign: 'center' }}>
-              <Typography color="text.secondary" variant="body2">{t('materials.noDocumentsAttached')}</Typography>
-            </Box>
-          ) : (
-            <List dense sx={{ bgcolor: 'action.hover', borderRadius: 2 }}>
-              {files.map((file) => (
-                <ListItem key={file.id} secondaryAction={
-                  <IconButton edge="end" size="small" onClick={async () => {
-                    try { const blobUrl = await filesApi.getFileBlob(projectId, file.id); const link = document.createElement('a'); link.href = blobUrl; link.download = file.filename; document.body.appendChild(link); link.click(); document.body.removeChild(link); URL.revokeObjectURL(blobUrl) } catch { showError(t('materials.failedToDownloadFile')) }
-                  }}><DownloadIcon fontSize="small" /></IconButton>
-                } sx={{ cursor: 'pointer', '&:hover': { bgcolor: 'action.selected' }, borderRadius: 1 }} onClick={async () => {
-                  try { const blobUrl = await filesApi.getFileBlob(projectId, file.id); window.open(blobUrl, '_blank') } catch { showError(t('materials.failedToOpenFile')) }
-                }}>
-                  <ListItemIcon><DescriptionIcon color="primary" /></ListItemIcon>
-                  <ListItemText primary={<Typography variant="body2" fontWeight={500}>{file.filename}</Typography>} secondary={`${file.fileType.toUpperCase()} - ${formatFileSize(file.fileSize)}`} />
-                </ListItem>
-              ))}
-            </List>
-          )}
-          <Button variant="tertiary" size="small" icon={uploading ? undefined : <CloudUploadIcon />} loading={uploading} sx={{ mt: 1 }} onClick={handleFileUpload}>{t('materials.uploadDocument')}</Button>
+          <FileAttachmentPanel projectId={projectId} entityType="material" entityId={material.id} />
 
           <Divider sx={{ my: 2 }} />
 
-          <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1.5, fontWeight: 600 }}>{t('materials.approvalTimeline')}</Typography>
-          <ApprovalStepper status={(material.status === 'revision_requested' ? 'rejected' : material.status) as 'draft' | 'submitted' | 'under_review' | 'approved' | 'rejected'} />
+          <ApprovalWorkflowSection
+            status={material.status as any}
+            onSubmitForApproval={onSubmitForApproval}
+            submitting={submitting}
+          />
+
+          <Divider sx={{ my: 2 }} />
+
+          <EntityVersionHistory projectId={projectId} entityType="material" entityId={material.id} />
 
           <Box sx={{ mt: 3, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
             {material.status === 'draft' && (

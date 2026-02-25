@@ -31,3 +31,14 @@ export { Breadcrumbs, PageHeader } from './Breadcrumbs'
 export { Modal, ConfirmModal, FormModal } from './Modal'
 
 export { PricingCard, PricingSection } from './PricingSection'
+
+export { default as FileAttachmentPanel } from './FileAttachmentPanel'
+
+export { default as ApprovalWorkflowSection } from './ApprovalWorkflowSection'
+
+export { default as RecipientSelector } from './RecipientSelector'
+export type { Recipient } from './RecipientSelector'
+
+export { default as SignaturePad } from './SignaturePad'
+
+export { default as EntityVersionHistory } from './EntityVersionHistory'

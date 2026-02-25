@@ -5,7 +5,7 @@ from datetime import date, datetime
 from enum import Enum
 from typing import Optional
 
-from sqlalchemy import Boolean, Date, DateTime, ForeignKey, String, Text
+from sqlalchemy import Boolean, Date, DateTime, Float, ForeignKey, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -44,6 +44,11 @@ class Project(Base):
     daily_summary_enabled: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
     created_by_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
     organization_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("organizations.id", ondelete="SET NULL"), index=True, nullable=True)
+    website: Mapped[Optional[str]] = mapped_column(String(500))
+    image_url: Mapped[Optional[str]] = mapped_column(String(500))
+    location_lat: Mapped[Optional[float]] = mapped_column(Float)
+    location_lng: Mapped[Optional[float]] = mapped_column(Float)
+    location_address: Mapped[Optional[str]] = mapped_column(Text)
 
     members = relationship("ProjectMember", back_populates="project", cascade="all, delete-orphan")
     organization = relationship("Organization", back_populates="projects")

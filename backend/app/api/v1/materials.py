@@ -18,6 +18,7 @@ from app.models.user import User
 from app.schemas.approval import SubmitForApprovalRequest
 from app.schemas.material import MaterialCreate, MaterialResponse, MaterialUpdate, PaginatedMaterialResponse
 from app.services.audit_service import create_audit_log, get_model_dict
+from app.services.entity_version_service import create_version
 from app.services.notification_service import notify_contact
 from app.utils.localization import get_language_from_request, translate_message
 
@@ -167,6 +168,8 @@ async def update_material(
     for key, value in data.model_dump(exclude_unset=True).items():
         setattr(material, key, value)
 
+    await create_version(db, project_id, "material", material_id, old_values, get_model_dict(material), current_user.id)
+
     await create_audit_log(db, current_user, "material", material.id, AuditAction.UPDATE,
                           project_id=project_id, old_values=old_values, new_values=get_model_dict(material))
 
@@ -236,6 +239,23 @@ async def submit_material_for_approval(
     db.add(approval_request)
     await db.flush()
 
+    consultant = None
+    inspector = None
+    if body.consultant_contact_id:
+        consultant_result = await db.execute(
+            select(Contact).where(Contact.id == body.consultant_contact_id, Contact.project_id == project_id)
+        )
+        consultant = consultant_result.scalar_one_or_none()
+        if not consultant:
+            raise HTTPException(status_code=400, detail="Consultant contact not found in this project")
+    if body.inspector_contact_id:
+        inspector_result = await db.execute(
+            select(Contact).where(Contact.id == body.inspector_contact_id, Contact.project_id == project_id)
+        )
+        inspector = inspector_result.scalar_one_or_none()
+        if not inspector:
+            raise HTTPException(status_code=400, detail="Inspector contact not found in this project")
+
     steps = []
     if body.consultant_contact_id:
         steps.append(ApprovalStep(
@@ -249,17 +269,6 @@ async def submit_material_for_approval(
         ))
     if steps:
         db.add_all(steps)
-
-    if body.consultant_contact_id:
-        consultant_result = await db.execute(select(Contact).where(Contact.id == body.consultant_contact_id))
-        consultant = consultant_result.scalar_one_or_none()
-    else:
-        consultant = None
-    if body.inspector_contact_id:
-        inspector_result = await db.execute(select(Contact).where(Contact.id == body.inspector_contact_id))
-        inspector = inspector_result.scalar_one_or_none()
-    else:
-        inspector = None
     if consultant:
         language = get_language_from_request(request)
         if language == "he":

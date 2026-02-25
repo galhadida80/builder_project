@@ -12,6 +12,7 @@ from app.db.session import get_db
 from app.models.approval import ApprovalRequest, ApprovalStep
 from app.models.audit import AuditAction
 from app.models.contact import Contact
+from app.models.entity_version import EntityVersion
 from app.models.equipment import ApprovalStatus, Equipment, EquipmentChecklist
 from app.models.project import ProjectMember
 from app.models.user import User
@@ -25,6 +26,7 @@ from app.schemas.equipment import (
     PaginatedEquipmentResponse,
 )
 from app.services.audit_service import create_audit_log, get_model_dict
+from app.services.entity_version_service import create_version
 from app.services.notification_service import notify_contact
 from app.utils.localization import get_language_from_request, translate_message
 
@@ -174,11 +176,45 @@ async def update_equipment(
     for key, value in data.model_dump(exclude_unset=True).items():
         setattr(equipment, key, value)
 
+    await create_version(db, project_id, "equipment", equipment_id, old_values, get_model_dict(equipment), current_user.id)
+
     await create_audit_log(db, current_user, "equipment", equipment.id, AuditAction.UPDATE,
                           project_id=project_id, old_values=old_values, new_values=get_model_dict(equipment))
 
     await db.refresh(equipment, ["created_by", "checklists"])
     return equipment
+
+
+@router.get("/projects/{project_id}/versions")
+async def list_entity_versions(
+    project_id: UUID,
+    entity_type: str = Query(...),
+    entity_id: UUID = Query(...),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    await verify_project_access(project_id, current_user, db)
+    result = await db.execute(
+        select(EntityVersion)
+        .options(selectinload(EntityVersion.changed_by))
+        .where(
+            EntityVersion.project_id == project_id,
+            EntityVersion.entity_type == entity_type,
+            EntityVersion.entity_id == entity_id,
+        )
+        .order_by(EntityVersion.version_number.desc())
+    )
+    versions = result.scalars().all()
+    return [
+        {
+            "id": str(v.id),
+            "versionNumber": v.version_number,
+            "changes": v.changes,
+            "changedBy": {"id": str(v.changed_by.id), "fullName": v.changed_by.full_name, "email": v.changed_by.email} if v.changed_by else None,
+            "createdAt": v.created_at.isoformat() if v.created_at else None,
+        }
+        for v in versions
+    ]
 
 
 @router.delete("/projects/{project_id}/equipment/{equipment_id}")
@@ -243,6 +279,23 @@ async def submit_equipment_for_approval(
     db.add(approval_request)
     await db.flush()
 
+    consultant = None
+    inspector = None
+    if body.consultant_contact_id:
+        consultant_result = await db.execute(
+            select(Contact).where(Contact.id == body.consultant_contact_id, Contact.project_id == project_id)
+        )
+        consultant = consultant_result.scalar_one_or_none()
+        if not consultant:
+            raise HTTPException(status_code=400, detail="Consultant contact not found in this project")
+    if body.inspector_contact_id:
+        inspector_result = await db.execute(
+            select(Contact).where(Contact.id == body.inspector_contact_id, Contact.project_id == project_id)
+        )
+        inspector = inspector_result.scalar_one_or_none()
+        if not inspector:
+            raise HTTPException(status_code=400, detail="Inspector contact not found in this project")
+
     steps = []
     if body.consultant_contact_id:
         steps.append(ApprovalStep(
@@ -256,17 +309,6 @@ async def submit_equipment_for_approval(
         ))
     if steps:
         db.add_all(steps)
-
-    if body.consultant_contact_id:
-        consultant_result = await db.execute(select(Contact).where(Contact.id == body.consultant_contact_id))
-        consultant = consultant_result.scalar_one_or_none()
-    else:
-        consultant = None
-    if body.inspector_contact_id:
-        inspector_result = await db.execute(select(Contact).where(Contact.id == body.inspector_contact_id))
-        inspector = inspector_result.scalar_one_or_none()
-    else:
-        inspector = None
     if consultant:
         language = get_language_from_request(request)
         if language == "he":

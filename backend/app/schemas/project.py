@@ -4,7 +4,7 @@ from datetime import date, datetime
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from app.core.validators import (
     MAX_ADDRESS_LENGTH,
@@ -27,6 +27,7 @@ class ProjectCreate(BaseModel):
     address: Optional[str] = Field(default=None, max_length=MAX_ADDRESS_LENGTH)
     start_date: Optional[date] = None
     estimated_end_date: Optional[date] = None
+    website: Optional[str] = Field(default=None, max_length=500)
 
     @field_validator('name', 'description', 'address', mode='before')
     @classmethod
@@ -47,6 +48,11 @@ class ProjectUpdate(BaseModel):
     estimated_end_date: Optional[date] = None
     status: Optional[str] = Field(default=None, max_length=50)
     daily_summary_enabled: Optional[bool] = None
+    website: Optional[str] = Field(default=None, max_length=500)
+    image_url: Optional[str] = Field(default=None, max_length=500)
+    location_lat: Optional[float] = None
+    location_lng: Optional[float] = None
+    location_address: Optional[str] = Field(default=None, max_length=500)
 
     @field_validator('status', mode='before')
     @classmethod
@@ -62,6 +68,16 @@ class ProjectUpdate(BaseModel):
     @classmethod
     def sanitize_text(cls, v: Optional[str]) -> Optional[str]:
         return sanitize_string(v)
+
+    @field_validator('estimated_end_date', mode='before')
+    @classmethod
+    def validate_end_date(cls, v, info):
+        if v is None:
+            return v
+        start = info.data.get('start_date')
+        if start and v <= start:
+            raise ValueError("End date must be after start date")
+        return v
 
 
 class ProjectMemberCreate(BaseModel):
@@ -90,3 +106,16 @@ class ProjectResponse(CamelCaseModel):
     created_at: datetime
     updated_at: datetime
     members: list[ProjectMemberResponse] = []
+    website: Optional[str] = None
+    image_url: Optional[str] = None
+    location_lat: Optional[float] = None
+    location_lng: Optional[float] = None
+    location_address: Optional[str] = None
+    days_remaining: Optional[int] = None
+
+    @model_validator(mode='after')
+    def compute_days_remaining(self):
+        if self.estimated_end_date:
+            from datetime import date as date_type
+            self.days_remaining = (self.estimated_end_date - date_type.today()).days
+        return self

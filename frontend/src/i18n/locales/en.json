@@ -615,7 +615,20 @@
     "organizations": "Organizations",
     "reports": "Reports",
     "quantityExtraction": "Quantity Extraction",
-    "kpis": "KPIs"
+    "blueprints": "Blueprints",
+    "kpis": "KPIs",
+    "groups": {
+      "planning": "Planning",
+      "field": "Field",
+      "procurement": "Procurement",
+      "people": "People",
+      "documents": "Documents"
+    }
+  },
+  "project": {
+    "daysLeft": "{{count}} days left",
+    "daysOverdue": "{{count}} days overdue",
+    "noEndDate": "No end date"
   },
   "mobileNav": {
     "dashboard": "Dashboard",
@@ -2834,6 +2847,70 @@
     "m": "m",
     "cm": "cm"
   },
+  "blueprints": {
+    "title": "Blueprint Reading",
+    "subtitle": "Upload a PDF, image, IFC, or Revit file to extract construction data",
+    "upload": "Upload Blueprint",
+    "dropHere": "Drop blueprint file here",
+    "orClick": "or click to browse",
+    "acceptedFormats": "PDF, IFC, RVT, DWG, NWD, NWC, PNG, JPG",
+    "maxSize": "Maximum size: 100MB",
+    "processing": "Analyzing blueprint...",
+    "processingHint": "Analysis may take up to a minute",
+    "noExtractions": "No blueprints",
+    "noExtractionsDescription": "Upload your first blueprint to get started",
+    "reExtract": "Re-analyze",
+    "reExtractSuccess": "Re-analysis completed",
+    "deleteConfirmation": "Delete Blueprint",
+    "deleteConfirmationMessage": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
+    "deleteSuccess": "Blueprint deleted",
+    "deleteFailed": "Failed to delete blueprint",
+    "uploadSuccess": "Blueprint uploaded successfully!",
+    "uploadFailed": "Failed to upload blueprint",
+    "extractionFailed": "Blueprint analysis failed",
+    "viewDetails": "View Details",
+    "view3d": "View 3D",
+    "version": "Version",
+    "processingTime": "Processing time",
+    "seconds": "seconds",
+    "source": {
+      "pdf_quantity": "PDF Blueprint",
+      "bim_ifc": "IFC Model",
+      "bim_aps": "Revit/DWG Model",
+      "image_plan": "Image Plan"
+    },
+    "status": {
+      "pending": "Pending",
+      "processing": "Processing",
+      "completed": "Completed",
+      "failed": "Failed"
+    },
+    "import": {
+      "title": "Import to Project",
+      "stepSummary": "Summary",
+      "stepReview": "Review & Select",
+      "stepImport": "Import",
+      "floors": "Floors & Rooms",
+      "areas": "Areas",
+      "equipment": "Equipment",
+      "materials": "Materials",
+      "name": "Name",
+      "type": "Type",
+      "floor": "Floor",
+      "code": "Code",
+      "manufacturer": "Manufacturer",
+      "model": "Model",
+      "noItems": "No items found in this category",
+      "importButton": "Import {{count}} items",
+      "importSuccess": "Successfully imported {{count}} items",
+      "importFailed": "Failed to import items",
+      "complete": "Import Complete",
+      "imported": "Imported",
+      "skipped": "Skipped",
+      "selectAll": "Select All",
+      "rooms": "Rooms"
+    }
+  },
   "structureWizard": {
     "title": "Project Structure Wizard",
     "subtitle": "Define your project structure easily",
@@ -3021,5 +3098,43 @@
       "landscaping": "Landscaping",
       "general": "General"
     }
+  },
+  "fileAttachment": {
+    "title": "Attachments",
+    "noFiles": "No files attached",
+    "upload": "Upload File",
+    "uploadSuccess": "{{count}} file(s) uploaded successfully",
+    "uploadFailed": "File upload failed",
+    "downloadFailed": "File download failed",
+    "previewFailed": "File preview failed",
+    "deleteFailed": "File deletion failed",
+    "deleteSuccess": "File deleted successfully",
+    "failedToLoad": "Failed to load files",
+    "maxFilesReached": "Maximum {{max}} files allowed"
+  },
+  "approvalWorkflow": {
+    "title": "Approval Workflow",
+    "submitForApproval": "Submit for Approval",
+    "resubmit": "Resubmit for Approval"
+  },
+  "recipientSelector": {
+    "placeholder": "Search contacts...",
+    "noContacts": "No contacts found",
+    "selected": "{{count}} selected"
+  },
+  "signaturePad": {
+    "drawHere": "Sign here",
+    "clear": "Clear",
+    "confirm": "Confirm",
+    "signed": "Signed",
+    "resign": "Re-sign"
+  },
+  "versionHistory": {
+    "title": "Edit History",
+    "noHistory": "No edit history",
+    "failedToLoad": "Failed to load history",
+    "changes": "{{count}} change(s)",
+    "showAll": "Show all ({{count}})",
+    "showLess": "Show less"
   }
 }

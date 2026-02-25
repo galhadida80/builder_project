@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 from enum import Enum
 from typing import Optional
 
-from sqlalchemy import DateTime, ForeignKey, String, Text
+from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -40,6 +40,14 @@ class Equipment(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow())
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow(), onupdate=lambda: utcnow())
     created_by_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
+    is_closed: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
+    reminder_interval_hours: Mapped[int] = mapped_column(Integer, default=48, server_default="48")
+    last_reminder_sent_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    distribution_emails: Mapped[Optional[list]] = mapped_column(JSONB, default=list)
+    approver_contact_ids: Mapped[Optional[list]] = mapped_column(JSONB, default=list)
+    contractor_signature_url: Mapped[Optional[str]] = mapped_column(String(500))
+    supervisor_signature_url: Mapped[Optional[str]] = mapped_column(String(500))
+    approval_due_date: Mapped[Optional[date]] = mapped_column(Date)
 
     project = relationship("Project", back_populates="equipment")
     created_by = relationship("User", foreign_keys=[created_by_id])

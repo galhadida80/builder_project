@@ -2,6 +2,7 @@ from app.models.approval import ApprovalRequest, ApprovalStep
 from app.models.area import AreaChecklistAssignment, AreaProgress, ConstructionArea
 from app.models.audit import AuditLog
 from app.models.bim import AutodeskConnection, BimModel
+from app.models.blueprint_extraction import BlueprintExtraction, BlueprintImport
 from app.models.chat import ChatConversation, ChatMessage
 from app.models.chat_action import ChatAction
 from app.models.checklist import (
@@ -18,6 +19,7 @@ from app.models.contact_group import ContactGroup, ContactGroupMember
 from app.models.defect import Defect, DefectAssignee
 from app.models.discussion import Discussion
 from app.models.document_analysis import DocumentAnalysis
+from app.models.entity_version import EntityVersion
 from app.models.document_review import DocumentComment, DocumentReview, ReviewStatus
 from app.models.document_version import DocumentAnnotation, DocumentVersion
 from app.models.equipment import Equipment, EquipmentChecklist
@@ -107,6 +109,8 @@ __all__ = [
     "ProjectInvitation",
     "BimModel",
     "AutodeskConnection",
+    "BlueprintExtraction",
+    "BlueprintImport",
     "ContactGroup",
     "ContactGroupMember",
     "Defect",
@@ -129,4 +133,5 @@ __all__ = [
     "ReportTemplate",
     "ScheduledReport",
     "SubcontractorProfile",
+    "EntityVersion",
 ]
