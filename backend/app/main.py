@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 
 import sentry_sdk
 from sentry_sdk.integrations.logging import LoggingIntegration
-from sentry_sdk.integrations.pydantic_ai import PydanticAiIntegration
+from sentry_sdk.integrations.pydantic_ai import PydanticAIIntegration
 from fastapi import FastAPI, Request
 from fastapi.exceptions import ResponseValidationError
 from fastapi.middleware.cors import CORSMiddleware
@@ -43,7 +43,7 @@ sentry_sdk.init(
     profile_lifecycle="trace",
     environment=settings.environment,
     integrations=[sentry_logging],
-    disabled_integrations=[PydanticAiIntegration],
+    disabled_integrations=[PydanticAIIntegration],
 )
 
 
