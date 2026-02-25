@@ -1,5 +1,5 @@
 import uuid
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, timedelta
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -19,8 +19,8 @@ from app.models.rfi import RFI
 async def collect_project_daily_summary(
     db: AsyncSession, project_id: uuid.UUID, summary_date: date
 ) -> dict:
-    day_start = datetime.combine(summary_date, datetime.min.time(), tzinfo=timezone.utc)
-    day_end = datetime.combine(summary_date + timedelta(days=1), datetime.min.time(), tzinfo=timezone.utc)
+    day_start = datetime.combine(summary_date, datetime.min.time())
+    day_end = datetime.combine(summary_date + timedelta(days=1), datetime.min.time())
 
     audit_entries = await _get_audit_entries(db, project_id, day_start, day_end)
     equipment_stats = await _get_entity_day_stats(db, Equipment, project_id, day_start, day_end)
@@ -189,7 +189,7 @@ async def _get_rfi_stats(
         .where(
             RFI.project_id == project_id,
             RFI.status.in_(["open", "waiting_response"]),
-            RFI.due_date < datetime.combine(summary_date, datetime.min.time(), tzinfo=timezone.utc),
+            RFI.due_date < datetime.combine(summary_date, datetime.min.time()),
         )
     )
     return {
@@ -263,8 +263,8 @@ async def _get_pending_approvals_count(db: AsyncSession, project_id: uuid.UUID) 
 async def _get_upcoming_meetings(
     db: AsyncSession, project_id: uuid.UUID, summary_date: date
 ) -> list[dict]:
-    start = datetime.combine(summary_date, datetime.min.time(), tzinfo=timezone.utc)
-    end = datetime.combine(summary_date + timedelta(days=7), datetime.min.time(), tzinfo=timezone.utc)
+    start = datetime.combine(summary_date, datetime.min.time())
+    end = datetime.combine(summary_date + timedelta(days=7), datetime.min.time())
     result = await db.execute(
         select(Meeting)
         .where(
