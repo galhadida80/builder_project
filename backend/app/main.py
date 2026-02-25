@@ -3,13 +3,20 @@ from contextlib import asynccontextmanager
 
 import sentry_sdk
 from sentry_sdk.integrations.logging import LoggingIntegration
+from sentry_sdk.integrations.pydantic_ai import PydanticAiIntegration
 from fastapi import FastAPI, Request
+from fastapi.exceptions import ResponseValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
+
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 
 from app.api.v1.router import api_router
 from app.config import get_settings
 from app.core.logging import RequestLoggingMiddleware, setup_logging
+from app.middleware.rate_limiter import get_rate_limiter
 from app.db.seeds.checklist_templates import seed_checklist_templates
 from app.db.seeds.consultant_types import seed_consultant_types
 from app.db.seeds.equipment_templates import seed_equipment_templates
@@ -31,11 +38,12 @@ sentry_sdk.init(
     dsn="https://18f4dcb8797d8e9fecbcc2d9d1093c42@o4510923130667008.ingest.de.sentry.io/4510923206295632",
     send_default_pii=True,
     enable_logs=True,
-    traces_sample_rate=1.0,
-    profile_session_sample_rate=1.0,
+    traces_sample_rate=0.1,
+    profile_session_sample_rate=0.1,
     profile_lifecycle="trace",
     environment=settings.environment,
     integrations=[sentry_logging],
+    disabled_integrations=[PydanticAiIntegration],
 )
 
 
@@ -114,12 +122,27 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         return response
 
 
+limiter = get_rate_limiter()
+
 app = FastAPI(
     title=settings.app_name,
     openapi_url=f"{settings.api_v1_prefix}/openapi.json",
     docs_url=f"{settings.api_v1_prefix}/docs",
     lifespan=lifespan,
 )
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+
+@app.exception_handler(ResponseValidationError)
+async def response_validation_error_handler(request: Request, exc: ResponseValidationError):
+    logger.error(
+        "ResponseValidationError on %s %s: %s",
+        request.method,
+        request.url.path,
+        exc.errors(),
+    )
+    return JSONResponse(status_code=500, content={"detail": "Internal server error"})
 
 app.add_middleware(RequestLoggingMiddleware)
 app.add_middleware(LanguageDetectionMiddleware)
