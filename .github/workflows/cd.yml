@@ -47,8 +47,8 @@ jobs:
             --allow-unauthenticated \
             --min-instances 0 \
             --max-instances 2 \
-            --memory 2Gi \
-            --cpu 1 \
+            --memory 4Gi \
+            --cpu 2 \
             --port 8080 \
             --timeout 300 \
             --cpu-boost \
