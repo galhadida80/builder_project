@@ -224,7 +224,7 @@ export default function EquipmentPage() {
           title={t('equipment.title')}
           subtitle={t('equipment.subtitle')}
           breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('equipment.title') }]}
-          actions={<Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>{t('equipment.addEquipment')}</Button>}
+          actions={<Box sx={{ display: { xs: 'none', md: 'block' } }}><Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>{t('equipment.addEquipment')}</Button></Box>}
         />
         <HelpTooltip helpKey="help.tooltips.equipmentForm" />
       </Box>

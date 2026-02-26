@@ -571,9 +571,11 @@ export default function MeetingsPage() {
             <Button variant="secondary" icon={<IosShareIcon />} onClick={handleSubscribeClick}>
               {t('settings.subscribeCalendar')}
             </Button>
-            <Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>
-              {t('meetings.scheduleMeeting')}
-            </Button>
+            <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+              <Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>
+                {t('meetings.scheduleMeeting')}
+              </Button>
+            </Box>
           </Box>
         }
       />

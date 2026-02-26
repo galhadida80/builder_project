@@ -272,9 +272,11 @@ export default function TasksPage() {
         title={t('tasks.pageTitle')}
         subtitle={t('tasks.pageSubtitle')}
         actions={
-          <Button variant="primary" icon={<AddIcon />} onClick={openCreateDialog}>
-            {t('tasks.createTask')}
-          </Button>
+          <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+            <Button variant="primary" icon={<AddIcon />} onClick={openCreateDialog}>
+              {t('tasks.createTask')}
+            </Button>
+          </Box>
         }
       />
 

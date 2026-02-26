@@ -277,7 +277,9 @@ export default function DefectsPage() {
         actions={
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
             <Button variant="secondary" icon={<PictureAsPdfIcon />} onClick={handleExportPdf} loading={exporting}>{t('defects.exportPdf')}</Button>
-            <Button variant="primary" icon={<AddIcon />} onClick={() => setDialogOpen(true)}>{t('defects.reportDefect')}</Button>
+            <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+              <Button variant="primary" icon={<AddIcon />} onClick={() => setDialogOpen(true)}>{t('defects.reportDefect')}</Button>
+            </Box>
           </Box>
         }
       />
