@@ -5,7 +5,7 @@ Complete UI/UX overhaul for BuilderOps Construction Operations Platform based on
 
 ---
 
-## EPIC 1: Design System Foundation
+## EPIC 1: Design System Foundation COMPLETED
 **Description:** Establish the core design system including colors, typography, components, and theming infrastructure.
 **Priority:** P0 - Critical
 **Estimate:** 5 points
@@ -70,7 +70,7 @@ As a user, I want to switch between light and dark modes so that I can use the a
 
 ---
 
-## EPIC 2: Landing Page Implementation
+## EPIC 2: Landing Page Implementation COMPLETED
 **Description:** Build the marketing landing page with hero, features, pricing, testimonials, and CTA sections.
 **Priority:** P1 - High
 **Estimate:** 13 points
@@ -171,7 +171,7 @@ As a visitor, I want a clear final CTA so that I can request a demo easily.
 
 ---
 
-## EPIC 3: Dashboard Views
+## EPIC 3: Dashboard Views COMPLETED
 **Description:** Implement role-based dashboards for executives, project managers, and field inspectors.
 **Priority:** P0 - Critical
 **Estimate:** 21 points
@@ -275,7 +275,7 @@ As a manager, I want to see team workload so that I can balance assignments appr
 
 ---
 
-## EPIC 4: Approval System UI
+## EPIC 4: Approval System UI COMPLETED
 **Description:** Implement the approval queue, workflow stepper, and audit trail interfaces.
 **Priority:** P1 - High
 **Estimate:** 13 points
@@ -364,7 +364,7 @@ As an admin, I want to see the complete approval history so that I can audit dec
 
 ---
 
-## EPIC 5: Project Management Pages
+## EPIC 5: Project Management Pages COMPLETED
 **Description:** Build project detail pages including overview, equipment, materials, timeline, and team views.
 **Priority:** P1 - High
 **Estimate:** 18 points
@@ -473,7 +473,7 @@ As a user, I want to manage project documents so that I can store and find files
 
 ---
 
-## EPIC 6: Inspection System UI
+## EPIC 6: Inspection System UI COMPLETED
 **Description:** Implement inspection checklists, findings, reports, and consultant management interfaces.
 **Priority:** P0 - Critical
 **Estimate:** 15 points
@@ -568,7 +568,7 @@ As a user, I want to see inspection history so that I can track all inspections 
 
 ---
 
-## EPIC 7: RTL & Internationalization
+## EPIC 7: RTL & Internationalization COMPLETED
 **Description:** Implement Hebrew RTL support and bilingual infrastructure.
 **Priority:** P1 - High
 **Estimate:** 8 points
@@ -620,7 +620,7 @@ As a user, I want to switch between English and Hebrew so that I can use my pref
 
 ---
 
-## EPIC 8: Mobile & Offline Experience
+## EPIC 8: Mobile & Offline Experience COMPLETED
 **Description:** Ensure mobile responsiveness and offline capability for field workers.
 **Priority:** P1 - High
 **Estimate:** 10 points
@@ -687,7 +687,7 @@ As a mobile user, I want smooth touch interactions so that the app feels respons
 
 ---
 
-## EPIC 9: Component Library
+## EPIC 9: Component Library COMPLETED
 **Description:** Build reusable UI components based on the design system.
 **Priority:** P0 - Critical
 **Estimate:** 13 points
@@ -775,7 +775,7 @@ As a developer, I need navigation components so that app navigation is consisten
 
 ---
 
-## EPIC 10: Animations & Micro-interactions
+## EPIC 10: Animations & Micro-interactions COMPLETED
 **Description:** Add polish with animations and micro-interactions following the design system guidelines.
 **Priority:** P2 - Medium
 **Estimate:** 5 points
@@ -813,7 +813,7 @@ As a user, I want feedback on my interactions so that the app feels responsive.
 
 ---
 
-## EPIC 11: RFI System - Email-Integrated Request for Information
+## EPIC 11: RFI System - Email-Integrated Request for Information COMPLETED
 **Description:** Implement a complete RFI (Request for Information) system with email integration via Gmail API and Google Cloud Pub/Sub. The system allows creating, sending, tracking, and responding to RFIs through an official email address integrated with the CRM.
 **Priority:** P0 - Critical
 **Estimate:** 46 points
@@ -1035,7 +1035,7 @@ As a developer, I need integration tests for the RFI system.
 
 ---
 
-## EPIC 12: AI Chat with Project Data
+## EPIC 12: AI Chat with Project Data COMPLETED
 **Description:** AI-powered chat interface that allows users to query their project data using natural language. Uses Pydantic AI with Gemini function calling to execute safe, parameterized queries against structured project data.
 **Priority:** P1 - High
 **Estimate:** 18 points
@@ -1138,7 +1138,7 @@ As a field user, I want to chat with project data via WhatsApp.
 
 ---
 
-## EPIC 13: Daily Work Summary Email
+## EPIC 13: Daily Work Summary Email COMPLETED
 **Description:** Automated daily email summarizing all activity/progress across projects. Cloud Scheduler triggers at 6 PM Israel time (Sun-Thu). Skips projects with no activity.
 **Priority:** P2 - Medium
 **Estimate:** 10 points
@@ -1437,7 +1437,7 @@ As a user, I want to pull RFIs from ACC into BuilderOps so all project communica
 
 ---
 
-## EPIC 15: BI Dashboard & Reporting
+## EPIC 15: BI Dashboard & Reporting COMPLETED
 **Description:** Add visual charts and analytics to the main project dashboard so managers get at-a-glance project health via donut charts, bar charts, line trends, and a progress gauge.
 **Priority:** P1 - High
 **Estimate:** 8 points
@@ -1492,7 +1492,7 @@ As a user, I want dashboard chart titles and labels translated in English, Hebre
 
 ---
 
-## EPIC 16: Defect Tracking & AI Analysis
+## EPIC 16: Defect Tracking & AI Analysis COMPLETED
 **Description:** Track construction defects with photo documentation, AI-powered image analysis, multi-assignee workflows, severity tracking, and PDF export. Enables field teams to document and manage deficiencies throughout the project lifecycle.
 **Priority:** P0 - Critical
 **Estimate:** 15 points
@@ -1545,7 +1545,7 @@ As a user, I want to view, create, and manage defects with a KPI dashboard and p
 
 ---
 
-## EPIC 17: Task Management
+## EPIC 17: Task Management COMPLETED
 **Description:** Project task management with dependencies, priority tracking, time estimation, bulk operations, and assignee workflows. Supports finish-to-start and other dependency types.
 **Priority:** P1 - High
 **Estimate:** 10 points
@@ -1594,7 +1594,7 @@ As a user, I want to manage project tasks with a KPI dashboard and multiple view
 
 ---
 
-## EPIC 18: Budget & Cost Tracking
+## EPIC 18: Budget & Cost Tracking COMPLETED
 **Description:** Comprehensive budget management with line items, cost entries, and change orders. Track budgeted vs actual spending by category with approval workflows for change orders.
 **Priority:** P1 - High
 **Estimate:** 12 points
@@ -1643,7 +1643,7 @@ As a project manager, I want to track budget, costs, and change orders in one pa
 
 ---
 
-## EPIC 19: Organizations & Multi-tenancy
+## EPIC 19: Organizations & Multi-tenancy COMPLETED
 **Description:** Organization-level management allowing users to group projects under organizations with role-based membership (org_admin, org_member).
 **Priority:** P2 - Medium
 **Estimate:** 8 points
@@ -1689,7 +1689,7 @@ As an admin, I want to manage organizations and their members.
 
 ---
 
-## EPIC 20: Meeting Enhancements (RSVP & Time Slots)
+## EPIC 20: Meeting Enhancements (RSVP & Time Slots) COMPLETED
 **Description:** Enhanced meeting system with RSVP tokens for external attendees, attendance status tracking (pending/accepted/declined/tentative), and time slot voting for scheduling.
 **Priority:** P1 - High
 **Estimate:** 8 points
@@ -1738,7 +1738,7 @@ As an attendee, I want to respond to meeting invitations via a public link.
 
 ---
 
-## EPIC 21: Reports & Compliance
+## EPIC 21: Reports & Compliance COMPLETED
 **Description:** Project-level reporting with inspection summaries, approval status, RFI aging analysis, and compliance audit trails. Supports date-range filtering and CSV export.
 **Priority:** P1 - High
 **Estimate:** 6 points
@@ -1776,7 +1776,7 @@ As a project manager, I want to view and export project reports.
 
 ---
 
-## EPIC 22: Contact Groups & Discussions
+## EPIC 22: Contact Groups & Discussions COMPLETED
 **Description:** Group contacts for bulk operations and threaded discussions on any entity with real-time WebSocket updates.
 **Priority:** P2 - Medium
 **Estimate:** 6 points
@@ -1812,7 +1812,7 @@ As a user, I want to comment on any entity with threaded replies and real-time u
 
 ---
 
-## EPIC 23: Security Enhancements
+## EPIC 23: Security Enhancements COMPLETED
 **Description:** WebAuthn passwordless authentication and password reset flow for enhanced security.
 **Priority:** P2 - Medium
 **Estimate:** 5 points
@@ -1848,7 +1848,7 @@ As a user, I want to reset my password via email link.
 
 ---
 
-## EPIC 24: Quantity Extraction (AI Tool)
+## EPIC 24: Quantity Extraction (AI Tool) COMPLETED
 **Description:** AI-powered PDF quantity extraction tool for extracting room and floor quantities from construction documents.
 **Priority:** P2 - Medium
 **Estimate:** 3 points
@@ -1871,7 +1871,7 @@ As a user, I want to upload PDFs and extract room/floor quantities using AI.
 
 ---
 
-## EPIC 25: Project Structure & Checklist Integration
+## EPIC 25: Project Structure & Checklist Integration COMPLETED
 **Description:** Connect project structure hierarchy (buildings, floors, units) with checklist system. Wizard for defining project structure, area-checklist assignments, and per-area checklist progress tracking.
 **Priority:** P1 - High
 **Estimate:** 18 points
@@ -1954,31 +1954,31 @@ As a user, I want to link checklist instances to specific areas when creating th
 
 | Epic | Stories | Total Points | Status |
 |------|---------|--------------|--------|
-| 1. Design System Foundation | 4 | 8 | Done |
-| 2. Landing Page Implementation | 6 | 13 | Done |
-| 3. Dashboard Views | 6 | 21 | Done |
-| 4. Approval System UI | 5 | 13 | Done |
-| 5. Project Management Pages | 6 | 18 | Done |
-| 6. Inspection System UI | 5 | 15 | Done |
-| 7. RTL & Internationalization | 3 | 8 | Done |
-| 8. Mobile & Offline Experience | 4 | 10 | Done |
-| 9. Component Library | 5 | 13 | Done |
-| 10. Animations & Micro-interactions | 2 | 5 | Done |
-| 11. RFI System (Email Integration) | 16 | 46 | Done |
-| 12. AI Chat with Project Data | 7 | 26 | Done (Phase 1) |
-| 13. Daily Work Summary Email | 6 | 11 | Done |
+| 1. Design System Foundation | 4 | 8 | COMPLETED |
+| 2. Landing Page Implementation | 6 | 13 | COMPLETED |
+| 3. Dashboard Views | 6 | 21 | COMPLETED |
+| 4. Approval System UI | 5 | 13 | COMPLETED |
+| 5. Project Management Pages | 6 | 18 | COMPLETED |
+| 6. Inspection System UI | 5 | 15 | COMPLETED |
+| 7. RTL & Internationalization | 3 | 8 | COMPLETED |
+| 8. Mobile & Offline Experience | 4 | 10 | COMPLETED |
+| 9. Component Library | 5 | 13 | COMPLETED |
+| 10. Animations & Micro-interactions | 2 | 5 | COMPLETED |
+| 11. RFI System (Email Integration) | 16 | 46 | COMPLETED |
+| 12. AI Chat with Project Data | 7 | 26 | COMPLETED (Phase 1) |
+| 13. Daily Work Summary Email | 6 | 11 | COMPLETED |
 | 14. Autodesk Revit/BIM Integration | 11 | 47 | In Progress (9/11) |
-| 15. BI Dashboard & Reporting | 3 | 8 | Done |
-| 16. Defect Tracking & AI Analysis | 3 | 15 | Done |
-| 17. Task Management | 3 | 10 | Done |
-| 18. Budget & Cost Tracking | 3 | 12 | Done |
-| 19. Organizations & Multi-tenancy | 3 | 8 | Done |
-| 20. Meeting Enhancements (RSVP) | 3 | 8 | Done |
-| 21. Reports & Compliance | 2 | 6 | Done |
-| 22. Contact Groups & Discussions | 2 | 6 | Done |
-| 23. Security Enhancements | 2 | 5 | Done |
-| 24. Quantity Extraction (AI Tool) | 1 | 3 | Done |
-| 25. Project Structure & Checklist Integration | 5 | 18 | Done |
+| 15. BI Dashboard & Reporting | 3 | 8 | COMPLETED |
+| 16. Defect Tracking & AI Analysis | 3 | 15 | COMPLETED |
+| 17. Task Management | 3 | 10 | COMPLETED |
+| 18. Budget & Cost Tracking | 3 | 12 | COMPLETED |
+| 19. Organizations & Multi-tenancy | 3 | 8 | COMPLETED |
+| 20. Meeting Enhancements (RSVP) | 3 | 8 | COMPLETED |
+| 21. Reports & Compliance | 2 | 6 | COMPLETED |
+| 22. Contact Groups & Discussions | 2 | 6 | COMPLETED |
+| 23. Security Enhancements | 2 | 5 | COMPLETED |
+| 24. Quantity Extraction (AI Tool) | 1 | 3 | COMPLETED |
+| 25. Project Structure & Checklist Integration | 5 | 18 | COMPLETED |
 | **TOTAL** | **111 stories** | **353 points** | |
 
 ---
@@ -2000,6 +2000,7 @@ As a user, I want to link checklist instances to specific areas when creating th
 | Sprint 11 | Epic 16 (Defects) + Epic 17 (Tasks) + Epic 18 (Budget) | Done |
 | Sprint 12 | Epic 19 (Orgs) + Epic 20 (Meetings) + Epic 21 (Reports) | Done |
 | Sprint 13 | Epic 22 (Groups/Discussions) + Epic 23 (Security) + Epic 24 (Qty Extract) | Done |
+| Sprint 14 | Epic 25 (Project Structure & Checklist Integration) | Done |
 
 ## Remaining Work
 
