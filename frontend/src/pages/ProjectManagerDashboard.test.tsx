@@ -55,8 +55,8 @@ vi.mock('../components/ui/EmptyState', () => ({
 }))
 
 const mockProjects = [
-  { id: 'p1', name: 'Tower Alpha', code: 'TWR-A', status: 'active', completionPercentage: 45, startDate: '2024-01-01', estimatedEndDate: '2025-01-01', createdAt: '2024-01-01', updatedAt: '2024-01-01' },
-  { id: 'p2', name: 'Bridge Beta', code: 'BRG-B', status: 'active', completionPercentage: 80, startDate: '2024-03-01', estimatedEndDate: '2025-06-01', createdAt: '2024-03-01', updatedAt: '2024-03-01' },
+  { id: 'p1-abc-def', name: 'Tower Alpha', status: 'active', completionPercentage: 45, startDate: '2024-01-01', estimatedEndDate: '2025-01-01', createdAt: '2024-01-01', updatedAt: '2024-01-01' },
+  { id: 'p2-xyz-ghi', name: 'Bridge Beta', status: 'active', completionPercentage: 80, startDate: '2024-03-01', estimatedEndDate: '2025-06-01', createdAt: '2024-03-01', updatedAt: '2024-03-01' },
 ]
 
 const mockTeam = [
@@ -112,11 +112,11 @@ describe('ProjectManagerDashboard', () => {
     })
   })
 
-  it('shows project codes', async () => {
+  it('shows project short IDs', async () => {
     renderWithProviders(<ProjectManagerDashboard />)
     await waitFor(() => {
-      expect(screen.getByText('TWR-A')).toBeInTheDocument()
-      expect(screen.getByText('BRG-B')).toBeInTheDocument()
+      expect(screen.getByText('P1-ABC-D')).toBeInTheDocument()
+      expect(screen.getByText('P2-XYZ-G')).toBeInTheDocument()
     })
   })
 
