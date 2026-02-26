@@ -1494,6 +1494,8 @@
       "importSelected": "ייבא {{count}} אנשי קשר",
       "pickFromPhone": "ייבוא אנשי קשר מהטלפון",
       "pickDescription": "ייצא אנשי קשר מהטלפון כקובץ VCF והעלה אותו כאן",
+      "pickDescriptionNative": "בחר אנשי קשר ישירות מהטלפון שלך",
+      "openContacts": "פתח אנשי קשר",
       "selectContacts": "בחר מאנשי הקשר",
       "uploadVcf": "העלה קובץ אנשי קשר (.vcf)",
       "addMore": "הוסף עוד",

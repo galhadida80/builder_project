@@ -316,28 +316,35 @@ export default function ImportContactsDialog({ open, onClose, projectId, onImpor
                       {t('contacts.import.pickFromPhone')}
                     </Typography>
                     <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                      {t('contacts.import.pickDescription')}
+                      {phoneSupported ? t('contacts.import.pickDescriptionNative') : t('contacts.import.pickDescription')}
                     </Typography>
 
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, alignItems: 'center' }}>
-                      <Button variant="primary" icon={<FileUploadIcon />} onClick={() => vcfInputRef.current?.click()}>
-                        {t('contacts.import.uploadVcf')}
-                      </Button>
-                      {phoneSupported && (
-                        <Button variant="secondary" icon={<ContactPhoneIcon />} onClick={handlePickPhoneContacts}>
-                          {t('contacts.import.selectContacts')}
-                        </Button>
+                      {phoneSupported ? (
+                        <>
+                          <Button variant="primary" icon={<ContactPhoneIcon />} onClick={handlePickPhoneContacts}>
+                            {t('contacts.import.openContacts')}
+                          </Button>
+                          <Button variant="secondary" icon={<FileUploadIcon />} onClick={() => vcfInputRef.current?.click()}>
+                            {t('contacts.import.uploadVcf')}
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <Button variant="primary" icon={<FileUploadIcon />} onClick={() => vcfInputRef.current?.click()}>
+                            {t('contacts.import.uploadVcf')}
+                          </Button>
+                          <Alert severity="info" sx={{ mt: 1, textAlign: 'start', '& .MuiAlert-message': { fontSize: '0.8rem' } }}>
+                            <Typography variant="body2" fontWeight={600} sx={{ mb: 0.5 }}>
+                              {t('contacts.import.vcfHowTitle')}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                              {t('contacts.import.vcfHowDescription')}
+                            </Typography>
+                          </Alert>
+                        </>
                       )}
                     </Box>
-
-                    <Alert severity="info" sx={{ mt: 2, textAlign: 'start', '& .MuiAlert-message': { fontSize: '0.8rem' } }}>
-                      <Typography variant="body2" fontWeight={600} sx={{ mb: 0.5 }}>
-                        {t('contacts.import.vcfHowTitle')}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {t('contacts.import.vcfHowDescription')}
-                      </Typography>
-                    </Alert>
                   </Box>
                 ) : (
                   <>
@@ -346,12 +353,18 @@ export default function ImportContactsDialog({ open, onClose, projectId, onImpor
                         {t('contacts.import.selectedCount', { count: selectedPhoneCount })}
                       </Typography>
                       <Box sx={{ display: 'flex', gap: 1 }}>
-                        <Button variant="secondary" size="small" icon={<FileUploadIcon />} onClick={() => vcfInputRef.current?.click()}>
-                          {t('contacts.import.addMore')}
-                        </Button>
-                        {phoneSupported && (
-                          <Button variant="secondary" size="small" icon={<ContactPhoneIcon />} onClick={handlePickPhoneContacts}>
-                            {t('contacts.import.selectContacts')}
+                        {phoneSupported ? (
+                          <>
+                            <Button variant="secondary" size="small" icon={<ContactPhoneIcon />} onClick={handlePickPhoneContacts}>
+                              {t('contacts.import.selectContacts')}
+                            </Button>
+                            <Button variant="secondary" size="small" icon={<FileUploadIcon />} onClick={() => vcfInputRef.current?.click()}>
+                              {t('contacts.import.addMore')}
+                            </Button>
+                          </>
+                        ) : (
+                          <Button variant="secondary" size="small" icon={<FileUploadIcon />} onClick={() => vcfInputRef.current?.click()}>
+                            {t('contacts.import.addMore')}
                           </Button>
                         )}
                       </Box>

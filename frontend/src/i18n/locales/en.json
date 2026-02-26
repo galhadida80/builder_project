@@ -1346,6 +1346,8 @@
       "importSelected": "Import {{count}} Contacts",
       "pickFromPhone": "Import Contacts from Phone",
       "pickDescription": "Export contacts from your phone as a VCF file and upload it here",
+      "pickDescriptionNative": "Select contacts directly from your phone",
+      "openContacts": "Open Contacts",
       "selectContacts": "Pick from Contacts",
       "uploadVcf": "Upload Contacts File (.vcf)",
       "addMore": "Add More",
