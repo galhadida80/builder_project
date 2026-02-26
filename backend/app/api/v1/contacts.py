@@ -16,7 +16,7 @@ from app.models.audit import AuditAction
 from app.models.contact import Contact
 from app.models.project import ProjectMember
 from app.models.user import User
-from app.schemas.contact import ContactCreate, ContactResponse, ContactUpdate
+from app.schemas.contact import BulkContactImport, BulkImportResponse, ContactCreate, ContactResponse, ContactUpdate
 from app.services.audit_service import create_audit_log, get_model_dict
 from app.utils.localization import get_language_from_request, translate_message
 
@@ -91,7 +91,7 @@ async def export_contacts_csv(
     )
 
 
-@router.post("/projects/{project_id}/contacts/import")
+@router.post("/projects/{project_id}/contacts/import", response_model=BulkImportResponse)
 async def import_contacts_csv(
     project_id: UUID,
     file: UploadFile = File(...),
@@ -99,12 +99,21 @@ async def import_contacts_csv(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    existing = await db.execute(
+        select(Contact.contact_name, Contact.phone, Contact.email)
+        .where(Contact.project_id == project_id)
+    )
+    existing_set = set()
+    for row in existing:
+        key = (row.contact_name.strip().lower(), (row.phone or "").strip(), (row.email or "").strip().lower())
+        existing_set.add(key)
 
     content = await file.read()
     text = content.decode("utf-8-sig")
     reader = csv.DictReader(io.StringIO(text))
 
     imported_count = 0
+    skipped_count = 0
     errors = []
     for line_num, row in enumerate(reader, start=2):
         contact_name = (row.get("contact_name") or "").strip()
@@ -126,6 +135,11 @@ async def import_contacts_csv(
             errors.append(f"Row {line_num}: field too long")
             continue
 
+        dedup_key = (contact_name.lower(), phone or "", (email or "").lower())
+        if dedup_key in existing_set:
+            skipped_count += 1
+            continue
+
         contact = Contact(
             project_id=project_id,
             contact_name=contact_name,
@@ -136,13 +150,71 @@ async def import_contacts_csv(
             phone=phone,
         )
         db.add(contact)
+        existing_set.add(dedup_key)
         imported_count += 1
 
     await db.commit()
-    result = {"imported_count": imported_count}
-    if errors:
-        result["errors"] = errors[:20]
-    return result
+    return BulkImportResponse(
+        imported_count=imported_count,
+        skipped_count=skipped_count,
+        errors=errors[:20],
+    )
+
+
+@router.post("/projects/{project_id}/contacts/import-bulk", response_model=BulkImportResponse)
+async def import_contacts_bulk(
+    project_id: UUID,
+    data: BulkContactImport,
+    member: ProjectMember = require_permission(Permission.CREATE),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    existing = await db.execute(
+        select(Contact.contact_name, Contact.phone, Contact.email)
+        .where(Contact.project_id == project_id)
+    )
+    existing_set = set()
+    for row in existing:
+        key = (row.contact_name.strip().lower(), (row.phone or "").strip(), (row.email or "").strip().lower())
+        existing_set.add(key)
+
+    imported_count = 0
+    skipped_count = 0
+    errors = []
+
+    for i, item in enumerate(data.contacts):
+        name = item.contact_name.strip()
+        phone = (item.phone or "").strip() or None
+        email = (item.email or "").strip() or None
+
+        dedup_key = (name.lower(), phone or "", (email or "").lower())
+        if dedup_key in existing_set:
+            skipped_count += 1
+            continue
+
+        if email and ("@" not in email or len(email) > 255):
+            errors.append(f"Row {i + 1}: invalid email '{email}'")
+            continue
+
+        contact = Contact(
+            project_id=project_id,
+            contact_name=name,
+            contact_type=item.contact_type.strip(),
+            company_name=(item.company_name or "").strip()[:255] or None,
+            role_description=(item.role_description or "").strip()[:255] or None,
+            email=email,
+            phone=phone,
+        )
+        db.add(contact)
+        existing_set.add(dedup_key)
+        imported_count += 1
+
+    await db.commit()
+    return BulkImportResponse(
+        imported_count=imported_count,
+        skipped_count=skipped_count,
+        errors=errors[:20],
+    )
 
 
 @router.post("/projects/{project_id}/contacts", response_model=ContactResponse)

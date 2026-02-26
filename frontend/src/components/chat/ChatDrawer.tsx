@@ -5,6 +5,8 @@ import ChatMessage from './ChatMessage'
 import ChatInput from './ChatInput'
 import { chatApi } from '../../api/chat'
 import type { ChatMessage as ChatMessageType, ChatAction, Conversation } from '../../api/chat'
+import { useVoiceOutput } from '@/hooks/useVoiceOutput'
+import VoiceSettingsDialog from './VoiceSettingsDialog'
 import { CloseIcon, ArrowBackIcon, AddIcon, HistoryIcon, DeleteOutlineIcon, SmartToyIcon } from '@/icons'
 import { Box, Drawer, Typography, IconButton, Chip, Stack, Divider, List, ListItemButton, ListItemText, useMediaQuery } from '@/mui'
 import { useTheme } from '@/mui'
@@ -36,6 +38,8 @@ export default function ChatDrawer({ open, onClose, projectId }: ChatDrawerProps
   const [showHistory, setShowHistory] = useState(false)
   const [conversations, setConversations] = useState<Conversation[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const [voiceSettingsOpen, setVoiceSettingsOpen] = useState(false)
+  const voiceOutput = useVoiceOutput()
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -298,6 +302,13 @@ export default function ChatDrawer({ open, onClose, projectId }: ChatDrawerProps
                     onActionExecute={handleActionExecute}
                     onActionReject={handleActionReject}
                     onSuggestionClick={handleSend}
+                    tts={{
+                      isSpeaking: voiceOutput.isSpeaking,
+                      speak: voiceOutput.speak,
+                      stop: voiceOutput.stop,
+                      isSupported: voiceOutput.isSupported,
+                      onOpenSettings: () => setVoiceSettingsOpen(true),
+                    }}
                   />
                 ))
               )}
@@ -358,6 +369,19 @@ export default function ChatDrawer({ open, onClose, projectId }: ChatDrawerProps
           </>
         )}
       </Box>
+
+      <VoiceSettingsDialog
+        open={voiceSettingsOpen}
+        onClose={() => setVoiceSettingsOpen(false)}
+        voices={voiceOutput.availableVoices}
+        selectedVoice={voiceOutput.selectedVoice}
+        prefs={voiceOutput.prefs}
+        onSelectVoice={voiceOutput.setVoice}
+        onPreviewVoice={voiceOutput.previewVoice}
+        onChangeRate={voiceOutput.setRate}
+        onChangePitch={voiceOutput.setPitch}
+        onChangeVolume={voiceOutput.setVolume}
+      />
     </Drawer>
   )
 }

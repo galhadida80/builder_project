@@ -56,6 +56,25 @@ class ContactUpdate(BaseModel):
     @classmethod
     def validate_phone_format(cls, v: Optional[str]) -> Optional[str]:
         return validate_phone(v)
+class BulkContactItem(BaseModel):
+    contact_name: str = Field(min_length=1, max_length=MAX_NAME_LENGTH)
+    contact_type: str = Field(min_length=1, max_length=50)
+    company_name: Optional[str] = Field(default=None, max_length=MAX_NAME_LENGTH)
+    email: Optional[str] = Field(default=None, max_length=MAX_NAME_LENGTH)
+    phone: Optional[str] = Field(default=None, max_length=MAX_PHONE_LENGTH)
+    role_description: Optional[str] = Field(default=None, max_length=MAX_DESCRIPTION_LENGTH)
+
+
+class BulkContactImport(BaseModel):
+    contacts: list[BulkContactItem] = Field(max_length=500)
+
+
+class BulkImportResponse(CamelCaseModel):
+    imported_count: int = 0
+    skipped_count: int = 0
+    errors: list[str] = []
+
+
 class LinkedUserResponse(CamelCaseModel):
     id: UUID
     email: str

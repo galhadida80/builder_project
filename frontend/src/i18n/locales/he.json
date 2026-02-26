@@ -1095,7 +1095,23 @@
     "voiceListening": "מקשיב...",
     "voiceNotSupported": "הקלט הקולי אינו נתמך בדפדפן זה",
     "voiceReadAloud": "הקראה",
-    "voiceStopReading": "עצור הקראה"
+    "voiceStopReading": "עצור הקראה",
+    "micRequesting": "מבקש גישה למיקרופון...",
+    "micBlocked": "הגישה למיקרופון חסומה. אנא אפשר בהגדרות הדפדפן.",
+    "micError": "שגיאה במיקרופון",
+    "micNoSound": "לא נקלט קול. בדוק שהמיקרופון מחובר ופעיל.",
+    "voiceSettings": "הגדרות קול",
+    "voiceSelect": "בחר קול",
+    "voiceControls": "שליטה בקול",
+    "voiceSpeed": "מהירות",
+    "voicePitch": "גובה הצליל",
+    "voiceVolume": "עוצמה",
+    "voiceLow": "נמוך",
+    "voiceNormal": "רגיל",
+    "voiceHigh": "גבוה",
+    "voiceLocal": "מקומי",
+    "voiceCloud": "ענן",
+    "noVoicesAvailable": "אין קולות זמינים לשפה זו"
   },
   "approvalQueue": {
     "title": "תור אישורים",
@@ -1261,7 +1277,8 @@
     "dailySummary": "סיכום יומי",
     "dailySummaryDescription": "קבל סיכום יומי של פעילויות הפרויקט",
     "twoFactorAuth": "אימות דו-שלבי",
-    "active": "פעיל"
+    "active": "פעיל",
+    "comingSoon": "בקרוב"
   },
   "approvals": {
     "title": "אישורים",
@@ -1363,7 +1380,31 @@
     "primary": "ראשי",
     "linkedUser": "משתמש מקושר",
     "linkedUserHint": "קשר איש קשר זה למשתמש במערכת לאכיפת אישורים",
-    "pendingApprovals": "אישורים ממתינים"
+    "pendingApprovals": "אישורים ממתינים",
+    "import": {
+      "button": "ייבוא",
+      "title": "ייבוא אנשי קשר",
+      "fromFile": "מקובץ",
+      "fromPhone": "מהטלפון",
+      "dropFile": "גרור קובץ CSV לכאן או לחץ לבחירה",
+      "csvOnly": "CSV בלבד",
+      "csvFormat": "פורמט נדרש:",
+      "downloadTemplate": "הורד תבנית CSV",
+      "importFile": "ייבא מקובץ",
+      "importSelected": "ייבא {{count}} אנשי קשר",
+      "pickFromPhone": "בחר אנשי קשר מהטלפון",
+      "pickDescription": "בחר אנשי קשר מרשימת אנשי הקשר במכשיר שלך",
+      "selectContacts": "בחר אנשי קשר",
+      "addMore": "הוסף עוד",
+      "defaultType": "סוג איש קשר ברירת מחדל",
+      "selectedCount": "{{count}} נבחרו",
+      "resultTitle": "הייבוא הושלם",
+      "imported": "יובאו",
+      "skipped": "דלגו (כפולים)",
+      "failed": "הייבוא נכשל. אנא נסה שוב.",
+      "phoneNotSupported": "לא נתמך בדפדפן זה",
+      "phoneNotSupportedDescription": "ייבוא אנשי קשר מהטלפון נתמך בדפדפן Chrome באנדרואיד בלבד. השתמש בייבוא מקובץ CSV."
+    }
   },
   "rfis": {
     "title": "בקשות מידע",

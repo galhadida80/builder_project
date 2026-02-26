@@ -18,14 +18,16 @@ export default function SettingsPage() {
   const isRtl = theme.direction === 'rtl'
   const ChevronIcon = isRtl ? ChevronLeftIcon : ChevronRightIcon
 
-  const [notifications, setNotifications] = useState({
-    email: true,
-    push: true,
-    rfis: true,
-    approvals: true,
+  const [notifications, setNotifications] = useState(() => {
+    const saved = localStorage.getItem('builderops_notification_prefs')
+    if (saved) return JSON.parse(saved)
+    return { email: true, push: true, rfis: true, approvals: true }
   })
 
-  const [dailySummary, setDailySummary] = useState(true)
+  const [dailySummary, setDailySummary] = useState(() => {
+    const saved = localStorage.getItem('builderops_daily_summary')
+    return saved !== null ? JSON.parse(saved) : true
+  })
 
   const [calendarConnected, setCalendarConnected] = useState(false)
   const [calendarConfigured, setCalendarConfigured] = useState(false)
@@ -79,7 +81,11 @@ export default function SettingsPage() {
   }
 
   const handleNotificationChange = (key: keyof typeof notifications) => {
-    setNotifications(prev => ({ ...prev, [key]: !prev[key] }))
+    setNotifications((prev: typeof notifications) => {
+      const updated = { ...prev, [key]: !prev[key] }
+      localStorage.setItem('builderops_notification_prefs', JSON.stringify(updated))
+      return updated
+    })
     showSuccess(t('settings.settingsUpdated'))
   }
 
@@ -109,6 +115,7 @@ export default function SettingsPage() {
             </Avatar>
             <IconButton
               size="small"
+              onClick={() => navigate('/profile')}
               sx={{
                 position: 'absolute',
                 bottom: 0,
@@ -218,7 +225,7 @@ export default function SettingsPage() {
               icon={<ViewListIcon sx={{ color: 'primary.main' }} />}
               label={t('settings.dailySummary')}
               subtitle={t('settings.dailySummaryDescription')}
-              action={<Switch checked={dailySummary} onChange={() => { setDailySummary(!dailySummary); showSuccess(t('settings.settingsUpdated')); }} color="primary" />}
+              action={<Switch checked={dailySummary} onChange={() => { const next = !dailySummary; setDailySummary(next); localStorage.setItem('builderops_daily_summary', JSON.stringify(next)); showSuccess(t('settings.settingsUpdated')); }} color="primary" />}
             />
           </Paper>
         </Box>
@@ -271,13 +278,10 @@ export default function SettingsPage() {
             />
             <Divider />
             <SettingsRow
-              icon={<CheckCircleIcon sx={{ color: 'primary.main' }} />}
+              icon={<CheckCircleIcon sx={{ color: 'text.disabled' }} />}
               label={t('settings.twoFactorAuth')}
               action={
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Chip label={t('settings.active')} size="small" sx={{ bgcolor: 'success.main', color: 'success.contrastText', fontWeight: 600, fontSize: '0.7rem', height: 24 }} />
-                  <ChevronIcon sx={{ color: 'text.disabled', fontSize: 20 }} />
-                </Box>
+                <Chip label={t('settings.comingSoon')} size="small" sx={{ bgcolor: 'action.disabledBackground', color: 'text.secondary', fontWeight: 600, fontSize: '0.7rem', height: 24 }} />
               }
             />
           </Paper>
@@ -298,6 +302,7 @@ export default function SettingsPage() {
               icon={<SecurityIcon sx={{ color: 'primary.main' }} />}
               label={t('settings.privacyPolicy')}
               action={<ChevronIcon sx={{ color: 'text.disabled', fontSize: 20 }} />}
+              onClick={() => window.open('https://builderops.dev/privacy', '_blank')}
             />
           </Paper>
         </Box>

@@ -4,9 +4,8 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import ChatActionCard from './ChatActionCard'
 import type { ChatMessage as ChatMessageType } from '../../api/chat'
-import { SmartToyIcon, PersonIcon, VolumeUpIcon, StopCircleIcon } from '@/icons'
+import { SmartToyIcon, PersonIcon, VolumeUpIcon, StopCircleIcon, TuneIcon } from '@/icons'
 import { Box, Typography, Paper, Chip, Stack, IconButton, Tooltip, useTheme } from '@/mui'
-import { useVoiceOutput } from '@/hooks/useVoiceOutput'
 
 function parseSuggestions(content: string): { cleanContent: string; suggestions: string[] } {
   const lines = content.split('\n')
@@ -40,9 +39,16 @@ interface ChatMessageProps {
   onActionExecute?: (actionId: string) => Promise<void>
   onActionReject?: (actionId: string) => Promise<void>
   onSuggestionClick?: (text: string) => void
+  tts?: {
+    isSpeaking: boolean
+    speak: (text: string) => void
+    stop: () => void
+    isSupported: boolean
+    onOpenSettings?: () => void
+  }
 }
 
-export default memo(function ChatMessage({ message, onActionExecute, onActionReject, onSuggestionClick }: ChatMessageProps) {
+export default memo(function ChatMessage({ message, onActionExecute, onActionReject, onSuggestionClick, tts }: ChatMessageProps) {
   const isUser = message.role === 'user'
   const actions = message.pendingActions || []
   const theme = useTheme()
@@ -51,7 +57,8 @@ export default memo(function ChatMessage({ message, onActionExecute, onActionRej
   const borderColor = isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)'
   const headerBg = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'
   const codeBg = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'
-  const { isSpeaking, speak, stop, isSupported: ttsSupported } = useVoiceOutput()
+  const ttsSupported = tts?.isSupported ?? false
+  const isSpeaking = tts?.isSpeaking ?? false
 
   const { cleanContent, suggestions } = useMemo(() => {
     if (!isUser && message.content) return parseSuggestions(message.content)
@@ -59,10 +66,11 @@ export default memo(function ChatMessage({ message, onActionExecute, onActionRej
   }, [isUser, message.content])
 
   const handleTtsClick = () => {
+    if (!tts) return
     if (isSpeaking) {
-      stop()
+      tts.stop()
     } else if (message.content) {
-      speak(message.content)
+      tts.speak(message.content)
     }
   }
 
@@ -175,7 +183,7 @@ export default memo(function ChatMessage({ message, onActionExecute, onActionRej
             </Box>
           )}
           {!isUser && ttsSupported && (
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0.5 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0.5, gap: 0.25 }}>
               <Tooltip title={isSpeaking ? t('chat.voiceStopReading') : t('chat.voiceReadAloud')}>
                 <IconButton
                   size="small"
@@ -185,6 +193,17 @@ export default memo(function ChatMessage({ message, onActionExecute, onActionRej
                   {isSpeaking ? <StopCircleIcon sx={{ fontSize: 18 }} /> : <VolumeUpIcon sx={{ fontSize: 18 }} />}
                 </IconButton>
               </Tooltip>
+              {tts?.onOpenSettings && (
+                <Tooltip title={t('chat.voiceSettings')}>
+                  <IconButton
+                    size="small"
+                    onClick={tts.onOpenSettings}
+                    sx={{ width: 28, height: 28, color: 'text.secondary' }}
+                  >
+                    <TuneIcon sx={{ fontSize: 16 }} />
+                  </IconButton>
+                </Tooltip>
+              )}
             </Box>
           )}
         </Paper>

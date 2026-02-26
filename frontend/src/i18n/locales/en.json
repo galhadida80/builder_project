@@ -953,7 +953,23 @@
     "voiceListening": "Listening...",
     "voiceNotSupported": "Voice input is not supported in this browser",
     "voiceReadAloud": "Read aloud",
-    "voiceStopReading": "Stop reading"
+    "voiceStopReading": "Stop reading",
+    "micRequesting": "Requesting microphone access...",
+    "micBlocked": "Microphone access blocked. Please allow in browser settings.",
+    "micError": "Microphone error",
+    "micNoSound": "No sound detected. Check that your mic is connected and working.",
+    "voiceSettings": "Voice Settings",
+    "voiceSelect": "Select Voice",
+    "voiceControls": "Voice Controls",
+    "voiceSpeed": "Speed",
+    "voicePitch": "Pitch",
+    "voiceVolume": "Volume",
+    "voiceLow": "Low",
+    "voiceNormal": "Normal",
+    "voiceHigh": "High",
+    "voiceLocal": "Local",
+    "voiceCloud": "Cloud",
+    "noVoicesAvailable": "No voices available for this language"
   },
   "approvalQueue": {
     "title": "Approval Queue",
@@ -1119,7 +1135,8 @@
     "dailySummary": "Daily Summary",
     "dailySummaryDescription": "Receive a daily summary of project activities",
     "twoFactorAuth": "Two-Factor Auth",
-    "active": "Active"
+    "active": "Active",
+    "comingSoon": "Coming Soon"
   },
   "approvals": {
     "title": "Approvals",
@@ -1212,7 +1229,31 @@
     "primary": "Primary",
     "linkedUser": "Linked User",
     "linkedUserHint": "Link this contact to a system user for approval enforcement",
-    "pendingApprovals": "Pending Approvals"
+    "pendingApprovals": "Pending Approvals",
+    "import": {
+      "button": "Import",
+      "title": "Import Contacts",
+      "fromFile": "From File",
+      "fromPhone": "From Phone",
+      "dropFile": "Drag & drop a CSV file here or click to browse",
+      "csvOnly": "CSV files only",
+      "csvFormat": "Required format:",
+      "downloadTemplate": "Download CSV Template",
+      "importFile": "Import File",
+      "importSelected": "Import {{count}} Contacts",
+      "pickFromPhone": "Pick Contacts from Phone",
+      "pickDescription": "Select contacts from your device's contact list",
+      "selectContacts": "Select Contacts",
+      "addMore": "Add More",
+      "defaultType": "Default Contact Type",
+      "selectedCount": "{{count}} selected",
+      "resultTitle": "Import Complete",
+      "imported": "imported",
+      "skipped": "skipped (duplicates)",
+      "failed": "Import failed. Please try again.",
+      "phoneNotSupported": "Not Supported in This Browser",
+      "phoneNotSupportedDescription": "Phone contact import is only supported in Chrome on Android. Use the CSV file import instead."
+    }
   },
   "rfis": {
     "title": "RFIs",

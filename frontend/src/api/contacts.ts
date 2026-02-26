@@ -23,6 +23,21 @@ interface ContactUpdate {
   user_id?: string | null
 }
 
+export interface ContactImportResult {
+  importedCount: number
+  skippedCount: number
+  errors: string[]
+}
+
+export interface ContactImportRow {
+  contact_name: string
+  contact_type: string
+  company_name?: string
+  email?: string
+  phone?: string
+  role_description?: string
+}
+
 export const contactsApi = {
   list: async (projectId: string): Promise<Contact[]> => {
     const response = await apiClient.get(`/projects/${projectId}/contacts`)
@@ -46,5 +61,26 @@ export const contactsApi = {
 
   delete: async (projectId: string, id: string): Promise<void> => {
     await apiClient.delete(`/projects/${projectId}/contacts/${id}`)
+  },
+
+  importCsv: async (projectId: string, file: File): Promise<ContactImportResult> => {
+    const formData = new FormData()
+    formData.append('file', file)
+    const response = await apiClient.post(`/projects/${projectId}/contacts/import`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    return response.data
+  },
+
+  importBulk: async (projectId: string, contacts: ContactImportRow[]): Promise<ContactImportResult> => {
+    const response = await apiClient.post(`/projects/${projectId}/contacts/import-bulk`, { contacts })
+    return response.data
+  },
+
+  exportCsv: async (projectId: string): Promise<Blob> => {
+    const response = await apiClient.get(`/projects/${projectId}/contacts/export`, {
+      responseType: 'blob',
+    })
+    return response.data
   },
 }

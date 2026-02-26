@@ -17,7 +17,8 @@ import { useToast } from '../components/common/ToastProvider'
 import { validateContactForm, hasErrors, type ValidationError } from '../utils/validation'
 import { parseValidationErrors } from '../utils/apiErrors'
 import { withMinDuration } from '../utils/async'
-import { AddIcon, EditIcon, DeleteIcon, PersonIcon, GroupIcon, AssignmentIcon, PhoneIcon, EmailIcon } from '@/icons'
+import { AddIcon, EditIcon, DeleteIcon, PersonIcon, GroupIcon, AssignmentIcon, PhoneIcon, EmailIcon, FileUploadIcon, FileDownloadIcon } from '@/icons'
+import ImportContactsDialog from '../components/contacts/ImportContactsDialog'
 import { Box, Typography, MenuItem, TextField as MuiTextField, Skeleton, Chip, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Autocomplete, Tab as MuiTab, Tabs as MuiTabs, useMediaQuery, useTheme } from '@/mui'
 
 export default function ContactsPage() {
@@ -48,6 +49,7 @@ export default function ContactsPage() {
   const [groupFormData, setGroupFormData] = useState({ name: '', description: '', contactIds: [] as string[] })
   const [groupSaving, setGroupSaving] = useState(false)
   const [deletingGroup, setDeletingGroup] = useState(false)
+  const [importDialogOpen, setImportDialogOpen] = useState(false)
 
   const contactTypes = [
     { value: 'contractor', label: t('contacts.types.contractor'), color: '#e07842' },
@@ -172,7 +174,12 @@ export default function ContactsPage() {
         title={t('contacts.title')}
         subtitle={t('contacts.subtitle')}
         breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('nav.contacts') }]}
-        actions={mainTab === 0 ? <Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>{t('contacts.addContact')}</Button> : <Button variant="primary" icon={<AddIcon />} onClick={handleOpenGroupCreate}>{t('contactGroups.createGroup')}</Button>}
+        actions={mainTab === 0 ? (
+          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+            <Button variant="secondary" icon={<FileUploadIcon />} onClick={() => setImportDialogOpen(true)}>{isMobile ? '' : t('contacts.import.button')}</Button>
+            <Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>{t('contacts.addContact')}</Button>
+          </Box>
+        ) : <Button variant="primary" icon={<AddIcon />} onClick={handleOpenGroupCreate}>{t('contactGroups.createGroup')}</Button>}
       />
 
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, gap: 1.5, mb: 3 }}>
@@ -401,6 +408,8 @@ export default function ContactsPage() {
       </FormModal>
 
       <ConfirmModal open={deleteGroupDialogOpen} onClose={() => setDeleteGroupDialogOpen(false)} onConfirm={handleConfirmDeleteGroup} title={t('contactGroups.deleteGroup')} message={t('contactGroups.deleteConfirmation', { name: groupToDelete?.name })} confirmLabel={t('common.delete')} variant="danger" loading={deletingGroup} />
+
+      <ImportContactsDialog open={importDialogOpen} onClose={() => setImportDialogOpen(false)} projectId={projectId!} onImportComplete={loadContacts} />
     </Box>
   )
 }
