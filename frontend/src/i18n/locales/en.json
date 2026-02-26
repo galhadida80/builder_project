@@ -638,7 +638,16 @@
     "overview": "Overview",
     "inspections": "Inspections",
     "checklists": "Checklists",
-    "defects": "Defects"
+    "defects": "Defects",
+    "quickCreate": "Quick Create",
+    "quickActions": {
+      "newProject": "New Project",
+      "newTask": "New Task",
+      "newDefect": "Report Defect",
+      "newInspection": "New Inspection",
+      "newMeeting": "Schedule Meeting",
+      "newEquipment": "Add Equipment"
+    }
   },
   "profile": {
     "title": "Profile",

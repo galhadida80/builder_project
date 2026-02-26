@@ -281,7 +281,16 @@
     "overview": "סקירה",
     "inspections": "בדיקות",
     "checklists": "צ'קליסטים",
-    "defects": "ליקויים"
+    "defects": "ליקויים",
+    "quickCreate": "יצירה מהירה",
+    "quickActions": {
+      "newProject": "פרויקט חדש",
+      "newTask": "משימה חדשה",
+      "newDefect": "דווח ליקוי",
+      "newInspection": "בדיקה חדשה",
+      "newMeeting": "תזמן פגישה",
+      "newEquipment": "הוסף ציוד"
+    }
   },
   "profile": {
     "title": "פרופיל",
