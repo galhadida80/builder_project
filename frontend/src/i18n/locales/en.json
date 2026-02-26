@@ -1240,7 +1240,16 @@
     "dailySummaryDescription": "Receive a daily summary of project activities",
     "twoFactorAuth": "Two-Factor Auth",
     "active": "Active",
-    "comingSoon": "Coming Soon"
+    "comingSoon": "Coming Soon",
+    "digestInterval": "Notification Digest",
+    "digestIntervalDescription": "How often to send notification digest emails to project admins",
+    "digestOff": "Off",
+    "digestEvery12h": "Every 12 hours",
+    "digestEvery24h": "Every 24 hours",
+    "digestEvery48h": "Every 48 hours",
+    "digestEvery72h": "Every 72 hours",
+    "digestWeekly": "Weekly",
+    "digestUpdateError": "Failed to update notification digest interval"
   },
   "approvals": {
     "title": "Approvals",

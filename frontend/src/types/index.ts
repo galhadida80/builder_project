@@ -60,6 +60,8 @@ export interface Project {
   locationAddress?: string
   imageUrl?: string
   website?: string
+  notificationDigestIntervalHours?: number
+  lastDigestSentAt?: string
 }
 
 export interface LinkedUser {

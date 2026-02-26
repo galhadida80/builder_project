@@ -43,6 +43,7 @@ class ProjectUpdate(BaseModel):
     estimated_end_date: Optional[date] = None
     status: Optional[str] = Field(default=None, max_length=50)
     daily_summary_enabled: Optional[bool] = None
+    notification_digest_interval_hours: Optional[int] = Field(default=None, ge=0, le=168)
     website: Optional[str] = Field(default=None, max_length=500)
     image_url: Optional[str] = Field(default=None, max_length=500)
     location_lat: Optional[float] = None
@@ -104,6 +105,8 @@ class ProjectResponse(CamelCaseModel):
     estimated_end_date: Optional[date] = None
     status: str
     daily_summary_enabled: bool = True
+    notification_digest_interval_hours: int = 48
+    last_digest_sent_at: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
     members: list[ProjectMemberResponse] = []

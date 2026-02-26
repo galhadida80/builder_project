@@ -22,6 +22,7 @@ interface ProjectUpdate {
   location_lat?: number | null
   location_lng?: number | null
   location_address?: string | null
+  notification_digest_interval_hours?: number
 }
 
 interface MemberCreate {

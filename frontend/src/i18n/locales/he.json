@@ -1379,7 +1379,16 @@
     "dailySummaryDescription": "קבל סיכום יומי של פעילויות הפרויקט",
     "twoFactorAuth": "אימות דו-שלבי",
     "active": "פעיל",
-    "comingSoon": "בקרוב"
+    "comingSoon": "בקרוב",
+    "digestInterval": "סיכום התראות",
+    "digestIntervalDescription": "תדירות שליחת סיכום התראות למנהלי הפרויקט",
+    "digestOff": "כבוי",
+    "digestEvery12h": "כל 12 שעות",
+    "digestEvery24h": "כל 24 שעות",
+    "digestEvery48h": "כל 48 שעות",
+    "digestEvery72h": "כל 72 שעות",
+    "digestWeekly": "שבועי",
+    "digestUpdateError": "שגיאה בעדכון תדירות סיכום ההתראות"
   },
   "approvals": {
     "title": "אישורים",

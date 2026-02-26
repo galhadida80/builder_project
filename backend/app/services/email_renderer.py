@@ -1091,3 +1091,92 @@ def render_approval_reminder_email(
 </body>
 </html>"""
     return email_subject, body_html
+
+
+STRINGS["notification_digest"] = {
+    "he": {
+        "subject": "סיכום התראות - {project_name}",
+        "title": "סיכום התראות",
+        "project": "פרויקט",
+        "period": "תקופה",
+        "total_events": 'סה"כ אירועים',
+        "category_approval": "אישורים",
+        "category_inspection": "ביקורות",
+        "category_defect": "ליקויים",
+        "category_update": "עדכונים",
+        "category_general": "כללי",
+        "recent_activity": "פעילות אחרונה",
+        "event": "אירוע",
+        "time": "זמן",
+        "no_events": "אין אירועים חדשים בתקופה זו",
+        "view_in_app": "צפה באפליקציה",
+        "footer": "BuilderOps - ניהול פרויקטי בנייה",
+        "auto_message": "זוהי הודעה אוטומטית מ-BuilderOps.",
+        "events_count": "אירועים",
+    },
+    "en": {
+        "subject": "Notification Digest - {project_name}",
+        "title": "Notification Digest",
+        "project": "Project",
+        "period": "Period",
+        "total_events": "Total Events",
+        "category_approval": "Approvals",
+        "category_inspection": "Inspections",
+        "category_defect": "Defects",
+        "category_update": "Updates",
+        "category_general": "General",
+        "recent_activity": "Recent Activity",
+        "event": "Event",
+        "time": "Time",
+        "no_events": "No new events in this period",
+        "view_in_app": "View in App",
+        "footer": "BuilderOps - Construction Project Management",
+        "auto_message": "This is an automated message from BuilderOps.",
+        "events_count": "events",
+    },
+}
+
+
+def render_notification_digest_email(
+    digest: dict,
+    project_name: str,
+    language: str = "en",
+    frontend_url: str = "",
+) -> tuple[str, str]:
+    s = STRINGS["notification_digest"].get(language, STRINGS["notification_digest"]["en"])
+    direction = "rtl" if language == "he" else "ltr"
+    align = "right" if language == "he" else "left"
+
+    subject = s["subject"].format(project_name=project_name)
+
+    category_labels = {
+        "approval": s["category_approval"],
+        "inspection": s["category_inspection"],
+        "defect": s["category_defect"],
+        "update": s["category_update"],
+        "general": s["category_general"],
+    }
+
+    categories_display = []
+    for cat_key, cat_data in digest.get("categories", {}).items():
+        categories_display.append({
+            "label": category_labels.get(cat_key, cat_key),
+            "count": cat_data["count"],
+            "items": cat_data["items"],
+        })
+
+    template = env.get_template("notification_digest.html")
+    html = template.render(
+        s=s,
+        direction=direction,
+        align=align,
+        project_name=project_name,
+        total_count=digest.get("total_count", 0),
+        period_start=digest.get("period_start", ""),
+        period_end=digest.get("period_end", ""),
+        categories=categories_display,
+        recent_items=digest.get("recent_items", []),
+        frontend_url=frontend_url,
+        category_labels=category_labels,
+    )
+    return subject, html

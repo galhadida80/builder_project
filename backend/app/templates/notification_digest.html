@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% macro stat_card(label, value, color="#0F172A", bg="#F8FAFC") %}
+<td style="text-align:center;padding:4px;width:20%;">
+  <div style="background:{{ bg }};border-radius:10px;padding:16px 8px;">
+    <div style="font-size:28px;font-weight:800;color:{{ color }};letter-spacing:-0.5px;">{{ value }}</div>
+    <div style="font-size:10px;color:#64748B;margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;">{{ label }}</div>
+  </div>
+</td>
+{% endmacro %}
+
+{% macro section_title(title) %}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:28px 0 14px;">
+<tr><td>
+  <p style="margin:0;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#0F172A;">{{ title }}</p>
+  <div style="height:3px;background:linear-gradient(90deg,#0369A1 0%,#E2E8F0 100%);border-radius:3px;margin-top:8px;"></div>
+</td></tr>
+</table>
+{% endmacro %}
+
+{% block header %}
+<tr><td style="background:linear-gradient(135deg,#0F172A 0%,#1E293B 100%);padding:36px 36px 30px;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+<tr><td>
+  <p style="margin:0 0 20px;font-size:11px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:#3B82F6;">BUILDEROPS</p>
+  <p style="margin:0 0 8px;font-size:28px;">&#128276;</p>
+  <h1 style="margin:0 0 8px;color:#ffffff;font-size:24px;font-weight:800;letter-spacing:-0.3px;">{{ s.title }}</h1>
+  <p style="margin:0;color:#94A3B8;font-size:14px;font-weight:500;">
+    {{ s.project }}: <span style="color:#CBD5E1;font-weight:600;">{{ project_name }}</span>
+    &nbsp;&#183;&nbsp;
+    {{ s.period }}: <span style="color:#CBD5E1;font-weight:600;">{{ period_start }} - {{ period_end }}</span>
+  </p>
+</td></tr>
+</table>
+</td></tr>
+{% endblock %}
+
+{% block content %}
+
+{# Total events summary #}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F0F9FF;border-radius:12px;border:1px solid #BAE6FD;margin-bottom:8px;">
+  <tr><td style="padding:18px 22px;text-align:center;">
+    <div style="font-size:36px;font-weight:800;color:#0369A1;letter-spacing:-0.5px;">{{ total_count }}</div>
+    <div style="font-size:12px;color:#64748B;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-top:4px;">{{ s.total_events }}</div>
+  </td></tr>
+</table>
+
+{# Category breakdown #}
+{% if categories %}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:8px;">
+  <tr>
+    {% for cat in categories %}
+    {% if cat.count > 0 %}
+    {% set colors = {"Approvals": ("#D97706", "#FFFBEB"), "Inspections": ("#0369A1", "#F0F9FF"), "Defects": ("#DC2626", "#FEF2F2"), "Updates": ("#16A34A", "#F0FDF4"), "General": ("#64748B", "#F8FAFC")} %}
+    {{ stat_card(cat.label, cat.count, colors.get(cat.label, ("#0F172A", "#F8FAFC"))[0], colors.get(cat.label, ("#0F172A", "#F8FAFC"))[1]) }}
+    {% endif %}
+    {% endfor %}
+  </tr>
+</table>
+{% endif %}
+
+{# Recent activity table #}
+{% if recent_items %}
+{{ section_title(s.recent_activity) }}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #E2E8F0;border-radius:12px;overflow:hidden;">
+  <tr style="background:#F8FAFC;">
+    <th style="padding:12px 18px;text-align:{{ align }};font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;">{{ s.event }}</th>
+    <th style="padding:12px 18px;text-align:{{ align }};font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;">{{ s.time }}</th>
+  </tr>
+  {% for item in recent_items %}
+  <tr>
+    <td style="padding:12px 18px;border-top:1px solid #F1F5F9;">
+      <div style="font-size:13px;font-weight:600;color:#334155;">{{ item.title }}</div>
+      <div style="font-size:11px;color:#64748B;margin-top:2px;">{{ item.message[:100] }}{% if item.message|length > 100 %}...{% endif %}</div>
+    </td>
+    <td style="padding:12px 18px;border-top:1px solid #F1F5F9;font-size:12px;color:#64748B;white-space:nowrap;">{{ item.created_at }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endif %}
+
+{% endblock %}
+
+{% block cta %}
+<tr><td style="padding:0 36px 32px;text-align:center;">
+  <a href="{{ frontend_url }}" style="display:inline-block;background:linear-gradient(135deg,#0369A1,#0EA5E9);color:#ffffff;text-decoration:none;padding:14px 40px;border-radius:12px;font-size:15px;font-weight:700;letter-spacing:0.3px;box-shadow:0 4px 12px rgba(3,105,161,0.3);">{{ s.view_in_app }}</a>
+</td></tr>
+{% endblock %}
+
+{% block footer %}{{ s.footer }}{% endblock %}
+{% block footer_auto %}{{ s.auto_message }}{% endblock %}

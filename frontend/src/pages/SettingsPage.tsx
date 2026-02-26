@@ -4,7 +4,9 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useToast } from '../components/common/ToastProvider'
 import { useThemeMode } from '../theme'
 import { useAuth } from '../contexts/AuthContext'
+import { useProject } from '../contexts/ProjectContext'
 import { meetingsApi } from '../api/meetings'
+import { projectsApi } from '../api/projects'
 import PushNotificationToggle from '../components/notifications/PushNotificationToggle'
 import { LanguageIcon, DarkModeIcon, NotificationsIcon, LockIcon, FingerprintIcon, InfoIcon, DescriptionIcon, SecurityIcon, LogoutIcon, ChevronLeftIcon, ChevronRightIcon, AdminPanelSettingsIcon, EmailIcon, CalendarTodayIcon, CameraAltIcon, EditIcon, CheckCircleIcon, ViewListIcon } from '@/icons'
 import { Box, Typography, Paper, Switch, Divider, Select, MenuItem, FormControl, useTheme, Button, CircularProgress, Avatar, Chip, IconButton } from '@/mui'
@@ -34,7 +36,27 @@ export default function SettingsPage() {
   const [calendarConfigured, setCalendarConfigured] = useState(false)
   const [calendarLoading, setCalendarLoading] = useState(true)
 
+  const { selectedProjectId, projects } = useProject()
+  const selectedProject = projects.find(p => p.id === selectedProjectId)
+  const [digestInterval, setDigestInterval] = useState<number>(selectedProject?.notificationDigestIntervalHours ?? 48)
+
   const { mode, setMode } = useThemeMode()
+
+  useEffect(() => {
+    setDigestInterval(selectedProject?.notificationDigestIntervalHours ?? 48)
+  }, [selectedProject?.notificationDigestIntervalHours])
+
+  const handleDigestIntervalChange = async (value: number) => {
+    if (!selectedProjectId) return
+    setDigestInterval(value)
+    try {
+      await projectsApi.update(selectedProjectId, { notification_digest_interval_hours: value })
+      showSuccess(t('settings.settingsUpdated'))
+    } catch {
+      showError(t('settings.digestUpdateError'))
+      setDigestInterval(selectedProject?.notificationDigestIntervalHours ?? 48)
+    }
+  }
 
   useEffect(() => {
     const calendarParam = searchParams.get('calendar')
@@ -228,6 +250,34 @@ export default function SettingsPage() {
               subtitle={t('settings.dailySummaryDescription')}
               action={<Switch checked={dailySummary} onChange={() => { const next = !dailySummary; setDailySummary(next); localStorage.setItem('builderops_daily_summary', JSON.stringify(next)); showSuccess(t('settings.settingsUpdated')); }} color="primary" />}
             />
+            {selectedProjectId && (
+              <>
+                <Divider />
+                <SettingsRow
+                  icon={<NotificationsIcon sx={{ color: 'primary.main' }} />}
+                  label={t('settings.digestInterval')}
+                  subtitle={t('settings.digestIntervalDescription')}
+                  action={
+                    <FormControl size="small" sx={{ minWidth: 120 }}>
+                      <Select
+                        value={digestInterval}
+                        onChange={(e) => handleDigestIntervalChange(Number(e.target.value))}
+                        variant="standard"
+                        disableUnderline
+                        sx={{ fontSize: '0.875rem', color: 'text.secondary' }}
+                      >
+                        <MenuItem value={0}>{t('settings.digestOff')}</MenuItem>
+                        <MenuItem value={12}>{t('settings.digestEvery12h')}</MenuItem>
+                        <MenuItem value={24}>{t('settings.digestEvery24h')}</MenuItem>
+                        <MenuItem value={48}>{t('settings.digestEvery48h')}</MenuItem>
+                        <MenuItem value={72}>{t('settings.digestEvery72h')}</MenuItem>
+                        <MenuItem value={168}>{t('settings.digestWeekly')}</MenuItem>
+                      </Select>
+                    </FormControl>
+                  }
+                />
+              </>
+            )}
           </Paper>
         </Box>
 
