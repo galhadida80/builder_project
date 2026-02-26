@@ -365,7 +365,7 @@ export default function ChatDrawer({ open, onClose, projectId }: ChatDrawerProps
             </Box>
 
             {/* Input */}
-            <ChatInput onSend={handleSend} loading={loading} />
+            <ChatInput onSend={handleSend} loading={loading} onOpenVoiceSettings={() => setVoiceSettingsOpen(true)} />
           </>
         )}
       </Box>

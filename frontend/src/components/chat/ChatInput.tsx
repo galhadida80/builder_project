@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { SendIcon, MicIcon, MicOffIcon, WarningIcon } from '@/icons'
+import { SendIcon, MicIcon, MicOffIcon, WarningIcon, TuneIcon } from '@/icons'
 import { Box, IconButton, TextField, CircularProgress, keyframes, Typography, Tooltip } from '@/mui'
 import { useVoiceInput } from '@/hooks/useVoiceInput'
 
@@ -13,22 +13,42 @@ const pulse = keyframes`
 interface ChatInputProps {
   onSend: (message: string) => void
   loading: boolean
+  onOpenVoiceSettings?: () => void
 }
 
-export default function ChatInput({ onSend, loading }: ChatInputProps) {
+export default function ChatInput({ onSend, loading, onOpenVoiceSettings }: ChatInputProps) {
   const [input, setInput] = useState('')
   const { t } = useTranslation()
+  const pendingSendRef = useRef(false)
+  const inputRef = useRef(input)
+  inputRef.current = input
+
+  const handleAutoSend = useCallback(() => {
+    pendingSendRef.current = true
+  }, [])
+
   const {
     isListening, transcript, interimTranscript,
     startListening, stopListening, isSupported,
     micStatus, audioLevel, errorCode,
-  } = useVoiceInput()
+  } = useVoiceInput({ silenceTimeoutMs: 2000, onSilenceTimeout: handleAutoSend })
 
   useEffect(() => {
     if (transcript) {
       setInput((prev) => prev + transcript)
     }
   }, [transcript])
+
+  useEffect(() => {
+    if (pendingSendRef.current && !isListening) {
+      pendingSendRef.current = false
+      const trimmed = inputRef.current.trim()
+      if (trimmed && !loading) {
+        onSend(trimmed)
+        setInput('')
+      }
+    }
+  }, [isListening, loading, onSend])
 
   const handleSend = () => {
     const trimmed = input.trim()
@@ -107,38 +127,51 @@ export default function ChatInput({ onSend, loading }: ChatInputProps) {
           )}
           {micStatus === 'listening' && audioLevel > 0.05 && (
             <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem', flexShrink: 0 }}>
-              {t('chat.voiceListening')}
+              {t('chat.voiceAutoSend')}
             </Typography>
           )}
         </Box>
       )}
 
-      <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-end', p: 2 }}>
+      <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'flex-end', p: 2 }}>
         {isSupported && (
-          <Tooltip title={getMicTooltip()} arrow>
-            <IconButton
-              aria-label={isListening ? t('chat.voiceInputStop') : t('chat.voiceInputStart')}
-              onClick={handleMicClick}
-              disabled={loading || micStatus === 'requesting'}
-              sx={{
-                minWidth: 44,
-                minHeight: 44,
-                color: getMicColor(),
-                animation: isListening && micStatus !== 'no-sound' ? `${pulse} 1.5s infinite` : 'none',
-                position: 'relative',
-              }}
-            >
-              {micStatus === 'requesting' ? (
-                <CircularProgress size={22} />
-              ) : isListening ? (
-                <MicOffIcon />
-              ) : micStatus === 'error' ? (
-                <WarningIcon />
-              ) : (
-                <MicIcon />
-              )}
-            </IconButton>
-          </Tooltip>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.25 }}>
+            <Tooltip title={getMicTooltip()} arrow>
+              <IconButton
+                aria-label={isListening ? t('chat.voiceInputStop') : t('chat.voiceInputStart')}
+                onClick={handleMicClick}
+                disabled={loading || micStatus === 'requesting'}
+                sx={{
+                  minWidth: 44,
+                  minHeight: 44,
+                  color: getMicColor(),
+                  animation: isListening && micStatus !== 'no-sound' ? `${pulse} 1.5s infinite` : 'none',
+                  position: 'relative',
+                }}
+              >
+                {micStatus === 'requesting' ? (
+                  <CircularProgress size={22} />
+                ) : isListening ? (
+                  <MicOffIcon />
+                ) : micStatus === 'error' ? (
+                  <WarningIcon />
+                ) : (
+                  <MicIcon />
+                )}
+              </IconButton>
+            </Tooltip>
+            {onOpenVoiceSettings && !isListening && (
+              <Tooltip title={t('chat.voiceSettings')} arrow>
+                <IconButton
+                  size="small"
+                  onClick={onOpenVoiceSettings}
+                  sx={{ width: 28, height: 28, color: 'text.secondary' }}
+                >
+                  <TuneIcon sx={{ fontSize: 16 }} />
+                </IconButton>
+              </Tooltip>
+            )}
+          </Box>
         )}
         <TextField
           fullWidth

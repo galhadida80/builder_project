@@ -53,7 +53,13 @@ const LANG_MAP: Record<string, string> = {
 
 export type MicStatus = 'idle' | 'requesting' | 'listening' | 'no-sound' | 'error'
 
-export function useVoiceInput() {
+interface VoiceInputOptions {
+  silenceTimeoutMs?: number
+  onSilenceTimeout?: () => void
+}
+
+export function useVoiceInput(options: VoiceInputOptions = {}) {
+  const { silenceTimeoutMs = 2000, onSilenceTimeout } = options
   const { language } = useLanguage()
   const [isListening, setIsListening] = useState(false)
   const [transcript, setTranscript] = useState('')
@@ -68,6 +74,10 @@ export function useVoiceInput() {
   const animFrameRef = useRef<number>(0)
   const soundDetectedRef = useRef(false)
   const noSoundTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const hadSpeechRef = useRef(false)
+  const onSilenceTimeoutRef = useRef(onSilenceTimeout)
+  onSilenceTimeoutRef.current = onSilenceTimeout
 
   const isSupported = typeof window !== 'undefined' &&
     ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)
@@ -86,6 +96,11 @@ export function useVoiceInput() {
       clearTimeout(noSoundTimerRef.current)
       noSoundTimerRef.current = null
     }
+    if (silenceTimerRef.current) {
+      clearTimeout(silenceTimerRef.current)
+      silenceTimerRef.current = null
+    }
+    hadSpeechRef.current = false
   }, [])
 
   const startAudioMonitor = useCallback(async () => {
@@ -203,9 +218,26 @@ export function useVoiceInput() {
       }
 
       if (final) {
+        hadSpeechRef.current = true
         setTranscript((prev) => prev + final)
       }
       setInterimTranscript(interim)
+
+      // Reset silence timer on any speech activity
+      if (final || interim) {
+        if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current)
+        silenceTimerRef.current = setTimeout(() => {
+          if (hadSpeechRef.current && shouldRestartRef.current) {
+            shouldRestartRef.current = false
+            recognitionRef.current?.stop()
+            cleanupAudio()
+            setIsListening(false)
+            setInterimTranscript('')
+            setMicStatus('idle')
+            onSilenceTimeoutRef.current?.()
+          }
+        }, silenceTimeoutMs)
+      }
     }
 
     recognition.onerror = (event) => {
@@ -251,7 +283,7 @@ export function useVoiceInput() {
       setErrorCode('start-failed')
       cleanupAudio()
     }
-  }, [isSupported, lang, startAudioMonitor, cleanupAudio])
+  }, [isSupported, lang, silenceTimeoutMs, startAudioMonitor, cleanupAudio])
 
   useEffect(() => {
     return () => {
