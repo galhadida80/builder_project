@@ -91,6 +91,17 @@ export default function KeyValueEditor({ entries, onChange, label, suggestions }
   const availableSuggestions = suggestions?.filter(s => !usedKeys.has(s.key)) || []
   const suggestionCategories = [...new Set(availableSuggestions.map(s => s.category))]
 
+  const getTypeLabel = (type: ValueType): string => {
+    const map: Record<ValueType, string> = {
+      text: t('keyValueEditor.typeText'),
+      number: t('keyValueEditor.typeNumber'),
+      boolean: t('keyValueEditor.typeBoolean'),
+      date: t('keyValueEditor.typeDate'),
+      select: t('keyValueEditor.typeSelect'),
+    }
+    return map[type] || type
+  }
+
   const handleAdd = () => {
     if (!newKey.trim()) return
     if (entries.some(e => e.key === newKey.trim())) return
@@ -264,57 +275,85 @@ export default function KeyValueEditor({ entries, onChange, label, suggestions }
       )}
 
       {entries.length > 0 && (
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 1.5 }}>
+        <Box sx={{ mb: 1.5, border: '1px solid', borderColor: 'divider', borderRadius: 2, overflow: 'hidden' }}>
+          {/* Table header - desktop only */}
+          <Box
+            sx={{
+              display: { xs: 'none', sm: 'grid' },
+              gridTemplateColumns: '140px 1fr 70px 40px',
+              gap: 1,
+              px: 1.5,
+              py: 0.75,
+              bgcolor: 'action.hover',
+              borderBottom: '1px solid',
+              borderColor: 'divider',
+            }}
+          >
+            <Typography variant="caption" fontWeight={700} color="text.secondary">
+              {t('keyValueEditor.property')}
+            </Typography>
+            <Typography variant="caption" fontWeight={700} color="text.secondary">
+              {t('keyValueEditor.value')}
+            </Typography>
+            <Typography variant="caption" fontWeight={700} color="text.secondary">
+              {t('keyValueEditor.type')}
+            </Typography>
+            <Box />
+          </Box>
+
+          {/* Table rows */}
           {entries.map((entry, index) => (
             <Box
               key={index}
               sx={{
-                display: 'flex',
+                display: 'grid',
+                gridTemplateColumns: { xs: '1fr auto auto', sm: '140px 1fr 70px 40px' },
+                gap: { xs: 0.5, sm: 1 },
                 alignItems: 'center',
-                gap: 1,
-                p: 1,
-                bgcolor: entry.isTemplate ? 'action.selected' : 'action.hover',
-                borderRadius: 1.5,
-                border: '1px solid',
-                borderColor: entry.isTemplate ? 'primary.dark' : 'divider',
+                px: 1.5,
+                py: 1,
+                borderBottom: index < entries.length - 1 ? '1px solid' : 'none',
+                borderColor: 'divider',
+                bgcolor: entry.isTemplate ? 'action.selected' : 'transparent',
+                '&:hover': { bgcolor: 'action.hover' },
               }}
             >
-              <Box sx={{ flex: '0 0 auto', minWidth: 80, maxWidth: 140 }}>
-                <Typography variant="caption" color="text.secondary" fontSize={10}>
-                  {t('keyValueEditor.key')}
+              {/* Property name */}
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 0, order: 0 }}>
+                <Typography variant="body2" fontWeight={600} noWrap sx={{ fontSize: { xs: 12, sm: 13 } }}>
+                  {getEntryLabel(entry)}
                 </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                  <Typography variant="body2" fontWeight={600} noWrap sx={{ fontSize: { xs: 11, sm: 13 } }}>
-                    {getEntryLabel(entry)}
-                  </Typography>
-                  {entry.isTemplate && (
-                    <Tooltip title={t('keyValueEditor.templateField')}>
-                      <LockIcon sx={{ fontSize: 12, color: 'primary.main' }} />
-                    </Tooltip>
-                  )}
-                </Box>
+                {entry.isTemplate && (
+                  <Tooltip title={t('keyValueEditor.templateField')}>
+                    <LockIcon sx={{ fontSize: 12, color: 'primary.main' }} />
+                  </Tooltip>
+                )}
               </Box>
 
-              <Box sx={{ flex: 1 }}>
+              {/* Value field - on mobile goes to second row spanning all columns */}
+              <Box sx={{ order: { xs: 1, sm: 0 }, gridColumn: { xs: '1 / -1', sm: 'auto' } }}>
                 {renderValueField(entry, index)}
               </Box>
 
+              {/* Type chip */}
               <Chip
-                label={entry.type}
+                label={getTypeLabel(entry.type)}
                 size="small"
                 variant="outlined"
                 color={entry.isTemplate ? 'primary' : 'default'}
-                sx={{ height: 20, fontSize: 10, minWidth: 45, display: { xs: 'none', sm: 'flex' } }}
+                sx={{ height: 22, fontSize: 10, minWidth: 45, order: 0, justifySelf: 'center' }}
               />
 
-              {!entry.locked && (
-                <Tooltip title={t('common.delete')}>
-                  <IconButton size="small" color="error" aria-label={t('common.delete')} onClick={() => handleRemove(index)}>
-                    <DeleteOutlineIcon fontSize="small" />
+              {/* Delete / lock placeholder */}
+              <Box sx={{ order: 0, justifySelf: 'center' }}>
+                {!entry.locked ? (
+                  <IconButton size="small" color="error" aria-label={t('common.delete')} onClick={() => handleRemove(index)} sx={{ p: 0.25 }}>
+                    <DeleteOutlineIcon sx={{ fontSize: 18 }} />
                   </IconButton>
-                </Tooltip>
-              )}
-              {entry.locked && <Box sx={{ width: 28 }} />}
+                ) : (
+                  <LockIcon sx={{ fontSize: 14, color: 'text.disabled' }} />
+                )}
+              </Box>
             </Box>
           ))}
         </Box>

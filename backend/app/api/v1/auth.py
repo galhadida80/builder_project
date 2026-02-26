@@ -25,7 +25,7 @@ from app.models.project import ProjectMember
 from app.models.user import PasswordResetToken, User
 from app.models.webauthn_credential import WebAuthnCredential
 from app.schemas.user import (
-    MessageResponse, PasswordResetConfirm, PasswordResetRequest,
+    GoogleAuthRequest, MessageResponse, PasswordResetConfirm, PasswordResetRequest,
     TokenResponse, TwoFactorLoginRequest, TwoFactorLoginResponse,
     TwoFactorSetupResponse, TwoFactorVerifyRequest,
     UserLogin, UserRegister, UserResponse, UserUpdate,
@@ -192,6 +192,67 @@ async def login(data: UserLogin, request: Request, db: AsyncSession = Depends(ge
     return TokenResponse(
         access_token=access_token,
         user=UserResponse.model_validate(user)
+    )
+
+
+@router.post("/google", response_model=TokenResponse)
+@limiter.limit("10/5minutes")
+async def google_login(data: GoogleAuthRequest, request: Request, db: AsyncSession = Depends(get_db)):
+    settings = get_settings()
+    if not settings.google_auth_client_id:
+        raise HTTPException(status_code=501, detail="Google Sign-In is not configured")
+
+    from google.oauth2 import id_token as google_id_token
+    from google.auth.transport import requests as google_requests
+
+    try:
+        idinfo = google_id_token.verify_oauth2_token(
+            data.credential,
+            google_requests.Request(),
+            settings.google_auth_client_id,
+        )
+    except ValueError:
+        raise HTTPException(status_code=401, detail="Invalid Google credential")
+
+    google_id = idinfo["sub"]
+    email = idinfo.get("email", "").lower()
+    full_name = idinfo.get("name", "")
+
+    if not email or not idinfo.get("email_verified"):
+        raise HTTPException(status_code=401, detail="Google account email not verified")
+
+    result = await db.execute(select(User).where(User.google_id == google_id))
+    user = result.scalar_one_or_none()
+
+    if not user:
+        result = await db.execute(select(User).where(User.email == email))
+        user = result.scalar_one_or_none()
+        if user:
+            user.google_id = google_id
+            if not user.avatar_url and idinfo.get("picture"):
+                user.avatar_url = idinfo["picture"]
+            await db.commit()
+            await db.refresh(user)
+        else:
+            user = User(
+                email=email,
+                google_id=google_id,
+                full_name=full_name,
+                avatar_url=idinfo.get("picture"),
+                is_active=True,
+                language="he",
+            )
+            db.add(user)
+            await db.commit()
+            await db.refresh(user)
+
+    if not user.is_active:
+        raise HTTPException(status_code=401, detail="Account is deactivated")
+
+    access_token = create_access_token(user.id, user.is_super_admin)
+    return TokenResponse(
+        access_token=access_token,
+        user=UserResponse.model_validate(user),
     )
 
 

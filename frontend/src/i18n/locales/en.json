@@ -859,6 +859,9 @@
   },
   "keyValueEditor": {
     "title": "Custom Properties",
+    "property": "Property",
+    "value": "Value",
+    "type": "Type",
     "key": "Key",
     "valuePlaceholder": "Enter value...",
     "keyPlaceholder": "Property name...",
@@ -868,6 +871,7 @@
     "typeNumber": "Number",
     "typeBoolean": "Yes/No",
     "typeDate": "Date",
+    "typeSelect": "Select",
     "templateField": "Template field"
   },
   "customProps": {
@@ -974,6 +978,20 @@
       "painting": "Painting",
       "windows_doors": "Windows & Doors",
       "roofing": "Roofing",
+      "doors": "Doors",
+      "safe_room": "Safe Room",
+      "smart_home": "Smart Home",
+      "cabinets": "Cabinets",
+      "outdoor": "Outdoor",
+      "aluminum": "Aluminum",
+      "tenant": "Tenant",
+      "finishes": "Finishes",
+      "masonry": "Masonry",
+      "drywall": "Drywall",
+      "sanitary": "Sanitary",
+      "piping": "Piping",
+      "Architectural": "Architectural",
+      "HVAC": "HVAC",
       "general": "General"
     }
   },

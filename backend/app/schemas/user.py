@@ -99,6 +99,10 @@ class UserUpdate(BaseModel):
         return sanitize_string(v) or None
 
 
+class GoogleAuthRequest(BaseModel):
+    credential: str = Field(min_length=1)
+
+
 class PasswordResetRequest(BaseModel):
     email: EmailStr
 

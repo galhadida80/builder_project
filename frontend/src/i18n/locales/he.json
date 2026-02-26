@@ -998,6 +998,9 @@
   },
   "keyValueEditor": {
     "title": "מאפיינים מותאמים",
+    "property": "מאפיין",
+    "value": "ערך",
+    "type": "סוג",
     "key": "מפתח",
     "valuePlaceholder": "הזן ערך...",
     "keyPlaceholder": "שם המאפיין...",
@@ -1007,6 +1010,7 @@
     "typeNumber": "מספר",
     "typeBoolean": "כן/לא",
     "typeDate": "תאריך",
+    "typeSelect": "בחירה",
     "templateField": "שדה תבנית"
   },
   "customProps": {
@@ -1113,6 +1117,20 @@
       "painting": "צביעה",
       "windows_doors": "חלונות ודלתות",
       "roofing": "גגות",
+      "doors": "דלתות",
+      "safe_room": "ממ\"ד",
+      "smart_home": "בית חכם",
+      "cabinets": "ארונות",
+      "outdoor": "חוץ",
+      "aluminum": "אלומיניום",
+      "tenant": "דייר",
+      "finishes": "גימור",
+      "masonry": "בנייה",
+      "drywall": "גבס",
+      "sanitary": "סניטרי",
+      "piping": "צנרת",
+      "Architectural": "אדריכלות",
+      "HVAC": "מיזוג אוויר",
       "general": "כללי"
     }
   },

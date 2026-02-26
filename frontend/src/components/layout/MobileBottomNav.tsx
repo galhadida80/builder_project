@@ -35,17 +35,17 @@ interface NavTab {
 }
 
 const globalTabs: NavTab[] = [
+  { labelKey: 'mobileNav.menu', path: '', icon: <MenuIcon />, action: 'menu' },
   { labelKey: 'mobileNav.dashboard', path: '/dashboard', icon: <DashboardIcon /> },
   { labelKey: 'mobileNav.projects', path: '/projects', icon: <FolderIcon /> },
   { labelKey: 'mobileNav.profile', path: '/profile', icon: <PersonIcon /> },
-  { labelKey: 'mobileNav.menu', path: '', icon: <MenuIcon />, action: 'menu' },
 ]
 
 const projectTabs = (projectId: string): NavTab[] => [
+  { labelKey: 'mobileNav.menu', path: '', icon: <MenuIcon />, action: 'menu' },
   { labelKey: 'mobileNav.overview', path: `/projects/${projectId}/overview`, icon: <DashboardIcon /> },
   { labelKey: 'mobileNav.inspections', path: `/projects/${projectId}/inspections`, icon: <AssignmentIcon /> },
   { labelKey: 'mobileNav.defects', path: `/projects/${projectId}/defects`, icon: <ReportProblemIcon /> },
-  { labelKey: 'mobileNav.menu', path: '', icon: <MenuIcon />, action: 'menu' },
 ]
 
 interface QuickAction {
