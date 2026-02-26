@@ -433,8 +433,29 @@ export default function ProfilePage() {
 
             {signatureImageUrl && !signatureDrawerOpen ? (
               <Box>
-                <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 1.5, mb: 2, bgcolor: 'background.paper', textAlign: 'center' }}>
-                  <img src={signatureImageUrl} alt={t('profile.signature')} style={{ maxWidth: '100%', maxHeight: 120 }} />
+                <Box sx={{
+                  border: '2px solid',
+                  borderColor: 'success.main',
+                  borderRadius: 3,
+                  p: 2,
+                  mb: 2,
+                  bgcolor: 'background.paper',
+                  textAlign: 'center',
+                  position: 'relative',
+                  background: (theme) => theme.palette.mode === 'dark'
+                    ? 'linear-gradient(135deg, rgba(46,125,50,0.08) 0%, rgba(224,120,66,0.05) 100%)'
+                    : 'linear-gradient(135deg, rgba(46,125,50,0.04) 0%, rgba(224,120,66,0.02) 100%)',
+                }}>
+                  <Chip
+                    label={t('profile.activeStamp')}
+                    size="small"
+                    color="success"
+                    sx={{ position: 'absolute', top: 8, insetInlineEnd: 8, fontWeight: 600, fontSize: '0.65rem' }}
+                  />
+                  <img src={signatureImageUrl} alt={t('profile.signature')} style={{ maxWidth: '100%', maxHeight: 120, opacity: 0.85 }} />
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
+                    {t('profile.stampDescription')}
+                  </Typography>
                 </Box>
                 <Box sx={{ display: 'flex', gap: 1 }}>
                   <Button variant="outlined" size="small" startIcon={<EditIcon />} onClick={() => setSignatureDrawerOpen(true)}>

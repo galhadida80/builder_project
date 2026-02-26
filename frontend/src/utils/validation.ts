@@ -143,6 +143,17 @@ export const validateDateRange = (startDate: string | undefined | null, endDate:
   return null
 }
 
+export const validateFutureDate = (value: string | undefined | null, fieldName: string): string | null => {
+  if (!value) return null
+  const date = new Date(value)
+  const now = new Date()
+  now.setSeconds(0, 0)
+  if (date < now) {
+    return i18next.t('validation.dateInPast', { defaultValue: `${fieldName} cannot be in the past` })
+  }
+  return null
+}
+
 const RFI_CATEGORIES = ['design', 'structural', 'mep', 'architectural', 'specifications', 'schedule', 'cost', 'other']
 const RFI_PRIORITIES = ['low', 'medium', 'high', 'urgent']
 
@@ -158,16 +169,12 @@ export interface ValidationError {
   [field: string]: string | null
 }
 
-export const validateProjectForm = (data: { name?: string; code?: string; description?: string; address?: string; startDate?: string; estimatedEndDate?: string }): ValidationError => {
+export const validateProjectForm = (data: { name?: string; description?: string; address?: string; startDate?: string; estimatedEndDate?: string }): ValidationError => {
   const errors: ValidationError = {}
 
   errors.name = validateRequired(data.name, 'Project Name')
     || validateMinLength(data.name, VALIDATION.MIN_NAME_LENGTH, 'Project Name')
     || validateMaxLength(data.name, VALIDATION.MAX_NAME_LENGTH, 'Project Name')
-
-  errors.code = validateRequired(data.code, 'Project Code')
-    || validateCode(data.code, 'Project Code')
-    || validateMaxLength(data.code, VALIDATION.MAX_CODE_LENGTH, 'Project Code')
 
   errors.description = validateMaxLength(data.description, VALIDATION.MAX_DESCRIPTION_LENGTH, 'Description')
   errors.address = validateMaxLength(data.address, VALIDATION.MAX_ADDRESS_LENGTH, 'Address')
@@ -230,7 +237,7 @@ export const validateContactForm = (data: { contact_name?: string; email?: strin
   return errors
 }
 
-export const validateMeetingForm = (data: { title?: string; description?: string; meeting_type?: string; location?: string }): ValidationError => {
+export const validateMeetingForm = (data: { title?: string; description?: string; meeting_type?: string; location?: string; scheduled_date?: string }): ValidationError => {
   const errors: ValidationError = {}
 
   errors.title = validateRequired(data.title, 'Meeting Title')
@@ -240,6 +247,7 @@ export const validateMeetingForm = (data: { title?: string; description?: string
   errors.description = validateMaxLength(data.description, VALIDATION.MAX_DESCRIPTION_LENGTH, 'Description')
   errors.meeting_type = validateMaxLength(data.meeting_type, VALIDATION.MAX_MEETING_TYPE_LENGTH, 'Meeting Type')
   errors.location = validateMaxLength(data.location, VALIDATION.MAX_LOCATION_LENGTH, 'Location')
+  errors.scheduled_date = validateFutureDate(data.scheduled_date, 'Meeting Date')
 
   return errors
 }
@@ -289,6 +297,7 @@ export const validateInspectionForm = (data: { consultant_type_id?: string; sche
 
   errors.consultant_type_id = validateRequired(data.consultant_type_id, 'Consultant Type')
   errors.scheduled_date = validateRequired(data.scheduled_date, 'Scheduled Date')
+    || validateFutureDate(data.scheduled_date, 'Scheduled Date')
   errors.notes = validateMaxLength(data.notes, VALIDATION.MAX_NOTES_LENGTH, 'Notes')
 
   return errors

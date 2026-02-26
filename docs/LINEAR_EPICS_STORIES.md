@@ -2001,6 +2001,38 @@ As a user, I want to link checklist instances to specific areas when creating th
 | Sprint 12 | Epic 19 (Orgs) + Epic 20 (Meetings) + Epic 21 (Reports) | Done |
 | Sprint 13 | Epic 22 (Groups/Discussions) + Epic 23 (Security) + Epic 24 (Qty Extract) | Done |
 | Sprint 14 | Epic 25 (Project Structure & Checklist Integration) | Done |
+| Sprint 15 | Epic 26 (Contact Import) + Epic 27 (Form Validation UX & Signature Stamp) | Done |
+
+## EPIC 27: Form Validation UX, Signature Stamp & Input Guards COMPLETED
+**Description:** Enhanced form validation UX with shake animations, error toasts, signature stamp auto-apply system, and date validation guards.
+**Priority:** P1 - High
+**Estimate:** 5 points
+
+### User Stories:
+
+#### US-27.1: Shake Animation + Error Popup on Invalid Input
+- [x] Create `useFormShake` hook (shake animation + vibration + error toast)
+- [x] Add CSS shake keyframe to TextInput and TextField components on error state
+- [x] Integrate into all 8 form pages (Meetings, Inspections, Equipment, Materials, Contacts, Areas, RFIs, Projects)
+- [x] Mobile haptic feedback via `navigator.vibrate()`
+**Estimate:** 2 points
+
+#### US-27.2: Signature Stamp System
+- [x] Create `useSignatureStamp` hook for auto-applying saved signature
+- [x] Auto-apply user's signature as contractor stamp in Equipment & Material forms
+- [x] Profile page: Show signature as "Active Stamp" with green badge and gradient card
+- [x] Success alert when stamp is auto-applied
+- [x] i18n translations (Hebrew + English)
+**Estimate:** 2 points
+
+#### US-27.3: Date Validation Guards
+- [x] Add `validateFutureDate` to validation utilities
+- [x] Meeting form: cannot schedule meetings in the past
+- [x] Inspection form: cannot schedule inspections in the past
+- [x] Zod schemas updated with `.refine()` for date validation
+**Estimate:** 1 point
+
+---
 
 ## Remaining Work
 

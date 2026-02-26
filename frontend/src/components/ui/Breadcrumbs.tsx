@@ -129,7 +129,7 @@ interface PageHeaderProps {
 
 export function PageHeader({ title, breadcrumbs, actions, subtitle }: PageHeaderProps) {
   return (
-    <Box sx={{ mb: 3, maxWidth: '100%', overflow: 'hidden' }}>
+    <Box sx={{ mb: 3, width: '100%', maxWidth: '100%', overflow: 'hidden', flex: 1, minWidth: 0 }}>
       {breadcrumbs && breadcrumbs.length > 0 && (
         <Box sx={{ mb: 1 }}>
           <Breadcrumbs items={breadcrumbs} />

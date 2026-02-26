@@ -17,6 +17,7 @@ import { contactsApi } from '../api/contacts'
 import { contactGroupsApi } from '../api/contactGroups'
 import type { Contact, ContactGroupListItem } from '../types'
 import { useToast } from '../components/common/ToastProvider'
+import { useFormShake } from '../hooks/useFormShake'
 import { parseValidationErrors } from '../utils/apiErrors'
 import HelpTooltip from '../components/help/HelpTooltip'
 import { validateRFIForm, hasErrors, type ValidationError } from '../utils/validation'
@@ -28,6 +29,7 @@ export default function RFIPage() {
   const { projectId } = useParams()
   const navigate = useNavigate()
   const { showError, showSuccess } = useToast()
+  const { formRef, triggerShake } = useFormShake()
   const [loading, setLoading] = useState(true)
   const [rfis, setRfis] = useState<RFIListItem[]>([])
   const [summary, setSummary] = useState<RFISummary | null>(null)
@@ -211,7 +213,7 @@ export default function RFIPage() {
       specification_reference: formData.specification_reference
     })
     setErrors(validationErrors)
-    if (hasErrors(validationErrors)) return
+    if (hasErrors(validationErrors)) { triggerShake(t('validation.checkFields')); return }
 
     setSaving(true)
     try {
@@ -518,7 +520,7 @@ export default function RFIPage() {
         submitLabel={editingRfi ? t('common.saveChanges') : t('rfis.createRfi')}
         loading={saving}
       >
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
+        <Box ref={formRef} sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
           <TextField
             fullWidth
             label={t('rfis.subject')}

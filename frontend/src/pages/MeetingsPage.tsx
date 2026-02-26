@@ -20,6 +20,7 @@ import { teamMembersApi } from '../api/teamMembers'
 import { filesApi, type FileRecord } from '../api/files'
 import type { Meeting, MeetingAttendee, MeetingTimeSlot } from '../types'
 import { validateMeetingForm, hasErrors, type ValidationError } from '../utils/validation'
+import { useFormShake } from '../hooks/useFormShake'
 import { useToast } from '../components/common/ToastProvider'
 import { parseValidationErrors } from '../utils/apiErrors'
 import { withMinDuration } from '../utils/async'
@@ -61,6 +62,7 @@ export default function MeetingsPage() {
   const location = useLocation()
   const navigate = useNavigate()
   const { showError, showSuccess } = useToast()
+  const { formRef, triggerShake } = useFormShake()
   const { t } = useTranslation()
   const { user: currentUser } = useAuth()
 
@@ -307,11 +309,15 @@ export default function MeetingsPage() {
 
   const handleSaveMeeting = async () => {
     if (!projectId) return
+    const scheduledDateStr = formData.date && formData.startTime
+      ? `${formData.date}T${formData.startTime}:00`
+      : undefined
     const validationErrors = validateMeetingForm({
       title: formData.title,
       description: formData.description,
       meeting_type: formData.meetingType,
       location: formData.location,
+      scheduled_date: !editingMeeting ? scheduledDateStr : undefined,
     })
 
     if (proposeTimeSlots && !editingMeeting) {
@@ -324,8 +330,15 @@ export default function MeetingsPage() {
       if (!formData.startTime) validationErrors.startTime = t('meetings.startTimeRequired')
     }
 
+    if (validationErrors.scheduled_date) {
+      validationErrors.date = validationErrors.scheduled_date
+    }
+
     setErrors(validationErrors)
-    if (hasErrors(validationErrors)) return
+    if (hasErrors(validationErrors)) {
+      triggerShake(t('validation.checkFields'))
+      return
+    }
 
     setSaving(true)
     try {
@@ -1255,7 +1268,7 @@ export default function MeetingsPage() {
         submitLabel={editingMeeting ? t('common.saveChanges') : t('meetings.scheduleMeeting')}
         loading={saving}
       >
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
+        <Box ref={formRef} sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
           <TextField
             fullWidth
             label={t('meetings.meetingTitle')}

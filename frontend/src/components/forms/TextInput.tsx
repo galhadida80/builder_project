@@ -1,4 +1,5 @@
 import { TextInputBaseProps } from './types'
+import { shake } from '@/utils/animations'
 import { TextField as MuiTextField, TextFieldProps as MuiTextFieldProps, styled } from '@/mui'
 
 export interface TextInputProps extends Omit<TextInputBaseProps, 'onChange'> {
@@ -26,6 +27,12 @@ const StyledTextField = styled(MuiTextField)(({ theme }) => ({
       },
     },
     '&.Mui-focused': {
+      '& .MuiOutlinedInput-notchedOutline': {
+        borderWidth: 2,
+      },
+    },
+    '&.Mui-error': {
+      animation: `${shake} 500ms cubic-bezier(0.4, 0.0, 0.6, 1)`,
       '& .MuiOutlinedInput-notchedOutline': {
         borderWidth: 2,
       },

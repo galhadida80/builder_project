@@ -84,7 +84,7 @@ export default function ProjectsPage() {
   const [errors, setErrors] = useState<ValidationError>({})
   const [statusFilter, setStatusFilter] = useState('all')
   const [formData, setFormData] = useState({
-    name: '', code: '', description: '', address: '', startDate: '', estimatedEndDate: ''
+    name: '', description: '', address: '', startDate: '', estimatedEndDate: ''
   })
 
   useEffect(() => {
@@ -101,7 +101,7 @@ export default function ProjectsPage() {
   }, [loading, searchParams, projects])
 
   const resetForm = () => {
-    setFormData({ name: '', code: '', description: '', address: '', startDate: '', estimatedEndDate: '' })
+    setFormData({ name: '', description: '', address: '', startDate: '', estimatedEndDate: '' })
     setErrors({})
     setEditingProject(null)
   }
@@ -112,7 +112,7 @@ export default function ProjectsPage() {
   const handleOpenEdit = (project: Project) => {
     setEditingProject(project)
     setFormData({
-      name: project.name, code: project.code,
+      name: project.name,
       description: project.description || '', address: project.address || '',
       startDate: project.startDate || '', estimatedEndDate: project.estimatedEndDate || ''
     })
@@ -136,7 +136,7 @@ export default function ProjectsPage() {
         showSuccess(t('pages.projects.updateSuccess'))
       } else {
         await withMinDuration(projectsApi.create({
-          name: formData.name, code: formData.code,
+          name: formData.name,
           description: formData.description || undefined, address: formData.address || undefined,
           start_date: formData.startDate || undefined, estimated_end_date: formData.estimatedEndDate || undefined
         }))
@@ -150,14 +150,7 @@ export default function ProjectsPage() {
         setErrors(prev => ({ ...prev, ...serverErrors }))
         showError(t('validation.checkFields'))
       } else {
-        const axiosErr = err as { response?: { status?: number; data?: { detail?: string } } }
-        const detail = axiosErr?.response?.data?.detail
-        if (axiosErr?.response?.status === 409 && detail) {
-          setErrors(prev => ({ ...prev, code: detail }))
-          showError(detail)
-        } else {
-          showError(editingProject ? t('pages.projects.failedToUpdate') : t('pages.projects.failedToCreate'))
-        }
+        showError(editingProject ? t('pages.projects.failedToUpdate') : t('pages.projects.failedToCreate'))
       }
     } finally { setSaving(false) }
   }
@@ -182,8 +175,7 @@ export default function ProjectsPage() {
   }
 
   const filteredProjects = projects.filter(p => {
-    const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) ||
-      p.code.toLowerCase().includes(search.toLowerCase())
+    const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase())
     const matchesStatus = statusFilter === 'all' || p.status === statusFilter
     return matchesSearch && matchesStatus
   })
@@ -292,10 +284,6 @@ export default function ProjectsPage() {
                       {project.name}
                     </Typography>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5, flexWrap: 'wrap' }}>
-                      <Chip
-                        label={project.code} size="small"
-                        sx={{ fontSize: '0.65rem', height: 20, bgcolor: 'action.selected', color: 'text.secondary', fontWeight: 500 }}
-                      />
                       <StatusBadge status={project.status} size="small" />
                       <Chip
                         icon={<ScheduleIcon sx={{ fontSize: 14 }} />}
@@ -401,11 +389,6 @@ export default function ProjectsPage() {
             error={!!errors.name || formData.name.length > VALIDATION.MAX_NAME_LENGTH}
             helperText={errors.name || (formData.name.length > 0 ? `${formData.name.length}/${VALIDATION.MAX_NAME_LENGTH}` : undefined)}
             inputProps={{ maxLength: VALIDATION.MAX_NAME_LENGTH }} />
-          <TextField fullWidth label={t('pages.projects.projectCode')} required disabled={!!editingProject}
-            value={formData.code} onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
-            error={!!errors.code}
-            helperText={editingProject ? t('pages.projects.codeCannotBeChanged') : (errors.code || t('pages.projects.codeHint'))}
-            inputProps={{ maxLength: VALIDATION.MAX_CODE_LENGTH }} />
           <TextField fullWidth label={t('pages.projects.description')} multiline rows={3}
             value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             error={!!errors.description}

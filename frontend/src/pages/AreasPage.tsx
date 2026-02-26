@@ -17,6 +17,7 @@ import { areaStructureApi } from '../api/areaStructure'
 import type { ConstructionArea, AreaStatus } from '../types'
 import { validateAreaForm, hasErrors, VALIDATION, type ValidationError } from '../utils/validation'
 import { useToast } from '../components/common/ToastProvider'
+import { useFormShake } from '../hooks/useFormShake'
 import { parseValidationErrors } from '../utils/apiErrors'
 import { withMinDuration } from '../utils/async'
 import { AddIcon, ExpandMoreIcon, ExpandLessIcon, ApartmentIcon, LocalParkingIcon, RoofingIcon, FoundationIcon, EditIcon, DeleteIcon, AccountTreeIcon, ChecklistIcon } from '@/icons'
@@ -105,6 +106,7 @@ export default function AreasPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { showError, showSuccess } = useToast()
+  const { formRef, triggerShake } = useFormShake()
   const theme = useTheme()
   const [loading, setLoading] = useState(true)
   const [areas, setAreas] = useState<ConstructionArea[]>([])
@@ -137,7 +139,7 @@ export default function AreasPage() {
   const handleSaveArea = async () => {
     if (!projectId) return
     const validationErrors = validateAreaForm({ name: formData.name, areaCode: formData.areaCode, floor_number: formData.floorNumber ? parseInt(formData.floorNumber) : undefined, total_units: formData.totalUnits ? parseInt(formData.totalUnits) : undefined })
-    setErrors(validationErrors); if (hasErrors(validationErrors)) return
+    setErrors(validationErrors); if (hasErrors(validationErrors)) { triggerShake(t('validation.checkFields')); return }
     setSaving(true)
     try {
       const payload = { name: formData.name, area_code: formData.areaCode, area_type: formData.areaType || undefined, parent_id: formData.parentId || undefined, floor_number: formData.floorNumber ? parseInt(formData.floorNumber) : undefined, total_units: formData.totalUnits ? parseInt(formData.totalUnits) : undefined }
@@ -291,7 +293,7 @@ export default function AreasPage() {
       </Card>
 
       <FormModal open={dialogOpen} onClose={() => { setDialogOpen(false); resetForm() }} onSubmit={handleSaveArea} title={editingArea ? t('areas.editConstructionArea') : t('areas.addConstructionArea')} submitLabel={editingArea ? t('areas.saveChanges') : t('areas.addArea')} loading={saving}>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
+        <Box ref={formRef} sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
           <TextField fullWidth label={t('areas.areaName')} required value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} error={!!errors.name} helperText={errors.name || `${formData.name.length}/${VALIDATION.MAX_NAME_LENGTH}`} inputProps={{ maxLength: VALIDATION.MAX_NAME_LENGTH }} />
           <TextField fullWidth label={t('areas.areaCode')} required disabled={!!editingArea} value={formData.areaCode} onChange={(e) => setFormData({ ...formData, areaCode: e.target.value.toUpperCase() })} error={!!errors.areaCode} helperText={editingArea ? t('areas.codeCannotBeChanged') : (errors.areaCode || t('areas.codeHint'))} inputProps={{ maxLength: VALIDATION.MAX_CODE_LENGTH }} />
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>

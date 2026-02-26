@@ -1,17 +1,18 @@
-import { useState } from 'react'
+import { useState, useEffect, type RefObject } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useSignatureStamp } from '../../hooks/useSignatureStamp'
 import { Button } from '../ui/Button'
 import { TextField } from '../ui/TextField'
 import { FormModal } from '../ui/Modal'
 import TemplatePicker from '../ui/TemplatePicker'
-import KeyValueEditor, { type KeyValuePair } from '../ui/KeyValueEditor'
+import KeyValueEditor, { type KeyValuePair, MATERIAL_SUGGESTIONS } from '../ui/KeyValueEditor'
 import RecipientSelector from '../ui/RecipientSelector'
 import type { Recipient } from '../ui/RecipientSelector'
 import SignaturePad from '../ui/SignaturePad'
 import type { MaterialTemplate } from '../../api/materialTemplates'
 import { VALIDATION, type ValidationError } from '../../utils/validation'
 import { InventoryIcon, DescriptionIcon, CheckCircleIcon, CloudUploadIcon, PersonIcon, ExpandMoreIcon, ExpandLessIcon, CalendarTodayIcon, DrawIcon } from '@/icons'
-import { Box, Typography, Divider, MenuItem, TextField as MuiTextField, Chip, Checkbox, FormControlLabel, Collapse } from '@/mui'
+import { Box, Typography, Divider, MenuItem, TextField as MuiTextField, Chip, Checkbox, FormControlLabel, Collapse, Alert } from '@/mui'
 
 const UNIT_KEYS = ['ton', 'm3', 'm2', 'm', 'kg', 'unit', 'box', 'pallet', 'roll'] as const
 
@@ -45,6 +46,7 @@ interface MaterialFormModalProps {
   setSupervisorSignature: (v: string | null) => void
   isClosed: boolean
   setIsClosed: (v: boolean) => void
+  formRef?: RefObject<HTMLElement | null>
 }
 
 export default function MaterialFormModal({
@@ -59,9 +61,17 @@ export default function MaterialFormModal({
   contractorSignature, setContractorSignature,
   supervisorSignature, setSupervisorSignature,
   isClosed, setIsClosed,
+  formRef,
 }: MaterialFormModalProps) {
   const { t } = useTranslation()
+  const { stampUrl, hasStamp } = useSignatureStamp()
   const [templateExpanded, setTemplateExpanded] = useState(false)
+
+  useEffect(() => {
+    if (open && hasStamp && !contractorSignature) {
+      setContractorSignature(stampUrl)
+    }
+  }, [open, hasStamp])
 
   const today = new Date()
   const minDate = new Date(today)
@@ -73,7 +83,7 @@ export default function MaterialFormModal({
 
   return (
     <FormModal open={open} onClose={onClose} onSubmit={onSubmit} title={editing ? t('materials.editMaterialTitle') : t('materials.addNewMaterial')} submitLabel={editing ? t('common.saveChanges') : t('materials.addMaterial')} loading={saving} maxWidth="md">
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
+      <Box ref={formRef} sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
         <TextField fullWidth label={t('materials.materialName')} required value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} error={!!errors.name || formData.name.length > VALIDATION.MAX_NAME_LENGTH} helperText={errors.name || (formData.name.length > 0 ? `${formData.name.length}/${VALIDATION.MAX_NAME_LENGTH}` : undefined)} inputProps={{ maxLength: VALIDATION.MAX_NAME_LENGTH }} />
         <TextField fullWidth label={t('materials.manufacturer')} value={formData.manufacturer} onChange={(e) => setFormData({ ...formData, manufacturer: e.target.value })} />
         <TextField fullWidth label={t('materials.model')} value={formData.modelNumber} onChange={(e) => setFormData({ ...formData, modelNumber: e.target.value })} />
@@ -176,7 +186,7 @@ export default function MaterialFormModal({
 
         <Divider sx={{ my: 1 }} />
 
-        <KeyValueEditor entries={customFields} onChange={setCustomFields} />
+        <KeyValueEditor entries={customFields} onChange={setCustomFields} suggestions={MATERIAL_SUGGESTIONS} />
 
         <Divider sx={{ my: 1 }} />
 
@@ -220,6 +230,12 @@ export default function MaterialFormModal({
           <DrawIcon fontSize="small" color="primary" />
           {t('materials.signatures')}
         </Typography>
+
+        {hasStamp && contractorSignature === stampUrl && (
+          <Alert severity="success" sx={{ py: 0.5 }}>
+            {t('materials.stampAutoApplied')}
+          </Alert>
+        )}
 
         <SignaturePad
           label={t('materials.contractorSignature')}

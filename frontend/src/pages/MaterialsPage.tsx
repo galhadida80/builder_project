@@ -22,6 +22,7 @@ import type { Material } from '../types'
 import { validateMaterialForm, hasErrors, type ValidationError } from '../utils/validation'
 import { parseValidationErrors } from '../utils/apiErrors'
 import { useToast } from '../components/common/ToastProvider'
+import { useFormShake } from '../hooks/useFormShake'
 import { useReferenceData } from '../contexts/ReferenceDataContext'
 import type { KeyValuePair } from '../components/ui/KeyValueEditor'
 import type { Recipient } from '../components/ui/RecipientSelector'
@@ -35,6 +36,7 @@ export default function MaterialsPage() {
   const navigate = useNavigate()
   const { t } = useTranslation()
   const { showError, showSuccess } = useToast()
+  const { formRef, triggerShake } = useFormShake()
   const { materialTemplates } = useReferenceData()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
@@ -121,7 +123,7 @@ export default function MaterialsPage() {
     if (!projectId) return
     const validationErrors = validateMaterialForm({ name: formData.name, notes: formData.notes, quantity: formData.quantity ? parseFloat(formData.quantity) : undefined, materialType: selectedTemplate?.name_he, manufacturer: formData.manufacturer, modelNumber: formData.modelNumber, unit: formData.unit, storageLocation: formData.storageLocation })
     setErrors(validationErrors)
-    if (hasErrors(validationErrors)) return
+    if (hasErrors(validationErrors)) { triggerShake(t('validation.checkFields')); return }
     setSaving(true)
     try {
       const specs: Record<string, unknown> = { ...specificationValues }
@@ -276,6 +278,7 @@ export default function MaterialsPage() {
         saving={saving}
         editing={!!editingMaterial}
         projectId={projectId!}
+        formRef={formRef}
         formData={formData}
         setFormData={setFormData}
         errors={errors}

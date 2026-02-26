@@ -14,6 +14,7 @@ import { contactGroupsApi } from '../api/contactGroups'
 import { apiClient } from '../api/client'
 import type { Contact, ContactGroupListItem, ContactGroup } from '../types'
 import { useToast } from '../components/common/ToastProvider'
+import { useFormShake } from '../hooks/useFormShake'
 import { validateContactForm, hasErrors, type ValidationError } from '../utils/validation'
 import { parseValidationErrors } from '../utils/apiErrors'
 import { withMinDuration } from '../utils/async'
@@ -25,6 +26,7 @@ export default function ContactsPage() {
   const { t } = useTranslation()
   const { projectId } = useParams()
   const { showError, showSuccess } = useToast()
+  const { formRef, triggerShake } = useFormShake()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const [loading, setLoading] = useState(true)
@@ -92,7 +94,7 @@ export default function ContactsPage() {
     const validationErrors = validateContactForm({ contact_name: formData.contactName, contact_type: resolvedType, email: formData.email, phone: formData.phone, company_name: formData.companyName, role_description: formData.roleDescription })
     if (formData.contactType === 'other' && !formData.customType.trim()) validationErrors.customType = t('contacts.customTypeRequired')
     setErrors(validationErrors)
-    if (hasErrors(validationErrors)) return
+    if (hasErrors(validationErrors)) { triggerShake(t('validation.checkFields')); return }
     setSaving(true)
     try {
       const payload = { contact_name: formData.contactName, contact_type: resolvedType, company_name: formData.companyName || undefined, email: formData.email, phone: formData.phone || undefined, role_description: formData.roleDescription || undefined, user_id: formData.userId || undefined }
@@ -381,7 +383,7 @@ export default function ContactsPage() {
       )}
 
       <FormModal open={dialogOpen} onClose={handleCloseDialog} onSubmit={handleSaveContact} title={editingContact ? t('contacts.editContact') : t('contacts.addContact')} submitLabel={editingContact ? t('common.saveChanges') : t('contacts.addContact')} loading={saving}>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
+        <Box ref={formRef} sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
           <TextField fullWidth label={t('contacts.contactName')} required value={formData.contactName} onChange={(e) => setFormData({ ...formData, contactName: e.target.value })} error={!!errors.contact_name} helperText={errors.contact_name} />
           <MuiTextField fullWidth select label={t('contacts.contactType')} required value={formData.contactType} onChange={(e) => setFormData({ ...formData, contactType: e.target.value, customType: e.target.value === 'other' ? formData.customType : '' })} error={!!errors.contact_type} helperText={errors.contact_type}>
             {contactTypes.map(type => <MenuItem key={type.value} value={type.value}>{type.label}</MenuItem>)}

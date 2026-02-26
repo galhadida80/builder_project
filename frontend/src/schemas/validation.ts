@@ -218,7 +218,13 @@ export const meetingSchema = z.object({
   description: z.string().max(2000).optional().or(z.literal('')),
   meeting_type: z.string().max(50).optional().or(z.literal('')),
   location: z.string().max(255).optional().or(z.literal('')),
-  scheduled_date: z.string().min(1, 'Date is required'),
+  scheduled_date: z.string().min(1, 'Date is required').refine(
+    (val) => {
+      const date = new Date(val)
+      return date >= new Date(new Date().toDateString())
+    },
+    'Date cannot be in the past'
+  ),
 })
 
 export type MeetingFormData = z.infer<typeof meetingSchema>
@@ -237,7 +243,13 @@ export type AreaFormData = z.infer<typeof areaSchema>
 // Inspection form schema
 export const inspectionSchema = z.object({
   consultant_type_id: z.string().uuid('Consultant type is required'),
-  scheduled_date: z.string().min(1, 'Date is required'),
+  scheduled_date: z.string().min(1, 'Date is required').refine(
+    (val) => {
+      const date = new Date(val)
+      return date >= new Date(new Date().toDateString())
+    },
+    'Scheduled date cannot be in the past'
+  ),
   notes: z.string().max(5000).optional().or(z.literal('')),
 })
 

@@ -21,6 +21,7 @@ import type {
 import { parseValidationErrors } from '../utils/apiErrors'
 import { validateInspectionForm, hasErrors, type ValidationError } from '../utils/validation'
 import { useToast } from '../components/common/ToastProvider'
+import { useFormShake } from '../hooks/useFormShake'
 import { useReferenceData } from '../contexts/ReferenceDataContext'
 import HelpTooltip from '../components/help/HelpTooltip'
 import { AddIcon, CheckCircleIcon, WarningIcon, ErrorIcon, ScheduleIcon, AssignmentIcon, DescriptionIcon, PersonIcon, AccessTimeIcon, CalendarTodayIcon } from '@/icons'
@@ -32,6 +33,7 @@ export default function InspectionsPage() {
   const location = useLocation()
   const navigate = useNavigate()
   const { showError, showSuccess } = useToast()
+  const { formRef, triggerShake } = useFormShake()
   const { consultantTypes } = useReferenceData()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
@@ -94,7 +96,7 @@ export default function InspectionsPage() {
       notes: newInspection.notes
     })
     setErrors(validationErrors)
-    if (hasErrors(validationErrors)) return
+    if (hasErrors(validationErrors)) { triggerShake(t('validation.checkFields')); return }
 
     try {
       await inspectionsApi.createInspection(projectId, newInspection)
@@ -712,7 +714,7 @@ export default function InspectionsPage() {
         submitLabel={t('inspections.schedule')}
         submitDisabled={!newInspection.consultantTypeId || !newInspection.scheduledDate}
       >
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1 }}>
+        <Box ref={formRef} sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1 }}>
           <MuiTextField
             select
             fullWidth

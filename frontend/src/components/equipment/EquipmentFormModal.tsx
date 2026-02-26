@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect, type RefObject } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useSignatureStamp } from '../../hooks/useSignatureStamp'
 import { Button } from '../ui/Button'
 import { TextField } from '../ui/TextField'
 import { FormModal } from '../ui/Modal'
 import TemplatePicker from '../ui/TemplatePicker'
-import KeyValueEditor, { type KeyValuePair } from '../ui/KeyValueEditor'
+import KeyValueEditor, { type KeyValuePair, EQUIPMENT_SUGGESTIONS } from '../ui/KeyValueEditor'
 import RecipientSelector from '../ui/RecipientSelector'
 import type { Recipient } from '../ui/RecipientSelector'
 import SignaturePad from '../ui/SignaturePad'
@@ -43,6 +44,7 @@ interface EquipmentFormModalProps {
   setSupervisorSignature: (v: string | null) => void
   isClosed: boolean
   setIsClosed: (v: boolean) => void
+  formRef?: RefObject<HTMLElement | null>
 }
 
 export default function EquipmentFormModal({
@@ -57,9 +59,17 @@ export default function EquipmentFormModal({
   contractorSignature, setContractorSignature,
   supervisorSignature, setSupervisorSignature,
   isClosed, setIsClosed,
+  formRef,
 }: EquipmentFormModalProps) {
   const { t } = useTranslation()
+  const { stampUrl, hasStamp } = useSignatureStamp()
   const [templateExpanded, setTemplateExpanded] = useState(false)
+
+  useEffect(() => {
+    if (open && hasStamp && !contractorSignature) {
+      setContractorSignature(stampUrl)
+    }
+  }, [open, hasStamp])
 
   const today = new Date()
   const minDate = new Date(today)
@@ -79,7 +89,7 @@ export default function EquipmentFormModal({
       loading={saving}
       maxWidth="md"
     >
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
+      <Box ref={formRef} sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
         <TextField
           fullWidth
           label={t('equipment.equipmentName')}
@@ -227,7 +237,7 @@ export default function EquipmentFormModal({
 
         <TextField fullWidth label={t('common.notes')} multiline rows={3} value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} error={!!errors.notes || formData.notes.length > VALIDATION.MAX_NOTES_LENGTH} helperText={errors.notes || (formData.notes.length > 0 ? `${formData.notes.length}/${VALIDATION.MAX_NOTES_LENGTH}` : undefined)} />
 
-        <KeyValueEditor entries={customFields} onChange={setCustomFields} />
+        <KeyValueEditor entries={customFields} onChange={setCustomFields} suggestions={EQUIPMENT_SUGGESTIONS} />
 
         <Divider sx={{ my: 1 }} />
 
@@ -271,6 +281,12 @@ export default function EquipmentFormModal({
           <DrawIcon fontSize="small" color="primary" />
           {t('equipment.signatures')}
         </Typography>
+
+        {hasStamp && contractorSignature === stampUrl && (
+          <Alert severity="success" sx={{ py: 0.5 }}>
+            {t('equipment.stampAutoApplied')}
+          </Alert>
+        )}
 
         <SignaturePad
           label={t('equipment.contractorSignature')}

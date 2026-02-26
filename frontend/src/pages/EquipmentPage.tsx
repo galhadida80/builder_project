@@ -22,6 +22,7 @@ import type { Equipment } from '../types'
 import { validateEquipmentForm, hasErrors, type ValidationError } from '../utils/validation'
 import { parseValidationErrors } from '../utils/apiErrors'
 import { useToast } from '../components/common/ToastProvider'
+import { useFormShake } from '../hooks/useFormShake'
 import { useReferenceData } from '../contexts/ReferenceDataContext'
 import type { KeyValuePair } from '../components/ui/KeyValueEditor'
 import type { Recipient } from '../components/ui/RecipientSelector'
@@ -34,6 +35,7 @@ export default function EquipmentPage() {
   const navigate = useNavigate()
   const { t } = useTranslation()
   const { showError, showSuccess } = useToast()
+  const { formRef, triggerShake } = useFormShake()
   const { equipmentTemplates } = useReferenceData()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
@@ -130,7 +132,7 @@ export default function EquipmentPage() {
     if (!projectId) return
     const validationErrors = validateEquipmentForm({ name: formData.name, notes: formData.notes, equipmentType: selectedTemplate?.name_he || '', manufacturer: formData.manufacturer, modelNumber: formData.modelNumber })
     setErrors(validationErrors)
-    if (hasErrors(validationErrors)) return
+    if (hasErrors(validationErrors)) { triggerShake(t('validation.checkFields')); return }
     setSaving(true)
     try {
       const specs: Record<string, unknown> = { ...specificationValues }
@@ -314,6 +316,7 @@ export default function EquipmentPage() {
         saving={saving}
         editing={!!editingEquipment}
         projectId={projectId!}
+        formRef={formRef}
         formData={formData}
         setFormData={setFormData}
         errors={errors}
