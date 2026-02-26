@@ -13,6 +13,7 @@ import {
   TaskAltIcon,
   EventIcon,
   BuildIcon,
+  InventoryIcon,
 } from '@/icons'
 import {
   BottomNavigation,
@@ -63,6 +64,7 @@ const projectQuickActions = (projectId: string): QuickAction[] => [
   { labelKey: 'mobileNav.quickActions.newInspection', icon: <AssignmentIcon />, path: `/projects/${projectId}/inspections` },
   { labelKey: 'mobileNav.quickActions.newMeeting', icon: <EventIcon />, path: `/projects/${projectId}/meetings` },
   { labelKey: 'mobileNav.quickActions.newEquipment', icon: <BuildIcon />, path: `/projects/${projectId}/equipment` },
+  { labelKey: 'mobileNav.quickActions.newMaterial', icon: <InventoryIcon />, path: `/projects/${projectId}/materials` },
 ]
 
 interface MobileBottomNavProps {
@@ -106,7 +108,7 @@ export default function MobileBottomNav({ projectId, onMenuOpen }: MobileBottomN
 
   const handleQuickAction = (action: QuickAction) => {
     setFabMenuAnchor(null)
-    navigate(action.path)
+    navigate(action.path, { state: { openCreate: true } })
   }
 
   return (

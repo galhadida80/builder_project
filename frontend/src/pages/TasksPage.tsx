@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { withMinDuration } from '../utils/async'
 import { getDateLocale } from '../utils/dateLocale'
@@ -66,6 +66,8 @@ function groupTasksByDate(taskList: Task[]) {
 export default function TasksPage() {
   const { t } = useTranslation()
   const { projectId } = useParams()
+  const location = useLocation()
+  const navigate = useNavigate()
   const { showError, showSuccess } = useToast()
   const { user } = useAuth()
 
@@ -114,6 +116,13 @@ export default function TasksPage() {
     setForm(EMPTY_FORM)
     setDialogOpen(true)
   }
+
+  useEffect(() => {
+    if ((location.state as { openCreate?: boolean })?.openCreate) {
+      openCreateDialog()
+      navigate(location.pathname, { replace: true, state: {} })
+    }
+  }, [location.state])
 
   const openEditDialog = (task: Task) => {
     setEditingTask(task)

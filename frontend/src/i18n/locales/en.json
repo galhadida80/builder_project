@@ -646,7 +646,8 @@
       "newDefect": "Report Defect",
       "newInspection": "New Inspection",
       "newMeeting": "Schedule Meeting",
-      "newEquipment": "Add Equipment"
+      "newEquipment": "Add Equipment",
+      "newMaterial": "Add Material"
     }
   },
   "profile": {

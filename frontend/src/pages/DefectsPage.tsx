@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { getDateLocale } from '../utils/dateLocale'
 import { Card } from '../components/ui/Card'
@@ -74,6 +74,7 @@ export default function DefectsPage() {
   const { t, i18n } = useTranslation()
   const { projectId } = useParams()
   const navigate = useNavigate()
+  const location = useLocation()
   const { showError, showSuccess, showWarning } = useToast()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
@@ -154,6 +155,13 @@ export default function DefectsPage() {
 
   useEffect(() => { if (projectId) loadReferenceData() }, [projectId])
   useEffect(() => { if (projectId) loadDefects() }, [projectId, page, rowsPerPage, activeTab, categoryFilter, searchQuery])
+
+  useEffect(() => {
+    if ((location.state as { openCreate?: boolean })?.openCreate) {
+      setDialogOpen(true)
+      navigate(location.pathname, { replace: true, state: {} })
+    }
+  }, [location.state])
 
   const loadReferenceData = async () => {
     if (!projectId) return

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { getDateLocale } from '../utils/dateLocale'
 import { Card } from '../components/ui/Card'
@@ -29,6 +29,8 @@ import { Box, Typography, Skeleton, Chip, Alert, MenuItem, TextField as MuiTextF
 export default function InspectionsPage() {
   const { t } = useTranslation()
   const { projectId } = useParams()
+  const location = useLocation()
+  const navigate = useNavigate()
   const { showError, showSuccess } = useToast()
   const { consultantTypes } = useReferenceData()
   const theme = useTheme()
@@ -48,6 +50,13 @@ export default function InspectionsPage() {
   useEffect(() => {
     if (projectId) loadData()
   }, [projectId])
+
+  useEffect(() => {
+    if ((location.state as { openCreate?: boolean })?.openCreate) {
+      setDialogOpen(true)
+      navigate(location.pathname, { replace: true, state: {} })
+    }
+  }, [location.state])
 
   const loadData = async () => {
     if (!projectId) return

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import dayjs from 'dayjs'
 import { Card, KPICard } from '../components/ui/Card'
@@ -58,6 +58,8 @@ const pulse = keyframes`
 
 export default function MeetingsPage() {
   const { projectId } = useParams()
+  const location = useLocation()
+  const navigate = useNavigate()
   const { showError, showSuccess } = useToast()
   const { t } = useTranslation()
   const { user: currentUser } = useAuth()
@@ -274,6 +276,13 @@ export default function MeetingsPage() {
     resetForm()
     setDialogOpen(true)
   }
+
+  useEffect(() => {
+    if ((location.state as { openCreate?: boolean })?.openCreate) {
+      handleOpenCreate()
+      navigate(location.pathname, { replace: true, state: {} })
+    }
+  }, [location.state])
 
   const handleOpenEdit = (meeting: Meeting) => {
     setEditingMeeting(meeting)

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { withMinDuration } from '../utils/async'
 import { Card } from '../components/ui/Card'
@@ -31,6 +31,8 @@ import { Box, Typography, IconButton, TablePagination, useMediaQuery, useTheme }
 
 export default function MaterialsPage() {
   const { projectId } = useParams()
+  const location = useLocation()
+  const navigate = useNavigate()
   const { t } = useTranslation()
   const { showError, showSuccess } = useToast()
   const { materialTemplates } = useReferenceData()
@@ -90,6 +92,13 @@ export default function MaterialsPage() {
   }
 
   const handleOpenCreate = () => { resetForm(); setDialogOpen(true) }
+
+  useEffect(() => {
+    if ((location.state as { openCreate?: boolean })?.openCreate) {
+      handleOpenCreate()
+      navigate(location.pathname, { replace: true, state: {} })
+    }
+  }, [location.state])
 
   const handleOpenEdit = (material: Material, e?: React.MouseEvent) => {
     if (e) e.stopPropagation()
