@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { AddCircleOutlineIcon, DeleteOutlineIcon, TuneIcon, LockIcon, ExpandMoreIcon, ExpandLessIcon } from '@/icons'
-import { Box, Typography, IconButton, TextField as MuiTextField, MenuItem, Chip, Tooltip, Collapse } from '@/mui'
+import { AddCircleOutlineIcon, DeleteOutlineIcon, TuneIcon, LockIcon, AddIcon } from '@/icons'
+import { Box, Typography, IconButton, TextField as MuiTextField, MenuItem, Chip, Tooltip, alpha } from '@/mui'
+import { useTheme } from '@/mui'
 
 type ValueType = 'text' | 'number' | 'boolean' | 'date' | 'select'
 
@@ -80,27 +81,30 @@ export const MATERIAL_SUGGESTIONS: SuggestedProperty[] = [
   { key: 'humidityRange', labelKey: 'customProps.humidityRange', type: 'text', category: 'storage' },
 ]
 
+const CATEGORY_COLORS: Record<string, string> = {
+  physical: '#2196F3',
+  electrical: '#F9A825',
+  performance: '#4CAF50',
+  compliance: '#F44336',
+  specs: '#9C27B0',
+  storage: '#795548',
+}
+
 export default function KeyValueEditor({ entries, onChange, label, suggestions }: KeyValueEditorProps) {
   const { t } = useTranslation()
+  const theme = useTheme()
   const [newKey, setNewKey] = useState('')
   const [newType, setNewType] = useState<ValueType>('text')
-  const [suggestionsExpanded, setSuggestionsExpanded] = useState(false)
+  const [activeSuggestionCategory, setActiveSuggestionCategory] = useState<string | null>(null)
 
   const usedKeys = new Set(entries.map(e => e.key))
 
   const availableSuggestions = suggestions?.filter(s => !usedKeys.has(s.key)) || []
   const suggestionCategories = [...new Set(availableSuggestions.map(s => s.category))]
 
-  const getTypeLabel = (type: ValueType): string => {
-    const map: Record<ValueType, string> = {
-      text: t('keyValueEditor.typeText'),
-      number: t('keyValueEditor.typeNumber'),
-      boolean: t('keyValueEditor.typeBoolean'),
-      date: t('keyValueEditor.typeDate'),
-      select: t('keyValueEditor.typeSelect'),
-    }
-    return map[type] || type
-  }
+  const visibleSuggestions = activeSuggestionCategory
+    ? availableSuggestions.filter(s => s.category === activeSuggestionCategory)
+    : availableSuggestions.slice(0, 8)
 
   const handleAdd = () => {
     if (!newKey.trim()) return
@@ -195,7 +199,11 @@ export default function KeyValueEditor({ entries, onChange, label, suggestions }
           handleValueChange(index, val)
         }}
         InputProps={entry.unit ? {
-          endAdornment: <Typography variant="caption" color="text.secondary" sx={{ ml: 0.5, whiteSpace: 'nowrap' }}>{entry.unit}</Typography>,
+          endAdornment: (
+            <Typography variant="caption" color="text.secondary" sx={{ ml: 0.5, whiteSpace: 'nowrap', fontWeight: 600 }}>
+              {entry.unit}
+            </Typography>
+          ),
         } : undefined}
       />
     )
@@ -207,168 +215,198 @@ export default function KeyValueEditor({ entries, onChange, label, suggestions }
     return entry.key
   }
 
+  const getTypeLabel = (type: ValueType): string => {
+    const map: Record<ValueType, string> = {
+      text: t('keyValueEditor.typeText'),
+      number: t('keyValueEditor.typeNumber'),
+      boolean: t('keyValueEditor.typeBoolean'),
+      date: t('keyValueEditor.typeDate'),
+      select: t('keyValueEditor.typeSelect'),
+    }
+    return map[type] || type
+  }
+
   return (
     <Box>
+      {/* Header */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
         <TuneIcon fontSize="small" color="primary" />
         <Typography variant="subtitle2" fontWeight={600}>
           {label || t('keyValueEditor.title')}
         </Typography>
-        <Chip label={entries.length} size="small" color="default" sx={{ height: 20, fontSize: 11 }} />
+        {entries.length > 0 && (
+          <Chip label={entries.length} size="small" color="primary" variant="outlined" sx={{ height: 20, fontSize: 11, fontWeight: 700 }} />
+        )}
       </Box>
 
+      {/* Quick-add suggestions - always visible */}
       {suggestions && availableSuggestions.length > 0 && (
-        <Box sx={{ mb: 1.5 }}>
+        <Box sx={{ mb: 2 }}>
+          {/* Category pills */}
           <Box
-            onClick={() => setSuggestionsExpanded(!suggestionsExpanded)}
             sx={{
-              cursor: 'pointer',
               display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              p: 1,
-              bgcolor: 'action.hover',
-              borderRadius: 1.5,
-              border: '1px solid',
-              borderColor: 'divider',
-              '&:hover': { bgcolor: 'action.selected' },
+              gap: 0.5,
+              mb: 1,
+              overflowX: 'auto',
+              pb: 0.5,
+              '&::-webkit-scrollbar': { display: 'none' },
+              scrollbarWidth: 'none',
             }}
           >
-            <Typography variant="caption" fontWeight={600} color="primary.main">
-              {t('keyValueEditor.quickAdd')} ({availableSuggestions.length})
-            </Typography>
-            {suggestionsExpanded ? <ExpandLessIcon fontSize="small" color="primary" /> : <ExpandMoreIcon fontSize="small" color="primary" />}
+            <Chip
+              label={t('keyValueEditor.quickAdd')}
+              size="small"
+              variant={activeSuggestionCategory === null ? 'filled' : 'outlined'}
+              color={activeSuggestionCategory === null ? 'primary' : 'default'}
+              onClick={() => setActiveSuggestionCategory(null)}
+              sx={{ fontWeight: 600, fontSize: 11, height: 26, flexShrink: 0, borderRadius: '20px' }}
+            />
+            {suggestionCategories.map(category => {
+              const isActive = activeSuggestionCategory === category
+              const catColor = CATEGORY_COLORS[category] || theme.palette.primary.main
+              return (
+                <Chip
+                  key={category}
+                  label={t(`customProps.categories.${category}`)}
+                  size="small"
+                  variant={isActive ? 'filled' : 'outlined'}
+                  onClick={() => setActiveSuggestionCategory(isActive ? null : category)}
+                  sx={{
+                    height: 26,
+                    fontSize: 11,
+                    flexShrink: 0,
+                    borderRadius: '20px',
+                    ...(isActive && {
+                      bgcolor: catColor,
+                      color: '#fff',
+                      '&:hover': { bgcolor: catColor },
+                    }),
+                  }}
+                />
+              )
+            })}
           </Box>
 
-          <Collapse in={suggestionsExpanded}>
-            <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-              {suggestionCategories.map(category => (
-                <Box key={category}>
-                  <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ mb: 0.5, display: 'block', textTransform: 'uppercase', fontSize: 10 }}>
-                    {t(`customProps.categories.${category}`)}
-                  </Typography>
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                    {availableSuggestions
-                      .filter(s => s.category === category)
-                      .map(suggestion => (
-                        <Chip
-                          key={suggestion.key}
-                          label={`${t(suggestion.labelKey)}${suggestion.unit ? ` (${suggestion.unit})` : ''}`}
-                          size="small"
-                          variant="outlined"
-                          color="primary"
-                          onClick={() => handleAddSuggestion(suggestion)}
-                          sx={{
-                            height: 26,
-                            fontSize: 11,
-                            cursor: 'pointer',
-                            '&:hover': { bgcolor: 'action.selected', borderColor: 'primary.main' },
-                          }}
-                        />
-                      ))}
-                  </Box>
-                </Box>
-              ))}
-            </Box>
-          </Collapse>
+          {/* Suggestion chips */}
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+            {visibleSuggestions.map(suggestion => {
+              const catColor = CATEGORY_COLORS[suggestion.category] || theme.palette.primary.main
+              return (
+                <Chip
+                  key={suggestion.key}
+                  icon={<AddIcon sx={{ fontSize: '14px !important' }} />}
+                  label={`${t(suggestion.labelKey)}${suggestion.unit ? ` (${suggestion.unit})` : ''}`}
+                  size="small"
+                  variant="outlined"
+                  onClick={() => handleAddSuggestion(suggestion)}
+                  sx={{
+                    height: 28,
+                    fontSize: 11,
+                    cursor: 'pointer',
+                    borderColor: alpha(catColor, 0.4),
+                    color: 'text.primary',
+                    '& .MuiChip-icon': { color: catColor },
+                    '&:hover': {
+                      bgcolor: alpha(catColor, 0.08),
+                      borderColor: catColor,
+                    },
+                  }}
+                />
+              )
+            })}
+            {!activeSuggestionCategory && availableSuggestions.length > 8 && (
+              <Typography variant="caption" color="text.secondary" sx={{ alignSelf: 'center', ml: 0.5, fontSize: 11 }}>
+                +{availableSuggestions.length - 8}
+              </Typography>
+            )}
+          </Box>
         </Box>
       )}
 
+      {/* Property cards */}
       {entries.length > 0 && (
-        <Box sx={{ mb: 1.5, border: '1px solid', borderColor: 'divider', borderRadius: 2, overflow: 'hidden' }}>
-          {/* Table header - desktop only */}
-          <Box
-            sx={{
-              display: { xs: 'none', sm: 'grid' },
-              gridTemplateColumns: '140px 1fr 70px 40px',
-              gap: 1,
-              px: 1.5,
-              py: 0.75,
-              bgcolor: 'action.hover',
-              borderBottom: '1px solid',
-              borderColor: 'divider',
-            }}
-          >
-            <Typography variant="caption" fontWeight={700} color="text.secondary">
-              {t('keyValueEditor.property')}
-            </Typography>
-            <Typography variant="caption" fontWeight={700} color="text.secondary">
-              {t('keyValueEditor.value')}
-            </Typography>
-            <Typography variant="caption" fontWeight={700} color="text.secondary">
-              {t('keyValueEditor.type')}
-            </Typography>
-            <Box />
-          </Box>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 1.5 }}>
+          {entries.map((entry, index) => {
+            const suggestion = suggestions?.find(s => s.key === entry.key)
+            const catColor = suggestion ? (CATEGORY_COLORS[suggestion.category] || theme.palette.primary.main) : theme.palette.grey[500]
 
-          {/* Table rows */}
-          {entries.map((entry, index) => (
-            <Box
-              key={index}
-              sx={{
-                display: 'grid',
-                gridTemplateColumns: { xs: '1fr auto auto', sm: '140px 1fr 70px 40px' },
-                gap: { xs: 0.5, sm: 1 },
-                alignItems: 'center',
-                px: 1.5,
-                py: 1,
-                borderBottom: index < entries.length - 1 ? '1px solid' : 'none',
-                borderColor: 'divider',
-                bgcolor: entry.isTemplate ? 'action.selected' : 'transparent',
-                '&:hover': { bgcolor: 'action.hover' },
-              }}
-            >
-              {/* Property name */}
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 0, order: 0 }}>
-                <Typography variant="body2" fontWeight={600} noWrap sx={{ fontSize: { xs: 12, sm: 13 } }}>
-                  {getEntryLabel(entry)}
-                </Typography>
-                {entry.isTemplate && (
-                  <Tooltip title={t('keyValueEditor.templateField')}>
-                    <LockIcon sx={{ fontSize: 12, color: 'primary.main' }} />
-                  </Tooltip>
-                )}
-              </Box>
+            return (
+              <Box
+                key={index}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                  p: 1.5,
+                  borderRadius: 2.5,
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  bgcolor: 'background.paper',
+                  borderInlineStart: 3,
+                  borderInlineStartColor: catColor,
+                  transition: 'box-shadow 150ms',
+                  '&:hover': { boxShadow: 1 },
+                }}
+              >
+                {/* Label + type */}
+                <Box sx={{ minWidth: { xs: 80, sm: 120 }, flexShrink: 0 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <Typography variant="body2" fontWeight={600} noWrap sx={{ fontSize: 13 }}>
+                      {getEntryLabel(entry)}
+                    </Typography>
+                    {entry.isTemplate && (
+                      <Tooltip title={t('keyValueEditor.templateField')}>
+                        <LockIcon sx={{ fontSize: 12, color: 'primary.main' }} />
+                      </Tooltip>
+                    )}
+                  </Box>
+                  <Typography variant="caption" color="text.disabled" sx={{ fontSize: 10 }}>
+                    {getTypeLabel(entry.type)}
+                  </Typography>
+                </Box>
 
-              {/* Value field - on mobile goes to second row spanning all columns */}
-              <Box sx={{ order: { xs: 1, sm: 0 }, gridColumn: { xs: '1 / -1', sm: 'auto' } }}>
-                {renderValueField(entry, index)}
-              </Box>
+                {/* Value field */}
+                <Box sx={{ flex: 1 }}>
+                  {renderValueField(entry, index)}
+                </Box>
 
-              {/* Type chip */}
-              <Chip
-                label={getTypeLabel(entry.type)}
-                size="small"
-                variant="outlined"
-                color={entry.isTemplate ? 'primary' : 'default'}
-                sx={{ height: 22, fontSize: 10, minWidth: 45, order: 0, justifySelf: 'center' }}
-              />
-
-              {/* Delete / lock placeholder */}
-              <Box sx={{ order: 0, justifySelf: 'center' }}>
+                {/* Delete */}
                 {!entry.locked ? (
-                  <IconButton size="small" color="error" aria-label={t('common.delete')} onClick={() => handleRemove(index)} sx={{ p: 0.25 }}>
+                  <IconButton
+                    size="small"
+                    color="error"
+                    aria-label={t('common.delete')}
+                    onClick={() => handleRemove(index)}
+                    sx={{ p: 0.5, flexShrink: 0 }}
+                  >
                     <DeleteOutlineIcon sx={{ fontSize: 18 }} />
                   </IconButton>
                 ) : (
-                  <LockIcon sx={{ fontSize: 14, color: 'text.disabled' }} />
+                  <LockIcon sx={{ fontSize: 14, color: 'text.disabled', flexShrink: 0 }} />
                 )}
               </Box>
-            </Box>
-          ))}
+            )
+          })}
         </Box>
       )}
 
+      {/* Add custom field row */}
       <Box
         sx={{
           display: 'flex',
           alignItems: 'center',
           gap: 1,
-          p: 1,
-          bgcolor: 'background.paper',
-          borderRadius: 1.5,
+          p: 1.25,
+          borderRadius: 2.5,
           border: '1px dashed',
           borderColor: 'divider',
+          bgcolor: alpha(theme.palette.primary.main, 0.02),
+          transition: 'border-color 200ms',
+          '&:focus-within': {
+            borderColor: 'primary.main',
+            bgcolor: alpha(theme.palette.primary.main, 0.04),
+          },
         }}
       >
         <MuiTextField
@@ -377,14 +415,14 @@ export default function KeyValueEditor({ entries, onChange, label, suggestions }
           value={newKey}
           onChange={(e) => setNewKey(e.target.value)}
           onKeyDown={handleKeyDown}
-          sx={{ flex: 1 }}
+          sx={{ flex: 1, '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
         />
         <MuiTextField
           select
           size="small"
           value={newType}
           onChange={(e) => setNewType(e.target.value as ValueType)}
-          sx={{ width: 100 }}
+          sx={{ width: 90, '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
         >
           <MenuItem value="text">{t('keyValueEditor.typeText')}</MenuItem>
           <MenuItem value="number">{t('keyValueEditor.typeNumber')}</MenuItem>
@@ -398,6 +436,7 @@ export default function KeyValueEditor({ entries, onChange, label, suggestions }
               aria-label={t('keyValueEditor.addField')}
               onClick={handleAdd}
               disabled={!newKey.trim() || entries.some(e => e.key === newKey.trim())}
+              sx={{ p: 0.75 }}
             >
               <AddCircleOutlineIcon />
             </IconButton>

@@ -1,14 +1,13 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button } from '../components/ui/Button'
 import { Avatar } from '../components/ui/Avatar'
 import { EmptyState } from '../components/ui/EmptyState'
 import { auditApi } from '../api/audit'
 import { getDateLocale } from '../utils/dateLocale'
 import { useToast } from '../components/common/ToastProvider'
 import type { AuditLog } from '../types'
-import { AddCircleIcon, EditIcon, DeleteIcon, CheckCircleIcon, CancelIcon, SwapHorizIcon, CloseIcon, FileDownloadIcon, SearchIcon } from '@/icons'
-import { Box, Typography, Skeleton, Chip, Drawer, Divider, IconButton, Pagination, useTheme, useMediaQuery, TextField, InputAdornment } from '@/mui'
+import { AddCircleIcon, EditIcon, DeleteIcon, CheckCircleIcon, CancelIcon, SwapHorizIcon, CloseIcon, FileDownloadIcon, SearchIcon, ViewListIcon, ViewStreamIcon } from '@/icons'
+import { Box, Typography, Skeleton, Chip, Drawer, Divider, IconButton, Pagination, useTheme, useMediaQuery, TextField, InputAdornment, alpha, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@/mui'
 
 const actionConfig: Record<string, { icon: React.ReactNode; color: 'success' | 'info' | 'error' | 'warning' | 'default'; borderColor: string }> = {
   create: { icon: <AddCircleIcon sx={{ fontSize: 18 }} />, color: 'success', borderColor: '#4caf50' },
@@ -103,11 +102,14 @@ const isISODate = (val: unknown): boolean =>
 const isNullish = (val: unknown): boolean =>
   val === null || val === undefined || val === 'null' || val === ''
 
+type ViewMode = 'timeline' | 'table'
+
 export default function AuditLogPage() {
   const { showError, showSuccess } = useToast()
   const { t } = useTranslation()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+  const isDesktop = useMediaQuery(theme.breakpoints.up('md'))
   const isRtl = theme.direction === 'rtl'
   const [loading, setLoading] = useState(true)
   const [logs, setLogs] = useState<AuditLog[]>([])
@@ -117,6 +119,7 @@ export default function AuditLogPage() {
   const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null)
   const [detailsOpen, setDetailsOpen] = useState(false)
   const [page, setPage] = useState(1)
+  const [viewMode, setViewMode] = useState<ViewMode>(isDesktop ? 'table' : 'timeline')
 
   const dateLocale = getDateLocale()
 
@@ -245,24 +248,9 @@ export default function AuditLogPage() {
     showSuccess(t('auditLog.exportSuccess'))
   }, [filteredLogs, dateLocale, t, showSuccess])
 
-  const formatRelativeTime = (dateStr: string) => {
-    const date = new Date(dateStr)
-    const now = new Date()
-    const diffMs = now.getTime() - date.getTime()
-    const diffMins = Math.floor(diffMs / 60000)
-    const diffHours = Math.floor(diffMs / 3600000)
-    const diffDays = Math.floor(diffMs / 86400000)
-
-    if (diffMins < 1) return t('auditLog.justNow')
-    if (diffMins < 60) return t('auditLog.minutesAgo', { count: diffMins })
-    if (diffHours < 24) return t('auditLog.hoursAgo', { count: diffHours })
-    if (diffDays < 7) return t('auditLog.daysAgo', { count: diffDays })
-    return date.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' })
-  }
-
   if (loading) {
     return (
-      <Box sx={{ maxWidth: { xs: '100%', md: 900 }, mx: 'auto', p: { xs: 2, sm: 3 } }}>
+      <Box sx={{ maxWidth: { xs: '100%', md: 1100 }, mx: 'auto', p: { xs: 2, sm: 3 } }}>
         <Skeleton variant="rounded" height={48} sx={{ borderRadius: 2, mb: 2 }} />
         <Skeleton variant="rounded" height={44} sx={{ borderRadius: 2, mb: 2 }} />
         <Skeleton variant="rounded" height={36} sx={{ borderRadius: 2, mb: 3 }} />
@@ -274,7 +262,7 @@ export default function AuditLogPage() {
   }
 
   return (
-    <Box sx={{ maxWidth: { xs: '100%', md: 900 }, mx: 'auto', pb: 10 }}>
+    <Box sx={{ maxWidth: { xs: '100%', md: 1100 }, mx: 'auto', pb: 10 }}>
       {/* Sticky header */}
       <Box sx={{
         position: 'sticky', top: 0, zIndex: 20,
@@ -285,15 +273,53 @@ export default function AuditLogPage() {
           <Typography variant="h6" fontWeight={700} letterSpacing='-0.02em'>
             {t('auditLog.pageTitle')}
           </Typography>
-          <IconButton
-            size="small"
-            onClick={handleExportCSV}
-            disabled={filteredLogs.length === 0}
-            aria-label={t('auditLog.export')}
-            sx={{ color: 'text.secondary' }}
-          >
-            <FileDownloadIcon fontSize="small" />
-          </IconButton>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            {/* View toggle - desktop only */}
+            {!isMobile && (
+              <Box
+                sx={{
+                  display: 'flex',
+                  bgcolor: 'action.hover',
+                  borderRadius: 2,
+                  p: 0.25,
+                }}
+              >
+                <IconButton
+                  size="small"
+                  onClick={() => setViewMode('timeline')}
+                  sx={{
+                    borderRadius: 1.5,
+                    p: 0.75,
+                    bgcolor: viewMode === 'timeline' ? 'background.paper' : 'transparent',
+                    boxShadow: viewMode === 'timeline' ? 1 : 0,
+                  }}
+                >
+                  <ViewStreamIcon fontSize="small" sx={{ color: viewMode === 'timeline' ? 'primary.main' : 'text.secondary' }} />
+                </IconButton>
+                <IconButton
+                  size="small"
+                  onClick={() => setViewMode('table')}
+                  sx={{
+                    borderRadius: 1.5,
+                    p: 0.75,
+                    bgcolor: viewMode === 'table' ? 'background.paper' : 'transparent',
+                    boxShadow: viewMode === 'table' ? 1 : 0,
+                  }}
+                >
+                  <ViewListIcon fontSize="small" sx={{ color: viewMode === 'table' ? 'primary.main' : 'text.secondary' }} />
+                </IconButton>
+              </Box>
+            )}
+            <IconButton
+              size="small"
+              onClick={handleExportCSV}
+              disabled={filteredLogs.length === 0}
+              aria-label={t('auditLog.export')}
+              sx={{ color: 'text.secondary' }}
+            >
+              <FileDownloadIcon fontSize="small" />
+            </IconButton>
+          </Box>
         </Box>
 
         {/* Search bar */}
@@ -316,7 +342,7 @@ export default function AuditLogPage() {
           }}
         />
 
-        {/* Entity filter chips - scrollable */}
+        {/* Filter chips rows - scrollable */}
         <Box sx={{ display: 'flex', gap: 0.75, overflowX: 'auto', pb: 0.5, '&::-webkit-scrollbar': { display: 'none' } }}>
           <Chip
             label={t('auditLog.allEntities')}
@@ -324,7 +350,7 @@ export default function AuditLogPage() {
             variant={!entityFilter ? 'filled' : 'outlined'}
             color={!entityFilter ? 'primary' : 'default'}
             onClick={() => { setEntityFilter(''); setPage(1) }}
-            sx={{ fontWeight: 500, flexShrink: 0 }}
+            sx={{ fontWeight: 500, flexShrink: 0, borderRadius: '20px' }}
           />
           {entityTypes.map(et => (
             <Chip
@@ -334,12 +360,11 @@ export default function AuditLogPage() {
               variant={entityFilter === et ? 'filled' : 'outlined'}
               color={entityFilter === et ? 'primary' : 'default'}
               onClick={() => { setEntityFilter(entityFilter === et ? '' : et); setPage(1) }}
-              sx={{ fontWeight: 500, flexShrink: 0 }}
+              sx={{ fontWeight: 500, flexShrink: 0, borderRadius: '20px' }}
             />
           ))}
         </Box>
 
-        {/* Action filter chips - scrollable */}
         <Box sx={{ display: 'flex', gap: 0.75, overflowX: 'auto', pt: 0.75, pb: 0.5, '&::-webkit-scrollbar': { display: 'none' } }}>
           <Chip
             label={t('auditLog.allActions')}
@@ -347,7 +372,7 @@ export default function AuditLogPage() {
             variant={!actionFilter ? 'filled' : 'outlined'}
             color={!actionFilter ? 'secondary' : 'default'}
             onClick={() => { setActionFilter(''); setPage(1) }}
-            sx={{ fontWeight: 500, flexShrink: 0 }}
+            sx={{ fontWeight: 500, flexShrink: 0, borderRadius: '20px' }}
           />
           {actionTypes.map(at => {
             const cfg = actionConfig[at]
@@ -359,7 +384,7 @@ export default function AuditLogPage() {
                 variant={actionFilter === at ? 'filled' : 'outlined'}
                 color={actionFilter === at ? cfg?.color || 'default' : 'default'}
                 onClick={() => { setActionFilter(actionFilter === at ? '' : at); setPage(1) }}
-                sx={{ fontWeight: 500, flexShrink: 0 }}
+                sx={{ fontWeight: 500, flexShrink: 0, borderRadius: '20px' }}
               />
             )
           })}
@@ -381,7 +406,130 @@ export default function AuditLogPage() {
             description={t('auditLog.tryAdjustingSearch')}
           />
         </Box>
+      ) : viewMode === 'table' && !isMobile ? (
+        /* ====== TABLE VIEW (Desktop) ====== */
+        <Box sx={{ px: { xs: 2, sm: 3 }, pt: 1.5 }}>
+          <TableContainer
+            component={Paper}
+            elevation={0}
+            sx={{
+              borderRadius: 3,
+              border: 1,
+              borderColor: 'divider',
+              overflow: 'hidden',
+            }}
+          >
+            <Table size="small" sx={{ minWidth: 700 }}>
+              <TableHead>
+                <TableRow sx={{ bgcolor: 'action.hover' }}>
+                  <TableCell sx={{ fontWeight: 700, fontSize: 12, py: 1.5, width: 160 }}>
+                    {t('auditLog.timestamp')}
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: 12, py: 1.5, width: 160 }}>
+                    {t('auditLog.user')}
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: 12, py: 1.5, width: 120 }}>
+                    {t('auditLog.action')}
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: 12, py: 1.5, width: 120 }}>
+                    {t('auditLog.entity')}
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: 12, py: 1.5 }}>
+                    {t('auditLog.changes')}
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {paginatedLogs.map((log) => {
+                  const config = actionConfig[log.action] || actionConfig.update
+                  const changes = getVisibleChanges(log)
+                  const firstChange = changes[0]
+                  const timeStr = new Date(log.createdAt).toLocaleString(dateLocale, {
+                    month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
+                  })
+
+                  return (
+                    <TableRow
+                      key={log.id}
+                      hover
+                      onClick={() => handleViewDetails(log)}
+                      sx={{
+                        cursor: 'pointer',
+                        borderInlineStart: 3,
+                        borderInlineStartColor: config.borderColor,
+                        '&:last-child td': { borderBottom: 0 },
+                        transition: 'background-color 100ms',
+                      }}
+                    >
+                      <TableCell sx={{ py: 1.25, fontSize: 12, color: 'text.secondary' }}>
+                        {timeStr}
+                      </TableCell>
+                      <TableCell sx={{ py: 1.25 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Avatar name={log.user?.fullName || '?'} size="small" />
+                          <Typography variant="body2" fontWeight={500} noWrap sx={{ maxWidth: 120, fontSize: 13 }}>
+                            {log.user?.fullName || t('common.unknown')}
+                          </Typography>
+                        </Box>
+                      </TableCell>
+                      <TableCell sx={{ py: 1.25 }}>
+                        <Chip
+                          icon={config.icon as React.ReactElement}
+                          label={t(`auditLog.actions.${log.action}`, { defaultValue: log.action.replace('_', ' ') })}
+                          size="small"
+                          color={config.color}
+                          variant="outlined"
+                          sx={{ height: 24, fontSize: 11, fontWeight: 600 }}
+                        />
+                      </TableCell>
+                      <TableCell sx={{ py: 1.25 }}>
+                        <Chip
+                          label={t(`auditLog.entities.${log.entityType}`, { defaultValue: log.entityType })}
+                          size="small"
+                          sx={{
+                            height: 24, fontSize: 11, fontWeight: 600,
+                            bgcolor: 'action.hover', textTransform: 'capitalize',
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell sx={{ py: 1.25 }}>
+                        {firstChange ? (
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: 'wrap' }}>
+                            <Typography variant="caption" color="text.secondary" sx={{ fontSize: 12, fontWeight: 500 }}>
+                              {translateField(firstChange.field)}:
+                            </Typography>
+                            {!isNullish(firstChange.old) && (
+                              <Typography variant="caption" sx={{ fontSize: 12, color: 'error.main', textDecoration: 'line-through' }} noWrap>
+                                {formatVal(firstChange.field, firstChange.old)}
+                              </Typography>
+                            )}
+                            {!isNullish(firstChange.old) && !isNullish(firstChange.new) && (
+                              <SwapHorizIcon sx={{ fontSize: 14, color: 'text.disabled' }} />
+                            )}
+                            {!isNullish(firstChange.new) && (
+                              <Typography variant="caption" sx={{ fontSize: 12, color: 'success.main', fontWeight: 600 }} noWrap>
+                                {formatVal(firstChange.field, firstChange.new)}
+                              </Typography>
+                            )}
+                            {changes.length > 1 && (
+                              <Typography variant="caption" color="text.disabled" sx={{ fontSize: 11, ml: 0.5 }}>
+                                +{changes.length - 1}
+                              </Typography>
+                            )}
+                          </Box>
+                        ) : (
+                          <Typography variant="caption" color="text.disabled" sx={{ fontSize: 11 }}>—</Typography>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  )
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
       ) : (
+        /* ====== TIMELINE VIEW (Mobile + optional Desktop) ====== */
         <Box sx={{ px: { xs: 2, sm: 3 }, pt: 1 }}>
           {dayGroups.map((group) => (
             <Box key={group.label} sx={{ mb: 2 }}>
@@ -423,10 +571,8 @@ export default function AuditLogPage() {
                       minHeight: 48,
                     }}
                   >
-                    {/* User avatar */}
                     <Avatar name={log.user?.fullName || '?'} size="small" />
 
-                    {/* Content */}
                     <Box sx={{ flex: 1, minWidth: 0 }}>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
                         <Typography variant="body1" fontWeight={600} noWrap sx={{ flex: 1 }}>
@@ -459,7 +605,6 @@ export default function AuditLogPage() {
                         )}
                       </Box>
 
-                      {/* Inline change preview */}
                       {firstChange && (
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: 'wrap' }}>
                           <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.75rem' }}>

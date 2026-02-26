@@ -160,6 +160,7 @@ export {
   Update as UpdateIcon,
   ViewInAr as ViewInArIcon,
   ViewList as ViewListIcon,
+  ViewStream as ViewStreamIcon,
   Visibility as VisibilityIcon,
   VolumeUp as VolumeUpIcon,
   VisibilityOff as VisibilityOffIcon,
