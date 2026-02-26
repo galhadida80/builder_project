@@ -14,7 +14,6 @@ import ProjectOverviewPage from './pages/ProjectOverviewPage'
 import EquipmentPage from './pages/EquipmentPage'
 import MaterialsPage from './pages/MaterialsPage'
 import MeetingsPage from './pages/MeetingsPage'
-import ApprovalsPage from './pages/ApprovalsPage'
 import AreasPage from './pages/AreasPage'
 import ContactsPage from './pages/ContactsPage'
 import AuditLogPage from './pages/AuditLogPage'
@@ -101,7 +100,7 @@ function AppRoutes() {
               <Route path="equipment" element={<EquipmentPage />} />
               <Route path="materials" element={<MaterialsPage />} />
               <Route path="meetings" element={<MeetingsPage />} />
-              <Route path="approvals" element={<ApprovalsPage />} />
+              <Route path="approvals" element={<Navigate to="../tasks" replace />} />
               <Route path="areas" element={<AreasPage />} />
               <Route path="contacts" element={<ContactsPage />} />
               <Route path="inspections" element={<InspectionsPage />} />
@@ -124,7 +123,7 @@ function AppRoutes() {
 
             <Route path="/organizations" element={<OrganizationsPage />} />
             <Route path="/organizations/:orgId" element={<OrganizationDetailPage />} />
-            <Route path="/approvals" element={<ApprovalsPage />} />
+            <Route path="/approvals" element={<Navigate to="/dashboard" replace />} />
             <Route path="/audit-log" element={<AuditLogPage />} />
             <Route path="/analytics" element={<AnalyticsDashboard />} />
             <Route path="/team-workload" element={<TeamWorkloadPage />} />

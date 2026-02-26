@@ -1,4 +1,5 @@
 import logging
+import os
 import weasyprint
 from urllib.parse import quote
 from uuid import UUID
@@ -728,7 +729,8 @@ async def export_checklist_pdf(
         language=language,
     )
 
-    pdf_bytes = weasyprint.HTML(string=html).write_pdf()
+    templates_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "templates")
+    pdf_bytes = weasyprint.HTML(string=html, base_url=templates_dir).write_pdf()
 
     filename = f"checklist_{instance.unit_identifier}_{instance.created_at.strftime('%Y%m%d')}.pdf"
     encoded_filename = quote(filename)

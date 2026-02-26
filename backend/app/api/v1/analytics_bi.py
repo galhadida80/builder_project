@@ -282,12 +282,14 @@ async def export_csv(
     result = await db.execute(query)
     rows = result.scalars().all()
 
+    INTERNAL_COLUMNS = {"project_id", "created_by_id", "updated_by_id", "reported_by_id", "assigned_contact_id", "followup_contact_id", "consultant_type_id", "area_id", "template_id", "checklist_instance_id", "user_id"}
     if not rows:
         columns = ["id"]
     else:
-        columns = [c.key for c in model.__table__.columns]
+        columns = [c.key for c in model.__table__.columns if c.key not in INTERNAL_COLUMNS]
 
     output = io.StringIO()
+    output.write("\ufeff")
     writer = csv.writer(output)
     writer.writerow(columns)
     for row in rows:
@@ -296,6 +298,6 @@ async def export_csv(
     output.seek(0)
     return StreamingResponse(
         iter([output.getvalue()]),
-        media_type="text/csv",
+        media_type="text/csv; charset=utf-8",
         headers={"Content-Disposition": f"attachment; filename={entity_type}_export.csv"},
     )

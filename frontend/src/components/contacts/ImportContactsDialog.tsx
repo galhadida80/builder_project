@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '../ui/Button'
 import { CloseIcon, CloudUploadIcon, ContactPhoneIcon, FileUploadIcon, CheckCircleIcon, PersonIcon, DeleteIcon } from '@/icons'
@@ -7,7 +7,13 @@ import {
   Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Box, Typography,
   styled, Tab, Tabs, Chip, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, Checkbox, Alert, LinearProgress, TextField as MuiTextField, MenuItem,
+  CircularProgress,
 } from '@/mui'
+
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || ''
+const GIS_SCRIPT_URL = 'https://accounts.google.com/gsi/client'
+const CONTACTS_SCOPE = 'https://www.googleapis.com/auth/contacts.readonly'
+const PEOPLE_API = 'https://people.googleapis.com/v1/people/me/connections'
 
 interface ImportContactsDialogProps {
   open: boolean
@@ -21,6 +27,34 @@ interface PhoneContact {
   email: string
   phone: string
   selected: boolean
+}
+
+interface TokenResponse {
+  access_token: string
+  error?: string
+  error_description?: string
+}
+
+interface TokenClient {
+  requestAccessToken: (config?: { prompt?: string }) => void
+  callback: (response: TokenResponse) => void
+}
+
+declare global {
+  interface Window {
+    google?: {
+      accounts: {
+        oauth2: {
+          initTokenClient: (config: {
+            client_id: string
+            scope: string
+            callback: (response: TokenResponse) => void
+            error_callback?: (error: { type: string; message: string }) => void
+          }) => TokenClient
+        }
+      }
+    }
+  }
 }
 
 const StyledDialog = styled(Dialog)(({ theme }) => ({
@@ -84,10 +118,60 @@ function parseVCard(text: string): PhoneContact[] {
   return contacts
 }
 
+function loadGisScript(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (window.google?.accounts?.oauth2) { resolve(); return }
+    const existing = document.querySelector(`script[src="${GIS_SCRIPT_URL}"]`)
+    if (existing) { existing.addEventListener('load', () => resolve()); return }
+    const script = document.createElement('script')
+    script.src = GIS_SCRIPT_URL
+    script.async = true
+    script.onload = () => resolve()
+    script.onerror = () => reject(new Error('Failed to load Google'))
+    document.head.appendChild(script)
+  })
+}
+
+async function fetchGoogleContacts(accessToken: string): Promise<PhoneContact[]> {
+  const allContacts: PhoneContact[] = []
+  let pageToken: string | undefined
+
+  do {
+    const params = new URLSearchParams({
+      personFields: 'names,emailAddresses,phoneNumbers',
+      pageSize: '1000',
+      sortOrder: 'FIRST_NAME_ASCENDING',
+    })
+    if (pageToken) params.set('pageToken', pageToken)
+
+    const res = await fetch(`${PEOPLE_API}?${params}`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    })
+    if (!res.ok) throw new Error(`Google API error: ${res.status}`)
+
+    const data = await res.json()
+    if (data.connections) {
+      for (const c of data.connections) {
+        const nameObj = c.names?.find((n: any) => n.metadata?.primary) ?? c.names?.[0]
+        const emailObj = c.emailAddresses?.find((e: any) => e.metadata?.primary) ?? c.emailAddresses?.[0]
+        const phoneObj = c.phoneNumbers?.find((p: any) => p.metadata?.primary) ?? c.phoneNumbers?.[0]
+        const name = nameObj?.displayName || ''
+        if (name) {
+          allContacts.push({ name, email: emailObj?.value || '', phone: phoneObj?.value || '', selected: true })
+        }
+      }
+    }
+    pageToken = data.nextPageToken
+  } while (pageToken)
+
+  return allContacts
+}
+
 export default function ImportContactsDialog({ open, onClose, projectId, onImportComplete }: ImportContactsDialogProps) {
   const { t } = useTranslation()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const vcfInputRef = useRef<HTMLInputElement>(null)
+  const tokenClientRef = useRef<TokenClient | null>(null)
   const [tab, setTab] = useState(0)
   const [dragOver, setDragOver] = useState(false)
   const [file, setFile] = useState<File | null>(null)
@@ -96,7 +180,26 @@ export default function ImportContactsDialog({ open, onClose, projectId, onImpor
   const [phoneContacts, setPhoneContacts] = useState<PhoneContact[]>([])
   const [phoneContactType, setPhoneContactType] = useState('contractor')
   const [vcfError, setVcfError] = useState('')
+  const [googleLoading, setGoogleLoading] = useState(false)
+  const [googleError, setGoogleError] = useState('')
   const phoneSupported = 'contacts' in navigator && 'ContactsManager' in window
+  const googleConfigured = !!GOOGLE_CLIENT_ID
+
+  useEffect(() => {
+    if (!googleConfigured) return
+    loadGisScript().then(() => {
+      if (!window.google?.accounts?.oauth2) return
+      tokenClientRef.current = window.google.accounts.oauth2.initTokenClient({
+        client_id: GOOGLE_CLIENT_ID,
+        scope: CONTACTS_SCOPE,
+        callback: () => {},
+        error_callback: () => {
+          setGoogleLoading(false)
+          setGoogleError(t('contacts.import.googleError'))
+        },
+      })
+    }).catch(() => {})
+  }, [googleConfigured, t])
 
   const reset = () => {
     setFile(null)
@@ -105,29 +208,22 @@ export default function ImportContactsDialog({ open, onClose, projectId, onImpor
     setImporting(false)
     setDragOver(false)
     setVcfError('')
+    setGoogleError('')
+    setGoogleLoading(false)
   }
 
-  const handleClose = () => {
-    reset()
-    onClose()
-  }
+  const handleClose = () => { reset(); onClose() }
 
   const handleFileDrop = (e: React.DragEvent) => {
     e.preventDefault()
     setDragOver(false)
     const droppedFile = e.dataTransfer.files[0]
-    if (droppedFile && droppedFile.name.endsWith('.csv')) {
-      setFile(droppedFile)
-      setResult(null)
-    }
+    if (droppedFile && droppedFile.name.endsWith('.csv')) { setFile(droppedFile); setResult(null) }
   }
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0]
-    if (selected) {
-      setFile(selected)
-      setResult(null)
-    }
+    if (selected) { setFile(selected); setResult(null) }
   }
 
   const handleCsvImport = async () => {
@@ -139,29 +235,53 @@ export default function ImportContactsDialog({ open, onClose, projectId, onImpor
       if (res.importedCount > 0) onImportComplete()
     } catch {
       setResult({ importedCount: 0, skippedCount: 0, errors: [t('contacts.import.failed')] })
-    } finally {
-      setImporting(false)
-    }
+    } finally { setImporting(false) }
   }
+
+  const handleGoogleImport = useCallback(() => {
+    if (!tokenClientRef.current) return
+    setGoogleLoading(true)
+    setGoogleError('')
+
+    tokenClientRef.current.callback = async (response: TokenResponse) => {
+      if (response.error) {
+        setGoogleError(response.error_description || t('contacts.import.googleError'))
+        setGoogleLoading(false)
+        return
+      }
+      try {
+        const contacts = await fetchGoogleContacts(response.access_token)
+        if (contacts.length === 0) {
+          setGoogleError(t('contacts.import.googleEmpty'))
+          setGoogleLoading(false)
+          return
+        }
+        setPhoneContacts(prev => {
+          const existingNames = new Set(prev.map(p => p.name))
+          const newOnes = contacts.filter(c => !existingNames.has(c.name))
+          return [...prev, ...newOnes]
+        })
+      } catch {
+        setGoogleError(t('contacts.import.googleError'))
+      } finally { setGoogleLoading(false) }
+    }
+
+    tokenClientRef.current.requestAccessToken({ prompt: 'consent' })
+  }, [t])
 
   const handlePickPhoneContacts = async () => {
     try {
       const props = ['name', 'email', 'tel']
       const contacts = await (navigator as any).contacts.select(props, { multiple: true })
       const mapped: PhoneContact[] = contacts.map((c: any) => ({
-        name: c.name?.[0] || '',
-        email: c.email?.[0] || '',
-        phone: c.tel?.[0] || '',
-        selected: true,
+        name: c.name?.[0] || '', email: c.email?.[0] || '', phone: c.tel?.[0] || '', selected: true,
       })).filter((c: PhoneContact) => c.name)
       setPhoneContacts(prev => {
         const existingNames = new Set(prev.map(p => p.name))
         const newOnes = mapped.filter((c: PhoneContact) => !existingNames.has(c.name))
         return [...prev, ...newOnes]
       })
-    } catch {
-      // User cancelled picker
-    }
+    } catch { /* User cancelled */ }
   }
 
   const handleVcfFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -172,18 +292,13 @@ export default function ImportContactsDialog({ open, onClose, projectId, onImpor
     try {
       const text = await selected.text()
       const parsed = parseVCard(text)
-      if (parsed.length === 0) {
-        setVcfError(t('contacts.import.vcfEmpty'))
-        return
-      }
+      if (parsed.length === 0) { setVcfError(t('contacts.import.vcfEmpty')); return }
       setPhoneContacts(prev => {
         const existingNames = new Set(prev.map(p => p.name))
         const newOnes = parsed.filter(c => !existingNames.has(c.name))
         return [...prev, ...newOnes]
       })
-    } catch {
-      setVcfError(t('contacts.import.vcfError'))
-    }
+    } catch { setVcfError(t('contacts.import.vcfError')) }
   }
 
   const handlePhoneImport = async () => {
@@ -192,19 +307,15 @@ export default function ImportContactsDialog({ open, onClose, projectId, onImpor
     setImporting(true)
     try {
       const rows: ContactImportRow[] = selected.map(c => ({
-        contact_name: c.name,
-        contact_type: phoneContactType,
-        email: c.email || undefined,
-        phone: c.phone || undefined,
+        contact_name: c.name, contact_type: phoneContactType,
+        email: c.email || undefined, phone: c.phone || undefined,
       }))
       const res = await contactsApi.importBulk(projectId, rows)
       setResult(res)
       if (res.importedCount > 0) onImportComplete()
     } catch {
       setResult({ importedCount: 0, skippedCount: 0, errors: [t('contacts.import.failed')] })
-    } finally {
-      setImporting(false)
-    }
+    } finally { setImporting(false) }
   }
 
   const togglePhoneContact = (index: number) => {
@@ -229,9 +340,7 @@ export default function ImportContactsDialog({ open, onClose, projectId, onImpor
       a.download = `contacts_${projectId}.csv`
       a.click()
       URL.revokeObjectURL(url)
-    } catch {
-      // silent
-    }
+    } catch { /* silent */ }
   }
 
   const selectedPhoneCount = phoneContacts.filter(c => c.selected).length
@@ -244,14 +353,12 @@ export default function ImportContactsDialog({ open, onClose, projectId, onImpor
       </DialogTitle>
 
       <DialogContent sx={{ p: 0, display: 'flex', flexDirection: 'column', minHeight: 350 }}>
-        {importing && <LinearProgress />}
+        {(importing || googleLoading) && <LinearProgress />}
 
         {result ? (
           <Box sx={{ p: 3, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
             <CheckCircleIcon sx={{ fontSize: 48, color: result.importedCount > 0 ? 'success.main' : 'warning.main' }} />
-            <Typography variant="h6" fontWeight={600}>
-              {t('contacts.import.resultTitle')}
-            </Typography>
+            <Typography variant="h6" fontWeight={600}>{t('contacts.import.resultTitle')}</Typography>
             <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'center' }}>
               <Chip label={`${result.importedCount} ${t('contacts.import.imported')}`} color="success" variant="outlined" />
               {result.skippedCount > 0 && <Chip label={`${result.skippedCount} ${t('contacts.import.skipped')}`} color="warning" variant="outlined" />}
@@ -272,35 +379,21 @@ export default function ImportContactsDialog({ open, onClose, projectId, onImpor
             {tab === 0 && (
               <Box sx={{ p: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>
                 <input ref={fileInputRef} type="file" accept=".csv" hidden onChange={handleFileSelect} />
-                <DropZone
-                  isDragOver={dragOver}
-                  onClick={() => fileInputRef.current?.click()}
-                  onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
-                  onDragLeave={() => setDragOver(false)}
-                  onDrop={handleFileDrop}
-                >
+                <DropZone isDragOver={dragOver} onClick={() => fileInputRef.current?.click()}
+                  onDragOver={(e) => { e.preventDefault(); setDragOver(true) }} onDragLeave={() => setDragOver(false)} onDrop={handleFileDrop}>
                   <CloudUploadIcon sx={{ fontSize: 40, color: 'text.secondary', mb: 1 }} />
                   <Typography variant="body1" fontWeight={600}>{t('contacts.import.dropFile')}</Typography>
                   <Typography variant="body2" color="text.secondary">{t('contacts.import.csvOnly')}</Typography>
                 </DropZone>
-
-                {file && (
-                  <Alert severity="info" icon={<FileUploadIcon />}>
-                    {file.name} ({(file.size / 1024).toFixed(1)} KB)
-                  </Alert>
-                )}
-
+                {file && <Alert severity="info" icon={<FileUploadIcon />}>{file.name} ({(file.size / 1024).toFixed(1)} KB)</Alert>}
                 <Alert severity="info" sx={{ '& .MuiAlert-message': { fontSize: '0.8rem' } }}>
                   <Typography variant="body2" fontWeight={600} sx={{ mb: 0.5 }}>{t('contacts.import.csvFormat')}</Typography>
                   <Typography variant="caption" component="div" sx={{ fontFamily: 'monospace' }}>
                     contact_name, contact_type, company_name, email, phone, role_description
                   </Typography>
                 </Alert>
-
                 <Box sx={{ display: 'flex', gap: 1 }}>
-                  <Button variant="secondary" size="small" onClick={handleExport}>
-                    {t('contacts.import.downloadTemplate')}
-                  </Button>
+                  <Button variant="secondary" size="small" onClick={handleExport}>{t('contacts.import.downloadTemplate')}</Button>
                 </Box>
               </Box>
             )}
@@ -316,35 +409,36 @@ export default function ImportContactsDialog({ open, onClose, projectId, onImpor
                       {t('contacts.import.pickFromPhone')}
                     </Typography>
                     <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                      {phoneSupported ? t('contacts.import.pickDescriptionNative') : t('contacts.import.pickDescription')}
+                      {t('contacts.import.pickDescriptionSmart')}
                     </Typography>
 
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, alignItems: 'center' }}>
-                      {phoneSupported ? (
-                        <>
-                          <Button variant="primary" icon={<ContactPhoneIcon />} onClick={handlePickPhoneContacts}>
-                            {t('contacts.import.openContacts')}
-                          </Button>
-                          <Button variant="secondary" icon={<FileUploadIcon />} onClick={() => vcfInputRef.current?.click()}>
-                            {t('contacts.import.uploadVcf')}
-                          </Button>
-                        </>
-                      ) : (
-                        <>
-                          <Button variant="primary" icon={<FileUploadIcon />} onClick={() => vcfInputRef.current?.click()}>
-                            {t('contacts.import.uploadVcf')}
-                          </Button>
-                          <Alert severity="info" sx={{ mt: 1, textAlign: 'start', '& .MuiAlert-message': { fontSize: '0.8rem' } }}>
-                            <Typography variant="body2" fontWeight={600} sx={{ mb: 0.5 }}>
-                              {t('contacts.import.vcfHowTitle')}
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                              {t('contacts.import.vcfHowDescription')}
-                            </Typography>
-                          </Alert>
-                        </>
+                      {googleConfigured && (
+                        <Button variant="primary" onClick={handleGoogleImport} disabled={googleLoading}
+                          icon={googleLoading ? <CircularProgress size={18} color="inherit" /> : <GoogleIcon />}>
+                          {t('contacts.import.googleImport')}
+                        </Button>
+                      )}
+
+                      {phoneSupported && (
+                        <Button variant={googleConfigured ? 'secondary' : 'primary'} icon={<ContactPhoneIcon />} onClick={handlePickPhoneContacts}>
+                          {t('contacts.import.openContacts')}
+                        </Button>
+                      )}
+
+                      <Button variant="secondary" icon={<FileUploadIcon />} onClick={() => vcfInputRef.current?.click()}>
+                        {t('contacts.import.uploadVcf')}
+                      </Button>
+
+                      {!googleConfigured && !phoneSupported && (
+                        <Alert severity="info" sx={{ mt: 1, textAlign: 'start', '& .MuiAlert-message': { fontSize: '0.8rem' } }}>
+                          <Typography variant="body2" fontWeight={600} sx={{ mb: 0.5 }}>{t('contacts.import.vcfHowTitle')}</Typography>
+                          <Typography variant="body2" color="text.secondary">{t('contacts.import.vcfHowDescription')}</Typography>
+                        </Alert>
                       )}
                     </Box>
+
+                    {googleError && <Alert severity="error" sx={{ mt: 2 }}>{googleError}</Alert>}
                   </Box>
                 ) : (
                   <>
@@ -352,33 +446,29 @@ export default function ImportContactsDialog({ open, onClose, projectId, onImpor
                       <Typography variant="body2" fontWeight={600}>
                         {t('contacts.import.selectedCount', { count: selectedPhoneCount })}
                       </Typography>
-                      <Box sx={{ display: 'flex', gap: 1 }}>
-                        {phoneSupported ? (
-                          <>
-                            <Button variant="secondary" size="small" icon={<ContactPhoneIcon />} onClick={handlePickPhoneContacts}>
-                              {t('contacts.import.selectContacts')}
-                            </Button>
-                            <Button variant="secondary" size="small" icon={<FileUploadIcon />} onClick={() => vcfInputRef.current?.click()}>
-                              {t('contacts.import.addMore')}
-                            </Button>
-                          </>
-                        ) : (
-                          <Button variant="secondary" size="small" icon={<FileUploadIcon />} onClick={() => vcfInputRef.current?.click()}>
-                            {t('contacts.import.addMore')}
+                      <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                        {googleConfigured && (
+                          <Button variant="secondary" size="small" onClick={handleGoogleImport} disabled={googleLoading}
+                            icon={googleLoading ? <CircularProgress size={14} color="inherit" /> : <GoogleIcon />}>
+                            {t('contacts.import.googleAdd')}
                           </Button>
                         )}
+                        {phoneSupported && (
+                          <Button variant="secondary" size="small" icon={<ContactPhoneIcon />} onClick={handlePickPhoneContacts}>
+                            {t('contacts.import.selectContacts')}
+                          </Button>
+                        )}
+                        <Button variant="secondary" size="small" icon={<FileUploadIcon />} onClick={() => vcfInputRef.current?.click()}>
+                          {t('contacts.import.addMore')}
+                        </Button>
                       </Box>
                     </Box>
 
-                    <MuiTextField
-                      select fullWidth size="small"
-                      label={t('contacts.import.defaultType')}
-                      value={phoneContactType}
-                      onChange={(e) => setPhoneContactType(e.target.value)}
-                    >
-                      {CONTACT_TYPES.map(ct => (
-                        <MenuItem key={ct} value={ct}>{t(`contacts.types.${ct}`)}</MenuItem>
-                      ))}
+                    {googleError && <Alert severity="error">{googleError}</Alert>}
+
+                    <MuiTextField select fullWidth size="small" label={t('contacts.import.defaultType')}
+                      value={phoneContactType} onChange={(e) => setPhoneContactType(e.target.value)}>
+                      {CONTACT_TYPES.map(ct => <MenuItem key={ct} value={ct}>{t(`contacts.types.${ct}`)}</MenuItem>)}
                     </MuiTextField>
 
                     <TableContainer sx={{ maxHeight: 250, border: 1, borderColor: 'divider', borderRadius: 1 }}>
@@ -386,12 +476,9 @@ export default function ImportContactsDialog({ open, onClose, projectId, onImpor
                         <TableHead>
                           <TableRow>
                             <TableCell padding="checkbox">
-                              <Checkbox
-                                checked={phoneContacts.every(c => c.selected)}
+                              <Checkbox checked={phoneContacts.every(c => c.selected)}
                                 indeterminate={phoneContacts.some(c => c.selected) && !phoneContacts.every(c => c.selected)}
-                                onChange={toggleAllPhoneContacts}
-                                size="small"
-                              />
+                                onChange={toggleAllPhoneContacts} size="small" />
                             </TableCell>
                             <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }}>{t('contacts.contactName')}</TableCell>
                             <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }}>{t('contacts.phone')}</TableCell>
@@ -451,5 +538,16 @@ export default function ImportContactsDialog({ open, onClose, projectId, onImpor
         )}
       </DialogActions>
     </StyledDialog>
+  )
+}
+
+function GoogleIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18A10.96 10.96 0 001 12c0 1.77.42 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+    </svg>
   )
 }

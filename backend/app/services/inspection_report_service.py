@@ -14,34 +14,67 @@ env = Environment(
 )
 
 STRINGS = {
-    "report_title": "דוח ביקורות",
-    "total_inspections": "ביקורות",
-    "no_inspections": "לא נמצאו ביקורות",
-    "scheduled_date": "תאריך מתוכנן",
-    "completed_date": "תאריך השלמה",
-    "created_by": "נוצר על ידי",
-    "notes": "הערות",
-    "findings": "ממצאים",
-    "finding_title": "כותרת",
-    "severity": "חומרה",
-    "finding_status": "סטטוס",
-    "location": "מיקום",
-    "description": "תיאור",
-    "statuses": {
-        "pending": "ממתין",
-        "in_progress": "בביצוע",
-        "completed": "הושלם",
-        "failed": "נכשל",
+    "he": {
+        "report_title": "דוח ביקורות",
+        "total_inspections": "ביקורות",
+        "no_inspections": "לא נמצאו ביקורות",
+        "scheduled_date": "תאריך מתוכנן",
+        "completed_date": "תאריך השלמה",
+        "created_by": "נוצר על ידי",
+        "notes": "הערות",
+        "findings": "ממצאים",
+        "finding_title": "כותרת",
+        "severity": "חומרה",
+        "finding_status": "סטטוס",
+        "location": "מיקום",
+        "description": "תיאור",
+        "statuses": {
+            "pending": "ממתין",
+            "in_progress": "בביצוע",
+            "completed": "הושלם",
+            "failed": "נכשל",
+        },
+        "severities": {
+            "low": "נמוך",
+            "medium": "בינוני",
+            "high": "גבוה",
+            "critical": "קריטי",
+        },
+        "finding_statuses": {
+            "open": "פתוח",
+            "resolved": "נפתר",
+        },
     },
-    "severities": {
-        "low": "נמוך",
-        "medium": "בינוני",
-        "high": "גבוה",
-        "critical": "קריטי",
-    },
-    "finding_statuses": {
-        "open": "פתוח",
-        "resolved": "נפתר",
+    "en": {
+        "report_title": "Inspections Report",
+        "total_inspections": "Inspections",
+        "no_inspections": "No inspections found",
+        "scheduled_date": "Scheduled Date",
+        "completed_date": "Completed Date",
+        "created_by": "Created By",
+        "notes": "Notes",
+        "findings": "Findings",
+        "finding_title": "Title",
+        "severity": "Severity",
+        "finding_status": "Status",
+        "location": "Location",
+        "description": "Description",
+        "statuses": {
+            "pending": "Pending",
+            "in_progress": "In Progress",
+            "completed": "Completed",
+            "failed": "Failed",
+        },
+        "severities": {
+            "low": "Low",
+            "medium": "Medium",
+            "high": "High",
+            "critical": "Critical",
+        },
+        "finding_statuses": {
+            "open": "Open",
+            "resolved": "Resolved",
+        },
     },
 }
 
@@ -94,8 +127,10 @@ def build_inspection_context(inspection: Inspection, strings: dict) -> dict:
     }
 
 
-def generate_inspections_report_pdf(inspections: list[Inspection], project) -> bytes:
-    s = STRINGS
+def generate_inspections_report_pdf(inspections: list[Inspection], project, language: str = "he") -> bytes:
+    s = STRINGS.get(language, STRINGS["he"])
+    direction = "rtl" if language == "he" else "ltr"
+    align = "right" if language == "he" else "left"
     today = utcnow().strftime("%d/%m/%Y")
 
     inspection_items = [build_inspection_context(insp, s) for insp in inspections]
@@ -103,8 +138,8 @@ def generate_inspections_report_pdf(inspections: list[Inspection], project) -> b
     template = env.get_template("inspections_report.html")
     html_content = template.render(
         s=s,
-        direction="rtl",
-        align="right",
+        direction=direction,
+        align=align,
         project_name=project.name,
         project_code="",
         report_date=today,

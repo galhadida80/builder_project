@@ -269,7 +269,7 @@ export default function DashboardPage() {
             gap: 1,
             cursor: 'pointer',
           }}
-          onClick={() => selectedProjectId ? navigate(`/projects/${selectedProjectId}/approvals`) : navigate('/approvals')}
+          onClick={() => selectedProjectId ? navigate(`/projects/${selectedProjectId}/tasks`) : navigate('/dashboard')}
         >
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <Box

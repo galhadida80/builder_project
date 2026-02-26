@@ -277,6 +277,7 @@ As a manager, I want to see team workload so that I can balance assignments appr
 
 ## EPIC 4: Approval System UI COMPLETED
 **Description:** Implement the approval queue, workflow stepper, and audit trail interfaces.
+**Note:** Approvals UI has been unified with Tasks page (Epic 17) into a single "Tasks & Approvals" page with SegmentedTabs toggle. Separate approvals route removed.
 **Priority:** P1 - High
 **Estimate:** 13 points
 
@@ -1550,6 +1551,7 @@ As a user, I want to view, create, and manage defects with a KPI dashboard and p
 **Priority:** P1 - High
 **Estimate:** 10 points
 **Status:** Done
+**Note:** Tasks page now unified with Approvals (Epic 4) into single "Tasks & Approvals" page at `/projects/:id/tasks`. SegmentedTabs toggle between Tasks and Approvals sections. Combined KPI row shows task totals, pending approvals, overdue, and today counts.
 
 ### User Stories:
 

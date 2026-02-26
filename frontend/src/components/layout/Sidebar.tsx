@@ -29,7 +29,7 @@ const projectNavGroups: NavGroup[] = [
   {
     label: 'nav.groups.planning',
     items: [
-      { label: 'nav.tasks', path: '/tasks', icon: <TaskAltIcon /> },
+      { label: 'nav.tasksAndApprovals', path: '/tasks', icon: <TaskAltIcon /> },
       { label: 'nav.budget', path: '/budget', icon: <AccountBalanceIcon /> },
       { label: 'nav.kpis', path: '/kpis', icon: <ShowChartIcon /> },
     ],
@@ -49,7 +49,6 @@ const projectNavGroups: NavGroup[] = [
       { label: 'nav.equipment', path: '/equipment', icon: <BuildIcon />, tourId: 'equipment' },
       { label: 'nav.materials', path: '/materials', icon: <InventoryIcon />, tourId: 'materials' },
       { label: 'nav.rfis', path: '/rfis', icon: <EmailIcon /> },
-      { label: 'nav.approvals', path: '/approvals', icon: <CheckCircleIcon />, tourId: 'approvals' },
     ],
   },
   {

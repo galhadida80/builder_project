@@ -186,7 +186,8 @@ async def export_defects_pdf(
     result = await db.execute(query)
     defects = list(result.scalars().all())
 
-    pdf_bytes = await generate_defects_report_pdf(db, defects, project, storage)
+    language = current_user.language or "he"
+    pdf_bytes = await generate_defects_report_pdf(db, defects, project, storage, language=language)
     filename = f"defects_report_{str(project.id)[:8]}_{utcnow().strftime('%Y%m%d')}.pdf"
     return Response(
         content=pdf_bytes,

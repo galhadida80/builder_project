@@ -172,6 +172,7 @@ def generate_csv_export(data: list[dict]) -> str:
         return ""
 
     output = io.StringIO()
+    output.write("\ufeff")
     writer = csv.DictWriter(output, fieldnames=data[0].keys())
     writer.writeheader()
     writer.writerows(data)

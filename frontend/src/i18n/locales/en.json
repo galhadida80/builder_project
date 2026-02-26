@@ -647,6 +647,7 @@
     "checklists": "Checklists",
     "defects": "Defects",
     "tasks": "Tasks",
+    "tasksAndApprovals": "Tasks & Approvals",
     "budget": "Budget",
     "organizations": "Organizations",
     "reports": "Reports",
@@ -1347,6 +1348,11 @@
       "pickFromPhone": "Import Contacts from Phone",
       "pickDescription": "Export contacts from your phone as a VCF file and upload it here",
       "pickDescriptionNative": "Select contacts directly from your phone",
+      "pickDescriptionSmart": "Import contacts from your Google account, phone, or a VCF file",
+      "googleImport": "Import from Google Contacts",
+      "googleAdd": "Google",
+      "googleError": "Failed to connect to Google Contacts. Please try again.",
+      "googleEmpty": "No contacts found in your Google account.",
       "openContacts": "Open Contacts",
       "selectContacts": "Pick from Contacts",
       "uploadVcf": "Upload Contacts File (.vcf)",
@@ -2574,6 +2580,12 @@
     "noDevices": "No devices registered",
     "deviceName": "Device",
     "registeredOn": "Registered"
+  },
+  "tasksAndApprovals": {
+    "pageTitle": "Tasks & Approvals",
+    "pageSubtitle": "Manage project tasks, assignments and approval workflows",
+    "tasks": "Tasks",
+    "approvals": "Approvals"
   },
   "tasks": {
     "pageTitle": "Tasks",

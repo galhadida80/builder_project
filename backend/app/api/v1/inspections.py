@@ -295,7 +295,8 @@ async def export_inspections_pdf(
     result = await db.execute(query)
     inspections = list(result.scalars().all())
 
-    pdf_bytes = generate_inspections_report_pdf(inspections, project)
+    language = current_user.language or "he"
+    pdf_bytes = generate_inspections_report_pdf(inspections, project, language=language)
     filename = f"inspections_report_{str(project.id)[:8]}_{utcnow().strftime('%Y%m%d')}.pdf"
     return Response(
         content=pdf_bytes,

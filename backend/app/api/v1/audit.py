@@ -122,6 +122,7 @@ async def export_audit_logs(
         )
 
     output = io.StringIO()
+    output.write("\ufeff")
     writer = csv.writer(output)
     writer.writerow([
         "id", "project_id", "user_id", "user_email", "entity_type",
@@ -144,7 +145,7 @@ async def export_audit_logs(
     output.seek(0)
     return StreamingResponse(
         iter([output.getvalue()]),
-        media_type="text/csv",
+        media_type="text/csv; charset=utf-8",
         headers={"Content-Disposition": f"attachment; filename=audit_log_{project_id}.csv"}
     )
 

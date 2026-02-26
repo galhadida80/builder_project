@@ -78,6 +78,7 @@ async def export_contacts_csv(
     contacts = result.scalars().all()
 
     output = io.StringIO()
+    output.write("\ufeff")
     writer = csv.DictWriter(output, fieldnames=CSV_HEADERS)
     writer.writeheader()
     for contact in contacts:
@@ -86,7 +87,7 @@ async def export_contacts_csv(
     output.seek(0)
     return StreamingResponse(
         iter([output.getvalue()]),
-        media_type="text/csv",
+        media_type="text/csv; charset=utf-8",
         headers={"Content-Disposition": f"attachment; filename=contacts_{project_id}.csv"},
     )
 

@@ -256,6 +256,7 @@
     "checklists": "צ'קליסטים",
     "defects": "ליקויים",
     "tasks": "משימות",
+    "tasksAndApprovals": "משימות ואישורים",
     "budget": "תקציב",
     "organizations": "ארגונים",
     "reports": "דוחות",
@@ -1495,6 +1496,11 @@
       "pickFromPhone": "ייבוא אנשי קשר מהטלפון",
       "pickDescription": "ייצא אנשי קשר מהטלפון כקובץ VCF והעלה אותו כאן",
       "pickDescriptionNative": "בחר אנשי קשר ישירות מהטלפון שלך",
+      "pickDescriptionSmart": "ייבא אנשי קשר מחשבון Google שלך, מהטלפון, או מקובץ VCF",
+      "googleImport": "ייבוא מאנשי קשר Google",
+      "googleAdd": "Google",
+      "googleError": "שגיאה בחיבור לאנשי קשר Google. נסה שוב.",
+      "googleEmpty": "לא נמצאו אנשי קשר בחשבון Google שלך.",
       "openContacts": "פתח אנשי קשר",
       "selectContacts": "בחר מאנשי הקשר",
       "uploadVcf": "העלה קובץ אנשי קשר (.vcf)",
@@ -2629,6 +2635,12 @@
     "noDevices": "אין מכשירים רשומים",
     "deviceName": "מכשיר",
     "registeredOn": "נרשם"
+  },
+  "tasksAndApprovals": {
+    "pageTitle": "משימות ואישורים",
+    "pageSubtitle": "ניהול משימות, הקצאות ותהליכי אישור",
+    "tasks": "משימות",
+    "approvals": "אישורים"
   },
   "tasks": {
     "pageTitle": "משימות",

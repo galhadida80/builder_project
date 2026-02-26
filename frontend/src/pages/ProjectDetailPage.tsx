@@ -545,7 +545,7 @@ export default function ProjectDetailPage() {
               value={pendingApprovals}
               icon={<WarningAmberIcon />}
               color={pendingApprovals > 0 ? '#EF4444' : '#22C55E'}
-              onClick={() => handleNavTo('approvals')}
+              onClick={() => handleNavTo('tasks')}
             />
           </Box>
 

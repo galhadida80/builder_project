@@ -50,19 +50,21 @@ export default function ExportButton({
 
       const imgWidth = canvas.width
       const imgHeight = canvas.height
-      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight)
+      const scaledWidth = pdfWidth
+      const scaledHeight = (imgHeight * pdfWidth) / imgWidth
 
-      const imgX = (pdfWidth - imgWidth * ratio) / 2
-      const imgY = 0
+      let heightLeft = scaledHeight
+      let position = 0
 
-      pdf.addImage(
-        imgData,
-        'PNG',
-        imgX,
-        imgY,
-        imgWidth * ratio,
-        imgHeight * ratio
-      )
+      pdf.addImage(imgData, 'PNG', 0, position, scaledWidth, scaledHeight)
+      heightLeft -= pdfHeight
+
+      while (heightLeft > 0) {
+        position -= pdfHeight
+        pdf.addPage()
+        pdf.addImage(imgData, 'PNG', 0, position, scaledWidth, scaledHeight)
+        heightLeft -= pdfHeight
+      }
 
       const timestamp = new Date().toISOString().split('T')[0]
       pdf.save(`${filename}-${timestamp}.pdf`)
