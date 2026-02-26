@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from typing import Optional
 from uuid import UUID
@@ -33,7 +34,10 @@ from app.schemas.inspection import (
 )
 from app.services.audit_service import create_audit_log, get_model_dict
 from app.services.inspection_report_service import generate_inspections_report_pdf
+from app.services.notification_service import notify_project_admins
 from app.utils import utcnow
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -165,6 +169,20 @@ async def create_inspection(
 
     await create_audit_log(db, current_user, "inspection", inspection.id, AuditAction.CREATE,
                           project_id=project_id, new_values=get_model_dict(inspection))
+
+    try:
+        project = await db.get(Project, project_id)
+        project_name = project.name if project else ""
+        scheduled = inspection.scheduled_date.strftime("%Y-%m-%d %H:%M") if inspection.scheduled_date else "TBD"
+        await notify_project_admins(
+            db, project_id, "INSPECTION",
+            "New inspection scheduled",
+            f"An inspection has been scheduled for {scheduled}",
+            entity_type="inspection", entity_id=inspection.id,
+            project_name=project_name,
+        )
+    except Exception:
+        logger.exception("Failed to send inspection scheduled notification")
 
     result = await db.execute(
         select(Inspection)
@@ -340,9 +358,9 @@ async def get_inspection_history(
     if user_id:
         query = query.where(AuditLog.user_id == user_id)
     if start_date:
-        query = query.where(AuditLog.created_at >= start_date)
+        query = query.where(AuditLog.created_at >= start_date.replace(tzinfo=None))
     if end_date:
-        query = query.where(AuditLog.created_at <= end_date)
+        query = query.where(AuditLog.created_at <= end_date.replace(tzinfo=None))
 
     query = query.order_by(AuditLog.created_at.desc()).offset(offset).limit(limit)
 

@@ -47,9 +47,9 @@ async def get_analytics_metrics(
     date_filter_end = None
     try:
         if start_date:
-            date_filter_start = datetime.fromisoformat(start_date)
+            date_filter_start = datetime.fromisoformat(start_date).replace(tzinfo=None)
         if end_date:
-            date_filter_end = datetime.fromisoformat(end_date)
+            date_filter_end = datetime.fromisoformat(end_date).replace(tzinfo=None)
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid date format. Use ISO format (YYYY-MM-DD)")
 
@@ -187,12 +187,12 @@ async def get_project_trends(
         if not end_date:
             end_datetime = utcnow()
         else:
-            end_datetime = datetime.fromisoformat(end_date)
+            end_datetime = datetime.fromisoformat(end_date).replace(tzinfo=None)
 
         if not start_date:
             start_datetime = end_datetime - timedelta(days=30)
         else:
-            start_datetime = datetime.fromisoformat(start_date)
+            start_datetime = datetime.fromisoformat(start_date).replace(tzinfo=None)
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid date format. Use ISO format (YYYY-MM-DD)")
 
@@ -273,9 +273,9 @@ async def get_distributions(
     date_filter_end = None
     try:
         if start_date:
-            date_filter_start = datetime.fromisoformat(start_date)
+            date_filter_start = datetime.fromisoformat(start_date).replace(tzinfo=None)
         if end_date:
-            date_filter_end = datetime.fromisoformat(end_date)
+            date_filter_end = datetime.fromisoformat(end_date).replace(tzinfo=None)
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid date format. Use ISO format (YYYY-MM-DD)")
 

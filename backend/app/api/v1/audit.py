@@ -53,9 +53,9 @@ async def list_audit_logs(
     if user_id:
         query = query.where(AuditLog.user_id == user_id)
     if start_date:
-        query = query.where(AuditLog.created_at >= start_date)
+        query = query.where(AuditLog.created_at >= start_date.replace(tzinfo=None))
     if end_date:
-        query = query.where(AuditLog.created_at <= end_date)
+        query = query.where(AuditLog.created_at <= end_date.replace(tzinfo=None))
 
     query = query.order_by(AuditLog.created_at.desc()).offset(offset).limit(limit)
 
@@ -89,9 +89,9 @@ async def export_audit_logs(
     if user_id:
         query = query.where(AuditLog.user_id == user_id)
     if start_date:
-        query = query.where(AuditLog.created_at >= start_date)
+        query = query.where(AuditLog.created_at >= start_date.replace(tzinfo=None))
     if end_date:
-        query = query.where(AuditLog.created_at <= end_date)
+        query = query.where(AuditLog.created_at <= end_date.replace(tzinfo=None))
 
     query = query.order_by(AuditLog.created_at.desc())
     result = await db.execute(query)
@@ -177,9 +177,9 @@ async def list_all_audit_logs(
     if user_id:
         query = query.where(AuditLog.user_id == user_id)
     if start_date:
-        query = query.where(AuditLog.created_at >= start_date)
+        query = query.where(AuditLog.created_at >= start_date.replace(tzinfo=None))
     if end_date:
-        query = query.where(AuditLog.created_at <= end_date)
+        query = query.where(AuditLog.created_at <= end_date.replace(tzinfo=None))
 
     query = query.order_by(AuditLog.created_at.desc()).offset(offset).limit(limit)
 
