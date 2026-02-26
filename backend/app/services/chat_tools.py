@@ -723,7 +723,7 @@ async def get_full_project_context(db: AsyncSession, project_id: uuid.UUID) -> s
     contacts = await list_contacts(db, project_id, limit="30")
 
     lines = [
-        f"**Project:** {summary['name']} ({summary['code']})",
+        f"**Project:** {summary['name']}",
         f"**Status:** {summary['status']}",
         f"**Description:** {summary['description'] or 'N/A'}",
         f"**Address:** {summary['address'] or 'N/A'}",
