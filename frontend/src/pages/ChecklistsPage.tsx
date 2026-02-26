@@ -318,7 +318,7 @@ export default function ChecklistsPage() {
             <>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 1 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
-                  <Button variant="primary" icon={<AddIcon />} onClick={() => setCreateModalOpen(true)}>{t('checklists.newChecklist')}</Button>
+                  <Box sx={{ display: { xs: 'none', md: 'block' } }}><Button variant="primary" icon={<AddIcon />} onClick={() => setCreateModalOpen(true)}>{t('checklists.newChecklist')}</Button></Box>
                   <FilterChips
                     items={[
                       { label: t('common.all'), value: 'all' },

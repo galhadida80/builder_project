@@ -116,9 +116,11 @@ export default function CustomKPIPage() {
         title={t('kpi.pageTitle')}
         subtitle={t('kpi.pageSubtitle')}
         actions={
-          <Button variant="primary" icon={<AddIcon />} onClick={() => { setEditingKpi(null); setDialogOpen(true) }}>
-            {t('kpi.addKpi')}
-          </Button>
+          <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+            <Button variant="primary" icon={<AddIcon />} onClick={() => { setEditingKpi(null); setDialogOpen(true) }}>
+              {t('kpi.addKpi')}
+            </Button>
+          </Box>
         }
       />
 

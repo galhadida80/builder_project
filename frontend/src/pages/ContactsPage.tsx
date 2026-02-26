@@ -177,9 +177,9 @@ export default function ContactsPage() {
         actions={mainTab === 0 ? (
           <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
             <Button variant="secondary" icon={<FileUploadIcon />} onClick={() => setImportDialogOpen(true)}>{isMobile ? '' : t('contacts.import.button')}</Button>
-            <Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>{t('contacts.addContact')}</Button>
+            <Box sx={{ display: { xs: 'none', md: 'block' } }}><Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>{t('contacts.addContact')}</Button></Box>
           </Box>
-        ) : <Button variant="primary" icon={<AddIcon />} onClick={handleOpenGroupCreate}>{t('contactGroups.createGroup')}</Button>}
+        ) : <Box sx={{ display: { xs: 'none', md: 'block' } }}><Button variant="primary" icon={<AddIcon />} onClick={handleOpenGroupCreate}>{t('contactGroups.createGroup')}</Button></Box>}
       />
 
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, gap: 1.5, mb: 3 }}>

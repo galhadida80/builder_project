@@ -210,7 +210,7 @@ export default function AreasPage() {
         actions={
           <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
             <Button variant="secondary" icon={<AccountTreeIcon />} onClick={() => navigate(`/projects/${projectId}/structure-wizard`)}>{t('areas.structureWizard')}</Button>
-            <Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>{t('areas.addArea')}</Button>
+            <Box sx={{ display: { xs: 'none', md: 'block' } }}><Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>{t('areas.addArea')}</Button></Box>
           </Box>
         }
       />

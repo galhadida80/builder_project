@@ -200,7 +200,18 @@
     "inMaintenance": "In Maintenance",
     "pendingApproval": "Pending Approval",
     "totalValue": "Total Value",
-    "category": "Category"
+    "category": "Category",
+    "useTemplate": "Use Template",
+    "approvalSettings": "Approval Settings",
+    "approvalDueDate": "Approval Due Date",
+    "approvers": "Approvers",
+    "selectApprovers": "Select Approvers",
+    "distributionList": "Distribution List",
+    "selectDistribution": "Select Recipients",
+    "signatures": "Signatures",
+    "contractorSignature": "Contractor Signature",
+    "supervisorSignature": "Supervisor Signature",
+    "markAsClosed": "Mark as Closed"
   },
   "materials": {
     "title": "Materials",
@@ -290,7 +301,18 @@
     "general": "General",
     "allCategories": "All Categories",
     "pendingCount": "Pending",
-    "items": "Items"
+    "items": "Items",
+    "useTemplate": "Use Template",
+    "approvalSettings": "Approval Settings",
+    "approvalDueDate": "Approval Due Date",
+    "approvers": "Approvers",
+    "selectApprovers": "Select Approvers",
+    "distributionList": "Distribution List",
+    "selectDistribution": "Select Recipients",
+    "signatures": "Signatures",
+    "contractorSignature": "Contractor Signature",
+    "supervisorSignature": "Supervisor Signature",
+    "markAsClosed": "Mark as Closed"
   },
   "meetings": {
     "title": "Meetings",

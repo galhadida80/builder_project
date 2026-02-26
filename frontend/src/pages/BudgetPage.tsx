@@ -138,12 +138,14 @@ export default function BudgetPage() {
         title={t('budget.title', { defaultValue: 'Budget & Cost Tracking' })}
         subtitle={t('budget.subtitle', { defaultValue: 'Manage budget items, costs, and change orders' })}
         actions={
-          <Button variant="primary" icon={<AddIcon />} onClick={() => {
-            if (activeTab === 'budget') { setEditItem(null); setItemForm({ name: '', category: 'other', budgeted_amount: 0 }); setItemDialog(true) }
-            else { setEditCO(null); setCoForm({ title: '', amount: 0 }); setCoDialog(true) }
-          }}>
-            {activeTab === 'budget' ? t('budget.addItem', { defaultValue: 'Add Item' }) : t('budget.addChangeOrder', { defaultValue: 'Add Change Order' })}
-          </Button>
+          <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+            <Button variant="primary" icon={<AddIcon />} onClick={() => {
+              if (activeTab === 'budget') { setEditItem(null); setItemForm({ name: '', category: 'other', budgeted_amount: 0 }); setItemDialog(true) }
+              else { setEditCO(null); setCoForm({ title: '', amount: 0 }); setCoDialog(true) }
+            }}>
+              {activeTab === 'budget' ? t('budget.addItem', { defaultValue: 'Add Item' }) : t('budget.addChangeOrder', { defaultValue: 'Add Change Order' })}
+            </Button>
+          </Box>
         }
       />
 

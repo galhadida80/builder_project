@@ -390,7 +390,18 @@
     "inMaintenance": "בתחזוקה",
     "pendingApproval": "ממתין לאישור",
     "totalValue": "ערך כולל",
-    "category": "קטגוריה"
+    "category": "קטגוריה",
+    "useTemplate": "השתמש בתבנית",
+    "approvalSettings": "הגדרות אישור",
+    "approvalDueDate": "תאריך יעד לאישור",
+    "approvers": "מאשרים",
+    "selectApprovers": "בחר מאשרים",
+    "distributionList": "רשימת תפוצה",
+    "selectDistribution": "בחר נמענים",
+    "signatures": "חתימות",
+    "contractorSignature": "חתימת קבלן",
+    "supervisorSignature": "חתימת מפקח",
+    "markAsClosed": "סמן כסגור"
   },
   "materials": {
     "title": "חומרים",
@@ -480,7 +491,18 @@
     "general": "כללי",
     "allCategories": "כל הקטגוריות",
     "pendingCount": "ממתינים",
-    "items": "פריטים"
+    "items": "פריטים",
+    "useTemplate": "השתמש בתבנית",
+    "approvalSettings": "הגדרות אישור",
+    "approvalDueDate": "תאריך יעד לאישור",
+    "approvers": "מאשרים",
+    "selectApprovers": "בחר מאשרים",
+    "distributionList": "רשימת תפוצה",
+    "selectDistribution": "בחר נמענים",
+    "signatures": "חתימות",
+    "contractorSignature": "חתימת קבלן",
+    "supervisorSignature": "חתימת מפקח",
+    "markAsClosed": "סמן כסגור"
   },
   "meetings": {
     "title": "פגישות",

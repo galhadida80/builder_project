@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate, useOutlet } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Card, KPICard } from '../components/ui/Card'
+import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { StatusBadge } from '../components/ui/StatusBadge'
-import { CircularProgressDisplay } from '../components/ui/ProgressBar'
 import { EmptyState } from '../components/ui/EmptyState'
 import { FormModal } from '../components/ui/Modal'
 import { TextField } from '../components/ui/TextField'
@@ -18,9 +17,207 @@ import { validateProjectForm, hasErrors, VALIDATION, type ValidationError } from
 import { getDateLocale } from '../utils/dateLocale'
 import { parseValidationErrors } from '../utils/apiErrors'
 import type { Project, Equipment, Material, Meeting } from '../types'
-import { ArrowBackIcon, EditIcon, LocationOnIcon, CalendarTodayIcon, GroupIcon, ConstructionIcon, InventoryIcon, EventIcon, WarningAmberIcon, PersonAddIcon } from '@/icons'
-import { Box, Typography, Chip, Skeleton, IconButton } from '@/mui'
+import { ArrowBackIcon, EditIcon, LocationOnIcon, CalendarTodayIcon, GroupIcon, ConstructionIcon, InventoryIcon, EventIcon, WarningAmberIcon, PersonAddIcon, CheckCircleIcon, HourglassEmptyIcon, AssignmentIcon } from '@/icons'
+import { Box, Typography, Chip, Skeleton, IconButton, alpha } from '@/mui'
 import InviteMemberDialog from '../components/InviteMemberDialog'
+
+function ProgressRing({ value, size = 120, strokeWidth = 10 }: { value: number; size?: number; strokeWidth?: number }) {
+  const normalizedValue = Math.min(100, Math.max(0, value))
+  const radius = (size - strokeWidth) / 2
+  const circumference = 2 * Math.PI * radius
+  const offset = circumference * (1 - normalizedValue / 100)
+
+  const getColor = () => {
+    if (normalizedValue >= 75) return '#22C55E'
+    if (normalizedValue >= 40) return '#e07842'
+    return '#EAB308'
+  }
+
+  return (
+    <Box sx={{ position: 'relative', display: 'inline-flex', width: size, height: size }}>
+      <svg viewBox={`0 0 ${size} ${size}`} style={{ transform: 'rotate(-90deg)' }}>
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke="rgba(255,255,255,0.08)"
+          strokeWidth={strokeWidth}
+        />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke={getColor()}
+          strokeWidth={strokeWidth}
+          strokeLinecap="round"
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          style={{
+            transition: 'stroke-dashoffset 800ms cubic-bezier(0.4, 0, 0.2, 1)',
+            filter: `drop-shadow(0 0 6px ${getColor()}66)`,
+          }}
+        />
+      </svg>
+      <Box
+        sx={{
+          position: 'absolute',
+          inset: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Typography
+          sx={{
+            fontSize: { xs: '1.75rem', sm: '2rem' },
+            fontWeight: 800,
+            color: 'white',
+            lineHeight: 1,
+            letterSpacing: '-0.02em',
+          }}
+        >
+          {normalizedValue}%
+        </Typography>
+      </Box>
+    </Box>
+  )
+}
+
+function StatPill({ label, value, color, icon }: { label: string; value: number; color: string; icon: React.ReactNode }) {
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 1.5,
+        px: 2,
+        py: 1.25,
+        borderRadius: 2.5,
+        bgcolor: alpha(color, 0.1),
+        border: `1px solid ${alpha(color, 0.2)}`,
+        flex: 1,
+        minWidth: 0,
+      }}
+    >
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: 32,
+          height: 32,
+          borderRadius: '50%',
+          bgcolor: alpha(color, 0.2),
+          color: color,
+          flexShrink: 0,
+          '& > svg': { fontSize: '1rem' },
+        }}
+      >
+        {icon}
+      </Box>
+      <Box sx={{ minWidth: 0 }}>
+        <Typography sx={{ fontSize: '1.25rem', fontWeight: 700, color: color, lineHeight: 1.1 }}>
+          {value}
+        </Typography>
+        <Typography sx={{ fontSize: '0.7rem', fontWeight: 500, color: 'text.secondary', lineHeight: 1.2, whiteSpace: 'nowrap' }}>
+          {label}
+        </Typography>
+      </Box>
+    </Box>
+  )
+}
+
+function QuickNavCard({ title, value, icon, color, onClick }: {
+  title: string; value: number; icon: React.ReactNode; color: string; onClick: () => void
+}) {
+  return (
+    <Box
+      onClick={onClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick() } }}
+      sx={{
+        position: 'relative',
+        p: { xs: 1.75, sm: 2 },
+        borderRadius: 3,
+        bgcolor: 'rgba(255,255,255,0.03)',
+        border: '1px solid rgba(255,255,255,0.06)',
+        cursor: 'pointer',
+        overflow: 'hidden',
+        transition: 'all 250ms cubic-bezier(0.4, 0, 0.2, 1)',
+        '&:hover': {
+          transform: 'translateY(-2px)',
+          bgcolor: 'rgba(255,255,255,0.05)',
+          borderColor: alpha(color, 0.4),
+          boxShadow: `0 8px 24px ${alpha(color, 0.15)}`,
+        },
+        '&:active': {
+          transform: 'translateY(0)',
+        },
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: '2px',
+          background: `linear-gradient(90deg, transparent, ${color}, transparent)`,
+          opacity: 0,
+          transition: 'opacity 250ms ease',
+        },
+        '&:hover::before': {
+          opacity: 1,
+        },
+      }}
+    >
+      <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 1 }}>
+        <Box sx={{ minWidth: 0 }}>
+          <Typography
+            sx={{
+              fontSize: { xs: '0.7rem', sm: '0.75rem' },
+              fontWeight: 500,
+              color: 'text.secondary',
+              mb: 0.5,
+              lineHeight: 1.2,
+            }}
+          >
+            {title}
+          </Typography>
+          <Typography
+            sx={{
+              fontSize: { xs: '1.5rem', sm: '1.75rem' },
+              fontWeight: 800,
+              color: 'text.primary',
+              lineHeight: 1,
+              letterSpacing: '-0.02em',
+            }}
+          >
+            {value}
+          </Typography>
+        </Box>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: { xs: 36, sm: 40 },
+            height: { xs: 36, sm: 40 },
+            borderRadius: 2,
+            background: `linear-gradient(135deg, ${alpha(color, 0.2)}, ${alpha(color, 0.08)})`,
+            color: color,
+            flexShrink: 0,
+            '& > svg': { fontSize: { xs: '1.15rem', sm: '1.3rem' } },
+          }}
+        >
+          {icon}
+        </Box>
+      </Box>
+    </Box>
+  )
+}
 
 export default function ProjectDetailPage() {
   const { projectId } = useParams()
@@ -67,7 +264,12 @@ export default function ProjectDetailPage() {
       return (
         <Box sx={{ p: { xs: 1.5, md: 2 } }}>
           <Skeleton variant="text" width={120} height={32} sx={{ mb: 1.5 }} />
-          <Skeleton variant="rounded" height={140} sx={{ borderRadius: 3, mb: 2.5 }} />
+          <Skeleton variant="rounded" height={200} sx={{ borderRadius: 3, mb: 2.5 }} />
+          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1.5 }}>
+            {[0, 1, 2, 3].map(i => (
+              <Skeleton key={i} variant="rounded" height={90} sx={{ borderRadius: 3 }} />
+            ))}
+          </Box>
         </Box>
       )
     }
@@ -142,9 +344,9 @@ export default function ProjectDetailPage() {
   }
 
   return (
-    <Box sx={{ p: { xs: 1.5, md: 2 } }}>
+    <Box sx={{ p: { xs: 1.5, md: 2 }, maxWidth: 1200, mx: 'auto' }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
-        <IconButton aria-label={t('projectDetail.backToProjects')} onClick={() => navigate('/projects')} size="small">
+        <IconButton aria-label={t('projectDetail.backToProjects')} onClick={() => navigate('/projects')} size="small" sx={{ color: 'text.secondary' }}>
           <ArrowBackIcon />
         </IconButton>
         <Typography variant="body2" color="text.secondary">
@@ -152,52 +354,90 @@ export default function ProjectDetailPage() {
         </Typography>
       </Box>
 
-      <Card sx={{ mb: 2.5 }}>
+      {/* Hero Card */}
+      <Box
+        sx={{
+          mb: 2.5,
+          borderRadius: { xs: 3, sm: 4 },
+          overflow: 'hidden',
+          position: 'relative',
+          background: 'linear-gradient(135deg, #1a1210 0%, #0d0807 40%, #0a0a0a 100%)',
+          border: '1px solid rgba(224, 120, 66, 0.15)',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '1px',
+            background: 'linear-gradient(90deg, transparent 10%, rgba(224, 120, 66, 0.5) 50%, transparent 90%)',
+          },
+          '&::after': {
+            content: '""',
+            position: 'absolute',
+            top: '-50%',
+            right: '-20%',
+            width: '60%',
+            height: '200%',
+            background: 'radial-gradient(ellipse at center, rgba(224, 120, 66, 0.06) 0%, transparent 70%)',
+            pointerEvents: 'none',
+          },
+        }}
+      >
         <Box
           sx={{
-            p: { xs: 2, md: 2.5 },
-            background: (theme) =>
-              theme.palette.mode === 'dark'
-                ? 'linear-gradient(135deg, #1e1e1e 0%, #0a0a0a 100%)'
-                : 'linear-gradient(135deg, #e07842 0%, #0a0a0a 100%)',
-            borderRadius: 3,
+            p: { xs: 2.5, sm: 3 },
+            position: 'relative',
+            zIndex: 1,
           }}
         >
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 2 }}>
+          {/* Top row: project info + actions */}
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: { xs: 2.5, sm: 3 } }}>
             <Box sx={{ flex: 1, minWidth: 0 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1, flexWrap: 'wrap' }}>
-                <Typography variant="h4" fontWeight={700} color="white" sx={{ fontSize: { xs: '1.5rem', sm: '2.125rem' } }}>
+                <Typography
+                  sx={{
+                    fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2rem' },
+                    fontWeight: 800,
+                    color: 'white',
+                    letterSpacing: '-0.02em',
+                    lineHeight: 1.2,
+                  }}
+                >
                   {project.name}
                 </Typography>
                 <Chip
                   label={project.code}
                   size="small"
                   sx={{
-                    bgcolor: 'rgba(255,255,255,0.2)',
-                    color: 'white',
-                    fontWeight: 600,
+                    bgcolor: 'rgba(224, 120, 66, 0.15)',
+                    color: '#e07842',
+                    fontWeight: 700,
+                    fontSize: '0.7rem',
+                    border: '1px solid rgba(224, 120, 66, 0.25)',
+                    letterSpacing: '0.03em',
                   }}
                 />
                 <StatusBadge status={project.status} />
               </Box>
               {project.description && (
-                <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.8)', mb: 2, maxWidth: 600 }}>
+                <Typography sx={{ color: 'rgba(255,255,255,0.6)', mb: 1.5, maxWidth: 600, fontSize: { xs: '0.85rem', sm: '0.95rem' }, lineHeight: 1.5 }}>
                   {project.description}
                 </Typography>
               )}
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: { xs: 1, sm: 4 }, mt: 2 }}>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: { xs: 1.5, sm: 3 } }}>
                 {project.address && (
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <LocationOnIcon sx={{ fontSize: 18, color: 'rgba(255,255,255,0.7)' }} />
-                    <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+                    <LocationOnIcon sx={{ fontSize: 16, color: 'rgba(255,255,255,0.4)' }} />
+                    <Typography sx={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.8rem' }}>
                       {project.address}
                     </Typography>
                   </Box>
                 )}
                 {project.startDate && (
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <CalendarTodayIcon sx={{ fontSize: 18, color: 'rgba(255,255,255,0.7)' }} />
-                    <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+                    <CalendarTodayIcon sx={{ fontSize: 16, color: 'rgba(255,255,255,0.4)' }} />
+                    <Typography sx={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.8rem' }}>
                       {new Date(project.startDate).toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' })}
                       {project.estimatedEndDate && ` - ${new Date(project.estimatedEndDate).toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' })}`}
                     </Typography>
@@ -206,113 +446,179 @@ export default function ProjectDetailPage() {
               </Box>
             </Box>
             <Box sx={{ display: 'flex', gap: 1, flexShrink: 0 }}>
-              <Button variant="secondary" icon={<PersonAddIcon />} onClick={() => setInviteOpen(true)} sx={{ bgcolor: 'rgba(255,255,255,0.1)', color: 'white', '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' } }}>
+              <Button
+                variant="secondary"
+                icon={<PersonAddIcon />}
+                onClick={() => setInviteOpen(true)}
+                sx={{
+                  bgcolor: 'rgba(255,255,255,0.06)',
+                  color: 'rgba(255,255,255,0.8)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  backdropFilter: 'blur(8px)',
+                  '&:hover': { bgcolor: 'rgba(255,255,255,0.1)', borderColor: 'rgba(255,255,255,0.2)' },
+                }}
+              >
                 <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
                   {t('invite.dialogTitle')}
                 </Box>
               </Button>
-              <Button variant="secondary" icon={<EditIcon />} onClick={handleOpenEdit} sx={{ bgcolor: 'rgba(255,255,255,0.1)', color: 'white', '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' } }}>
+              <Button
+                variant="secondary"
+                icon={<EditIcon />}
+                onClick={handleOpenEdit}
+                sx={{
+                  bgcolor: 'rgba(255,255,255,0.06)',
+                  color: 'rgba(255,255,255,0.8)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  backdropFilter: 'blur(8px)',
+                  '&:hover': { bgcolor: 'rgba(255,255,255,0.1)', borderColor: 'rgba(255,255,255,0.2)' },
+                }}
+              >
                 <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
                   {t('projectDetail.editProject')}
                 </Box>
               </Button>
             </Box>
           </Box>
+
+          {/* Progress ring + stat pills row */}
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: { xs: 'column', sm: 'row' },
+              alignItems: { xs: 'center', sm: 'center' },
+              gap: { xs: 2.5, sm: 4 },
+              pt: 2,
+              borderTop: '1px solid rgba(255,255,255,0.06)',
+            }}
+          >
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
+              <ProgressRing value={completionPercent} size={110} strokeWidth={8} />
+              <Typography sx={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', fontWeight: 500, mt: 1 }}>
+                {t('projectDetail.overallCompletion')}
+              </Typography>
+            </Box>
+
+            <Box
+              sx={{
+                display: 'flex',
+                gap: 1.5,
+                flex: 1,
+                width: '100%',
+                flexDirection: { xs: 'row', sm: 'row' },
+              }}
+            >
+              <StatPill
+                label={t('projectDetail.approved')}
+                value={approvedItems}
+                color="#22C55E"
+                icon={<CheckCircleIcon />}
+              />
+              <StatPill
+                label={t('projectDetail.inReview')}
+                value={inProgressItems}
+                color="#3B82F6"
+                icon={<HourglassEmptyIcon />}
+              />
+              <StatPill
+                label={t('projectDetail.draft')}
+                value={pendingItems}
+                color="#EAB308"
+                icon={<AssignmentIcon />}
+              />
+            </Box>
+          </Box>
         </Box>
-      </Card>
+      </Box>
 
       {isOverview ? (
         <Box>
+          {/* Quick Nav KPI Cards */}
           <Box
             sx={{
               display: 'grid',
-              gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', md: 'repeat(4, 1fr)' },
+              gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' },
               gap: 1.5,
               mb: 2.5,
-              overflow: 'hidden',
             }}
           >
-            <KPICard
+            <QuickNavCard
               title={t('nav.equipment')}
               value={equipment.length}
               icon={<ConstructionIcon />}
-              color="primary"
+              color="#e07842"
               onClick={() => handleNavTo('equipment')}
             />
-            <KPICard
+            <QuickNavCard
               title={t('nav.materials')}
               value={materials.length}
               icon={<InventoryIcon />}
-              color="warning"
+              color="#EAB308"
               onClick={() => handleNavTo('materials')}
             />
-            <KPICard
+            <QuickNavCard
               title={t('nav.meetings')}
               value={meetings.length}
               icon={<EventIcon />}
-              color="info"
+              color="#3B82F6"
               onClick={() => handleNavTo('meetings')}
             />
-            <KPICard
+            <QuickNavCard
               title={t('projectDetail.pendingApprovals')}
               value={pendingApprovals}
               icon={<WarningAmberIcon />}
-              color={pendingApprovals > 0 ? 'error' : 'success'}
+              color={pendingApprovals > 0 ? '#EF4444' : '#22C55E'}
               onClick={() => handleNavTo('approvals')}
             />
           </Box>
 
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 1.5 }}>
-            <Card>
-              <Box sx={{ p: { xs: 2, md: 2.5 } }}>
-                <Typography variant="h6" fontWeight={600} sx={{ mb: 1.5 }}>
-                  {t('projectDetail.projectProgress')}
-                </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', py: 1.5 }}>
-                  <Box sx={{ textAlign: 'center' }}>
-                    <CircularProgressDisplay value={completionPercent} size={100} thickness={8} showLabel />
-                    <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                      {t('projectDetail.overallCompletion')}
-                    </Typography>
-                  </Box>
+          {/* Team Card */}
+          <Card>
+            <Box
+              sx={{
+                p: { xs: 2, md: 2.5 },
+                display: 'flex',
+                alignItems: { xs: 'flex-start', sm: 'center' },
+                justifyContent: 'space-between',
+                flexDirection: { xs: 'column', sm: 'row' },
+                gap: 2,
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: 44,
+                    height: 44,
+                    borderRadius: 2.5,
+                    background: 'linear-gradient(135deg, rgba(224, 120, 66, 0.2), rgba(224, 120, 66, 0.08))',
+                    color: '#e07842',
+                    flexShrink: 0,
+                  }}
+                >
+                  <GroupIcon sx={{ fontSize: '1.3rem' }} />
                 </Box>
-                <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1, mt: 1 }}>
-                  <Box sx={{ textAlign: 'center', p: 1.5, bgcolor: 'action.hover', borderRadius: 2 }}>
-                    <Typography variant="h5" fontWeight={700} color="success.main">{approvedItems}</Typography>
-                    <Typography variant="caption" color="text.secondary">{t('projectDetail.approved')}</Typography>
-                  </Box>
-                  <Box sx={{ textAlign: 'center', p: 1.5, bgcolor: 'action.hover', borderRadius: 2 }}>
-                    <Typography variant="h5" fontWeight={700} color="info.main">{inProgressItems}</Typography>
-                    <Typography variant="caption" color="text.secondary">{t('projectDetail.inReview')}</Typography>
-                  </Box>
-                  <Box sx={{ textAlign: 'center', p: 1.5, bgcolor: 'action.hover', borderRadius: 2 }}>
-                    <Typography variant="h5" fontWeight={700} color="warning.main">{pendingItems}</Typography>
-                    <Typography variant="caption" color="text.secondary">{t('projectDetail.draft')}</Typography>
-                  </Box>
-                </Box>
-              </Box>
-            </Card>
-
-            <Card>
-              <Box sx={{ p: { xs: 2, md: 2.5 } }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                  <Typography variant="h6" fontWeight={600}>{t('projectDetail.team')}</Typography>
-                  <GroupIcon sx={{ color: 'text.secondary' }} />
-                </Box>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
-                  {t('projectDetail.teamDescription')}
-                </Typography>
-                <Box sx={{ display: 'flex', gap: 1 }}>
-                  <Button variant="secondary" size="small" onClick={() => handleNavTo('contacts')}>
-                    {t('projectDetail.viewTeam')}
-                  </Button>
-                  <Button variant="primary" size="small" icon={<PersonAddIcon />} onClick={() => setInviteOpen(true)}>
-                    {t('invite.dialogTitle')}
-                  </Button>
+                <Box>
+                  <Typography sx={{ fontWeight: 600, fontSize: '0.95rem', color: 'text.primary' }}>
+                    {t('projectDetail.team')}
+                  </Typography>
+                  <Typography sx={{ fontSize: '0.8rem', color: 'text.secondary', mt: 0.25 }}>
+                    {t('projectDetail.teamDescription')}
+                  </Typography>
                 </Box>
               </Box>
-            </Card>
-          </Box>
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                <Button variant="secondary" size="small" onClick={() => handleNavTo('contacts')}>
+                  {t('projectDetail.viewTeam')}
+                </Button>
+                <Button variant="primary" size="small" icon={<PersonAddIcon />} onClick={() => setInviteOpen(true)}>
+                  {t('invite.dialogTitle')}
+                </Button>
+              </Box>
+            </Box>
+          </Card>
         </Box>
       ) : (
         outlet

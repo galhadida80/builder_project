@@ -249,9 +249,11 @@ export default function ConsultantAssignmentsPage() {
         subtitle={t('consultantAssignments.subtitle')}
         breadcrumbs={[{ label: t('consultantAssignments.consultants') }, { label: t('consultantAssignments.assignments') }]}
         actions={
-          <Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>
-            {t('consultantAssignments.newAssignment')}
-          </Button>
+          <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+            <Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>
+              {t('consultantAssignments.newAssignment')}
+            </Button>
+          </Box>
         }
       />
 
