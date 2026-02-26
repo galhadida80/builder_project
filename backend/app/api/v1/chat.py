@@ -86,7 +86,7 @@ async def chat_send(
         error_str = str(e)
         if "429" in error_str or "RESOURCE_EXHAUSTED" in error_str:
             raise HTTPException(status_code=429, detail="AI service is busy. Please try again in a few seconds.")
-        raise HTTPException(status_code=500, detail="Failed to process chat message")
+        raise HTTPException(status_code=500, detail=f"Chat error: {type(e).__name__}: {error_str[:500]}")
 
 
 @router.post("/projects/{project_id}/chat/actions/{action_id}/execute", response_model=ChatActionResponse)
