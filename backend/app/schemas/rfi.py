@@ -29,6 +29,17 @@ class RFIBase(BaseModel):
     specification_reference: str | None = Field(default=None, max_length=MAX_NAME_LENGTH)
     attachments: list[dict] | None = Field(default=None, max_length=50)
 
+    @field_validator("due_date", mode="before")
+    @classmethod
+    def strip_timezone(cls, v):
+        if v is None:
+            return v
+        if isinstance(v, str):
+            v = datetime.fromisoformat(v)
+        if isinstance(v, datetime) and v.tzinfo is not None:
+            return v.replace(tzinfo=None)
+        return v
+
     @field_validator("subject", "question", "to_name", "location", mode="before")
     @classmethod
     def sanitize_text(cls, v: str | None) -> str | None:

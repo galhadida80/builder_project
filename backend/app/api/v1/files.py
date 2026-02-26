@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import mimetypes
 from typing import Optional
+from urllib.parse import quote
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile
@@ -26,6 +27,13 @@ from app.services.storage_service import StorageBackend, generate_storage_path, 
 from app.utils.localization import get_language_from_request, translate_message
 
 router = APIRouter()
+
+MAX_FILE_SIZE = 50 * 1024 * 1024  # 50 MB
+
+ALLOWED_ENTITY_TYPES = {
+    "area", "blueprint", "checklist", "contact", "defect", "equipment", "inspection",
+    "material", "meeting", "project", "rfi", "task", "approval",
+}
 
 
 @router.get("/projects/{project_id}/files", response_model=list[FileResponse])
@@ -58,6 +66,12 @@ async def upload_file(
     current_user: User = Depends(get_current_user),
     storage: StorageBackend = Depends(get_storage_backend)
 ):
+    if entity_type not in ALLOWED_ENTITY_TYPES:
+        raise HTTPException(status_code=400, detail=f"Invalid entity_type: {entity_type}")
+
+    if file.size and file.size > MAX_FILE_SIZE:
+        raise HTTPException(status_code=413, detail="File size exceeds 50 MB limit")
+
     storage_path = generate_storage_path(
         user_id=current_user.id,
         project_id=project_id,
@@ -163,10 +177,13 @@ async def serve_file_content(
         raise HTTPException(status_code=404, detail=error_message)
 
     content = await storage.get_file_content(file_record.storage_path)
+    encoded_filename = quote(file_record.filename)
     return Response(
         content=content,
         media_type=file_record.file_type or "application/octet-stream",
-        headers={"Content-Disposition": f'inline; filename="{file_record.filename}"'}
+        headers={
+            "Content-Disposition": f"inline; filename=\"{encoded_filename}\"; filename*=UTF-8''{encoded_filename}"
+        }
     )
 
 

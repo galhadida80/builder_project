@@ -52,7 +52,7 @@ class SubcontractorProfileResponse(CamelCaseModel):
     insurance_expiry: Optional[datetime] = None
     is_verified: bool = False
     notes: Optional[str] = None
-    certifications: list = []
+    certifications: list[str] = []
     user: Optional[UserResponse] = None
     created_at: datetime
     updated_at: datetime

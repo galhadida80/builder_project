@@ -53,6 +53,7 @@ async def get_next_defect_number(db: AsyncSession, project_id: UUID) -> int:
     result = await db.execute(
         select(func.coalesce(func.max(Defect.defect_number), 0))
         .where(Defect.project_id == project_id)
+        .with_for_update()
     )
     return (result.scalar() or 0) + 1
 

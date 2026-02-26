@@ -165,10 +165,10 @@ async def add_members(
     project_id: UUID,
     group_id: UUID,
     data: AddMembersRequest,
+    member: ProjectMember = require_permission(Permission.EDIT),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(ContactGroup).where(ContactGroup.id == group_id, ContactGroup.project_id == project_id)
     )
@@ -195,10 +195,10 @@ async def remove_member(
     project_id: UUID,
     group_id: UUID,
     contact_id: UUID,
+    member: ProjectMember = require_permission(Permission.EDIT),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    await verify_project_access(project_id, current_user, db)
     result = await db.execute(
         select(ContactGroupMember).where(
             ContactGroupMember.group_id == group_id,

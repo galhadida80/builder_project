@@ -12,6 +12,7 @@ from sqlalchemy.orm import selectinload
 from fastapi import status as http_status
 
 from app.core.permissions import Permission, check_permission, require_permission
+from app.utils import utcnow
 from app.core.security import get_current_user, verify_project_access
 from app.db.session import get_db
 from app.models.audit import AuditAction
@@ -843,6 +844,8 @@ async def update_checklist_item_response(
 
     if data.status and data.status != old_status:
         response.completed_by_id = current_user.id
+        if data.status != "pending":
+            response.completed_at = utcnow()
 
     if data.status and data.status != old_status and data.status != "pending":
         project_result = await db.execute(select(Project).where(Project.id == instance.project_id))

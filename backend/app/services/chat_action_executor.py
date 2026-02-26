@@ -24,7 +24,7 @@ VALID_MATERIAL_STATUSES = {"draft", "submitted", "under_review", "approved", "re
 VALID_RFI_STATUSES = {"draft", "open", "waiting_response", "answered", "closed", "cancelled"}
 VALID_INSPECTION_STATUSES = {"pending", "in_progress", "completed", "failed"}
 VALID_MEETING_STATUSES = {"scheduled", "invitations_sent", "pending_votes", "completed", "cancelled"}
-VALID_DEFECT_STATUSES = {"open", "in_progress", "resolved", "closed", "rejected"}
+VALID_DEFECT_STATUSES = {"open", "in_progress", "resolved", "closed"}
 
 
 async def execute_action(db: AsyncSession, action: ChatAction, user_id: uuid.UUID, project_id: uuid.UUID) -> dict:
@@ -357,13 +357,16 @@ async def handle_create_material(db: AsyncSession, action: ChatAction, user_id: 
 
 async def handle_create_area(db: AsyncSession, action: ChatAction, user_id: uuid.UUID, project_id: uuid.UUID) -> dict:
     params = action.parameters
+    total_units = params.get("total_units", 1)
+    if not isinstance(total_units, int) or total_units < 1:
+        total_units = 1
     area = ConstructionArea(
         project_id=project_id,
         name=params.get("name", ""),
         area_type=params.get("area_type") or None,
         floor_number=params.get("floor_number", 0),
         area_code=params.get("area_code") or None,
-        total_units=params.get("total_units", 1),
+        total_units=total_units,
     )
     db.add(area)
     await db.flush()

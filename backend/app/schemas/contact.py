@@ -76,3 +76,4 @@ class ContactResponse(CamelCaseModel):
     user: Optional[LinkedUserResponse] = None
     pending_approvals_count: int = 0
     created_at: datetime
+    updated_at: datetime

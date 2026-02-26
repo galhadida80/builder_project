@@ -43,13 +43,15 @@ async def get_analytics_metrics(
 ):
     """Get overall analytics metrics (KPIs) for the dashboard"""
 
-    # Parse dates if provided
     date_filter_start = None
     date_filter_end = None
-    if start_date:
-        date_filter_start = datetime.fromisoformat(start_date)
-    if end_date:
-        date_filter_end = datetime.fromisoformat(end_date)
+    try:
+        if start_date:
+            date_filter_start = datetime.fromisoformat(start_date)
+        if end_date:
+            date_filter_end = datetime.fromisoformat(end_date)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid date format. Use ISO format (YYYY-MM-DD)")
 
     accessible_projects = select(ProjectMember.project_id).where(
         ProjectMember.user_id == current_user.id
@@ -181,16 +183,18 @@ async def get_project_trends(
 ):
     """Get time series data for project trends (line/bar chart)"""
 
-    # Default to last 30 days if no dates provided
-    if not end_date:
-        end_datetime = utcnow()
-    else:
-        end_datetime = datetime.fromisoformat(end_date)
+    try:
+        if not end_date:
+            end_datetime = utcnow()
+        else:
+            end_datetime = datetime.fromisoformat(end_date)
 
-    if not start_date:
-        start_datetime = end_datetime - timedelta(days=30)
-    else:
-        start_datetime = datetime.fromisoformat(start_date)
+        if not start_date:
+            start_datetime = end_datetime - timedelta(days=30)
+        else:
+            start_datetime = datetime.fromisoformat(start_date)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid date format. Use ISO format (YYYY-MM-DD)")
 
     accessible_projects = select(ProjectMember.project_id).where(
         ProjectMember.user_id == current_user.id
@@ -265,13 +269,15 @@ async def get_distributions(
 ):
     """Get distribution data for pie/donut charts"""
 
-    # Parse dates if provided
     date_filter_start = None
     date_filter_end = None
-    if start_date:
-        date_filter_start = datetime.fromisoformat(start_date)
-    if end_date:
-        date_filter_end = datetime.fromisoformat(end_date)
+    try:
+        if start_date:
+            date_filter_start = datetime.fromisoformat(start_date)
+        if end_date:
+            date_filter_end = datetime.fromisoformat(end_date)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid date format. Use ISO format (YYYY-MM-DD)")
 
     accessible_projects = select(ProjectMember.project_id).where(
         ProjectMember.user_id == current_user.id

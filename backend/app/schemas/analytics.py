@@ -38,7 +38,7 @@ class ProjectTrendsResponse(BaseModel):
     data_points: list[TrendDataPoint]
 
 
-class DistributionItem(BaseModel):
+class DistributionItem(CamelCaseModel):
     label: str
     value: int
 

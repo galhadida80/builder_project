@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from decimal import Decimal
-from typing import Optional
+from typing import Literal, Optional
 from uuid import UUID
 
 from pydantic import BaseModel, Field, field_validator
@@ -64,7 +64,7 @@ class AreaUpdate(BaseModel):
     area_code: Optional[str] = Field(default=None, max_length=MAX_CODE_LENGTH)
     total_units: Optional[int] = Field(default=None, ge=1, le=10000)
     area_level: Optional[str] = Field(default=None, max_length=50)
-    status: Optional[str] = Field(default=None, max_length=50)
+    status: Optional[Literal["not_started", "in_progress", "awaiting_approval", "completed"]] = None
 
     @field_validator('name', 'area_type', mode='before')
     @classmethod

@@ -424,7 +424,7 @@ async def get_meeting_details(db: AsyncSession, project_id: uuid.UUID, **kwargs)
         "action_items": m.action_items,
         "created_at": str(m.created_at),
         "attendees": [
-            {"role": a.role, "confirmed": a.confirmed}
+            {"role": a.role, "status": a.attendance_status, "email": a.email}
             for a in m.attendees
         ],
     }

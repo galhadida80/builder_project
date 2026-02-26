@@ -48,6 +48,16 @@ async def create_area(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    if data.parent_id:
+        parent_result = await db.execute(
+            select(ConstructionArea).where(
+                ConstructionArea.id == data.parent_id,
+                ConstructionArea.project_id == project_id,
+            )
+        )
+        if not parent_result.scalar_one_or_none():
+            raise HTTPException(status_code=400, detail="Parent area not found in this project")
+
     if data.area_level:
         error = await validate_area_hierarchy(db, data.parent_id, data.area_level, project_id)
         if error:
@@ -199,6 +209,14 @@ async def list_area_progress(
     current_user: User = Depends(get_current_user)
 ):
     await verify_project_access(project_id, current_user, db)
+    area_result = await db.execute(
+        select(ConstructionArea.id).where(
+            ConstructionArea.id == area_id, ConstructionArea.project_id == project_id
+        )
+    )
+    if not area_result.scalar_one_or_none():
+        raise HTTPException(status_code=404, detail="Area not found in this project")
+
     result = await db.execute(
         select(AreaProgress)
         .options(selectinload(AreaProgress.reported_by))

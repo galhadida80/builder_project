@@ -205,6 +205,17 @@ class ChecklistItemResponseBase(BaseModel):
     signature_url: str | None = Field(default=None, max_length=500)
     completed_at: datetime | None = None
 
+    @field_validator("completed_at", mode="before")
+    @classmethod
+    def strip_timezone(cls, v):
+        if v is None:
+            return v
+        if isinstance(v, str):
+            v = datetime.fromisoformat(v)
+        if isinstance(v, datetime) and v.tzinfo is not None:
+            return v.replace(tzinfo=None)
+        return v
+
     @field_validator('status', 'notes', 'signature_url', mode='before')
     @classmethod
     def sanitize_text(cls, v: str | None) -> str | None:
@@ -222,6 +233,17 @@ class ChecklistItemResponseUpdate(BaseModel):
     image_urls: list | None = None
     signature_url: str | None = Field(default=None, max_length=500)
     completed_at: datetime | None = None
+
+    @field_validator("completed_at", mode="before")
+    @classmethod
+    def strip_timezone(cls, v):
+        if v is None:
+            return v
+        if isinstance(v, str):
+            v = datetime.fromisoformat(v)
+        if isinstance(v, datetime) and v.tzinfo is not None:
+            return v.replace(tzinfo=None)
+        return v
 
     @field_validator('status', 'notes', 'signature_url', mode='before')
     @classmethod

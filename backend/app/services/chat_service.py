@@ -570,7 +570,9 @@ async def propose_create_material(ctx: RunContext[ChatDeps], name: str, material
 
 @agent.tool
 async def propose_create_area(ctx: RunContext[ChatDeps], name: str, area_type: str = "", floor_number: int = 0, area_code: str = "", total_units: int = 1) -> dict:
-    """Propose creating a new construction area. The user must approve this action."""
+    """Propose creating a new construction area. total_units must be >= 1. The user must approve this action."""
+    if total_units < 1:
+        total_units = 1
     params = {"name": name, "area_type": area_type, "floor_number": floor_number, "area_code": area_code, "total_units": total_units}
     action = ChatAction(
         conversation_id=ctx.deps.conversation_id,

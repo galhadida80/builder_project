@@ -14,6 +14,7 @@ from webauthn.helpers.structs import AuthenticatorSelectionCriteria, PublicKeyCr
 
 from app.config import get_settings
 from app.core.security import create_access_token, get_current_user, get_password_hash, verify_password
+from app.middleware.rate_limiter import get_rate_limiter
 from app.core.validation import sanitize_string, validate_email, validate_password
 from app.core.webauthn_challenges import get_challenge, store_challenge
 from app.db.session import get_db
@@ -39,6 +40,7 @@ from app.utils import utcnow
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
+limiter = get_rate_limiter()
 
 
 def safe_send_email(email_service: EmailService, to_email: str, subject: str, body_html: str):
@@ -49,6 +51,7 @@ def safe_send_email(email_service: EmailService, to_email: str, subject: str, bo
 
 
 @router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
+@limiter.limit("5/5minutes")
 async def register(
     data: UserRegister,
     request: Request,
@@ -122,6 +125,7 @@ async def register(
 
 
 @router.post("/login", response_model=TokenResponse)
+@limiter.limit("5/5minutes")
 async def login(data: UserLogin, request: Request, db: AsyncSession = Depends(get_db)):
     # Validate and sanitize input
     email = validate_email(data.email)
@@ -327,6 +331,7 @@ async def get_avatar_image(
 
 
 @router.post("/forgot-password", response_model=MessageResponse)
+@limiter.limit("3/5minutes")
 async def forgot_password(
     data: PasswordResetRequest,
     request: Request,
@@ -375,6 +380,7 @@ async def forgot_password(
 
 
 @router.post("/reset-password", response_model=MessageResponse)
+@limiter.limit("5/5minutes")
 async def reset_password(
     data: PasswordResetConfirm,
     request: Request,
@@ -516,7 +522,9 @@ async def webauthn_register_complete(
 
 
 @router.post("/webauthn/login/begin", response_model=WebAuthnLoginOptionsResponse)
+@limiter.limit("5/5minutes")
 async def webauthn_login_begin(
+    request: Request,
     data: WebAuthnLoginBeginRequest,
     db: AsyncSession = Depends(get_db),
 ):

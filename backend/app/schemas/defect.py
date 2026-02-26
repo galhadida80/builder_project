@@ -63,6 +63,17 @@ class DefectCreate(BaseModel):
     checklist_instance_id: Optional[UUID] = None
     assignee_ids: list[UUID] = Field(default_factory=list)
 
+    @field_validator("due_date", mode="before")
+    @classmethod
+    def strip_timezone(cls, v):
+        if v is None:
+            return v
+        if isinstance(v, str):
+            v = datetime.fromisoformat(v)
+        if isinstance(v, datetime) and v.tzinfo is not None:
+            return v.replace(tzinfo=None)
+        return v
+
     @field_validator("description", "defect_type", mode="before")
     @classmethod
     def sanitize_text(cls, v: str | None) -> str | None:
@@ -81,6 +92,17 @@ class DefectUpdate(BaseModel):
     reporter_id: Optional[UUID] = None
     assigned_contact_id: Optional[UUID] = None
     followup_contact_id: Optional[UUID] = None
+
+    @field_validator("due_date", mode="before")
+    @classmethod
+    def strip_timezone(cls, v):
+        if v is None:
+            return v
+        if isinstance(v, str):
+            v = datetime.fromisoformat(v)
+        if isinstance(v, datetime) and v.tzinfo is not None:
+            return v.replace(tzinfo=None)
+        return v
 
     @field_validator("description", "defect_type", mode="before")
     @classmethod

@@ -32,6 +32,12 @@ async def list_versions(
     current_user: User = Depends(get_current_user),
 ):
     await verify_project_access(project_id, current_user, db)
+    file_check = await db.execute(
+        select(File.id).where(File.id == file_id, File.project_id == project_id)
+    )
+    if not file_check.scalar_one_or_none():
+        raise HTTPException(status_code=404, detail="File not found in this project")
+
     result = await db.execute(
         select(DocumentVersion)
         .options(selectinload(DocumentVersion.uploaded_by))
@@ -61,6 +67,7 @@ async def create_version(
 
     max_ver = await db.execute(
         select(func.max(DocumentVersion.version_number)).where(DocumentVersion.file_id == file_id)
+        .with_for_update()
     )
     next_version = (max_ver.scalar() or 0) + 1
 
@@ -91,6 +98,12 @@ async def list_annotations(
     current_user: User = Depends(get_current_user),
 ):
     await verify_project_access(project_id, current_user, db)
+    file_check = await db.execute(
+        select(File.id).where(File.id == file_id, File.project_id == project_id)
+    )
+    if not file_check.scalar_one_or_none():
+        raise HTTPException(status_code=404, detail="File not found in this project")
+
     query = (
         select(DocumentAnnotation)
         .options(selectinload(DocumentAnnotation.created_by))

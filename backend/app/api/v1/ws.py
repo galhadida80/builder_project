@@ -1,4 +1,5 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Query
+from starlette.websockets import WebSocketState
 
 from app.core.security import decode_access_token
 from app.services.websocket_manager import manager
@@ -12,9 +13,14 @@ async def websocket_endpoint(
     project_id: str,
     token: str = Query(None),
 ):
-    user_id = None
-    if token:
-        user_id = decode_access_token(token)
+    if not token:
+        await websocket.close(code=4001, reason="Authentication required")
+        return
+
+    user_id = decode_access_token(token)
+    if not user_id:
+        await websocket.close(code=4001, reason="Invalid token")
+        return
 
     await manager.connect(websocket, project_id)
     try:

@@ -37,4 +37,6 @@ weasyprint>=62.0
 webauthn>=2.0.0
 google-cloud-documentai>=2.20.0
 pdfplumber>=0.10.0
+pymupdf>=1.24.0
+opencv-python-headless>=4.9.0
 sentry-sdk[fastapi]>=2.0.0

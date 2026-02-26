@@ -59,6 +59,17 @@ class TimeSlotInput(BaseModel):
     proposed_start: datetime
     proposed_end: Optional[datetime] = None
 
+    @field_validator('proposed_start', 'proposed_end', mode='before')
+    @classmethod
+    def strip_timezone(cls, v):
+        if v is None:
+            return v
+        if isinstance(v, str):
+            v = datetime.fromisoformat(v)
+        if isinstance(v, datetime) and v.tzinfo is not None:
+            return v.replace(tzinfo=None)
+        return v
+
 
 class MeetingTimeSlotResponse(CamelCaseModel):
     id: UUID
@@ -101,6 +112,15 @@ class MeetingBase(BaseModel):
     scheduled_date: datetime
     scheduled_time: Optional[str] = Field(default=None, max_length=20)
 
+    @field_validator('scheduled_date', mode='before')
+    @classmethod
+    def strip_timezone(cls, v):
+        if isinstance(v, str):
+            v = datetime.fromisoformat(v)
+        if isinstance(v, datetime) and v.tzinfo is not None:
+            return v.replace(tzinfo=None)
+        return v
+
     @field_validator('title', 'description', 'meeting_type', 'location', mode='before')
     @classmethod
     def sanitize_text(cls, v: Optional[str]) -> Optional[str]:
@@ -122,6 +142,17 @@ class MeetingUpdate(BaseModel):
     summary: Optional[str] = Field(default=None, max_length=MAX_NOTES_LENGTH)
     action_items: Optional[list[ActionItem]] = Field(default=None, max_length=50)
     status: Literal["scheduled", "invitations_sent", "pending_votes", "completed", "cancelled"] | None = None
+
+    @field_validator('scheduled_date', mode='before')
+    @classmethod
+    def strip_timezone(cls, v):
+        if v is None:
+            return v
+        if isinstance(v, str):
+            v = datetime.fromisoformat(v)
+        if isinstance(v, datetime) and v.tzinfo is not None:
+            return v.replace(tzinfo=None)
+        return v
 
     @field_validator('title', 'description', 'meeting_type', 'location', 'summary', mode='before')
     @classmethod

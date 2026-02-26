@@ -1,10 +1,16 @@
+import asyncio
+import logging
+from functools import partial
+
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Query
+from pydantic import ValidationError
 
 from app.core.security import get_current_user
 from app.models.user import User
 from app.schemas.quantity_extraction import QuantityExtractionResponse
 from app.services.quantity_extraction_service import extract_quantities
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 MAX_FILE_SIZE = 20 * 1024 * 1024  # 20MB
@@ -24,10 +30,10 @@ async def extract_quantities_endpoint(
         raise HTTPException(status_code=400, detail="File size exceeds 20MB limit")
 
     try:
-        result = extract_quantities(
-            file_content=content,
-            file_type=file.content_type,
-            language=language,
+        loop = asyncio.get_event_loop()
+        result = await loop.run_in_executor(
+            None,
+            partial(extract_quantities, file_content=content, file_type=file.content_type, language=language),
         )
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))
@@ -37,8 +43,17 @@ async def extract_quantities_endpoint(
     data = result.get("result", {})
     if not isinstance(data, dict):
         data = {}
-    return QuantityExtractionResponse(
-        floors=data.get("floors", []),
-        summary=data.get("summary", {}),
-        processing_time_ms=result.get("processing_time_ms", 0),
-    )
+
+    try:
+        return QuantityExtractionResponse(
+            floors=data.get("floors", []),
+            summary=data.get("summary", {}),
+            processing_time_ms=result.get("processing_time_ms", 0),
+        )
+    except ValidationError as e:
+        logger.warning(f"Quantity extraction response validation failed: {e}")
+        return QuantityExtractionResponse(
+            floors=[],
+            summary={},
+            processing_time_ms=result.get("processing_time_ms", 0),
+        )

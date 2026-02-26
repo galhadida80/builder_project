@@ -245,14 +245,14 @@ class TestAnalyticsDateFilters:
         ("/distributions", "start_date"), ("/distributions", "end_date"),
     ])
     async def test_invalid_date_raises(self, admin_client: AsyncClient, project: Project, endpoint: str, param: str):
-        with pytest.raises((ValueError, Exception)):
-            await admin_client.get(f"{API}{endpoint}", params={param: "not-a-date"})
+        resp = await admin_client.get(f"{API}{endpoint}", params={param: "not-a-date"})
+        assert resp.status_code == 400
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize("bad", ["2024-13-01", "2024-00-15", "abc", "01/01/2024"])
     async def test_metrics_bad_dates_raise(self, admin_client: AsyncClient, project: Project, bad: str):
-        with pytest.raises((ValueError, Exception)):
-            await admin_client.get(f"{API}/metrics", params={"start_date": bad})
+        resp = await admin_client.get(f"{API}/metrics", params={"start_date": bad})
+        assert resp.status_code == 400
 
     @pytest.mark.asyncio
     async def test_metrics_empty_date_ignored(self, admin_client: AsyncClient, project: Project):

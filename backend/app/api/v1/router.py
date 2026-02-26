@@ -11,6 +11,7 @@ from app.api.v1 import (
     auth,
     bim,
     bim_extract,
+    blueprints,
     budget,
     calendar,
     chat,
@@ -80,6 +81,7 @@ api_router.include_router(invitations.router, tags=["invitations"])
 api_router.include_router(admin.router, prefix="/admin", tags=["admin"])
 api_router.include_router(daily_summary.router, prefix="/tasks", tags=["tasks"])
 api_router.include_router(bim.router, tags=["bim"])
+api_router.include_router(blueprints.router, tags=["blueprints"])
 api_router.include_router(bim_extract.router, tags=["bim_extract"])
 api_router.include_router(defects.router, tags=["defects"])
 api_router.include_router(tasks_api.router, tags=["project_tasks"])

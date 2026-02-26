@@ -186,14 +186,16 @@ async def process_approval_step(
         error_message = translate_message('resources.resource_not_found', language)
         raise HTTPException(status_code=404, detail=error_message)
 
+    approval_request = step.approval_request
+    if not approval_request or approval_request.id != approval_id or approval_request.project_id != project_id:
+        raise HTTPException(status_code=404, detail="Approval step not found in this project")
+
     if step.status != "pending":
         language = get_language_from_request(request)
         error_message = translate_message('validation.validation_error', language)
         raise HTTPException(status_code=400, detail=error_message)
 
     await verify_contact_assignment(step, current_user, db, request)
-
-    approval_request = step.approval_request
 
     if data.action == "approve":
         step.status = "approved"

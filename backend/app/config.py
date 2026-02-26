@@ -84,6 +84,8 @@ class Settings(BaseSettings):
 
     webhook_secret: str = ""
 
+    rasterscan_url: str = ""
+
     docai_processor_id: str = ""
     docai_location: str = "eu"
     docai_project_id: str = ""

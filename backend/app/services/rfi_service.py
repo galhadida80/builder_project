@@ -47,7 +47,7 @@ class RFIService:
         result = await self.db.execute(
             select(func.max(RFI.rfi_number)).where(
                 RFI.rfi_number.like(f"{prefix}%")
-            )
+            ).with_for_update()
         )
         max_number = result.scalar()
         if max_number:
