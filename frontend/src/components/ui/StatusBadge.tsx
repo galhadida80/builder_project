@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
-import { keyframeAnimations, createTransition, duration, easing, createAnimation } from '../../utils/animations'
+import { keyframeAnimations, easing, createAnimation } from '../../utils/animations'
 import { CheckCircleIcon, PendingIcon, CancelIcon, HourglassEmptyIcon, EditIcon, ErrorIcon, WarningIcon } from '@/icons'
-import { Chip, ChipProps, styled } from '@/mui'
+import { Chip, useTheme } from '@/mui'
 
 export type StatusType =
   | 'draft'
@@ -38,69 +38,98 @@ interface StatusBadgeProps {
   showIcon?: boolean
 }
 
-const activeStatuses: StatusType[] = [
-  'urgent',
-  'critical',
-]
+interface ColorPair { bg: string; text: string }
 
-const statusConfig: Record<string, { color: ChipProps['color']; icon: React.ReactNode }> = {
-  draft: { color: 'default', icon: <EditIcon /> },
-  pending: { color: 'warning', icon: <PendingIcon /> },
-  submitted: { color: 'info', icon: <HourglassEmptyIcon /> },
-  under_review: { color: 'info', icon: <HourglassEmptyIcon /> },
-  approved: { color: 'success', icon: <CheckCircleIcon /> },
-  rejected: { color: 'error', icon: <CancelIcon /> },
-  revision_requested: { color: 'warning', icon: <EditIcon /> },
-  active: { color: 'success', icon: <CheckCircleIcon /> },
-  inactive: { color: 'default', icon: <CancelIcon /> },
-  completed: { color: 'success', icon: <CheckCircleIcon /> },
-  on_hold: { color: 'warning', icon: <PendingIcon /> },
-  archived: { color: 'default', icon: <CancelIcon /> },
-  scheduled: { color: 'info', icon: <HourglassEmptyIcon /> },
-  in_progress: { color: 'info', icon: <PendingIcon /> },
-  cancelled: { color: 'error', icon: <CancelIcon /> },
-  invitations_sent: { color: 'info', icon: <PendingIcon /> },
-  pending_votes: { color: 'warning', icon: <HourglassEmptyIcon /> },
-  open: { color: 'info', icon: <PendingIcon /> },
-  closed: { color: 'default', icon: <CheckCircleIcon /> },
-  waiting_response: { color: 'warning', icon: <HourglassEmptyIcon /> },
-  answered: { color: 'success', icon: <CheckCircleIcon /> },
-  not_applicable: { color: 'default', icon: <CancelIcon /> },
-  urgent: { color: 'error', icon: <ErrorIcon /> },
-  critical: { color: 'error', icon: <ErrorIcon /> },
-  high: { color: 'error', icon: <WarningIcon /> },
-  medium: { color: 'warning', icon: <WarningIcon /> },
-  low: { color: 'default', icon: <CheckCircleIcon /> },
+interface StatusColors {
+  icon: React.ReactNode
+  light: ColorPair
+  dark: ColorPair
 }
 
-const StyledChip = styled(Chip)(() => ({
-  fontWeight: 600,
-  fontSize: '0.75rem',
-  letterSpacing: '0.02em',
-  '& .MuiChip-icon': {
-    fontSize: '1rem',
-  },
-}))
+const neutral = {
+  light: { bg: '#F1F5F9', text: '#64748B' },
+  dark: { bg: 'rgba(148,163,184,0.14)', text: '#CBD5E1' },
+}
+const success = {
+  light: { bg: '#F0FDF4', text: '#16A34A' },
+  dark: { bg: 'rgba(34,197,94,0.14)', text: '#86EFAC' },
+}
+const warning = {
+  light: { bg: '#FEFCE8', text: '#CA8A04' },
+  dark: { bg: 'rgba(234,179,8,0.14)', text: '#FDE047' },
+}
+const info = {
+  light: { bg: '#EFF6FF', text: '#2563EB' },
+  dark: { bg: 'rgba(59,130,246,0.14)', text: '#93C5FD' },
+}
+const error = {
+  light: { bg: '#FEF2F2', text: '#DC2626' },
+  dark: { bg: 'rgba(239,68,68,0.14)', text: '#FCA5A5' },
+}
+
+const statusColors: Record<string, StatusColors> = {
+  draft: { icon: <EditIcon />, ...neutral },
+  inactive: { icon: <CancelIcon />, ...neutral },
+  archived: { icon: <CancelIcon />, ...neutral },
+  closed: { icon: <CheckCircleIcon />, ...neutral },
+  not_applicable: { icon: <CancelIcon />, ...neutral },
+  low: { icon: <CheckCircleIcon />, ...neutral },
+
+  approved: { icon: <CheckCircleIcon />, ...success },
+  active: { icon: <CheckCircleIcon />, ...success },
+  completed: { icon: <CheckCircleIcon />, ...success },
+  answered: { icon: <CheckCircleIcon />, ...success },
+
+  pending: { icon: <PendingIcon />, ...warning },
+  revision_requested: { icon: <EditIcon />, ...warning },
+  on_hold: { icon: <PendingIcon />, ...warning },
+  waiting_response: { icon: <HourglassEmptyIcon />, ...warning },
+  medium: { icon: <WarningIcon />, ...warning },
+  pending_votes: { icon: <HourglassEmptyIcon />, ...warning },
+
+  submitted: { icon: <HourglassEmptyIcon />, ...info },
+  under_review: { icon: <HourglassEmptyIcon />, ...info },
+  scheduled: { icon: <HourglassEmptyIcon />, ...info },
+  in_progress: { icon: <PendingIcon />, ...info },
+  invitations_sent: { icon: <PendingIcon />, ...info },
+  open: { icon: <PendingIcon />, ...info },
+
+  rejected: { icon: <CancelIcon />, ...error },
+  cancelled: { icon: <CancelIcon />, ...error },
+  urgent: { icon: <ErrorIcon />, ...error },
+  critical: { icon: <ErrorIcon />, ...error },
+  high: { icon: <WarningIcon />, ...error },
+}
+
+const fallbackColors: StatusColors = { icon: null, ...neutral }
+
+const activeStatuses: StatusType[] = ['urgent', 'critical']
 
 export function StatusBadge({ status, size = 'small', showIcon = false }: StatusBadgeProps) {
   const { t } = useTranslation()
-  const config = statusConfig[status] || { color: 'default', icon: null }
+  const theme = useTheme()
+  const isDark = theme.palette.mode === 'dark'
+  const config = statusColors[status] || fallbackColors
+  const colors = isDark ? config.dark : config.light
   const label = t(`common.statuses.${status}`, status)
   const shouldPulse = activeStatuses.includes(status)
 
   return (
-    <StyledChip
+    <Chip
       label={label}
-      color={config.color}
       size={size}
       icon={showIcon ? config.icon as React.ReactElement : undefined}
       sx={{
+        bgcolor: colors.bg,
+        color: colors.text,
+        fontWeight: 600,
+        fontSize: '0.75rem',
+        letterSpacing: '0.02em',
         borderRadius: 1.5,
+        '& .MuiChip-icon': { fontSize: '1rem', color: colors.text },
         ...(shouldPulse && {
           animation: createAnimation(keyframeAnimations.pulse, 2000, easing.easeInOut, 'infinite'),
-          '@media (prefers-reduced-motion: reduce)': {
-            animation: 'none',
-          },
+          '@media (prefers-reduced-motion: reduce)': { animation: 'none' },
         }),
       }}
     />
@@ -112,24 +141,27 @@ interface SeverityBadgeProps {
   size?: 'small' | 'medium'
 }
 
+const severityColors: Record<string, { light: ColorPair; dark: ColorPair }> = {
+  critical: { light: { bg: '#FEE2E2', text: '#DC2626' }, dark: { bg: 'rgba(239,68,68,0.14)', text: '#FCA5A5' } },
+  high: { light: { bg: '#FFEDD5', text: '#EA580C' }, dark: { bg: 'rgba(234,88,12,0.14)', text: '#FDBA74' } },
+  medium: { light: { bg: '#FEF3C7', text: '#CA8A04' }, dark: { bg: 'rgba(234,179,8,0.14)', text: '#FDE047' } },
+  low: { light: { bg: '#F1F5F9', text: '#64748B' }, dark: { bg: 'rgba(148,163,184,0.14)', text: '#CBD5E1' } },
+}
+
 export function SeverityBadge({ severity, size = 'small' }: SeverityBadgeProps) {
   const { t } = useTranslation()
-  const colors: Record<string, { bg: string; text: string }> = {
-    critical: { bg: '#FEE2E2', text: '#DC2626' },
-    high: { bg: '#FFEDD5', text: '#EA580C' },
-    medium: { bg: '#FEF3C7', text: '#CA8A04' },
-    low: { bg: '#F1F5F9', text: '#64748B' },
-  }
-
-  const config = colors[severity] || colors.low
+  const theme = useTheme()
+  const isDark = theme.palette.mode === 'dark'
+  const config = severityColors[severity] || severityColors.low
+  const colors = isDark ? config.dark : config.light
 
   return (
     <Chip
       label={t(`defects.severities.${severity}`, { defaultValue: severity.charAt(0).toUpperCase() + severity.slice(1) })}
       size={size}
       sx={{
-        bgcolor: config.bg,
-        color: config.text,
+        bgcolor: colors.bg,
+        color: colors.text,
         fontWeight: 600,
         fontSize: '0.7rem',
         borderRadius: 1,
@@ -144,17 +176,28 @@ interface PriorityBadgeProps {
   size?: 'small' | 'medium'
 }
 
+const priorityColors = [error, warning, info, neutral]
+
 export function PriorityBadge({ priority, size = 'small' }: PriorityBadgeProps) {
   const { t } = useTranslation()
+  const theme = useTheme()
+  const isDark = theme.palette.mode === 'dark'
   const labelKeys = ['common.statuses.urgent', 'common.statuses.high', 'common.statuses.medium', 'common.statuses.low']
-  const colors = ['error', 'warning', 'info', 'default'] as const
+  const config = priorityColors[priority - 1] || neutral
+  const colors = isDark ? config.dark : config.light
 
   return (
-    <StyledChip
+    <Chip
       label={t(labelKeys[priority - 1])}
-      color={colors[priority - 1]}
       size={size}
-      sx={{ borderRadius: 1.5 }}
+      sx={{
+        bgcolor: colors.bg,
+        color: colors.text,
+        fontWeight: 600,
+        fontSize: '0.75rem',
+        letterSpacing: '0.02em',
+        borderRadius: 1.5,
+      }}
     />
   )
 }

@@ -77,18 +77,18 @@ export default function ProjectMetricsChart({
           ]}
           height={height}
           margin={{ top: 10, right: 20, bottom: 30, left: 50 }}
-          sx={{
+          sx={(theme) => ({
             width: '100%',
             '& .MuiChartsAxis-tickLabel': {
-              fill: 'text.secondary',
+              fill: theme.palette.text.secondary,
             },
             '& .MuiChartsAxis-label': {
-              fill: 'text.primary',
+              fill: theme.palette.text.primary,
             },
             '& .MuiChartsLegend-series text': {
-              fill: 'text.primary',
+              fill: theme.palette.text.primary,
             },
-          }}
+          })}
         />
       </Box>
     </ChartContainer>

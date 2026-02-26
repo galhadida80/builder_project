@@ -11,6 +11,7 @@ export interface ChatAction {
   description: string
   status: 'proposed' | 'executed' | 'rejected' | 'failed'
   result: Record<string, unknown> | null
+  executedById: string | null
   createdAt: string
   executedAt: string | null
 }

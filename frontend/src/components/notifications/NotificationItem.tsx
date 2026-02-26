@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { getDateLocale } from '../../utils/dateLocale'
 import { Notification, NotificationCategory } from '../../types/notification'
 import { CheckCircleIcon, WarningIcon, UpdateIcon, InfoIcon, MoreVertIcon, ErrorOutlineIcon } from '@/icons'
-import { ListItem, ListItemAvatar, ListItemText, Box, Typography, IconButton, Avatar as MuiAvatar, styled } from '@/mui'
+import { ListItem, ListItemAvatar, ListItemText, Box, Typography, IconButton, Avatar as MuiAvatar, styled, useTheme } from '@/mui'
 
 interface NotificationItemProps {
   notification: Notification
@@ -52,32 +52,34 @@ const CategoryBadge = styled(Box, {
   color: 'white',
 }))
 
-const categoryConfig: Record<NotificationCategory, { icon: React.ReactNode; color: string; labelKey: string }> = {
-  approval: {
-    icon: <CheckCircleIcon sx={{ fontSize: 12 }} />,
-    color: '#16A34A',
-    labelKey: 'notifications.categories.approval',
-  },
-  inspection: {
-    icon: <WarningIcon sx={{ fontSize: 12 }} />,
-    color: '#EA580C',
-    labelKey: 'notifications.categories.inspection',
-  },
-  defect: {
-    icon: <ErrorOutlineIcon sx={{ fontSize: 12 }} />,
-    color: '#DC2626',
-    labelKey: 'notifications.categories.defect',
-  },
-  update: {
-    icon: <UpdateIcon sx={{ fontSize: 12 }} />,
-    color: '#f28c26',
-    labelKey: 'notifications.categories.update',
-  },
-  general: {
-    icon: <InfoIcon sx={{ fontSize: 12 }} />,
-    color: '#7C3AED',
-    labelKey: 'notifications.categories.general',
-  },
+function getCategoryConfig(palette: { success: { main: string }; warning: { main: string }; error: { main: string }; primary: { main: string }; info: { main: string } }): Record<NotificationCategory, { icon: React.ReactNode; color: string; labelKey: string }> {
+  return {
+    approval: {
+      icon: <CheckCircleIcon sx={{ fontSize: 12 }} />,
+      color: palette.success.main,
+      labelKey: 'notifications.categories.approval',
+    },
+    inspection: {
+      icon: <WarningIcon sx={{ fontSize: 12 }} />,
+      color: palette.warning.main,
+      labelKey: 'notifications.categories.inspection',
+    },
+    defect: {
+      icon: <ErrorOutlineIcon sx={{ fontSize: 12 }} />,
+      color: palette.error.main,
+      labelKey: 'notifications.categories.defect',
+    },
+    update: {
+      icon: <UpdateIcon sx={{ fontSize: 12 }} />,
+      color: palette.primary.main,
+      labelKey: 'notifications.categories.update',
+    },
+    general: {
+      icon: <InfoIcon sx={{ fontSize: 12 }} />,
+      color: palette.info.main,
+      labelKey: 'notifications.categories.general',
+    },
+  }
 }
 
 function getRelativeTime(timestamp: string, t: (key: string, opts?: Record<string, unknown>) => string): string {
@@ -107,6 +109,8 @@ function getInitials(title: string): string {
 
 export function NotificationItem({ notification, onClick, onActionClick }: NotificationItemProps) {
   const { t } = useTranslation()
+  const theme = useTheme()
+  const categoryConfig = getCategoryConfig(theme.palette)
   const config = categoryConfig[notification.category] ?? categoryConfig.general
 
   const handleClick = () => {

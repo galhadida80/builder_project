@@ -54,6 +54,7 @@ import NotFoundPage from './pages/NotFoundPage'
 const BIMPage = lazy(() => import('./pages/BIMPage'))
 const ProjectStructureWizardPage = lazy(() => import('./pages/ProjectStructureWizardPage'))
 const QuantityExtractionPage = lazy(() => import('./pages/QuantityExtractionPage'))
+const BlueprintsPage = lazy(() => import('./pages/BlueprintsPage'))
 
 function ProtectedRoute() {
   const { user, loading } = useAuth()
@@ -116,6 +117,7 @@ function AppRoutes() {
               <Route path="reports" element={<ReportsPage />} />
               <Route path="subcontractors" element={<SubcontractorListPage />} />
               <Route path="quantities" element={<Suspense fallback={<LoadingPage />}><QuantityExtractionPage /></Suspense>} />
+              <Route path="blueprints" element={<Suspense fallback={<LoadingPage />}><BlueprintsPage /></Suspense>} />
               <Route path="structure-wizard" element={<Suspense fallback={<LoadingPage />}><ProjectStructureWizardPage /></Suspense>} />
             </Route>
 

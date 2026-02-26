@@ -23,6 +23,7 @@ export interface DashboardStats {
   equipmentDistribution: DistributionItem[]
   materialDistribution: DistributionItem[]
   rfiDistribution: DistributionItem[]
+  approvalDistribution: DistributionItem[]
   findingsSeverity: DistributionItem[]
   weeklyActivity: WeeklyActivityPoint[]
   areaProgressByFloor: FloorProgress[]

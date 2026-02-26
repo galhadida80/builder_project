@@ -10,7 +10,7 @@ export const quantityExtractionApi = {
       formData,
       {
         headers: { 'Content-Type': 'multipart/form-data' },
-        timeout: 120000,
+        timeout: 180000,
       },
     )
     return response.data
