@@ -5,6 +5,7 @@ import { useToast } from '../components/common/ToastProvider'
 import { useThemeMode } from '../theme'
 import { useAuth } from '../contexts/AuthContext'
 import { meetingsApi } from '../api/meetings'
+import PushNotificationToggle from '../components/notifications/PushNotificationToggle'
 import { LanguageIcon, DarkModeIcon, NotificationsIcon, LockIcon, FingerprintIcon, InfoIcon, DescriptionIcon, SecurityIcon, LogoutIcon, ChevronLeftIcon, ChevronRightIcon, AdminPanelSettingsIcon, EmailIcon, CalendarTodayIcon, CameraAltIcon, EditIcon, CheckCircleIcon, ViewListIcon } from '@/icons'
 import { Box, Typography, Paper, Switch, Divider, Select, MenuItem, FormControl, useTheme, Button, CircularProgress, Avatar, Chip, IconButton } from '@/mui'
 
@@ -200,12 +201,12 @@ export default function SettingsPage() {
               action={<Switch checked={notifications.email} onChange={() => handleNotificationChange('email')} color="primary" />}
             />
             <Divider />
-            <SettingsRow
-              icon={<NotificationsIcon sx={{ color: 'primary.main' }} />}
-              label={t('settings.pushNotifications')}
-              subtitle={t('settings.pushNotificationsDescription')}
-              action={<Switch checked={notifications.push} onChange={() => handleNotificationChange('push')} color="primary" />}
-            />
+            <Box sx={{ px: 2, py: 1.5, display: 'flex', alignItems: 'center', gap: 2 }}>
+              <NotificationsIcon sx={{ color: 'primary.main', fontSize: 22 }} />
+              <Box sx={{ flex: 1 }}>
+                <PushNotificationToggle />
+              </Box>
+            </Box>
             <Divider />
             <SettingsRow
               icon={<DescriptionIcon sx={{ color: 'primary.main' }} />}

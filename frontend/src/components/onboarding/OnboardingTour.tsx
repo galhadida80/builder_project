@@ -16,31 +16,31 @@ const STEPS: TourStep[] = [
     target: '[data-tour="sidebar"]',
     titleKey: 'onboarding.steps.sidebar.title',
     contentKey: 'onboarding.steps.sidebar.content',
-    placement: 'right',
+    placement: 'bottom',
   },
   {
     target: '[data-tour="projects"]',
     titleKey: 'onboarding.steps.projects.title',
     contentKey: 'onboarding.steps.projects.content',
-    placement: 'right',
+    placement: 'bottom',
   },
   {
     target: '[data-tour="equipment"]',
     titleKey: 'onboarding.steps.equipment.title',
     contentKey: 'onboarding.steps.equipment.content',
-    placement: 'right',
+    placement: 'bottom',
   },
   {
     target: '[data-tour="materials"]',
     titleKey: 'onboarding.steps.materials.title',
     contentKey: 'onboarding.steps.materials.content',
-    placement: 'right',
+    placement: 'bottom',
   },
   {
     target: '[data-tour="approvals"]',
     titleKey: 'onboarding.steps.approvals.title',
     contentKey: 'onboarding.steps.approvals.content',
-    placement: 'right',
+    placement: 'bottom',
   },
   {
     target: '[data-tour="chat"]',
@@ -73,30 +73,37 @@ export default function OnboardingTour({ open, onComplete }: OnboardingTourProps
     }
 
     const rect = el.getBoundingClientRect()
+    const isMobileView = window.innerWidth < 768
+    const tooltipWidth = isMobileView ? Math.min(300, window.innerWidth - 32) : 320
     let top = 0
     let left = 0
 
-    switch (step.placement) {
-      case 'right':
-        top = rect.top + rect.height / 2 - 80
-        left = rect.right + 12
-        break
-      case 'left':
-        top = rect.top + rect.height / 2 - 80
-        left = rect.left - 332
-        break
-      case 'bottom':
-        top = rect.bottom + 12
-        left = rect.left + rect.width / 2 - 160
-        break
-      case 'top':
-        top = rect.top - 180
-        left = rect.left + rect.width / 2 - 160
-        break
+    if (isMobileView) {
+      left = (window.innerWidth - tooltipWidth) / 2
+      top = step.placement === 'top' ? rect.top - 180 : rect.bottom + 12
+    } else {
+      switch (step.placement) {
+        case 'right':
+          top = rect.top + rect.height / 2 - 80
+          left = rect.right + 12
+          break
+        case 'left':
+          top = rect.top + rect.height / 2 - 80
+          left = rect.left - tooltipWidth - 12
+          break
+        case 'bottom':
+          top = rect.bottom + 12
+          left = rect.left + rect.width / 2 - tooltipWidth / 2
+          break
+        case 'top':
+          top = rect.top - 180
+          left = rect.left + rect.width / 2 - tooltipWidth / 2
+          break
+      }
     }
 
     top = Math.max(8, Math.min(top, window.innerHeight - 200))
-    left = Math.max(8, Math.min(left, window.innerWidth - 340))
+    left = Math.max(8, Math.min(left, window.innerWidth - tooltipWidth - 16))
 
     setPosition({ top, left })
     setVisible(true)
@@ -165,9 +172,11 @@ export default function OnboardingTour({ open, onComplete }: OnboardingTourProps
           position: 'fixed',
           top: position.top,
           left: position.left,
-          width: 320,
+          width: { xs: 'calc(100vw - 32px)', sm: 320 },
+          maxWidth: 320,
           zIndex: 1301,
           p: 2.5,
+          borderRadius: 3,
           opacity: visible ? 1 : 0,
           transition: 'opacity 200ms, top 200ms, left 200ms',
         }}

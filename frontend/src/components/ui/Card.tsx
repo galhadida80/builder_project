@@ -14,7 +14,7 @@ const StyledCard = styled(MuiCard, {
   shouldForwardProp: (prop) => prop !== 'hoverable' && prop !== 'interactive',
 })<{ hoverable?: boolean; interactive?: boolean }>(({ theme, hoverable, interactive }) => ({
   borderRadius: 8,
-  transition: 'box-shadow 200ms ease-out',
+  transition: 'box-shadow 200ms ease-out, transform 200ms ease-out',
   cursor: hoverable ? 'pointer' : 'default',
   [theme.breakpoints.up('sm')]: {
     borderRadius: 12,
@@ -22,6 +22,10 @@ const StyledCard = styled(MuiCard, {
   ...(hoverable && {
     '&:hover': {
       boxShadow: theme.shadows[4],
+      transform: 'translateY(-2px)',
+    },
+    '&:active': {
+      transform: 'translateY(0)',
     },
   }),
   ...(interactive && {
@@ -73,9 +77,12 @@ const GlassCard = styled(MuiCard)(({ theme }) => ({
   backdropFilter: 'blur(12px)',
   border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
   borderRadius: 12,
-  transition: 'box-shadow 200ms ease-out',
+  transition: 'box-shadow 200ms ease-out, transform 200ms ease-out',
   [theme.breakpoints.up('sm')]: {
     borderRadius: 16,
+  },
+  '&:hover': {
+    transform: 'translateY(-1px)',
   },
 }))
 

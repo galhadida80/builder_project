@@ -1,11 +1,12 @@
 import { useState, useCallback, useEffect, Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Outlet, useParams, useNavigate } from 'react-router-dom'
+import { Outlet, useParams, useNavigate, useLocation } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import Header from './Header'
 import MobileBottomNav from './MobileBottomNav'
 import ChatDrawer from '../chat/ChatDrawer'
 import { RouteProgressBar } from '../common/RouteProgressBar'
+import PageTransition from '../common/PageTransition'
 import { useAuth } from '../../contexts/AuthContext'
 import { useProject } from '../../contexts/ProjectContext'
 import { useRouteProgress } from '../../hooks/useRouteProgress'
@@ -26,6 +27,7 @@ export default function Layout() {
   const [chatOpen, setChatOpen] = useState(false)
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false)
   const { showTour, completeTour } = useOnboarding()
+  const location = useLocation()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
 
@@ -99,7 +101,11 @@ export default function Layout() {
       >
         <Toolbar />
         <Suspense fallback={<LoadingPage />}>
-          <Outlet />
+          <PageTransition key={location.pathname}>
+            <Box>
+              <Outlet />
+            </Box>
+          </PageTransition>
         </Suspense>
       </Box>
 
@@ -107,7 +113,7 @@ export default function Layout() {
         <MobileBottomNav projectId={projectId} onMenuOpen={handleDrawerToggle} />
       )}
 
-      <OnboardingTour open={showTour && !isMobile} onComplete={completeTour} />
+      <OnboardingTour open={showTour} onComplete={completeTour} />
 
       {projectId && (
         <>
