@@ -281,6 +281,7 @@ async def submit_material_for_approval(
             db, consultant, "approval",
             notif_title, notif_body,
             entity_type="material", entity_id=material.id,
+            project_id=project_id,
         )
     if inspector:
         language = get_language_from_request(request)
@@ -294,6 +295,7 @@ async def submit_material_for_approval(
             db, inspector, "approval",
             notif_title, notif_body,
             entity_type="material", entity_id=material.id,
+            project_id=project_id,
         )
 
     await create_audit_log(db, current_user, "material", material.id, AuditAction.STATUS_CHANGE,

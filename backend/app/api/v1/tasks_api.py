@@ -1,3 +1,4 @@
+import logging
 from typing import Optional
 from uuid import UUID
 
@@ -9,6 +10,7 @@ from sqlalchemy.orm import selectinload
 from app.core.permissions import Permission, require_permission
 from app.core.security import get_current_user, verify_project_access
 from app.db.session import get_db
+from app.models.project import Project
 from app.models.task import Task, TaskDependency
 from app.models.user import User
 from app.schemas.task import (
@@ -19,7 +21,10 @@ from app.schemas.task import (
     TaskSummaryResponse,
     TaskUpdate,
 )
+from app.services.notification_service import notify_user
 from app.utils import utcnow
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -121,6 +126,24 @@ async def create_task(
     db.add(task)
     await db.flush()
 
+    if task.assignee_id and task.assignee_id != current_user.id:
+        try:
+            project = await db.get(Project, project_id)
+            project_name = project.name if project else ""
+            assignee = await db.get(User, task.assignee_id)
+            await notify_user(
+                db, task.assignee_id, "UPDATE",
+                f"Task #{task_number} assigned to you",
+                f"You have been assigned a new task: {task.title}",
+                entity_type="task", entity_id=task.id,
+                email=assignee.email if assignee else None,
+                project_name=project_name,
+                language=assignee.language or "en" if assignee else "en",
+                project_id=project_id,
+            )
+        except Exception:
+            logger.exception("Failed to send task assignment notification")
+
     result = await db.execute(
         select(Task).options(*TASK_LOAD_OPTIONS).where(Task.id == task.id)
     )
@@ -170,6 +193,24 @@ async def update_task(
 
     if data.status == "completed" and old_status != "completed":
         task.completed_at = utcnow()
+
+    if data.status and data.status != old_status and task.created_by_id and task.created_by_id != current_user.id:
+        try:
+            project = await db.get(Project, project_id)
+            project_name = project.name if project else ""
+            creator = await db.get(User, task.created_by_id)
+            await notify_user(
+                db, task.created_by_id, "UPDATE",
+                f"Task #{task.task_number} status changed",
+                f"Status changed from {old_status} to {data.status}",
+                entity_type="task", entity_id=task.id,
+                email=creator.email if creator else None,
+                project_name=project_name,
+                language=creator.language or "en" if creator else "en",
+                project_id=project_id,
+            )
+        except Exception:
+            logger.exception("Failed to send task status change notification")
 
     result = await db.execute(
         select(Task).options(*TASK_LOAD_OPTIONS).where(Task.id == task.id)

@@ -1,4 +1,4 @@
-import { useState, memo } from 'react'
+import { useState, useEffect, memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import type { User, Project } from '../../types'
@@ -26,7 +26,13 @@ export default memo(function Header({ user, currentProject, projects, onProjectC
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [notificationPanelOpen, setNotificationPanelOpen] = useState(false)
 
-  const { notifications, unreadCount, markAsRead, markAllAsRead, loadMore, hasMore, loading } = useNotifications()
+  const { notifications, unreadCount, markAsRead, markAllAsRead, loadMore, hasMore, loading, refresh } = useNotifications()
+
+  useEffect(() => {
+    const handler = () => { refresh() }
+    window.addEventListener('ws:notification', handler)
+    return () => window.removeEventListener('ws:notification', handler)
+  }, [refresh])
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget)

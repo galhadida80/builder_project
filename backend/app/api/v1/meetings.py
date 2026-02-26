@@ -15,7 +15,7 @@ from app.core.security import get_current_user, verify_project_access
 from app.db.session import get_db
 from app.models.audit import AuditAction
 from app.models.meeting import Meeting, MeetingAttendee, MeetingTimeSlot, MeetingTimeVote
-from app.models.project import ProjectMember
+from app.models.project import Project, ProjectMember
 from app.models.user import User
 from app.schemas.meeting import (
     ConfirmTimeSlotRequest,
@@ -35,6 +35,7 @@ from app.services.calendar_service import (
 )
 from app.services.email_renderer import render_meeting_invitation_email, render_meeting_vote_email
 from app.services.email_service import EmailService
+from app.services.notification_service import notify_user
 from app.utils.localization import get_language_from_request, translate_message
 from app.utils import utcnow
 
@@ -278,6 +279,25 @@ async def create_meeting(
 
     await create_audit_log(db, current_user, "meeting", meeting.id, AuditAction.CREATE,
                           project_id=project_id, new_values=get_model_dict(meeting))
+
+    try:
+        project = await db.get(Project, project_id)
+        project_name = project.name if project else ""
+        for att in created_attendees:
+            if att.user_id and att.user_id != current_user.id:
+                user = att.user if att.user else await db.get(User, att.user_id)
+                await notify_user(
+                    db, att.user_id, "GENERAL",
+                    f"New meeting: {meeting.title}",
+                    f"You have been invited to a meeting scheduled for {meeting.scheduled_date.strftime('%Y-%m-%d %H:%M')}",
+                    entity_type="meeting", entity_id=meeting.id,
+                    email=user.email if user else None,
+                    project_name=project_name,
+                    language=user.language or "en" if user else "en",
+                    project_id=project_id,
+                )
+    except Exception:
+        logger.exception("Failed to send meeting notification to attendees")
 
     await db.refresh(meeting, ["created_by", "attendees", "time_slots", "time_votes"])
 

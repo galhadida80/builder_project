@@ -10,6 +10,7 @@ import PageTransition from '../common/PageTransition'
 import { useAuth } from '../../contexts/AuthContext'
 import { useProject } from '../../contexts/ProjectContext'
 import { useRouteProgress } from '../../hooks/useRouteProgress'
+import { useWebSocket } from '../../hooks/useWebSocket'
 import { LoadingPage } from '../common/LoadingPage'
 import OnboardingTour from '../onboarding/OnboardingTour'
 import { useOnboarding } from '../../hooks/useOnboarding'
@@ -30,6 +31,23 @@ export default function Layout() {
   const location = useLocation()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
+
+  const authToken = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null
+
+  const handleWsNotification = useCallback(() => {
+    window.dispatchEvent(new CustomEvent('ws:notification'))
+  }, [])
+
+  const handleWsEntityUpdate = useCallback(() => {
+    window.dispatchEvent(new CustomEvent('ws:entity_update'))
+  }, [])
+
+  useWebSocket({
+    projectId,
+    token: authToken,
+    onNotification: handleWsNotification,
+    onEntityUpdate: handleWsEntityUpdate,
+  })
 
   useEffect(() => {
     if (!isMobile) {

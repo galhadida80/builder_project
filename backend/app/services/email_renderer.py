@@ -469,6 +469,36 @@ STRINGS = {
             "footer": "זהו סיכום יומי אוטומטי מ-BuilderOps.",
         },
     },
+    "subcontractor_invite": {
+        "en": {
+            "subject": "You're invited to join {project_name} as a subcontractor",
+            "title": "Subcontractor Invitation",
+            "subtitle": "You've been invited to join a construction project as a subcontractor",
+            "intro": "{invited_by} has invited you to join the project \"{project_name}\" as a subcontractor.",
+            "trade_label": "Trade",
+            "company_label": "Company",
+            "message_label": "Message from the project manager",
+            "cta": "Accept Invitation & Join",
+            "expires": "This invitation expires in 7 days.",
+            "ignore": "If you don't recognize this invitation, you can safely ignore it.",
+            "footer": "BuilderOps - Construction Project Management",
+            "auto_message": "This is an automated invitation from BuilderOps.",
+        },
+        "he": {
+            "subject": "הוזמנת להצטרף ל-{project_name} כקבלן משנה",
+            "title": "הזמנת קבלן משנה",
+            "subtitle": "הוזמנת להצטרף לפרויקט בנייה כקבלן משנה",
+            "intro": "{invited_by} הזמין/ה אותך להצטרף לפרויקט \"{project_name}\" כקבלן משנה.",
+            "trade_label": "מקצוע",
+            "company_label": "חברה",
+            "message_label": "הודעה ממנהל הפרויקט",
+            "cta": "קבל הזמנה והצטרף",
+            "expires": "הזמנה זו תפוג בעוד 7 ימים.",
+            "ignore": "אם אינך מזהה הזמנה זו, ניתן להתעלם ממנה בבטחה.",
+            "footer": "BuilderOps - ניהול פרויקטי בנייה",
+            "auto_message": "זוהי הזמנה אוטומטית מ-BuilderOps.",
+        },
+    },
     "approval_reminder": {
         "en": {
             "reminder_subject": "{type_label} Approval Pending: {name} ({days} days)",
@@ -701,6 +731,78 @@ def render_invitation_email(
         align=align,
     )
     return subject, html
+
+
+def render_subcontractor_invite_email(
+    project_name: str,
+    company_name: str,
+    trade: str,
+    invited_by: str,
+    invite_url: str,
+    language: str = "en",
+    message: str = "",
+) -> tuple[str, str]:
+    s = STRINGS["subcontractor_invite"].get(language, STRINGS["subcontractor_invite"]["en"])
+    direction = "rtl" if language == "he" else "ltr"
+    align = "right" if language == "he" else "left"
+
+    subject = s["subject"].format(project_name=project_name)
+    intro = s["intro"].format(invited_by=invited_by, project_name=project_name)
+
+    message_block = ""
+    if message:
+        message_block = f"""
+    <tr>
+      <td style="padding:14px 20px;border-bottom:1px solid #E2E8F0;">
+        <p style="margin:0 0 3px;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">{s["message_label"]}</p>
+        <p style="margin:0;font-size:14px;color:#334155;font-style:italic;">{message}</p>
+      </td>
+    </tr>"""
+
+    body_html = f"""<!DOCTYPE html>
+<html lang="{language}" dir="{direction}">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background-color:#F1F5F9;font-family:'Segoe UI',Arial,Helvetica,sans-serif;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#F1F5F9;">
+<tr><td align="center" style="padding:32px 16px;">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+<tr><td style="background:linear-gradient(135deg,#0F172A,#1E293B);padding:36px 36px 30px;">
+  <p style="margin:0 0 20px;font-size:11px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:#3B82F6;">BUILDEROPS</p>
+  <h1 style="margin:0 0 10px;color:#ffffff;font-size:24px;font-weight:800;">{s["title"]}</h1>
+  <p style="margin:0;color:#94A3B8;font-size:14px;">{s["subtitle"]}</p>
+</td></tr>
+<tr><td style="padding:36px;text-align:{align};">
+  <p style="margin:0 0 24px;font-size:15px;color:#334155;line-height:1.7;">{intro}</p>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F8FAFC;border-radius:12px;border:1px solid #E2E8F0;margin-bottom:24px;">
+    <tr>
+      <td style="padding:14px 20px;border-bottom:1px solid #E2E8F0;">
+        <p style="margin:0 0 3px;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">{s["company_label"]}</p>
+        <p style="margin:0;font-size:15px;color:#0F172A;font-weight:700;">{company_name}</p>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:14px 20px;border-bottom:1px solid #E2E8F0;">
+        <p style="margin:0 0 3px;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">{s["trade_label"]}</p>
+        <p style="margin:0;font-size:14px;color:#334155;font-weight:600;">{trade}</p>
+      </td>
+    </tr>{message_block}
+  </table>
+  <div style="text-align:center;margin-bottom:24px;">
+    <a href="{invite_url}" style="display:inline-block;background:linear-gradient(135deg,#0369A1,#0EA5E9);color:#ffffff;text-decoration:none;padding:14px 40px;border-radius:12px;font-size:15px;font-weight:700;box-shadow:0 4px 12px rgba(3,105,161,0.3);">{s["cta"]}</a>
+  </div>
+  <p style="margin:0 0 8px;font-size:13px;color:#64748B;text-align:center;">{s["expires"]}</p>
+  <p style="margin:0;font-size:13px;color:#94A3B8;text-align:center;">{s["ignore"]}</p>
+</td></tr>
+<tr><td style="background-color:#F8FAFC;padding:24px 36px;text-align:center;border-top:1px solid #E2E8F0;">
+  <p style="margin:0 0 8px;color:#94A3B8;font-size:12px;">{s["footer"]}</p>
+  <p style="margin:0;color:#CBD5E1;font-size:11px;">{s["auto_message"]}</p>
+</td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>"""
+    return subject, body_html
 
 
 def render_notification_email(

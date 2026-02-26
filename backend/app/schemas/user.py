@@ -110,3 +110,26 @@ class PasswordResetConfirm(BaseModel):
 
 class MessageResponse(CamelCaseModel):
     message: str
+
+
+class TwoFactorSetupResponse(CamelCaseModel):
+    secret: str
+    provisioning_uri: str
+
+
+class TwoFactorVerifyRequest(BaseModel):
+    code: str = Field(min_length=6, max_length=6)
+
+
+class TwoFactorLoginRequest(BaseModel):
+    temp_token: str
+    code: str = Field(min_length=6, max_length=6)
+
+
+class TwoFactorLoginResponse(CamelCaseModel):
+    requires_two_factor: bool = True
+    temp_token: str
+
+
+class UserResponse2FA(UserResponse):
+    two_factor_enabled: bool = False

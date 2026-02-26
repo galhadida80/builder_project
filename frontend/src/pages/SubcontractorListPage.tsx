@@ -21,8 +21,13 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from '@/mui'
-import { CheckCircleIcon, SearchIcon, PersonIcon } from '@/icons'
+import { CheckCircleIcon, SearchIcon, PersonIcon, PersonAddIcon } from '@/icons'
 
 const TRADES = [
   'plumbing', 'electrical', 'hvac', 'concrete', 'framing', 'drywall',
@@ -38,6 +43,9 @@ export default function SubcontractorListPage() {
   const [loading, setLoading] = useState(true)
   const [tradeFilter, setTradeFilter] = useState('')
   const [search, setSearch] = useState('')
+  const [inviteOpen, setInviteOpen] = useState(false)
+  const [inviteData, setInviteData] = useState({ email: '', trade: '', company_name: '', message: '' })
+  const [inviteSending, setInviteSending] = useState(false)
 
   const loadData = useCallback(async () => {
     if (!projectId) return
@@ -64,6 +72,26 @@ export default function SubcontractorListPage() {
     }
   }
 
+  const handleInvite = async () => {
+    if (!projectId || !inviteData.email || !inviteData.trade || !inviteData.company_name) return
+    setInviteSending(true)
+    try {
+      await subcontractorsApi.invite(projectId, {
+        email: inviteData.email,
+        trade: inviteData.trade,
+        company_name: inviteData.company_name,
+        message: inviteData.message || undefined,
+      })
+      showSuccess(t('subcontractors.inviteSuccess'))
+      setInviteOpen(false)
+      setInviteData({ email: '', trade: '', company_name: '', message: '' })
+    } catch {
+      showError(t('subcontractors.inviteFailed'))
+    } finally {
+      setInviteSending(false)
+    }
+  }
+
   const filtered = profiles.filter(p => {
     if (!search) return true
     const q = search.toLowerCase()
@@ -72,7 +100,17 @@ export default function SubcontractorListPage() {
 
   return (
     <Box>
-      <PageHeader title={t('subcontractors.title')} subtitle={t('subcontractors.subtitle')} />
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+        <PageHeader title={t('subcontractors.title')} subtitle={t('subcontractors.subtitle')} />
+        <Button
+          variant="contained"
+          startIcon={<PersonAddIcon />}
+          onClick={() => setInviteOpen(true)}
+          sx={{ whiteSpace: 'nowrap', mt: 1 }}
+        >
+          {t('subcontractors.invite')}
+        </Button>
+      </Box>
 
       <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
         <MuiTextField
@@ -166,6 +204,59 @@ export default function SubcontractorListPage() {
           </TableContainer>
         </Card>
       )}
+
+      <Dialog open={inviteOpen} onClose={() => setInviteOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>{t('subcontractors.invite')}</DialogTitle>
+        <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '16px !important' }}>
+          <MuiTextField
+            label={t('subcontractors.inviteEmail')}
+            type="email"
+            required
+            size="small"
+            value={inviteData.email}
+            onChange={(e) => setInviteData(prev => ({ ...prev, email: e.target.value }))}
+          />
+          <MuiTextField
+            select
+            label={t('subcontractors.inviteTrade')}
+            required
+            size="small"
+            value={inviteData.trade}
+            onChange={(e) => setInviteData(prev => ({ ...prev, trade: e.target.value }))}
+          >
+            {TRADES.map(tr => (
+              <MenuItem key={tr} value={tr}>{t(`subcontractors.trades.${tr}`)}</MenuItem>
+            ))}
+          </MuiTextField>
+          <MuiTextField
+            label={t('subcontractors.inviteCompany')}
+            required
+            size="small"
+            value={inviteData.company_name}
+            onChange={(e) => setInviteData(prev => ({ ...prev, company_name: e.target.value }))}
+          />
+          <MuiTextField
+            label={t('subcontractors.inviteMessage')}
+            size="small"
+            multiline
+            rows={3}
+            value={inviteData.message}
+            onChange={(e) => setInviteData(prev => ({ ...prev, message: e.target.value }))}
+          />
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button onClick={() => setInviteOpen(false)} disabled={inviteSending}>
+            {t('common.cancel')}
+          </Button>
+          <Button
+            variant="contained"
+            onClick={handleInvite}
+            disabled={inviteSending || !inviteData.email || !inviteData.trade || !inviteData.company_name}
+          >
+            {inviteSending ? t('subcontractors.inviteSending') : t('subcontractors.invite')}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   )
 }

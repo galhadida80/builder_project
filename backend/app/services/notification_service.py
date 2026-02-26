@@ -11,8 +11,28 @@ from app.models.project import ProjectMember, UserRole
 from app.models.user import User
 from app.services.email_renderer import render_notification_email
 from app.services.email_service import EmailService
+from app.services.websocket_manager import manager as ws_manager
 
 logger = logging.getLogger(__name__)
+
+
+async def broadcast_notification(project_id: UUID, notification: Notification) -> None:
+    try:
+        await ws_manager.broadcast_to_project(
+            str(project_id),
+            {
+                "type": "notification",
+                "unread_count_delta": 1,
+                "notification": {
+                    "id": str(notification.id),
+                    "category": notification.category,
+                    "title": notification.title,
+                    "message": notification.message,
+                },
+            },
+        )
+    except Exception:
+        logger.exception("Failed to broadcast notification via WebSocket")
 
 
 async def create_notification(
@@ -23,6 +43,7 @@ async def create_notification(
     message: str,
     entity_type: Optional[str] = None,
     entity_id: Optional[UUID] = None,
+    project_id: Optional[UUID] = None,
 ) -> Notification:
     notification = Notification(
         user_id=user_id,
@@ -34,6 +55,8 @@ async def create_notification(
     )
     db.add(notification)
     await db.flush()
+    if project_id:
+        await broadcast_notification(project_id, notification)
     return notification
 
 
@@ -49,8 +72,12 @@ async def notify_user(
     action_url: str = "",
     project_name: str = "",
     language: str = "en",
+    project_id: Optional[UUID] = None,
 ) -> None:
-    await create_notification(db, user_id, category, title, message, entity_type, entity_id)
+    await create_notification(
+        db, user_id, category, title, message, entity_type, entity_id,
+        project_id=project_id,
+    )
 
     if email:
         try:
@@ -72,6 +99,7 @@ async def notify_contact(
     entity_id: Optional[UUID] = None,
     action_url: str = "",
     project_name: str = "",
+    project_id: Optional[UUID] = None,
 ) -> None:
     if contact.user_id:
         result = await db.execute(select(User).where(User.id == contact.user_id))
@@ -82,6 +110,7 @@ async def notify_contact(
                 entity_type, entity_id,
                 email=user.email, action_url=action_url,
                 project_name=project_name, language=user.language or "en",
+                project_id=project_id,
             )
             return
     if contact.email:
@@ -121,4 +150,5 @@ async def notify_project_admins(
             entity_type, entity_id,
             email=admin.email, action_url=action_url,
             project_name=project_name, language=admin.language or "en",
+            project_id=project_id,
         )

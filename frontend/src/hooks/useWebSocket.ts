@@ -1,89 +1,110 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useEffect, useRef, useCallback } from 'react'
 
-interface WebSocketMessage {
+export interface WebSocketMessage {
   type: string
   [key: string]: unknown
 }
 
-interface UseWebSocketReturn {
-  isConnected: boolean
-  lastMessage: WebSocketMessage | null
-  sendMessage: (data: unknown) => void
+interface UseWebSocketParams {
+  projectId?: string
+  token?: string | null
+  onNotification?: (data: WebSocketMessage) => void
+  onEntityUpdate?: (data: WebSocketMessage) => void
 }
 
-export function useWebSocket(projectId: string | undefined): UseWebSocketReturn {
-  const [isConnected, setIsConnected] = useState(false)
-  const [lastMessage, setLastMessage] = useState<WebSocketMessage | null>(null)
-  const wsRef = useRef<WebSocket | null>(null)
-  const reconnectAttemptRef = useRef(0)
-  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const maxReconnectAttempts = 10
+function buildWebSocketUrl(projectId: string, token: string): string {
+  const apiBase = import.meta.env.VITE_API_URL || '/api/v1'
 
-  const connect = useCallback(() => {
-    if (!projectId) return
-
-    const token = localStorage.getItem('authToken') || ''
+  let wsBase: string
+  if (apiBase.startsWith('http')) {
+    wsBase = apiBase.replace(/^http/, 'ws')
+  } else {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-    const host = window.location.host
-    const url = `${protocol}//${host}/api/v1/ws/${projectId}?token=${token}`
+    wsBase = `${protocol}//${window.location.host}${apiBase}`
+  }
 
-    try {
-      const ws = new WebSocket(url)
+  wsBase = wsBase.replace(/\/+$/, '')
+  return `${wsBase}/ws/${projectId}?token=${encodeURIComponent(token)}`
+}
 
-      ws.onopen = () => {
-        setIsConnected(true)
-        reconnectAttemptRef.current = 0
-      }
+export function useWebSocket({ projectId, token, onNotification, onEntityUpdate }: UseWebSocketParams) {
+  const wsRef = useRef<WebSocket | null>(null)
+  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const backoffRef = useRef(1000)
+  const mountedRef = useRef(true)
+  const onNotificationRef = useRef(onNotification)
+  const onEntityUpdateRef = useRef(onEntityUpdate)
 
-      ws.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data) as WebSocketMessage
-          setLastMessage(data)
-        } catch {
-          // ignore non-JSON messages
-        }
-      }
+  onNotificationRef.current = onNotification
+  onEntityUpdateRef.current = onEntityUpdate
 
-      ws.onclose = () => {
-        setIsConnected(false)
-        wsRef.current = null
-
-        if (reconnectAttemptRef.current < maxReconnectAttempts) {
-          const delay = Math.min(1000 * Math.pow(2, reconnectAttemptRef.current), 30000)
-          reconnectAttemptRef.current += 1
-          reconnectTimeoutRef.current = setTimeout(connect, delay)
-        }
-      }
-
-      ws.onerror = () => {
-        ws.close()
-      }
-
-      wsRef.current = ws
-    } catch {
-      // connection failed, will retry via onclose
+  const cleanup = useCallback(() => {
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current)
+      reconnectTimeoutRef.current = null
     }
-  }, [projectId])
-
-  useEffect(() => {
-    connect()
-
-    return () => {
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current)
-      }
-      if (wsRef.current) {
-        wsRef.current.close()
-        wsRef.current = null
-      }
-    }
-  }, [connect])
-
-  const sendMessage = useCallback((data: unknown) => {
-    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify(data))
+    if (wsRef.current) {
+      wsRef.current.onclose = null
+      wsRef.current.onerror = null
+      wsRef.current.onmessage = null
+      wsRef.current.onopen = null
+      wsRef.current.close()
+      wsRef.current = null
     }
   }, [])
 
-  return { isConnected, lastMessage, sendMessage }
+  const connect = useCallback(() => {
+    if (!projectId || !token || !mountedRef.current) return
+
+    cleanup()
+
+    let ws: WebSocket
+    try {
+      ws = new WebSocket(buildWebSocketUrl(projectId, token))
+    } catch {
+      return
+    }
+
+    wsRef.current = ws
+
+    ws.onopen = () => {
+      backoffRef.current = 1000
+    }
+
+    ws.onmessage = (event) => {
+      try {
+        const data: WebSocketMessage = JSON.parse(event.data)
+        if (data.type === 'notification' && onNotificationRef.current) {
+          onNotificationRef.current(data)
+        } else if (data.type === 'entity_update' && onEntityUpdateRef.current) {
+          onEntityUpdateRef.current(data)
+        }
+      } catch {
+        // Ignore malformed messages
+      }
+    }
+
+    ws.onclose = () => {
+      wsRef.current = null
+      if (!mountedRef.current) return
+      const delay = backoffRef.current
+      backoffRef.current = Math.min(delay * 2, 30000)
+      reconnectTimeoutRef.current = setTimeout(() => {
+        if (mountedRef.current) connect()
+      }, delay)
+    }
+
+    ws.onerror = () => {
+      // onclose fires after onerror, which triggers reconnect
+    }
+  }, [projectId, token, cleanup])
+
+  useEffect(() => {
+    mountedRef.current = true
+    connect()
+    return () => {
+      mountedRef.current = false
+      cleanup()
+    }
+  }, [connect, cleanup])
 }

@@ -4,10 +4,32 @@ from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 from app.core.validators import MAX_DESCRIPTION_LENGTH, MAX_NAME_LENGTH, CamelCaseModel, sanitize_string
 from app.schemas.user import UserResponse
+
+
+class SubcontractorInviteRequest(BaseModel):
+    email: EmailStr
+    trade: str = Field(min_length=1, max_length=100)
+    company_name: str = Field(min_length=1, max_length=MAX_NAME_LENGTH)
+    message: Optional[str] = Field(default=None, max_length=MAX_DESCRIPTION_LENGTH)
+
+    @field_validator('company_name', 'message', mode='before')
+    @classmethod
+    def sanitize_text(cls, v: Optional[str]) -> Optional[str]:
+        return sanitize_string(v)
+
+
+class SubcontractorInviteResponse(CamelCaseModel):
+    id: UUID
+    email: str
+    trade: str
+    company_name: str
+    token: str
+    invite_url: str
+    expires_at: datetime
 
 
 class SubcontractorProfileCreate(BaseModel):

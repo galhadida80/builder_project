@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Card } from '../components/ui/Card'
@@ -15,7 +15,6 @@ import {
   TextField as MuiTextField,
   Skeleton,
   Chip,
-  IconButton,
 } from '@/mui'
 
 export default function ReportsPage() {
@@ -28,12 +27,62 @@ export default function ReportsPage() {
   const [dateTo, setDateTo] = useState('')
   const [loading, setLoading] = useState(false)
   const [reportData, setReportData] = useState<Record<string, unknown> | null>(null)
+  const [recentReports, setRecentReports] = useState<Array<{ type: string; dateRange: string; generatedAt: string }>>([])
+  const reportConfigRef = useRef<HTMLDivElement>(null)
 
   const reportTypes = [
     { value: 'inspection-summary', label: t('reports.inspectionSummary') },
     { value: 'approval-status', label: t('reports.approvalStatus') },
     { value: 'rfi-aging', label: t('reports.rfiAging') },
   ]
+
+  const formatDate = (d: Date) => d.toISOString().slice(0, 10)
+
+  const addRecentReport = useCallback((type: string, from: string, to: string) => {
+    const label = reportTypes.find(r => r.value === type)?.label || type
+    setRecentReports(prev => [
+      { type: label, dateRange: `${from} — ${to}`, generatedAt: new Date().toISOString() },
+      ...prev.slice(0, 9),
+    ])
+  }, [reportTypes])
+
+  const handleQuickAction = useCallback(async (days: number) => {
+    if (!projectId) return
+    const now = new Date()
+    const from = new Date(now)
+    from.setDate(from.getDate() - days)
+    const fromStr = formatDate(from)
+    const toStr = formatDate(now)
+
+    setReportType('inspection-summary')
+    setDateFrom(fromStr)
+    setDateTo(toStr)
+    setReportData(null)
+    setLoading(true)
+
+    try {
+      const data = await reportsApi.getInspectionSummary(projectId, fromStr, toStr)
+      setReportData(data)
+      addRecentReport('inspection-summary', fromStr, toStr)
+
+      const blob = await reportsApi.exportCsv(projectId, 'inspection-summary', fromStr, toStr)
+      const url = URL.createObjectURL(blob)
+      const a = window.document.createElement('a')
+      a.href = url
+      a.download = `inspection-summary-${days}d-report.csv`
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch {
+      showError(t('reports.failedToGenerate'))
+    } finally {
+      setLoading(false)
+    }
+  }, [projectId, showError, t, addRecentReport])
+
+  const handleCustomAction = useCallback(() => {
+    setReportData(null)
+    reportConfigRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [])
 
   const handleGenerate = async () => {
     if (!projectId) return
@@ -54,6 +103,11 @@ export default function ReportsPage() {
         data = await reportsApi.getRfiAging(projectId)
       }
       setReportData(data)
+      if (dateFrom && dateTo) {
+        addRecentReport(reportType, dateFrom, dateTo)
+      } else if (reportType === 'rfi-aging') {
+        addRecentReport(reportType, '', '')
+      }
     } catch {
       showError(t('reports.failedToGenerate'))
     } finally {
@@ -234,12 +288,12 @@ export default function ReportsPage() {
 
       <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5, mb: 2 }}>
         {[
-          { icon: <CalendarTodayIcon />, label: t('reports.dailyReport'), sub: t('reports.generateNow') },
-          { icon: <DateRangeIcon />, label: t('reports.weeklyReport'), sub: t('reports.generateNow') },
-          { icon: <CalendarMonthIcon />, label: t('reports.monthlyReport'), sub: t('reports.generateNow') },
-          { icon: <TuneIcon />, label: t('reports.customReport'), sub: t('reports.selectParameters') },
+          { icon: <CalendarTodayIcon />, label: t('reports.dailyReport'), sub: t('reports.generateNow'), onClick: () => handleQuickAction(1) },
+          { icon: <DateRangeIcon />, label: t('reports.weeklyReport'), sub: t('reports.generateNow'), onClick: () => handleQuickAction(7) },
+          { icon: <CalendarMonthIcon />, label: t('reports.monthlyReport'), sub: t('reports.generateNow'), onClick: () => handleQuickAction(30) },
+          { icon: <TuneIcon />, label: t('reports.customReport'), sub: t('reports.selectParameters'), onClick: handleCustomAction },
         ].map((item, idx) => (
-          <Card key={idx} sx={{ textAlign: 'center', p: 2.5, cursor: 'pointer', '&:hover': { boxShadow: 3 } }}>
+          <Card key={idx} onClick={item.onClick} sx={{ textAlign: 'center', p: 2.5, cursor: 'pointer', opacity: loading ? 0.6 : 1, pointerEvents: loading ? 'none' : 'auto', '&:hover': { boxShadow: 3 } }}>
             <Box sx={{ width: 48, height: 48, borderRadius: '50%', bgcolor: 'primary.light', display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 'auto', mb: 1.5, color: 'primary.main' }}>
               {item.icon}
             </Box>
@@ -249,6 +303,7 @@ export default function ReportsPage() {
         ))}
       </Box>
 
+      <Box ref={reportConfigRef} />
       <Card sx={{ mb: 2 }}>
         <Box sx={{ p: 2 }}>
           <Typography variant="body2" fontWeight={700} sx={{ mb: 2, borderInlineStart: '4px solid', borderColor: 'primary.main', ps: 1.5 }}>
@@ -317,23 +372,31 @@ export default function ReportsPage() {
         />
       )}
 
-      {reportData && (
+      {recentReports.length > 0 && (
         <Card sx={{ mt: 2 }}>
           <Box sx={{ p: 2 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
               <Typography variant="body2" fontWeight={700}>{t('reports.recentReports')}</Typography>
             </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 1.5, bgcolor: 'action.hover', borderRadius: 2 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                <Box sx={{ width: 40, height: 40, borderRadius: 1, bgcolor: 'error.light', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <DescriptionIcon sx={{ color: 'error.main', fontSize: 20 }} />
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+              {recentReports.map((report, idx) => (
+                <Box key={idx} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 1.5, bgcolor: 'action.hover', borderRadius: 2 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                    <Box sx={{ width: 40, height: 40, borderRadius: 1, bgcolor: 'error.light', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <DescriptionIcon sx={{ color: 'error.main', fontSize: 20 }} />
+                    </Box>
+                    <Box>
+                      <Typography variant="body2" fontWeight={600}>{report.type}</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {report.dateRange ? report.dateRange : new Date(report.generatedAt).toLocaleDateString()}
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Typography variant="caption" color="text.secondary">
+                    {new Date(report.generatedAt).toLocaleTimeString()}
+                  </Typography>
                 </Box>
-                <Box>
-                  <Typography variant="body2" fontWeight={600}>{reportTypes.find(r => r.value === reportType)?.label}</Typography>
-                  <Typography variant="caption" color="text.secondary">{new Date().toLocaleDateString()}</Typography>
-                </Box>
-              </Box>
-              <IconButton size="small" onClick={handleExportCsv}><DownloadIcon fontSize="small" /></IconButton>
+              ))}
             </Box>
           </Box>
         </Card>

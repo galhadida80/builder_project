@@ -275,6 +275,7 @@ async def create_defect(
                 f"You have been assigned to defect: {data.description[:100]}",
                 entity_type="defect", entity_id=defect.id,
                 project_name=project_name,
+                project_id=project_id,
             )
 
     for contact_id in data.assignee_ids:
@@ -286,6 +287,7 @@ async def create_defect(
                 f"You have been added as assignee for defect: {data.description[:100]}",
                 entity_type="defect", entity_id=defect.id,
                 project_name=project_name,
+                project_id=project_id,
             )
 
     result = await db.execute(
@@ -356,6 +358,7 @@ async def update_defect(
                 f"Status changed from {old_status} to {data.status}",
                 entity_type="defect", entity_id=defect.id,
                 project_name=project_name,
+                project_id=project_id,
             )
         if defect.followup_contact and defect.followup_contact.user_id:
             await notify_user(
@@ -364,6 +367,7 @@ async def update_defect(
                 f"Status changed from {old_status} to {data.status}",
                 entity_type="defect", entity_id=defect.id,
                 project_name=project_name,
+                project_id=project_id,
             )
         for assignee in defect.assignees:
             if assignee.contact and assignee.contact.user_id:
@@ -373,6 +377,7 @@ async def update_defect(
                     f"Status changed from {old_status} to {data.status}",
                     entity_type="defect", entity_id=defect.id,
                     project_name=project_name,
+                    project_id=project_id,
                 )
 
         if data.status == "resolved":
@@ -453,6 +458,7 @@ async def add_assignee(
             f"You have been added as assignee for defect: {defect.description[:100]}",
             entity_type="defect", entity_id=defect.id,
             project_name=project.name if project else "",
+            project_id=project_id,
         )
 
     result = await db.execute(

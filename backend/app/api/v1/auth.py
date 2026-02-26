@@ -1,11 +1,13 @@
 import base64
 import logging
 import secrets
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 from uuid import UUID
 
+import pyotp
 from fastapi import APIRouter, BackgroundTasks, Body, Depends, HTTPException, Query, Request, Response, status
+from jose import JWTError, jwt
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from webauthn import generate_authentication_options, generate_registration_options, verify_authentication_response, verify_registration_response
@@ -13,7 +15,7 @@ from webauthn.helpers.cose import COSEAlgorithmIdentifier
 from webauthn.helpers.structs import AuthenticatorSelectionCriteria, PublicKeyCredentialDescriptor, ResidentKeyRequirement, UserVerificationRequirement
 
 from app.config import get_settings
-from app.core.security import create_access_token, get_current_user, get_password_hash, verify_password
+from app.core.security import create_access_token, get_current_user, get_password_hash, verify_password, SECRET_KEY, ALGORITHM
 from app.middleware.rate_limiter import get_rate_limiter
 from app.core.validation import sanitize_string, validate_email, validate_password
 from app.core.webauthn_challenges import get_challenge, store_challenge
@@ -24,7 +26,9 @@ from app.models.user import PasswordResetToken, User
 from app.models.webauthn_credential import WebAuthnCredential
 from app.schemas.user import (
     MessageResponse, PasswordResetConfirm, PasswordResetRequest,
-    TokenResponse, UserLogin, UserRegister, UserResponse, UserUpdate,
+    TokenResponse, TwoFactorLoginRequest, TwoFactorLoginResponse,
+    TwoFactorSetupResponse, TwoFactorVerifyRequest,
+    UserLogin, UserRegister, UserResponse, UserUpdate,
 )
 from app.schemas.webauthn import (
     WebAuthnCheckResponse, WebAuthnCredentialResponse,
@@ -39,8 +43,30 @@ from app.utils import utcnow
 
 logger = logging.getLogger(__name__)
 
+TOTP_APP_NAME = "BuilderOps"
+TWO_FACTOR_TEMP_TOKEN_MINUTES = 5
+
 router = APIRouter()
 limiter = get_rate_limiter()
+
+
+def create_2fa_temp_token(user_id: UUID) -> str:
+    expire = datetime.now(timezone.utc) + timedelta(minutes=TWO_FACTOR_TEMP_TOKEN_MINUTES)
+    payload = {"sub": str(user_id), "exp": expire, "purpose": "2fa"}
+    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+
+
+def decode_2fa_temp_token(token: str) -> UUID | None:
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        if payload.get("purpose") != "2fa":
+            return None
+        user_id = payload.get("sub")
+        if user_id is None:
+            return None
+        return UUID(user_id)
+    except JWTError:
+        return None
 
 
 def safe_send_email(email_service: EmailService, to_email: str, subject: str, body_html: str):
@@ -124,10 +150,9 @@ async def register(
     )
 
 
-@router.post("/login", response_model=TokenResponse)
+@router.post("/login", response_model=TokenResponse | TwoFactorLoginResponse)
 @limiter.limit("5/5minutes")
 async def login(data: UserLogin, request: Request, db: AsyncSession = Depends(get_db)):
-    # Validate and sanitize input
     email = validate_email(data.email)
     language = get_language_from_request(request)
 
@@ -155,11 +180,107 @@ async def login(data: UserLogin, request: Request, db: AsyncSession = Depends(ge
             detail=error_message
         )
 
+    if user.two_factor_enabled and user.totp_secret:
+        temp_token = create_2fa_temp_token(user.id)
+        return TwoFactorLoginResponse(
+            requires_two_factor=True,
+            temp_token=temp_token,
+        )
+
     access_token = create_access_token(user.id, user.is_super_admin)
 
     return TokenResponse(
         access_token=access_token,
         user=UserResponse.model_validate(user)
+    )
+
+
+@router.post("/2fa/setup", response_model=TwoFactorSetupResponse)
+async def setup_two_factor(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    if user.two_factor_enabled:
+        raise HTTPException(status_code=400, detail="2FA is already enabled")
+
+    secret = pyotp.random_base32()
+    user.totp_secret = secret
+    await db.commit()
+
+    totp = pyotp.TOTP(secret)
+    provisioning_uri = totp.provisioning_uri(name=user.email, issuer_name=TOTP_APP_NAME)
+
+    return TwoFactorSetupResponse(secret=secret, provisioning_uri=provisioning_uri)
+
+
+@router.post("/2fa/enable", response_model=MessageResponse)
+async def enable_two_factor(
+    data: TwoFactorVerifyRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    if user.two_factor_enabled:
+        raise HTTPException(status_code=400, detail="2FA is already enabled")
+
+    if not user.totp_secret:
+        raise HTTPException(status_code=400, detail="Call /auth/2fa/setup first")
+
+    totp = pyotp.TOTP(user.totp_secret)
+    if not totp.verify(data.code, valid_window=1):
+        raise HTTPException(status_code=400, detail="Invalid TOTP code")
+
+    user.two_factor_enabled = True
+    await db.commit()
+
+    return MessageResponse(message="Two-factor authentication enabled successfully")
+
+
+@router.post("/2fa/disable", response_model=MessageResponse)
+async def disable_two_factor(
+    data: TwoFactorVerifyRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    if not user.two_factor_enabled:
+        raise HTTPException(status_code=400, detail="2FA is not enabled")
+
+    totp = pyotp.TOTP(user.totp_secret)
+    if not totp.verify(data.code, valid_window=1):
+        raise HTTPException(status_code=400, detail="Invalid TOTP code")
+
+    user.two_factor_enabled = False
+    user.totp_secret = None
+    await db.commit()
+
+    return MessageResponse(message="Two-factor authentication disabled successfully")
+
+
+@router.post("/2fa/verify", response_model=TokenResponse)
+@limiter.limit("5/5minutes")
+async def verify_two_factor(
+    data: TwoFactorLoginRequest,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+):
+    user_id = decode_2fa_temp_token(data.temp_token)
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Invalid or expired temporary token")
+
+    result = await db.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+
+    if not user or not user.is_active or not user.two_factor_enabled or not user.totp_secret:
+        raise HTTPException(status_code=401, detail="Invalid request")
+
+    totp = pyotp.TOTP(user.totp_secret)
+    if not totp.verify(data.code, valid_window=1):
+        raise HTTPException(status_code=401, detail="Invalid TOTP code")
+
+    access_token = create_access_token(user.id, user.is_super_admin)
+
+    return TokenResponse(
+        access_token=access_token,
+        user=UserResponse.model_validate(user),
     )
 
 

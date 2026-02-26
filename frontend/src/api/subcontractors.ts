@@ -30,6 +30,23 @@ export interface SubcontractorProfileCreate {
   certifications?: string[]
 }
 
+export interface SubcontractorInviteRequest {
+  email: string
+  trade: string
+  company_name: string
+  message?: string
+}
+
+export interface SubcontractorInviteResponse {
+  id: string
+  email: string
+  trade: string
+  companyName: string
+  token: string
+  inviteUrl: string
+  expiresAt: string
+}
+
 export interface SubcontractorPortalData {
   has_profile: boolean
   is_verified: boolean
@@ -64,6 +81,14 @@ export const subcontractorsApi = {
 
   toggleVerify: async (profileId: string): Promise<SubcontractorProfile> => {
     const response = await apiClient.patch<SubcontractorProfile>(`/subcontractors/${profileId}/verify`)
+    return response.data
+  },
+
+  invite: async (projectId: string, data: SubcontractorInviteRequest): Promise<SubcontractorInviteResponse> => {
+    const response = await apiClient.post<SubcontractorInviteResponse>(
+      `/projects/${projectId}/subcontractors/invite`,
+      data
+    )
     return response.data
   },
 

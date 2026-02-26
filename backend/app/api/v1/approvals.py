@@ -224,6 +224,7 @@ async def process_approval_step(
                         f"{approval_request.entity_type.title()} ready for your review",
                         f"A {approval_request.entity_type} approval is ready for your review.",
                         entity_type=approval_request.entity_type, entity_id=approval_request.entity_id,
+                        project_id=project_id,
                     )
         else:
             approval_request.current_status = ApprovalStatus.APPROVED.value
@@ -291,6 +292,7 @@ async def notify_approval_creator(
             db, creator.id, "approval", title, message,
             entity_type=approval_request.entity_type, entity_id=approval_request.entity_id,
             email=creator.email, language=creator.language or "en",
+            project_id=project_id,
         )
 
 
@@ -376,6 +378,7 @@ async def approve_request(
                     f"{approval_request.entity_type.title()} ready for your review",
                     f"A {approval_request.entity_type} approval is ready for your review.",
                     entity_type=approval_request.entity_type, entity_id=approval_request.entity_id,
+                    project_id=approval_request.project_id,
                 )
     else:
         approval_request.current_status = ApprovalStatus.APPROVED.value
