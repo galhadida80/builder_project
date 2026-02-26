@@ -3,8 +3,6 @@ import time
 
 import httpx
 
-from app.config import get_settings
-
 logger = logging.getLogger(__name__)
 
 FLOORPLAN_SERVICE_URL = "http://localhost:5555"

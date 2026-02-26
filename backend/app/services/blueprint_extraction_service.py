@@ -2,17 +2,15 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import uuid
-from datetime import datetime
 from functools import partial
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.area import ConstructionArea
-from app.models.blueprint_extraction import BlueprintExtraction, BlueprintImport
+from app.models.blueprint_extraction import BlueprintExtraction
 from app.models.equipment import Equipment
 from app.models.material import Material
 from app.services.quantity_extraction_service import extract_quantities

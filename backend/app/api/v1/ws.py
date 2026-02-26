@@ -1,5 +1,4 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Query
-from starlette.websockets import WebSocketState
 
 from app.core.security import decode_access_token
 from app.services.websocket_manager import manager
