@@ -144,7 +144,7 @@ export default function AnalyticsDashboard() {
             { key: 'year', label: t('analytics.year') },
           ].map(p => (
             <Chip key={p.key} label={p.label} onClick={() => setActivePeriod(p.key)}
-              sx={{ fontWeight: 600, bgcolor: activePeriod === p.key ? 'primary.main' : 'action.hover', color: activePeriod === p.key ? 'white' : 'text.primary', boxShadow: activePeriod === p.key ? '0 4px 12px rgba(200,149,106,0.2)' : 'none' }} />
+              sx={{ fontWeight: 600, bgcolor: activePeriod === p.key ? 'primary.main' : 'action.hover', color: activePeriod === p.key ? 'white' : 'text.primary', boxShadow: activePeriod === p.key ? '0 4px 12px rgba(224,120,66,0.2)' : 'none' }} />
           ))}
         </Box>
 

@@ -26,12 +26,12 @@ type StatusFilter = 'all' | 'pending' | 'in_progress' | 'completed'
 
 const STATUS_BORDER_COLORS: Record<string, string> = {
   pending: '#9e9e9e',
-  in_progress: '#c8956a',
+  in_progress: '#e07842',
   completed: '#4caf50',
 }
 
 const RECOMMENDED_CATEGORIES = [
-  { key: 'electrical', icon: ElectricalServicesIcon, color: '#c8956a' },
+  { key: 'electrical', icon: ElectricalServicesIcon, color: '#e07842' },
   { key: 'plumbing', icon: PlumbingIcon, color: '#2196f3' },
   { key: 'safety', icon: HealthAndSafetyIcon, color: '#f44336' },
   { key: 'finishing', icon: FormatPaintIcon, color: '#9c27b0' },
@@ -370,7 +370,7 @@ export default function ChecklistsPage() {
                             <Typography variant="caption" sx={{ fontWeight: 700, color: 'primary.main' }}>{percent}%</Typography>
                           </Box>
                           <LinearProgress variant="determinate" value={percent}
-                            sx={{ height: 6, borderRadius: 3, bgcolor: 'action.hover', '& .MuiLinearProgress-bar': { borderRadius: 3, bgcolor: percent === 100 ? 'success.main' : '#c8956a' } }} />
+                            sx={{ height: 6, borderRadius: 3, bgcolor: 'action.hover', '& .MuiLinearProgress-bar': { borderRadius: 3, bgcolor: percent === 100 ? 'success.main' : '#e07842' } }} />
                         </Box>
                         {row.created_by && (
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>

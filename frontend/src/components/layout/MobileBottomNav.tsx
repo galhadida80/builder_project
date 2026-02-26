@@ -64,9 +64,9 @@ export default function MobileBottomNav({ projectId, onMenuOpen }: MobileBottomN
         right: 0,
         zIndex: 1200,
         borderTop: '1px solid',
-        borderColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(200, 149, 106, 0.15)' : 'divider',
+        borderColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.06)' : 'divider',
         display: { xs: 'block', md: 'none' },
-        bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(26, 22, 18, 0.9)' : 'background.paper',
+        bgcolor: (theme) => theme.palette.mode === 'dark' ? '#111111' : 'background.paper',
         backdropFilter: 'blur(24px)',
         boxShadow: '0 -4px 30px rgba(0, 0, 0, 0.15)',
       }}

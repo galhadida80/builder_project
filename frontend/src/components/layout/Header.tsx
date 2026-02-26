@@ -48,8 +48,8 @@ export default memo(function Header({ user, currentProject, projects, onProjectC
       sx={{
         zIndex: 1201,
         borderBottom: '1px solid',
-        borderColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(200, 149, 106, 0.15)' : 'divider',
-        bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(26, 22, 18, 0.85)' : 'background.paper',
+        borderColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(224, 120, 66, 0.15)' : 'divider',
+        bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(10, 10, 10, 0.85)' : 'background.paper',
         backdropFilter: 'blur(12px)',
         ms: { xs: 0, md: '260px' },
         width: { xs: '100%', md: 'calc(100% - 260px)' },

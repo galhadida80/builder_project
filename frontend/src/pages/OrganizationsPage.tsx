@@ -161,7 +161,7 @@ export default function OrganizationsPage() {
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   flexShrink: 0, position: 'relative',
                   border: 1, borderColor: 'primary.main',
-                  bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(200,149,106,0.1)' : 'rgba(200,149,106,0.08)',
+                  bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(224,120,66,0.1)' : 'rgba(224,120,66,0.08)',
                 }}>
                   <BusinessIcon sx={{ color: 'primary.main', fontSize: 28 }} />
                 </Box>

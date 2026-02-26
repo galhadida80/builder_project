@@ -193,7 +193,7 @@ export default function TasksPage() {
     const c = PRIORITY_COLORS[task.priority] || PRIORITY_COLORS.low
     const overdue = isOverdue(task)
     const isComplete = task.status === 'completed'
-    const borderColor = overdue ? '#DC2626' : task.priority === 'urgent' ? '#DC2626' : task.priority === 'high' ? '#c8956a' : task.priority === 'medium' ? '#2563EB' : '#64748B'
+    const borderColor = overdue ? '#DC2626' : task.priority === 'urgent' ? '#DC2626' : task.priority === 'high' ? '#e07842' : task.priority === 'medium' ? '#2563EB' : '#64748B'
 
     const dueTime = task.dueDate ? new Date(task.dueDate).toLocaleTimeString(getDateLocale(), { hour: '2-digit', minute: '2-digit' }) : null
 

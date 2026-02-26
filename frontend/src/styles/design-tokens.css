@@ -8,9 +8,9 @@
 
 :root {
   /* Warm Dark Palette */
-  --color-dark-900: #1a1612;
-  --color-dark-800: #2a221a;
-  --color-dark-700: #3d3126;
+  --color-dark-900: #0a0a0a;
+  --color-dark-800: #161616;
+  --color-dark-700: #1e1e1e;
   --color-dark-600: #475569;
   --color-dark-500: #64748B;
   --color-dark-400: #94A3B8;
@@ -20,10 +20,10 @@
   --color-dark-50: #f5f3f0;
 
   /* Primary Accent */
-  --color-primary: #c8956a;
-  --color-primary-hover: #b58456;
-  --color-primary-dark: #9c7044;
-  --color-primary-darker: #85603a;
+  --color-primary: #e07842;
+  --color-primary-hover: #d06832;
+  --color-primary-dark: #c4612e;
+  --color-primary-darker: #a85020;
   --color-primary-light: #FFF7F0;
 
   /* Semantic Colors - Success */

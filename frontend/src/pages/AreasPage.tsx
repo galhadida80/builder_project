@@ -32,7 +32,7 @@ const STATUS_COLORS: Record<string, 'success' | 'info' | 'warning' | 'default'> 
 }
 const STATUS_BORDER_COLORS: Record<string, string> = {
   completed: '#4caf50',
-  in_progress: '#c8956a',
+  in_progress: '#e07842',
   not_started: '#9e9e9e',
   awaiting_approval: '#ff9800',
 }
@@ -236,7 +236,7 @@ export default function AreasPage() {
       )}
 
       <Card sx={{ mb: 2 }}>
-        <Box sx={{ p: { xs: 2, sm: 3 }, background: (th) => th.palette.mode === 'dark' ? 'linear-gradient(135deg, #3d3126 0%, #1a1612 100%)' : 'linear-gradient(135deg, #c8956a 0%, #1a1612 100%)', borderRadius: 3 }}>
+        <Box sx={{ p: { xs: 2, sm: 3 }, background: (th) => th.palette.mode === 'dark' ? 'linear-gradient(135deg, #1e1e1e 0%, #0a0a0a 100%)' : 'linear-gradient(135deg, #e07842 0%, #0a0a0a 100%)', borderRadius: 3 }}>
           <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'center' }, justifyContent: 'space-between', gap: 2 }}>
             <Box sx={{ minWidth: 0 }}>
               <Typography variant="h6" fontWeight={600} color="white" noWrap>{t('areas.overallProjectProgress')}</Typography>

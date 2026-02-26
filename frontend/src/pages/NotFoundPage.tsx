@@ -28,7 +28,7 @@ export default function NotFoundPage() {
         sx={{
           fontSize: { xs: '4rem', sm: '6rem' },
           fontWeight: 800,
-          background: 'linear-gradient(135deg, #c8956a 0%, #EA580C 100%)',
+          background: 'linear-gradient(135deg, #e07842 0%, #EA580C 100%)',
           backgroundClip: 'text',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',

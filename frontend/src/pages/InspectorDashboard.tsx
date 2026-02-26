@@ -165,7 +165,7 @@ export default function InspectorDashboard() {
                       borderBottom: idx < inspections.length - 1 ? 1 : 0,
                       borderColor: 'divider',
                       ...(isFirst && {
-                        bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(200,149,106,0.05)' : 'rgba(200,149,106,0.03)',
+                        bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(224,120,66,0.05)' : 'rgba(224,120,66,0.03)',
                         borderInlineStart: 4, borderInlineStartColor: 'primary.main',
                       }),
                     }}

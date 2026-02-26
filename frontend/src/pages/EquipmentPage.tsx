@@ -187,7 +187,7 @@ export default function EquipmentPage() {
   const getCategoryColor = (equipmentType?: string): string => {
     if (!equipmentType) return '#9CA3AF'
     const lower = equipmentType.toLowerCase()
-    if (lower.includes('crane') || lower.includes('מנוף')) return '#c8956a'
+    if (lower.includes('crane') || lower.includes('מנוף')) return '#e07842'
     if (lower.includes('heavy') || lower.includes('כבד')) return '#EAB308'
     if (lower.includes('transport') || lower.includes('הובלה') || lower.includes('משאית')) return '#3B82F6'
     return '#9CA3AF'

@@ -271,7 +271,7 @@ export default function ProfilePage() {
           <Chip
             label={user.role}
             size="small"
-            sx={{ mt: 1, bgcolor: 'rgba(200,149,106,0.15)', color: 'primary.main', fontWeight: 600, fontSize: '0.75rem' }}
+            sx={{ mt: 1, bgcolor: 'rgba(224,120,66,0.15)', color: 'primary.main', fontWeight: 600, fontSize: '0.75rem' }}
           />
         )}
         {user?.company && (

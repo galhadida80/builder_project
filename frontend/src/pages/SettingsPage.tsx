@@ -133,7 +133,7 @@ export default function SettingsPage() {
             <Chip
               label={t(`roles.${user.role}`)}
               size="small"
-              sx={{ bgcolor: '#ed6c02', color: '#fff', fontWeight: 600, mt: 0.5 }}
+              sx={{ bgcolor: 'warning.main', color: 'warning.contrastText', fontWeight: 600, mt: 0.5 }}
             />
           )}
           <Box
@@ -275,7 +275,7 @@ export default function SettingsPage() {
               label={t('settings.twoFactorAuth')}
               action={
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Chip label={t('settings.active')} size="small" sx={{ bgcolor: 'success.main', color: '#fff', fontWeight: 600, fontSize: '0.7rem', height: 24 }} />
+                  <Chip label={t('settings.active')} size="small" sx={{ bgcolor: 'success.main', color: 'success.contrastText', fontWeight: 600, fontSize: '0.7rem', height: 24 }} />
                   <ChevronIcon sx={{ color: 'text.disabled', fontSize: 20 }} />
                 </Box>
               }

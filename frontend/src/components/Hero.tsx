@@ -35,7 +35,7 @@ export function Hero({
         display: 'flex',
         alignItems: 'center',
         overflow: 'hidden',
-        background: 'linear-gradient(160deg, #85603a 0%, #c8956a 35%, #d4a67a 65%, #e0be9a 100%)',
+        background: 'linear-gradient(160deg, #a85020 0%, #e07842 35%, #f0935c 65%, #f5ab7a 100%)',
         color: 'white',
       }}
     >
@@ -133,7 +133,7 @@ export function Hero({
                 fontSize: '1.05rem',
                 minWidth: 200,
                 bgcolor: 'white',
-                color: '#85603a',
+                color: '#a85020',
                 fontWeight: 700,
                 borderRadius: 2.5,
                 boxShadow: '0 4px 14px rgba(0,0,0,0.15)',

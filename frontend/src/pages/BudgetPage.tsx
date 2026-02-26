@@ -17,7 +17,7 @@ import { AddIcon, EditIcon, DeleteIcon, AttachMoneyIcon } from '@/icons'
 import { Box, Typography, Skeleton, Chip, MenuItem, IconButton, LinearProgress, TextField as MuiTextField } from '@/mui'
 
 const CATEGORIES: BudgetCategory[] = ['labor', 'materials', 'equipment', 'subcontractor', 'permits', 'overhead', 'other']
-const CAT_COLORS: Record<string, string> = { labor: '#c8956a', materials: '#1976d2', equipment: '#2e7d32', subcontractor: '#9c27b0', permits: '#0288d1', overhead: '#757575', other: '#9e9e9e' }
+const CAT_COLORS: Record<string, string> = { labor: '#e07842', materials: '#1976d2', equipment: '#2e7d32', subcontractor: '#9c27b0', permits: '#0288d1', overhead: '#757575', other: '#9e9e9e' }
 const CO_STATUS_COLORS: Record<string, 'default' | 'info' | 'success' | 'error'> = { draft: 'default', submitted: 'info', approved: 'success', rejected: 'error' }
 const fmt = (n: number) => n.toLocaleString(undefined, { style: 'currency', currency: 'ILS', minimumFractionDigits: 2, maximumFractionDigits: 2 })
 const today = () => new Date().toISOString().slice(0, 10)
@@ -156,7 +156,7 @@ export default function BudgetPage() {
             <Box sx={{ position: 'relative', width: 140, height: 140, mb: 2 }}>
               <svg viewBox="0 0 96 96" style={{ width: '100%', height: '100%' }}>
                 <circle cx="48" cy="48" r="40" fill="transparent" stroke="currentColor" strokeWidth="7" style={{ color: 'var(--mui-palette-divider, #e0e0e0)' }} />
-                <circle cx="48" cy="48" r="40" fill="transparent" stroke="currentColor" strokeWidth="7" strokeDasharray="251.2" strokeDashoffset={251.2 - (251.2 * Math.min(usagePct, 100)) / 100} strokeLinecap="round" style={{ color: usagePct <= 100 ? '#c8956a' : '#d32f2f', transform: 'rotate(-90deg)', transformOrigin: 'center', transition: 'stroke-dashoffset 600ms ease' }} />
+                <circle cx="48" cy="48" r="40" fill="transparent" stroke="currentColor" strokeWidth="7" strokeDasharray="251.2" strokeDashoffset={251.2 - (251.2 * Math.min(usagePct, 100)) / 100} strokeLinecap="round" style={{ color: usagePct <= 100 ? '#e07842' : '#d32f2f', transform: 'rotate(-90deg)', transformOrigin: 'center', transition: 'stroke-dashoffset 600ms ease' }} />
               </svg>
               <Box sx={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                 <Typography variant="h4" fontWeight={800} sx={{ lineHeight: 1 }}>{usagePct}%</Typography>

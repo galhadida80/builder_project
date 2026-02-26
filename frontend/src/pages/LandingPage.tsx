@@ -66,7 +66,7 @@ export default function LandingPage() {
           px: 2,
           py: 1.5,
           bgcolor: (theme) => theme.palette.mode === 'dark'
-            ? 'rgba(26,22,18,0.8)'
+            ? 'rgba(10,10,10,0.8)'
             : 'rgba(248,247,245,0.8)',
           backdropFilter: 'blur(12px)',
           borderBottom: '1px solid',
@@ -113,7 +113,7 @@ export default function LandingPage() {
           overflow: 'hidden',
           background: (theme) => theme.palette.mode === 'dark'
             ? `linear-gradient(180deg, ${theme.palette.background.default}60 0%, ${theme.palette.background.default} 100%)`
-            : `linear-gradient(160deg, #85603a 0%, #c8956a 50%, #d4a67a 100%)`,
+            : `linear-gradient(160deg, #a85020 0%, #e07842 50%, #e89060 100%)`,
           color: 'white',
         }}
       >
@@ -166,7 +166,7 @@ export default function LandingPage() {
                   fontWeight: 700,
                   borderRadius: 3,
                   bgcolor: (theme) => theme.palette.mode === 'dark' ? 'primary.main' : 'white',
-                  color: (theme) => theme.palette.mode === 'dark' ? 'primary.contrastText' : '#85603a',
+                  color: (theme) => theme.palette.mode === 'dark' ? 'primary.contrastText' : '#a85020',
                   '&:hover': {
                     bgcolor: (theme) => theme.palette.mode === 'dark' ? 'primary.dark' : 'rgba(255,255,255,0.9)',
                   },
@@ -569,7 +569,7 @@ export default function LandingPage() {
       {/* Bottom CTA */}
       <Box
         sx={{
-          background: 'linear-gradient(160deg, #85603a 0%, #c8956a 50%, #d4a67a 100%)',
+          background: 'linear-gradient(160deg, #a85020 0%, #e07842 50%, #e89060 100%)',
           py: { xs: 6, md: 8 },
           px: { xs: 3, md: 6 },
           position: 'relative',
@@ -599,7 +599,7 @@ export default function LandingPage() {
                 py: 1.75,
                 fontSize: '1rem',
                 bgcolor: 'white',
-                color: '#85603a',
+                color: '#a85020',
                 fontWeight: 700,
                 borderRadius: 3,
                 '&:hover': { bgcolor: 'rgba(255,255,255,0.9)' },

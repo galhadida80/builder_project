@@ -50,7 +50,7 @@ export default function ContactsPage() {
   const [deletingGroup, setDeletingGroup] = useState(false)
 
   const contactTypes = [
-    { value: 'contractor', label: t('contacts.types.contractor'), color: '#c8956a' },
+    { value: 'contractor', label: t('contacts.types.contractor'), color: '#e07842' },
     { value: 'consultant', label: t('contacts.types.consultant'), color: '#9c27b0' },
     { value: 'supplier', label: t('contacts.types.supplier'), color: '#0288d1' },
     { value: 'supervisor', label: t('contacts.types.supervisor'), color: '#2e7d32' },

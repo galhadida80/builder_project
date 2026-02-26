@@ -13,11 +13,11 @@ export const colors = {
     50: '#F8FAFC',
   },
   accent: {
-    primary: '#c8956a',
-    hover: '#b58456',
+    primary: '#e07842',
+    hover: '#d06832',
     light: '#FFF7F0',
-    dark: '#9c7044',
-    darker: '#85603a',
+    dark: '#c4612e',
+    darker: '#a85020',
   },
   teal: {
     600: '#0D9488',
@@ -71,19 +71,20 @@ export const colors = {
       overlay: 'rgba(15, 23, 42, 0.5)',
     },
     dark: {
-      default: '#1a1612',
-      paper: '#2a221a',
-      elevated: '#3d3126',
-      overlay: 'rgba(0, 0, 0, 0.6)',
+      default: '#0a0a0a',
+      paper: '#161616',
+      elevated: '#1e1e1e',
+      overlay: 'rgba(0, 0, 0, 0.7)',
     },
   },
   warmDark: {
-    border: '#3d342a',
-    borderSubtle: '#2d2519',
-    cardBg: 'rgba(200, 149, 106, 0.05)',
-    cardBorder: 'rgba(200, 149, 106, 0.1)',
-    inputBg: 'rgba(200, 149, 106, 0.08)',
-    headerBorder: 'rgba(200, 149, 106, 0.15)',
+    border: 'rgba(255,255,255,0.08)',
+    borderSubtle: 'rgba(255,255,255,0.04)',
+    divider: 'rgba(255,255,255,0.06)',
+    cardBg: 'rgba(255,255,255,0.03)',
+    cardBorder: 'rgba(255,255,255,0.06)',
+    inputBg: 'rgba(255,255,255,0.05)',
+    headerBorder: 'rgba(255,255,255,0.06)',
   },
 }
 
@@ -105,7 +106,7 @@ export const shadows = {
   glass: '0 8px 32px rgba(0, 0, 0, 0.1)',
   card: '0 2px 8px rgba(0, 0, 0, 0.08)',
   cardHover: '0 8px 16px rgba(0, 0, 0, 0.12)',
-  primaryGlow: '0 4px 14px rgba(200, 149, 106, 0.25)',
+  primaryGlow: '0 4px 14px rgba(224, 120, 66, 0.3)',
 }
 
 export const borderRadius = {

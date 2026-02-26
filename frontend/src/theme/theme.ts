@@ -455,8 +455,8 @@ export function createLightTheme() {
       divider: colors.primary[200],
       action: {
         hover: 'rgba(15, 23, 42, 0.04)',
-        selected: 'rgba(200, 149, 106, 0.08)',
-        focus: 'rgba(200, 149, 106, 0.12)',
+        selected: 'rgba(224, 120, 66, 0.08)',
+        focus: 'rgba(224, 120, 66, 0.12)',
       },
     },
     components: {
@@ -465,6 +465,18 @@ export function createLightTheme() {
         styleOverrides: {
           root: {
             borderBottomColor: colors.primary[200],
+          },
+        },
+      },
+      MuiOutlinedInput: {
+        styleOverrides: {
+          input: {
+            '&:-webkit-autofill, &:-webkit-autofill:hover, &:-webkit-autofill:focus': {
+              WebkitBoxShadow: `0 0 0 1000px ${colors.surface.light.paper} inset`,
+              WebkitTextFillColor: colors.primary[900],
+              caretColor: colors.primary[900],
+              transition: 'background-color 5000s ease-in-out 0s',
+            },
           },
         },
       },
@@ -518,11 +530,11 @@ export function createDarkTheme() {
         secondary: colors.primary[300],
         disabled: colors.primary[500],
       },
-      divider: colors.primary[700],
+      divider: colors.warmDark.divider,
       action: {
-        hover: 'rgba(248, 250, 252, 0.08)',
-        selected: 'rgba(200, 149, 106, 0.16)',
-        focus: 'rgba(200, 149, 106, 0.24)',
+        hover: 'rgba(255, 255, 255, 0.06)',
+        selected: 'rgba(224, 120, 66, 0.14)',
+        focus: 'rgba(224, 120, 66, 0.2)',
       },
     },
     components: {
@@ -548,8 +560,8 @@ export function createDarkTheme() {
           root: {
             backgroundColor: colors.surface.dark.paper,
             borderRadius: borderRadius.lg,
-            border: '1px solid rgba(200, 149, 106, 0.1)',
-            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)',
+            border: `1px solid ${colors.warmDark.cardBorder}`,
+            boxShadow: 'none',
           },
         },
       },
@@ -572,7 +584,7 @@ export function createDarkTheme() {
       MuiAppBar: {
         styleOverrides: {
           root: {
-            backgroundColor: 'rgba(26, 22, 18, 0.85)',
+            backgroundColor: 'rgba(10, 10, 10, 0.9)',
             backdropFilter: 'blur(12px)',
             borderBottom: `1px solid ${colors.warmDark.headerBorder}`,
           },
@@ -581,7 +593,7 @@ export function createDarkTheme() {
       MuiTableCell: {
         styleOverrides: {
           root: {
-            borderBottomColor: colors.primary[700],
+            borderBottomColor: colors.warmDark.divider,
           },
         },
       },
@@ -602,6 +614,14 @@ export function createDarkTheme() {
             },
             '&:hover .MuiOutlinedInput-notchedOutline': {
               borderColor: colors.primary[500],
+            },
+          },
+          input: {
+            '&:-webkit-autofill, &:-webkit-autofill:hover, &:-webkit-autofill:focus': {
+              WebkitBoxShadow: `0 0 0 1000px ${colors.surface.dark.paper} inset`,
+              WebkitTextFillColor: colors.primary[50],
+              caretColor: colors.primary[50],
+              transition: 'background-color 5000s ease-in-out 0s',
             },
           },
         },
@@ -629,7 +649,7 @@ export function createDarkTheme() {
         styleOverrides: {
           paper: {
             backgroundColor: colors.surface.dark.elevated,
-            border: `1px solid ${colors.primary[700]}`,
+            border: `1px solid ${colors.warmDark.border}`,
           },
         },
       },

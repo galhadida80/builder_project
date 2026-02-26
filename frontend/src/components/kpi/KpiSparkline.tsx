@@ -8,7 +8,7 @@ interface KpiSparklineProps {
   width?: number
 }
 
-export default function KpiSparkline({ data, color = '#c8956a', height = 40, width = 120 }: KpiSparklineProps) {
+export default function KpiSparkline({ data, color = '#e07842', height = 40, width = 120 }: KpiSparklineProps) {
   if (data.length < 2) {
     return (
       <Box sx={{ width, height, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
