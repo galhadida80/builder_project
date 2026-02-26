@@ -25,6 +25,9 @@ class ProjectCreate(BaseModel):
     start_date: Optional[date] = None
     estimated_end_date: Optional[date] = None
     website: Optional[str] = Field(default=None, max_length=500)
+    location_lat: Optional[float] = None
+    location_lng: Optional[float] = None
+    location_address: Optional[str] = Field(default=None, max_length=500)
 
     @field_validator('name', 'description', 'address', mode='before')
     @classmethod

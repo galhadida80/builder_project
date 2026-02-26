@@ -55,6 +55,11 @@ export interface Project {
   createdAt: string
   updatedAt: string
   members?: ProjectMember[]
+  locationLat?: number
+  locationLng?: number
+  locationAddress?: string
+  imageUrl?: string
+  website?: string
 }
 
 export interface LinkedUser {
@@ -172,6 +177,8 @@ export interface Meeting {
   status: MeetingStatus
   hasTimeSlots: boolean
   calendarSynced: boolean
+  meetingFormat?: 'in_person' | 'online' | 'hybrid'
+  onlineLink?: string
   createdAt: string
   createdBy?: User
   attendees?: MeetingAttendee[]

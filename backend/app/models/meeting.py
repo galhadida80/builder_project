@@ -42,6 +42,8 @@ class Meeting(Base):
 
     has_time_slots: Mapped[bool] = mapped_column(Boolean, default=False)
     calendar_synced: Mapped[bool] = mapped_column(Boolean, default=False)
+    meeting_format: Mapped[Optional[str]] = mapped_column(String(20))
+    online_link: Mapped[Optional[str]] = mapped_column(String(500))
 
     project = relationship("Project", back_populates="meetings")
     created_by = relationship("User", foreign_keys=[created_by_id])

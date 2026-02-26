@@ -13,6 +13,8 @@ interface MeetingCreate {
   location?: string
   scheduled_date: string
   scheduled_time?: string
+  meeting_format?: string
+  online_link?: string
   attendee_ids?: string[]
   time_slots?: TimeSlotInput[]
 }
@@ -24,6 +26,8 @@ interface MeetingUpdate {
   location?: string
   scheduled_date?: string
   scheduled_time?: string
+  meeting_format?: string
+  online_link?: string
   summary?: string
   action_items?: Array<{ id: string; description: string; assignee_id?: string; due_date?: string; is_completed: boolean }>
   status?: string

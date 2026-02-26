@@ -111,6 +111,8 @@ class MeetingBase(BaseModel):
     location: Optional[str] = Field(default=None, max_length=MAX_NAME_LENGTH)
     scheduled_date: datetime
     scheduled_time: Optional[str] = Field(default=None, max_length=20)
+    meeting_format: Optional[str] = Field(default=None, max_length=20)
+    online_link: Optional[str] = Field(default=None, max_length=500)
 
     @field_validator('scheduled_date', mode='before')
     @classmethod
@@ -139,6 +141,8 @@ class MeetingUpdate(BaseModel):
     location: Optional[str] = Field(default=None, max_length=MAX_NAME_LENGTH)
     scheduled_date: Optional[datetime] = None
     scheduled_time: Optional[str] = Field(default=None, max_length=20)
+    meeting_format: Optional[str] = Field(default=None, max_length=20)
+    online_link: Optional[str] = Field(default=None, max_length=500)
     summary: Optional[str] = Field(default=None, max_length=MAX_NOTES_LENGTH)
     action_items: Optional[list[ActionItem]] = Field(default=None, max_length=50)
     status: Literal["scheduled", "invitations_sent", "pending_votes", "completed", "cancelled"] | None = None
@@ -175,6 +179,8 @@ class MeetingResponse(CamelCaseModel):
     status: str
     has_time_slots: bool = False
     calendar_synced: bool = False
+    meeting_format: Optional[str] = None
+    online_link: Optional[str] = None
     created_at: datetime
     created_by: Optional[UserResponse] = None
     attendees: list[MeetingAttendeeResponse] = []

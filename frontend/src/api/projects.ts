@@ -7,6 +7,9 @@ interface ProjectCreate {
   address?: string
   start_date?: string
   estimated_end_date?: string
+  location_lat?: number
+  location_lng?: number
+  location_address?: string
 }
 
 interface ProjectUpdate {
@@ -16,6 +19,9 @@ interface ProjectUpdate {
   status?: string
   start_date?: string
   estimated_end_date?: string
+  location_lat?: number | null
+  location_lng?: number | null
+  location_address?: string | null
 }
 
 interface MemberCreate {

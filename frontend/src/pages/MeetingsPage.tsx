@@ -29,7 +29,7 @@ import {
   AddIcon, EditIcon, DeleteIcon, EventIcon, LocationOnIcon,
   AccessTimeIcon, CalendarMonthIcon, CloseIcon, DownloadIcon,
   ViewListIcon, PersonAddIcon, AddPhotoAlternateIcon, CheckCircleIcon,
-  SyncIcon, ContentCopyIcon, IosShareIcon,
+  SyncIcon, ContentCopyIcon, IosShareIcon, NavigateNextIcon,
 } from '@/icons'
 import {
   Box, Typography, MenuItem, TextField as MuiTextField, Skeleton,
@@ -97,6 +97,8 @@ export default function MeetingsPage() {
     location: '',
     date: '',
     startTime: '',
+    meetingFormat: '' as '' | 'in_person' | 'online' | 'hybrid',
+    onlineLink: '',
   })
 
   const [teamMembers, setTeamMembers] = useState<TeamMemberOption[]>([])
@@ -261,7 +263,7 @@ export default function MeetingsPage() {
   }
 
   const resetForm = () => {
-    setFormData({ title: '', meetingType: '', description: '', location: '', date: '', startTime: '' })
+    setFormData({ title: '', meetingType: '', description: '', location: '', date: '', startTime: '', meetingFormat: '', onlineLink: '' })
     setErrors({})
     setEditingMeeting(null)
     setSelectedAttendees([])
@@ -301,6 +303,8 @@ export default function MeetingsPage() {
       location: meeting.location || '',
       date: `${year}-${month}-${day}`,
       startTime: `${hours}:${minutes}`,
+      meetingFormat: (meeting.meetingFormat || '') as '' | 'in_person' | 'online' | 'hybrid',
+      onlineLink: meeting.onlineLink || '',
     })
     setErrors({})
     setDialogOpen(true)
@@ -351,7 +355,9 @@ export default function MeetingsPage() {
           meeting_type: formData.meetingType || undefined,
           description: formData.description || undefined,
           location: formData.location || undefined,
-          scheduled_date
+          scheduled_date,
+          meeting_format: formData.meetingFormat || undefined,
+          online_link: formData.onlineLink || undefined,
         }))
         showSuccess(t('meetings.updatedSuccessfully'))
       } else {
@@ -367,6 +373,8 @@ export default function MeetingsPage() {
           description: formData.description || undefined,
           location: formData.location || undefined,
           scheduled_date,
+          meeting_format: formData.meetingFormat || undefined,
+          online_link: formData.onlineLink || undefined,
           attendee_ids: selectedAttendees.map(a => a.id),
           time_slots,
         }))
@@ -838,10 +846,36 @@ export default function MeetingsPage() {
                               </Box>
                             </Box>
 
-                            {meeting.location && (
-                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
-                                <LocationOnIcon sx={{ fontSize: 16, color: 'text.disabled' }} />
-                                <Typography variant="caption" color="text.secondary">{meeting.location}</Typography>
+                            {(meeting.location || meeting.meetingFormat || meeting.onlineLink) && (
+                              <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1, mb: 1.5 }}>
+                                {meeting.meetingFormat && (
+                                  <Chip
+                                    label={meeting.meetingFormat === 'in_person' ? t('meetings.formatInPerson') : meeting.meetingFormat === 'online' ? t('meetings.formatOnline') : t('meetings.formatHybrid')}
+                                    size="small"
+                                    variant="outlined"
+                                    color={meeting.meetingFormat === 'online' ? 'info' : 'default'}
+                                    sx={{ height: 22, '& .MuiChip-label': { px: 0.75, fontSize: '0.65rem' } }}
+                                  />
+                                )}
+                                {meeting.location && (
+                                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                    <LocationOnIcon sx={{ fontSize: 16, color: 'text.disabled' }} />
+                                    <Typography variant="caption" color="text.secondary">{meeting.location}</Typography>
+                                  </Box>
+                                )}
+                                {meeting.onlineLink && (
+                                  <Typography
+                                    variant="caption"
+                                    component="a"
+                                    href={meeting.onlineLink}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                                    sx={{ color: 'primary.main', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}
+                                  >
+                                    {t('meetings.joinMeeting')}
+                                  </Typography>
+                                )}
                               </Box>
                             )}
 
@@ -980,14 +1014,74 @@ export default function MeetingsPage() {
                   <Typography variant="body2" fontWeight={500}>{formatTime(selectedMeeting.scheduledDate)}</Typography>
                 </Box>
               </Box>
+              {selectedMeeting.meetingFormat && (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <Box sx={{ width: 36, height: 36, borderRadius: 1, bgcolor: 'action.hover', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <EventIcon sx={{ fontSize: 20, color: 'text.secondary' }} />
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">{t('meetings.meetingFormat')}</Typography>
+                    <Typography variant="body2" fontWeight={500}>
+                      {selectedMeeting.meetingFormat === 'in_person' ? t('meetings.formatInPerson') :
+                       selectedMeeting.meetingFormat === 'online' ? t('meetings.formatOnline') :
+                       selectedMeeting.meetingFormat === 'hybrid' ? t('meetings.formatHybrid') : selectedMeeting.meetingFormat}
+                    </Typography>
+                  </Box>
+                </Box>
+              )}
+              {selectedMeeting.onlineLink && (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <Box sx={{ width: 36, height: 36, borderRadius: 1, bgcolor: 'action.hover', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <NavigateNextIcon sx={{ fontSize: 20, color: 'primary.main' }} />
+                  </Box>
+                  <Box sx={{ flex: 1 }}>
+                    <Typography variant="caption" color="text.secondary">{t('meetings.onlineLink')}</Typography>
+                    <Typography
+                      variant="body2"
+                      fontWeight={500}
+                      component="a"
+                      href={selectedMeeting.onlineLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      sx={{ color: 'primary.main', textDecoration: 'none', display: 'block', '&:hover': { textDecoration: 'underline' } }}
+                    >
+                      {t('meetings.joinMeeting')}
+                    </Typography>
+                  </Box>
+                </Box>
+              )}
               {selectedMeeting.location && (
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                   <Box sx={{ width: 36, height: 36, borderRadius: 1, bgcolor: 'action.hover', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <LocationOnIcon sx={{ fontSize: 20, color: 'text.secondary' }} />
                   </Box>
-                  <Box>
+                  <Box sx={{ flex: 1 }}>
                     <Typography variant="caption" color="text.secondary">{t('meetings.location')}</Typography>
                     <Typography variant="body2" fontWeight={500}>{selectedMeeting.location}</Typography>
+                    {(selectedMeeting.meetingFormat === 'in_person' || selectedMeeting.meetingFormat === 'hybrid') && (
+                      <Box sx={{ display: 'flex', gap: 1, mt: 0.5 }}>
+                        <Chip
+                          label={t('meetings.openInWaze')}
+                          size="small"
+                          clickable
+                          component="a"
+                          href={`https://waze.com/ul?q=${encodeURIComponent(selectedMeeting.location)}&navigate=yes`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          sx={{ fontSize: '0.7rem' }}
+                        />
+                        <Chip
+                          label={t('meetings.openInMaps')}
+                          size="small"
+                          clickable
+                          component="a"
+                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedMeeting.location)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          sx={{ fontSize: '0.7rem' }}
+                        />
+                      </Box>
+                    )}
                   </Box>
                 </Box>
               )}
@@ -1308,14 +1402,37 @@ export default function MeetingsPage() {
             error={!!errors.description}
             helperText={errors.description}
           />
-          <TextField
+          <MuiTextField
             fullWidth
-            label={t('meetings.location')}
-            value={formData.location}
-            onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-            error={!!errors.location}
-            helperText={errors.location}
-          />
+            select
+            label={t('meetings.meetingFormat')}
+            value={formData.meetingFormat}
+            onChange={(e) => setFormData({ ...formData, meetingFormat: e.target.value as '' | 'in_person' | 'online' | 'hybrid' })}
+          >
+            <MenuItem value="">{t('meetings.selectType')}</MenuItem>
+            <MenuItem value="in_person">{t('meetings.formatInPerson')}</MenuItem>
+            <MenuItem value="online">{t('meetings.formatOnline')}</MenuItem>
+            <MenuItem value="hybrid">{t('meetings.formatHybrid')}</MenuItem>
+          </MuiTextField>
+          {(formData.meetingFormat === 'online' || formData.meetingFormat === 'hybrid') && (
+            <TextField
+              fullWidth
+              label={t('meetings.onlineLink')}
+              placeholder={t('meetings.onlineLinkPlaceholder')}
+              value={formData.onlineLink}
+              onChange={(e) => setFormData({ ...formData, onlineLink: e.target.value })}
+            />
+          )}
+          {(formData.meetingFormat === 'in_person' || formData.meetingFormat === 'hybrid' || !formData.meetingFormat) && (
+            <TextField
+              fullWidth
+              label={t('meetings.location')}
+              value={formData.location}
+              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+              error={!!errors.location}
+              helperText={errors.location}
+            />
+          )}
           {!editingMeeting && (
             <FormControlLabel
               control={
