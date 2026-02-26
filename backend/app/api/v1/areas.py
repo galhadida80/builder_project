@@ -20,6 +20,16 @@ from app.utils.localization import get_language_from_request, translate_message
 router = APIRouter()
 
 
+def build_area_tree(areas: list[ConstructionArea]) -> list[ConstructionArea]:
+    lookup = {area.id: area for area in areas}
+    for area in areas:
+        area.children = []
+    for area in areas:
+        if area.parent_id and area.parent_id in lookup:
+            lookup[area.parent_id].children.append(area)
+    return [area for area in areas if area.parent_id is None]
+
+
 @router.get("/projects/{project_id}/areas", response_model=list[AreaResponse])
 async def list_areas(
     project_id: UUID,
@@ -31,13 +41,12 @@ async def list_areas(
         select(ConstructionArea)
         .options(
             selectinload(ConstructionArea.progress_updates).selectinload(AreaProgress.reported_by),
-            selectinload(ConstructionArea.children).selectinload(ConstructionArea.progress_updates),
-            selectinload(ConstructionArea.children).selectinload(ConstructionArea.children),
         )
-        .where(ConstructionArea.project_id == project_id, ConstructionArea.parent_id.is_(None))
+        .where(ConstructionArea.project_id == project_id)
         .order_by(ConstructionArea.name)
     )
-    return result.scalars().all()
+    all_areas = result.scalars().all()
+    return build_area_tree(all_areas)
 
 
 @router.post("/projects/{project_id}/areas", response_model=AreaResponse)
@@ -87,8 +96,6 @@ async def get_area(
         select(ConstructionArea)
         .options(
             selectinload(ConstructionArea.progress_updates).selectinload(AreaProgress.reported_by),
-            selectinload(ConstructionArea.children).selectinload(ConstructionArea.progress_updates),
-            selectinload(ConstructionArea.children).selectinload(ConstructionArea.children),
         )
         .where(ConstructionArea.id == area_id, ConstructionArea.project_id == project_id)
     )
@@ -97,6 +104,18 @@ async def get_area(
         language = get_language_from_request(request)
         error_message = translate_message('resources.area_not_found', language)
         raise HTTPException(status_code=404, detail=error_message)
+    children_result = await db.execute(
+        select(ConstructionArea)
+        .options(
+            selectinload(ConstructionArea.progress_updates).selectinload(AreaProgress.reported_by),
+        )
+        .where(ConstructionArea.project_id == project_id, ConstructionArea.parent_id == area_id)
+        .order_by(ConstructionArea.name)
+    )
+    children = children_result.scalars().all()
+    for child in children:
+        child.children = []
+    area.children = children
     return area
 
 

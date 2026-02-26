@@ -103,6 +103,7 @@ export default function ContactSelectorDialog({
                 onChange={(_, value) => { setConsultantContact(value); setShowValidation(false) }}
                 getOptionLabel={(o) => `${o.contactName}${o.companyName ? ` (${o.companyName})` : ''}`}
                 renderOption={renderOption}
+                slotProps={{ popper: { sx: { zIndex: 1600 } } }}
                 renderInput={(params) => (
                   <MuiTextField
                     {...params}
@@ -124,6 +125,7 @@ export default function ContactSelectorDialog({
                 onChange={(_, value) => { setInspectorContact(value); setShowValidation(false) }}
                 getOptionLabel={(o) => `${o.contactName}${o.companyName ? ` (${o.companyName})` : ''}`}
                 renderOption={renderOption}
+                slotProps={{ popper: { sx: { zIndex: 1600 } } }}
                 renderInput={(params) => (
                   <MuiTextField
                     {...params}

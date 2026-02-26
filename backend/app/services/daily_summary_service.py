@@ -1,5 +1,5 @@
 import uuid
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -19,8 +19,8 @@ from app.models.rfi import RFI
 async def collect_project_daily_summary(
     db: AsyncSession, project_id: uuid.UUID, summary_date: date
 ) -> dict:
-    day_start = datetime.combine(summary_date, datetime.min.time())
-    day_end = datetime.combine(summary_date + timedelta(days=1), datetime.min.time())
+    day_start = datetime.combine(summary_date, datetime.min.time(), tzinfo=timezone.utc)
+    day_end = datetime.combine(summary_date + timedelta(days=1), datetime.min.time(), tzinfo=timezone.utc)
 
     audit_entries = await _get_audit_entries(db, project_id, day_start, day_end)
     equipment_stats = await _get_entity_day_stats(db, Equipment, project_id, day_start, day_end)

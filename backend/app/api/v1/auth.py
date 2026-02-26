@@ -10,6 +10,8 @@ from fastapi import APIRouter, BackgroundTasks, Body, Depends, HTTPException, Qu
 from jose import JWTError, jwt
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from google.auth.transport import requests as google_requests
+from google.oauth2 import id_token as google_id_token
 from webauthn import generate_authentication_options, generate_registration_options, verify_authentication_response, verify_registration_response
 from webauthn.helpers.cose import COSEAlgorithmIdentifier
 from webauthn.helpers.structs import AuthenticatorSelectionCriteria, PublicKeyCredentialDescriptor, ResidentKeyRequirement, UserVerificationRequirement
@@ -201,9 +203,6 @@ async def google_login(data: GoogleAuthRequest, request: Request, db: AsyncSessi
     settings = get_settings()
     if not settings.google_auth_client_id:
         raise HTTPException(status_code=501, detail="Google Sign-In is not configured")
-
-    from google.oauth2 import id_token as google_id_token
-    from google.auth.transport import requests as google_requests
 
     try:
         idinfo = google_id_token.verify_oauth2_token(

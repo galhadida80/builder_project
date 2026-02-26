@@ -8,6 +8,7 @@ interface AuthContextType {
   isSuperAdmin: boolean
   loading: boolean
   login: (email: string, password: string) => Promise<void>
+  loginWithGoogle: (credential: string) => Promise<void>
   loginWithWebAuthn: (email: string) => Promise<void>
   register: (email: string, password: string, fullName: string, inviteToken?: string) => Promise<void>
   logout: () => void
@@ -60,6 +61,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(response.user)
   }, [])
 
+  const loginWithGoogle = useCallback(async (credential: string) => {
+    const response = await authApi.googleLogin(credential)
+    localStorage.setItem('authToken', response.accessToken)
+    localStorage.setItem('userId', response.user.id)
+    setUser(response.user)
+  }, [])
+
   const loginWithWebAuthn = useCallback(async (email: string) => {
     let options
     try {
@@ -98,11 +106,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isSuperAdmin: user?.isSuperAdmin ?? false,
     loading,
     login,
+    loginWithGoogle,
     loginWithWebAuthn,
     register,
     logout,
     refreshUser,
-  }), [user, loading, login, loginWithWebAuthn, register, logout, refreshUser])
+  }), [user, loading, login, loginWithGoogle, loginWithWebAuthn, register, logout, refreshUser])
 
   return (
     <AuthContext.Provider value={value}>

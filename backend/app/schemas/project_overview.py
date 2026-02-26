@@ -64,3 +64,6 @@ class ProjectOverviewResponse(CamelCaseModel):
     team_stats: TeamStats
     stats: ProjectStats
     last_updated: datetime = Field(description="Timestamp when overview data was generated")
+    location_lat: Optional[float] = None
+    location_lng: Optional[float] = None
+    location_address: Optional[str] = None

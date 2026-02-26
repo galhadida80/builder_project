@@ -70,8 +70,15 @@ class ProjectUpdate(BaseModel):
         if v is None:
             return v
         start = info.data.get('start_date')
-        if start and v <= start:
-            raise ValueError("End date must be after start date")
+        if not start:
+            return v
+        try:
+            end_val = date.fromisoformat(v) if isinstance(v, str) else v
+            start_val = date.fromisoformat(start) if isinstance(start, str) else start
+            if end_val <= start_val:
+                raise ValueError("End date must be after start date")
+        except (TypeError, AttributeError):
+            pass
         return v
 
 

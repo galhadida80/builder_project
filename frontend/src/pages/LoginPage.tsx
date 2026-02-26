@@ -9,6 +9,7 @@ import { invitationsApi } from '../api/invitations'
 import { authApi } from '../api/auth'
 import { projectsApi } from '../api/projects'
 import { passwordSchema } from '../schemas/validation'
+import { GoogleLogin } from '@react-oauth/google'
 import { ConstructionIcon, EmailIcon, LockIcon, PersonIcon, VisibilityIcon, VisibilityOffIcon, ArrowBackIcon, FingerprintIcon } from '@/icons'
 import { Box, Typography, Alert, Link, Divider, Fade, IconButton } from '@/mui'
 
@@ -16,7 +17,9 @@ export default function LoginPage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const { t } = useTranslation()
-  const { login, loginWithWebAuthn, register } = useAuth()
+  const { login, loginWithGoogle, loginWithWebAuthn, register } = useAuth()
+  const [googleLoading, setGoogleLoading] = useState(false)
+  const googleConfigured = !!import.meta.env.VITE_GOOGLE_CLIENT_ID
   const inviteToken = searchParams.get('invite')
   const initialTab = searchParams.get('tab') || 'signin'
   const [tab, setTab] = useState(initialTab)
@@ -82,6 +85,21 @@ export default function LoginPage() {
       navigate('/dashboard')
     }
   }
+
+  const handleGoogleSuccess = useCallback(async (credentialResponse: { credential?: string }) => {
+    if (!credentialResponse.credential) return
+    setGoogleLoading(true)
+    setError(null)
+    try {
+      await loginWithGoogle(credentialResponse.credential)
+      await navigateAfterLogin()
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { detail?: string } } }
+      setError(error.response?.data?.detail || t('googleSignInFailed'))
+    } finally {
+      setGoogleLoading(false)
+    }
+  }, [loginWithGoogle, navigateAfterLogin, t])
 
   const handleBiometricLogin = useCallback(async (biometricEmail: string) => {
     setBiometricLoading(true)
@@ -480,34 +498,49 @@ export default function LoginPage() {
                   </Box>
                 </form>
 
-                {webauthnAvailable && webauthnEmail && (
-                  <>
-                    <Divider sx={{ my: 3 }}>
-                      <Typography variant="caption" color="text.disabled" sx={{ px: 2, textTransform: 'uppercase', fontSize: '0.7rem' }}>
-                        {t('or')}
-                      </Typography>
-                    </Divider>
+                {(googleConfigured || (webauthnAvailable && webauthnEmail)) && (
+                  <Divider sx={{ my: 3 }}>
+                    <Typography variant="caption" color="text.disabled" sx={{ px: 2, textTransform: 'uppercase', fontSize: '0.7rem' }}>
+                      {t('or')}
+                    </Typography>
+                  </Divider>
+                )}
 
-                    <Button
-                      fullWidth
-                      variant="secondary"
-                      icon={<FingerprintIcon />}
-                      loading={biometricLoading}
-                      onClick={() => handleBiometricLogin(webauthnEmail)}
-                      sx={{
-                        py: 1.5,
-                        fontSize: '0.9375rem',
-                        fontWeight: 600,
-                        borderRadius: 2,
-                      }}
-                    >
-                      {t('webauthn.loginButton')}
-                    </Button>
-                  </>
+                {googleConfigured && (
+                  <Box sx={{ display: 'flex', justifyContent: 'center', mb: webauthnAvailable && webauthnEmail ? 1.5 : 0, opacity: googleLoading ? 0.6 : 1 }}>
+                    <GoogleLogin
+                      onSuccess={handleGoogleSuccess}
+                      onError={() => setError(t('googleSignInFailed'))}
+                      size="large"
+                      width="352"
+                      text="signin_with"
+                      shape="rectangular"
+                      logo_alignment="center"
+                    />
+                  </Box>
+                )}
+
+                {webauthnAvailable && webauthnEmail && (
+                  <Button
+                    fullWidth
+                    variant="secondary"
+                    icon={<FingerprintIcon />}
+                    loading={biometricLoading}
+                    onClick={() => handleBiometricLogin(webauthnEmail)}
+                    sx={{
+                      py: 1.5,
+                      fontSize: '0.9375rem',
+                      fontWeight: 600,
+                      borderRadius: 2,
+                    }}
+                  >
+                    {t('webauthn.loginButton')}
+                  </Button>
                 )}
                 </>
                 )
               ) : (
+                <>
                 <form onSubmit={handleRegister}>
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
                     <TextField
@@ -584,6 +617,28 @@ export default function LoginPage() {
                     </Button>
                   </Box>
                 </form>
+
+                {googleConfigured && (
+                  <>
+                    <Divider sx={{ my: 3 }}>
+                      <Typography variant="caption" color="text.disabled" sx={{ px: 2, textTransform: 'uppercase', fontSize: '0.7rem' }}>
+                        {t('or')}
+                      </Typography>
+                    </Divider>
+                    <Box sx={{ display: 'flex', justifyContent: 'center', opacity: googleLoading ? 0.6 : 1 }}>
+                      <GoogleLogin
+                        onSuccess={handleGoogleSuccess}
+                        onError={() => setError(t('googleSignInFailed'))}
+                        size="large"
+                        width="352"
+                        text="signup_with"
+                        shape="rectangular"
+                        logo_alignment="center"
+                      />
+                    </Box>
+                  </>
+                )}
+                </>
               )}
             </Box>
           </Box>

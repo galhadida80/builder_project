@@ -182,6 +182,7 @@ export default function SignaturePad({
             bgcolor: disabled ? 'action.disabledBackground' : 'background.paper',
             overflow: 'hidden',
             transition: 'border-color 200ms ease-out',
+            position: 'relative',
           }}
         >
           <canvas

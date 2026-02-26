@@ -8,8 +8,9 @@ import { CircularProgressDisplay } from '../components/ui/ProgressBar'
 import { apiClient } from '../api/client'
 import { useToast } from '../components/common/ToastProvider'
 import { getDateLocale } from '../utils/dateLocale'
-import { ConstructionIcon, GroupIcon, CheckCircleIcon, ScheduleIcon, PendingIcon } from '@/icons'
+import { ConstructionIcon, GroupIcon, CheckCircleIcon, ScheduleIcon, PendingIcon, MapIcon, LocationOnIcon, NavigateNextIcon } from '@/icons'
 import { StatusBadge } from '../components/ui/StatusBadge'
+import { Button } from '../components/ui/Button'
 import { Box, Typography, Skeleton, Paper } from '@/mui'
 
 interface TimelineEvent {
@@ -59,6 +60,9 @@ interface ProjectOverviewData {
   teamStats: TeamStats
   stats: ProjectStats
   lastUpdated: string
+  locationLat: number | null
+  locationLng: number | null
+  locationAddress: string | null
 }
 
 export default function ProjectOverviewPage() {
@@ -158,6 +162,89 @@ export default function ProjectOverviewPage() {
           <StatCell value={pendingItems} label={t('overview.pending')} color="warning.main" />
         </Box>
       </Paper>
+
+      {overviewData.locationLat && overviewData.locationLng && (
+        <Paper sx={{ borderRadius: 3, p: { xs: 2, sm: 2.5 }, mb: 3, overflow: 'hidden' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 44,
+                height: 44,
+                borderRadius: 2.5,
+                background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.08))',
+                color: '#3B82F6',
+                flexShrink: 0,
+              }}
+            >
+              <MapIcon sx={{ fontSize: '1.3rem' }} />
+            </Box>
+            <Box>
+              <Typography sx={{ fontWeight: 600, fontSize: '0.95rem', color: 'text.primary' }}>
+                {t('projectDetail.location')}
+              </Typography>
+              {overviewData.locationAddress && (
+                <Typography sx={{ fontSize: '0.8rem', color: 'text.secondary', mt: 0.25 }}>
+                  {overviewData.locationAddress}
+                </Typography>
+              )}
+            </Box>
+          </Box>
+
+          <Box
+            component="a"
+            href={`https://www.google.com/maps?q=${overviewData.locationLat},${overviewData.locationLng}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            sx={{
+              display: 'block',
+              borderRadius: 2,
+              overflow: 'hidden',
+              mb: 1.5,
+              border: '1px solid',
+              borderColor: 'divider',
+            }}
+          >
+            <Box
+              component="img"
+              src={`https://maps.googleapis.com/maps/api/staticmap?center=${overviewData.locationLat},${overviewData.locationLng}&zoom=15&size=600x200&scale=2&markers=color:red%7C${overviewData.locationLat},${overviewData.locationLng}&key=${import.meta.env.VITE_GOOGLE_MAPS_KEY || ''}`}
+              alt={t('projectDetail.location')}
+              sx={{
+                width: '100%',
+                height: { xs: 150, sm: 180 },
+                objectFit: 'cover',
+                display: 'block',
+              }}
+              onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+                e.currentTarget.style.display = 'none'
+              }}
+            />
+          </Box>
+
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Button
+              variant="secondary"
+              size="small"
+              icon={<NavigateNextIcon />}
+              onClick={() => window.open(`https://waze.com/ul?ll=${overviewData.locationLat},${overviewData.locationLng}&navigate=yes`, '_blank')}
+              sx={{ flex: 1 }}
+            >
+              {t('projectDetail.openInWaze')}
+            </Button>
+            <Button
+              variant="secondary"
+              size="small"
+              icon={<LocationOnIcon />}
+              onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${overviewData.locationLat},${overviewData.locationLng}`, '_blank')}
+              sx={{ flex: 1 }}
+            >
+              {t('projectDetail.openInGoogleMaps')}
+            </Button>
+          </Box>
+        </Paper>
+      )}
 
       <Tabs
         items={[

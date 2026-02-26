@@ -17,7 +17,7 @@ import { validateProjectForm, hasErrors, VALIDATION, type ValidationError } from
 import { getDateLocale } from '../utils/dateLocale'
 import { parseValidationErrors } from '../utils/apiErrors'
 import type { Project, Equipment, Material, Meeting } from '../types'
-import { ArrowBackIcon, EditIcon, LocationOnIcon, CalendarTodayIcon, GroupIcon, ConstructionIcon, InventoryIcon, EventIcon, WarningAmberIcon, PersonAddIcon, CheckCircleIcon, HourglassEmptyIcon, AssignmentIcon, NavigateNextIcon, MapIcon } from '@/icons'
+import { ArrowBackIcon, EditIcon, LocationOnIcon, CalendarTodayIcon, GroupIcon, ConstructionIcon, InventoryIcon, EventIcon, WarningAmberIcon, PersonAddIcon, CheckCircleIcon, HourglassEmptyIcon, AssignmentIcon, MapIcon } from '@/icons'
 import { Box, Typography, Chip, Skeleton, IconButton, alpha, Divider } from '@/mui'
 import InviteMemberDialog from '../components/InviteMemberDialog'
 
@@ -548,94 +548,6 @@ export default function ProjectDetailPage() {
               onClick={() => handleNavTo('approvals')}
             />
           </Box>
-
-          {/* Location Card */}
-          {project.locationLat && project.locationLng && (
-            <Card>
-              <Box sx={{ p: { xs: 2, md: 2.5 } }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      width: 44,
-                      height: 44,
-                      borderRadius: 2.5,
-                      background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.08))',
-                      color: '#3B82F6',
-                      flexShrink: 0,
-                    }}
-                  >
-                    <MapIcon sx={{ fontSize: '1.3rem' }} />
-                  </Box>
-                  <Box>
-                    <Typography sx={{ fontWeight: 600, fontSize: '0.95rem', color: 'text.primary' }}>
-                      {t('projectDetail.location')}
-                    </Typography>
-                    {project.locationAddress && (
-                      <Typography sx={{ fontSize: '0.8rem', color: 'text.secondary', mt: 0.25 }}>
-                        {project.locationAddress}
-                      </Typography>
-                    )}
-                  </Box>
-                </Box>
-
-                {/* Static Google Maps image */}
-                <Box
-                  component="a"
-                  href={`https://www.google.com/maps?q=${project.locationLat},${project.locationLng}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  sx={{
-                    display: 'block',
-                    borderRadius: 2,
-                    overflow: 'hidden',
-                    mb: 1.5,
-                    border: '1px solid',
-                    borderColor: 'divider',
-                  }}
-                >
-                  <Box
-                    component="img"
-                    src={`https://maps.googleapis.com/maps/api/staticmap?center=${project.locationLat},${project.locationLng}&zoom=15&size=600x200&scale=2&markers=color:red%7C${project.locationLat},${project.locationLng}&key=${import.meta.env.VITE_GOOGLE_MAPS_KEY || ''}`}
-                    alt={t('projectDetail.location')}
-                    sx={{
-                      width: '100%',
-                      height: { xs: 150, sm: 180 },
-                      objectFit: 'cover',
-                      display: 'block',
-                    }}
-                    onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
-                      e.currentTarget.style.display = 'none'
-                    }}
-                  />
-                </Box>
-
-                {/* Navigation buttons */}
-                <Box sx={{ display: 'flex', gap: 1 }}>
-                  <Button
-                    variant="secondary"
-                    size="small"
-                    icon={<NavigateNextIcon />}
-                    onClick={() => window.open(`https://waze.com/ul?ll=${project.locationLat},${project.locationLng}&navigate=yes`, '_blank')}
-                    sx={{ flex: 1 }}
-                  >
-                    {t('projectDetail.openInWaze')}
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    size="small"
-                    icon={<LocationOnIcon />}
-                    onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${project.locationLat},${project.locationLng}`, '_blank')}
-                    sx={{ flex: 1 }}
-                  >
-                    {t('projectDetail.openInGoogleMaps')}
-                  </Button>
-                </Box>
-              </Box>
-            </Card>
-          )}
 
           {/* Team Card */}
           <Card>

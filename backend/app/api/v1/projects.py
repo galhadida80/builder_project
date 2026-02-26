@@ -70,8 +70,11 @@ async def create_project(
                           project_id=project.id, new_values=get_model_dict(project))
 
     await db.commit()
-    await db.refresh(project, ["members"])
-    return project
+    result = await db.execute(
+        select(Project).where(Project.id == project.id)
+        .options(selectinload(Project.members).selectinload(ProjectMember.user))
+    )
+    return result.scalar_one()
 
 
 @router.get("/{project_id}", response_model=ProjectResponse)
@@ -117,8 +120,11 @@ async def update_project(
                           project_id=project.id, old_values=old_values, new_values=get_model_dict(project))
 
     await db.commit()
-    await db.refresh(project, ["members"])
-    return project
+    result = await db.execute(
+        select(Project).where(Project.id == project.id)
+        .options(selectinload(Project.members).selectinload(ProjectMember.user))
+    )
+    return result.scalar_one()
 
 
 @router.delete("/{project_id}")
@@ -308,7 +314,10 @@ async def get_project_overview(
         timeline=timeline,
         team_stats=team_stats,
         stats=stats,
-        last_updated=utcnow()
+        last_updated=utcnow(),
+        location_lat=project.location_lat,
+        location_lng=project.location_lng,
+        location_address=project.location_address,
     )
 
 

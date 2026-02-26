@@ -75,6 +75,14 @@ export const authApi = {
     }
   },
 
+  googleLogin: async (credential: string): Promise<{ accessToken: string; user: User }> => {
+    const response = await apiClient.post<LoginResponse>('/auth/google', { credential })
+    return {
+      accessToken: response.data.accessToken,
+      user: transformUser(response.data.user),
+    }
+  },
+
   getCurrentUser: async (): Promise<User> => {
     const response = await apiClient.get<LoginResponse['user']>('/auth/me')
     return transformUser(response.data)

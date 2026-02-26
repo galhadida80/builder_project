@@ -132,7 +132,9 @@ export default function RecipientSelector({
             onChange(selected.map(contactToRecipient))
           }}
           getOptionLabel={(option) => option.contactName}
+          isOptionEqualToValue={(option, val) => option.id === val.id}
           renderOption={renderOption}
+          slotProps={{ popper: { sx: { zIndex: 1400 } } }}
           renderTags={(tagValue, getTagProps) =>
             tagValue.map((option, index) => {
               const { key, ...tagProps } = getTagProps({ index })
@@ -199,7 +201,9 @@ export default function RecipientSelector({
           onChange(selected ? [contactToRecipient(selected)] : [])
         }}
         getOptionLabel={(option) => option.contactName}
+        isOptionEqualToValue={(option, val) => option.id === val.id}
         renderOption={renderOption}
+        slotProps={{ popper: { sx: { zIndex: 1400 } } }}
         renderInput={(params) => (
           <MuiTextField
             {...params}
