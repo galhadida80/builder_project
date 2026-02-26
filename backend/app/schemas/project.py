@@ -8,13 +8,11 @@ from pydantic import BaseModel, Field, field_validator, model_validator
 
 from app.core.validators import (
     MAX_ADDRESS_LENGTH,
-    MAX_CODE_LENGTH,
     MAX_DESCRIPTION_LENGTH,
     MAX_NAME_LENGTH,
     MIN_NAME_LENGTH,
     CamelCaseModel,
     sanitize_string,
-    validate_code,
 )
 from app.models.project import ProjectStatus
 from app.schemas.user import UserResponse
@@ -22,7 +20,6 @@ from app.schemas.user import UserResponse
 
 class ProjectCreate(BaseModel):
     name: str = Field(min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
-    code: str = Field(min_length=2, max_length=MAX_CODE_LENGTH)
     description: Optional[str] = Field(default=None, max_length=MAX_DESCRIPTION_LENGTH)
     address: Optional[str] = Field(default=None, max_length=MAX_ADDRESS_LENGTH)
     start_date: Optional[date] = None
@@ -33,11 +30,6 @@ class ProjectCreate(BaseModel):
     @classmethod
     def sanitize_text(cls, v: Optional[str]) -> Optional[str]:
         return sanitize_string(v)
-
-    @field_validator('code', mode='before')
-    @classmethod
-    def validate_project_code(cls, v: str) -> str:
-        return validate_code(v)
 
 
 class ProjectUpdate(BaseModel):
@@ -96,7 +88,6 @@ class ProjectMemberResponse(CamelCaseModel):
 class ProjectResponse(CamelCaseModel):
     id: UUID
     name: str
-    code: str
     description: Optional[str] = None
     address: Optional[str] = None
     start_date: Optional[date] = None

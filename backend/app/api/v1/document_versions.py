@@ -67,7 +67,6 @@ async def create_version(
 
     max_ver = await db.execute(
         select(func.max(DocumentVersion.version_number)).where(DocumentVersion.file_id == file_id)
-        .with_for_update()
     )
     next_version = (max_ver.scalar() or 0) + 1
 

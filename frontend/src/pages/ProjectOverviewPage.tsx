@@ -9,7 +9,8 @@ import { apiClient } from '../api/client'
 import { useToast } from '../components/common/ToastProvider'
 import { getDateLocale } from '../utils/dateLocale'
 import { ConstructionIcon, GroupIcon, CheckCircleIcon, ScheduleIcon, PendingIcon } from '@/icons'
-import { Box, Typography, Skeleton, Chip, Paper } from '@/mui'
+import { StatusBadge } from '../components/ui/StatusBadge'
+import { Box, Typography, Skeleton, Paper } from '@/mui'
 
 interface TimelineEvent {
   id: string
@@ -52,7 +53,6 @@ interface ProjectStats {
 interface ProjectOverviewData {
   projectId: string
   projectName: string
-  projectCode: string
   projectStatus: string
   progress: ProgressMetrics
   timeline: TimelineEvent[]
@@ -128,7 +128,7 @@ export default function ProjectOverviewPage() {
         <Typography variant="h5" sx={{ fontWeight: 700, fontSize: { xs: '1.25rem', sm: '1.5rem' }, mb: 0.5 }}>
           {t('overview.title')}
         </Typography>
-        <Chip label={overviewData.projectCode} size="small" sx={{ fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.05em' }} />
+        <StatusBadge status={overviewData.projectStatus} />
       </Box>
 
       <Paper sx={{ borderRadius: 3, p: { xs: 2.5, sm: 3 }, mb: 3 }}>

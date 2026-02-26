@@ -45,7 +45,6 @@ async def get_project_summary(db: AsyncSession, project_id: uuid.UUID, **kwargs)
 
     return {
         "name": project.name,
-        "code": project.code,
         "status": project.status,
         "description": project.description,
         "address": project.address,

@@ -234,7 +234,7 @@ export default function ProjectDetailPage() {
   const [editOpen, setEditOpen] = useState(false)
   const [editSaving, setEditSaving] = useState(false)
   const [editErrors, setEditErrors] = useState<ValidationError>({})
-  const [editForm, setEditForm] = useState({ name: '', code: '', description: '', address: '', startDate: '', estimatedEndDate: '' })
+  const [editForm, setEditForm] = useState({ name: '', description: '', address: '', startDate: '', estimatedEndDate: '' })
   const [inviteOpen, setInviteOpen] = useState(false)
 
   const isOverview = !outlet
@@ -304,7 +304,6 @@ export default function ProjectDetailPage() {
     if (!project) return
     setEditForm({
       name: project.name,
-      code: project.code,
       description: project.description || '',
       address: project.address || '',
       startDate: project.startDate || '',
@@ -361,27 +360,9 @@ export default function ProjectDetailPage() {
           borderRadius: { xs: 3, sm: 4 },
           overflow: 'hidden',
           position: 'relative',
-          background: 'linear-gradient(135deg, #1a1210 0%, #0d0807 40%, #0a0a0a 100%)',
-          border: '1px solid rgba(224, 120, 66, 0.15)',
-          '&::before': {
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            height: '1px',
-            background: 'linear-gradient(90deg, transparent 10%, rgba(224, 120, 66, 0.5) 50%, transparent 90%)',
-          },
-          '&::after': {
-            content: '""',
-            position: 'absolute',
-            top: '-50%',
-            right: '-20%',
-            width: '60%',
-            height: '200%',
-            background: 'radial-gradient(ellipse at center, rgba(224, 120, 66, 0.06) 0%, transparent 70%)',
-            pointerEvents: 'none',
-          },
+          bgcolor: 'background.paper',
+          border: '1px solid',
+          borderColor: 'divider',
         }}
       >
         <Box
@@ -406,18 +387,6 @@ export default function ProjectDetailPage() {
                 >
                   {project.name}
                 </Typography>
-                <Chip
-                  label={project.code}
-                  size="small"
-                  sx={{
-                    bgcolor: 'rgba(224, 120, 66, 0.15)',
-                    color: '#e07842',
-                    fontWeight: 700,
-                    fontSize: '0.7rem',
-                    border: '1px solid rgba(224, 120, 66, 0.25)',
-                    letterSpacing: '0.03em',
-                  }}
-                />
                 <StatusBadge status={project.status} />
               </Box>
               {project.description && (
@@ -642,13 +611,6 @@ export default function ProjectDetailPage() {
             error={!!editErrors.name}
             helperText={editErrors.name}
             inputProps={{ maxLength: VALIDATION.MAX_NAME_LENGTH }}
-          />
-          <TextField
-            fullWidth
-            label={t('pages.projects.projectCode')}
-            disabled
-            value={editForm.code}
-            helperText={t('pages.projects.codeCannotBeChanged')}
           />
           <TextField
             fullWidth

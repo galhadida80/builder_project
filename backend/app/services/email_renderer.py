@@ -696,7 +696,6 @@ def render_invitation_email(
     invited_by: str,
     invite_url: str,
     language: str = "en",
-    project_code: str = "",
     project_address: str = "",
     project_description: str = "",
 ) -> tuple[str, str]:
@@ -718,7 +717,6 @@ def render_invitation_email(
     html = template.render(
         strings=strings,
         project_name=project_name,
-        project_code=project_code,
         project_address=project_address,
         project_description=project_description,
         role=role,

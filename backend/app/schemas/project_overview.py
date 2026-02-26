@@ -58,7 +58,6 @@ class ProjectOverviewResponse(CamelCaseModel):
     """Complete project overview response with progress, timeline, and statistics"""
     project_id: UUID
     project_name: str
-    project_code: str
     project_status: str
     progress: ProgressMetrics
     timeline: list[TimelineEvent] = Field(default_factory=list, description="Recent timeline events, sorted by date descending")

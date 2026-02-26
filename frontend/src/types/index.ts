@@ -46,7 +46,6 @@ export interface ProjectMember {
 export interface Project {
   id: string
   name: string
-  code: string
   description?: string
   address?: string
   startDate?: string

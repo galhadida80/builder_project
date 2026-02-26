@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import func, or_, select, text
+from sqlalchemy import String, func, or_, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -28,12 +28,9 @@ class RFIService:
         self.settings = get_settings()
 
     async def generate_rfi_from_email(self, project_id: uuid.UUID, rfi_number: str) -> str:
-        result = await self.db.execute(
-            select(Project.code).where(Project.id == project_id)
-        )
-        project_code = result.scalar_one()
+        short_id = str(project_id)[:8]
         seq = rfi_number.split("-")[-1]
-        tag = f"rfi-{project_code}-{seq}".lower()
+        tag = f"rfi-{short_id}-{seq}".lower()
         local, domain = self.settings.rfi_email_address.split("@")
         return f"{local}+{tag}@{domain}"
 
@@ -47,7 +44,7 @@ class RFIService:
         result = await self.db.execute(
             select(func.max(RFI.rfi_number)).where(
                 RFI.rfi_number.like(f"{prefix}%")
-            ).with_for_update()
+            )
         )
         max_number = result.scalar()
         if max_number:
@@ -218,7 +215,7 @@ class RFIService:
                 select(RFI)
                 .join(Project, RFI.project_id == Project.id)
                 .where(
-                    func.upper(Project.code) == parsed.plus_tag_project_code,
+                    func.cast(Project.id, String).like(f"{parsed.plus_tag_project_code.lower()}%"),
                     RFI.rfi_number.like(f"%-{parsed.plus_tag_seq}")
                 )
             )

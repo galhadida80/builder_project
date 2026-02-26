@@ -106,7 +106,7 @@ def generate_inspections_report_pdf(inspections: list[Inspection], project) -> b
         direction="rtl",
         align="right",
         project_name=project.name,
-        project_code=getattr(project, "code", ""),
+        project_code="",
         report_date=today,
         total_count=len(inspections),
         inspections=inspection_items,

@@ -213,7 +213,7 @@ async def generate_defects_report_pdf(
         direction="rtl",
         align="right",
         project_name=project.name,
-        project_code=getattr(project, "code", ""),
+        project_code="",
         report_date=today,
         total_count=len(defects),
         defects=defect_items,

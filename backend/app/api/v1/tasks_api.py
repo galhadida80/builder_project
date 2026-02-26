@@ -40,7 +40,6 @@ async def get_next_task_number(db: AsyncSession, project_id: UUID) -> int:
     result = await db.execute(
         select(func.coalesce(func.max(Task.task_number), 0))
         .where(Task.project_id == project_id)
-        .with_for_update()
     )
     return (result.scalar() or 0) + 1
 

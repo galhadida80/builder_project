@@ -54,11 +54,6 @@ export default function ProjectSelector({ projects, currentProject, onProjectCha
               <Typography sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0, flex: 1 }}>
                 {project?.name}
               </Typography>
-              <Chip
-                label={project?.code}
-                size="small"
-                sx={{ height: 20, fontSize: '0.7rem', flexShrink: 0, display: { xs: 'none', sm: 'flex' } }}
-              />
             </Box>
           )
         }}
@@ -71,7 +66,6 @@ export default function ProjectSelector({ projects, currentProject, onProjectCha
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
               <Box>
                 <Typography variant="body2">{project.name}</Typography>
-                <Typography variant="caption" color="text.secondary">{project.code}</Typography>
               </Box>
               <Chip
                 label={project.status}

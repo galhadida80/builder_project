@@ -58,7 +58,7 @@ export default function ProjectManagerDashboard() {
         const mappedProjects: ProjectMetrics[] = projectsData.map((p: Project) => ({
           id: p.id,
           name: p.name,
-          code: p.code || p.id.substring(0, 8),
+          code: p.id.substring(0, 8).toUpperCase(),
           status: (p.status as ProjectMetrics['status']) || 'active',
           progress: p.completionPercentage || 0,
           budget: { spent: 0, total: 0 },

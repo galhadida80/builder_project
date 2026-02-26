@@ -3,7 +3,6 @@ import type { Project, ProjectMember } from '../types'
 
 interface ProjectCreate {
   name: string
-  code: string
   description?: string
   address?: string
   start_date?: string

@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '../ui/Button'
-import { CloseIcon, CloudUploadIcon, ContactPhoneIcon, FileUploadIcon, CheckCircleIcon, WarningIcon, PersonIcon, DeleteIcon } from '@/icons'
+import { CloseIcon, CloudUploadIcon, ContactPhoneIcon, FileUploadIcon, CheckCircleIcon, PersonIcon, DeleteIcon } from '@/icons'
 import { contactsApi, type ContactImportRow, type ContactImportResult } from '../../api/contacts'
 import {
   Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Box, Typography,
@@ -54,9 +54,40 @@ const DropZone = styled(Box, { shouldForwardProp: (p) => p !== 'isDragOver' })<{
 
 const CONTACT_TYPES = ['contractor', 'consultant', 'supplier', 'supervisor', 'inspector', 'engineer', 'manager', 'other']
 
+function parseVCard(text: string): PhoneContact[] {
+  const contacts: PhoneContact[] = []
+  const cards = text.split('BEGIN:VCARD').filter(c => c.trim())
+  for (const card of cards) {
+    const lines = card.split(/\r?\n/)
+    let name = ''
+    let email = ''
+    let phone = ''
+    for (const line of lines) {
+      const upper = line.toUpperCase()
+      if (upper.startsWith('FN:') || upper.startsWith('FN;')) {
+        name = line.substring(line.indexOf(':') + 1).trim()
+      } else if (!name && (upper.startsWith('N:') || upper.startsWith('N;'))) {
+        const parts = line.substring(line.indexOf(':') + 1).split(';')
+        const lastName = (parts[0] || '').trim()
+        const firstName = (parts[1] || '').trim()
+        name = [firstName, lastName].filter(Boolean).join(' ')
+      } else if (!email && (upper.startsWith('EMAIL:') || upper.startsWith('EMAIL;'))) {
+        email = line.substring(line.indexOf(':') + 1).trim()
+      } else if (!phone && (upper.startsWith('TEL:') || upper.startsWith('TEL;'))) {
+        phone = line.substring(line.indexOf(':') + 1).trim()
+      }
+    }
+    if (name) {
+      contacts.push({ name, email, phone, selected: true })
+    }
+  }
+  return contacts
+}
+
 export default function ImportContactsDialog({ open, onClose, projectId, onImportComplete }: ImportContactsDialogProps) {
   const { t } = useTranslation()
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const vcfInputRef = useRef<HTMLInputElement>(null)
   const [tab, setTab] = useState(0)
   const [dragOver, setDragOver] = useState(false)
   const [file, setFile] = useState<File | null>(null)
@@ -64,7 +95,8 @@ export default function ImportContactsDialog({ open, onClose, projectId, onImpor
   const [result, setResult] = useState<ContactImportResult | null>(null)
   const [phoneContacts, setPhoneContacts] = useState<PhoneContact[]>([])
   const [phoneContactType, setPhoneContactType] = useState('contractor')
-  const [phoneSupported] = useState(() => 'contacts' in navigator && 'ContactsManager' in window)
+  const [vcfError, setVcfError] = useState('')
+  const phoneSupported = 'contacts' in navigator && 'ContactsManager' in window
 
   const reset = () => {
     setFile(null)
@@ -72,6 +104,7 @@ export default function ImportContactsDialog({ open, onClose, projectId, onImpor
     setPhoneContacts([])
     setImporting(false)
     setDragOver(false)
+    setVcfError('')
   }
 
   const handleClose = () => {
@@ -121,9 +154,35 @@ export default function ImportContactsDialog({ open, onClose, projectId, onImpor
         phone: c.tel?.[0] || '',
         selected: true,
       })).filter((c: PhoneContact) => c.name)
-      setPhoneContacts(mapped)
+      setPhoneContacts(prev => {
+        const existingNames = new Set(prev.map(p => p.name))
+        const newOnes = mapped.filter((c: PhoneContact) => !existingNames.has(c.name))
+        return [...prev, ...newOnes]
+      })
     } catch {
       // User cancelled picker
+    }
+  }
+
+  const handleVcfFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selected = e.target.files?.[0]
+    if (!selected) return
+    e.target.value = ''
+    setVcfError('')
+    try {
+      const text = await selected.text()
+      const parsed = parseVCard(text)
+      if (parsed.length === 0) {
+        setVcfError(t('contacts.import.vcfEmpty'))
+        return
+      }
+      setPhoneContacts(prev => {
+        const existingNames = new Set(prev.map(p => p.name))
+        const newOnes = parsed.filter(c => !existingNames.has(c.name))
+        return [...prev, ...newOnes]
+      })
+    } catch {
+      setVcfError(t('contacts.import.vcfError'))
     }
   }
 
@@ -248,97 +307,111 @@ export default function ImportContactsDialog({ open, onClose, projectId, onImpor
 
             {tab === 1 && (
               <Box sx={{ p: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>
-                {phoneSupported ? (
-                  <>
-                    {phoneContacts.length === 0 ? (
-                      <Box sx={{ textAlign: 'center', py: 3 }}>
-                        <ContactPhoneIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 1 }} />
-                        <Typography variant="body1" fontWeight={600} sx={{ mb: 1 }}>
-                          {t('contacts.import.pickFromPhone')}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                          {t('contacts.import.pickDescription')}
-                        </Typography>
-                        <Button variant="primary" icon={<ContactPhoneIcon />} onClick={handlePickPhoneContacts}>
+                <input ref={vcfInputRef} type="file" accept=".vcf,.vcard" hidden onChange={handleVcfFileSelect} />
+
+                {phoneContacts.length === 0 ? (
+                  <Box sx={{ textAlign: 'center', py: 3 }}>
+                    <ContactPhoneIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 1 }} />
+                    <Typography variant="body1" fontWeight={600} sx={{ mb: 1 }}>
+                      {t('contacts.import.pickFromPhone')}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                      {t('contacts.import.pickDescription')}
+                    </Typography>
+
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, alignItems: 'center' }}>
+                      <Button variant="primary" icon={<FileUploadIcon />} onClick={() => vcfInputRef.current?.click()}>
+                        {t('contacts.import.uploadVcf')}
+                      </Button>
+                      {phoneSupported && (
+                        <Button variant="secondary" icon={<ContactPhoneIcon />} onClick={handlePickPhoneContacts}>
                           {t('contacts.import.selectContacts')}
                         </Button>
-                      </Box>
-                    ) : (
-                      <>
-                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                          <Typography variant="body2" fontWeight={600}>
-                            {t('contacts.import.selectedCount', { count: selectedPhoneCount })}
-                          </Typography>
-                          <Button variant="secondary" size="small" icon={<ContactPhoneIcon />} onClick={handlePickPhoneContacts}>
-                            {t('contacts.import.addMore')}
-                          </Button>
-                        </Box>
+                      )}
+                    </Box>
 
-                        <MuiTextField
-                          select fullWidth size="small"
-                          label={t('contacts.import.defaultType')}
-                          value={phoneContactType}
-                          onChange={(e) => setPhoneContactType(e.target.value)}
-                        >
-                          {CONTACT_TYPES.map(ct => (
-                            <MenuItem key={ct} value={ct}>{t(`contacts.types.${ct}`)}</MenuItem>
-                          ))}
-                        </MuiTextField>
-
-                        <TableContainer sx={{ maxHeight: 250, border: 1, borderColor: 'divider', borderRadius: 1 }}>
-                          <Table size="small" stickyHeader>
-                            <TableHead>
-                              <TableRow>
-                                <TableCell padding="checkbox">
-                                  <Checkbox
-                                    checked={phoneContacts.every(c => c.selected)}
-                                    indeterminate={phoneContacts.some(c => c.selected) && !phoneContacts.every(c => c.selected)}
-                                    onChange={toggleAllPhoneContacts}
-                                    size="small"
-                                  />
-                                </TableCell>
-                                <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }}>{t('contacts.contactName')}</TableCell>
-                                <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }}>{t('contacts.phone')}</TableCell>
-                                <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }}>{t('contacts.email')}</TableCell>
-                                <TableCell padding="checkbox" />
-                              </TableRow>
-                            </TableHead>
-                            <TableBody>
-                              {phoneContacts.map((contact, i) => (
-                                <TableRow key={i} hover>
-                                  <TableCell padding="checkbox">
-                                    <Checkbox checked={contact.selected} onChange={() => togglePhoneContact(i)} size="small" />
-                                  </TableCell>
-                                  <TableCell>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                      <PersonIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-                                      <Typography variant="body2" noWrap>{contact.name}</Typography>
-                                    </Box>
-                                  </TableCell>
-                                  <TableCell><Typography variant="body2" color="text.secondary" noWrap>{contact.phone || '—'}</Typography></TableCell>
-                                  <TableCell><Typography variant="body2" color="text.secondary" noWrap>{contact.email || '—'}</Typography></TableCell>
-                                  <TableCell padding="checkbox">
-                                    <IconButton size="small" onClick={() => removePhoneContact(i)}><DeleteIcon sx={{ fontSize: 16 }} /></IconButton>
-                                  </TableCell>
-                                </TableRow>
-                              ))}
-                            </TableBody>
-                          </Table>
-                        </TableContainer>
-                      </>
-                    )}
-                  </>
-                ) : (
-                  <Box sx={{ textAlign: 'center', py: 3 }}>
-                    <WarningIcon sx={{ fontSize: 48, color: 'warning.main', mb: 1 }} />
-                    <Typography variant="body1" fontWeight={600} sx={{ mb: 1 }}>
-                      {t('contacts.import.phoneNotSupported')}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {t('contacts.import.phoneNotSupportedDescription')}
-                    </Typography>
+                    <Alert severity="info" sx={{ mt: 2, textAlign: 'start', '& .MuiAlert-message': { fontSize: '0.8rem' } }}>
+                      <Typography variant="body2" fontWeight={600} sx={{ mb: 0.5 }}>
+                        {t('contacts.import.vcfHowTitle')}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {t('contacts.import.vcfHowDescription')}
+                      </Typography>
+                    </Alert>
                   </Box>
+                ) : (
+                  <>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1 }}>
+                      <Typography variant="body2" fontWeight={600}>
+                        {t('contacts.import.selectedCount', { count: selectedPhoneCount })}
+                      </Typography>
+                      <Box sx={{ display: 'flex', gap: 1 }}>
+                        <Button variant="secondary" size="small" icon={<FileUploadIcon />} onClick={() => vcfInputRef.current?.click()}>
+                          {t('contacts.import.addMore')}
+                        </Button>
+                        {phoneSupported && (
+                          <Button variant="secondary" size="small" icon={<ContactPhoneIcon />} onClick={handlePickPhoneContacts}>
+                            {t('contacts.import.selectContacts')}
+                          </Button>
+                        )}
+                      </Box>
+                    </Box>
+
+                    <MuiTextField
+                      select fullWidth size="small"
+                      label={t('contacts.import.defaultType')}
+                      value={phoneContactType}
+                      onChange={(e) => setPhoneContactType(e.target.value)}
+                    >
+                      {CONTACT_TYPES.map(ct => (
+                        <MenuItem key={ct} value={ct}>{t(`contacts.types.${ct}`)}</MenuItem>
+                      ))}
+                    </MuiTextField>
+
+                    <TableContainer sx={{ maxHeight: 250, border: 1, borderColor: 'divider', borderRadius: 1 }}>
+                      <Table size="small" stickyHeader>
+                        <TableHead>
+                          <TableRow>
+                            <TableCell padding="checkbox">
+                              <Checkbox
+                                checked={phoneContacts.every(c => c.selected)}
+                                indeterminate={phoneContacts.some(c => c.selected) && !phoneContacts.every(c => c.selected)}
+                                onChange={toggleAllPhoneContacts}
+                                size="small"
+                              />
+                            </TableCell>
+                            <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }}>{t('contacts.contactName')}</TableCell>
+                            <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }}>{t('contacts.phone')}</TableCell>
+                            <TableCell sx={{ fontWeight: 600, fontSize: '0.8rem' }}>{t('contacts.email')}</TableCell>
+                            <TableCell padding="checkbox" />
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {phoneContacts.map((contact, i) => (
+                            <TableRow key={i} hover>
+                              <TableCell padding="checkbox">
+                                <Checkbox checked={contact.selected} onChange={() => togglePhoneContact(i)} size="small" />
+                              </TableCell>
+                              <TableCell>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                  <PersonIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
+                                  <Typography variant="body2" noWrap>{contact.name}</Typography>
+                                </Box>
+                              </TableCell>
+                              <TableCell><Typography variant="body2" color="text.secondary" noWrap>{contact.phone || '—'}</Typography></TableCell>
+                              <TableCell><Typography variant="body2" color="text.secondary" noWrap>{contact.email || '—'}</Typography></TableCell>
+                              <TableCell padding="checkbox">
+                                <IconButton size="small" onClick={() => removePhoneContact(i)}><DeleteIcon sx={{ fontSize: 16 }} /></IconButton>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  </>
                 )}
+
+                {vcfError && <Alert severity="error">{vcfError}</Alert>}
               </Box>
             )}
           </>

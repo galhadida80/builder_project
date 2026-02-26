@@ -296,7 +296,7 @@ async def export_inspections_pdf(
     inspections = list(result.scalars().all())
 
     pdf_bytes = generate_inspections_report_pdf(inspections, project)
-    filename = f"inspections_report_{project.code}_{utcnow().strftime('%Y%m%d')}.pdf"
+    filename = f"inspections_report_{str(project.id)[:8]}_{utcnow().strftime('%Y%m%d')}.pdf"
     return Response(
         content=pdf_bytes,
         media_type="application/pdf",

@@ -292,7 +292,6 @@ async def get_next_change_order_number(db: AsyncSession, project_id: UUID) -> in
     result = await db.execute(
         select(func.coalesce(func.max(ChangeOrder.change_order_number), 0))
         .where(ChangeOrder.project_id == project_id)
-        .with_for_update()
     )
     return (result.scalar() or 0) + 1
 

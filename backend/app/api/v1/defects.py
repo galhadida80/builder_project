@@ -53,7 +53,6 @@ async def get_next_defect_number(db: AsyncSession, project_id: UUID) -> int:
     result = await db.execute(
         select(func.coalesce(func.max(Defect.defect_number), 0))
         .where(Defect.project_id == project_id)
-        .with_for_update()
     )
     return (result.scalar() or 0) + 1
 
@@ -188,7 +187,7 @@ async def export_defects_pdf(
     defects = list(result.scalars().all())
 
     pdf_bytes = await generate_defects_report_pdf(db, defects, project, storage)
-    filename = f"defects_report_{project.code}_{utcnow().strftime('%Y%m%d')}.pdf"
+    filename = f"defects_report_{str(project.id)[:8]}_{utcnow().strftime('%Y%m%d')}.pdf"
     return Response(
         content=pdf_bytes,
         media_type="application/pdf",
