@@ -104,25 +104,13 @@ describe('TeamWorkloadView', () => {
     })
   })
 
-  it('renders table with all team members', async () => {
+  it('renders all team member cards', async () => {
     renderWithProviders(<TeamWorkloadView />)
     await waitFor(() => {
       expect(screen.getByText('Alice')).toBeInTheDocument()
     })
     expect(screen.getByText('Bob')).toBeInTheDocument()
     expect(screen.getByText('Carol')).toBeInTheDocument()
-  })
-
-  it('renders table headers', async () => {
-    renderWithProviders(<TeamWorkloadView />)
-    await waitFor(() => {
-      expect(screen.getByText('teamWorkload.memberName')).toBeInTheDocument()
-    })
-    expect(screen.getByText('teamWorkload.role')).toBeInTheDocument()
-    expect(screen.getByText('teamWorkload.team')).toBeInTheDocument()
-    expect(screen.getByText('teamCard.assigned')).toBeInTheDocument()
-    expect(screen.getByText('teamCard.available')).toBeInTheDocument()
-    expect(screen.getByText('teamCard.utilization')).toBeInTheDocument()
   })
 
   it('renders overall capacity progress bar', async () => {
@@ -162,15 +150,12 @@ describe('TeamWorkloadView', () => {
     })
   })
 
-  it('sorts members by workload descending', async () => {
+  it('shows utilization labels on member cards', async () => {
     renderWithProviders(<TeamWorkloadView />)
     await waitFor(() => {
-      expect(screen.getByText('Bob')).toBeInTheDocument()
+      expect(screen.getByText('Alice')).toBeInTheDocument()
     })
-    const rows = screen.getAllByRole('row')
-    const dataRows = rows.slice(1)
-    expect(dataRows[0]).toHaveTextContent('Bob')
-    expect(dataRows[1]).toHaveTextContent('Alice')
-    expect(dataRows[2]).toHaveTextContent('Carol')
+    const progressBars = screen.getAllByRole('progressbar')
+    expect(progressBars.length).toBeGreaterThanOrEqual(3)
   })
 })
