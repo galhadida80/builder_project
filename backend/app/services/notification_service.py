@@ -119,6 +119,11 @@ async def notify_contact(
             if service.enabled:
                 subject, html = render_notification_email(title, message, action_url, project_name)
                 service.send_notification(to_email=contact.email, subject=subject, body_html=html)
+            else:
+                logger.warning(
+                    "Email service is disabled; skipping notification email to contact %s",
+                    contact.email,
+                )
         except Exception:
             logger.exception("Failed to send notification email to contact %s", contact.email)
 

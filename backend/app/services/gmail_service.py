@@ -12,6 +12,8 @@ from app.config import get_settings
 logger = logging.getLogger(__name__)
 
 try:
+    from google.auth.exceptions import RefreshError as GoogleRefreshError
+    from google.auth.exceptions import TransportError as GoogleTransportError
     from google.oauth2.credentials import Credentials
     from googleapiclient.discovery import build
     from googleapiclient.errors import HttpError
@@ -19,6 +21,8 @@ try:
 except ImportError:
     GOOGLE_APIS_AVAILABLE = False
     HttpError = None
+    GoogleTransportError = None
+    GoogleRefreshError = None
     logger.warning("Google API libraries not installed. Gmail integration will be disabled.")
 
 GMAIL_SEND_MAX_RETRIES = 3
@@ -32,18 +36,29 @@ def execute_with_retry(request):
         try:
             return request.execute()
         except Exception as e:
-            is_retriable = (
+            is_http_retriable = (
                 HttpError is not None
                 and isinstance(e, HttpError)
                 and e.resp.status in (503, 429)
             )
+            is_transport_error = (
+                GoogleTransportError is not None
+                and isinstance(e, GoogleTransportError)
+            )
+            is_retriable = is_http_retriable or is_transport_error
             if not is_retriable or attempt == GMAIL_SEND_MAX_RETRIES - 1:
                 raise
             delay = GMAIL_SEND_RETRY_DELAYS[attempt]
-            logger.warning(
-                "Gmail API returned %s, retrying in %ds (attempt %d/%d): %s",
-                e.resp.status, delay, attempt + 1, GMAIL_SEND_MAX_RETRIES, e,
-            )
+            if is_http_retriable:
+                logger.warning(
+                    "Gmail API returned %s, retrying in %ds (attempt %d/%d): %s",
+                    e.resp.status, delay, attempt + 1, GMAIL_SEND_MAX_RETRIES, e,
+                )
+            else:
+                logger.warning(
+                    "Transient network error communicating with Gmail API, retrying in %ds (attempt %d/%d): %s",
+                    delay, attempt + 1, GMAIL_SEND_MAX_RETRIES, e,
+                )
             time.sleep(delay)
     raise RuntimeError("Unreachable")
 
@@ -153,6 +168,10 @@ class GmailService:
                 'email_message_id': message['Message-ID']
             }
         except Exception as e:
+            if GoogleRefreshError is not None and isinstance(e, GoogleRefreshError):
+                logger.error(
+                    "Gmail OAuth2 token refresh failed - credentials may need to be renewed: %s", e
+                )
             logger.error(f"Failed to send email: {e}")
             raise
 
@@ -195,6 +214,10 @@ class GmailService:
                 'email_message_id': message['Message-ID']
             }
         except Exception as e:
+            if GoogleRefreshError is not None and isinstance(e, GoogleRefreshError):
+                logger.error(
+                    "Gmail OAuth2 token refresh failed - credentials may need to be renewed: %s", e
+                )
             logger.error(f"Failed to send notification email: {e}")
             raise
 
