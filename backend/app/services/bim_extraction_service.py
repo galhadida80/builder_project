@@ -1,5 +1,4 @@
 import re
-import uuid
 from difflib import SequenceMatcher
 from typing import Any, Optional
 
