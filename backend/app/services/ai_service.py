@@ -45,7 +45,14 @@ DEFECT_CATEGORIES = [
     "gas", "accessibility", "exterior_cladding", "landscaping", "other",
 ]
 
-DEFECT_ANALYSIS_PROMPT = """You are a construction defect analyst. Analyze this image and identify ALL visible defects or damages (1 to 5).
+DEFECT_ANALYSIS_PROMPT = """You are a construction defect analyst. Analyze this image and identify visible defects or damages.
+
+IMPORTANT RULES:
+- Only report defects you are HIGHLY CONFIDENT about. Do NOT guess or speculate.
+- Each defect must have a confidence score between 0.0 and 1.0 reflecting how certain you are.
+- Only report defects with confidence >= 0.7. Skip anything you are unsure about.
+- Prefer reporting fewer, accurate defects over many uncertain ones.
+- Maximum 5 defects per image.
 
 You MUST pick each category from ONLY these options: {categories}
 
@@ -59,24 +66,30 @@ Respond in {language} language for each description field.
 Write a concise description (2-4 sentences) per defect.
 
 Return ONLY a valid JSON array. Each element must have exactly these keys:
-[{{"category": "...", "severity": "...", "description": "..."}}, ...]
+[{{"category": "...", "severity": "...", "description": "...", "confidence": 0.85}}, ...]
 
-If only one defect is visible, return an array with one element."""
+If only one defect is visible, return an array with one element.
+If NO clear defects are visible, return an empty array: []"""
 
 VALID_SEVERITIES = ("low", "medium", "high", "critical")
 MAX_DEFECTS = 5
+MIN_CONFIDENCE = 0.7
 
 
 def validate_defect_item(item: dict) -> dict:
     if not isinstance(item, dict):
-        return {"category": "other", "severity": "medium", "description": ""}
+        return {"category": "other", "severity": "medium", "description": "", "confidence": 0.5}
     category = item.get("category", "other")
     if category not in DEFECT_CATEGORIES:
         category = "other"
     severity = item.get("severity", "medium")
     if severity not in VALID_SEVERITIES:
         severity = "medium"
-    return {"category": category, "severity": severity, "description": item.get("description", "")}
+    confidence = item.get("confidence", 0.5)
+    if not isinstance(confidence, (int, float)):
+        confidence = 0.5
+    confidence = max(0.0, min(1.0, float(confidence)))
+    return {"category": category, "severity": severity, "description": item.get("description", ""), "confidence": round(confidence, 2)}
 
 
 def parse_defects_response(text: str) -> list[dict]:
@@ -88,8 +101,10 @@ def parse_defects_response(text: str) -> list[dict]:
     if isinstance(parsed, dict):
         parsed = [parsed]
     if not isinstance(parsed, list):
-        return [{"category": "other", "severity": "medium", "description": ""}]
-    return [validate_defect_item(item) for item in parsed[:MAX_DEFECTS]]
+        return [{"category": "other", "severity": "medium", "description": "", "confidence": 0.5}]
+    validated = [validate_defect_item(item) for item in parsed[:MAX_DEFECTS]]
+    high_confidence = [d for d in validated if d["confidence"] >= MIN_CONFIDENCE]
+    return high_confidence if high_confidence else validated[:1]
 
 
 def analyze_defect_image(file_content: bytes, file_type: str, language: str = "en") -> dict:

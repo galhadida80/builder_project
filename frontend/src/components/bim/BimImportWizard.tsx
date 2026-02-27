@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { bimApi } from '../../api/bim'
 import { useToast } from '../common/ToastProvider'
+import KeyValueEditor, { EQUIPMENT_SUGGESTIONS, MATERIAL_SUGGESTIONS } from '../ui/KeyValueEditor'
+import type { KeyValuePair } from '../ui/KeyValueEditor'
 import type {
   BimModel,
   BimExtractionResponse,
@@ -10,29 +12,33 @@ import type {
   BimExtractedMaterial,
   BimImportResult,
 } from '../../types'
-import { CheckCircleIcon, SyncIcon } from '@/icons'
 import {
+  CheckCircleIcon,
+  SyncIcon,
+  ExpandMoreIcon,
+  ExpandLessIcon,
+  SwapHorizIcon,
+  ArrowForwardIcon,
+} from '@/icons'
+import {
+  alpha,
   Box,
   Button,
   Checkbox,
   Chip,
   CircularProgress,
+  Collapse,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  LinearProgress,
   Step,
   StepLabel,
   Stepper,
-  Tab,
-  Tabs,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   Typography,
+  useTheme,
+  IconButton,
 } from '@/mui'
 
 interface Props {
@@ -51,12 +57,15 @@ export default function BimImportWizard({ open, onClose, projectId, model }: Pro
   const [activeStep, setActiveStep] = useState(0)
   const [loading, setLoading] = useState(false)
   const [extraction, setExtraction] = useState<BimExtractionResponse | null>(null)
-  const [tabIndex, setTabIndex] = useState(0)
   const [selectedAreas, setSelectedAreas] = useState<Set<number>>(new Set())
   const [selectedEquipment, setSelectedEquipment] = useState<Set<number>>(new Set())
   const [selectedMaterials, setSelectedMaterials] = useState<Set<number>>(new Set())
   const [importing, setImporting] = useState(false)
   const [results, setResults] = useState<BimImportResult[]>([])
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['areas', 'equipment', 'materials']))
+  const [expandedItem, setExpandedItem] = useState<string | null>(null)
+  const [itemProperties, setItemProperties] = useState<Record<string, KeyValuePair[]>>({})
+  const [filter, setFilter] = useState<'all' | 'problems' | 'selected'>('all')
 
   useEffect(() => {
     if (open) {
@@ -66,7 +75,10 @@ export default function BimImportWizard({ open, onClose, projectId, model }: Pro
       setSelectedEquipment(new Set())
       setSelectedMaterials(new Set())
       setResults([])
-      setTabIndex(0)
+      setExpandedSections(new Set(['areas', 'equipment', 'materials']))
+      setExpandedItem(null)
+      setItemProperties({})
+      setFilter('all')
     }
   }, [open])
 
@@ -88,56 +100,44 @@ export default function BimImportWizard({ open, onClose, projectId, model }: Pro
     }
   }
 
-  const toggleArea = (id: number) => {
-    setSelectedAreas((prev) => {
+  const toggleSection = (section: string) => {
+    setExpandedSections((prev) => {
+      const next = new Set(prev)
+      next.has(section) ? next.delete(section) : next.add(section)
+      return next
+    })
+  }
+
+  const toggleSet = (setter: React.Dispatch<React.SetStateAction<Set<number>>>, id: number) => {
+    setter((prev) => {
       const next = new Set(prev)
       next.has(id) ? next.delete(id) : next.add(id)
       return next
     })
   }
 
-  const toggleEquipment = (id: number) => {
-    setSelectedEquipment((prev) => {
-      const next = new Set(prev)
-      next.has(id) ? next.delete(id) : next.add(id)
-      return next
-    })
-  }
-
-  const toggleMaterial = (id: number) => {
-    setSelectedMaterials((prev) => {
-      const next = new Set(prev)
-      next.has(id) ? next.delete(id) : next.add(id)
-      return next
-    })
-  }
-
-  const toggleAllAreas = () => {
-    if (!extraction) return
-    setSelectedAreas((prev) =>
-      prev.size === extraction.areas.length ? new Set() : new Set(extraction.areas.map((a) => a.bimObjectId)),
-    )
-  }
-
-  const toggleAllEquipment = () => {
-    if (!extraction) return
-    setSelectedEquipment((prev) =>
-      prev.size === extraction.equipment.length
-        ? new Set()
-        : new Set(extraction.equipment.map((e) => e.bimObjectId)),
-    )
-  }
-
-  const toggleAllMaterials = () => {
-    if (!extraction) return
-    setSelectedMaterials((prev) =>
-      prev.size === extraction.materials.length
-        ? new Set()
-        : new Set(extraction.materials.map((m) => m.bimObjectId)),
-    )
+  const toggleAll = (setter: React.Dispatch<React.SetStateAction<Set<number>>>, items: { bimObjectId: number }[], current: Set<number>) => {
+    setter(current.size === items.length ? new Set() : new Set(items.map((i) => i.bimObjectId)))
   }
 
   const totalSelected = selectedAreas.size + selectedEquipment.size + selectedMaterials.size
+
+  const filterEquipment = (items: BimExtractedEquipment[]) => {
+    if (filter === 'problems') return items.filter((i) => i.confidence < 0.6)
+    if (filter === 'selected') return items.filter((i) => selectedEquipment.has(i.bimObjectId))
+    return items
+  }
+
+  const filterMaterials = (items: BimExtractedMaterial[]) => {
+    if (filter === 'problems') return items.filter((i) => i.confidence < 0.6)
+    if (filter === 'selected') return items.filter((i) => selectedMaterials.has(i.bimObjectId))
+    return items
+  }
+
+  const filterAreas = (items: BimExtractedArea[]) => {
+    if (filter === 'selected') return items.filter((i) => selectedAreas.has(i.bimObjectId))
+    return items
+  }
 
   const handleImport = async () => {
     setImporting(true)
@@ -173,10 +173,10 @@ export default function BimImportWizard({ open, onClose, projectId, model }: Pro
   }
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>{t('bim.import.title')}</DialogTitle>
-      <DialogContent>
-        <Stepper activeStep={activeStep} sx={{ mb: 3, mt: 1 }}>
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth PaperProps={{ sx: { maxHeight: '90vh' } }}>
+      <DialogTitle sx={{ pb: 0 }}>{t('bim.import.title')}</DialogTitle>
+      <DialogContent sx={{ px: { xs: 1.5, sm: 3 } }}>
+        <Stepper activeStep={activeStep} sx={{ mb: 3, mt: 1 }} alternativeLabel>
           {STEPS.map((label) => (
             <Step key={label}>
               <StepLabel>{t(label)}</StepLabel>
@@ -208,56 +208,138 @@ export default function BimImportWizard({ open, onClose, projectId, model }: Pro
 
         {activeStep === 1 && extraction && (
           <Box>
-            <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap' }}>
-              <Chip label={`${extraction.areas.length} ${t('bim.import.areas')}`} color="primary" variant="outlined" />
-              <Chip
-                label={`${extraction.equipment.length} ${t('bim.import.equipment')}`}
-                color="secondary"
-                variant="outlined"
-              />
-              <Chip
-                label={`${extraction.materials.length} ${t('bim.import.materials')}`}
-                color="info"
-                variant="outlined"
-              />
-              <Button size="small" startIcon={<SyncIcon />} onClick={() => handleExtract(true)} disabled={loading}>
-                {t('bim.import.refresh')}
-              </Button>
+            <SummaryBar extraction={extraction} selectedAreas={selectedAreas} selectedEquipment={selectedEquipment} selectedMaterials={selectedMaterials} t={t} />
+
+            <Box sx={{ display: 'flex', gap: 0.75, mt: 1.5, overflowX: 'auto', pb: 0.5 }}>
+              {(['all', 'problems', 'selected'] as const).map((f) => (
+                <Chip
+                  key={f}
+                  label={t(`bim.import.filter.${f}`)}
+                  size="small"
+                  variant={filter === f ? 'filled' : 'outlined'}
+                  color={filter === f ? 'primary' : 'default'}
+                  onClick={() => setFilter(f)}
+                  sx={{ fontWeight: 600, fontSize: 11, height: 28, borderRadius: '14px', flexShrink: 0 }}
+                />
+              ))}
             </Box>
 
-            <Tabs value={tabIndex} onChange={(_, v) => setTabIndex(v)} sx={{ mb: 2 }}>
-              <Tab label={`${t('bim.import.areas')} (${selectedAreas.size}/${extraction.areas.length})`} />
-              <Tab label={`${t('bim.import.equipment')} (${selectedEquipment.size}/${extraction.equipment.length})`} />
-              <Tab label={`${t('bim.import.materials')} (${selectedMaterials.size}/${extraction.materials.length})`} />
-            </Tabs>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mt: 1.5 }}>
+              <SectionAccordion
+                title={t('bim.import.areas')}
+                color="#2196F3"
+                count={extraction.areas.length}
+                selectedCount={selectedAreas.size}
+                expanded={expandedSections.has('areas')}
+                onToggleExpand={() => toggleSection('areas')}
+                onToggleAll={() => toggleAll(setSelectedAreas, extraction.areas, selectedAreas)}
+                t={t}
+              >
+                {(() => {
+                  const filtered = filterAreas(extraction.areas)
+                  return filtered.length === 0 ? (
+                    <Typography color="text.secondary" sx={{ p: 2, textAlign: 'center' }}>{t('bim.import.noItems')}</Typography>
+                  ) : (
+                    filtered.map((item) => (
+                      <AreaItemCard
+                        key={item.bimObjectId}
+                        item={item}
+                        checked={selectedAreas.has(item.bimObjectId)}
+                        onToggle={() => toggleSet(setSelectedAreas, item.bimObjectId)}
+                        t={t}
+                      />
+                    ))
+                  )
+                })()}
+              </SectionAccordion>
 
-            {tabIndex === 0 && (
-              <AreaTable
-                items={extraction.areas}
-                selected={selectedAreas}
-                onToggle={toggleArea}
-                onToggleAll={toggleAllAreas}
+              <SectionAccordion
+                title={t('bim.import.equipment')}
+                color="#9C27B0"
+                count={extraction.equipment.length}
+                selectedCount={selectedEquipment.size}
+                expanded={expandedSections.has('equipment')}
+                onToggleExpand={() => toggleSection('equipment')}
+                onToggleAll={() => toggleAll(setSelectedEquipment, extraction.equipment, selectedEquipment)}
                 t={t}
-              />
-            )}
-            {tabIndex === 1 && (
-              <EquipmentTable
-                items={extraction.equipment}
-                selected={selectedEquipment}
-                onToggle={toggleEquipment}
-                onToggleAll={toggleAllEquipment}
+              >
+                {(() => {
+                  const filtered = filterEquipment(extraction.equipment)
+                  return filtered.length === 0 ? (
+                    <Typography color="text.secondary" sx={{ p: 2, textAlign: 'center' }}>{t('bim.import.noItems')}</Typography>
+                  ) : (
+                    filtered.map((item) => (
+                      <TemplateItemCard
+                        key={item.bimObjectId}
+                        itemKey={`eq-${item.bimObjectId}`}
+                        name={item.name}
+                        type={item.equipmentType}
+                        manufacturer={item.manufacturer}
+                        confidence={item.confidence}
+                        templateName={item.matchedTemplateName}
+                        checked={selectedEquipment.has(item.bimObjectId)}
+                        onToggle={() => toggleSet(setSelectedEquipment, item.bimObjectId)}
+                        expanded={expandedItem === `eq-${item.bimObjectId}`}
+                        onExpandToggle={() => setExpandedItem(expandedItem === `eq-${item.bimObjectId}` ? null : `eq-${item.bimObjectId}`)}
+                        properties={itemProperties[`eq-${item.bimObjectId}`] || []}
+                        onPropertiesChange={(props) => setItemProperties((prev) => ({ ...prev, [`eq-${item.bimObjectId}`]: props }))}
+                        suggestions={EQUIPMENT_SUGGESTIONS}
+                        specifications={item.specifications}
+                        t={t}
+                      />
+                    ))
+                  )
+                })()}
+              </SectionAccordion>
+
+              <SectionAccordion
+                title={t('bim.import.materials')}
+                color="#FF9800"
+                count={extraction.materials.length}
+                selectedCount={selectedMaterials.size}
+                expanded={expandedSections.has('materials')}
+                onToggleExpand={() => toggleSection('materials')}
+                onToggleAll={() => toggleAll(setSelectedMaterials, extraction.materials, selectedMaterials)}
                 t={t}
-              />
-            )}
-            {tabIndex === 2 && (
-              <MaterialTable
-                items={extraction.materials}
-                selected={selectedMaterials}
-                onToggle={toggleMaterial}
-                onToggleAll={toggleAllMaterials}
-                t={t}
-              />
-            )}
+              >
+                {(() => {
+                  const filtered = filterMaterials(extraction.materials)
+                  return filtered.length === 0 ? (
+                    <Typography color="text.secondary" sx={{ p: 2, textAlign: 'center' }}>{t('bim.import.noItems')}</Typography>
+                  ) : (
+                    filtered.map((item) => (
+                      <TemplateItemCard
+                        key={item.bimObjectId}
+                        itemKey={`mat-${item.bimObjectId}`}
+                        name={item.name}
+                        type={item.materialType}
+                        manufacturer={item.manufacturer}
+                        confidence={item.confidence}
+                        templateName={item.matchedTemplateName}
+                        checked={selectedMaterials.has(item.bimObjectId)}
+                        onToggle={() => toggleSet(setSelectedMaterials, item.bimObjectId)}
+                        expanded={expandedItem === `mat-${item.bimObjectId}`}
+                        onExpandToggle={() => setExpandedItem(expandedItem === `mat-${item.bimObjectId}` ? null : `mat-${item.bimObjectId}`)}
+                        properties={itemProperties[`mat-${item.bimObjectId}`] || []}
+                        onPropertiesChange={(props) => setItemProperties((prev) => ({ ...prev, [`mat-${item.bimObjectId}`]: props }))}
+                        suggestions={MATERIAL_SUGGESTIONS}
+                        t={t}
+                      />
+                    ))
+                  )
+                })()}
+              </SectionAccordion>
+            </Box>
+
+            <Button
+              size="small"
+              startIcon={<SyncIcon />}
+              onClick={() => handleExtract(true)}
+              disabled={loading}
+              sx={{ mt: 2 }}
+            >
+              {t('bim.import.refresh')}
+            </Button>
           </Box>
         )}
 
@@ -268,18 +350,20 @@ export default function BimImportWizard({ open, onClose, projectId, model }: Pro
               {t('bim.import.complete')}
             </Typography>
             {results.map((r) => (
-              <Typography key={r.entityType} variant="body2" sx={{ mb: 0.5 }}>
-                {t(`bim.import.${r.entityType}`)}: {r.importedCount} {t('bim.import.imported')}, {r.skippedCount}{' '}
-                {t('bim.import.skipped')}
-                {r.linkedCount > 0 && `, ${r.linkedCount} ${t('bim.import.linked')}`}
-              </Typography>
+              <Box key={r.entityType} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 1 }}>
+                <Chip label={t(`bim.import.${r.entityType}`)} size="small" variant="outlined" />
+                <Typography variant="body2">
+                  {r.importedCount} {t('bim.import.imported')}, {r.skippedCount} {t('bim.import.skipped')}
+                  {r.linkedCount > 0 && `, ${r.linkedCount} ${t('bim.import.linked')}`}
+                </Typography>
+              </Box>
             ))}
           </Box>
         )}
       </DialogContent>
-      <DialogActions>
+      <DialogActions sx={{ px: { xs: 1.5, sm: 3 }, pb: 2 }}>
         {activeStep === 2 ? (
-          <Button onClick={onClose}>{t('common.close')}</Button>
+          <Button variant="contained" onClick={onClose}>{t('common.close')}</Button>
         ) : (
           <>
             <Button onClick={onClose}>{t('common.cancel')}</Button>
@@ -288,7 +372,10 @@ export default function BimImportWizard({ open, onClose, projectId, model }: Pro
                 {importing ? (
                   <CircularProgress size={20} />
                 ) : (
-                  t('bim.import.importButton', { count: totalSelected })
+                  <>
+                    {t('bim.import.importButton', { count: totalSelected })}
+                    <ArrowForwardIcon sx={{ fontSize: 18, ml: 0.5, transform: 'scaleX(-1)' }} />
+                  </>
                 )}
               </Button>
             )}
@@ -299,158 +386,334 @@ export default function BimImportWizard({ open, onClose, projectId, model }: Pro
   )
 }
 
-function AreaTable({
-  items,
-  selected,
-  onToggle,
-  onToggleAll,
+function SummaryBar({
+  extraction,
+  selectedAreas,
+  selectedEquipment,
+  selectedMaterials,
   t,
 }: {
-  items: BimExtractedArea[]
-  selected: Set<number>
-  onToggle: (id: number) => void
-  onToggleAll: () => void
-  t: (key: string) => string
+  extraction: BimExtractionResponse
+  selectedAreas: Set<number>
+  selectedEquipment: Set<number>
+  selectedMaterials: Set<number>
+  t: (key: string, opts?: Record<string, unknown>) => string
 }) {
-  if (items.length === 0) return <Typography color="text.secondary">{t('bim.import.noItems')}</Typography>
+  const theme = useTheme()
+  const total = extraction.areas.length + extraction.equipment.length + extraction.materials.length
+  const selected = selectedAreas.size + selectedEquipment.size + selectedMaterials.size
+
   return (
-    <TableContainer sx={{ maxHeight: 350 }}>
-      <Table size="small" stickyHeader>
-        <TableHead>
-          <TableRow>
-            <TableCell padding="checkbox">
-              <Checkbox checked={selected.size === items.length} indeterminate={selected.size > 0 && selected.size < items.length} onChange={onToggleAll} />
-            </TableCell>
-            <TableCell>{t('common.name')}</TableCell>
-            <TableCell>{t('bim.import.type')}</TableCell>
-            <TableCell>{t('bim.import.floor')}</TableCell>
-            <TableCell>{t('bim.import.code')}</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {items.map((item) => (
-            <TableRow key={item.bimObjectId} hover onClick={() => onToggle(item.bimObjectId)} sx={{ cursor: 'pointer' }}>
-              <TableCell padding="checkbox">
-                <Checkbox checked={selected.has(item.bimObjectId)} />
-              </TableCell>
-              <TableCell>{item.name}</TableCell>
-              <TableCell>{item.areaType || '—'}</TableCell>
-              <TableCell>{item.floorNumber ?? '—'}</TableCell>
-              <TableCell>{item.areaCode || '—'}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 1.5,
+        p: 1.5,
+        borderRadius: 3,
+        bgcolor: alpha(theme.palette.primary.main, 0.06),
+        border: '1px solid',
+        borderColor: alpha(theme.palette.primary.main, 0.15),
+        flexWrap: 'wrap',
+      }}
+    >
+      <Box sx={{ flex: 1, minWidth: 120 }}>
+        <Typography variant="body2" fontWeight={700}>
+          {total} {t('bim.import.totalExtracted')}
+        </Typography>
+        <Typography variant="caption" color="text.secondary">
+          {selected} {t('bim.import.selectedForImport')}
+        </Typography>
+      </Box>
+      <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap' }}>
+        <Chip label={`${extraction.areas.length} ${t('bim.import.areas')}`} size="small" sx={{ bgcolor: alpha('#2196F3', 0.12), color: '#1565C0', fontWeight: 600, fontSize: 11, height: 26 }} />
+        <Chip label={`${extraction.equipment.length} ${t('bim.import.equipment')}`} size="small" sx={{ bgcolor: alpha('#9C27B0', 0.12), color: '#7B1FA2', fontWeight: 600, fontSize: 11, height: 26 }} />
+        <Chip label={`${extraction.materials.length} ${t('bim.import.materials')}`} size="small" sx={{ bgcolor: alpha('#FF9800', 0.12), color: '#E65100', fontWeight: 600, fontSize: 11, height: 26 }} />
+      </Box>
+    </Box>
   )
 }
 
-function ConfidenceChip({ confidence, templateName, t }: { confidence: number; templateName?: string; t: (key: string) => string }) {
-  if (!templateName || confidence < 0.3) return <Typography variant="caption" color="text.disabled">—</Typography>
-  const color = confidence >= 0.8 ? 'success' : confidence >= 0.6 ? 'warning' : 'default'
+function SectionAccordion({
+  title,
+  color,
+  count,
+  selectedCount,
+  expanded,
+  onToggleExpand,
+  onToggleAll,
+  children,
+  t,
+}: {
+  title: string
+  color: string
+  count: number
+  selectedCount: number
+  expanded: boolean
+  onToggleExpand: () => void
+  onToggleAll: () => void
+  children: React.ReactNode
+  t: (key: string) => string
+}) {
+  const theme = useTheme()
   return (
-    <Chip
-      size="small"
-      label={`${templateName} (${Math.round(confidence * 100)}%)`}
-      color={color as 'success' | 'warning' | 'default'}
-      variant={confidence >= 0.8 ? 'filled' : 'outlined'}
-      sx={{ fontSize: '0.7rem', height: 24 }}
-    />
+    <Box sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', overflow: 'hidden', bgcolor: 'background.paper' }}>
+      <Box
+        onClick={onToggleExpand}
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1,
+          px: 1.5,
+          py: 1.25,
+          cursor: 'pointer',
+          borderInlineStart: `4px solid ${color}`,
+          bgcolor: expanded ? alpha(color, 0.04) : 'transparent',
+          transition: 'background-color 150ms',
+          '&:hover': { bgcolor: alpha(color, 0.06) },
+        }}
+      >
+        <Checkbox
+          size="small"
+          checked={count > 0 && selectedCount === count}
+          indeterminate={selectedCount > 0 && selectedCount < count}
+          onClick={(e) => e.stopPropagation()}
+          onChange={onToggleAll}
+          sx={{ p: 0.5, color, '&.Mui-checked': { color }, '&.MuiCheckbox-indeterminate': { color } }}
+        />
+        <Typography variant="subtitle2" fontWeight={700} sx={{ flex: 1, fontSize: 14 }}>
+          {title}
+        </Typography>
+        <Chip
+          label={`${selectedCount}/${count}`}
+          size="small"
+          sx={{
+            height: 22,
+            fontSize: 11,
+            fontWeight: 700,
+            bgcolor: selectedCount > 0 ? alpha(color, 0.15) : alpha(theme.palette.text.disabled, 0.1),
+            color: selectedCount > 0 ? color : 'text.disabled',
+          }}
+        />
+        {expanded ? <ExpandLessIcon sx={{ fontSize: 20, color: 'text.secondary' }} /> : <ExpandMoreIcon sx={{ fontSize: 20, color: 'text.secondary' }} />}
+      </Box>
+      <Collapse in={expanded}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, p: 1, pt: 0.5 }}>
+          {children}
+        </Box>
+      </Collapse>
+    </Box>
   )
 }
 
-function EquipmentTable({
-  items,
-  selected,
+function AreaItemCard({
+  item,
+  checked,
   onToggle,
-  onToggleAll,
   t,
 }: {
-  items: BimExtractedEquipment[]
-  selected: Set<number>
-  onToggle: (id: number) => void
-  onToggleAll: () => void
+  item: BimExtractedArea
+  checked: boolean
+  onToggle: () => void
   t: (key: string) => string
 }) {
-  if (items.length === 0) return <Typography color="text.secondary">{t('bim.import.noItems')}</Typography>
+  const theme = useTheme()
   return (
-    <TableContainer sx={{ maxHeight: 350 }}>
-      <Table size="small" stickyHeader>
-        <TableHead>
-          <TableRow>
-            <TableCell padding="checkbox">
-              <Checkbox checked={selected.size === items.length} indeterminate={selected.size > 0 && selected.size < items.length} onChange={onToggleAll} />
-            </TableCell>
-            <TableCell>{t('common.name')}</TableCell>
-            <TableCell>{t('bim.import.type')}</TableCell>
-            <TableCell>{t('bim.import.templateMatch')}</TableCell>
-            <TableCell>{t('bim.import.manufacturer')}</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {items.map((item) => (
-            <TableRow key={item.bimObjectId} hover onClick={() => onToggle(item.bimObjectId)} sx={{ cursor: 'pointer' }}>
-              <TableCell padding="checkbox">
-                <Checkbox checked={selected.has(item.bimObjectId)} />
-              </TableCell>
-              <TableCell>{item.name}</TableCell>
-              <TableCell>{item.equipmentType || '—'}</TableCell>
-              <TableCell>
-                <ConfidenceChip confidence={item.confidence} templateName={item.matchedTemplateName} t={t} />
-              </TableCell>
-              <TableCell>{item.manufacturer || '—'}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+    <Box
+      onClick={onToggle}
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 1,
+        px: 1.5,
+        py: 1,
+        borderRadius: 2,
+        cursor: 'pointer',
+        bgcolor: checked ? alpha(theme.palette.primary.main, 0.04) : 'transparent',
+        border: '1px solid',
+        borderColor: checked ? alpha(theme.palette.primary.main, 0.2) : 'transparent',
+        transition: 'all 150ms',
+        '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.06) },
+      }}
+    >
+      <Checkbox size="small" checked={checked} sx={{ p: 0.25 }} />
+      <Box sx={{ flex: 1, minWidth: 0 }}>
+        <Typography variant="body2" fontWeight={600} noWrap sx={{ fontSize: 13 }}>
+          {item.name}
+        </Typography>
+        <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap', mt: 0.25 }}>
+          {item.areaType && <Chip label={item.areaType} size="small" variant="outlined" sx={{ height: 20, fontSize: 10 }} />}
+          {item.floorNumber != null && (
+            <Typography variant="caption" color="text.secondary" sx={{ fontSize: 11 }}>
+              {t('bim.import.floor')}: {item.floorNumber}
+            </Typography>
+          )}
+          {item.areaCode && (
+            <Typography variant="caption" color="text.secondary" sx={{ fontSize: 11 }}>
+              {item.areaCode}
+            </Typography>
+          )}
+        </Box>
+      </Box>
+    </Box>
   )
 }
 
-function MaterialTable({
-  items,
-  selected,
+function ConfidenceBar({ confidence, templateName, t }: { confidence: number; templateName?: string; t: (key: string) => string }) {
+  const theme = useTheme()
+  if (!templateName || confidence < 0.3) {
+    return (
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, px: 1, py: 0.5, borderRadius: 1.5, bgcolor: alpha(theme.palette.text.disabled, 0.06) }}>
+        <SwapHorizIcon sx={{ fontSize: 14, color: 'text.disabled' }} />
+        <Typography variant="caption" color="text.disabled" sx={{ fontSize: 11 }}>
+          {t('bim.import.noMatch')}
+        </Typography>
+      </Box>
+    )
+  }
+
+  const pct = Math.round(confidence * 100)
+  const barColor = confidence >= 0.8 ? theme.palette.success.main : confidence >= 0.6 ? theme.palette.warning.main : theme.palette.grey[400]
+  const bgColor = confidence >= 0.8 ? alpha(theme.palette.success.main, 0.08) : confidence >= 0.6 ? alpha(theme.palette.warning.main, 0.08) : alpha(theme.palette.grey[400], 0.08)
+
+  return (
+    <Box sx={{ borderRadius: 2, bgcolor: bgColor, px: 1.25, py: 0.75, minWidth: 0 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.5 }}>
+        <SwapHorizIcon sx={{ fontSize: 14, color: barColor, flexShrink: 0 }} />
+        <Typography variant="caption" fontWeight={600} noWrap sx={{ flex: 1, fontSize: 11, color: 'text.primary' }}>
+          {templateName}
+        </Typography>
+        <Typography variant="caption" fontWeight={700} sx={{ fontSize: 11, color: barColor, flexShrink: 0 }}>
+          {pct}%
+        </Typography>
+      </Box>
+      <LinearProgress
+        variant="determinate"
+        value={pct}
+        sx={{
+          height: 4,
+          borderRadius: 2,
+          bgcolor: alpha(barColor, 0.15),
+          '& .MuiLinearProgress-bar': { bgcolor: barColor, borderRadius: 2 },
+        }}
+      />
+    </Box>
+  )
+}
+
+function TemplateItemCard({
+  itemKey,
+  name,
+  type,
+  manufacturer,
+  confidence,
+  templateName,
+  checked,
   onToggle,
-  onToggleAll,
+  expanded,
+  onExpandToggle,
+  properties,
+  onPropertiesChange,
+  suggestions,
+  specifications,
   t,
 }: {
-  items: BimExtractedMaterial[]
-  selected: Set<number>
-  onToggle: (id: number) => void
-  onToggleAll: () => void
+  itemKey: string
+  name: string
+  type?: string
+  manufacturer?: string
+  confidence: number
+  templateName?: string
+  checked: boolean
+  onToggle: () => void
+  expanded: boolean
+  onExpandToggle: () => void
+  properties: KeyValuePair[]
+  onPropertiesChange: (props: KeyValuePair[]) => void
+  suggestions: typeof EQUIPMENT_SUGGESTIONS
+  specifications?: Record<string, unknown>
   t: (key: string) => string
 }) {
-  if (items.length === 0) return <Typography color="text.secondary">{t('bim.import.noItems')}</Typography>
+  const theme = useTheme()
+
   return (
-    <TableContainer sx={{ maxHeight: 350 }}>
-      <Table size="small" stickyHeader>
-        <TableHead>
-          <TableRow>
-            <TableCell padding="checkbox">
-              <Checkbox checked={selected.size === items.length} indeterminate={selected.size > 0 && selected.size < items.length} onChange={onToggleAll} />
-            </TableCell>
-            <TableCell>{t('common.name')}</TableCell>
-            <TableCell>{t('bim.import.type')}</TableCell>
-            <TableCell>{t('bim.import.templateMatch')}</TableCell>
-            <TableCell>{t('bim.import.manufacturer')}</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {items.map((item) => (
-            <TableRow key={item.bimObjectId} hover onClick={() => onToggle(item.bimObjectId)} sx={{ cursor: 'pointer' }}>
-              <TableCell padding="checkbox">
-                <Checkbox checked={selected.has(item.bimObjectId)} />
-              </TableCell>
-              <TableCell>{item.name}</TableCell>
-              <TableCell>{item.materialType || '—'}</TableCell>
-              <TableCell>
-                <ConfidenceChip confidence={item.confidence} templateName={item.matchedTemplateName} t={t} />
-              </TableCell>
-              <TableCell>{item.manufacturer || '—'}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+    <Box
+      sx={{
+        borderRadius: 2,
+        border: '1px solid',
+        borderColor: checked ? alpha(theme.palette.primary.main, 0.25) : 'divider',
+        bgcolor: checked ? alpha(theme.palette.primary.main, 0.02) : 'transparent',
+        overflow: 'hidden',
+        transition: 'all 150ms',
+      }}
+    >
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: 1,
+          px: 1.5,
+          py: 1,
+          cursor: 'pointer',
+          '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.04) },
+        }}
+      >
+        <Checkbox
+          size="small"
+          checked={checked}
+          onClick={(e) => e.stopPropagation()}
+          onChange={onToggle}
+          sx={{ p: 0.25, mt: 0.25 }}
+        />
+        <Box onClick={onExpandToggle} sx={{ flex: 1, minWidth: 0, cursor: 'pointer' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
+            <Typography variant="body2" fontWeight={600} noWrap sx={{ fontSize: 13, flex: 1 }}>
+              {name}
+            </Typography>
+            <IconButton size="small" sx={{ p: 0.25 }}>
+              {expanded ? <ExpandLessIcon sx={{ fontSize: 18 }} /> : <ExpandMoreIcon sx={{ fontSize: 18 }} />}
+            </IconButton>
+          </Box>
+          <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap', mb: 0.75 }}>
+            {type && <Chip label={type} size="small" variant="outlined" sx={{ height: 20, fontSize: 10 }} />}
+            {manufacturer && (
+              <Typography variant="caption" color="text.secondary" sx={{ fontSize: 11 }}>
+                {t('bim.import.manufacturer')}: {manufacturer}
+              </Typography>
+            )}
+          </Box>
+          <ConfidenceBar confidence={confidence} templateName={templateName} t={t} />
+        </Box>
+      </Box>
+
+      <Collapse in={expanded}>
+        <Box sx={{ px: 1.5, pb: 1.5, pt: 0.5, borderTop: '1px solid', borderColor: 'divider' }}>
+          {specifications && Object.keys(specifications).length > 0 && (
+            <Box sx={{ mb: 1.5 }}>
+              <Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ mb: 0.75, display: 'block', fontSize: 11 }}>
+                {t('bim.import.bimProperties')}
+              </Typography>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                {Object.entries(specifications).map(([k, v]) => (
+                  <Chip
+                    key={k}
+                    label={`${k}: ${String(v)}`}
+                    size="small"
+                    variant="outlined"
+                    sx={{ height: 22, fontSize: 10, bgcolor: alpha(theme.palette.info.main, 0.04) }}
+                  />
+                ))}
+              </Box>
+            </Box>
+          )}
+          <KeyValueEditor
+            entries={properties}
+            onChange={onPropertiesChange}
+            label={t('bim.import.addProperties')}
+            suggestions={suggestions}
+          />
+        </Box>
+      </Collapse>
+    </Box>
   )
 }

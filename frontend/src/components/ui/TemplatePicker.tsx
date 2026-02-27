@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { ReactElement } from 'react'
 import { SearchIcon, DescriptionIcon, SettingsIcon, ChecklistIcon, FoundationIcon, PlumbingIcon, ElectricalServicesIcon, AcUnitIcon, FireExtinguisherIcon, DoorFrontIcon, SecurityIcon, ElevatorIcon, SmartToyIcon, KitchenIcon, DeckIcon, WindowIcon, PersonIcon, FormatPaintIcon, InventoryIcon, WaterDropIcon, ThermostatIcon, SquareFootIcon, RoofingIcon, BathtubIcon, CableIcon, GridViewIcon, CategoryIcon, CloseIcon, CheckCircleIcon } from '@/icons'
-import { Autocomplete, TextField as MuiTextField, Box, Typography, Chip, Paper, InputAdornment, IconButton, alpha } from '@/mui'
+import { Box, Typography, Chip, IconButton, alpha, InputAdornment, TextField as MuiTextField, Drawer, useMediaQuery, ButtonBase } from '@/mui'
 import { useTheme } from '@/mui'
 
 interface TemplateBase {
@@ -87,10 +87,7 @@ function getCategoryColor(category: string | null): string {
 
 function formatCategoryFallback(category: string | null): string {
   if (!category) return 'General'
-  return category
-    .split('_')
-    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ')
+  return category.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
 }
 
 export default function TemplatePicker<T extends TemplateBase>({
@@ -99,24 +96,13 @@ export default function TemplatePicker<T extends TemplateBase>({
   onChange,
   label,
   placeholder,
-  noOptionsText: noOptionsTextProp,
 }: TemplatePickerProps<T>) {
   const { t } = useTranslation()
   const theme = useTheme()
-
-  const categoryKeyMap = useMemo(() => {
-    const map = new Map<string, string>()
-    templates.forEach(tmpl => {
-      const cat = tmpl.category || 'general'
-      if (!map.has(cat)) {
-        const key = `templatePicker.categories.${cat}`
-        const translated = t(key)
-        const label = translated !== key ? translated : (cat === 'general' ? 'General' : formatCategoryFallback(cat))
-        map.set(label, cat)
-      }
-    })
-    return map
-  }, [templates, t])
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+  const [drawerOpen, setDrawerOpen] = useState(false)
+  const [categoryFilter, setCategoryFilter] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
 
   const formatCategory = useCallback((category: string | null): string => {
     if (!category) {
@@ -129,8 +115,6 @@ export default function TemplatePicker<T extends TemplateBase>({
     return translated !== key ? translated : formatCategoryFallback(category)
   }, [t])
 
-  const [categoryFilter, setCategoryFilter] = useState<string | null>(null)
-
   const categories = useMemo(() => {
     const cats = new Map<string, number>()
     templates.forEach(t => {
@@ -141,29 +125,61 @@ export default function TemplatePicker<T extends TemplateBase>({
   }, [templates])
 
   const filteredTemplates = useMemo(() => {
-    if (!categoryFilter) return templates
-    return templates.filter(t => (t.category || 'general') === categoryFilter)
-  }, [templates, categoryFilter])
-
-  const sortedTemplates = useMemo(() => {
-    return [...filteredTemplates].sort((a, b) => {
+    let list = templates
+    if (categoryFilter) list = list.filter(t => (t.category || 'general') === categoryFilter)
+    if (searchQuery.trim()) {
+      const q = searchQuery.trim().toLowerCase()
+      list = list.filter(t => t.name_he.toLowerCase().includes(q) || t.name.toLowerCase().includes(q) || (t.description || '').toLowerCase().includes(q))
+    }
+    return [...list].sort((a, b) => {
       const catA = a.category || 'general'
       const catB = b.category || 'general'
       if (catA !== catB) return catA.localeCompare(catB)
       return a.name_he.localeCompare(b.name_he)
     })
-  }, [filteredTemplates])
+  }, [templates, categoryFilter, searchQuery])
 
-  return (
+  const handleSelect = (template: T) => {
+    onChange(template)
+    setDrawerOpen(false)
+    setSearchQuery('')
+  }
+
+  const handleClear = () => {
+    onChange(null)
+  }
+
+  const handleOpen = () => {
+    setCategoryFilter(null)
+    setSearchQuery('')
+    setDrawerOpen(true)
+  }
+
+  const templateGrid = (
     <Box>
-      {/* Horizontal scrollable category pills */}
+      {/* Search */}
+      <Box sx={{ px: isMobile ? 2 : 0, pt: isMobile ? 2 : 0, pb: 1.5 }}>
+        <MuiTextField
+          fullWidth
+          size="small"
+          placeholder={placeholder}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          InputProps={{
+            startAdornment: <InputAdornment position="start"><SearchIcon fontSize="small" color="action" /></InputAdornment>,
+          }}
+          sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2.5 } }}
+        />
+      </Box>
+
+      {/* Category pills */}
       <Box
         sx={{
           display: 'flex',
           gap: 0.75,
-          mb: 1.5,
+          px: isMobile ? 2 : 0,
+          pb: 1.5,
           overflowX: 'auto',
-          pb: 0.5,
           '&::-webkit-scrollbar': { display: 'none' },
           scrollbarWidth: 'none',
         }}
@@ -174,12 +190,7 @@ export default function TemplatePicker<T extends TemplateBase>({
           variant={categoryFilter === null ? 'filled' : 'outlined'}
           color={categoryFilter === null ? 'primary' : 'default'}
           onClick={() => setCategoryFilter(null)}
-          sx={{
-            fontWeight: categoryFilter === null ? 600 : 400,
-            cursor: 'pointer',
-            flexShrink: 0,
-            borderRadius: '20px',
-          }}
+          sx={{ fontWeight: 600, cursor: 'pointer', flexShrink: 0, borderRadius: '20px', minHeight: 36 }}
         />
         {categories.map(([cat, count]) => {
           const isActive = categoryFilter === cat
@@ -197,6 +208,7 @@ export default function TemplatePicker<T extends TemplateBase>({
                 fontWeight: isActive ? 600 : 400,
                 flexShrink: 0,
                 borderRadius: '20px',
+                minHeight: 36,
                 ...(isActive && {
                   bgcolor: catColor,
                   color: '#fff',
@@ -209,178 +221,123 @@ export default function TemplatePicker<T extends TemplateBase>({
         })}
       </Box>
 
-      {/* Autocomplete search */}
-      <Autocomplete
-        options={sortedTemplates}
-        value={value}
-        onChange={(_, newValue) => onChange(newValue)}
-        groupBy={(option) => formatCategory(option.category)}
-        getOptionLabel={(option) => option.name_he}
-        isOptionEqualToValue={(option, val) => option.id === val.id}
-        PaperComponent={(props) => (
-          <Paper
-            {...props}
-            elevation={8}
-            sx={{
-              borderRadius: 3,
-              mt: 0.5,
-              border: '1px solid',
-              borderColor: 'divider',
-              overflow: 'hidden',
-            }}
-          />
-        )}
-        renderInput={(params) => (
-          <MuiTextField
-            {...params}
-            label={label}
-            placeholder={placeholder}
-            InputProps={{
-              ...params.InputProps,
-              startAdornment: (
-                <>
-                  <InputAdornment position="start">
-                    {value ? (
-                      <Box sx={{ color: getCategoryColor(value.category), display: 'flex' }}>
-                        {getCategoryIcon(value.category)}
-                      </Box>
-                    ) : (
-                      <SearchIcon fontSize="small" color="action" />
-                    )}
-                  </InputAdornment>
-                  {params.InputProps.startAdornment}
-                </>
-              ),
-            }}
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                borderRadius: 2.5,
-              },
-            }}
-          />
-        )}
-        renderOption={(props, option) => {
-          const { key, ...rest } = props as React.HTMLAttributes<HTMLLIElement> & { key: string }
-          const specsCount = option.required_specifications?.length || 0
-          const docsCount = option.required_documents?.length || 0
-          const checklistCount = option.submission_checklist?.length || 0
-          const catColor = getCategoryColor(option.category)
+      {/* Template card grid */}
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' },
+          gap: 1,
+          px: isMobile ? 2 : 0,
+          pb: isMobile ? 2 : 0,
+          maxHeight: isMobile ? 'calc(70vh - 140px)' : 350,
+          overflowY: 'auto',
+        }}
+      >
+        {filteredTemplates.length === 0 ? (
+          <Box sx={{ gridColumn: '1 / -1', py: 4, textAlign: 'center' }}>
+            <Typography color="text.secondary">{t('templatePicker.noResults')}</Typography>
+          </Box>
+        ) : (
+          filteredTemplates.map((tmpl) => {
+            const catColor = getCategoryColor(tmpl.category)
+            const isSelected = value?.id === tmpl.id
+            const specsCount = tmpl.required_specifications?.length || 0
+            const docsCount = tmpl.required_documents?.length || 0
+            const checklistCount = tmpl.submission_checklist?.length || 0
 
-          return (
-            <li key={key} {...rest}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, width: '100%', py: 0.5 }}>
-                <Box
-                  sx={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: 2,
-                    bgcolor: alpha(catColor, 0.1),
-                    color: catColor,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0,
-                  }}
-                >
-                  {getCategoryIcon(option.category)}
+            return (
+              <ButtonBase
+                key={tmpl.id}
+                onClick={() => handleSelect(tmpl)}
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'stretch',
+                  p: 1.5,
+                  borderRadius: 2.5,
+                  border: '2px solid',
+                  borderColor: isSelected ? catColor : 'divider',
+                  bgcolor: isSelected ? alpha(catColor, 0.06) : 'background.paper',
+                  transition: 'all 150ms',
+                  cursor: 'pointer',
+                  textAlign: 'start',
+                  minHeight: 80,
+                  '&:hover': {
+                    borderColor: catColor,
+                    bgcolor: alpha(catColor, 0.04),
+                    boxShadow: `0 2px 8px ${alpha(catColor, 0.15)}`,
+                  },
+                  '&:active': { transform: 'scale(0.98)' },
+                }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.75 }}>
+                  <Box
+                    sx={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: 2,
+                      bgcolor: alpha(catColor, 0.12),
+                      color: catColor,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                    }}
+                  >
+                    {getCategoryIcon(tmpl.category)}
+                  </Box>
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Typography variant="body2" fontWeight={600} noWrap sx={{ fontSize: 13 }}>
+                      {tmpl.name_he}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary" noWrap sx={{ fontSize: 11 }}>
+                      {formatCategory(tmpl.category)}
+                    </Typography>
+                  </Box>
+                  {isSelected && <CheckCircleIcon sx={{ fontSize: 20, color: catColor, flexShrink: 0 }} />}
                 </Box>
-                <Box sx={{ flex: 1, minWidth: 0 }}>
-                  <Typography variant="body2" fontWeight={600} noWrap>
-                    {option.name_he}
-                  </Typography>
-                  <Box sx={{ display: 'flex', gap: 1, mt: 0.25 }}>
+                {(specsCount > 0 || docsCount > 0 || checklistCount > 0) && (
+                  <Box sx={{ display: 'flex', gap: 1.5, mt: 'auto' }}>
                     {specsCount > 0 && (
-                      <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.3 }}>
+                      <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.3, fontSize: 10 }}>
                         <SettingsIcon sx={{ fontSize: 12 }} /> {specsCount}
                       </Typography>
                     )}
                     {docsCount > 0 && (
-                      <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.3 }}>
+                      <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.3, fontSize: 10 }}>
                         <DescriptionIcon sx={{ fontSize: 12 }} /> {docsCount}
                       </Typography>
                     )}
                     {checklistCount > 0 && (
-                      <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.3 }}>
+                      <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.3, fontSize: 10 }}>
                         <ChecklistIcon sx={{ fontSize: 12 }} /> {checklistCount}
                       </Typography>
                     )}
                   </Box>
-                </Box>
-              </Box>
-            </li>
-          )
-        }}
-        renderGroup={(params) => {
-          const originalKey = categoryKeyMap.get(params.group) || null
-          const catColor = getCategoryColor(originalKey)
-          return (
-            <li key={params.key}>
-              <Box
-                sx={{
-                  position: 'sticky',
-                  top: -8,
-                  px: 2,
-                  py: 0.75,
-                  bgcolor: alpha(catColor, 0.06),
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 1,
-                  borderBottom: '1px solid',
-                  borderColor: 'divider',
-                  zIndex: 1,
-                }}
-              >
-                <Box sx={{ color: catColor, display: 'flex' }}>
-                  {getCategoryIcon(originalKey)}
-                </Box>
-                <Typography variant="caption" fontWeight={700} color="text.secondary" textTransform="uppercase" letterSpacing={0.5}>
-                  {params.group}
-                </Typography>
-              </Box>
-              <ul style={{ padding: 0 }}>{params.children}</ul>
-            </li>
-          )
-        }}
-        noOptionsText={noOptionsTextProp || t('templatePicker.noResults')}
-        sx={{
-          '& .MuiAutocomplete-listbox': {
-            maxHeight: 350,
-            '& .MuiAutocomplete-option': {
-              px: 2,
-              py: 0.75,
-              borderRadius: 1.5,
-              mx: 0.5,
-              '&:hover': { bgcolor: 'action.hover' },
-              '&.Mui-focused': { bgcolor: 'action.selected' },
-            },
-          },
-        }}
-      />
+                )}
+              </ButtonBase>
+            )
+          })
+        )}
+      </Box>
+    </Box>
+  )
 
-      {/* Selected template preview card */}
-      {value && (
+  return (
+    <Box>
+      {/* Selected template card or trigger button */}
+      {value ? (
         <Box
           sx={{
-            mt: 1.5,
             p: 0,
             borderRadius: 3,
-            border: '1px solid',
-            borderColor: alpha(getCategoryColor(value.category), 0.3),
+            border: '2px solid',
+            borderColor: alpha(getCategoryColor(value.category), 0.4),
             bgcolor: alpha(getCategoryColor(value.category), 0.04),
             overflow: 'hidden',
           }}
         >
-          {/* Card header */}
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1.5,
-              p: 1.5,
-              borderBottom: '1px solid',
-              borderColor: alpha(getCategoryColor(value.category), 0.15),
-            }}
-          >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5 }}>
             <Box
               sx={{
                 width: 44,
@@ -404,26 +361,24 @@ export default function TemplatePicker<T extends TemplateBase>({
                 </Typography>
               )}
             </Box>
-            <IconButton
-              size="small"
-              onClick={() => onChange(null)}
-              sx={{ color: 'text.secondary', flexShrink: 0 }}
-            >
-              <CloseIcon fontSize="small" />
-            </IconButton>
+            <Box sx={{ display: 'flex', gap: 0.5, flexShrink: 0 }}>
+              <IconButton size="small" onClick={handleOpen} sx={{ color: 'text.secondary' }}>
+                <SearchIcon fontSize="small" />
+              </IconButton>
+              <IconButton size="small" onClick={handleClear} sx={{ color: 'text.secondary' }}>
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            </Box>
           </Box>
-
           {/* Stats row */}
-          <Box sx={{ display: 'flex', justifyContent: 'space-around', p: 1.5 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-around', p: 1.5, borderTop: '1px solid', borderColor: alpha(getCategoryColor(value.category), 0.15) }}>
             {(value.required_specifications?.length || 0) > 0 && (
               <Box sx={{ textAlign: 'center', flex: 1 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
                   <SettingsIcon sx={{ fontSize: 16, color: theme.palette.primary.main }} />
                   <Typography variant="subtitle2" fontWeight={700}>{value.required_specifications.length}</Typography>
                 </Box>
-                <Typography variant="caption" color="text.secondary" fontSize={10}>
-                  {t('templatePicker.specs')}
-                </Typography>
+                <Typography variant="caption" color="text.secondary" fontSize={10}>{t('templatePicker.specs')}</Typography>
               </Box>
             )}
             {(value.required_documents?.length || 0) > 0 && (
@@ -432,9 +387,7 @@ export default function TemplatePicker<T extends TemplateBase>({
                   <DescriptionIcon sx={{ fontSize: 16, color: theme.palette.warning.main }} />
                   <Typography variant="subtitle2" fontWeight={700}>{value.required_documents.length}</Typography>
                 </Box>
-                <Typography variant="caption" color="text.secondary" fontSize={10}>
-                  {t('templatePicker.docs')}
-                </Typography>
+                <Typography variant="caption" color="text.secondary" fontSize={10}>{t('templatePicker.docs')}</Typography>
               </Box>
             )}
             {(value.submission_checklist?.length || 0) > 0 && (
@@ -443,13 +396,92 @@ export default function TemplatePicker<T extends TemplateBase>({
                   <CheckCircleIcon sx={{ fontSize: 16, color: theme.palette.success.main }} />
                   <Typography variant="subtitle2" fontWeight={700}>{value.submission_checklist.length}</Typography>
                 </Box>
-                <Typography variant="caption" color="text.secondary" fontSize={10}>
-                  {t('templatePicker.checks')}
-                </Typography>
+                <Typography variant="caption" color="text.secondary" fontSize={10}>{t('templatePicker.checks')}</Typography>
               </Box>
             )}
           </Box>
         </Box>
+      ) : (
+        <ButtonBase
+          onClick={handleOpen}
+          sx={{
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1.5,
+            p: 2,
+            borderRadius: 3,
+            border: '2px dashed',
+            borderColor: 'divider',
+            bgcolor: alpha(theme.palette.primary.main, 0.02),
+            transition: 'all 200ms',
+            cursor: 'pointer',
+            justifyContent: 'center',
+            minHeight: 64,
+            '&:hover': {
+              borderColor: 'primary.main',
+              bgcolor: alpha(theme.palette.primary.main, 0.04),
+            },
+          }}
+        >
+          <SearchIcon sx={{ color: 'primary.main', fontSize: 22 }} />
+          <Box sx={{ textAlign: 'start' }}>
+            <Typography variant="body2" fontWeight={600} color="primary.main">
+              {label}
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              {placeholder}
+            </Typography>
+          </Box>
+        </ButtonBase>
+      )}
+
+      {/* Mobile: Bottom sheet drawer / Desktop: inline dropdown */}
+      {isMobile ? (
+        <Drawer
+          anchor="bottom"
+          open={drawerOpen}
+          onClose={() => setDrawerOpen(false)}
+          sx={{ zIndex: 1400 }}
+          PaperProps={{
+            sx: {
+              borderTopLeftRadius: 20,
+              borderTopRightRadius: 20,
+              maxHeight: '80vh',
+            },
+          }}
+        >
+          <Box sx={{ width: 40, height: 4, bgcolor: 'divider', borderRadius: 2, mx: 'auto', mt: 1.5, mb: 0.5 }} />
+          <Box sx={{ px: 2, py: 1 }}>
+            <Typography variant="subtitle1" fontWeight={700}>{label}</Typography>
+          </Box>
+          {templateGrid}
+        </Drawer>
+      ) : (
+        drawerOpen && (
+          <Box
+            sx={{
+              mt: 1,
+              borderRadius: 3,
+              border: '1px solid',
+              borderColor: 'divider',
+              bgcolor: 'background.paper',
+              boxShadow: 3,
+              overflow: 'hidden',
+              position: 'relative',
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 2, py: 1, borderBottom: '1px solid', borderColor: 'divider' }}>
+              <Typography variant="subtitle2" fontWeight={700}>{label}</Typography>
+              <IconButton size="small" onClick={() => setDrawerOpen(false)}>
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            </Box>
+            <Box sx={{ p: 1.5 }}>
+              {templateGrid}
+            </Box>
+          </Box>
+        )
       )}
     </Box>
   )

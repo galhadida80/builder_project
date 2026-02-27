@@ -12,6 +12,7 @@ export {
   Box,
   Breadcrumbs,
   Button,
+  ButtonBase,
   ButtonGroup,
   Card,
   CardActions,

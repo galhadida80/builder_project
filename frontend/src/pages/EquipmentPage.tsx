@@ -65,8 +65,6 @@ export default function EquipmentPage() {
   const [contactDialogOpen, setContactDialogOpen] = useState(false)
   const [approvers, setApprovers] = useState<Recipient[]>([])
   const [distributionList, setDistributionList] = useState<Recipient[]>([])
-  const [contractorSignature, setContractorSignature] = useState<string | null>(null)
-  const [supervisorSignature, setSupervisorSignature] = useState<string | null>(null)
   const [isClosed, setIsClosed] = useState(false)
 
   const selectedTemplate = useMemo(() => {
@@ -99,7 +97,7 @@ export default function EquipmentPage() {
   const resetForm = () => {
     setFormData({ name: '', templateId: '', manufacturer: '', modelNumber: '', notes: '', approvalDueDate: '' })
     setSpecificationValues({}); setDocumentFiles({}); setChecklistResponses({}); setCustomFields([]); setErrors({}); setEditingEquipment(null)
-    setApprovers([]); setDistributionList([]); setContractorSignature(null); setSupervisorSignature(null); setIsClosed(false)
+    setApprovers([]); setDistributionList([]); setIsClosed(false)
   }
 
   const handleOpenCreate = () => { resetForm(); setDialogOpen(true) }
@@ -334,10 +332,6 @@ export default function EquipmentPage() {
         setApprovers={setApprovers}
         distributionList={distributionList}
         setDistributionList={setDistributionList}
-        contractorSignature={contractorSignature}
-        setContractorSignature={setContractorSignature}
-        supervisorSignature={supervisorSignature}
-        setSupervisorSignature={setSupervisorSignature}
         isClosed={isClosed}
         setIsClosed={setIsClosed}
       />

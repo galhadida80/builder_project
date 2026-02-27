@@ -147,7 +147,7 @@ export default function DefectsPage() {
         setAnalysisResults([]); setSelectedDefects([])
         showSuccess(t('defects.analyzeSuccess'))
       } else {
-        setAnalysisResults(defectsResult); setSelectedDefects(defectsResult.map(() => true))
+        setAnalysisResults(defectsResult); setSelectedDefects(new Array(defectsResult.length))
         showSuccess(t('defects.multiAnalyzeSuccess', { count: defectsResult.length }))
       }
     } catch { showError(t('defects.analyzeFailed')) } finally { setAnalyzing(false) }
@@ -189,7 +189,7 @@ export default function DefectsPage() {
   }
 
   const isMultiDefect = analysisResults.length > 1
-  const selectedCount = selectedDefects.filter(Boolean).length
+  const selectedCount = selectedDefects.filter(v => v === true).length
 
   const handleCreate = async () => {
     if (!projectId) return
@@ -197,7 +197,7 @@ export default function DefectsPage() {
       if (selectedCount === 0) { showError(t('defects.noDefectsSelected')); return }
       setSubmitting(true); setUploadProgress(0)
       try {
-        const itemsToCreate = analysisResults.filter((_, i) => selectedDefects[i])
+        const itemsToCreate = analysisResults.filter((_, i) => selectedDefects[i] === true)
         const totalSteps = itemsToCreate.length + (pendingPhotos.length * itemsToCreate.length)
         let completedSteps = 0
         for (const item of itemsToCreate) {

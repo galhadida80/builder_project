@@ -82,6 +82,8 @@
     "edit": "ערוך",
     "search": "חיפוש",
     "loading": "טוען",
+    "fromScratch": "מאפס",
+    "fromTemplate": "מתבנית",
     "other": "אחר",
     "customType": "ציין סוג מותאם",
     "customUnit": "ציין יחידת מידה מותאמת",
@@ -407,7 +409,13 @@
     "contractorSignature": "חתימת קבלן",
     "supervisorSignature": "חתימת מפקח",
     "stampAutoApplied": "החותמת האישית שלך הוחלה אוטומטית",
-    "markAsClosed": "סמן כסגור"
+    "markAsClosed": "סמן כסגור",
+    "chooseMode": "איך תרצה להוסיף?",
+    "fromTemplate": "מתבנית",
+    "fromTemplateDesc": "בחר מתבנית מוכנה עם מפרטים ומסמכים נדרשים",
+    "fromScratch": "מאפס",
+    "fromScratchDesc": "הגדר ציוד חדש עם מאפיינים מותאמים אישית",
+    "switchMode": "שנה אופן הוספה"
   },
   "materials": {
     "title": "חומרים",
@@ -509,7 +517,13 @@
     "contractorSignature": "חתימת קבלן",
     "supervisorSignature": "חתימת מפקח",
     "stampAutoApplied": "החותמת האישית שלך הוחלה אוטומטית",
-    "markAsClosed": "סמן כסגור"
+    "markAsClosed": "סמן כסגור",
+    "chooseMode": "איך תרצה להוסיף?",
+    "fromTemplate": "מתבנית",
+    "fromTemplateDesc": "בחר מתבנית מוכנה עם מפרטים ומסמכים נדרשים",
+    "fromScratch": "מאפס",
+    "fromScratchDesc": "הגדר חומר חדש עם מאפיינים מותאמים אישית",
+    "switchMode": "שנה אופן הוספה"
   },
   "meetings": {
     "title": "פגישות",
@@ -1017,13 +1031,19 @@
     "valuePlaceholder": "הזן ערך...",
     "keyPlaceholder": "שם המאפיין...",
     "addField": "הוסף שדה",
+    "addCustomField": "הוסף מאפיין מותאם אישית",
     "quickAdd": "הוספה מהירה",
     "typeText": "טקסט",
     "typeNumber": "מספר",
     "typeBoolean": "כן/לא",
     "typeDate": "תאריך",
     "typeSelect": "בחירה",
-    "templateField": "שדה תבנית"
+    "templateField": "שדה תבנית",
+    "searchProperty": "חפש מאפיין להוספה...",
+    "customKeyPlaceholder": "שם מאפיין חדש...",
+    "suggestedProperties": "מאפיינים מוצעים",
+    "selectOptionsLabel": "אפשרויות בחירה",
+    "selectOptionsPlaceholder": "אפשרות 1, אפשרות 2, אפשרות 3..."
   },
   "customProps": {
     "categories": {
@@ -2470,6 +2490,10 @@
     "deleteFailed": "מחיקת המודל נכשלה",
     "failedToLoad": "טעינת מודלי BIM נכשלה",
     "extractData": "חילוץ נתונים",
+    "modelTitle": "מודל BIM",
+    "additionalModels": "מודלים נוספים",
+    "viewAll": "הצג הכל",
+    "supportedFormats": "פורמטים נתמכים",
     "status": {
       "uploaded": "הועלה",
       "translating": "בתרגום",
@@ -2501,7 +2525,17 @@
       "imported": "יובאו",
       "skipped": "דולגו",
       "linked": "קושרו לתבנית",
-      "templateMatch": "התאמת תבנית"
+      "templateMatch": "התאמת תבנית",
+      "totalExtracted": "פריטים חולצו",
+      "selectedForImport": "נבחרו לייבוא",
+      "noMatch": "ללא התאמת תבנית",
+      "bimProperties": "מאפייני BIM",
+      "addProperties": "הוסף מאפיינים",
+      "filter": {
+        "all": "הכל",
+        "problems": "דורש בדיקה",
+        "selected": "נבחרים"
+      }
     }
   },
   "defects": {
@@ -2619,6 +2653,7 @@
     "multiAnalyzeSuccess": "זוהו {{count}} ליקויים - בדוק וערוך את התוצאות",
     "detectedDefects": "ליקויים שזוהו ({{count}})",
     "selectDefectsHint": "בחר אילו ליקויים ליצור. ניתן לערוך כל אחד.",
+    "reviewDefectsHint": "אשר (✓) או דחה (✗) כל ליקוי. ניתן לערוך לפני אישור.",
     "defectIndex": "ליקוי {{index}}",
     "createMultiple": "צור {{count}} ליקויים",
     "batchCreateSuccess": "{{count}} ליקויים דווחו בהצלחה",

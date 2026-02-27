@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { withMinDuration } from '../utils/async'
 import { getDateLocale } from '../utils/dateLocale'
-import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { StatusBadge, SeverityBadge } from '../components/ui/StatusBadge'
 import { ConfirmModal, FormModal } from '../components/ui/Modal'
@@ -16,10 +15,11 @@ import { useToast } from '../components/common/ToastProvider'
 import { PhotoAnnotator } from '../components/annotations/PhotoAnnotator'
 import {
   ArrowBackIcon, AddPhotoAlternateIcon, DeleteIcon, ImageIcon, EditIcon, DrawIcon,
+  MoreVertIcon, EmailIcon, PersonAddIcon, LocationOnIcon, CalendarTodayIcon, PersonIcon,
 } from '@/icons'
 import {
   Box, Typography, Divider, Chip, IconButton, Skeleton, Avatar,
-  Tooltip, MenuItem, TextField as MuiTextField, Autocomplete, Dialog,
+  Tooltip, MenuItem, TextField as MuiTextField, Autocomplete, Dialog, alpha,
 } from '@/mui'
 
 export default function DefectDetailPage() {
@@ -202,223 +202,279 @@ export default function DefectDetailPage() {
   const STATUS_OPTIONS = ['open', 'in_progress', 'resolved', 'closed']
   const assignedIds = new Set(defect.assignees.map(a => a.contactId))
   const availableContacts = contacts.filter(c => !assignedIds.has(c.id))
+  const imagePhotos = photos.filter(f => f.fileType?.startsWith('image/'))
+
+  const statusColor = defect.status === 'open' ? 'error' : defect.status === 'in_progress' ? 'warning' : 'success'
 
   return (
-    <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 }, maxWidth: 1000, mx: 'auto' }}>
-      <Button
-        variant="tertiary"
-        icon={<ArrowBackIcon />}
-        onClick={() => navigate(`/projects/${projectId}/defects`)}
-        sx={{ mb: 2 }}
-      >
-        {t('defects.backToList')}
-      </Button>
+    <Box sx={{ maxWidth: 600, mx: 'auto', pb: 12 }}>
+      {/* Sticky header */}
+      <Box sx={{
+        position: 'sticky', top: 0, zIndex: 20,
+        bgcolor: 'background.default', px: 2, py: 1.5,
+        borderBottom: 1, borderColor: 'divider',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <IconButton size="small" onClick={() => navigate(`/projects/${projectId}/defects`)}>
+            <ArrowBackIcon />
+          </IconButton>
+          <Typography variant="h6" fontWeight={700} letterSpacing="-0.02em">
+            {t('defects.detailTitle', 'Defect Details')}
+          </Typography>
+        </Box>
+        <Box sx={{ display: 'flex', gap: 0.5 }}>
+          <Chip size="small" label={`DEF-${defect.defectNumber}`} sx={{ fontFamily: 'monospace', fontWeight: 600, fontSize: '0.65rem' }} />
+          <IconButton size="small" onClick={() => setDeleteDialogOpen(true)} sx={{ color: 'text.secondary' }}>
+            <MoreVertIcon fontSize="small" />
+          </IconButton>
+        </Box>
+      </Box>
 
-      <Box sx={{ mb: 3, bgcolor: defect.status === 'open' ? 'error.main' : defect.status === 'in_progress' ? 'warning.main' : 'success.main', color: 'white', px: 2, py: 1.5, borderRadius: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      {/* Status banner */}
+      <Box sx={{
+        mx: 2, mt: 2, mb: 2,
+        bgcolor: (theme) => alpha(theme.palette[statusColor].main, 0.15),
+        border: 1,
+        borderColor: (theme) => alpha(theme.palette[statusColor].main, 0.3),
+        borderRadius: 3, px: 2, py: 1.5,
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: 'white', ...(defect.status === 'open' && { animation: 'pulse 2s infinite' }) }} />
+          <Box sx={{
+            width: 12, height: 12, borderRadius: '50%',
+            bgcolor: `${statusColor}.main`,
+            ...(defect.status === 'open' && {
+              '@keyframes pulse': { '0%, 100%': { opacity: 1 }, '50%': { opacity: 0.4 } },
+              animation: 'pulse 2s infinite',
+            }),
+          }} />
           <StatusBadge status={defect.status} />
         </Box>
         <SeverityBadge severity={defect.severity} />
       </Box>
 
-      <Card sx={{ mb: 3 }}>
-        <Box sx={{ p: { xs: 2, md: 3 } }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 2, mb: 2 }}>
-            <Box>
-              <Chip size="small" label={`#${defect.defectNumber}`} sx={{ fontFamily: 'monospace', fontWeight: 600, mb: 1 }} color="primary" variant="outlined" />
-              <Typography variant="h5" fontWeight={700} sx={{ fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>
-                {defect.description}
-              </Typography>
-              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 1 }}>
-                <Chip size="small" label={t(`defects.categories.${defect.category}`, { defaultValue: defect.category })} />
-                {defect.isRepeated && <Chip size="small" label={t('defects.repeated')} color="warning" />}
+      {/* Photo carousel */}
+      {imagePhotos.length > 0 && (
+        <Box sx={{ position: 'relative', mx: 2, mb: 2, borderRadius: 3, overflow: 'hidden' }}>
+          <Box
+            sx={{
+              display: 'flex', overflowX: 'auto', scrollSnapType: 'x mandatory',
+              '&::-webkit-scrollbar': { display: 'none' },
+              scrollbarWidth: 'none',
+            }}
+          >
+            {imagePhotos.map((file) => (
+              <Box
+                key={file.id}
+                onClick={() => handleViewPhoto(file)}
+                sx={{
+                  minWidth: '100%', aspectRatio: '16/10', scrollSnapAlign: 'start',
+                  bgcolor: 'grey.900', cursor: 'pointer', position: 'relative', flexShrink: 0,
+                }}
+              >
+                {thumbnails[file.id] ? (
+                  <Box component="img" src={thumbnails[file.id]} alt={file.filename}
+                    sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  <Box sx={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <ImageIcon sx={{ fontSize: 48, color: 'grey.600' }} />
+                  </Box>
+                )}
+              </Box>
+            ))}
+          </Box>
+          <Chip
+            label={`${imagePhotos.length}`}
+            size="small"
+            sx={{
+              position: 'absolute', bottom: 12, insetInlineStart: 12,
+              bgcolor: 'rgba(0,0,0,0.6)', color: 'white', backdropFilter: 'blur(8px)',
+              fontWeight: 700, fontSize: '0.7rem', height: 24,
+            }}
+          />
+        </Box>
+      )}
+
+      {/* Title + description */}
+      <Box sx={{ px: 2, mb: 2 }}>
+        <Typography variant="h5" fontWeight={700} sx={{ fontSize: { xs: '1.25rem', sm: '1.5rem' }, mb: 1 }}>
+          {defect.description}
+        </Typography>
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+          <Chip size="small" label={t(`defects.categories.${defect.category}`, { defaultValue: defect.category })} />
+          {defect.isRepeated && <Chip size="small" label={t('defects.repeated')} color="warning" />}
+        </Box>
+      </Box>
+
+      {/* Detail grid */}
+      <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1.5, px: 2, mb: 3 }}>
+        <DetailCell icon={<LocationOnIcon sx={{ fontSize: 16 }} />} label={t('defects.location')} value={defect.area ? `${defect.area.name}${defect.area.floorNumber != null ? ` - ${t('defects.floor')} ${defect.area.floorNumber}` : ''}` : '-'} />
+        <DetailCell icon={<PersonIcon sx={{ fontSize: 16 }} />} label={t('defects.reporter')} value={defect.reporter?.contactName || '-'} />
+        <DetailCell icon={<CalendarTodayIcon sx={{ fontSize: 16 }} />} label={t('defects.dueDate')} value={defect.dueDate ? new Date(defect.dueDate).toLocaleDateString(getDateLocale()) : '-'} />
+        <DetailCell icon={<CalendarTodayIcon sx={{ fontSize: 16 }} />} label={t('defects.createdAt')} value={new Date(defect.createdAt).toLocaleDateString(getDateLocale())} />
+      </Box>
+
+      {/* Assignees */}
+      <Box sx={{ px: 2, mb: 3 }}>
+        <Typography variant="body1" fontWeight={700} sx={{ mb: 1.5 }}>
+          {t('defects.assignees')}
+        </Typography>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+          {defect.assignees.map((a) => (
+            <Box key={a.id} sx={{
+              bgcolor: 'background.paper', borderRadius: 3, p: 2, border: 1, borderColor: 'divider',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <Avatar sx={{ width: 40, height: 40, bgcolor: 'primary.main', fontSize: '0.875rem' }}>
+                  {a.contact?.contactName?.charAt(0) || '?'}
+                </Avatar>
+                <Box>
+                  <Typography variant="body2" fontWeight={600}>{a.contact?.contactName || t('defects.unknownContact')}</Typography>
+                  <Typography variant="caption" color="text.secondary">{a.contact?.companyName || ''}</Typography>
+                </Box>
+              </Box>
+              <Box sx={{ display: 'flex', gap: 0.5 }}>
+                <IconButton size="small" sx={{ color: 'text.secondary' }}>
+                  <EmailIcon sx={{ fontSize: 18 }} />
+                </IconButton>
+                <IconButton size="small" onClick={() => handleRemoveAssignee(a.contactId)} sx={{ color: 'text.disabled' }}>
+                  <DeleteIcon sx={{ fontSize: 18 }} />
+                </IconButton>
               </Box>
             </Box>
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              <Button variant="secondary" size="small" icon={<EditIcon />} onClick={() => { setNewStatus(defect.status); setStatusDialogOpen(true) }}>
-                {t('defects.changeStatus')}
-              </Button>
-              <Button variant="tertiary" size="small" icon={<DeleteIcon />} onClick={() => setDeleteDialogOpen(true)} sx={{ color: 'error.main' }}>
-                {t('common.delete')}
-              </Button>
-            </Box>
-          </Box>
-
-          <Divider sx={{ mb: 2 }} />
-
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1.5 }}>
-            <DetailCell label={t('defects.location')} value={defect.area ? `${defect.area.name}${defect.area.floorNumber != null ? ` / ${t('defects.floor')} ${defect.area.floorNumber}` : ''}` : '-'} />
-            <DetailCell label={t('defects.reporter')} value={defect.reporter?.contactName || '-'} />
-            <DetailCell label={t('defects.primaryAssignee')} value={defect.assignedContact?.contactName || '-'} />
-            <DetailCell label={t('defects.followupPerson')} value={defect.followupContact?.contactName || '-'} />
-            <DetailCell label={t('defects.dueDate')} value={defect.dueDate ? new Date(defect.dueDate).toLocaleDateString(getDateLocale()) : '-'} />
-            <DetailCell label={t('defects.createdAt')} value={new Date(defect.createdAt).toLocaleDateString(getDateLocale())} />
-            {defect.resolvedAt && <DetailCell label={t('defects.resolvedAt')} value={new Date(defect.resolvedAt).toLocaleDateString(getDateLocale())} />}
-          </Box>
-        </Box>
-      </Card>
-
-      <Card sx={{ mb: 3 }}>
-        <Box sx={{ p: { xs: 2, md: 3 } }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-            <Typography variant="h6" fontWeight={600}>
-              {t('defects.assignees')} ({defect.assignees.length})
-            </Typography>
-          </Box>
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
-            {defect.assignees.map((a) => (
-              <Chip
-                key={a.id}
-                avatar={<Avatar>{a.contact?.contactName?.charAt(0) || '?'}</Avatar>}
-                label={a.contact?.contactName || t('defects.unknownContact')}
-                onDelete={() => handleRemoveAssignee(a.contactId)}
-              />
-            ))}
-            {defect.assignees.length === 0 && (
-              <Typography variant="body2" color="text.secondary">{t('defects.noAssignees')}</Typography>
-            )}
-          </Box>
+          ))}
           {availableContacts.length > 0 && (
             <Autocomplete
               options={availableContacts}
               getOptionLabel={(opt) => `${opt.contactName}${opt.companyName ? ` (${opt.companyName})` : ''}`}
               onChange={(_, val) => { if (val) handleAddAssignee(val.id) }}
               value={null}
-              renderInput={(params) => <MuiTextField {...params} label={t('defects.addAssignee')} size="small" />}
-              sx={{ maxWidth: 400 }}
+              renderInput={(params) => (
+                <MuiTextField {...params} placeholder={t('defects.addAssignee')} size="small"
+                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3, borderStyle: 'dashed' } }} />
+              )}
             />
           )}
         </Box>
-      </Card>
+      </Box>
 
-      <Card sx={{ mb: 3 }}>
-        <Box sx={{ p: { xs: 2, md: 3 } }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 1 }}>
-            <Typography variant="h6" fontWeight={600}>
-              {t('defects.photos')} ({photos.length})
-            </Typography>
-            <Button
-              variant="secondary"
-              size="small"
-              icon={<AddPhotoAlternateIcon />}
-              disabled={uploading}
-              onClick={() => document.getElementById('defect-photo-input')?.click()}
-            >
-              {uploading ? t('common.uploading') : t('defects.addPhoto')}
-            </Button>
-            <input id="defect-photo-input" type="file" hidden multiple accept="image/*,application/pdf" onChange={handlePhotoUpload} />
-          </Box>
-          {photos.length > 0 ? (
-            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', sm: 'repeat(auto-fill, minmax(140px, 1fr))' }, gap: 1.5, overflow: 'hidden' }}>
-              {photos.map((file) => (
-                <Box
-                  key={file.id}
-                  role="button"
-                  tabIndex={0}
-                  aria-label={`${t('defects.photos')}: ${file.filename}`}
-                  onKeyDown={(e: React.KeyboardEvent) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault()
-                      handleViewPhoto(file)
-                    }
-                  }}
-                  sx={{
-                    position: 'relative',
-                    aspectRatio: '1',
-                    borderRadius: 2,
-                    overflow: 'hidden',
-                    bgcolor: 'grey.100',
-                    cursor: 'pointer',
-                    '&:hover .overlay': { opacity: 1 },
-                    '&:focus-visible': {
-                      outline: (theme) => `2px solid ${theme.palette.primary.main}`,
-                      outlineOffset: 2,
-                    },
-                  }}
-                  onClick={() => handleViewPhoto(file)}
-                >
-                  {thumbnails[file.id] ? (
-                    <Box
-                      component="img"
-                      src={thumbnails[file.id]}
-                      alt={file.filename}
-                      sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
-                  ) : (
-                    <Box sx={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <ImageIcon sx={{ fontSize: 40, color: 'grey.400' }} />
-                    </Box>
-                  )}
-                  <Box
-                    className="overlay"
-                    sx={{
-                      position: 'absolute', inset: 0, bgcolor: 'rgba(0,0,0,0.4)',
-                      opacity: 0, transition: 'opacity 200ms', display: 'flex',
-                      alignItems: 'flex-end', justifyContent: 'space-between', p: 1,
-                    }}
-                  >
-                    <Typography variant="caption" color="white" sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '70%' }}>
-                      {file.filename}
-                    </Typography>
-                    <Box sx={{ display: 'flex', gap: 0.5 }}>
-                      {file.fileType?.startsWith('image/') && (
-                        <Tooltip title={t('annotations.annotate')}>
-                          <IconButton
-                            aria-label={t('annotations.annotate')}
-                            size="small"
-                            onClick={(e) => { e.stopPropagation(); setAnnotatingFile(file) }}
-                            sx={{ color: 'white' }}
-                          >
-                            <DrawIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                      )}
-                      <Tooltip title={t('common.delete')}>
-                        <IconButton
-                          aria-label={t('common.delete')}
-                          size="small"
-                          onClick={(e) => { e.stopPropagation(); handlePhotoDelete(file.id) }}
-                          sx={{ color: 'white' }}
-                        >
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                    </Box>
-                  </Box>
-                </Box>
-              ))}
-            </Box>
-          ) : (
-            <Typography variant="body2" color="text.secondary">{t('defects.noPhotos')}</Typography>
-          )}
+      {/* Photos grid (non-image files + add button) */}
+      <Box sx={{ px: 2, mb: 3 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
+          <Typography variant="body1" fontWeight={700}>
+            {t('defects.photos')} ({photos.length})
+          </Typography>
+          <Button variant="secondary" size="small" icon={<AddPhotoAlternateIcon />}
+            disabled={uploading}
+            onClick={() => document.getElementById('defect-photo-input')?.click()}>
+            {uploading ? t('common.uploading') : t('defects.addPhoto')}
+          </Button>
+          <input id="defect-photo-input" type="file" hidden multiple accept="image/*,application/pdf" onChange={handlePhotoUpload} />
         </Box>
-      </Card>
-
-      {history.length > 0 && (
-        <Card>
-          <Box sx={{ p: { xs: 2, md: 3 } }}>
-            <Typography variant="h6" fontWeight={600} sx={{ mb: 3 }}>
-              {t('defects.activity')}
-            </Typography>
-            <Box sx={{ position: 'relative', pl: 3 }}>
-              <Box sx={{ position: 'absolute', left: 5, top: 8, bottom: 8, width: 2, bgcolor: 'divider' }} />
-              {history.map((entry, idx) => (
-                <Box key={entry.id} sx={{ position: 'relative', mb: idx < history.length - 1 ? 3 : 0 }}>
-                  <Box sx={{ position: 'absolute', left: -27, top: 4, width: 12, height: 12, borderRadius: '50%', bgcolor: idx === 0 ? 'primary.main' : 'text.disabled', border: '3px solid', borderColor: 'background.paper' }} />
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', mb: 0.25 }}>
-                    <Typography variant="body2" fontWeight={600}>{entry.action}</Typography>
-                    <Typography variant="caption" color="text.secondary">{new Date(entry.createdAt).toLocaleString(getDateLocale())}</Typography>
+        {photos.length > 0 ? (
+          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1, overflow: 'hidden' }}>
+            {photos.map((file) => (
+              <Box key={file.id} role="button" tabIndex={0}
+                aria-label={`${t('defects.photos')}: ${file.filename}`}
+                onKeyDown={(e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleViewPhoto(file) } }}
+                sx={{
+                  position: 'relative', aspectRatio: '1', borderRadius: 2,
+                  overflow: 'hidden', bgcolor: 'grey.900', cursor: 'pointer',
+                  '&:hover .overlay': { opacity: 1 },
+                }}
+                onClick={() => handleViewPhoto(file)}>
+                {thumbnails[file.id] ? (
+                  <Box component="img" src={thumbnails[file.id]} alt={file.filename}
+                    sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  <Box sx={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <ImageIcon sx={{ fontSize: 32, color: 'grey.600' }} />
                   </Box>
-                  <Typography variant="body2" color="text.secondary">
-                    {entry.user?.fullName || t('defects.system')}
+                )}
+                <Box className="overlay" sx={{
+                  position: 'absolute', inset: 0, bgcolor: 'rgba(0,0,0,0.5)',
+                  opacity: 0, transition: 'opacity 200ms', display: 'flex',
+                  alignItems: 'center', justifyContent: 'center', gap: 0.5,
+                }}>
+                  {file.fileType?.startsWith('image/') && (
+                    <IconButton size="small" onClick={(e) => { e.stopPropagation(); setAnnotatingFile(file) }} sx={{ color: 'white' }}>
+                      <DrawIcon fontSize="small" />
+                    </IconButton>
+                  )}
+                  <IconButton size="small" onClick={(e) => { e.stopPropagation(); handlePhotoDelete(file.id) }} sx={{ color: 'white' }}>
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+              </Box>
+            ))}
+          </Box>
+        ) : (
+          <Typography variant="body2" color="text.secondary">{t('defects.noPhotos')}</Typography>
+        )}
+      </Box>
+
+      {/* Activity timeline */}
+      {history.length > 0 && (
+        <Box sx={{ px: 2, mb: 3 }}>
+          <Typography variant="body1" fontWeight={700} sx={{ mb: 2 }}>
+            {t('defects.activity')}
+          </Typography>
+          <Box sx={{ position: 'relative', pl: 4 }}>
+            <Box sx={{ position: 'absolute', insetInlineStart: 7, top: 8, bottom: 8, width: 2, bgcolor: 'divider' }} />
+            {history.map((entry, idx) => (
+              <Box key={entry.id} sx={{ position: 'relative', mb: idx < history.length - 1 ? 3 : 0 }}>
+                <Box sx={{
+                  position: 'absolute', insetInlineStart: -29, top: 4,
+                  width: 14, height: 14, borderRadius: '50%',
+                  bgcolor: idx === 0 ? 'primary.main' : 'text.disabled',
+                  border: '3px solid', borderColor: 'background.default',
+                  ...(idx === 0 && {
+                    boxShadow: (theme) => `0 0 8px ${alpha(theme.palette.primary.main, 0.5)}`,
+                  }),
+                }} />
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', mb: 0.25 }}>
+                  <Typography variant="body2" fontWeight={600}>
+                    {t(`auditLog.actions.${entry.action}`, { defaultValue: entry.action })}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    {new Date(entry.createdAt).toLocaleString(getDateLocale())}
                   </Typography>
                 </Box>
-              ))}
-            </Box>
+                <Typography variant="body2" color="text.secondary">
+                  {entry.user?.fullName || t('defects.system')}
+                </Typography>
+              </Box>
+            ))}
           </Box>
-        </Card>
+        </Box>
       )}
+
+      {/* Bottom action bar */}
+      <Box sx={{
+        position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 30,
+        bgcolor: 'background.paper', borderTop: 1, borderColor: 'divider',
+        p: 2, display: 'flex', gap: 1.5,
+        backdropFilter: 'blur(12px)',
+      }}>
+        <Button
+          fullWidth variant="primary"
+          icon={<EditIcon />}
+          onClick={() => { setNewStatus(defect.status); setStatusDialogOpen(true) }}
+          sx={{ py: 1.75, borderRadius: 3, fontWeight: 700 }}
+        >
+          {t('defects.changeStatus')}
+        </Button>
+        <Button
+          fullWidth variant="secondary"
+          icon={<AddPhotoAlternateIcon />}
+          onClick={() => document.getElementById('defect-photo-input')?.click()}
+          sx={{ py: 1.75, borderRadius: 3, fontWeight: 700 }}
+        >
+          {t('defects.addPhoto')}
+        </Button>
+      </Box>
 
       <FormModal
         open={statusDialogOpen}
@@ -487,10 +543,13 @@ export default function DefectDetailPage() {
   )
 }
 
-function DetailCell({ label, value }: { label: string; value: string }) {
+function DetailCell({ icon, label, value }: { icon?: React.ReactNode; label: string; value: string }) {
   return (
     <Box sx={{ p: 1.5, bgcolor: 'action.hover', borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
-      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.25 }}>{label}</Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.25 }}>
+        {icon && <Box sx={{ color: 'text.secondary', display: 'flex' }}>{icon}</Box>}
+        <Typography variant="caption" color="text.secondary">{label}</Typography>
+      </Box>
       <Typography variant="body2" fontWeight={500}>{value}</Typography>
     </Box>
   )

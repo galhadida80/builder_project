@@ -139,6 +139,7 @@ interface FormModalProps {
   loading?: boolean
   submitDisabled?: boolean
   maxWidth?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+  hideActions?: boolean
 }
 
 export function FormModal({
@@ -152,6 +153,7 @@ export function FormModal({
   loading = false,
   submitDisabled = false,
   maxWidth = 'sm',
+  hideActions = false,
 }: FormModalProps) {
   const { t } = useTranslation()
   const resolvedSubmitLabel = submitLabel || t('common.save')
@@ -163,14 +165,16 @@ export function FormModal({
       title={title}
       maxWidth={maxWidth}
       actions={
-        <>
-          <Button variant="tertiary" onClick={onClose} disabled={loading}>
-            {resolvedCancelLabel}
-          </Button>
-          <Button variant="primary" onClick={onSubmit} loading={loading} disabled={submitDisabled}>
-            {resolvedSubmitLabel}
-          </Button>
-        </>
+        hideActions ? undefined : (
+          <>
+            <Button variant="tertiary" onClick={onClose} disabled={loading}>
+              {resolvedCancelLabel}
+            </Button>
+            <Button variant="primary" onClick={onSubmit} loading={loading} disabled={submitDisabled}>
+              {resolvedSubmitLabel}
+            </Button>
+          </>
+        )
       }
     >
       <Box component="form" onSubmit={(e) => { e.preventDefault(); onSubmit(); }}>

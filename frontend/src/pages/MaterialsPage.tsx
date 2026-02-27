@@ -67,8 +67,6 @@ export default function MaterialsPage() {
   const [contactDialogOpen, setContactDialogOpen] = useState(false)
   const [approvers, setApprovers] = useState<Recipient[]>([])
   const [distributionList, setDistributionList] = useState<Recipient[]>([])
-  const [contractorSignature, setContractorSignature] = useState<string | null>(null)
-  const [supervisorSignature, setSupervisorSignature] = useState<string | null>(null)
   const [isClosed, setIsClosed] = useState(false)
 
   const selectedTemplate = useMemo(() => materialTemplates.find(t => t.id === formData.templateId) || null, [materialTemplates, formData.templateId])
@@ -90,7 +88,7 @@ export default function MaterialsPage() {
   const resetForm = () => {
     setFormData({ name: '', templateId: '', manufacturer: '', modelNumber: '', quantity: '', unit: '', expectedDelivery: '', storageLocation: '', notes: '', approvalDueDate: '' })
     setSpecificationValues({}); setDocumentFiles({}); setChecklistResponses({}); setCustomFields([]); setErrors({}); setEditingMaterial(null)
-    setApprovers([]); setDistributionList([]); setContractorSignature(null); setSupervisorSignature(null); setIsClosed(false)
+    setApprovers([]); setDistributionList([]); setIsClosed(false)
   }
 
   const handleOpenCreate = () => { resetForm(); setDialogOpen(true) }
@@ -296,10 +294,6 @@ export default function MaterialsPage() {
         setApprovers={setApprovers}
         distributionList={distributionList}
         setDistributionList={setDistributionList}
-        contractorSignature={contractorSignature}
-        setContractorSignature={setContractorSignature}
-        supervisorSignature={supervisorSignature}
-        setSupervisorSignature={setSupervisorSignature}
         isClosed={isClosed}
         setIsClosed={setIsClosed}
       />

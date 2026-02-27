@@ -49,6 +49,7 @@ export interface DefectAnalysisItem {
   category: string
   severity: string
   description: string
+  confidence: number
 }
 
 export interface MultiDefectAnalysisResult {

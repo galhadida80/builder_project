@@ -7,10 +7,10 @@ import { Button } from '../ui/Button'
 import type { DefectCreateData, DefectAnalysisItem } from '../../api/defects'
 import type { Contact, ConstructionArea } from '../../types'
 import type { ValidationError } from '../../utils/validation'
-import { CameraAltIcon, CloseIcon, AutoAwesomeIcon } from '@/icons'
+import { CameraAltIcon, CloseIcon, AutoAwesomeIcon, CheckCircleIcon } from '@/icons'
 import {
   Box, Typography, MenuItem, IconButton, LinearProgress, CircularProgress,
-  TextField as MuiTextField, Autocomplete, Paper, Checkbox, FormControlLabel,
+  TextField as MuiTextField, Autocomplete, Paper,
 } from '@/mui'
 
 const MAX_PHOTOS = 5
@@ -220,39 +220,86 @@ export default function DefectFormModal({
               {t('defects.detectedDefects', { count: analysisResults.length })}
             </Typography>
             <Typography variant="caption" color="text.secondary" sx={{ mb: 1.5, display: 'block' }}>
-              {t('defects.selectDefectsHint')}
+              {t('defects.reviewDefectsHint')}
             </Typography>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-              {analysisResults.map((item, idx) => (
-                <Paper key={idx} variant="outlined" sx={{
-                  p: 2, borderColor: selectedDefects[idx] ? 'primary.main' : 'divider',
-                  borderWidth: selectedDefects[idx] ? 2 : 1, opacity: selectedDefects[idx] ? 1 : 0.5,
-                  transition: 'all 200ms ease',
-                }}>
-                  <FormControlLabel
-                    control={<Checkbox checked={selectedDefects[idx] || false} onChange={(e) => {
-                      const next = [...selectedDefects]; next[idx] = e.target.checked; setSelectedDefects(next)
-                    }} />}
-                    label={<Typography variant="subtitle2" fontWeight={600}>{t('defects.defectIndex', { index: idx + 1 })}</Typography>}
-                    sx={{ mb: 1 }}
-                  />
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, pl: 4 }}>
-                    <MuiTextField select fullWidth size="small" label={t('defects.category')} value={item.category}
-                      onChange={(e) => { const next = [...analysisResults]; next[idx] = { ...next[idx], category: e.target.value }; setAnalysisResults(next) }}
-                    >
-                      {CATEGORY_OPTIONS.map((cat) => <MenuItem key={cat} value={cat}>{t(`defects.categories.${cat}`, { defaultValue: cat })}</MenuItem>)}
-                    </MuiTextField>
-                    <MuiTextField select fullWidth size="small" label={t('defects.severity')} value={item.severity}
-                      onChange={(e) => { const next = [...analysisResults]; next[idx] = { ...next[idx], severity: e.target.value }; setAnalysisResults(next) }}
-                    >
-                      {SEVERITY_OPTIONS.map((sev) => <MenuItem key={sev} value={sev}>{t(`defects.severities.${sev}`, { defaultValue: sev })}</MenuItem>)}
-                    </MuiTextField>
-                    <MuiTextField fullWidth multiline rows={2} size="small" label={t('defects.description')} value={item.description}
-                      onChange={(e) => { const next = [...analysisResults]; next[idx] = { ...next[idx], description: e.target.value }; setAnalysisResults(next) }}
-                    />
-                  </Box>
-                </Paper>
-              ))}
+              {analysisResults.map((item, idx) => {
+                const isApproved = selectedDefects[idx]
+                const isRejected = selectedDefects[idx] === false
+                const confidencePercent = Math.round((item.confidence || 0) * 100)
+                const confidenceColor = confidencePercent >= 90 ? 'success.main' : confidencePercent >= 75 ? 'warning.main' : 'error.main'
+
+                return (
+                  <Paper key={idx} variant="outlined" sx={{
+                    p: 2, position: 'relative', overflow: 'hidden',
+                    borderColor: isApproved ? 'success.main' : isRejected ? 'error.light' : 'divider',
+                    borderWidth: isApproved ? 2 : 1,
+                    opacity: isRejected ? 0.4 : 1,
+                    transition: 'all 200ms ease',
+                  }}>
+                    {/* Header: title + confidence + approve/reject */}
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Typography variant="subtitle2" fontWeight={600}>
+                          {t('defects.defectIndex', { index: idx + 1 })}
+                        </Typography>
+                        <Box sx={{
+                          display: 'inline-flex', alignItems: 'center', gap: 0.5,
+                          px: 1, py: 0.25, borderRadius: 1, bgcolor: 'action.hover',
+                        }}>
+                          <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: confidenceColor }} />
+                          <Typography variant="caption" fontWeight={600} sx={{ color: confidenceColor }}>
+                            {confidencePercent}%
+                          </Typography>
+                        </Box>
+                      </Box>
+                      <Box sx={{ display: 'flex', gap: 0.5 }}>
+                        <IconButton
+                          size="small"
+                          onClick={() => { const next = [...selectedDefects]; next[idx] = true; setSelectedDefects(next) }}
+                          sx={{
+                            bgcolor: isApproved ? 'success.main' : 'action.hover',
+                            color: isApproved ? 'white' : 'success.main',
+                            '&:hover': { bgcolor: isApproved ? 'success.dark' : 'success.light', color: 'white' },
+                            width: 32, height: 32,
+                          }}
+                        >
+                          <CheckCircleIcon sx={{ fontSize: 18 }} />
+                        </IconButton>
+                        <IconButton
+                          size="small"
+                          onClick={() => { const next = [...selectedDefects]; next[idx] = false; setSelectedDefects(next) }}
+                          sx={{
+                            bgcolor: isRejected ? 'error.main' : 'action.hover',
+                            color: isRejected ? 'white' : 'error.main',
+                            '&:hover': { bgcolor: isRejected ? 'error.dark' : 'error.light', color: 'white' },
+                            width: 32, height: 32,
+                          }}
+                        >
+                          <CloseIcon sx={{ fontSize: 18 }} />
+                        </IconButton>
+                      </Box>
+                    </Box>
+
+                    {/* Editable fields */}
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                      <MuiTextField select fullWidth size="small" label={t('defects.category')} value={item.category}
+                        onChange={(e) => { const next = [...analysisResults]; next[idx] = { ...next[idx], category: e.target.value }; setAnalysisResults(next) }}
+                      >
+                        {CATEGORY_OPTIONS.map((cat) => <MenuItem key={cat} value={cat}>{t(`defects.categories.${cat}`, { defaultValue: cat })}</MenuItem>)}
+                      </MuiTextField>
+                      <MuiTextField select fullWidth size="small" label={t('defects.severity')} value={item.severity}
+                        onChange={(e) => { const next = [...analysisResults]; next[idx] = { ...next[idx], severity: e.target.value }; setAnalysisResults(next) }}
+                      >
+                        {SEVERITY_OPTIONS.map((sev) => <MenuItem key={sev} value={sev}>{t(`defects.severities.${sev}`, { defaultValue: sev })}</MenuItem>)}
+                      </MuiTextField>
+                      <MuiTextField fullWidth multiline rows={2} size="small" label={t('defects.description')} value={item.description}
+                        onChange={(e) => { const next = [...analysisResults]; next[idx] = { ...next[idx], description: e.target.value }; setAnalysisResults(next) }}
+                      />
+                    </Box>
+                  </Paper>
+                )
+              })}
             </Box>
           </Box>
         )}

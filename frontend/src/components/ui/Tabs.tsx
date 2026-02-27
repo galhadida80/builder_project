@@ -18,30 +18,32 @@ interface TabsProps {
 }
 
 const StyledTabs = styled(MuiTabs)(({ theme }) => ({
-  minHeight: 44,
+  minHeight: 40,
+  borderBottom: `1px solid ${theme.palette.divider}`,
   '& .MuiTabs-indicator': {
-    height: 3,
-    borderRadius: '3px 3px 0 0',
-    // RTL-safe: MUI Tabs automatically positions indicator based on theme.direction
+    height: 2,
+    borderRadius: '2px 2px 0 0',
+    backgroundColor: theme.palette.primary.main,
   },
   '& .MuiTab-root': {
     textTransform: 'none',
     fontWeight: 500,
-    fontSize: '0.875rem',
-    minHeight: 44,
-    transition: 'all 150ms ease-out',
+    fontSize: '0.8rem',
+    minHeight: 40,
+    padding: '8px 16px',
+    transition: 'color 150ms',
     '&:hover': {
       color: theme.palette.primary.main,
-      backgroundColor: theme.palette.action.hover,
     },
     '&.Mui-selected': {
-      fontWeight: 600,
+      fontWeight: 700,
+      color: theme.palette.primary.main,
     },
   },
 }))
 
 const PillTabs = styled(MuiTabs)(({ theme }) => ({
-  minHeight: 44,
+  minHeight: 40,
   padding: 4,
   backgroundColor: theme.palette.action.hover,
   borderRadius: 10,
@@ -52,9 +54,9 @@ const PillTabs = styled(MuiTabs)(({ theme }) => ({
     textTransform: 'none',
     fontWeight: 500,
     fontSize: '0.8rem',
-    minHeight: 36,
+    minHeight: 32,
     borderRadius: 6,
-    transition: 'background-color 150ms ease-out, box-shadow 150ms ease-out',
+    transition: 'background-color 150ms, box-shadow 150ms',
     '&.Mui-selected': {
       backgroundColor: theme.palette.background.paper,
       boxShadow: theme.shadows[1],
@@ -63,7 +65,7 @@ const PillTabs = styled(MuiTabs)(({ theme }) => ({
   },
 }))
 
-export function Tabs({ items, value, onChange, variant = 'standard', size = 'medium' }: TabsProps) {
+export function Tabs({ items, value, onChange, variant = 'scrollable', size = 'medium' }: TabsProps) {
   const [internalValue, setInternalValue] = useState(items[0]?.value || '')
   const currentValue = value ?? internalValue
 
@@ -77,10 +79,11 @@ export function Tabs({ items, value, onChange, variant = 'standard', size = 'med
       value={currentValue}
       onChange={handleChange}
       variant={variant}
+      scrollButtons="auto"
       sx={{
-        minHeight: size === 'small' ? 36 : 44,
+        minHeight: size === 'small' ? 36 : 40,
         '& .MuiTab-root': {
-          minHeight: size === 'small' ? 36 : 44,
+          minHeight: size === 'small' ? 36 : 40,
           py: size === 'small' ? 0.5 : 1,
         },
       }}
@@ -89,22 +92,23 @@ export function Tabs({ items, value, onChange, variant = 'standard', size = 'med
         <MuiTab
           key={item.value}
           label={
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
               {item.icon}
               <span>{item.label}</span>
               {item.badge !== undefined && item.badge > 0 && (
                 <Box
                   component="span"
                   sx={{
-                    px: 0.75,
-                    py: 0.25,
+                    px: 0.5,
+                    py: 0.125,
                     borderRadius: 1,
                     bgcolor: 'primary.main',
                     color: 'primary.contrastText',
-                    fontSize: '0.65rem',
-                    fontWeight: 600,
-                    minWidth: 18,
+                    fontSize: '0.6rem',
+                    fontWeight: 700,
+                    minWidth: 16,
                     textAlign: 'center',
+                    lineHeight: 1.4,
                   }}
                 >
                   {item.badge}

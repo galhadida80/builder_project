@@ -6,8 +6,8 @@ import { workloadApi } from '../api/workload'
 import type { TeamMember } from '../types'
 import { useToast } from '../components/common/ToastProvider'
 import { useProject } from '../contexts/ProjectContext'
-import { PeopleIcon, WarningIcon, CheckCircleIcon, TrendingUpIcon } from '@/icons'
-import { Box, Typography, Skeleton, Chip, Avatar, LinearProgress, Table, TableHead, TableRow, TableCell, TableBody } from '@/mui'
+import { PeopleIcon, WarningIcon, CheckCircleIcon, TrendingUpIcon, AssignmentIcon } from '@/icons'
+import { Box, Typography, Skeleton, Chip, Avatar, LinearProgress, alpha } from '@/mui'
 
 export default function TeamWorkloadView() {
   const { t } = useTranslation()
@@ -128,62 +128,80 @@ export default function TeamWorkloadView() {
             </Typography>
           </Box>
 
-          <Typography variant="body1" fontWeight={700} sx={{ mb: 1 }}>
+          <Typography variant="body1" fontWeight={700} sx={{ mb: 1.5 }}>
             {t('teamWorkload.teamOverview')}
           </Typography>
 
-          <Box sx={{ overflowX: 'auto', mb: 3 }}>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell>{t('teamWorkload.memberName')}</TableCell>
-                  <TableCell>{t('teamWorkload.role')}</TableCell>
-                  <TableCell>{t('teamWorkload.team')}</TableCell>
-                  <TableCell align="right">{t('teamCard.assigned')}</TableCell>
-                  <TableCell align="right">{t('teamCard.available')}</TableCell>
-                  <TableCell align="right">{t('teamCard.utilization')}</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {sortedMembers.map((member) => {
-                  const name = member.user.fullName || member.user.email
-                  const pct = Math.round(member.workloadPercent)
-                  const status = getWorkloadLabel(pct)
-                  return (
-                    <TableRow key={member.id}>
-                      <TableCell>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <Avatar sx={{ width: 28, height: 28, bgcolor: 'primary.main', fontSize: '0.7rem' }}>
-                            {name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
-                          </Avatar>
-                          <Typography variant="body2" fontWeight={600}>{name}</Typography>
-                        </Box>
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="caption">{t(`roles.${member.role}`, { defaultValue: member.role.replace('_', ' ') })}</Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="caption">{member.teamName || '-'}</Typography>
-                      </TableCell>
-                      <TableCell align="right">
-                        <Typography variant="caption">{member.assignedHours}{t('common.hoursShort')}</Typography>
-                      </TableCell>
-                      <TableCell align="right">
-                        <Typography variant="caption">{member.availableHours}{t('common.hoursShort')}</Typography>
-                      </TableCell>
-                      <TableCell align="right">
-                        <Chip
-                          label={`${pct}%`}
-                          size="small"
-                          color={status.color}
-                          sx={{ fontWeight: 700, fontSize: '0.65rem', height: 22 }}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  )
-                })}
-              </TableBody>
-            </Table>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mb: 3 }}>
+            {sortedMembers.map((member) => {
+              const name = member.user.fullName || member.user.email
+              const pct = Math.round(member.workloadPercent)
+              const status = getWorkloadLabel(pct)
+              const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+              return (
+                <Box
+                  key={member.id}
+                  sx={{
+                    bgcolor: 'background.paper', borderRadius: 3, p: 2,
+                    border: 1, borderColor: 'divider',
+                  }}
+                >
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1.5 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                      <Avatar sx={{ width: 48, height: 48, bgcolor: 'primary.main', fontSize: '0.9rem', fontWeight: 600 }}>
+                        {initials}
+                      </Avatar>
+                      <Box>
+                        <Typography variant="body2" fontWeight={700}>{name}</Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {t(`roles.${member.role}`, { defaultValue: member.role.replace('_', ' ') })}
+                          {member.teamName && ` · ${member.teamName}`}
+                        </Typography>
+                      </Box>
+                    </Box>
+                    <Chip
+                      label={status.label}
+                      size="small"
+                      color={status.color}
+                      sx={{ fontWeight: 700, fontSize: '0.6rem', height: 22 }}
+                    />
+                  </Box>
+
+                  <Box sx={{ mb: 1 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
+                      <Typography variant="caption" color="text.secondary" fontWeight={500}>
+                        {t('teamCard.utilization')}
+                      </Typography>
+                      <Typography variant="caption" fontWeight={700}>{pct}%</Typography>
+                    </Box>
+                    <LinearProgress
+                      variant="determinate"
+                      value={Math.min(100, pct)}
+                      sx={{
+                        height: 8, borderRadius: 4,
+                        bgcolor: (theme) => alpha(theme.palette.divider, 0.3),
+                        '& .MuiLinearProgress-bar': { borderRadius: 4, bgcolor: getBarColor(pct) },
+                      }}
+                    />
+                  </Box>
+
+                  <Box sx={{ display: 'flex', gap: 1.5, pt: 1 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <AssignmentIcon sx={{ fontSize: 14, color: 'text.disabled' }} />
+                      <Typography variant="caption" color="text.secondary">
+                        {member.assignedHours}{t('common.hoursShort')} {t('teamCard.assigned')}
+                      </Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <CheckCircleIcon sx={{ fontSize: 14, color: 'text.disabled' }} />
+                      <Typography variant="caption" color="text.secondary">
+                        {member.availableHours}{t('common.hoursShort')} {t('teamCard.available')}
+                      </Typography>
+                    </Box>
+                  </Box>
+                </Box>
+              )
+            })}
           </Box>
         </Box>
       )}

@@ -213,7 +213,13 @@
     "contractorSignature": "Contractor Signature",
     "supervisorSignature": "Supervisor Signature",
     "stampAutoApplied": "Your personal stamp has been auto-applied",
-    "markAsClosed": "Mark as Closed"
+    "markAsClosed": "Mark as Closed",
+    "chooseMode": "How would you like to add?",
+    "fromTemplate": "From Template",
+    "fromTemplateDesc": "Choose a ready-made template with specs and required documents",
+    "fromScratch": "From Scratch",
+    "fromScratchDesc": "Define new equipment with custom properties",
+    "switchMode": "Change mode"
   },
   "materials": {
     "title": "Materials",
@@ -315,7 +321,13 @@
     "contractorSignature": "Contractor Signature",
     "supervisorSignature": "Supervisor Signature",
     "stampAutoApplied": "Your personal stamp has been auto-applied",
-    "markAsClosed": "Mark as Closed"
+    "markAsClosed": "Mark as Closed",
+    "chooseMode": "How would you like to add?",
+    "fromTemplate": "From Template",
+    "fromTemplateDesc": "Choose a ready-made template with specs and required documents",
+    "fromScratch": "From Scratch",
+    "fromScratchDesc": "Define new material with custom properties",
+    "switchMode": "Change mode"
   },
   "meetings": {
     "title": "Meetings",
@@ -473,6 +485,8 @@
     "edit": "Edit",
     "search": "Search",
     "loading": "Loading",
+    "fromScratch": "From Scratch",
+    "fromTemplate": "From Template",
     "other": "Other",
     "customType": "Specify custom type",
     "customUnit": "Specify custom unit",
@@ -878,13 +892,19 @@
     "valuePlaceholder": "Enter value...",
     "keyPlaceholder": "Property name...",
     "addField": "Add Field",
+    "addCustomField": "Add Custom Property",
     "quickAdd": "Quick Add",
     "typeText": "Text",
     "typeNumber": "Number",
     "typeBoolean": "Yes/No",
     "typeDate": "Date",
     "typeSelect": "Select",
-    "templateField": "Template field"
+    "templateField": "Template field",
+    "searchProperty": "Search property to add...",
+    "customKeyPlaceholder": "New property name...",
+    "suggestedProperties": "Suggested properties",
+    "selectOptionsLabel": "Select options",
+    "selectOptionsPlaceholder": "Option 1, Option 2, Option 3..."
   },
   "customProps": {
     "categories": {
@@ -2415,6 +2435,10 @@
     "deleteFailed": "Failed to delete model",
     "failedToLoad": "Failed to load BIM models",
     "extractData": "Extract Data",
+    "modelTitle": "BIM Model",
+    "additionalModels": "Additional Models",
+    "viewAll": "View All",
+    "supportedFormats": "Supported formats",
     "status": {
       "uploaded": "Uploaded",
       "translating": "Translating",
@@ -2446,7 +2470,17 @@
       "imported": "imported",
       "skipped": "skipped",
       "linked": "linked to template",
-      "templateMatch": "Template Match"
+      "templateMatch": "Template Match",
+      "totalExtracted": "items extracted",
+      "selectedForImport": "selected for import",
+      "noMatch": "No template match",
+      "bimProperties": "BIM Properties",
+      "addProperties": "Add Properties",
+      "filter": {
+        "all": "All",
+        "problems": "Needs Review",
+        "selected": "Selected"
+      }
     }
   },
   "defects": {
@@ -2564,6 +2598,7 @@
     "multiAnalyzeSuccess": "Detected {{count}} defects - review and edit the results",
     "detectedDefects": "Detected Defects ({{count}})",
     "selectDefectsHint": "Select which defects to create. You can edit each one.",
+    "reviewDefectsHint": "Approve (✓) or reject (✗) each defect. You can edit before approving.",
     "defectIndex": "Defect {{index}}",
     "createMultiple": "Create {{count}} Defects",
     "batchCreateSuccess": "{{count}} defects reported successfully",
