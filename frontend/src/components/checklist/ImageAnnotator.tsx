@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Canvas, PencilBrush, FabricImage, Rect, Circle, FabricText, Line } from 'fabric'
 import {
-  Box, Typography, IconButton, Dialog, DialogContent, DialogActions, Slider, Tooltip,
+  Box, Typography, IconButton, Dialog, DialogActions, Slider, Tooltip,
 } from '@/mui'
 import { Button } from '../ui/Button'
 import {

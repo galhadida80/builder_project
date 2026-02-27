@@ -95,7 +95,7 @@ export function RFIFormDialog({
   const {
     control,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { isSubmitting },
     reset,
     setValue,
     watch,
@@ -319,7 +319,7 @@ export function RFIFormDialog({
           <Controller
             name="question"
             control={control}
-            render={({ field, fieldState }) => (
+            render={({ field: _field, fieldState }) => (
               <Box>
                 {editor && (
                   <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 1, minHeight: 150 }}>
@@ -571,6 +571,3 @@ export function RFIFormDialog({
     </Modal>
   )
 }
-
-// Export the schema for use with zodResolver
-export { rfiFormSchema, zodResolver }

@@ -233,7 +233,6 @@ export default function BimImportWizard({ open, onClose, projectId, model }: Pro
                 expanded={expandedSections.has('areas')}
                 onToggleExpand={() => toggleSection('areas')}
                 onToggleAll={() => toggleAll(setSelectedAreas, extraction.areas, selectedAreas)}
-                t={t}
               >
                 {(() => {
                   const filtered = filterAreas(extraction.areas)
@@ -261,7 +260,6 @@ export default function BimImportWizard({ open, onClose, projectId, model }: Pro
                 expanded={expandedSections.has('equipment')}
                 onToggleExpand={() => toggleSection('equipment')}
                 onToggleAll={() => toggleAll(setSelectedEquipment, extraction.equipment, selectedEquipment)}
-                t={t}
               >
                 {(() => {
                   const filtered = filterEquipment(extraction.equipment)
@@ -300,7 +298,6 @@ export default function BimImportWizard({ open, onClose, projectId, model }: Pro
                 expanded={expandedSections.has('materials')}
                 onToggleExpand={() => toggleSection('materials')}
                 onToggleAll={() => toggleAll(setSelectedMaterials, extraction.materials, selectedMaterials)}
-                t={t}
               >
                 {(() => {
                   const filtered = filterMaterials(extraction.materials)
@@ -443,7 +440,6 @@ function SectionAccordion({
   onToggleExpand,
   onToggleAll,
   children,
-  t,
 }: {
   title: string
   color: string
@@ -453,7 +449,6 @@ function SectionAccordion({
   onToggleExpand: () => void
   onToggleAll: () => void
   children: React.ReactNode
-  t: (key: string) => string
 }) {
   const theme = useTheme()
   return (
@@ -602,7 +597,7 @@ function ConfidenceBar({ confidence, templateName, t }: { confidence: number; te
 }
 
 function TemplateItemCard({
-  itemKey,
+  itemKey: _itemKey,
   name,
   type,
   manufacturer,

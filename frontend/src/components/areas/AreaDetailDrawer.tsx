@@ -10,7 +10,7 @@ import { StatusBadge } from '../ui/StatusBadge'
 import { EmptyState } from '../ui/EmptyState'
 import { AreaChecklistSummaryCard } from './AreaChecklistSummary'
 import { Box, Typography, Drawer, IconButton, Chip, Divider, Skeleton, LinearProgress } from '@/mui'
-import { CloseIcon, AddIcon, AssignmentIcon, AccountTreeIcon } from '@/icons'
+import { CloseIcon, AddIcon, AssignmentIcon } from '@/icons'
 
 interface AreaDetailDrawerProps {
   open: boolean
@@ -36,6 +36,7 @@ export function AreaDetailDrawer({ open, onClose, area, projectId }: AreaDetailD
       setSummary(null)
       setInstances([])
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, area?.id, projectId])
 
   const loadData = async (areaId: string) => {
