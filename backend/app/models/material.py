@@ -42,7 +42,11 @@ class Material(Base):
     contractor_signature_url: Mapped[Optional[str]] = mapped_column(String(500))
     supervisor_signature_url: Mapped[Optional[str]] = mapped_column(String(500))
     approval_due_date: Mapped[Optional[date]] = mapped_column(Date)
+    template_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("material_templates.id", ondelete="SET NULL"), nullable=True
+    )
 
     project = relationship("Project", back_populates="materials")
     created_by = relationship("User", foreign_keys=[created_by_id])
+    template = relationship("MaterialTemplate", foreign_keys=[template_id])
     files = relationship("File", primaryjoin="and_(Material.id==foreign(File.entity_id), File.entity_type=='material')", viewonly=True)

@@ -639,6 +639,9 @@ export interface BimExtractedEquipment {
   manufacturer?: string
   modelNumber?: string
   specifications?: Record<string, unknown>
+  matchedTemplateId?: string
+  matchedTemplateName?: string
+  confidence: number
 }
 
 export interface BimExtractedMaterial {
@@ -647,6 +650,9 @@ export interface BimExtractedMaterial {
   materialType?: string
   manufacturer?: string
   modelNumber?: string
+  matchedTemplateId?: string
+  matchedTemplateName?: string
+  confidence: number
 }
 
 export interface BimExtractionResponse {
@@ -661,6 +667,7 @@ export interface BimExtractionResponse {
 export interface BimImportResult {
   importedCount: number
   skippedCount: number
+  linkedCount: number
   entityType: string
 }
 

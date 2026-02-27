@@ -64,6 +64,9 @@ class BimExtractedEquipment(CamelCaseModel):
     manufacturer: Optional[str] = None
     model_number: Optional[str] = None
     specifications: Optional[dict] = None
+    matched_template_id: Optional[str] = None
+    matched_template_name: Optional[str] = None
+    confidence: float = 0.0
 
 
 class BimExtractedMaterial(CamelCaseModel):
@@ -72,6 +75,9 @@ class BimExtractedMaterial(CamelCaseModel):
     material_type: Optional[str] = None
     manufacturer: Optional[str] = None
     model_number: Optional[str] = None
+    matched_template_id: Optional[str] = None
+    matched_template_name: Optional[str] = None
+    confidence: float = 0.0
 
 
 class BimExtractionResponse(CamelCaseModel):
@@ -83,11 +89,18 @@ class BimExtractionResponse(CamelCaseModel):
     total_objects: int = 0
 
 
+class BimImportItemMapping(BaseModel):
+    bim_object_id: int
+    template_id: Optional[str] = None
+
+
 class BimImportRequest(BaseModel):
-    items: list[int]
+    items: list[int] = []
+    item_mappings: list[BimImportItemMapping] = []
 
 
 class BimImportResult(CamelCaseModel):
     imported_count: int
     skipped_count: int
+    linked_count: int = 0
     entity_type: str

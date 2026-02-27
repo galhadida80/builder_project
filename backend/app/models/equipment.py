@@ -48,9 +48,13 @@ class Equipment(Base):
     contractor_signature_url: Mapped[Optional[str]] = mapped_column(String(500))
     supervisor_signature_url: Mapped[Optional[str]] = mapped_column(String(500))
     approval_due_date: Mapped[Optional[date]] = mapped_column(Date)
+    template_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("equipment_templates.id", ondelete="SET NULL"), nullable=True
+    )
 
     project = relationship("Project", back_populates="equipment")
     created_by = relationship("User", foreign_keys=[created_by_id])
+    template = relationship("EquipmentTemplate", foreign_keys=[template_id])
     checklists = relationship("EquipmentChecklist", back_populates="equipment", cascade="all, delete-orphan")
     files = relationship("File", primaryjoin="and_(Equipment.id==foreign(File.entity_id), File.entity_type=='equipment')", viewonly=True)
 

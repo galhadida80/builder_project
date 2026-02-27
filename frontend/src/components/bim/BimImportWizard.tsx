@@ -148,11 +148,17 @@ export default function BimImportWizard({ open, onClose, projectId, model }: Pro
         importResults.push(r)
       }
       if (selectedEquipment.size > 0) {
-        const r = await bimApi.importEquipment(projectId, model.id, [...selectedEquipment])
+        const eqMappings = extraction?.equipment
+          .filter((e) => selectedEquipment.has(e.bimObjectId) && e.matchedTemplateId)
+          .map((e) => ({ bim_object_id: e.bimObjectId, template_id: e.matchedTemplateId }))
+        const r = await bimApi.importEquipment(projectId, model.id, [...selectedEquipment], eqMappings)
         importResults.push(r)
       }
       if (selectedMaterials.size > 0) {
-        const r = await bimApi.importMaterials(projectId, model.id, [...selectedMaterials])
+        const matMappings = extraction?.materials
+          .filter((m) => selectedMaterials.has(m.bimObjectId) && m.matchedTemplateId)
+          .map((m) => ({ bim_object_id: m.bimObjectId, template_id: m.matchedTemplateId }))
+        const r = await bimApi.importMaterials(projectId, model.id, [...selectedMaterials], matMappings)
         importResults.push(r)
       }
       setResults(importResults)
@@ -265,6 +271,7 @@ export default function BimImportWizard({ open, onClose, projectId, model }: Pro
               <Typography key={r.entityType} variant="body2" sx={{ mb: 0.5 }}>
                 {t(`bim.import.${r.entityType}`)}: {r.importedCount} {t('bim.import.imported')}, {r.skippedCount}{' '}
                 {t('bim.import.skipped')}
+                {r.linkedCount > 0 && `, ${r.linkedCount} ${t('bim.import.linked')}`}
               </Typography>
             ))}
           </Box>
@@ -338,6 +345,20 @@ function AreaTable({
   )
 }
 
+function ConfidenceChip({ confidence, templateName, t }: { confidence: number; templateName?: string; t: (key: string) => string }) {
+  if (!templateName || confidence < 0.3) return <Typography variant="caption" color="text.disabled">—</Typography>
+  const color = confidence >= 0.8 ? 'success' : confidence >= 0.6 ? 'warning' : 'default'
+  return (
+    <Chip
+      size="small"
+      label={`${templateName} (${Math.round(confidence * 100)}%)`}
+      color={color as 'success' | 'warning' | 'default'}
+      variant={confidence >= 0.8 ? 'filled' : 'outlined'}
+      sx={{ fontSize: '0.7rem', height: 24 }}
+    />
+  )
+}
+
 function EquipmentTable({
   items,
   selected,
@@ -362,8 +383,8 @@ function EquipmentTable({
             </TableCell>
             <TableCell>{t('common.name')}</TableCell>
             <TableCell>{t('bim.import.type')}</TableCell>
+            <TableCell>{t('bim.import.templateMatch')}</TableCell>
             <TableCell>{t('bim.import.manufacturer')}</TableCell>
-            <TableCell>{t('bim.import.model')}</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -374,8 +395,10 @@ function EquipmentTable({
               </TableCell>
               <TableCell>{item.name}</TableCell>
               <TableCell>{item.equipmentType || '—'}</TableCell>
+              <TableCell>
+                <ConfidenceChip confidence={item.confidence} templateName={item.matchedTemplateName} t={t} />
+              </TableCell>
               <TableCell>{item.manufacturer || '—'}</TableCell>
-              <TableCell>{item.modelNumber || '—'}</TableCell>
             </TableRow>
           ))}
         </TableBody>
@@ -408,8 +431,8 @@ function MaterialTable({
             </TableCell>
             <TableCell>{t('common.name')}</TableCell>
             <TableCell>{t('bim.import.type')}</TableCell>
+            <TableCell>{t('bim.import.templateMatch')}</TableCell>
             <TableCell>{t('bim.import.manufacturer')}</TableCell>
-            <TableCell>{t('bim.import.model')}</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -420,8 +443,10 @@ function MaterialTable({
               </TableCell>
               <TableCell>{item.name}</TableCell>
               <TableCell>{item.materialType || '—'}</TableCell>
+              <TableCell>
+                <ConfidenceChip confidence={item.confidence} templateName={item.matchedTemplateName} t={t} />
+              </TableCell>
               <TableCell>{item.manufacturer || '—'}</TableCell>
-              <TableCell>{item.modelNumber || '—'}</TableCell>
             </TableRow>
           ))}
         </TableBody>

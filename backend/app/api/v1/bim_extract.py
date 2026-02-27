@@ -16,7 +16,13 @@ from app.models.project import ProjectMember
 from app.models.user import User
 from app.schemas.bim import BimExtractionResponse, BimImportRequest, BimImportResult
 from app.services.aps_service import APSService
-from app.services.bim_extraction_service import extract_bim_metadata
+from app.services.bim_extraction_service import (
+    CONFIDENCE_THRESHOLD,
+    apply_template_matching,
+    extract_bim_metadata,
+    load_equipment_templates,
+    load_material_templates,
+)
 from app.services.ifc_extraction_service import extract_from_ifc
 from app.services.storage_service import StorageBackend, get_storage_backend
 
@@ -78,10 +84,13 @@ async def extract_bim_data(
     storage: StorageBackend = Depends(get_storage_backend),
 ):
     bim_model = await get_bim_model_or_404(project_id, model_id, db)
+    eq_templates = await load_equipment_templates(db)
+    mat_templates = await load_material_templates(db)
     if is_ifc_file(bim_model.filename):
         metadata = await get_or_extract_ifc(bim_model, storage, db)
+        metadata = apply_template_matching(metadata, eq_templates, mat_templates)
     else:
-        metadata = await extract_bim_metadata(aps, bim_model, db)
+        metadata = await extract_bim_metadata(aps, bim_model, db, eq_templates, mat_templates)
     return BimExtractionResponse(
         model_id=bim_model.id,
         extracted_at=metadata.get("extracted_at"),
@@ -108,10 +117,13 @@ async def refresh_extraction(
     bim_model = await get_bim_model_or_404(project_id, model_id, db)
     bim_model.metadata_json = None
     await db.flush()
+    eq_templates = await load_equipment_templates(db)
+    mat_templates = await load_material_templates(db)
     if is_ifc_file(bim_model.filename):
         metadata = await get_or_extract_ifc(bim_model, storage, db)
+        metadata = apply_template_matching(metadata, eq_templates, mat_templates)
     else:
-        metadata = await extract_bim_metadata(aps, bim_model, db)
+        metadata = await extract_bim_metadata(aps, bim_model, db, eq_templates, mat_templates)
     return BimExtractionResponse(
         model_id=bim_model.id,
         extracted_at=metadata.get("extracted_at"),
@@ -184,7 +196,15 @@ async def import_equipment(
     bim_model = await get_bim_model_or_404(project_id, model_id, db)
     metadata = bim_model.metadata_json or {}
     all_equipment = metadata.get("equipment", [])
-    selected = {item["bim_object_id"]: item for item in all_equipment if item["bim_object_id"] in body.items}
+
+    all_item_ids = set(body.items)
+    template_overrides: dict[int, str] = {}
+    for mapping in body.item_mappings:
+        all_item_ids.add(mapping.bim_object_id)
+        if mapping.template_id:
+            template_overrides[mapping.bim_object_id] = mapping.template_id
+
+    selected = {item["bim_object_id"]: item for item in all_equipment if item["bim_object_id"] in all_item_ids}
 
     existing_result = await db.execute(
         select(Equipment.name).where(Equipment.project_id == project_id)
@@ -193,7 +213,8 @@ async def import_equipment(
 
     imported = 0
     skipped = 0
-    for obj_id in body.items:
+    linked = 0
+    for obj_id in all_item_ids:
         item = selected.get(obj_id)
         if not item:
             skipped += 1
@@ -201,6 +222,10 @@ async def import_equipment(
         if item["name"].lower() in existing_names:
             skipped += 1
             continue
+        tpl_id_str = template_overrides.get(obj_id)
+        if not tpl_id_str and item.get("confidence", 0) >= CONFIDENCE_THRESHOLD:
+            tpl_id_str = item.get("matched_template_id")
+        tpl_uuid = UUID(tpl_id_str) if tpl_id_str else None
         equip = Equipment(
             project_id=project_id,
             name=item["name"],
@@ -208,14 +233,17 @@ async def import_equipment(
             manufacturer=item.get("manufacturer"),
             model_number=item.get("model_number"),
             specifications=item.get("specifications"),
+            template_id=tpl_uuid,
             created_by_id=current_user.id,
         )
         db.add(equip)
         existing_names.add(item["name"].lower())
         imported += 1
+        if tpl_uuid:
+            linked += 1
 
     await db.commit()
-    return BimImportResult(imported_count=imported, skipped_count=skipped, entity_type="equipment")
+    return BimImportResult(imported_count=imported, skipped_count=skipped, linked_count=linked, entity_type="equipment")
 
 
 @router.post(
@@ -233,7 +261,15 @@ async def import_materials(
     bim_model = await get_bim_model_or_404(project_id, model_id, db)
     metadata = bim_model.metadata_json or {}
     all_materials = metadata.get("materials", [])
-    selected = {item["bim_object_id"]: item for item in all_materials if item["bim_object_id"] in body.items}
+
+    all_item_ids = set(body.items)
+    template_overrides: dict[int, str] = {}
+    for mapping in body.item_mappings:
+        all_item_ids.add(mapping.bim_object_id)
+        if mapping.template_id:
+            template_overrides[mapping.bim_object_id] = mapping.template_id
+
+    selected = {item["bim_object_id"]: item for item in all_materials if item["bim_object_id"] in all_item_ids}
 
     existing_result = await db.execute(
         select(Material.name).where(Material.project_id == project_id)
@@ -242,7 +278,8 @@ async def import_materials(
 
     imported = 0
     skipped = 0
-    for obj_id in body.items:
+    linked = 0
+    for obj_id in all_item_ids:
         item = selected.get(obj_id)
         if not item:
             skipped += 1
@@ -250,17 +287,24 @@ async def import_materials(
         if item["name"].lower() in existing_names:
             skipped += 1
             continue
+        tpl_id_str = template_overrides.get(obj_id)
+        if not tpl_id_str and item.get("confidence", 0) >= CONFIDENCE_THRESHOLD:
+            tpl_id_str = item.get("matched_template_id")
+        tpl_uuid = UUID(tpl_id_str) if tpl_id_str else None
         mat = Material(
             project_id=project_id,
             name=item["name"],
             material_type=item.get("material_type"),
             manufacturer=item.get("manufacturer"),
             model_number=item.get("model_number"),
+            template_id=tpl_uuid,
             created_by_id=current_user.id,
         )
         db.add(mat)
         existing_names.add(item["name"].lower())
         imported += 1
+        if tpl_uuid:
+            linked += 1
 
     await db.commit()
-    return BimImportResult(imported_count=imported, skipped_count=skipped, entity_type="materials")
+    return BimImportResult(imported_count=imported, skipped_count=skipped, linked_count=linked, entity_type="materials")

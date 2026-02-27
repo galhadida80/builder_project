@@ -2499,7 +2499,9 @@
       "importFailed": "ייבוא הפריטים נכשל",
       "complete": "הייבוא הושלם",
       "imported": "יובאו",
-      "skipped": "דולגו"
+      "skipped": "דולגו",
+      "linked": "קושרו לתבנית",
+      "templateMatch": "התאמת תבנית"
     }
   },
   "defects": {

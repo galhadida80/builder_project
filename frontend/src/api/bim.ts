@@ -62,13 +62,29 @@ export const bimApi = {
     return response.data
   },
 
-  importEquipment: async (projectId: string, modelId: string, items: number[]): Promise<BimImportResult> => {
-    const response = await apiClient.post(`/projects/${projectId}/bim/${modelId}/import/equipment`, { items })
+  importEquipment: async (
+    projectId: string,
+    modelId: string,
+    items: number[],
+    itemMappings?: Array<{ bim_object_id: number; template_id?: string }>,
+  ): Promise<BimImportResult> => {
+    const response = await apiClient.post(`/projects/${projectId}/bim/${modelId}/import/equipment`, {
+      items,
+      item_mappings: itemMappings || [],
+    })
     return response.data
   },
 
-  importMaterials: async (projectId: string, modelId: string, items: number[]): Promise<BimImportResult> => {
-    const response = await apiClient.post(`/projects/${projectId}/bim/${modelId}/import/materials`, { items })
+  importMaterials: async (
+    projectId: string,
+    modelId: string,
+    items: number[],
+    itemMappings?: Array<{ bim_object_id: number; template_id?: string }>,
+  ): Promise<BimImportResult> => {
+    const response = await apiClient.post(`/projects/${projectId}/bim/${modelId}/import/materials`, {
+      items,
+      item_mappings: itemMappings || [],
+    })
     return response.data
   },
 }

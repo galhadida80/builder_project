@@ -1240,7 +1240,7 @@ As a DevOps engineer, I need to create the Cloud Scheduler job to trigger daily 
 **Description:** Import BIM model data from Autodesk Revit files (.rvt) into BuilderOps. Users upload Revit files, view 3D models in-browser, and extract structured data (rooms→areas, assets→equipment, types→materials). Includes two-way RFI sync with Autodesk Construction Cloud (ACC). Uses Autodesk Platform Services (APS) APIs: Model Derivative, AEC Data Model (GraphQL), Viewer SDK v7, and ACC RFI v3.
 **Priority:** P1 - High
 **Estimate:** 44 points
-**Status:** In Progress (9/11 stories done — ACC RFI Sync remaining)
+**Status:** In Progress (9/11 stories done — ACC RFI Sync remaining). US-14.7, US-14.8 fuzzy matching completed. US-14.9 template match UI completed. Migration 051 adds template_id FK to equipment/materials tables.
 
 ### Architecture Overview
 ```
@@ -1364,10 +1364,10 @@ As a user, I want to extract equipment assets from my Revit model (HVAC, electri
 - [x] GET /projects/{project_id}/bim/{model_id}/extract queries Model Derivative metadata for equipment
 - [x] Filter by Revit categories: Mechanical Equipment, Electrical Equipment, Plumbing Fixtures, Fire Protection
 - [x] Extract: family name→equipment_type, type name→model_number, manufacturer
-- [ ] Match against existing equipment templates by name similarity (fuzzy match)
-- [ ] Return preview with auto-mapped fields and confidence scores
+- [x] Match against existing equipment templates by name similarity (fuzzy match)
+- [x] Return preview with auto-mapped fields and confidence scores
 - [x] POST /projects/{project_id}/bim/{model_id}/import/equipment creates Equipment records
-- [ ] Link to matched equipment template when confidence > 80%
+- [x] Link to matched equipment template when confidence > 80%
 **Estimate:** 5 points
 **Labels:** backend, autodesk, extraction, equipment
 
@@ -1380,7 +1380,7 @@ As a user, I want to extract material information from my Revit model (concrete 
 - [x] GET /projects/{project_id}/bim/{model_id}/extract queries Model Derivative metadata for materials
 - [x] Filter by Revit categories: Materials, Finishes
 - [x] Extract: material name, material class, manufacturer, model number
-- [ ] Match against existing material templates by name similarity
+- [x] Match against existing material templates by name similarity
 - [x] Return preview with extracted fields
 - [x] POST /projects/{project_id}/bim/{model_id}/import/materials creates Material records
 **Estimate:** 3 points
@@ -1397,7 +1397,7 @@ As a user, I want a step-by-step import wizard so I can review, map, and confirm
 - [x] Step 2: Tabbed review for Areas / Equipment / Materials with checkboxes
 - [x] Step 3: Confirm and import selected items
 - [x] Duplicate detection (skips existing records)
-- [ ] Auto-mapped fields shown in green, manual fields in yellow, unmapped in red
+- [x] Auto-mapped fields shown in green, manual fields in yellow, unmapped in red
 - [x] Progress tracking with success/error counts
 - [x] Toast notifications for results
 - [ ] 3D viewer sidebar: clicking row highlights element in viewer

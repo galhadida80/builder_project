@@ -2444,7 +2444,9 @@
       "importFailed": "Failed to import items",
       "complete": "Import Complete",
       "imported": "imported",
-      "skipped": "skipped"
+      "skipped": "skipped",
+      "linked": "linked to template",
+      "templateMatch": "Template Match"
     }
   },
   "defects": {
