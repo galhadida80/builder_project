@@ -1,5 +1,6 @@
 export {
   AccountBalance as AccountBalanceIcon,
+  AccountCircle as AccountCircleIcon,
   AcUnit as AcUnitIcon,
   AccessTime as AccessTimeIcon,
   AccountTree as AccountTreeIcon,

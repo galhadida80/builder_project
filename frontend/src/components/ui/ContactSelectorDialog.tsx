@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import { Button } from './Button'
 import { contactsApi } from '../../api/contacts'
+import { useAuth } from '../../contexts/AuthContext'
 import type { Contact } from '../../types'
 import { useTranslation } from 'react-i18next'
-import { PersonIcon } from '@/icons'
+import { PersonIcon, AccountCircleIcon } from '@/icons'
 import { Dialog, DialogTitle, DialogContent, DialogActions, Autocomplete, TextField as MuiTextField, Box, Typography, CircularProgress, Alert } from '@/mui'
 
 interface ContactSelectorDialogProps {
@@ -22,6 +23,7 @@ export default function ContactSelectorDialog({
   loading = false,
 }: ContactSelectorDialogProps) {
   const { t } = useTranslation()
+  const { user } = useAuth()
   const [contacts, setContacts] = useState<Contact[]>([])
   const [contactsLoading, setContactsLoading] = useState(false)
   const [consultantContact, setConsultantContact] = useState<Contact | null>(null)
@@ -49,25 +51,51 @@ export default function ContactSelectorDialog({
     loadContacts()
   }, [open, projectId])
 
-  const consultantOptions = contacts.filter(c => c.contactType === 'consultant' || c.contactType === 'engineer')
-  const inspectorOptions = contacts.filter(c => c.contactType === 'inspector' || c.contactType === 'supervisor')
+  // Build a "self" contact entry for the current user so they can assign themselves
+  const selfContact: Contact | null = user ? {
+    id: `self_${user.id}`,
+    projectId,
+    contactName: `${user.fullName || user.email} (${t('contactSelector.me')})`,
+    contactType: 'consultant',
+    companyName: '',
+    roleDescription: t('contactSelector.selfApprove'),
+    userId: user.id,
+    isPrimary: false,
+    createdAt: new Date().toISOString(),
+  } : null
+
+  // Check if the current user already has a contact record
+  const userHasContact = contacts.some(c => c.userId === user?.id)
+
+  const consultantOptions = [
+    ...(!userHasContact && selfContact ? [selfContact] : []),
+    ...contacts.filter(c => c.contactType === 'consultant' || c.contactType === 'engineer'),
+  ]
+  const inspectorOptions = [
+    ...(!userHasContact && selfContact ? [{ ...selfContact, contactType: 'inspector' } as Contact] : []),
+    ...contacts.filter(c => c.contactType === 'inspector' || c.contactType === 'supervisor'),
+  ]
 
   const handleConfirm = () => {
     if (!hasSelection) {
       setShowValidation(true)
       return
     }
-    onConfirm(consultantContact?.id, inspectorContact?.id)
+    // If user selected "self", pass undefined so the backend creates a step without contact restriction
+    const consultantId = consultantContact?.id?.startsWith('self_') ? undefined : consultantContact?.id
+    const inspectorId = inspectorContact?.id?.startsWith('self_') ? undefined : inspectorContact?.id
+    onConfirm(consultantId, inspectorId)
   }
 
   const renderOption = (props: React.HTMLAttributes<HTMLLIElement> & { key?: string }, option: Contact) => {
     const { key, ...rest } = props
+    const isSelf = option.id.startsWith('self_')
     return (
       <li key={key} {...rest}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, py: 0.5 }}>
-          <PersonIcon fontSize="small" color="action" />
+          {isSelf ? <AccountCircleIcon fontSize="small" color="primary" /> : <PersonIcon fontSize="small" color="action" />}
           <Box>
-            <Typography variant="body2" fontWeight={500}>{option.contactName}</Typography>
+            <Typography variant="body2" fontWeight={isSelf ? 600 : 500} color={isSelf ? 'primary.main' : 'text.primary'}>{option.contactName}</Typography>
             <Typography variant="caption" color="text.secondary">
               {[option.companyName, option.roleDescription].filter(Boolean).join(' - ')}
             </Typography>

@@ -19,10 +19,11 @@ import { materialsApi } from '../api/materials'
 import { projectsApi } from '../api/projects'
 import type { Task, TaskSummary, ProjectMember, ApprovalRequest, Equipment, Material } from '../types'
 import { useToast } from '../components/common/ToastProvider'
+import { useSignatureStamp } from '../hooks/useSignatureStamp'
 import {
   AddIcon, CheckCircleIcon, WarningIcon, EditIcon, DeleteIcon,
   AccessTimeIcon, BuildIcon, InventoryIcon, CancelIcon, DescriptionIcon,
-  TaskAltIcon, ApprovalIcon,
+  TaskAltIcon, ApprovalIcon, ArrowBackIcon,
 } from '@/icons'
 import {
   Box, Typography, Skeleton, Chip, MenuItem, Avatar, Badge,
@@ -78,6 +79,7 @@ export default function TasksPage() {
   const navigate = useNavigate()
   const { showError, showSuccess } = useToast()
   const { user } = useAuth()
+  const { stampUrl } = useSignatureStamp()
 
   const [section, setSection] = useState<'tasks' | 'approvals'>('tasks')
   const [loading, setLoading] = useState(true)
@@ -233,6 +235,12 @@ export default function TasksPage() {
 
   return (
     <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 }, maxWidth: '100%', overflow: 'hidden' }}>
+      {/* Sticky back button */}
+      <Box sx={{ position: 'sticky', top: 0, zIndex: 10, bgcolor: 'background.default', pb: 1, display: { md: 'none' } }}>
+        <IconButton onClick={() => navigate(-1)} size="small" sx={{ bgcolor: 'action.hover', '&:hover': { bgcolor: 'action.selected' } }}>
+          <ArrowBackIcon sx={{ fontSize: 20 }} />
+        </IconButton>
+      </Box>
       <PageHeader
         title={t('tasksAndApprovals.pageTitle')}
         subtitle={t('tasksAndApprovals.pageSubtitle')}
@@ -360,6 +368,36 @@ export default function TasksPage() {
                           </Box>
                         )}
                       </Box>
+                      {/* Approval steps - who approved/rejected */}
+                      {approval.steps?.filter(s => s.status === 'approved' || s.status === 'rejected').length > 0 && (
+                        <Box sx={{ mb: 2, display: 'flex', flexDirection: 'column', gap: 1 }}>
+                          {approval.steps.filter(s => s.status === 'approved' || s.status === 'rejected').map((step) => (
+                            <Box key={step.id} sx={{ p: 1.5, borderRadius: 2, bgcolor: step.status === 'approved' ? 'success.light' : 'error.light', border: '1px solid', borderColor: step.status === 'approved' ? 'success.main' : 'error.main', opacity: 0.9 }}>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                {step.status === 'approved' ? <CheckCircleIcon sx={{ fontSize: 16, color: 'success.dark' }} /> : <CancelIcon sx={{ fontSize: 16, color: 'error.dark' }} />}
+                                <Typography variant="caption" fontWeight={700} sx={{ color: step.status === 'approved' ? 'success.dark' : 'error.dark' }}>
+                                  {step.status === 'approved' ? t('approvals.approved') : t('approvals.rejected')}
+                                </Typography>
+                                {step.approvedBy && (
+                                  <Typography variant="caption" sx={{ color: step.status === 'approved' ? 'success.dark' : 'error.dark' }}>
+                                    — {step.approvedBy.fullName || step.approvedBy.email}
+                                  </Typography>
+                                )}
+                                {step.approvedAt && (
+                                  <Typography variant="caption" sx={{ color: 'text.secondary', ml: 'auto' }}>
+                                    {new Date(step.approvedAt).toLocaleDateString(undefined, { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                                  </Typography>
+                                )}
+                              </Box>
+                              {step.comments && (
+                                <Typography variant="caption" sx={{ mt: 0.5, display: 'block', color: 'text.secondary', fontStyle: 'italic' }}>
+                                  "{step.comments}"
+                                </Typography>
+                              )}
+                            </Box>
+                          ))}
+                        </Box>
+                      )}
                       {isPending && (
                         <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5 }}>
                           <Button variant="success" size="small" icon={<CheckCircleIcon />} onClick={() => handleApprovalAction(approval, 'approve')} fullWidth>{t('approvals.approve')}</Button>
@@ -425,6 +463,26 @@ export default function TasksPage() {
               <Typography variant="subtitle1" fontWeight={600}>{getEntityDetails(selectedApproval)?.name || t('approvals.unknown')}</Typography>
             </Box>
           )}
+          {/* Approver info */}
+          <Box sx={{ mb: 2, p: 2, bgcolor: actionType === 'approve' ? 'success.light' : 'error.light', borderRadius: 2, border: '1px solid', borderColor: actionType === 'approve' ? 'success.main' : 'error.main' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+              <Avatar sx={{ width: 36, height: 36, bgcolor: 'primary.main', fontSize: '0.85rem' }}>
+                {user?.fullName?.charAt(0)?.toUpperCase() || '?'}
+              </Avatar>
+              <Box>
+                <Typography variant="body2" fontWeight={600}>{user?.fullName || user?.email}</Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {actionType === 'approve' ? t('approvals.approvingAs') : t('approvals.rejectingAs')}
+                </Typography>
+              </Box>
+            </Box>
+            {actionType === 'approve' && stampUrl && (
+              <Box sx={{ mt: 1.5, p: 1, bgcolor: 'background.paper', borderRadius: 1, textAlign: 'center' }}>
+                <img src={stampUrl} alt="signature" style={{ maxWidth: 160, maxHeight: 60, objectFit: 'contain' }} />
+                <Typography variant="caption" display="block" color="text.secondary">{t('approvals.signatureStamp')}</Typography>
+              </Box>
+            )}
+          </Box>
           <TextField
             fullWidth multiline rows={4}
             label={actionType === 'approve' ? t('approvals.commentsOptional') : t('approvals.rejectionReason')}

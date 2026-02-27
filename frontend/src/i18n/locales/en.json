@@ -1035,7 +1035,9 @@
     "selectInspector": "Select an inspector...",
     "noContacts": "No matching contacts found",
     "requiredHint": "At least one approver must be selected",
-    "confirmSubmit": "Submit for Approval"
+    "confirmSubmit": "Submit for Approval",
+    "me": "Me",
+    "selfApprove": "Self-approve"
   },
   "chat": {
     "title": "AI Assistant",
@@ -1315,7 +1317,10 @@
     "equipment": "Equipment",
     "material": "Materials",
     "inspection": "Inspections",
-    "pendingApproval": "Pending Approval"
+    "pendingApproval": "Pending Approval",
+    "approvingAs": "Approving",
+    "rejectingAs": "Rejecting",
+    "signatureStamp": "Digital Signature"
   },
   "contacts": {
     "title": "Contacts",

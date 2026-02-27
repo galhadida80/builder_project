@@ -45,7 +45,7 @@ export default function ChecklistsPage() {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
 
-  const [activeTab, setActiveTab] = useState<ActiveTab>('templates')
+  const [activeTab, setActiveTab] = useState<ActiveTab>('instances')
   const [templates, setTemplates] = useState<ChecklistTemplate[]>([])
   const [instances, setInstances] = useState<ChecklistInstance[]>([])
   const [loading, setLoading] = useState(false)
@@ -245,11 +245,16 @@ export default function ChecklistsPage() {
       </Box>
 
       <Card>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+        <Box sx={{ borderBottom: 1, borderColor: 'divider', display: 'flex', alignItems: 'center', justifyContent: 'space-between', pr: 2 }}>
           <Tabs value={activeTab} onChange={(_, v) => { setActiveTab(v); setSearchQuery('') }}>
             <Tab label={t('checklists.templates')} value="templates" />
             <Tab label={t('checklists.instances')} value="instances" />
           </Tabs>
+          {activeTab === 'instances' && (
+            <Button variant="primary" icon={<AddIcon />} size="small" onClick={() => setCreateModalOpen(true)}>
+              {t('checklists.newChecklist')}
+            </Button>
+          )}
         </Box>
         <Box sx={{ p: 2 }}>
           {activeTab === 'templates' && (
@@ -318,7 +323,6 @@ export default function ChecklistsPage() {
             <>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 1 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
-                  <Box sx={{ display: { xs: 'none', md: 'block' } }}><Button variant="primary" icon={<AddIcon />} onClick={() => setCreateModalOpen(true)}>{t('checklists.newChecklist')}</Button></Box>
                   <FilterChips
                     items={[
                       { label: t('common.all'), value: 'all' },

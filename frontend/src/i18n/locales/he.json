@@ -82,7 +82,7 @@
     "edit": "ערוך",
     "search": "חיפוש",
     "loading": "טוען",
-    "fromScratch": "מאפס",
+    "fromScratch": "הזנה ידנית",
     "fromTemplate": "מתבנית",
     "other": "אחר",
     "customType": "ציין סוג מותאם",
@@ -413,7 +413,7 @@
     "chooseMode": "איך תרצה להוסיף?",
     "fromTemplate": "מתבנית",
     "fromTemplateDesc": "בחר מתבנית מוכנה עם מפרטים ומסמכים נדרשים",
-    "fromScratch": "מאפס",
+    "fromScratch": "הזנה ידנית",
     "fromScratchDesc": "הגדר ציוד חדש עם מאפיינים מותאמים אישית",
     "switchMode": "שנה אופן הוספה"
   },
@@ -521,7 +521,7 @@
     "chooseMode": "איך תרצה להוסיף?",
     "fromTemplate": "מתבנית",
     "fromTemplateDesc": "בחר מתבנית מוכנה עם מפרטים ומסמכים נדרשים",
-    "fromScratch": "מאפס",
+    "fromScratch": "הזנה ידנית",
     "fromScratchDesc": "הגדר חומר חדש עם מאפיינים מותאמים אישית",
     "switchMode": "שנה אופן הוספה"
   },
@@ -1174,7 +1174,9 @@
     "selectInspector": "בחר מפקח...",
     "noContacts": "לא נמצאו אנשי קשר מתאימים",
     "requiredHint": "יש לבחור לפחות מאשר אחד",
-    "confirmSubmit": "שלח לאישור"
+    "confirmSubmit": "שלח לאישור",
+    "me": "אני",
+    "selfApprove": "אישור עצמי"
   },
   "chat": {
     "title": "עוזר AI",
@@ -1454,7 +1456,10 @@
     "equipment": "ציוד",
     "material": "חומרים",
     "inspection": "בדיקות",
-    "pendingApproval": "ממתין לאישור"
+    "pendingApproval": "ממתין לאישור",
+    "approvingAs": "מאשר",
+    "rejectingAs": "דוחה",
+    "signatureStamp": "חתימה דיגיטלית"
   },
   "approvalAuditTrail": {
     "submitted": "הוגש",
