@@ -148,10 +148,10 @@ export function MeetingCalendarGrid({
           />
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-          <IconButton size="small" onClick={() => onMonthChange(currentMonth.subtract(1, 'month'))}>
+          <IconButton size="small" aria-label={t('common.previous')} onClick={() => onMonthChange(currentMonth.subtract(1, 'month'))}>
             <ChevronLeftIcon />
           </IconButton>
-          <IconButton size="small" onClick={() => onMonthChange(currentMonth.add(1, 'month'))}>
+          <IconButton size="small" aria-label={t('common.next')} onClick={() => onMonthChange(currentMonth.add(1, 'month'))}>
             <ChevronRightIcon />
           </IconButton>
         </Box>
@@ -212,6 +212,7 @@ export function MeetingCalendarGrid({
                 {isCurrentMonth && dayMeetings.length === 0 && (
                   <IconButton
                     size="small"
+                    aria-label={t('meetings.addMeeting')}
                     sx={{ opacity: 0, '.MuiBox-root:hover > .MuiBox-root > &': { opacity: 0.5 }, width: 20, height: 20 }}
                     onClick={(e) => { e.stopPropagation(); onDayClick(day) }}
                   >

@@ -200,9 +200,9 @@ export default function MaterialsPage() {
     { id: 'status', label: t('common.status'), minWidth: 130, render: (row) => <StatusBadge status={row.status} /> },
     { id: 'actions', label: '', minWidth: 140, align: 'right', hideOnMobile: true, render: (row) => (
       <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
-        <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleViewDetails(row) }}><VisibilityIcon fontSize="small" /></IconButton>
-        <IconButton size="small" onClick={(e) => handleOpenEdit(row, e)}><EditIcon fontSize="small" /></IconButton>
-        <IconButton size="small" onClick={(e) => handleDeleteClick(row, e)} color="error"><DeleteIcon fontSize="small" /></IconButton>
+        <IconButton aria-label={t('common.view')} size="small" onClick={(e) => { e.stopPropagation(); handleViewDetails(row) }}><VisibilityIcon fontSize="small" /></IconButton>
+        <IconButton aria-label={t('common.edit')} size="small" onClick={(e) => handleOpenEdit(row, e)}><EditIcon fontSize="small" /></IconButton>
+        <IconButton aria-label={t('common.delete')} size="small" onClick={(e) => handleDeleteClick(row, e)} color="error"><DeleteIcon fontSize="small" /></IconButton>
       </Box>
     )},
   ]

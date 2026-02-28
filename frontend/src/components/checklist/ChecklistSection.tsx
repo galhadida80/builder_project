@@ -253,7 +253,7 @@ export function ChecklistSection({
                         <Chip size="small" label={t('checklists.requiresSignature')} sx={{ height: 20, fontSize: '0.65rem', bgcolor: 'secondary.light', color: 'secondary.dark' }} />
                       )}
                       {isActive && (
-                        <IconButton size="small" onClick={(e) => { e.stopPropagation(); setActiveItemId(null) }}>
+                        <IconButton size="small" aria-label={t('common.close')} onClick={(e) => { e.stopPropagation(); setActiveItemId(null) }}>
                           <CancelIcon sx={{ fontSize: 18 }} />
                         </IconButton>
                       )}

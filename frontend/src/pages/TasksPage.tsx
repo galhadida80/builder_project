@@ -547,8 +547,8 @@ function TaskCard({ task, t, onEdit, onDelete }: { task: Task; t: (k: string, o?
                 </Box>
               ) : <Box />}
               <Box sx={{ display: 'flex', gap: 0.5 }}>
-                <IconButton size="small" onClick={(e) => { e.stopPropagation(); onEdit(task) }}><EditIcon sx={{ fontSize: 16 }} /></IconButton>
-                <IconButton size="small" onClick={(e) => { e.stopPropagation(); onDelete(task) }}><DeleteIcon sx={{ fontSize: 16 }} color="error" /></IconButton>
+                <IconButton aria-label={t('common.edit')} size="small" onClick={(e) => { e.stopPropagation(); onEdit(task) }}><EditIcon sx={{ fontSize: 16 }} /></IconButton>
+                <IconButton aria-label={t('common.delete')} size="small" onClick={(e) => { e.stopPropagation(); onDelete(task) }}><DeleteIcon sx={{ fontSize: 16 }} color="error" /></IconButton>
               </Box>
             </Box>
           </Box>

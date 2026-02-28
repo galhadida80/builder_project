@@ -172,7 +172,7 @@ export default function FileAttachmentPanel({
               secondaryAction={
                 <Box sx={{ display: 'flex', gap: 0.5 }}>
                   <Tooltip title={t('common.download')}>
-                    <IconButton edge="end" size="small" onClick={() => handleDownload(file)}>
+                    <IconButton edge="end" size="small" onClick={() => handleDownload(file)} aria-label={t('common.download')}>
                       <DownloadIcon fontSize="small" />
                     </IconButton>
                   </Tooltip>
@@ -183,6 +183,7 @@ export default function FileAttachmentPanel({
                         color="error"
                         onClick={() => handleDelete(file)}
                         disabled={deletingId === file.id}
+                        aria-label={t('common.delete')}
                       >
                         {deletingId === file.id ? (
                           <CircularProgress size={16} />

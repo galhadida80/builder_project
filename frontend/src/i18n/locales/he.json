@@ -83,6 +83,9 @@
     "save": "שמור",
     "delete": "מחק",
     "edit": "ערוך",
+    "view": "צפה",
+    "add": "הוסף",
+    "download": "הורד",
     "search": "חיפוש",
     "loading": "טוען",
     "fromScratch": "הזנה ידנית",
@@ -197,7 +200,8 @@
     "loadingPage": "טוען עמוד...",
     "expand": "הרחב",
     "collapse": "כווץ",
-    "more": "עוד"
+    "more": "עוד",
+    "moreOptions": "אפשרויות נוספות"
   },
   "table": {
     "rowsPerPage": "שורות בעמוד:",
@@ -271,7 +275,7 @@
     "groups": {
       "planning": "תכנון",
       "field": "שטח",
-      "procurement": "רכש ואישורים",
+      "procurement": "רכש",
       "people": "אנשים",
       "documents": "מסמכים"
     }
@@ -1047,7 +1051,8 @@
     "customKeyPlaceholder": "שם מאפיין חדש...",
     "suggestedProperties": "מאפיינים מוצעים",
     "selectOptionsLabel": "אפשרויות בחירה",
-    "selectOptionsPlaceholder": "אפשרות 1, אפשרות 2, אפשרות 3..."
+    "selectOptionsPlaceholder": "אפשרות 1, אפשרות 2, אפשרות 3...",
+    "removeProperty": "הסר מאפיין"
   },
   "customProps": {
     "categories": {

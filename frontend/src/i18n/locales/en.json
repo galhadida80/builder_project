@@ -486,6 +486,9 @@
     "save": "Save",
     "delete": "Delete",
     "edit": "Edit",
+    "view": "View",
+    "add": "Add",
+    "download": "Download",
     "search": "Search",
     "loading": "Loading",
     "fromScratch": "From Scratch",
@@ -589,6 +592,7 @@
     "install": "Install",
     "notNow": "Not Now",
     "viewMenu": "View menu",
+    "moreOptions": "More options",
     "collapseSection": "Collapse section",
     "expandSection": "Expand section",
     "closeSidePanel": "Close side panel",
@@ -907,7 +911,8 @@
     "customKeyPlaceholder": "New property name...",
     "suggestedProperties": "Suggested properties",
     "selectOptionsLabel": "Select options",
-    "selectOptionsPlaceholder": "Option 1, Option 2, Option 3..."
+    "selectOptionsPlaceholder": "Option 1, Option 2, Option 3...",
+    "removeProperty": "Remove property"
   },
   "customProps": {
     "categories": {

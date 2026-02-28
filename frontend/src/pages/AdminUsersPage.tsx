@@ -169,7 +169,7 @@ export default function AdminUsersPage() {
                   </Typography>
                 </Box>
               </Box>
-              <IconButton size="small" sx={{ color: 'text.disabled' }}>
+              <IconButton size="small" aria-label={t('common.moreOptions')} sx={{ color: 'text.disabled' }}>
                 <MoreVertIcon fontSize="small" />
               </IconButton>
             </Box>

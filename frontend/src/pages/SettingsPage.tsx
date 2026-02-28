@@ -138,6 +138,7 @@ export default function SettingsPage() {
             <IconButton
               size="small"
               onClick={() => navigate('/profile')}
+              aria-label={t('profile.changeAvatar')}
               sx={{
                 position: 'absolute',
                 bottom: 0,

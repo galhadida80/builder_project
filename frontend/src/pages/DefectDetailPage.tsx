@@ -216,7 +216,7 @@ export default function DefectDetailPage() {
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <IconButton size="small" onClick={() => navigate(`/projects/${projectId}/defects`)}>
+          <IconButton aria-label={t('common.back')} size="small" onClick={() => navigate(`/projects/${projectId}/defects`)}>
             <ArrowBackIcon />
           </IconButton>
           <Typography variant="h6" fontWeight={700} letterSpacing="-0.02em">
@@ -225,7 +225,7 @@ export default function DefectDetailPage() {
         </Box>
         <Box sx={{ display: 'flex', gap: 0.5 }}>
           <Chip size="small" label={`DEF-${defect.defectNumber}`} sx={{ fontFamily: 'monospace', fontWeight: 600, fontSize: '0.65rem' }} />
-          <IconButton size="small" onClick={() => setDeleteDialogOpen(true)} sx={{ color: 'text.secondary' }}>
+          <IconButton aria-label={t('common.actions')} size="small" onClick={() => setDeleteDialogOpen(true)} sx={{ color: 'text.secondary' }}>
             <MoreVertIcon fontSize="small" />
           </IconButton>
         </Box>
@@ -336,10 +336,10 @@ export default function DefectDetailPage() {
                 </Box>
               </Box>
               <Box sx={{ display: 'flex', gap: 0.5 }}>
-                <IconButton size="small" sx={{ color: 'text.secondary' }}>
+                <IconButton aria-label={t('defects.emailAssignee')} size="small" sx={{ color: 'text.secondary' }}>
                   <EmailIcon sx={{ fontSize: 18 }} />
                 </IconButton>
-                <IconButton size="small" onClick={() => handleRemoveAssignee(a.contactId)} sx={{ color: 'text.disabled' }}>
+                <IconButton aria-label={t('defects.removeAssignee')} size="small" onClick={() => handleRemoveAssignee(a.contactId)} sx={{ color: 'text.disabled' }}>
                   <DeleteIcon sx={{ fontSize: 18 }} />
                 </IconButton>
               </Box>
@@ -399,11 +399,11 @@ export default function DefectDetailPage() {
                   alignItems: 'center', justifyContent: 'center', gap: 0.5,
                 }}>
                   {file.fileType?.startsWith('image/') && (
-                    <IconButton size="small" onClick={(e) => { e.stopPropagation(); setAnnotatingFile(file) }} sx={{ color: 'white' }}>
+                    <IconButton aria-label={t('annotations.annotate')} size="small" onClick={(e) => { e.stopPropagation(); setAnnotatingFile(file) }} sx={{ color: 'white' }}>
                       <DrawIcon fontSize="small" />
                     </IconButton>
                   )}
-                  <IconButton size="small" onClick={(e) => { e.stopPropagation(); handlePhotoDelete(file.id) }} sx={{ color: 'white' }}>
+                  <IconButton aria-label={t('common.delete')} size="small" onClick={(e) => { e.stopPropagation(); handlePhotoDelete(file.id) }} sx={{ color: 'white' }}>
                     <DeleteIcon fontSize="small" />
                   </IconButton>
                 </Box>

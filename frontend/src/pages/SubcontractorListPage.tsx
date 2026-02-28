@@ -182,7 +182,7 @@ export default function SubcontractorListPage() {
                     </TableCell>
                     <TableCell align="right">
                       <Tooltip title={t('subcontractors.toggleVerify')}>
-                        <IconButton size="small" onClick={() => handleToggleVerify(profile.id)}>
+                        <IconButton aria-label={t('subcontractors.toggleVerify')} size="small" onClick={() => handleToggleVerify(profile.id)}>
                           <CheckCircleIcon color={profile.isVerified ? 'success' : 'disabled'} />
                         </IconButton>
                       </Tooltip>

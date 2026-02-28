@@ -250,6 +250,7 @@ export default function ProfilePage() {
             size="small"
             onClick={() => avatarInputRef.current?.click()}
             disabled={savingAvatar}
+            aria-label={t('profile.changeAvatar')}
             sx={{
               position: 'absolute',
               bottom: 0,

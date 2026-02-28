@@ -278,7 +278,7 @@ export default function KeyValueEditor({ entries, onChange, label, suggestions }
                     />
                   </Box>
                   {!entry.locked ? (
-                    <IconButton size="small" onClick={() => handleRemove(index)} sx={{ p: 0.25, color: 'text.disabled', '&:hover': { color: 'error.main' } }}>
+                    <IconButton size="small" onClick={() => handleRemove(index)} aria-label={t('keyValueEditor.removeProperty')} sx={{ p: 0.25, color: 'text.disabled', '&:hover': { color: 'error.main' } }}>
                       <CloseIcon sx={{ fontSize: 16 }} />
                     </IconButton>
                   ) : (

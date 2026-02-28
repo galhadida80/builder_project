@@ -119,9 +119,9 @@ export default function MaterialCardList({ materials, loading, onView, onEdit, o
                 />
               </Box>
               <Box sx={{ display: 'flex', gap: 0.5 }} onClick={(e) => e.stopPropagation()}>
-                <IconButton size="small" onClick={() => onView(m)}><VisibilityIcon fontSize="small" /></IconButton>
-                <IconButton size="small" onClick={(e) => onEdit(m, e)}><EditIcon fontSize="small" /></IconButton>
-                <IconButton size="small" onClick={(e) => onDelete(m, e)} color="error"><DeleteIcon fontSize="small" /></IconButton>
+                <IconButton size="small" onClick={() => onView(m)} aria-label={t('common.details')}><VisibilityIcon fontSize="small" /></IconButton>
+                <IconButton size="small" onClick={(e) => onEdit(m, e)} aria-label={t('materials.editMaterial')}><EditIcon fontSize="small" /></IconButton>
+                <IconButton size="small" onClick={(e) => onDelete(m, e)} aria-label={t('common.delete')} color="error"><DeleteIcon fontSize="small" /></IconButton>
               </Box>
             </Box>
           </Box>

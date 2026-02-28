@@ -268,6 +268,7 @@ export default function ContactsPage() {
                         <Box sx={{ display: 'flex', gap: 1, flexShrink: 0 }}>
                           {contact.email && (
                             <IconButton
+                              aria-label={t('common.email')}
                               size="medium"
                               onClick={() => window.open(`mailto:${contact.email}`)}
                               sx={{
@@ -281,6 +282,7 @@ export default function ContactsPage() {
                           )}
                           {contact.phone && (
                             <IconButton
+                              aria-label={t('common.phone')}
                               size="medium"
                               onClick={() => window.open(`tel:${contact.phone}`)}
                               sx={{
@@ -332,8 +334,8 @@ export default function ContactsPage() {
                           <TableCell align="center">{(contact.pendingApprovalsCount ?? 0) > 0 ? <Chip label={contact.pendingApprovalsCount} size="small" color="warning" icon={<AssignmentIcon sx={{ fontSize: 14 }} />} /> : <Typography variant="body2" color="text.disabled">0</Typography>}</TableCell>
                           <TableCell align="center" onClick={(e) => e.stopPropagation()}>
                             <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center' }}>
-                              <IconButton size="small" onClick={() => handleOpenEdit(contact)}><EditIcon fontSize="small" /></IconButton>
-                              <IconButton size="small" onClick={() => handleDeleteClick(contact)} color="error"><DeleteIcon fontSize="small" /></IconButton>
+                              <IconButton aria-label={t('common.edit')} size="small" onClick={() => handleOpenEdit(contact)}><EditIcon fontSize="small" /></IconButton>
+                              <IconButton aria-label={t('common.delete')} size="small" onClick={() => handleDeleteClick(contact)} color="error"><DeleteIcon fontSize="small" /></IconButton>
                             </Box>
                           </TableCell>
                         </TableRow>
@@ -381,8 +383,8 @@ export default function ContactsPage() {
                     <TableCell align="center"><Chip label={group.memberCount} size="small" /></TableCell>
                     <TableCell align="center" onClick={(e) => e.stopPropagation()}>
                       <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center' }}>
-                        <IconButton size="small" onClick={() => handleOpenGroupEdit(group)}><EditIcon fontSize="small" /></IconButton>
-                        <IconButton size="small" onClick={() => handleDeleteGroupClick(group)} color="error"><DeleteIcon fontSize="small" /></IconButton>
+                        <IconButton aria-label={t('common.edit')} size="small" onClick={() => handleOpenGroupEdit(group)}><EditIcon fontSize="small" /></IconButton>
+                        <IconButton aria-label={t('common.delete')} size="small" onClick={() => handleDeleteGroupClick(group)} color="error"><DeleteIcon fontSize="small" /></IconButton>
                       </Box>
                     </TableCell>
                   </TableRow>

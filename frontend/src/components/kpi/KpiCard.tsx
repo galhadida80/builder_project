@@ -51,6 +51,7 @@ export default function KpiCard({ kpiValue, onEdit, onDelete }: KpiCardProps) {
             <IconButton
               size="small"
               onClick={(e) => { e.stopPropagation(); onEdit() }}
+              aria-label={t('kpi.editKpi')}
               sx={{ p: 0.5 }}
             >
               <EditIcon fontSize="small" />
@@ -58,6 +59,7 @@ export default function KpiCard({ kpiValue, onEdit, onDelete }: KpiCardProps) {
             <IconButton
               size="small"
               onClick={(e) => { e.stopPropagation(); onDelete() }}
+              aria-label={t('common.delete')}
               sx={{ p: 0.5 }}
             >
               <DeleteIcon fontSize="small" />
