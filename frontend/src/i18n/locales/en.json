@@ -1770,6 +1770,12 @@
       "update": "Update",
       "general": "General"
     },
+    "urgency": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High",
+      "critical": "Critical"
+    },
     "push": {
       "title": "Push Notifications",
       "notSupported": "Push notifications are not supported in this browser",
