@@ -2050,6 +2050,10 @@
     "progressLabel": "Progress:",
     "startLabel": "Start:",
     "endLabel": "End:",
+    "riskLevel": "Risk Level",
+    "confidenceScore": "Confidence Score",
+    "predictedDelay": "Predicted Delay",
+    "days": "days",
     "taskHasIssues": "{{count}} task has validation issues.",
     "tasksHaveIssues": "{{count}} tasks have validation issues.",
     "errorsExcluded": "{{count}} error (tasks excluded from timeline).",
@@ -3674,6 +3678,12 @@
     "medium": "Medium",
     "high": "High",
     "critical": "Critical",
+    "riskLevels": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High",
+      "critical": "Critical"
+    },
     "atRiskTasks": "At-Risk Tasks",
     "criticalPath": {
       "title": "Critical Path Analysis",

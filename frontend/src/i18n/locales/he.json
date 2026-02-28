@@ -2199,6 +2199,10 @@
     "progressLabel": "התקדמות:",
     "startLabel": "התחלה:",
     "endLabel": "סיום:",
+    "riskLevel": "רמת סיכון",
+    "confidenceScore": "ציון ביטחון",
+    "predictedDelay": "עיכוב צפוי",
+    "days": "ימים",
     "taskHasIssues": "למשימה {{count}} יש בעיות תיקוף.",
     "tasksHaveIssues": "ל-{{count}} משימות יש בעיות תיקוף.",
     "errorsExcluded": "שגיאה {{count}} (משימות הוסרו מציר הזמן).",
@@ -3720,6 +3724,12 @@
     "medium": "בינונית",
     "high": "גבוהה",
     "critical": "קריטית",
+    "riskLevels": {
+      "low": "נמוכה",
+      "medium": "בינונית",
+      "high": "גבוהה",
+      "critical": "קריטית"
+    },
     "atRiskTasks": "משימות בסיכון",
     "criticalPath": {
       "title": "ניתוח נתיב קריטי",
