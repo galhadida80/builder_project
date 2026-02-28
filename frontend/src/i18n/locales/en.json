@@ -1021,7 +1021,29 @@
     "maxSizeExceeded": "Total size exceeds limit: {{maxSize}}",
     "selectedFiles": "{{count}} files selected",
     "totalSize": "Total size: {{size}}",
-    "removeFile": "Remove {{name}}"
+    "removeFile": "Remove {{name}}",
+    "dialogTitle": "Batch Upload Files",
+    "documentMetadata": "Document Metadata",
+    "metadataDescription": "These settings will apply to all uploaded files",
+    "category": "Category",
+    "selectArea": "Select Area",
+    "floor": "Floor",
+    "noAreasAvailable": "No areas available. Files will be uploaded to project level.",
+    "selectFiles": "Select Files",
+    "selectFilesDescription": "Drag and drop files or click to select",
+    "noFilesSelected": "No files selected",
+    "uploadButton": "Upload {{count}} files",
+    "uploadFailed": "Upload failed. Please try again.",
+    "entityTypes": {
+      "project": "Project",
+      "area": "Area",
+      "blueprint": "Blueprint",
+      "equipment": "Equipment",
+      "material": "Material",
+      "inspection": "Inspection",
+      "meeting": "Meeting",
+      "rfi": "RFI"
+    }
   },
   "templatePicker": {
     "specs": "Specs",

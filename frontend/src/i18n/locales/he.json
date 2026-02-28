@@ -1189,7 +1189,29 @@
     "maxSizeExceeded": "גודל כולל חורג מהמותר: {{maxSize}}",
     "selectedFiles": "{{count}} קבצים נבחרו",
     "totalSize": "גודל כולל: {{size}}",
-    "removeFile": "הסר {{name}}"
+    "removeFile": "הסר {{name}}",
+    "dialogTitle": "העלאת קבצים מרובים",
+    "documentMetadata": "מטא-דאטה של מסמכים",
+    "metadataDescription": "הגדרות אלה יחולו על כל הקבצים שיועלו",
+    "category": "קטגוריה",
+    "selectArea": "בחר אזור",
+    "floor": "קומה",
+    "noAreasAvailable": "אין אזורים זמינים. הקבצים יועלו לרמת הפרויקט.",
+    "selectFiles": "בחירת קבצים",
+    "selectFilesDescription": "גרור ושחרר קבצים או לחץ לבחירה",
+    "noFilesSelected": "לא נבחרו קבצים",
+    "uploadButton": "העלה {{count}} קבצים",
+    "uploadFailed": "העלאה נכשלה. אנא נסה שוב.",
+    "entityTypes": {
+      "project": "פרויקט",
+      "area": "אזור",
+      "blueprint": "תכנית",
+      "equipment": "ציוד",
+      "material": "חומר",
+      "inspection": "בדיקה",
+      "meeting": "פגישה",
+      "rfi": "RFI"
+    }
   },
   "templatePicker": {
     "specs": "מפרטים",
