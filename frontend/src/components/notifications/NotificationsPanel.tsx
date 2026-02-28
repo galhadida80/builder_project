@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Tabs } from '../ui/Tabs'
 import { NotificationItem } from './NotificationItem'
-import { Notification, NotificationCategory } from '../../types/notification'
+import { Notification, NotificationCategory, UrgencyLevel } from '../../types/notification'
 import { CloseIcon } from '@/icons'
 import { Drawer, Box, Typography, IconButton, List, Divider, Button as MuiButton, styled } from '@/mui'
 
@@ -104,6 +104,7 @@ export function NotificationsPanel({
 }: NotificationsPanelProps) {
   const { t } = useTranslation()
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
+  const [selectedUrgency, setSelectedUrgency] = useState<string>('all')
 
   const tabItems = [
     { label: t('notificationsPanel.all'), value: 'all' },
@@ -112,10 +113,25 @@ export function NotificationsPanel({
     { label: t('notificationsPanel.updates'), value: 'update' },
   ]
 
-  const filteredNotifications =
-    selectedCategory === 'all'
-      ? notifications
-      : notifications.filter((n) => n.category === selectedCategory)
+  const urgencyItems = [
+    { label: t('notificationsPanel.allUrgencies'), value: 'all' },
+    { label: t('notifications.urgency.critical'), value: 'critical' },
+    { label: t('notifications.urgency.high'), value: 'high' },
+    { label: t('notifications.urgency.medium'), value: 'medium' },
+    { label: t('notifications.urgency.low'), value: 'low' },
+  ]
+
+  let filteredNotifications = notifications
+
+  // Filter by category
+  if (selectedCategory !== 'all') {
+    filteredNotifications = filteredNotifications.filter((n) => n.category === selectedCategory)
+  }
+
+  // Filter by urgency
+  if (selectedUrgency !== 'all') {
+    filteredNotifications = filteredNotifications.filter((n) => n.urgency === selectedUrgency)
+  }
 
   const handleNotificationClick = (notification: Notification) => {
     if (!notification.isRead && onMarkAsRead) {
@@ -138,8 +154,18 @@ export function NotificationsPanel({
       </Header>
 
       <TabsContainer>
+        <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block', fontWeight: 500 }}>
+          {t('notificationsPanel.categoryFilter')}
+        </Typography>
         <Tabs items={tabItems} value={selectedCategory} onChange={setSelectedCategory} variant="scrollable" size="small" />
       </TabsContainer>
+
+      <Box sx={{ px: 3, pt: 2, pb: 1, borderBottom: 1, borderColor: 'divider' }}>
+        <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block', fontWeight: 500 }}>
+          {t('notificationsPanel.urgencyFilter')}
+        </Typography>
+        <Tabs items={urgencyItems} value={selectedUrgency} onChange={setSelectedUrgency} variant="scrollable" size="small" />
+      </Box>
 
       {onMarkAllAsRead && unreadCount > 0 && (
         <Box sx={{ px: 3, pt: 2, pb: 1 }}>

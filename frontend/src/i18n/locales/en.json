@@ -2300,7 +2300,10 @@
     "noNotifications": "No notifications",
     "allCaughtUp": "You're all caught up!",
     "noCategoryNotifications": "No {{category}} notifications at this time.",
-    "loadMore": "Load More"
+    "loadMore": "Load More",
+    "categoryFilter": "Filter by Category",
+    "urgencyFilter": "Filter by Urgency",
+    "allUrgencies": "All Urgencies"
   },
   "rfiDetail": {
     "notFound": "RFI not found",

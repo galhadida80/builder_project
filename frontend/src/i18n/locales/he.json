@@ -871,7 +871,10 @@
     "noNotifications": "אין התראות",
     "allCaughtUp": "אתה מעודכן!",
     "noCategoryNotifications": "אין התראות {{category}} כרגע.",
-    "loadMore": "טען עוד"
+    "loadMore": "טען עוד",
+    "categoryFilter": "סינון לפי קטגוריה",
+    "urgencyFilter": "סינון לפי דחיפות",
+    "allUrgencies": "כל הדחיפויות"
   },
   "sidebar": {
     "dashboard": "לוח בקרה",
