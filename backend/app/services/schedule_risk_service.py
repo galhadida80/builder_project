@@ -2,7 +2,7 @@ from collections import defaultdict, deque
 from datetime import datetime, timedelta
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -171,4 +171,115 @@ async def calculate_critical_path(db: AsyncSession, project_id: UUID) -> dict:
         "task_ids": critical_task_ids,
         "total_duration": project_duration,
         "critical_tasks": critical_tasks,
+    }
+
+
+async def calculate_historical_variance(db: AsyncSession, project_id: UUID) -> dict:
+    """
+    Analyze completed tasks to calculate historical variance and delay factors.
+
+    Returns:
+        dict with:
+        - average_delay_factor: float (ratio of actual/estimated, >1.0 = delays)
+        - variance_by_assignee: dict mapping assignee_id to delay factor
+        - variance_by_priority: dict mapping priority to delay factor
+        - variance_by_milestone: dict with milestone vs regular task variance
+        - total_completed_tasks: int
+        - tasks_with_variance_data: int
+    """
+    # Query completed tasks with both estimated and actual hours
+    query = (
+        select(Task)
+        .where(
+            Task.project_id == project_id,
+            Task.status == "completed",
+            Task.estimated_hours.is_not(None),
+            Task.actual_hours.is_not(None),
+            Task.estimated_hours > 0,  # Avoid division by zero
+        )
+    )
+    result = await db.execute(query)
+    tasks = result.scalars().all()
+
+    if not tasks:
+        return {
+            "average_delay_factor": 1.0,
+            "variance_by_assignee": {},
+            "variance_by_priority": {},
+            "variance_by_milestone": {"milestone": 1.0, "regular": 1.0},
+            "total_completed_tasks": 0,
+            "tasks_with_variance_data": 0,
+        }
+
+    # Calculate variance for each task
+    task_variances = []
+    assignee_variances = defaultdict(list)
+    priority_variances = defaultdict(list)
+    milestone_variances = {"milestone": [], "regular": []}
+
+    for task in tasks:
+        # Calculate delay factor: actual / estimated
+        # > 1.0 means task took longer than estimated
+        delay_factor = task.actual_hours / task.estimated_hours
+        task_variances.append(delay_factor)
+
+        # Group by assignee
+        if task.assignee_id:
+            assignee_variances[str(task.assignee_id)].append(delay_factor)
+
+        # Group by priority
+        if task.priority:
+            priority_variances[task.priority].append(delay_factor)
+
+        # Group by milestone status
+        if task.is_milestone:
+            milestone_variances["milestone"].append(delay_factor)
+        else:
+            milestone_variances["regular"].append(delay_factor)
+
+    # Calculate average delay factor
+    average_delay_factor = sum(task_variances) / len(task_variances) if task_variances else 1.0
+
+    # Calculate averages for each dimension
+    variance_by_assignee = {
+        assignee_id: sum(variances) / len(variances)
+        for assignee_id, variances in assignee_variances.items()
+    }
+
+    variance_by_priority = {
+        priority: sum(variances) / len(variances)
+        for priority, variances in priority_variances.items()
+    }
+
+    variance_by_milestone = {
+        "milestone": (
+            sum(milestone_variances["milestone"]) / len(milestone_variances["milestone"])
+            if milestone_variances["milestone"]
+            else 1.0
+        ),
+        "regular": (
+            sum(milestone_variances["regular"]) / len(milestone_variances["regular"])
+            if milestone_variances["regular"]
+            else 1.0
+        ),
+    }
+
+    # Get total completed tasks count (including those without variance data)
+    total_completed_query = (
+        select(func.count(Task.id))
+        .where(
+            Task.project_id == project_id,
+            Task.status == "completed",
+        )
+    )
+    total_result = await db.execute(total_completed_query)
+    total_completed = total_result.scalar() or 0
+
+    return {
+        "average_delay_factor": average_delay_factor,
+        "variance_by_assignee": variance_by_assignee,
+        "variance_by_priority": variance_by_priority,
+        "variance_by_milestone": variance_by_milestone,
+        "total_completed_tasks": total_completed,
+        "tasks_with_variance_data": len(tasks),
     }
