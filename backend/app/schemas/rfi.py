@@ -160,6 +160,11 @@ class RFIResponseSchema(BaseModel):
     source: str = "email"
     created_at: datetime
     received_at: datetime | None = None
+    acc_comment_id: str | None = None
+    acc_issue_id: str | None = None
+    sync_source: str | None = None
+    sync_status: str | None = None
+    last_synced_at: datetime | None = None
 
     class Config:
         from_attributes = True
@@ -197,6 +202,11 @@ class RFIListResponse(BaseModel):
     response_count: int = 0
     related_equipment_id: UUID | None = None
     related_material_id: UUID | None = None
+    acc_issue_id: str | None = None
+    acc_project_id: str | None = None
+    sync_source: str | None = None
+    sync_status: str | None = None
+    last_synced_at: datetime | None = None
 
     class Config:
         from_attributes = True
@@ -231,6 +241,11 @@ class RFIResponse(BaseModel):
     related_equipment_id: UUID | None = None
     related_material_id: UUID | None = None
     responses: list[RFIResponseSchema] = []
+    acc_issue_id: str | None = None
+    acc_project_id: str | None = None
+    sync_source: str | None = None
+    sync_status: str | None = None
+    last_synced_at: datetime | None = None
 
     class Config:
         from_attributes = True
