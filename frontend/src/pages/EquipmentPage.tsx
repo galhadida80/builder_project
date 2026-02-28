@@ -232,7 +232,7 @@ export default function EquipmentPage() {
         title={t('equipment.title')}
         subtitle={t('equipment.subtitle')}
         breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('equipment.title') }]}
-        actions={<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><HelpTooltip helpKey="help.tooltips.equipmentForm" /><Box sx={{ display: { xs: 'none', md: 'block' } }}><Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>{t('equipment.addEquipment')}</Button></Box></Box>}
+        actions={<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Box sx={{ display: { xs: 'none', md: 'block' } }}><Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>{t('equipment.addEquipment')}</Button></Box><HelpTooltip helpKey="help.tooltips.equipmentForm" /></Box>}
       />
 
       <Box sx={{ mb: 2 }}>

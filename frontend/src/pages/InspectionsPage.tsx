@@ -405,12 +405,12 @@ export default function InspectionsPage() {
         breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('nav.inspections') }]}
         actions={
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <HelpTooltip helpKey="help.tooltips.inspectionForm" />
             <Box sx={{ display: { xs: 'none', md: 'block' } }}>
               <Button variant="primary" icon={<AddIcon />} onClick={() => setDialogOpen(true)}>
                 {t('inspections.scheduleInspection')}
               </Button>
             </Box>
+            <HelpTooltip helpKey="help.tooltips.inspectionForm" />
           </Box>
         }
       />

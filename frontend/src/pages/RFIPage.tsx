@@ -350,12 +350,12 @@ export default function RFIPage() {
         breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('nav.rfis') }]}
         actions={
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <HelpTooltip helpKey="help.tooltips.rfiForm" />
             <Box sx={{ display: { xs: 'none', md: 'block' } }}>
               <Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>
                 {t('rfis.addRfi')}
               </Button>
             </Box>
+            <HelpTooltip helpKey="help.tooltips.rfiForm" />
           </Box>
         }
       />
