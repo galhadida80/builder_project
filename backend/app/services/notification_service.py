@@ -31,8 +31,18 @@ async def broadcast_notification(project_id: UUID, notification: Notification) -
                 },
             },
         )
-    except Exception:
-        logger.exception("Failed to broadcast notification via WebSocket")
+    except Exception as e:
+        error_type = type(e).__name__
+        error_message = str(e)
+
+        logger.error(
+            "Failed to broadcast notification via WebSocket - "
+            "Project ID: %s, Notification ID: %s, Category: %s, Title: %s, "
+            "Error Type: %s, Message: %s",
+            project_id, notification.id, notification.category, notification.title,
+            error_type, error_message,
+            exc_info=True
+        )
 
 
 async def create_notification(
@@ -85,8 +95,19 @@ async def notify_user(
             if service.enabled:
                 subject, html = render_notification_email(title, message, action_url, project_name, language)
                 service.send_notification(to_email=email, subject=subject, body_html=html)
-        except Exception:
-            logger.exception("Failed to send notification email to %s", email)
+        except Exception as e:
+            error_type = type(e).__name__
+            http_status = getattr(e, 'status_code', 'N/A')
+            error_message = str(e)
+
+            logger.error(
+                "Failed to send notification email - "
+                "Recipient: %s, Category: %s, Title: %s, Entity: %s/%s, Project: %s, "
+                "Error Type: %s, HTTP Status: %s, Message: %s",
+                email, category, title, entity_type or 'None', entity_id or 'None',
+                project_name or 'None', error_type, http_status, error_message,
+                exc_info=True
+            )
 
 
 async def notify_contact(
@@ -119,8 +140,19 @@ async def notify_contact(
             if service.enabled:
                 subject, html = render_notification_email(title, message, action_url, project_name)
                 service.send_notification(to_email=contact.email, subject=subject, body_html=html)
-        except Exception:
-            logger.exception("Failed to send notification email to contact %s", contact.email)
+        except Exception as e:
+            error_type = type(e).__name__
+            http_status = getattr(e, 'status_code', 'N/A')
+            error_message = str(e)
+
+            logger.error(
+                "Failed to send notification email to contact - "
+                "Recipient: %s, Contact ID: %s, Category: %s, Title: %s, Entity: %s/%s, Project: %s, "
+                "Error Type: %s, HTTP Status: %s, Message: %s",
+                contact.email, contact.id, category, title, entity_type or 'None', entity_id or 'None',
+                project_name or 'None', error_type, http_status, error_message,
+                exc_info=True
+            )
 
 
 async def notify_project_admins(

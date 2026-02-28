@@ -1,9 +1,36 @@
 import logging
+import re
 from typing import Optional, Protocol
 
 from app.config import get_settings
 
 logger = logging.getLogger(__name__)
+
+# Email validation regex pattern
+EMAIL_REGEX = re.compile(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
+
+
+def validate_email(email: str) -> bool:
+    """
+    Validate email address format using regex pattern.
+
+    Args:
+        email: Email address to validate
+
+    Returns:
+        True if email format is valid, False otherwise
+
+    Examples:
+        >>> validate_email('test@example.com')
+        True
+        >>> validate_email('invalid')
+        False
+        >>> validate_email('user@domain')
+        False
+    """
+    if not email or not isinstance(email, str):
+        return False
+    return bool(EMAIL_REGEX.match(email.strip()))
 
 
 class EmailProvider(Protocol):
@@ -88,6 +115,11 @@ class EmailService:
     ) -> dict:
         if not self.enabled:
             raise RuntimeError("Email service is not configured")
+
+        # Validate email address before attempting send
+        if not validate_email(to_email):
+            logger.error(f"Invalid email address format: {to_email}")
+            raise ValueError(f"Invalid email address: {to_email}")
 
         if hasattr(self.provider, 'send_notification_email'):
             return self.provider.send_notification_email(

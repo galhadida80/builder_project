@@ -55,11 +55,30 @@ class Settings(BaseSettings):
     frontend_base_url: str = "http://localhost:5173"
     backend_base_url: str = "http://localhost:8000"
 
+    # Email Configuration
+    # ==================
+    # Email provider to use: "fake" (development/testing), "sendgrid" (production), or "gmail"
+    # - fake: Logs emails to console without sending (safe for development)
+    # - sendgrid: Uses SendGrid API (requires SENDGRID_API_KEY)
+    # - gmail: Uses Gmail OAuth (requires GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REFRESH_TOKEN)
     email_provider: str = "fake"
+
+    # RFI (Request for Information) Email Configuration
+    # Domain for RFI email addresses (e.g., "gmail.com", "company.com")
     rfi_email_domain: str = "gmail.com"
+    # Default email address for RFI notifications
     rfi_email_address: str = "kodkod800@gmail.com"
+
+    # SendGrid Email Provider Configuration
+    # API key for SendGrid service (required when email_provider="sendgrid")
+    # Generate at: https://app.sendgrid.com/settings/api_keys
+    # CRITICAL: Never commit this value - use environment variables or secrets
+    # In Cloud Run: Set as environment variable or use Secret Manager
     sendgrid_api_key: str = ""
+    # "From" email address for SendGrid emails (must be verified in SendGrid)
+    # Verify at: https://app.sendgrid.com/settings/sender_auth/senders
     sendgrid_from_email: str = "kodkod800@gmail.com"
+    # "From" name displayed in email client (shown in recipient's inbox)
     sendgrid_from_name: str = "BuilderOps"
 
     scheduler_secret: str = "dev-scheduler-secret-change-in-production"
@@ -68,8 +87,17 @@ class Settings(BaseSettings):
     aps_client_secret: str = ""
     aps_callback_url: str = "http://localhost:8000/api/v1/bim/callback"
 
+    # Gmail Email Provider Configuration (OAuth 2.0)
+    # Required when email_provider="gmail"
+    # OAuth 2.0 Client ID from Google Cloud Console
+    # Generate at: https://console.cloud.google.com/apis/credentials
+    # Enable Gmail API at: https://console.cloud.google.com/apis/library/gmail.googleapis.com
     gmail_client_id: str = ""
+    # OAuth 2.0 Client Secret from Google Cloud Console
     gmail_client_secret: str = ""
+    # OAuth 2.0 Refresh Token (obtained via OAuth flow)
+    # Used to obtain access tokens for Gmail API access
+    # Obtain via: https://developers.google.com/oauthplayground/ with Gmail API scope
     gmail_refresh_token: str = ""
 
     ical_feed_secret: str = "dev-ical-feed-secret-change-in-production"
