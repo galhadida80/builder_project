@@ -79,11 +79,11 @@ export function ScheduleRiskPanel({ projectId: propProjectId, onRefresh }: Sched
     const now = new Date()
     const diffMs = now.getTime() - date.getTime()
     const diffMins = Math.floor(diffMs / 60000)
-    if (diffMins < 60) return t('scheduleRisk.minutesAgo', { count: diffMins }, `${diffMins} minutes ago`)
+    if (diffMins < 60) return t('scheduleRisk.minutesAgo', { count: diffMins, defaultValue: `${diffMins} minutes ago` })
     const diffHours = Math.floor(diffMins / 60)
-    if (diffHours < 24) return t('scheduleRisk.hoursAgo', { count: diffHours }, `${diffHours} hours ago`)
+    if (diffHours < 24) return t('scheduleRisk.hoursAgo', { count: diffHours, defaultValue: `${diffHours} hours ago` })
     const diffDays = Math.floor(diffHours / 24)
-    return t('scheduleRisk.daysAgo', { count: diffDays }, `${diffDays} days ago`)
+    return t('scheduleRisk.daysAgo', { count: diffDays, defaultValue: `${diffDays} days ago` })
   }
 
   if (loading) {
@@ -238,7 +238,7 @@ export function ScheduleRiskPanel({ projectId: propProjectId, onRefresh }: Sched
                     primary={
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
                         <Typography variant="body2" sx={{ fontWeight: 500, fontSize: { xs: '0.875rem', sm: '0.95rem' } }}>
-                          {t('scheduleRisk.taskRisk', { task: risk.taskId }, `Task ${risk.taskId}`)}
+                          {t('scheduleRisk.taskRisk', { task: risk.taskId, defaultValue: `Task ${risk.taskId}` })}
                         </Typography>
                         <Chip
                           label={t(`scheduleRisk.riskLevel.${risk.riskLevel}`, riskConfig.label)}
@@ -258,7 +258,7 @@ export function ScheduleRiskPanel({ projectId: propProjectId, onRefresh }: Sched
                         <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: { xs: '0.7rem', sm: '0.75rem' } }}>
                           {t('scheduleRisk.confidence', 'Confidence')}: {formatConfidenceScore(risk.confidenceScore)}
                           {risk.predictedDelayDays !== undefined && risk.predictedDelayDays > 0 && (
-                            <> • {t('scheduleRisk.predictedDelay', { days: risk.predictedDelayDays }, `~${risk.predictedDelayDays} days delay`)}</>
+                            <> • {t('scheduleRisk.predictedDelay', { days: risk.predictedDelayDays, defaultValue: `~${risk.predictedDelayDays} days delay` })}</>
                           )}
                         </Typography>
                       </Box>

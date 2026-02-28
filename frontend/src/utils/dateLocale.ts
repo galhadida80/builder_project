@@ -5,6 +5,6 @@ const LOCALE_MAP: Record<string, string> = {
   en: 'en-US',
 }
 
-export function getDateLocale(): string {
-  return LOCALE_MAP[i18n.language] || 'en-US'
+export function getDateLocale(lang?: string): string {
+  return LOCALE_MAP[lang || i18n.language] || 'en-US'
 }

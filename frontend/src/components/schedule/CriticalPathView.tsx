@@ -41,7 +41,7 @@ const TaskItem = ({ task, index, formatDate, formatDuration, t }: {
   index: number
   formatDate: (dateStr?: string) => string
   formatDuration: (days: number) => string
-  t: (key: string, fallback?: string) => string
+  t: (key: string, options?: string | Record<string, unknown>) => string
 }) => (
   <ListItem
     sx={{
@@ -164,7 +164,7 @@ export function CriticalPathView({ projectId: propProjectId }: CriticalPathViewP
 
   const formatDuration = (days: number) => {
     if (days === 1) return t('scheduleRisk.criticalPath.oneDay', '1 day')
-    return t('scheduleRisk.criticalPath.daysCount', { count: days }, `${days} days`)
+    return t('scheduleRisk.criticalPath.daysCount', { count: days, defaultValue: `${days} days` })
   }
 
   if (loading) {
