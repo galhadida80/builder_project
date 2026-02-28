@@ -1,4 +1,7 @@
 import { apiClient } from './client'
+import type { Task, ApprovalRequest } from '../types'
+import type { PaginatedRFIResponse } from './rfi'
+import type { TimelineEvent } from './clientPortal'
 
 export interface SubcontractorProfile {
   id: string
@@ -55,6 +58,34 @@ export interface SubcontractorPortalData {
   trade: string | null
 }
 
+export interface TaskStats {
+  total: number
+  inProgress: number
+  completed: number
+  overdue: number
+}
+
+export interface RFIStats {
+  total: number
+  open: number
+  waitingResponse: number
+  answered: number
+}
+
+export interface ApprovalStats {
+  total: number
+  pending: number
+  approved: number
+  rejected: number
+}
+
+export interface SubcontractorDashboardResponse {
+  taskStats: TaskStats
+  rfiStats: RFIStats
+  approvalStats: ApprovalStats
+  upcomingDeadlines: number
+}
+
 export const subcontractorsApi = {
   list: async (projectId: string, trade?: string, verifiedOnly?: boolean): Promise<SubcontractorProfile[]> => {
     const response = await apiClient.get<SubcontractorProfile[]>(
@@ -96,6 +127,49 @@ export const subcontractorsApi = {
     const response = await apiClient.get<SubcontractorPortalData>(
       `/projects/${projectId}/subcontractors/portal`
     )
+    return response.data
+  },
+
+  getMyTasks: async (status?: string, priority?: string): Promise<Task[]> => {
+    const params = new URLSearchParams()
+    if (status) params.append('status', status)
+    if (priority) params.append('priority', priority)
+    const url = `/subcontractors/my-tasks${params.toString() ? `?${params}` : ''}`
+    const response = await apiClient.get<Task[]>(url)
+    return response.data
+  },
+
+  getMyRFIs: async (
+    status?: string,
+    priority?: string,
+    search?: string,
+    page?: number,
+    pageSize?: number
+  ): Promise<PaginatedRFIResponse> => {
+    const params = new URLSearchParams()
+    if (status) params.append('status', status)
+    if (priority) params.append('priority', priority)
+    if (search) params.append('search', search)
+    if (page) params.append('page', page.toString())
+    if (pageSize) params.append('page_size', pageSize.toString())
+    const url = `/subcontractors/my-rfis${params.toString() ? `?${params}` : ''}`
+    const response = await apiClient.get<PaginatedRFIResponse>(url)
+    return response.data
+  },
+
+  getMyApprovals: async (): Promise<ApprovalRequest[]> => {
+    const response = await apiClient.get<ApprovalRequest[]>('/subcontractors/my-approvals')
+    return response.data
+  },
+
+  getActivityFeed: async (limit?: number): Promise<TimelineEvent[]> => {
+    const params = limit ? `?limit=${limit}` : ''
+    const response = await apiClient.get<TimelineEvent[]>(`/subcontractors/activity-feed${params}`)
+    return response.data
+  },
+
+  getDashboard: async (): Promise<SubcontractorDashboardResponse> => {
+    const response = await apiClient.get<SubcontractorDashboardResponse>('/subcontractors/dashboard')
     return response.data
   },
 }
