@@ -7,10 +7,11 @@ from pydantic import BaseModel
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.security import get_current_user, verify_project_access
+from app.core.security import get_current_user
 from app.db.session import get_db
 from app.models.chat import ChatConversation, ChatMessage
 from app.models.chat_action import ChatAction
+from app.models.project import Project, ProjectMember
 from app.models.user import User
 from app.schemas.chat import (
     ChatMessageRequest,
@@ -28,6 +29,20 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
+async def verify_project_exists(
+    project_id: UUID, current_user: User, db: AsyncSession
+) -> None:
+    """Verify that the project exists and the user has access to it."""
+    result = await db.execute(
+        select(Project)
+        .join(ProjectMember, Project.id == ProjectMember.project_id)
+        .where(Project.id == project_id, ProjectMember.user_id == current_user.id)
+    )
+    project = result.scalar_one_or_none()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+
 class RejectRequest(BaseModel):
     reason: Optional[str] = None
 
@@ -39,7 +54,7 @@ async def chat_send(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    await verify_project_access(project_id, current_user, db)
+    await verify_project_exists(project_id, current_user, db)
     try:
         result = await send_message(
             db=db,
@@ -81,6 +96,8 @@ async def chat_send(
         )
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Chat error: {e}", exc_info=True)
         error_str = str(e)
@@ -96,7 +113,7 @@ async def execute_chat_action(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    await verify_project_access(project_id, current_user, db)
+    await verify_project_exists(project_id, current_user, db)
 
     result = await db.execute(
         select(ChatAction)
@@ -142,7 +159,7 @@ async def reject_chat_action(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    await verify_project_access(project_id, current_user, db)
+    await verify_project_exists(project_id, current_user, db)
 
     result = await db.execute(
         select(ChatAction)
@@ -171,7 +188,7 @@ async def list_conversations(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    await verify_project_access(project_id, current_user, db)
+    await verify_project_exists(project_id, current_user, db)
 
     result = await db.execute(
         select(
@@ -208,7 +225,7 @@ async def get_conversation(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    await verify_project_access(project_id, current_user, db)
+    await verify_project_exists(project_id, current_user, db)
 
     result = await db.execute(
         select(ChatConversation).where(
@@ -266,7 +283,7 @@ async def delete_conversation(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    await verify_project_access(project_id, current_user, db)
+    await verify_project_exists(project_id, current_user, db)
 
     result = await db.execute(
         select(ChatConversation).where(
@@ -290,7 +307,7 @@ async def get_chat_suggestions(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    await verify_project_access(project_id, current_user, db)
+    await verify_project_exists(project_id, current_user, db)
 
     from app.services.chat_tools import (
         count_defects_by_status,
