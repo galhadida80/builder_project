@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
-import { PageHeader } from '../components/ui/Breadcrumbs'
 import { EmptyState } from '../components/ui/EmptyState'
 import { FormModal } from '../components/ui/Modal'
-import { TextField } from '../components/ui/TextField'
+import { Tabs, TabPanel } from '../components/ui/Tabs'
 import { useToast } from '../components/common/ToastProvider'
-import { subcontractorsApi, SubcontractorProfile, SubcontractorProfileCreate } from '../api/subcontractors'
-import { getDateLocale } from '../utils/dateLocale'
-import { Box, Typography, Chip, Skeleton, Fab, useTheme, useMediaQuery } from '@/mui'
-import { EditIcon, PersonIcon, CheckCircleIcon } from '@/icons'
+import { subcontractorsApi, SubcontractorProfile, SubcontractorProfileCreate, SubcontractorDashboardResponse } from '../api/subcontractors'
+import { PortalDashboard } from '../components/subcontractor-portal/PortalDashboard'
+import { ProfileView } from '../components/subcontractor-portal/ProfileView'
+import { ProfileForm } from '../components/subcontractor-portal/ProfileForm'
+import { Box, Typography, Skeleton, Fab, Paper, alpha, useTheme, useMediaQuery } from '@/mui'
+import { EditIcon, PersonIcon, CheckCircleIcon, DashboardIcon, WorkIcon } from '@/icons'
 
 export default function SubcontractorPortalPage() {
   const { t } = useTranslation()
@@ -18,8 +18,11 @@ export default function SubcontractorPortalPage() {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
 
+  const [activeTab, setActiveTab] = useState('dashboard')
   const [profile, setProfile] = useState<SubcontractorProfile | null>(null)
+  const [dashboard, setDashboard] = useState<SubcontractorDashboardResponse | null>(null)
   const [loading, setLoading] = useState(true)
+  const [dashboardLoading, setDashboardLoading] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [saving, setSaving] = useState(false)
   const [form, setForm] = useState<SubcontractorProfileCreate>({
@@ -37,6 +40,12 @@ export default function SubcontractorPortalPage() {
     loadProfile()
   }, [])
 
+  useEffect(() => {
+    if (profile && activeTab === 'dashboard' && !dashboard) {
+      loadDashboard()
+    }
+  }, [activeTab, profile, dashboard])
+
   const loadProfile = async () => {
     setLoading(true)
     try {
@@ -46,6 +55,18 @@ export default function SubcontractorPortalPage() {
       setProfile(null)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const loadDashboard = async () => {
+    setDashboardLoading(true)
+    try {
+      const data = await subcontractorsApi.getDashboard()
+      setDashboard(data)
+    } catch {
+      showError(t('subcontractorPortal.dashboardLoadFailed'))
+    } finally {
+      setDashboardLoading(false)
     }
   }
 
@@ -90,75 +111,133 @@ export default function SubcontractorPortalPage() {
 
   if (loading) {
     return (
-      <Box>
-        <PageHeader title={t('subcontractors.portalTitle')} subtitle={t('subcontractors.portalSubtitle')} />
-        <Box sx={{ p: { xs: 2, sm: 3 } }}>
-          <Skeleton variant="text" width={250} height={48} sx={{ mb: 1 }} />
-          <Skeleton variant="text" width={200} height={24} sx={{ mb: 3 }} />
-          <Skeleton variant="rounded" height={200} sx={{ borderRadius: 3, mb: 2 }} />
-          <Skeleton variant="rounded" height={100} sx={{ borderRadius: 3 }} />
-        </Box>
+      <Box sx={{ p: { xs: 2, sm: 3 }, maxWidth: '100%', overflow: 'hidden' }}>
+        <Skeleton variant="text" width={200} height={32} sx={{ mb: 1 }} />
+        <Skeleton variant="text" width={300} height={20} sx={{ mb: 3 }} />
+        <Skeleton variant="rounded" height={48} sx={{ borderRadius: 2, mb: 2 }} />
+        <Skeleton variant="rounded" height={250} sx={{ borderRadius: 3, mb: 3 }} />
+        <Skeleton variant="rounded" height={300} sx={{ borderRadius: 3 }} />
       </Box>
     )
   }
 
-  return (
-    <Box>
-      <PageHeader
-        title={t('subcontractors.portalTitle')}
-        subtitle={t('subcontractors.portalSubtitle')}
-        actions={
-          <Button startIcon={profile ? <EditIcon /> : <PersonIcon />} onClick={openEditDialog}>
-            {profile ? t('subcontractors.editProfile') : t('subcontractors.createProfile')}
-          </Button>
-        }
-      />
-
-      {!profile ? (
+  if (!profile) {
+    return (
+      <Box sx={{ p: { xs: 2, sm: 3 } }}>
         <EmptyState
           icon={<PersonIcon sx={{ fontSize: 48 }} />}
           title={t('subcontractors.noProfile')}
           description={t('subcontractors.noProfileDescription')}
           action={{ label: t('subcontractors.createProfile'), onClick: openEditDialog }}
         />
-      ) : (
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <Card sx={{ p: 3 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-              <Typography variant="h6">{profile.companyName}</Typography>
-              <Chip
-                icon={profile.isVerified ? <CheckCircleIcon /> : undefined}
-                label={profile.isVerified ? t('subcontractors.verified') : t('subcontractors.unverified')}
-                color={profile.isVerified ? 'success' : 'default'}
-              />
-            </Box>
-            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2 }}>
-              <InfoRow label={t('subcontractors.trade')} value={t(`subcontractors.trades.${profile.trade}`, profile.trade)} />
-              <InfoRow label={t('subcontractors.licenseNumber')} value={profile.licenseNumber} />
-              <InfoRow label={t('subcontractors.contactEmail')} value={profile.contactEmail} />
-              <InfoRow label={t('subcontractors.contactPhone')} value={profile.contactPhone} />
-              <InfoRow label={t('subcontractors.address')} value={profile.address} />
-              <InfoRow label={t('subcontractors.insuranceExpiry')} value={profile.insuranceExpiry ? new Date(profile.insuranceExpiry).toLocaleDateString(getDateLocale()) : undefined} />
-            </Box>
-            {profile.certifications.length > 0 && (
-              <Box sx={{ mt: 2 }}>
-                <Typography variant="subtitle2" sx={{ mb: 1 }}>{t('subcontractors.certifications')}</Typography>
-                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                  {profile.certifications.map((cert, i) => (
-                    <Chip key={i} label={cert} size="small" variant="outlined" />
-                  ))}
-                </Box>
-              </Box>
-            )}
-            {profile.notes && (
-              <Box sx={{ mt: 2 }}>
-                <Typography variant="subtitle2">{t('subcontractors.notes')}</Typography>
-                <Typography variant="body2" color="text.secondary">{profile.notes}</Typography>
-              </Box>
-            )}
-          </Card>
+        <FormModal
+          open={dialogOpen}
+          onClose={() => setDialogOpen(false)}
+          onSubmit={handleSave}
+          title={t('subcontractors.createProfile')}
+          submitLabel={saving ? t('subcontractors.saving') : t('subcontractors.save')}
+          loading={saving}
+        >
+          <ProfileForm form={form} onChange={setForm} />
+        </FormModal>
+      </Box>
+    )
+  }
+
+  return (
+    <Box sx={{ p: { xs: 2, sm: 3 }, maxWidth: '100%', overflow: 'hidden' }}>
+      <Box sx={{ mb: 3 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 40,
+              height: 40,
+              borderRadius: 2,
+              background: (theme) =>
+                `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.2)}, ${alpha(theme.palette.primary.main, 0.08)})`,
+              color: 'primary.main',
+              flexShrink: 0,
+            }}
+          >
+            <WorkIcon sx={{ fontSize: '1.25rem' }} />
+          </Box>
+          <Typography
+            variant="h5"
+            sx={{ fontWeight: 700, fontSize: { xs: '1.25rem', sm: '1.5rem' } }}
+          >
+            {t('subcontractorPortal.title')}
+          </Typography>
         </Box>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
+          <Typography
+            variant="body1"
+            sx={{ color: 'text.secondary', fontSize: { xs: '0.9rem', sm: '1rem' }, ml: { xs: 0, sm: 7 } }}
+          >
+            {profile.companyName}
+          </Typography>
+          {!isMobile && (
+            <Button startIcon={<EditIcon />} onClick={openEditDialog} size="small">
+              {t('subcontractors.editProfile')}
+            </Button>
+          )}
+        </Box>
+      </Box>
+
+      {profile.isVerified && (
+        <Paper
+          sx={{
+            borderRadius: 3,
+            p: { xs: 2, sm: 2.5 },
+            mb: 3,
+            bgcolor: (theme) => alpha(theme.palette.success.main, 0.04),
+            border: 1,
+            borderColor: (theme) => alpha(theme.palette.success.main, 0.12),
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1.5,
+          }}
+        >
+          <CheckCircleIcon sx={{ color: 'success.main', fontSize: '1.25rem' }} />
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'success.main',
+              fontSize: { xs: '0.85rem', sm: '0.9rem' },
+              fontWeight: 600,
+            }}
+          >
+            {t('subcontractors.verifiedProfile')}
+          </Typography>
+        </Paper>
       )}
+
+      <Tabs
+        items={[
+          {
+            label: t('subcontractorPortal.dashboard'),
+            value: 'dashboard',
+            icon: <DashboardIcon sx={{ fontSize: '1rem' }} />,
+          },
+          {
+            label: t('subcontractorPortal.profile'),
+            value: 'profile',
+            icon: <PersonIcon sx={{ fontSize: '1rem' }} />,
+          },
+        ]}
+        value={activeTab}
+        onChange={setActiveTab}
+      />
+
+      <TabPanel value="dashboard" activeValue={activeTab}>
+        <PortalDashboard dashboard={dashboard} loading={dashboardLoading} />
+      </TabPanel>
+
+      <TabPanel value="profile" activeValue={activeTab}>
+        <ProfileView profile={profile} />
+      </TabPanel>
 
       <FormModal
         open={dialogOpen}
@@ -168,56 +247,7 @@ export default function SubcontractorPortalPage() {
         submitLabel={saving ? t('subcontractors.saving') : t('subcontractors.save')}
         loading={saving}
       >
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <TextField
-            label={t('subcontractors.companyName')}
-            value={form.companyName}
-            onChange={(e) => setForm({ ...form, companyName: e.target.value })}
-            required
-            fullWidth
-          />
-          <TextField
-            label={t('subcontractors.trade')}
-            value={form.trade}
-            onChange={(e) => setForm({ ...form, trade: e.target.value })}
-            required
-            fullWidth
-          />
-          <TextField
-            label={t('subcontractors.licenseNumber')}
-            value={form.licenseNumber}
-            onChange={(e) => setForm({ ...form, licenseNumber: e.target.value })}
-            fullWidth
-          />
-          <TextField
-            label={t('subcontractors.contactEmail')}
-            value={form.contactEmail}
-            onChange={(e) => setForm({ ...form, contactEmail: e.target.value })}
-            fullWidth
-          />
-          <TextField
-            label={t('subcontractors.contactPhone')}
-            value={form.contactPhone}
-            onChange={(e) => setForm({ ...form, contactPhone: e.target.value })}
-            fullWidth
-          />
-          <TextField
-            label={t('subcontractors.address')}
-            value={form.address}
-            onChange={(e) => setForm({ ...form, address: e.target.value })}
-            multiline
-            rows={2}
-            fullWidth
-          />
-          <TextField
-            label={t('subcontractors.notes')}
-            value={form.notes}
-            onChange={(e) => setForm({ ...form, notes: e.target.value })}
-            multiline
-            rows={2}
-            fullWidth
-          />
-        </Box>
+        <ProfileForm form={form} onChange={setForm} />
       </FormModal>
 
       {isMobile && (
@@ -226,18 +256,9 @@ export default function SubcontractorPortalPage() {
           onClick={openEditDialog}
           sx={{ position: 'fixed', bottom: 80, insetInlineEnd: 16, zIndex: 10 }}
         >
-          {profile ? <EditIcon /> : <PersonIcon />}
+          <EditIcon />
         </Fab>
       )}
-    </Box>
-  )
-}
-
-function InfoRow({ label, value }: { label: string; value?: string | null }) {
-  return (
-    <Box>
-      <Typography variant="caption" color="text.secondary">{label}</Typography>
-      <Typography variant="body2">{value || '-'}</Typography>
     </Box>
   )
 }
