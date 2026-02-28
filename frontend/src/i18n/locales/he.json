@@ -454,6 +454,8 @@
     "deliveryDate": "תאריך אספקה",
     "stockLevel": "רמת מלאי",
     "supplier": "ספק",
+    "vendor": "ספק",
+    "vendorRating": "דירוג ספק",
     "cost": "עלות",
     "notes": "הערות",
     "draft": "טיוטה",

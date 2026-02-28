@@ -18,7 +18,8 @@ import ContactSelectorDialog from '../components/ui/ContactSelectorDialog'
 import HelpTooltip from '../components/help/HelpTooltip'
 import { materialsApi } from '../api/materials'
 import { filesApi } from '../api/files'
-import type { Material } from '../types'
+import { vendorsApi } from '../api/vendors'
+import type { Material, Vendor } from '../types'
 import { validateMaterialForm, hasErrors, type ValidationError } from '../utils/validation'
 import { parseValidationErrors } from '../utils/apiErrors'
 import { useToast } from '../components/common/ToastProvider'
@@ -42,6 +43,7 @@ export default function MaterialsPage() {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const [loading, setLoading] = useState(true)
   const [materials, setMaterials] = useState<Material[]>([])
+  const [vendors, setVendors] = useState<Vendor[]>([])
   const [totalMaterials, setTotalMaterials] = useState(0)
   const [page, setPage] = useState(1)
   const [rowsPerPage, setRowsPerPage] = useState(20)
@@ -59,7 +61,7 @@ export default function MaterialsPage() {
   const [errors, setErrors] = useState<ValidationError>({})
   const [activeTab, setActiveTab] = useState('all')
   const [activeCategory, setActiveCategory] = useState('all')
-  const [formData, setFormData] = useState({ name: '', templateId: '', manufacturer: '', modelNumber: '', quantity: '', unit: '', expectedDelivery: '', storageLocation: '', notes: '', approvalDueDate: '' })
+  const [formData, setFormData] = useState({ name: '', templateId: '', manufacturer: '', modelNumber: '', quantity: '', unit: '', expectedDelivery: '', storageLocation: '', vendorId: '', notes: '', approvalDueDate: '' })
   const [specificationValues, setSpecificationValues] = useState<Record<string, string | number | boolean>>({})
   const [documentFiles, setDocumentFiles] = useState<Record<string, File | null>>({})
   const [checklistResponses, setChecklistResponses] = useState<Record<string, boolean>>({})
@@ -80,13 +82,13 @@ export default function MaterialsPage() {
       const params: { status?: string; search?: string; page: number; pageSize: number } = { page, pageSize: rowsPerPage }
       if (activeTab !== 'all') params.status = activeTab === 'pending' ? 'submitted' : activeTab
       if (debouncedSearch) params.search = debouncedSearch
-      const result = await materialsApi.list(projectId!, params)
-      setMaterials(result.items); setTotalMaterials(result.total)
+      const [result, vendorList] = await Promise.all([materialsApi.list(projectId!, params), vendorsApi.list()])
+      setMaterials(result.items); setTotalMaterials(result.total); setVendors(vendorList)
     } catch { showError(t('materials.failedToLoadMaterials')) } finally { setLoading(false) }
   }
 
   const resetForm = () => {
-    setFormData({ name: '', templateId: '', manufacturer: '', modelNumber: '', quantity: '', unit: '', expectedDelivery: '', storageLocation: '', notes: '', approvalDueDate: '' })
+    setFormData({ name: '', templateId: '', manufacturer: '', modelNumber: '', quantity: '', unit: '', expectedDelivery: '', storageLocation: '', vendorId: '', notes: '', approvalDueDate: '' })
     setSpecificationValues({}); setDocumentFiles({}); setChecklistResponses({}); setCustomFields([]); setErrors({}); setEditingMaterial(null)
     setApprovers([]); setDistributionList([]); setIsClosed(false)
   }
@@ -104,7 +106,7 @@ export default function MaterialsPage() {
     if (e) e.stopPropagation()
     setEditingMaterial(material)
     const matchingTemplate = materialTemplates.find(t => t.name_he === material.materialType) || materialTemplates.find(t => t.name === material.materialType)
-    setFormData({ name: material.name, templateId: matchingTemplate?.id || '', manufacturer: material.manufacturer || '', modelNumber: material.modelNumber || '', quantity: material.quantity?.toString() || '', unit: material.unit || '', expectedDelivery: material.expectedDelivery || '', storageLocation: material.storageLocation || '', notes: material.notes || '', approvalDueDate: '' })
+    setFormData({ name: material.name, templateId: matchingTemplate?.id || '', manufacturer: material.manufacturer || '', modelNumber: material.modelNumber || '', quantity: material.quantity?.toString() || '', unit: material.unit || '', expectedDelivery: material.expectedDelivery || '', storageLocation: material.storageLocation || '', vendorId: material.vendorId || '', notes: material.notes || '', approvalDueDate: '' })
     setDocumentFiles({}); setChecklistResponses({})
     const existingSpecs = material.specifications || {}
     const templateSpecKeys = new Set(matchingTemplate?.required_specifications?.map(s => s.name) || [])
@@ -126,7 +128,7 @@ export default function MaterialsPage() {
     try {
       const specs: Record<string, unknown> = { ...specificationValues }
       customFields.forEach(f => { specs[f.key] = f.value })
-      const payload = { name: formData.name, material_type: selectedTemplate?.name_he || undefined, manufacturer: formData.manufacturer || undefined, model_number: formData.modelNumber || undefined, quantity: formData.quantity ? parseFloat(formData.quantity) : undefined, unit: formData.unit || undefined, specifications: Object.keys(specs).length > 0 ? specs : undefined, expected_delivery: formData.expectedDelivery || undefined, storage_location: formData.storageLocation || undefined, notes: formData.notes || undefined }
+      const payload = { name: formData.name, material_type: selectedTemplate?.name_he || undefined, manufacturer: formData.manufacturer || undefined, model_number: formData.modelNumber || undefined, quantity: formData.quantity ? parseFloat(formData.quantity) : undefined, unit: formData.unit || undefined, specifications: Object.keys(specs).length > 0 ? specs : undefined, expected_delivery: formData.expectedDelivery || undefined, storage_location: formData.storageLocation || undefined, vendor_id: formData.vendorId || undefined, notes: formData.notes || undefined }
       let entityId: string
       if (editingMaterial) {
         const updated = await withMinDuration(materialsApi.update(projectId, editingMaterial.id, payload))
@@ -329,6 +331,7 @@ export default function MaterialsPage() {
         setDistributionList={setDistributionList}
         isClosed={isClosed}
         setIsClosed={setIsClosed}
+        vendors={vendors}
       />
 
       <ConfirmModal open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)} onConfirm={handleConfirmDelete} title={t('materials.deleteConfirmation')} message={t('materials.deleteConfirmationMessage', { name: materialToDelete?.name })} confirmLabel={t('common.delete')} variant="danger" loading={deleting} />

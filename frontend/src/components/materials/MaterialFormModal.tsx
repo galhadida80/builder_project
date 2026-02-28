@@ -9,9 +9,10 @@ import KeyValueEditor, { type KeyValuePair, MATERIAL_SUGGESTIONS } from '../ui/K
 import RecipientSelector from '../ui/RecipientSelector'
 import type { Recipient } from '../ui/RecipientSelector'
 import type { MaterialTemplate } from '../../api/materialTemplates'
+import type { Vendor } from '../../types'
 import { VALIDATION, type ValidationError } from '../../utils/validation'
 import { InventoryIcon, DescriptionIcon, CheckCircleIcon, CloudUploadIcon, PersonIcon, CalendarTodayIcon, EditNoteIcon, ContentCopyIcon } from '@/icons'
-import { Box, Typography, Divider, MenuItem, TextField as MuiTextField, Chip, Checkbox, FormControlLabel, LinearProgress } from '@/mui'
+import { Box, Typography, Divider, MenuItem, TextField as MuiTextField, Chip, Checkbox, FormControlLabel, LinearProgress, Autocomplete, Tooltip, Rating } from '@/mui'
 
 const UNIT_KEYS = ['ton', 'm3', 'm2', 'm', 'kg', 'unit', 'box', 'pallet', 'roll'] as const
 
@@ -22,7 +23,7 @@ interface MaterialFormModalProps {
   saving: boolean
   editing: boolean
   projectId: string
-  formData: { name: string; templateId: string; manufacturer: string; modelNumber: string; quantity: string; unit: string; expectedDelivery: string; storageLocation: string; notes: string; approvalDueDate: string }
+  formData: { name: string; templateId: string; manufacturer: string; modelNumber: string; quantity: string; unit: string; expectedDelivery: string; storageLocation: string; vendorId: string; notes: string; approvalDueDate: string }
   setFormData: (data: MaterialFormModalProps['formData']) => void
   errors: ValidationError
   templates: MaterialTemplate[]
@@ -41,6 +42,7 @@ interface MaterialFormModalProps {
   setDistributionList: (v: Recipient[]) => void
   isClosed: boolean
   setIsClosed: (v: boolean) => void
+  vendors?: Vendor[]
   formRef?: RefObject<HTMLElement | null>
 }
 
@@ -54,6 +56,7 @@ export default function MaterialFormModal({
   approvers, setApprovers,
   distributionList, setDistributionList,
   isClosed, setIsClosed,
+  vendors = [],
   formRef,
 }: MaterialFormModalProps) {
   const { t } = useTranslation()
@@ -165,6 +168,29 @@ export default function MaterialFormModal({
           <TextField fullWidth label={t('materials.deliveryDate')} type="date" InputLabelProps={{ shrink: true }} value={formData.expectedDelivery} onChange={(e) => setFormData({ ...formData, expectedDelivery: e.target.value })} />
           <TextField fullWidth label={t('materials.storageLocation')} value={formData.storageLocation} onChange={(e) => setFormData({ ...formData, storageLocation: e.target.value })} />
         </Box>
+        <Autocomplete
+          options={vendors}
+          getOptionLabel={(v) => v.companyName}
+          value={vendors.find(v => v.id === formData.vendorId) || null}
+          onChange={(_, newValue) => setFormData({ ...formData, vendorId: newValue?.id || '' })}
+          renderInput={(params) => <MuiTextField {...params} label={t('materials.vendor')} />}
+          renderOption={(props, option) => (
+            <Box component="li" {...props} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Box>
+                <Typography variant="body2">{option.companyName}</Typography>
+                <Typography variant="caption" color="text.secondary">{option.trade}</Typography>
+              </Box>
+              {option.rating && (
+                <Tooltip title={`${t('materials.vendorRating')}: ${option.rating}/5`}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <Rating value={option.rating} readOnly size="small" precision={0.1} />
+                    <Typography variant="caption" color="text.secondary">({option.rating})</Typography>
+                  </Box>
+                </Tooltip>
+              )}
+            </Box>
+          )}
+        />
         <TextField fullWidth label={t('common.notes')} multiline rows={2} value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} error={!!errors.notes || formData.notes.length > VALIDATION.MAX_NOTES_LENGTH} helperText={errors.notes || (formData.notes.length > 0 ? `${formData.notes.length}/${VALIDATION.MAX_NOTES_LENGTH}` : undefined)} />
 
         {/* Template specifications */}

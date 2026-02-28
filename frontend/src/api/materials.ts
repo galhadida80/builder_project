@@ -12,6 +12,7 @@ interface MaterialCreate {
   specifications?: Record<string, unknown>
   expected_delivery?: string
   storage_location?: string
+  vendor_id?: string
   notes?: string
 }
 
@@ -26,6 +27,7 @@ interface MaterialUpdate {
   expected_delivery?: string
   actual_delivery?: string
   storage_location?: string
+  vendor_id?: string
   notes?: string
 }
 

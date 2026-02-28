@@ -241,6 +241,8 @@
     "deliveryDate": "Delivery Date",
     "stockLevel": "Stock Level",
     "supplier": "Supplier",
+    "vendor": "Vendor",
+    "vendorRating": "Vendor Rating",
     "cost": "Cost",
     "notes": "Notes",
     "draft": "Draft",

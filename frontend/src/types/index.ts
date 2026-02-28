@@ -171,6 +171,7 @@ export interface Material {
   expectedDelivery?: string
   actualDelivery?: string
   storageLocation?: string
+  vendorId?: string
   notes?: string
   createdAt: string
   updatedAt: string
