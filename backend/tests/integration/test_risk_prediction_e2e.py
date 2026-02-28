@@ -17,7 +17,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.project import Project
-from app.models.construction_area import ConstructionArea
+from app.models.area import ConstructionArea
 from app.models.defect import Defect
 from app.models.inspection import Inspection
 from app.models.risk_score import RiskScore, RiskLevel
@@ -36,14 +36,13 @@ class TestRiskPredictionE2E:
     """End-to-end integration tests for risk prediction flow"""
 
     @pytest.fixture
-    async def test_project(self, db: AsyncSession, test_user: User) -> Project:
+    async def test_project(self, db: AsyncSession, admin_user: User) -> Project:
         """Create a test project"""
         project = Project(
-            project_name="Risk Prediction Test Project",
-            project_code=f"RISK-{datetime.utcnow().timestamp()}",
-            project_type="residential",
+            name="Risk Prediction Test Project",
+            description="Test project for risk prediction E2E tests",
             status="active",
-            created_by_id=test_user.id,
+            created_by_id=admin_user.id,
         )
         db.add(project)
         await db.commit()
@@ -59,6 +58,7 @@ class TestRiskPredictionE2E:
         for floor in range(1, 4):
             area = ConstructionArea(
                 project_id=test_project.id,
+                name=f"Floor {floor}",
                 area_code=f"FL{floor}",
                 floor_number=floor,
                 total_units=10,
@@ -124,15 +124,17 @@ class TestRiskPredictionE2E:
         ]
 
         created_defects = []
-        for data in defect_data:
+        for idx, data in enumerate(defect_data, start=1):
             defect = Defect(
                 project_id=test_project.id,
+                defect_number=idx,
                 area_id=data["area"].id,
                 severity=data["severity"],
                 category=data["category"],
                 description=data["description"],
                 status="open",
-                detected_date=datetime.utcnow() - timedelta(days=30),
+                created_by_id=test_project.created_by_id,
+                created_at=datetime.utcnow() - timedelta(days=30),
             )
             db.add(defect)
             created_defects.append(defect)
@@ -206,11 +208,13 @@ class TestRiskPredictionE2E:
         # Create defects and risk scores
         defect = Defect(
             project_id=test_project.id,
+            defect_number=1,
             area_id=test_areas[0].id,
             severity="critical",
             category="Structural",
             description="Test defect",
             status="open",
+            created_by_id=test_project.created_by_id,
         )
         db.add(defect)
         await db.commit()
@@ -239,7 +243,7 @@ class TestRiskPredictionE2E:
         db: AsyncSession,
         test_project: Project,
         test_areas: list[ConstructionArea],
-        test_user: User,
+        admin_user: User,
     ):
         """
         Step 5: Get pre-inspection risk briefing
@@ -247,11 +251,13 @@ class TestRiskPredictionE2E:
         # Create defects
         defect = Defect(
             project_id=test_project.id,
+            defect_number=1,
             area_id=test_areas[0].id,
             severity="critical",
             category="Structural",
             description="Foundation issue",
             status="open",
+            created_by_id=admin_user.id,
         )
         db.add(defect)
         await db.commit()
@@ -309,12 +315,14 @@ class TestRiskPredictionE2E:
         for i in range(12):
             defect = Defect(
                 project_id=test_project.id,
+                defect_number=i + 1,
                 area_id=test_areas[i % len(test_areas)].id,
                 severity=severities[i % len(severities)],
                 category=categories[i % len(categories)],
                 description=f"Test defect {i}",
                 status="open",
-                detected_date=datetime.utcnow() - timedelta(days=i * 30),
+                created_by_id=test_project.created_by_id,
+                created_at=datetime.utcnow() - timedelta(days=i * 30),
             )
             db.add(defect)
 
@@ -367,7 +375,7 @@ class TestRiskPredictionE2E:
         db: AsyncSession,
         test_project: Project,
         test_areas: list[ConstructionArea],
-        test_user: User,
+        admin_user: User,
     ):
         """
         Step 7: Verify auto-inspection scheduling when risk threshold exceeded
@@ -389,11 +397,13 @@ class TestRiskPredictionE2E:
         for i in range(3):
             defect = Defect(
                 project_id=test_project.id,
+                defect_number=i + 1,
                 area_id=test_areas[0].id,
                 severity="critical",
                 category="Structural",
                 description=f"Critical issue {i}",
                 status="open",
+                created_by_id=test_project.created_by_id,
             )
             db.add(defect)
 
@@ -424,11 +434,13 @@ class TestRiskPredictionE2E:
         # Initial state: 1 defect
         defect1 = Defect(
             project_id=test_project.id,
+            defect_number=1,
             area_id=test_areas[0].id,
             severity="major",
             category="Structural",
             description="Initial defect",
             status="open",
+            created_by_id=test_project.created_by_id,
         )
         db.add(defect1)
         await db.commit()
@@ -443,11 +455,13 @@ class TestRiskPredictionE2E:
         for i in range(5):
             defect = Defect(
                 project_id=test_project.id,
+                defect_number=i + 2,  # Start from 2 since defect1 is number 1
                 area_id=test_areas[0].id,
                 severity="major" if i < 3 else "minor",
                 category="Structural",
                 description=f"Additional defect {i}",
                 status="open",
+                created_by_id=test_project.created_by_id,
             )
             db.add(defect)
 

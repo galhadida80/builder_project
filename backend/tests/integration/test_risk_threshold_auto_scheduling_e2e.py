@@ -46,7 +46,7 @@ class TestRiskThresholdAutoSchedulingE2E:
         self,
         db: AsyncSession,
         test_project: Project,
-        test_user: User,
+        admin_user: User,
     ):
         """
         Step 1: Configure risk threshold in project settings
@@ -65,7 +65,7 @@ class TestRiskThresholdAutoSchedulingE2E:
             critical_threshold=Decimal("90.0"),
             auto_schedule_inspections=True,
             auto_schedule_threshold="high",  # Schedule when risk >= high
-            created_by_id=test_user.id,
+            created_by_id=admin_user.id,
         )
 
         db.add(threshold)
@@ -108,11 +108,13 @@ class TestRiskThresholdAutoSchedulingE2E:
         for i in range(3):
             defect = Defect(
                 project_id=test_project.id,
+                defect_number=i + 1,
                 area_id=test_areas[0].id,
                 severity="critical",
                 category="Structural",
                 description=f"Critical structural issue {i + 1}",
                 status="open",
+                created_by_id=test_project.created_by_id,
             )
             db.add(defect)
             defects.append(defect)
@@ -121,11 +123,13 @@ class TestRiskThresholdAutoSchedulingE2E:
         for i in range(2):
             defect = Defect(
                 project_id=test_project.id,
+                defect_number=i + 4,  # Continue numbering after critical defects
                 area_id=test_areas[0].id,
                 severity="major",
                 category="Electrical",
                 description=f"Major electrical issue {i + 1}",
                 status="open",
+                created_by_id=test_project.created_by_id,
             )
             db.add(defect)
             defects.append(defect)
@@ -150,7 +154,7 @@ class TestRiskThresholdAutoSchedulingE2E:
         db: AsyncSession,
         test_project: Project,
         test_areas: list[ConstructionArea],
-        test_user: User,
+        admin_user: User,
     ):
         """
         Step 3: Verify risk score exceeds threshold
@@ -206,7 +210,7 @@ class TestRiskThresholdAutoSchedulingE2E:
         db: AsyncSession,
         test_project: Project,
         test_areas: list[ConstructionArea],
-        test_user: User,
+        admin_user: User,
     ):
         """
         Step 4: Confirm inspection auto-scheduled
@@ -237,11 +241,13 @@ class TestRiskThresholdAutoSchedulingE2E:
         for i in range(4):
             defect = Defect(
                 project_id=test_project.id,
+                defect_number=i + 1,
                 area_id=test_areas[0].id,
                 severity="critical",
                 category="Structural",
                 description=f"Critical issue {i}",
                 status="open",
+                created_by_id=test_project.created_by_id,
             )
             db.add(defect)
 
@@ -260,7 +266,7 @@ class TestRiskThresholdAutoSchedulingE2E:
             db=db,
             project_id=test_project.id,
             risk_score=risk_score,
-            current_user=test_user,
+            current_user=admin_user,
         )
 
         # Verify inspection was auto-scheduled
@@ -292,7 +298,7 @@ class TestRiskThresholdAutoSchedulingE2E:
         db: AsyncSession,
         test_project: Project,
         test_areas: list[ConstructionArea],
-        test_user: User,
+        admin_user: User,
     ):
         """
         Step 5: Check notification sent to inspector
@@ -313,7 +319,7 @@ class TestRiskThresholdAutoSchedulingE2E:
         # Add project member with inspector role
         member = ProjectMember(
             project_id=test_project.id,
-            user_id=test_user.id,
+            user_id=admin_user.id,
             role="inspector",
         )
         db.add(member)
@@ -331,11 +337,13 @@ class TestRiskThresholdAutoSchedulingE2E:
         for i in range(4):
             defect = Defect(
                 project_id=test_project.id,
+                defect_number=i + 1,
                 area_id=test_areas[0].id,
                 severity="critical",
                 category="Structural",
                 description=f"Critical issue {i}",
                 status="open",
+                created_by_id=admin_user.id,
             )
             db.add(defect)
 
@@ -354,13 +362,13 @@ class TestRiskThresholdAutoSchedulingE2E:
             db=db,
             project_id=test_project.id,
             risk_score=risk_score,
-            current_user=test_user,
+            current_user=admin_user,
         )
 
         # Verify notifications were sent
         query = (
             select(Notification)
-            .where(Notification.user_id == test_user.id)
+            .where(Notification.user_id == admin_user.id)
             .where(Notification.category == "inspection")
             .order_by(Notification.created_at.desc())
         )
@@ -387,7 +395,7 @@ class TestRiskThresholdAutoSchedulingE2E:
         db: AsyncSession,
         test_project: Project,
         test_areas: list[ConstructionArea],
-        test_user: User,
+        admin_user: User,
     ):
         """
         Complete end-to-end test of the entire auto-scheduling workflow.
@@ -404,7 +412,7 @@ class TestRiskThresholdAutoSchedulingE2E:
             critical_threshold=Decimal("90.0"),
             auto_schedule_inspections=True,
             auto_schedule_threshold="high",
-            created_by_id=test_user.id,
+            created_by_id=admin_user.id,
         )
         db.add(threshold)
 
@@ -418,7 +426,7 @@ class TestRiskThresholdAutoSchedulingE2E:
         # Add project member
         member = ProjectMember(
             project_id=test_project.id,
-            user_id=test_user.id,
+            user_id=admin_user.id,
             role="inspector",
         )
         db.add(member)
@@ -431,11 +439,13 @@ class TestRiskThresholdAutoSchedulingE2E:
             severity = "critical" if i < 3 else "major"
             defect = Defect(
                 project_id=test_project.id,
+                defect_number=i + 1,
                 area_id=test_areas[0].id,
                 severity=severity,
                 category="Structural" if severity == "critical" else "Electrical",
                 description=f"{severity.capitalize()} issue {i + 1}",
                 status="open",
+                created_by_id=admin_user.id,
             )
             db.add(defect)
             defects.append(defect)
@@ -459,7 +469,7 @@ class TestRiskThresholdAutoSchedulingE2E:
             db=db,
             project_id=test_project.id,
             risk_score=risk_score,
-            current_user=test_user,
+            current_user=admin_user,
         )
 
         # Verify inspection was created
@@ -477,7 +487,7 @@ class TestRiskThresholdAutoSchedulingE2E:
         # Step 5: Verify notification was sent
         notification_query = (
             select(Notification)
-            .where(Notification.user_id == test_user.id)
+            .where(Notification.user_id == admin_user.id)
             .where(Notification.category == "inspection")
         )
         notification_result = await db.execute(notification_query)
@@ -500,7 +510,7 @@ class TestRiskThresholdAutoSchedulingE2E:
         db: AsyncSession,
         test_project: Project,
         test_areas: list[ConstructionArea],
-        test_user: User,
+        admin_user: User,
     ):
         """
         Verify that inspections are NOT auto-scheduled when feature is disabled.
@@ -524,11 +534,13 @@ class TestRiskThresholdAutoSchedulingE2E:
         for i in range(4):
             defect = Defect(
                 project_id=test_project.id,
+                defect_number=i + 1,
                 area_id=test_areas[0].id,
                 severity="critical",
                 category="Structural",
                 description=f"Critical issue {i}",
                 status="open",
+                created_by_id=test_project.created_by_id,
             )
             db.add(defect)
 
@@ -547,7 +559,7 @@ class TestRiskThresholdAutoSchedulingE2E:
             db=db,
             project_id=test_project.id,
             risk_score=risk_score,
-            current_user=test_user,
+            current_user=admin_user,
         )
 
         # Verify NO inspection was created
@@ -565,7 +577,7 @@ class TestRiskThresholdAutoSchedulingE2E:
         db: AsyncSession,
         test_project: Project,
         test_areas: list[ConstructionArea],
-        test_user: User,
+        admin_user: User,
     ):
         """
         Verify that inspections are NOT auto-scheduled when risk score is below threshold.
@@ -588,11 +600,13 @@ class TestRiskThresholdAutoSchedulingE2E:
         # Create only 1 minor defect (low risk)
         defect = Defect(
             project_id=test_project.id,
+            defect_number=1,
             area_id=test_areas[0].id,
             severity="minor",
             category="Cosmetic",
             description="Minor cosmetic issue",
             status="open",
+            created_by_id=test_project.created_by_id,
         )
         db.add(defect)
 
@@ -611,7 +625,7 @@ class TestRiskThresholdAutoSchedulingE2E:
             db=db,
             project_id=test_project.id,
             risk_score=risk_score,
-            current_user=test_user,
+            current_user=admin_user,
         )
 
         # Verify NO inspection was created

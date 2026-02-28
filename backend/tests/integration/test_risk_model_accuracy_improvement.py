@@ -20,7 +20,7 @@ from app.models.area import ConstructionArea
 from app.models.defect import Defect
 from app.models.inspection import Inspection
 from app.models.risk_score import RiskScore, RiskLevel
-from app.models.consultant_type import ConsultantType
+from app.models.inspection_template import InspectionConsultantType
 from app.models.user import User
 from app.services.risk_prediction_service import (
     calculate_area_risk_score,
@@ -34,14 +34,13 @@ class TestRiskModelAccuracyImprovement:
     """Test that risk model accuracy improves with more data"""
 
     @pytest.fixture
-    async def test_project(self, db: AsyncSession, test_user: User) -> Project:
+    async def test_project(self, db: AsyncSession, admin_user: User) -> Project:
         """Create a test project"""
         project = Project(
-            project_name="Risk Model Accuracy Test",
-            project_code=f"ACCURACY-{datetime.utcnow().timestamp()}",
-            project_type="residential",
+            name="Risk Model Accuracy Test",
+            description="Test project for risk model accuracy improvement",
             status="active",
-            created_by_id=test_user.id,
+            created_by_id=admin_user.id,
         )
         db.add(project)
         await db.commit()
@@ -57,6 +56,7 @@ class TestRiskModelAccuracyImprovement:
         for floor in range(1, 6):
             area = ConstructionArea(
                 project_id=test_project.id,
+                name=f"Floor {floor}",
                 area_code=f"FL{floor}",
                 floor_number=floor,
                 total_units=10,
@@ -70,16 +70,15 @@ class TestRiskModelAccuracyImprovement:
         return areas
 
     @pytest.fixture
-    async def consultant_type(self, db: AsyncSession) -> ConsultantType:
+    async def consultant_type(self, db: AsyncSession) -> InspectionConsultantType:
         """Get or create consultant type"""
         result = await db.execute(
-            select(ConsultantType).where(ConsultantType.type_code == "structural")
+            select(InspectionConsultantType).where(InspectionConsultantType.name == "Structural Inspector")
         )
         consultant = result.scalar_one_or_none()
         if not consultant:
-            consultant = ConsultantType(
-                type_code="structural",
-                type_name="Structural Inspector",
+            consultant = InspectionConsultantType(
+                name="Structural Inspector",
                 description="Structural inspection",
             )
             db.add(consultant)
@@ -138,15 +137,17 @@ class TestRiskModelAccuracyImprovement:
             },
         ]
 
-        for defect_data in baseline_defects:
+        for idx, defect_data in enumerate(baseline_defects, start=1):
             defect = Defect(
                 project_id=test_project.id,
+                defect_number=idx,
                 area_id=defect_data["area"].id,
                 severity=defect_data["severity"],
                 category=defect_data["category"],
                 description=defect_data["description"],
                 status="open",
-                detected_date=datetime.utcnow() - timedelta(days=defect_data["days_ago"]),
+                created_by_id=test_project.created_by_id,
+                created_at=datetime.utcnow() - timedelta(days=defect_data["days_ago"]),
             )
             db.add(defect)
 
@@ -205,15 +206,17 @@ class TestRiskModelAccuracyImprovement:
             {"area": 2, "severity": "low", "category": "painting", "days_ago": 10},
         ]
 
-        for defect_data in baseline_defects_data:
+        for idx, defect_data in enumerate(baseline_defects_data, start=1):
             defect = Defect(
                 project_id=test_project.id,
+                defect_number=idx,
                 area_id=test_areas[defect_data["area"]].id,
                 severity=defect_data["severity"],
                 category=defect_data["category"],
                 description=f"Baseline defect",
                 status="open",
-                detected_date=datetime.utcnow() - timedelta(days=defect_data["days_ago"]),
+                created_by_id=test_project.created_by_id,
+                created_at=datetime.utcnow() - timedelta(days=defect_data["days_ago"]),
             )
             db.add(defect)
 
@@ -261,15 +264,17 @@ class TestRiskModelAccuracyImprovement:
             {"area": 4, "severity": "low", "category": "insulation", "days_ago": 4},
         ]
 
-        for defect_data in additional_defects:
+        for idx, defect_data in enumerate(additional_defects, start=6):  # Start from 6, after baseline defects
             defect = Defect(
                 project_id=test_project.id,
+                defect_number=idx,
                 area_id=test_areas[defect_data["area"]].id,
                 severity=defect_data["severity"],
                 category=defect_data["category"],
                 description=f"{defect_data['category']} issue",
                 status="open",
-                detected_date=datetime.utcnow() - timedelta(days=defect_data["days_ago"]),
+                created_by_id=test_project.created_by_id,
+                created_at=datetime.utcnow() - timedelta(days=defect_data["days_ago"]),
             )
             db.add(defect)
 
@@ -327,12 +332,14 @@ class TestRiskModelAccuracyImprovement:
         for i in range(3):
             defect = Defect(
                 project_id=test_project.id,
+                defect_number=i + 1,
                 area_id=test_areas[0].id,
                 severity="high",
                 category="structural",
                 description=f"Structural issue {i}",
                 status="open",
-                detected_date=datetime.utcnow() - timedelta(days=20 - i),
+                created_by_id=test_project.created_by_id,
+                created_at=datetime.utcnow() - timedelta(days=20 - i),
             )
             db.add(defect)
             initial_defects.append(defect)
@@ -356,12 +363,14 @@ class TestRiskModelAccuracyImprovement:
         for i in range(5):
             defect = Defect(
                 project_id=test_project.id,
+                defect_number=i + 4,  # Continue numbering after initial 3 defects
                 area_id=test_areas[0].id,
                 severity="high" if i < 3 else "critical",
                 category="structural",
                 description=f"Additional structural issue {i}",
                 status="open",
-                detected_date=datetime.utcnow() - timedelta(days=10 - i),
+                created_by_id=test_project.created_by_id,
+                created_at=datetime.utcnow() - timedelta(days=10 - i),
             )
             db.add(defect)
 
@@ -404,18 +413,22 @@ class TestRiskModelAccuracyImprovement:
         verify predictions improve for similar areas
         """
         # Create waterproofing pattern in floors 1-3
+        defect_counter = 1
         for floor_idx in range(3):
             for i in range(4):
                 defect = Defect(
                     project_id=test_project.id,
+                    defect_number=defect_counter,
                     area_id=test_areas[floor_idx].id,
                     severity="high" if i < 2 else "medium",
                     category="waterproofing",
                     description=f"Waterproofing issue {i}",
                     status="open",
-                    detected_date=datetime.utcnow() - timedelta(days=15 - floor_idx - i),
+                    created_by_id=test_project.created_by_id,
+                    created_at=datetime.utcnow() - timedelta(days=15 - floor_idx - i),
                 )
                 db.add(defect)
+                defect_counter += 1
 
         await db.commit()
 
