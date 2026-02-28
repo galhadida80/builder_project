@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, Request
@@ -12,6 +13,7 @@ from app.db.session import get_db
 from app.models.invitation import InvitationStatus, ProjectInvitation
 from app.models.project import Project, ProjectMember
 from app.models.subcontractor import SubcontractorProfile
+from app.models.task import Task
 from app.models.user import User
 from app.schemas.subcontractor import (
     SubcontractorInviteRequest,
@@ -20,6 +22,7 @@ from app.schemas.subcontractor import (
     SubcontractorProfileResponse,
     SubcontractorProfileUpdate,
 )
+from app.schemas.task import TaskResponse
 from app.services.email_renderer import render_subcontractor_invite_email
 from app.services.email_service import EmailService
 from app.utils import utcnow
@@ -263,6 +266,39 @@ async def verify_subcontractor(
     await db.commit()
     await db.refresh(profile, ["user"])
     return profile
+
+
+@router.get("/subcontractors/my-tasks", response_model=list[TaskResponse])
+async def get_my_tasks(
+    status: Optional[str] = Query(None),
+    priority: Optional[str] = Query(None),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    user_project_ids = select(ProjectMember.project_id).where(
+        ProjectMember.user_id == current_user.id,
+        ProjectMember.role == "subcontractor",
+    )
+    query = (
+        select(Task)
+        .options(
+            selectinload(Task.assignee),
+            selectinload(Task.reporter),
+            selectinload(Task.created_by),
+            selectinload(Task.dependencies),
+        )
+        .where(
+            Task.project_id.in_(user_project_ids),
+            Task.assignee_id == current_user.id,
+        )
+    )
+    if status:
+        query = query.where(Task.status == status)
+    if priority:
+        query = query.where(Task.priority == priority)
+    query = query.order_by(Task.task_number.desc())
+    result = await db.execute(query)
+    return result.scalars().all()
 
 
 @router.get("/projects/{project_id}/subcontractors/portal", response_model=dict)
