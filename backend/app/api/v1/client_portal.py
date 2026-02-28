@@ -1,7 +1,7 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import case, func, select
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy import case, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -9,12 +9,16 @@ from app.core.security import get_current_user
 from app.db.session import get_db
 from app.models.audit import AuditLog
 from app.models.checklist import ChecklistInstance, ChecklistStatus
+from app.models.discussion import Discussion
 from app.models.equipment import ApprovalStatus, Equipment
+from app.models.file import File
 from app.models.inspection import Finding, FindingStatus, Inspection, InspectionStatus
 from app.models.material import Material
 from app.models.meeting import Meeting
 from app.models.project import Project, ProjectMember
 from app.models.user import User
+from app.schemas.discussion import DiscussionCreate, DiscussionResponse
+from app.schemas.file import FileResponse
 from app.schemas.project import ProjectResponse
 from app.schemas.project_overview import (
     ProgressMetrics,
@@ -23,6 +27,7 @@ from app.schemas.project_overview import (
     TeamStats,
     TimelineEvent,
 )
+from app.services.websocket_manager import manager
 from app.utils import utcnow
 
 router = APIRouter()
@@ -295,3 +300,174 @@ async def get_client_project_progress(
         checklists_completed=checklists_data.completed,
         checklists_total=checklists_data.total,
     )
+
+
+@router.get("/projects/{project_id}/photos", response_model=list[FileResponse])
+async def list_client_project_photos(
+    project_id: UUID,
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get photos for a client project"""
+    result = await db.execute(
+        select(Project)
+        .join(ProjectMember, Project.id == ProjectMember.project_id)
+        .where(Project.id == project_id, ProjectMember.user_id == current_user.id)
+    )
+    project = result.scalar_one_or_none()
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found or access denied"
+        )
+
+    query = (
+        select(File)
+        .where(
+            File.project_id == project_id,
+            or_(
+                File.file_type.like("image/%"),
+                File.entity_type == "photo"
+            )
+        )
+        .options(selectinload(File.uploaded_by))
+        .order_by(File.uploaded_at.desc())
+        .limit(limit)
+        .offset(offset)
+    )
+    files_result = await db.execute(query)
+    return files_result.scalars().all()
+
+
+@router.get("/projects/{project_id}/documents", response_model=list[FileResponse])
+async def list_client_project_documents(
+    project_id: UUID,
+    entity_type: str = Query(None),
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get documents for a client project"""
+    result = await db.execute(
+        select(Project)
+        .join(ProjectMember, Project.id == ProjectMember.project_id)
+        .where(Project.id == project_id, ProjectMember.user_id == current_user.id)
+    )
+    project = result.scalar_one_or_none()
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found or access denied"
+        )
+
+    query = (
+        select(File)
+        .where(File.project_id == project_id)
+        .options(selectinload(File.uploaded_by))
+    )
+    if entity_type:
+        query = query.where(File.entity_type == entity_type)
+
+    query = query.order_by(File.uploaded_at.desc()).limit(limit).offset(offset)
+    files_result = await db.execute(query)
+    return files_result.scalars().all()
+
+
+@router.get("/projects/{project_id}/feedback", response_model=list[DiscussionResponse])
+async def list_client_project_feedback(
+    project_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get feedback discussions for a client project"""
+    result = await db.execute(
+        select(Project)
+        .join(ProjectMember, Project.id == ProjectMember.project_id)
+        .where(Project.id == project_id, ProjectMember.user_id == current_user.id)
+    )
+    project = result.scalar_one_or_none()
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found or access denied"
+        )
+
+    discussions_result = await db.execute(
+        select(Discussion)
+        .options(
+            selectinload(Discussion.author),
+            selectinload(Discussion.replies).selectinload(Discussion.author)
+        )
+        .where(
+            Discussion.project_id == project_id,
+            Discussion.entity_type == "project",
+            Discussion.parent_id.is_(None)
+        )
+        .order_by(Discussion.created_at.desc())
+    )
+    return discussions_result.scalars().all()
+
+
+@router.post("/projects/{project_id}/feedback", response_model=DiscussionResponse)
+async def create_client_project_feedback(
+    project_id: UUID,
+    data: DiscussionCreate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Submit feedback for a client project"""
+    result = await db.execute(
+        select(Project)
+        .join(ProjectMember, Project.id == ProjectMember.project_id)
+        .where(Project.id == project_id, ProjectMember.user_id == current_user.id)
+    )
+    project = result.scalar_one_or_none()
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found or access denied"
+        )
+
+    if data.parent_id:
+        parent_result = await db.execute(
+            select(Discussion).where(
+                Discussion.id == data.parent_id,
+                Discussion.project_id == project_id
+            )
+        )
+        if not parent_result.scalar_one_or_none():
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Parent discussion not found"
+            )
+
+    discussion = Discussion(
+        project_id=project_id,
+        entity_type=data.entity_type,
+        entity_id=data.entity_id,
+        author_id=current_user.id,
+        parent_id=data.parent_id,
+        content=data.content
+    )
+    db.add(discussion)
+    await db.flush()
+
+    created_result = await db.execute(
+        select(Discussion)
+        .options(selectinload(Discussion.author))
+        .where(Discussion.id == discussion.id)
+    )
+    created = created_result.scalar_one()
+
+    await manager.broadcast_to_project(str(project_id), {
+        "type": "feedback_created",
+        "entityType": data.entity_type,
+        "entityId": str(data.entity_id),
+        "discussionId": str(created.id),
+        "authorName": current_user.full_name
+    })
+
+    return created
