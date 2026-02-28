@@ -209,32 +209,93 @@ class ExportService:
         return self._generate_csv(flat_data)
 
     async def create_export_archive(self, project_id: UUID, storage_path: str) -> int:
-        """Create ZIP archive with all project files."""
+        """Create ZIP archive with all project files organized by entity type."""
         from app.services.storage_service import get_storage_backend
 
         storage = get_storage_backend()
 
         # Create in-memory ZIP file
         zip_buffer = io.BytesIO()
+        manifest_entries = []
+        skipped_files = []
 
         with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
             # Get all project files
             result = await self.db.execute(
-                select(File).where(File.project_id == project_id)
+                select(File)
+                .where(File.project_id == project_id)
+                .order_by(File.entity_type, File.uploaded_at)
             )
             files = result.scalars().all()
 
+            # Track filenames to handle duplicates
+            filename_counter = {}
+
             for file_obj in files:
-                if file_obj.storage_path:
-                    try:
-                        # Download file content from storage
-                        file_content = await storage.get_file_content(file_obj.storage_path)
-                        # Add to ZIP with proper path structure
-                        archive_path = f"files/{file_obj.file_name}"
-                        zip_file.writestr(archive_path, file_content)
-                    except Exception:
-                        # Skip files that can't be retrieved
-                        continue
+                if not file_obj.storage_path:
+                    skipped_files.append({
+                        "id": str(file_obj.id),
+                        "filename": file_obj.filename,
+                        "reason": "No storage path"
+                    })
+                    continue
+
+                try:
+                    # Download file content from storage
+                    file_content = await storage.get_file_content(file_obj.storage_path)
+
+                    # Organize files by entity type
+                    base_filename = file_obj.filename
+                    entity_folder = file_obj.entity_type or "other"
+
+                    # Handle duplicate filenames
+                    filename_key = f"{entity_folder}/{base_filename}"
+                    if filename_key in filename_counter:
+                        filename_counter[filename_key] += 1
+                        name_parts = base_filename.rsplit(".", 1)
+                        if len(name_parts) == 2:
+                            base_filename = f"{name_parts[0]}_{filename_counter[filename_key]}.{name_parts[1]}"
+                        else:
+                            base_filename = f"{base_filename}_{filename_counter[filename_key]}"
+                    else:
+                        filename_counter[filename_key] = 0
+
+                    # Create archive path
+                    archive_path = f"files/{entity_folder}/{base_filename}"
+                    zip_file.writestr(archive_path, file_content)
+
+                    # Add to manifest
+                    manifest_entries.append({
+                        "id": str(file_obj.id),
+                        "filename": file_obj.filename,
+                        "archive_path": archive_path,
+                        "entity_type": file_obj.entity_type,
+                        "entity_id": str(file_obj.entity_id),
+                        "file_type": file_obj.file_type,
+                        "file_size": file_obj.file_size,
+                        "uploaded_at": file_obj.uploaded_at.isoformat() if file_obj.uploaded_at else None,
+                    })
+
+                except Exception as e:
+                    # Track files that couldn't be retrieved
+                    skipped_files.append({
+                        "id": str(file_obj.id),
+                        "filename": file_obj.filename,
+                        "reason": f"Failed to retrieve: {str(e)}"
+                    })
+                    continue
+
+            # Add manifest file to archive
+            manifest_data = {
+                "export_date": utcnow().isoformat(),
+                "project_id": str(project_id),
+                "total_files": len(manifest_entries),
+                "skipped_files": len(skipped_files),
+                "files": manifest_entries,
+                "errors": skipped_files if skipped_files else []
+            }
+            manifest_json = json.dumps(manifest_data, indent=2, ensure_ascii=False)
+            zip_file.writestr("manifest.json", manifest_json)
 
         zip_buffer.seek(0)
         zip_bytes = zip_buffer.read()
@@ -644,7 +705,9 @@ class ExportService:
         return [
             {
                 "id": str(file_obj.id),
-                "file_name": file_obj.file_name,
+                "filename": file_obj.filename,
+                "entity_type": file_obj.entity_type,
+                "entity_id": str(file_obj.entity_id),
                 "file_type": file_obj.file_type,
                 "file_size": file_obj.file_size,
                 "storage_path": file_obj.storage_path,
