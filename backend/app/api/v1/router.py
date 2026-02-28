@@ -40,6 +40,7 @@ from app.api.v1 import (
     quantity_extraction,
     reports,
     rfis,
+    risk_scores,
     tasks_api,
     webhooks,
     work_summary,
@@ -84,6 +85,7 @@ api_router.include_router(bim.router, tags=["bim"])
 api_router.include_router(blueprints.router, tags=["blueprints"])
 api_router.include_router(bim_extract.router, tags=["bim_extract"])
 api_router.include_router(defects.router, tags=["defects"])
+api_router.include_router(risk_scores.router, tags=["risk_scores"])
 api_router.include_router(tasks_api.router, tags=["project_tasks"])
 api_router.include_router(budget.router, tags=["budget"])
 api_router.include_router(organizations.router, tags=["organizations"])
