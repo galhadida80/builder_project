@@ -49,6 +49,7 @@ import CustomKPIPage from './pages/CustomKPIPage'
 import NotificationsPage from './pages/NotificationsPage'
 import SubcontractorListPage from './pages/SubcontractorListPage'
 import SubcontractorPortalPage from './pages/SubcontractorPortalPage'
+import ClientPortalLoginPage from './pages/ClientPortalLoginPage'
 import NotFoundPage from './pages/NotFoundPage'
 
 const BIMPage = lazy(() => import('./pages/BIMPage'))
@@ -87,6 +88,7 @@ function AppRoutes() {
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/invite" element={<InvitePage />} />
         <Route path="/meetings/rsvp/:token" element={<MeetingRSVPPage />} />
+        <Route path="/client-portal/login" element={<ClientPortalLoginPage />} />
 
         <Route element={<ProtectedRoute />}>
           <Route element={<Layout />}>
