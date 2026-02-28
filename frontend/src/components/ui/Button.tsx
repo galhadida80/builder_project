@@ -16,8 +16,8 @@ const StyledButton = styled(MuiButton)(({ theme }) => ({
   touchAction: 'manipulation',
   '&.Mui-disabled': {
     cursor: 'not-allowed',
-    opacity: 0.6,
-    filter: 'grayscale(0.3)',
+    opacity: 0.4,
+    filter: 'grayscale(1.0)',
     pointerEvents: 'auto',
   },
 }))
