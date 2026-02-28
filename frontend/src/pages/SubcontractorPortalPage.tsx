@@ -6,11 +6,16 @@ import { FormModal } from '../components/ui/Modal'
 import { Tabs, TabPanel } from '../components/ui/Tabs'
 import { useToast } from '../components/common/ToastProvider'
 import { subcontractorsApi, SubcontractorProfile, SubcontractorProfileCreate, SubcontractorDashboardResponse } from '../api/subcontractors'
+import type { TimelineEvent } from '../api/clientPortal'
 import { PortalDashboard } from '../components/subcontractor-portal/PortalDashboard'
 import { ProfileView } from '../components/subcontractor-portal/ProfileView'
 import { ProfileForm } from '../components/subcontractor-portal/ProfileForm'
+import { TasksList } from '../components/subcontractor-portal/TasksList'
+import { RFIsList } from '../components/subcontractor-portal/RFIsList'
+import { ApprovalsList } from '../components/subcontractor-portal/ApprovalsList'
+import { ActivityFeed } from '../components/subcontractor-portal/ActivityFeed'
 import { Box, Typography, Skeleton, Fab, Paper, alpha, useTheme, useMediaQuery } from '@/mui'
-import { EditIcon, PersonIcon, CheckCircleIcon, DashboardIcon, WorkIcon } from '@/icons'
+import { EditIcon, PersonIcon, CheckCircleIcon, DashboardIcon, WorkIcon, AssignmentIcon, HelpOutlineIcon, ApprovalIcon, TimelineIcon } from '@/icons'
 
 export default function SubcontractorPortalPage() {
   const { t } = useTranslation()
@@ -21,8 +26,10 @@ export default function SubcontractorPortalPage() {
   const [activeTab, setActiveTab] = useState('dashboard')
   const [profile, setProfile] = useState<SubcontractorProfile | null>(null)
   const [dashboard, setDashboard] = useState<SubcontractorDashboardResponse | null>(null)
+  const [activities, setActivities] = useState<TimelineEvent[]>([])
   const [loading, setLoading] = useState(true)
   const [dashboardLoading, setDashboardLoading] = useState(false)
+  const [activityLoading, setActivityLoading] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [saving, setSaving] = useState(false)
   const [form, setForm] = useState<SubcontractorProfileCreate>({
@@ -44,7 +51,10 @@ export default function SubcontractorPortalPage() {
     if (profile && activeTab === 'dashboard' && !dashboard) {
       loadDashboard()
     }
-  }, [activeTab, profile, dashboard])
+    if (profile && activeTab === 'activity' && activities.length === 0) {
+      loadActivityFeed()
+    }
+  }, [activeTab, profile, dashboard, activities.length])
 
   const loadProfile = async () => {
     setLoading(true)
@@ -67,6 +77,18 @@ export default function SubcontractorPortalPage() {
       showError(t('subcontractorPortal.dashboardLoadFailed'))
     } finally {
       setDashboardLoading(false)
+    }
+  }
+
+  const loadActivityFeed = async () => {
+    setActivityLoading(true)
+    try {
+      const data = await subcontractorsApi.getActivityFeed()
+      setActivities(data || [])
+    } catch {
+      showError(t('subcontractorPortal.activityLoadFailed'))
+    } finally {
+      setActivityLoading(false)
     }
   }
 
@@ -222,6 +244,26 @@ export default function SubcontractorPortalPage() {
             icon: <DashboardIcon sx={{ fontSize: '1rem' }} />,
           },
           {
+            label: t('subcontractorPortal.tasks'),
+            value: 'tasks',
+            icon: <AssignmentIcon sx={{ fontSize: '1rem' }} />,
+          },
+          {
+            label: t('subcontractorPortal.rfis'),
+            value: 'rfis',
+            icon: <HelpOutlineIcon sx={{ fontSize: '1rem' }} />,
+          },
+          {
+            label: t('subcontractorPortal.approvals'),
+            value: 'approvals',
+            icon: <ApprovalIcon sx={{ fontSize: '1rem' }} />,
+          },
+          {
+            label: t('subcontractorPortal.activity'),
+            value: 'activity',
+            icon: <TimelineIcon sx={{ fontSize: '1rem' }} />,
+          },
+          {
             label: t('subcontractorPortal.profile'),
             value: 'profile',
             icon: <PersonIcon sx={{ fontSize: '1rem' }} />,
@@ -233,6 +275,22 @@ export default function SubcontractorPortalPage() {
 
       <TabPanel value="dashboard" activeValue={activeTab}>
         <PortalDashboard dashboard={dashboard} loading={dashboardLoading} />
+      </TabPanel>
+
+      <TabPanel value="tasks" activeValue={activeTab}>
+        <TasksList />
+      </TabPanel>
+
+      <TabPanel value="rfis" activeValue={activeTab}>
+        <RFIsList />
+      </TabPanel>
+
+      <TabPanel value="approvals" activeValue={activeTab}>
+        <ApprovalsList />
+      </TabPanel>
+
+      <TabPanel value="activity" activeValue={activeTab}>
+        <ActivityFeed activities={activities} loading={activityLoading} />
       </TabPanel>
 
       <TabPanel value="profile" activeValue={activeTab}>
