@@ -53,6 +53,7 @@ import SubcontractorPortalPage from './pages/SubcontractorPortalPage'
 import ClientPortalLoginPage from './pages/ClientPortalLoginPage'
 import ClientPortalDashboardPage from './pages/ClientPortalDashboardPage'
 import ClientPortalPhotosPage from './pages/ClientPortalPhotosPage'
+import ClientPortalDocumentsPage from './pages/ClientPortalDocumentsPage'
 import NotFoundPage from './pages/NotFoundPage'
 
 const BIMPage = lazy(() => import('./pages/BIMPage'))
@@ -100,6 +101,11 @@ function AppRoutes() {
         <Route path="/client-portal/photos" element={
           <ClientPortalProvider>
             <ClientPortalPhotosPage />
+          </ClientPortalProvider>
+        } />
+        <Route path="/client-portal/documents" element={
+          <ClientPortalProvider>
+            <ClientPortalDocumentsPage />
           </ClientPortalProvider>
         } />
 
