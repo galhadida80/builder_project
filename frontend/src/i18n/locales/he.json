@@ -1676,6 +1676,8 @@
     "certificationsHelp": "הקש Enter להוספת הסמכה",
     "insuranceExpiry": "תוקף ביטוח",
     "certifications": "הסמכות",
+    "insuranceExpired": "ביטוח פג תוקף",
+    "insuranceExpiringSoon": "ביטוח פג תוקף בקרוב",
     "compareVendors": "השווה ספקים",
     "comparison": {
       "title": "השוואת ספקים",

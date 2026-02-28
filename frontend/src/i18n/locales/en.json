@@ -1499,6 +1499,8 @@
     "certificationsHelp": "Press Enter to add certification",
     "insuranceExpiry": "Insurance Expiry",
     "certifications": "Certifications",
+    "insuranceExpired": "Insurance Expired",
+    "insuranceExpiringSoon": "Insurance Expiring Soon",
     "compareVendors": "Compare Vendors",
     "comparison": {
       "title": "Vendor Comparison",

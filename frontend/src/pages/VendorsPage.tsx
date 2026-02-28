@@ -15,8 +15,8 @@ import { vendorsApi } from '../api/vendors'
 import type { Vendor } from '../types'
 import { useToast } from '../components/common/ToastProvider'
 import { withMinDuration } from '../utils/async'
-import { AddIcon, EditIcon, DeleteIcon, BusinessIcon, LocalShippingIcon, ConstructionIcon, PlumbingIcon, ElectricalServicesIcon, StarIcon, CompareArrowsIcon } from '@/icons'
-import { Box, Typography, Skeleton, Chip, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, useMediaQuery, useTheme, Checkbox, Grid } from '@/mui'
+import { AddIcon, EditIcon, DeleteIcon, BusinessIcon, LocalShippingIcon, ConstructionIcon, PlumbingIcon, ElectricalServicesIcon, StarIcon, CompareArrowsIcon, WarningIcon } from '@/icons'
+import { Box, Typography, Skeleton, Chip, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, useMediaQuery, useTheme, Checkbox, Grid, Tooltip } from '@/mui'
 
 export default function VendorsPage() {
   const { t } = useTranslation()
@@ -180,6 +180,21 @@ export default function VendorsPage() {
 
   const getSelectedVendorObjects = () => {
     return vendors.filter(v => selectedVendors.includes(v.id))
+  }
+
+  const getInsuranceExpiryStatus = (insuranceExpiry?: string) => {
+    if (!insuranceExpiry) return null
+
+    const expiryDate = new Date(insuranceExpiry)
+    const today = new Date()
+    const daysUntilExpiry = Math.ceil((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+
+    if (daysUntilExpiry < 0) {
+      return 'expired'
+    } else if (daysUntilExpiry <= 30) {
+      return 'expiring_soon'
+    }
+    return null
   }
 
   const getRatingDistributionData = () => {
@@ -366,6 +381,7 @@ export default function VendorsPage() {
                   {filteredVendors.map(vendor => {
                     const tradeConfig = getTradeConfig(vendor.trade)
                     const isSelected = selectedVendors.includes(vendor.id)
+                    const insuranceStatus = getInsuranceExpiryStatus(vendor.insuranceExpiry)
                     return (
                       <TableRow key={vendor.id} hover selected={isSelected}>
                         <TableCell padding="checkbox">
@@ -379,7 +395,30 @@ export default function VendorsPage() {
                         <TableCell>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                             <Box sx={{ color: tradeConfig.color }}>{tradeConfig.icon}</Box>
-                            <Typography variant="body2" sx={{ fontWeight: 500 }}>{vendor.companyName}</Typography>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                <Typography variant="body2" sx={{ fontWeight: 500 }}>{vendor.companyName}</Typography>
+                                {insuranceStatus === 'expired' && (
+                                  <Tooltip title={t('vendors.insuranceExpired')}>
+                                    <WarningIcon sx={{ fontSize: 18, color: 'error.main' }} />
+                                  </Tooltip>
+                                )}
+                              </Box>
+                              {insuranceStatus && (
+                                <Chip
+                                  label={t(insuranceStatus === 'expired' ? 'vendors.insuranceExpired' : 'vendors.insuranceExpiringSoon')}
+                                  size="small"
+                                  sx={{
+                                    height: 20,
+                                    fontSize: '0.7rem',
+                                    bgcolor: insuranceStatus === 'expired' ? 'error.main' : 'warning.main',
+                                    color: 'white',
+                                    fontWeight: 500,
+                                    alignSelf: 'flex-start'
+                                  }}
+                                />
+                              )}
+                            </Box>
                           </Box>
                         </TableCell>
                         <TableCell>
