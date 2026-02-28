@@ -7,11 +7,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.contact import Contact
 from app.models.notification import Notification
+from app.models.notification_interaction import InteractionType, NotificationInteraction
 from app.models.project import ProjectMember, UserRole
 from app.models.user import User
 from app.services.email_renderer import render_notification_email
 from app.services.email_service import EmailService
-from app.services.whatsapp_service import WhatsAppService
+from app.services.notification_priority_service import calculate_notification_urgency
 from app.services.websocket_manager import manager as ws_manager
 
 logger = logging.getLogger(__name__)
@@ -55,10 +56,19 @@ async def create_notification(
     entity_type: Optional[str] = None,
     entity_id: Optional[UUID] = None,
     project_id: Optional[UUID] = None,
+    context: Optional[dict] = None,
 ) -> Notification:
+    urgency = await calculate_notification_urgency(
+        db=db,
+        category=category,
+        entity_type=entity_type,
+        user_id=user_id,
+        context=context,
+    )
     notification = Notification(
         user_id=user_id,
         category=category,
+        urgency=urgency,
         title=title,
         message=message,
         related_entity_type=entity_type,
@@ -84,10 +94,11 @@ async def notify_user(
     project_name: str = "",
     language: str = "en",
     project_id: Optional[UUID] = None,
+    context: Optional[dict] = None,
 ) -> None:
     await create_notification(
         db, user_id, category, title, message, entity_type, entity_id,
-        project_id=project_id,
+        project_id=project_id, context=context,
     )
 
     result = await db.execute(select(User).where(User.id == user_id))
@@ -205,3 +216,45 @@ async def notify_project_admins(
             project_name=project_name, language=admin.language or "en",
             project_id=project_id,
         )
+
+
+async def track_notification_interaction(
+    db: AsyncSession,
+    notification_id: UUID,
+    user_id: UUID,
+    interaction_type: str,
+) -> NotificationInteraction:
+    """
+    Track user interaction with a notification.
+
+    Args:
+        db: Database session
+        notification_id: Notification ID
+        user_id: User ID
+        interaction_type: Type of interaction (viewed, clicked, dismissed, acted_upon)
+
+    Returns:
+        Created NotificationInteraction instance
+    """
+    try:
+        interaction = NotificationInteraction(
+            notification_id=notification_id,
+            user_id=user_id,
+            interaction_type=interaction_type,
+        )
+        db.add(interaction)
+        await db.flush()
+        return interaction
+    except Exception as e:
+        error_type = type(e).__name__
+        error_message = str(e)
+
+        logger.error(
+            "Failed to track notification interaction - "
+            "Notification ID: %s, User ID: %s, Interaction Type: %s, "
+            "Error Type: %s, Message: %s",
+            notification_id, user_id, interaction_type,
+            error_type, error_message,
+            exc_info=True
+        )
+        raise

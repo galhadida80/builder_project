@@ -881,7 +881,35 @@
     "noNotifications": "אין התראות",
     "allCaughtUp": "אתה מעודכן!",
     "noCategoryNotifications": "אין התראות {{category}} כרגע.",
-    "loadMore": "טען עוד"
+    "loadMore": "טען עוד",
+    "categoryFilter": "סינון לפי קטגוריה",
+    "urgencyFilter": "סינון לפי דחיפות",
+    "allUrgencies": "כל הדחיפויות"
+  },
+  "notificationPreferences": {
+    "title": "העדפות התראות",
+    "categories": "קטגוריות",
+    "enableCategory": "הפעל התראות עבור קטגוריה זו",
+    "minUrgency": "רמת דחיפות מינימלית",
+    "minUrgencyDescription": "הצג רק התראות ברמת דחיפות זו ומעלה",
+    "emailEnabled": "התראות דוא״ל",
+    "emailEnabledDescription": "שלח התראות לדוא״ל",
+    "pushEnabled": "התראות דחיפה",
+    "pushEnabledDescription": "שלח התראות דחיפה לדפדפן",
+    "digestSettings": "הגדרות תקציר",
+    "digestFrequency": "תדירות תקציר",
+    "digestFrequencyDescription": "כמה פעמים לקבל תקציר התראות",
+    "digestImmediate": "מיידי",
+    "digestDaily": "יומי",
+    "digestWeekly": "שבועי",
+    "quietHours": "שעות שקט",
+    "quietHoursDescription": "השתק התראות לא דחופות בזמנים אלה",
+    "quietHoursStart": "התחלה",
+    "quietHoursEnd": "סיום",
+    "to": "עד",
+    "saved": "ההעדפות נשמרו בהצלחה",
+    "saveError": "שגיאה בשמירת העדפות",
+    "loadError": "שגיאה בטעינת העדפות"
   },
   "sidebar": {
     "dashboard": "לוח בקרה",
@@ -1960,6 +1988,12 @@
       "defect": "ליקוי",
       "update": "עדכון",
       "general": "כללי"
+    },
+    "urgency": {
+      "low": "נמוכה",
+      "medium": "בינונית",
+      "high": "גבוהה",
+      "critical": "קריטית"
     },
     "push": {
       "title": "התראות דחיפה",

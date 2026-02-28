@@ -7,11 +7,12 @@ from uuid import UUID
 from pydantic import BaseModel, Field, field_validator
 
 from app.core.validators import MAX_DESCRIPTION_LENGTH, MAX_NAME_LENGTH, CamelCaseModel, sanitize_string
-from app.models.notification import NotificationCategory
+from app.models.notification import NotificationCategory, UrgencyLevel
 
 
 class NotificationBase(BaseModel):
     category: NotificationCategory
+    urgency: UrgencyLevel = UrgencyLevel.MEDIUM
     title: str = Field(min_length=1, max_length=MAX_NAME_LENGTH)
     message: str = Field(min_length=1, max_length=MAX_DESCRIPTION_LENGTH)
     related_entity_type: Optional[str] = Field(default=None, max_length=100)
@@ -31,6 +32,7 @@ class NotificationResponse(CamelCaseModel):
     id: UUID
     user_id: UUID
     category: str
+    urgency: str
     title: str
     message: str
     related_entity_type: Optional[str] = None

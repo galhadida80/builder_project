@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next'
 import { getDateLocale } from '../../utils/dateLocale'
-import { Notification, NotificationCategory } from '../../types/notification'
+import { Notification, NotificationCategory, UrgencyLevel } from '../../types/notification'
 import { CheckCircleIcon, WarningIcon, UpdateIcon, InfoIcon, MoreVertIcon, ErrorOutlineIcon } from '@/icons'
-import { ListItem, ListItemAvatar, ListItemText, Box, Typography, IconButton, Avatar as MuiAvatar, styled, useTheme } from '@/mui'
+import { ListItem, ListItemAvatar, ListItemText, Box, Typography, IconButton, Avatar as MuiAvatar, Chip, styled, useTheme } from '@/mui'
 
 interface NotificationItemProps {
   notification: Notification
@@ -82,6 +82,27 @@ function getCategoryConfig(palette: { success: { main: string }; warning: { main
   }
 }
 
+function getUrgencyConfig(palette: { success: { main: string }; warning: { main: string }; error: { main: string }; info: { main: string } }): Record<UrgencyLevel, { color: string; labelKey: string }> {
+  return {
+    low: {
+      color: palette.info.main,
+      labelKey: 'notifications.urgency.low',
+    },
+    medium: {
+      color: palette.warning.main,
+      labelKey: 'notifications.urgency.medium',
+    },
+    high: {
+      color: palette.warning.main,
+      labelKey: 'notifications.urgency.high',
+    },
+    critical: {
+      color: palette.error.main,
+      labelKey: 'notifications.urgency.critical',
+    },
+  }
+}
+
 function getRelativeTime(timestamp: string, t: (key: string, opts?: Record<string, unknown>) => string): string {
   const now = new Date()
   const date = new Date(timestamp)
@@ -112,6 +133,8 @@ export function NotificationItem({ notification, onClick, onActionClick }: Notif
   const theme = useTheme()
   const categoryConfig = getCategoryConfig(theme.palette)
   const config = categoryConfig[notification.category] ?? categoryConfig.general
+  const urgencyConfig = getUrgencyConfig(theme.palette)
+  const urgency = urgencyConfig[notification.urgency]
 
   const handleClick = () => {
     if (onClick) {
@@ -153,18 +176,35 @@ export function NotificationItem({ notification, onClick, onActionClick }: Notif
         sx={{ overflow: 'hidden', minWidth: 0 }}
         primary={
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
-            <Typography
-              variant="caption"
-              sx={{
-                color: config.color,
-                fontWeight: 600,
-                textTransform: 'uppercase',
-                fontSize: '0.65rem',
-                letterSpacing: '0.5px',
-              }}
-            >
-              {t(config.labelKey)}
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: config.color,
+                  fontWeight: 600,
+                  textTransform: 'uppercase',
+                  fontSize: '0.65rem',
+                  letterSpacing: '0.5px',
+                }}
+              >
+                {t(config.labelKey)}
+              </Typography>
+              <Chip
+                label={t(urgency.labelKey)}
+                size="small"
+                sx={{
+                  height: 18,
+                  fontSize: '0.625rem',
+                  fontWeight: 600,
+                  bgcolor: urgency.color,
+                  color: 'white',
+                  '& .MuiChip-label': {
+                    px: 0.75,
+                    py: 0,
+                  },
+                }}
+              />
+            </Box>
             <Typography
               variant="body2"
               noWrap

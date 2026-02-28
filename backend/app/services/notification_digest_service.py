@@ -29,11 +29,20 @@ async def collect_project_digest(
     notifications = result.scalars().all()
 
     if not notifications:
-        return {"has_events": False, "total_count": 0, "categories": {}, "recent_items": []}
+        return {
+            "has_events": False,
+            "total_count": 0,
+            "categories": {},
+            "urgency_levels": {},
+            "recent_items": [],
+        }
 
     categories = {}
+    urgency_levels = {}
     for n in notifications:
         cat = n.category or "general"
+        urg = n.urgency or "medium"
+
         if cat not in categories:
             categories[cat] = {"count": 0, "items": []}
         categories[cat]["count"] += 1
@@ -41,6 +50,19 @@ async def collect_project_digest(
             categories[cat]["items"].append({
                 "title": n.title,
                 "message": n.message,
+                "urgency": urg,
+                "entity_type": n.related_entity_type,
+                "created_at": n.created_at.strftime("%d/%m/%Y %H:%M") if n.created_at else "",
+            })
+
+        if urg not in urgency_levels:
+            urgency_levels[urg] = {"count": 0, "items": []}
+        urgency_levels[urg]["count"] += 1
+        if len(urgency_levels[urg]["items"]) < 5:
+            urgency_levels[urg]["items"].append({
+                "title": n.title,
+                "message": n.message,
+                "category": cat,
                 "entity_type": n.related_entity_type,
                 "created_at": n.created_at.strftime("%d/%m/%Y %H:%M") if n.created_at else "",
             })
@@ -51,6 +73,7 @@ async def collect_project_digest(
             "title": n.title,
             "message": n.message,
             "category": n.category or "general",
+            "urgency": n.urgency or "medium",
             "entity_type": n.related_entity_type,
             "created_at": n.created_at.strftime("%d/%m/%Y %H:%M") if n.created_at else "",
         })
@@ -59,6 +82,7 @@ async def collect_project_digest(
         "has_events": True,
         "total_count": len(notifications),
         "categories": categories,
+        "urgency_levels": urgency_levels,
         "recent_items": recent_items,
         "period_start": since.strftime("%d/%m/%Y"),
         "period_end": utcnow().strftime("%d/%m/%Y"),

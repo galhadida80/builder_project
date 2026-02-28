@@ -1812,6 +1812,12 @@
       "update": "Update",
       "general": "General"
     },
+    "urgency": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High",
+      "critical": "Critical"
+    },
     "push": {
       "title": "Push Notifications",
       "notSupported": "Push notifications are not supported in this browser",
@@ -2336,7 +2342,35 @@
     "noNotifications": "No notifications",
     "allCaughtUp": "You're all caught up!",
     "noCategoryNotifications": "No {{category}} notifications at this time.",
-    "loadMore": "Load More"
+    "loadMore": "Load More",
+    "categoryFilter": "Filter by Category",
+    "urgencyFilter": "Filter by Urgency",
+    "allUrgencies": "All Urgencies"
+  },
+  "notificationPreferences": {
+    "title": "Notification Preferences",
+    "categories": "Categories",
+    "enableCategory": "Enable notifications for this category",
+    "minUrgency": "Minimum Urgency Level",
+    "minUrgencyDescription": "Only show notifications at this urgency level or higher",
+    "emailEnabled": "Email Notifications",
+    "emailEnabledDescription": "Send notifications via email",
+    "pushEnabled": "Push Notifications",
+    "pushEnabledDescription": "Send push notifications to browser",
+    "digestSettings": "Digest Settings",
+    "digestFrequency": "Digest Frequency",
+    "digestFrequencyDescription": "How often to receive notification digest",
+    "digestImmediate": "Immediate",
+    "digestDaily": "Daily",
+    "digestWeekly": "Weekly",
+    "quietHours": "Quiet Hours",
+    "quietHoursDescription": "Mute non-urgent notifications during these times",
+    "quietHoursStart": "Start",
+    "quietHoursEnd": "End",
+    "to": "to",
+    "saved": "Preferences saved successfully",
+    "saveError": "Error saving preferences",
+    "loadError": "Error loading preferences"
   },
   "rfiDetail": {
     "notFound": "RFI not found",

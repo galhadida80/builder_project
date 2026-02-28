@@ -8,12 +8,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.security import get_current_user
 from app.db.session import get_db
 from app.models.notification import Notification
+from app.models.notification_interaction import NotificationInteraction
 from app.models.push_subscription import PushSubscription
 from app.models.user import User
 from app.schemas.notification import (
     NotificationListResponse,
     NotificationResponse,
     UnreadCountResponse,
+)
+from app.schemas.notification_interaction import (
+    NotificationInteractionCreate,
+    NotificationInteractionResponse,
 )
 from app.schemas.push_subscription import PushSubscriptionCreate, PushSubscriptionResponse
 
@@ -23,6 +28,7 @@ router = APIRouter()
 @router.get("", response_model=NotificationListResponse)
 async def list_notifications(
     category: Optional[str] = Query(None, description="Filter by category"),
+    urgency: Optional[str] = Query(None, description="Filter by urgency"),
     is_read: Optional[bool] = Query(None, description="Filter by read status"),
     search: Optional[str] = Query(None, description="Search in title/message"),
     limit: int = Query(50, ge=1, le=200),
@@ -34,6 +40,8 @@ async def list_notifications(
 
     if category:
         base = base.where(Notification.category == category)
+    if urgency:
+        base = base.where(Notification.urgency == urgency)
     if is_read is not None:
         base = base.where(Notification.is_read == is_read)
     if search:
@@ -156,6 +164,34 @@ async def mark_notification_unread(
     await db.commit()
     await db.refresh(notification)
     return notification
+
+
+@router.post("/{notification_id}/track", response_model=NotificationInteractionResponse)
+async def track_notification_interaction(
+    notification_id: UUID,
+    data: NotificationInteractionCreate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    result = await db.execute(
+        select(Notification).where(
+            Notification.id == notification_id,
+            Notification.user_id == current_user.id,
+        )
+    )
+    notification = result.scalar_one_or_none()
+    if not notification:
+        raise HTTPException(status_code=404, detail="Notification not found")
+
+    interaction = NotificationInteraction(
+        notification_id=notification_id,
+        user_id=current_user.id,
+        interaction_type=data.interaction_type.value,
+    )
+    db.add(interaction)
+    await db.commit()
+    await db.refresh(interaction)
+    return interaction
 
 
 @router.delete("/{notification_id}")

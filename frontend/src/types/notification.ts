@@ -1,9 +1,11 @@
 export type NotificationCategory = 'approval' | 'inspection' | 'defect' | 'update' | 'general'
+export type UrgencyLevel = 'low' | 'medium' | 'high' | 'critical'
 
 export interface Notification {
   id: string
   userId: string
   category: NotificationCategory
+  urgency: UrgencyLevel
   title: string
   message: string
   relatedEntityType?: string
@@ -15,6 +17,7 @@ export interface Notification {
 
 export interface NotificationFilters {
   category?: NotificationCategory
+  urgency?: UrgencyLevel
   isRead?: boolean
   limit?: number
   offset?: number
@@ -29,4 +32,64 @@ export interface NotificationListResponse {
 
 export interface UnreadCountResponse {
   unreadCount: number
+}
+
+export type DigestFrequency = 'immediate' | 'daily' | 'weekly'
+
+export interface NotificationPreference {
+  id: string
+  userId: string
+  category: string
+  enabled: boolean
+  minUrgencyLevel: UrgencyLevel
+  quietHoursStart: string | null
+  quietHoursEnd: string | null
+  emailEnabled: boolean
+  pushEnabled: boolean
+  digestFrequency: DigestFrequency
+  createdAt: string
+  updatedAt: string
+}
+
+export interface NotificationPreferenceCreate {
+  category: string
+  enabled?: boolean
+  minUrgencyLevel?: UrgencyLevel
+  quietHoursStart?: string | null
+  quietHoursEnd?: string | null
+  emailEnabled?: boolean
+  pushEnabled?: boolean
+  digestFrequency?: DigestFrequency
+}
+
+export interface NotificationPreferenceUpdate {
+  category?: string
+  enabled?: boolean
+  minUrgencyLevel?: UrgencyLevel
+  quietHoursStart?: string | null
+  quietHoursEnd?: string | null
+  emailEnabled?: boolean
+  pushEnabled?: boolean
+  digestFrequency?: DigestFrequency
+}
+
+export interface NotificationPreferenceListResponse {
+  items: NotificationPreference[]
+  total: number
+  limit: number
+  offset: number
+}
+
+export type InteractionType = 'viewed' | 'clicked' | 'dismissed' | 'acted_upon'
+
+export interface NotificationInteraction {
+  id: string
+  notificationId: string
+  userId: string
+  interactionType: InteractionType
+  createdAt: string
+}
+
+export interface NotificationInteractionCreate {
+  interactionType: InteractionType
 }
