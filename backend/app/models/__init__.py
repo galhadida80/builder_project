@@ -46,6 +46,7 @@ from app.models.meeting import Meeting, MeetingAttendee
 from app.models.permission_override import PermissionOverride
 from app.models.project import Project, ProjectMember
 from app.models.rfi import RFI, RFICategory, RFIEmailLog, RFIPriority, RFIResponse, RFIStatus
+from app.models.risk_score import RiskLevel, RiskScore
 from app.models.user import User
 from app.models.analytics import CustomKpiDefinition, KpiSnapshot
 from app.models.budget import BudgetLineItem, ChangeOrder, CostEntry
@@ -134,4 +135,6 @@ __all__ = [
     "ScheduledReport",
     "SubcontractorProfile",
     "EntityVersion",
+    "RiskScore",
+    "RiskLevel",
 ]
