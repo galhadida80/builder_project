@@ -7,6 +7,7 @@ from uuid import UUID
 
 import pyotp
 from fastapi import APIRouter, BackgroundTasks, Body, Depends, HTTPException, Query, Request, Response, status
+from fastapi.responses import RedirectResponse
 from jose import JWTError, jwt
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -517,6 +518,8 @@ async def get_avatar_image(
 ):
     if not user.avatar_url:
         raise HTTPException(status_code=404, detail="No avatar found")
+    if user.avatar_url.startswith("http"):
+        return RedirectResponse(url=user.avatar_url, status_code=302)
     try:
         content = await storage.get_file_content(user.avatar_url)
     except FileNotFoundError:
