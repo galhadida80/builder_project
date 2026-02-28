@@ -24,6 +24,7 @@ from app.services.report_service import (
     generate_attendance_report,
     generate_csv_export,
     generate_inspection_summary,
+    generate_labor_cost_report,
     generate_rfi_aging_report,
 )
 
@@ -76,10 +77,22 @@ async def get_attendance(
     return await generate_attendance_report(db, project_id, date_from, date_to)
 
 
+@router.get("/projects/{project_id}/reports/labor-costs")
+async def get_labor_costs(
+    project_id: UUID,
+    date_from: datetime = Query(...),
+    date_to: datetime = Query(...),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    await verify_project_access(project_id, current_user, db)
+    return await generate_labor_cost_report(db, project_id, date_from, date_to)
+
+
 @router.get("/projects/{project_id}/reports/export")
 async def export_report(
     project_id: UUID,
-    report_type: str = Query(..., pattern="^(inspection-summary|approval-status|rfi-aging|attendance)$"),
+    report_type: str = Query(..., pattern="^(inspection-summary|approval-status|rfi-aging|attendance|labor-costs)$"),
     format: str = Query("csv", pattern="^csv$"),
     date_from: datetime = Query(None),
     date_to: datetime = Query(None),
@@ -107,6 +120,11 @@ async def export_report(
             raise HTTPException(status_code=400, detail="date_from and date_to are required")
         report = await generate_attendance_report(db, project_id, date_from, date_to)
         csv_data = generate_csv_export(report.get("user_summary", []))
+    elif report_type == "labor-costs":
+        if not date_from or not date_to:
+            raise HTTPException(status_code=400, detail="date_from and date_to are required")
+        report = await generate_labor_cost_report(db, project_id, date_from, date_to)
+        csv_data = generate_csv_export(report.get("cost_items", []))
     else:
         raise HTTPException(status_code=400, detail="Invalid report type")
 

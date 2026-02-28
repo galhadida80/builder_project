@@ -253,6 +253,95 @@ async def generate_attendance_report(
     }
 
 
+async def generate_labor_cost_report(
+    db: AsyncSession, project_id: UUID, date_from: datetime, date_to: datetime
+) -> dict:
+    from sqlalchemy.orm import selectinload
+    from app.models.timesheet import Timesheet
+
+    result = await db.execute(
+        select(Timesheet)
+        .options(selectinload(Timesheet.user))
+        .where(
+            Timesheet.project_id == project_id,
+            Timesheet.start_date >= date_from,
+            Timesheet.end_date <= date_to,
+            Timesheet.status == "approved",
+        )
+        .order_by(Timesheet.start_date)
+    )
+    timesheets = result.scalars().all()
+
+    total_cost = 0.0
+    total_hours = 0.0
+    total_overtime_hours = 0.0
+    user_breakdown = {}
+    cost_items = []
+
+    for timesheet in timesheets:
+        user_id = str(timesheet.user_id)
+        user_name = timesheet.user.full_name if timesheet.user else "Unknown"
+
+        time_entries_result = await db.execute(
+            select(TimeEntry).where(
+                TimeEntry.user_id == timesheet.user_id,
+                TimeEntry.project_id == project_id,
+                TimeEntry.clock_in_time >= timesheet.start_date,
+                TimeEntry.clock_in_time <= timesheet.end_date,
+                TimeEntry.status == "completed",
+            )
+        )
+        time_entries = list(time_entries_result.scalars().all())
+
+        timesheet_hours = 0.0
+        timesheet_overtime = 0.0
+        for entry in time_entries:
+            if entry.clock_out_time:
+                total_time = (entry.clock_out_time - entry.clock_in_time).total_seconds() / 3600
+                break_time = (entry.break_minutes or 0) / 60
+                worked_hours = total_time - break_time
+                timesheet_hours += worked_hours
+
+        timesheet_cost = float(timesheet.total_cost or 0.0)
+        total_cost += timesheet_cost
+        total_hours += timesheet_hours
+
+        if user_id not in user_breakdown:
+            user_breakdown[user_id] = {
+                "user_id": user_id,
+                "user_name": user_name,
+                "total_hours": 0.0,
+                "total_cost": 0.0,
+                "timesheets_count": 0,
+            }
+
+        user_breakdown[user_id]["total_hours"] += round(timesheet_hours, 2)
+        user_breakdown[user_id]["total_cost"] += round(timesheet_cost, 2)
+        user_breakdown[user_id]["timesheets_count"] += 1
+
+        cost_items.append({
+            "id": str(timesheet.id),
+            "user_id": user_id,
+            "user_name": user_name,
+            "start_date": timesheet.start_date.isoformat(),
+            "end_date": timesheet.end_date.isoformat(),
+            "total_hours": round(timesheet_hours, 2),
+            "total_cost": round(timesheet_cost, 2),
+            "status": timesheet.status,
+        })
+
+    return {
+        "total_cost": round(total_cost, 2),
+        "total_hours": round(total_hours, 2),
+        "total_timesheets": len(timesheets),
+        "total_workers": len(user_breakdown),
+        "date_from": date_from.isoformat(),
+        "date_to": date_to.isoformat(),
+        "user_breakdown": sorted(user_breakdown.values(), key=lambda x: x["total_cost"], reverse=True),
+        "cost_items": cost_items,
+    }
+
+
 def generate_csv_export(data: list[dict]) -> str:
     if not data:
         return ""
