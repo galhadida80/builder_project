@@ -43,6 +43,7 @@ from app.api.v1 import (
     organizations,
     payment_webhooks,
     projects,
+    qr_codes,
     quantity_extraction,
     reports,
     rfis,
@@ -115,6 +116,7 @@ api_router.include_router(ws.router, tags=["websocket"])
 api_router.include_router(calendar.router, tags=["calendar"])
 api_router.include_router(discussions.router, tags=["discussions"])
 api_router.include_router(quantity_extraction.router, tags=["quantity_extraction"])
+api_router.include_router(qr_codes.router, tags=["qr_codes"])
 api_router.include_router(reports.router, tags=["reports"])
 api_router.include_router(exports.router, tags=["exports"])
 api_router.include_router(organization_exports.router, tags=["exports"])
