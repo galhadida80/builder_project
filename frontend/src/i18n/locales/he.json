@@ -3556,6 +3556,30 @@
       "general": "כללי"
     }
   },
+  "subcontractorPortal": {
+    "title": "פורטל קבלן משנה",
+    "dashboard": "לוח בקרה",
+    "profile": "פרופיל",
+    "dashboardLoadFailed": "טעינת לוח הבקרה נכשלה",
+    "yourWorkSummary": "סיכום העבודה שלך",
+    "totalTasks": "סה\"כ משימות",
+    "totalRFIs": "סה\"כ RFI-ים",
+    "totalApprovals": "סה\"כ אישורים",
+    "upcomingDeadlines": "מועדים קרובים",
+    "tasks": "משימות",
+    "inProgress": "בביצוע",
+    "completed": "הושלם",
+    "overdue": "באיחור",
+    "rfis": "RFI-ים",
+    "waitingResponse": "ממתין לתשובה",
+    "answered": "נענה",
+    "open": "פתוח",
+    "approvals": "אישורים",
+    "pending": "ממתין",
+    "approved": "אושר",
+    "rejected": "נדחה",
+    "profileInformation": "מידע פרופיל"
+  },
   "fileAttachment": {
     "title": "קבצים מצורפים",
     "noFiles": "אין קבצים מצורפים",

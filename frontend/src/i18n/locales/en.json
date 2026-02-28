@@ -3510,6 +3510,30 @@
       "general": "General"
     }
   },
+  "subcontractorPortal": {
+    "title": "Subcontractor Portal",
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "dashboardLoadFailed": "Failed to load dashboard",
+    "yourWorkSummary": "Your Work Summary",
+    "totalTasks": "Total Tasks",
+    "totalRFIs": "Total RFIs",
+    "totalApprovals": "Total Approvals",
+    "upcomingDeadlines": "Upcoming Deadlines",
+    "tasks": "Tasks",
+    "inProgress": "In Progress",
+    "completed": "Completed",
+    "overdue": "Overdue",
+    "rfis": "RFIs",
+    "waitingResponse": "Waiting Response",
+    "answered": "Answered",
+    "open": "Open",
+    "approvals": "Approvals",
+    "pending": "Pending",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "profileInformation": "Profile Information"
+  },
   "fileAttachment": {
     "title": "Attachments",
     "noFiles": "No files attached",
