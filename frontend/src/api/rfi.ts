@@ -35,6 +35,9 @@ export interface RFI {
     fullName: string
   }
   responses?: RFIResponseData[]
+  sync_source?: string
+  sync_status?: string
+  last_synced_at?: string
 }
 
 export interface RFIResponseData {
@@ -73,6 +76,9 @@ export interface RFIListItem {
   sent_at?: string
   responded_at?: string
   response_count: number
+  sync_source?: string
+  sync_status?: string
+  last_synced_at?: string
 }
 
 export interface RFICreate {

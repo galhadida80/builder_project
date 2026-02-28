@@ -1728,7 +1728,8 @@
     "lastResponse": "תשובה אחרונה",
     "priorityFilter": "סינון לפי דחיפות",
     "timeAgo": "לפני {{time}}",
-    "allPriorities": "כל העדיפויות"
+    "allPriorities": "כל העדיפויות",
+    "conflict": "קונפליקט"
   },
   "contactGroups": {
     "title": "קבוצות אנשי קשר",

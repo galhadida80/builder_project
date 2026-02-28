@@ -1551,7 +1551,8 @@
     "lastResponse": "Last Response",
     "priorityFilter": "Filter by Priority",
     "timeAgo": "{{time}} ago",
-    "allPriorities": "All Priorities"
+    "allPriorities": "All Priorities",
+    "conflict": "Conflict"
   },
   "contactGroups": {
     "title": "Contact Groups",
