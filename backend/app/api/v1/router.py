@@ -1,6 +1,8 @@
 from fastapi import APIRouter
 
 from app.api.v1 import (
+    acc_sync,
+    acc_webhooks,
     admin,
     analytics,
     analytics_bi,
@@ -62,6 +64,8 @@ from app.api.v1 import (
 api_router = APIRouter()
 
 api_router.include_router(auth.router, prefix="/auth", tags=["auth"])
+api_router.include_router(acc_sync.router, tags=["acc-sync"])
+api_router.include_router(acc_webhooks.router, tags=["acc"])
 api_router.include_router(client_portal.router, prefix="/client-portal", tags=["client_portal"])
 api_router.include_router(projects.router, prefix="/projects", tags=["projects"])
 api_router.include_router(equipment.router, tags=["equipment"])
