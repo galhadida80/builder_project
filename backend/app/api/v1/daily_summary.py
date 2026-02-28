@@ -100,7 +100,31 @@ async def trigger_daily_summary(
                     "language": lang,
                     "status": "sent",
                 })
+            except RuntimeError as e:
+                # OAuth/authentication errors from GmailService are wrapped in RuntimeError
+                error_msg = str(e)
+                if "OAuth" in error_msg or "authentication failed" in error_msg or "re-authorize" in error_msg:
+                    logger.error(
+                        f"Gmail OAuth/authentication error when sending daily summary to {admin.email}: {e}. "
+                        f"Project: {project.name}. Re-authorization may be required."
+                    )
+                    results.append({
+                        "project": project.name,
+                        "email": admin.email,
+                        "status": "auth_error",
+                        "error": str(e),
+                    })
+                else:
+                    # Other RuntimeErrors
+                    logger.error(f"Failed to send daily summary to {admin.email}: {e}")
+                    results.append({
+                        "project": project.name,
+                        "email": admin.email,
+                        "status": "error",
+                        "error": str(e),
+                    })
             except Exception as e:
+                # Generic errors (network issues, etc.)
                 logger.error(f"Failed to send daily summary to {admin.email}: {e}")
                 results.append({
                     "project": project.name,
@@ -112,9 +136,11 @@ async def trigger_daily_summary(
     sent_count = sum(1 for r in results if r["status"] == "sent")
     skipped_count = sum(1 for r in results if r["status"] == "skipped")
     error_count = sum(1 for r in results if r["status"] == "error")
+    auth_error_count = sum(1 for r in results if r["status"] == "auth_error")
 
     logger.info(
-        f"Daily summary completed: {sent_count} sent, {skipped_count} skipped, {error_count} errors"
+        f"Daily summary completed: {sent_count} sent, {skipped_count} skipped, "
+        f"{error_count} errors, {auth_error_count} auth errors"
     )
 
     return {
@@ -123,6 +149,7 @@ async def trigger_daily_summary(
         "sent": sent_count,
         "skipped": skipped_count,
         "errors": error_count,
+        "auth_errors": auth_error_count,
         "results": results,
     }
 

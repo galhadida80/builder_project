@@ -12,6 +12,8 @@ from app.config import get_settings
 logger = logging.getLogger(__name__)
 
 try:
+    from google.auth.exceptions import RefreshError
+    from google.auth.transport.requests import Request
     from google.oauth2.credentials import Credentials
     from googleapiclient.discovery import build
     from googleapiclient.errors import HttpError
@@ -19,6 +21,7 @@ try:
 except ImportError:
     GOOGLE_APIS_AVAILABLE = False
     HttpError = None
+    RefreshError = None
     logger.warning("Google API libraries not installed. Gmail integration will be disabled.")
 
 GMAIL_SEND_MAX_RETRIES = 3
@@ -32,19 +35,38 @@ def execute_with_retry(request):
         try:
             return request.execute()
         except Exception as e:
-            is_retriable = (
-                HttpError is not None
-                and isinstance(e, HttpError)
-                and e.resp.status in (503, 429)
-            )
-            if not is_retriable or attempt == GMAIL_SEND_MAX_RETRIES - 1:
-                raise
-            delay = GMAIL_SEND_RETRY_DELAYS[attempt]
-            logger.warning(
-                "Gmail API returned %s, retrying in %ds (attempt %d/%d): %s",
-                e.resp.status, delay, attempt + 1, GMAIL_SEND_MAX_RETRIES, e,
-            )
-            time.sleep(delay)
+            # Handle RefreshError separately - no retry
+            if RefreshError is not None and isinstance(e, RefreshError):
+                logger.error(f"Gmail OAuth token refresh failed: {e}")
+                raise RuntimeError(
+                    "Gmail OAuth token expired or revoked. Please re-authorize the application."
+                )
+
+            # Handle HttpError cases
+            if HttpError is not None and isinstance(e, HttpError):
+                status = e.resp.status
+
+                # Auth errors - no retry
+                if status in (401, 403):
+                    logger.error(f"Gmail API authentication failed (status {status}): {e}")
+                    raise RuntimeError(
+                        f"Gmail authentication failed (status {status}). "
+                        "Please check credentials and re-authorize if necessary."
+                    )
+
+                # Retriable errors - retry with backoff
+                if status in (503, 429) and attempt < GMAIL_SEND_MAX_RETRIES - 1:
+                    delay = GMAIL_SEND_RETRY_DELAYS[attempt]
+                    logger.warning(
+                        "Gmail API returned %s, retrying in %ds (attempt %d/%d): %s",
+                        status, delay, attempt + 1, GMAIL_SEND_MAX_RETRIES, e,
+                    )
+                    time.sleep(delay)
+                    continue
+
+            # For all other errors (including last retry attempt), raise
+            raise
+
     raise RuntimeError("Unreachable")
 
 
@@ -83,6 +105,19 @@ class GmailService:
                 client_secret=self.settings.gmail_client_secret,
                 scopes=self.SCOPES,
             )
+
+            if credentials.expired and credentials.refresh_token:
+                try:
+                    credentials.refresh(Request())
+                except RefreshError as e:
+                    logger.error(
+                        f"Gmail OAuth token refresh failed: {e}. "
+                        f"Re-authorization required. Please generate a new refresh token."
+                    )
+                    raise RuntimeError(
+                        "Gmail OAuth token expired or revoked. Please re-authorize the application."
+                    )
+
             self._service = build('gmail', 'v1', credentials=credentials)
         return self._service
 
