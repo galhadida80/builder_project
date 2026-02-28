@@ -11,6 +11,7 @@ from app.config import get_settings
 from app.core.security import get_current_user, verify_project_access
 from app.db.session import get_db
 from app.models.approval import ApprovalRequest, ApprovalStep
+from app.models.audit import AuditLog
 from app.models.invitation import InvitationStatus, ProjectInvitation
 from app.models.project import Project, ProjectMember
 from app.models.rfi import RFI, RFIResponse as RFIResponseModel
@@ -18,6 +19,7 @@ from app.models.subcontractor import SubcontractorProfile
 from app.models.task import Task
 from app.models.user import User
 from app.schemas.approval import ApprovalRequestResponse
+from app.schemas.project_overview import TimelineEvent
 from app.schemas.rfi import PaginatedRFIResponse, RFIListResponse
 from app.schemas.subcontractor import (
     SubcontractorInviteRequest,
@@ -433,3 +435,40 @@ async def get_portal_data(
         "company_name": profile.company_name if profile else None,
         "trade": profile.trade if profile else None,
     }
+
+
+@router.get("/subcontractors/activity-feed", response_model=list[TimelineEvent])
+async def get_activity_feed(
+    limit: int = Query(20, ge=1, le=100),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Get activity feed for subcontractor across all their projects"""
+    user_project_ids = select(ProjectMember.project_id).where(
+        ProjectMember.user_id == current_user.id,
+        ProjectMember.role == "subcontractor",
+    )
+
+    audit_result = await db.execute(
+        select(AuditLog)
+        .where(AuditLog.project_id.in_(user_project_ids))
+        .order_by(AuditLog.created_at.desc())
+        .limit(limit)
+    )
+
+    timeline_events = []
+    for log in audit_result.scalars():
+        event = TimelineEvent(
+            id=log.id,
+            date=log.created_at,
+            title=f"{log.action.value.title()} {log.entity_type}",
+            description=None,
+            event_type=log.entity_type,
+            entity_id=log.entity_id,
+            entity_type=log.entity_type,
+            user_name=log.user_full_name or log.user_email,
+            metadata={"action": log.action.value}
+        )
+        timeline_events.append(event)
+
+    return timeline_events
