@@ -1225,7 +1225,8 @@
     "selectFloor": "Select Floor",
     "allFloors": "All Floors",
     "unitsInManagement": "Areas in management",
-    "floorProgress": "Floor progress"
+    "floorProgress": "Floor progress",
+    "uploadFloorplan": "Upload Floorplan"
   },
   "settings": {
     "title": "Settings",
@@ -1772,6 +1773,7 @@
     "deleteConfirmation": "Are you sure you want to delete {{name}}?",
     "uploadSuccess": "{{name}} uploaded successfully!",
     "uploadFailed": "Failed to upload {{name}}",
+    "invalidFileType": "Invalid file type. Please select an image file.",
     "downloading": "Downloading {{name}}...",
     "downloadFailed": "Failed to download {{name}}",
     "deleteSuccess": "{{name}} deleted successfully!",

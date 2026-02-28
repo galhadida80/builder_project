@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Card } from '../components/ui/Card'
@@ -14,13 +14,14 @@ import { AreaNode, AREA_TYPE_KEYS } from '../components/areas/AreaNode'
 import { AreaDetailDrawer } from '../components/areas/AreaDetailDrawer'
 import { areasApi } from '../api/areas'
 import { areaStructureApi } from '../api/areaStructure'
+import { filesApi } from '../api/files'
 import type { ConstructionArea } from '../types'
 import { validateAreaForm, hasErrors, VALIDATION, type ValidationError } from '../utils/validation'
 import { useToast } from '../components/common/ToastProvider'
 import { useFormShake } from '../hooks/useFormShake'
 import { parseValidationErrors } from '../utils/apiErrors'
 import { withMinDuration } from '../utils/async'
-import { AddIcon, AccountTreeIcon } from '@/icons'
+import { AddIcon, AccountTreeIcon, CloudUploadIcon } from '@/icons'
 import { Box, Typography, Chip, Fab, MenuItem, TextField as MuiTextField, Skeleton, useTheme, useMediaQuery } from '@/mui'
 
 export default function AreasPage() {
@@ -31,7 +32,9 @@ export default function AreasPage() {
   const { formRef, triggerShake } = useFormShake()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [loading, setLoading] = useState(true)
+  const [uploading, setUploading] = useState(false)
   const [areas, setAreas] = useState<ConstructionArea[]>([])
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingArea, setEditingArea] = useState<ConstructionArea | null>(null)
@@ -92,6 +95,29 @@ export default function AreasPage() {
     catch { showError(t('checklists.failedToCreate')) }
   }
 
+  const handleUploadClick = () => { fileInputRef.current?.click() }
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file || !projectId) return
+
+    if (!file.type.startsWith('image/')) {
+      showError(t('files.invalidFileType'))
+      return
+    }
+
+    setUploading(true)
+    try {
+      await withMinDuration(filesApi.upload(projectId, 'floorplan', projectId, file))
+      showSuccess(t('files.uploadSuccess', { name: file.name }))
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    } catch {
+      showError(t('files.uploadFailed', { name: file.name }))
+    } finally {
+      setUploading(false)
+    }
+  }
+
   const allAreas = getAllAreas(areas)
   const completedAreas = allAreas.filter(a => (a.currentProgress ?? 0) === 100).length
   const inProgressAreas = allAreas.filter(a => { const p = a.currentProgress ?? 0; return p > 0 && p < 100 }).length
@@ -135,6 +161,7 @@ export default function AreasPage() {
         breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('areas.title') }]}
         actions={
           <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+            <Button variant="secondary" icon={<CloudUploadIcon />} onClick={handleUploadClick} loading={uploading}>{t('areas.uploadFloorplan')}</Button>
             <Button variant="secondary" icon={<AccountTreeIcon />} onClick={() => navigate(`/projects/${projectId}/structure-wizard`)}>{t('areas.structureWizard')}</Button>
             <Box sx={{ display: { xs: 'none', md: 'block' } }}><Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>{t('areas.addArea')}</Button></Box>
           </Box>
@@ -251,6 +278,14 @@ export default function AreasPage() {
           <AddIcon />
         </Fab>
       )}
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        style={{ display: 'none' }}
+        onChange={handleFileChange}
+      />
     </Box>
   )
 }

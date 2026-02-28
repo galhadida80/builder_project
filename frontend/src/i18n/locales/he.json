@@ -1393,7 +1393,8 @@
     "selectFloor": "בחירת קומה",
     "allFloors": "כל הקומות",
     "unitsInManagement": "אזורים בניהול",
-    "floorProgress": "התקדמות קומה"
+    "floorProgress": "התקדמות קומה",
+    "uploadFloorplan": "העלה תוכנית קומה"
   },
   "settings": {
     "title": "הגדרות",
@@ -1949,6 +1950,7 @@
     "deleteConfirmation": "האם אתה בטוח שברצונך למחוק את {{name}}?",
     "uploadSuccess": "{{name}} הועלה בהצלחה!",
     "uploadFailed": "נכשל בהעלאת {{name}}",
+    "invalidFileType": "סוג קובץ לא חוקי. אנא בחר קובץ תמונה.",
     "downloading": "מוריד את {{name}}...",
     "downloadFailed": "נכשל בהורדת {{name}}",
     "deleteSuccess": "{{name}} נמחק בהצלחה!",
