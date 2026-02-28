@@ -2,11 +2,18 @@ import asyncio
 import base64
 import time
 import urllib.parse
+from datetime import datetime, timedelta
 from typing import Any, Optional
+from uuid import UUID
 
 import httpx
+from fastapi import HTTPException
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Settings
+from app.models.bim import AutodeskConnection
+from app.utils import utcnow
 
 APS_BASE_URL = "https://developer.api.autodesk.com"
 
@@ -171,6 +178,46 @@ class APSService:
             )
             resp.raise_for_status()
             return resp.json()
+
+    async def get_user_token(self, db: AsyncSession, user_id: UUID) -> str:
+        stmt = select(AutodeskConnection).where(AutodeskConnection.user_id == user_id)
+        result = await db.execute(stmt)
+        connection = result.scalar_one_or_none()
+
+        if not connection:
+            raise HTTPException(status_code=404, detail="Autodesk connection not found for user")
+
+        if not connection.access_token or not connection.refresh_token:
+            raise HTTPException(status_code=401, detail="User not authenticated with Autodesk")
+
+        now = utcnow()
+        if connection.token_expires_at and connection.token_expires_at > now:
+            return connection.access_token
+
+        try:
+            token_data = await self.refresh_token(connection.refresh_token)
+
+            connection.access_token = token_data["access_token"]
+            if "refresh_token" in token_data:
+                connection.refresh_token = token_data["refresh_token"]
+
+            expires_in = token_data.get("expires_in", 3600)
+            connection.token_expires_at = now + timedelta(seconds=expires_in)
+
+            await db.commit()
+            await db.refresh(connection)
+
+            return connection.access_token
+
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 400:
+                raise HTTPException(
+                    status_code=401,
+                    detail="Failed to refresh Autodesk token. Please re-authenticate.",
+                )
+            raise HTTPException(status_code=500, detail=f"Error refreshing Autodesk token: {str(e)}")
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Unexpected error managing Autodesk token: {str(e)}")
 
     async def get_model_views(self, urn: str) -> list[dict[str, Any]]:
         token = await self.get_2legged_token()
