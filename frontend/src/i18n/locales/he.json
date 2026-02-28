@@ -1175,6 +1175,22 @@
     "invalidType": "{{name}} - סוג קובץ לא נתמך",
     "uploadFailed": "העלאת {{name}} נכשלה"
   },
+  "batchUpload": {
+    "dropHere": "שחרר קבצים כאן",
+    "dragAndDrop": "גרור ושחרר קבצים מרובים כאן",
+    "orClickBrowse": "או לחץ לעיון",
+    "acceptedTypes": "קבצי PDF ותמונות",
+    "limits": "עד {{maxFiles}} קבצים או {{maxSize}}",
+    "fileTooLarge": "{{name}} גדול מדי. גודל מקסימלי {{maxSize}}",
+    "invalidType": "{{name}} - סוג קובץ לא נתמך",
+    "tooManyFiles": "יותר מדי קבצים. מקסימום {{maxFiles}} קבצים",
+    "invalidFile": "{{name}} - קובץ לא תקין",
+    "maxFilesExceeded": "לא ניתן להעלות יותר מ-{{maxFiles}} קבצים",
+    "maxSizeExceeded": "גודל כולל חורג מהמותר: {{maxSize}}",
+    "selectedFiles": "{{count}} קבצים נבחרו",
+    "totalSize": "גודל כולל: {{size}}",
+    "removeFile": "הסר {{name}}"
+  },
   "templatePicker": {
     "specs": "מפרטים",
     "docs": "מסמכים",

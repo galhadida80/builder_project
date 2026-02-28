@@ -1007,6 +1007,22 @@
     "invalidType": "{{name}} has an unsupported file type",
     "uploadFailed": "Failed to upload {{name}}"
   },
+  "batchUpload": {
+    "dropHere": "Drop files here",
+    "dragAndDrop": "Drag & drop multiple files here",
+    "orClickBrowse": "or click to browse",
+    "acceptedTypes": "PDF files and images",
+    "limits": "Up to {{maxFiles}} files or {{maxSize}}",
+    "fileTooLarge": "{{name}} is too large. Maximum size is {{maxSize}}",
+    "invalidType": "{{name}} has an unsupported file type",
+    "tooManyFiles": "Too many files. Maximum {{maxFiles}} files",
+    "invalidFile": "{{name}} is invalid",
+    "maxFilesExceeded": "Cannot upload more than {{maxFiles}} files",
+    "maxSizeExceeded": "Total size exceeds limit: {{maxSize}}",
+    "selectedFiles": "{{count}} files selected",
+    "totalSize": "Total size: {{size}}",
+    "removeFile": "Remove {{name}}"
+  },
   "templatePicker": {
     "specs": "Specs",
     "docs": "Docs",
