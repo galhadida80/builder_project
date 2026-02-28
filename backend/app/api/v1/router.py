@@ -37,6 +37,7 @@ from app.api.v1 import (
     material_templates,
     materials,
     meetings,
+    near_misses,
     notification_preferences,
     notifications,
     organization_exports,
@@ -47,10 +48,14 @@ from app.api.v1 import (
     reports,
     rfis,
     risk_scores,
+    safety_incidents,
+    safety_kpi,
+    safety_training,
     schedule_risk,
     subscriptions,
     tasks_api,
     time_tracking,
+    toolbox_talks,
     webhooks,
     whatsapp,
     work_summary,
@@ -121,3 +126,8 @@ api_router.include_router(organization_exports.router, tags=["exports"])
 api_router.include_router(subcontractors.router, tags=["subcontractors"])
 api_router.include_router(time_tracking.router, tags=["time_tracking"])
 api_router.include_router(work_summary.router, prefix="/auth", tags=["auth"])
+api_router.include_router(safety_incidents.router, tags=["safety_incidents"])
+api_router.include_router(near_misses.router, tags=["near_misses"])
+api_router.include_router(safety_training.router, tags=["safety_training"])
+api_router.include_router(toolbox_talks.router, tags=["toolbox_talks"])
+api_router.include_router(safety_kpi.router, tags=["safety_kpi"])
