@@ -12,6 +12,7 @@
       "Glob(./**)",
       "Grep(./**)",
 <<<<<<< HEAD
+<<<<<<< HEAD
       "Read(/Users/galhadida/projects/builder_project/builder_program/.auto-claude/worktrees/tasks/254-add-focus-visible-styles-to-sidebar-navigation-and/**)",
       "Write(/Users/galhadida/projects/builder_project/builder_program/.auto-claude/worktrees/tasks/254-add-focus-visible-styles-to-sidebar-navigation-and/**)",
       "Edit(/Users/galhadida/projects/builder_project/builder_program/.auto-claude/worktrees/tasks/254-add-focus-visible-styles-to-sidebar-navigation-and/**)",
@@ -30,6 +31,16 @@
       "Write(/Users/galhadida/projects/builder_project/builder_program/.auto-claude/worktrees/tasks/255-fix-header-user-menu-to-navigate-to-existing-setti/.auto-claude/specs/255-fix-header-user-menu-to-navigate-to-existing-setti/**)",
       "Edit(/Users/galhadida/projects/builder_project/builder_program/.auto-claude/worktrees/tasks/255-fix-header-user-menu-to-navigate-to-existing-setti/.auto-claude/specs/255-fix-header-user-menu-to-navigate-to-existing-setti/**)",
 >>>>>>> 70f0f68 (auto-claude: subtask-1-1 - Verify Settings and Profile menu navigation works correctly)
+=======
+      "Read(/Users/galhadida/projects/builder_project/builder_program/.auto-claude/worktrees/tasks/267-add-consistent-form-field-error-highlighting-with-/**)",
+      "Write(/Users/galhadida/projects/builder_project/builder_program/.auto-claude/worktrees/tasks/267-add-consistent-form-field-error-highlighting-with-/**)",
+      "Edit(/Users/galhadida/projects/builder_project/builder_program/.auto-claude/worktrees/tasks/267-add-consistent-form-field-error-highlighting-with-/**)",
+      "Glob(/Users/galhadida/projects/builder_project/builder_program/.auto-claude/worktrees/tasks/267-add-consistent-form-field-error-highlighting-with-/**)",
+      "Grep(/Users/galhadida/projects/builder_project/builder_program/.auto-claude/worktrees/tasks/267-add-consistent-form-field-error-highlighting-with-/**)",
+      "Read(/Users/galhadida/projects/builder_project/builder_program/.auto-claude/worktrees/tasks/267-add-consistent-form-field-error-highlighting-with-/.auto-claude/specs/267-add-consistent-form-field-error-highlighting-with-/**)",
+      "Write(/Users/galhadida/projects/builder_project/builder_program/.auto-claude/worktrees/tasks/267-add-consistent-form-field-error-highlighting-with-/.auto-claude/specs/267-add-consistent-form-field-error-highlighting-with-/**)",
+      "Edit(/Users/galhadida/projects/builder_project/builder_program/.auto-claude/worktrees/tasks/267-add-consistent-form-field-error-highlighting-with-/.auto-claude/specs/267-add-consistent-form-field-error-highlighting-with-/**)",
+>>>>>>> 66aadce (auto-claude: subtask-1-4 - Type-check frontend after changes)
       "Read(/Users/galhadida/projects/builder_project/builder_program/.auto-claude/**)",
       "Write(/Users/galhadida/projects/builder_project/builder_program/.auto-claude/**)",
       "Edit(/Users/galhadida/projects/builder_project/builder_program/.auto-claude/**)",
