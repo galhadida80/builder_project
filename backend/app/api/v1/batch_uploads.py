@@ -5,7 +5,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile
 from fastapi import File as FastAPIFile
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -13,6 +13,7 @@ from app.core.permissions import Permission, require_permission
 from app.core.security import get_current_user, verify_project_access
 from app.db.session import get_db
 from app.models.batch_upload import BatchUpload
+from app.models.document_version import DocumentVersion
 from app.models.file import File
 from app.models.project import ProjectMember
 from app.models.user import User
@@ -97,19 +98,60 @@ async def create_batch_upload(
 
             file_size = await storage.save_file(file, storage_path)
 
-            file_record = File(
-                project_id=project_id,
-                entity_type=entity_type,
-                entity_id=entity_id,
-                filename=file.filename or "unnamed",
-                file_type=file.content_type or "application/octet-stream",
-                file_size=file_size,
-                storage_path=storage_path,
-                uploaded_by_id=current_user.id
+            # Check if file with same name already exists for this entity
+            existing_file_result = await db.execute(
+                select(File)
+                .where(
+                    File.filename == (file.filename or "unnamed"),
+                    File.entity_type == entity_type,
+                    File.entity_id == entity_id
+                )
             )
-            db.add(file_record)
-            await db.flush()
-            uploaded_files.append(file_record)
+            existing_file = existing_file_result.scalar_one_or_none()
+
+            if existing_file:
+                # Get the highest version number for this file
+                max_version_result = await db.execute(
+                    select(func.max(DocumentVersion.version_number))
+                    .where(DocumentVersion.file_id == existing_file.id)
+                )
+                max_version = max_version_result.scalar() or 0
+                next_version = max_version + 1
+
+                # Create DocumentVersion record
+                document_version = DocumentVersion(
+                    file_id=existing_file.id,
+                    version_number=next_version,
+                    filename=file.filename or "unnamed",
+                    storage_path=storage_path,
+                    file_size=file_size,
+                    uploaded_by_id=current_user.id
+                )
+                db.add(document_version)
+
+                # Update existing File record with new data
+                existing_file.storage_path = storage_path
+                existing_file.file_size = file_size
+                existing_file.file_type = file.content_type or "application/octet-stream"
+                existing_file.uploaded_by_id = current_user.id
+
+                await db.flush()
+                uploaded_files.append(existing_file)
+            else:
+                # Create new File record
+                file_record = File(
+                    project_id=project_id,
+                    entity_type=entity_type,
+                    entity_id=entity_id,
+                    filename=file.filename or "unnamed",
+                    file_type=file.content_type or "application/octet-stream",
+                    file_size=file_size,
+                    storage_path=storage_path,
+                    uploaded_by_id=current_user.id
+                )
+                db.add(file_record)
+                await db.flush()
+                uploaded_files.append(file_record)
 
         except Exception:
             failed_count += 1
