@@ -283,3 +283,98 @@ async def calculate_historical_variance(db: AsyncSession, project_id: UUID) -> d
         "total_completed_tasks": total_completed,
         "tasks_with_variance_data": len(tasks),
     }
+
+
+async def calculate_confidence_score(db: AsyncSession, project_id: UUID) -> dict:
+    """
+    Calculate confidence score for schedule predictions based on historical data.
+
+    The confidence score measures how reliable schedule predictions are, based on:
+    - Sample size (more completed tasks = higher confidence)
+    - Estimation consistency (lower variance = higher confidence)
+    - Data completeness (percentage of tasks with estimates)
+
+    Returns:
+        dict with:
+        - confidence_score: float (0.0-1.0, where 1.0 is highest confidence)
+        - sample_size_score: float (0.0-1.0)
+        - consistency_score: float (0.0-1.0)
+        - completeness_score: float (0.0-1.0)
+        - total_tasks: int
+        - completed_tasks: int
+        - tasks_with_estimates: int
+    """
+    # Get all tasks for the project
+    all_tasks_query = select(func.count(Task.id)).where(Task.project_id == project_id)
+    all_tasks_result = await db.execute(all_tasks_query)
+    total_tasks = all_tasks_result.scalar() or 0
+
+    if total_tasks == 0:
+        return {
+            "confidence_score": 0.0,
+            "sample_size_score": 0.0,
+            "consistency_score": 0.0,
+            "completeness_score": 0.0,
+            "total_tasks": 0,
+            "completed_tasks": 0,
+            "tasks_with_estimates": 0,
+        }
+
+    # Get completed tasks count
+    completed_query = (
+        select(func.count(Task.id))
+        .where(Task.project_id == project_id, Task.status == "completed")
+    )
+    completed_result = await db.execute(completed_query)
+    completed_tasks = completed_result.scalar() or 0
+
+    # Get historical variance data
+    variance_data = await calculate_historical_variance(db, project_id)
+    tasks_with_estimates = variance_data["tasks_with_variance_data"]
+
+    # Calculate sample size score (0-1, based on number of completed tasks)
+    # 30+ completed tasks with estimates = 1.0, scales linearly below that
+    sample_size_threshold = 30
+    sample_size_score = min(1.0, tasks_with_estimates / sample_size_threshold) if tasks_with_estimates > 0 else 0.0
+
+    # Calculate consistency score (0-1, based on variance from 1.0)
+    # Lower variance = higher consistency
+    # If average_delay_factor is close to 1.0, estimates are accurate
+    avg_delay = variance_data["average_delay_factor"]
+    variance_from_ideal = abs(avg_delay - 1.0)
+    # Cap variance at 2.0 for scoring purposes
+    # 0.0 variance = 1.0 score, 2.0 variance = 0.0 score
+    consistency_score = max(0.0, 1.0 - (variance_from_ideal / 2.0)) if tasks_with_estimates > 0 else 0.0
+
+    # Calculate completeness score (0-1, based on percentage of tasks with estimates)
+    tasks_with_est_query = (
+        select(func.count(Task.id))
+        .where(
+            Task.project_id == project_id,
+            Task.estimated_hours.is_not(None),
+            Task.estimated_hours > 0,
+        )
+    )
+    est_result = await db.execute(tasks_with_est_query)
+    total_with_estimates = est_result.scalar() or 0
+    completeness_score = total_with_estimates / total_tasks if total_tasks > 0 else 0.0
+
+    # Calculate overall confidence score (weighted average)
+    # Sample size: 30% - need historical data
+    # Consistency: 40% - most important for predictions
+    # Completeness: 30% - need estimates to make predictions
+    confidence_score = (
+        0.3 * sample_size_score +
+        0.4 * consistency_score +
+        0.3 * completeness_score
+    )
+
+    return {
+        "confidence_score": round(confidence_score, 3),
+        "sample_size_score": round(sample_size_score, 3),
+        "consistency_score": round(consistency_score, 3),
+        "completeness_score": round(completeness_score, 3),
+        "total_tasks": total_tasks,
+        "completed_tasks": completed_tasks,
+        "tasks_with_estimates": tasks_with_estimates,
+    }
