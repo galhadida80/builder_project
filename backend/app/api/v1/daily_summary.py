@@ -35,9 +35,20 @@ async def trigger_daily_summary(
     if summary_date is None:
         summary_date = date.today()
 
-    gmail = GmailService()
-    watch_result = gmail.renew_watch()
-    logger.info(f"Gmail watch renewal: {watch_result}")
+    try:
+        gmail = GmailService()
+        watch_result = gmail.renew_watch()
+        if watch_result.get("status") == "invalid_token":
+            logger.error(
+                "Gmail watch renewal failed: OAuth2 token expired or revoked. "
+                "Daily summary will continue, but Gmail notifications may be affected."
+            )
+        elif watch_result.get("status") == "error":
+            logger.warning(f"Gmail watch renewal error: {watch_result.get('error')}")
+        else:
+            logger.info(f"Gmail watch renewal: {watch_result}")
+    except Exception as e:
+        logger.error(f"Unexpected error during Gmail watch renewal: {e}. Continuing with daily summary.")
 
     projects_result = await db.execute(
         select(Project).where(
