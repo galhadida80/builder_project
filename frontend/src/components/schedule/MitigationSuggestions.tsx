@@ -322,8 +322,8 @@ export function MitigationSuggestions({ data, onApply, onDismiss }: MitigationSu
       {data && 'model_used' in data && (
         <Box sx={{ mt: 2, pt: 1.5, borderTop: 1, borderColor: 'divider' }}>
           <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', textAlign: 'center' }}>
-            {t('scheduleRisk.mitigation.poweredBy', 'מופעל על ידי')} {data.model_used}
-            {data.processing_time_ms && ` • ${Math.round(data.processing_time_ms as number)}ms`}
+            {t('scheduleRisk.mitigation.poweredBy', 'מופעל על ידי')} {(data as any).model_used}
+            {(data as any).processing_time_ms && ` • ${Math.round((data as any).processing_time_ms)}ms`}
           </Typography>
         </Box>
       )}

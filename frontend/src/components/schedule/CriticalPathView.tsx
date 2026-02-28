@@ -41,7 +41,7 @@ const TaskItem = ({ task, index, formatDate, formatDuration, t }: {
   index: number
   formatDate: (dateStr?: string) => string
   formatDuration: (days: number) => string
-  t: (key: string, options?: string | Record<string, unknown>) => string
+  t: (key: string, options?: any) => string
 }) => (
   <ListItem
     sx={{
