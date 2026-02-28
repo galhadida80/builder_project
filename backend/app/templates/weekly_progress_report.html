@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+
+{% macro stat_card(label, value, color="#0F172A", bg="#F8FAFC") %}
+<td style="text-align:center;padding:4px;width:25%;">
+  <div style="background:{{ bg }};border-radius:10px;padding:16px 8px;">
+    <div style="font-size:28px;font-weight:800;color:{{ color }};letter-spacing:-0.5px;">{{ value }}</div>
+    <div style="font-size:11px;color:#64748B;margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;">{{ label }}</div>
+  </div>
+</td>
+{% endmacro %}
+
+{% macro section_title(title) %}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:28px 0 14px;">
+<tr><td>
+  <p style="margin:0;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#0F172A;">{{ title }}</p>
+  <div style="height:3px;background:linear-gradient(90deg,#0369A1 0%,#E2E8F0 100%);border-radius:3px;margin-top:8px;"></div>
+</td></tr>
+</table>
+{% endmacro %}
+
+{% macro bullet_list(items, color="#0F172A") %}
+{% if items %}
+<ul style="margin:12px 0;padding-{{ 'right' if direction == 'rtl' else 'left' }}:20px;color:{{ color }};line-height:1.8;">
+  {% for item in items %}
+  <li style="margin-bottom:8px;font-size:13px;">{{ item }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
+{% endmacro %}
+
+{% block header %}
+<tr><td style="background:linear-gradient(135deg,#0F172A 0%,#1E293B 100%);padding:36px 36px 30px;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+<tr><td>
+  <p style="margin:0 0 20px;font-size:11px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:#3B82F6;">BUILDEROPS</p>
+  <p style="margin:0 0 8px;font-size:28px;">&#128200;</p>
+  <h1 style="margin:0 0 8px;color:#ffffff;font-size:24px;font-weight:800;letter-spacing:-0.3px;">{{ s.title }}</h1>
+  <p style="margin:0;color:#94A3B8;font-size:14px;font-weight:500;">
+    {{ s.project }}: <span style="color:#CBD5E1;font-weight:600;">{{ project_name }}</span>
+    &nbsp;&#183;&nbsp;
+    {{ s.period }}: <span style="color:#CBD5E1;font-weight:600;">{{ date_from }} - {{ date_to }}</span>
+  </p>
+</td></tr>
+</table>
+</td></tr>
+{% endblock %}
+
+{% block content %}
+
+{# 1. Executive summary (AI-generated) #}
+{% if ai_narrative and ai_narrative.executive_summary %}
+{{ section_title(s.executive_summary) }}
+<div style="background:#F0F9FF;border-{{ 'right' if direction == 'rtl' else 'left' }}:4px solid #0369A1;padding:20px 24px;border-radius:8px;margin-bottom:16px;">
+  <p style="margin:0;font-size:14px;line-height:1.7;color:#1E293B;font-weight:500;">{{ ai_narrative.executive_summary }}</p>
+</div>
+{% endif %}
+
+{# 2. Key metrics overview #}
+{{ section_title(s.key_metrics) }}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px;">
+  <tr>
+    {{ stat_card(s.equipment_added, metrics.equipment.created, "#0369A1", "#F0F9FF") }}
+    {{ stat_card(s.materials_added, metrics.materials.created, "#0369A1", "#F0F9FF") }}
+    {{ stat_card(s.inspections_done, metrics.inspections.completed, "#16A34A", "#F0FDF4") }}
+    {{ stat_card(s.rfis_opened, metrics.rfis.opened, "#EA580C", "#FFF7ED") }}
+  </tr>
+</table>
+
+{# 3. Progress chart #}
+{% if progress_chart %}
+{{ section_title(s.project_progress) }}
+<div style="text-align:center;margin:16px 0 24px;">
+  <img src="data:image/png;base64,{{ progress_chart }}" alt="{{ s.progress_chart_alt }}" style="max-width:100%;height:auto;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+</div>
+{% endif %}
+
+{# 4. Accomplishments (AI-generated) #}
+{% if ai_narrative and ai_narrative.accomplishments %}
+{{ section_title(s.accomplishments) }}
+{{ bullet_list(ai_narrative.accomplishments, "#16A34A") }}
+{% endif %}
+
+{# 5. Concerns & Issues (AI-generated) #}
+{% if ai_narrative and ai_narrative.concerns %}
+{{ section_title(s.concerns) }}
+<div style="background:#FEF2F2;border-{{ 'right' if direction == 'rtl' else 'left' }}:4px solid #DC2626;padding:16px 20px;border-radius:8px;margin-bottom:16px;">
+  {{ bullet_list(ai_narrative.concerns, "#991B1B") }}
+</div>
+{% endif %}
+
+{# 6. Full AI narrative #}
+{% if ai_narrative and ai_narrative.narrative %}
+{{ section_title(s.detailed_analysis) }}
+<div style="background:#FEFCE8;border-{{ 'right' if direction == 'rtl' else 'left' }}:4px solid #CA8A04;padding:20px 24px;border-radius:8px;margin-bottom:16px;">
+  {% for paragraph in ai_narrative.narrative.split('\n\n') %}
+  <p style="margin:0 0 14px;font-size:13px;line-height:1.8;color:#1E293B;">{{ paragraph }}</p>
+  {% endfor %}
+</div>
+{% endif %}
+
+{# 7. Equipment & Materials breakdown #}
+{% if metrics.equipment or metrics.materials %}
+{{ section_title(s.equipment_materials) }}
+
+<p style="margin:0 0 8px;font-size:12px;font-weight:700;color:#334155;text-transform:uppercase;letter-spacing:0.3px;">{{ s.equipment }}</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:16px;">
+  <tr>
+    {{ stat_card(s.created, metrics.equipment.created, "#0369A1", "#F0F9FF") }}
+    {{ stat_card(s.approved, metrics.equipment.approved, "#16A34A", "#F0FDF4") }}
+    {{ stat_card(s.rejected, metrics.equipment.rejected, "#DC2626", "#FEF2F2") }}
+  </tr>
+</table>
+
+<p style="margin:0 0 8px;font-size:12px;font-weight:700;color:#334155;text-transform:uppercase;letter-spacing:0.3px;">{{ s.materials }}</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+  <tr>
+    {{ stat_card(s.created, metrics.materials.created, "#0369A1", "#F0F9FF") }}
+    {{ stat_card(s.approved, metrics.materials.approved, "#16A34A", "#F0FDF4") }}
+    {{ stat_card(s.rejected, metrics.materials.rejected, "#DC2626", "#FEF2F2") }}
+  </tr>
+</table>
+{% endif %}
+
+{# 8. Inspection chart #}
+{% if inspection_chart %}
+{{ section_title(s.inspection_overview) }}
+<div style="text-align:center;margin:16px 0 24px;">
+  <img src="data:image/png;base64,{{ inspection_chart }}" alt="{{ s.inspection_chart_alt }}" style="max-width:100%;height:auto;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+</div>
+{% endif %}
+
+{# 9. RFI status #}
+{% if metrics.rfis %}
+{{ section_title(s.rfis) }}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+  <tr>
+    {{ stat_card(s.opened, metrics.rfis.opened, "#0369A1", "#F0F9FF") }}
+    {{ stat_card(s.answered, metrics.rfis.answered, "#16A34A", "#F0FDF4") }}
+    {{ stat_card(s.closed, metrics.rfis.closed, "#64748B", "#F8FAFC") }}
+    {% if metrics.rfis.overdue > 0 %}
+    {{ stat_card(s.overdue, metrics.rfis.overdue, "#DC2626", "#FEF2F2") }}
+    {% else %}
+    {{ stat_card(s.overdue, metrics.rfis.overdue, "#64748B", "#F8FAFC") }}
+    {% endif %}
+  </tr>
+</table>
+{% endif %}
+
+{# 10. RFI aging chart #}
+{% if rfi_chart %}
+{{ section_title(s.rfi_aging) }}
+<div style="text-align:center;margin:16px 0 24px;">
+  <img src="data:image/png;base64,{{ rfi_chart }}" alt="{{ s.rfi_chart_alt }}" style="max-width:100%;height:auto;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+</div>
+{% endif %}
+
+{# 11. Defects summary #}
+{% if metrics.defects %}
+{{ section_title(s.defects) }}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+  <tr>
+    {{ stat_card(s.new_defects, metrics.defects.new, "#EA580C", "#FFF7ED") }}
+    {{ stat_card(s.resolved, metrics.defects.resolved, "#16A34A", "#F0FDF4") }}
+    {{ stat_card(s.critical_open, metrics.defects.critical_open, "#DC2626", "#FEF2F2") }}
+  </tr>
+</table>
+{% endif %}
+
+{# 12. Photo highlights (AI-curated) #}
+{% if photos %}
+{{ section_title(s.photo_highlights) }}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:16px 0;">
+  {% for photo in photos %}
+  <tr><td style="padding:12px 0;">
+    <div style="border:1px solid #E2E8F0;border-radius:8px;overflow:hidden;background:#FAFAFA;">
+      {% if photo.url %}
+      <img src="{{ photo.url }}" alt="{{ photo.caption or s.photo_alt }}" style="width:100%;height:auto;display:block;">
+      {% endif %}
+      {% if photo.caption or photo.selection_reason %}
+      <div style="padding:14px 18px;background:#F8FAFC;border-top:1px solid #E2E8F0;">
+        {% if photo.caption %}
+        <p style="margin:0 0 6px;font-size:13px;font-weight:600;color:#1E293B;">{{ photo.caption }}</p>
+        {% endif %}
+        {% if photo.selection_reason %}
+        <p style="margin:0;font-size:11px;color:#64748B;font-style:italic;">{{ photo.selection_reason }}</p>
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+  </td></tr>
+  {% endfor %}
+</table>
+{% endif %}
+
+{# 13. Approval trend chart #}
+{% if approval_chart %}
+{{ section_title(s.approval_trends) }}
+<div style="text-align:center;margin:16px 0 24px;">
+  <img src="data:image/png;base64,{{ approval_chart }}" alt="{{ s.approval_chart_alt }}" style="max-width:100%;height:auto;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+</div>
+{% endif %}
+
+{# 14. Next steps / Upcoming items #}
+{% if upcoming_items %}
+{{ section_title(s.upcoming) }}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #E2E8F0;border-radius:12px;overflow:hidden;">
+  <tr style="background:#F8FAFC;">
+    <th style="padding:12px 18px;text-align:{{ align }};font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;">{{ s.item }}</th>
+    <th style="padding:12px 18px;text-align:{{ align }};font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;">{{ s.due_date }}</th>
+  </tr>
+  {% for item in upcoming_items[:5] %}
+  <tr>
+    <td style="padding:12px 18px;border-top:1px solid #F1F5F9;font-size:13px;font-weight:600;color:#334155;">{{ item.title }}</td>
+    <td style="padding:12px 18px;border-top:1px solid #F1F5F9;font-size:13px;color:#334155;">{{ item.date }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endif %}
+
+{# 15. Overall progress indicator #}
+{{ section_title(s.overall_progress) }}
+{% set pct = [0, [100, metrics.overall_progress] | min] | max %}
+{% if pct >= 60 %}
+  {% set bar_color = "#16A34A" %}
+  {% set bar_bg = "#DCFCE7" %}
+{% elif pct >= 30 %}
+  {% set bar_color = "#D97706" %}
+  {% set bar_bg = "#FEF3C7" %}
+{% else %}
+  {% set bar_color = "#DC2626" %}
+  {% set bar_bg = "#FEE2E2" %}
+{% endif %}
+<div style="background:{{ bar_bg }};border-radius:14px;height:28px;overflow:hidden;margin:8px 0;">
+  <div style="background:{{ bar_color }};height:100%;width:{{ pct }}%;border-radius:14px;"></div>
+</div>
+<p style="text-align:center;font-size:18px;font-weight:800;color:{{ bar_color }};margin:8px 0 0;">{{ "%.1f" | format(pct) }}%</p>
+
+{# 16. Report metadata #}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:28px 0 0;padding:16px 0;border-top:1px solid #E2E8F0;">
+<tr><td style="text-align:center;">
+  <p style="margin:0;font-size:11px;color:#94A3B8;">
+    {{ s.generated_at }}: {{ generated_at }}<br>
+    {% if ai_narrative.model_used %}
+    {{ s.ai_powered }} {{ ai_narrative.model_used }}<br>
+    {% endif %}
+    {{ s.report_id }}: {{ report_id }}
+  </p>
+</td></tr>
+</table>
+
+{% endblock %}
+
+{% block cta %}
+<tr><td style="padding:0 36px 32px;text-align:center;">
+  <a href="{{ frontend_url }}/projects/{{ project_id }}/reports" style="display:inline-block;background:linear-gradient(135deg,#0369A1,#0EA5E9);color:#ffffff;text-decoration:none;padding:14px 40px;border-radius:12px;font-size:15px;font-weight:700;letter-spacing:0.3px;box-shadow:0 4px 12px rgba(3,105,161,0.3);">{{ s.view_in_app }}</a>
+</td></tr>
+{% endblock %}
+
+{% block footer %}{{ s.footer }}{% endblock %}
