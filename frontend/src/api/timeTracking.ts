@@ -6,6 +6,8 @@ import type {
   ClockOutRequest,
   TimesheetCreateRequest,
   TimesheetLinkBudgetRequest,
+  TimesheetSyncBudgetRequest,
+  CostEntry,
   AttendanceReport,
   LaborCostReport,
   TimeEntryFilters,
@@ -82,6 +84,18 @@ export const timeTrackingApi = {
   ): Promise<Timesheet> => {
     const response = await apiClient.post(
       `/projects/${projectId}/timesheets/${timesheetId}/link-budget`,
+      data
+    )
+    return response.data
+  },
+
+  syncTimesheetToBudget: async (
+    projectId: string,
+    timesheetId: string,
+    data: TimesheetSyncBudgetRequest
+  ): Promise<CostEntry> => {
+    const response = await apiClient.post(
+      `/projects/${projectId}/timesheets/${timesheetId}/sync-to-budget`,
       data
     )
     return response.data

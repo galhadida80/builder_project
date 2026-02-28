@@ -93,6 +93,24 @@ export interface TimesheetLinkBudgetRequest {
   budgetItemId: string
 }
 
+export interface TimesheetSyncBudgetRequest {
+  hourlyRate: number
+}
+
+export interface CostEntry {
+  id: string
+  budgetItemId: string
+  projectId: string
+  description?: string
+  amount: number
+  entryDate: string
+  vendor?: string
+  referenceNumber?: string
+  createdById: string
+  createdAt: string
+  updatedAt: string
+}
+
 // Report interfaces
 export interface AttendanceReportEntry {
   userId: string

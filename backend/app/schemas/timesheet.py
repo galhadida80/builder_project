@@ -37,6 +37,10 @@ class TimesheetLinkBudgetRequest(BaseModel):
     budget_item_id: UUID
 
 
+class TimesheetSyncBudgetRequest(BaseModel):
+    hourly_rate: float
+
+
 class TimesheetResponse(CamelCaseModel):
     id: UUID
     user_id: UUID

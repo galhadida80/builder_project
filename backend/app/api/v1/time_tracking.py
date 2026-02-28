@@ -14,8 +14,14 @@ from app.models.budget import BudgetLineItem
 from app.models.time_entry import TimeEntry
 from app.models.timesheet import Timesheet
 from app.models.user import User
+from app.schemas.budget import CostEntryResponse
 from app.schemas.time_entry import TimeEntryCreate, TimeEntryResponse
-from app.schemas.timesheet import TimesheetCreate, TimesheetLinkBudgetRequest, TimesheetResponse
+from app.schemas.timesheet import (
+    TimesheetCreate,
+    TimesheetLinkBudgetRequest,
+    TimesheetResponse,
+    TimesheetSyncBudgetRequest,
+)
 from app.services.time_tracking_service import (
     clock_in,
     clock_out,
@@ -28,6 +34,7 @@ from app.services.timesheet_service import (
     reject_timesheet,
     submit_for_approval,
 )
+from app.services.labor_cost_service import sync_to_budget
 
 router = APIRouter()
 
@@ -328,3 +335,58 @@ async def link_timesheet_to_budget(
     await db.refresh(timesheet, ["user", "approved_by", "budget_item"])
 
     return timesheet
+
+
+@router.post("/projects/{project_id}/timesheets/{timesheet_id}/sync-to-budget", response_model=CostEntryResponse)
+async def sync_timesheet_to_budget(
+    project_id: UUID,
+    timesheet_id: UUID,
+    data: TimesheetSyncBudgetRequest,
+    member=require_permission(Permission.EDIT),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Create a CostEntry in the budget module for an approved and linked timesheet.
+    This calculates the total labor cost and creates a cost entry.
+    """
+    # Verify timesheet belongs to project
+    result = await db.execute(
+        select(Timesheet)
+        .where(
+            Timesheet.id == timesheet_id,
+            Timesheet.project_id == project_id,
+        )
+        .options(selectinload(Timesheet.user))
+    )
+    timesheet = result.scalar_one_or_none()
+    if not timesheet:
+        raise HTTPException(status_code=404, detail="Timesheet not found")
+
+    # Verify timesheet is approved
+    if timesheet.status != "approved":
+        raise HTTPException(
+            status_code=400,
+            detail="Only approved timesheets can be synced to budget"
+        )
+
+    # Verify timesheet is linked to a budget item
+    if not timesheet.budget_item_id:
+        raise HTTPException(
+            status_code=400,
+            detail="Timesheet must be linked to a budget item before syncing"
+        )
+
+    try:
+        # Create cost entry in budget module
+        cost_entry = await sync_to_budget(
+            db=db,
+            timesheet_id=timesheet_id,
+            budget_item_id=timesheet.budget_item_id,
+            hourly_rates_by_user={timesheet.user_id: data.hourly_rate},
+            created_by_id=current_user.id,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    return cost_entry
