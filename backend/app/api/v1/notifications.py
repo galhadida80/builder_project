@@ -23,6 +23,7 @@ router = APIRouter()
 @router.get("", response_model=NotificationListResponse)
 async def list_notifications(
     category: Optional[str] = Query(None, description="Filter by category"),
+    urgency: Optional[str] = Query(None, description="Filter by urgency"),
     is_read: Optional[bool] = Query(None, description="Filter by read status"),
     search: Optional[str] = Query(None, description="Search in title/message"),
     limit: int = Query(50, ge=1, le=200),
@@ -34,6 +35,8 @@ async def list_notifications(
 
     if category:
         base = base.where(Notification.category == category)
+    if urgency:
+        base = base.where(Notification.urgency == urgency)
     if is_read is not None:
         base = base.where(Notification.is_read == is_read)
     if search:
