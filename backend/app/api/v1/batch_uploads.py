@@ -20,6 +20,7 @@ from app.models.user import User
 from app.schemas.batch_upload import BatchUploadResponse
 from app.services.storage_service import StorageBackend, generate_storage_path, get_storage_backend
 from app.utils.localization import get_language_from_request, translate_message
+from app.worker.tasks.document_processing import process_batch_upload
 
 router = APIRouter()
 
@@ -188,3 +189,40 @@ async def get_batch_upload(
     await verify_project_access(batch_upload.project_id, current_user, db)
 
     return batch_upload
+
+
+@router.post("/batch-uploads/{batch_id}/process", status_code=202)
+async def trigger_batch_processing(
+    batch_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    request: Request = None
+):
+    """Trigger background processing for a batch upload.
+
+    This endpoint queues a Celery task to process all files in the batch,
+    including thumbnail generation, PDF splitting, and AI title block extraction.
+
+    Returns 202 Accepted with the Celery task ID.
+    """
+    result = await db.execute(
+        select(BatchUpload)
+        .where(BatchUpload.id == batch_id)
+    )
+    batch_upload = result.scalar_one_or_none()
+
+    if not batch_upload:
+        language = get_language_from_request(request)
+        error_message = translate_message('batch_upload.not_found', language)
+        raise HTTPException(status_code=404, detail=error_message or "Batch upload not found")
+
+    await verify_project_access(batch_upload.project_id, current_user, db)
+
+    # Trigger Celery task
+    task = process_batch_upload.delay(str(batch_id))
+
+    return {
+        "message": "Batch processing started",
+        "batch_id": str(batch_id),
+        "task_id": task.id
+    }
