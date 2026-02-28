@@ -3744,6 +3744,16 @@
     "noAttendanceDataDesc": "בחר טווח תאריכים כדי להציג נתוני נוכחות",
     "exportCsv": "ייצוא ל-CSV",
     "loadFailed": "טעינת נתונים נכשלה",
-    "hours": "{{hours}} שעות"
+    "hours": "{{hours}} שעות",
+    "submitted": "הוגש",
+    "approvedSuccess": "דף שעות אושר בהצלחה!",
+    "rejectedSuccess": "דף שעות נדחה.",
+    "failedToAction": "נכשל ב{{action}} דף שעות",
+    "searchPlaceholder": "חיפוש דפי שעות...",
+    "noSubmittedTimesheets": "אין דפי שעות שהוגשו",
+    "allTimesheetsProcessed": "כל דפי השעות עובדו.",
+    "approveTimesheet": "אשר דף שעות",
+    "rejectTimesheet": "דחה דף שעות",
+    "rejectionPlaceholder": "אנא ספק סיבה לדחיית דף השעות הזה..."
   }
 }

@@ -3698,6 +3698,16 @@
     "noAttendanceDataDesc": "Select a date range to view attendance data",
     "exportCsv": "Export CSV",
     "loadFailed": "Failed to load data",
-    "hours": "{{hours}} hours"
+    "hours": "{{hours}} hours",
+    "submitted": "Submitted",
+    "approvedSuccess": "Timesheet approved successfully!",
+    "rejectedSuccess": "Timesheet rejected.",
+    "failedToAction": "Failed to {{action}} timesheet",
+    "searchPlaceholder": "Search timesheets...",
+    "noSubmittedTimesheets": "No submitted timesheets",
+    "allTimesheetsProcessed": "All timesheets have been processed.",
+    "approveTimesheet": "Approve Timesheet",
+    "rejectTimesheet": "Reject Timesheet",
+    "rejectionPlaceholder": "Please provide a reason for rejecting this timesheet..."
   }
 }
