@@ -51,6 +51,7 @@ import CustomKPIPage from './pages/CustomKPIPage'
 import NotificationsPage from './pages/NotificationsPage'
 import SubcontractorListPage from './pages/SubcontractorListPage'
 import SubcontractorPortalPage from './pages/SubcontractorPortalPage'
+import VendorsPage from './pages/VendorsPage'
 import ClientPortalLoginPage from './pages/ClientPortalLoginPage'
 import ClientPortalDashboardPage from './pages/ClientPortalDashboardPage'
 import ClientPortalPhotosPage from './pages/ClientPortalPhotosPage'
@@ -158,6 +159,7 @@ function AppRoutes() {
             <Route path="/inspector-dashboard" element={<InspectorDashboardPage />} />
             <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="/subcontractor-portal" element={<SubcontractorPortalPage />} />
+            <Route path="/vendors" element={<VendorsPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/billing" element={<BillingPage />} />
