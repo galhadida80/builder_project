@@ -1496,7 +1496,23 @@
     "deleteConfirmationMessage": "Are you sure you want to delete {{name}}? This action cannot be undone.",
     "noVendors": "No vendors found",
     "noVendorsDescription": "Add vendors to manage contractors and material suppliers",
-    "certificationsHelp": "Press Enter to add certification"
+    "certificationsHelp": "Press Enter to add certification",
+    "insuranceExpiry": "Insurance Expiry",
+    "certifications": "Certifications",
+    "compareVendors": "Compare Vendors",
+    "comparison": {
+      "title": "Vendor Comparison",
+      "selectVendors": "Select 2-4 vendors to compare",
+      "deliveryScore": "Delivery Score",
+      "qualityScore": "Quality Score",
+      "priceScore": "Price Score",
+      "noCertifications": "No certifications",
+      "noInsuranceInfo": "No info",
+      "expired": "Expired",
+      "best": "Best",
+      "noPerformanceData": "No performance data",
+      "averageScore": "Average Score"
+    }
   },
   "rfis": {
     "title": "RFIs",

@@ -1673,7 +1673,23 @@
     "deleteConfirmationMessage": "האם אתה בטוח שברצונך למחוק את {{name}}? פעולה זו לא ניתנת לביטול.",
     "noVendors": "לא נמצאו ספקים",
     "noVendorsDescription": "הוסף ספקים לניהול קבלנים וספקי חומרים",
-    "certificationsHelp": "הקש Enter להוספת הסמכה"
+    "certificationsHelp": "הקש Enter להוספת הסמכה",
+    "insuranceExpiry": "תוקף ביטוח",
+    "certifications": "הסמכות",
+    "compareVendors": "השווה ספקים",
+    "comparison": {
+      "title": "השוואת ספקים",
+      "selectVendors": "בחר 2-4 ספקים להשוואה",
+      "deliveryScore": "ציון אספקה",
+      "qualityScore": "ציון איכות",
+      "priceScore": "ציון מחיר",
+      "noCertifications": "אין הסמכות",
+      "noInsuranceInfo": "אין מידע",
+      "expired": "פג תוקף",
+      "best": "הטוב ביותר",
+      "noPerformanceData": "אין נתוני ביצוע",
+      "averageScore": "ציון ממוצע"
+    }
   },
   "rfis": {
     "title": "בקשות מידע",

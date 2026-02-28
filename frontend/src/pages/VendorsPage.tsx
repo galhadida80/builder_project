@@ -9,12 +9,13 @@ import { EmptyState } from '../components/ui/EmptyState'
 import FilterChips from '../components/ui/FilterChips'
 import VendorDialog from '../components/vendors/VendorDialog'
 import type { VendorFormData } from '../components/vendors/VendorDialog'
+import VendorComparisonDialog from '../components/vendors/VendorComparisonDialog'
 import { vendorsApi } from '../api/vendors'
 import type { Vendor } from '../types'
 import { useToast } from '../components/common/ToastProvider'
 import { withMinDuration } from '../utils/async'
-import { AddIcon, EditIcon, DeleteIcon, BusinessIcon, LocalShippingIcon, ConstructionIcon, PlumbingIcon, ElectricalServicesIcon, StarIcon } from '@/icons'
-import { Box, Typography, Skeleton, Chip, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, useMediaQuery, useTheme } from '@/mui'
+import { AddIcon, EditIcon, DeleteIcon, BusinessIcon, LocalShippingIcon, ConstructionIcon, PlumbingIcon, ElectricalServicesIcon, StarIcon, CompareArrowsIcon } from '@/icons'
+import { Box, Typography, Skeleton, Chip, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, useMediaQuery, useTheme, Checkbox } from '@/mui'
 
 export default function VendorsPage() {
   const { t } = useTranslation()
@@ -31,6 +32,8 @@ export default function VendorsPage() {
   const [vendorToDelete, setVendorToDelete] = useState<Vendor | null>(null)
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [selectedVendors, setSelectedVendors] = useState<string[]>([])
+  const [comparisonDialogOpen, setComparisonDialogOpen] = useState(false)
 
   const tradeTypes = [
     { value: 'general_contractor', label: t('vendors.trades.generalContractor'), icon: <ConstructionIcon />, color: '#e07842' },
@@ -147,6 +150,37 @@ export default function VendorsPage() {
 
   const tradeCount = (trade: string) => vendors.filter(v => v.trade === trade).length
 
+  const handleVendorSelect = (vendorId: string) => {
+    setSelectedVendors(prev => {
+      if (prev.includes(vendorId)) {
+        return prev.filter(id => id !== vendorId)
+      } else {
+        if (prev.length >= 4) {
+          showError(t('vendors.comparison.selectVendors'))
+          return prev
+        }
+        return [...prev, vendorId]
+      }
+    })
+  }
+
+  const handleCompareClick = () => {
+    if (selectedVendors.length < 2) {
+      showError(t('vendors.comparison.selectVendors'))
+      return
+    }
+    setComparisonDialogOpen(true)
+  }
+
+  const handleCloseComparison = () => {
+    setComparisonDialogOpen(false)
+    setSelectedVendors([])
+  }
+
+  const getSelectedVendorObjects = () => {
+    return vendors.filter(v => selectedVendors.includes(v.id))
+  }
+
   if (loading) {
     return (
       <Box sx={{ p: { xs: 1, sm: 1.5, md: 3 }, maxWidth: '100%', overflow: 'hidden' }}>
@@ -182,7 +216,16 @@ export default function VendorsPage() {
         title={t('vendors.title')}
         subtitle={t('vendors.subtitle')}
         breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('nav.vendors') }]}
-        actions={<Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>{t('vendors.addVendor')}</Button>}
+        actions={
+          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+            {selectedVendors.length >= 2 && (
+              <Button variant="secondary" icon={<CompareArrowsIcon />} onClick={handleCompareClick}>
+                {t('vendors.compareVendors')} ({selectedVendors.length})
+              </Button>
+            )}
+            <Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>{t('vendors.addVendor')}</Button>
+          </Box>
+        }
       />
 
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, gap: 1.5, mb: 3 }}>
@@ -220,6 +263,20 @@ export default function VendorsPage() {
               <Table>
                 <TableHead>
                   <TableRow>
+                    <TableCell padding="checkbox">
+                      <Checkbox
+                        indeterminate={selectedVendors.length > 0 && selectedVendors.length < filteredVendors.length}
+                        checked={selectedVendors.length > 0 && selectedVendors.length === filteredVendors.length}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedVendors(filteredVendors.slice(0, 4).map(v => v.id))
+                          } else {
+                            setSelectedVendors([])
+                          }
+                        }}
+                        size="small"
+                      />
+                    </TableCell>
                     <TableCell>{t('vendors.companyName')}</TableCell>
                     <TableCell>{t('vendors.trade')}</TableCell>
                     {!isMobile && <TableCell>{t('vendors.contactEmail')}</TableCell>}
@@ -230,8 +287,17 @@ export default function VendorsPage() {
                 <TableBody>
                   {filteredVendors.map(vendor => {
                     const tradeConfig = getTradeConfig(vendor.trade)
+                    const isSelected = selectedVendors.includes(vendor.id)
                     return (
-                      <TableRow key={vendor.id} hover>
+                      <TableRow key={vendor.id} hover selected={isSelected}>
+                        <TableCell padding="checkbox">
+                          <Checkbox
+                            checked={isSelected}
+                            onChange={() => handleVendorSelect(vendor.id)}
+                            size="small"
+                            disabled={!isSelected && selectedVendors.length >= 4}
+                          />
+                        </TableCell>
                         <TableCell>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                             <Box sx={{ color: tradeConfig.color }}>{tradeConfig.icon}</Box>
@@ -293,6 +359,12 @@ export default function VendorsPage() {
         loading={deleting}
         confirmLabel={t('common.delete')}
         variant="danger"
+      />
+
+      <VendorComparisonDialog
+        open={comparisonDialogOpen}
+        onClose={handleCloseComparison}
+        vendors={getSelectedVendorObjects()}
       />
     </Box>
   )
