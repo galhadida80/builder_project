@@ -3728,6 +3728,22 @@
     "gpsUnavailable": "מיקום GPS לא זמין",
     "attendance": "נוכחות",
     "timesheets": "דפי שעות",
-    "laborCosts": "עלויות כוח אדם"
+    "laborCosts": "עלויות כוח אדם",
+    "attendanceReport": "דוח נוכחות",
+    "dateFrom": "מתאריך",
+    "dateTo": "עד תאריך",
+    "worker": "עובד",
+    "date": "תאריך",
+    "clockInTime": "שעת כניסה",
+    "clockOutTime": "שעת יציאה",
+    "totalHours": "סה״כ שעות",
+    "status": "סטטוס",
+    "active": "פעיל",
+    "completed": "הושלם",
+    "noAttendanceData": "אין נתוני נוכחות",
+    "noAttendanceDataDesc": "בחר טווח תאריכים כדי להציג נתוני נוכחות",
+    "exportCsv": "ייצוא ל-CSV",
+    "loadFailed": "טעינת נתונים נכשלה",
+    "hours": "{{hours}} שעות"
   }
 }

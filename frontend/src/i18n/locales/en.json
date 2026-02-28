@@ -3682,6 +3682,22 @@
     "gpsUnavailable": "GPS location unavailable",
     "attendance": "Attendance",
     "timesheets": "Timesheets",
-    "laborCosts": "Labor Costs"
+    "laborCosts": "Labor Costs",
+    "attendanceReport": "Attendance Report",
+    "dateFrom": "Date From",
+    "dateTo": "Date To",
+    "worker": "Worker",
+    "date": "Date",
+    "clockInTime": "Clock In",
+    "clockOutTime": "Clock Out",
+    "totalHours": "Total Hours",
+    "status": "Status",
+    "active": "Active",
+    "completed": "Completed",
+    "noAttendanceData": "No attendance data",
+    "noAttendanceDataDesc": "Select a date range to view attendance data",
+    "exportCsv": "Export CSV",
+    "loadFailed": "Failed to load data",
+    "hours": "{{hours}} hours"
   }
 }
