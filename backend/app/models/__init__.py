@@ -1,7 +1,7 @@
 from app.models.approval import ApprovalRequest, ApprovalStep
 from app.models.area import AreaChecklistAssignment, AreaProgress, ConstructionArea
 from app.models.audit import AuditLog
-from app.models.billing import Invoice, PaymentMethod, PaymentTransaction
+from app.models.billing import BillingHistory, Invoice, PaymentMethod
 from app.models.bim import AutodeskConnection, BimModel
 from app.models.blueprint_extraction import BlueprintExtraction, BlueprintImport
 from app.models.chat import ChatConversation, ChatMessage
@@ -55,7 +55,7 @@ from app.models.task import Task, TaskDependency
 from app.models.push_subscription import PushSubscription
 from app.models.scheduled_report import ReportTemplate, ScheduledReport
 from app.models.subcontractor import SubcontractorProfile
-from app.models.subscription import Subscription, SubscriptionPlan, UsageRecord
+from app.models.subscription import PlanTier, Subscription, SubscriptionPlan
 from app.models.webauthn_credential import WebAuthnCredential
 
 __all__ = [
@@ -136,4 +136,10 @@ __all__ = [
     "ScheduledReport",
     "SubcontractorProfile",
     "EntityVersion",
+    "Invoice",
+    "PaymentMethod",
+    "BillingHistory",
+    "Subscription",
+    "SubscriptionPlan",
+    "PlanTier",
 ]
