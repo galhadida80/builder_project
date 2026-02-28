@@ -1366,6 +1366,38 @@
     "exportData": "ייצוא נתונים",
     "exportDataDescription": "הורד את כל נתוני הפרויקט שלך כקובץ",
     "exportStarted": "ייצוא הנתונים החל. תקבל התראה כשיהיה מוכן.",
+    "exportPanel": {
+      "title": "ייצוא נתוני פרויקט",
+      "description": "הורד את נתוני הפרויקט שלך בפורמטים שונים",
+      "selectFormat": "בחר פורמט ייצוא",
+      "formats": {
+        "json": "JSON",
+        "csv": "CSV",
+        "zip": "ZIP (קבצים וטפסים)"
+      },
+      "formatDescriptions": {
+        "json": "נתוני פרויקט מלאים במבנה JSON",
+        "csv": "טבלאות CSV לציוד, חומרים, בדיקות ו-RFIs",
+        "zip": "ארכיון עם כל המסמכים והתמונות"
+      },
+      "startExport": "התחל ייצוא",
+      "exporting": "מייצא...",
+      "status": {
+        "pending": "ממתין",
+        "processing": "מעבד",
+        "completed": "הושלם",
+        "failed": "נכשל"
+      },
+      "recentExports": "ייצואים אחרונים",
+      "noExports": "אין ייצואים עדיין",
+      "noExportsDescription": "התחל את הייצוא הראשון שלך על ידי בחירת פורמט למעלה",
+      "download": "הורד",
+      "createdAt": "נוצר ב",
+      "fileSize": "גודל קובץ",
+      "exportFailed": "הייצוא נכשל",
+      "exportSuccess": "הייצוא הושלם בהצלחה",
+      "downloadFile": "הורד קובץ"
+    },
     "settingsUpdated": "ההגדרות עודכנו בהצלחה",
     "languageChanged": "השפה שונתה בהצלחה",
     "themeUpdated": "ערכת הנושא עודכנה בהצלחה",

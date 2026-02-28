@@ -1227,6 +1227,38 @@
     "exportData": "Export Data",
     "exportDataDescription": "Download all your project data as a file",
     "exportStarted": "Data export started. You will be notified when it's ready.",
+    "exportPanel": {
+      "title": "Export Project Data",
+      "description": "Download your project data in various formats",
+      "selectFormat": "Select Export Format",
+      "formats": {
+        "json": "JSON",
+        "csv": "CSV",
+        "zip": "ZIP (Files & Documents)"
+      },
+      "formatDescriptions": {
+        "json": "Complete project data in JSON structure",
+        "csv": "CSV tables for equipment, materials, inspections, and RFIs",
+        "zip": "Archive with all documents and photos"
+      },
+      "startExport": "Start Export",
+      "exporting": "Exporting...",
+      "status": {
+        "pending": "Pending",
+        "processing": "Processing",
+        "completed": "Completed",
+        "failed": "Failed"
+      },
+      "recentExports": "Recent Exports",
+      "noExports": "No exports yet",
+      "noExportsDescription": "Start your first export by selecting a format above",
+      "download": "Download",
+      "createdAt": "Created at",
+      "fileSize": "File size",
+      "exportFailed": "Export failed",
+      "exportSuccess": "Export completed successfully",
+      "downloadFile": "Download file"
+    },
     "settingsUpdated": "Settings updated successfully",
     "languageChanged": "Language changed successfully",
     "themeUpdated": "Theme updated successfully",
