@@ -11,6 +11,7 @@ from app.models.project import ProjectMember, UserRole
 from app.models.user import User
 from app.services.email_renderer import render_notification_email
 from app.services.email_service import EmailService
+from app.services.whatsapp_service import WhatsAppService
 from app.services.websocket_manager import manager as ws_manager
 
 logger = logging.getLogger(__name__)
@@ -88,6 +89,26 @@ async def notify_user(
         db, user_id, category, title, message, entity_type, entity_id,
         project_id=project_id,
     )
+
+    result = await db.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+
+    if user and user.whatsapp_number and user.whatsapp_verified:
+        try:
+            whatsapp_service = WhatsAppService()
+            if whatsapp_service.enabled:
+                formatted_message = whatsapp_service.format_notification_message(
+                    title=title,
+                    message=message,
+                    action_url=action_url if action_url else None,
+                    language=language
+                )
+                whatsapp_service.send_message(
+                    to_whatsapp=user.whatsapp_number,
+                    body=formatted_message
+                )
+        except Exception:
+            logger.exception("Failed to send WhatsApp notification to %s", user.whatsapp_number)
 
     if email:
         try:

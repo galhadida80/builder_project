@@ -16,6 +16,8 @@ interface LoginResponse {
     createdAt: string
     signatureUrl: string | null
     avatarUrl: string | null
+    whatsappNumber: string | null
+    whatsappVerified: boolean
   }
 }
 
@@ -50,6 +52,8 @@ function transformUser(apiUser: LoginResponse['user']): User {
     createdAt: apiUser.createdAt,
     signatureUrl: apiUser.signatureUrl || undefined,
     avatarUrl: apiUser.avatarUrl || undefined,
+    whatsappNumber: apiUser.whatsappNumber || undefined,
+    whatsappVerified: apiUser.whatsappVerified,
   }
 }
 
@@ -210,6 +214,20 @@ export const authApi = {
   getWorkSummary: async (): Promise<WorkSummary> => {
     const response = await apiClient.get<WorkSummary>('/auth/me/work-summary')
     return response.data
+  },
+
+  linkWhatsApp: async (whatsappNumber: string): Promise<void> => {
+    await apiClient.post('/users/me/whatsapp/link', { whatsapp_number: whatsappNumber })
+  },
+
+  verifyWhatsApp: async (code: string): Promise<User> => {
+    const response = await apiClient.post<LoginResponse['user']>('/users/me/whatsapp/verify', { code })
+    return transformUser(response.data)
+  },
+
+  unlinkWhatsApp: async (): Promise<User> => {
+    const response = await apiClient.delete<LoginResponse['user']>('/users/me/whatsapp/unlink')
+    return transformUser(response.data)
   },
 }
 

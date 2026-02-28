@@ -123,6 +123,11 @@ class Settings(BaseSettings):
     webauthn_rp_id: str = "localhost"
     webauthn_rp_name: str = "BuilderOps"
 
+    twilio_account_sid: str = ""
+    twilio_auth_token: str = ""
+    twilio_whatsapp_from: str = ""
+    whatsapp_webhook_url: str = ""
+
     @model_validator(mode='after')
     def validate_production_secrets(self) -> 'Settings':
         generation_cmd = "python -c \"import secrets; print(secrets.token_urlsafe(32))\""

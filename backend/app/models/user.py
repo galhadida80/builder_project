@@ -21,6 +21,8 @@ class User(Base):
     password_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
     full_name: Mapped[str | None] = mapped_column(String(255))
     phone: Mapped[str | None] = mapped_column(String(50))
+    whatsapp_number: Mapped[str | None] = mapped_column(String(50), unique=True, nullable=True)
+    whatsapp_verified: Mapped[bool] = mapped_column(Boolean, default=False)
     company: Mapped[str | None] = mapped_column(String(255))
     role: Mapped[str | None] = mapped_column(String(50))
     language: Mapped[str] = mapped_column(String(10), default='en')

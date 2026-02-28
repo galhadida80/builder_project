@@ -7,7 +7,7 @@ import { useToast } from '../components/common/ToastProvider'
 import { authApi, WebAuthnCredential, WorkSummary } from '../api/auth'
 import { profileSchema, validateWithSchema } from '../schemas/validation'
 import { SignaturePad } from '../components/checklist/SignaturePad'
-import { PersonIcon, EmailIcon, PhoneIcon, BusinessIcon, EditIcon, SaveIcon, FingerprintIcon, DeleteIcon, CameraAltIcon, CreateIcon, LocationOnIcon, AssignmentIcon, ApprovalIcon, TaskAltIcon, WarningAmberIcon } from '@/icons'
+import { PersonIcon, EmailIcon, PhoneIcon, BusinessIcon, EditIcon, SaveIcon, FingerprintIcon, DeleteIcon, CameraAltIcon, CreateIcon, LocationOnIcon, AssignmentIcon, ApprovalIcon, TaskAltIcon, WarningAmberIcon, PhoneIphoneIcon, CheckCircleIcon } from '@/icons'
 import { Box, Typography, Paper, Avatar, TextField, Button, Divider, Chip, IconButton, CircularProgress } from '@/mui'
 
 export default function ProfilePage() {
@@ -39,6 +39,12 @@ export default function ProfilePage() {
 
   const [workSummary, setWorkSummary] = useState<WorkSummary | null>(null)
   const [loadingWork, setLoadingWork] = useState(true)
+
+  const [whatsappNumber, setWhatsappNumber] = useState('')
+  const [verificationCode, setVerificationCode] = useState('')
+  const [linkingWhatsApp, setLinkingWhatsApp] = useState(false)
+  const [verifyingWhatsApp, setVerifyingWhatsApp] = useState(false)
+  const [awaitingVerification, setAwaitingVerification] = useState(false)
 
   useEffect(() => {
     if (user?.signatureUrl) {
@@ -205,6 +211,59 @@ export default function ProfilePage() {
       showError(t('profile.signatureDeleteFailed'))
     } finally {
       setSavingSignature(false)
+    }
+  }
+
+  const handleLinkWhatsApp = async () => {
+    if (!whatsappNumber.trim()) {
+      showError(t('whatsapp.phoneRequired') || 'Phone number required')
+      return
+    }
+    setLinkingWhatsApp(true)
+    try {
+      await authApi.linkWhatsApp(whatsappNumber.trim())
+      setAwaitingVerification(true)
+      showSuccess(t('whatsapp.codeSent') || 'Verification code sent via WhatsApp')
+    } catch {
+      showError(t('whatsapp.linkFailed') || 'Failed to send verification code')
+    } finally {
+      setLinkingWhatsApp(false)
+    }
+  }
+
+  const handleVerifyWhatsApp = async () => {
+    if (!verificationCode.trim()) {
+      showError(t('whatsapp.codeRequired') || 'Verification code required')
+      return
+    }
+    setVerifyingWhatsApp(true)
+    try {
+      await authApi.verifyWhatsApp(verificationCode.trim())
+      await refreshUser()
+      setAwaitingVerification(false)
+      setWhatsappNumber('')
+      setVerificationCode('')
+      showSuccess(t('whatsapp.verifySuccess') || 'WhatsApp number linked successfully')
+    } catch {
+      showError(t('whatsapp.verifyFailed') || 'Invalid verification code')
+    } finally {
+      setVerifyingWhatsApp(false)
+    }
+  }
+
+  const handleUnlinkWhatsApp = async () => {
+    setLinkingWhatsApp(true)
+    try {
+      await authApi.unlinkWhatsApp()
+      await refreshUser()
+      setWhatsappNumber('')
+      setVerificationCode('')
+      setAwaitingVerification(false)
+      showSuccess(t('whatsapp.unlinkSuccess') || 'WhatsApp number removed')
+    } catch {
+      showError(t('whatsapp.unlinkFailed') || 'Failed to remove WhatsApp number')
+    } finally {
+      setLinkingWhatsApp(false)
     }
   }
 
@@ -483,6 +542,124 @@ export default function ProfilePage() {
               <Button variant="outlined" startIcon={<CreateIcon />} onClick={() => setSignatureDrawerOpen(true)}>
                 {t('profile.drawSignature')}
               </Button>
+            )}
+          </Box>
+        </Paper>
+
+        <Paper sx={{ borderRadius: 3, overflow: 'hidden', mb: 3 }}>
+          <Box sx={{ p: 2.5 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
+              <PhoneIphoneIcon sx={{ color: 'primary.main' }} />
+              <Typography variant="subtitle2" fontWeight={600}>
+                {t('whatsapp.title') || 'WhatsApp Integration'}
+              </Typography>
+            </Box>
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
+              {t('whatsapp.description') || 'Link your WhatsApp number to receive notifications and interact with AI chat via WhatsApp'}
+            </Typography>
+
+            {user?.whatsappVerified ? (
+              <Box>
+                <Box sx={{
+                  border: '2px solid',
+                  borderColor: 'success.main',
+                  borderRadius: 3,
+                  p: 2,
+                  mb: 2,
+                  bgcolor: 'background.paper',
+                  position: 'relative',
+                  background: (theme) => theme.palette.mode === 'dark'
+                    ? 'linear-gradient(135deg, rgba(46,125,50,0.08) 0%, rgba(224,120,66,0.05) 100%)'
+                    : 'linear-gradient(135deg, rgba(46,125,50,0.04) 0%, rgba(224,120,66,0.02) 100%)',
+                }}>
+                  <Chip
+                    label={t('whatsapp.linked') || 'Linked'}
+                    size="small"
+                    color="success"
+                    icon={<CheckCircleIcon />}
+                    sx={{ position: 'absolute', top: 8, insetInlineEnd: 8, fontWeight: 600, fontSize: '0.65rem' }}
+                  />
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                    <PhoneIphoneIcon sx={{ color: 'success.main', fontSize: 32 }} />
+                    <Box>
+                      <Typography variant="body2" fontWeight={600}>
+                        {user.whatsappNumber}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {t('whatsapp.linkedDescription') || 'Receive notifications and chat via WhatsApp'}
+                      </Typography>
+                    </Box>
+                  </Box>
+                </Box>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  color="error"
+                  startIcon={<DeleteIcon />}
+                  onClick={handleUnlinkWhatsApp}
+                  disabled={linkingWhatsApp}
+                >
+                  {linkingWhatsApp ? t('common.loading') : (t('whatsapp.unlinkButton') || 'Unlink WhatsApp')}
+                </Button>
+              </Box>
+            ) : awaitingVerification ? (
+              <Box>
+                <Typography variant="caption" color="success.main" fontWeight={600} sx={{ display: 'block', mb: 1.5 }}>
+                  {t('whatsapp.codeSentMessage') || `Verification code sent to ${whatsappNumber}`}
+                </Typography>
+                <TextField
+                  fullWidth
+                  size="small"
+                  label={t('whatsapp.verificationCode') || 'Verification Code'}
+                  value={verificationCode}
+                  onChange={(e) => setVerificationCode(e.target.value)}
+                  placeholder="123456"
+                  inputProps={{ maxLength: 6 }}
+                  sx={{ mb: 2 }}
+                />
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={() => {
+                      setAwaitingVerification(false)
+                      setVerificationCode('')
+                      setWhatsappNumber('')
+                    }}
+                  >
+                    {t('common.cancel')}
+                  </Button>
+                  <Button
+                    variant="contained"
+                    size="small"
+                    onClick={handleVerifyWhatsApp}
+                    disabled={!verificationCode.trim() || verifyingWhatsApp}
+                  >
+                    {verifyingWhatsApp ? t('common.loading') : (t('whatsapp.verifyButton') || 'Verify')}
+                  </Button>
+                </Box>
+              </Box>
+            ) : (
+              <Box>
+                <TextField
+                  fullWidth
+                  size="small"
+                  label={t('whatsapp.phoneNumber') || 'WhatsApp Number'}
+                  value={whatsappNumber}
+                  onChange={(e) => setWhatsappNumber(e.target.value)}
+                  placeholder="+972501234567"
+                  helperText={t('whatsapp.phoneHelp') || 'Enter your WhatsApp number in international format (e.g., +972501234567)'}
+                  sx={{ mb: 2 }}
+                />
+                <Button
+                  variant="outlined"
+                  startIcon={<PhoneIphoneIcon />}
+                  onClick={handleLinkWhatsApp}
+                  disabled={!whatsappNumber.trim() || linkingWhatsApp}
+                >
+                  {linkingWhatsApp ? t('common.loading') : (t('whatsapp.linkButton') || 'Link WhatsApp')}
+                </Button>
+              </Box>
             )}
           </Box>
         </Paper>

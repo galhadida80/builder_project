@@ -20,6 +20,8 @@ export interface User {
   createdAt: string
   signatureUrl?: string
   avatarUrl?: string
+  whatsappNumber?: string
+  whatsappVerified?: boolean
 }
 
 export interface Invitation {
