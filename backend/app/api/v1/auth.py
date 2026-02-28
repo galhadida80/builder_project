@@ -243,8 +243,6 @@ async def google_login(data: GoogleAuthRequest, request: Request, db: AsyncSessi
             user.google_id = google_id
             if not user.full_name and full_name:
                 user.full_name = full_name
-            if not user.avatar_url and idinfo.get("picture"):
-                user.avatar_url = idinfo["picture"]
             await db.commit()
             await db.refresh(user)
         else:
@@ -252,7 +250,6 @@ async def google_login(data: GoogleAuthRequest, request: Request, db: AsyncSessi
                 email=email,
                 google_id=google_id,
                 full_name=full_name,
-                avatar_url=idinfo.get("picture"),
                 is_active=True,
                 language="he",
             )
@@ -522,7 +519,7 @@ async def get_avatar_image(
         return RedirectResponse(url=user.avatar_url, status_code=302)
     try:
         content = await storage.get_file_content(user.avatar_url)
-    except FileNotFoundError:
+    except Exception:
         raise HTTPException(status_code=404, detail="Avatar file not found")
     media_type = "image/jpeg" if user.avatar_url.endswith(".jpg") else "image/png"
     return Response(content=content, media_type=media_type, headers={"Cache-Control": "max-age=3600"})
