@@ -14,6 +14,7 @@ from app.models.processing_task import ProcessingTask
 from app.services.pdf_service import get_pdf_page_count, split_pdf_pages
 from app.services.storage_service import _create_storage_backend, generate_storage_path
 from app.services.thumbnail_service import generate_thumbnail
+from app.services.title_block_service import extract_title_block
 from app.utils import utcnow
 from app.worker.celery_app import celery_app
 
@@ -128,6 +129,8 @@ async def _process_single_file_async(task_id: str) -> dict:
                 await _generate_thumbnail(session, file, task)
             elif task.task_type == "pdf_split":
                 await _split_pdf(session, file, task)
+            elif task.task_type == "title_block_extraction":
+                await _extract_title_block(session, file, task)
             else:
                 raise ValueError(f"Unknown task type: {task.task_type}")
 
@@ -249,6 +252,33 @@ async def _split_pdf(session: AsyncSession, file: File, task: ProcessingTask) ->
         session.add(page_file)
 
     task.progress_percent = 90
+    await session.commit()
+
+
+async def _extract_title_block(session: AsyncSession, file: File, task: ProcessingTask) -> None:
+    """Extract title block metadata from a construction drawing using AI."""
+    settings = get_settings()
+    storage = _create_storage_backend(settings)
+
+    # Get file content
+    file_content = await storage.get_file_content(file.storage_path)
+
+    task.progress_percent = 30
+    await session.commit()
+
+    # Extract title block metadata using Gemini AI
+    result = extract_title_block(file_content, file.file_type or "application/pdf")
+
+    task.progress_percent = 80
+    await session.commit()
+
+    # Store the extracted metadata in task result_data
+    if task.result_data is None:
+        task.result_data = {}
+
+    task.result_data["title_block_extraction"] = result
+
+    task.progress_percent = 100
     await session.commit()
 
 
