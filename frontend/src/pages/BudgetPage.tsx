@@ -11,10 +11,11 @@ import { PageHeader } from '../components/ui/Breadcrumbs'
 import { EmptyState } from '../components/ui/EmptyState'
 import { TextField } from '../components/ui/TextField'
 import { budgetApi, BudgetItemCreateData, CostEntryCreateData, ChangeOrderCreateData, ChangeOrderUpdateData } from '../api/budget'
-import type { BudgetLineItem, BudgetSummary, ChangeOrder, CostEntry, BudgetCategory } from '../types'
+import { vendorsApi } from '../api/vendors'
+import type { BudgetLineItem, BudgetSummary, ChangeOrder, CostEntry, BudgetCategory, Vendor } from '../types'
 import { useToast } from '../components/common/ToastProvider'
 import { AddIcon, EditIcon, DeleteIcon, AttachMoneyIcon } from '@/icons'
-import { Box, Typography, Skeleton, Chip, MenuItem, IconButton, LinearProgress, TextField as MuiTextField } from '@/mui'
+import { Box, Typography, Skeleton, Chip, MenuItem, IconButton, LinearProgress, TextField as MuiTextField, Autocomplete, Tooltip, Rating } from '@/mui'
 
 const CATEGORIES: BudgetCategory[] = ['labor', 'materials', 'equipment', 'subcontractor', 'permits', 'overhead', 'other']
 const CAT_COLORS: Record<string, string> = { labor: '#e07842', materials: '#1976d2', equipment: '#2e7d32', subcontractor: '#9c27b0', permits: '#0288d1', overhead: '#757575', other: '#9e9e9e' }
@@ -31,6 +32,7 @@ export default function BudgetPage() {
   const [summary, setSummary] = useState<BudgetSummary | null>(null)
   const [changeOrders, setChangeOrders] = useState<ChangeOrder[]>([])
   const [costEntries, setCostEntries] = useState<Record<string, CostEntry[]>>({})
+  const [vendors, setVendors] = useState<Vendor[]>([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('budget')
   const [itemDialog, setItemDialog] = useState(false)
@@ -52,8 +54,8 @@ export default function BudgetPage() {
     if (!projectId) return
     setLoading(true)
     try {
-      const [il, bs, co] = await Promise.all([budgetApi.listItems(projectId), budgetApi.getSummary(projectId), budgetApi.listChangeOrders(projectId)])
-      setItems(il); setSummary(bs); setChangeOrders(co)
+      const [il, bs, co, vl] = await Promise.all([budgetApi.listItems(projectId), budgetApi.getSummary(projectId), budgetApi.listChangeOrders(projectId), vendorsApi.list()])
+      setItems(il); setSummary(bs); setChangeOrders(co); setVendors(vl)
     } catch { showError(t('budget.loadFailed', { defaultValue: 'Failed to load budget data' })) }
     finally { setLoading(false) }
   }
@@ -247,11 +249,32 @@ export default function BudgetPage() {
               .slice(0, 5)
               .map((entry) => {
                 const parentItem = items.find(i => i.id === entry.itemId)
+                const vendor = entry.vendorId ? vendors.find(v => v.id === entry.vendorId) : null
+                const vendorDisplay = vendor?.companyName || entry.vendorName || entry.vendor
                 return (
                   <Box key={entry.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1.5, borderRadius: 2, bgcolor: 'action.hover' }}>
                     <Box sx={{ minWidth: 0, flex: 1 }}>
                       <Typography variant="body1" fontWeight={700}>{fmt(entry.amount)}</Typography>
-                      <Typography variant="body2" color="text.secondary" noWrap>{entry.description || entry.vendor || '-'}</Typography>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Typography variant="body2" color="text.secondary" noWrap>
+                          {entry.description || vendorDisplay || '-'}
+                        </Typography>
+                        {vendor?.rating && (
+                          <Tooltip title={`${t('budget.vendorRating', { defaultValue: 'Vendor Rating' })}: ${vendor.rating}/5`}>
+                            <Chip
+                              size="small"
+                              label={`★ ${vendor.rating}`}
+                              sx={{
+                                height: 18,
+                                fontSize: '0.65rem',
+                                bgcolor: 'warning.light',
+                                color: 'warning.dark',
+                                fontWeight: 600,
+                              }}
+                            />
+                          </Tooltip>
+                        )}
+                      </Box>
                       <Typography variant="caption" color="text.secondary">{new Date(entry.entryDate).toLocaleDateString(getDateLocale())}</Typography>
                     </Box>
                     {parentItem && (
@@ -307,11 +330,33 @@ export default function BudgetPage() {
                         <Typography variant="caption" fontWeight={600}>{t('budget.costEntries', { defaultValue: 'Cost Entries' })}</Typography>
                         {(costEntries[row.id] || []).length === 0
                           ? <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>{t('budget.noCosts', { defaultValue: 'No cost entries yet' })}</Typography>
-                          : (costEntries[row.id] || []).map(c => (
+                          : (costEntries[row.id] || []).map(c => {
+                            const vendor = c.vendorId ? vendors.find(v => v.id === c.vendorId) : null
+                            const vendorDisplay = vendor?.companyName || c.vendorName || c.vendor
+                            return (
                             <Box key={c.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1, px: 1.5, mt: 0.75, borderRadius: 2, bgcolor: 'action.hover' }}>
                               <Box sx={{ minWidth: 0, flex: 1 }}>
                                 <Typography variant="body2" fontWeight={700}>{fmt(c.amount)}</Typography>
-                                <Typography variant="body2" color="text.secondary" noWrap>{c.description || c.vendor || '-'}</Typography>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                  <Typography variant="body2" color="text.secondary" noWrap>
+                                    {c.description || vendorDisplay || '-'}
+                                  </Typography>
+                                  {vendor?.rating && (
+                                    <Tooltip title={`${t('budget.vendorRating', { defaultValue: 'Vendor Rating' })}: ${vendor.rating}/5`}>
+                                      <Chip
+                                        size="small"
+                                        label={`★ ${vendor.rating}`}
+                                        sx={{
+                                          height: 18,
+                                          fontSize: '0.65rem',
+                                          bgcolor: 'warning.light',
+                                          color: 'warning.dark',
+                                          fontWeight: 600,
+                                        }}
+                                      />
+                                    </Tooltip>
+                                  )}
+                                </Box>
                                 <Typography variant="caption" color="text.secondary">{new Date(c.entryDate).toLocaleDateString(getDateLocale())}</Typography>
                               </Box>
                               <Chip
@@ -326,7 +371,8 @@ export default function BudgetPage() {
                                 }}
                               />
                             </Box>
-                          ))}
+                            )
+                          })}
                       </Box>
                     )}
                   </Box>
@@ -379,7 +425,25 @@ export default function BudgetPage() {
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1 }}>
           <TextField fullWidth label={t('budget.amount', { defaultValue: 'Amount' })} type="number" value={costForm.amount} onChange={(e) => setCostForm({ ...costForm, amount: e.target.value === '' ? 0 : parseFloat(e.target.value) })} required />
           <TextField fullWidth label={t('budget.date', { defaultValue: 'Date' })} type="date" InputLabelProps={{ shrink: true }} value={costForm.entry_date} onChange={(e) => setCostForm({ ...costForm, entry_date: e.target.value })} />
-          <TextField fullWidth label={t('budget.vendor', { defaultValue: 'Vendor' })} value={costForm.vendor || ''} onChange={(e) => setCostForm({ ...costForm, vendor: e.target.value || undefined })} />
+          <Autocomplete
+            fullWidth
+            options={vendors}
+            getOptionLabel={(v) => v.companyName}
+            value={vendors.find(v => v.id === costForm.vendor_id) || null}
+            onChange={(_, newValue) => setCostForm({ ...costForm, vendor_id: newValue?.id })}
+            renderInput={(params) => <MuiTextField {...params} label={t('budget.vendor', { defaultValue: 'Vendor' })} />}
+            renderOption={(props, option) => (
+              <Box component="li" {...props} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Box>
+                  <Typography variant="body2">{option.companyName}</Typography>
+                  <Typography variant="caption" color="text.secondary">{option.trade}</Typography>
+                </Box>
+                {option.rating && (
+                  <Rating value={option.rating} readOnly size="small" precision={0.5} sx={{ ml: 1 }} />
+                )}
+              </Box>
+            )}
+          />
           <TextField fullWidth label={t('budget.description', { defaultValue: 'Description' })} value={costForm.description || ''} onChange={(e) => setCostForm({ ...costForm, description: e.target.value || undefined })} />
           <TextField fullWidth label={t('budget.referenceNumber', { defaultValue: 'Reference #' })} value={costForm.reference_number || ''} onChange={(e) => setCostForm({ ...costForm, reference_number: e.target.value || undefined })} />
         </Box>

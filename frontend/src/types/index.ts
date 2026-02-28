@@ -862,6 +862,9 @@ export interface CostEntry {
   amount: number
   entryDate: string
   vendor?: string
+  vendorId?: string
+  vendorName?: string
+  vendorRating?: number
   referenceNumber?: string
   createdById: string
   createdAt: string

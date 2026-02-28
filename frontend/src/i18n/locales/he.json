@@ -2985,6 +2985,7 @@
     "description": "תיאור",
     "budgetedAmount": "סכום מתוקצב",
     "vendor": "ספק",
+    "vendorRating": "דירוג ספק",
     "referenceNumber": "מספר אסמכתא",
     "entryDate": "תאריך",
     "saveFailed": "השמירה נכשלה",

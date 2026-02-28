@@ -2939,6 +2939,7 @@
     "description": "Description",
     "budgetedAmount": "Budgeted Amount",
     "vendor": "Vendor",
+    "vendorRating": "Vendor Rating",
     "referenceNumber": "Reference #",
     "entryDate": "Date",
     "saveFailed": "Failed to save",
