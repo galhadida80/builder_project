@@ -124,7 +124,7 @@ export default memo(function Sidebar({ projectId, mobileOpen = false, onMobileCl
           '&:hover': { bgcolor: 'action.hover' },
           '&:focus-visible': {
             outline: (theme) => `2px solid ${theme.palette.primary.main}`,
-            outlineOffset: -2,
+            outlineOffset: 2,
           },
           borderRadius: 2,
           mx: 0.5,
@@ -192,7 +192,7 @@ export default memo(function Sidebar({ projectId, mobileOpen = false, onMobileCl
                 },
                 '&:focus-visible': {
                   outline: (theme) => `2px solid ${theme.palette.primary.main}`,
-                  outlineOffset: -2,
+                  outlineOffset: 2,
                 },
               }}
             >
@@ -241,7 +241,19 @@ export default memo(function Sidebar({ projectId, mobileOpen = false, onMobileCl
                 <Box key={group.label} sx={{ mb: 0.5 }}>
                   <ListItemButton
                     onClick={() => setExpandedGroups(prev => ({ ...prev, [group.label]: !isExpanded }))}
+<<<<<<< HEAD
                     sx={{ py: 0.5, px: 2, borderRadius: 1 }}
+=======
+                    sx={{
+                      py: 0.5,
+                      px: 2,
+                      borderRadius: 1,
+                      '&:focus-visible': {
+                        outline: (theme) => `2px solid ${theme.palette.primary.main}`,
+                        outlineOffset: 2,
+                      },
+                    }}
+>>>>>>> 124b627 (auto-claude: subtask-1-2 - Standardize outlineOffset to 2 for all existing fo)
                   >
                     <Typography
                       variant="caption"
@@ -289,7 +301,7 @@ export default memo(function Sidebar({ projectId, mobileOpen = false, onMobileCl
                                 },
                                 '&:focus-visible': {
                                   outline: (theme) => `2px solid ${theme.palette.primary.main}`,
-                                  outlineOffset: -2,
+                                  outlineOffset: 2,
                                 },
                               }}
                             >
@@ -341,7 +353,7 @@ export default memo(function Sidebar({ projectId, mobileOpen = false, onMobileCl
                 },
                 '&:focus-visible': {
                   outline: (theme) => `2px solid ${theme.palette.primary.main}`,
-                  outlineOffset: -2,
+                  outlineOffset: 2,
                 },
               }}
             >
@@ -368,7 +380,7 @@ export default memo(function Sidebar({ projectId, mobileOpen = false, onMobileCl
               '&:hover': { bgcolor: 'action.hover' },
               '&:focus-visible': {
                 outline: (theme) => `2px solid ${theme.palette.primary.main}`,
-                outlineOffset: -2,
+                outlineOffset: 2,
               },
             }}
           >
