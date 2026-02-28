@@ -1,5 +1,15 @@
 import { apiClient } from './client'
-import type { Notification, NotificationCategory, NotificationListResponse, UnreadCountResponse, UrgencyLevel } from '../types/notification'
+import type {
+  Notification,
+  NotificationCategory,
+  NotificationListResponse,
+  NotificationPreference,
+  NotificationPreferenceCreate,
+  NotificationPreferenceUpdate,
+  NotificationPreferenceListResponse,
+  UnreadCountResponse,
+  UrgencyLevel
+} from '../types/notification'
 
 export interface NotificationListParams {
   category?: NotificationCategory
@@ -52,5 +62,30 @@ export const notificationsApi = {
 
   bulkDelete: async (ids: string[]): Promise<void> => {
     await apiClient.delete('/notifications/bulk/delete', { data: { ids } })
+  },
+
+  // Notification Preferences
+  getPreferences: async (): Promise<NotificationPreferenceListResponse> => {
+    const response = await apiClient.get<NotificationPreferenceListResponse>('/notifications/preferences')
+    return response.data
+  },
+
+  createPreference: async (data: NotificationPreferenceCreate): Promise<NotificationPreference> => {
+    const response = await apiClient.post<NotificationPreference>('/notifications/preferences', data)
+    return response.data
+  },
+
+  getPreference: async (preferenceId: string): Promise<NotificationPreference> => {
+    const response = await apiClient.get<NotificationPreference>(`/notifications/preferences/${preferenceId}`)
+    return response.data
+  },
+
+  updatePreference: async (preferenceId: string, data: NotificationPreferenceUpdate): Promise<NotificationPreference> => {
+    const response = await apiClient.put<NotificationPreference>(`/notifications/preferences/${preferenceId}`, data)
+    return response.data
+  },
+
+  deletePreference: async (preferenceId: string): Promise<void> => {
+    await apiClient.delete(`/notifications/preferences/${preferenceId}`)
   },
 }
