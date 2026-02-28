@@ -3957,6 +3957,29 @@
       "noSuggestions": "אין המלצות זמינות כרגע",
       "generatedBy": "נוצר על ידי {{model}}",
       "processingTime": "זמן עיבוד: {{seconds}}s"
+    },
+    "safety": {
+      "safety": "בטיחות",
+      "incidents": {
+        "title": "אירועי בטיחות",
+        "number": "מספר",
+        "createNew": "דווח אירוע חדש",
+        "searchPlaceholder": "חפש אירועים...",
+        "filterBySeverity": "סנן לפי חומרה",
+        "severity": "חומרה",
+        "severity_low": "נמוכה",
+        "severity_medium": "בינונית",
+        "severity_high": "גבוהה",
+        "severity_critical": "קריטית",
+        "status_all": "הכל",
+        "status_open": "פתוח",
+        "status_investigating": "בבדיקה",
+        "status_resolved": "נפתר",
+        "status_closed": "סגור",
+        "occurredAt": "התרחש ב",
+        "noIncidents": "לא נמצאו אירועי בטיחות",
+        "loadFailed": "נכשל בטעינת אירועי בטיחות"
+      }
     }
   }
 }
