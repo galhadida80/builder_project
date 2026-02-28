@@ -4,19 +4,23 @@ import { useTranslation } from 'react-i18next'
 import { PageHeader } from '../components/ui/Breadcrumbs'
 import { Button } from '../components/ui/Button'
 import { EmptyState } from '../components/ui/EmptyState'
+import { ConfirmModal } from '../components/ui/Modal'
+import FilterChips from '../components/ui/FilterChips'
 import { analyticsApi } from '../api/analytics'
 import KpiCard from '../components/kpi/KpiCard'
 import KpiFormDialog from '../components/kpi/KpiFormDialog'
 import { useToast } from '../components/common/ToastProvider'
 import type { CustomKpiDefinition, KpiValue } from '../types'
 import { AddIcon, ShowChartIcon, CalendarMonthIcon } from '@/icons'
-import { Box, Typography, Skeleton, Switch, FormControlLabel } from '@/mui'
+import { Box, Typography, Skeleton, Switch, FormControlLabel, Fab, useTheme, useMediaQuery } from '@/mui'
 
 export default function CustomKPIPage() {
   const { t } = useTranslation()
   const { projectId } = useParams<{ projectId: string }>()
   const pid = projectId!
   const { showError, showSuccess } = useToast()
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
 
   const [kpiValues, setKpiValues] = useState<KpiValue[]>([])
   const [kpiDefs, setKpiDefs] = useState<CustomKpiDefinition[]>([])
@@ -25,6 +29,8 @@ export default function CustomKPIPage() {
   const [editingKpi, setEditingKpi] = useState<CustomKpiDefinition | null>(null)
   const [showInactive, setShowInactive] = useState(false)
   const [period, setPeriod] = useState('month')
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [kpiToDelete, setKpiToDelete] = useState<string | null>(null)
 
   const loadData = useCallback(async () => {
     try {
@@ -42,9 +48,7 @@ export default function CustomKPIPage() {
     }
   }, [pid, t])
 
-  useEffect(() => {
-    loadData()
-  }, [loadData])
+  useEffect(() => { loadData() }, [loadData])
 
   const handleCreate = async (data: Record<string, unknown>) => {
     try {
@@ -52,9 +56,7 @@ export default function CustomKPIPage() {
       showSuccess(t('kpi.createSuccess'))
       setDialogOpen(false)
       loadData()
-    } catch {
-      showError(t('kpi.createFailed'))
-    }
+    } catch { showError(t('kpi.createFailed')) }
   }
 
   const handleUpdate = async (data: Record<string, unknown>) => {
@@ -65,28 +67,27 @@ export default function CustomKPIPage() {
       setEditingKpi(null)
       setDialogOpen(false)
       loadData()
-    } catch {
-      showError(t('kpi.updateFailed'))
-    }
+    } catch { showError(t('kpi.updateFailed')) }
   }
 
-  const handleDelete = async (kpiId: string) => {
-    if (!confirm(t('kpi.confirmDeleteMessage'))) return
+  const handleDelete = (kpiId: string) => {
+    setKpiToDelete(kpiId)
+    setDeleteDialogOpen(true)
+  }
+
+  const confirmDelete = async () => {
+    if (!kpiToDelete) return
     try {
-      await analyticsApi.deleteKpi(kpiId)
+      await analyticsApi.deleteKpi(kpiToDelete)
       showSuccess(t('kpi.deleteSuccess'))
       loadData()
-    } catch {
-      showError(t('kpi.deleteFailed'))
-    }
+    } catch { showError(t('kpi.deleteFailed')) }
+    finally { setDeleteDialogOpen(false); setKpiToDelete(null) }
   }
 
   const handleEdit = (kpiId: string) => {
     const def = kpiDefs.find(d => d.id === kpiId)
-    if (def) {
-      setEditingKpi(def)
-      setDialogOpen(true)
-    }
+    if (def) { setEditingKpi(def); setDialogOpen(true) }
   }
 
   const filteredValues = showInactive
@@ -95,7 +96,6 @@ export default function CustomKPIPage() {
         const def = kpiDefs.find(d => d.id === v.kpiId)
         return def ? def.isActive : true
       })
-
   const hasInactive = kpiDefs.some(d => !d.isActive)
 
   if (loading) return (
@@ -110,6 +110,11 @@ export default function CustomKPIPage() {
     </Box>
   )
 
+  const snapshots = [
+    { month: t('kpi.currentMonth'), progress: `${filteredValues.length > 0 ? filteredValues[0].value?.toFixed(0) ?? '—' : '—'}`, budget: t('kpi.onTrack'), active: true },
+    { month: t('kpi.previousMonth'), progress: '—', budget: '—', active: false },
+  ]
+
   return (
     <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 }, maxWidth: '100%', overflow: 'hidden' }}>
       <PageHeader
@@ -123,23 +128,18 @@ export default function CustomKPIPage() {
           </Box>
         }
       />
-
-      <Box sx={{ mb: 2, bgcolor: 'action.hover', borderRadius: 2, p: 0.5, display: 'flex' }}>
-        {[
-          { key: 'year', label: t('kpi.year') },
-          { key: 'quarter', label: t('kpi.quarter') },
-          { key: 'month', label: t('kpi.month') },
-          { key: 'week', label: t('kpi.week') },
-        ].map(p => (
-          <Box key={p.key} onClick={() => setPeriod(p.key)}
-            sx={{ flex: 1, py: 1, textAlign: 'center', borderRadius: 1.5, cursor: 'pointer', fontWeight: 600, fontSize: '0.875rem',
-              bgcolor: period === p.key ? 'primary.main' : 'transparent', color: period === p.key ? 'white' : 'text.secondary',
-              boxShadow: period === p.key ? 1 : 0, transition: 'all 0.2s' }}>
-            {p.label}
-          </Box>
-        ))}
+      <Box sx={{ mb: 2 }}>
+        <FilterChips
+          items={[
+            { label: t('kpi.year'), value: 'year' },
+            { label: t('kpi.quarter'), value: 'quarter' },
+            { label: t('kpi.month'), value: 'month' },
+            { label: t('kpi.week'), value: 'week' },
+          ]}
+          value={period}
+          onChange={setPeriod}
+        />
       </Box>
-
       {hasInactive && (
         <Box sx={{ mb: 2 }}>
           <FormControlLabel
@@ -148,7 +148,6 @@ export default function CustomKPIPage() {
           />
         </Box>
       )}
-
       {filteredValues.length === 0 ? (
         <EmptyState
           icon={<ShowChartIcon sx={{ color: 'text.secondary' }} />}
@@ -159,25 +158,14 @@ export default function CustomKPIPage() {
       ) : (
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 1.5 }}>
           {filteredValues.map(kv => (
-            <KpiCard
-              key={kv.kpiId}
-              kpiValue={kv}
-              onEdit={() => handleEdit(kv.kpiId)}
-              onDelete={() => handleDelete(kv.kpiId)}
-            />
+            <KpiCard key={kv.kpiId} kpiValue={kv} onEdit={() => handleEdit(kv.kpiId)} onDelete={() => handleDelete(kv.kpiId)} />
           ))}
         </Box>
       )}
-
       <Box sx={{ mt: 4 }}>
-        <Typography variant="body2" fontWeight={700} sx={{ mb: 2 }}>
-          {t('kpi.snapshots')}
-        </Typography>
+        <Typography variant="body2" fontWeight={700} sx={{ mb: 2 }}>{t('kpi.snapshots')}</Typography>
         <Box sx={{ display: 'flex', gap: 2, overflowX: 'auto', pb: 1, '&::-webkit-scrollbar': { display: 'none' } }}>
-          {[
-            { month: t('kpi.currentMonth'), progress: `${filteredValues.length > 0 ? filteredValues[0].value?.toFixed(0) ?? '—' : '—'}`, budget: t('kpi.onTrack'), active: true },
-            { month: t('kpi.previousMonth'), progress: '—', budget: '—', active: false },
-          ].map((snap, idx) => (
+          {snapshots.map((snap, idx) => (
             <Box key={idx} sx={{ minWidth: 176, p: 2, borderRadius: 2, border: 1, borderColor: snap.active ? 'primary.main' : 'divider', bgcolor: 'background.paper', flexShrink: 0, opacity: snap.active ? 1 : 0.6 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
                 <Box sx={{ width: 32, height: 32, borderRadius: 1, bgcolor: snap.active ? 'primary.light' : 'action.hover', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -199,13 +187,26 @@ export default function CustomKPIPage() {
           ))}
         </Box>
       </Box>
-
+      {isMobile && (
+        <Fab color="primary" onClick={() => { setEditingKpi(null); setDialogOpen(true) }}
+          sx={{ position: 'fixed', bottom: 80, insetInlineEnd: 16, zIndex: 10 }}>
+          <AddIcon />
+        </Fab>
+      )}
       <KpiFormDialog
         open={dialogOpen}
         onClose={() => { setDialogOpen(false); setEditingKpi(null) }}
         onSubmit={editingKpi ? handleUpdate : handleCreate}
         editingKpi={editingKpi}
         projectId={pid}
+      />
+      <ConfirmModal
+        open={deleteDialogOpen}
+        onClose={() => { setDeleteDialogOpen(false); setKpiToDelete(null) }}
+        onConfirm={confirmDelete}
+        title={t('kpi.confirmDelete')}
+        message={t('kpi.confirmDeleteMessage')}
+        variant="danger"
       />
     </Box>
   )

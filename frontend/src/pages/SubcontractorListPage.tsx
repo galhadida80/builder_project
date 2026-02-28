@@ -1,19 +1,21 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Card } from '../components/ui/Card'
+import { KPICard, Card } from '../components/ui/Card'
 import { PageHeader } from '../components/ui/Breadcrumbs'
 import { EmptyState } from '../components/ui/EmptyState'
+import { Button } from '../components/ui/Button'
+import { SearchField, TextField } from '../components/ui/TextField'
+import FilterChips from '../components/ui/FilterChips'
+import { FormModal } from '../components/ui/Modal'
 import { useToast } from '../components/common/ToastProvider'
 import { subcontractorsApi, SubcontractorProfile } from '../api/subcontractors'
 import {
   Box,
-  Typography,
   Chip,
   Skeleton,
   IconButton,
   Tooltip,
-  TextField as MuiTextField,
   MenuItem,
   Table,
   TableBody,
@@ -21,13 +23,12 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
+  Typography,
+  Fab,
+  useTheme,
+  useMediaQuery,
 } from '@/mui'
-import { CheckCircleIcon, SearchIcon, PersonIcon, PersonAddIcon } from '@/icons'
+import { CheckCircleIcon, PersonIcon, PersonAddIcon } from '@/icons'
 
 const TRADES = [
   'plumbing', 'electrical', 'hvac', 'concrete', 'framing', 'drywall',
@@ -38,6 +39,8 @@ export default function SubcontractorListPage() {
   const { projectId } = useParams()
   const { t } = useTranslation()
   const { showError, showSuccess } = useToast()
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
 
   const [profiles, setProfiles] = useState<SubcontractorProfile[]>([])
   const [loading, setLoading] = useState(true)
@@ -102,49 +105,36 @@ export default function SubcontractorListPage() {
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
         <PageHeader title={t('subcontractors.title')} subtitle={t('subcontractors.subtitle')} />
-        <Button
-          variant="contained"
-          startIcon={<PersonAddIcon />}
-          onClick={() => setInviteOpen(true)}
-          sx={{ whiteSpace: 'nowrap', mt: 1 }}
-        >
-          {t('subcontractors.invite')}
-        </Button>
+        {!isMobile && (
+          <Button
+            icon={<PersonAddIcon />}
+            onClick={() => setInviteOpen(true)}
+            sx={{ whiteSpace: 'nowrap', mt: 1 }}
+          >
+            {t('subcontractors.invite')}
+          </Button>
+        )}
       </Box>
 
-      <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
-        <MuiTextField
-          size="small"
-          placeholder={t('subcontractors.searchPlaceholder')}
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          InputProps={{ startAdornment: <SearchIcon sx={{ mr: 1, color: 'text.secondary' }} /> }}
-          sx={{ flex: 1 }}
-        />
-        <MuiTextField
-          select
-          size="small"
-          value={tradeFilter}
-          onChange={(e) => setTradeFilter(e.target.value)}
-          sx={{ minWidth: 160 }}
-          label={t('subcontractors.trade')}
-        >
-          <MenuItem value="">{t('subcontractors.allTrades')}</MenuItem>
-          {TRADES.map(tr => (
-            <MenuItem key={tr} value={tr}>{t(`subcontractors.trades.${tr}`)}</MenuItem>
-          ))}
-        </MuiTextField>
-      </Box>
+      <SearchField
+        placeholder={t('subcontractors.searchPlaceholder')}
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        sx={{ mb: 2 }}
+      />
 
-      <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
-        <Card sx={{ flex: 1, p: 2, textAlign: 'center' }}>
-          <Typography variant="h4">{profiles.length}</Typography>
-          <Typography variant="body2" color="text.secondary">{t('subcontractors.total')}</Typography>
-        </Card>
-        <Card sx={{ flex: 1, p: 2, textAlign: 'center' }}>
-          <Typography variant="h4">{profiles.filter(p => p.isVerified).length}</Typography>
-          <Typography variant="body2" color="text.secondary">{t('subcontractors.verified')}</Typography>
-        </Card>
+      <FilterChips
+        items={[
+          { label: t('subcontractors.allTrades'), value: '' },
+          ...TRADES.map(tr => ({ label: t(`subcontractors.trades.${tr}`), value: tr })),
+        ]}
+        value={tradeFilter}
+        onChange={setTradeFilter}
+      />
+
+      <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5, mb: 3, mt: 2 }}>
+        <KPICard title={t('subcontractors.total')} value={profiles.length} color="primary" />
+        <KPICard title={t('subcontractors.verified')} value={profiles.filter(p => p.isVerified).length} color="success" />
       </Box>
 
       {loading ? (
@@ -205,58 +195,59 @@ export default function SubcontractorListPage() {
         </Card>
       )}
 
-      <Dialog open={inviteOpen} onClose={() => setInviteOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>{t('subcontractors.invite')}</DialogTitle>
-        <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '16px !important' }}>
-          <MuiTextField
+      <FormModal
+        open={inviteOpen}
+        onClose={() => setInviteOpen(false)}
+        onSubmit={handleInvite}
+        title={t('subcontractors.invite')}
+        submitLabel={inviteSending ? t('subcontractors.inviteSending') : t('subcontractors.invite')}
+        loading={inviteSending}
+        submitDisabled={!inviteData.email || !inviteData.trade || !inviteData.company_name}
+      >
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <TextField
             label={t('subcontractors.inviteEmail')}
             type="email"
             required
-            size="small"
             value={inviteData.email}
             onChange={(e) => setInviteData(prev => ({ ...prev, email: e.target.value }))}
           />
-          <MuiTextField
+          <TextField
             select
             label={t('subcontractors.inviteTrade')}
             required
-            size="small"
             value={inviteData.trade}
             onChange={(e) => setInviteData(prev => ({ ...prev, trade: e.target.value }))}
           >
             {TRADES.map(tr => (
               <MenuItem key={tr} value={tr}>{t(`subcontractors.trades.${tr}`)}</MenuItem>
             ))}
-          </MuiTextField>
-          <MuiTextField
+          </TextField>
+          <TextField
             label={t('subcontractors.inviteCompany')}
             required
-            size="small"
             value={inviteData.company_name}
             onChange={(e) => setInviteData(prev => ({ ...prev, company_name: e.target.value }))}
           />
-          <MuiTextField
+          <TextField
             label={t('subcontractors.inviteMessage')}
-            size="small"
             multiline
             rows={3}
             value={inviteData.message}
             onChange={(e) => setInviteData(prev => ({ ...prev, message: e.target.value }))}
           />
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={() => setInviteOpen(false)} disabled={inviteSending}>
-            {t('common.cancel')}
-          </Button>
-          <Button
-            variant="contained"
-            onClick={handleInvite}
-            disabled={inviteSending || !inviteData.email || !inviteData.trade || !inviteData.company_name}
-          >
-            {inviteSending ? t('subcontractors.inviteSending') : t('subcontractors.invite')}
-          </Button>
-        </DialogActions>
-      </Dialog>
+        </Box>
+      </FormModal>
+
+      {isMobile && (
+        <Fab
+          color="primary"
+          onClick={() => setInviteOpen(true)}
+          sx={{ position: 'fixed', bottom: 80, insetInlineEnd: 16, zIndex: 10 }}
+        >
+          <PersonAddIcon />
+        </Fab>
+      )}
     </Box>
   )
 }

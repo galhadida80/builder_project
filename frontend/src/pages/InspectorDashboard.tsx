@@ -2,16 +2,20 @@ import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '../components/ui/Button'
 import { EmptyState } from '../components/ui/EmptyState'
+import { PageHeader } from '../components/ui/Breadcrumbs'
+import { KPICard } from '../components/ui/Card'
 
 import type { Inspection } from '../types'
 import { inspectionsApi } from '../api/inspections'
 import { getDateLocale } from '../utils/dateLocale'
 import { useProject } from '../contexts/ProjectContext'
 import { EngineeringIcon, NotificationsIcon, CalendarTodayIcon, LocationOnIcon, AssignmentIcon, SignalWifiOffIcon, TrendingUpIcon, WarningIcon, CameraAltIcon, ReportProblemIcon } from '@/icons'
-import { Box, Typography, Skeleton, Chip } from '@/mui'
+import { Box, Typography, Skeleton, Chip, alpha, useTheme, useMediaQuery } from '@/mui'
 
 export default function InspectorDashboard() {
   const { t } = useTranslation()
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const [loading, setLoading] = useState(true)
   const [inspections, setInspections] = useState<Inspection[]>([])
   const [isOffline, setIsOffline] = useState(!navigator.onLine)
@@ -89,32 +93,25 @@ export default function InspectorDashboard() {
 
   return (
     <Box sx={{ maxWidth: 428, mx: 'auto', pb: 10, display: 'flex', flexDirection: 'column' }}>
-      <Box sx={{
-        position: 'sticky', top: 0, zIndex: 20,
-        bgcolor: 'background.default', px: 2, py: 1.5,
-        borderBottom: 1, borderColor: 'divider',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <EngineeringIcon sx={{ color: 'primary.main', fontSize: 24 }} />
-          <Typography variant="h6" fontWeight={700} letterSpacing='-0.02em'>
-            {t('inspector.title')}
-          </Typography>
-        </Box>
-        {isOffline ? (
-          <Chip
-            icon={<SignalWifiOffIcon sx={{ fontSize: 14 }} />}
-            label={t('inspector.offline')}
-            size="small"
-            sx={{ bgcolor: 'error.main', color: 'white', fontWeight: 600, fontSize: '0.7rem', height: 24 }}
-          />
-        ) : (
-          <Box sx={{ position: 'relative', p: 1 }}>
-            <NotificationsIcon sx={{ color: 'text.secondary', fontSize: 22 }} />
-            <Box sx={{ position: 'absolute', top: 8, insetInlineEnd: 8, width: 8, height: 8, bgcolor: 'primary.main', borderRadius: '50%' }} />
-          </Box>
-        )}
-      </Box>
+      <PageHeader
+        title={t('inspector.title')}
+        icon={<EngineeringIcon />}
+        actions={
+          isOffline ? (
+            <Chip
+              icon={<SignalWifiOffIcon sx={{ fontSize: 14 }} />}
+              label={t('inspector.offline')}
+              size="small"
+              sx={{ bgcolor: 'error.main', color: 'error.contrastText', fontWeight: 600, fontSize: '0.7rem', height: 24 }}
+            />
+          ) : (
+            <Box sx={{ position: 'relative', p: 1 }}>
+              <NotificationsIcon sx={{ color: 'text.secondary', fontSize: 22 }} />
+              <Box sx={{ position: 'absolute', top: 8, insetInlineEnd: 8, width: 8, height: 8, bgcolor: 'primary.main', borderRadius: '50%' }} />
+            </Box>
+          )
+        }
+      />
 
       <Box sx={{ px: 2, py: 3 }}>
         <Typography variant="h5" fontWeight={700}>
@@ -165,7 +162,7 @@ export default function InspectorDashboard() {
                       borderBottom: idx < inspections.length - 1 ? 1 : 0,
                       borderColor: 'divider',
                       ...(isFirst && {
-                        bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(224,120,66,0.05)' : 'rgba(224,120,66,0.03)',
+                        bgcolor: theme.palette.mode === 'dark' ? alpha(theme.palette.primary.main, 0.05) : alpha(theme.palette.primary.main, 0.03),
                         borderInlineStart: 4, borderInlineStartColor: 'primary.main',
                       }),
                     }}
@@ -235,42 +232,14 @@ export default function InspectorDashboard() {
       </Box>
 
       <Box sx={{ display: 'flex', gap: 1.5, px: 2, mb: 3, overflowX: 'auto' }}>
-        <Box sx={{
-          minWidth: 130, flexShrink: 0, bgcolor: 'background.paper', p: 2, borderRadius: 3,
-          border: 1, borderColor: 'divider',
-        }}>
-          <Typography variant="caption" color="text.secondary" fontSize="0.65rem" fontWeight={500}>
-            {t('inspector.monthInspections', 'This month')}
-          </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 0.5, mt: 0.5 }}>
-            <Typography variant="h5" fontWeight={700} lineHeight={1}>
-              {inspections.length}
-            </Typography>
-            <TrendingUpIcon sx={{ color: 'success.main', fontSize: 16 }} />
-          </Box>
+        <Box sx={{ minWidth: 130, flexShrink: 0 }}>
+          <KPICard title={t('inspector.monthInspections')} value={inspections.length} icon={<TrendingUpIcon />} color="primary" />
         </Box>
-        <Box sx={{
-          minWidth: 130, flexShrink: 0, bgcolor: 'background.paper', p: 2, borderRadius: 3,
-          border: 1, borderColor: 'divider',
-        }}>
-          <Typography variant="caption" color="text.secondary" fontSize="0.65rem" fontWeight={500}>
-            {t('inspector.defectsFound', 'Defects found')}
-          </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 0.5, mt: 0.5 }}>
-            <Typography variant="h5" fontWeight={700} lineHeight={1}>0</Typography>
-            <WarningIcon sx={{ color: 'warning.main', fontSize: 16 }} />
-          </Box>
+        <Box sx={{ minWidth: 130, flexShrink: 0 }}>
+          <KPICard title={t('inspector.defectsFound')} value={0} icon={<WarningIcon />} color="warning" />
         </Box>
-        <Box sx={{
-          minWidth: 130, flexShrink: 0, bgcolor: 'background.paper', p: 2, borderRadius: 3,
-          border: 1, borderColor: 'divider',
-        }}>
-          <Typography variant="caption" color="text.secondary" fontSize="0.65rem" fontWeight={500}>
-            {t('inspector.complianceRate', 'Compliance')}
-          </Typography>
-          <Typography variant="h5" fontWeight={700} lineHeight={1} color="primary.main" sx={{ mt: 0.5 }}>
-            --
-          </Typography>
+        <Box sx={{ minWidth: 130, flexShrink: 0 }}>
+          <KPICard title={t('inspector.complianceRate')} value="--" icon={<TrendingUpIcon />} color="success" />
         </Box>
       </Box>
     </Box>

@@ -854,6 +854,7 @@
     "selectedCount": "{{count}} נבחרו",
     "bulkMarkedRead": "ההתראות שנבחרו סומנו כנקראו",
     "bulkDeleted": "ההתראות שנבחרו נמחקו",
+    "bulkDeleteConfirm": "האם למחוק {{count}} התראות שנבחרו?",
     "allMarkedRead": "כל ההתראות סומנו כנקראו",
     "deleted": "ההתראה נמחקה",
     "empty": "אין התראות",

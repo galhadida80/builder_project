@@ -3,103 +3,25 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
-import { TextField } from '../components/ui/TextField'
+import { SearchField, TextField } from '../components/ui/TextField'
 import { FormModal, ConfirmModal } from '../components/ui/Modal'
 import { PageHeader } from '../components/ui/Breadcrumbs'
-import { ProgressBar, CircularProgressDisplay } from '../components/ui/ProgressBar'
+import { CircularProgressDisplay } from '../components/ui/ProgressBar'
 import { EmptyState } from '../components/ui/EmptyState'
 import SummaryBar from '../components/ui/SummaryBar'
 import FilterChips from '../components/ui/FilterChips'
-import { AreaActionMenu } from '../components/areas/AreaActionMenu'
+import { AreaNode, AREA_TYPE_KEYS } from '../components/areas/AreaNode'
 import { AreaDetailDrawer } from '../components/areas/AreaDetailDrawer'
 import { areasApi } from '../api/areas'
 import { areaStructureApi } from '../api/areaStructure'
-import type { ConstructionArea, AreaStatus } from '../types'
+import type { ConstructionArea } from '../types'
 import { validateAreaForm, hasErrors, VALIDATION, type ValidationError } from '../utils/validation'
 import { useToast } from '../components/common/ToastProvider'
 import { useFormShake } from '../hooks/useFormShake'
 import { parseValidationErrors } from '../utils/apiErrors'
 import { withMinDuration } from '../utils/async'
-import { AddIcon, ExpandMoreIcon, ExpandLessIcon, ApartmentIcon, LocalParkingIcon, RoofingIcon, FoundationIcon, EditIcon, DeleteIcon, AccountTreeIcon, ChecklistIcon } from '@/icons'
-import { Box, Typography, Chip, Collapse, IconButton, MenuItem, TextField as MuiTextField, Skeleton, useTheme } from '@/mui'
-
-const AREA_TYPE_ICONS: Record<string, React.ReactNode> = {
-  apartment: <ApartmentIcon />, parking: <LocalParkingIcon />, roof: <RoofingIcon />,
-  basement: <FoundationIcon />, facade: <ApartmentIcon />, common_area: <ApartmentIcon />,
-}
-const AREA_TYPE_KEYS = ['apartment', 'parking', 'roof', 'basement', 'facade', 'common_area'] as const
-const STATUS_COLORS: Record<string, 'success' | 'info' | 'warning' | 'default'> = {
-  completed: 'success', in_progress: 'info', awaiting_approval: 'warning', not_started: 'default',
-}
-const STATUS_BORDER_COLORS: Record<string, string> = {
-  completed: '#4caf50',
-  in_progress: '#e07842',
-  not_started: '#9e9e9e',
-  awaiting_approval: '#ff9800',
-}
-
-interface AreaNodeProps {
-  area: ConstructionArea; level: number
-  onEdit: (a: ConstructionArea) => void; onDelete: (a: ConstructionArea) => void
-  onOpenDrawer: (a: ConstructionArea) => void; onAssignChecklist: (a: ConstructionArea) => void
-  onCreateInstances: (a: ConstructionArea) => void; onViewChecklists: (a: ConstructionArea) => void
-  onBulkCreate: (a: ConstructionArea) => void; t: (key: string, options?: Record<string, unknown>) => string
-}
-
-function AreaNode({ area, level, onEdit, onDelete, onOpenDrawer, onAssignChecklist, onCreateInstances, onViewChecklists, onBulkCreate, t }: AreaNodeProps) {
-  const [expanded, setExpanded] = useState(true)
-  const hasChildren = area.children && area.children.length > 0
-  const overallProgress: number = area.currentProgress ?? 0
-  const areaTypeIcon = AREA_TYPE_ICONS[area.areaType || ''] || <ApartmentIcon />
-  const derivedStatus: AreaStatus = overallProgress === 100 ? 'completed' : overallProgress > 0 ? 'in_progress' : 'not_started'
-  const statusColor = STATUS_COLORS[derivedStatus] || 'default'
-
-  return (
-    <Box sx={{ marginInlineStart: { xs: level * 1.5, sm: level * 3 } }}>
-      <Card hoverable sx={{ mb: 1, borderInlineStart: '4px solid', borderInlineStartColor: STATUS_BORDER_COLORS[derivedStatus] || '#9e9e9e', ...(overallProgress === 100 && { opacity: 0.85 }) }} onClick={() => onOpenDrawer(area)}>
-        <Box sx={{ p: 2 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: { xs: 1, sm: 0 } }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 2 } }}>
-              {hasChildren ? (
-                <IconButton size="small" onClick={(e) => { e.stopPropagation(); setExpanded(!expanded) }} sx={{ bgcolor: 'action.hover', '&:hover': { bgcolor: 'action.selected' } }}>
-                  {expanded ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
-                </IconButton>
-              ) : <Box sx={{ width: 32 }} />}
-              <Box sx={{ width: 40, height: 40, borderRadius: 2, bgcolor: 'primary.light', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'primary.main' }}>{areaTypeIcon}</Box>
-              <Box>
-                <Typography variant="body2" fontWeight={600}>{area.name}</Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
-                  <Chip label={area.areaCode} size="small" sx={{ height: 22, fontSize: '0.7rem', fontWeight: 600, bgcolor: `${STATUS_BORDER_COLORS[derivedStatus] || '#9e9e9e'}22`, color: STATUS_BORDER_COLORS[derivedStatus] || '#9e9e9e', border: `1px solid ${STATUS_BORDER_COLORS[derivedStatus] || '#9e9e9e'}44` }} />
-                  {area.totalUnits && <Typography variant="caption" color="text.secondary">{area.totalUnits} {t('areas.units')}</Typography>}
-                  {area.floorNumber !== undefined && <Typography variant="caption" color="text.secondary">{t('areas.floor')} {area.floorNumber}</Typography>}
-                </Box>
-              </Box>
-            </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 3 } }}>
-              <Chip icon={<ChecklistIcon sx={{ fontSize: 14 }} />} label={t('areaChecklists.viewChecklists')} size="small" variant="outlined" color="info" onClick={(e) => { e.stopPropagation(); onOpenDrawer(area) }} sx={{ display: { xs: 'none', sm: 'flex' }, height: 24, fontSize: '0.7rem' }} />
-              <Box sx={{ width: { xs: 100, sm: 160 } }}>
-                <ProgressBar value={overallProgress} showValue size="small" color={overallProgress === 100 ? 'success' : 'primary'} />
-              </Box>
-              <Chip label={t(`areas.statuses.${derivedStatus}`)} size="small" color={statusColor} sx={{ fontWeight: 500, minWidth: { xs: 'auto', sm: 100 }, display: { xs: 'none', sm: 'flex' } }} />
-              <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }} onClick={(e) => e.stopPropagation()}>
-                <IconButton size="small" onClick={() => onEdit(area)}><EditIcon fontSize="small" /></IconButton>
-                <IconButton size="small" onClick={() => onDelete(area)} color="error"><DeleteIcon fontSize="small" /></IconButton>
-                <AreaActionMenu area={area} onAssignChecklist={() => onAssignChecklist(area)} onCreateInstances={() => onCreateInstances(area)} onViewChecklists={() => onViewChecklists(area)} onBulkCreate={() => onBulkCreate(area)} />
-              </Box>
-            </Box>
-          </Box>
-        </Box>
-      </Card>
-      {hasChildren && (
-        <Collapse in={expanded}>
-          {area.children!.map(child => (
-            <AreaNode key={child.id} area={child} level={level + 1} onEdit={onEdit} onDelete={onDelete} onOpenDrawer={onOpenDrawer} onAssignChecklist={onAssignChecklist} onCreateInstances={onCreateInstances} onViewChecklists={onViewChecklists} onBulkCreate={onBulkCreate} t={t} />
-          ))}
-        </Collapse>
-      )}
-    </Box>
-  )
-}
+import { AddIcon, AccountTreeIcon } from '@/icons'
+import { Box, Typography, Chip, Fab, MenuItem, TextField as MuiTextField, Skeleton, useTheme, useMediaQuery } from '@/mui'
 
 export default function AreasPage() {
   const { projectId } = useParams()
@@ -108,6 +30,7 @@ export default function AreasPage() {
   const { showError, showSuccess } = useToast()
   const { formRef, triggerShake } = useFormShake()
   const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const [loading, setLoading] = useState(true)
   const [areas, setAreas] = useState<ConstructionArea[]>([])
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -120,6 +43,7 @@ export default function AreasPage() {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [selectedArea, setSelectedArea] = useState<ConstructionArea | null>(null)
   const [statusFilter, setStatusFilter] = useState('all')
+  const [searchTerm, setSearchTerm] = useState('')
   const [floorFilter, setFloorFilter] = useState<number | null>(null)
   const [formData, setFormData] = useState({ name: '', areaCode: '', areaType: '', parentId: '', floorNumber: '', totalUnits: '' })
 
@@ -178,21 +102,21 @@ export default function AreasPage() {
     return [...new Set(floors)].sort((a, b) => a - b)
   }, [allAreas])
 
-  const filterAreasByFloor = (areaList: ConstructionArea[]): ConstructionArea[] => {
-    if (floorFilter === null) return areaList
+  const filterAreasTree = (areaList: ConstructionArea[]): ConstructionArea[] => {
+    const term = searchTerm.toLowerCase()
     return areaList.reduce<ConstructionArea[]>((acc, area) => {
-      if (area.floorNumber === floorFilter) {
+      const matchesFloor = floorFilter === null || area.floorNumber === floorFilter
+      const matchesSearch = !term || area.name.toLowerCase().includes(term) || (area.areaCode || '').toLowerCase().includes(term)
+      if (matchesFloor && matchesSearch) {
         acc.push(area)
       } else if (area.children?.length) {
-        const filteredChildren = filterAreasByFloor(area.children)
-        if (filteredChildren.length > 0) {
-          acc.push({ ...area, children: filteredChildren })
-        }
+        const filteredChildren = filterAreasTree(area.children)
+        if (filteredChildren.length > 0) acc.push({ ...area, children: filteredChildren })
       }
       return acc
     }, [])
   }
-  const filteredAreas = filterAreasByFloor(areas)
+  const filteredAreas = filterAreasTree(areas)
 
   if (loading) {
     return (
@@ -238,10 +162,10 @@ export default function AreasPage() {
       )}
 
       <Card sx={{ mb: 2 }}>
-        <Box sx={{ p: { xs: 2, sm: 3 }, background: (th) => th.palette.mode === 'dark' ? 'linear-gradient(135deg, #1e1e1e 0%, #0a0a0a 100%)' : 'linear-gradient(135deg, #e07842 0%, #0a0a0a 100%)', borderRadius: 3 }}>
+        <Box sx={{ p: { xs: 2, sm: 3 }, background: (th) => th.palette.mode === 'dark' ? 'linear-gradient(135deg, #1e1e1e 0%, #0a0a0a 100%)' : `linear-gradient(135deg, ${th.palette.primary.main} 0%, #0a0a0a 100%)`, borderRadius: 3 }}>
           <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'center' }, justifyContent: 'space-between', gap: 2 }}>
             <Box sx={{ minWidth: 0 }}>
-              <Typography variant="h6" fontWeight={600} color="white" noWrap>{t('areas.overallProjectProgress')}</Typography>
+              <Typography variant="h6" fontWeight={600} color="primary.contrastText" noWrap>{t('areas.overallProjectProgress')}</Typography>
               <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', mt: 0.5 }}>{t('areas.basedOnAllAreas', { count: allAreas.length })}</Typography>
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 2, sm: 4 } }}>
@@ -265,6 +189,10 @@ export default function AreasPage() {
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
             <Typography variant="h6" fontWeight={600} noWrap>{t('areas.areaHierarchy')}</Typography>
             <Chip label={t('areas.title', { count: allAreas.length })} size="small" />
+          </Box>
+
+          <Box sx={{ mb: 2 }}>
+            <SearchField fullWidth placeholder={t('common.search')} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
           </Box>
 
           <Box sx={{ mb: 2 }}>
@@ -316,6 +244,13 @@ export default function AreasPage() {
       <ConfirmModal open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)} onConfirm={handleConfirmDelete} title={t('areas.deleteArea')} message={areaToDelete?.children?.length ? t('areas.deleteConfirmation', { name: areaToDelete?.name, count: areaToDelete.children.length }) : t('areas.deleteConfirmationNoChildren', { name: areaToDelete?.name })} confirmLabel={t('common.delete')} variant="danger" loading={deleting} />
 
       <AreaDetailDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} area={selectedArea} projectId={projectId!} />
+
+      {isMobile && (
+        <Fab color="primary" onClick={handleOpenCreate}
+          sx={{ position: 'fixed', bottom: 80, insetInlineEnd: 16, zIndex: 10 }}>
+          <AddIcon />
+        </Fab>
+      )}
     </Box>
   )
 }

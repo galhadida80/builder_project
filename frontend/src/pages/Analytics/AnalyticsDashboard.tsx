@@ -8,12 +8,17 @@ import DistributionChart from './components/DistributionChart'
 import ExportButton from './components/ExportButton'
 import { analyticsService, MetricsData, TrendData, DistributionData } from '../../services/analyticsService'
 import { useToast } from '../../components/common/ToastProvider'
+import { PageHeader } from '../../components/ui/Breadcrumbs'
+import FilterChips from '../../components/ui/FilterChips'
+import { EmptyState } from '../../components/ui/EmptyState'
 import { AssessmentIcon, CheckCircleIcon, PendingActionsIcon, TrendingUpIcon } from '@/icons'
-import { Box, Typography, Grid, Skeleton, Chip } from '@/mui'
+import { Box, Typography, Grid, Skeleton, useTheme, useMediaQuery } from '@/mui'
 
 export default function AnalyticsDashboard() {
   const { t } = useTranslation()
   const { showError } = useToast()
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const [activePeriod, setActivePeriod] = useState('month')
   const [startDate, setStartDate] = useState<Dayjs | null>(dayjs().subtract(30, 'day'))
   const [endDate, setEndDate] = useState<Dayjs | null>(dayjs())
@@ -104,22 +109,26 @@ export default function AnalyticsDashboard() {
 
   const trendsChartData = getTrendsChartData()
 
+  if (!metricsData) {
+    return (
+      <Box sx={{ maxWidth: 600, mx: 'auto' }}>
+        <PageHeader
+          title={t('analytics.title')}
+          icon={<AssessmentIcon />}
+          actions={<ExportButton />}
+        />
+        <EmptyState variant="no-data" />
+      </Box>
+    )
+  }
+
   return (
     <Box sx={{ maxWidth: 600, mx: 'auto', pb: 10 }}>
-      <Box sx={{
-        position: 'sticky', top: 0, zIndex: 20,
-        bgcolor: 'background.default', px: { xs: 2, sm: 3 }, py: 2,
-        borderBottom: 1, borderColor: 'divider',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <AssessmentIcon sx={{ color: 'primary.main', fontSize: 24 }} />
-          <Typography variant="h6" fontWeight={700} letterSpacing='-0.02em'>
-            {t('analytics.title')}
-          </Typography>
-        </Box>
-        <ExportButton />
-      </Box>
+      <PageHeader
+        title={t('analytics.title')}
+        icon={<AssessmentIcon />}
+        actions={<ExportButton />}
+      />
 
       <Box sx={{ px: { xs: 2, sm: 3 }, pt: 2 }}>
         <Typography variant="body2" color="text.secondary" fontWeight={500}>
@@ -136,16 +145,17 @@ export default function AnalyticsDashboard() {
           />
         </Box>
 
-        <Box sx={{ display: 'flex', gap: 1, px: { xs: 2, sm: 3 }, pt: 1.5, overflowX: 'auto', '&::-webkit-scrollbar': { display: 'none' } }}>
-          {[
-            { key: 'week', label: t('analytics.week') },
-            { key: 'month', label: t('analytics.month') },
-            { key: 'quarter', label: t('analytics.quarter') },
-            { key: 'year', label: t('analytics.year') },
-          ].map(p => (
-            <Chip key={p.key} label={p.label} onClick={() => setActivePeriod(p.key)}
-              sx={{ fontWeight: 600, bgcolor: activePeriod === p.key ? 'primary.main' : 'action.hover', color: activePeriod === p.key ? 'white' : 'text.primary', boxShadow: activePeriod === p.key ? '0 4px 12px rgba(224,120,66,0.2)' : 'none' }} />
-          ))}
+        <Box sx={{ px: { xs: 2, sm: 3 }, pt: 1.5 }}>
+          <FilterChips
+            items={[
+              { label: t('analytics.week'), value: 'week' },
+              { label: t('analytics.month'), value: 'month' },
+              { label: t('analytics.quarter'), value: 'quarter' },
+              { label: t('analytics.year'), value: 'year' },
+            ]}
+            value={activePeriod}
+            onChange={setActivePeriod}
+          />
         </Box>
 
         <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1.5, px: { xs: 2, sm: 3 }, py: 3 }}>

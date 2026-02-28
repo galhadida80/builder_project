@@ -1,24 +1,26 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Card } from '../components/ui/Card'
+import { KPICard } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
-import { StatusBadge } from '../components/ui/StatusBadge'
 import { PageHeader } from '../components/ui/Breadcrumbs'
 import { Tabs } from '../components/ui/Tabs'
 import { EmptyState } from '../components/ui/EmptyState'
 import { FormModal } from '../components/ui/Modal'
-import { TextField } from '../components/ui/TextField'
+import { TextField, SearchField } from '../components/ui/TextField'
+import { ApprovalCard } from '../components/approvals/ApprovalCard'
 import { approvalsApi } from '../api/approvals'
 import { equipmentApi } from '../api/equipment'
 import { materialsApi } from '../api/materials'
 import { useToast } from '../components/common/ToastProvider'
 import type { ApprovalRequest, Equipment, Material } from '../types'
-import { BuildIcon, InventoryIcon, CheckCircleIcon, CancelIcon, DescriptionIcon, AccessTimeIcon } from '@/icons'
-import { Box, Typography, Chip, Skeleton, Avatar, Badge } from '@/mui'
+import { CheckCircleIcon } from '@/icons'
+import { Box, Typography, Skeleton, useTheme, useMediaQuery } from '@/mui'
 
 export default function ApprovalsPage() {
   const { t } = useTranslation()
   const { showError, showSuccess } = useToast()
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const [loading, setLoading] = useState(true)
   const [approvals, setApprovals] = useState<ApprovalRequest[]>([])
   const [equipment, setEquipment] = useState<Equipment[]>([])
@@ -130,7 +132,7 @@ export default function ApprovalsPage() {
       <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
         <Skeleton variant="text" width={200} height={48} sx={{ mb: 1 }} />
         <Skeleton variant="text" width={300} height={24} sx={{ mb: 3 }} />
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: { xs: 1.5, sm: 2 }, mb: 3 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: { xs: 1.5, sm: 2 }, mb: 3 }}>
           {[...Array(4)].map((_, i) => (
             <Skeleton key={i} variant="rounded" height={80} sx={{ borderRadius: 2 }} />
           ))}
@@ -152,31 +154,23 @@ export default function ApprovalsPage() {
         title={t('approvals.title')}
         subtitle={t('approvals.subtitle')}
         breadcrumbs={[{ label: t('nav.dashboard'), href: '/dashboard' }, { label: t('nav.approvals') }]}
-        actions={
-          pendingApprovals.length > 0 ? (
-            <Badge
-              badgeContent={pendingApprovals.length}
-              color="warning"
-              sx={{ '& .MuiBadge-badge': { fontSize: '0.75rem', fontWeight: 700, minWidth: 24, height: 24, borderRadius: 12 } }}
-            >
-              <Chip
-                label={t('approvals.pendingApprovals')}
-                color="warning"
-                variant="outlined"
-                sx={{ fontWeight: 600, pr: 2 }}
-              />
-            </Badge>
-          ) : undefined
-        }
       />
 
-      {pendingApprovals.length > 0 && (
-        <Box sx={{ px: 0.5, pb: 1.5, mb: 1, display: 'flex', alignItems: 'center', gap: 0.5 }}>
-          <Typography variant="body2" sx={{ color: 'warning.main', fontWeight: 600 }}>
-            {t('approvals.pendingSummary', { pending: pendingApprovals.length })}
-          </Typography>
-        </Box>
-      )}
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 1.5, mb: 2 }}>
+        <KPICard title={t('approvals.totalRequests')} value={approvals.length} color="primary" />
+        <KPICard title={t('approvals.pending')} value={pendingApprovals.length} color="warning" />
+        <KPICard title={t('approvals.approved')} value={approvedApprovals.length} color="success" />
+        <KPICard title={t('approvals.rejected')} value={rejectedApprovals.length} color="error" />
+      </Box>
+
+      <Box sx={{ mb: 2 }}>
+        <SearchField
+          placeholder={t('approvals.searchPlaceholder')}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          fullWidth={isMobile}
+        />
+      </Box>
 
       <Tabs
         items={[
@@ -197,130 +191,16 @@ export default function ApprovalsPage() {
             icon={<CheckCircleIcon sx={{ color: 'success.main' }} />}
           />
         ) : (
-          displayedApprovals.map((approval) => {
-            const entity = getEntityDetails(approval)
-            const isPending = approval.currentStatus !== 'approved' && approval.currentStatus !== 'rejected'
-            const isUrgent = isPending && approval.steps?.some(s => s.approverRole === 'project_admin')
-            const categoryColor = approval.entityType === 'equipment'
-              ? { bg: '#e3f2fd', text: '#1565c0', label: t('approvals.equipment') }
-              : { bg: '#e8f5e9', text: '#2e7d32', label: t('approvals.material') }
-            const submitter = approval.createdBy
-            const documents = entity && 'documents' in entity ? (entity as Equipment | Material).documents : undefined
-            const docCount = documents?.length || 0
-
-            return (
-              <Box key={approval.id} role="listitem">
-                <Card sx={{
-                  ...(isPending && { border: '1px solid', borderColor: 'warning.light' }),
-                  ...(isUrgent && {
-                    border: '2px solid',
-                    borderColor: 'error.main',
-                    boxShadow: '0 0 12px rgba(211, 47, 47, 0.25)',
-                  }),
-                }}>
-                  <Box sx={{ p: 2 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1.5 }}>
-                      <Chip
-                        icon={approval.entityType === 'equipment' ? <BuildIcon sx={{ fontSize: 14 }} /> : <InventoryIcon sx={{ fontSize: 14 }} />}
-                        label={categoryColor.label}
-                        size="small"
-                        sx={{
-                          height: 24,
-                          fontSize: '0.7rem',
-                          fontWeight: 700,
-                          textTransform: 'uppercase',
-                          bgcolor: categoryColor.bg,
-                          color: categoryColor.text,
-                          '& .MuiChip-icon': { color: categoryColor.text },
-                        }}
-                      />
-                      {isPending && (
-                        <Chip
-                          label={t('approvals.pendingApproval')}
-                          size="small"
-                          sx={{
-                            height: 22,
-                            fontSize: '0.65rem',
-                            fontWeight: 600,
-                            bgcolor: 'warning.light',
-                            color: 'warning.dark',
-                            '&::before': {
-                              content: '""',
-                              width: 8,
-                              height: 8,
-                              borderRadius: '50%',
-                              bgcolor: 'warning.main',
-                              display: 'inline-block',
-                              mr: 0.5,
-                              ml: 0.5,
-                            },
-                          }}
-                        />
-                      )}
-                    </Box>
-
-                    <Typography variant="body1" fontWeight={700} sx={{ lineHeight: 1.3, mb: 1.5 }}>
-                      {entity?.name || t('approvals.unknown')}
-                    </Typography>
-
-                    {submitter && (
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
-                        <Avatar
-                          sx={{ width: 28, height: 28, fontSize: '0.75rem', bgcolor: 'primary.main' }}
-                        >
-                          {submitter.fullName?.charAt(0)?.toUpperCase() || submitter.email.charAt(0).toUpperCase()}
-                        </Avatar>
-                        <Typography variant="body2" color="text.secondary">
-                          {t('approvals.submittedBy')}: {submitter.fullName || submitter.email}
-                        </Typography>
-                      </Box>
-                    )}
-
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1.5, mb: 2 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        <AccessTimeIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-                        <Typography variant="caption" color="text.secondary">
-                          {new Date(approval.createdAt).toLocaleDateString()}
-                        </Typography>
-                      </Box>
-                      <StatusBadge status={approval.currentStatus} size="small" />
-                      {docCount > 0 && (
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                          <DescriptionIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-                          <Typography variant="caption" color="text.secondary">
-                            {docCount} {t('approvals.documents')}
-                          </Typography>
-                        </Box>
-                      )}
-                    </Box>
-
-                    {isPending && (
-                      <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5 }}>
-                        <Button
-                          variant="success"
-                          size="small"
-                          icon={<CheckCircleIcon />}
-                          onClick={() => handleAction(approval, 'approve')}
-                          fullWidth
-                        >
-                          {t('approvals.approve')}
-                        </Button>
-                        <Button
-                          variant="danger"
-                          size="small"
-                          icon={<CancelIcon />}
-                          onClick={() => handleAction(approval, 'reject')}
-                          fullWidth
-                        >
-                          {t('approvals.reject')}
-                        </Button>
-                      </Box>
-                    )}
-                  </Box>
-                </Card>
-              </Box>
-            )
-          })
+          displayedApprovals.map((approval) => (
+            <Box key={approval.id} role="listitem">
+              <ApprovalCard
+                approval={approval}
+                entity={getEntityDetails(approval)}
+                onApprove={(a) => handleAction(a, 'approve')}
+                onReject={(a) => handleAction(a, 'reject')}
+              />
+            </Box>
+          ))
         )}
       </Box>
 

@@ -2277,6 +2277,7 @@
     "selectedCount": "{{count}} selected",
     "bulkMarkedRead": "Selected notifications marked as read",
     "bulkDeleted": "Selected notifications deleted",
+    "bulkDeleteConfirm": "Are you sure you want to delete {{count}} selected notifications?",
     "allMarkedRead": "All notifications marked as read",
     "deleted": "Notification deleted",
     "empty": "No notifications",

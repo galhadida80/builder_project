@@ -5,18 +5,21 @@ import { withMinDuration } from '../utils/async'
 import { organizationsApi } from '../api/organizations'
 import type { Organization } from '../types'
 import { useToast } from '../components/common/ToastProvider'
+import { PageHeader } from '../components/ui/Breadcrumbs'
+import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { EmptyState } from '../components/ui/EmptyState'
 import { TextField, SearchField } from '../components/ui/TextField'
 import { FormModal } from '../components/ui/Modal'
 import { BusinessIcon, AddIcon, GroupIcon, ApartmentIcon, ChevronLeftIcon, ChevronRightIcon } from '@/icons'
-import { Box, Typography, Skeleton, Chip, useTheme } from '@/mui'
+import { Box, Typography, Skeleton, Chip, Fab, useTheme, useMediaQuery, alpha } from '@/mui'
 
 export default function OrganizationsPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const theme = useTheme()
   const isRtl = theme.direction === 'rtl'
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const { showError, showSuccess } = useToast()
   const [loading, setLoading] = useState(true)
   const [organizations, setOrganizations] = useState<Organization[]>([])
@@ -93,24 +96,17 @@ export default function OrganizationsPage() {
 
   return (
     <Box sx={{ maxWidth: 600, mx: 'auto', pb: 10 }}>
-      <Box sx={{
-        position: 'sticky', top: 0, zIndex: 20,
-        bgcolor: 'background.default', px: { xs: 2, sm: 3 }, py: 2,
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        borderBottom: 1, borderColor: 'divider',
-      }}>
-        <Box>
-          <Typography variant="h6" fontWeight={700} letterSpacing='-0.02em'>
-            {t('organizations.title')}
-          </Typography>
-          <Typography variant="caption" color="text.secondary">
-            {organizations.length} {t('organizations.totalOrgs')}
-          </Typography>
-        </Box>
-        <Button variant="primary" icon={<AddIcon />} onClick={() => setDialogOpen(true)}>
-          {t('organizations.addOrganization')}
-        </Button>
-      </Box>
+      <PageHeader
+        title={t('organizations.title')}
+        subtitle={`${organizations.length} ${t('organizations.totalOrgs')}`}
+        actions={
+          !isMobile && (
+            <Button variant="primary" icon={<AddIcon />} onClick={() => setDialogOpen(true)}>
+              {t('organizations.addOrganization')}
+            </Button>
+          )
+        }
+      />
 
       <Box sx={{ px: { xs: 2, sm: 3 }, py: 2 }}>
         <SearchField
@@ -118,10 +114,6 @@ export default function OrganizationsPage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-      </Box>
-
-      <Box sx={{ display: 'flex', gap: 2, mb: 2, px: { xs: 2, sm: 3 } }}>
-        <Chip label={`${organizations.length} ${t('organizations.totalOrgs')}`} size="small" sx={{ fontWeight: 600 }} />
       </Box>
 
       <Box sx={{ px: { xs: 2, sm: 3 } }}>
@@ -137,18 +129,13 @@ export default function OrganizationsPage() {
         ) : (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             {filtered.map((org, idx) => (
-              <Box
+              <Card
                 key={org.id}
+                hoverable
                 onClick={() => navigate(`/organizations/${org.id}`)}
                 sx={{
-                  bgcolor: 'background.paper',
-                  border: idx === 0 ? 2 : 1,
-                  borderColor: idx === 0 ? 'primary.main' : 'divider',
-                  borderRadius: 3,
                   p: 2, display: 'flex', alignItems: 'flex-start', gap: 2,
-                  cursor: 'pointer', transition: 'background-color 150ms',
-                  '&:hover': { bgcolor: 'action.hover' },
-                  '&:active': { bgcolor: 'action.selected' },
+                  ...(idx === 0 && { border: 2, borderColor: 'primary.main' }),
                 }}
               >
                 <Box sx={{
@@ -161,7 +148,7 @@ export default function OrganizationsPage() {
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   flexShrink: 0, position: 'relative',
                   border: 1, borderColor: 'primary.main',
-                  bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(224,120,66,0.1)' : 'rgba(224,120,66,0.08)',
+                  bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.1 : 0.08),
                 }}>
                   <BusinessIcon sx={{ color: 'primary.main', fontSize: 28 }} />
                 </Box>
@@ -207,11 +194,18 @@ export default function OrganizationsPage() {
                     </Box>
                   </Box>
                 </Box>
-              </Box>
+              </Card>
             ))}
           </Box>
         )}
       </Box>
+
+      {isMobile && (
+        <Fab color="primary" onClick={() => setDialogOpen(true)}
+          sx={{ position: 'fixed', bottom: 80, insetInlineEnd: 16, zIndex: 10 }}>
+          <AddIcon />
+        </Fab>
+      )}
 
       <FormModal
         open={dialogOpen}

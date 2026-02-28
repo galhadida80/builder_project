@@ -1,25 +1,28 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useToast } from '../components/common/ToastProvider'
-import { useThemeMode } from '../theme'
 import { useAuth } from '../contexts/AuthContext'
 import { useProject } from '../contexts/ProjectContext'
 import { meetingsApi } from '../api/meetings'
 import { projectsApi } from '../api/projects'
-import PushNotificationToggle from '../components/notifications/PushNotificationToggle'
-import { LanguageIcon, DarkModeIcon, NotificationsIcon, LockIcon, FingerprintIcon, InfoIcon, DescriptionIcon, SecurityIcon, LogoutIcon, ChevronLeftIcon, ChevronRightIcon, AdminPanelSettingsIcon, EmailIcon, CalendarTodayIcon, CameraAltIcon, EditIcon, CheckCircleIcon, ViewListIcon } from '@/icons'
-import { Box, Typography, Paper, Switch, Divider, Select, MenuItem, FormControl, useTheme, Button, CircularProgress, Avatar, Chip, IconButton } from '@/mui'
+import { LogoutIcon, CalendarTodayIcon, CameraAltIcon, EditIcon } from '@/icons'
+import { Box, Typography, CircularProgress, Chip, IconButton, useTheme, Button, alpha } from '@/mui'
+import { Card } from '../components/ui/Card'
+import { Avatar } from '../components/ui/Avatar'
+import SettingsPreferences from '../components/settings/SettingsPreferences'
+import SettingsSecurity from '../components/settings/SettingsSecurity'
+import { SettingsRow } from '../components/settings/SettingsRow'
 
 export default function SettingsPage() {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const { showSuccess, showError } = useToast()
   const { user, logout } = useAuth()
   const theme = useTheme()
   const isRtl = theme.direction === 'rtl'
-  const ChevronIcon = isRtl ? ChevronLeftIcon : ChevronRightIcon
 
   const [notifications, setNotifications] = useState(() => {
     const saved = localStorage.getItem('builderops_notification_prefs')
@@ -39,8 +42,6 @@ export default function SettingsPage() {
   const { selectedProjectId, projects } = useProject()
   const selectedProject = projects.find(p => p.id === selectedProjectId)
   const [digestInterval, setDigestInterval] = useState<number>(selectedProject?.notificationDigestIntervalHours ?? 48)
-
-  const { mode, setMode } = useThemeMode()
 
   useEffect(() => {
     setDigestInterval(selectedProject?.notificationDigestIntervalHours ?? 48)
@@ -112,9 +113,11 @@ export default function SettingsPage() {
     showSuccess(t('settings.settingsUpdated'))
   }
 
-  const handleLanguageChange = (lang: string) => {
-    i18n.changeLanguage(lang)
-    showSuccess(t('settings.languageChanged'))
+  const handleDailySummaryChange = () => {
+    const next = !dailySummary
+    setDailySummary(next)
+    localStorage.setItem('builderops_daily_summary', JSON.stringify(next))
+    showSuccess(t('settings.settingsUpdated'))
   }
 
   return (
@@ -129,13 +132,9 @@ export default function SettingsPage() {
       </Box>
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, maxWidth: 600 }}>
-        <Paper sx={{ borderRadius: 3, p: 3, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+        <Card sx={{ p: 3, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
           <Box sx={{ position: 'relative', mb: 1 }}>
-            <Avatar
-              sx={{ width: 100, height: 100, fontSize: '2.5rem', bgcolor: 'primary.main' }}
-            >
-              {user?.fullName?.charAt(0)?.toUpperCase() || '?'}
-            </Avatar>
+            <Avatar name={user?.fullName || ''} size="xlarge" />
             <IconButton
               size="small"
               onClick={() => navigate('/profile')}
@@ -175,118 +174,24 @@ export default function SettingsPage() {
               {t('settings.editProfile')}
             </Typography>
           </Box>
-        </Paper>
+        </Card>
 
-        <Box>
-          <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary', textTransform: 'uppercase', letterSpacing: '0.05em', px: 1, mb: 1, display: 'block' }}>
-            {t('settings.preferences')}
-          </Typography>
-          <Paper sx={{ borderRadius: 3, overflow: 'hidden' }}>
-            <SettingsRow
-              icon={<LanguageIcon sx={{ color: 'primary.main' }} />}
-              label={t('settings.language')}
-              action={
-                <FormControl size="small" sx={{ minWidth: 100 }}>
-                  <Select value={i18n.language} onChange={(e) => handleLanguageChange(e.target.value)} variant="standard" disableUnderline sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
-                    <MenuItem value="en">{t('common.english')}</MenuItem>
-                    <MenuItem value="he">{t('common.hebrew')}</MenuItem>
-                  </Select>
-                </FormControl>
-              }
-            />
-            <Divider />
-            <SettingsRow
-              icon={<DarkModeIcon sx={{ color: 'primary.main' }} />}
-              label={t('settings.theme')}
-              action={
-                <FormControl size="small" sx={{ minWidth: 100 }}>
-                  <Select value={mode} onChange={(e) => { setMode(e.target.value as 'light' | 'dark' | 'system'); showSuccess(t('settings.themeUpdated')); }} variant="standard" disableUnderline sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
-                    <MenuItem value="system">{t('settings.system')}</MenuItem>
-                    <MenuItem value="light">{t('settings.light')}</MenuItem>
-                    <MenuItem value="dark">{t('settings.dark')}</MenuItem>
-                  </Select>
-                </FormControl>
-              }
-            />
-          </Paper>
-        </Box>
-
-        <Box>
-          <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary', textTransform: 'uppercase', letterSpacing: '0.05em', px: 1, mb: 1, display: 'block' }}>
-            {t('settings.notifications')}
-          </Typography>
-          <Paper sx={{ borderRadius: 3, overflow: 'hidden' }}>
-            <SettingsRow
-              icon={<EmailIcon sx={{ color: 'primary.main' }} />}
-              label={t('settings.emailNotifications')}
-              subtitle={t('settings.emailNotificationsDescription')}
-              action={<Switch checked={notifications.email} onChange={() => handleNotificationChange('email')} color="primary" />}
-            />
-            <Divider />
-            <Box sx={{ px: 2, py: 1.5, display: 'flex', alignItems: 'center', gap: 2 }}>
-              <NotificationsIcon sx={{ color: 'primary.main', fontSize: 22 }} />
-              <Box sx={{ flex: 1 }}>
-                <PushNotificationToggle />
-              </Box>
-            </Box>
-            <Divider />
-            <SettingsRow
-              icon={<DescriptionIcon sx={{ color: 'primary.main' }} />}
-              label={t('settings.rfiUpdates')}
-              subtitle={t('settings.rfiUpdatesDescription')}
-              action={<Switch checked={notifications.rfis} onChange={() => handleNotificationChange('rfis')} color="primary" />}
-            />
-            <Divider />
-            <SettingsRow
-              icon={<AdminPanelSettingsIcon sx={{ color: 'primary.main' }} />}
-              label={t('settings.approvalRequests')}
-              subtitle={t('settings.approvalRequestsDescription')}
-              action={<Switch checked={notifications.approvals} onChange={() => handleNotificationChange('approvals')} color="primary" />}
-            />
-            <Divider />
-            <SettingsRow
-              icon={<ViewListIcon sx={{ color: 'primary.main' }} />}
-              label={t('settings.dailySummary')}
-              subtitle={t('settings.dailySummaryDescription')}
-              action={<Switch checked={dailySummary} onChange={() => { const next = !dailySummary; setDailySummary(next); localStorage.setItem('builderops_daily_summary', JSON.stringify(next)); showSuccess(t('settings.settingsUpdated')); }} color="primary" />}
-            />
-            {selectedProjectId && (
-              <>
-                <Divider />
-                <SettingsRow
-                  icon={<NotificationsIcon sx={{ color: 'primary.main' }} />}
-                  label={t('settings.digestInterval')}
-                  subtitle={t('settings.digestIntervalDescription')}
-                  action={
-                    <FormControl size="small" sx={{ minWidth: 120 }}>
-                      <Select
-                        value={digestInterval}
-                        onChange={(e) => handleDigestIntervalChange(Number(e.target.value))}
-                        variant="standard"
-                        disableUnderline
-                        sx={{ fontSize: '0.875rem', color: 'text.secondary' }}
-                      >
-                        <MenuItem value={0}>{t('settings.digestOff')}</MenuItem>
-                        <MenuItem value={12}>{t('settings.digestEvery12h')}</MenuItem>
-                        <MenuItem value={24}>{t('settings.digestEvery24h')}</MenuItem>
-                        <MenuItem value={48}>{t('settings.digestEvery48h')}</MenuItem>
-                        <MenuItem value={72}>{t('settings.digestEvery72h')}</MenuItem>
-                        <MenuItem value={168}>{t('settings.digestWeekly')}</MenuItem>
-                      </Select>
-                    </FormControl>
-                  }
-                />
-              </>
-            )}
-          </Paper>
-        </Box>
+        <SettingsPreferences
+          notifications={notifications}
+          onNotificationChange={handleNotificationChange}
+          dailySummary={dailySummary}
+          onDailySummaryChange={handleDailySummaryChange}
+          digestInterval={digestInterval}
+          onDigestIntervalChange={handleDigestIntervalChange}
+          selectedProjectId={selectedProjectId}
+        />
 
         {calendarConfigured && (
           <Box>
             <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary', textTransform: 'uppercase', letterSpacing: '0.05em', px: 1, mb: 1, display: 'block' }}>
               {t('settings.integrations')}
             </Typography>
-            <Paper sx={{ borderRadius: 3, overflow: 'hidden' }}>
+            <Card>
               <SettingsRow
                 icon={<CalendarTodayIcon sx={{ color: 'primary.main' }} />}
                 label={t('settings.googleCalendar')}
@@ -305,72 +210,24 @@ export default function SettingsPage() {
                   )
                 }
               />
-            </Paper>
+            </Card>
           </Box>
         )}
 
-        <Box>
-          <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary', textTransform: 'uppercase', letterSpacing: '0.05em', px: 1, mb: 1, display: 'block' }}>
-            {t('settings.security')}
-          </Typography>
-          <Paper sx={{ borderRadius: 3, overflow: 'hidden' }}>
-            <SettingsRow
-              icon={<LockIcon sx={{ color: 'primary.main' }} />}
-              label={t('settings.changePassword')}
-              action={<ChevronIcon sx={{ color: 'text.disabled', fontSize: 20 }} />}
-              onClick={() => navigate('/forgot-password')}
-            />
-            <Divider />
-            <SettingsRow
-              icon={<FingerprintIcon sx={{ color: 'primary.main' }} />}
-              label={t('settings.passkey')}
-              action={<ChevronIcon sx={{ color: 'text.disabled', fontSize: 20 }} />}
-              onClick={() => navigate('/profile')}
-            />
-            <Divider />
-            <SettingsRow
-              icon={<CheckCircleIcon sx={{ color: 'text.disabled' }} />}
-              label={t('settings.twoFactorAuth')}
-              action={
-                <Chip label={t('settings.comingSoon')} size="small" sx={{ bgcolor: 'action.disabledBackground', color: 'text.secondary', fontWeight: 600, fontSize: '0.7rem', height: 24 }} />
-              }
-            />
-          </Paper>
-        </Box>
+        <SettingsSecurity />
 
-        <Box>
-          <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary', textTransform: 'uppercase', letterSpacing: '0.05em', px: 1, mb: 1, display: 'block' }}>
-            {t('settings.info')}
-          </Typography>
-          <Paper sx={{ borderRadius: 3, overflow: 'hidden' }}>
-            <SettingsRow
-              icon={<InfoIcon sx={{ color: 'primary.main' }} />}
-              label={t('settings.version')}
-              action={<Typography variant="body2" color="text.secondary">v2.4.1</Typography>}
-            />
-            <Divider />
-            <SettingsRow
-              icon={<SecurityIcon sx={{ color: 'primary.main' }} />}
-              label={t('settings.privacyPolicy')}
-              action={<ChevronIcon sx={{ color: 'text.disabled', fontSize: 20 }} />}
-              onClick={() => window.open('https://builderops.dev/privacy', '_blank')}
-            />
-          </Paper>
-        </Box>
-
-        <Paper
+        <Card
           onClick={() => logout()}
           sx={{
-            borderRadius: 3,
             p: 2,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             gap: 1,
             cursor: 'pointer',
-            bgcolor: 'rgba(211,47,47,0.08)',
-            border: '1px solid rgba(211,47,47,0.2)',
-            '&:hover': { bgcolor: 'rgba(211,47,47,0.15)' },
+            bgcolor: (t) => alpha(t.palette.error.main, 0.08),
+            border: (t) => `1px solid ${alpha(t.palette.error.main, 0.2)}`,
+            '&:hover': { bgcolor: (t) => alpha(t.palette.error.main, 0.15) },
             transition: 'background-color 0.2s',
           }}
         >
@@ -378,41 +235,8 @@ export default function SettingsPage() {
           <Typography variant="body1" fontWeight={700} color="error.main">
             {t('settings.logout')}
           </Typography>
-        </Paper>
+        </Card>
       </Box>
-    </Box>
-  )
-}
-
-function SettingsRow({ icon, label, subtitle, action, onClick }: {
-  icon: React.ReactNode
-  label: string
-  subtitle?: string
-  action: React.ReactNode
-  onClick?: () => void
-}) {
-  return (
-    <Box
-      onClick={onClick}
-      sx={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        px: 2,
-        py: 1.5,
-        cursor: onClick ? 'pointer' : 'default',
-        '&:hover': onClick ? { bgcolor: 'action.hover' } : {},
-        transition: 'background-color 0.15s',
-      }}
-    >
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flex: 1, minWidth: 0 }}>
-        {icon}
-        <Box sx={{ minWidth: 0 }}>
-          <Typography variant="body2" fontWeight={500}>{label}</Typography>
-          {subtitle && <Typography variant="caption" color="text.secondary">{subtitle}</Typography>}
-        </Box>
-      </Box>
-      <Box sx={{ flexShrink: 0, ml: 1 }}>{action}</Box>
     </Box>
   )
 }
