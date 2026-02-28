@@ -1495,7 +1495,8 @@
     "deleteVendor": "Delete Vendor",
     "deleteConfirmationMessage": "Are you sure you want to delete {{name}}? This action cannot be undone.",
     "noVendors": "No vendors found",
-    "noVendorsDescription": "Add vendors to manage contractors and material suppliers"
+    "noVendorsDescription": "Add vendors to manage contractors and material suppliers",
+    "certificationsHelp": "Press Enter to add certification"
   },
   "rfis": {
     "title": "RFIs",

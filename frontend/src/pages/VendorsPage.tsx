@@ -3,16 +3,18 @@ import { useTranslation } from 'react-i18next'
 import { Card, KPICard } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { PageHeader } from '../components/ui/Breadcrumbs'
-import { SearchField, TextField } from '../components/ui/TextField'
-import { FormModal, ConfirmModal } from '../components/ui/Modal'
+import { SearchField } from '../components/ui/TextField'
+import { ConfirmModal } from '../components/ui/Modal'
 import { EmptyState } from '../components/ui/EmptyState'
 import FilterChips from '../components/ui/FilterChips'
+import VendorDialog from '../components/vendors/VendorDialog'
+import type { VendorFormData } from '../components/vendors/VendorDialog'
 import { vendorsApi } from '../api/vendors'
 import type { Vendor } from '../types'
 import { useToast } from '../components/common/ToastProvider'
 import { withMinDuration } from '../utils/async'
 import { AddIcon, EditIcon, DeleteIcon, BusinessIcon, LocalShippingIcon, ConstructionIcon, PlumbingIcon, ElectricalServicesIcon, StarIcon } from '@/icons'
-import { Box, Typography, MenuItem, Skeleton, Chip, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, useMediaQuery, useTheme } from '@/mui'
+import { Box, Typography, Skeleton, Chip, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, useMediaQuery, useTheme } from '@/mui'
 
 export default function VendorsPage() {
   const { t } = useTranslation()
@@ -29,18 +31,6 @@ export default function VendorsPage() {
   const [vendorToDelete, setVendorToDelete] = useState<Vendor | null>(null)
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
-  const [formData, setFormData] = useState({
-    companyName: '',
-    trade: '',
-    contactEmail: '',
-    contactPhone: '',
-    address: '',
-    licenseNumber: '',
-    insuranceExpiry: '',
-    rating: 0,
-    certifications: [] as string[],
-    notes: ''
-  })
 
   const tradeTypes = [
     { value: 'general_contractor', label: t('vendors.trades.generalContractor'), icon: <ConstructionIcon />, color: '#e07842' },
@@ -75,67 +65,34 @@ export default function VendorsPage() {
     }
   }
 
-  const resetForm = () => {
-    setFormData({
-      companyName: '',
-      trade: '',
-      contactEmail: '',
-      contactPhone: '',
-      address: '',
-      licenseNumber: '',
-      insuranceExpiry: '',
-      rating: 0,
-      certifications: [],
-      notes: ''
-    })
+  const handleCloseDialog = () => {
+    setDialogOpen(false)
     setEditingVendor(null)
   }
 
-  const handleCloseDialog = () => {
-    setDialogOpen(false)
-    resetForm()
-  }
-
   const handleOpenCreate = () => {
-    resetForm()
+    setEditingVendor(null)
     setDialogOpen(true)
   }
 
   const handleOpenEdit = (vendor: Vendor) => {
     setEditingVendor(vendor)
-    setFormData({
-      companyName: vendor.companyName,
-      trade: vendor.trade,
-      contactEmail: vendor.contactEmail || '',
-      contactPhone: vendor.contactPhone || '',
-      address: vendor.address || '',
-      licenseNumber: vendor.licenseNumber || '',
-      insuranceExpiry: vendor.insuranceExpiry || '',
-      rating: vendor.rating || 0,
-      certifications: vendor.certifications || [],
-      notes: vendor.notes || ''
-    })
     setDialogOpen(true)
   }
 
-  const handleSaveVendor = async () => {
-    if (!formData.companyName.trim() || !formData.trade) {
-      showError(t('validation.checkFields'))
-      return
-    }
-
+  const handleSaveVendor = async (formData: VendorFormData) => {
     setSaving(true)
     try {
       const payload = {
-        company_name: formData.companyName,
+        company_name: formData.company_name,
         trade: formData.trade,
-        contact_email: formData.contactEmail || undefined,
-        contact_phone: formData.contactPhone || undefined,
+        contact_email: formData.contact_email || undefined,
+        contact_phone: formData.contact_phone || undefined,
         address: formData.address || undefined,
-        license_number: formData.licenseNumber || undefined,
-        insurance_expiry: formData.insuranceExpiry || undefined,
+        license_number: formData.license_number || undefined,
+        insurance_expiry: formData.insurance_expiry || undefined,
         rating: formData.rating || undefined,
-        certifications: formData.certifications.length > 0 ? formData.certifications : undefined,
+        certifications: formData.certifications && formData.certifications.length > 0 ? formData.certifications : undefined,
         notes: formData.notes || undefined
       }
 
@@ -319,77 +276,13 @@ export default function VendorsPage() {
         </Box>
       </Card>
 
-      <FormModal
+      <VendorDialog
         open={dialogOpen}
         onClose={handleCloseDialog}
-        title={editingVendor ? t('vendors.editVendor') : t('vendors.addVendor')}
         onSubmit={handleSaveVendor}
+        editingVendor={editingVendor}
         loading={saving}
-        maxWidth="sm"
-      >
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <TextField
-            label={t('vendors.companyName')}
-            value={formData.companyName}
-            onChange={(e) => setFormData(prev => ({ ...prev, companyName: e.target.value }))}
-            required
-            fullWidth
-          />
-
-          <TextField
-            select
-            label={t('vendors.trade')}
-            value={formData.trade}
-            onChange={(e) => setFormData(prev => ({ ...prev, trade: e.target.value }))}
-            required
-            fullWidth
-          >
-            {tradeTypes.map(type => (
-              <MenuItem key={type.value} value={type.value}>{type.label}</MenuItem>
-            ))}
-          </TextField>
-
-          <TextField
-            label={t('vendors.contactEmail')}
-            type="email"
-            value={formData.contactEmail}
-            onChange={(e) => setFormData(prev => ({ ...prev, contactEmail: e.target.value }))}
-            fullWidth
-          />
-
-          <TextField
-            label={t('vendors.contactPhone')}
-            value={formData.contactPhone}
-            onChange={(e) => setFormData(prev => ({ ...prev, contactPhone: e.target.value }))}
-            fullWidth
-          />
-
-          <TextField
-            label={t('vendors.address')}
-            value={formData.address}
-            onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
-            fullWidth
-            multiline
-            rows={2}
-          />
-
-          <TextField
-            label={t('vendors.licenseNumber')}
-            value={formData.licenseNumber}
-            onChange={(e) => setFormData(prev => ({ ...prev, licenseNumber: e.target.value }))}
-            fullWidth
-          />
-
-          <TextField
-            label={t('vendors.notes')}
-            value={formData.notes}
-            onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
-            fullWidth
-            multiline
-            rows={3}
-          />
-        </Box>
-      </FormModal>
+      />
 
       <ConfirmModal
         open={deleteDialogOpen}

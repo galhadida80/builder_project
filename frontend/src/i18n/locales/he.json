@@ -1672,7 +1672,8 @@
     "deleteVendor": "מחק ספק",
     "deleteConfirmationMessage": "האם אתה בטוח שברצונך למחוק את {{name}}? פעולה זו לא ניתנת לביטול.",
     "noVendors": "לא נמצאו ספקים",
-    "noVendorsDescription": "הוסף ספקים לניהול קבלנים וספקי חומרים"
+    "noVendorsDescription": "הוסף ספקים לניהול קבלנים וספקי חומרים",
+    "certificationsHelp": "הקש Enter להוספת הסמכה"
   },
   "rfis": {
     "title": "בקשות מידע",
