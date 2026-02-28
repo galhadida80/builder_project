@@ -8,7 +8,9 @@ import type {
   NotificationPreferenceUpdate,
   NotificationPreferenceListResponse,
   UnreadCountResponse,
-  UrgencyLevel
+  UrgencyLevel,
+  NotificationInteraction,
+  NotificationInteractionCreate
 } from '../types/notification'
 
 export interface NotificationListParams {
@@ -87,5 +89,11 @@ export const notificationsApi = {
 
   deletePreference: async (preferenceId: string): Promise<void> => {
     await apiClient.delete(`/notifications/preferences/${preferenceId}`)
+  },
+
+  // Notification Interactions
+  trackInteraction: async (notificationId: string, data: NotificationInteractionCreate): Promise<NotificationInteraction> => {
+    const response = await apiClient.post<NotificationInteraction>(`/notifications/${notificationId}/track`, data)
+    return response.data
   },
 }

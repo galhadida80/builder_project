@@ -79,3 +79,17 @@ export interface NotificationPreferenceListResponse {
   limit: number
   offset: number
 }
+
+export type InteractionType = 'viewed' | 'clicked' | 'dismissed' | 'acted_upon'
+
+export interface NotificationInteraction {
+  id: string
+  notificationId: string
+  userId: string
+  interactionType: InteractionType
+  createdAt: string
+}
+
+export interface NotificationInteractionCreate {
+  interactionType: InteractionType
+}
