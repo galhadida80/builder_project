@@ -182,3 +182,110 @@ async def receive_webhook(request: Request):
     logger.info(f"Received verified webhook event: {event_type}")
 
     return {"status": "ok", "event_type": event_type}
+
+
+@router.post("/scheduled-reports")
+async def scheduled_reports_webhook(
+    request: Request,
+    background_tasks: BackgroundTasks,
+    db: AsyncSession = Depends(get_db)
+):
+    """Webhook endpoint for Cloud Scheduler to trigger scheduled report generation."""
+    if not settings.scheduler_secret:
+        raise HTTPException(status_code=500, detail="Scheduler secret not configured")
+
+    try:
+        body = await request.json()
+    except Exception as e:
+        logger.error(f"Failed to parse webhook body: {e}")
+        raise HTTPException(status_code=400, detail="Invalid JSON payload")
+
+    report_id = body.get("report_id")
+    scheduler_secret = body.get("scheduler_secret")
+
+    if not report_id:
+        raise HTTPException(status_code=400, detail="Missing report_id")
+
+    if not scheduler_secret:
+        raise HTTPException(status_code=401, detail="Missing scheduler_secret")
+
+    if scheduler_secret != settings.scheduler_secret:
+        logger.warning("Scheduler secret verification failed")
+        raise HTTPException(status_code=403, detail="Invalid scheduler_secret")
+
+    background_tasks.add_task(
+        execute_scheduled_report,
+        report_id=report_id
+    )
+    logger.info(f"Queued scheduled report execution for report_id: {report_id}")
+
+    return {"status": "ok", "report_id": report_id}
+
+
+async def execute_scheduled_report(report_id: str):
+    from uuid import UUID
+
+    from app.db.session import AsyncSessionLocal
+    from app.models.scheduled_report import ScheduledReport
+    from app.services.inspection_report_service import (
+        generate_ai_inspection_summary_pdf,
+        generate_ai_weekly_report_pdf,
+    )
+    from app.utils import utcnow
+
+    try:
+        report_uuid = UUID(report_id)
+    except (ValueError, TypeError):
+        logger.error(f"Invalid report_id format: {report_id}")
+        return
+
+    async with AsyncSessionLocal() as db:
+        from sqlalchemy import select
+
+        stmt = select(ScheduledReport).where(ScheduledReport.id == report_uuid)
+        result = await db.execute(stmt)
+        scheduled_report = result.scalar_one_or_none()
+
+        if not scheduled_report:
+            logger.error(f"Scheduled report not found: {report_id}")
+            return
+
+        if not scheduled_report.is_active:
+            logger.info(f"Scheduled report is inactive: {report_id}")
+            return
+
+        try:
+            report_type = scheduled_report.report_type
+            project_id = scheduled_report.project_id
+            config = scheduled_report.config or {}
+            language = config.get("language", "he")
+
+            logger.info(f"Generating {report_type} report for project {project_id}")
+
+            if report_type == "weekly-ai":
+                pdf_bytes = await generate_ai_weekly_report_pdf(
+                    db=db,
+                    project_id=project_id,
+                    language=language,
+                    config=config
+                )
+            elif report_type == "inspection-summary-ai":
+                pdf_bytes = await generate_ai_inspection_summary_pdf(
+                    db=db,
+                    project_id=project_id,
+                    language=language,
+                    config=config
+                )
+            else:
+                logger.warning(f"Unsupported report type for scheduled execution: {report_type}")
+                return
+
+            scheduled_report.last_run_at = utcnow()
+            scheduled_report.run_count += 1
+            await db.commit()
+
+            logger.info(f"Successfully generated scheduled report {report_id}")
+
+        except Exception as e:
+            logger.error(f"Failed to generate scheduled report {report_id}: {e}")
+            await db.rollback()
