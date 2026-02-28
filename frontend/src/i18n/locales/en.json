@@ -2716,6 +2716,9 @@
   "floorplans": {
     "title": "Floorplans",
     "subtitle": "Visual display of defects on building plans",
+    "viewer": "Floorplan Viewer",
+    "invalidParams": "Invalid floorplan parameters",
+    "loadFailed": "Failed to load floorplan",
     "noImageUrl": "No floorplan image available",
     "imageLoadError": "Failed to load floorplan image",
     "canvasError": "Error initializing floorplan canvas"

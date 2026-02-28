@@ -59,6 +59,7 @@ import NotFoundPage from './pages/NotFoundPage'
 import PricingPage from './pages/PricingPage'
 import BillingPage from './pages/BillingPage'
 import TimeTrackingPage from './pages/TimeTrackingPage'
+import FloorplanViewerPage from './pages/FloorplanViewerPage'
 
 const BIMPage = lazy(() => import('./pages/BIMPage'))
 const ProjectStructureWizardPage = lazy(() => import('./pages/ProjectStructureWizardPage'))
@@ -170,6 +171,7 @@ function AppRoutes() {
           </Route>
 
           <Route path="/projects/:projectId/documents/:documentId/review" element={<DocumentReviewPage />} />
+          <Route path="/projects/:projectId/floorplans/:floorplanId" element={<FloorplanViewerPage />} />
         </Route>
 
         <Route path="*" element={<NotFoundPage />} />
