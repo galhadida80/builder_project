@@ -130,6 +130,7 @@ export interface Equipment {
   specifications?: Record<string, unknown>
   installationDate?: string
   warrantyExpiry?: string
+  vendorId?: string
   notes?: string
   createdAt: string
   updatedAt: string

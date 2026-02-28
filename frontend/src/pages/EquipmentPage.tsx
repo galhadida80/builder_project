@@ -18,7 +18,8 @@ import ContactSelectorDialog from '../components/ui/ContactSelectorDialog'
 import HelpTooltip from '../components/help/HelpTooltip'
 import { equipmentApi } from '../api/equipment'
 import { filesApi } from '../api/files'
-import type { Equipment } from '../types'
+import { vendorsApi } from '../api/vendors'
+import type { Equipment, Vendor } from '../types'
 import { validateEquipmentForm, hasErrors, type ValidationError } from '../utils/validation'
 import { parseValidationErrors } from '../utils/apiErrors'
 import { useToast } from '../components/common/ToastProvider'
@@ -41,6 +42,7 @@ export default function EquipmentPage() {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const [loading, setLoading] = useState(true)
   const [equipment, setEquipment] = useState<Equipment[]>([])
+  const [vendors, setVendors] = useState<Vendor[]>([])
   const [totalEquipment, setTotalEquipment] = useState(0)
   const [page, setPage] = useState(1)
   const [rowsPerPage, setRowsPerPage] = useState(20)
@@ -57,7 +59,7 @@ export default function EquipmentPage() {
   const [submitting, setSubmitting] = useState(false)
   const [errors, setErrors] = useState<ValidationError>({})
   const [activeTab, setActiveTab] = useState('all')
-  const [formData, setFormData] = useState({ name: '', templateId: '', manufacturer: '', modelNumber: '', notes: '', approvalDueDate: '' })
+  const [formData, setFormData] = useState({ name: '', templateId: '', manufacturer: '', modelNumber: '', vendorId: '', notes: '', approvalDueDate: '' })
   const [specificationValues, setSpecificationValues] = useState<Record<string, string | number | boolean>>({})
   const [documentFiles, setDocumentFiles] = useState<Record<string, File | null>>({})
   const [checklistResponses, setChecklistResponses] = useState<Record<string, boolean>>({})
@@ -84,9 +86,10 @@ export default function EquipmentPage() {
       const params: { status?: string; search?: string; page: number; pageSize: number } = { page, pageSize: rowsPerPage }
       if (activeTab !== 'all') params.status = activeTab
       if (debouncedSearch) params.search = debouncedSearch
-      const result = await equipmentApi.list(projectId!, params)
+      const [result, vendorList] = await Promise.all([equipmentApi.list(projectId!, params), vendorsApi.list()])
       setEquipment(result.items)
       setTotalEquipment(result.total)
+      setVendors(vendorList)
     } catch {
       showError(t('equipment.failedToLoadEquipment'))
     } finally {
@@ -95,7 +98,7 @@ export default function EquipmentPage() {
   }
 
   const resetForm = () => {
-    setFormData({ name: '', templateId: '', manufacturer: '', modelNumber: '', notes: '', approvalDueDate: '' })
+    setFormData({ name: '', templateId: '', manufacturer: '', modelNumber: '', vendorId: '', notes: '', approvalDueDate: '' })
     setSpecificationValues({}); setDocumentFiles({}); setChecklistResponses({}); setCustomFields([]); setErrors({}); setEditingEquipment(null)
     setApprovers([]); setDistributionList([]); setIsClosed(false)
   }
@@ -113,7 +116,7 @@ export default function EquipmentPage() {
     if (e) e.stopPropagation()
     setEditingEquipment(eq)
     const matchingTemplate = equipmentTemplates.find(t => t.name_he === eq.equipmentType) || equipmentTemplates.find(t => t.name === eq.equipmentType)
-    setFormData({ name: eq.name, templateId: matchingTemplate?.id || '', manufacturer: eq.manufacturer || '', modelNumber: eq.modelNumber || '', notes: eq.notes || '', approvalDueDate: '' })
+    setFormData({ name: eq.name, templateId: matchingTemplate?.id || '', manufacturer: eq.manufacturer || '', modelNumber: eq.modelNumber || '', vendorId: eq.vendorId || '', notes: eq.notes || '', approvalDueDate: '' })
     setDocumentFiles({}); setChecklistResponses({})
     const existingSpecs = eq.specifications || {}
     const templateSpecKeys = new Set(matchingTemplate?.required_specifications?.map(s => s.name) || [])
@@ -135,7 +138,7 @@ export default function EquipmentPage() {
     try {
       const specs: Record<string, unknown> = { ...specificationValues }
       customFields.forEach(f => { specs[f.key] = f.value })
-      const payload = { name: formData.name, equipment_type: selectedTemplate?.name_he || undefined, manufacturer: formData.manufacturer || undefined, model_number: formData.modelNumber || undefined, specifications: Object.keys(specs).length > 0 ? specs : undefined, notes: formData.notes || undefined }
+      const payload = { name: formData.name, equipment_type: selectedTemplate?.name_he || undefined, manufacturer: formData.manufacturer || undefined, model_number: formData.modelNumber || undefined, specifications: Object.keys(specs).length > 0 ? specs : undefined, vendor_id: formData.vendorId || undefined, notes: formData.notes || undefined }
       let entityId: string
       if (editingEquipment) {
         const updated = await withMinDuration(equipmentApi.update(projectId, editingEquipment.id, payload))
@@ -331,6 +334,7 @@ export default function EquipmentPage() {
         setDistributionList={setDistributionList}
         isClosed={isClosed}
         setIsClosed={setIsClosed}
+        vendors={vendors}
       />
 
       <ConfirmModal
