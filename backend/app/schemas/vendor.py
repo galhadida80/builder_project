@@ -160,3 +160,9 @@ class VendorResponse(CamelCaseModel):
     performances: list[VendorPerformanceResponse] = []
     created_at: datetime
     updated_at: datetime
+
+
+class BulkImportResponse(CamelCaseModel):
+    imported_count: int = 0
+    skipped_count: int = 0
+    errors: list[str] = []
