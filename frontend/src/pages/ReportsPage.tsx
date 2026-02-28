@@ -8,10 +8,13 @@ import { EmptyState } from '../components/ui/EmptyState'
 import { TextField } from '../components/ui/TextField'
 import FilterChips from '../components/ui/FilterChips'
 import ReportResults from '../components/reports/ReportResults'
+import ReportGenerationWizard from '../components/ReportGenerationWizard'
+import ReportPreviewDialog from '../components/ReportPreviewDialog'
+import { useAiReports } from '../hooks/useAiReports'
 import { reportsApi } from '../api/reports'
 import { useToast } from '../components/common/ToastProvider'
-import { AssessmentIcon, CalendarTodayIcon, DateRangeIcon, CalendarMonthIcon, TuneIcon, DescriptionIcon, DownloadIcon, SearchIcon } from '@/icons'
-import { Box, Typography, Skeleton } from '@/mui'
+import { AssessmentIcon, CalendarTodayIcon, DateRangeIcon, CalendarMonthIcon, TuneIcon, DescriptionIcon, DownloadIcon, SearchIcon, AutoAwesomeIcon } from '@/icons'
+import { Box, Typography, Skeleton, Alert } from '@/mui'
 
 export default function ReportsPage() {
   const { projectId } = useParams()
@@ -24,6 +27,17 @@ export default function ReportsPage() {
   const [reportData, setReportData] = useState<Record<string, unknown> | null>(null)
   const [recentReports, setRecentReports] = useState<Array<{ type: string; dateRange: string; generatedAt: string }>>([])
   const reportConfigRef = useRef<HTMLDivElement>(null)
+
+  const {
+    wizardOpen,
+    setWizardOpen,
+    previewOpen,
+    setPreviewOpen,
+    previewHtml,
+    previewTitle,
+    handleGenerateAiReport,
+    handleDownloadPdf,
+  } = useAiReports(projectId)
 
   const reportTypes = [
     { value: 'inspection-summary', label: t('reports.inspectionSummary') },
@@ -131,6 +145,26 @@ export default function ReportsPage() {
         title={t('reports.title')}
         subtitle={t('reports.subtitle')}
       />
+
+      <Alert severity="info" icon={<AutoAwesomeIcon />} sx={{ mb: 2 }}>
+        <Typography variant="body2" fontWeight={600} sx={{ mb: 0.5 }}>
+          {t('reports.aiReportsTitle', 'AI-Powered Reports')}
+        </Typography>
+        <Typography variant="caption" color="text.secondary">
+          {t('reports.aiReportsDescription', 'Generate comprehensive reports with AI-written narratives, charts, and insights.')}
+        </Typography>
+        <Box sx={{ display: 'flex', gap: 1, mt: 1.5, flexWrap: 'wrap' }}>
+          <Button
+            variant="primary"
+            size="small"
+            icon={<AutoAwesomeIcon />}
+            onClick={() => setWizardOpen(true)}
+            sx={{ fontWeight: 600 }}
+          >
+            {t('reports.generateAiReport', 'Generate AI Report')}
+          </Button>
+        </Box>
+      </Alert>
 
       <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5, mb: 2 }}>
         {[
@@ -245,6 +279,20 @@ export default function ReportsPage() {
           </Box>
         </Card>
       )}
+
+      <ReportGenerationWizard
+        open={wizardOpen}
+        onClose={() => setWizardOpen(false)}
+        onGenerate={handleGenerateAiReport}
+      />
+
+      <ReportPreviewDialog
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+        htmlContent={previewHtml}
+        reportTitle={previewTitle}
+        onDownloadPdf={handleDownloadPdf}
+      />
     </Box>
   )
 }

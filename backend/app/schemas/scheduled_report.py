@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from enum import Enum
 from typing import Optional
 from uuid import UUID
 
@@ -8,6 +9,20 @@ from pydantic import BaseModel, Field, field_validator
 
 from app.core.validators import MAX_DESCRIPTION_LENGTH, MAX_NAME_LENGTH, CamelCaseModel, sanitize_string
 from app.schemas.user import UserResponse
+
+
+class ReportType(str, Enum):
+    """Valid report types for templates and scheduled reports."""
+    # AI-generated reports
+    WEEKLY_AI = "weekly-ai"
+    INSPECTION_SUMMARY_AI = "inspection-summary-ai"
+    EXECUTIVE_SUMMARY_AI = "executive-summary-ai"
+
+    # Traditional reports
+    INSPECTION_SUMMARY = "inspection-summary"
+    APPROVAL_STATUS = "approval-status"
+    RFI_AGING = "rfi-aging"
+    COMPLIANCE_AUDIT = "compliance-audit"
 
 
 class ReportTemplateCreate(BaseModel):
@@ -20,6 +35,14 @@ class ReportTemplateCreate(BaseModel):
     @classmethod
     def sanitize_text(cls, v: Optional[str]) -> Optional[str]:
         return sanitize_string(v)
+
+    @field_validator('report_type')
+    @classmethod
+    def validate_report_type(cls, v: str) -> str:
+        valid_types = [rt.value for rt in ReportType]
+        if v not in valid_types:
+            raise ValueError(f"Invalid report_type. Must be one of: {', '.join(valid_types)}")
+        return v
 
 
 class ReportTemplateResponse(CamelCaseModel):
@@ -47,6 +70,14 @@ class ScheduledReportCreate(BaseModel):
     @classmethod
     def sanitize_text(cls, v: Optional[str]) -> Optional[str]:
         return sanitize_string(v)
+
+    @field_validator('report_type')
+    @classmethod
+    def validate_report_type(cls, v: str) -> str:
+        valid_types = [rt.value for rt in ReportType]
+        if v not in valid_types:
+            raise ValueError(f"Invalid report_type. Must be one of: {', '.join(valid_types)}")
+        return v
 
 
 class ScheduledReportUpdate(BaseModel):

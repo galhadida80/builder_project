@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}" dir="{{ direction }}">
+<head>
+<meta charset="UTF-8">
+<style>
+  @font-face {
+    font-family: "NotoHebrew";
+    src: url("fonts/NotoSansHebrew-Regular.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: "NotoHebrew";
+    src: url("fonts/NotoSansHebrew-Bold.ttf") format("truetype");
+    font-weight: 700;
+    font-style: normal;
+  }
+
+  @page {
+    size: A4;
+    margin: 12mm 14mm 16mm 14mm;
+    @bottom-right {
+      content: counter(page) " / " counter(pages);
+      font-family: "NotoHebrew", sans-serif;
+      font-size: 7.5pt;
+      color: #94A3B8;
+    }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: "NotoHebrew", sans-serif;
+    font-size: 10pt;
+    color: #1E293B;
+    direction: {{ direction }};
+    line-height: 1.6;
+    background: #fff;
+  }
+
+  .report-header {
+    background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+    padding: 28px 32px 24px;
+    margin: -12mm -14mm 0 -14mm;
+    color: #fff;
+  }
+
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 18px;
+  }
+
+  .brand {
+    font-size: 10pt;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #3B82F6;
+  }
+
+  .header-date {
+    font-size: 9pt;
+    color: #94A3B8;
+  }
+
+  .header-icon {
+    font-size: 18pt;
+    margin-bottom: 8px;
+  }
+
+  .header-title {
+    font-size: 26pt;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+  }
+
+  .header-project {
+    font-size: 12pt;
+    color: #CBD5E1;
+    font-weight: 400;
+  }
+
+  .header-project .code {
+    color: #3B82F6;
+    font-weight: 600;
+  }
+
+  .header-rule {
+    border: none;
+    border-top: 3px solid #3B82F6;
+    margin: 14px 0 0;
+    width: 80px;
+  }
+
+  .ai-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #0369A1, #0EA5E9);
+    color: #fff;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 8pt;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-top: 12px;
+  }
+
+  .section-title {
+    font-size: 13pt;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #0F172A;
+    margin: 24px 0 12px;
+    position: relative;
+    padding-bottom: 8px;
+  }
+
+  .section-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    {{ 'right' if direction == 'rtl' else 'left' }}: 0;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, #0369A1 0%, #E2E8F0 100%);
+    border-radius: 3px;
+  }
+
+  .ai-narrative {
+    background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%);
+    border-{{ 'right' if direction == 'rtl' else 'left' }}: 4px solid #0369A1;
+    padding: 20px 24px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    page-break-inside: avoid;
+  }
+
+  .ai-narrative p {
+    margin: 0 0 14px;
+    font-size: 10.5pt;
+    line-height: 1.7;
+    color: #1E293B;
+  }
+
+  .ai-narrative p:last-child {
+    margin-bottom: 0;
+  }
+
+  .inspection-info {
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    page-break-inside: avoid;
+  }
+
+  .info-field {
+    flex: 1 1 200px;
+    min-width: 200px;
+  }
+
+  .info-label {
+    font-size: 8pt;
+    font-weight: 600;
+    color: #64748B;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-bottom: 4px;
+  }
+
+  .info-value {
+    font-size: 11pt;
+    color: #0F172A;
+    font-weight: 600;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 8pt;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.3px;
+  }
+
+  .key-findings {
+    background: #FFFBEB;
+    border-{{ 'right' if direction == 'rtl' else 'left' }}: 4px solid #D97706;
+    padding: 18px 22px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    page-break-inside: avoid;
+  }
+
+  .key-findings ul {
+    margin: 8px 0 0;
+    padding-{{ 'right' if direction == 'rtl' else 'left' }}: 20px;
+  }
+
+  .key-findings li {
+    margin-bottom: 8px;
+    font-size: 10pt;
+    line-height: 1.6;
+    color: #78350F;
+    font-weight: 500;
+  }
+
+  .recommendations {
+    background: #F0FDF4;
+    border-{{ 'right' if direction == 'rtl' else 'left' }}: 4px solid #16A34A;
+    padding: 18px 22px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    page-break-inside: avoid;
+  }
+
+  .recommendations ul {
+    margin: 8px 0 0;
+    padding-{{ 'right' if direction == 'rtl' else 'left' }}: 20px;
+  }
+
+  .recommendations li {
+    margin-bottom: 8px;
+    font-size: 10pt;
+    line-height: 1.6;
+    color: #14532D;
+    font-weight: 500;
+  }
+
+  .findings-table-wrapper {
+    margin-bottom: 20px;
+    page-break-inside: avoid;
+  }
+
+  .findings-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .findings-table th {
+    background: #F8FAFC;
+    padding: 10px 12px;
+    text-align: {{ align }};
+    font-weight: 700;
+    color: #475569;
+    border-bottom: 2px solid #E2E8F0;
+    font-size: 8.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .findings-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #F1F5F9;
+    vertical-align: top;
+    font-size: 9pt;
+  }
+
+  .findings-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .severity-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-inline-end: 6px;
+    vertical-align: middle;
+  }
+
+  .chart-container {
+    text-align: center;
+    margin: 16px 0 24px;
+    page-break-inside: avoid;
+  }
+
+  .chart-container img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  .photo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .photo-card {
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #FAFAFA;
+    page-break-inside: avoid;
+  }
+
+  .photo-card img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .photo-caption {
+    padding: 12px 16px;
+    background: #F8FAFC;
+    border-top: 1px solid #E2E8F0;
+  }
+
+  .photo-caption .title {
+    margin: 0 0 4px;
+    font-size: 9.5pt;
+    font-weight: 600;
+    color: #1E293B;
+  }
+
+  .photo-caption .reason {
+    margin: 0;
+    font-size: 8.5pt;
+    color: #64748B;
+    font-style: italic;
+  }
+
+  .stats-row {
+    display: flex;
+    justify-content: space-around;
+    gap: 12px;
+    margin: 20px 0;
+    page-break-inside: avoid;
+  }
+
+  .stat-card {
+    flex: 1;
+    text-align: center;
+    padding: 16px;
+    background: #F8FAFC;
+    border-radius: 10px;
+    border: 1px solid #E2E8F0;
+  }
+
+  .stat-value {
+    font-size: 28pt;
+    font-weight: 800;
+    color: #0F172A;
+    letter-spacing: -0.5px;
+    margin-bottom: 4px;
+  }
+
+  .stat-label {
+    font-size: 9pt;
+    color: #64748B;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .metadata {
+    margin-top: 28px;
+    padding-top: 16px;
+    border-top: 1px solid #E2E8F0;
+    text-align: center;
+    font-size: 9pt;
+    color: #94A3B8;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #94A3B8;
+    font-size: 12pt;
+    font-weight: 500;
+  }
+</style>
+</head>
+<body>
+
+<div class="report-header">
+  <div class="header-top">
+    <div class="brand">BUILDEROPS</div>
+    <div class="header-date">{{ report_date }}</div>
+  </div>
+  <div class="header-icon">&#128270;</div>
+  <div class="header-title">{{ s.report_title }}</div>
+  <div class="header-project">
+    {{ s.project }}: <span class="code">{{ project_name }}{% if project_code %} &mdash; {{ project_code }}{% endif %}</span>
+  </div>
+  <hr class="header-rule">
+  <div class="ai-badge">{{ s.ai_powered }}</div>
+</div>
+
+{# AI Executive Summary #}
+{% if ai_narrative and ai_narrative.executive_summary %}
+<div class="section-title">{{ s.executive_summary }}</div>
+<div class="ai-narrative">
+  {% for paragraph in ai_narrative.executive_summary.split('\n\n') %}
+  <p>{{ paragraph }}</p>
+  {% endfor %}
+</div>
+{% endif %}
+
+{# Inspection Basic Info #}
+{% if inspection %}
+<div class="section-title">{{ s.inspection_details }}</div>
+<div class="inspection-info">
+  <div class="info-field">
+    <div class="info-label">{{ s.consultant }}</div>
+    <div class="info-value">{{ inspection.consultant_name }}</div>
+  </div>
+  <div class="info-field">
+    <div class="info-label">{{ s.scheduled_date }}</div>
+    <div class="info-value">{{ inspection.scheduled_date }}</div>
+  </div>
+  {% if inspection.completed_date %}
+  <div class="info-field">
+    <div class="info-label">{{ s.completed_date }}</div>
+    <div class="info-value">{{ inspection.completed_date }}</div>
+  </div>
+  {% endif %}
+  <div class="info-field">
+    <div class="info-label">{{ s.status }}</div>
+    <div class="info-value">
+      <span class="badge" style="background: {{ inspection.status_color }};">{{ inspection.status_label }}</span>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{# Summary Statistics #}
+{% if stats %}
+<div class="section-title">{{ s.summary_statistics }}</div>
+<div class="stats-row">
+  <div class="stat-card">
+    <div class="stat-value" style="color: {{ stats.total_findings_color or '#0369A1' }};">{{ stats.total_findings }}</div>
+    <div class="stat-label">{{ s.total_findings }}</div>
+  </div>
+  {% if stats.critical_findings is defined %}
+  <div class="stat-card">
+    <div class="stat-value" style="color: #DC2626;">{{ stats.critical_findings }}</div>
+    <div class="stat-label">{{ s.critical_findings }}</div>
+  </div>
+  {% endif %}
+  {% if stats.resolved_findings is defined %}
+  <div class="stat-card">
+    <div class="stat-value" style="color: #16A34A;">{{ stats.resolved_findings }}</div>
+    <div class="stat-label">{{ s.resolved_findings }}</div>
+  </div>
+  {% endif %}
+  {% if stats.pending_findings is defined %}
+  <div class="stat-card">
+    <div class="stat-value" style="color: #D97706;">{{ stats.pending_findings }}</div>
+    <div class="stat-label">{{ s.pending_findings }}</div>
+  </div>
+  {% endif %}
+</div>
+{% endif %}
+
+{# Inspection Statistics Chart #}
+{% if inspection_chart %}
+<div class="section-title">{{ s.findings_breakdown }}</div>
+<div class="chart-container">
+  <img src="data:image/png;base64,{{ inspection_chart }}" alt="{{ s.inspection_chart_alt }}">
+</div>
+{% endif %}
+
+{# AI Key Findings #}
+{% if ai_narrative and ai_narrative.key_findings %}
+<div class="section-title">{{ s.key_findings }}</div>
+<div class="key-findings">
+  <ul>
+  {% for finding in ai_narrative.key_findings %}
+    <li>{{ finding }}</li>
+  {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+{# Detailed Findings Table #}
+{% if findings and findings|length > 0 %}
+<div class="section-title">{{ s.detailed_findings }}</div>
+<div class="findings-table-wrapper">
+  <table class="findings-table">
+    <thead>
+      <tr>
+        <th>{{ s.finding_title }}</th>
+        <th>{{ s.severity }}</th>
+        <th>{{ s.finding_status }}</th>
+        <th>{{ s.location }}</th>
+        <th>{{ s.description }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for f in findings %}
+      <tr>
+        <td><strong>{{ f.title }}</strong></td>
+        <td><span class="severity-dot" style="background: {{ f.severity_color }};"></span>{{ f.severity_label }}</td>
+        <td>{{ f.status_label }}</td>
+        <td>{{ f.location or '-' }}</td>
+        <td>{{ f.description or '-' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+{# AI Detailed Analysis Narrative #}
+{% if ai_narrative and ai_narrative.narrative %}
+<div class="section-title">{{ s.detailed_analysis }}</div>
+<div class="ai-narrative">
+  {% for paragraph in ai_narrative.narrative.split('\n\n') %}
+  <p>{{ paragraph }}</p>
+  {% endfor %}
+</div>
+{% endif %}
+
+{# AI-Curated Photo Highlights #}
+{% if photos and photos|length > 0 %}
+<div class="section-title">{{ s.photo_highlights }}</div>
+<div class="photo-grid">
+  {% for photo in photos %}
+  <div class="photo-card">
+    {% if photo.url %}
+    <img src="{{ photo.url }}" alt="{{ photo.caption or s.photo_alt }}">
+    {% endif %}
+    {% if photo.caption or photo.selection_reason %}
+    <div class="photo-caption">
+      {% if photo.caption %}
+      <p class="title">{{ photo.caption }}</p>
+      {% endif %}
+      {% if photo.selection_reason %}
+      <p class="reason">{{ photo.selection_reason }}</p>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{# AI Recommendations #}
+{% if ai_narrative and ai_narrative.recommendations %}
+<div class="section-title">{{ s.recommendations }}</div>
+<div class="recommendations">
+  <ul>
+  {% for rec in ai_narrative.recommendations %}
+    <li>{{ rec }}</li>
+  {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+{# Report Metadata #}
+<div class="metadata">
+  {{ s.generated_at }}: {{ generated_at }}<br>
+  {% if ai_narrative and ai_narrative.model_used %}
+  {{ s.ai_model }}: {{ ai_narrative.model_used }}<br>
+  {% endif %}
+  {{ s.report_id }}: {{ report_id }}
+</div>
+
+</body>
+</html>

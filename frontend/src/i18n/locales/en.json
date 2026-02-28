@@ -463,6 +463,10 @@
     "confirmed": "confirmed",
     "pending": "pending"
   },
+  "language": {
+    "hebrew": "עברית",
+    "english": "English"
+  },
   "validation": {
     "checkFields": "Please fix the highlighted errors",
     "fieldRequired": "This field is required",
@@ -497,6 +501,7 @@
     "customType": "Specify custom type",
     "customUnit": "Specify custom unit",
     "saving": "Saving...",
+    "generating": "Generating...",
     "error": "Error",
     "success": "Success",
     "warning": "Warning",
@@ -3064,7 +3069,24 @@
     "defectsAndIssues": "Defects & Issues",
     "equipmentAndMaterials": "Equipment & Materials",
     "budgetAndCosts": "Budget & Costs",
-    "format": "Format"
+    "format": "Format",
+    "generateReport": "Generate Report",
+    "selectReportType": "Select Report Type",
+    "weeklyAiDescription": "AI-generated weekly progress report with narrative summary, charts, and key metrics.",
+    "inspectionAiDescription": "AI-powered inspection summary with findings analysis, photos, and recommendations.",
+    "executiveAiDescription": "High-level executive summary with project health indicators and critical items.",
+    "configureParameters": "Configure Parameters",
+    "language": "Language",
+    "reviewConfiguration": "Review Configuration",
+    "dateRange": "Date Range",
+    "readyToGenerate": "Ready to generate your AI-powered report. This may take a few moments.",
+    "weeklyProgressReport": "Weekly Progress Report",
+    "downloadFailed": "Failed to download PDF",
+    "preview": "Preview",
+    "edit": "Edit",
+    "previewFrame": "Report Preview",
+    "editWarning": "Editing HTML directly. Be careful to preserve the structure and styling.",
+    "downloadPdf": "Download PDF"
   },
   "help": {
     "title": "Help",

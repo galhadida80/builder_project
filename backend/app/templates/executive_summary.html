@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% macro stat_card(label, value, color="#0F172A", bg="#F8FAFC") %}
+<td style="text-align:center;padding:4px;width:25%;">
+  <div style="background:{{ bg }};border-radius:10px;padding:16px 8px;">
+    <div style="font-size:28px;font-weight:800;color:{{ color }};letter-spacing:-0.5px;">{{ value }}</div>
+    <div style="font-size:11px;color:#64748B;margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;">{{ label }}</div>
+  </div>
+</td>
+{% endmacro %}
+
+{% macro section_title(title) %}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:28px 0 14px;">
+<tr><td>
+  <p style="margin:0;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#0F172A;">{{ title }}</p>
+  <div style="height:3px;background:linear-gradient(90deg,#0369A1 0%,#E2E8F0 100%);border-radius:3px;margin-top:8px;"></div>
+</td></tr>
+</table>
+{% endmacro %}
+
+{% block header %}
+<tr><td style="background:linear-gradient(135deg,#0F172A 0%,#1E293B 100%);padding:36px 36px 30px;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+<tr><td>
+  <p style="margin:0 0 20px;font-size:11px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:#3B82F6;">BUILDEROPS</p>
+  <p style="margin:0 0 8px;font-size:28px;">&#128202;</p>
+  <h1 style="margin:0 0 8px;color:#ffffff;font-size:24px;font-weight:800;letter-spacing:-0.3px;">{{ s.title }}</h1>
+  <p style="margin:0;color:#94A3B8;font-size:14px;font-weight:500;">
+    {{ s.project }}: <span style="color:#CBD5E1;font-weight:600;">{{ project_name }}</span>
+    &nbsp;&#183;&nbsp;
+    {{ s.period }}: <span style="color:#CBD5E1;font-weight:600;">{{ date_from }} - {{ date_to }}</span>
+  </p>
+</td></tr>
+</table>
+</td></tr>
+{% endblock %}
+
+{% block content %}
+
+{# 1. AI-generated executive summary #}
+{% if ai_summary %}
+{{ section_title(s.executive_summary) }}
+<div style="background:#F0F9FF;border-{{ 'right' if direction == 'rtl' else 'left' }}:4px solid #0369A1;padding:20px 24px;border-radius:8px;margin-bottom:16px;">
+  <p style="margin:0;font-size:14px;line-height:1.8;color:#1E293B;font-weight:500;">{{ ai_summary }}</p>
+</div>
+{% endif %}
+
+{# 2. Project health indicator #}
+{{ section_title(s.project_health) }}
+{% set pct = [0, [100, progress] | min] | max %}
+{% if pct >= 60 %}
+  {% set bar_color = "#16A34A" %}
+  {% set bar_bg = "#DCFCE7" %}
+  {% set health_status = s.on_track %}
+{% elif pct >= 30 %}
+  {% set bar_color = "#D97706" %}
+  {% set bar_bg = "#FEF3C7" %}
+  {% set health_status = s.at_risk %}
+{% else %}
+  {% set bar_color = "#DC2626" %}
+  {% set bar_bg = "#FEE2E2" %}
+  {% set health_status = s.critical %}
+{% endif %}
+<div style="background:{{ bar_bg }};border-radius:14px;height:32px;overflow:hidden;margin:8px 0;">
+  <div style="background:{{ bar_color }};height:100%;width:{{ pct }}%;border-radius:14px;"></div>
+</div>
+<p style="text-align:center;font-size:20px;font-weight:800;color:{{ bar_color }};margin:8px 0 4px;">{{ "%.1f" | format(pct) }}%</p>
+<p style="text-align:center;font-size:12px;font-weight:700;color:{{ bar_color }};margin:0;text-transform:uppercase;letter-spacing:0.5px;">{{ health_status }}</p>
+
+{# 3. Key metrics at a glance #}
+{{ section_title(s.key_metrics) }}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+  <tr>
+    {{ stat_card(s.activity_items, activity_count, "#0369A1", "#F0F9FF") }}
+    {{ stat_card(s.inspections, inspections.completed, "#16A34A", "#F0FDF4") }}
+    {{ stat_card(s.pending_approvals, pending.total, "#EA580C", "#FFF7ED") }}
+    {% if rfis.overdue > 0 %}
+    {{ stat_card(s.overdue_rfis, rfis.overdue, "#DC2626", "#FEF2F2") }}
+    {% else %}
+    {{ stat_card(s.open_rfis, rfis.opened, "#64748B", "#F8FAFC") }}
+    {% endif %}
+  </tr>
+</table>
+
+{# 4. Critical items requiring attention #}
+{% if has_critical_items %}
+{{ section_title(s.critical_items) }}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#FEF2F2;border-radius:12px;border:1px solid #FCA5A5;">
+  <tr><td style="padding:18px 22px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+      {% if pending.total > 0 %}
+      <tr>
+        <td style="padding:6px 0;font-size:14px;color:#991B1B;font-weight:600;">{{ s.pending_approvals_detail }}</td>
+        <td style="padding:6px 0;font-size:15px;font-weight:800;color:#DC2626;text-align:{{ 'left' if direction == 'rtl' else 'right' }};">{{ pending.total }}</td>
+      </tr>
+      {% endif %}
+      {% if rfis.overdue > 0 %}
+      <tr>
+        <td style="padding:6px 0;font-size:14px;color:#991B1B;font-weight:600;">{{ s.overdue_rfis_detail }}</td>
+        <td style="padding:6px 0;font-size:15px;font-weight:800;color:#DC2626;text-align:{{ 'left' if direction == 'rtl' else 'right' }};">{{ rfis.overdue }}</td>
+      </tr>
+      {% endif %}
+      {% if defects and defects.critical_open > 0 %}
+      <tr>
+        <td style="padding:6px 0;font-size:14px;color:#991B1B;font-weight:600;">{{ s.critical_defects }}</td>
+        <td style="padding:6px 0;font-size:15px;font-weight:800;color:#DC2626;text-align:{{ 'left' if direction == 'rtl' else 'right' }};">{{ defects.critical_open }}</td>
+      </tr>
+      {% endif %}
+    </table>
+  </td></tr>
+</table>
+{% endif %}
+
+{# 5. Key accomplishments #}
+{% if accomplishments %}
+{{ section_title(s.accomplishments) }}
+<ul style="margin:12px 0;padding-{{ 'right' if direction == 'rtl' else 'left' }}:20px;color:#16A34A;line-height:1.8;">
+  {% for item in accomplishments[:5] %}
+  <li style="margin-bottom:8px;font-size:13px;">{{ item }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
+
+{# 6. Concerns & risks #}
+{% if concerns %}
+{{ section_title(s.concerns) }}
+<div style="background:#FFFBEB;border-{{ 'right' if direction == 'rtl' else 'left' }}:4px solid #F59E0B;padding:16px 20px;border-radius:8px;margin-bottom:16px;">
+  <ul style="margin:0;padding-{{ 'right' if direction == 'rtl' else 'left' }}:20px;color:#92400E;line-height:1.8;">
+    {% for item in concerns[:5] %}
+    <li style="margin-bottom:8px;font-size:13px;">{{ item }}</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+{# 7. Activity breakdown #}
+{{ section_title(s.activity_breakdown) }}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:16px;">
+  <tr>
+    {{ stat_card(s.equipment, equipment.created, "#0369A1", "#F0F9FF") }}
+    {{ stat_card(s.materials, materials.created, "#0369A1", "#F0F9FF") }}
+    {{ stat_card(s.meetings, meetings_count, "#64748B", "#F8FAFC") }}
+  </tr>
+</table>
+
+{# 8. Upcoming milestones #}
+{% if upcoming_items %}
+{{ section_title(s.upcoming_milestones) }}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #E2E8F0;border-radius:12px;overflow:hidden;">
+  <tr style="background:#F8FAFC;">
+    <th style="padding:12px 18px;text-align:{{ align }};font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;">{{ s.milestone }}</th>
+    <th style="padding:12px 18px;text-align:{{ align }};font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;">{{ s.date }}</th>
+  </tr>
+  {% for item in upcoming_items[:5] %}
+  <tr>
+    <td style="padding:12px 18px;border-top:1px solid #F1F5F9;font-size:13px;font-weight:600;color:#334155;">{{ item.title }}</td>
+    <td style="padding:12px 18px;border-top:1px solid #F1F5F9;font-size:13px;color:#334155;">{{ item.date }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p style="color:#94A3B8;font-size:13px;font-style:italic;">{{ s.no_upcoming_items }}</p>
+{% endif %}
+
+{# 9. Report metadata #}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:28px 0 0;padding:16px 0;border-top:1px solid #E2E8F0;">
+<tr><td style="text-align:center;">
+  <p style="margin:0;font-size:11px;color:#94A3B8;">
+    {{ s.generated_at }}: {{ generated_at }}<br>
+    {% if ai_model %}{{ s.ai_powered }} {{ ai_model }}<br>{% endif %}
+    {{ s.report_id }}: {{ report_id }}
+  </p>
+</td></tr>
+</table>
+
+{% endblock %}
+
+{% block cta %}
+<tr><td style="padding:0 36px 32px;text-align:center;">
+  <a href="{{ frontend_url }}/projects/{{ project_id }}/reports" style="display:inline-block;background:linear-gradient(135deg,#0369A1,#0EA5E9);color:#ffffff;text-decoration:none;padding:14px 40px;border-radius:12px;font-size:15px;font-weight:700;letter-spacing:0.3px;box-shadow:0 4px 12px rgba(3,105,161,0.3);">{{ s.view_details }}</a>
+</td></tr>
+{% endblock %}
+
+{% block footer %}{{ s.footer }}{% endblock %}
