@@ -43,4 +43,13 @@ from app.schemas.project import (
     ProjectResponse,
     ProjectUpdate,
 )
+from app.schemas.risk_score import (
+    PredictedDefectType,
+    RiskAnalysisResponse,
+    RiskFactorItem,
+    RiskScoreCreate,
+    RiskScoreResponse,
+    RiskScoreSummaryResponse,
+    RiskScoreUpdate,
+)
 from app.schemas.user import UserBase, UserCreate, UserResponse
