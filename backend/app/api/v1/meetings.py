@@ -117,6 +117,15 @@ def send_meeting_invitations(
                 body_html=html,
             )
             logger.info(f"Meeting invitation sent to {att.email} for '{meeting.title}'")
+        except RuntimeError as e:
+            error_msg = str(e)
+            if "OAuth" in error_msg or "re-authorize" in error_msg:
+                logger.error(
+                    f"OAuth error sending meeting invitation to {att.email}: {e}. "
+                    f"Re-authorization may be required."
+                )
+            else:
+                logger.error(f"Failed to send meeting invitation to {att.email}: {e}")
         except Exception as e:
             logger.error(f"Failed to send meeting invitation to {att.email}: {e}")
 
@@ -162,6 +171,15 @@ def send_meeting_vote_emails(
                 body_html=html,
             )
             logger.info(f"Meeting vote email sent to {att.email} for '{meeting.title}'")
+        except RuntimeError as e:
+            error_msg = str(e)
+            if "OAuth" in error_msg or "re-authorize" in error_msg:
+                logger.error(
+                    f"OAuth error sending meeting vote email to {att.email}: {e}. "
+                    f"Re-authorization may be required."
+                )
+            else:
+                logger.error(f"Failed to send meeting vote email to {att.email}: {e}")
         except Exception as e:
             logger.error(f"Failed to send meeting vote email to {att.email}: {e}")
 
