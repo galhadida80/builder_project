@@ -1,14 +1,16 @@
-from datetime import datetime
+from datetime import date, datetime
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Body, Depends, HTTPException, Query
 from fastapi.responses import Response
+from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.core.security import get_current_user, verify_project_access
 from app.db.session import get_db
+from app.models.project import Project
 from app.models.scheduled_report import ReportTemplate, ScheduledReport
 from app.models.user import User
 from app.schemas.scheduled_report import (
@@ -19,6 +21,7 @@ from app.schemas.scheduled_report import (
     ScheduledReportUpdate,
 )
 from app.services.audit_export_service import generate_audit_package
+from app.services.inspection_report_service import generate_ai_weekly_report_pdf
 from app.services.report_service import (
     generate_approval_report,
     generate_csv_export,
@@ -27,6 +30,12 @@ from app.services.report_service import (
 )
 
 router = APIRouter()
+
+
+class GenerateWeeklyReportRequest(BaseModel):
+    date_from: date
+    date_to: date
+    language: str = "he"
 
 
 @router.get("/projects/{project_id}/reports/inspection-summary")
@@ -130,6 +139,31 @@ async def export_compliance_audit(
         content=csv_data,
         media_type="text/csv",
         headers={"Content-Disposition": 'attachment; filename="compliance-audit-report.csv"'},
+    )
+
+
+@router.post("/projects/{project_id}/reports/generate-weekly")
+async def generate_weekly_report(
+    project_id: UUID,
+    request: GenerateWeeklyReportRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    await verify_project_access(project_id, current_user, db)
+
+    result = await db.execute(select(Project).where(Project.id == project_id))
+    project = result.scalar_one_or_none()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    pdf_bytes = await generate_ai_weekly_report_pdf(
+        db, project_id, project, request.date_from, request.date_to, request.language
+    )
+
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": 'attachment; filename="weekly-progress-report.pdf"'},
     )
 
 
