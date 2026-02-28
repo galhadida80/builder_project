@@ -34,6 +34,7 @@ from app.api.v1 import (
     material_templates,
     materials,
     meetings,
+    notification_preferences,
     notifications,
     organizations,
     projects,
@@ -69,6 +70,11 @@ api_router.include_router(analytics.router, prefix="/analytics", tags=["analytic
 api_router.include_router(rfis.router, tags=["rfis"])
 api_router.include_router(webhooks.router, prefix="/webhooks", tags=["webhooks"])
 api_router.include_router(notifications.router, prefix="/notifications", tags=["notifications"])
+api_router.include_router(
+    notification_preferences.router,
+    prefix="/notifications/preferences",
+    tags=["notifications"]
+)
 api_router.include_router(workload.router, tags=["workload"])
 api_router.include_router(consultant_types.router, tags=["consultant_types"])
 api_router.include_router(consultant_assignments.router, tags=["consultant_assignments"])
