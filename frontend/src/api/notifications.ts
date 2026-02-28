@@ -1,8 +1,9 @@
 import { apiClient } from './client'
-import type { Notification, NotificationCategory, NotificationListResponse, UnreadCountResponse } from '../types/notification'
+import type { Notification, NotificationCategory, NotificationListResponse, UnreadCountResponse, UrgencyLevel } from '../types/notification'
 
 export interface NotificationListParams {
   category?: NotificationCategory
+  urgency?: UrgencyLevel
   isRead?: boolean
   search?: string
   limit?: number
@@ -13,6 +14,7 @@ export const notificationsApi = {
   getAll: async (params?: NotificationListParams): Promise<NotificationListResponse> => {
     const queryParams: Record<string, string | number | boolean> = {}
     if (params?.category) queryParams.category = params.category
+    if (params?.urgency) queryParams.urgency = params.urgency
     if (params?.isRead !== undefined) queryParams.is_read = params.isRead
     if (params?.search) queryParams.search = params.search
     if (params?.limit) queryParams.limit = params.limit
