@@ -53,5 +53,10 @@ from app.schemas.risk_score import (
     RiskScoreSummaryResponse,
     RiskScoreUpdate,
 )
-from app.schemas.safety_incident import SafetyIncidentCreate, SafetyIncidentResponse, SafetyIncidentUpdate
+from app.schemas.safety_incident import (
+    SafetyIncidentCreate,
+    SafetyIncidentResponse,
+    SafetyIncidentUpdate,
+    SafetyKPIResponse,
+)
 from app.schemas.user import UserBase, UserCreate, UserResponse

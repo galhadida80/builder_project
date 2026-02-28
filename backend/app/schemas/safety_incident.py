@@ -117,3 +117,29 @@ class SafetyIncidentResponse(CamelCaseModel):
     area: Optional[AreaBrief] = None
     reported_by: Optional[ContactBrief] = None
     created_by: Optional[UserResponse] = None
+
+
+class SafetyKPIResponse(CamelCaseModel):
+    """Overall safety KPI summary for a project"""
+    # Incidents
+    total_incidents: int
+    incidents_by_severity: dict[str, int]
+    incidents_by_status: dict[str, int]
+
+    # Near Misses
+    total_near_misses: int
+    near_misses_by_severity: dict[str, int]
+    anonymous_near_misses: int
+
+    # Training
+    total_trainings: int
+    valid_trainings: int
+    expired_trainings: int
+    expiring_soon_trainings: int
+    unique_trained_workers: int
+
+    # Toolbox Talks
+    total_toolbox_talks: int
+    completed_toolbox_talks: int
+    total_talk_attendees: int
+    total_attended: int
