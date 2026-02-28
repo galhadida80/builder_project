@@ -4,12 +4,16 @@ import { useTranslation } from 'react-i18next'
 import { GanttChart } from '../components/ui/GanttChart'
 import { SegmentedTabs } from '../components/ui/Tabs'
 import { EmptyState } from '../components/ui/EmptyState'
+import { ScheduleRiskPanel } from '../components/schedule/ScheduleRiskPanel'
+import { WhatIfScenario } from '../components/schedule/WhatIfScenario'
 import { meetingsApi } from '../api/meetings'
+import { scheduleRiskApi } from '../api/scheduleRisk'
 import { useToast } from '../components/common/ToastProvider'
 import type { GanttTask, GanttLink, GanttScale } from '../types/timeline'
 import type { Meeting } from '../types'
-import { ZoomInIcon, ZoomOutIcon, TimelineIcon, ArrowBackIcon, CalendarTodayIcon } from '@/icons'
-import { Box, Typography, IconButton, Skeleton, Chip, alpha } from '@/mui'
+import type { ProjectRiskSummary, ScheduleRiskAnalysis } from '../types/scheduleRisk'
+import { ZoomInIcon, ZoomOutIcon, TimelineIcon, ArrowBackIcon, CalendarTodayIcon, VisibilityIcon, VisibilityOffIcon, TrendingUpIcon } from '@/icons'
+import { Box, Typography, IconButton, Skeleton, Chip, alpha, Button } from '@/mui'
 
 const addDays = (dateStr: string, days: number): string => {
   const d = new Date(dateStr)
@@ -75,6 +79,10 @@ export default function GanttTimelinePage() {
   const [loading, setLoading] = useState(true)
   const [tasks, setTasks] = useState<GanttTask[]>([])
   const [links, setLinks] = useState<GanttLink[]>([])
+  const [showRiskOverlay, setShowRiskOverlay] = useState(false)
+  const [whatIfModalOpen, setWhatIfModalOpen] = useState(false)
+  const [riskSummary, setRiskSummary] = useState<ProjectRiskSummary | null>(null)
+  const [riskData, setRiskData] = useState<Record<string, ScheduleRiskAnalysis>>({})
 
   useEffect(() => {
     if (projectId) {
@@ -92,11 +100,26 @@ export default function GanttTimelinePage() {
       const { tasks: meetingTasks, links: meetingLinks } = convertMeetingsToTasks(meetings)
       setTasks(meetingTasks)
       setLinks(meetingLinks)
+      await loadRiskData()
     } catch (error) {
-      console.error('Failed to load timeline data:', error)
       showError(t('gantt.failedToLoad'))
     } finally {
       setLoading(false)
+    }
+  }
+
+  const loadRiskData = async () => {
+    if (!projectId) return
+    try {
+      const summary = await scheduleRiskApi.getProjectRiskSummary(projectId)
+      setRiskSummary(summary)
+      const riskMap: Record<string, ScheduleRiskAnalysis> = {}
+      for (const task of summary.atRiskTasks || []) {
+        riskMap[task.taskId] = task
+      }
+      setRiskData(riskMap)
+    } catch (error) {
+      // Silent fail - risk data is optional
     }
   }
 
@@ -170,6 +193,26 @@ export default function GanttTimelinePage() {
           />
           <IconButton
             size="small"
+            onClick={() => setShowRiskOverlay(!showRiskOverlay)}
+            title={t('gantt.toggleRiskOverlay')}
+            sx={{
+              bgcolor: showRiskOverlay ? 'primary.main' : 'action.hover',
+              color: showRiskOverlay ? 'primary.contrastText' : 'inherit',
+              '&:hover': { bgcolor: showRiskOverlay ? 'primary.dark' : 'action.selected' },
+            }}
+          >
+            {showRiskOverlay ? <VisibilityIcon sx={{ fontSize: 18 }} /> : <VisibilityOffIcon sx={{ fontSize: 18 }} />}
+          </IconButton>
+          <IconButton
+            size="small"
+            onClick={() => setWhatIfModalOpen(true)}
+            title={t('gantt.whatIfScenario')}
+            sx={{ bgcolor: 'action.hover' }}
+          >
+            <TrendingUpIcon sx={{ fontSize: 18 }} />
+          </IconButton>
+          <IconButton
+            size="small"
             onClick={handleZoomOut}
             disabled={zoomLevel === 0}
             sx={{ bgcolor: 'action.hover' }}
@@ -226,7 +269,12 @@ export default function GanttTimelinePage() {
       }}>
         <Box sx={{ minHeight: 350, height: { xs: 'calc(100dvh - 340px)', md: 'calc(100dvh - 300px)' } }}>
           {filteredTasks.length > 0 ? (
-            <GanttChart tasks={filteredTasks} links={links} scales={currentScales} />
+            <GanttChart
+              tasks={filteredTasks}
+              links={links}
+              scales={currentScales}
+              riskData={showRiskOverlay ? riskData : undefined}
+            />
           ) : (
             <Box sx={{ p: 4 }}>
               <EmptyState
@@ -271,6 +319,22 @@ export default function GanttTimelinePage() {
             }} />
           </Box>
         </Box>
+      )}
+
+      {/* Schedule Risk Panel */}
+      {projectId && (
+        <Box sx={{ mx: 2, mt: 2 }}>
+          <ScheduleRiskPanel projectId={projectId} onRefresh={loadRiskData} />
+        </Box>
+      )}
+
+      {/* What-If Scenario Modal */}
+      {projectId && (
+        <WhatIfScenario
+          open={whatIfModalOpen}
+          onClose={() => setWhatIfModalOpen(false)}
+          projectId={projectId}
+        />
       )}
     </Box>
   )

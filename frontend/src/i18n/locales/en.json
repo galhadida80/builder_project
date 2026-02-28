@@ -2063,7 +2063,9 @@
     "zoomYearMonth": "Year/Month",
     "zoomMonthWeek": "Month/Week",
     "zoomMonthDay": "Month/Day",
-    "zoomWeekDay": "Week/Day"
+    "zoomWeekDay": "Week/Day",
+    "toggleRiskOverlay": "Toggle Risk Overlay",
+    "whatIfScenario": "What-If Scenario"
   },
   "pages": {
     "projects": {

@@ -2212,7 +2212,9 @@
     "zoomYearMonth": "שנה/חודש",
     "zoomMonthWeek": "חודש/שבוע",
     "zoomMonthDay": "חודש/יום",
-    "zoomWeekDay": "שבוע/יום"
+    "zoomWeekDay": "שבוע/יום",
+    "toggleRiskOverlay": "הצג/הסתר סיכונים",
+    "whatIfScenario": "תרחיש מה-אם"
   },
   "overview": {
     "title": "סקירת פרויקט",
