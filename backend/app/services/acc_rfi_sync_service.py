@@ -548,16 +548,25 @@ class ACCRFISyncService:
     ) -> uuid.UUID:
         """
         Map ACC user email to BuilderOps user ID.
-        Returns existing user ID if found, or creates a placeholder user.
+
+        Handles three scenarios:
+        1. Exact email match (case-insensitive) - returns existing user ID
+        2. Missing user - creates external contact with company="External (ACC)"
+        3. Empty email - returns/creates system user
+
+        Returns: BuilderOps user ID
         """
         if not acc_user_email:
+            logger.debug("No ACC email provided, using system user")
             result = await self.db.execute(
                 select(User).where(User.email == "system@builderops.com")
             )
             system_user = result.scalar_one_or_none()
             if system_user:
+                logger.debug(f"Found existing system user: {system_user.id}")
                 return system_user.id
 
+            logger.info("Creating system user")
             system_user = User(
                 email="system@builderops.com",
                 full_name="System User",
@@ -566,26 +575,32 @@ class ACCRFISyncService:
             self.db.add(system_user)
             await self.db.flush()
             await self.db.refresh(system_user)
+            logger.info(f"Created system user: {system_user.id}")
             return system_user.id
 
         email_lower = acc_user_email.lower()
+        logger.debug(f"Looking up user by email: {email_lower}")
+
         result = await self.db.execute(
             select(User).where(func.lower(User.email) == email_lower)
         )
         user = result.scalar_one_or_none()
 
         if user:
+            logger.debug(f"Found existing user {user.id} for email: {email_lower}")
             return user.id
 
-        logger.info(f"Creating placeholder user for ACC email: {acc_user_email}")
+        logger.info(f"No user found for {email_lower}, creating external contact")
+        full_name = acc_user_email.split("@")[0].title()
         new_user = User(
             email=email_lower,
-            full_name=acc_user_email.split("@")[0].title(),
+            full_name=full_name,
             is_active=True,
             company="External (ACC)"
         )
         self.db.add(new_user)
         await self.db.flush()
         await self.db.refresh(new_user)
+        logger.info(f"Created external user {new_user.id} ({full_name}) for email: {email_lower}")
 
         return new_user.id
