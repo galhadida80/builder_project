@@ -89,6 +89,26 @@ async def get_labor_costs(
     return await generate_labor_cost_report(db, project_id, date_from, date_to)
 
 
+@router.get("/projects/{project_id}/reports/payroll-export")
+async def export_payroll(
+    project_id: UUID,
+    date_from: datetime = Query(...),
+    date_to: datetime = Query(...),
+    format: str = Query("csv", pattern="^csv$"),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    await verify_project_access(project_id, current_user, db)
+    report = await generate_labor_cost_report(db, project_id, date_from, date_to)
+    csv_data = generate_csv_export(report.get("cost_items", []))
+
+    return Response(
+        content=csv_data,
+        media_type="text/csv",
+        headers={"Content-Disposition": 'attachment; filename="payroll-export.csv"'},
+    )
+
+
 @router.get("/projects/{project_id}/reports/export")
 async def export_report(
     project_id: UUID,
