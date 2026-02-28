@@ -9,6 +9,7 @@ from app.api.v1 import (
     areas,
     audit,
     auth,
+    batch_uploads,
     billing,
     bim,
     bim_extract,
@@ -75,6 +76,7 @@ api_router.include_router(area_structure.router, tags=["area_structure"])
 api_router.include_router(contacts.router, tags=["contacts"])
 api_router.include_router(contact_groups.router, tags=["contact_groups"])
 api_router.include_router(files.router, tags=["files"])
+api_router.include_router(batch_uploads.router, tags=["batch_uploads"])
 api_router.include_router(audit.router, tags=["audit"])
 api_router.include_router(checklists.router, tags=["checklists"])
 api_router.include_router(analytics.router, prefix="/analytics", tags=["analytics"])
