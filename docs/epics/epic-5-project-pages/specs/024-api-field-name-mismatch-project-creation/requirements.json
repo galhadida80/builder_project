@@ -1,4 +1,0 @@
-{
-  "task_description": "# API field name mismatch - Project creation\n\n**Linear Issue:** [BUI-13](https://linear.app/builder-project/issue/BUI-13/api-field-name-mismatch-project-creation)\n**Priority:** Urgent\n**Status:** Backlog\n\n\n## Description\n\n**Bug Description:**\nFrontend sends wrong field names to backend API for project creation.\n\n**Location:** frontend/src/pages/ProjectsPage.tsx (line 68-70)\n\n**Current Code:**\n\n```typescript\nlocation: formData.address,\nexpectedEndDate: formData.estimatedEndDate\n```\n\n**Backend Expects:**\n\n* address (not location)\n* estimated_end_date (snake_case)\n\n**Fix Required:**\n\n* Update API call to use correct field names\n* Or update backend to accept aliases\n\n**Priority:** High\n",
-  "workflow_type": "feature"
-}

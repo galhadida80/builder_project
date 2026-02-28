@@ -1,9 +1,0 @@
-{
-  "feature": "Create Frontend RFI List Page",
-  "description": "# Create Frontend RFI List Page\n\n**Linear Issue:** [BUI-103](https://linear.app/builder-project/issue/BUI-103/create-frontend-rfi-list-page)\n**Priority:** No priority\n**Status:** Backlog\n\n\n## Description\n\n## User Story\n\nAs a user, I want to view all RFIs for a project so that I can track outstanding questions.\n\n## Acceptance Criteria\n\n- [ ] Create `/projects/{projectId}/rfis` route\n- [ ] Create `RFIListPage` component\n- [ ] Data table with columns:\n  - RFI Number, Subject, To, Status, Priority, Due Date, Created\n- [ ] Status badges with colors:\n  - Draft (gray), Open (blue), Waiting (yellow), Answered (green), Closed (gray)\n- [ ] Priority badges: Low, Medium, High, Urgent\n- [ ] Filter by status, priority, category\n- [ ] Search by subject, RFI number\n- [ ] Sort by date, priority, status\n- [ ] Pagination\n- [ ] \"New RFI\" button\n\n## Labels\n\nfrontend, page, rfi\n",
-  "created_at": "2026-01-31T22:45:32.752Z",
-  "updated_at": "2026-02-02T15:57:16.888Z",
-  "status": "done",
-  "phases": [],
-  "planStatus": "completed"
-}

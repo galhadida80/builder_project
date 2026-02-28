@@ -1,9 +1,0 @@
-{
-  "feature": "Create RFI Service with Email Integration",
-  "description": "# Create RFI Service with Email Integration\n\n**Linear Issue:** [BUI-98](https://linear.app/builder-project/issue/BUI-98/create-rfi-service-with-email-integration)\n**Priority:** No priority\n**Status:** Backlog\n\n\n## Description\n\n## User Story\n\nAs a developer, I need an RFI service that handles business logic for creating, sending, and processing RFIs.\n\n## Acceptance Criteria\n\n- [ ] Create `RFIService` class\n- [ ] Implement `generate_rfi_number()` - format: RFI-YYYY-NNNNN\n- [ ] Implement `create_and_send_rfi()`:\n  - Create RFI record in database\n  - Generate HTML email body\n  - Send via Gmail API\n  - Update RFI with email_thread_id, email_message_id\n  - Set status to WAITING_RESPONSE\n  - Log email event\n- [ ] Implement `process_incoming_email()`:\n  - Parse incoming email\n  - Find matching RFI by thread_id, rfi_number, or In-Reply-To\n  - Create RFIResponse record\n  - Update RFI status to ANSWERED\n  - Trigger notifications\n- [ ] Implement `close_rfi()`, `reopen_rfi()` methods\n- [ ] Implement `add_internal_response()` for CRM replies\n\n## Labels\n\nbackend, service, rfi\n",
-  "created_at": "2026-01-31T22:45:32.753Z",
-  "updated_at": "2026-02-03T16:37:04.029Z",
-  "status": "done",
-  "phases": [],
-  "planStatus": "completed"
-}

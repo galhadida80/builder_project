@@ -1,9 +1,0 @@
-{
-  "feature": "Create RFI Detail Page with Thread View",
-  "description": "# Create RFI Detail Page with Thread View\n\n**Linear Issue:** [BUI-104](https://linear.app/builder-project/issue/BUI-104/create-rfi-detail-page-with-thread-view)\n**Priority:** No priority\n**Status:** Backlog\n\n\n## Description\n\n## User Story\n\nAs a user, I want to view RFI details and conversation thread so that I can see the full context.\n\n## Acceptance Criteria\n\n- [ ] Create `/rfis/{rfiId}` route\n- [ ] Create `RFIDetailPage` component\n- [ ] Header section:\n  * RFI number, subject, status badge\n  * To/CC recipients\n  * Category, priority, due date\n  * Action buttons: Send, Close, Reopen\n- [ ] Original question section:\n  * Question text\n  * Attachments list with download\n  * Location/drawing references\n- [ ] Conversation thread:\n  * Chronological list of responses\n  * Each response: sender, timestamp, content\n  * Distinguish internal vs external responses\n  * Attachment links\n- [ ] Reply input at bottom:\n  * Rich text editor\n  * Attachment upload\n  * Send button\n\n## Labels\n\nfrontend, page, rfi\n",
-  "created_at": "2026-01-31T22:45:32.751Z",
-  "updated_at": "2026-02-02T15:35:14.712Z",
-  "status": "done",
-  "phases": [],
-  "planStatus": "completed"
-}

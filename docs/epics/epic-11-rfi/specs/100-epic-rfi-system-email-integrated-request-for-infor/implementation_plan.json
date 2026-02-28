@@ -1,9 +1,0 @@
-{
-  "feature": "[EPIC] RFI System - Email-Integrated Request for Information",
-  "description": "# [EPIC] RFI System - Email-Integrated Request for Information\n\n**Linear Issue:** [BUI-93](https://linear.app/builder-project/issue/BUI-93/epic-rfi-system-email-integrated-request-for-information)\n**Priority:** Urgent\n**Status:** Backlog\n\n\n## Description\n\n## Overview\n\nImplement a complete RFI (Request for Information) system with email integration via Gmail API and Google Cloud Pub/Sub.\nThe system allows creating, sending, tracking, and responding to RFIs through an official email address integrated with the CRM.\n\n## Goals\n\n* Email-based RFI creation and tracking with automatic threading\n* Gmail API integration for sending/receiving emails\n* Pub/Sub webhook for real-time email notifications\n* Full audit trail of all RFI communications\n* Status tracking: Draft → Open → Waiting Response → Answered → Closed\n* Notification system for responses and due dates\n\n## Architecture Components\n\n1. **Database**: PostgreSQL tables for RFIs, responses, and email logs\n2. **Email Service**: Gmail API via GCP service account\n3. **Webhook**: Pub/Sub push notifications for incoming emails\n4. **Parser**: Email parser to extract RFI data and match threads\n5. **Notification**: Alert system for new responses\n\n## GCP Services Required\n\n* Google Workspace email account ([rfi@yourdomain.com](<mailto:rfi@yourdomain.com>))\n* Gmail API enabled\n* Cloud Pub/Sub topic and subscription\n* Service Account with domain-wide delegation\n\n## Priority\n\nP0 - Critical\n\n## Estimated Points: 34\n",
-  "created_at": "2026-01-31T22:45:32.755Z",
-  "updated_at": "2026-02-02T15:56:39.542Z",
-  "status": "done",
-  "phases": [],
-  "planStatus": "completed"
-}

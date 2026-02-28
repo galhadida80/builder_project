@@ -1,7 +1,0 @@
-{
-  "task_description": "# Hardcoded documents list in Equipment drawer\n\n**Linear Issue:** [BUI-15](https://linear.app/builder-project/issue/BUI-15/hardcoded-documents-list-in-equipment-drawer)\n**Priority:** High\n**Status:** Backlog\n\n\n## Description\n\n**Bug Description:**\nThe Equipment details drawer shows hardcoded mock document list instead of real files.\n\n**Location:** frontend/src/pages/EquipmentPage.tsx (lines 209-214)\n\n**Current Code:**\n\n```typescript\n<ListItem>\n  <ListItemText primary=\"Technical Specifications\" secondary=\"PDF - 2.4 MB\" />\n</ListItem>\n```\n\n**Expected Behavior:**\n\n* Fetch actual files from /projects/{id}/files API\n* Display real file names and sizes\n* Show empty state if no documents\n\n**Priority:** Medium\n",
-  "scoped_services": [],
-  "files_to_modify": [],
-  "files_to_reference": [],
-  "created_at": "2026-01-29T01:35:14.912454"
-}

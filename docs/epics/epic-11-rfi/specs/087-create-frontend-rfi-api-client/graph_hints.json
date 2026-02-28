@@ -1,7 +1,0 @@
-{
-  "enabled": true,
-  "query": "# Create Frontend RFI API Client\n\n**Linear Issue:** [BUI-106](https://linear.app/builder-project/issue/BUI-106/create-frontend-rfi-api-client)\n**Priority:** No priority\n**Status:** Backlog\n\n\n## Description\n\n## User Story\n\nAs a developer, I need a frontend API client for RFI operations so that components can interact with the backend.\n\n## Acceptance Criteria\n\n- [ ] Create `frontend/src/api/rfi.ts`\n- [ ] Implement functions:\n  - `getRFIs(projectId, filters)` - List with pagination\n  - `getRFI(rfiId)` - Get single with responses\n  - `createRFI(projectId, data)` - Create new\n  - `updateRFI(rfiId, data)` - Update existing\n  - `sendRFI(rfiId)` - Send email\n  - `addResponse(rfiId, data)` - Add internal response\n  - `updateStatus(rfiId, status)` - Change status\n  - `getEmailLog(rfiId)` - Get audit trail\n- [ ] Add TypeScript types for all responses\n- [ ] Handle errors appropriately\n\n## Labels\n\nfrontend, api, rfi\n",
-  "hints": [],
-  "hint_count": 0,
-  "created_at": "2026-02-02T14:50:14.839092"
-}

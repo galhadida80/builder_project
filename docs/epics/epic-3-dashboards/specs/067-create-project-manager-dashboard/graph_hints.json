@@ -1,7 +1,0 @@
-{
-  "enabled": true,
-  "query": "# Create Project Manager Dashboard\n\n**Linear Issue:** [BUI-59](https://linear.app/builder-project/issue/BUI-59/create-project-manager-dashboard)\n**Priority:** High\n**Status:** Backlog\n\n\n## Description\n\nProjects grid, timeline, workload - Ref: 09-project-manager.png\n",
-  "hints": [],
-  "hint_count": 0,
-  "created_at": "2026-02-02T15:00:42.192086"
-}

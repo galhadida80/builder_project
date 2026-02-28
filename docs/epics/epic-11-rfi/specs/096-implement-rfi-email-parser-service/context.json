@@ -1,7 +1,0 @@
-{
-  "task_description": "# Implement RFI Email Parser Service\n\n**Linear Issue:** [BUI-97](https://linear.app/builder-project/issue/BUI-97/implement-rfi-email-parser-service)\n**Priority:** No priority\n**Status:** Backlog\n\n\n## Description\n\n## User Story\n\nAs a developer, I need an email parser so that incoming emails can be processed and matched to RFIs.\n\n## Acceptance Criteria\n\n- [ ] Create `RFIEmailParser` class\n- [ ] Implement `parse_gmail_message()` to extract:\n  - message_id, thread_id\n  - from_email, from_name, to_email\n  - subject, body_text, body_html\n  - in_reply_to, references headers\n  - rfi_number from subject or X-RFI-Number header\n  - attachments list\n- [ ] Implement `is_new_rfi()` to distinguish new vs reply\n- [ ] Implement `extract_reply_content()` to remove quoted text\n- [ ] Handle multipart MIME messages\n- [ ] Support base64 encoded content\n\n## RFI Number Extraction Pattern\n\n```python\nRFI_NUMBER_PATTERN = re.compile(r'\\[?(RFI-\\d{4}-\\d{5})\\]?', re.IGNORECASE)\n```\n\n## Labels\n\nbackend, parser, email, rfi\n",
-  "scoped_services": [],
-  "files_to_modify": [],
-  "files_to_reference": [],
-  "created_at": "2026-02-02T14:50:00.087141"
-}

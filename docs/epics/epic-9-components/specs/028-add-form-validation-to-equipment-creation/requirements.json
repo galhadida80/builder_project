@@ -1,4 +1,0 @@
-{
-  "task_description": "# Add form validation to Equipment creation\n\n**Linear Issue:** [BUI-9](https://linear.app/builder-project/issue/BUI-9/add-form-validation-to-equipment-creation)\n**Priority:** High\n**Status:** Backlog\n\n\n## Description\n\n**Bug Description:**\nThe Equipment creation form lacks proper validation.\n\n**Location:** frontend/src/pages/EquipmentPage.tsx\n\n**Issues:**\n\n* No validation for equipment name (required)\n* Serial number format not validated\n* No error feedback to user\n\n**Expected Behavior:**\n\n* Validate required fields before submission\n* Show inline validation errors\n* Disable submit until form is valid\n\n**Priority:** Medium\n",
-  "workflow_type": "feature"
-}

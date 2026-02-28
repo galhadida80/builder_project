@@ -1,7 +1,0 @@
-{
-  "task_description": "# Build Approval Queue List View\n\n**Linear Issue:** [BUI-63](https://linear.app/builder-project/issue/BUI-63/build-approval-queue-list-view)\n**Priority:** High\n**Status:** Backlog\n\n\n## Description\n\nTable with filters and actions - Ref: 13-approval-queue.png\n",
-  "scoped_services": [],
-  "files_to_modify": [],
-  "files_to_reference": [],
-  "created_at": "2026-02-02T15:01:45.049616"
-}

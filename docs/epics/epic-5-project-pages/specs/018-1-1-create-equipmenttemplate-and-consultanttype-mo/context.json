@@ -1,7 +1,0 @@
-{
-  "task_description": "# 1.1 Create EquipmentTemplate and ConsultantType models\n\n**Linear Issue:** [BUI-19](https://linear.app/builder-project/issue/BUI-19/11-create-equipmenttemplate-and-consultanttype-models)\n**Priority:** Medium\n**Status:** Backlog\n\n\n## Description\n\nCreate SQLAlchemy models for equipment templates and consultant types.\n\n**Models to create:**\n\n1. **ConsultantType** (enum or table):\n\n* id, name, name_he (Hebrew), category\n* Categories: structural, electrical, plumbing, hvac, safety, architecture, etc.\n\n2. **EquipmentTemplate**:\n\n* id: UUID\n* name: str (equipment type name)\n* name_he: str (Hebrew name)\n* category: str (pumps, electrical, structural, etc.)\n* required_documents: JSONB (list of document definitions)\n* required_specifications: JSONB (list of spec field definitions)\n* submission_checklist: JSONB (checklist items for submission)\n* approving_consultants: relationship to ConsultantType\n* is_active: bool\n* created_at, updated_at\n\n3. **EquipmentTemplateConsultant** (junction table):\n\n* template_id, consultant_type_id\n\n**File:** backend/app/models/equipment_template.py\n",
-  "scoped_services": [],
-  "files_to_modify": [],
-  "files_to_reference": [],
-  "created_at": "2026-01-29T19:09:20.489707"
-}
