@@ -24,6 +24,7 @@ class Timesheet(Base):
     regular_hours: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
     overtime_hours: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
     status: Mapped[str] = mapped_column(String(50), default="draft", index=True)
+    budget_item_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("budget_line_items.id", ondelete="SET NULL"), nullable=True)
     approved_by_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
     approved_at: Mapped[Optional[datetime]] = mapped_column(DateTime)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow())
@@ -31,5 +32,6 @@ class Timesheet(Base):
 
     user = relationship("User", foreign_keys=[user_id])
     project = relationship("Project", foreign_keys=[project_id])
+    budget_item = relationship("BudgetLineItem", foreign_keys=[budget_item_id])
     approved_by = relationship("User", foreign_keys=[approved_by_id])
     time_entries = relationship("TimeEntry", primaryjoin="and_(foreign(TimeEntry.user_id)==Timesheet.user_id, foreign(TimeEntry.project_id)==Timesheet.project_id, foreign(TimeEntry.clock_in_time)>=Timesheet.start_date, foreign(TimeEntry.clock_in_time)<=Timesheet.end_date)", viewonly=True)
