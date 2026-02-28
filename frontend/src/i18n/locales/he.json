@@ -240,7 +240,8 @@
     "selectProject": "בחר פרויקט",
     "apply": "החל",
     "reset": "איפוס",
-    "required": "נדרש"
+    "required": "נדרש",
+    "resetFilters": "אפס סינונים"
   },
   "nav": {
     "dashboard": "לוח בקרה",
@@ -3428,5 +3429,20 @@
     "changes": "{{count}} שינויים",
     "showAll": "הצג הכל ({{count}})",
     "showLess": "הצג פחות"
+  },
+  "clientPortal": {
+    "photos": "תמונות",
+    "filterByArea": "סינון לפי אזור",
+    "allAreas": "כל האזורים",
+    "startDate": "תאריך התחלה",
+    "endDate": "תאריך סיום",
+    "showingPhotos": "מציג {{count}} מתוך {{total}} תמונות",
+    "noPhotos": "אין תמונות",
+    "noPhotosFiltered": "לא נמצאו תמונות התואמות את הסינון",
+    "noPhotosYet": "עדיין לא הועלו תמונות לפרויקט",
+    "uploadedBy": "הועלה על ידי",
+    "failedToLoadPhotos": "טעינת התמונות נכשלה",
+    "noProjectSelected": "לא נבחר פרויקט",
+    "pleaseSelectProject": "אנא בחר פרויקט כדי לצפות בתמונות"
   }
 }

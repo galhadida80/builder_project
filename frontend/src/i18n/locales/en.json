@@ -643,7 +643,8 @@
     "selectProject": "Select Project",
     "apply": "Apply",
     "reset": "Reset",
-    "required": "Required"
+    "required": "Required",
+    "resetFilters": "Reset Filters"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -3373,5 +3374,20 @@
     "changes": "{{count}} change(s)",
     "showAll": "Show all ({{count}})",
     "showLess": "Show less"
+  },
+  "clientPortal": {
+    "photos": "Photos",
+    "filterByArea": "Filter by Area",
+    "allAreas": "All Areas",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "showingPhotos": "Showing {{count}} of {{total}} photos",
+    "noPhotos": "No Photos",
+    "noPhotosFiltered": "No photos match the current filters",
+    "noPhotosYet": "No photos have been uploaded to this project yet",
+    "uploadedBy": "Uploaded by",
+    "failedToLoadPhotos": "Failed to load photos",
+    "noProjectSelected": "No Project Selected",
+    "pleaseSelectProject": "Please select a project to view photos"
   }
 }
