@@ -6,6 +6,7 @@ import { scheduleRiskApi } from '../../api/scheduleRisk'
 import { tasksApi } from '../../api/tasks'
 import type { Task } from '../../types'
 import type { WhatIfScenarioResponse } from '../../types/scheduleRisk'
+import { getDateLocale } from '../../utils/dateLocale'
 import { TimelineIcon, CalendarTodayIcon, WarningIcon } from '@/icons'
 import {
   Box,
@@ -82,7 +83,7 @@ export function WhatIfScenario({ open, onClose, projectId }: WhatIfScenarioProps
 
   const formatDate = (dateStr?: string) => {
     if (!dateStr) return '-'
-    return new Date(dateStr).toLocaleDateString('he-IL', { year: 'numeric', month: 'short', day: 'numeric' })
+    return new Date(dateStr).toLocaleDateString(getDateLocale(), { year: 'numeric', month: 'short', day: 'numeric' })
   }
 
   return (

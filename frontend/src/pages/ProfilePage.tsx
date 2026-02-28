@@ -338,7 +338,7 @@ export default function ProfilePage() {
           <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>{user.company}</Typography>
         )}
         <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
-          {t('profile.memberSince')} {new Date(user?.createdAt || Date.now()).toLocaleDateString(undefined, { year: 'numeric', month: 'long' })}
+          {t('profile.memberSince')} {new Date(user?.createdAt || Date.now()).toLocaleDateString(getDateLocale(), { year: 'numeric', month: 'long' })}
         </Typography>
         {avatarImageUrl && (
           <Button size="small" color="error" onClick={handleDeleteAvatar} disabled={savingAvatar} sx={{ mt: 0.5, fontSize: '0.7rem' }}>

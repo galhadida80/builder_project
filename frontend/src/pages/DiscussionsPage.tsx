@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { apiClient } from '../api/client'
 import { useAuth } from '../contexts/AuthContext'
 import { useToast } from '../components/common/ToastProvider'
+import { getDateLocale } from '../utils/dateLocale'
 import { PageHeader } from '../components/ui/Breadcrumbs'
 import { Card, KPICard } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
@@ -124,7 +125,7 @@ export default function DiscussionsPage() {
     if (mins < 1) return t('discussions.justNow')
     if (mins < 60) return t('discussions.minutesAgo', { count: mins })
     if (hrs < 24) return t('discussions.hoursAgo', { count: hrs })
-    return days < 30 ? t('discussions.daysAgo', { count: days }) : new Date(dateStr).toLocaleDateString()
+    return days < 30 ? t('discussions.daysAgo', { count: days }) : new Date(dateStr).toLocaleDateString(getDateLocale())
   }
   const isOwner = (d: Discussion) => user?.id === d.authorId
   const filteredDiscussions = search

@@ -6,6 +6,7 @@ import { EmptyState } from '../ui/EmptyState'
 import { scheduleRiskApi } from '../../api/scheduleRisk'
 import type { CriticalPathResponse, CriticalPathTask } from '../../types/scheduleRisk'
 import { useToast } from '../common/ToastProvider'
+import { getDateLocale } from '../../utils/dateLocale'
 import { TimelineIcon, AccountTreeIcon, AccessTimeIcon, ArrowForwardIcon } from '@/icons'
 import { Box, Typography, Skeleton, List, ListItem, alpha } from '@/mui'
 
@@ -158,7 +159,7 @@ export function CriticalPathView({ projectId: propProjectId }: CriticalPathViewP
 
   const formatDate = (dateStr?: string) => {
     if (!dateStr) return '-'
-    return new Date(dateStr).toLocaleDateString('he-IL', { day: 'numeric', month: 'short', year: 'numeric' })
+    return new Date(dateStr).toLocaleDateString(getDateLocale(), { day: 'numeric', month: 'short', year: 'numeric' })
   }
 
   const formatDuration = (days: number) => {

@@ -19,7 +19,7 @@ import { Box, Typography, Skeleton, Chip, MenuItem, IconButton, LinearProgress, 
 const CATEGORIES: BudgetCategory[] = ['labor', 'materials', 'equipment', 'subcontractor', 'permits', 'overhead', 'other']
 const CAT_COLORS: Record<string, string> = { labor: '#e07842', materials: '#1976d2', equipment: '#2e7d32', subcontractor: '#9c27b0', permits: '#0288d1', overhead: '#757575', other: '#9e9e9e' }
 const CO_STATUS_COLORS: Record<string, 'default' | 'info' | 'success' | 'error'> = { draft: 'default', submitted: 'info', approved: 'success', rejected: 'error' }
-const fmt = (n: number) => n.toLocaleString(undefined, { style: 'currency', currency: 'ILS', minimumFractionDigits: 2, maximumFractionDigits: 2 })
+const fmt = (n: number) => n.toLocaleString(getDateLocale(), { style: 'currency', currency: 'ILS', minimumFractionDigits: 2, maximumFractionDigits: 2 })
 const today = () => new Date().toISOString().slice(0, 10)
 
 export default function BudgetPage() {

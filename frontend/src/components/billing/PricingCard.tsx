@@ -2,6 +2,7 @@ import { Box, Typography, Button, Divider, List, ListItem, ListItemIcon, ListIte
 import type { SxProps, Theme } from '@/mui'
 import { CheckCircleIcon, StarIcon } from '@/icons'
 import type { BillingCycle, PlanTier } from '@/types/subscription'
+import { getDateLocale } from '../../utils/dateLocale'
 
 interface PricingCardProps {
   tier: PlanTier
@@ -160,7 +161,7 @@ export function PricingCard({
               lineHeight: 1,
             }}
           >
-            ₪{Math.round(monthlyEquivalent).toLocaleString('he-IL')}
+            ₪{Math.round(monthlyEquivalent).toLocaleString(getDateLocale())}
           </Typography>
           <Typography
             variant="body2"
@@ -183,7 +184,7 @@ export function PricingCard({
               fontSize: { xs: '0.688rem', sm: '0.75rem' },
             }}
           >
-            ₪{annualPrice.toLocaleString('he-IL')} חיוב שנתי
+            ₪{annualPrice.toLocaleString(getDateLocale())} חיוב שנתי
           </Typography>
         )}
       </Box>

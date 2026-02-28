@@ -660,7 +660,7 @@ function TemplateItemCard({
           onChange={onToggle}
           sx={{ p: 0.25, mt: 0.25 }}
         />
-        <Box onClick={onExpandToggle} sx={{ flex: 1, minWidth: 0, cursor: 'pointer' }}>
+        <Box onClick={onExpandToggle} role="button" tabIndex={0} onKeyDown={(e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onExpandToggle() } }} aria-label={t('accessibility.expandItem')} aria-expanded={expanded} sx={{ flex: 1, minWidth: 0, cursor: 'pointer', '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main', outlineOffset: 2 } }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
             <Typography variant="body2" fontWeight={600} noWrap sx={{ fontSize: 13, flex: 1 }}>
               {name}

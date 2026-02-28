@@ -4,6 +4,7 @@ import { GanttTask, GanttLink, GanttScale } from '../../types/timeline'
 import { ScheduleRiskAnalysis, RiskLevel } from '../../types/scheduleRisk'
 import { Box, Typography, Tooltip, styled } from '@/mui'
 import { WarningIcon } from '@/icons'
+import { getDateLocale } from '../../utils/dateLocale'
 
 interface GanttChartProps {
   tasks: GanttTask[]
@@ -37,7 +38,7 @@ function daysBetween(a: Date, b: Date): number {
 }
 
 function formatDate(d: Date): string {
-  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+  return d.toLocaleDateString(getDateLocale(), { month: 'short', day: 'numeric' })
 }
 
 function getTaskColor(task: GanttTask): string {
@@ -98,7 +99,7 @@ export function GanttChart({
     const monthList: { label: string; days: number }[] = []
     const cursor = new Date(tStart)
     while (cursor < tEnd) {
-      const monthLabel = cursor.toLocaleDateString(undefined, { month: 'short', year: '2-digit' })
+      const monthLabel = cursor.toLocaleDateString(getDateLocale(), { month: 'short', year: '2-digit' })
       const monthStart = new Date(cursor)
       cursor.setMonth(cursor.getMonth() + 1)
       cursor.setDate(1)

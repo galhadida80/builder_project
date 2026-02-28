@@ -8,6 +8,7 @@ import { ProgressOverview } from '../components/client-portal/ProgressOverview'
 import { MilestoneTimeline } from '../components/client-portal/MilestoneTimeline'
 import { BudgetSummary } from '../components/client-portal/BudgetSummary'
 import { EmptyState } from '../components/ui/EmptyState'
+import { getDateLocale } from '../utils/dateLocale'
 
 export default function ClientPortalDashboardPage() {
   const { t } = useTranslation()
@@ -218,7 +219,7 @@ export default function ClientPortalDashboardPage() {
       >
         <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.75rem' }}>
           {t('clientPortal.lastUpdated')}:{' '}
-          {new Date(overview.lastUpdated).toLocaleString(undefined, {
+          {new Date(overview.lastUpdated).toLocaleString(getDateLocale(), {
             year: 'numeric',
             month: 'short',
             day: 'numeric',

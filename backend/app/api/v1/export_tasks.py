@@ -157,7 +157,7 @@ async def process_export_job(
                         project_data = await export_service.export_project_json(project.id)
                         project_json = json_module.dumps(project_data, indent=2, default=str)
                         org_zip.writestr(
-                            f"{project.project_code or project.id}/project_data.json",
+                            f"{project.id}/project_data.json",
                             project_json
                         )
 

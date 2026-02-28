@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { getDateLocale } from '../../utils/dateLocale'
 import { DataTable, Column } from '../ui/DataTable'
+import type { EmptyStateVariant } from '../ui/EmptyState'
 import type { FileRecord } from '../../types'
 import { formatFileSize } from '../../utils/fileUtils'
 import { PictureAsPdfIcon, ImageIcon, DescriptionIcon, InsertDriveFileIcon, DownloadIcon, DeleteIcon, VisibilityIcon } from '@/icons'
@@ -13,6 +14,9 @@ interface FileListProps {
   onDownload?: (file: FileRecord) => void
   onDelete?: (file: FileRecord) => void
   emptyMessage?: string
+  emptyVariant?: EmptyStateVariant
+  emptyDescription?: string
+  emptyIcon?: React.ReactNode
 }
 
 /**
@@ -61,7 +65,10 @@ export function FileList({
   onFileClick,
   onDownload,
   onDelete,
-  emptyMessage = 'No files in this folder',
+  emptyMessage,
+  emptyVariant = 'empty',
+  emptyDescription,
+  emptyIcon,
 }: FileListProps) {
   const { t } = useTranslation()
   const columns: Column<FileRecord>[] = [
@@ -184,7 +191,10 @@ export function FileList({
       getRowId={(row) => row.id}
       onRowClick={onFileClick}
       loading={loading}
-      emptyMessage={emptyMessage}
+      emptyVariant={emptyVariant}
+      emptyTitle={emptyMessage || t('documents.noFiles')}
+      emptyDescription={emptyDescription}
+      emptyIcon={emptyIcon}
       pagination={true}
       pageSize={10}
     />

@@ -8,6 +8,7 @@ import { EmptyState } from '../components/ui/EmptyState'
 import { TextField } from '../components/ui/TextField'
 import FilterChips from '../components/ui/FilterChips'
 import ReportResults from '../components/reports/ReportResults'
+import { getDateLocale } from '../utils/dateLocale'
 import ReportGenerationWizard from '../components/ReportGenerationWizard'
 import ReportPreviewDialog from '../components/ReportPreviewDialog'
 import { useAiReports } from '../hooks/useAiReports'
@@ -266,12 +267,12 @@ export default function ReportsPage() {
                     <Box>
                       <Typography variant="body2" fontWeight={600}>{report.type}</Typography>
                       <Typography variant="caption" color="text.secondary">
-                        {report.dateRange ? report.dateRange : new Date(report.generatedAt).toLocaleDateString()}
+                        {report.dateRange ? report.dateRange : new Date(report.generatedAt).toLocaleDateString(getDateLocale())}
                       </Typography>
                     </Box>
                   </Box>
                   <Typography variant="caption" color="text.secondary">
-                    {new Date(report.generatedAt).toLocaleTimeString()}
+                    {new Date(report.generatedAt).toLocaleTimeString(getDateLocale())}
                   </Typography>
                 </Box>
               ))}

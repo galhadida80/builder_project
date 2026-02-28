@@ -162,7 +162,9 @@ export function AssignmentList({
       loading={loading}
       getRowId={(row) => row.id}
       onRowClick={onRowClick}
-      emptyMessage="No consultant assignments found"
+      emptyVariant="empty"
+      emptyTitle={t('consultants.noAssignments')}
+      emptyDescription={t('consultants.noAssignmentsDescription')}
       pagination
       pageSize={10}
     />

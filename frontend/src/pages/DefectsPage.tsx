@@ -42,7 +42,7 @@ function formatRelativeTime(dateStr: string, t: (key: string, opts?: Record<stri
   if (diffHours < 24) return t('defects.hoursAgo', { count: diffHours })
   if (diffDays === 1) return t('defects.yesterday')
   if (diffDays < 30) return t('defects.daysAgo', { count: diffDays })
-  return date.toLocaleDateString()
+  return date.toLocaleDateString(getDateLocale())
 }
 
 function compressImage(file: File, maxWidth = 1920, quality = 0.8): Promise<File> {

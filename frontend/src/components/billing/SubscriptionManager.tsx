@@ -5,6 +5,7 @@ import { CheckCircleIcon, WarningIcon, CancelIcon, TrendingUpIcon, InfoIcon } fr
 import { subscriptionsApi } from '@/api/subscriptions'
 import type { Subscription, SubscriptionPlan, SubscriptionStatus } from '@/types/subscription'
 import { useToast } from '../common/ToastProvider'
+import { getDateLocale } from '../../utils/dateLocale'
 
 interface UsageStats {
   currentUsers: number
@@ -198,9 +199,9 @@ export function SubscriptionManager({
               תקופת חיוב נוכחית
             </Typography>
             <Typography variant="body1" sx={{ fontWeight: 600 }}>
-              {new Date(subscription.currentPeriodStart).toLocaleDateString('he-IL')}
+              {new Date(subscription.currentPeriodStart).toLocaleDateString(getDateLocale())}
               {' - '}
-              {new Date(subscription.currentPeriodEnd).toLocaleDateString('he-IL')}
+              {new Date(subscription.currentPeriodEnd).toLocaleDateString(getDateLocale())}
             </Typography>
           </Grid>
         </Grid>
@@ -251,7 +252,7 @@ export function SubscriptionManager({
               </Typography>
             </Box>
             <Typography variant="body2" color="text.primary">
-              המנוי יסתיים ב-{new Date(subscription.currentPeriodEnd).toLocaleDateString('he-IL')}
+              המנוי יסתיים ב-{new Date(subscription.currentPeriodEnd).toLocaleDateString(getDateLocale())}
             </Typography>
           </Box>
         )}

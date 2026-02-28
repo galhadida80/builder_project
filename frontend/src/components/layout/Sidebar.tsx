@@ -241,9 +241,6 @@ export default memo(function Sidebar({ projectId, mobileOpen = false, onMobileCl
                 <Box key={group.label} sx={{ mb: 0.5 }}>
                   <ListItemButton
                     onClick={() => setExpandedGroups(prev => ({ ...prev, [group.label]: !isExpanded }))}
-<<<<<<< HEAD
-                    sx={{ py: 0.5, px: 2, borderRadius: 1 }}
-=======
                     sx={{
                       py: 0.5,
                       px: 2,
@@ -253,7 +250,6 @@ export default memo(function Sidebar({ projectId, mobileOpen = false, onMobileCl
                         outlineOffset: 2,
                       },
                     }}
->>>>>>> 124b627 (auto-claude: subtask-1-2 - Standardize outlineOffset to 2 for all existing fo)
                   >
                     <Typography
                       variant="caption"

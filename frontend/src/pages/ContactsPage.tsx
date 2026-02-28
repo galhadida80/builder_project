@@ -245,7 +245,7 @@ export default function ContactsPage() {
                           '&:active': { bgcolor: 'action.selected' },
                         }}
                       >
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flex: 1, minWidth: 0, cursor: 'pointer' }} onClick={() => handleOpenEdit(contact)}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flex: 1, minWidth: 0, cursor: 'pointer', '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main', outlineOffset: 2 } }} onClick={() => handleOpenEdit(contact)} role="button" tabIndex={0} onKeyDown={(e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleOpenEdit(contact) } }} aria-label={`${t('accessibility.editContact')}: ${contact.contactName}`}>
                           <Box sx={{ position: 'relative', flexShrink: 0 }}>
                             <Avatar name={contact.contactName} size="xlarge" />
                             <Box sx={{
@@ -361,7 +361,7 @@ export default function ContactsPage() {
               <EmptyState variant="no-results" title={t('contactGroups.noGroups')} description={t('contactGroups.noGroupsDescription')} action={{ label: t('contactGroups.createGroup'), onClick: handleOpenGroupCreate }} />
             ) : isMobile ? (
               <Box>{groups.map((group) => (
-                <Box key={group.id} onClick={() => handleOpenGroupEdit(group)} sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider', cursor: 'pointer', '&:active': { bgcolor: 'action.pressed' } }}>
+                <Box key={group.id} onClick={() => handleOpenGroupEdit(group)} role="button" tabIndex={0} onKeyDown={(e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleOpenGroupEdit(group) } }} aria-label={`${t('accessibility.editContactGroup')}: ${group.name}`} sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider', cursor: 'pointer', '&:active': { bgcolor: 'action.pressed' }, '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main', outlineOffset: 2 } }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                     <GroupIcon sx={{ color: 'primary.main', fontSize: 24, flexShrink: 0 }} />
                     <Box sx={{ minWidth: 0, flex: 1 }}><Typography variant="body2" fontWeight={600} noWrap>{group.name}</Typography>{group.description && <Typography variant="caption" color="text.secondary" noWrap>{group.description}</Typography>}</Box>

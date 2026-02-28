@@ -60,6 +60,9 @@ from app.models.subcontractor import SubcontractorProfile
 from app.models.subscription import PlanTier, Subscription, SubscriptionPlan
 from app.models.webauthn_credential import WebAuthnCredential
 from app.models.client_portal_access import ClientPortalAccess
+from app.models.export_job import ExportJob, ExportFormat, ExportStatus, ExportType
+from app.models.time_entry import TimeEntry
+from app.models.timesheet import Timesheet
 
 __all__ = [
     "User",
@@ -147,4 +150,12 @@ __all__ = [
     "Subscription",
     "SubscriptionPlan",
     "PlanTier",
+    "RiskScore",
+    "RiskLevel",
+    "RiskThreshold",
+    "ClientPortalAccess",
+    "ExportJob",
+    "ExportFormat",
+    "ExportStatus",
+    "ExportType",
 ]

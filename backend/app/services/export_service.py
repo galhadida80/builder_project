@@ -65,7 +65,7 @@ class ExportService:
                 "id": str(project.id),
                 "name": project.name,
                 "description": project.description,
-                "project_code": project.project_code,
+                "project_code": None,
                 "status": project.status,
                 "start_date": project.start_date.isoformat() if project.start_date else None,
                 "end_date": project.end_date.isoformat() if project.end_date else None,

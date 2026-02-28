@@ -163,6 +163,7 @@
     "approved": "Approved",
     "rejected": "Rejected",
     "noEquipmentFound": "No equipment found",
+    "noEquipmentDescription": "Get started by adding equipment to the project.",
     "noTypeSpecified": "No type specified",
     "details": "Equipment Details",
     "documents": "Documents",
@@ -618,7 +619,13 @@
     "goToNextPage": "Go to next page"
   },
   "accessibility": {
-    "viewDetails": "View details"
+    "viewDetails": "View details",
+    "expandChecklist": "Expand checklist template",
+    "openChecklist": "Open checklist",
+    "editContact": "Edit contact",
+    "editContactGroup": "Edit contact group",
+    "toggleReadNotification": "Toggle read/unread",
+    "expandItem": "Expand item"
   },
   "pwa": {
     "installIOS": "Install BuilderOps on iOS",
@@ -1758,7 +1765,9 @@
     "searchPlaceholder": "Search files...",
     "files": "files",
     "noSearchResults": "No files match your search",
+    "noSearchResultsDescription": "Try adjusting your search terms.",
     "noFiles": "No files uploaded yet",
+    "noFilesDescription": "Upload files to start managing your project documents.",
     "deleteFile": "Delete file",
     "deleteConfirmation": "Are you sure you want to delete {{name}}?",
     "uploadSuccess": "{{name}} uploaded successfully!",
@@ -1827,7 +1836,9 @@
   },
   "consultants": {
     "editAssignment": "Edit assignment",
-    "deleteAssignment": "Delete assignment"
+    "deleteAssignment": "Delete assignment",
+    "noAssignments": "No consultant assignments",
+    "noAssignmentsDescription": "No consultants have been assigned to this project yet."
   },
   "consultantAssignments": {
     "title": "Consultant Assignments",

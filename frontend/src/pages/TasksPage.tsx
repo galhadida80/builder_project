@@ -396,7 +396,7 @@ export default function TasksPage() {
                       <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1.5, mb: 2 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                           <AccessTimeIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-                          <Typography variant="caption" color="text.secondary">{new Date(approval.createdAt).toLocaleDateString()}</Typography>
+                          <Typography variant="caption" color="text.secondary">{new Date(approval.createdAt).toLocaleDateString(getDateLocale())}</Typography>
                         </Box>
                         <StatusBadge status={approval.currentStatus} size="small" />
                         {docCount > 0 && (
@@ -423,7 +423,7 @@ export default function TasksPage() {
                                 )}
                                 {step.approvedAt && (
                                   <Typography variant="caption" sx={{ color: 'text.secondary', ml: 'auto' }}>
-                                    {new Date(step.approvedAt).toLocaleDateString(undefined, { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                                    {new Date(step.approvedAt).toLocaleDateString(getDateLocale(), { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' })}
                                   </Typography>
                                 )}
                               </Box>

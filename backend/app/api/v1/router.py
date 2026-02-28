@@ -46,6 +46,7 @@ from app.api.v1 import (
     quantity_extraction,
     reports,
     rfis,
+    risk_scores,
     schedule_risk,
     subscriptions,
     tasks_api,

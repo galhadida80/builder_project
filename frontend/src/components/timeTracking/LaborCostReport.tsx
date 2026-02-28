@@ -24,7 +24,7 @@ import {
 } from '@/mui'
 
 const fmt = (n: number) =>
-  n.toLocaleString(undefined, { style: 'currency', currency: 'ILS', minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  n.toLocaleString(getDateLocale(), { style: 'currency', currency: 'ILS', minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
 const today = () => new Date().toISOString().slice(0, 10)
 const monthAgo = () => {

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { riskScoresApi } from '../api/riskScores'
 import type { InspectionRiskBriefing } from '../types/riskScore'
 import { useToast } from './common/ToastProvider'
+import { getDateLocale } from '../utils/dateLocale'
 import {
   WarningAmberIcon,
   InfoOutlinedIcon,
@@ -263,7 +264,7 @@ export default function PreInspectionBriefing({ inspectionId }: PreInspectionBri
 
         <Box sx={{ mt: 3, p: 2, bgcolor: 'action.hover', borderRadius: 2 }}>
           <Typography variant="caption" color="text.secondary">
-            {t('riskPrediction.briefing.generatedAt')}: {new Date(briefing.generatedAt).toLocaleString()}
+            {t('riskPrediction.briefing.generatedAt')}: {new Date(briefing.generatedAt).toLocaleString(getDateLocale())}
           </Typography>
         </Box>
       </Box>

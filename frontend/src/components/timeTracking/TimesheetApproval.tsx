@@ -307,7 +307,8 @@ export default function TimesheetApproval() {
             getRowId={(row) => row.id}
             pagination
             pageSize={25}
-            emptyMessage={t('approvalQueue.noDataAvailable')}
+            emptyVariant="no-data"
+            emptyTitle={t('approvalQueue.noDataAvailable')}
           />
         )}
       </Box>

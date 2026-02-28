@@ -315,7 +315,8 @@ export function ApprovalQueueList({ onViewDetails }: ApprovalQueueListProps) {
             onRowClick={onViewDetails}
             pagination
             pageSize={25}
-            emptyMessage={t('approvalQueue.noDataAvailable')}
+            emptyVariant="no-data"
+            emptyTitle={t('approvalQueue.noDataAvailable')}
           />
         )}
       </Box>

@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { Card } from '../ui/Card'
 import { Box, Typography, Chip } from '@/mui'
+import { getDateLocale } from '../../utils/dateLocale'
 
 interface ReportResultsProps {
   reportType: string
@@ -88,7 +89,7 @@ function ApprovalStatus({ data }: { data: Record<string, unknown> }) {
             <Box>
               <Typography variant="body2" fontWeight={600}>{item.name}</Typography>
               <Typography variant="caption" color="text.secondary">
-                {item.type} {item.created_at ? ` · ${new Date(item.created_at).toLocaleDateString()}` : ''}
+                {item.type} {item.created_at ? ` · ${new Date(item.created_at).toLocaleDateString(getDateLocale())}` : ''}
               </Typography>
             </Box>
             <Chip label={item.status} size="small" variant="outlined" sx={{ height: 20, fontSize: '0.6rem' }} />

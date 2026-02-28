@@ -274,7 +274,7 @@ export default function EquipmentPage() {
           {isMobile ? (
             <EquipmentCardList equipment={equipment} loading={loading} onView={handleViewDetails} onEdit={handleOpenEdit} onDelete={handleDeleteClick} onAdd={handleOpenCreate} />
           ) : (
-            <DataTable columns={columns} rows={equipment} getRowId={(row) => row.id} onRowClick={handleViewDetails} emptyMessage={t('equipment.noEquipmentFound')} pagination={false} />
+            <DataTable columns={columns} rows={equipment} getRowId={(row) => row.id} onRowClick={handleViewDetails} emptyVariant="empty" emptyTitle={t('equipment.noEquipmentFound')} emptyDescription={t('equipment.noEquipmentDescription')} emptyAction={{ label: t('equipment.addEquipment'), onClick: handleOpenCreate }} pagination={false} />
           )}
 
           {totalEquipment > 0 && (

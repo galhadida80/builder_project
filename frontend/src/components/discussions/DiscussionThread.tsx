@@ -17,6 +17,7 @@ import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { useTranslation } from 'react-i18next'
 import { discussionsApi, type Discussion } from '../../api/discussions'
+import { getDateLocale } from '../../utils/dateLocale'
 
 interface DiscussionThreadProps {
   projectId: string
@@ -43,7 +44,7 @@ function formatTime(dateStr: string): string {
   if (diffMin < 60) return `${diffMin}m ago`
   const diffHours = Math.floor(diffMin / 60)
   if (diffHours < 24) return `${diffHours}h ago`
-  return date.toLocaleDateString()
+  return date.toLocaleDateString(getDateLocale())
 }
 
 interface CommentItemProps {

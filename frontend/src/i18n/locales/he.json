@@ -215,7 +215,13 @@
     "goToNextPage": "עבור לעמוד הבא"
   },
   "accessibility": {
-    "viewDetails": "הצג פרטים"
+    "viewDetails": "הצג פרטים",
+    "expandChecklist": "הרחב תבנית רשימת ביקורת",
+    "openChecklist": "פתח רשימת ביקורת",
+    "editContact": "ערוך איש קשר",
+    "editContactGroup": "ערוך קבוצת אנשי קשר",
+    "toggleReadNotification": "סמן כנקרא/לא נקרא",
+    "expandItem": "הרחב פריט"
   },
   "pwa": {
     "installIOS": "התקן את BuilderOps ב-iOS",
@@ -369,6 +375,7 @@
     "approved": "אושר",
     "rejected": "נדחה",
     "noEquipmentFound": "לא נמצא ציוד",
+    "noEquipmentDescription": "התחל בהוספת ציוד לפרויקט.",
     "noTypeSpecified": "לא צוין סוג",
     "details": "פרטי הציוד",
     "documents": "מסמכים",
@@ -1935,7 +1942,9 @@
     "searchPlaceholder": "חיפוש קבצים...",
     "files": "קבצים",
     "noSearchResults": "אין קבצים התואמים לחיפוש",
+    "noSearchResultsDescription": "נסה לשנות את מילות החיפוש.",
     "noFiles": "טרם הועלו קבצים",
+    "noFilesDescription": "העלה קבצים כדי להתחיל לנהל את מסמכי הפרויקט.",
     "deleteFile": "מחק קובץ",
     "deleteConfirmation": "האם אתה בטוח שברצונך למחוק את {{name}}?",
     "uploadSuccess": "{{name}} הועלה בהצלחה!",
@@ -2004,7 +2013,9 @@
   },
   "consultants": {
     "editAssignment": "ערוך הקצאה",
-    "deleteAssignment": "מחק הקצאה"
+    "deleteAssignment": "מחק הקצאה",
+    "noAssignments": "אין הקצאות יועצים",
+    "noAssignmentsDescription": "טרם הוקצו יועצים לפרויקט זה."
   },
   "consultantAssignments": {
     "title": "הקצאות יועצים",

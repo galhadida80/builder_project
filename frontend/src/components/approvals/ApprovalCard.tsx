@@ -6,6 +6,7 @@ import { Avatar } from '../ui/Avatar'
 import type { ApprovalRequest, Equipment, Material } from '../../types'
 import { BuildIcon, InventoryIcon, CheckCircleIcon, CancelIcon, DescriptionIcon, AccessTimeIcon } from '@/icons'
 import { Box, Typography, Chip, alpha, useTheme } from '@/mui'
+import { getDateLocale } from '../../utils/dateLocale'
 
 interface ApprovalCardProps {
   approval: ApprovalRequest
@@ -80,7 +81,7 @@ export function ApprovalCard({ approval, entity, onApprove, onReject }: Approval
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <AccessTimeIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
             <Typography variant="caption" color="text.secondary">
-              {new Date(approval.createdAt).toLocaleDateString()}
+              {new Date(approval.createdAt).toLocaleDateString(getDateLocale())}
             </Typography>
           </Box>
           <StatusBadge status={approval.currentStatus} size="small" />

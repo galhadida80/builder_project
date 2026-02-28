@@ -203,6 +203,12 @@ export default function DocumentLibraryPage() {
                       ? t('documents.noSearchResults')
                       : t('documents.noFiles')
                   }
+                  emptyVariant={search ? 'no-results' : 'empty'}
+                  emptyDescription={
+                    search
+                      ? t('documents.noSearchResultsDescription')
+                      : t('documents.noFilesDescription')
+                  }
                 />
               </Box>
             </Card>

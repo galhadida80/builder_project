@@ -7,6 +7,7 @@ import { Button } from '../ui/Button'
 import { useToast } from '../common/ToastProvider'
 import { timeTrackingApi } from '../../api/timeTracking'
 import type { TimeEntry } from '../../types/timeTracking'
+import { getDateLocale } from '../../utils/dateLocale'
 
 export default function ClockInButton() {
   const { t } = useTranslation()
@@ -152,7 +153,7 @@ export default function ClockInButton() {
             <AccessTimeIcon fontSize="small" />
             <Typography variant="body1">
               {t('timeTracking.clockedInAt', {
-                time: new Date(activeEntry.clockInTime).toLocaleTimeString(),
+                time: new Date(activeEntry.clockInTime).toLocaleTimeString(getDateLocale()),
               })}
             </Typography>
           </Stack>

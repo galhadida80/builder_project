@@ -5,6 +5,7 @@ import { getEquipmentCategoryConfig } from '../../utils/equipmentCategory'
 import { VisibilityIcon, EditIcon, DeleteIcon, GridViewIcon, CalendarTodayIcon, LocationOnIcon } from '@/icons'
 import { Box, Typography, Chip, IconButton, Skeleton } from '@/mui'
 import type { Equipment } from '../../types'
+import { getDateLocale } from '../../utils/dateLocale'
 
 interface EquipmentCardListProps {
   equipment: Equipment[]
@@ -135,7 +136,7 @@ export default function EquipmentCardList({ equipment, loading, onView, onEdit, 
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                   <CalendarTodayIcon sx={{ fontSize: 13, color: 'text.disabled' }} />
                   <Typography variant="caption" color="text.secondary">
-                    {eq.createdAt ? new Date(eq.createdAt).toLocaleDateString() : '\u2014'}
+                    {eq.createdAt ? new Date(eq.createdAt).toLocaleDateString(getDateLocale()) : '\u2014'}
                   </Typography>
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>

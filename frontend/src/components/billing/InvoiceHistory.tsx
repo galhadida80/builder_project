@@ -13,6 +13,7 @@ import {
 } from '@/mui'
 import type { ChipProps } from '@/mui'
 import { DownloadIcon, ReceiptLongIcon } from '@/icons'
+import { getDateLocale } from '../../utils/dateLocale'
 import { DataTable } from '../ui/DataTable'
 import type { Column } from '../ui/DataTable'
 import { billingApi } from '@/api/billing'
@@ -80,14 +81,14 @@ export function InvoiceHistory({ pageSize = 10 }: InvoiceHistoryProps) {
   }
 
   const formatCurrency = (amount: number, currency: string): string => {
-    return new Intl.NumberFormat('he-IL', {
+    return new Intl.NumberFormat(getDateLocale(), {
       style: 'currency',
       currency: currency.toUpperCase(),
     }).format(amount)
   }
 
   const formatDate = (dateString: string): string => {
-    return new Intl.DateTimeFormat('he-IL', {
+    return new Intl.DateTimeFormat(getDateLocale(), {
       year: 'numeric',
       month: 'short',
       day: 'numeric',

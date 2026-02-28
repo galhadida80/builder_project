@@ -4,13 +4,14 @@ import { useTranslation } from 'react-i18next'
 import { Card } from '../components/ui/Card'
 import { Tabs } from '../components/ui/Tabs'
 import { PageHeader } from '../components/ui/Breadcrumbs'
-import { ClockInButton } from '../components/timeTracking/ClockInButton'
-import { AttendanceReport } from '../components/timeTracking/AttendanceReport'
-import { TimesheetApproval } from '../components/timeTracking/TimesheetApproval'
-import { LaborCostReport } from '../components/timeTracking/LaborCostReport'
+import ClockInButton from '../components/timeTracking/ClockInButton'
+import AttendanceReport from '../components/timeTracking/AttendanceReport'
+import TimesheetApproval from '../components/timeTracking/TimesheetApproval'
+import LaborCostReport from '../components/timeTracking/LaborCostReport'
 import { timeTrackingApi } from '../api/timeTracking'
 import type { TimeEntry, Timesheet } from '../types/timeTracking'
 import { useToast } from '../components/common/ToastProvider'
+import { getDateLocale } from '../utils/dateLocale'
 import { AccessTimeIcon, AssessmentIcon, ApprovalIcon, AttachMoneyIcon } from '@/icons'
 import { Box, Typography, Skeleton } from '@/mui'
 
@@ -91,7 +92,7 @@ export default function TimeTrackingPage() {
       <Tabs
         value={activeTab}
         onChange={setActiveTab}
-        tabs={tabs}
+        items={tabs}
         sx={{ mb: 3 }}
       />
 
@@ -118,7 +119,7 @@ export default function TimeTrackingPage() {
                     {t('timeTracking.clockedInAt', { defaultValue: 'Clocked in at' })}
                   </Typography>
                   <Typography variant="body2" fontWeight={600}>
-                    {new Date(activeEntry.clockInTime).toLocaleTimeString('he-IL', {
+                    {new Date(activeEntry.clockInTime).toLocaleTimeString(getDateLocale(), {
                       hour: '2-digit',
                       minute: '2-digit',
                     })}

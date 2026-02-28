@@ -275,7 +275,11 @@ export default function ChecklistsPage() {
                   ) : null}
                   renderMobileCard={(row) => (
                     <Box onClick={() => setExpandedId(expandedId === row.id ? null : row.id)}
-                      sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider', cursor: 'pointer', '&:active': { bgcolor: 'action.hover' } }}>
+                      role="button" tabIndex={0}
+                      onKeyDown={(e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setExpandedId(expandedId === row.id ? null : row.id) } }}
+                      aria-label={t('accessibility.expandChecklist')}
+                      aria-expanded={expandedId === row.id}
+                      sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider', cursor: 'pointer', '&:active': { bgcolor: 'action.hover' }, '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main', outlineOffset: 2 } }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
                         <Box sx={{ width: 36, height: 36, borderRadius: 2, bgcolor: 'primary.light', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                           <ChecklistIcon sx={{ fontSize: 18, color: 'primary.main' }} />
@@ -348,7 +352,10 @@ export default function ChecklistsPage() {
                     const isCompleted = row.status === 'completed'
                     return (
                       <Box onClick={() => openDrawer(row)}
-                        sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider', cursor: 'pointer', borderInlineStart: `4px solid ${borderColor}`, opacity: isCompleted ? 0.8 : 1, '&:active': { bgcolor: 'action.hover' } }}>
+                        role="button" tabIndex={0}
+                        onKeyDown={(e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDrawer(row) } }}
+                        aria-label={t('accessibility.openChecklist')}
+                        sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider', cursor: 'pointer', borderInlineStart: `4px solid ${borderColor}`, opacity: isCompleted ? 0.8 : 1, '&:active': { bgcolor: 'action.hover' }, '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main', outlineOffset: 2 } }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
                           <Box sx={{ width: 36, height: 36, borderRadius: 2, bgcolor: 'info.light', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                             <AssignmentIcon sx={{ fontSize: 18, color: 'info.main' }} />

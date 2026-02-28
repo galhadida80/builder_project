@@ -5,6 +5,7 @@ import { getCategoryConfig } from '../../utils/materialCategory'
 import { VisibilityIcon, EditIcon, DeleteIcon } from '@/icons'
 import { Box, Typography, Chip, IconButton, Skeleton, LinearProgress } from '@/mui'
 import type { Material } from '../../types'
+import { getDateLocale } from '../../utils/dateLocale'
 
 function getStatusProgress(status: string): { value: number; color: 'inherit' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning' } {
   switch (status) {
@@ -104,7 +105,7 @@ export default function MaterialCardList({ materials, loading, onView, onEdit, o
               )}
               {m.expectedDelivery && (
                 <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center' }}>
-                  {new Date(m.expectedDelivery).toLocaleDateString('he-IL')}
+                  {new Date(m.expectedDelivery).toLocaleDateString(getDateLocale())}
                 </Typography>
               )}
             </Box>

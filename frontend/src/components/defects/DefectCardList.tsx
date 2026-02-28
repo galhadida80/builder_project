@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { StatusBadge, SeverityBadge } from '../ui/StatusBadge'
 import type { Defect, DefectSeverity } from '../../types'
+import { getDateLocale } from '../../utils/dateLocale'
 import { ReportProblemIcon, PersonIcon } from '@/icons'
 import { Box, Typography, Chip, Skeleton, useTheme } from '@/mui'
 
@@ -25,7 +26,7 @@ function formatRelativeTime(dateStr: string, t: (key: string, opts?: Record<stri
   if (diffHours < 24) return t('defects.hoursAgo', { count: diffHours })
   if (diffDays === 1) return t('defects.yesterday')
   if (diffDays < 30) return t('defects.daysAgo', { count: diffDays })
-  return date.toLocaleDateString()
+  return date.toLocaleDateString(getDateLocale())
 }
 
 interface DefectCardListProps {

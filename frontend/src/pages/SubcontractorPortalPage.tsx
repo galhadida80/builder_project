@@ -8,6 +8,7 @@ import { FormModal } from '../components/ui/Modal'
 import { TextField } from '../components/ui/TextField'
 import { useToast } from '../components/common/ToastProvider'
 import { subcontractorsApi, SubcontractorProfile, SubcontractorProfileCreate } from '../api/subcontractors'
+import { getDateLocale } from '../utils/dateLocale'
 import { Box, Typography, Chip, Skeleton, Fab, useTheme, useMediaQuery } from '@/mui'
 import { EditIcon, PersonIcon, CheckCircleIcon } from '@/icons'
 
@@ -137,7 +138,7 @@ export default function SubcontractorPortalPage() {
               <InfoRow label={t('subcontractors.contactEmail')} value={profile.contactEmail} />
               <InfoRow label={t('subcontractors.contactPhone')} value={profile.contactPhone} />
               <InfoRow label={t('subcontractors.address')} value={profile.address} />
-              <InfoRow label={t('subcontractors.insuranceExpiry')} value={profile.insuranceExpiry ? new Date(profile.insuranceExpiry).toLocaleDateString() : undefined} />
+              <InfoRow label={t('subcontractors.insuranceExpiry')} value={profile.insuranceExpiry ? new Date(profile.insuranceExpiry).toLocaleDateString(getDateLocale()) : undefined} />
             </Box>
             {profile.certifications.length > 0 && (
               <Box sx={{ mt: 2 }}>
