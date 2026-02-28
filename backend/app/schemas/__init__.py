@@ -53,3 +53,11 @@ from app.schemas.risk_score import (
     RiskScoreUpdate,
 )
 from app.schemas.user import UserBase, UserCreate, UserResponse
+from app.schemas.vendor import (
+    VendorCreate,
+    VendorPerformanceCreate,
+    VendorPerformanceResponse,
+    VendorPerformanceUpdate,
+    VendorResponse,
+    VendorUpdate,
+)
