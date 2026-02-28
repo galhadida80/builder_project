@@ -50,11 +50,22 @@ DEFECT_LOAD_OPTIONS = [
 
 
 async def get_next_defect_number(db: AsyncSession, project_id: UUID) -> int:
+    # Step 1: Get the current max defect number (no locking needed for aggregate)
     result = await db.execute(
         select(func.coalesce(func.max(Defect.defect_number), 0))
         .where(Defect.project_id == project_id)
     )
-    return (result.scalar() or 0) + 1
+    current_max = result.scalar() or 0
+
+    # Step 2: Lock the project row to ensure concurrency safety
+    project_result = await db.execute(
+        select(Project).where(Project.id == project_id).with_for_update()
+    )
+    project = project_result.scalar_one_or_none()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    return current_max + 1
 
 
 @router.get("/projects/{project_id}/defects", response_model=PaginatedDefectResponse)
