@@ -21,12 +21,20 @@ class NotificationCategory(str, Enum):
     GENERAL = "general"
 
 
+class UrgencyLevel(str, Enum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    CRITICAL = "critical"
+
+
 class Notification(Base):
     __tablename__ = "notifications"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"))
     category: Mapped[str] = mapped_column(String(50), nullable=False)
+    urgency: Mapped[str] = mapped_column(String(50), nullable=False, default="medium")
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     message: Mapped[str] = mapped_column(Text, nullable=False)
     related_entity_type: Mapped[Optional[str]] = mapped_column(String(100))
