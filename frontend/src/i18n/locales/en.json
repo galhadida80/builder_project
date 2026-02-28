@@ -3665,5 +3665,23 @@
       "subscriptionRenewed": "Subscription renewed",
       "planChanged": "Plan changed"
     }
+  },
+  "timeTracking": {
+    "clockIn": "Clock In",
+    "clockOut": "Clock Out",
+    "clockInSuccess": "Clocked in successfully",
+    "clockOutSuccess": "Clocked out successfully",
+    "clockInError": "Failed to clock in",
+    "clockOutError": "Failed to clock out",
+    "activeShift": "Active Shift",
+    "clockedInAt": "Clocked in at {{time}}",
+    "gpsNotSupported": "GPS location is not supported in this browser",
+    "gpsPermissionDenied": "GPS permission denied. Please enable location access in browser settings.",
+    "gpsPermissionRequired": "GPS permission required for clock in",
+    "gpsTimeout": "GPS location request timed out",
+    "gpsUnavailable": "GPS location unavailable",
+    "attendance": "Attendance",
+    "timesheets": "Timesheets",
+    "laborCosts": "Labor Costs"
   }
 }

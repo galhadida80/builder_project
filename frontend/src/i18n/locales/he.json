@@ -3711,5 +3711,23 @@
       "subscriptionRenewed": "המנוי חודש",
       "planChanged": "התוכנית שונתה"
     }
+  },
+  "timeTracking": {
+    "clockIn": "כניסה",
+    "clockOut": "יציאה",
+    "clockInSuccess": "כניסה נרשמה בהצלחה",
+    "clockOutSuccess": "יציאה נרשמה בהצלחה",
+    "clockInError": "שגיאה ברישום כניסה",
+    "clockOutError": "שגיאה ברישום יציאה",
+    "activeShift": "משמרת פעילה",
+    "clockedInAt": "נכנסת בשעה {{time}}",
+    "gpsNotSupported": "מיקום GPS לא נתמך בדפדפן זה",
+    "gpsPermissionDenied": "הרשאת GPS נדחתה. אנא אפשר גישה למיקום בהגדרות הדפדפן.",
+    "gpsPermissionRequired": "נדרשת הרשאת GPS לרישום כניסה",
+    "gpsTimeout": "זמן קבלת מיקום GPS פג",
+    "gpsUnavailable": "מיקום GPS לא זמין",
+    "attendance": "נוכחות",
+    "timesheets": "דפי שעות",
+    "laborCosts": "עלויות כוח אדם"
   }
 }
