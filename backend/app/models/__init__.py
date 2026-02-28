@@ -57,7 +57,9 @@ from app.models.task import Task, TaskDependency
 from app.models.push_subscription import PushSubscription
 from app.models.scheduled_report import ReportTemplate, ScheduledReport
 from app.models.subcontractor import SubcontractorProfile
-from app.models.subscription import Subscription, SubscriptionPlan
+from app.models.subscription import PlanTier, Subscription, SubscriptionPlan
+from app.models.time_entry import TimeEntry
+from app.models.timesheet import Timesheet
 from app.models.webauthn_credential import WebAuthnCredential
 from app.models.client_portal_access import ClientPortalAccess
 
@@ -123,6 +125,8 @@ __all__ = [
     "WebAuthnCredential",
     "Task",
     "TaskDependency",
+    "TimeEntry",
+    "Timesheet",
     "BudgetLineItem",
     "CostEntry",
     "ChangeOrder",

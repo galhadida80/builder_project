@@ -10,6 +10,8 @@ from app.models.equipment_submission import EquipmentSubmission
 from app.models.inspection import Inspection, Finding
 from app.models.material_template import MaterialApprovalSubmission
 from app.models.rfi import RFI
+from app.models.time_entry import TimeEntry
+from app.models.user import User
 from app.utils import utcnow
 
 
@@ -164,6 +166,179 @@ async def generate_rfi_aging_report(db: AsyncSession, project_id: UUID) -> dict:
         "total_open_rfis": len(open_rfis),
         "priority_breakdown": priority_groups,
         "items": aging_items,
+    }
+
+
+async def generate_attendance_report(
+    db: AsyncSession, project_id: UUID, date_from: datetime, date_to: datetime
+) -> dict:
+    from sqlalchemy.orm import selectinload
+
+    result = await db.execute(
+        select(TimeEntry)
+        .options(selectinload(TimeEntry.user))
+        .where(
+            TimeEntry.project_id == project_id,
+            TimeEntry.clock_in_time >= date_from,
+            TimeEntry.clock_in_time <= date_to,
+            TimeEntry.status == "completed",
+        )
+        .order_by(TimeEntry.clock_in_time)
+    )
+    time_entries = result.scalars().all()
+
+    daily_attendance = {}
+    user_totals = {}
+
+    for entry in time_entries:
+        if not entry.clock_out_time:
+            continue
+
+        date_key = entry.clock_in_time.date().isoformat()
+        user_name = entry.user.full_name if entry.user else "Unknown"
+        user_id = str(entry.user_id)
+
+        total_hours = (entry.clock_out_time - entry.clock_in_time).total_seconds() / 3600
+        break_hours = (entry.break_minutes or 0) / 60
+        worked_hours = round(total_hours - break_hours, 2)
+
+        if date_key not in daily_attendance:
+            daily_attendance[date_key] = {}
+
+        if user_id not in daily_attendance[date_key]:
+            daily_attendance[date_key][user_id] = {
+                "user_id": user_id,
+                "user_name": user_name,
+                "clock_in": entry.clock_in_time.isoformat(),
+                "clock_out": entry.clock_out_time.isoformat(),
+                "total_hours": worked_hours,
+                "entries": 1,
+            }
+        else:
+            daily_attendance[date_key][user_id]["total_hours"] += worked_hours
+            daily_attendance[date_key][user_id]["entries"] += 1
+            if entry.clock_out_time.isoformat() > daily_attendance[date_key][user_id]["clock_out"]:
+                daily_attendance[date_key][user_id]["clock_out"] = entry.clock_out_time.isoformat()
+
+        if user_id not in user_totals:
+            user_totals[user_id] = {"user_name": user_name, "total_hours": 0, "days_worked": set()}
+        user_totals[user_id]["total_hours"] += worked_hours
+        user_totals[user_id]["days_worked"].add(date_key)
+
+    daily_summary = []
+    for date, users in sorted(daily_attendance.items()):
+        daily_summary.append({
+            "date": date,
+            "total_workers": len(users),
+            "total_hours": round(sum(u["total_hours"] for u in users.values()), 2),
+            "workers": list(users.values()),
+        })
+
+    user_summary = []
+    for user_id, data in user_totals.items():
+        user_summary.append({
+            "user_id": user_id,
+            "user_name": data["user_name"],
+            "total_hours": round(data["total_hours"], 2),
+            "days_worked": len(data["days_worked"]),
+        })
+
+    return {
+        "total_entries": len(time_entries),
+        "total_unique_workers": len(user_totals),
+        "date_from": date_from.isoformat(),
+        "date_to": date_to.isoformat(),
+        "daily_summary": daily_summary,
+        "user_summary": sorted(user_summary, key=lambda x: x["total_hours"], reverse=True),
+    }
+
+
+async def generate_labor_cost_report(
+    db: AsyncSession, project_id: UUID, date_from: datetime, date_to: datetime
+) -> dict:
+    from sqlalchemy.orm import selectinload
+    from app.models.timesheet import Timesheet
+
+    result = await db.execute(
+        select(Timesheet)
+        .options(selectinload(Timesheet.user))
+        .where(
+            Timesheet.project_id == project_id,
+            Timesheet.start_date >= date_from,
+            Timesheet.end_date <= date_to,
+            Timesheet.status == "approved",
+        )
+        .order_by(Timesheet.start_date)
+    )
+    timesheets = result.scalars().all()
+
+    total_cost = 0.0
+    total_hours = 0.0
+    total_overtime_hours = 0.0
+    user_breakdown = {}
+    cost_items = []
+
+    for timesheet in timesheets:
+        user_id = str(timesheet.user_id)
+        user_name = timesheet.user.full_name if timesheet.user else "Unknown"
+
+        time_entries_result = await db.execute(
+            select(TimeEntry).where(
+                TimeEntry.user_id == timesheet.user_id,
+                TimeEntry.project_id == project_id,
+                TimeEntry.clock_in_time >= timesheet.start_date,
+                TimeEntry.clock_in_time <= timesheet.end_date,
+                TimeEntry.status == "completed",
+            )
+        )
+        time_entries = list(time_entries_result.scalars().all())
+
+        timesheet_hours = 0.0
+        timesheet_overtime = 0.0
+        for entry in time_entries:
+            if entry.clock_out_time:
+                total_time = (entry.clock_out_time - entry.clock_in_time).total_seconds() / 3600
+                break_time = (entry.break_minutes or 0) / 60
+                worked_hours = total_time - break_time
+                timesheet_hours += worked_hours
+
+        timesheet_cost = float(timesheet.total_cost or 0.0)
+        total_cost += timesheet_cost
+        total_hours += timesheet_hours
+
+        if user_id not in user_breakdown:
+            user_breakdown[user_id] = {
+                "user_id": user_id,
+                "user_name": user_name,
+                "total_hours": 0.0,
+                "total_cost": 0.0,
+                "timesheets_count": 0,
+            }
+
+        user_breakdown[user_id]["total_hours"] += round(timesheet_hours, 2)
+        user_breakdown[user_id]["total_cost"] += round(timesheet_cost, 2)
+        user_breakdown[user_id]["timesheets_count"] += 1
+
+        cost_items.append({
+            "id": str(timesheet.id),
+            "user_id": user_id,
+            "user_name": user_name,
+            "start_date": timesheet.start_date.isoformat(),
+            "end_date": timesheet.end_date.isoformat(),
+            "total_hours": round(timesheet_hours, 2),
+            "total_cost": round(timesheet_cost, 2),
+            "status": timesheet.status,
+        })
+
+    return {
+        "total_cost": round(total_cost, 2),
+        "total_hours": round(total_hours, 2),
+        "total_timesheets": len(timesheets),
+        "total_workers": len(user_breakdown),
+        "date_from": date_from.isoformat(),
+        "date_to": date_to.isoformat(),
+        "user_breakdown": sorted(user_breakdown.values(), key=lambda x: x["total_cost"], reverse=True),
+        "cost_items": cost_items,
     }
 
 
