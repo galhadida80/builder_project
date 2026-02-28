@@ -37,6 +37,7 @@ class Equipment(Base):
     installation_date: Mapped[Optional[datetime]] = mapped_column(DateTime)
     warranty_expiry: Mapped[Optional[datetime]] = mapped_column(DateTime)
     notes: Mapped[Optional[str]] = mapped_column(Text)
+    vendor_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("vendors.id", ondelete="SET NULL"), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow())
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow(), onupdate=lambda: utcnow())
     created_by_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
@@ -55,6 +56,7 @@ class Equipment(Base):
     project = relationship("Project", back_populates="equipment")
     created_by = relationship("User", foreign_keys=[created_by_id])
     template = relationship("EquipmentTemplate", foreign_keys=[template_id])
+    vendor = relationship("Vendor", foreign_keys=[vendor_id])
     checklists = relationship("EquipmentChecklist", back_populates="equipment", cascade="all, delete-orphan")
     files = relationship("File", primaryjoin="and_(Equipment.id==foreign(File.entity_id), File.entity_type=='equipment')", viewonly=True)
 

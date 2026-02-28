@@ -31,6 +31,7 @@ class Material(Base):
     actual_delivery: Mapped[Optional[date]] = mapped_column(Date)
     storage_location: Mapped[Optional[str]] = mapped_column(String(255))
     notes: Mapped[Optional[str]] = mapped_column(Text)
+    vendor_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("vendors.id", ondelete="SET NULL"), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow())
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow(), onupdate=lambda: utcnow())
     created_by_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
@@ -49,4 +50,5 @@ class Material(Base):
     project = relationship("Project", back_populates="materials")
     created_by = relationship("User", foreign_keys=[created_by_id])
     template = relationship("MaterialTemplate", foreign_keys=[template_id])
+    vendor = relationship("Vendor", foreign_keys=[vendor_id])
     files = relationship("File", primaryjoin="and_(Material.id==foreign(File.entity_id), File.entity_type=='material')", viewonly=True)

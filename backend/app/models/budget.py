@@ -39,6 +39,7 @@ class CostEntry(Base):
     amount: Mapped[Decimal] = mapped_column(Numeric(14, 2), nullable=False)
     entry_date: Mapped[date] = mapped_column(Date, nullable=False)
     vendor: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    vendor_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("vendors.id", ondelete="SET NULL"), nullable=True)
     reference_number: Mapped[str | None] = mapped_column(String(100), nullable=True)
     created_by_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
     created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow())
@@ -47,6 +48,7 @@ class CostEntry(Base):
     budget_item = relationship("BudgetLineItem", back_populates="cost_entries")
     project = relationship("Project")
     created_by = relationship("User", foreign_keys=[created_by_id])
+    vendor_rel = relationship("Vendor", foreign_keys=[vendor_id])
 
 
 class ChangeOrder(Base):
