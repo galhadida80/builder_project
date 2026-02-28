@@ -52,6 +52,28 @@ services:
     command: >
       sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
 
+  celery-worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: builder_celery_worker
+    environment:
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@db:5432/builder_db
+      DATABASE_URL_SYNC: postgresql://postgres:postgres@db:5432/builder_db
+      REDIS_URL: redis://redis:6379/0
+      DEBUG: "true"
+      STORAGE_TYPE: local
+      LOCAL_STORAGE_PATH: ./uploads
+      EMAIL_PROVIDER: fake
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    command: celery -A app.celery_app worker --loglevel=info
+
   frontend:
     build:
       context: ./frontend
