@@ -33,3 +33,49 @@ export interface NotificationListResponse {
 export interface UnreadCountResponse {
   unreadCount: number
 }
+
+export type DigestFrequency = 'immediate' | 'daily' | 'weekly'
+
+export interface NotificationPreference {
+  id: string
+  userId: string
+  category: string
+  enabled: boolean
+  minUrgencyLevel: UrgencyLevel
+  quietHoursStart: string | null
+  quietHoursEnd: string | null
+  emailEnabled: boolean
+  pushEnabled: boolean
+  digestFrequency: DigestFrequency
+  createdAt: string
+  updatedAt: string
+}
+
+export interface NotificationPreferenceCreate {
+  category: string
+  enabled?: boolean
+  minUrgencyLevel?: UrgencyLevel
+  quietHoursStart?: string | null
+  quietHoursEnd?: string | null
+  emailEnabled?: boolean
+  pushEnabled?: boolean
+  digestFrequency?: DigestFrequency
+}
+
+export interface NotificationPreferenceUpdate {
+  category?: string
+  enabled?: boolean
+  minUrgencyLevel?: UrgencyLevel
+  quietHoursStart?: string | null
+  quietHoursEnd?: string | null
+  emailEnabled?: boolean
+  pushEnabled?: boolean
+  digestFrequency?: DigestFrequency
+}
+
+export interface NotificationPreferenceListResponse {
+  items: NotificationPreference[]
+  total: number
+  limit: number
+  offset: number
+}
