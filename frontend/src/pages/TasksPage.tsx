@@ -17,7 +17,9 @@ import { approvalsApi } from '../api/approvals'
 import { equipmentApi } from '../api/equipment'
 import { materialsApi } from '../api/materials'
 import { projectsApi } from '../api/projects'
+import { scheduleRiskApi } from '../api/scheduleRisk'
 import type { Task, TaskSummary, ProjectMember, ApprovalRequest, Equipment, Material } from '../types'
+import type { ScheduleRiskAnalysis, RiskLevel } from '../types/scheduleRisk'
 import { useToast } from '../components/common/ToastProvider'
 import { useSignatureStamp } from '../hooks/useSignatureStamp'
 import {
@@ -37,6 +39,13 @@ const PRIORITY_COLORS: Record<string, { bg: string; text: string }> = {
   medium: { bg: '#DBEAFE', text: '#2563EB' },
   high: { bg: '#FFEDD5', text: '#EA580C' },
   urgent: { bg: '#FEE2E2', text: '#DC2626' },
+}
+
+const RISK_COLORS: Record<RiskLevel, { bg: string; text: string }> = {
+  low: { bg: '#DCFCE7', text: '#22C55E' },
+  medium: { bg: '#FEF3C7', text: '#F59E0B' },
+  high: { bg: '#FFEDD5', text: '#F97316' },
+  critical: { bg: '#FEE2E2', text: '#EF4444' },
 }
 
 function isToday(dateStr: string) {
@@ -98,6 +107,7 @@ export default function TasksPage() {
   const EMPTY_FORM: TaskCreateData = { title: '', priority: 'medium' }
   const [form, setForm] = useState<TaskCreateData>(EMPTY_FORM)
   const [titleTouched, setTitleTouched] = useState(false)
+  const [taskRisks, setTaskRisks] = useState<Map<string, ScheduleRiskAnalysis>>(new Map())
 
   // Approval state
   const [approvals, setApprovals] = useState<ApprovalRequest[]>([])
@@ -133,6 +143,20 @@ export default function TasksPage() {
       setApprovals(approvalsData)
       setEquipment(eqRes.items)
       setMaterials(matRes.items)
+
+      // Load risk data for all tasks
+      const riskMap = new Map<string, ScheduleRiskAnalysis>()
+      await Promise.all(
+        taskList.map(async (task) => {
+          try {
+            const risk = await scheduleRiskApi.getTaskRisk(projectId, task.id)
+            riskMap.set(task.id, risk)
+          } catch {
+            // Ignore errors for individual task risks
+          }
+        })
+      )
+      setTaskRisks(riskMap)
     } catch {
       showError(t('tasks.loadFailed'))
     } finally {
@@ -209,11 +233,21 @@ export default function TasksPage() {
 
   // Computed
   const todayCount = tasks.filter(tk => tk.dueDate && isToday(tk.dueDate) && tk.status !== 'completed' && tk.status !== 'cancelled').length
+  const riskLevelCounts = {
+    low: tasks.filter(tk => taskRisks.get(tk.id)?.riskLevel === 'low').length,
+    medium: tasks.filter(tk => taskRisks.get(tk.id)?.riskLevel === 'medium').length,
+    high: tasks.filter(tk => taskRisks.get(tk.id)?.riskLevel === 'high').length,
+    critical: tasks.filter(tk => taskRisks.get(tk.id)?.riskLevel === 'critical').length,
+  }
   const filteredTasks = tasks.filter(task => {
     if (activeTab === 'overdue' && !isOverdue(task)) return false
     else if (activeTab === 'myTasks' && task.assigneeId !== user?.id) return false
     else if (activeTab === 'today' && !(task.dueDate && isToday(task.dueDate))) return false
-    else if (activeTab !== 'all' && activeTab !== 'overdue' && activeTab !== 'myTasks' && activeTab !== 'today' && task.status !== activeTab) return false
+    else if (activeTab === 'riskLow' && taskRisks.get(task.id)?.riskLevel !== 'low') return false
+    else if (activeTab === 'riskMedium' && taskRisks.get(task.id)?.riskLevel !== 'medium') return false
+    else if (activeTab === 'riskHigh' && taskRisks.get(task.id)?.riskLevel !== 'high') return false
+    else if (activeTab === 'riskCritical' && taskRisks.get(task.id)?.riskLevel !== 'critical') return false
+    else if (activeTab !== 'all' && activeTab !== 'overdue' && activeTab !== 'myTasks' && activeTab !== 'today' && !activeTab.startsWith('risk') && task.status !== activeTab) return false
     if (searchQuery) {
       const q = searchQuery.toLowerCase()
       return task.title.toLowerCase().includes(q) || String(task.taskNumber).includes(q) || task.assignee?.fullName?.toLowerCase().includes(q)
@@ -284,6 +318,10 @@ export default function TasksPage() {
               { label: t('tasks.today'), value: 'today', badge: todayCount },
               { label: t('tasks.overdue'), value: 'overdue', badge: tasks.filter(tk => isOverdue(tk)).length },
               { label: t('tasks.completed'), value: 'completed', badge: tasks.filter(tk => tk.status === 'completed').length },
+              { label: t('scheduleRisk.riskLevels.critical'), value: 'riskCritical', badge: riskLevelCounts.critical },
+              { label: t('scheduleRisk.riskLevels.high'), value: 'riskHigh', badge: riskLevelCounts.high },
+              { label: t('scheduleRisk.riskLevels.medium'), value: 'riskMedium', badge: riskLevelCounts.medium },
+              { label: t('scheduleRisk.riskLevels.low'), value: 'riskLow', badge: riskLevelCounts.low },
             ]}
             value={activeTab}
             onChange={setActiveTab}
@@ -297,9 +335,9 @@ export default function TasksPage() {
               <EmptyState title={t('tasks.noTasks')} description={t('tasks.noTasksDescription')} />
             ) : (
               <>
-                {grouped.today.length > 0 && <TaskGroup label={t('tasks.today')} count={grouped.today.length} tasks={grouped.today} renderCard={(task) => <TaskCard key={task.id} task={task} t={t} onEdit={openEditDialog} onDelete={setDeleteTask} />} />}
-                {grouped.thisWeek.length > 0 && <TaskGroup label={t('tasks.thisWeek')} count={grouped.thisWeek.length} tasks={grouped.thisWeek} renderCard={(task) => <TaskCard key={task.id} task={task} t={t} onEdit={openEditDialog} onDelete={setDeleteTask} />} />}
-                {grouped.later.length > 0 && <TaskGroup label={t('tasks.later')} count={grouped.later.length} tasks={grouped.later} renderCard={(task) => <TaskCard key={task.id} task={task} t={t} onEdit={openEditDialog} onDelete={setDeleteTask} />} />}
+                {grouped.today.length > 0 && <TaskGroup label={t('tasks.today')} count={grouped.today.length} tasks={grouped.today} renderCard={(task) => <TaskCard key={task.id} task={task} t={t} onEdit={openEditDialog} onDelete={setDeleteTask} riskAnalysis={taskRisks.get(task.id)} />} />}
+                {grouped.thisWeek.length > 0 && <TaskGroup label={t('tasks.thisWeek')} count={grouped.thisWeek.length} tasks={grouped.thisWeek} renderCard={(task) => <TaskCard key={task.id} task={task} t={t} onEdit={openEditDialog} onDelete={setDeleteTask} riskAnalysis={taskRisks.get(task.id)} />} />}
+                {grouped.later.length > 0 && <TaskGroup label={t('tasks.later')} count={grouped.later.length} tasks={grouped.later} renderCard={(task) => <TaskCard key={task.id} task={task} t={t} onEdit={openEditDialog} onDelete={setDeleteTask} riskAnalysis={taskRisks.get(task.id)} />} />}
               </>
             )}
           </Box>
@@ -509,8 +547,9 @@ function KpiBox({ label, value, color, borderColor }: { label: string; value: nu
   )
 }
 
-function TaskCard({ task, t, onEdit, onDelete }: { task: Task; t: (k: string, o?: Record<string, unknown>) => string; onEdit: (t: Task) => void; onDelete: (t: Task) => void }) {
+function TaskCard({ task, t, onEdit, onDelete, riskAnalysis }: { task: Task; t: (k: string, o?: Record<string, unknown>) => string; onEdit: (t: Task) => void; onDelete: (t: Task) => void; riskAnalysis?: ScheduleRiskAnalysis }) {
   const c = PRIORITY_COLORS[task.priority] || PRIORITY_COLORS.low
+  const r = riskAnalysis ? RISK_COLORS[riskAnalysis.riskLevel] : null
   const overdue = isOverdue(task)
   const isComplete = task.status === 'completed'
   const borderColor = overdue ? '#DC2626' : task.priority === 'urgent' ? '#DC2626' : task.priority === 'high' ? '#e07842' : task.priority === 'medium' ? '#2563EB' : '#64748B'
@@ -531,6 +570,21 @@ function TaskCard({ task, t, onEdit, onDelete }: { task: Task; t: (k: string, o?
                 <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: c.text }} />
                 <Typography variant="caption" sx={{ color: c.text, fontWeight: 700, fontSize: '0.65rem' }}>{t(`tasks.priorities.${task.priority}`, { defaultValue: task.priority })}</Typography>
               </Box>
+              {riskAnalysis && (
+                <Chip
+                  label={t(`scheduleRisk.riskLevels.${riskAnalysis.riskLevel}`)}
+                  size="small"
+                  icon={<WarningIcon sx={{ fontSize: 12 }} />}
+                  sx={{
+                    height: 20,
+                    fontSize: '0.65rem',
+                    fontWeight: 700,
+                    bgcolor: r?.bg,
+                    color: r?.text,
+                    '& .MuiChip-icon': { color: r?.text },
+                  }}
+                />
+              )}
               {task.dueDate && (
                 <Typography variant="caption" sx={{ color: overdue ? 'error.main' : 'text.secondary', fontWeight: 500, fontSize: '0.65rem', display: 'flex', alignItems: 'center', gap: 0.25 }}>
                   {overdue && <WarningIcon sx={{ fontSize: 12 }} />}

@@ -1,12 +1,15 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { GanttTask, GanttLink, GanttScale } from '../../types/timeline'
+import { ScheduleRiskAnalysis, RiskLevel } from '../../types/scheduleRisk'
 import { Box, Typography, Tooltip, styled } from '@/mui'
+import { WarningIcon } from '@/icons'
 
 interface GanttChartProps {
   tasks: GanttTask[]
   links?: GanttLink[]
   scales?: GanttScale[]
+  riskData?: Record<string, ScheduleRiskAnalysis>
   className?: string
   onTaskClick?: (task: GanttTask) => void
   onTaskDoubleClick?: (task: GanttTask) => void
@@ -46,10 +49,21 @@ function getTaskColor(task: GanttTask): string {
   return '#90A4AE'
 }
 
+function getRiskLevelColor(riskLevel: RiskLevel): string {
+  switch (riskLevel) {
+    case 'low': return '#4CAF50'
+    case 'medium': return '#FFC107'
+    case 'high': return '#FF9800'
+    case 'critical': return '#F44336'
+    default: return '#90A4AE'
+  }
+}
+
 export function GanttChart({
   tasks,
   links = [],
   scales,
+  riskData,
   className,
   onTaskClick,
   onTaskDoubleClick,
@@ -141,6 +155,9 @@ export function GanttChart({
         const isMilestone = task.type === 'milestone'
         const isProject = task.type === 'project'
         const color = getTaskColor(task)
+        const riskInfo = riskData?.[task.id]
+        const hasRisk = !!riskInfo
+        const riskColor = riskInfo ? getRiskLevelColor(riskInfo.riskLevel) : undefined
 
         return (
           <Box
@@ -174,41 +191,114 @@ export function GanttChart({
 
             {/* Bar area */}
             <Box sx={{ position: 'relative', minWidth: chartWidth, height: '100%' }}>
-              <Tooltip title={`${task.text} | ${formatDate(taskStart)} - ${formatDate(taskEnd)} | ${t('gantt.progressLabel')} ${progress}%`} arrow>
+              <Tooltip
+                title={
+                  <Box>
+                    <Typography variant="caption" display="block">
+                      {task.text} | {formatDate(taskStart)} - {formatDate(taskEnd)}
+                    </Typography>
+                    <Typography variant="caption" display="block">
+                      {t('gantt.progressLabel')} {progress}%
+                    </Typography>
+                    {hasRisk && (
+                      <>
+                        <Typography variant="caption" display="block" sx={{ mt: 0.5, fontWeight: 600 }}>
+                          {t('gantt.riskLevel')}: {t(`scheduleRisk.riskLevels.${riskInfo.riskLevel}`)}
+                        </Typography>
+                        <Typography variant="caption" display="block">
+                          {t('gantt.confidenceScore')}: {Math.round(riskInfo.confidenceScore * 100)}%
+                        </Typography>
+                        {riskInfo.predictedDelayDays && riskInfo.predictedDelayDays > 0 && (
+                          <Typography variant="caption" display="block">
+                            {t('gantt.predictedDelay')}: {riskInfo.predictedDelayDays} {t('gantt.days')}
+                          </Typography>
+                        )}
+                      </>
+                    )}
+                  </Box>
+                }
+                arrow
+              >
                 {isMilestone ? (
-                  <Box
-                    sx={{
-                      position: 'absolute',
-                      top: '50%',
-                      left: left + width / 2 - 6,
-                      width: 12,
-                      height: 12,
-                      transform: 'translateY(-50%) rotate(45deg)',
-                      bgcolor: color,
-                      cursor: onTaskClick ? 'pointer' : 'default',
-                    }}
-                    onClick={() => onTaskClick?.(task)}
-                    onDoubleClick={() => onTaskDoubleClick?.(task)}
-                  />
+                  <Box sx={{ position: 'relative' }}>
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: left + width / 2 - 6,
+                        width: 12,
+                        height: 12,
+                        transform: 'translateY(-50%) rotate(45deg)',
+                        bgcolor: color,
+                        cursor: onTaskClick ? 'pointer' : 'default',
+                        ...(hasRisk && {
+                          boxShadow: `0 0 0 2px ${riskColor}`,
+                        }),
+                      }}
+                      onClick={() => onTaskClick?.(task)}
+                      onDoubleClick={() => onTaskDoubleClick?.(task)}
+                    />
+                    {hasRisk && (
+                      <WarningIcon
+                        sx={{
+                          position: 'absolute',
+                          top: '50%',
+                          left: left + width / 2 + 10,
+                          transform: 'translateY(-50%)',
+                          fontSize: 14,
+                          color: riskColor,
+                        }}
+                      />
+                    )}
+                  </Box>
                 ) : (
-                  <Box
-                    sx={{
-                      position: 'absolute',
-                      top: isProject ? 6 : 8,
-                      left,
-                      width: Math.max(width, 4),
-                      height: isProject ? ROW_HEIGHT - 12 : ROW_HEIGHT - 16,
-                      borderRadius: isProject ? 0.5 : 1,
-                      bgcolor: `${color}33`,
-                      border: `1px solid ${color}`,
-                      overflow: 'hidden',
-                      cursor: onTaskClick ? 'pointer' : 'default',
-                    }}
-                    onClick={() => onTaskClick?.(task)}
-                    onDoubleClick={() => onTaskDoubleClick?.(task)}
-                  >
-                    {progress > 0 && (
-                      <Box sx={{ height: '100%', width: `${Math.min(progress, 100)}%`, bgcolor: color, opacity: 0.7 }} />
+                  <Box sx={{ position: 'relative' }}>
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        top: isProject ? 6 : 8,
+                        left,
+                        width: Math.max(width, 4),
+                        height: isProject ? ROW_HEIGHT - 12 : ROW_HEIGHT - 16,
+                        borderRadius: isProject ? 0.5 : 1,
+                        bgcolor: `${color}33`,
+                        border: `1px solid ${color}`,
+                        overflow: 'hidden',
+                        cursor: onTaskClick ? 'pointer' : 'default',
+                        ...(hasRisk && {
+                          boxShadow: `inset 0 0 0 2px ${riskColor}`,
+                        }),
+                      }}
+                      onClick={() => onTaskClick?.(task)}
+                      onDoubleClick={() => onTaskDoubleClick?.(task)}
+                    >
+                      {progress > 0 && (
+                        <Box sx={{ height: '100%', width: `${Math.min(progress, 100)}%`, bgcolor: color, opacity: 0.7 }} />
+                      )}
+                      {hasRisk && (
+                        <Box
+                          sx={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            bgcolor: riskColor,
+                            opacity: 0.15,
+                          }}
+                        />
+                      )}
+                    </Box>
+                    {hasRisk && width > 24 && (
+                      <WarningIcon
+                        sx={{
+                          position: 'absolute',
+                          top: isProject ? 8 : 10,
+                          left: left + 4,
+                          fontSize: 14,
+                          color: riskColor,
+                        }}
+                      />
                     )}
                   </Box>
                 )}

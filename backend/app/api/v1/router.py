@@ -46,7 +46,8 @@ from app.api.v1 import (
     quantity_extraction,
     reports,
     rfis,
-    risk_scores,
+    schedule_risk,
+    subscriptions,
     tasks_api,
     time_tracking,
     webhooks,
@@ -77,7 +78,8 @@ api_router.include_router(audit.router, tags=["audit"])
 api_router.include_router(checklists.router, tags=["checklists"])
 api_router.include_router(analytics.router, prefix="/analytics", tags=["analytics"])
 api_router.include_router(rfis.router, tags=["rfis"])
-api_router.include_router(webhooks.router, tags=["webhooks"])
+api_router.include_router(schedule_risk.router, tags=["schedule_risk"])
+api_router.include_router(webhooks.router, prefix="/webhooks", tags=["webhooks"])
 api_router.include_router(whatsapp.router, prefix="/whatsapp", tags=["whatsapp"])
 api_router.include_router(subscriptions.router, tags=["subscriptions"])
 api_router.include_router(billing.router, tags=["billing"])
