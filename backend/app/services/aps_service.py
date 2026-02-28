@@ -206,3 +206,54 @@ class APSService:
             resp.raise_for_status()
             data = resp.json()
         return data.get("data", {}).get("collection", [])
+
+    async def get_acc_projects(self, user_token: str) -> list[dict[str, Any]]:
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(
+                f"{APS_BASE_URL}/construction/admin/v1/projects",
+                headers={"Authorization": f"Bearer {user_token}"},
+            )
+            resp.raise_for_status()
+            data = resp.json()
+        return data.get("results", [])
+
+    async def list_acc_rfis(
+        self,
+        user_token: str,
+        container_id: str,
+        limit: int = 100,
+        offset: int = 0,
+    ) -> dict[str, Any]:
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(
+                f"{APS_BASE_URL}/issues/v2/containers/{container_id}/issues",
+                headers={"Authorization": f"Bearer {user_token}"},
+                params={
+                    "limit": limit,
+                    "offset": offset,
+                },
+            )
+            resp.raise_for_status()
+            return resp.json()
+
+    async def get_acc_rfi(self, user_token: str, container_id: str, issue_id: str) -> dict[str, Any]:
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(
+                f"{APS_BASE_URL}/issues/v2/containers/{container_id}/issues/{issue_id}",
+                headers={"Authorization": f"Bearer {user_token}"},
+            )
+            resp.raise_for_status()
+            return resp.json()
+
+    async def create_acc_rfi(self, user_token: str, container_id: str, issue_data: dict[str, Any]) -> dict[str, Any]:
+        async with httpx.AsyncClient() as client:
+            resp = await client.post(
+                f"{APS_BASE_URL}/issues/v2/containers/{container_id}/issues",
+                json=issue_data,
+                headers={
+                    "Authorization": f"Bearer {user_token}",
+                    "Content-Type": "application/json",
+                },
+            )
+            resp.raise_for_status()
+            return resp.json()
