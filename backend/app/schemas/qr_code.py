@@ -47,6 +47,12 @@ class BulkQRCodeRequest(BaseModel):
     size: Optional[int] = Field(default=300, ge=100, le=1000)
 
 
+class BulkQRCodePDFRequest(BaseModel):
+    items: list[dict] = Field(max_length=100)
+    project_id: UUID
+    language: Optional[str] = Field(default="he", pattern="^(he|en)$")
+
+
 class PaginatedScanHistoryResponse(BaseModel):
     items: list[ScanHistoryResponse]
     total: int

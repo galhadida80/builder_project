@@ -2,6 +2,7 @@ from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi.responses import Response
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -11,10 +12,11 @@ from app.core.security import get_current_user, verify_project_access
 from app.db.session import get_db
 from app.models.equipment import Equipment
 from app.models.material import Material
-from app.models.project import ProjectMember
+from app.models.project import Project, ProjectMember
 from app.models.scan_history import ScanHistory
 from app.models.user import User
 from app.schemas.qr_code import (
+    BulkQRCodePDFRequest,
     BulkQRCodeRequest,
     PaginatedScanHistoryResponse,
     QRCodeGenerateRequest,
@@ -92,6 +94,35 @@ async def generate_bulk_qr_codes(
         )
         for result in results
     ]
+
+
+@router.post("/qr-codes/bulk-pdf")
+async def generate_bulk_qr_pdf(
+    data: BulkQRCodePDFRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Generate a printable PDF sheet with QR code labels for multiple items."""
+    await verify_project_access(data.project_id, current_user, db)
+
+    result = await db.execute(
+        select(Project).where(Project.id == data.project_id)
+    )
+    project = result.scalar_one_or_none()
+
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    qr_service = QRCodeService(db)
+    pdf_bytes = await qr_service.generate_bulk_qr_pdf(
+        data.items, project, data.language
+    )
+
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": 'attachment; filename="qr-code-labels.pdf"'},
+    )
 
 
 @router.post("/projects/{project_id}/qr-codes/scan", response_model=ScanHistoryResponse)
