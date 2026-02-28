@@ -78,3 +78,31 @@ class SubcontractorProfileResponse(CamelCaseModel):
     user: Optional[UserResponse] = None
     created_at: datetime
     updated_at: datetime
+
+
+class TaskStats(CamelCaseModel):
+    total: int = 0
+    in_progress: int = 0
+    completed: int = 0
+    overdue: int = 0
+
+
+class RFIStats(CamelCaseModel):
+    total: int = 0
+    open: int = 0
+    waiting_response: int = 0
+    answered: int = 0
+
+
+class ApprovalStats(CamelCaseModel):
+    total: int = 0
+    pending: int = 0
+    approved: int = 0
+    rejected: int = 0
+
+
+class SubcontractorDashboardResponse(CamelCaseModel):
+    task_stats: TaskStats
+    rfi_stats: RFIStats
+    approval_stats: ApprovalStats
+    upcoming_deadlines: int = 0

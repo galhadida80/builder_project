@@ -1,9 +1,10 @@
 import logging
+from datetime import date, timedelta
 from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, Request
-from sqlalchemy import func, select
+from sqlalchemy import case, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -22,11 +23,15 @@ from app.schemas.approval import ApprovalRequestResponse
 from app.schemas.project_overview import TimelineEvent
 from app.schemas.rfi import PaginatedRFIResponse, RFIListResponse
 from app.schemas.subcontractor import (
+    ApprovalStats,
+    RFIStats,
+    SubcontractorDashboardResponse,
     SubcontractorInviteRequest,
     SubcontractorInviteResponse,
     SubcontractorProfileCreate,
     SubcontractorProfileResponse,
     SubcontractorProfileUpdate,
+    TaskStats,
 )
 from app.schemas.task import TaskResponse
 from app.services.email_renderer import render_subcontractor_invite_email
@@ -194,6 +199,90 @@ async def get_my_profile(
     if not profile:
         raise HTTPException(status_code=404, detail="Subcontractor profile not found")
     return profile
+
+
+@router.get("/subcontractors/dashboard", response_model=SubcontractorDashboardResponse)
+async def get_dashboard_summary(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Get dashboard summary statistics for subcontractor"""
+    user_project_ids = select(ProjectMember.project_id).where(
+        ProjectMember.user_id == current_user.id,
+        ProjectMember.role == "subcontractor",
+    )
+
+    today = date.today()
+    upcoming_threshold = today + timedelta(days=7)
+
+    tasks_result = await db.execute(
+        select(
+            func.count(Task.id).label("total"),
+            func.count(case((Task.status == "in_progress", 1))).label("in_progress"),
+            func.count(case((Task.status == "completed", 1))).label("completed"),
+            func.count(case((
+                (Task.due_date < today) & (Task.status != "completed"), 1
+            ))).label("overdue"),
+        ).where(
+            Task.project_id.in_(user_project_ids),
+            Task.assignee_id == current_user.id,
+        )
+    )
+    tasks_data = tasks_result.one()
+
+    rfis_result = await db.execute(
+        select(
+            func.count(RFI.id).label("total"),
+            func.count(case((RFI.status == "open", 1))).label("open"),
+            func.count(case((RFI.status == "waiting_response", 1))).label("waiting_response"),
+            func.count(case((RFI.status == "answered", 1))).label("answered"),
+        ).where(RFI.project_id.in_(user_project_ids))
+    )
+    rfis_data = rfis_result.one()
+
+    approvals_result = await db.execute(
+        select(ApprovalRequest.id, ApprovalRequest.current_status)
+        .where(ApprovalRequest.project_id.in_(user_project_ids))
+    )
+    approvals = approvals_result.all()
+    approval_stats = {
+        "total": len(approvals),
+        "pending": sum(1 for a in approvals if a.current_status == "pending"),
+        "approved": sum(1 for a in approvals if a.current_status == "approved"),
+        "rejected": sum(1 for a in approvals if a.current_status == "rejected"),
+    }
+
+    upcoming_deadlines_result = await db.execute(
+        select(func.count(Task.id)).where(
+            Task.project_id.in_(user_project_ids),
+            Task.assignee_id == current_user.id,
+            Task.due_date.between(today, upcoming_threshold),
+            Task.status != "completed",
+        )
+    )
+    upcoming_deadlines = upcoming_deadlines_result.scalar() or 0
+
+    return SubcontractorDashboardResponse(
+        task_stats=TaskStats(
+            total=tasks_data.total,
+            in_progress=tasks_data.in_progress,
+            completed=tasks_data.completed,
+            overdue=tasks_data.overdue,
+        ),
+        rfi_stats=RFIStats(
+            total=rfis_data.total,
+            open=rfis_data.open,
+            waiting_response=rfis_data.waiting_response,
+            answered=rfis_data.answered,
+        ),
+        approval_stats=ApprovalStats(
+            total=approval_stats["total"],
+            pending=approval_stats["pending"],
+            approved=approval_stats["approved"],
+            rejected=approval_stats["rejected"],
+        ),
+        upcoming_deadlines=upcoming_deadlines,
+    )
 
 
 @router.post("/subcontractors/me", response_model=SubcontractorProfileResponse, status_code=201)
