@@ -60,6 +60,10 @@
   "hidePassword": "הסתר סיסמה",
   "showPassword": "הצג סיסמה",
   "googleSignInFailed": "ההתחברות עם Google נכשלה. אנא נסה שוב.",
+  "language": {
+    "hebrew": "עברית",
+    "english": "English"
+  },
   "validation": {
     "checkFields": "אנא תקן את השגיאות המסומנות",
     "fieldRequired": "שדה חובה",
@@ -91,6 +95,7 @@
     "customType": "ציין סוג מותאם",
     "customUnit": "ציין יחידת מידה מותאמת",
     "saving": "שומר...",
+    "generating": "מפיק...",
     "error": "שגיאה",
     "success": "הצלחה",
     "warning": "אזהרה",
@@ -3020,7 +3025,24 @@
     "defectsAndIssues": "ליקויים ומפגעים",
     "equipmentAndMaterials": "ציוד וחומרים",
     "budgetAndCosts": "תקציב ועלויות",
-    "format": "פורמט"
+    "format": "פורמט",
+    "generateReport": "הפק דוח",
+    "selectReportType": "בחר סוג דוח",
+    "weeklyAiDescription": "דוח התקדמות שבועי מופק ב-AI עם סיכום נרטיבי, גרפים ומדדים מרכזיים.",
+    "inspectionAiDescription": "סיכום בדיקות מופק ב-AI עם ניתוח ממצאים, תמונות והמלצות.",
+    "executiveAiDescription": "סיכום מנהלים ברמה גבוהה עם אינדיקטורים לבריאות הפרויקט ופריטים קריטיים.",
+    "configureParameters": "הגדר פרמטרים",
+    "language": "שפה",
+    "reviewConfiguration": "סקור הגדרות",
+    "dateRange": "טווח תאריכים",
+    "readyToGenerate": "מוכן להפקת הדוח המופק ב-AI. פעולה זו עשויה לקחת מספר רגעים.",
+    "weeklyProgressReport": "דוח התקדמות שבועי",
+    "downloadFailed": "הורדת PDF נכשלה",
+    "preview": "תצוגה מקדימה",
+    "edit": "עריכה",
+    "previewFrame": "תצוגה מקדימה של הדוח",
+    "editWarning": "עריכה ישירה של HTML. היזהר לשמור על המבנה והעיצוב.",
+    "downloadPdf": "הורד PDF"
   },
   "help": {
     "title": "עזרה",
