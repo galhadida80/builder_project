@@ -185,7 +185,6 @@ async def project(db: AsyncSession, admin_user: User) -> Project:
     proj = Project(
         id=uuid.uuid4(),
         name="Test Project",
-        code="TEST-001",
         description="Test project for equipment templates",
         status="active",
         created_by_id=admin_user.id

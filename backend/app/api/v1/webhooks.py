@@ -226,7 +226,9 @@ async def execute_scheduled_report(report_id: str):
     from uuid import UUID
 
     from app.db.session import AsyncSessionLocal
+    from app.models.project import Project
     from app.models.scheduled_report import ScheduledReport
+    from app.services.ai_report_generator import send_report_email
     from app.services.inspection_report_service import (
         generate_ai_inspection_summary_pdf,
         generate_ai_weekly_report_pdf,
@@ -262,6 +264,15 @@ async def execute_scheduled_report(report_id: str):
 
             logger.info(f"Generating {report_type} report for project {project_id}")
 
+            # Get project info for email
+            project_stmt = select(Project).where(Project.id == project_id)
+            project_result = await db.execute(project_stmt)
+            project = project_result.scalar_one_or_none()
+
+            if not project:
+                logger.error(f"Project not found: {project_id}")
+                return
+
             if report_type == "weekly-ai":
                 pdf_bytes = await generate_ai_weekly_report_pdf(
                     db=db,
@@ -279,6 +290,28 @@ async def execute_scheduled_report(report_id: str):
             else:
                 logger.warning(f"Unsupported report type for scheduled execution: {report_type}")
                 return
+
+            # Send email to recipients if configured
+            if scheduled_report.recipients and pdf_bytes:
+                try:
+                    date_from = config.get("date_from", "")
+                    date_to = config.get("date_to", "")
+                    report_date = f"{date_from} to {date_to}" if date_from and date_to else None
+
+                    email_result = send_report_email(
+                        recipients=scheduled_report.recipients,
+                        project_name=project.name,
+                        report_type=report_type,
+                        pdf_bytes=pdf_bytes,
+                        language=language,
+                        report_date=report_date
+                    )
+                    logger.info(
+                        f"Email sent for report {report_id}: "
+                        f"{email_result['sent_count']} sent, {email_result['failed_count']} failed"
+                    )
+                except Exception as email_error:
+                    logger.error(f"Failed to send email for report {report_id}: {email_error}")
 
             scheduled_report.last_run_at = utcnow()
             scheduled_report.run_count += 1
