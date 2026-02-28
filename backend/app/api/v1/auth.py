@@ -161,7 +161,19 @@ async def login(data: UserLogin, request: Request, db: AsyncSession = Depends(ge
     result = await db.execute(select(User).where(User.email == email))
     user = result.scalar_one_or_none()
 
-    if not user or not user.password_hash:
+    if not user:
+        error_message = translate_message('invalid_credentials', language)
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=error_message
+        )
+
+    if not user.password_hash:
+        if user.google_id:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="This account uses Google Sign-In. Please use the Google button to log in."
+            )
         error_message = translate_message('invalid_credentials', language)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -228,6 +240,8 @@ async def google_login(data: GoogleAuthRequest, request: Request, db: AsyncSessi
         user = result.scalar_one_or_none()
         if user:
             user.google_id = google_id
+            if not user.full_name and full_name:
+                user.full_name = full_name
             if not user.avatar_url and idinfo.get("picture"):
                 user.avatar_url = idinfo["picture"]
             await db.commit()

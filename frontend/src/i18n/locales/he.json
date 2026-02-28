@@ -35,6 +35,9 @@
   "inspectionSystem": "מערכת בדיקות",
   "approvalWorkflows": "תהליכי אישור",
   "invalidCredentials": "דואר אלקטרוני או סיסמה שגויים",
+  "auth": {
+    "useGoogleSignIn": "חשבון זה משתמש בכניסה עם Google. לחץ על הכפתור של Google כדי להתחבר."
+  },
   "passwordsMismatch": "הסיסמאות אינן תואמות",
   "passwordMinLength": "הסיסמה חייבת להכיל לפחות 8 תווים",
   "accountCreated": "החשבון נוצר בהצלחה! אנא התחבר.",

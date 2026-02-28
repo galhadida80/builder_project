@@ -133,7 +133,12 @@ export default function LoginPage() {
       await navigateAfterLogin()
     } catch (err: unknown) {
       const error = err as { response?: { data?: { detail?: string } } }
-      setError(error.response?.data?.detail || t('invalidCredentials'))
+      const detail = error.response?.data?.detail || ''
+      if (detail.includes('Google Sign-In')) {
+        setError(t('auth.useGoogleSignIn'))
+      } else {
+        setError(detail || t('invalidCredentials'))
+      }
     } finally {
       setLoading(false)
       submittingRef.current = false

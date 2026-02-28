@@ -35,6 +35,9 @@
   "inspectionSystem": "Inspection System",
   "approvalWorkflows": "Approval Workflows",
   "invalidCredentials": "Invalid email or password",
+  "auth": {
+    "useGoogleSignIn": "This account uses Google Sign-In. Please use the Google button to log in."
+  },
   "passwordsMismatch": "Passwords do not match",
   "passwordMinLength": "Password must be at least 8 characters",
   "accountCreated": "Account created successfully! Please sign in.",
