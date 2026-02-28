@@ -50,6 +50,8 @@ import NotificationsPage from './pages/NotificationsPage'
 import SubcontractorListPage from './pages/SubcontractorListPage'
 import SubcontractorPortalPage from './pages/SubcontractorPortalPage'
 import NotFoundPage from './pages/NotFoundPage'
+import PricingPage from './pages/PricingPage'
+import BillingPage from './pages/BillingPage'
 
 const BIMPage = lazy(() => import('./pages/BIMPage'))
 const ProjectStructureWizardPage = lazy(() => import('./pages/ProjectStructureWizardPage'))
@@ -83,6 +85,7 @@ function AppRoutes() {
       <OfflineQueueIndicator />
       <Routes>
         <Route path="/" element={<LandingPage />} />
+        <Route path="/pricing" element={<PricingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/invite" element={<InvitePage />} />
@@ -132,6 +135,7 @@ function AppRoutes() {
             <Route path="/subcontractor-portal" element={<SubcontractorPortalPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/billing" element={<BillingPage />} />
           </Route>
 
           <Route element={<SuperAdminRoute />}>

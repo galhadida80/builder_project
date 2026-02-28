@@ -128,6 +128,14 @@ class Settings(BaseSettings):
     twilio_whatsapp_from: str = ""
     whatsapp_webhook_url: str = ""
 
+    stripe_secret_key: str = ""
+    stripe_publishable_key: str = ""
+    stripe_webhook_secret: str = ""
+
+    payplus_api_key: str = ""
+    payplus_secret_key: str = ""
+    payplus_webhook_secret: str = ""
+
     @model_validator(mode='after')
     def validate_production_secrets(self) -> 'Settings':
         generation_cmd = "python -c \"import secrets; print(secrets.token_urlsafe(32))\""

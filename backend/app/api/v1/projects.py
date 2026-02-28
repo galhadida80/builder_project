@@ -17,6 +17,7 @@ from app.models.meeting import Meeting
 from app.models.permission_override import PermissionOverride
 from app.models.project import Project, ProjectMember
 from app.models.user import User
+from app.services.subscription_service import SubscriptionService
 from app.schemas.permission import EffectivePermissionsResponse, PermissionOverrideRequest, PermissionOverrideResponse
 from app.schemas.project import (
     ProjectCreate,
@@ -59,6 +60,15 @@ async def create_project(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    subscription_service = SubscriptionService(db)
+    limits = await subscription_service.check_usage_limits(getattr(data, 'organization_id', None))
+    if not limits["within_limits"]:
+        violations = ", ".join(limits["violations"])
+        raise HTTPException(
+            status_code=403,
+            detail=f"Cannot create project: {violations}. Please upgrade your plan."
+        )
+
     project = Project(**data.model_dump(), created_by_id=current_user.id)
     db.add(project)
     await db.flush()
