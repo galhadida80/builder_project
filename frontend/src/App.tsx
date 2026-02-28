@@ -5,6 +5,7 @@ import { PWAInstallPrompt } from './components/common/PWAInstallPrompt'
 import { ProjectProvider } from './contexts/ProjectContext'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { ReferenceDataProvider } from './contexts/ReferenceDataContext'
+import { ClientPortalProvider } from './contexts/ClientPortalContext'
 import LandingPage from './pages/LandingPage'
 import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
@@ -50,6 +51,10 @@ import CustomKPIPage from './pages/CustomKPIPage'
 import NotificationsPage from './pages/NotificationsPage'
 import SubcontractorListPage from './pages/SubcontractorListPage'
 import SubcontractorPortalPage from './pages/SubcontractorPortalPage'
+import ClientPortalLoginPage from './pages/ClientPortalLoginPage'
+import ClientPortalDashboardPage from './pages/ClientPortalDashboardPage'
+import ClientPortalPhotosPage from './pages/ClientPortalPhotosPage'
+import ClientPortalDocumentsPage from './pages/ClientPortalDocumentsPage'
 import NotFoundPage from './pages/NotFoundPage'
 import PricingPage from './pages/PricingPage'
 import BillingPage from './pages/BillingPage'
@@ -91,6 +96,22 @@ function AppRoutes() {
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/invite" element={<InvitePage />} />
         <Route path="/meetings/rsvp/:token" element={<MeetingRSVPPage />} />
+        <Route path="/client-portal/login" element={<ClientPortalLoginPage />} />
+        <Route path="/client-portal/dashboard" element={
+          <ClientPortalProvider>
+            <ClientPortalDashboardPage />
+          </ClientPortalProvider>
+        } />
+        <Route path="/client-portal/photos" element={
+          <ClientPortalProvider>
+            <ClientPortalPhotosPage />
+          </ClientPortalProvider>
+        } />
+        <Route path="/client-portal/documents" element={
+          <ClientPortalProvider>
+            <ClientPortalDocumentsPage />
+          </ClientPortalProvider>
+        } />
 
         <Route element={<ProtectedRoute />}>
           <Route element={<Layout />}>

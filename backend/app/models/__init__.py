@@ -59,6 +59,7 @@ from app.models.scheduled_report import ReportTemplate, ScheduledReport
 from app.models.subcontractor import SubcontractorProfile
 from app.models.subscription import Subscription, SubscriptionPlan
 from app.models.webauthn_credential import WebAuthnCredential
+from app.models.client_portal_access import ClientPortalAccess
 
 __all__ = [
     "User",
@@ -138,7 +139,5 @@ __all__ = [
     "ScheduledReport",
     "SubcontractorProfile",
     "EntityVersion",
-    "RiskScore",
-    "RiskLevel",
-    "RiskThreshold",
+    "ClientPortalAccess",
 ]

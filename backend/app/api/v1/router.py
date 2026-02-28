@@ -17,6 +17,7 @@ from app.api.v1 import (
     calendar,
     chat,
     checklists,
+    client_portal,
     consultant_assignments,
     consultant_types,
     contact_groups,
@@ -57,6 +58,7 @@ from app.api.v1 import (
 api_router = APIRouter()
 
 api_router.include_router(auth.router, prefix="/auth", tags=["auth"])
+api_router.include_router(client_portal.router, prefix="/client-portal", tags=["client_portal"])
 api_router.include_router(projects.router, prefix="/projects", tags=["projects"])
 api_router.include_router(equipment.router, tags=["equipment"])
 api_router.include_router(equipment_templates.router, tags=["equipment_templates"])

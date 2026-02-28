@@ -50,6 +50,8 @@ class Project(Base):
     location_lat: Mapped[Optional[float]] = mapped_column(Float)
     location_lng: Mapped[Optional[float]] = mapped_column(Float)
     location_address: Mapped[Optional[str]] = mapped_column(Text)
+    budget_visible_to_clients: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
+    milestone_tracking_enabled: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
 
     members = relationship("ProjectMember", back_populates="project", cascade="all, delete-orphan")
     organization = relationship("Organization", back_populates="projects")
