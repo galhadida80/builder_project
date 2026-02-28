@@ -78,6 +78,46 @@ export const reportsApi = {
   deleteScheduled: async (reportId: string): Promise<void> => {
     await apiClient.delete(`/scheduled-reports/${reportId}`)
   },
+
+  generateWeeklyReport: async (
+    projectId: string,
+    dateFrom: string,
+    dateTo: string,
+    language: string
+  ): Promise<Blob> => {
+    const response = await apiClient.post(
+      `/projects/${projectId}/reports/generate-weekly`,
+      { date_from: dateFrom, date_to: dateTo, language },
+      { responseType: 'blob' }
+    )
+    return response.data
+  },
+
+  generateInspectionSummary: async (
+    projectId: string,
+    dateFrom: string,
+    dateTo: string,
+    language: string
+  ): Promise<Blob> => {
+    const response = await apiClient.post(
+      `/projects/${projectId}/reports/generate-inspection-summary`,
+      { date_from: dateFrom, date_to: dateTo, language },
+      { responseType: 'blob' }
+    )
+    return response.data
+  },
+
+  previewWeeklyReport: async (
+    projectId: string,
+    dateFrom: string,
+    dateTo: string,
+    language: string
+  ): Promise<string> => {
+    const response = await apiClient.get(`/projects/${projectId}/reports/preview-weekly`, {
+      params: { date_from: dateFrom, date_to: dateTo, language },
+    })
+    return response.data
+  },
 }
 
 export interface ReportTemplate {
