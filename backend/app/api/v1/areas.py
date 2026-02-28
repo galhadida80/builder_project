@@ -41,6 +41,7 @@ async def list_areas(
         select(ConstructionArea)
         .options(
             selectinload(ConstructionArea.progress_updates).selectinload(AreaProgress.reported_by),
+            selectinload(ConstructionArea.children),
         )
         .where(ConstructionArea.project_id == project_id)
         .order_by(ConstructionArea.name)
