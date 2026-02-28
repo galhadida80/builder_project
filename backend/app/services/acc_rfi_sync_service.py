@@ -343,6 +343,7 @@ class ACCRFISyncService:
         """
         Detect if RFI has conflicting changes.
         Returns True if conflict detected, False otherwise.
+        Stores conflicting field-level data in acc_metadata for manual review.
         """
         if not existing_rfi.last_synced_at:
             return False
@@ -361,39 +362,130 @@ class ACCRFISyncService:
         acc_updated_remotely = acc_updated_at > existing_rfi.last_synced_at
 
         if rfi_updated_locally and acc_updated_remotely:
+            conflicting_fields = await self._detect_field_conflicts(
+                existing_rfi,
+                acc_issue
+            )
+
+            conflict_metadata = {
+                "conflict_detected_at": utcnow().isoformat(),
+                "local_updated_at": existing_rfi.updated_at.isoformat(),
+                "acc_updated_at": acc_updated_at.isoformat(),
+                "last_synced_at": existing_rfi.last_synced_at.isoformat(),
+                "conflicting_fields": conflicting_fields,
+                "local_version": {
+                    "subject": existing_rfi.subject,
+                    "question": existing_rfi.question,
+                    "category": existing_rfi.category,
+                    "priority": existing_rfi.priority,
+                    "status": existing_rfi.status,
+                    "assigned_to_id": str(existing_rfi.assigned_to_id) if existing_rfi.assigned_to_id else None,
+                    "due_date": existing_rfi.due_date.isoformat() if existing_rfi.due_date else None,
+                    "location": existing_rfi.location
+                },
+                "acc_version": acc_issue
+            }
+
+            existing_metadata = existing_rfi.acc_metadata or {}
+            if not isinstance(existing_metadata, dict):
+                existing_metadata = {}
+
+            existing_metadata["conflict_history"] = existing_metadata.get("conflict_history", [])
+            existing_metadata["conflict_history"].append(conflict_metadata)
+            existing_metadata["latest_conflict"] = conflict_metadata
+
+            existing_rfi.acc_metadata = existing_metadata
+
             logger.warning(
                 f"Conflict detected for RFI {existing_rfi.rfi_number}: "
                 f"Local updated at {existing_rfi.updated_at}, "
                 f"ACC updated at {acc_updated_at}, "
-                f"Last synced at {existing_rfi.last_synced_at}"
+                f"Last synced at {existing_rfi.last_synced_at}. "
+                f"Conflicting fields: {', '.join(conflicting_fields) if conflicting_fields else 'timestamps only'}"
             )
             return True
 
         return False
 
+    async def _detect_field_conflicts(
+        self,
+        existing_rfi: RFI,
+        acc_issue: dict[str, Any]
+    ) -> list[str]:
+        """
+        Compare individual fields to identify which ones changed.
+        Returns list of field names that have conflicting changes.
+        """
+        conflicting_fields = []
+
+        rfi_data = await self.map_acc_issue_to_rfi(acc_issue, existing_rfi.project_id)
+
+        field_comparisons = {
+            "subject": (existing_rfi.subject, rfi_data.get("subject")),
+            "question": (existing_rfi.question, rfi_data.get("question")),
+            "category": (existing_rfi.category, rfi_data.get("category")),
+            "priority": (existing_rfi.priority, rfi_data.get("priority")),
+            "status": (existing_rfi.status, rfi_data.get("status")),
+            "location": (existing_rfi.location, rfi_data.get("location")),
+            "to_email": (existing_rfi.to_email, rfi_data.get("to_email")),
+            "assigned_to_id": (
+                str(existing_rfi.assigned_to_id) if existing_rfi.assigned_to_id else None,
+                str(rfi_data.get("assigned_to_id")) if rfi_data.get("assigned_to_id") else None
+            )
+        }
+
+        if existing_rfi.due_date and rfi_data.get("due_date"):
+            local_due = existing_rfi.due_date.replace(microsecond=0, tzinfo=None)
+            remote_due = rfi_data["due_date"].replace(microsecond=0, tzinfo=None)
+            if local_due != remote_due:
+                conflicting_fields.append("due_date")
+        elif existing_rfi.due_date != rfi_data.get("due_date"):
+            conflicting_fields.append("due_date")
+
+        for field_name, (local_value, remote_value) in field_comparisons.items():
+            if local_value != remote_value:
+                conflicting_fields.append(field_name)
+
+        return conflicting_fields
+
     async def resolve_conflict(
         self,
         rfi: RFI,
         strategy: str = "last_write_wins"
-    ) -> None:
+    ) -> dict[str, Any]:
         """
         Resolve RFI conflict using specified strategy.
-        Currently only supports 'last_write_wins'.
+        Currently supports: 'last_write_wins', 'prefer_local', 'prefer_acc'.
+        Returns resolution summary with chosen version and applied changes.
         """
-        if strategy != "last_write_wins":
+        if strategy not in ["last_write_wins", "prefer_local", "prefer_acc"]:
             raise ValueError(f"Unsupported conflict resolution strategy: {strategy}")
 
         if not rfi.acc_metadata:
             raise ValueError("Cannot resolve conflict: no ACC metadata available")
 
-        acc_issue = rfi.acc_metadata
-        acc_updated_str = acc_issue.get("updatedAt")
+        metadata = rfi.acc_metadata
+        if not isinstance(metadata, dict):
+            raise ValueError("Invalid ACC metadata format")
 
+        latest_conflict = metadata.get("latest_conflict")
+        if not latest_conflict:
+            raise ValueError("No conflict data found in metadata")
+
+        acc_version = latest_conflict.get("acc_version")
+        if not acc_version:
+            raise ValueError("No ACC version data in conflict metadata")
+
+        acc_updated_str = acc_version.get("updatedAt")
         if not acc_updated_str:
             logger.info(f"No ACC update timestamp, keeping local version for RFI {rfi.rfi_number}")
             rfi.sync_status = "synced"
             await self.db.flush()
-            return
+            return {
+                "chosen_version": "local",
+                "reason": "No ACC timestamp available",
+                "conflicting_fields": latest_conflict.get("conflicting_fields", [])
+            }
 
         try:
             acc_updated_at = datetime.fromisoformat(acc_updated_str.replace("Z", "+00:00"))
@@ -401,16 +493,53 @@ class ACCRFISyncService:
             logger.error(f"Failed to parse ACC timestamp: {e}")
             rfi.sync_status = "synced"
             await self.db.flush()
-            return
+            return {
+                "chosen_version": "local",
+                "reason": f"Invalid ACC timestamp: {e}",
+                "conflicting_fields": latest_conflict.get("conflicting_fields", [])
+            }
 
-        if acc_updated_at > rfi.updated_at:
-            logger.info(f"ACC version is newer, updating RFI {rfi.rfi_number}")
-            await self._update_rfi_from_acc(rfi, acc_issue, rfi.acc_container_id)
+        chosen_version = None
+        resolution_reason = None
+
+        if strategy == "last_write_wins":
+            if acc_updated_at > rfi.updated_at:
+                chosen_version = "acc"
+                resolution_reason = f"ACC version newer ({acc_updated_at} > {rfi.updated_at})"
+            else:
+                chosen_version = "local"
+                resolution_reason = f"Local version newer ({rfi.updated_at} >= {acc_updated_at})"
+        elif strategy == "prefer_local":
+            chosen_version = "local"
+            resolution_reason = "Manual preference for local version"
+        elif strategy == "prefer_acc":
+            chosen_version = "acc"
+            resolution_reason = "Manual preference for ACC version"
+
+        if chosen_version == "acc":
+            logger.info(f"Applying ACC version to RFI {rfi.rfi_number}: {resolution_reason}")
+            await self._update_rfi_from_acc(rfi, acc_version, rfi.acc_container_id)
         else:
-            logger.info(f"Local version is newer, keeping local data for RFI {rfi.rfi_number}")
+            logger.info(f"Keeping local version for RFI {rfi.rfi_number}: {resolution_reason}")
             rfi.sync_status = "synced"
             rfi.last_synced_at = utcnow()
-            await self.db.flush()
+
+        if isinstance(metadata, dict):
+            metadata["conflict_resolved_at"] = utcnow().isoformat()
+            metadata["resolution_strategy"] = strategy
+            metadata["chosen_version"] = chosen_version
+            metadata["resolution_reason"] = resolution_reason
+            rfi.acc_metadata = metadata
+
+        await self.db.flush()
+
+        return {
+            "chosen_version": chosen_version,
+            "reason": resolution_reason,
+            "conflicting_fields": latest_conflict.get("conflicting_fields", []),
+            "strategy": strategy,
+            "resolved_at": utcnow().isoformat()
+        }
 
     async def map_acc_user_to_builderops_user(
         self,
