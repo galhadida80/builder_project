@@ -96,6 +96,16 @@ Response schemas extend `CamelCaseModel` → all snake_case fields auto-convert 
 
 ## Working Conventions
 
+### Auto-Claude Task Review (MANDATORY - On Session Start)
+At the start of every session, check `.auto-claude/specs/` for task statuses:
+1. Scan all spec folders for `task_metadata.json` - check `status` field
+2. `human_review`: Review the branch diff, merge into main if the code is correct
+3. `error`: Investigate what failed, fix the issue, and complete the task
+4. `ai_review`: Review the implementation, approve or request fixes
+5. `in_progress` / `queue`: Do not touch - another agent is handling these
+6. Report the status summary to the user
+7. After merging/completing a task, update its `task_metadata.json` status to `done`
+
 ### File Size Limit
 Every file must be under 300 lines. If a solution risks exceeding this, refactor or split the logic into separate files.
 
