@@ -25,6 +25,11 @@ vi.mock('../api/inspections', () => ({
 
 vi.mock('../components/ui/Card', () => ({
   Card: ({ children }: { children: React.ReactNode }) => <div data-testid="card">{children}</div>,
+  KPICard: ({ title, value }: { title: string; value: string | number }) => <div data-testid="kpi-card">{title}: {value}</div>,
+}))
+
+vi.mock('../components/ui/Breadcrumbs', () => ({
+  PageHeader: ({ title }: { title: string }) => <div data-testid="page-header">{title}</div>,
 }))
 
 vi.mock('../components/ui/Button', () => ({
