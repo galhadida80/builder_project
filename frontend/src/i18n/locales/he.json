@@ -3958,5 +3958,19 @@
       "generatedBy": "נוצר על ידי {{model}}",
       "processingTime": "זמן עיבוד: {{seconds}}s"
     }
+  },
+  "subcontractorPortal": {
+    "dashboard": "לוח בקרה",
+    "yourWorkSummary": "סיכום העבודה שלך",
+    "activityFeed": "פיד פעילויות",
+    "noActivity": "אין פעילויות זמינות",
+    "task": "משימה",
+    "rfi": "בקשת מידע",
+    "approval": "אישור",
+    "document": "מסמך",
+    "completed": "הושלם",
+    "alert": "התראה",
+    "notification": "הודעה",
+    "update": "עדכון"
   }
 }
