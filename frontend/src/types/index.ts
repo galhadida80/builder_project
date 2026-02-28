@@ -88,6 +88,36 @@ export interface Contact {
   createdAt: string
 }
 
+export interface VendorPerformance {
+  id: string
+  vendorId: string
+  projectId: string
+  deliveryScore?: number
+  qualityScore?: number
+  priceScore?: number
+  notes?: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface Vendor {
+  id: string
+  companyName: string
+  trade: string
+  contactEmail?: string
+  contactPhone?: string
+  address?: string
+  licenseNumber?: string
+  insuranceExpiry?: string
+  isVerified: boolean
+  rating?: number
+  certifications: string[]
+  notes?: string
+  performances: VendorPerformance[]
+  createdAt: string
+  updatedAt: string
+}
+
 export interface Equipment {
   id: string
   projectId: string
