@@ -11,11 +11,13 @@ from app.core.security import get_current_user, verify_project_access
 from app.db.session import get_db
 from app.models.audit import AuditAction
 from app.models.file import File
-from app.models.floorplan import Floorplan
+from app.models.floorplan import Floorplan, FloorplanPin
 from app.models.project import ProjectMember
 from app.models.user import User
 from app.schemas.floorplan import (
     FloorplanCreate,
+    FloorplanPinCreate,
+    FloorplanPinResponse,
     FloorplanResponse,
     FloorplanUpdate,
 )
@@ -28,6 +30,26 @@ FLOORPLAN_LOAD_OPTIONS = [
     selectinload(Floorplan.file),
     selectinload(Floorplan.created_by),
 ]
+FLOORPLAN_PIN_LOAD_OPTIONS = [
+    selectinload(FloorplanPin.created_by),
+]
+
+
+async def verify_floorplan_exists(
+    db: AsyncSession, floorplan_id: UUID, project_id: UUID, request: Request = None
+) -> Floorplan:
+    result = await db.execute(
+        select(Floorplan).where(
+            Floorplan.id == floorplan_id,
+            Floorplan.project_id == project_id
+        )
+    )
+    floorplan = result.scalar_one_or_none()
+    if not floorplan:
+        language = get_language_from_request(request)
+        error_message = translate_message('resources.floorplan_not_found', language)
+        raise HTTPException(status_code=404, detail=error_message)
+    return floorplan
 
 
 @router.get("/projects/{project_id}/floorplans", response_model=list[FloorplanResponse])
@@ -54,7 +76,6 @@ async def list_floorplans(
     query = query.order_by(Floorplan.floor_number.asc(), Floorplan.version.desc())
     result = await db.execute(query)
     return result.scalars().all()
-
 
 @router.post(
     "/projects/{project_id}/floorplans",
@@ -91,20 +112,16 @@ async def create_floorplan(
         version=floorplan_data.version,
         created_by_id=current_user.id,
     )
-
     db.add(floorplan)
     await db.flush()
-
     await create_audit_log(
         db, current_user, "floorplan", floorplan.id, AuditAction.CREATE,
         project_id=project_id,
         new_values={"name": floorplan_data.name, "floor_number": floorplan_data.floor_number}
     )
-
     await db.commit()
     await db.refresh(floorplan, ["file", "created_by"])
     return floorplan
-
 
 @router.get(
     "/projects/{project_id}/floorplans/{floorplan_id}",
@@ -118,21 +135,17 @@ async def get_floorplan(
     request: Request = None,
 ):
     await verify_project_access(project_id, current_user, db)
-
     result = await db.execute(
         select(Floorplan)
         .where(Floorplan.id == floorplan_id, Floorplan.project_id == project_id)
         .options(*FLOORPLAN_LOAD_OPTIONS)
     )
     floorplan = result.scalar_one_or_none()
-
     if not floorplan:
         language = get_language_from_request(request)
         error_message = translate_message('resources.floorplan_not_found', language)
         raise HTTPException(status_code=404, detail=error_message)
-
     return floorplan
-
 
 @router.put(
     "/projects/{project_id}/floorplans/{floorplan_id}",
@@ -153,7 +166,6 @@ async def update_floorplan(
         .options(*FLOORPLAN_LOAD_OPTIONS)
     )
     floorplan = result.scalar_one_or_none()
-
     if not floorplan:
         language = get_language_from_request(request)
         error_message = translate_message('resources.floorplan_not_found', language)
@@ -174,23 +186,19 @@ async def update_floorplan(
             raise HTTPException(status_code=404, detail=error_message)
 
     old_values = get_model_dict(floorplan)
-
     # Update fields
     update_data = floorplan_data.model_dump(exclude_unset=True)
     for field, value in update_data.items():
         setattr(floorplan, field, value)
-
     await create_audit_log(
         db, current_user, "floorplan", floorplan.id, AuditAction.UPDATE,
         project_id=project_id,
         old_values=old_values,
         new_values=update_data
     )
-
     await db.commit()
     await db.refresh(floorplan, ["file", "created_by"])
     return floorplan
-
 
 @router.delete("/projects/{project_id}/floorplans/{floorplan_id}")
 async def delete_floorplan(
@@ -208,7 +216,6 @@ async def delete_floorplan(
         )
     )
     floorplan = result.scalar_one_or_none()
-
     if not floorplan:
         language = get_language_from_request(request)
         error_message = translate_message('resources.floorplan_not_found', language)
@@ -219,7 +226,75 @@ async def delete_floorplan(
         project_id=project_id,
         old_values=get_model_dict(floorplan)
     )
-
     await db.delete(floorplan)
     await db.commit()
     return {"message": "Floorplan deleted"}
+
+@router.get(
+    "/projects/{project_id}/floorplans/{floorplan_id}/pins",
+    response_model=list[FloorplanPinResponse]
+)
+async def list_floorplan_pins(
+    project_id: UUID,
+    floorplan_id: UUID,
+    entity_type: Optional[str] = Query(None),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    request: Request = None,
+):
+    await verify_project_access(project_id, current_user, db)
+    await verify_floorplan_exists(db, floorplan_id, project_id, request)
+
+    query = (
+        select(FloorplanPin)
+        .where(FloorplanPin.floorplan_id == floorplan_id)
+        .options(*FLOORPLAN_PIN_LOAD_OPTIONS)
+    )
+    if entity_type:
+        query = query.where(FloorplanPin.entity_type == entity_type)
+
+    query = query.order_by(FloorplanPin.created_at.desc())
+    result = await db.execute(query)
+    return result.scalars().all()
+
+@router.post(
+    "/projects/{project_id}/floorplans/{floorplan_id}/pins",
+    response_model=FloorplanPinResponse,
+    status_code=201
+)
+async def create_floorplan_pin(
+    project_id: UUID,
+    floorplan_id: UUID,
+    pin_data: FloorplanPinCreate,
+    member: ProjectMember = require_permission(Permission.CREATE),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    request: Request = None,
+):
+    await verify_floorplan_exists(db, floorplan_id, project_id, request)
+
+    pin = FloorplanPin(
+        floorplan_id=floorplan_id,
+        entity_type=pin_data.entity_type,
+        entity_id=pin_data.entity_id,
+        x_position=pin_data.x_position,
+        y_position=pin_data.y_position,
+        created_by_id=current_user.id,
+    )
+
+    db.add(pin)
+    await db.flush()
+
+    await create_audit_log(
+        db, current_user, "floorplan_pin", pin.id, AuditAction.CREATE,
+        project_id=project_id,
+        new_values={
+            "floorplan_id": str(floorplan_id),
+            "entity_type": pin_data.entity_type,
+            "entity_id": str(pin_data.entity_id)
+        }
+    )
+
+    await db.commit()
+    await db.refresh(pin, ["created_by"])
+    return pin
