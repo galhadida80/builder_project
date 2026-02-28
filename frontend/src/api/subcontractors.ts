@@ -86,6 +86,124 @@ export interface SubcontractorDashboardResponse {
   upcomingDeadlines: number
 }
 
+// Portal-specific interfaces matching backend schemas
+
+export interface PortalProjectSummary {
+  id: string
+  name: string
+  status: string
+  address?: string
+  startDate?: string
+  estimatedEndDate?: string
+  daysRemaining?: number
+  assignedTasksCount: number
+  pendingRfisCount: number
+  pendingApprovalsCount: number
+}
+
+export interface PortalTaskItem {
+  id: string
+  projectId: string
+  projectName: string
+  taskNumber: number
+  title: string
+  description?: string
+  status: string
+  priority: string
+  dueDate?: string
+  startDate?: string
+  estimatedHours?: number
+  isOverdue: boolean
+  createdAt: string
+}
+
+export interface PortalRFIItem {
+  id: string
+  projectId: string
+  projectName: string
+  rfiNumber: string
+  subject: string
+  question: string
+  category: string
+  priority: string
+  status: string
+  dueDate?: string
+  isOverdue: boolean
+  responseCount: number
+  createdAt: string
+  sentAt?: string
+}
+
+export interface PortalApprovalItem {
+  id: string
+  projectId: string
+  projectName: string
+  entityType: string
+  entityId: string
+  entityDescription?: string
+  currentStatus: string
+  stepOrder: number
+  createdAt: string
+  daysPending: number
+}
+
+export interface PortalDocumentItem {
+  id: string
+  projectId: string
+  projectName: string
+  filename: string
+  fileType?: string
+  fileSize?: number
+  storagePath: string
+  entityType: string
+  entityId: string
+  uploadedAt: string
+  uploadedByName?: string
+}
+
+export interface PortalActivityItem {
+  id: string
+  projectId: string
+  projectName: string
+  activityType: string
+  entityType: string
+  entityId: string
+  title: string
+  description?: string
+  actionRequired: boolean
+  priority?: string
+  createdAt: string
+  createdByName?: string
+}
+
+export interface PortalStats {
+  totalProjects: number
+  activeProjects: number
+  totalTasks: number
+  overdueTasks: number
+  tasksByStatus: Record<string, number>
+  totalRfis: number
+  pendingRfis: number
+  overdueRfis: number
+  totalApprovals: number
+  pendingApprovals: number
+  recentDocuments: number
+}
+
+export interface PortalDashboardResponse {
+  subcontractorId: string
+  companyName: string
+  trade: string
+  stats: PortalStats
+  projects: PortalProjectSummary[]
+  pendingTasks: PortalTaskItem[]
+  pendingRfis: PortalRFIItem[]
+  pendingApprovals: PortalApprovalItem[]
+  recentActivity: PortalActivityItem[]
+  recentDocuments: PortalDocumentItem[]
+  lastUpdated: string
+}
+
 export const subcontractorsApi = {
   list: async (projectId: string, trade?: string, verifiedOnly?: boolean): Promise<SubcontractorProfile[]> => {
     const response = await apiClient.get<SubcontractorProfile[]>(
