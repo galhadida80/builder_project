@@ -1,11 +1,16 @@
+import json
+import time
 from collections import defaultdict, deque
 from datetime import datetime, timedelta
 from uuid import UUID
 
+from google import genai
+from google.genai import types
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from app.config import get_settings
 from app.models.task import Task, TaskDependency
 
 
@@ -377,4 +382,227 @@ async def calculate_confidence_score(db: AsyncSession, project_id: UUID) -> dict
         "total_tasks": total_tasks,
         "completed_tasks": completed_tasks,
         "tasks_with_estimates": tasks_with_estimates,
+    }
+
+
+MITIGATION_PROMPT = """You are a construction project schedule risk management expert. Analyze the provided schedule risk data and generate actionable mitigation strategies.
+
+## Risk Data Provided:
+{risk_data}
+
+## Your Task:
+Generate concrete, actionable mitigation strategies to reduce schedule risks. For each suggestion:
+1. **strategy**: Clear, specific action to take (2-3 sentences)
+2. **priority**: high, medium, or low (based on impact and urgency)
+3. **impact**: Expected impact on schedule risk (e.g., "Reduces critical path by 5-10 days", "Improves confidence score by 20%")
+4. **effort**: low, medium, or high (implementation effort required)
+5. **target_tasks**: List of task titles this suggestion applies to (if specific), or ["general"] if project-wide
+6. **risk_category**: One of: critical_path, resource_allocation, estimation_accuracy, dependency_management, milestone_risk
+
+## Guidelines:
+- Prioritize suggestions that address critical path tasks
+- Consider historical variance patterns (high variance = focus on estimation improvement)
+- If confidence score is low, suggest strategies to improve data collection
+- If specific assignees show high variance, suggest mentoring or workload balancing
+- For milestone tasks with delays, suggest buffer time or early-start strategies
+- Maximum 8 suggestions, focus on highest impact items
+- Be specific: instead of "improve planning", say "add 20% buffer to critical path tasks with assignees showing >1.3 delay factor"
+
+## Output Format:
+Return ONLY a valid JSON array. Each element must have exactly these keys:
+[{{
+  "strategy": "...",
+  "priority": "high|medium|low",
+  "impact": "...",
+  "effort": "low|medium|high",
+  "target_tasks": ["task1", "task2"] or ["general"],
+  "risk_category": "critical_path|resource_allocation|estimation_accuracy|dependency_management|milestone_risk"
+}}, ...]
+
+Respond in {language} language for all text fields (strategy, impact)."""
+
+
+def validate_mitigation_item(item: dict) -> dict:
+    """Validate and normalize a mitigation suggestion item."""
+    if not isinstance(item, dict):
+        return {
+            "strategy": "",
+            "priority": "medium",
+            "impact": "",
+            "effort": "medium",
+            "target_tasks": ["general"],
+            "risk_category": "critical_path",
+        }
+
+    valid_priorities = ("high", "medium", "low")
+    valid_efforts = ("low", "medium", "high")
+    valid_categories = (
+        "critical_path",
+        "resource_allocation",
+        "estimation_accuracy",
+        "dependency_management",
+        "milestone_risk",
+    )
+
+    priority = item.get("priority", "medium")
+    if priority not in valid_priorities:
+        priority = "medium"
+
+    effort = item.get("effort", "medium")
+    if effort not in valid_efforts:
+        effort = "medium"
+
+    risk_category = item.get("risk_category", "critical_path")
+    if risk_category not in valid_categories:
+        risk_category = "critical_path"
+
+    target_tasks = item.get("target_tasks", ["general"])
+    if not isinstance(target_tasks, list):
+        target_tasks = ["general"]
+
+    return {
+        "strategy": item.get("strategy", ""),
+        "priority": priority,
+        "impact": item.get("impact", ""),
+        "effort": effort,
+        "target_tasks": target_tasks,
+        "risk_category": risk_category,
+    }
+
+
+def parse_mitigation_response(text: str) -> list[dict]:
+    """Parse and validate AI response for mitigation suggestions."""
+    # Remove markdown code blocks if present
+    if text.startswith("```"):
+        text = text.split("\n", 1)[1] if "\n" in text else text[3:]
+        if text.endswith("```"):
+            text = text[:-3].strip()
+
+    try:
+        parsed = json.loads(text)
+    except json.JSONDecodeError:
+        return [{
+            "strategy": "Unable to generate mitigation suggestions",
+            "priority": "medium",
+            "impact": "N/A",
+            "effort": "medium",
+            "target_tasks": ["general"],
+            "risk_category": "critical_path",
+        }]
+
+    # Ensure it's a list
+    if isinstance(parsed, dict):
+        parsed = [parsed]
+    if not isinstance(parsed, list):
+        return [{
+            "strategy": "Invalid response format",
+            "priority": "medium",
+            "impact": "N/A",
+            "effort": "medium",
+            "target_tasks": ["general"],
+            "risk_category": "critical_path",
+        }]
+
+    # Validate and limit to 8 suggestions
+    validated = [validate_mitigation_item(item) for item in parsed[:8]]
+
+    # Filter out empty strategies
+    validated = [item for item in validated if item["strategy"]]
+
+    return validated if validated else [{
+        "strategy": "No specific mitigation suggestions generated",
+        "priority": "medium",
+        "impact": "N/A",
+        "effort": "medium",
+        "target_tasks": ["general"],
+        "risk_category": "critical_path",
+    }]
+
+
+def generate_mitigation_suggestions(
+    critical_path: dict,
+    variance_data: dict,
+    confidence_data: dict,
+    language: str = "en",
+) -> dict:
+    """
+    Generate AI-powered mitigation suggestions for schedule risks.
+
+    Args:
+        critical_path: Result from calculate_critical_path
+        variance_data: Result from calculate_historical_variance
+        confidence_data: Result from calculate_confidence_score
+        language: Language for suggestions ("en" or "he")
+
+    Returns:
+        dict with:
+        - suggestions: list of mitigation strategy dicts
+        - processing_time_ms: int processing time
+        - model_used: str model name
+    """
+    settings = get_settings()
+    api_key = settings.gemini_api_key
+    if not api_key:
+        raise ValueError("GEMINI_API_KEY is not configured")
+
+    # Format risk data for AI analysis
+    risk_summary = {
+        "critical_path_duration": critical_path.get("total_duration", 0),
+        "critical_tasks_count": len(critical_path.get("critical_tasks", [])),
+        "critical_tasks": [
+            {
+                "title": task["task_title"],
+                "duration_days": task["duration_days"],
+                "slack_days": task["slack_days"],
+            }
+            for task in critical_path.get("critical_tasks", [])[:10]  # Limit to top 10
+        ],
+        "average_delay_factor": variance_data.get("average_delay_factor", 1.0),
+        "variance_by_priority": variance_data.get("variance_by_priority", {}),
+        "variance_by_milestone": variance_data.get("variance_by_milestone", {}),
+        "confidence_score": confidence_data.get("confidence_score", 0.0),
+        "sample_size_score": confidence_data.get("sample_size_score", 0.0),
+        "consistency_score": confidence_data.get("consistency_score", 0.0),
+        "completeness_score": confidence_data.get("completeness_score", 0.0),
+        "total_tasks": confidence_data.get("total_tasks", 0),
+        "completed_tasks": confidence_data.get("completed_tasks", 0),
+    }
+
+    lang_name = {"en": "English", "he": "Hebrew"}.get(language, "English")
+    prompt = MITIGATION_PROMPT.format(
+        risk_data=json.dumps(risk_summary, indent=2, default=str),
+        language=lang_name,
+    )
+
+    client = genai.Client(api_key=api_key)
+    model_name = settings.gemini_model
+
+    contents = [
+        prompt + "\n\nRespond ONLY with valid JSON, no markdown formatting.",
+    ]
+
+    start = time.time()
+    response = client.models.generate_content(model=model_name, contents=contents)
+    elapsed_ms = int((time.time() - start) * 1000)
+
+    if not response.text:
+        return {
+            "suggestions": [{
+                "strategy": "Unable to generate suggestions - empty response",
+                "priority": "medium",
+                "impact": "N/A",
+                "effort": "medium",
+                "target_tasks": ["general"],
+                "risk_category": "critical_path",
+            }],
+            "processing_time_ms": elapsed_ms,
+            "model_used": model_name,
+        }
+
+    suggestions = parse_mitigation_response(response.text.strip())
+
+    return {
+        "suggestions": suggestions,
+        "processing_time_ms": elapsed_ms,
+        "model_used": model_name,
     }
