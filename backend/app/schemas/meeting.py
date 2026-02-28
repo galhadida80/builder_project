@@ -146,6 +146,7 @@ class MeetingUpdate(BaseModel):
     summary: Optional[str] = Field(default=None, max_length=MAX_NOTES_LENGTH)
     action_items: Optional[list[ActionItem]] = Field(default=None, max_length=50)
     status: Literal["scheduled", "invitations_sent", "pending_votes", "completed", "cancelled"] | None = None
+    attendee_ids: Optional[list[str]] = Field(default=None)
 
     @field_validator('scheduled_date', mode='before')
     @classmethod

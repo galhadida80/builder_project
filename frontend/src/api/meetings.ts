@@ -31,6 +31,7 @@ interface MeetingUpdate {
   summary?: string
   action_items?: Array<{ id: string; description: string; assignee_id?: string; due_date?: string; is_completed: boolean }>
   status?: string
+  attendee_ids?: string[]
 }
 
 interface AttendeeCreate {

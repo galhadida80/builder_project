@@ -306,6 +306,13 @@ export default function MeetingsPage() {
       meetingFormat: (meeting.meetingFormat || '') as '' | 'in_person' | 'online' | 'hybrid',
       onlineLink: meeting.onlineLink || '',
     })
+    if (meeting.attendees?.length) {
+      setSelectedAttendees(meeting.attendees.map((a: any) => ({
+        id: a.userId,
+        name: a.user?.fullName || a.user?.email || '',
+        email: a.user?.email,
+      })))
+    }
     setErrors({})
     setDialogOpen(true)
     setDetailsOpen(false)
@@ -358,6 +365,7 @@ export default function MeetingsPage() {
           scheduled_date,
           meeting_format: formData.meetingFormat || undefined,
           online_link: formData.onlineLink || undefined,
+          attendee_ids: selectedAttendees.map(a => a.id),
         }))
         showSuccess(t('meetings.updatedSuccessfully'))
       } else {
@@ -1529,9 +1537,8 @@ export default function MeetingsPage() {
             </Box>
           )}
 
-          {/* Attendee Picker (create mode only) */}
-          {!editingMeeting && (
-            <Autocomplete
+          {/* Attendee Picker */}
+          <Autocomplete
               multiple
               options={teamMembers}
               getOptionLabel={(opt) => opt.name}
@@ -1576,7 +1583,6 @@ export default function MeetingsPage() {
                 />
               )}
             />
-          )}
         </Box>
       </FormModal>
 

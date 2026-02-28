@@ -387,8 +387,19 @@ async def update_meeting(
         raise HTTPException(status_code=404, detail=error_message)
 
     old_values = get_model_dict(meeting)
-    for key, value in data.model_dump(exclude_unset=True).items():
+    update_data = data.model_dump(exclude_unset=True, exclude={"attendee_ids"})
+    for key, value in update_data.items():
         setattr(meeting, key, value)
+
+    if data.attendee_ids is not None:
+        existing = await db.execute(
+            select(MeetingAttendee).where(MeetingAttendee.meeting_id == meeting_id)
+        )
+        for att in existing.scalars().all():
+            await db.delete(att)
+        for uid in data.attendee_ids:
+            attendee = MeetingAttendee(meeting_id=meeting_id, user_id=UUID(uid))
+            db.add(attendee)
 
     await create_audit_log(db, current_user, "meeting", meeting.id, AuditAction.UPDATE,
                           project_id=project_id, old_values=old_values, new_values=get_model_dict(meeting))

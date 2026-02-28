@@ -89,12 +89,13 @@ export default function TimeTrackingPage() {
         subtitle={t('timeTracking.subtitle', { defaultValue: 'Track work hours, manage timesheets, and monitor labor costs' })}
       />
 
-      <Tabs
-        value={activeTab}
-        onChange={setActiveTab}
-        items={tabs}
-        sx={{ mb: 3 }}
-      />
+      <Box sx={{ mb: 3 }}>
+        <Tabs
+          value={activeTab}
+          onChange={setActiveTab}
+          items={tabs}
+        />
+      </Box>
 
       {activeTab === 'clock' && (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
@@ -105,7 +106,7 @@ export default function TimeTrackingPage() {
             <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
               {t('timeTracking.clockDescription', { defaultValue: 'Record your work hours with GPS location tracking' })}
             </Typography>
-            <ClockInButton projectId={projectId!} onClockAction={handleClockAction} />
+            <ClockInButton />
           </Card>
 
           {activeEntry && (
@@ -183,19 +184,19 @@ export default function TimeTrackingPage() {
 
       {activeTab === 'attendance' && (
         <Card sx={{ p: 3 }}>
-          <AttendanceReport projectId={projectId!} />
+          <AttendanceReport />
         </Card>
       )}
 
       {activeTab === 'timesheets' && (
         <Card sx={{ p: 3 }}>
-          <TimesheetApproval projectId={projectId!} onUpdate={loadData} />
+          <TimesheetApproval />
         </Card>
       )}
 
       {activeTab === 'laborCosts' && (
         <Card sx={{ p: 3 }}>
-          <LaborCostReport projectId={projectId!} />
+          <LaborCostReport />
         </Card>
       )}
     </Box>
