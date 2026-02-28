@@ -38,6 +38,12 @@ class GenerateWeeklyReportRequest(BaseModel):
     language: str = "he"
 
 
+class GenerateInspectionSummaryRequest(BaseModel):
+    date_from: date
+    date_to: date
+    language: str = "he"
+
+
 @router.get("/projects/{project_id}/reports/inspection-summary")
 async def get_inspection_summary(
     project_id: UUID,
@@ -48,6 +54,19 @@ async def get_inspection_summary(
 ):
     await verify_project_access(project_id, current_user, db)
     return await generate_inspection_summary(db, project_id, date_from, date_to)
+
+
+@router.post("/projects/{project_id}/reports/generate-inspection-summary")
+async def generate_inspection_summary_report(
+    project_id: UUID,
+    request: GenerateInspectionSummaryRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    await verify_project_access(project_id, current_user, db)
+    date_from_dt = datetime.combine(request.date_from, datetime.min.time())
+    date_to_dt = datetime.combine(request.date_to, datetime.max.time())
+    return await generate_inspection_summary(db, project_id, date_from_dt, date_to_dt)
 
 
 @router.get("/projects/{project_id}/reports/approval-status")
