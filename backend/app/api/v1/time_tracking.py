@@ -10,11 +10,12 @@ from sqlalchemy.orm import selectinload
 from app.core.permissions import Permission, require_permission
 from app.core.security import get_current_user, verify_project_access
 from app.db.session import get_db
+from app.models.budget import BudgetLineItem
 from app.models.time_entry import TimeEntry
 from app.models.timesheet import Timesheet
 from app.models.user import User
 from app.schemas.time_entry import TimeEntryCreate, TimeEntryResponse
-from app.schemas.timesheet import TimesheetCreate, TimesheetResponse
+from app.schemas.timesheet import TimesheetCreate, TimesheetLinkBudgetRequest, TimesheetResponse
 from app.services.time_tracking_service import (
     clock_in,
     clock_out,
@@ -279,4 +280,51 @@ async def reject_timesheet_endpoint(
         raise HTTPException(status_code=400, detail=str(e))
 
     await db.refresh(timesheet, ["user", "approved_by"])
+    return timesheet
+
+
+@router.post("/projects/{project_id}/timesheets/{timesheet_id}/link-budget", response_model=TimesheetResponse)
+async def link_timesheet_to_budget(
+    project_id: UUID,
+    timesheet_id: UUID,
+    data: TimesheetLinkBudgetRequest,
+    member=require_permission(Permission.EDIT),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Link an approved timesheet to a budget line item (requires EDIT permission)."""
+    # Verify timesheet belongs to project
+    result = await db.execute(
+        select(Timesheet).where(
+            Timesheet.id == timesheet_id,
+            Timesheet.project_id == project_id,
+        )
+    )
+    timesheet = result.scalar_one_or_none()
+    if not timesheet:
+        raise HTTPException(status_code=404, detail="Timesheet not found")
+
+    # Verify timesheet is approved
+    if timesheet.status != "approved":
+        raise HTTPException(
+            status_code=400,
+            detail="Only approved timesheets can be linked to budget items"
+        )
+
+    # Verify budget item exists and belongs to the same project
+    budget_result = await db.execute(
+        select(BudgetLineItem).where(
+            BudgetLineItem.id == data.budget_item_id,
+            BudgetLineItem.project_id == project_id,
+        )
+    )
+    budget_item = budget_result.scalar_one_or_none()
+    if not budget_item:
+        raise HTTPException(status_code=404, detail="Budget item not found in this project")
+
+    # Update timesheet with budget link
+    timesheet.budget_item_id = data.budget_item_id
+    await db.commit()
+    await db.refresh(timesheet, ["user", "approved_by", "budget_item"])
+
     return timesheet

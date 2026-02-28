@@ -33,6 +33,10 @@ class TimesheetUpdate(BaseModel):
     overtime_hours: Optional[float] = None
 
 
+class TimesheetLinkBudgetRequest(BaseModel):
+    budget_item_id: UUID
+
+
 class TimesheetResponse(CamelCaseModel):
     id: UUID
     user_id: UUID
@@ -43,6 +47,7 @@ class TimesheetResponse(CamelCaseModel):
     regular_hours: Optional[float] = None
     overtime_hours: Optional[float] = None
     status: str
+    budget_item_id: Optional[UUID] = None
     approved_by_id: Optional[UUID] = None
     approved_at: Optional[datetime] = None
     created_at: datetime
