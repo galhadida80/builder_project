@@ -250,13 +250,17 @@ export default function AuditLogPage() {
 
   if (loading) {
     return (
-      <Box sx={{ maxWidth: { xs: '100%', md: 1100 }, mx: 'auto', p: { xs: 2, sm: 3 } }}>
-        <Skeleton variant="rounded" height={48} sx={{ borderRadius: 2, mb: 2 }} />
-        <Skeleton variant="rounded" height={44} sx={{ borderRadius: 2, mb: 2 }} />
-        <Skeleton variant="rounded" height={36} sx={{ borderRadius: 2, mb: 3 }} />
-        {[...Array(4)].map((_, i) => (
-          <Skeleton key={i} variant="rounded" height={90} sx={{ borderRadius: 3, mb: 1.5 }} />
-        ))}
+      <Box sx={{ maxWidth: { xs: '100%', md: 1100 }, mx: 'auto', pb: 10 }}>
+        <Box sx={{ px: { xs: 2, sm: 3 }, pt: 2, pb: 1.5 }}>
+          <Skeleton variant="rounded" height={48} sx={{ borderRadius: 2, mb: 2 }} />
+          <Skeleton variant="rounded" height={44} sx={{ borderRadius: 2, mb: 2 }} />
+          <Skeleton variant="rounded" height={36} sx={{ borderRadius: 2, mb: 3 }} />
+        </Box>
+        <Box sx={{ px: { xs: 2, sm: 3 }, pt: 1 }}>
+          {[...Array(4)].map((_, i) => (
+            <Skeleton key={i} variant="rounded" height={90} sx={{ borderRadius: 3, mb: 1.5 }} />
+          ))}
+        </Box>
       </Box>
     )
   }

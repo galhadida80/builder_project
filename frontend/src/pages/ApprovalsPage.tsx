@@ -130,7 +130,7 @@ export default function ApprovalsPage() {
       <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
         <Skeleton variant="text" width={200} height={48} sx={{ mb: 1 }} />
         <Skeleton variant="text" width={300} height={24} sx={{ mb: 3 }} />
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', md: 'repeat(4, 1fr)' }, gap: 1.5, mb: 3, overflow: 'hidden' }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: { xs: 1.5, sm: 2 }, mb: 3 }}>
           {[...Array(4)].map((_, i) => (
             <Skeleton key={i} variant="rounded" height={80} sx={{ borderRadius: 2 }} />
           ))}

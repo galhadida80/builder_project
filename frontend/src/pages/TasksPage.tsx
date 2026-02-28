@@ -268,7 +268,7 @@ export default function TasksPage() {
       </Box>
 
       {/* Combined KPI Row */}
-      <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1, mb: 2.5 }}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 2, mb: 4 }}>
         <KpiBox label={t('tasks.total')} value={summary?.total ?? 0} />
         <KpiBox label={t('tasks.today')} value={todayCount} color="primary.main" />
         <KpiBox label={t('approvals.pending')} value={pendingApprovals.length} color="warning.main" />

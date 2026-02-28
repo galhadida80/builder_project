@@ -178,16 +178,47 @@ export default function DashboardPage() {
     return (
       <Box sx={{ p: { xs: 2, sm: 2, md: 3 } }}>
         <Skeleton variant="text" width={200} height={32} sx={{ mb: 1 }} />
-        <Skeleton variant="text" width={300} height={20} sx={{ mb: 3 }} />
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 2, mb: 3 }}>
-          {[...Array(4)].map((_, i) => (
+        <Skeleton variant="text" width={300} height={20} sx={{ mb: { xs: 2, md: 2.5 } }} />
+
+        {/* KPI Grid - 2 columns */}
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: { xs: 1.5, md: 2 }, mb: { xs: 2, md: 2.5 } }}>
+          {[...Array(2)].map((_, i) => (
             <Skeleton key={i} variant="rounded" height={100} sx={{ borderRadius: 3 }} />
           ))}
         </Box>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+
+        {/* Activity Feed */}
+        <Box sx={{ mb: { xs: 2.5, md: 3 } }}>
+          <Skeleton variant="text" width={150} height={24} sx={{ mb: 2 }} />
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+            {[...Array(3)].map((_, i) => (
+              <Skeleton key={i} variant="rounded" height={72} sx={{ borderRadius: 2 }} />
+            ))}
+          </Box>
+        </Box>
+
+        {/* Charts Grid - responsive: 1 col on xs, 2 cols on lg */}
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '3fr 2fr' }, gap: { xs: 2, md: 2 }, mb: { xs: 2.5, md: 3 } }}>
+          <Skeleton variant="rounded" height={220} sx={{ borderRadius: 3 }} />
+          <Skeleton variant="rounded" height={220} sx={{ borderRadius: 3 }} />
+        </Box>
+
+        {/* Distribution Charts - responsive: 1 col on xs, 2 on sm, 3 on md */}
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: { xs: 1.5, md: 2 }, mb: { xs: 2.5, md: 3 } }}>
           {[...Array(3)].map((_, i) => (
-            <Skeleton key={i} variant="rounded" height={80} sx={{ borderRadius: 2 }} />
+            <Skeleton key={i} variant="rounded" height={200} sx={{ borderRadius: 3 }} />
           ))}
+        </Box>
+
+        {/* Bottom Grids - responsive: 1 col on xs, 2 on md */}
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' }, gap: { xs: 1.5, md: 2 }, mb: { xs: 2.5, md: 3 } }}>
+          <Skeleton variant="rounded" height={200} sx={{ borderRadius: 3 }} />
+          <Skeleton variant="rounded" height={200} sx={{ borderRadius: 3 }} />
+        </Box>
+
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' }, gap: { xs: 1.5, md: 2 } }}>
+          <Skeleton variant="rounded" height={150} sx={{ borderRadius: 3 }} />
+          <Skeleton variant="rounded" height={150} sx={{ borderRadius: 3 }} />
         </Box>
       </Box>
     )

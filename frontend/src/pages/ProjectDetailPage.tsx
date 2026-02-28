@@ -265,7 +265,7 @@ export default function ProjectDetailPage() {
         <Box sx={{ p: { xs: 1.5, md: 2 } }}>
           <Skeleton variant="text" width={120} height={32} sx={{ mb: 1.5 }} />
           <Skeleton variant="rounded" height={200} sx={{ borderRadius: 3, mb: 2.5 }} />
-          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1.5 }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 1.5 }}>
             {[0, 1, 2, 3].map(i => (
               <Skeleton key={i} variant="rounded" height={90} sx={{ borderRadius: 3 }} />
             ))}

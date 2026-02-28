@@ -28,7 +28,7 @@ import type { KeyValuePair } from '../components/ui/KeyValueEditor'
 import type { Recipient } from '../components/ui/RecipientSelector'
 import { getCategoryConfig, getCategoryFromType } from '../utils/materialCategory'
 import { AddIcon, VisibilityIcon, EditIcon, DeleteIcon } from '@/icons'
-import { Box, Typography, IconButton, TablePagination, useMediaQuery, useTheme } from '@/mui'
+import { Box, Typography, IconButton, TablePagination, useMediaQuery, useTheme, Skeleton } from '@/mui'
 
 export default function MaterialsPage() {
   const { projectId } = useParams()
@@ -206,6 +206,40 @@ export default function MaterialsPage() {
       </Box>
     )},
   ]
+
+  if (loading && materials.length === 0) {
+    return (
+      <Box sx={{ p: { xs: 1, sm: 1.5, md: 3 } }}>
+        <Skeleton variant="text" width={200} height={48} sx={{ mb: 1 }} />
+        <Skeleton variant="text" width={300} height={24} sx={{ mb: 3 }} />
+
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            bgcolor: 'background.paper',
+            border: '1px solid',
+            borderColor: 'divider',
+            borderRadius: 3,
+            overflow: 'hidden',
+            mb: 2,
+          }}
+        >
+          {[...Array(3)].map((_, i) => (
+            <Box key={i} sx={{ display: 'contents' }}>
+              {i > 0 && <Box sx={{ width: '1px', bgcolor: 'divider', alignSelf: 'stretch' }} />}
+              <Box sx={{ flex: 1, py: 1.5, px: 2, textAlign: 'center' }}>
+                <Skeleton variant="text" width={60} height={16} sx={{ mx: 'auto', mb: 0.5 }} />
+                <Skeleton variant="text" width={40} height={28} sx={{ mx: 'auto' }} />
+              </Box>
+            </Box>
+          ))}
+        </Box>
+
+        <Skeleton variant="rounded" height={500} sx={{ borderRadius: 3 }} />
+      </Box>
+    )
+  }
 
   return (
     <Box sx={{ p: { xs: 1, sm: 1.5, md: 3 }, maxWidth: '100%', overflow: 'hidden' }}>

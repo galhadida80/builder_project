@@ -149,9 +149,20 @@ export default function ContactsPage() {
 
   if (loading) {
     return (
-      <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
+      <Box sx={{ p: { xs: 1, sm: 1.5, md: 3 }, maxWidth: '100%', overflow: 'hidden' }}>
         <Skeleton variant="text" width={200} height={48} sx={{ mb: 1 }} />
-        <Skeleton variant="text" width={300} height={24} sx={{ mb: 4 }} />
+        <Skeleton variant="text" width={300} height={24} sx={{ mb: 3 }} />
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, gap: 1.5, mb: 3 }}>
+          {[...Array(3)].map((_, i) => (
+            <Card key={i}>
+              <Box sx={{ p: 2 }}>
+                <Skeleton variant="text" width={100} />
+                <Skeleton variant="text" width={60} height={32} />
+              </Box>
+            </Card>
+          ))}
+        </Box>
+        <Skeleton variant="rectangular" height={48} sx={{ mb: 2 }} />
         {[...Array(4)].map((_, i) => (
           <Box key={i} sx={{ display: 'flex', gap: 2, p: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
             <Skeleton variant="circular" width={48} height={48} />
