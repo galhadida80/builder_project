@@ -7,7 +7,7 @@ from uuid import UUID
 from pydantic import BaseModel
 
 from app.core.validators import CamelCaseModel
-from app.models.export_job import ExportFormat, ExportStatus, ExportType
+from app.models.export_job import ExportFormat, ExportType
 from app.schemas.user import UserResponse
 
 

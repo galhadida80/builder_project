@@ -26,7 +26,6 @@ from app.services.time_tracking_service import (
     clock_in,
     clock_out,
     get_active_time_entry,
-    get_time_entries_for_period,
 )
 from app.services.timesheet_service import (
     approve_timesheet,

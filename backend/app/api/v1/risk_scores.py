@@ -25,7 +25,6 @@ from app.schemas.risk_score import (
     RiskScoreUpdate,
     RiskThresholdCreate,
     RiskThresholdResponse,
-    RiskThresholdUpdate,
 )
 from app.services.audit_service import create_audit_log, get_model_dict
 from app.services.notification_service import create_notification

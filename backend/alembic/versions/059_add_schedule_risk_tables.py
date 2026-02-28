@@ -1,15 +1,15 @@
 """Add schedule risk analysis tables
 
-Revision ID: 054
-Revises: 053
+Revision ID: 059
+Revises: 058
 Create Date: 2026-02-28
 """
 from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
-revision = "054"
-down_revision = "053"
+revision = "059"
+down_revision = "058"
 branch_labels = None
 depends_on = None
 

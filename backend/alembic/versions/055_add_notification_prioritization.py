@@ -1,15 +1,15 @@
 """Add notification prioritization models
 
-Revision ID: 052
-Revises: 051
+Revision ID: 055
+Revises: 054
 Create Date: 2026-02-28
 """
 from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
-revision = "052"
-down_revision = "051"
+revision = "055"
+down_revision = "054"
 branch_labels = None
 depends_on = None
 

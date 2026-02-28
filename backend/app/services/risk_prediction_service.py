@@ -5,7 +5,6 @@ from decimal import Decimal
 from uuid import UUID
 
 from google import genai
-from google.genai import types
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 

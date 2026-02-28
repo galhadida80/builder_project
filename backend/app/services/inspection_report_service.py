@@ -12,17 +12,14 @@ from app.models.approval import ApprovalRequest
 from app.models.equipment import Equipment
 from app.models.inspection import Inspection
 from app.models.material import Material
-from app.models.meeting import Meeting
 from app.models.rfi import RFI
 from app.services.ai_report_generator import (
     generate_inspection_summary_narrative,
     generate_weekly_progress_narrative,
 )
 from app.services.chart_service import (
-    generate_approval_trend_chart,
     generate_inspection_chart,
     generate_progress_chart,
-    generate_rfi_aging_chart,
 )
 from app.utils import utcnow
 

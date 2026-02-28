@@ -11,7 +11,6 @@ from app.models.inspection import Inspection, Finding
 from app.models.material_template import MaterialApprovalSubmission
 from app.models.rfi import RFI
 from app.models.time_entry import TimeEntry
-from app.models.user import User
 from app.utils import utcnow
 
 

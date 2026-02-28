@@ -22,6 +22,7 @@ from app.models.inspection import Inspection
 from app.models.risk_score import RiskScore, RiskLevel
 from app.models.inspection_template import InspectionConsultantType
 from app.models.user import User
+from app.models.equipment_template import ConsultantType
 from app.services.risk_prediction_service import (
     calculate_area_risk_score,
     predict_defect_patterns,
@@ -213,7 +214,7 @@ class TestRiskModelAccuracyImprovement:
                 area_id=test_areas[defect_data["area"]].id,
                 severity=defect_data["severity"],
                 category=defect_data["category"],
-                description=f"Baseline defect",
+                description="Baseline defect",
                 status="open",
                 created_by_id=test_project.created_by_id,
                 created_at=datetime.utcnow() - timedelta(days=defect_data["days_ago"]),
@@ -515,15 +516,15 @@ class TestRiskModelAccuracyImprovement:
         """Generate human-readable accuracy improvement report"""
         report = [
             "\n=== Risk Model Accuracy Improvement Report ===\n",
-            f"Baseline Analysis:",
+            "Baseline Analysis:",
             f"  - Areas analyzed: {len(baseline)}",
             f"  - Avg predictions per area: {metrics.get('baseline_avg_predictions', 0):.2f}",
             f"  - Avg confidence: {metrics.get('baseline_avg_confidence', 0):.2%}",
-            f"\nImproved Analysis (with more data):",
+            "\nImproved Analysis (with more data):",
             f"  - Areas analyzed: {len(improved)}",
             f"  - Avg predictions per area: {metrics.get('improved_avg_predictions', 0):.2f}",
             f"  - Avg confidence: {metrics.get('improved_avg_confidence', 0):.2%}",
-            f"\nImprovement Metrics:",
+            "\nImprovement Metrics:",
             f"  - Prediction increase: {metrics.get('prediction_increase', 0):.2f}",
             f"  - Confidence increase: {metrics.get('confidence_increase', 0):.2%}",
             f"  - More predictions: {metrics.get('more_predictions', False)}",

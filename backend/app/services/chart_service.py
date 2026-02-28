@@ -5,7 +5,6 @@ from typing import Any
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
-from matplotlib.patches import Patch
 
 matplotlib.use("Agg")
 

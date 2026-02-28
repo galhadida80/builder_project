@@ -2,9 +2,7 @@ import io
 import csv
 import json
 import zipfile
-from datetime import datetime
-from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID
 
 from sqlalchemy import select
@@ -12,18 +10,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.models.area import ConstructionArea
-from app.models.budget import BudgetLineItem, CostEntry
+from app.models.budget import BudgetLineItem
 from app.models.contact import Contact
 from app.models.defect import Defect
 from app.models.equipment_submission import EquipmentSubmission
 from app.models.file import File
-from app.models.inspection import Finding, Inspection
+from app.models.inspection import Inspection
 from app.models.material_template import MaterialApprovalSubmission
 from app.models.meeting import Meeting
 from app.models.project import Project
 from app.models.rfi import RFI
 from app.models.task import Task
-from app.models.user import User
 from app.utils import utcnow
 
 
@@ -450,7 +447,6 @@ class ExportService:
 
     async def _get_rfis_data(self, project_id: UUID) -> list[dict[str, Any]]:
         """Get all RFIs for a project."""
-        from app.models.rfi import RFIResponse
 
         result = await self.db.execute(
             select(RFI)
@@ -592,7 +588,6 @@ class ExportService:
 
     async def _get_meetings_data(self, project_id: UUID) -> list[dict[str, Any]]:
         """Get all meetings for a project."""
-        from app.models.meeting import MeetingAttendee
 
         result = await self.db.execute(
             select(Meeting)

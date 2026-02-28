@@ -7,13 +7,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.contact import Contact
 from app.models.notification import Notification
-from app.models.notification_interaction import InteractionType, NotificationInteraction
+from app.models.notification_interaction import NotificationInteraction
 from app.models.project import ProjectMember, UserRole
 from app.models.user import User
 from app.services.email_renderer import render_notification_email
 from app.services.email_service import EmailService
 from app.services.notification_priority_service import calculate_notification_urgency
 from app.services.websocket_manager import manager as ws_manager
+from app.services.whatsapp_service import WhatsAppService
 
 logger = logging.getLogger(__name__)
 

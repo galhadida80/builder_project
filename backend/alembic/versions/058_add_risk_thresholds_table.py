@@ -1,15 +1,15 @@
 """Add risk_thresholds table for configurable thresholds
 
-Revision ID: 053
-Revises: 052
+Revision ID: 058
+Revises: 057
 Create Date: 2026-02-28
 """
 from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
-revision = "053"
-down_revision = "052"
+revision = "058"
+down_revision = "057"
 branch_labels = None
 depends_on = None
 

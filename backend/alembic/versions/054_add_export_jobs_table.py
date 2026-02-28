@@ -1,15 +1,15 @@
 """Add export_jobs table for data export tracking
 
-Revision ID: 052
-Revises: 051
+Revision ID: 054
+Revises: 053
 Create Date: 2026-02-28
 """
 from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import UUID
 
-revision = "052"
-down_revision = "051"
+revision = "054"
+down_revision = "053"
 branch_labels = None
 depends_on = None
 

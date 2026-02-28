@@ -1,15 +1,15 @@
 """Add client portal access tables
 
-Revision ID: 052
-Revises: 051
+Revision ID: 057
+Revises: 056
 Create Date: 2026-02-28
 """
 from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
-revision = "052"
-down_revision = "051"
+revision = "057"
+down_revision = "056"
 branch_labels = None
 depends_on = None
 

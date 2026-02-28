@@ -1,15 +1,15 @@
 """Add time tracking tables
 
-Revision ID: 054
-Revises: 053
+Revision ID: 060
+Revises: 059
 Create Date: 2026-02-28
 """
 from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
-revision = "054"
-down_revision = "053"
+revision = "060"
+down_revision = "059"
 branch_labels = None
 depends_on = None
 

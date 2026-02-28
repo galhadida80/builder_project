@@ -1,5 +1,4 @@
 import logging
-from datetime import date
 from decimal import Decimal
 from typing import Dict
 from uuid import UUID
@@ -12,7 +11,6 @@ from app.models.budget import CostEntry
 from app.models.time_entry import TimeEntry
 from app.models.timesheet import Timesheet
 from app.services.overtime_service import calculate_weekly_overtime, calculate_overtime_cost
-from app.utils import utcnow
 
 logger = logging.getLogger(__name__)
 

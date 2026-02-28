@@ -6,7 +6,6 @@ from datetime import date
 from uuid import UUID
 
 from google import genai
-from google.genai import types
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import get_settings
