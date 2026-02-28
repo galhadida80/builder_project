@@ -485,3 +485,219 @@ async def get_project_risk_summary(
         "patterns": overall_risk["patterns"],
         "generated_at": utcnow().isoformat(),
     }
+
+
+async def analyze_defect_trends(
+    db: AsyncSession,
+    project_id: UUID,
+    start_date: datetime | None = None,
+    end_date: datetime | None = None,
+) -> dict:
+    """
+    Analyze defect trends by trade, floor, phase, and season.
+
+    Returns comprehensive trend analysis including:
+    - Trends by category/trade
+    - Trends by floor
+    - Trends by construction phase (time-based)
+    - Seasonal patterns
+    """
+    if not end_date:
+        end_date = utcnow()
+    if not start_date:
+        start_date = end_date - timedelta(days=365)
+
+    query = select(Defect).where(
+        Defect.project_id == project_id,
+        Defect.created_at >= start_date,
+        Defect.created_at <= end_date,
+    ).order_by(Defect.created_at)
+
+    result = await db.execute(query)
+    defects = list(result.scalars().all())
+
+    if not defects:
+        return {
+            "by_trade": [],
+            "by_floor": [],
+            "by_phase": [],
+            "by_season": [],
+            "period_start": start_date.isoformat(),
+            "period_end": end_date.isoformat(),
+            "total_defects": 0,
+        }
+
+    trends_by_trade = _analyze_by_trade(defects)
+    trends_by_floor = await _analyze_by_floor(db, defects)
+    trends_by_phase = _analyze_by_phase(defects, start_date, end_date)
+    trends_by_season = _analyze_by_season(defects)
+
+    return {
+        "by_trade": trends_by_trade,
+        "by_floor": trends_by_floor,
+        "by_phase": trends_by_phase,
+        "by_season": trends_by_season,
+        "period_start": start_date.isoformat(),
+        "period_end": end_date.isoformat(),
+        "total_defects": len(defects),
+    }
+
+
+def _analyze_by_trade(defects: list[Defect]) -> list[dict]:
+    """Analyze defects grouped by trade/category"""
+    trade_data: dict[str, dict] = {}
+
+    for defect in defects:
+        category = defect.category
+        if category not in trade_data:
+            trade_data[category] = {
+                "category": category,
+                "total_count": 0,
+                "severity_breakdown": {"low": 0, "medium": 0, "high": 0, "critical": 0},
+                "avg_resolution_days": [],
+                "trend": "stable",
+            }
+
+        trade_data[category]["total_count"] += 1
+        trade_data[category]["severity_breakdown"][defect.severity] += 1
+
+        if defect.resolved_at and defect.created_at:
+            days = (defect.resolved_at - defect.created_at).total_seconds() / 86400
+            trade_data[category]["avg_resolution_days"].append(days)
+
+    for category_data in trade_data.values():
+        resolution_days = category_data["avg_resolution_days"]
+        if resolution_days:
+            category_data["avg_resolution_days"] = round(
+                sum(resolution_days) / len(resolution_days), 1
+            )
+        else:
+            category_data["avg_resolution_days"] = None
+
+    sorted_trades = sorted(
+        trade_data.values(),
+        key=lambda x: x["total_count"],
+        reverse=True,
+    )
+
+    return sorted_trades
+
+
+async def _analyze_by_floor(db: AsyncSession, defects: list[Defect]) -> list[dict]:
+    """Analyze defects grouped by floor"""
+    area_ids = {d.area_id for d in defects if d.area_id}
+
+    if not area_ids:
+        return []
+
+    areas_query = select(ConstructionArea).where(ConstructionArea.id.in_(area_ids))
+    areas_result = await db.execute(areas_query)
+    areas = {area.id: area for area in areas_result.scalars().all()}
+
+    floor_data: dict[int, dict] = {}
+
+    for defect in defects:
+        if not defect.area_id or defect.area_id not in areas:
+            continue
+
+        area = areas[defect.area_id]
+        floor = area.floor_number
+
+        if floor not in floor_data:
+            floor_data[floor] = {
+                "floor_number": floor,
+                "total_count": 0,
+                "severity_breakdown": {"low": 0, "medium": 0, "high": 0, "critical": 0},
+                "top_categories": {},
+            }
+
+        floor_data[floor]["total_count"] += 1
+        floor_data[floor]["severity_breakdown"][defect.severity] += 1
+
+        category = defect.category
+        floor_data[floor]["top_categories"][category] = (
+            floor_data[floor]["top_categories"].get(category, 0) + 1
+        )
+
+    for floor_info in floor_data.values():
+        top_cats = sorted(
+            floor_info["top_categories"].items(),
+            key=lambda x: x[1],
+            reverse=True,
+        )[:3]
+        floor_info["top_categories"] = [
+            {"category": cat, "count": count} for cat, count in top_cats
+        ]
+
+    sorted_floors = sorted(floor_data.values(), key=lambda x: x["floor_number"])
+    return sorted_floors
+
+
+def _analyze_by_phase(
+    defects: list[Defect],
+    start_date: datetime,
+    end_date: datetime,
+) -> list[dict]:
+    """Analyze defects by construction phase (quarterly periods)"""
+    total_days = (end_date - start_date).days
+    phase_count = min(max(total_days // 90, 1), 8)
+    phase_duration = total_days / phase_count
+
+    phases: list[dict] = []
+    for i in range(phase_count):
+        phase_start = start_date + timedelta(days=phase_duration * i)
+        phase_end = start_date + timedelta(days=phase_duration * (i + 1))
+
+        phase_defects = [
+            d for d in defects
+            if d.created_at and phase_start <= d.created_at < phase_end
+        ]
+
+        severity_breakdown = {"low": 0, "medium": 0, "high": 0, "critical": 0}
+        for defect in phase_defects:
+            severity_breakdown[defect.severity] += 1
+
+        phases.append({
+            "phase_number": i + 1,
+            "start_date": phase_start.isoformat(),
+            "end_date": phase_end.isoformat(),
+            "defect_count": len(phase_defects),
+            "severity_breakdown": severity_breakdown,
+        })
+
+    return phases
+
+
+def _analyze_by_season(defects: list[Defect]) -> list[dict]:
+    """Analyze defects by season"""
+    def get_season(month: int) -> str:
+        if month in (12, 1, 2):
+            return "winter"
+        elif month in (3, 4, 5):
+            return "spring"
+        elif month in (6, 7, 8):
+            return "summer"
+        else:
+            return "fall"
+
+    season_data: dict[str, dict] = {
+        "winter": {"season": "winter", "defect_count": 0, "severity_breakdown": {"low": 0, "medium": 0, "high": 0, "critical": 0}},
+        "spring": {"season": "spring", "defect_count": 0, "severity_breakdown": {"low": 0, "medium": 0, "high": 0, "critical": 0}},
+        "summer": {"season": "summer", "defect_count": 0, "severity_breakdown": {"low": 0, "medium": 0, "high": 0, "critical": 0}},
+        "fall": {"season": "fall", "defect_count": 0, "severity_breakdown": {"low": 0, "medium": 0, "high": 0, "critical": 0}},
+    }
+
+    for defect in defects:
+        if not defect.created_at:
+            continue
+
+        season = get_season(defect.created_at.month)
+        season_data[season]["defect_count"] += 1
+        season_data[season]["severity_breakdown"][defect.severity] += 1
+
+    return [
+        season_data["winter"],
+        season_data["spring"],
+        season_data["summer"],
+        season_data["fall"],
+    ]
