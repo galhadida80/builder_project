@@ -8,6 +8,7 @@ import type {
   RiskThresholdCreate,
   RiskLevel,
   InspectionRiskBriefing,
+  DefectTrendAnalysis,
 } from '../types/riskScore'
 
 export interface RiskScoreListParams {
@@ -61,6 +62,15 @@ export const riskScoresApi = {
 
   getInspectionBriefing: async (inspectionId: string): Promise<InspectionRiskBriefing> => {
     const response = await apiClient.get(`/inspections/${inspectionId}/risk-briefing`)
+    return response.data
+  },
+
+  getTrends: async (projectId: string, startDate?: string, endDate?: string): Promise<DefectTrendAnalysis> => {
+    const qs = new URLSearchParams()
+    if (startDate) qs.set('start_date', startDate)
+    if (endDate) qs.set('end_date', endDate)
+    const query = qs.toString()
+    const response = await apiClient.get(`/projects/${projectId}/risk-trends${query ? `?${query}` : ''}`)
     return response.data
   },
 }

@@ -167,6 +167,9 @@ export interface DefectTrendAnalysis {
   byFloor: DefectTrendByFloor[]
   byPhase: DefectTrendByPhase[]
   bySeason: DefectTrendBySeason[]
+  periodStart: string
+  periodEnd: string
+  totalDefects: number
 }
 
 // High-risk area for pre-inspection briefing

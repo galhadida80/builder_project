@@ -164,3 +164,41 @@ class RiskThresholdResponse(CamelCaseModel):
     created_at: datetime
     updated_at: datetime
     created_by_id: Optional[UUID] = None
+
+
+class DefectTrendByTrade(CamelCaseModel):
+    category: str
+    total_count: int
+    severity_breakdown: dict[str, int]
+    avg_resolution_days: Optional[float] = None
+
+
+class DefectTrendByFloor(CamelCaseModel):
+    floor_number: int
+    total_count: int
+    severity_breakdown: dict[str, int]
+    top_categories: list[dict]
+
+
+class DefectTrendByPhase(CamelCaseModel):
+    phase: str
+    period_start: str
+    period_end: str
+    total_count: int
+    severity_breakdown: dict[str, int]
+
+
+class DefectTrendBySeason(CamelCaseModel):
+    season: str
+    total_count: int
+    severity_breakdown: dict[str, int]
+
+
+class DefectTrendAnalysisResponse(CamelCaseModel):
+    by_trade: list[DefectTrendByTrade]
+    by_floor: list[DefectTrendByFloor]
+    by_phase: list[DefectTrendByPhase]
+    by_season: list[DefectTrendBySeason]
+    period_start: str
+    period_end: str
+    total_defects: int

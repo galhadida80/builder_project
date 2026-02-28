@@ -18,6 +18,7 @@ from app.models.risk_threshold import RiskThreshold
 from app.models.user import User
 from app.schemas.risk_score import (
     AreaBrief,
+    DefectTrendAnalysisResponse,
     RiskScoreCreate,
     RiskScoreResponse,
     RiskScoreSummaryResponse,
@@ -27,7 +28,7 @@ from app.schemas.risk_score import (
     RiskThresholdUpdate,
 )
 from app.services.audit_service import create_audit_log, get_model_dict
-from app.services.risk_prediction_service import get_inspection_risk_briefing
+from app.services.risk_prediction_service import analyze_defect_trends, get_inspection_risk_briefing
 from app.utils import utcnow
 
 router = APIRouter()
@@ -504,3 +505,23 @@ async def get_inspection_briefing(
 
     briefing = await get_inspection_risk_briefing(db, inspection_id)
     return briefing
+
+
+@router.get("/projects/{project_id}/risk-trends", response_model=DefectTrendAnalysisResponse)
+async def get_defect_trends(
+    project_id: UUID,
+    start_date: Optional[str] = Query(None, description="Start date (ISO format)"),
+    end_date: Optional[str] = Query(None, description="End date (ISO format)"),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Get defect trend analysis by trade, floor, phase, and season"""
+    await verify_project_access(project_id, current_user, db)
+
+    from datetime import datetime
+
+    start_dt = datetime.fromisoformat(start_date) if start_date else None
+    end_dt = datetime.fromisoformat(end_date) if end_date else None
+
+    trends = await analyze_defect_trends(db, project_id, start_dt, end_dt)
+    return trends
