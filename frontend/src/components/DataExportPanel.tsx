@@ -87,6 +87,20 @@ export function DataExportPanel({ projectId, sx }: DataExportPanelProps) {
     fetchExportJobs()
   }, [projectId])
 
+  useEffect(() => {
+    const hasActiveJobs = exportJobs.some(
+      (job) => job.status === 'pending' || job.status === 'processing'
+    )
+
+    if (!hasActiveJobs) return
+
+    const pollInterval = setInterval(() => {
+      fetchExportJobs()
+    }, 3000)
+
+    return () => clearInterval(pollInterval)
+  }, [exportJobs, projectId])
+
   const handleStartExport = async (format: ExportFormat) => {
     try {
       setLoading(true)
@@ -243,6 +257,17 @@ export function DataExportPanel({ projectId, sx }: DataExportPanelProps) {
                       </Typography>
                     )}
                   </Box>
+
+                  {(job.status === 'pending' || job.status === 'processing') && (
+                    <Box sx={{ mt: 2 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
+                        <Typography variant="caption" color="text.secondary">
+                          {t(`projectSettings.exportPanel.status.${job.status}`)}
+                        </Typography>
+                      </Box>
+                      <LinearProgress />
+                    </Box>
+                  )}
 
                   {job.status === 'completed' && (
                     <Button
