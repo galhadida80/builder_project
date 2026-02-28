@@ -27,6 +27,7 @@ from app.schemas.risk_score import (
     RiskThresholdUpdate,
 )
 from app.services.audit_service import create_audit_log, get_model_dict
+from app.services.risk_prediction_service import get_inspection_risk_briefing
 from app.utils import utcnow
 
 router = APIRouter()
@@ -483,3 +484,23 @@ async def create_or_update_risk_threshold(
     )
 
     return threshold
+
+
+@router.get("/inspections/{inspection_id}/risk-briefing")
+async def get_inspection_briefing(
+    inspection_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Get pre-inspection risk briefing with high-risk areas and recommendations"""
+    inspection_query = select(Inspection).where(Inspection.id == inspection_id)
+    inspection_result = await db.execute(inspection_query)
+    inspection = inspection_result.scalar_one_or_none()
+
+    if not inspection:
+        raise HTTPException(status_code=404, detail="Inspection not found")
+
+    await verify_project_access(inspection.project_id, current_user, db)
+
+    briefing = await get_inspection_risk_briefing(db, inspection_id)
+    return briefing

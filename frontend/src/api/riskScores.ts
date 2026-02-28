@@ -7,6 +7,7 @@ import type {
   RiskThreshold,
   RiskThresholdCreate,
   RiskLevel,
+  InspectionRiskBriefing,
 } from '../types/riskScore'
 
 export interface RiskScoreListParams {
@@ -55,6 +56,11 @@ export const riskScoresApi = {
 
   createOrUpdateThreshold: async (projectId: string, data: RiskThresholdCreate): Promise<RiskThreshold> => {
     const response = await apiClient.post(`/projects/${projectId}/risk-thresholds`, data)
+    return response.data
+  },
+
+  getInspectionBriefing: async (inspectionId: string): Promise<InspectionRiskBriefing> => {
+    const response = await apiClient.get(`/inspections/${inspectionId}/risk-briefing`)
     return response.data
   },
 }
