@@ -257,6 +257,14 @@ export interface DiscussionCreate {
 }
 
 export const clientPortalApi = {
+  authenticate: async (data: ClientPortalAuthRequest): Promise<ClientPortalAuthResponse> => {
+    const response = await apiClient.post<ClientPortalAuthResponse>('/client-portal/auth', {
+      email: data.email,
+      access_token: data.accessToken
+    })
+    return response.data
+  },
+
   healthCheck: async (): Promise<{ status: string; service: string }> => {
     const response = await apiClient.get<{ status: string; service: string }>('/client-portal/health')
     return response.data

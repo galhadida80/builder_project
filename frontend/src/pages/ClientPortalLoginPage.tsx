@@ -5,10 +5,13 @@ import { Button } from '../components/ui/Button'
 import { TextField } from '../components/ui/TextField'
 import { ConstructionIcon, EmailIcon, LockIcon } from '@/icons'
 import { Box, Typography, Alert, Fade } from '@/mui'
+import { clientPortalApi } from '@/api/clientPortal'
+import { useClientPortal } from '@/contexts/ClientPortalContext'
 
 export default function ClientPortalLoginPage() {
   const navigate = useNavigate()
   const { t } = useTranslation()
+  const portalContext = useClientPortal()
   const [email, setEmail] = useState('')
   const [accessToken, setAccessToken] = useState('')
   const [loading, setLoading] = useState(false)
@@ -23,16 +26,22 @@ export default function ClientPortalLoginPage() {
     setError(null)
 
     try {
-      // TODO: Implement client portal authentication
-      // await clientPortalApi.authenticate({ email, accessToken })
+      // Call authentication endpoint
+      const response = await clientPortalApi.authenticate({ email, accessToken })
 
-      // For now, placeholder navigation
-      console.log('Client portal login:', { email, accessToken })
+      // Store token in localStorage
+      localStorage.setItem('authToken', response.accessToken)
 
-      // Navigate to client portal dashboard
-      // navigate('/client-portal/dashboard')
+      // Set permissions in context
+      portalContext.setPermissions({
+        canViewBudget: response.canViewBudget,
+        canViewDocuments: response.canViewDocuments,
+        canSubmitFeedback: response.canSubmitFeedback
+      })
+      portalContext.setProjectId(response.projectId)
 
-      setError('Authentication not yet implemented - please check back soon')
+      // Navigate to dashboard
+      navigate('/client-portal/dashboard')
     } catch (err: unknown) {
       const error = err as { response?: { data?: { detail?: string } } }
       setError(error.response?.data?.detail || t('auth.invalidCredentials', 'Invalid credentials'))

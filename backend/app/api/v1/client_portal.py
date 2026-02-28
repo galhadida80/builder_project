@@ -5,7 +5,7 @@ from sqlalchemy import case, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.core.security import get_current_user
+from app.core.security import create_access_token, get_current_user
 from app.db.session import get_db
 from app.models.audit import AuditLog
 from app.models.checklist import ChecklistInstance, ChecklistStatus
@@ -17,6 +17,7 @@ from app.models.material import Material
 from app.models.meeting import Meeting
 from app.models.project import Project, ProjectMember
 from app.models.user import User
+from app.schemas.client_portal import ClientPortalAuthRequest, ClientPortalAuthResponse
 from app.schemas.discussion import DiscussionCreate, DiscussionResponse
 from app.schemas.file import FileResponse
 from app.schemas.project import ProjectResponse
@@ -27,6 +28,7 @@ from app.schemas.project_overview import (
     TeamStats,
     TimelineEvent,
 )
+from app.services.client_portal_service import authenticate_client_portal_access
 from app.services.websocket_manager import manager
 from app.utils import utcnow
 
@@ -37,6 +39,46 @@ router = APIRouter()
 async def health_check():
     """Client portal health check endpoint"""
     return {"status": "ok", "service": "client_portal"}
+
+
+@router.post("/auth", response_model=ClientPortalAuthResponse)
+async def authenticate_client(
+    request: ClientPortalAuthRequest,
+    db: AsyncSession = Depends(get_db)
+):
+    """Authenticate client portal user with email and access token"""
+    # Call existing service function
+    portal_access = await authenticate_client_portal_access(
+        db, request.email, request.access_token
+    )
+
+    if not portal_access:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid credentials or inactive access"
+        )
+
+    # Update last accessed timestamp
+    portal_access.last_accessed_at = utcnow()
+    await db.commit()
+
+    # Create JWT token
+    token = create_access_token(
+        user_id=portal_access.user.id,
+        is_super_admin=portal_access.user.is_super_admin
+    )
+
+    return ClientPortalAuthResponse(
+        access_token=token,
+        token_type="bearer",
+        user_email=portal_access.user.email,
+        user_full_name=portal_access.user.full_name,
+        project_id=portal_access.project_id,
+        project_name=portal_access.project.name,
+        can_view_budget=portal_access.can_view_budget,
+        can_view_documents=portal_access.can_view_documents,
+        can_submit_feedback=portal_access.can_submit_feedback
+    )
 
 
 @router.get("/projects", response_model=list[ProjectResponse])
