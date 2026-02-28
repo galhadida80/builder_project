@@ -606,3 +606,266 @@ def generate_mitigation_suggestions(
         "processing_time_ms": elapsed_ms,
         "model_used": model_name,
     }
+
+
+async def simulate_scenario(
+    db: AsyncSession,
+    project_id: UUID,
+    scenario_changes: dict,
+) -> dict:
+    """
+    Simulate what-if scenarios for schedule risk analysis.
+
+    Allows testing different scenarios by adjusting task durations, removing tasks,
+    adding buffer time, or changing resource efficiency.
+
+    Args:
+        db: Database session
+        project_id: Project UUID
+        scenario_changes: dict with scenario parameters:
+            - task_duration_adjustments: dict mapping str(task_id) to multiplier (e.g., {"uuid": 1.5})
+            - remove_tasks: list of task_id UUIDs to exclude from simulation
+            - add_buffer_percentage: float (e.g., 0.2 for 20% buffer on critical path tasks)
+            - resource_changes: dict mapping str(assignee_id) to efficiency multiplier (e.g., {"uuid": 0.8})
+
+    Returns:
+        dict with:
+        - baseline: dict with original schedule metrics (total_duration, critical_task_count)
+        - scenario: dict with simulated schedule metrics
+        - delta: dict with changes (duration_change_days, critical_path_change, etc.)
+        - impacted_tasks: list of dicts with task changes
+        - recommendations: list of insights based on simulation
+    """
+    # Fetch all tasks for the project with dependencies
+    query = (
+        select(Task)
+        .where(Task.project_id == project_id)
+        .options(selectinload(Task.dependencies))
+    )
+    result = await db.execute(query)
+    all_tasks = result.scalars().all()
+
+    if not all_tasks:
+        return {
+            "baseline": {"total_duration": 0.0, "critical_task_count": 0},
+            "scenario": {"total_duration": 0.0, "critical_task_count": 0},
+            "delta": {"duration_change_days": 0.0, "critical_path_change": 0},
+            "impacted_tasks": [],
+            "recommendations": ["No tasks found in project"],
+        }
+
+    # Calculate baseline critical path
+    baseline_cp = await calculate_critical_path(db, project_id)
+    baseline_critical_ids = set(baseline_cp["task_ids"])
+
+    # Extract scenario parameters
+    duration_adjustments = scenario_changes.get("task_duration_adjustments", {})
+    remove_task_ids = set(scenario_changes.get("remove_tasks", []))
+    buffer_percentage = scenario_changes.get("add_buffer_percentage", 0.0)
+    resource_changes = scenario_changes.get("resource_changes", {})
+
+    # Build task map and dependency graph for simulation
+    task_map = {task.id: task for task in all_tasks if task.id not in remove_task_ids}
+    task_ids = list(task_map.keys())
+
+    # Fetch dependencies (excluding removed tasks)
+    dep_query = select(TaskDependency).where(
+        TaskDependency.task_id.in_(task_ids)
+    )
+    dep_result = await db.execute(dep_query)
+    dependencies = dep_result.scalars().all()
+
+    # Build adjacency lists
+    predecessors = defaultdict(list)
+    successors = defaultdict(list)
+
+    for dep in dependencies:
+        if (dep.task_id in task_map and
+            dep.depends_on_id in task_map and
+            dep.depends_on_id not in remove_task_ids):
+            predecessors[dep.task_id].append(dep.depends_on_id)
+            successors[dep.depends_on_id].append(dep.task_id)
+
+    # Calculate adjusted durations for simulation
+    def get_simulated_duration(task: Task) -> float:
+        # Base duration
+        if task.start_date and task.due_date:
+            delta = task.due_date - task.start_date
+            base_duration = max(1.0, float(delta.days))
+        elif task.estimated_hours:
+            base_duration = max(1.0, task.estimated_hours / 8.0)
+        else:
+            base_duration = 1.0
+
+        # Apply task-specific duration adjustment
+        task_id_str = str(task.id)
+        if task_id_str in duration_adjustments:
+            base_duration *= duration_adjustments[task_id_str]
+
+        # Apply resource efficiency multiplier
+        if task.assignee_id:
+            assignee_id_str = str(task.assignee_id)
+            if assignee_id_str in resource_changes:
+                # Lower efficiency (e.g., 0.8) means tasks take longer (divide by efficiency)
+                efficiency = resource_changes[assignee_id_str]
+                if efficiency > 0:
+                    base_duration /= efficiency
+
+        # Apply buffer to critical path tasks if requested
+        if buffer_percentage > 0 and task.id in baseline_critical_ids:
+            base_duration *= (1.0 + buffer_percentage)
+
+        return base_duration
+
+    durations = {task.id: get_simulated_duration(task) for task in task_map.values()}
+
+    # Perform critical path calculation with simulated durations
+    # Forward pass
+    earliest_start = {}
+    earliest_finish = {}
+
+    # Topological sort
+    in_degree = {tid: len(predecessors[tid]) for tid in task_ids}
+    queue = deque([tid for tid in task_ids if in_degree[tid] == 0])
+    topo_order = []
+
+    while queue:
+        tid = queue.popleft()
+        topo_order.append(tid)
+        for successor_id in successors[tid]:
+            in_degree[successor_id] -= 1
+            if in_degree[successor_id] == 0:
+                queue.append(successor_id)
+
+    # Handle cycles
+    if len(topo_order) < len(task_ids):
+        for tid in task_ids:
+            if tid not in topo_order:
+                topo_order.append(tid)
+
+    # Forward pass
+    for tid in topo_order:
+        if not predecessors[tid]:
+            earliest_start[tid] = 0.0
+        else:
+            earliest_start[tid] = max(
+                earliest_finish.get(pred_id, 0.0)
+                for pred_id in predecessors[tid]
+            )
+        earliest_finish[tid] = earliest_start[tid] + durations[tid]
+
+    # Calculate simulated project duration
+    simulated_duration = max(earliest_finish.values()) if earliest_finish else 0.0
+
+    # Backward pass
+    latest_start = {}
+    latest_finish = {}
+
+    for tid in reversed(topo_order):
+        if not successors[tid]:
+            latest_finish[tid] = simulated_duration
+        else:
+            latest_finish[tid] = min(
+                latest_start.get(succ_id, simulated_duration)
+                for succ_id in successors[tid]
+            )
+        latest_start[tid] = latest_finish[tid] - durations[tid]
+
+    # Calculate slack and identify new critical path
+    slack = {
+        tid: latest_start[tid] - earliest_start[tid]
+        for tid in task_ids
+    }
+
+    simulated_critical_ids = [
+        tid for tid in task_ids
+        if abs(slack[tid]) < 0.01
+    ]
+
+    # Build impacted tasks list
+    impacted_tasks = []
+    for task_id in task_ids:
+        task = task_map[task_id]
+        task_id_str = str(task_id)
+
+        # Determine what changed for this task
+        changes = []
+        if task_id_str in duration_adjustments:
+            changes.append(f"duration adjusted by {duration_adjustments[task_id_str]}x")
+        if task.assignee_id and str(task.assignee_id) in resource_changes:
+            changes.append(f"resource efficiency: {resource_changes[str(task.assignee_id)]}x")
+        if buffer_percentage > 0 and task_id in baseline_critical_ids:
+            changes.append(f"buffer added: {buffer_percentage * 100}%")
+
+        was_critical = task_id in baseline_critical_ids
+        is_critical = task_id in simulated_critical_ids
+
+        if changes or was_critical or is_critical:
+            impacted_tasks.append({
+                "task_id": task_id,
+                "task_title": task.title,
+                "baseline_critical": was_critical,
+                "scenario_critical": is_critical,
+                "baseline_duration": durations[task_id] / (1.0 + buffer_percentage) if buffer_percentage > 0 and was_critical else None,
+                "scenario_duration": durations[task_id],
+                "changes_applied": changes,
+            })
+
+    # Calculate deltas
+    duration_change = simulated_duration - baseline_cp["total_duration"]
+    critical_path_change = len(simulated_critical_ids) - len(baseline_critical_ids)
+
+    # Generate recommendations
+    recommendations = []
+    if duration_change < 0:
+        recommendations.append(
+            f"Scenario reduces project duration by {abs(duration_change):.1f} days ({abs(duration_change) / baseline_cp['total_duration'] * 100:.1f}%)"
+        )
+    elif duration_change > 0:
+        recommendations.append(
+            f"Scenario increases project duration by {duration_change:.1f} days ({duration_change / baseline_cp['total_duration'] * 100:.1f}%)"
+        )
+    else:
+        recommendations.append("Scenario has no impact on project duration")
+
+    if critical_path_change > 0:
+        recommendations.append(
+            f"Scenario adds {critical_path_change} tasks to the critical path - consider optimization"
+        )
+    elif critical_path_change < 0:
+        recommendations.append(
+            f"Scenario removes {abs(critical_path_change)} tasks from critical path - improved flexibility"
+        )
+
+    if remove_task_ids:
+        recommendations.append(
+            f"Removed {len(remove_task_ids)} tasks from simulation"
+        )
+
+    if buffer_percentage > 0:
+        buffer_days = baseline_cp["total_duration"] * buffer_percentage
+        recommendations.append(
+            f"Added {buffer_percentage * 100}% buffer ({buffer_days:.1f} days) to critical path tasks"
+        )
+
+    return {
+        "baseline": {
+            "total_duration": baseline_cp["total_duration"],
+            "critical_task_count": len(baseline_critical_ids),
+        },
+        "scenario": {
+            "total_duration": simulated_duration,
+            "critical_task_count": len(simulated_critical_ids),
+        },
+        "delta": {
+            "duration_change_days": duration_change,
+            "critical_path_change": critical_path_change,
+            "duration_change_percentage": (
+                (duration_change / baseline_cp["total_duration"] * 100)
+                if baseline_cp["total_duration"] > 0
+                else 0.0
+            ),
+        },
+        "impacted_tasks": impacted_tasks,
+        "recommendations": recommendations,
+    }
