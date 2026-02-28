@@ -1952,6 +1952,76 @@ As a user, I want to link checklist instances to specific areas when creating th
 
 ---
 
+## EPIC 26: Contact Import COMPLETED
+**Description:** CSV and bulk JSON import for project contacts. Supports field mapping, duplicate detection, and audit logging.
+**Priority:** P1 - High
+**Estimate:** 5 points
+**Status:** Done
+
+### User Stories:
+
+#### US-26.1: CSV Contact Export & Import
+**Title:** CSV File Import/Export for Contacts
+**Description:**
+As a project admin, I want to export contacts to CSV and import contacts from CSV files so that I can bulk-manage contacts across systems.
+
+**Acceptance Criteria:**
+- [x] `GET /projects/{project_id}/contacts/export` generates CSV with headers: contact_name, email, phone, contact_type, company_name, role_description
+- [x] `POST /projects/{project_id}/contacts/import` accepts CSV upload, parses rows, creates contacts
+- [x] Duplicate detection by email within the same project
+- [x] Returns `BulkImportResponse` with `imported_count`, `skipped_count`, `errors` list
+- [x] Audit log entry per imported contact
+**Estimate:** 3 points
+**Labels:** backend, api
+
+#### US-26.2: Bulk JSON Contact Import
+**Title:** Programmatic Bulk Contact Import
+**Description:**
+As a developer, I need a JSON endpoint to import multiple contacts at once for integrations and automation.
+
+**Acceptance Criteria:**
+- [x] `POST /projects/{project_id}/contacts/import-bulk` accepts `BulkContactImport` schema (list of contacts)
+- [x] Per-contact validation with error collection
+- [x] Duplicate detection by email
+- [x] Returns `BulkImportResponse` with counts and per-row errors
+- [x] RBAC: requires `CREATE` permission
+**Estimate:** 2 points
+**Labels:** backend, api
+
+---
+
+## EPIC 27: Form Validation UX, Signature Stamp & Input Guards COMPLETED
+**Description:** Enhanced form validation UX with shake animations, error toasts, signature stamp auto-apply system, and date validation guards.
+**Priority:** P1 - High
+**Estimate:** 5 points
+**Status:** Done
+
+### User Stories:
+
+#### US-27.1: Shake Animation + Error Popup on Invalid Input
+- [x] Create `useFormShake` hook (shake animation + vibration + error toast)
+- [x] Add CSS shake keyframe to TextInput and TextField components on error state
+- [x] Integrate into all 8 form pages (Meetings, Inspections, Equipment, Materials, Contacts, Areas, RFIs, Projects)
+- [x] Mobile haptic feedback via `navigator.vibrate()`
+**Estimate:** 2 points
+
+#### US-27.2: Signature Stamp System
+- [x] Create `useSignatureStamp` hook for auto-applying saved signature
+- [x] Auto-apply user's signature as contractor stamp in Equipment & Material forms
+- [x] Profile page: Show signature as "Active Stamp" with green badge and gradient card
+- [x] Success alert when stamp is auto-applied
+- [x] i18n translations (Hebrew + English)
+**Estimate:** 2 points
+
+#### US-27.3: Date Validation Guards
+- [x] Add `validateFutureDate` to validation utilities
+- [x] Meeting form: cannot schedule meetings in the past
+- [x] Inspection form: cannot schedule inspections in the past
+- [x] Zod schemas updated with `.refine()` for date validation
+**Estimate:** 1 point
+
+---
+
 ## Summary
 
 | Epic | Stories | Total Points | Status |
@@ -1981,7 +2051,9 @@ As a user, I want to link checklist instances to specific areas when creating th
 | 23. Security Enhancements | 2 | 5 | COMPLETED |
 | 24. Quantity Extraction (AI Tool) | 1 | 3 | COMPLETED |
 | 25. Project Structure & Checklist Integration | 5 | 18 | COMPLETED |
-| **TOTAL** | **111 stories** | **353 points** | |
+| 26. Contact Import | 2 | 5 | COMPLETED |
+| 27. Form Validation UX & Signature Stamp | 3 | 5 | COMPLETED |
+| **TOTAL** | **116 stories** | **363 points** | |
 
 ---
 
@@ -2005,35 +2077,6 @@ As a user, I want to link checklist instances to specific areas when creating th
 | Sprint 14 | Epic 25 (Project Structure & Checklist Integration) | Done |
 | Sprint 15 | Epic 26 (Contact Import) + Epic 27 (Form Validation UX & Signature Stamp) | Done |
 
-## EPIC 27: Form Validation UX, Signature Stamp & Input Guards COMPLETED
-**Description:** Enhanced form validation UX with shake animations, error toasts, signature stamp auto-apply system, and date validation guards.
-**Priority:** P1 - High
-**Estimate:** 5 points
-
-### User Stories:
-
-#### US-27.1: Shake Animation + Error Popup on Invalid Input
-- [x] Create `useFormShake` hook (shake animation + vibration + error toast)
-- [x] Add CSS shake keyframe to TextInput and TextField components on error state
-- [x] Integrate into all 8 form pages (Meetings, Inspections, Equipment, Materials, Contacts, Areas, RFIs, Projects)
-- [x] Mobile haptic feedback via `navigator.vibrate()`
-**Estimate:** 2 points
-
-#### US-27.2: Signature Stamp System
-- [x] Create `useSignatureStamp` hook for auto-applying saved signature
-- [x] Auto-apply user's signature as contractor stamp in Equipment & Material forms
-- [x] Profile page: Show signature as "Active Stamp" with green badge and gradient card
-- [x] Success alert when stamp is auto-applied
-- [x] i18n translations (Hebrew + English)
-**Estimate:** 2 points
-
-#### US-27.3: Date Validation Guards
-- [x] Add `validateFutureDate` to validation utilities
-- [x] Meeting form: cannot schedule meetings in the past
-- [x] Inspection form: cannot schedule inspections in the past
-- [x] Zod schemas updated with `.refine()` for date validation
-**Estimate:** 1 point
-
 ---
 
 ## Remaining Work
@@ -2044,4 +2087,3 @@ As a user, I want to link checklist instances to specific areas when creating th
 | ACC RFI Sync - Inbound | 14 (US-14.11) | 1 | 3 |
 | BIM Template Fuzzy Matching | 14 (US-14.7, 14.8) | — | — |
 | WhatsApp AI Chat | 12 (US-12.7) | 1 | 5 |
-| Custom KPIs Dashboard | 26 | 4 | 8 | Done |

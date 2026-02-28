@@ -88,5 +88,7 @@ project_index.json
 
 # Design and preview artifacts
 docs/plans/
+docs/archive/
+docs/epics/*/specs/
 email_previews/
 design/
