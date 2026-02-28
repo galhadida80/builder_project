@@ -132,3 +132,35 @@ class RiskAnalysisResponse(CamelCaseModel):
     predicted_defects: list[PredictedDefectType]
     risk_factors: list[RiskFactorItem]
     recommendation: str
+
+
+class RiskThresholdCreate(BaseModel):
+    low_threshold: Decimal = Field(default=25.0, ge=0, le=100)
+    medium_threshold: Decimal = Field(default=50.0, ge=0, le=100)
+    high_threshold: Decimal = Field(default=75.0, ge=0, le=100)
+    critical_threshold: Decimal = Field(default=90.0, ge=0, le=100)
+    auto_schedule_inspections: bool = Field(default=False)
+    auto_schedule_threshold: Literal["low", "medium", "high", "critical"] = Field(default="high")
+
+
+class RiskThresholdUpdate(BaseModel):
+    low_threshold: Optional[Decimal] = Field(default=None, ge=0, le=100)
+    medium_threshold: Optional[Decimal] = Field(default=None, ge=0, le=100)
+    high_threshold: Optional[Decimal] = Field(default=None, ge=0, le=100)
+    critical_threshold: Optional[Decimal] = Field(default=None, ge=0, le=100)
+    auto_schedule_inspections: Optional[bool] = None
+    auto_schedule_threshold: Optional[Literal["low", "medium", "high", "critical"]] = None
+
+
+class RiskThresholdResponse(CamelCaseModel):
+    id: UUID
+    project_id: UUID
+    low_threshold: Decimal
+    medium_threshold: Decimal
+    high_threshold: Decimal
+    critical_threshold: Decimal
+    auto_schedule_inspections: bool
+    auto_schedule_threshold: str
+    created_at: datetime
+    updated_at: datetime
+    created_by_id: Optional[UUID] = None

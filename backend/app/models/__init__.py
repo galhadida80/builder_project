@@ -47,6 +47,7 @@ from app.models.permission_override import PermissionOverride
 from app.models.project import Project, ProjectMember
 from app.models.rfi import RFI, RFICategory, RFIEmailLog, RFIPriority, RFIResponse, RFIStatus
 from app.models.risk_score import RiskLevel, RiskScore
+from app.models.risk_threshold import RiskThreshold
 from app.models.user import User
 from app.models.analytics import CustomKpiDefinition, KpiSnapshot
 from app.models.budget import BudgetLineItem, ChangeOrder, CostEntry
@@ -137,4 +138,5 @@ __all__ = [
     "EntityVersion",
     "RiskScore",
     "RiskLevel",
+    "RiskThreshold",
 ]

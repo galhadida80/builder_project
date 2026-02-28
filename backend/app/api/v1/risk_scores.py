@@ -11,8 +11,10 @@ from app.core.security import get_current_user, verify_project_access
 from app.db.session import get_db
 from app.models.area import ConstructionArea
 from app.models.audit import AuditAction
+from app.models.inspection import Inspection, InspectionStatus
 from app.models.project import Project, ProjectMember
 from app.models.risk_score import RiskScore
+from app.models.risk_threshold import RiskThreshold
 from app.models.user import User
 from app.schemas.risk_score import (
     AreaBrief,
@@ -20,6 +22,9 @@ from app.schemas.risk_score import (
     RiskScoreResponse,
     RiskScoreSummaryResponse,
     RiskScoreUpdate,
+    RiskThresholdCreate,
+    RiskThresholdResponse,
+    RiskThresholdUpdate,
 )
 from app.services.audit_service import create_audit_log, get_model_dict
 from app.utils import utcnow
@@ -30,6 +35,72 @@ RISK_SCORE_LOAD_OPTIONS = [
     selectinload(RiskScore.area),
     selectinload(RiskScore.calculated_by),
 ]
+
+
+async def check_and_schedule_inspection(
+    db: AsyncSession,
+    project_id: UUID,
+    risk_score: RiskScore,
+    current_user: User,
+) -> None:
+    """Check if risk score exceeds threshold and auto-schedule inspection if enabled"""
+    query = select(RiskThreshold).where(RiskThreshold.project_id == project_id)
+    result = await db.execute(query)
+    threshold = result.scalar_one_or_none()
+
+    if not threshold or not threshold.auto_schedule_inspections:
+        return
+
+    if not risk_score.area_id:
+        return
+
+    threshold_map = {
+        "low": threshold.low_threshold,
+        "medium": threshold.medium_threshold,
+        "high": threshold.high_threshold,
+        "critical": threshold.critical_threshold,
+    }
+
+    min_score = threshold_map.get(threshold.auto_schedule_threshold, threshold.high_threshold)
+
+    if risk_score.risk_score < min_score:
+        return
+
+    existing_query = (
+        select(Inspection)
+        .where(Inspection.project_id == project_id)
+        .where(Inspection.status == InspectionStatus.PENDING.value)
+        .where(
+            Inspection.notes.ilike(f"%Auto-scheduled for area {risk_score.area_id}%")
+        )
+    )
+    existing_result = await db.execute(existing_query)
+    existing_inspection = existing_result.scalar_one_or_none()
+
+    if existing_inspection:
+        return
+
+    from datetime import timedelta
+    from app.models.inspection_template import InspectionConsultantType
+
+    consultant_query = select(InspectionConsultantType).limit(1)
+    consultant_result = await db.execute(consultant_query)
+    consultant_type = consultant_result.scalar_one_or_none()
+
+    if not consultant_type:
+        return
+
+    inspection = Inspection(
+        project_id=project_id,
+        consultant_type_id=consultant_type.id,
+        scheduled_date=utcnow() + timedelta(days=1),
+        status=InspectionStatus.PENDING.value,
+        notes=f"Auto-scheduled for area {risk_score.area_id} due to high risk score ({risk_score.risk_score})",
+        created_by_id=current_user.id,
+    )
+
+    db.add(inspection)
+    await db.commit()
 
 
 @router.get("/projects/{project_id}/risk-scores", response_model=list[RiskScoreResponse])
@@ -206,6 +277,8 @@ async def create_risk_score(
         changes={"created": get_model_dict(risk_score)},
     )
 
+    await check_and_schedule_inspection(db, project_id, risk_score, current_user)
+
     return risk_score
 
 
@@ -316,3 +389,97 @@ async def delete_risk_score(
     )
 
     return {"message": "Risk score deleted successfully"}
+
+
+@router.get("/projects/{project_id}/risk-thresholds", response_model=RiskThresholdResponse)
+async def get_risk_threshold(
+    project_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Get risk threshold configuration for a project"""
+    await verify_project_access(project_id, current_user, db)
+
+    query = select(RiskThreshold).where(RiskThreshold.project_id == project_id)
+    result = await db.execute(query)
+    threshold = result.scalar_one_or_none()
+
+    if not threshold:
+        raise HTTPException(status_code=404, detail="Risk threshold configuration not found")
+
+    return threshold
+
+
+@router.post(
+    "/projects/{project_id}/risk-thresholds",
+    response_model=RiskThresholdResponse,
+    status_code=201,
+)
+async def create_or_update_risk_threshold(
+    project_id: UUID,
+    data: RiskThresholdCreate,
+    member=require_permission(Permission.EDIT),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Create or update risk threshold configuration for a project"""
+    await verify_project_access(project_id, current_user, db)
+
+    project = await db.get(Project, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    query = select(RiskThreshold).where(RiskThreshold.project_id == project_id)
+    result = await db.execute(query)
+    existing_threshold = result.scalar_one_or_none()
+
+    if existing_threshold:
+        existing_threshold.low_threshold = data.low_threshold
+        existing_threshold.medium_threshold = data.medium_threshold
+        existing_threshold.high_threshold = data.high_threshold
+        existing_threshold.critical_threshold = data.critical_threshold
+        existing_threshold.auto_schedule_inspections = data.auto_schedule_inspections
+        existing_threshold.auto_schedule_threshold = data.auto_schedule_threshold
+        existing_threshold.updated_at = utcnow()
+
+        await db.commit()
+        await db.refresh(existing_threshold)
+
+        await create_audit_log(
+            db=db,
+            user_id=current_user.id,
+            action=AuditAction.UPDATE,
+            resource_type="risk_threshold",
+            resource_id=existing_threshold.id,
+            project_id=project_id,
+            changes={"updated": get_model_dict(existing_threshold)},
+        )
+
+        return existing_threshold
+
+    threshold = RiskThreshold(
+        project_id=project_id,
+        low_threshold=data.low_threshold,
+        medium_threshold=data.medium_threshold,
+        high_threshold=data.high_threshold,
+        critical_threshold=data.critical_threshold,
+        auto_schedule_inspections=data.auto_schedule_inspections,
+        auto_schedule_threshold=data.auto_schedule_threshold,
+        created_by_id=current_user.id,
+    )
+
+    db.add(threshold)
+    await db.commit()
+    await db.refresh(threshold)
+
+    await create_audit_log(
+        db=db,
+        user_id=current_user.id,
+        action=AuditAction.CREATE,
+        resource_type="risk_threshold",
+        resource_id=threshold.id,
+        project_id=project_id,
+        changes={"created": get_model_dict(threshold)},
+    )
+
+    return threshold
