@@ -28,6 +28,7 @@ from app.api.v1 import (
     document_versions,
     equipment,
     equipment_templates,
+    exports,
     files,
     inspections,
     invitations,
@@ -93,5 +94,6 @@ api_router.include_router(calendar.router, tags=["calendar"])
 api_router.include_router(discussions.router, tags=["discussions"])
 api_router.include_router(quantity_extraction.router, tags=["quantity_extraction"])
 api_router.include_router(reports.router, tags=["reports"])
+api_router.include_router(exports.router, tags=["exports"])
 api_router.include_router(subcontractors.router, tags=["subcontractors"])
 api_router.include_router(work_summary.router, prefix="/auth", tags=["auth"])
