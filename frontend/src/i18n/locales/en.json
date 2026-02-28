@@ -2713,6 +2713,13 @@
     "justNow": "Just now",
     "minutesAgo": "{{count}} minutes ago"
   },
+  "floorplans": {
+    "title": "Floorplans",
+    "subtitle": "Visual display of defects on building plans",
+    "noImageUrl": "No floorplan image available",
+    "imageLoadError": "Failed to load floorplan image",
+    "canvasError": "Error initializing floorplan canvas"
+  },
   "riskPrediction": {
     "title": "Risk Prediction",
     "subtitle": "AI-powered defect risk analysis",
