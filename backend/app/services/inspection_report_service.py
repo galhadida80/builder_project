@@ -171,14 +171,14 @@ def generate_inspections_report_pdf(inspections: list[Inspection], project, lang
     return pdf_bytes
 
 
-async def generate_ai_weekly_report_pdf(
+async def generate_ai_weekly_report_html(
     db: AsyncSession,
     project_id: UUID,
     project,
     date_from: date,
     date_to: date,
     language: str = "he",
-) -> bytes:
+) -> str:
     direction = "rtl" if language == "he" else "ltr"
     align = "right" if language == "he" else "left"
     today = utcnow().strftime("%d/%m/%Y")
@@ -252,6 +252,20 @@ async def generate_ai_weekly_report_pdf(
         language=language,
     )
 
+    return html_content
+
+
+async def generate_ai_weekly_report_pdf(
+    db: AsyncSession,
+    project_id: UUID,
+    project,
+    date_from: date,
+    date_to: date,
+    language: str = "he",
+) -> bytes:
+    html_content = await generate_ai_weekly_report_html(
+        db, project_id, project, date_from, date_to, language
+    )
     pdf_bytes = HTML(string=html_content, base_url=TEMPLATES_DIR).write_pdf()
     return pdf_bytes
 

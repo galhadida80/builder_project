@@ -21,7 +21,10 @@ from app.schemas.scheduled_report import (
     ScheduledReportUpdate,
 )
 from app.services.audit_export_service import generate_audit_package
-from app.services.inspection_report_service import generate_ai_weekly_report_pdf
+from app.services.inspection_report_service import (
+    generate_ai_weekly_report_html,
+    generate_ai_weekly_report_pdf,
+)
 from app.services.report_service import (
     generate_approval_report,
     generate_csv_export,
@@ -183,6 +186,32 @@ async def generate_weekly_report(
         content=pdf_bytes,
         media_type="application/pdf",
         headers={"Content-Disposition": 'attachment; filename="weekly-progress-report.pdf"'},
+    )
+
+
+@router.get("/projects/{project_id}/reports/preview-weekly")
+async def preview_weekly_report(
+    project_id: UUID,
+    date_from: date = Query(...),
+    date_to: date = Query(...),
+    language: str = Query("he"),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    await verify_project_access(project_id, current_user, db)
+
+    result = await db.execute(select(Project).where(Project.id == project_id))
+    project = result.scalar_one_or_none()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    html_content = await generate_ai_weekly_report_html(
+        db, project_id, project, date_from, date_to, language
+    )
+
+    return Response(
+        content=html_content,
+        media_type="text/html",
     )
 
 
