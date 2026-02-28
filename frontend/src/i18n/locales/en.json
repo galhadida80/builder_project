@@ -1512,6 +1512,16 @@
       "best": "Best",
       "noPerformanceData": "No performance data",
       "averageScore": "Average Score"
+    },
+    "charts": {
+      "ratingDistribution": "Rating Distribution",
+      "topVendorsByTrade": "Top Vendors by Trade",
+      "fiveStars": "5 Stars",
+      "fourStars": "4 Stars",
+      "threeStars": "3 Stars",
+      "twoStars": "2 Stars",
+      "oneStar": "1 Star",
+      "unrated": "Unrated"
     }
   },
   "rfis": {

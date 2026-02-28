@@ -10,12 +10,13 @@ import FilterChips from '../components/ui/FilterChips'
 import VendorDialog from '../components/vendors/VendorDialog'
 import type { VendorFormData } from '../components/vendors/VendorDialog'
 import VendorComparisonDialog from '../components/vendors/VendorComparisonDialog'
+import DistributionChart from '../pages/Analytics/components/DistributionChart'
 import { vendorsApi } from '../api/vendors'
 import type { Vendor } from '../types'
 import { useToast } from '../components/common/ToastProvider'
 import { withMinDuration } from '../utils/async'
 import { AddIcon, EditIcon, DeleteIcon, BusinessIcon, LocalShippingIcon, ConstructionIcon, PlumbingIcon, ElectricalServicesIcon, StarIcon, CompareArrowsIcon } from '@/icons'
-import { Box, Typography, Skeleton, Chip, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, useMediaQuery, useTheme, Checkbox } from '@/mui'
+import { Box, Typography, Skeleton, Chip, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, useMediaQuery, useTheme, Checkbox, Grid } from '@/mui'
 
 export default function VendorsPage() {
   const { t } = useTranslation()
@@ -181,6 +182,60 @@ export default function VendorsPage() {
     return vendors.filter(v => selectedVendors.includes(v.id))
   }
 
+  const getRatingDistributionData = () => {
+    const ratingGroups = {
+      '5': 0,
+      '4': 0,
+      '3': 0,
+      '2': 0,
+      '1': 0,
+      'unrated': 0
+    }
+
+    vendors.forEach(vendor => {
+      if (!vendor.rating) {
+        ratingGroups['unrated']++
+      } else {
+        const ratingFloor = Math.floor(vendor.rating)
+        if (ratingFloor >= 5) ratingGroups['5']++
+        else if (ratingFloor >= 4) ratingGroups['4']++
+        else if (ratingFloor >= 3) ratingGroups['3']++
+        else if (ratingFloor >= 2) ratingGroups['2']++
+        else ratingGroups['1']++
+      }
+    })
+
+    return [
+      { id: '5', label: t('vendors.charts.fiveStars'), value: ratingGroups['5'], color: '#2e7d32' },
+      { id: '4', label: t('vendors.charts.fourStars'), value: ratingGroups['4'], color: '#66bb6a' },
+      { id: '3', label: t('vendors.charts.threeStars'), value: ratingGroups['3'], color: '#ed6c02' },
+      { id: '2', label: t('vendors.charts.twoStars'), value: ratingGroups['2'], color: '#f57c00' },
+      { id: '1', label: t('vendors.charts.oneStar'), value: ratingGroups['1'], color: '#d32f2f' },
+      { id: 'unrated', label: t('vendors.charts.unrated'), value: ratingGroups['unrated'], color: '#757575' },
+    ].filter(item => item.value > 0)
+  }
+
+  const getTopVendorsByTradeData = () => {
+    const tradeCounts: { [key: string]: number } = {}
+
+    vendors.forEach(vendor => {
+      tradeCounts[vendor.trade] = (tradeCounts[vendor.trade] || 0) + 1
+    })
+
+    return Object.entries(tradeCounts)
+      .map(([trade, count]) => {
+        const tradeConfig = getTradeConfig(trade)
+        return {
+          id: trade,
+          label: tradeConfig.label,
+          value: count,
+          color: tradeConfig.color
+        }
+      })
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 6)
+  }
+
   if (loading) {
     return (
       <Box sx={{ p: { xs: 1, sm: 1.5, md: 3 }, maxWidth: '100%', overflow: 'hidden' }}>
@@ -233,6 +288,29 @@ export default function VendorsPage() {
         <KPICard title={t('vendors.trades.generalContractor')} value={tradeCount('general_contractor')} icon={<ConstructionIcon />} color="info" />
         <KPICard title={t('vendors.trades.supplier')} value={tradeCount('supplier')} icon={<LocalShippingIcon />} color="success" />
       </Box>
+
+      {vendors.length > 0 && (
+        <Box sx={{ mb: 3 }}>
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={6}>
+              <DistributionChart
+                title={t('vendors.charts.ratingDistribution')}
+                data={getRatingDistributionData()}
+                height={280}
+                loading={loading}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <DistributionChart
+                title={t('vendors.charts.topVendorsByTrade')}
+                data={getTopVendorsByTradeData()}
+                height={280}
+                loading={loading}
+              />
+            </Grid>
+          </Grid>
+        </Box>
+      )}
 
       <Card>
         <Box sx={{ p: { xs: 1.5, sm: 2 } }}>

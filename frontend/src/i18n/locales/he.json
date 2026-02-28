@@ -1689,6 +1689,16 @@
       "best": "הטוב ביותר",
       "noPerformanceData": "אין נתוני ביצוע",
       "averageScore": "ציון ממוצע"
+    },
+    "charts": {
+      "ratingDistribution": "התפלגות דירוגים",
+      "topVendorsByTrade": "ספקים מובילים לפי תחום",
+      "fiveStars": "5 כוכבים",
+      "fourStars": "4 כוכבים",
+      "threeStars": "3 כוכבים",
+      "twoStars": "2 כוכבים",
+      "oneStar": "כוכב 1",
+      "unrated": "ללא דירוג"
     }
   },
   "rfis": {
