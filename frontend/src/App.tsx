@@ -23,6 +23,7 @@ import DocumentReviewPage from './pages/DocumentReviewPage'
 import InspectorDashboardPage from './pages/InspectorDashboard'
 import TeamWorkloadPage from './pages/TeamWorkloadPage'
 import AnalyticsDashboard from './pages/Analytics/AnalyticsDashboard'
+import RiskPredictionPage from './pages/RiskPredictionPage'
 import GanttTimelinePage from './pages/GanttTimelinePage'
 import RFIDetailPage from './pages/RFIDetailPage'
 import SettingsPage from './pages/SettingsPage'
@@ -126,6 +127,7 @@ function AppRoutes() {
             <Route path="/approvals" element={<Navigate to="/dashboard" replace />} />
             <Route path="/audit-log" element={<AuditLogPage />} />
             <Route path="/analytics" element={<AnalyticsDashboard />} />
+            <Route path="/risk-prediction" element={<RiskPredictionPage />} />
             <Route path="/team-workload" element={<TeamWorkloadPage />} />
             <Route path="/inspector-dashboard" element={<InspectorDashboardPage />} />
             <Route path="/notifications" element={<NotificationsPage />} />
