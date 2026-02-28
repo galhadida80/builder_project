@@ -44,6 +44,7 @@ logs/security/
 # Screenshots
 screenshots/
 *.png
+!docs/epics/*/designs/*.png
 
 # Data files
 *.ifc
@@ -87,8 +88,7 @@ backend/verify_*.py
 project_index.json
 
 # Design and preview artifacts
-docs/plans/
-docs/archive/
-docs/epics/*/specs/
+docs/archive/playwright-mcp/
+docs/archive/screenshots/
 email_previews/
 design/
