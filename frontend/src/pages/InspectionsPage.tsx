@@ -399,23 +399,21 @@ export default function InspectionsPage() {
 
   return (
     <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 }, maxWidth: '100%', overflow: 'hidden' }}>
-      <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
-        <PageHeader
-          title={t('inspections.title')}
-          subtitle={t('inspections.subtitle')}
-          breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('nav.inspections') }]}
-          actions={
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Box sx={{ display: { xs: 'none', md: 'block' } }}>
-                <Button variant="primary" icon={<AddIcon />} onClick={() => setDialogOpen(true)}>
-                  {t('inspections.scheduleInspection')}
-                </Button>
-              </Box>
-              <HelpTooltip helpKey="help.tooltips.inspectionForm" />
+      <PageHeader
+        title={t('inspections.title')}
+        subtitle={t('inspections.subtitle')}
+        breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('nav.inspections') }]}
+        actions={
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <HelpTooltip helpKey="help.tooltips.inspectionForm" />
+            <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+              <Button variant="primary" icon={<AddIcon />} onClick={() => setDialogOpen(true)}>
+                {t('inspections.scheduleInspection')}
+              </Button>
             </Box>
-          }
-        />
-      </Box>
+          </Box>
+        }
+      />
 
       {summary && (
         <Box sx={{ mb: 2, '& > div': { '& > div > div': { py: { xs: 1, sm: 1.5 }, px: { xs: 1, sm: 2 } } } }}>

@@ -344,21 +344,21 @@ export default function RFIPage() {
 
   return (
     <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 }, maxWidth: '100%', overflow: 'hidden' }}>
-      <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
-        <PageHeader
-          title={t('rfis.title')}
-          subtitle={t('rfis.subtitle')}
-          breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('nav.rfis') }]}
-          actions={
+      <PageHeader
+        title={t('rfis.title')}
+        subtitle={t('rfis.subtitle')}
+        breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('nav.rfis') }]}
+        actions={
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <HelpTooltip helpKey="help.tooltips.rfiForm" />
             <Box sx={{ display: { xs: 'none', md: 'block' } }}>
               <Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>
                 {t('rfis.addRfi')}
               </Button>
             </Box>
-          }
-        />
-        <HelpTooltip helpKey="help.tooltips.rfiForm" />
-      </Box>
+          </Box>
+        }
+      />
 
       {summary && (
         <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1.5, mb: 3 }}>

@@ -209,10 +209,9 @@ export default function MaterialsPage() {
 
   return (
     <Box sx={{ p: { xs: 1, sm: 1.5, md: 3 }, maxWidth: '100%', overflow: 'hidden' }}>
-      <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
-        <PageHeader title={t('materials.title')} subtitle={t('materials.subtitle')} breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('materials.title') }]} actions={<Box sx={{ display: { xs: 'none', md: 'block' } }}><Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>{t('materials.addMaterial')}</Button></Box>} />
-        <HelpTooltip helpKey="help.tooltips.materialForm" />
-      </Box>
+      <PageHeader title={t('materials.title')} subtitle={t('materials.subtitle')} breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('materials.title') }]}
+        actions={<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><HelpTooltip helpKey="help.tooltips.materialForm" /><Box sx={{ display: { xs: 'none', md: 'block' } }}><Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>{t('materials.addMaterial')}</Button></Box></Box>}
+      />
 
       <Box sx={{ mb: 2 }}>
         <SummaryBar items={[

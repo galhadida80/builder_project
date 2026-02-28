@@ -228,15 +228,12 @@ export default function EquipmentPage() {
 
   return (
     <Box sx={{ p: { xs: 1, sm: 1.5, md: 3 }, maxWidth: '100%', overflow: 'hidden' }}>
-      <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
-        <PageHeader
-          title={t('equipment.title')}
-          subtitle={t('equipment.subtitle')}
-          breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('equipment.title') }]}
-          actions={<Box sx={{ display: { xs: 'none', md: 'block' } }}><Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>{t('equipment.addEquipment')}</Button></Box>}
-        />
-        <HelpTooltip helpKey="help.tooltips.equipmentForm" />
-      </Box>
+      <PageHeader
+        title={t('equipment.title')}
+        subtitle={t('equipment.subtitle')}
+        breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('equipment.title') }]}
+        actions={<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><HelpTooltip helpKey="help.tooltips.equipmentForm" /><Box sx={{ display: { xs: 'none', md: 'block' } }}><Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>{t('equipment.addEquipment')}</Button></Box></Box>}
+      />
 
       <Box sx={{ mb: 2 }}>
         <SummaryBar items={[
