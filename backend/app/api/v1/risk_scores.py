@@ -28,6 +28,7 @@ from app.schemas.risk_score import (
     RiskThresholdUpdate,
 )
 from app.services.audit_service import create_audit_log, get_model_dict
+from app.services.notification_service import create_notification
 from app.services.risk_prediction_service import analyze_defect_trends, get_inspection_risk_briefing
 from app.utils import utcnow
 
@@ -102,6 +103,47 @@ async def check_and_schedule_inspection(
     )
 
     db.add(inspection)
+    await db.commit()
+    await db.refresh(inspection)
+
+    # Load area information for notification
+    if risk_score.area_id:
+        area_query = select(ConstructionArea).where(ConstructionArea.id == risk_score.area_id)
+        area_result = await db.execute(area_query)
+        area = area_result.scalar_one_or_none()
+        area_name = area.area_name if area else f"Area {risk_score.area_id}"
+    else:
+        area_name = "Unknown Area"
+
+    # Notify inspectors/project members about auto-scheduled inspection
+    members_query = (
+        select(ProjectMember)
+        .where(ProjectMember.project_id == project_id)
+        .where(
+            ProjectMember.role.in_([
+                "inspector",
+                "consultant",
+                "project_admin",
+                "project_member",
+            ])
+        )
+    )
+    members_result = await db.execute(members_query)
+    members = members_result.scalars().all()
+
+    for member in members:
+        await create_notification(
+            db=db,
+            user_id=member.user_id,
+            category="inspection",
+            title="High-Risk Inspection Auto-Scheduled",
+            message=f"An inspection has been automatically scheduled for {area_name} due to a high risk score of {risk_score.risk_score}. "
+            f"Scheduled date: {inspection.scheduled_date.strftime('%Y-%m-%d')}",
+            entity_type="inspection",
+            entity_id=inspection.id,
+            project_id=project_id,
+        )
+
     await db.commit()
 
 
