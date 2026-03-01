@@ -112,6 +112,12 @@ class RFI(Base):
     )
     sent_at: Mapped[Optional[datetime]] = mapped_column(DateTime)
 
+    acc_rfi_id: Mapped[Optional[str]] = mapped_column(String(255))
+    sync_status: Mapped[str] = mapped_column(String(20), default="not_synced")
+    last_synced_at: Mapped[Optional[datetime]] = mapped_column(DateTime)
+    sync_error: Mapped[Optional[str]] = mapped_column(Text)
+    acc_origin: Mapped[bool] = mapped_column(Boolean, default=False)
+
     project: Mapped["Project"] = relationship("Project", back_populates="rfis")
     created_by: Mapped["User"] = relationship("User", foreign_keys=[created_by_id])
     assigned_to: Mapped[Optional["User"]] = relationship(

@@ -1,3 +1,4 @@
+from app.models.acc_sync import AccProjectLink, AccUserMapping, RfiSyncLog
 from app.models.approval import ApprovalRequest, ApprovalStep
 from app.models.area import AreaChecklistAssignment, AreaProgress, ConstructionArea
 from app.models.audit import AuditLog
@@ -87,6 +88,9 @@ from app.models.time_entry import TimeEntry
 from app.models.timesheet import Timesheet
 
 __all__ = [
+    "AccProjectLink",
+    "AccUserMapping",
+    "RfiSyncLog",
     "User",
     "Project",
     "ProjectMember",

@@ -4444,5 +4444,41 @@
       "specification": "Specification",
       "report": "Report"
     }
+  },
+  "accSync": {
+    "projectLink": "ACC Project Link",
+    "linked": "Linked",
+    "notLinked": "Project is not linked to ACC",
+    "link": "Link Project",
+    "unlink": "Unlink Project",
+    "accProjectId": "ACC Project ID",
+    "accHubId": "ACC Hub ID",
+    "loadError": "Failed to load ACC status",
+    "linkError": "Failed to link ACC project",
+    "unlinkError": "Failed to unlink ACC project",
+    "syncOverview": "Sync Overview",
+    "total": "Total",
+    "synced": "Synced",
+    "failed": "Failed",
+    "pending": "Pending",
+    "lastSync": "Last Sync",
+    "pushAll": "Push All to ACC",
+    "pullAll": "Pull All from ACC",
+    "pushResult": "Pushed {{pushed}}, Failed {{failed}}",
+    "pullResult": "Created {{created}}, Updated {{updated}}",
+    "pushError": "Failed to push to ACC",
+    "pullError": "Failed to pull from ACC",
+    "recentLogs": "Recent Logs",
+    "noLogs": "No logs yet",
+    "status": {
+      "synced": "Synced",
+      "syncing": "Syncing...",
+      "failed": "Failed",
+      "not_synced": "Not Synced"
+    },
+    "userMappings": "User Mappings",
+    "addMapping": "Add Mapping",
+    "accUserId": "ACC User ID",
+    "builderopsUser": "BuilderOps User"
   }
 }

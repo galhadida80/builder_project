@@ -1,6 +1,8 @@
 from fastapi import APIRouter
 
 from app.api.v1 import (
+    acc_sync,
+    acc_sync_inbound,
     admin,
     analytics,
     analytics_bi,
@@ -167,3 +169,5 @@ api_router.include_router(qr_codes.router, tags=["qr_codes"])
 api_router.include_router(batch_uploads.router, tags=["batch_uploads"])
 api_router.include_router(collaborative_documents.router, tags=["collaborative_documents"])
 api_router.include_router(collab_ws.router, tags=["collaborative_documents"])
+api_router.include_router(acc_sync.router, tags=["acc_sync"])
+api_router.include_router(acc_sync_inbound.router, tags=["acc_sync_inbound"])

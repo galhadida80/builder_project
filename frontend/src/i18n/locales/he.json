@@ -4490,5 +4490,41 @@
       "specification": "מפרט",
       "report": "דוח"
     }
+  },
+  "accSync": {
+    "projectLink": "קישור פרויקט ACC",
+    "linked": "מקושר",
+    "notLinked": "הפרויקט לא מקושר ל-ACC",
+    "link": "קשר פרויקט",
+    "unlink": "נתק פרויקט",
+    "accProjectId": "מזהה פרויקט ACC",
+    "accHubId": "מזהה Hub ACC",
+    "loadError": "שגיאה בטעינת סטטוס ACC",
+    "linkError": "שגיאה בקישור פרויקט ACC",
+    "unlinkError": "שגיאה בניתוק פרויקט ACC",
+    "syncOverview": "סקירת סנכרון",
+    "total": "סה\"כ",
+    "synced": "מסונכרן",
+    "failed": "נכשל",
+    "pending": "ממתין",
+    "lastSync": "סנכרון אחרון",
+    "pushAll": "דחוף הכל ל-ACC",
+    "pullAll": "משוך הכל מ-ACC",
+    "pushResult": "נדחפו {{pushed}}, נכשלו {{failed}}",
+    "pullResult": "נוצרו {{created}}, עודכנו {{updated}}",
+    "pushError": "שגיאה בדחיפה ל-ACC",
+    "pullError": "שגיאה במשיכה מ-ACC",
+    "recentLogs": "לוגים אחרונים",
+    "noLogs": "אין לוגים עדיין",
+    "status": {
+      "synced": "מסונכרן",
+      "syncing": "מסנכרן...",
+      "failed": "נכשל",
+      "not_synced": "לא מסונכרן"
+    },
+    "userMappings": "מיפוי משתמשים",
+    "addMapping": "הוסף מיפוי",
+    "accUserId": "מזהה משתמש ACC",
+    "builderopsUser": "משתמש BuilderOps"
   }
 }
