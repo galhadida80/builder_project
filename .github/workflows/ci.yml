@@ -49,6 +49,19 @@ jobs:
       - name: Lint
         run: ruff check backend/
 
+      - name: Security audit (pip-audit)
+        run: |
+          pip install pip-audit
+          pip-audit -r backend/requirements.txt || true
+
+      - name: Check file sizes (300 line limit)
+        run: |
+          OVERSIZE=$(find backend/app -name "*.py" -exec awk 'END{if(NR>300) print FILENAME": "NR" lines"}' {} \;)
+          if [ -n "$OVERSIZE" ]; then
+            echo "::warning::Files exceeding 300-line limit:"
+            echo "$OVERSIZE"
+          fi
+
       - name: Test
         working-directory: backend
         timeout-minutes: 5
@@ -75,6 +88,10 @@ jobs:
         working-directory: frontend
         run: npm ci
 
+      - name: Security audit (npm)
+        working-directory: frontend
+        run: npm audit --audit-level=high || true
+
       - name: Lint
         working-directory: frontend
         run: npm run lint
@@ -90,3 +107,11 @@ jobs:
       - name: Build
         working-directory: frontend
         run: npm run build
+
+      - name: Bundle size report
+        working-directory: frontend
+        run: |
+          echo "## Bundle Size Report"
+          du -sh dist/
+          echo "### Asset breakdown:"
+          find dist/assets -type f -name "*.js" -o -name "*.css" | xargs du -sh | sort -rh
