@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from weasyprint import HTML
 
 from app.config import get_settings
-from app.models.area import Area
+from app.models.area import ConstructionArea
 from app.models.equipment import Equipment
 from app.models.material import Material
 from app.schemas.qr_code import BulkQRCodeItem
@@ -190,7 +190,7 @@ class QRCodeService:
             return result.scalar_one_or_none()
         elif entity_type == "area":
             result = await self.db.execute(
-                select(Area).where(Area.id == entity_id)
+                select(ConstructionArea).where(ConstructionArea.id == entity_id)
             )
             return result.scalar_one_or_none()
         return None
