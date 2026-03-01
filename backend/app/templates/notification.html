@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block header_content %}
-<p style="margin:0 0 8px;font-size:28px;">&#128276;</p>
+<img src="{{ icons.notification }}" width="36" height="36" alt="" style="display:block;border:0;margin:0 0 8px;" />
 <h1 style="margin:0 0 6px;color:#ffffff;font-size:24px;font-weight:800;letter-spacing:-0.3px;">{{ title }}</h1>
 {% if project_name %}
 <p style="margin:0;color:#94A3B8;font-size:13px;">{{ strings.project_label }}: <span style="color:#CBD5E1;font-weight:600;">{{ project_name }}</span></p>
@@ -9,17 +9,155 @@
 {% endblock %}
 
 {% block content %}
+
+{# Status & Category Badges #}
+{% if category or status %}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px;">
+<tr><td>
+{% if category %}
+<span style="display:inline-block;background:#FFF7ED;color:#EA580C;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;margin-{{ 'left' if direction == 'rtl' else 'right' }}:8px;">{{ category }}</span>
+{% endif %}
+{% if status %}
+<span style="display:inline-block;background:#F0FDF4;color:#16A34A;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;">{{ status }}</span>
+{% endif %}
+</td></tr>
+</table>
+{% endif %}
+
+{# Main Message Card #}
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
-<tr><td style="padding:20px;background:#F8FAFC;border-radius:12px;border-{{ 'right' if direction == 'rtl' else 'left' }}:4px solid #EA580C;">
-<p style="margin:0;color:#334155;font-size:15px;line-height:1.7;">{{ message }}</p>
+<tr><td style="padding:22px;background:#F8FAFC;border-radius:12px;border-{{ 'right' if direction == 'rtl' else 'left' }}:4px solid #EA580C;">
+<p style="margin:0;color:#334155;font-size:15px;line-height:1.8;">{{ message }}</p>
 </td></tr>
 </table>
 
+{# Entity Details Card #}
+{% if entity_type or entity_name or triggered_by or timestamp %}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+<tr><td>
+<p style="margin:0 0 10px;font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#0F172A;">{{ strings.details_section }}</p>
+</td></tr>
+<tr><td>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;border:1px solid #E2E8F0;overflow:hidden;">
+{% if entity_type %}
+<tr>
+<td style="padding:14px 20px;border-bottom:1px solid #F1F5F9;width:40%;vertical-align:top;">
+<p style="margin:0;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">{{ strings.entity_label }}</p>
+</td>
+<td style="padding:14px 20px;border-bottom:1px solid #F1F5F9;vertical-align:top;">
+<p style="margin:0;font-size:14px;color:#0F172A;font-weight:600;">{{ entity_type }}{% if entity_name %}: {{ entity_name }}{% endif %}</p>
+</td>
+</tr>
+{% endif %}
+{% if category %}
+<tr>
+<td style="padding:14px 20px;border-bottom:1px solid #F1F5F9;width:40%;vertical-align:top;">
+<p style="margin:0;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">{{ strings.category_label }}</p>
+</td>
+<td style="padding:14px 20px;border-bottom:1px solid #F1F5F9;vertical-align:top;">
+<span style="display:inline-block;background:#FFF7ED;color:#C2410C;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:700;">{{ category }}</span>
+</td>
+</tr>
+{% endif %}
+{% if triggered_by %}
+<tr>
+<td style="padding:14px 20px;border-bottom:1px solid #F1F5F9;width:40%;vertical-align:top;">
+<p style="margin:0;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">{{ strings.triggered_by_label }}</p>
+</td>
+<td style="padding:14px 20px;border-bottom:1px solid #F1F5F9;vertical-align:top;">
+<table role="presentation" cellpadding="0" cellspacing="0">
+<tr>
+<td style="vertical-align:middle;padding-{{ 'left' if direction == 'rtl' else 'right' }}:10px;">
+<div style="width:28px;height:28px;background:linear-gradient(135deg,#EA580C,#FB923C);border-radius:50%;text-align:center;line-height:28px;font-size:12px;color:#ffffff;font-weight:800;">{{ triggered_by[:1] | upper }}</div>
+</td>
+<td style="vertical-align:middle;">
+<p style="margin:0;font-size:14px;color:#334155;font-weight:600;">{{ triggered_by }}</p>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+{% endif %}
+{% if timestamp %}
+<tr>
+<td style="padding:14px 20px;width:40%;vertical-align:top;">
+<p style="margin:0;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">{{ strings.timestamp_label }}</p>
+</td>
+<td style="padding:14px 20px;vertical-align:top;">
+<p style="margin:0;font-size:14px;color:#334155;font-weight:500;">{{ timestamp }}</p>
+</td>
+</tr>
+{% endif %}
+</table>
+</td></tr>
+</table>
+{% endif %}
+
+{# Project Info Card #}
+{% if project_name %}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+<tr><td>
+<p style="margin:0 0 10px;font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#0F172A;">{{ strings.project_section }}</p>
+</td></tr>
+<tr><td>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#0F172A;border-radius:12px;overflow:hidden;">
+<tr>
+<td style="padding:20px 22px;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+<tr>
+<td style="vertical-align:middle;">
+<p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#F97316;">{{ strings.project_label }}</p>
+<p style="margin:0;font-size:18px;color:#ffffff;font-weight:700;">{{ project_name }}</p>
+</td>
+<td style="vertical-align:middle;text-align:{{ 'left' if direction == 'rtl' else 'right' }};">
+<a href="{{ project_url }}" style="display:inline-block;background:rgba(249,115,22,0.15);color:#FB923C;text-decoration:none;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:700;">{{ strings.view_project }} &rarr;</a>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</td></tr>
+</table>
+{% endif %}
+
+{# CTA Button #}
 {% if action_url %}
-<div style="text-align:center;margin:0 0 24px;">
-<a href="{{ action_url }}" style="display:inline-block;background:linear-gradient(135deg,#EA580C,#FB923C);color:#ffffff;text-decoration:none;padding:14px 40px;border-radius:12px;font-size:15px;font-weight:700;letter-spacing:0.3px;box-shadow:0 4px 12px rgba(249,115,22,0.3);">{{ strings.cta }}</a>
+<div style="text-align:center;margin:0 0 28px;">
+<a href="{{ action_url }}" style="display:inline-block;background:linear-gradient(135deg,#EA580C,#FB923C);color:#ffffff;text-decoration:none;padding:16px 48px;border-radius:12px;font-size:16px;font-weight:700;letter-spacing:0.3px;box-shadow:0 4px 12px rgba(249,115,22,0.3);">{{ strings.cta }}</a>
 </div>
 {% endif %}
+
+{# Quick Links #}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:8px;">
+<tr><td>
+<p style="margin:0 0 10px;font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#0F172A;">{{ strings.quick_links }}</p>
+</td></tr>
+<tr><td>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+<tr>
+{% if action_url %}
+<td width="33%" style="padding:4px;">
+<a href="{{ action_url }}" style="display:block;text-align:center;padding:12px 8px;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;text-decoration:none;">
+<p style="margin:0;font-size:12px;color:#EA580C;font-weight:700;">{{ strings.view_entity }}</p>
+</a>
+</td>
+{% endif %}
+<td width="33%" style="padding:4px;">
+<a href="{{ project_url }}" style="display:block;text-align:center;padding:12px 8px;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;text-decoration:none;">
+<p style="margin:0;font-size:12px;color:#EA580C;font-weight:700;">{{ strings.view_project }}</p>
+</a>
+</td>
+<td width="33%" style="padding:4px;">
+<a href="{{ frontend_url }}/settings/notifications" style="display:block;text-align:center;padding:12px 8px;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;text-decoration:none;">
+<p style="margin:0;font-size:12px;color:#64748B;font-weight:700;">{{ strings.settings }}</p>
+</a>
+</td>
+</tr>
+</table>
+</td></tr>
+</table>
+
 {% endblock %}
 
 {% block footer %}{{ strings.footer }}{% endblock %}

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block header_content %}
-<p style="margin:0 0 8px;font-size:28px;">&#128197;</p>
+<img src="{{ icons.meeting }}" width="36" height="36" alt="" style="display:block;border:0;margin:0 0 8px;" />
 <h1 style="margin:0 0 6px;color:#ffffff;font-size:24px;font-weight:800;letter-spacing:-0.3px;">{{ strings.title }}</h1>
 {% if project_name %}
 <p style="margin:0;color:#94A3B8;font-size:13px;">{{ strings.project_label }}: <span style="color:#CBD5E1;font-weight:600;">{{ project_name }}</span></p>

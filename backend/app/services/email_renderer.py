@@ -4,6 +4,7 @@ from datetime import date, datetime
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from app.config import get_settings
+from app.services.email_icons import ICON_DATA
 
 TEMPLATES_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates")
 
@@ -11,6 +12,8 @@ env = Environment(
     loader=FileSystemLoader(TEMPLATES_DIR),
     autoescape=select_autoescape(["html"]),
 )
+
+env.globals["icons"] = ICON_DATA
 
 ROLE_DISPLAY = {
     "en": {
@@ -252,15 +255,75 @@ STRINGS = {
     "notification": {
         "en": {
             "project_label": "Project",
+            "entity_label": "Entity",
+            "category_label": "Category",
+            "status_label": "Status",
+            "triggered_by_label": "Triggered By",
+            "timestamp_label": "When",
+            "details_section": "Details",
+            "project_section": "Project Information",
+            "quick_links": "Quick Links",
+            "view_project": "View Project",
+            "view_entity": "View Details",
+            "settings": "Notification Settings",
             "cta": "View in BuilderOps",
             "footer": "BuilderOps - Construction Project Management",
             "auto_message": "This is an automated notification from BuilderOps.",
+            "entity_types": {
+                "equipment": "Equipment",
+                "material": "Material",
+                "inspection": "Inspection",
+                "rfi": "RFI",
+                "meeting": "Meeting",
+                "defect": "Defect",
+                "checklist": "Checklist",
+                "document": "Document",
+                "task": "Task",
+            },
+            "categories": {
+                "approval": "Approval",
+                "update": "Update",
+                "assignment": "Assignment",
+                "mention": "Mention",
+                "deadline": "Deadline",
+                "system": "System",
+            },
         },
         "he": {
             "project_label": "פרויקט",
+            "entity_label": "ישות",
+            "category_label": "קטגוריה",
+            "status_label": "סטטוס",
+            "triggered_by_label": "בוצע על ידי",
+            "timestamp_label": "מתי",
+            "details_section": "פרטים",
+            "project_section": "מידע על הפרויקט",
+            "quick_links": "קישורים מהירים",
+            "view_project": "צפה בפרויקט",
+            "view_entity": "צפה בפרטים",
+            "settings": "הגדרות התראות",
             "cta": "צפה ב-BuilderOps",
             "footer": "BuilderOps - ניהול פרויקטי בנייה",
             "auto_message": "זוהי הודעה אוטומטית מ-BuilderOps.",
+            "entity_types": {
+                "equipment": "ציוד",
+                "material": "חומר",
+                "inspection": "בדיקה",
+                "rfi": "בקשת מידע",
+                "meeting": "פגישה",
+                "defect": "ליקוי",
+                "checklist": "צ'קליסט",
+                "document": "מסמך",
+                "task": "משימה",
+            },
+            "categories": {
+                "approval": "אישור",
+                "update": "עדכון",
+                "assignment": "הקצאה",
+                "mention": "אזכור",
+                "deadline": "מועד אחרון",
+                "system": "מערכת",
+            },
         },
     },
     "checklist_pdf": {
@@ -804,11 +867,27 @@ def render_subcontractor_invite_email(
 
 
 def render_notification_email(
-    title: str, message: str, action_url: str, project_name: str = "", language: str = "en"
+    title: str,
+    message: str,
+    action_url: str,
+    project_name: str = "",
+    language: str = "en",
+    entity_type: str = "",
+    category: str = "",
+    triggered_by: str = "",
+    timestamp: str = "",
+    project_url: str = "",
+    entity_name: str = "",
+    status: str = "",
 ) -> tuple[str, str]:
     s = STRINGS["notification"].get(language, STRINGS["notification"]["en"])
+    settings = get_settings()
+    frontend_url = settings.frontend_url or "https://app.builderops.dev"
     direction = "rtl" if language == "he" else "ltr"
     align = "right" if language == "he" else "left"
+
+    entity_display = s.get("entity_types", {}).get(entity_type, entity_type) if entity_type else ""
+    category_display = s.get("categories", {}).get(category, category) if category else ""
 
     template = env.get_template("notification.html")
     html = template.render(
@@ -816,6 +895,14 @@ def render_notification_email(
         message=message,
         action_url=action_url,
         project_name=project_name,
+        project_url=project_url or frontend_url,
+        entity_type=entity_display,
+        entity_name=entity_name,
+        category=category_display,
+        triggered_by=triggered_by,
+        timestamp=timestamp,
+        status=status,
+        frontend_url=frontend_url,
         strings=s,
         lang=language,
         direction=direction,
