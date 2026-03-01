@@ -3953,6 +3953,50 @@
         "reportedBy": "Reported By",
         "noIncidents": "No safety incidents found",
         "loadFailed": "Failed to load safety incidents"
+      },
+      "safetyTraining": {
+        "title": "Safety Training",
+        "createNew": "Add Training",
+        "editTraining": "Edit Training",
+        "searchPlaceholder": "Search training...",
+        "filterByType": "Filter by Training Type",
+        "worker": "Worker",
+        "trainingType": "Training Type",
+        "trainingDate": "Training Date",
+        "expiryDate": "Expiry Date",
+        "certificateNumber": "Certificate Number",
+        "instructor": "Instructor",
+        "notes": "Notes",
+        "noTrainings": "No safety training records found",
+        "loadFailed": "Failed to load safety training",
+        "createSuccess": "Training record created successfully!",
+        "updateSuccess": "Training record updated successfully!",
+        "createFailed": "Failed to create training record",
+        "updateFailed": "Failed to update training record",
+        "expired": "Expired",
+        "status": {
+          "label": "Status",
+          "valid": "Valid",
+          "expired": "Expired",
+          "expiring_soon": "Expiring Soon"
+        },
+        "expiresTime": {
+          "today": "Expires today",
+          "tomorrow": "Expires tomorrow",
+          "inDays": "Expires in {{count}} days"
+        },
+        "summary": {
+          "total": "Total Training",
+          "valid": "Valid",
+          "expiringSoon": "Expiring Soon",
+          "expired": "Expired"
+        },
+        "tabs": {
+          "all": "All",
+          "valid": "Valid",
+          "expiringSoon": "Expiring Soon",
+          "expired": "Expired"
+        }
       }
     }
   }

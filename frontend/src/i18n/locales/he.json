@@ -3999,6 +3999,50 @@
         "reportedBy": "דווח על ידי",
         "noIncidents": "לא נמצאו אירועי בטיחות",
         "loadFailed": "נכשל בטעינת אירועי בטיחות"
+      },
+      "safetyTraining": {
+        "title": "הדרכות בטיחות",
+        "createNew": "הוסף הדרכה",
+        "editTraining": "ערוך הדרכה",
+        "searchPlaceholder": "חפש הדרכות...",
+        "filterByType": "סנן לפי סוג הדרכה",
+        "worker": "עובד",
+        "trainingType": "סוג הדרכה",
+        "trainingDate": "תאריך הדרכה",
+        "expiryDate": "תאריך תפוגה",
+        "certificateNumber": "מספר תעודה",
+        "instructor": "מדריך",
+        "notes": "הערות",
+        "noTrainings": "לא נמצאו הדרכות בטיחות",
+        "loadFailed": "נכשל בטעינת הדרכות בטיחות",
+        "createSuccess": "ההדרכה נוצרה בהצלחה!",
+        "updateSuccess": "ההדרכה עודכנה בהצלחה!",
+        "createFailed": "נכשל ביצירת הדרכה",
+        "updateFailed": "נכשל בעדכון הדרכה",
+        "expired": "פג תוקף",
+        "status": {
+          "label": "סטטוס",
+          "valid": "בתוקף",
+          "expired": "פג תוקף",
+          "expiring_soon": "תוקף עומד לפוג"
+        },
+        "expiresTime": {
+          "today": "פג תוקף היום",
+          "tomorrow": "פג תוקף מחר",
+          "inDays": "פג תוקף בעוד {{count}} ימים"
+        },
+        "summary": {
+          "total": "סה\"כ הדרכות",
+          "valid": "בתוקף",
+          "expiringSoon": "תוקף עומד לפוג",
+          "expired": "פג תוקף"
+        },
+        "tabs": {
+          "all": "הכל",
+          "valid": "בתוקף",
+          "expiringSoon": "תוקף עומד לפוג",
+          "expired": "פג תוקף"
+        }
       }
     }
   }
