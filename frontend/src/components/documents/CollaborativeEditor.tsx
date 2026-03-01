@@ -122,7 +122,7 @@ export default function CollaborativeEditor({
 
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({ history: false }),
+      StarterKit.configure({ history: false } as Record<string, unknown>),
       Collaboration.configure({ document: ydoc }),
       CollaborationCursor.configure({
         provider: providerRef.current!,
