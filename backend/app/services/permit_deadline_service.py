@@ -34,7 +34,7 @@ def render_permit_deadline_email(
         accent_color = "#DC2626"
         accent_bg = "#FEF2F2"
         badge_text = f"Expired {days_overdue} day(s) ago"
-        heading = f"Permit Expired"
+        heading = "Permit Expired"
         detail = f"{permit_type_display} permit <strong style=\"color:#0F172A;\">{permit_number}</strong> expired {days_overdue} day(s) ago. Immediate action required for regulatory compliance."
     else:
         email_subject = f"Permit Expiration - {permit_type_display}"

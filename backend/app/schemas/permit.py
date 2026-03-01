@@ -10,7 +10,6 @@ from app.core.validators import (
     MAX_DESCRIPTION_LENGTH,
     MAX_NAME_LENGTH,
     MAX_NOTES_LENGTH,
-    MIN_NAME_LENGTH,
     CamelCaseModel,
     sanitize_string,
 )

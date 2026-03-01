@@ -1,7 +1,8 @@
 import { useTranslation } from 'react-i18next'
-import { Box, Typography, Skeleton, Paper, styled, Grid, LinearProgress } from '@/mui'
+import { Box, Typography, Skeleton, Paper, styled, Grid, LinearProgress, useTheme } from '@/mui'
 import { WarningAmberIcon, ErrorIcon, CheckCircleIcon, InfoIcon, AssignmentIcon } from '@/icons'
 import type { PermitComplianceReport } from '../../types/permit'
+import PermitStatusBreakdown from './PermitStatusBreakdown'
 
 interface PermitComplianceDashboardProps {
   complianceReport: PermitComplianceReport | null
@@ -37,50 +38,12 @@ const MetricCard = styled(Paper)(({ theme }) => ({
   },
 }))
 
-const StatusGrid = styled(Box)(({ theme }) => ({
-  display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-  gap: theme.spacing(1.5),
-  marginTop: theme.spacing(2),
-  [theme.breakpoints.down('sm')]: {
-    gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
-    gap: theme.spacing(1),
-  },
-}))
-
-interface StatusChipProps {
-  statusColor: string
-}
-
-const StatusChip = styled(Box, {
-  shouldForwardProp: (prop) => prop !== 'statusColor',
-})<StatusChipProps>(({ theme, statusColor }) => ({
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  padding: theme.spacing(1.5),
-  borderRadius: 8,
-  border: `2px solid ${statusColor}`,
-  backgroundColor: theme.palette.mode === 'dark'
-    ? `${statusColor}20`
-    : `${statusColor}10`,
-  '& .status-label': {
-    color: theme.palette.text.secondary,
-    fontSize: '0.75rem',
-    marginBottom: theme.spacing(0.5),
-  },
-  '& .status-count': {
-    color: statusColor,
-    fontWeight: 700,
-    fontSize: '1.5rem',
-  },
-}))
-
 export default function PermitComplianceDashboard({
   complianceReport,
   loading = false,
 }: PermitComplianceDashboardProps) {
   const { t } = useTranslation()
+  const theme = useTheme()
 
   const calculateComplianceLevel = (): ComplianceLevel => {
     if (!complianceReport || complianceReport.totalPermits === 0) {
@@ -89,7 +52,7 @@ export default function PermitComplianceDashboard({
         score: 0,
         label: t('permits.complianceStatus'),
         icon: <InfoIcon />,
-        color: '#FFA726',
+        color: theme.palette.warning.main,
       }
     }
 
@@ -122,7 +85,7 @@ export default function PermitComplianceDashboard({
         score,
         label: t('permits.compliant'),
         icon: <CheckCircleIcon />,
-        color: '#66BB6A',
+        color: theme.palette.success.main,
       }
     } else if (score >= 50) {
       return {
@@ -130,7 +93,7 @@ export default function PermitComplianceDashboard({
         score,
         label: t('permits.requiresAction'),
         icon: <WarningAmberIcon />,
-        color: '#FFA726',
+        color: theme.palette.warning.main,
       }
     } else {
       return {
@@ -138,29 +101,8 @@ export default function PermitComplianceDashboard({
         score,
         label: t('permits.nonCompliant'),
         icon: <ErrorIcon />,
-        color: '#EF5350',
+        color: theme.palette.error.main,
       }
-    }
-  }
-
-  const getStatusColor = (status: string): string => {
-    switch (status) {
-      case 'approved':
-        return '#66BB6A'
-      case 'conditional':
-        return '#42A5F5'
-      case 'underReview':
-        return '#FFA726'
-      case 'applied':
-        return '#AB47BC'
-      case 'notApplied':
-        return '#78909C'
-      case 'rejected':
-        return '#EF5350'
-      case 'expired':
-        return '#D32F2F'
-      default:
-        return '#9E9E9E'
     }
   }
 
@@ -315,47 +257,7 @@ export default function PermitComplianceDashboard({
         </Box>
       )}
 
-      <Box>
-        <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 2 }}>
-          {t('permits.status')}
-        </Typography>
-        <StatusGrid>
-          <StatusChip statusColor={getStatusColor('approved')}>
-            <Typography className="status-label">{t('permits.statuses.approved')}</Typography>
-            <Typography className="status-count">{complianceReport.approvedCount}</Typography>
-          </StatusChip>
-
-          <StatusChip statusColor={getStatusColor('conditional')}>
-            <Typography className="status-label">{t('permits.statuses.conditional')}</Typography>
-            <Typography className="status-count">{complianceReport.conditionalCount}</Typography>
-          </StatusChip>
-
-          <StatusChip statusColor={getStatusColor('underReview')}>
-            <Typography className="status-label">{t('permits.statuses.underReview')}</Typography>
-            <Typography className="status-count">{complianceReport.underReviewCount}</Typography>
-          </StatusChip>
-
-          <StatusChip statusColor={getStatusColor('applied')}>
-            <Typography className="status-label">{t('permits.statuses.applied')}</Typography>
-            <Typography className="status-count">{complianceReport.appliedCount}</Typography>
-          </StatusChip>
-
-          <StatusChip statusColor={getStatusColor('notApplied')}>
-            <Typography className="status-label">{t('permits.statuses.notApplied')}</Typography>
-            <Typography className="status-count">{complianceReport.notAppliedCount}</Typography>
-          </StatusChip>
-
-          <StatusChip statusColor={getStatusColor('rejected')}>
-            <Typography className="status-label">{t('permits.statuses.rejected')}</Typography>
-            <Typography className="status-count">{complianceReport.rejectedCount}</Typography>
-          </StatusChip>
-
-          <StatusChip statusColor={getStatusColor('expired')}>
-            <Typography className="status-label">{t('permits.statuses.expired')}</Typography>
-            <Typography className="status-count">{complianceReport.expiredCount}</Typography>
-          </StatusChip>
-        </StatusGrid>
-      </Box>
+      <PermitStatusBreakdown complianceReport={complianceReport} />
     </DashboardContainer>
   )
 }

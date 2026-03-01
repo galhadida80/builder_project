@@ -1,7 +1,7 @@
 """Add permit tables
 
-Revision ID: 056
-Revises: 055
+Revision ID: 067
+Revises: 066
 Create Date: 2026-03-01
 
 """
@@ -12,8 +12,8 @@ from sqlalchemy.dialects import postgresql
 
 from alembic import op
 
-revision: str = '056'
-down_revision: Union[str, None] = '055'
+revision: str = '067'
+down_revision: Union[str, None] = '066'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

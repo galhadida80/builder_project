@@ -22,7 +22,7 @@ export default function PermitStatusBadge({ status, size = 'small' }: PermitStat
 
   return (
     <Chip
-      label={t(`common.statuses.${status}`)}
+      label={t(`permits.statuses.${status}`)}
       color={statusColors[status]}
       size={size}
       sx={{
