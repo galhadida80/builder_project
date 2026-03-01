@@ -1,7 +1,7 @@
 """add floorplans and pins
 
-Revision ID: 062
-Revises: 061
+Revision ID: 063
+Revises: 062
 Create Date: 2026-03-01
 """
 
@@ -9,8 +9,8 @@ import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.dialects import postgresql
 
-revision = "062"
-down_revision = "061"
+revision = "063"
+down_revision = "062"
 branch_labels = None
 depends_on = None
 
