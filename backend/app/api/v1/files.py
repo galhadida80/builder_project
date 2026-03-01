@@ -32,7 +32,7 @@ MAX_FILE_SIZE = 50 * 1024 * 1024  # 50 MB
 
 ALLOWED_ENTITY_TYPES = {
     "area", "blueprint", "checklist", "contact", "defect", "equipment", "inspection",
-    "material", "meeting", "project", "rfi", "task", "approval",
+    "material", "meeting", "permit", "project", "rfi", "task", "approval",
 }
 
 

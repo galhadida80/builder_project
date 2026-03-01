@@ -19,6 +19,7 @@ import AreasPage from './pages/AreasPage'
 import ContactsPage from './pages/ContactsPage'
 import AuditLogPage from './pages/AuditLogPage'
 import InspectionsPage from './pages/InspectionsPage'
+import PermitsPage from './pages/PermitsPage'
 import RFIPage from './pages/RFIPage'
 import DocumentReviewPage from './pages/DocumentReviewPage'
 import InspectorDashboardPage from './pages/InspectorDashboard'
@@ -131,6 +132,7 @@ function AppRoutes() {
               <Route path="areas" element={<AreasPage />} />
               <Route path="contacts" element={<ContactsPage />} />
               <Route path="inspections" element={<InspectionsPage />} />
+              <Route path="permits" element={<PermitsPage />} />
               <Route path="rfis" element={<RFIPage />} />
               <Route path="rfis/:rfiId" element={<RFIDetailPage />} />
               <Route path="checklists" element={<ChecklistsPage />} />

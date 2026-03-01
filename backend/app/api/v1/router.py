@@ -46,6 +46,7 @@ from app.api.v1 import (
     payment_webhooks,
     permission_audit,
     permissions,
+    permits,
     project_roles,
     projects,
     quantity_extraction,
@@ -114,6 +115,7 @@ api_router.include_router(document_analysis.router, tags=["document_analysis"])
 api_router.include_router(document_versions.router, tags=["document_versions"])
 api_router.include_router(chat.router, tags=["chat"])
 api_router.include_router(inspections.router, tags=["inspections"])
+api_router.include_router(permits.router, tags=["permits"])
 api_router.include_router(invitations.router, tags=["invitations"])
 api_router.include_router(admin.router, prefix="/admin", tags=["admin"])
 api_router.include_router(daily_summary.router, prefix="/tasks", tags=["tasks"])

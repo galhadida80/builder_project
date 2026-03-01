@@ -65,6 +65,7 @@ class Project(Base):
     inspections = relationship("Inspection", back_populates="project", cascade="all, delete-orphan")
     rfis = relationship("RFI", back_populates="project", cascade="all, delete-orphan")
     checklist_templates = relationship("ChecklistTemplate", back_populates="project", cascade="all, delete-orphan")
+    permits = relationship("Permit", back_populates="project", cascade="all, delete-orphan")
 
 
 class ProjectMember(Base):

@@ -37,6 +37,7 @@ from app.schemas.meeting import (
     MeetingUpdate,
 )
 from app.schemas.near_miss import NearMissCreate, NearMissResponse, NearMissUpdate
+from app.schemas.permit import PermitCreate, PermitResponse, PermitSummaryResponse, PermitUpdate
 from app.schemas.project import (
     ProjectCreate,
     ProjectMemberCreate,

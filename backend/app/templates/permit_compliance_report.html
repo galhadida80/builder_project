@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="he" dir="{{ direction }}">
+<head>
+<meta charset="UTF-8">
+<style>
+  @font-face {
+    font-family: "NotoHebrew";
+    src: url("fonts/NotoSansHebrew-Regular.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: "NotoHebrew";
+    src: url("fonts/NotoSansHebrew-Bold.ttf") format("truetype");
+    font-weight: 700;
+    font-style: normal;
+  }
+
+  @page {
+    size: A4;
+    margin: 12mm 14mm 16mm 14mm;
+    @bottom-right {
+      content: counter(page) " / " counter(pages);
+      font-family: "NotoHebrew", sans-serif;
+      font-size: 7.5pt;
+      color: #94A3B8;
+    }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: "NotoHebrew", sans-serif;
+    font-size: 10pt;
+    color: #1E293B;
+    direction: {{ direction }};
+    line-height: 1.6;
+    background: #fff;
+  }
+
+  .report-header {
+    background: #0F172A;
+    padding: 28px 32px 24px;
+    margin: -12mm -14mm 0 -14mm;
+    color: #fff;
+  }
+
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 18px;
+  }
+
+  .brand {
+    font-size: 10pt;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #F97316;
+  }
+
+  .header-date {
+    font-size: 9pt;
+    color: #94A3B8;
+  }
+
+  .header-title {
+    font-size: 26pt;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+  }
+
+  .header-project {
+    font-size: 12pt;
+    color: #CBD5E1;
+    font-weight: 400;
+  }
+
+  .header-project .code {
+    color: #F97316;
+    font-weight: 600;
+  }
+
+  .header-rule {
+    border: none;
+    border-top: 2px solid #F97316;
+    margin: 14px 0 0;
+    width: 64px;
+  }
+
+  .compliance-summary {
+    margin: 16px 0 20px;
+    padding: 16px;
+    border-radius: 6px;
+    border: 2px solid {{ compliance_color }};
+    background: #fff;
+  }
+
+  .compliance-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .compliance-row:last-child {
+    margin-bottom: 0;
+  }
+
+  .compliance-label {
+    font-size: 10pt;
+    font-weight: 600;
+    color: #475569;
+  }
+
+  .compliance-value {
+    font-size: 13pt;
+    font-weight: 700;
+    color: {{ compliance_color }};
+  }
+
+  .alert-box {
+    background: #FEF2F2;
+    border: 1px solid #FCA5A5;
+    border-radius: 4px;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    font-size: 9pt;
+    color: #991B1B;
+  }
+
+  .alert-box.warning {
+    background: #FFFBEB;
+    border-color: #FCD34D;
+    color: #92400E;
+  }
+
+  .alert-title {
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .alert-list {
+    margin: 4px 0 0 16px;
+    padding: 0;
+  }
+
+  .alert-list li {
+    margin: 2px 0;
+  }
+
+  .total-count {
+    margin: 16px 0 20px;
+    font-size: 11pt;
+    font-weight: 600;
+    color: #475569;
+  }
+
+  .total-count span {
+    font-weight: 700;
+    color: #0F172A;
+    font-size: 13pt;
+  }
+
+  .permit-card {
+    border: 1px solid #E2E8F0;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #fff;
+    margin-bottom: 16px;
+    page-break-inside: avoid;
+  }
+
+  .card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    border-bottom: 1px solid #E2E8F0;
+    background: #F8FAFC;
+  }
+
+  .card-top-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .permit-type-name {
+    font-size: 13pt;
+    font-weight: 700;
+    color: #0F172A;
+    letter-spacing: -0.3px;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 4px;
+    font-size: 7.5pt;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.3px;
+  }
+
+  .badge-outline {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 4px;
+    font-size: 7.5pt;
+    font-weight: 600;
+    background: #fff;
+    border: 1px solid #CBD5E1;
+    color: #475569;
+    letter-spacing: 0.2px;
+  }
+
+  .card-top-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .card-body {
+    padding: 14px 16px;
+  }
+
+  .field-row {
+    padding: 6px 0;
+    border-bottom: 1px solid #F1F5F9;
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+  }
+
+  .field-row:last-child {
+    border-bottom: none;
+  }
+
+  .field-label {
+    font-size: 8pt;
+    font-weight: 600;
+    color: #94A3B8;
+    letter-spacing: 0.3px;
+    min-width: 110px;
+    flex-shrink: 0;
+  }
+
+  .field-value {
+    font-size: 9.5pt;
+    color: #1E293B;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  .field-value.muted {
+    color: #94A3B8;
+  }
+
+  .field-value.expiry-warning {
+    color: #DC2626;
+    font-weight: 700;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    color: #94A3B8;
+    font-size: 13pt;
+    font-weight: 500;
+  }
+</style>
+</head>
+<body>
+
+<div class="report-header">
+  <div class="header-top">
+    <div class="brand">BUILDEROPS</div>
+    <div class="header-date">{{ report_date }}</div>
+  </div>
+  <div class="header-title">{{ s.report_title }}</div>
+  <div class="header-project">{{ project_name }}{% if project_code %} <span class="code">{{ project_code }}</span>{% endif %}</div>
+  <hr class="header-rule">
+</div>
+
+<div class="compliance-summary">
+  <div class="compliance-row">
+    <span class="compliance-label">{{ s.compliance_status }}</span>
+    <span class="compliance-value">{{ compliance_status }}</span>
+  </div>
+</div>
+
+{% if expired_count > 0 %}
+<div class="alert-box">
+  <div class="alert-title">{{ s.expired_permits }}: {{ expired_count }}</div>
+</div>
+{% endif %}
+
+{% if expiring_soon_count > 0 %}
+<div class="alert-box warning">
+  <div class="alert-title">{{ s.expiring_soon }}: {{ expiring_soon_count }}</div>
+</div>
+{% endif %}
+
+{% if missing_count > 0 %}
+<div class="alert-box">
+  <div class="alert-title">{{ s.missing_permits }}: {{ missing_count }}</div>
+  <ul class="alert-list">
+    {% for missing_permit in missing_permits %}
+    <li>{{ missing_permit }}</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+<div class="total-count"><span>{{ total_count }}</span> {{ s.total_permits }}</div>
+
+{% if permits|length == 0 %}
+<div class="empty-state">{{ s.no_permits }}</div>
+{% endif %}
+
+{% for permit in permits %}
+<div class="permit-card">
+  <div class="card-top">
+    <div class="card-top-right">
+      <span class="permit-type-name">{{ permit.permit_type_label }}</span>
+    </div>
+    <div class="card-top-left">
+      <span class="badge" style="background: {{ permit.status_color }};">{{ permit.status_label }}</span>
+      {% if permit.days_until_expiry %}
+      <span class="badge-outline">{{ permit.days_until_expiry }} {{ s.days_until_expiry }}</span>
+      {% endif %}
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="field-row">
+      <div class="field-label">{{ s.permit_number }}</div>
+      <div class="field-value{% if permit.permit_number == '-' %} muted{% endif %}">{{ permit.permit_number }}</div>
+    </div>
+    <div class="field-row">
+      <div class="field-label">{{ s.issuing_authority }}</div>
+      <div class="field-value{% if permit.issuing_authority == '-' %} muted{% endif %}">{{ permit.issuing_authority }}</div>
+    </div>
+    <div class="field-row">
+      <div class="field-label">{{ s.application_date }}</div>
+      <div class="field-value{% if permit.application_date == '-' %} muted{% endif %}">{{ permit.application_date }}</div>
+    </div>
+    <div class="field-row">
+      <div class="field-label">{{ s.approval_date }}</div>
+      <div class="field-value{% if permit.approval_date == '-' %} muted{% endif %}">{{ permit.approval_date }}</div>
+    </div>
+    <div class="field-row">
+      <div class="field-label">{{ s.expiration_date }}</div>
+      <div class="field-value{% if permit.expiration_date == '-' %} muted{% endif %}{% if permit.days_until_expiry and permit.days_until_expiry < 30 %} expiry-warning{% endif %}">{{ permit.expiration_date }}</div>
+    </div>
+    {% if permit.conditions %}
+    <div class="field-row">
+      <div class="field-label">{{ s.conditions }}</div>
+      <div class="field-value">{{ permit.conditions }}</div>
+    </div>
+    {% endif %}
+    {% if permit.notes %}
+    <div class="field-row">
+      <div class="field-label">{{ s.notes }}</div>
+      <div class="field-value">{{ permit.notes }}</div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endfor %}
+
+</body>
+</html>
