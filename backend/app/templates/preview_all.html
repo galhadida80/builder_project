@@ -1,591 +1,1142 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BuilderOps Templates - Black & Orange Theme Preview</title>
+<head><meta charset="utf-8"><title>BuilderOps Templates Preview</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0A0A0A; color: #E5E5E5; }
-  .hero { background: linear-gradient(135deg, #0F172A, #1A1A1A); padding: 60px 40px; text-align: center; border-bottom: 3px solid #F97316; }
-  .hero h1 { font-size: 42px; font-weight: 800; color: #fff; margin-bottom: 12px; }
-  .hero .brand { color: #F97316; font-size: 14px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 20px; }
-  .hero p { color: #94A3B8; font-size: 16px; }
-  .palette { display: flex; gap: 16px; justify-content: center; margin: 30px 0 0; flex-wrap: wrap; }
-  .swatch { width: 80px; height: 80px; border-radius: 12px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 6px; font-size: 10px; font-weight: 700; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
-  .section-title { text-align: center; padding: 50px 20px 30px; }
-  .section-title h2 { font-size: 28px; font-weight: 800; color: #F97316; margin-bottom: 8px; }
-  .section-title p { color: #64748B; font-size: 14px; }
-  .preview-row { display: flex; gap: 30px; padding: 0 40px 60px; flex-wrap: wrap; justify-content: center; }
-  .preview-card { background: #111; border-radius: 16px; overflow: hidden; border: 1px solid #222; max-width: 620px; width: 100%; }
-  .preview-label { background: #1A1A1A; padding: 14px 20px; font-size: 13px; font-weight: 700; color: #F97316; letter-spacing: 1px; text-transform: uppercase; border-bottom: 1px solid #222; }
-  .preview-frame { background: #F1F5F9; }
-  .divider { height: 1px; background: linear-gradient(90deg, transparent, #F97316, transparent); margin: 0 40px; }
-</style>
-</head>
-<body>
+body{margin:0;padding:40px;background:#0F172A;font-family:'Segoe UI',sans-serif;}
+h1{color:#F97316;text-align:center;font-size:32px;margin:0 0 8px;}
+p.sub{color:#94A3B8;text-align:center;font-size:14px;margin:0 0 40px;}
+.tpl{margin:0 auto 48px;max-width:660px;}
+.tpl h2{color:#CBD5E1;font-size:16px;font-weight:600;margin:0 0 12px;padding:0 8px;
+  border-right:3px solid #F97316;}
+.tpl-frame{border-radius:12px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.4);}
+</style></head><body>
+<h1>BuilderOps Email Templates</h1>
+<p class="sub">Premium Black &amp; Orange Design &bull; Custom AI-Generated Icons &bull; Gemini 3 Pro</p>
+<div class="tpl"><h2>Welcome Email</h2><div class="tpl-frame"><iframe srcdoc="&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;he&quot; dir=&quot;rtl&quot;&gt;
+&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;&lt;/head&gt;
+&lt;body style=&quot;margin:0;padding:0;background-color:#F1F5F9;font-family:'Segoe UI',Arial,Helvetica,sans-serif;-webkit-font-smoothing:antialiased;&quot;&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;background-color:#F1F5F9;&quot;&gt;
+&lt;tr&gt;&lt;td align=&quot;center&quot; style=&quot;padding:32px 16px;&quot;&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;600&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;max-width:600px;width:100%;background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06),0 8px 32px rgba(0,0,0,0.04);&quot;&gt;
 
-<div class="hero">
-  <div class="brand">BUILDEROPS</div>
-  <h1>Black & Orange Theme</h1>
-  <p>Email & PDF Template Design System Preview</p>
-  <div class="palette">
-    <div class="swatch" style="background:#0F172A;">#0F172A</div>
-    <div class="swatch" style="background:#1E293B;">#1E293B</div>
-    <div class="swatch" style="background:#EA580C;">#EA580C</div>
-    <div class="swatch" style="background:#F97316;">#F97316</div>
-    <div class="swatch" style="background:#FB923C;">#FB923C</div>
-    <div class="swatch" style="background:#FFF7ED;color:#EA580C;">#FFF7ED</div>
-    <div class="swatch" style="background:#16A34A;">#16A34A</div>
-    <div class="swatch" style="background:#DC2626;">#DC2626</div>
-  </div>
-</div>
 
-<!-- 1. WELCOME EMAIL -->
-<div class="section-title"><h2>1. Welcome Email</h2><p>welcome.html - New user onboarding</p></div>
-<div class="preview-row"><div class="preview-card"><div class="preview-label">Welcome Email</div><div class="preview-frame">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#F1F5F9;">
-<tr><td align="center" style="padding:32px 16px;">
-<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06),0 8px 32px rgba(0,0,0,0.04);">
-<tr><td style="background:linear-gradient(135deg,#0F172A 0%,#1E293B 100%);padding:36px 36px 30px;">
-<p style="margin:0 0 20px;font-size:11px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:#F97316;">BUILDEROPS</p>
-<p style="margin:0 0 8px;font-size:32px;">&#127881;</p>
-<h1 style="margin:0 0 6px;color:#ffffff;font-size:26px;font-weight:800;letter-spacing:-0.5px;">!ברוכים הבאים</h1>
-<p style="margin:0;color:#94A3B8;font-size:14px;">אנחנו שמחים שהצטרפת אלינו</p>
-</td></tr>
-<tr><td style="padding:36px;text-align:right;">
-<p style="margin:0 0 28px;color:#334155;font-size:16px;line-height:1.7;">שלום גל, ברוכים הבאים לפלטפורמה! אנחנו שמחים שהצטרפת.</p>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F8FAFC;border-radius:12px;border:1px solid #E2E8F0;margin-bottom:28px;">
-<tr><td style="padding:6px 22px 6px;">
-<p style="margin:12px 0 14px;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#64748B;">פרטי חשבון</p>
-</td></tr>
-<tr><td style="padding:0 22px 18px;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-<tr><td style="padding:8px 0;border-bottom:1px solid #E2E8F0;">
-<span style="font-size:13px;color:#64748B;">שם:</span>
-<span style="font-size:14px;color:#0F172A;font-weight:600;margin-right:8px;">גל חדידה</span>
-</td></tr>
-<tr><td style="padding:8px 0;border-bottom:1px solid #E2E8F0;">
-<span style="font-size:13px;color:#64748B;">אימייל:</span>
-<span style="font-size:14px;color:#0F172A;font-weight:600;margin-right:8px;">gal@builderops.dev</span>
-</td></tr>
-<tr><td style="padding:8px 0;">
-<span style="font-size:13px;color:#64748B;">הצטרפות:</span>
-<span style="font-size:14px;color:#0F172A;font-weight:600;margin-right:8px;">01/03/2026</span>
-</td></tr>
-</table>
-</td></tr>
-</table>
-<p style="margin:0 0 16px;font-size:16px;font-weight:700;color:#0F172A;">?מה הלאה</p>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
-<tr><td style="padding:8px 0;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F8FAFC;border-radius:10px;border:1px solid #E2E8F0;">
-<tr>
-<td style="width:48px;vertical-align:top;padding:16px;">
-<div style="width:32px;height:32px;background:linear-gradient(135deg,#EA580C,#F97316);border-radius:50%;text-align:center;line-height:32px;font-size:14px;color:#ffffff;font-weight:800;">1</div>
-</td>
-<td style="padding:14px 16px 14px 0;vertical-align:top;">
-<p style="margin:0 0 3px;font-size:14px;color:#0F172A;font-weight:700;">צור פרויקט חדש</p>
-<p style="margin:0;font-size:13px;color:#64748B;line-height:1.5;">הגדר את הפרויקט הראשון שלך</p>
-</td>
-</tr>
-</table>
-</td></tr>
-<tr><td style="padding:8px 0;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F8FAFC;border-radius:10px;border:1px solid #E2E8F0;">
-<tr>
-<td style="width:48px;vertical-align:top;padding:16px;">
-<div style="width:32px;height:32px;background:linear-gradient(135deg,#EA580C,#F97316);border-radius:50%;text-align:center;line-height:32px;font-size:14px;color:#ffffff;font-weight:800;">2</div>
-</td>
-<td style="padding:14px 16px 14px 0;vertical-align:top;">
-<p style="margin:0 0 3px;font-size:14px;color:#0F172A;font-weight:700;">הזמן את הצוות</p>
-<p style="margin:0;font-size:13px;color:#64748B;line-height:1.5;">הוסף חברי צוות ויועצים</p>
-</td>
-</tr>
-</table>
-</td></tr>
-<tr><td style="padding:8px 0;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F8FAFC;border-radius:10px;border:1px solid #E2E8F0;">
-<tr>
-<td style="width:48px;vertical-align:top;padding:16px;">
-<div style="width:32px;height:32px;background:linear-gradient(135deg,#EA580C,#F97316);border-radius:50%;text-align:center;line-height:32px;font-size:14px;color:#ffffff;font-weight:800;">3</div>
-</td>
-<td style="padding:14px 16px 14px 0;vertical-align:top;">
-<p style="margin:0 0 3px;font-size:14px;color:#0F172A;font-weight:700;">התחל לעבוד</p>
-<p style="margin:0;font-size:13px;color:#64748B;line-height:1.5;">נהל ציוד, חומרים וביקורות</p>
-</td>
-</tr>
-</table>
-</td></tr>
-</table>
-<p style="margin:0 0 16px;font-size:16px;font-weight:700;color:#0F172A;">תכונות עיקריות</p>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
-<tr>
-<td width="50%" style="padding:4px;">
-<div style="background:#FFF7ED;border-radius:10px;padding:18px 14px;text-align:center;">
-<p style="margin:0 0 6px;font-size:24px;">&#128202;</p>
-<p style="margin:0;font-size:13px;color:#EA580C;font-weight:700;">דשבורד</p>
-</div>
-</td>
-<td width="50%" style="padding:4px;">
-<div style="background:#FFF7ED;border-radius:10px;padding:18px 14px;text-align:center;">
-<p style="margin:0 0 6px;font-size:24px;">&#129302;</p>
-<p style="margin:0;font-size:13px;color:#EA580C;font-weight:700;">עוזר AI</p>
-</div>
-</td>
-</tr>
-<tr>
-<td width="50%" style="padding:4px;">
-<div style="background:#F0FDF4;border-radius:10px;padding:18px 14px;text-align:center;">
-<p style="margin:0 0 6px;font-size:24px;">&#128241;</p>
-<p style="margin:0;font-size:13px;color:#16A34A;font-weight:700;">מובייל</p>
-</div>
-</td>
-<td width="50%" style="padding:4px;">
-<div style="background:#FFF7ED;border-radius:10px;padding:18px 14px;text-align:center;">
-<p style="margin:0 0 6px;font-size:24px;">&#128200;</p>
-<p style="margin:0;font-size:13px;color:#EA580C;font-weight:700;">דוחות</p>
-</div>
-</td>
-</tr>
-</table>
-<div style="text-align:center;margin:0 0 24px;">
-<a href="#" style="display:inline-block;background:linear-gradient(135deg,#EA580C,#F97316);color:#ffffff;text-decoration:none;padding:16px 48px;border-radius:12px;font-size:16px;font-weight:700;letter-spacing:0.3px;box-shadow:0 4px 12px rgba(249,115,22,0.3);">התחל עכשיו</a>
-</div>
-</td></tr>
-<tr><td style="background-color:#F8FAFC;padding:24px 36px;text-align:center;border-top:1px solid #E2E8F0;">
-<p style="margin:0 0 8px;color:#94A3B8;font-size:12px;">BuilderOps &copy; 2026</p>
-<p style="margin:0;color:#CBD5E1;font-size:11px;">הודעה זו נשלחה אוטומטית</p>
-</td></tr>
-</table>
-</td></tr>
-</table>
-</div></div></div>
+&lt;tr&gt;&lt;td style=&quot;background:linear-gradient(135deg,#0F172A 0%,#1E293B 100%);padding:36px 36px 30px;&quot;&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;
+&lt;tr&gt;&lt;td&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;
+&lt;tr&gt;
+&lt;td style=&quot;vertical-align:middle;&quot;&gt;
+&lt;p style=&quot;margin:0 0 20px;font-size:11px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:#F97316;&quot;&gt;BUILDEROPS&lt;/p&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
 
-<div class="divider"></div>
+&lt;img src=&quot;data:image/png;base64,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&quot; width=&quot;40&quot; height=&quot;40&quot; alt=&quot;&quot; style=&quot;display:block;border:0;margin:0 0 8px;&quot; /&gt;
+&lt;h1 style=&quot;margin:0 0 6px;color:#ffffff;font-size:26px;font-weight:800;letter-spacing:-0.5px;&quot;&gt;ברוכים הבאים, גל!&lt;/h1&gt;
+&lt;p style=&quot;margin:0;color:#94A3B8;font-size:14px;&quot;&gt;החשבון שלך מוכן&lt;/p&gt;
 
-<!-- 2. DAILY SUMMARY EMAIL -->
-<div class="section-title"><h2>2. Daily Summary Email</h2><p>daily_summary.html - Project activity report</p></div>
-<div class="preview-row"><div class="preview-card"><div class="preview-label">Daily Summary</div><div class="preview-frame">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#F1F5F9;">
-<tr><td align="center" style="padding:32px 16px;">
-<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
-<tr><td style="background:linear-gradient(135deg,#0F172A 0%,#1E293B 100%);padding:36px 36px 30px;">
-<p style="margin:0 0 20px;font-size:11px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:#F97316;">BUILDEROPS</p>
-<p style="margin:0 0 8px;font-size:28px;">&#128203;</p>
-<h1 style="margin:0 0 8px;color:#ffffff;font-size:24px;font-weight:800;letter-spacing:-0.3px;">סיכום יומי</h1>
-<p style="margin:0;color:#94A3B8;font-size:14px;font-weight:500;">
-פרויקט: <span style="color:#CBD5E1;font-weight:600;">מגדל השרון</span>
-&nbsp;&#183;&nbsp;
-תאריך: <span style="color:#CBD5E1;font-weight:600;">01/03/2026</span>
-</p>
-</td></tr>
-<tr><td style="padding:36px;text-align:right;">
+&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/td&gt;&lt;/tr&gt;
 
-<!-- Section: Activity -->
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 14px;">
-<tr><td>
-<p style="margin:0;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#0F172A;">סקירת פעילות</p>
-<div style="height:3px;background:linear-gradient(90deg,#F97316 0%,#E2E8F0 100%);border-radius:3px;margin-top:8px;"></div>
-</td></tr>
-</table>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #E2E8F0;border-radius:12px;overflow:hidden;">
-<tr style="background:#F8FAFC;">
-<th style="padding:12px 18px;text-align:right;font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;">סוג</th>
-<th style="padding:12px 18px;text-align:right;font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;">פעולה</th>
-<th style="padding:12px 14px;text-align:center;font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;">כמות</th>
-</tr>
-<tr>
-<td style="padding:12px 18px;border-top:1px solid #F1F5F9;font-size:13px;color:#334155;font-weight:600;">ציוד</td>
-<td style="padding:12px 18px;border-top:1px solid #F1F5F9;font-size:13px;color:#334155;">נוצר</td>
-<td style="padding:12px 14px;border-top:1px solid #F1F5F9;font-size:15px;text-align:center;font-weight:800;color:#0F172A;">5</td>
-</tr>
-<tr>
-<td style="padding:12px 18px;border-top:1px solid #F1F5F9;font-size:13px;color:#334155;font-weight:600;">חומרים</td>
-<td style="padding:12px 18px;border-top:1px solid #F1F5F9;font-size:13px;color:#334155;">אושר</td>
-<td style="padding:12px 14px;border-top:1px solid #F1F5F9;font-size:15px;text-align:center;font-weight:800;color:#0F172A;">3</td>
-</tr>
-<tr>
-<td style="padding:12px 18px;border-top:1px solid #F1F5F9;font-size:13px;color:#334155;font-weight:600;">ביקורות</td>
-<td style="padding:12px 18px;border-top:1px solid #F1F5F9;font-size:13px;color:#334155;">הושלם</td>
-<td style="padding:12px 14px;border-top:1px solid #F1F5F9;font-size:15px;text-align:center;font-weight:800;color:#0F172A;">2</td>
-</tr>
-</table>
 
-<!-- Section: Equipment stats -->
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:28px 0 14px;">
-<tr><td>
-<p style="margin:0;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#0F172A;">ציוד וחומרים</p>
-<div style="height:3px;background:linear-gradient(90deg,#F97316 0%,#E2E8F0 100%);border-radius:3px;margin-top:8px;"></div>
-</td></tr>
-</table>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:16px;">
-<tr>
-<td style="text-align:center;padding:4px;width:33%;">
-<div style="background:#FFF7ED;border-radius:10px;padding:16px 8px;">
-<div style="font-size:28px;font-weight:800;color:#EA580C;letter-spacing:-0.5px;">5</div>
-<div style="font-size:11px;color:#64748B;margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;">נוצר</div>
-</div>
-</td>
-<td style="text-align:center;padding:4px;width:33%;">
-<div style="background:#F0FDF4;border-radius:10px;padding:16px 8px;">
-<div style="font-size:28px;font-weight:800;color:#16A34A;letter-spacing:-0.5px;">3</div>
-<div style="font-size:11px;color:#64748B;margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;">אושר</div>
-</div>
-</td>
-<td style="text-align:center;padding:4px;width:33%;">
-<div style="background:#FEF2F2;border-radius:10px;padding:16px 8px;">
-<div style="font-size:28px;font-weight:800;color:#DC2626;letter-spacing:-0.5px;">1</div>
-<div style="font-size:11px;color:#64748B;margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;">נדחה</div>
-</div>
-</td>
-</tr>
-</table>
+&lt;tr&gt;&lt;td style=&quot;padding:36px;text-align:right;&quot;&gt;
 
-<!-- Progress bar -->
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:28px 0 14px;">
-<tr><td>
-<p style="margin:0;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#0F172A;">התקדמות פרויקט</p>
-<div style="height:3px;background:linear-gradient(90deg,#F97316 0%,#E2E8F0 100%);border-radius:3px;margin-top:8px;"></div>
-</td></tr>
-</table>
-<div style="background:#DCFCE7;border-radius:14px;height:28px;overflow:hidden;margin:8px 0;">
-<div style="background:#16A34A;height:100%;width:72%;border-radius:14px;"></div>
-</div>
-<p style="text-align:center;font-size:18px;font-weight:800;color:#16A34A;margin:8px 0 0;">72.0%</p>
+&lt;p style=&quot;margin:0 0 28px;color:#334155;font-size:16px;line-height:1.7;&quot;&gt;החשבון שלך נוצר בהצלחה. כעת תוכל לנהל פרויקטי בנייה, לעקוב אחר אישורי ציוד, לתזמן בדיקות ולשתף פעולה עם הצוות שלך.&lt;/p&gt;
 
-</td></tr>
-<tr><td style="padding:0 36px 32px;text-align:center;">
-<a href="#" style="display:inline-block;background:linear-gradient(135deg,#EA580C,#F97316);color:#ffffff;text-decoration:none;padding:14px 40px;border-radius:12px;font-size:15px;font-weight:700;letter-spacing:0.3px;box-shadow:0 4px 12px rgba(249,115,22,0.3);">צפה באפליקציה</a>
-</td></tr>
-<tr><td style="background-color:#F8FAFC;padding:24px 36px;text-align:center;border-top:1px solid #E2E8F0;">
-<p style="margin:0;color:#94A3B8;font-size:12px;">BuilderOps &copy; 2026</p>
-</td></tr>
-</table>
-</td></tr>
-</table>
-</div></div></div>
 
-<div class="divider"></div>
 
-<!-- 3. RFI EMAIL -->
-<div class="section-title"><h2>3. RFI Email</h2><p>rfi.html - Request for Information</p></div>
-<div class="preview-row"><div class="preview-card"><div class="preview-label">RFI Email</div><div class="preview-frame">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#F1F5F9;">
-<tr><td align="center" style="padding:32px 16px;">
-<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
-<tr><td style="background:linear-gradient(135deg,#0F172A 0%,#1E293B 100%);padding:36px 36px 30px;">
-<p style="margin:0 0 20px;font-size:11px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:#F97316;">BUILDEROPS</p>
-<h1 style="margin:0 0 8px;color:#ffffff;font-size:24px;font-weight:800;letter-spacing:-0.3px;">בקשה למידע (RFI)</h1>
-<table role="presentation" cellpadding="0" cellspacing="0">
-<tr>
-<td style="padding-left:10px;">
-<span style="display:inline-block;background:rgba(249,115,22,0.15);color:#FB923C;padding:4px 14px;border-radius:8px;font-size:13px;font-weight:700;font-family:monospace;">RFI-042</span>
-</td>
-<td>
-<span style="display:inline-block;background:#FFF7ED;color:#EA580C;padding:4px 14px;border-radius:8px;font-size:12px;font-weight:700;">דחוף</span>
-</td>
-</tr>
-</table>
-</td></tr>
-<tr><td style="padding:36px;text-align:right;">
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;background:#F8FAFC;border-radius:12px;border:1px solid #E2E8F0;margin-bottom:28px;&quot;&gt;
+&lt;tr&gt;&lt;td style=&quot;padding:6px 22px 6px;&quot;&gt;
+&lt;p style=&quot;margin:12px 0 14px;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#64748B;&quot;&gt;פרטי חשבון&lt;/p&gt;
+&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style=&quot;padding:0 22px 18px;&quot;&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;
+&lt;tr&gt;
+&lt;td style=&quot;padding:8px 0;border-bottom:1px solid #E2E8F0;&quot;&gt;
+&lt;span style=&quot;font-size:13px;color:#64748B;&quot;&gt;שם:&lt;/span&gt;
+&lt;span style=&quot;font-size:14px;color:#0F172A;font-weight:600;margin-right:8px;&quot;&gt;גל חדידה&lt;/span&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;padding:8px 0;border-bottom:1px solid #E2E8F0;&quot;&gt;
+&lt;span style=&quot;font-size:13px;color:#64748B;&quot;&gt;אימייל:&lt;/span&gt;
+&lt;span style=&quot;font-size:14px;color:#0F172A;font-weight:600;margin-right:8px;&quot;&gt;gal@builderops.dev&lt;/span&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;padding:8px 0;&quot;&gt;
+&lt;span style=&quot;font-size:13px;color:#64748B;&quot;&gt;תאריך הצטרפות:&lt;/span&gt;
+&lt;span style=&quot;font-size:14px;color:#0F172A;font-weight:600;margin-right:8px;&quot;&gt;01/03/2026&lt;/span&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
 
-<!-- Metadata Grid -->
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F8FAFC;border-radius:12px;border:1px solid #E2E8F0;margin-bottom:24px;">
-<tr>
-<td width="50%" style="padding:14px 20px;border-bottom:1px solid #E2E8F0;vertical-align:top;">
-<p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">קטגוריה</p>
-<span style="display:inline-block;background:#FFF7ED;color:#C2410C;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:700;">עיצוב</span>
-</td>
-<td width="50%" style="padding:14px 20px;border-bottom:1px solid #E2E8F0;vertical-align:top;">
-<p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">עדיפות</p>
-<span style="display:inline-block;background:#FEF2F2;color:#DC2626;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:700;">דחוף</span>
-</td>
-</tr>
-<tr>
-<td width="50%" style="padding:14px 20px;vertical-align:top;">
-<p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">תאריך יעד</p>
-<p style="margin:0;font-size:14px;color:#334155;font-weight:600;">05/03/2026</p>
-</td>
-<td width="50%" style="padding:14px 20px;vertical-align:top;">
-<p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">מיקום</p>
-<p style="margin:0;font-size:14px;color:#334155;font-weight:500;">קומה 3, דירה 12</p>
-</td>
-</tr>
-</table>
 
-<!-- Sender/Recipient -->
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
-<tr>
-<td width="50%" style="padding:4px;">
-<div style="background:#FFF7ED;border-radius:10px;padding:14px 16px;">
-<p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#EA580C;">נשלח ע"י</p>
-<p style="margin:0;font-size:14px;color:#0F172A;font-weight:600;">גל חדידה</p>
-</div>
-</td>
-<td width="50%" style="padding:4px;">
-<div style="background:#FFF7ED;border-radius:10px;padding:14px 16px;">
-<p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#EA580C;">מופנה אל</p>
-<p style="margin:0;font-size:14px;color:#0F172A;font-weight:600;">יוסי כהן</p>
-</div>
-</td>
-</tr>
-</table>
 
-<!-- Question -->
-<p style="margin:0 0 10px;font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#0F172A;">שאלה</p>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
-<tr><td style="padding:20px 22px;background:#F8FAFC;border-radius:12px;border-right:4px solid #EA580C;">
-<p style="margin:0;color:#334155;font-size:15px;line-height:1.8;">האם ניתן לשנות את מיקום חלון הסלון מערב למזרח? יש צורך בתשובה דחופה לפני תחילת עבודות הבנייה.</p>
-</td></tr>
-</table>
+&lt;p style=&quot;margin:0 0 16px;font-size:16px;font-weight:700;color:#0F172A;&quot;&gt;מה הצעד הבא?&lt;/p&gt;
 
-<div style="text-align:center;margin:0 0 24px;">
-<a href="#" style="display:inline-block;background:linear-gradient(135deg,#EA580C,#F97316);color:#ffffff;text-decoration:none;padding:14px 40px;border-radius:12px;font-size:15px;font-weight:700;letter-spacing:0.3px;box-shadow:0 4px 12px rgba(249,115,22,0.3);">צפה והגב</a>
-</div>
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;margin-bottom:28px;&quot;&gt;
 
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#FFF7ED;border-radius:10px;border:1px solid #FDBA74;">
-<tr><td style="padding:14px 18px;">
-<p style="margin:0 0 6px;color:#EA580C;font-size:13px;line-height:1.5;">ניתן להגיב ישירות על RFI זה דרך המערכת</p>
-<p style="margin:0;color:#64748B;font-size:12px;">מספר הפניה: <strong style="color:#0F172A;">RFI-042</strong></p>
-</td></tr>
-</table>
+&lt;tr&gt;
+&lt;td style=&quot;padding:8px 0;&quot;&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;background:#F8FAFC;border-radius:10px;border:1px solid #E2E8F0;&quot;&gt;
+&lt;tr&gt;
+&lt;td style=&quot;width:48px;vertical-align:top;padding:16px;&quot;&gt;
+&lt;div style=&quot;width:32px;height:32px;background:linear-gradient(135deg,#EA580C,#FB923C);border-radius:50%;text-align:center;line-height:32px;font-size:14px;color:#ffffff;font-weight:800;&quot;&gt;1&lt;/div&gt;
+&lt;/td&gt;
+&lt;td style=&quot;padding:14px 16px 14px 0;vertical-align:top;&quot;&gt;
+&lt;p style=&quot;margin:0 0 3px;font-size:14px;color:#0F172A;font-weight:700;&quot;&gt;צור את הפרויקט הראשון שלך&lt;/p&gt;
+&lt;p style=&quot;margin:0;font-size:13px;color:#64748B;line-height:1.5;&quot;&gt;הגדר פרויקט עם שם ומיקום.&lt;/p&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
 
-</td></tr>
-<tr><td style="background-color:#F8FAFC;padding:24px 36px;text-align:center;border-top:1px solid #E2E8F0;">
-<p style="margin:0;color:#94A3B8;font-size:12px;">&copy; 2026 BuilderOps</p>
-</td></tr>
-</table>
-</td></tr>
-</table>
-</div></div></div>
+&lt;tr&gt;
+&lt;td style=&quot;padding:8px 0;&quot;&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;background:#F8FAFC;border-radius:10px;border:1px solid #E2E8F0;&quot;&gt;
+&lt;tr&gt;
+&lt;td style=&quot;width:48px;vertical-align:top;padding:16px;&quot;&gt;
+&lt;div style=&quot;width:32px;height:32px;background:linear-gradient(135deg,#EA580C,#FB923C);border-radius:50%;text-align:center;line-height:32px;font-size:14px;color:#ffffff;font-weight:800;&quot;&gt;2&lt;/div&gt;
+&lt;/td&gt;
+&lt;td style=&quot;padding:14px 16px 14px 0;vertical-align:top;&quot;&gt;
+&lt;p style=&quot;margin:0 0 3px;font-size:14px;color:#0F172A;font-weight:700;&quot;&gt;הזמן את חברי הצוות&lt;/p&gt;
+&lt;p style=&quot;margin:0;font-size:13px;color:#64748B;line-height:1.5;&quot;&gt;הוסף מהנדסים, מפקחים ומנהלים לפרויקט.&lt;/p&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
 
-<div class="divider"></div>
+&lt;tr&gt;
+&lt;td style=&quot;padding:8px 0;&quot;&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;background:#F8FAFC;border-radius:10px;border:1px solid #E2E8F0;&quot;&gt;
+&lt;tr&gt;
+&lt;td style=&quot;width:48px;vertical-align:top;padding:16px;&quot;&gt;
+&lt;div style=&quot;width:32px;height:32px;background:linear-gradient(135deg,#EA580C,#FB923C);border-radius:50%;text-align:center;line-height:32px;font-size:14px;color:#ffffff;font-weight:800;&quot;&gt;3&lt;/div&gt;
+&lt;/td&gt;
+&lt;td style=&quot;padding:14px 16px 14px 0;vertical-align:top;&quot;&gt;
+&lt;p style=&quot;margin:0 0 3px;font-size:14px;color:#0F172A;font-weight:700;&quot;&gt;הגדר ציוד וחומרים&lt;/p&gt;
+&lt;p style=&quot;margin:0;font-size:13px;color:#64748B;line-height:1.5;&quot;&gt;הגדר תהליכי אישור להגשות.&lt;/p&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
 
-<!-- 4. NOTIFICATION EMAIL -->
-<div class="section-title"><h2>4. Notification Email</h2><p>notification.html - Generic notification</p></div>
-<div class="preview-row"><div class="preview-card"><div class="preview-label">Notification</div><div class="preview-frame">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#F1F5F9;">
-<tr><td align="center" style="padding:32px 16px;">
-<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
-<tr><td style="background:linear-gradient(135deg,#0F172A 0%,#1E293B 100%);padding:36px 36px 30px;">
-<p style="margin:0 0 20px;font-size:11px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:#F97316;">BUILDEROPS</p>
-<p style="margin:0 0 8px;font-size:28px;">&#128276;</p>
-<h1 style="margin:0 0 6px;color:#ffffff;font-size:24px;font-weight:800;letter-spacing:-0.3px;">התראה חדשה</h1>
-<p style="margin:0;color:#94A3B8;font-size:13px;">פרויקט: <span style="color:#CBD5E1;font-weight:600;">מגדל השרון</span></p>
-</td></tr>
-<tr><td style="padding:36px;text-align:right;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
-<tr><td style="padding:20px;background:#F8FAFC;border-radius:12px;border-right:4px solid #EA580C;">
-<p style="margin:0;color:#334155;font-size:15px;line-height:1.7;">ציוד "מנוף צריח 40T" עודכן לסטטוס "אושר". ניתן להמשיך עם ההתקנה.</p>
-</td></tr>
-</table>
-<div style="text-align:center;margin:0 0 24px;">
-<a href="#" style="display:inline-block;background:linear-gradient(135deg,#EA580C,#F97316);color:#ffffff;text-decoration:none;padding:14px 40px;border-radius:12px;font-size:15px;font-weight:700;letter-spacing:0.3px;box-shadow:0 4px 12px rgba(249,115,22,0.3);">צפה בפרטים</a>
-</div>
-</td></tr>
-<tr><td style="background-color:#F8FAFC;padding:24px 36px;text-align:center;border-top:1px solid #E2E8F0;">
-<p style="margin:0;color:#94A3B8;font-size:12px;">BuilderOps &copy; 2026</p>
-</td></tr>
-</table>
-</td></tr>
-</table>
-</div></div></div>
+&lt;tr&gt;
+&lt;td style=&quot;padding:8px 0;&quot;&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;background:#F8FAFC;border-radius:10px;border:1px solid #E2E8F0;&quot;&gt;
+&lt;tr&gt;
+&lt;td style=&quot;width:48px;vertical-align:top;padding:16px;&quot;&gt;
+&lt;div style=&quot;width:32px;height:32px;background:linear-gradient(135deg,#EA580C,#FB923C);border-radius:50%;text-align:center;line-height:32px;font-size:14px;color:#ffffff;font-weight:800;&quot;&gt;4&lt;/div&gt;
+&lt;/td&gt;
+&lt;td style=&quot;padding:14px 16px 14px 0;vertical-align:top;&quot;&gt;
+&lt;p style=&quot;margin:0 0 3px;font-size:14px;color:#0F172A;font-weight:700;&quot;&gt;התחל לנהל בדיקות&lt;/p&gt;
+&lt;p style=&quot;margin:0;font-size:13px;color:#64748B;line-height:1.5;&quot;&gt;צור צ&amp;#39;קליסטים ועקוב אחר בקרת איכות.&lt;/p&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
 
-<div class="divider"></div>
+&lt;/table&gt;
 
-<!-- 5. PASSWORD RESET EMAIL -->
-<div class="section-title"><h2>5. Password Reset Email</h2><p>password_reset.html - Security reset</p></div>
-<div class="preview-row"><div class="preview-card"><div class="preview-label">Password Reset</div><div class="preview-frame">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#F1F5F9;">
-<tr><td align="center" style="padding:32px 16px;">
-<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
-<tr><td style="background:linear-gradient(135deg,#0F172A 0%,#1E293B 100%);padding:36px 36px 30px;">
-<p style="margin:0 0 20px;font-size:11px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:#F97316;">BUILDEROPS</p>
-<p style="margin:0 0 8px;font-size:28px;">&#128274;</p>
-<h1 style="margin:0;color:#ffffff;font-size:26px;font-weight:800;letter-spacing:-0.5px;">איפוס סיסמה</h1>
-</td></tr>
-<tr><td style="padding:36px;text-align:right;">
-<p style="margin:0 0 24px;color:#334155;font-size:16px;line-height:1.7;">קיבלנו בקשה לאיפוס הסיסמה שלך. לחץ על הכפתור למטה כדי ליצור סיסמה חדשה.</p>
-<div style="text-align:center;margin:0 0 28px;">
-<a href="#" style="display:inline-block;background:linear-gradient(135deg,#EA580C,#F97316);color:#ffffff;text-decoration:none;padding:16px 48px;border-radius:12px;font-size:16px;font-weight:700;letter-spacing:0.3px;box-shadow:0 4px 12px rgba(249,115,22,0.3);">אפס סיסמה</a>
-</div>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#FFFBEB;border-radius:10px;border:1px solid #FDE68A;margin-bottom:20px;">
-<tr><td style="padding:16px 20px;">
-<p style="margin:0;color:#92400E;font-size:13px;line-height:1.6;">&#9200; קישור זה תקף ל-24 שעות בלבד</p>
-<p style="margin:4px 0 0;color:#92400E;font-size:13px;line-height:1.6;">אם לא ביקשת איפוס סיסמה, התעלם מהודעה זו</p>
-</td></tr>
-</table>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F8FAFC;border-radius:10px;border:1px solid #E2E8F0;">
-<tr><td style="padding:16px 20px;">
-<p style="margin:0 0 10px;font-size:12px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#64748B;">טיפים לאבטחה</p>
-<table role="presentation" cellpadding="0" cellspacing="0">
-<tr>
-<td style="padding:4px 0;vertical-align:top;width:20px;"><span style="color:#EA580C;font-size:13px;">&#8226;</span></td>
-<td style="padding:4px 0;padding-right:6px;"><p style="margin:0;color:#64748B;font-size:13px;">השתמש בסיסמה חזקה עם לפחות 8 תווים</p></td>
-</tr>
-<tr>
-<td style="padding:4px 0;vertical-align:top;width:20px;"><span style="color:#EA580C;font-size:13px;">&#8226;</span></td>
-<td style="padding:4px 0;padding-right:6px;"><p style="margin:0;color:#64748B;font-size:13px;">אל תשתף את הסיסמה שלך עם אף אחד</p></td>
-</tr>
-</table>
-</td></tr>
-</table>
-</td></tr>
-<tr><td style="background-color:#F8FAFC;padding:24px 36px;text-align:center;border-top:1px solid #E2E8F0;">
-<p style="margin:0;color:#94A3B8;font-size:12px;">BuilderOps &copy; 2026</p>
-</td></tr>
-</table>
-</td></tr>
-</table>
-</div></div></div>
 
-<div class="divider"></div>
+&lt;p style=&quot;margin:0 0 16px;font-size:16px;font-weight:700;color:#0F172A;&quot;&gt;יכולות מרכזיות&lt;/p&gt;
 
-<!-- 6. PDF - DEFECTS REPORT -->
-<div class="section-title"><h2>6. Defects Report (PDF)</h2><p>defects_report.html - Task/Defect cards</p></div>
-<div class="preview-row"><div class="preview-card"><div class="preview-label">Defects Report PDF</div><div class="preview-frame" style="background:#fff;padding:0;">
-<div style="background:#0F172A;padding:28px 32px 24px;color:#fff;">
-<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;">
-<div style="font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#F97316;">BUILDEROPS</div>
-<div style="font-size:12px;color:#94A3B8;">01/03/2026</div>
-</div>
-<div style="font-size:28px;font-weight:700;letter-spacing:-0.5px;margin-bottom:6px;">דוח ליקויים ומשימות</div>
-<div style="font-size:14px;color:#CBD5E1;font-weight:400;">מגדל השרון <span style="color:#F97316;font-weight:600;">SH-001</span></div>
-<hr style="border:none;border-top:2px solid #F97316;margin:14px 0 0;width:64px;">
-</div>
-<div style="padding:20px 32px;">
-<div style="font-size:14px;font-weight:600;color:#475569;margin-bottom:16px;"><span style="font-weight:700;color:#0F172A;font-size:16px;">12</span> משימות</div>
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;margin-bottom:28px;&quot;&gt;
+&lt;tr&gt;
+&lt;td width=&quot;50%&quot; style=&quot;padding:4px;&quot;&gt;
+&lt;div style=&quot;background:#0F172A;border-radius:12px;padding:20px 14px;text-align:center;border:1px solid #1E293B;&quot;&gt;
+&lt;img src=&quot;data:image/png;base64,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&quot; width=&quot;40&quot; height=&quot;40&quot; alt=&quot;&quot; style=&quot;display:inline-block;border:0;margin:0 0 8px;border-radius:8px;&quot; /&gt;
+&lt;p style=&quot;margin:0;font-size:13px;color:#F97316;font-weight:700;&quot;&gt;לוח בקרה חכם&lt;/p&gt;
+&lt;/div&gt;
+&lt;/td&gt;
+&lt;td width=&quot;50%&quot; style=&quot;padding:4px;&quot;&gt;
+&lt;div style=&quot;background:#0F172A;border-radius:12px;padding:20px 14px;text-align:center;border:1px solid #1E293B;&quot;&gt;
+&lt;img src=&quot;data:image/png;base64,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&quot; width=&quot;40&quot; height=&quot;40&quot; alt=&quot;&quot; style=&quot;display:inline-block;border:0;margin:0 0 8px;border-radius:8px;&quot; /&gt;
+&lt;p style=&quot;margin:0;font-size:13px;color:#F97316;font-weight:700;&quot;&gt;עוזר AI&lt;/p&gt;
+&lt;/div&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td width=&quot;50%&quot; style=&quot;padding:4px;&quot;&gt;
+&lt;div style=&quot;background:#0F172A;border-radius:12px;padding:20px 14px;text-align:center;border:1px solid #1E293B;&quot;&gt;
+&lt;img src=&quot;data:image/png;base64,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&quot; width=&quot;40&quot; height=&quot;40&quot; alt=&quot;&quot; style=&quot;display:inline-block;border:0;margin:0 0 8px;border-radius:8px;&quot; /&gt;
+&lt;p style=&quot;margin:0;font-size:13px;color:#F97316;font-weight:700;&quot;&gt;גישה מכל מכשיר&lt;/p&gt;
+&lt;/div&gt;
+&lt;/td&gt;
+&lt;td width=&quot;50%&quot; style=&quot;padding:4px;&quot;&gt;
+&lt;div style=&quot;background:#0F172A;border-radius:12px;padding:20px 14px;text-align:center;border:1px solid #1E293B;&quot;&gt;
+&lt;img src=&quot;data:image/png;base64,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&quot; width=&quot;40&quot; height=&quot;40&quot; alt=&quot;&quot; style=&quot;display:inline-block;border:0;margin:0 0 8px;border-radius:8px;&quot; /&gt;
+&lt;p style=&quot;margin:0;font-size:13px;color:#F97316;font-weight:700;&quot;&gt;דוחות ואנליטיקה&lt;/p&gt;
+&lt;/div&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
 
-<!-- Defect Card 1 -->
-<div style="border:1px solid #E2E8F0;border-radius:6px;overflow:hidden;background:#fff;margin-bottom:16px;">
-<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid #E2E8F0;background:#F8FAFC;">
-<div style="display:flex;align-items:center;gap:6px;">
-<span style="font-size:10px;font-weight:500;color:#64748B;">מזהה:</span>
-<span style="font-size:18px;font-weight:700;color:#0F172A;">001</span>
-</div>
-<div style="display:flex;align-items:center;gap:6px;">
-<span style="display:inline-block;padding:2px 10px;border-radius:4px;font-size:10px;font-weight:700;color:#fff;background:#EA580C;">פתוח</span>
-<span style="display:inline-block;padding:2px 10px;border-radius:4px;font-size:10px;font-weight:600;background:#fff;border:1px solid #CBD5E1;color:#475569;">אינסטלציה</span>
-<span style="display:inline-block;padding:2px 10px;border-radius:4px;font-size:10px;font-weight:600;background:#fff;border:1px solid #CBD5E1;color:#475569;">ליקוי</span>
-</div>
-</div>
-<div style="padding:14px 16px;">
-<div style="padding:6px 0;border-bottom:1px solid #F1F5F9;display:flex;gap:8px;align-items:baseline;">
-<div style="font-size:11px;font-weight:600;color:#94A3B8;min-width:90px;">מיקום</div>
-<div style="font-size:12px;color:#1E293B;font-weight:500;">קומה 3, דירה 12</div>
-</div>
-<div style="padding:6px 0;border-bottom:1px solid #F1F5F9;display:flex;gap:8px;align-items:baseline;">
-<div style="font-size:11px;font-weight:600;color:#94A3B8;min-width:90px;">תיאור</div>
-<div style="font-size:12px;color:#1E293B;font-weight:500;">נזילת מים בצנרת הראשית ליד מטבח</div>
-</div>
-<div style="padding:6px 0;display:flex;gap:8px;align-items:baseline;">
-<div style="font-size:11px;font-weight:600;color:#94A3B8;min-width:90px;">אחראי</div>
-<div style="font-size:12px;color:#1E293B;font-weight:500;">יוסי כהן</div>
-</div>
-</div>
-</div>
 
-<!-- Defect Card 2 -->
-<div style="border:1px solid #E2E8F0;border-radius:6px;overflow:hidden;background:#fff;margin-bottom:16px;">
-<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid #E2E8F0;background:#F8FAFC;">
-<div style="display:flex;align-items:center;gap:6px;">
-<span style="font-size:10px;font-weight:500;color:#64748B;">מזהה:</span>
-<span style="font-size:18px;font-weight:700;color:#0F172A;">002</span>
-</div>
-<div style="display:flex;align-items:center;gap:6px;">
-<span style="display:inline-block;padding:2px 10px;border-radius:4px;font-size:10px;font-weight:700;color:#fff;background:#16A34A;">נפתר</span>
-<span style="display:inline-block;padding:2px 10px;border-radius:4px;font-size:10px;font-weight:600;background:#fff;border:1px solid #CBD5E1;color:#475569;">חשמל</span>
-</div>
-</div>
-<div style="padding:14px 16px;">
-<div style="padding:6px 0;border-bottom:1px solid #F1F5F9;display:flex;gap:8px;align-items:baseline;">
-<div style="font-size:11px;font-weight:600;color:#94A3B8;min-width:90px;">מיקום</div>
-<div style="font-size:12px;color:#1E293B;font-weight:500;">קומה 5, חדר מדרגות</div>
-</div>
-<div style="padding:6px 0;display:flex;gap:8px;align-items:baseline;">
-<div style="font-size:11px;font-weight:600;color:#94A3B8;min-width:90px;">תיאור</div>
-<div style="font-size:12px;color:#1E293B;font-weight:500;">תאורת חירום לא פועלת בקומה 5</div>
-</div>
-</div>
-</div>
+&lt;div style=&quot;text-align:center;margin:0 0 24px;&quot;&gt;
+&lt;a href=&quot;https://app.builderops.dev/dashboard&quot; style=&quot;display:inline-block;background:linear-gradient(135deg,#EA580C,#FB923C);color:#ffffff;text-decoration:none;padding:16px 48px;border-radius:12px;font-size:16px;font-weight:700;letter-spacing:0.3px;box-shadow:0 4px 12px rgba(249,115,22,0.3);&quot;&gt;עבור ללוח הבקרה&lt;/a&gt;
+&lt;/div&gt;
 
-</div>
-</div></div></div>
 
-<div class="divider"></div>
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;background:#F8FAFC;border-radius:10px;border:1px solid #E2E8F0;&quot;&gt;
+&lt;tr&gt;&lt;td style=&quot;padding:16px 20px;text-align:center;&quot;&gt;
+&lt;p style=&quot;margin:0 0 4px;color:#64748B;font-size:14px;font-weight:600;&quot;&gt;צריך עזרה?&lt;/p&gt;
+&lt;p style=&quot;margin:0;color:#94A3B8;font-size:13px;&quot;&gt;צוות התמיכה שלנו כאן בשבילך.&lt;/p&gt;
+&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
 
-<!-- 7. MEETING INVITATION -->
-<div class="section-title"><h2>7. Meeting Invitation Email</h2><p>meeting_invitation.html - RSVP buttons</p></div>
-<div class="preview-row"><div class="preview-card"><div class="preview-label">Meeting Invitation</div><div class="preview-frame">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#F1F5F9;">
-<tr><td align="center" style="padding:32px 16px;">
-<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
-<tr><td style="background:linear-gradient(135deg,#0F172A 0%,#1E293B 100%);padding:36px 36px 30px;">
-<p style="margin:0 0 20px;font-size:11px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:#F97316;">BUILDEROPS</p>
-<p style="margin:0 0 8px;font-size:28px;">&#128197;</p>
-<h1 style="margin:0 0 6px;color:#ffffff;font-size:24px;font-weight:800;">הזמנה לפגישה</h1>
-<p style="margin:0;color:#94A3B8;font-size:13px;">פרויקט: <span style="color:#CBD5E1;font-weight:600;">מגדל השרון</span></p>
-</td></tr>
-<tr><td style="padding:36px;text-align:right;">
-<p style="margin:0 0 24px;font-size:15px;color:#334155;line-height:1.6;">שלום גל, הוזמנת לפגישת תיאום שבועית</p>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;background-color:#F8FAFC;border-radius:12px;border:1px solid #E2E8F0;">
-<tr><td style="padding:22px;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-<tr><td style="padding:8px 0;border-bottom:1px solid #E2E8F0;">
-<span style="font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;">פגישה</span><br/>
-<span style="font-size:16px;color:#0F172A;font-weight:700;">פגישת תיאום שבועית</span>
-</td></tr>
-<tr><td style="padding:8px 0;border-bottom:1px solid #E2E8F0;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-<tr>
-<td width="50%">
-<span style="font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;">תאריך</span><br/>
-<span style="font-size:14px;color:#334155;font-weight:600;">05/03/2026</span>
-</td>
-<td width="50%">
-<span style="font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;">שעה</span><br/>
-<span style="font-size:14px;color:#334155;font-weight:600;">10:00</span>
-</td>
-</tr>
-</table>
-</td></tr>
-<tr><td style="padding:8px 0;">
-<span style="font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;">מיקום</span><br/>
-<span style="font-size:14px;color:#334155;font-weight:500;">משרד האתר, קומה 1</span>
-</td></tr>
-</table>
-</td></tr>
-</table>
+&lt;/td&gt;&lt;/tr&gt;
 
-<p style="margin:0 0 16px;font-size:15px;color:#0F172A;font-weight:700;text-align:center;">?האם תוכל להשתתף</p>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
-<tr>
-<td style="padding:4px;" width="33%">
-<a href="#" style="display:block;text-align:center;padding:14px 8px;background:#16A34A;color:#FFFFFF;text-decoration:none;border-radius:10px;font-size:14px;font-weight:700;">מאשר</a>
-</td>
-<td style="padding:4px;" width="33%">
-<a href="#" style="display:block;text-align:center;padding:14px 8px;background:#D97706;color:#FFFFFF;text-decoration:none;border-radius:10px;font-size:14px;font-weight:700;">אולי</a>
-</td>
-<td style="padding:4px;" width="33%">
-<a href="#" style="display:block;text-align:center;padding:14px 8px;background:#DC2626;color:#FFFFFF;text-decoration:none;border-radius:10px;font-size:14px;font-weight:700;">לא יכול</a>
-</td>
-</tr>
-</table>
-</td></tr>
-<tr><td style="background-color:#F8FAFC;padding:24px 36px;text-align:center;border-top:1px solid #E2E8F0;">
-<p style="margin:0;color:#94A3B8;font-size:12px;">BuilderOps &copy; 2026</p>
-</td></tr>
-</table>
-</td></tr>
-</table>
-</div></div></div>
 
-<div style="text-align:center;padding:60px 20px;color:#64748B;font-size:13px;">
-<p style="color:#F97316;font-weight:700;font-size:14px;margin-bottom:8px;">BUILDEROPS &copy; 2026</p>
-<p>Black & Orange Theme - 20 Templates Updated</p>
-<p style="margin-top:8px;font-size:11px;color:#475569;">base.html &middot; welcome.html &middot; invitation.html &middot; password_reset.html &middot; notification.html &middot; rfi.html &middot; meeting_invitation.html &middot; meeting_vote.html &middot; daily_summary.html &middot; weekly_progress_report.html &middot; notification_digest.html &middot; executive_summary.html &middot; checklist_notification.html &middot; checklist_pdf.html &middot; defects_report.html &middot; inspections_report.html &middot; safety_compliance_report.html &middot; permit_compliance_report.html &middot; qr_code_sheet.html &middot; inspection_summary_ai.html</p>
-</div>
 
-</body>
-</html>
+&lt;tr&gt;&lt;td style=&quot;background-color:#F8FAFC;padding:24px 36px;text-align:center;border-top:1px solid #E2E8F0;&quot;&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;
+&lt;tr&gt;&lt;td style=&quot;text-align:center;&quot;&gt;
+
+&lt;p style=&quot;margin:0 0 8px;color:#94A3B8;font-size:12px;line-height:1.5;&quot;&gt;BuilderOps - ניהול פרויקטי בנייה&lt;/p&gt;
+
+&lt;p style=&quot;margin:0;color:#CBD5E1;font-size:11px;&quot;&gt;זוהי הודעה אוטומטית מ-BuilderOps.&lt;/p&gt;
+&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/td&gt;&lt;/tr&gt;
+
+&lt;/table&gt;
+&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/body&gt;
+&lt;/html&gt;" style="width:100%;height:900px;border:none;background:#F1F5F9;" sandbox="allow-same-origin"></iframe></div></div>
+<div class="tpl"><h2>Notification - Equipment Update</h2><div class="tpl-frame"><iframe srcdoc="&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;he&quot; dir=&quot;rtl&quot;&gt;
+&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;&lt;/head&gt;
+&lt;body style=&quot;margin:0;padding:0;background-color:#F1F5F9;font-family:'Segoe UI',Arial,Helvetica,sans-serif;-webkit-font-smoothing:antialiased;&quot;&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;background-color:#F1F5F9;&quot;&gt;
+&lt;tr&gt;&lt;td align=&quot;center&quot; style=&quot;padding:32px 16px;&quot;&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;600&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;max-width:600px;width:100%;background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06),0 8px 32px rgba(0,0,0,0.04);&quot;&gt;
+
+
+&lt;tr&gt;&lt;td style=&quot;background:linear-gradient(135deg,#0F172A 0%,#1E293B 100%);padding:36px 36px 30px;&quot;&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;
+&lt;tr&gt;&lt;td&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;
+&lt;tr&gt;
+&lt;td style=&quot;vertical-align:middle;&quot;&gt;
+&lt;p style=&quot;margin:0 0 20px;font-size:11px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:#F97316;&quot;&gt;BUILDEROPS&lt;/p&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+
+&lt;img src=&quot;data:image/png;base64,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&quot; width=&quot;36&quot; height=&quot;36&quot; alt=&quot;&quot; style=&quot;display:block;border:0;margin:0 0 8px;&quot; /&gt;
+&lt;h1 style=&quot;margin:0 0 6px;color:#ffffff;font-size:24px;font-weight:800;letter-spacing:-0.3px;&quot;&gt;הגשת ציוד אושרה&lt;/h1&gt;
+
+&lt;p style=&quot;margin:0;color:#94A3B8;font-size:13px;&quot;&gt;פרויקט: &lt;span style=&quot;color:#CBD5E1;font-weight:600;&quot;&gt;מגדלי הים התיכון&lt;/span&gt;&lt;/p&gt;
+
+
+&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/td&gt;&lt;/tr&gt;
+
+
+&lt;tr&gt;&lt;td style=&quot;padding:36px;text-align:right;&quot;&gt;
+
+
+
+
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;margin-bottom:20px;&quot;&gt;
+&lt;tr&gt;&lt;td&gt;
+
+&lt;span style=&quot;display:inline-block;background:#FFF7ED;color:#EA580C;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;margin-left:8px;&quot;&gt;אישור&lt;/span&gt;
+
+
+&lt;span style=&quot;display:inline-block;background:#F0FDF4;color:#16A34A;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;&quot;&gt;אושר&lt;/span&gt;
+
+&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+
+
+
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;margin-bottom:24px;&quot;&gt;
+&lt;tr&gt;&lt;td style=&quot;padding:22px;background:#F8FAFC;border-radius:12px;border-right:4px solid #EA580C;&quot;&gt;
+&lt;p style=&quot;margin:0;color:#334155;font-size:15px;line-height:1.8;&quot;&gt;הגשת ציוד &amp;#34;מנוף צריח Liebherr 280 EC-H 12&amp;#34; אושרה בהצלחה על ידי מנהל הפרויקט. הציוד סומן כמאושר ומוכן להזמנה מהספק. כל המסמכים הנדרשים נבדקו ואושרו.&lt;/p&gt;
+&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+
+
+
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;margin-bottom:24px;&quot;&gt;
+&lt;tr&gt;&lt;td&gt;
+&lt;p style=&quot;margin:0 0 10px;font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#0F172A;&quot;&gt;פרטים&lt;/p&gt;
+&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;background:#ffffff;border-radius:12px;border:1px solid #E2E8F0;overflow:hidden;&quot;&gt;
+
+&lt;tr&gt;
+&lt;td style=&quot;padding:14px 20px;border-bottom:1px solid #F1F5F9;width:40%;vertical-align:top;&quot;&gt;
+&lt;p style=&quot;margin:0;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;&quot;&gt;ישות&lt;/p&gt;
+&lt;/td&gt;
+&lt;td style=&quot;padding:14px 20px;border-bottom:1px solid #F1F5F9;vertical-align:top;&quot;&gt;
+&lt;p style=&quot;margin:0;font-size:14px;color:#0F172A;font-weight:600;&quot;&gt;ציוד: מנוף צריח Liebherr 280 EC-H 12&lt;/p&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td style=&quot;padding:14px 20px;border-bottom:1px solid #F1F5F9;width:40%;vertical-align:top;&quot;&gt;
+&lt;p style=&quot;margin:0;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;&quot;&gt;קטגוריה&lt;/p&gt;
+&lt;/td&gt;
+&lt;td style=&quot;padding:14px 20px;border-bottom:1px solid #F1F5F9;vertical-align:top;&quot;&gt;
+&lt;span style=&quot;display:inline-block;background:#FFF7ED;color:#C2410C;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:700;&quot;&gt;אישור&lt;/span&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td style=&quot;padding:14px 20px;border-bottom:1px solid #F1F5F9;width:40%;vertical-align:top;&quot;&gt;
+&lt;p style=&quot;margin:0;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;&quot;&gt;בוצע על ידי&lt;/p&gt;
+&lt;/td&gt;
+&lt;td style=&quot;padding:14px 20px;border-bottom:1px solid #F1F5F9;vertical-align:top;&quot;&gt;
+&lt;table role=&quot;presentation&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;
+&lt;tr&gt;
+&lt;td style=&quot;vertical-align:middle;padding-left:10px;&quot;&gt;
+&lt;div style=&quot;width:28px;height:28px;background:linear-gradient(135deg,#EA580C,#FB923C);border-radius:50%;text-align:center;line-height:28px;font-size:12px;color:#ffffff;font-weight:800;&quot;&gt;ד&lt;/div&gt;
+&lt;/td&gt;
+&lt;td style=&quot;vertical-align:middle;&quot;&gt;
+&lt;p style=&quot;margin:0;font-size:14px;color:#334155;font-weight:600;&quot;&gt;דני כהן&lt;/p&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+
+
+&lt;tr&gt;
+&lt;td style=&quot;padding:14px 20px;width:40%;vertical-align:top;&quot;&gt;
+&lt;p style=&quot;margin:0;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;&quot;&gt;מתי&lt;/p&gt;
+&lt;/td&gt;
+&lt;td style=&quot;padding:14px 20px;vertical-align:top;&quot;&gt;
+&lt;p style=&quot;margin:0;font-size:14px;color:#334155;font-weight:500;&quot;&gt;01/03/2026 14:30&lt;/p&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;/table&gt;
+&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+
+
+
+
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;margin-bottom:24px;&quot;&gt;
+&lt;tr&gt;&lt;td&gt;
+&lt;p style=&quot;margin:0 0 10px;font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#0F172A;&quot;&gt;מידע על הפרויקט&lt;/p&gt;
+&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;background:#0F172A;border-radius:12px;overflow:hidden;&quot;&gt;
+&lt;tr&gt;
+&lt;td style=&quot;padding:20px 22px;&quot;&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;
+&lt;tr&gt;
+&lt;td style=&quot;vertical-align:middle;&quot;&gt;
+&lt;p style=&quot;margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#F97316;&quot;&gt;פרויקט&lt;/p&gt;
+&lt;p style=&quot;margin:0;font-size:18px;color:#ffffff;font-weight:700;&quot;&gt;מגדלי הים התיכון&lt;/p&gt;
+&lt;/td&gt;
+&lt;td style=&quot;vertical-align:middle;text-align:left;&quot;&gt;
+&lt;a href=&quot;https://app.builderops.dev/projects/abc-123&quot; style=&quot;display:inline-block;background:rgba(249,115,22,0.15);color:#FB923C;text-decoration:none;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:700;&quot;&gt;צפה בפרויקט &amp;rarr;&lt;/a&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+
+
+
+
+&lt;div style=&quot;text-align:center;margin:0 0 28px;&quot;&gt;
+&lt;a href=&quot;https://app.builderops.dev/projects/abc-123/equipment/eq-456&quot; style=&quot;display:inline-block;background:linear-gradient(135deg,#EA580C,#FB923C);color:#ffffff;text-decoration:none;padding:16px 48px;border-radius:12px;font-size:16px;font-weight:700;letter-spacing:0.3px;box-shadow:0 4px 12px rgba(249,115,22,0.3);&quot;&gt;צפה בציוד&lt;/a&gt;
+&lt;/div&gt;
+
+
+
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;margin-bottom:8px;&quot;&gt;
+&lt;tr&gt;&lt;td&gt;
+&lt;p style=&quot;margin:0 0 10px;font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#0F172A;&quot;&gt;קישורים מהירים&lt;/p&gt;
+&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;
+&lt;tr&gt;
+
+&lt;td width=&quot;33%&quot; style=&quot;padding:4px;&quot;&gt;
+&lt;a href=&quot;https://app.builderops.dev/projects/abc-123/equipment/eq-456&quot; style=&quot;display:block;text-align:center;padding:12px 8px;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;text-decoration:none;&quot;&gt;
+&lt;p style=&quot;margin:0;font-size:12px;color:#EA580C;font-weight:700;&quot;&gt;צפה בפרטים&lt;/p&gt;
+&lt;/a&gt;
+&lt;/td&gt;
+
+&lt;td width=&quot;33%&quot; style=&quot;padding:4px;&quot;&gt;
+&lt;a href=&quot;https://app.builderops.dev/projects/abc-123&quot; style=&quot;display:block;text-align:center;padding:12px 8px;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;text-decoration:none;&quot;&gt;
+&lt;p style=&quot;margin:0;font-size:12px;color:#EA580C;font-weight:700;&quot;&gt;צפה בפרויקט&lt;/p&gt;
+&lt;/a&gt;
+&lt;/td&gt;
+&lt;td width=&quot;33%&quot; style=&quot;padding:4px;&quot;&gt;
+&lt;a href=&quot;https://app.builderops.dev/settings/notifications&quot; style=&quot;display:block;text-align:center;padding:12px 8px;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;text-decoration:none;&quot;&gt;
+&lt;p style=&quot;margin:0;font-size:12px;color:#64748B;font-weight:700;&quot;&gt;הגדרות התראות&lt;/p&gt;
+&lt;/a&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+
+
+&lt;/td&gt;&lt;/tr&gt;
+
+
+
+&lt;tr&gt;&lt;td style=&quot;background-color:#F8FAFC;padding:24px 36px;text-align:center;border-top:1px solid #E2E8F0;&quot;&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;
+&lt;tr&gt;&lt;td style=&quot;text-align:center;&quot;&gt;
+
+&lt;p style=&quot;margin:0 0 8px;color:#94A3B8;font-size:12px;line-height:1.5;&quot;&gt;BuilderOps - ניהול פרויקטי בנייה&lt;/p&gt;
+
+&lt;p style=&quot;margin:0;color:#CBD5E1;font-size:11px;&quot;&gt;זוהי הודעה אוטומטית מ-BuilderOps.&lt;/p&gt;
+&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/td&gt;&lt;/tr&gt;
+
+&lt;/table&gt;
+&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/body&gt;
+&lt;/html&gt;" style="width:100%;height:900px;border:none;background:#F1F5F9;" sandbox="allow-same-origin"></iframe></div></div>
+<div class="tpl"><h2>Daily Summary</h2><div class="tpl-frame"><iframe srcdoc="&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;he&quot; dir=&quot;rtl&quot;&gt;
+&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;&lt;/head&gt;
+&lt;body style=&quot;margin:0;padding:0;background-color:#F1F5F9;font-family:'Segoe UI',Arial,Helvetica,sans-serif;-webkit-font-smoothing:antialiased;&quot;&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;background-color:#F1F5F9;&quot;&gt;
+&lt;tr&gt;&lt;td align=&quot;center&quot; style=&quot;padding:32px 16px;&quot;&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;600&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;max-width:600px;width:100%;background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06),0 8px 32px rgba(0,0,0,0.04);&quot;&gt;
+
+
+&lt;tr&gt;&lt;td style=&quot;background:linear-gradient(135deg,#0F172A 0%,#1E293B 100%);padding:36px 36px 30px;&quot;&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;
+&lt;tr&gt;&lt;td&gt;
+  &lt;p style=&quot;margin:0 0 20px;font-size:11px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:#F97316;&quot;&gt;BUILDEROPS&lt;/p&gt;
+  &lt;img src=&quot;data:image/png;base64,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&quot; width=&quot;36&quot; height=&quot;36&quot; alt=&quot;&quot; style=&quot;display:block;border:0;margin:0 0 8px;&quot; /&gt;
+  &lt;h1 style=&quot;margin:0 0 8px;color:#ffffff;font-size:24px;font-weight:800;letter-spacing:-0.3px;&quot;&gt;סיכום יומי&lt;/h1&gt;
+  &lt;p style=&quot;margin:0;color:#94A3B8;font-size:14px;font-weight:500;&quot;&gt;
+    פרויקט: &lt;span style=&quot;color:#CBD5E1;font-weight:600;&quot;&gt;מגדלי הים התיכון&lt;/span&gt;
+    &amp;nbsp;&amp;#183;&amp;nbsp;
+    תאריך: &lt;span style=&quot;color:#CBD5E1;font-weight:600;&quot;&gt;01/03/2026&lt;/span&gt;
+  &lt;/p&gt;
+&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/td&gt;&lt;/tr&gt;
+
+
+&lt;tr&gt;&lt;td style=&quot;padding:36px;text-align:right;&quot;&gt;
+
+
+
+
+
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;margin:28px 0 14px;&quot;&gt;
+&lt;tr&gt;&lt;td&gt;
+  &lt;p style=&quot;margin:0;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#0F172A;&quot;&gt;סקירת פעילות&lt;/p&gt;
+  &lt;div style=&quot;height:3px;background:linear-gradient(90deg,#F97316 0%,#E2E8F0 100%);border-radius:3px;margin-top:8px;&quot;&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;border:1px solid #E2E8F0;border-radius:12px;overflow:hidden;&quot;&gt;
+  &lt;tr style=&quot;background:#F8FAFC;&quot;&gt;
+    &lt;th style=&quot;padding:12px 18px;text-align:right;font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;&quot;&gt;סוג&lt;/th&gt;
+    &lt;th style=&quot;padding:12px 18px;text-align:right;font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;&quot;&gt;פעולה&lt;/th&gt;
+    &lt;th style=&quot;padding:12px 14px;text-align:center;font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;&quot;&gt;כמות&lt;/th&gt;
+  &lt;/tr&gt;
+  
+  &lt;tr&gt;
+    &lt;td style=&quot;padding:12px 18px;border-top:1px solid #F1F5F9;font-size:13px;color:#334155;font-weight:600;&quot;&gt;ציוד&lt;/td&gt;
+    &lt;td style=&quot;padding:12px 18px;border-top:1px solid #F1F5F9;font-size:13px;color:#334155;&quot;&gt;נוצר&lt;/td&gt;
+    &lt;td style=&quot;padding:12px 14px;border-top:1px solid #F1F5F9;font-size:15px;text-align:center;font-weight:800;color:#0F172A;&quot;&gt;5&lt;/td&gt;
+  &lt;/tr&gt;
+  
+  &lt;tr&gt;
+    &lt;td style=&quot;padding:12px 18px;border-top:1px solid #F1F5F9;font-size:13px;color:#334155;font-weight:600;&quot;&gt;חומרים&lt;/td&gt;
+    &lt;td style=&quot;padding:12px 18px;border-top:1px solid #F1F5F9;font-size:13px;color:#334155;&quot;&gt;אושר&lt;/td&gt;
+    &lt;td style=&quot;padding:12px 14px;border-top:1px solid #F1F5F9;font-size:15px;text-align:center;font-weight:800;color:#0F172A;&quot;&gt;3&lt;/td&gt;
+  &lt;/tr&gt;
+  
+  &lt;tr&gt;
+    &lt;td style=&quot;padding:12px 18px;border-top:1px solid #F1F5F9;font-size:13px;color:#334155;font-weight:600;&quot;&gt;בדיקות&lt;/td&gt;
+    &lt;td style=&quot;padding:12px 18px;border-top:1px solid #F1F5F9;font-size:13px;color:#334155;&quot;&gt;הושלם&lt;/td&gt;
+    &lt;td style=&quot;padding:12px 14px;border-top:1px solid #F1F5F9;font-size:15px;text-align:center;font-weight:800;color:#0F172A;&quot;&gt;4&lt;/td&gt;
+  &lt;/tr&gt;
+  
+  &lt;tr&gt;
+    &lt;td style=&quot;padding:12px 18px;border-top:1px solid #F1F5F9;font-size:13px;color:#334155;font-weight:600;&quot;&gt;RFI&lt;/td&gt;
+    &lt;td style=&quot;padding:12px 18px;border-top:1px solid #F1F5F9;font-size:13px;color:#334155;&quot;&gt;נפתח&lt;/td&gt;
+    &lt;td style=&quot;padding:12px 14px;border-top:1px solid #F1F5F9;font-size:15px;text-align:center;font-weight:800;color:#0F172A;&quot;&gt;2&lt;/td&gt;
+  &lt;/tr&gt;
+  
+&lt;/table&gt;
+
+
+
+
+
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;margin:28px 0 14px;&quot;&gt;
+&lt;tr&gt;&lt;td&gt;
+  &lt;p style=&quot;margin:0;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#0F172A;&quot;&gt;ציוד וחומרים&lt;/p&gt;
+  &lt;div style=&quot;height:3px;background:linear-gradient(90deg,#F97316 0%,#E2E8F0 100%);border-radius:3px;margin-top:8px;&quot;&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+
+
+&lt;p style=&quot;margin:0 0 8px;font-size:12px;font-weight:700;color:#334155;text-transform:uppercase;letter-spacing:0.3px;&quot;&gt;ציוד&lt;/p&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;margin-bottom:16px;&quot;&gt;
+  &lt;tr&gt;
+    
+&lt;td style=&quot;text-align:center;padding:4px;width:25%;&quot;&gt;
+  &lt;div style=&quot;background:#FFF7ED;border-radius:10px;padding:16px 8px;&quot;&gt;
+    &lt;div style=&quot;font-size:28px;font-weight:800;color:#EA580C;letter-spacing:-0.5px;&quot;&gt;5&lt;/div&gt;
+    &lt;div style=&quot;font-size:11px;color:#64748B;margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;&quot;&gt;נוצרו&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/td&gt;
+
+    
+&lt;td style=&quot;text-align:center;padding:4px;width:25%;&quot;&gt;
+  &lt;div style=&quot;background:#F0FDF4;border-radius:10px;padding:16px 8px;&quot;&gt;
+    &lt;div style=&quot;font-size:28px;font-weight:800;color:#16A34A;letter-spacing:-0.5px;&quot;&gt;3&lt;/div&gt;
+    &lt;div style=&quot;font-size:11px;color:#64748B;margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;&quot;&gt;אושרו&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/td&gt;
+
+    
+&lt;td style=&quot;text-align:center;padding:4px;width:25%;&quot;&gt;
+  &lt;div style=&quot;background:#FEF2F2;border-radius:10px;padding:16px 8px;&quot;&gt;
+    &lt;div style=&quot;font-size:28px;font-weight:800;color:#DC2626;letter-spacing:-0.5px;&quot;&gt;1&lt;/div&gt;
+    &lt;div style=&quot;font-size:11px;color:#64748B;margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;&quot;&gt;נדחו&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/td&gt;
+
+  &lt;/tr&gt;
+&lt;/table&gt;
+
+&lt;p style=&quot;margin:0 0 8px;font-size:12px;font-weight:700;color:#334155;text-transform:uppercase;letter-spacing:0.3px;&quot;&gt;חומרים&lt;/p&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;
+  &lt;tr&gt;
+    
+&lt;td style=&quot;text-align:center;padding:4px;width:25%;&quot;&gt;
+  &lt;div style=&quot;background:#FFF7ED;border-radius:10px;padding:16px 8px;&quot;&gt;
+    &lt;div style=&quot;font-size:28px;font-weight:800;color:#EA580C;letter-spacing:-0.5px;&quot;&gt;8&lt;/div&gt;
+    &lt;div style=&quot;font-size:11px;color:#64748B;margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;&quot;&gt;נוצרו&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/td&gt;
+
+    
+&lt;td style=&quot;text-align:center;padding:4px;width:25%;&quot;&gt;
+  &lt;div style=&quot;background:#F0FDF4;border-radius:10px;padding:16px 8px;&quot;&gt;
+    &lt;div style=&quot;font-size:28px;font-weight:800;color:#16A34A;letter-spacing:-0.5px;&quot;&gt;6&lt;/div&gt;
+    &lt;div style=&quot;font-size:11px;color:#64748B;margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;&quot;&gt;אושרו&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/td&gt;
+
+    
+&lt;td style=&quot;text-align:center;padding:4px;width:25%;&quot;&gt;
+  &lt;div style=&quot;background:#FEF2F2;border-radius:10px;padding:16px 8px;&quot;&gt;
+    &lt;div style=&quot;font-size:28px;font-weight:800;color:#DC2626;letter-spacing:-0.5px;&quot;&gt;0&lt;/div&gt;
+    &lt;div style=&quot;font-size:11px;color:#64748B;margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;&quot;&gt;נדחו&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/td&gt;
+
+  &lt;/tr&gt;
+&lt;/table&gt;
+
+
+
+
+
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;margin:28px 0 14px;&quot;&gt;
+&lt;tr&gt;&lt;td&gt;
+  &lt;p style=&quot;margin:0;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#0F172A;&quot;&gt;בדיקות&lt;/p&gt;
+  &lt;div style=&quot;height:3px;background:linear-gradient(90deg,#F97316 0%,#E2E8F0 100%);border-radius:3px;margin-top:8px;&quot;&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;
+  &lt;tr&gt;
+    
+&lt;td style=&quot;text-align:center;padding:4px;width:25%;&quot;&gt;
+  &lt;div style=&quot;background:#F0FDF4;border-radius:10px;padding:16px 8px;&quot;&gt;
+    &lt;div style=&quot;font-size:28px;font-weight:800;color:#16A34A;letter-spacing:-0.5px;&quot;&gt;4&lt;/div&gt;
+    &lt;div style=&quot;font-size:11px;color:#64748B;margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;&quot;&gt;הושלמו&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/td&gt;
+
+    
+&lt;td style=&quot;text-align:center;padding:4px;width:25%;&quot;&gt;
+  &lt;div style=&quot;background:#FFF7ED;border-radius:10px;padding:16px 8px;&quot;&gt;
+    &lt;div style=&quot;font-size:28px;font-weight:800;color:#EA580C;letter-spacing:-0.5px;&quot;&gt;2&lt;/div&gt;
+    &lt;div style=&quot;font-size:11px;color:#64748B;margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;&quot;&gt;ממצאים חדשים&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/td&gt;
+
+  &lt;/tr&gt;
+&lt;/table&gt;
+
+
+
+
+
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;margin:28px 0 14px;&quot;&gt;
+&lt;tr&gt;&lt;td&gt;
+  &lt;p style=&quot;margin:0;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#0F172A;&quot;&gt;בקשות מידע&lt;/p&gt;
+  &lt;div style=&quot;height:3px;background:linear-gradient(90deg,#F97316 0%,#E2E8F0 100%);border-radius:3px;margin-top:8px;&quot;&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;
+  &lt;tr&gt;
+    
+&lt;td style=&quot;text-align:center;padding:4px;width:25%;&quot;&gt;
+  &lt;div style=&quot;background:#FFF7ED;border-radius:10px;padding:16px 8px;&quot;&gt;
+    &lt;div style=&quot;font-size:28px;font-weight:800;color:#EA580C;letter-spacing:-0.5px;&quot;&gt;3&lt;/div&gt;
+    &lt;div style=&quot;font-size:11px;color:#64748B;margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;&quot;&gt;נפתחו&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/td&gt;
+
+    
+&lt;td style=&quot;text-align:center;padding:4px;width:25%;&quot;&gt;
+  &lt;div style=&quot;background:#F0FDF4;border-radius:10px;padding:16px 8px;&quot;&gt;
+    &lt;div style=&quot;font-size:28px;font-weight:800;color:#16A34A;letter-spacing:-0.5px;&quot;&gt;2&lt;/div&gt;
+    &lt;div style=&quot;font-size:11px;color:#64748B;margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;&quot;&gt;נענו&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/td&gt;
+
+    
+&lt;td style=&quot;text-align:center;padding:4px;width:25%;&quot;&gt;
+  &lt;div style=&quot;background:#F8FAFC;border-radius:10px;padding:16px 8px;&quot;&gt;
+    &lt;div style=&quot;font-size:28px;font-weight:800;color:#64748B;letter-spacing:-0.5px;&quot;&gt;1&lt;/div&gt;
+    &lt;div style=&quot;font-size:11px;color:#64748B;margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;&quot;&gt;נסגרו&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/td&gt;
+
+    
+    
+&lt;td style=&quot;text-align:center;padding:4px;width:25%;&quot;&gt;
+  &lt;div style=&quot;background:#FEF2F2;border-radius:10px;padding:16px 8px;&quot;&gt;
+    &lt;div style=&quot;font-size:28px;font-weight:800;color:#DC2626;letter-spacing:-0.5px;&quot;&gt;1&lt;/div&gt;
+    &lt;div style=&quot;font-size:11px;color:#64748B;margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;&quot;&gt;באיחור&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/td&gt;
+
+    
+  &lt;/tr&gt;
+&lt;/table&gt;
+
+
+
+
+
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;margin:28px 0 14px;&quot;&gt;
+&lt;tr&gt;&lt;td&gt;
+  &lt;p style=&quot;margin:0;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#0F172A;&quot;&gt;ממתינים לאישור&lt;/p&gt;
+  &lt;div style=&quot;height:3px;background:linear-gradient(90deg,#F97316 0%,#E2E8F0 100%);border-radius:3px;margin-top:8px;&quot;&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+
+
+
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;background:#FFFBEB;border-radius:12px;border:1px solid #F59E0B;&quot;&gt;
+  &lt;tr&gt;&lt;td style=&quot;padding:18px 22px;&quot;&gt;
+    &lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;
+      &lt;tr&gt;
+        &lt;td style=&quot;padding:6px 0;font-size:14px;color:#334155;&quot;&gt;ציוד ממתין&lt;/td&gt;
+        &lt;td style=&quot;padding:6px 0;font-size:15px;font-weight:800;color:#0F172A;text-align:left;&quot;&gt;4&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td style=&quot;padding:6px 0;font-size:14px;color:#334155;&quot;&gt;חומרים ממתינים&lt;/td&gt;
+        &lt;td style=&quot;padding:6px 0;font-size:15px;font-weight:800;color:#0F172A;text-align:left;&quot;&gt;3&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td style=&quot;padding:10px 0 0;border-top:1px solid #F59E0B;font-size:15px;font-weight:800;color:#D97706;&quot;&gt;סה&amp;#34;כ ממתין&lt;/td&gt;
+        &lt;td style=&quot;padding:10px 0 0;border-top:1px solid #F59E0B;font-size:20px;font-weight:800;color:#D97706;text-align:left;&quot;&gt;7&lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/table&gt;
+  &lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+
+
+
+
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;margin:28px 0 14px;&quot;&gt;
+&lt;tr&gt;&lt;td&gt;
+  &lt;p style=&quot;margin:0;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#0F172A;&quot;&gt;פגישות קרובות&lt;/p&gt;
+  &lt;div style=&quot;height:3px;background:linear-gradient(90deg,#F97316 0%,#E2E8F0 100%);border-radius:3px;margin-top:8px;&quot;&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+
+
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;border:1px solid #E2E8F0;border-radius:12px;overflow:hidden;&quot;&gt;
+  &lt;tr style=&quot;background:#F8FAFC;&quot;&gt;
+    &lt;th style=&quot;padding:12px 18px;text-align:right;font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;&quot;&gt;פגישות קרובות&lt;/th&gt;
+    &lt;th style=&quot;padding:12px 18px;text-align:right;font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;&quot;&gt;סוג&lt;/th&gt;
+    &lt;th style=&quot;padding:12px 18px;text-align:right;font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;&quot;&gt;תאריך&lt;/th&gt;
+  &lt;/tr&gt;
+  
+  &lt;tr&gt;
+    &lt;td style=&quot;padding:12px 18px;border-top:1px solid #F1F5F9;font-size:13px;font-weight:600;color:#334155;&quot;&gt;ישיבת תיאום שבועית&lt;/td&gt;
+    &lt;td style=&quot;padding:12px 18px;border-top:1px solid #F1F5F9;font-size:13px;color:#334155;&quot;&gt;סטטוס&lt;/td&gt;
+    &lt;td style=&quot;padding:12px 18px;border-top:1px solid #F1F5F9;font-size:13px;color:#334155;&quot;&gt;02/03/2026&lt;/td&gt;
+  &lt;/tr&gt;
+  
+  &lt;tr&gt;
+    &lt;td style=&quot;padding:12px 18px;border-top:1px solid #F1F5F9;font-size:13px;font-weight:600;color:#334155;&quot;&gt;סקירת בטיחות&lt;/td&gt;
+    &lt;td style=&quot;padding:12px 18px;border-top:1px solid #F1F5F9;font-size:13px;color:#334155;&quot;&gt;בטיחות&lt;/td&gt;
+    &lt;td style=&quot;padding:12px 18px;border-top:1px solid #F1F5F9;font-size:13px;color:#334155;&quot;&gt;03/03/2026&lt;/td&gt;
+  &lt;/tr&gt;
+  
+&lt;/table&gt;
+
+
+
+
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;margin:28px 0 14px;&quot;&gt;
+&lt;tr&gt;&lt;td&gt;
+  &lt;p style=&quot;margin:0;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#0F172A;&quot;&gt;התקדמות הפרויקט&lt;/p&gt;
+  &lt;div style=&quot;height:3px;background:linear-gradient(90deg,#F97316 0%,#E2E8F0 100%);border-radius:3px;margin-top:8px;&quot;&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+
+
+
+  
+  
+
+&lt;div style=&quot;background:#DCFCE7;border-radius:14px;height:28px;overflow:hidden;margin:8px 0;&quot;&gt;
+  &lt;div style=&quot;background:#16A34A;height:100%;width:65.5%;border-radius:14px;&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;p style=&quot;text-align:center;font-size:18px;font-weight:800;color:#16A34A;margin:8px 0 0;&quot;&gt;65.5%&lt;/p&gt;
+
+
+&lt;/td&gt;&lt;/tr&gt;
+
+
+&lt;tr&gt;&lt;td style=&quot;padding:0 36px 32px;text-align:center;&quot;&gt;
+  &lt;a href=&quot;https://app.builderops.dev&quot; style=&quot;display:inline-block;background:linear-gradient(135deg,#EA580C,#FB923C);color:#ffffff;text-decoration:none;padding:14px 40px;border-radius:12px;font-size:15px;font-weight:700;letter-spacing:0.3px;box-shadow:0 4px 12px rgba(249,115,22,0.3);&quot;&gt;צפה באפליקציה&lt;/a&gt;
+&lt;/td&gt;&lt;/tr&gt;
+
+
+&lt;tr&gt;&lt;td style=&quot;background-color:#F8FAFC;padding:24px 36px;text-align:center;border-top:1px solid #E2E8F0;&quot;&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;
+&lt;tr&gt;&lt;td style=&quot;text-align:center;&quot;&gt;
+
+&lt;p style=&quot;margin:0 0 8px;color:#94A3B8;font-size:12px;line-height:1.5;&quot;&gt;BuilderOps&lt;/p&gt;
+
+&lt;p style=&quot;margin:0;color:#CBD5E1;font-size:11px;&quot;&gt;&lt;/p&gt;
+&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/td&gt;&lt;/tr&gt;
+
+&lt;/table&gt;
+&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/body&gt;
+&lt;/html&gt;" style="width:100%;height:900px;border:none;background:#F1F5F9;" sandbox="allow-same-origin"></iframe></div></div>
+<div class="tpl"><h2>Password Reset</h2><div class="tpl-frame"><iframe srcdoc="&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;he&quot; dir=&quot;rtl&quot;&gt;
+&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;&lt;/head&gt;
+&lt;body style=&quot;margin:0;padding:0;background-color:#F1F5F9;font-family:'Segoe UI',Arial,Helvetica,sans-serif;-webkit-font-smoothing:antialiased;&quot;&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;background-color:#F1F5F9;&quot;&gt;
+&lt;tr&gt;&lt;td align=&quot;center&quot; style=&quot;padding:32px 16px;&quot;&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;600&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;max-width:600px;width:100%;background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06),0 8px 32px rgba(0,0,0,0.04);&quot;&gt;
+
+
+&lt;tr&gt;&lt;td style=&quot;background:linear-gradient(135deg,#0F172A 0%,#1E293B 100%);padding:36px 36px 30px;&quot;&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;
+&lt;tr&gt;&lt;td&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;
+&lt;tr&gt;
+&lt;td style=&quot;vertical-align:middle;&quot;&gt;
+&lt;p style=&quot;margin:0 0 20px;font-size:11px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:#F97316;&quot;&gt;BUILDEROPS&lt;/p&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+
+&lt;img src=&quot;data:image/png;base64,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&quot; width=&quot;36&quot; height=&quot;36&quot; alt=&quot;&quot; style=&quot;display:block;border:0;margin:0 0 8px;&quot; /&gt;
+&lt;h1 style=&quot;margin:0;color:#ffffff;font-size:26px;font-weight:800;letter-spacing:-0.5px;&quot;&gt;איפוס סיסמה&lt;/h1&gt;
+
+&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/td&gt;&lt;/tr&gt;
+
+
+&lt;tr&gt;&lt;td style=&quot;padding:36px;text-align:right;&quot;&gt;
+
+&lt;p style=&quot;margin:0 0 24px;color:#334155;font-size:16px;line-height:1.7;&quot;&gt;קיבלנו בקשה לאיפוס הסיסמה שלך. לחץ על הכפתור למטה כדי ליצור סיסמה חדשה.&lt;/p&gt;
+
+
+&lt;div style=&quot;text-align:center;margin:0 0 28px;&quot;&gt;
+&lt;a href=&quot;https://app.builderops.dev/reset?token=abc123&quot; style=&quot;display:inline-block;background:linear-gradient(135deg,#EA580C,#FB923C);color:#ffffff;text-decoration:none;padding:16px 48px;border-radius:12px;font-size:16px;font-weight:700;letter-spacing:0.3px;box-shadow:0 4px 12px rgba(249,115,22,0.3);&quot;&gt;אפס סיסמה&lt;/a&gt;
+&lt;/div&gt;
+
+
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;background:#FFFBEB;border-radius:10px;border:1px solid #FDE68A;margin-bottom:20px;&quot;&gt;
+&lt;tr&gt;&lt;td style=&quot;padding:16px 20px;&quot;&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;
+&lt;tr&gt;
+&lt;td style=&quot;padding:5px 0;&quot;&gt;
+&lt;p style=&quot;margin:0;color:#92400E;font-size:13px;line-height:1.6;&quot;&gt;&amp;#9200; קישור זה תקף ל-24 שעות בלבד&lt;/p&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;padding:5px 0;&quot;&gt;
+&lt;p style=&quot;margin:0;color:#92400E;font-size:13px;line-height:1.6;&quot;&gt;אם לא ביקשת, התעלם.&lt;/p&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+
+
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;background:#F8FAFC;border-radius:10px;border:1px solid #E2E8F0;&quot;&gt;
+&lt;tr&gt;&lt;td style=&quot;padding:16px 20px;&quot;&gt;
+&lt;p style=&quot;margin:0 0 10px;font-size:12px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#64748B;&quot;&gt;טיפים לאבטחה&lt;/p&gt;
+&lt;table role=&quot;presentation&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;
+&lt;tr&gt;
+&lt;td style=&quot;padding:4px 0;vertical-align:top;width:20px;&quot;&gt;&lt;span style=&quot;color:#EA580C;font-size:13px;&quot;&gt;&amp;#8226;&lt;/span&gt;&lt;/td&gt;
+&lt;td style=&quot;padding:4px 0;padding-right:6px;&quot;&gt;&lt;p style=&quot;margin:0;color:#64748B;font-size:13px;line-height:1.5;&quot;&gt;לעולם אל תשתף את הסיסמה שלך&lt;/p&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;padding:4px 0;vertical-align:top;width:20px;&quot;&gt;&lt;span style=&quot;color:#EA580C;font-size:13px;&quot;&gt;&amp;#8226;&lt;/span&gt;&lt;/td&gt;
+&lt;td style=&quot;padding:4px 0;padding-right:6px;&quot;&gt;&lt;p style=&quot;margin:0;color:#64748B;font-size:13px;line-height:1.5;&quot;&gt;השתמש בסיסמה ייחודית וחזקה&lt;/p&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;padding:4px 0;vertical-align:top;width:20px;&quot;&gt;&lt;span style=&quot;color:#EA580C;font-size:13px;&quot;&gt;&amp;#8226;&lt;/span&gt;&lt;/td&gt;
+&lt;td style=&quot;padding:4px 0;padding-right:6px;&quot;&gt;&lt;p style=&quot;margin:0;color:#64748B;font-size:13px;line-height:1.5;&quot;&gt;הפעל אימות דו-שלבי לאבטחה מוגברת&lt;/p&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+
+&lt;/td&gt;&lt;/tr&gt;
+
+
+
+&lt;tr&gt;&lt;td style=&quot;background-color:#F8FAFC;padding:24px 36px;text-align:center;border-top:1px solid #E2E8F0;&quot;&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;
+&lt;tr&gt;&lt;td style=&quot;text-align:center;&quot;&gt;
+
+&lt;p style=&quot;margin:0 0 8px;color:#94A3B8;font-size:12px;line-height:1.5;&quot;&gt;BuilderOps&lt;/p&gt;
+
+&lt;p style=&quot;margin:0;color:#CBD5E1;font-size:11px;&quot;&gt;הודעה אוטומטית&lt;/p&gt;
+&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/td&gt;&lt;/tr&gt;
+
+&lt;/table&gt;
+&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/body&gt;
+&lt;/html&gt;" style="width:100%;height:900px;border:none;background:#F1F5F9;" sandbox="allow-same-origin"></iframe></div></div>
+<div class="tpl"><h2>Meeting Invitation</h2><div class="tpl-frame"><iframe srcdoc="&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;he&quot; dir=&quot;rtl&quot;&gt;
+&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;&lt;/head&gt;
+&lt;body style=&quot;margin:0;padding:0;background-color:#F1F5F9;font-family:'Segoe UI',Arial,Helvetica,sans-serif;-webkit-font-smoothing:antialiased;&quot;&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;background-color:#F1F5F9;&quot;&gt;
+&lt;tr&gt;&lt;td align=&quot;center&quot; style=&quot;padding:32px 16px;&quot;&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;600&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;max-width:600px;width:100%;background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06),0 8px 32px rgba(0,0,0,0.04);&quot;&gt;
+
+
+&lt;tr&gt;&lt;td style=&quot;background:linear-gradient(135deg,#0F172A 0%,#1E293B 100%);padding:36px 36px 30px;&quot;&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;
+&lt;tr&gt;&lt;td&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;
+&lt;tr&gt;
+&lt;td style=&quot;vertical-align:middle;&quot;&gt;
+&lt;p style=&quot;margin:0 0 20px;font-size:11px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:#F97316;&quot;&gt;BUILDEROPS&lt;/p&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+
+&lt;img src=&quot;data:image/png;base64,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&quot; width=&quot;36&quot; height=&quot;36&quot; alt=&quot;&quot; style=&quot;display:block;border:0;margin:0 0 8px;&quot; /&gt;
+&lt;h1 style=&quot;margin:0 0 6px;color:#ffffff;font-size:24px;font-weight:800;letter-spacing:-0.3px;&quot;&gt;הזמנה לפגישה&lt;/h1&gt;
+
+&lt;p style=&quot;margin:0;color:#94A3B8;font-size:13px;&quot;&gt;פרויקט: &lt;span style=&quot;color:#CBD5E1;font-weight:600;&quot;&gt;מגדלי הים התיכון&lt;/span&gt;&lt;/p&gt;
+
+
+&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/td&gt;&lt;/tr&gt;
+
+
+&lt;tr&gt;&lt;td style=&quot;padding:36px;text-align:right;&quot;&gt;
+
+&lt;p style=&quot;margin:0 0 24px;font-size:15px;color:#334155;line-height:1.6;&quot;&gt;שלום גל, הוזמנת לפגישה:&lt;/p&gt;
+
+
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;margin-bottom:24px;background-color:#F8FAFC;border-radius:12px;border:1px solid #E2E8F0;&quot;&gt;
+&lt;tr&gt;&lt;td style=&quot;padding:22px;&quot;&gt;
+  &lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;padding:8px 0;border-bottom:1px solid #E2E8F0;&quot;&gt;
+        &lt;span style=&quot;font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;&quot;&gt;פגישה&lt;/span&gt;&lt;br/&gt;
+        &lt;span style=&quot;font-size:16px;color:#0F172A;font-weight:700;&quot;&gt;ישיבת תיאום שבועית - קומות 5-8&lt;/span&gt;
+      &lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;padding:8px 0;border-bottom:1px solid #E2E8F0;&quot;&gt;
+        &lt;span style=&quot;font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;&quot;&gt;מארגן&lt;/span&gt;&lt;br/&gt;
+        &lt;span style=&quot;font-size:14px;color:#334155;font-weight:500;&quot;&gt;דני כהן&lt;/span&gt;
+      &lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;padding:8px 0;border-bottom:1px solid #E2E8F0;&quot;&gt;
+      &lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;
+      &lt;tr&gt;
+        &lt;td width=&quot;50%&quot;&gt;
+          &lt;span style=&quot;font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;&quot;&gt;תאריך&lt;/span&gt;&lt;br/&gt;
+          &lt;span style=&quot;font-size:14px;color:#334155;font-weight:600;&quot;&gt;05/03/2026&lt;/span&gt;
+        &lt;/td&gt;
+        &lt;td width=&quot;50%&quot;&gt;
+          &lt;span style=&quot;font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;&quot;&gt;שעה&lt;/span&gt;&lt;br/&gt;
+          &lt;span style=&quot;font-size:14px;color:#334155;font-weight:600;&quot;&gt;10:00&lt;/span&gt;
+        &lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;/table&gt;
+      &lt;/td&gt;
+    &lt;/tr&gt;
+    
+    &lt;tr&gt;
+      &lt;td style=&quot;padding:8px 0;border-bottom:1px solid #E2E8F0;&quot;&gt;
+        &lt;span style=&quot;font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;&quot;&gt;מיקום&lt;/span&gt;&lt;br/&gt;
+        &lt;span style=&quot;font-size:14px;color:#334155;font-weight:500;&quot;&gt;משרד ראשי, חדר ישיבות 3&lt;/span&gt;
+      &lt;/td&gt;
+    &lt;/tr&gt;
+    
+    
+    &lt;tr&gt;
+      &lt;td style=&quot;padding:8px 0;&quot;&gt;
+        &lt;span style=&quot;font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;&quot;&gt;תיאור&lt;/span&gt;&lt;br/&gt;
+        &lt;span style=&quot;font-size:14px;color:#334155;line-height:1.6;&quot;&gt;סקירת התקדמות שבועית. נושאים: לוח זמנים, בטיחות, אישורי ציוד.&lt;/span&gt;
+      &lt;/td&gt;
+    &lt;/tr&gt;
+    
+  &lt;/table&gt;
+&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+
+
+&lt;p style=&quot;margin:0 0 16px;font-size:15px;color:#0F172A;font-weight:700;text-align:center;&quot;&gt;אנא אשר נוכחות:&lt;/p&gt;
+
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;margin-bottom:24px;&quot;&gt;
+&lt;tr&gt;
+  &lt;td style=&quot;padding:4px;&quot; width=&quot;33%&quot;&gt;
+    &lt;a href=&quot;https://app.builderops.dev/meetings/rsvp/tok123?action=accepted&quot; style=&quot;display:block;text-align:center;padding:14px 8px;background:#16A34A;color:#FFFFFF;text-decoration:none;border-radius:10px;font-size:14px;font-weight:700;box-shadow:0 2px 8px rgba(22,163,74,0.3);&quot;&gt;מאשר&lt;/a&gt;
+  &lt;/td&gt;
+  &lt;td style=&quot;padding:4px;&quot; width=&quot;33%&quot;&gt;
+    &lt;a href=&quot;https://app.builderops.dev/meetings/rsvp/tok123?action=tentative&quot; style=&quot;display:block;text-align:center;padding:14px 8px;background:#D97706;color:#FFFFFF;text-decoration:none;border-radius:10px;font-size:14px;font-weight:700;box-shadow:0 2px 8px rgba(217,119,6,0.3);&quot;&gt;אולי&lt;/a&gt;
+  &lt;/td&gt;
+  &lt;td style=&quot;padding:4px;&quot; width=&quot;33%&quot;&gt;
+    &lt;a href=&quot;https://app.builderops.dev/meetings/rsvp/tok123?action=declined&quot; style=&quot;display:block;text-align:center;padding:14px 8px;background:#DC2626;color:#FFFFFF;text-decoration:none;border-radius:10px;font-size:14px;font-weight:700;box-shadow:0 2px 8px rgba(220,38,38,0.3);&quot;&gt;לא מגיע&lt;/a&gt;
+  &lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+
+
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;background:#F8FAFC;border-radius:10px;border:1px solid #E2E8F0;&quot;&gt;
+&lt;tr&gt;&lt;td style=&quot;padding:14px 18px;text-align:center;&quot;&gt;
+&lt;p style=&quot;margin:0;color:#64748B;font-size:13px;&quot;&gt;הפגישה תתווסף אוטומטית ליומן שלך.&lt;/p&gt;
+&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+
+&lt;/td&gt;&lt;/tr&gt;
+
+
+
+&lt;tr&gt;&lt;td style=&quot;background-color:#F8FAFC;padding:24px 36px;text-align:center;border-top:1px solid #E2E8F0;&quot;&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;
+&lt;tr&gt;&lt;td style=&quot;text-align:center;&quot;&gt;
+
+&lt;p style=&quot;margin:0 0 8px;color:#94A3B8;font-size:12px;line-height:1.5;&quot;&gt;BuilderOps&lt;/p&gt;
+
+&lt;p style=&quot;margin:0;color:#CBD5E1;font-size:11px;&quot;&gt;הודעה אוטומטית&lt;/p&gt;
+&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/td&gt;&lt;/tr&gt;
+
+&lt;/table&gt;
+&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/body&gt;
+&lt;/html&gt;" style="width:100%;height:900px;border:none;background:#F1F5F9;" sandbox="allow-same-origin"></iframe></div></div>
+<div class="tpl"><h2>Notification Digest</h2><div class="tpl-frame"><iframe srcdoc="&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;he&quot; dir=&quot;rtl&quot;&gt;
+&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;&lt;/head&gt;
+&lt;body style=&quot;margin:0;padding:0;background-color:#F1F5F9;font-family:'Segoe UI',Arial,Helvetica,sans-serif;-webkit-font-smoothing:antialiased;&quot;&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;background-color:#F1F5F9;&quot;&gt;
+&lt;tr&gt;&lt;td align=&quot;center&quot; style=&quot;padding:32px 16px;&quot;&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;600&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;max-width:600px;width:100%;background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06),0 8px 32px rgba(0,0,0,0.04);&quot;&gt;
+
+
+&lt;tr&gt;&lt;td style=&quot;background:linear-gradient(135deg,#0F172A 0%,#1E293B 100%);padding:36px 36px 30px;&quot;&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;
+&lt;tr&gt;&lt;td&gt;
+  &lt;p style=&quot;margin:0 0 20px;font-size:11px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:#F97316;&quot;&gt;BUILDEROPS&lt;/p&gt;
+  &lt;img src=&quot;data:image/png;base64,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&quot; width=&quot;36&quot; height=&quot;36&quot; alt=&quot;&quot; style=&quot;display:block;border:0;margin:0 0 8px;&quot; /&gt;
+  &lt;h1 style=&quot;margin:0 0 8px;color:#ffffff;font-size:24px;font-weight:800;letter-spacing:-0.3px;&quot;&gt;סיכום התראות שבועי&lt;/h1&gt;
+  &lt;p style=&quot;margin:0;color:#94A3B8;font-size:14px;font-weight:500;&quot;&gt;
+    פרויקט: &lt;span style=&quot;color:#CBD5E1;font-weight:600;&quot;&gt;מגדלי הים התיכון&lt;/span&gt;
+    &amp;nbsp;&amp;#183;&amp;nbsp;
+    תקופה: &lt;span style=&quot;color:#CBD5E1;font-weight:600;&quot;&gt;24/02/2026 - 01/03/2026&lt;/span&gt;
+  &lt;/p&gt;
+&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/td&gt;&lt;/tr&gt;
+
+
+&lt;tr&gt;&lt;td style=&quot;padding:36px;text-align:right;&quot;&gt;
+
+
+
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;background:#FFF7ED;border-radius:12px;border:1px solid #FDBA74;margin-bottom:8px;&quot;&gt;
+  &lt;tr&gt;&lt;td style=&quot;padding:18px 22px;text-align:center;&quot;&gt;
+    &lt;div style=&quot;font-size:36px;font-weight:800;color:#EA580C;letter-spacing:-0.5px;&quot;&gt;23&lt;/div&gt;
+    &lt;div style=&quot;font-size:12px;color:#64748B;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-top:4px;&quot;&gt;סה&amp;#34;כ אירועים&lt;/div&gt;
+  &lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+
+
+
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;margin-top:8px;&quot;&gt;
+  &lt;tr&gt;
+    
+    
+    
+    
+&lt;td style=&quot;text-align:center;padding:4px;width:20%;&quot;&gt;
+  &lt;div style=&quot;background:#FFFBEB;border-radius:10px;padding:16px 8px;&quot;&gt;
+    &lt;div style=&quot;font-size:28px;font-weight:800;color:#D97706;letter-spacing:-0.5px;&quot;&gt;8&lt;/div&gt;
+    &lt;div style=&quot;font-size:10px;color:#64748B;margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;&quot;&gt;Approvals&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/td&gt;
+
+    
+    
+    
+    
+    
+&lt;td style=&quot;text-align:center;padding:4px;width:20%;&quot;&gt;
+  &lt;div style=&quot;background:#FFF7ED;border-radius:10px;padding:16px 8px;&quot;&gt;
+    &lt;div style=&quot;font-size:28px;font-weight:800;color:#EA580C;letter-spacing:-0.5px;&quot;&gt;6&lt;/div&gt;
+    &lt;div style=&quot;font-size:10px;color:#64748B;margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;&quot;&gt;Inspections&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/td&gt;
+
+    
+    
+    
+    
+    
+&lt;td style=&quot;text-align:center;padding:4px;width:20%;&quot;&gt;
+  &lt;div style=&quot;background:#FEF2F2;border-radius:10px;padding:16px 8px;&quot;&gt;
+    &lt;div style=&quot;font-size:28px;font-weight:800;color:#DC2626;letter-spacing:-0.5px;&quot;&gt;4&lt;/div&gt;
+    &lt;div style=&quot;font-size:10px;color:#64748B;margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;&quot;&gt;Defects&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/td&gt;
+
+    
+    
+    
+    
+    
+&lt;td style=&quot;text-align:center;padding:4px;width:20%;&quot;&gt;
+  &lt;div style=&quot;background:#F0FDF4;border-radius:10px;padding:16px 8px;&quot;&gt;
+    &lt;div style=&quot;font-size:28px;font-weight:800;color:#16A34A;letter-spacing:-0.5px;&quot;&gt;5&lt;/div&gt;
+    &lt;div style=&quot;font-size:10px;color:#64748B;margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;&quot;&gt;Updates&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/td&gt;
+
+    
+    
+  &lt;/tr&gt;
+&lt;/table&gt;
+
+
+
+
+
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;margin:28px 0 14px;&quot;&gt;
+&lt;tr&gt;&lt;td&gt;
+  &lt;p style=&quot;margin:0;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#0F172A;&quot;&gt;פעילות אחרונה&lt;/p&gt;
+  &lt;div style=&quot;height:3px;background:linear-gradient(90deg,#EA580C 0%,#E2E8F0 100%);border-radius:3px;margin-top:8px;&quot;&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;border:1px solid #E2E8F0;border-radius:12px;overflow:hidden;&quot;&gt;
+  &lt;tr style=&quot;background:#F8FAFC;&quot;&gt;
+    &lt;th style=&quot;padding:12px 18px;text-align:right;font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;&quot;&gt;אירוע&lt;/th&gt;
+    &lt;th style=&quot;padding:12px 18px;text-align:right;font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;&quot;&gt;זמן&lt;/th&gt;
+  &lt;/tr&gt;
+  
+  &lt;tr&gt;
+    &lt;td style=&quot;padding:12px 18px;border-top:1px solid #F1F5F9;&quot;&gt;
+      &lt;div style=&quot;font-size:13px;font-weight:600;color:#334155;&quot;&gt;ציוד אושר&lt;/div&gt;
+      &lt;div style=&quot;font-size:11px;color:#64748B;margin-top:2px;&quot;&gt;מנוף צריח 50 טון אושר על ידי מנהל הפרויקט&lt;/div&gt;
+    &lt;/td&gt;
+    &lt;td style=&quot;padding:12px 18px;border-top:1px solid #F1F5F9;font-size:12px;color:#64748B;white-space:nowrap;&quot;&gt;14:30&lt;/td&gt;
+  &lt;/tr&gt;
+  
+  &lt;tr&gt;
+    &lt;td style=&quot;padding:12px 18px;border-top:1px solid #F1F5F9;&quot;&gt;
+      &lt;div style=&quot;font-size:13px;font-weight:600;color:#334155;&quot;&gt;בדיקה הושלמה&lt;/div&gt;
+      &lt;div style=&quot;font-size:11px;color:#64748B;margin-top:2px;&quot;&gt;בדיקת בטון קומה 5 - כל הפריטים עברו&lt;/div&gt;
+    &lt;/td&gt;
+    &lt;td style=&quot;padding:12px 18px;border-top:1px solid #F1F5F9;font-size:12px;color:#64748B;white-space:nowrap;&quot;&gt;11:15&lt;/td&gt;
+  &lt;/tr&gt;
+  
+  &lt;tr&gt;
+    &lt;td style=&quot;padding:12px 18px;border-top:1px solid #F1F5F9;&quot;&gt;
+      &lt;div style=&quot;font-size:13px;font-weight:600;color:#334155;&quot;&gt;RFI נפתח&lt;/div&gt;
+      &lt;div style=&quot;font-size:11px;color:#64748B;margin-top:2px;&quot;&gt;שאלה לגבי מפרט פלדה בקורות ראשיות&lt;/div&gt;
+    &lt;/td&gt;
+    &lt;td style=&quot;padding:12px 18px;border-top:1px solid #F1F5F9;font-size:12px;color:#64748B;white-space:nowrap;&quot;&gt;09:45&lt;/td&gt;
+  &lt;/tr&gt;
+  
+&lt;/table&gt;
+
+
+
+&lt;/td&gt;&lt;/tr&gt;
+
+
+&lt;tr&gt;&lt;td style=&quot;padding:0 36px 32px;text-align:center;&quot;&gt;
+  &lt;a href=&quot;https://app.builderops.dev&quot; style=&quot;display:inline-block;background:linear-gradient(135deg,#EA580C,#FB923C);color:#ffffff;text-decoration:none;padding:14px 40px;border-radius:12px;font-size:15px;font-weight:700;letter-spacing:0.3px;box-shadow:0 4px 12px rgba(249,115,22,0.3);&quot;&gt;צפה באפליקציה&lt;/a&gt;
+&lt;/td&gt;&lt;/tr&gt;
+
+
+&lt;tr&gt;&lt;td style=&quot;background-color:#F8FAFC;padding:24px 36px;text-align:center;border-top:1px solid #E2E8F0;&quot;&gt;
+&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;
+&lt;tr&gt;&lt;td style=&quot;text-align:center;&quot;&gt;
+
+&lt;p style=&quot;margin:0 0 8px;color:#94A3B8;font-size:12px;line-height:1.5;&quot;&gt;BuilderOps&lt;/p&gt;
+
+&lt;p style=&quot;margin:0;color:#CBD5E1;font-size:11px;&quot;&gt;הודעה אוטומטית&lt;/p&gt;
+&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/td&gt;&lt;/tr&gt;
+
+&lt;/table&gt;
+&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/body&gt;
+&lt;/html&gt;" style="width:100%;height:900px;border:none;background:#F1F5F9;" sandbox="allow-same-origin"></iframe></div></div>
+</body></html>
