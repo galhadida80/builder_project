@@ -24,7 +24,7 @@ export default function SafetyKPICards() {
         const data = await safetyApi.getKPI(projectId)
         setKpiData(data)
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load KPI data')
+        setError(t('safety.failedToLoadKpi'))
       } finally {
         setLoading(false)
       }

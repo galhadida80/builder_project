@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { Box, Typography, LinearProgress, styled } from '@/mui'
 
 interface ProgressBarProps {
@@ -72,6 +73,7 @@ export function CircularProgressDisplay({
   color = 'primary',
   showLabel = true,
 }: CircularProgressDisplayProps) {
+  const { t } = useTranslation()
   const normalizedValue = Math.min(100, Math.max(0, value))
 
   return (
@@ -90,7 +92,7 @@ export function CircularProgressDisplay({
           aria-valuenow={normalizedValue}
           aria-valuemin={0}
           aria-valuemax={100}
-          aria-label={`${normalizedValue}% progress`}
+          aria-label={t('accessibility.progressPercent', { value: normalizedValue })}
         >
           <circle
             cx="50"

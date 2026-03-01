@@ -107,7 +107,7 @@ export default function RoleTemplateDialog({ open, onClose, onSelect, organizati
                   >
                     <Radio
                       checked={selectedTemplate?.id === template.id}
-                      sx={{ mr: 1 }}
+                      sx={{ me: 1 }}
                       tabIndex={-1}
                     />
                     <ListItemText

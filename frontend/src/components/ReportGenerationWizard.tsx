@@ -31,13 +31,13 @@ export interface ReportConfig {
   language: string
 }
 
-const REPORT_TYPES = [
-  { value: 'weekly-ai', label: 'Weekly Progress Report (AI)', requiresDateRange: true },
-  { value: 'inspection-summary-ai', label: 'Inspection Summary (AI)', requiresDateRange: true },
-  { value: 'executive-summary-ai', label: 'Executive Summary (AI)', requiresDateRange: false },
+const REPORT_TYPES_CONFIG = [
+  { value: 'weekly-ai', labelKey: 'reports.weeklyAiLabel', requiresDateRange: true },
+  { value: 'inspection-summary-ai', labelKey: 'reports.inspectionAiLabel', requiresDateRange: true },
+  { value: 'executive-summary-ai', labelKey: 'reports.executiveAiLabel', requiresDateRange: false },
 ]
 
-const STEPS = ['Select Report Type', 'Configure Parameters', 'Generate']
+const STEP_KEYS = ['reports.stepSelectType', 'reports.stepConfigure', 'reports.stepGenerate']
 
 export default function ReportGenerationWizard({ open, onClose, onGenerate }: Props) {
   const { t } = useTranslation()
@@ -67,6 +67,11 @@ export default function ReportGenerationWizard({ open, onClose, onGenerate }: Pr
       setDateTo(now.toISOString().slice(0, 10))
     }
   }, [open])
+
+  const REPORT_TYPES = REPORT_TYPES_CONFIG.map((rt) => ({
+    ...rt,
+    label: t(rt.labelKey),
+  }))
 
   const selectedReportType = REPORT_TYPES.find((rt) => rt.value === reportType)
   const requiresDateRange = selectedReportType?.requiresDateRange ?? true
@@ -239,9 +244,9 @@ export default function ReportGenerationWizard({ open, onClose, onGenerate }: Pr
 
       <DialogContent>
         <Stepper activeStep={activeStep} orientation={isMobile ? 'vertical' : 'horizontal'} sx={{ mb: 3 }}>
-          {STEPS.map((label) => (
-            <Step key={label}>
-              <StepLabel>{label}</StepLabel>
+          {STEP_KEYS.map((key) => (
+            <Step key={key}>
+              <StepLabel>{t(key)}</StepLabel>
             </Step>
           ))}
         </Stepper>

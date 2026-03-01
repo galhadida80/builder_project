@@ -90,7 +90,7 @@ export default function BimEntityList({
               tabIndex={-1}
               disableRipple
               size="small"
-              sx={{ mr: 1 }}
+              sx={{ me: 1 }}
             />
             <ListItemText
               primary={item.primaryText}

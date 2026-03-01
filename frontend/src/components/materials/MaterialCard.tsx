@@ -36,7 +36,7 @@ const MaterialImage = styled(CardMedia)(({ theme }) => ({
 const LowStockBadge = styled(Chip)(({ theme }) => ({
   position: 'absolute',
   top: 12,
-  right: 12,
+  insetInlineEnd: 12,
   backgroundColor: '#EAB308',
   color: '#FFFFFF',
   fontWeight: 600,

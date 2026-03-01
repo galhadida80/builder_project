@@ -175,7 +175,7 @@ export default function NotificationsPage() {
 
         {selected.size > 0 && (
           <Card sx={{ p: 1.5, mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Typography variant="body2" sx={{ mr: 1 }}>
+            <Typography variant="body2" sx={{ me: 1 }}>
               {t('notificationCenter.selectedCount', { count: selected.size })}
             </Typography>
             <Tooltip title={t('notificationCenter.markRead')}>

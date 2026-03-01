@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useCallback, useEffect, useMemo, ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import { clientPortalApi } from '../api/clientPortal'
 import type { Project, ProjectOverview, ProgressMetrics } from '../api/clientPortal'
 
@@ -29,6 +30,7 @@ interface ClientPortalContextType {
 const ClientPortalContext = createContext<ClientPortalContextType | undefined>(undefined)
 
 export function ClientPortalProvider({ children }: { children: ReactNode }) {
+  const { t } = useTranslation()
   const [projectId, setProjectIdState] = useState<string | undefined>(
     () => localStorage.getItem('clientPortalProjectId') || undefined
   )
@@ -67,7 +69,7 @@ export function ClientPortalProvider({ children }: { children: ReactNode }) {
       setProject(data)
     } catch (err) {
       console.error('Failed to load project:', err)
-      setError('Failed to load project data')
+      setError(t('clientPortal.failedToLoadProject'))
     }
   }, [projectId])
 
@@ -82,7 +84,7 @@ export function ClientPortalProvider({ children }: { children: ReactNode }) {
       setOverview(data)
     } catch (err) {
       console.error('Failed to load project overview:', err)
-      setError('Failed to load project overview')
+      setError(t('clientPortal.failedToLoadOverview'))
     }
   }, [projectId])
 
@@ -97,7 +99,7 @@ export function ClientPortalProvider({ children }: { children: ReactNode }) {
       setProgress(data)
     } catch (err) {
       console.error('Failed to load project progress:', err)
-      setError('Failed to load project progress')
+      setError(t('clientPortal.failedToLoadProgress'))
     }
   }, [projectId])
 

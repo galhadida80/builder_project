@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { getDateLocale } from '../utils/dateLocale'
 import { EmptyState } from './ui/EmptyState'
+import { useToast } from './common/ToastProvider'
 import {
   CloudQueueIcon,
   FileDownloadIcon,
@@ -48,6 +49,7 @@ const STATUS_CONFIG: Record<ExportStatus, { icon: React.ReactNode; color: 'succe
 
 export function DataExportPanel({ projectId, sx }: DataExportPanelProps) {
   const { t } = useTranslation()
+  const { showSuccess, showError } = useToast()
   const [loading, setLoading] = useState(false)
   const [exportJobs, setExportJobs] = useState<ExportJob[]>([])
   const [loadingJobs, setLoadingJobs] = useState(true)
@@ -110,9 +112,11 @@ export function DataExportPanel({ projectId, sx }: DataExportPanelProps) {
         exportType: 'project',
         projectId,
       })
+      showSuccess(t('projectSettings.exportPanel.exportStarted', { format: format.toUpperCase() }))
       await fetchExportJobs()
     } catch (error) {
       console.error('Failed to start export:', error)
+      showError(t('projectSettings.exportPanel.exportFailed'))
     } finally {
       setLoading(false)
       setSelectedFormat(null)
@@ -132,6 +136,7 @@ export function DataExportPanel({ projectId, sx }: DataExportPanelProps) {
       window.URL.revokeObjectURL(url)
     } catch (error) {
       console.error('Failed to download export:', error)
+      showError(t('projectSettings.exportPanel.downloadFailed'))
     }
   }
 

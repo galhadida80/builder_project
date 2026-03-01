@@ -44,7 +44,7 @@ const DayCell = styled(Box, {
 })<{ isToday?: boolean; isCurrentMonth?: boolean }>(({ theme, isToday, isCurrentMonth }) => ({
   minHeight: 110,
   padding: theme.spacing(0.5),
-  borderRight: `1px solid ${theme.palette.divider}`,
+  borderInlineEnd: `1px solid ${theme.palette.divider}`,
   borderBottom: `1px solid ${theme.palette.divider}`,
   cursor: 'pointer',
   opacity: isCurrentMonth ? 1 : 0.4,
@@ -58,7 +58,7 @@ const DayCell = styled(Box, {
       : theme.palette.action.hover,
   },
   '&:nth-of-type(7n)': {
-    borderRight: 'none',
+    borderInlineEnd: 'none',
   },
 }))
 

@@ -70,7 +70,7 @@ export function DashboardStatCard({ title, icon, color, stats }: DashboardStatCa
                 {stat.label}
               </Typography>
             </Box>
-            <Typography variant="h6" sx={{ fontWeight: 700, color: stat.color, flexShrink: 0, ml: 1 }}>
+            <Typography variant="h6" sx={{ fontWeight: 700, color: stat.color, flexShrink: 0, ms: 1 }}>
               {stat.value}
             </Typography>
           </Box>

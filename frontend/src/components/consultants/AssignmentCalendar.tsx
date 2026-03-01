@@ -64,7 +64,7 @@ const ConsultantLabel = styled(Box)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   gap: theme.spacing(1.5),
-  borderRight: `1px solid ${theme.palette.divider}`,
+  borderInlineEnd: `1px solid ${theme.palette.divider}`,
   backgroundColor: theme.palette.background.paper,
 }))
 
@@ -229,7 +229,7 @@ export function AssignmentCalendar({
           />
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Typography variant="body2" color="text.secondary" sx={{ mr: 2 }}>
+          <Typography variant="body2" color="text.secondary" sx={{ me: 2 }}>
             {startDate.format('MMM D, YYYY')} - {endDate.format('MMM D, YYYY')}
           </Typography>
           <IconButton aria-label={t('consultantAssignments.previousWeek')} size="small" onClick={handlePrevWeek}>
@@ -258,7 +258,7 @@ export function AssignmentCalendar({
                     flex: 1,
                     textAlign: 'center',
                     py: 1,
-                    borderRight: (theme) => `1px solid ${theme.palette.divider}`,
+                    borderInlineEnd: (theme) => `1px solid ${theme.palette.divider}`,
                     backgroundColor: (theme) =>
                       isToday
                         ? alpha(theme.palette.primary.main, 0.1)
@@ -316,7 +316,7 @@ export function AssignmentCalendar({
                     left: `${(date.diff(startDate, 'day') / DAYS_TO_SHOW) * 100}%`,
                     width: `${100 / DAYS_TO_SHOW}%`,
                     height: '100%',
-                    borderRight: (theme) => `1px solid ${theme.palette.divider}`,
+                    borderInlineEnd: (theme) => `1px solid ${theme.palette.divider}`,
                   }}
                 />
               ))}
@@ -326,7 +326,7 @@ export function AssignmentCalendar({
                   title={
                     <Box>
                       <Typography variant="caption" fontWeight={600}>
-                        {assignment.project?.name || 'No project'}
+                        {assignment.project?.name || t('consultantAssignments.noProject')}
                       </Typography>
                       <Typography variant="caption" display="block">
                         {dayjs(assignment.startDate).format('MMM D')} -{' '}
@@ -359,7 +359,7 @@ export function AssignmentCalendar({
                         display: 'block',
                       }}
                     >
-                      {assignment.project?.name || 'No project'}
+                      {assignment.project?.name || t('consultantAssignments.noProject')}
                     </Typography>
                   </AssignmentBar>
                 </Tooltip>

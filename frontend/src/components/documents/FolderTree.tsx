@@ -193,7 +193,7 @@ export function FolderTree({
                   toggleExpand(folder.id)
                 }}
                 aria-label={isExpanded ? t('documents.collapseFolder') : t('documents.expandFolder')}
-                sx={{ p: 0.5, mr: 0.5 }}
+                sx={{ p: 0.5, me: 0.5 }}
               >
                 {isExpanded ? (
                   <ExpandMoreIcon fontSize="small" />

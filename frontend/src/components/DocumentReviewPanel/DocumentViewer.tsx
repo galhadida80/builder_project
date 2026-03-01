@@ -26,7 +26,7 @@ const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   borderBottom: `1px solid ${theme.palette.divider}`,
   minHeight: 56,
   paddingInlineStart: theme.spacing(2),
-  paddingRight: theme.spacing(2),
+  paddingInlineEnd: theme.spacing(2),
   gap: theme.spacing(1),
 }))
 
@@ -156,7 +156,7 @@ export function DocumentViewer({
   return (
     <ViewerContainer elevation={0}>
       <StyledToolbar>
-        <Typography variant="subtitle1" sx={{ fontWeight: 600, mr: 2 }}>
+        <Typography variant="subtitle1" sx={{ fontWeight: 600, me: 2 }}>
           {documentName}
         </Typography>
         <Box sx={{ flex: 1 }} />

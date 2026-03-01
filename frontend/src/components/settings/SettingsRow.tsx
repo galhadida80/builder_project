@@ -30,7 +30,7 @@ export function SettingsRow({ icon, label, subtitle, action, onClick }: Settings
           {subtitle && <Typography variant="caption" color="text.secondary">{subtitle}</Typography>}
         </Box>
       </Box>
-      <Box sx={{ flexShrink: 0, ml: 1 }}>{action}</Box>
+      <Box sx={{ flexShrink: 0, ms: 1 }}>{action}</Box>
     </Box>
   )
 }

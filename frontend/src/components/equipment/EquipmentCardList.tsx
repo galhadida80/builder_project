@@ -83,7 +83,7 @@ export default function EquipmentCardList({ equipment, loading, onView, onEdit, 
               </Box>
               <Box sx={{ flex: 1, minWidth: 0 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 0.5 }}>
-                  <Typography variant="body1" fontWeight={700} noWrap sx={{ flex: 1, mr: 1 }}>
+                  <Typography variant="body1" fontWeight={700} noWrap sx={{ flex: 1, me: 1 }}>
                     {eq.name}
                   </Typography>
                   <StatusBadge status={eq.status} size="small" />

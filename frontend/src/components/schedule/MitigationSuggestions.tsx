@@ -44,15 +44,15 @@ interface MitigationSuggestionsProps {
 }
 
 const PRIORITY_CONFIG = {
-  high: { color: '#EF4444', icon: <TrendingUpIcon fontSize="small" />, label: 'גבוהה' },
-  medium: { color: '#F59E0B', icon: <TrendingUpIcon fontSize="small" />, label: 'בינונית' },
-  low: { color: '#22C55E', icon: <CheckCircleIcon fontSize="small" />, label: 'נמוכה' },
+  high: { color: '#EF4444', icon: <TrendingUpIcon fontSize="small" /> },
+  medium: { color: '#F59E0B', icon: <TrendingUpIcon fontSize="small" /> },
+  low: { color: '#22C55E', icon: <CheckCircleIcon fontSize="small" /> },
 }
 
 const EFFORT_CONFIG = {
-  low: { label: 'נמוך', color: '#22C55E' },
-  medium: { label: 'בינוני', color: '#F59E0B' },
-  high: { label: 'גבוה', color: '#EF4444' },
+  low: { color: '#22C55E' },
+  medium: { color: '#F59E0B' },
+  high: { color: '#EF4444' },
 }
 
 export function MitigationSuggestions({ data, onApply, onDismiss }: MitigationSuggestionsProps) {
@@ -95,8 +95,8 @@ export function MitigationSuggestions({ data, onApply, onDismiss }: MitigationSu
       <Card sx={{ p: { xs: 2, sm: 3 } }}>
         <EmptyState
           icon={<AutoAwesomeIcon sx={{ fontSize: 48, color: 'text.disabled' }} />}
-          title={t('scheduleRisk.mitigation.noSuggestions', 'אין המלצות זמינות')}
-          description={t('scheduleRisk.mitigation.noSuggestionsDesc', 'המלצות AI למיתון סיכונים יופיעו כאן לאחר ניתוח לוח הזמנים')}
+          title={t('scheduleRisk.mitigation.noSuggestions')}
+          description={t('scheduleRisk.mitigation.noSuggestionsDesc')}
         />
       </Card>
     )
@@ -108,7 +108,7 @@ export function MitigationSuggestions({ data, onApply, onDismiss }: MitigationSu
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
         <AutoAwesomeIcon sx={{ color: 'warning.main', fontSize: { xs: 20, sm: 24 } }} />
         <Typography variant="h6" sx={{ fontWeight: 600, fontSize: { xs: '1rem', sm: '1.25rem' } }}>
-          {t('scheduleRisk.mitigation.title', 'המלצות למיתון סיכונים')}
+          {t('scheduleRisk.mitigation.title')}
         </Typography>
         <Chip
           label={`${visibleSuggestions.length}`}
@@ -172,7 +172,7 @@ export function MitigationSuggestions({ data, onApply, onDismiss }: MitigationSu
                   primary={
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap', mb: 0.5 }}>
                       <Chip
-                        label={t(`scheduleRisk.priority.${suggestion.priority}`, priorityConfig.label)}
+                        label={t(`scheduleRisk.priority.${suggestion.priority}`)}
                         size="small"
                         sx={{
                           bgcolor: (theme) => alpha(priorityConfig.color, 0.15),
@@ -185,7 +185,7 @@ export function MitigationSuggestions({ data, onApply, onDismiss }: MitigationSu
                       {effortConfig && (
                         <Chip
                           icon={<BuildIcon sx={{ fontSize: '0.875rem !important' }} />}
-                          label={t(`scheduleRisk.effort.${suggestion.effort}`, effortConfig.label)}
+                          label={t(`scheduleRisk.effort.${suggestion.effort}`)}
                           size="small"
                           sx={{
                             bgcolor: (theme) => alpha(effortConfig.color, 0.1),
@@ -198,7 +198,7 @@ export function MitigationSuggestions({ data, onApply, onDismiss }: MitigationSu
                       {isApplied && (
                         <Chip
                           icon={<CheckCircleIcon sx={{ fontSize: '0.875rem !important' }} />}
-                          label={t('scheduleRisk.mitigation.applied', 'יושם')}
+                          label={t('scheduleRisk.mitigation.applied')}
                           size="small"
                           sx={{
                             bgcolor: (theme) => alpha(theme.palette.success.main, 0.15),
@@ -237,7 +237,7 @@ export function MitigationSuggestions({ data, onApply, onDismiss }: MitigationSu
                         color: 'success.main',
                         '&:hover': { bgcolor: (theme) => alpha(theme.palette.success.main, 0.1) },
                       }}
-                      title={t('scheduleRisk.mitigation.markApplied', 'סמן כיושם')}
+                      title={t('scheduleRisk.mitigation.markApplied')}
                     >
                       <CheckCircleIcon fontSize="small" />
                     </IconButton>
@@ -250,7 +250,7 @@ export function MitigationSuggestions({ data, onApply, onDismiss }: MitigationSu
                         color: 'text.secondary',
                         '&:hover': { bgcolor: (theme) => alpha(theme.palette.error.main, 0.1), color: 'error.main' },
                       }}
-                      title={t('scheduleRisk.mitigation.dismiss', 'הסתר')}
+                      title={t('scheduleRisk.mitigation.dismiss')}
                     >
                       <CloseIcon fontSize="small" />
                     </IconButton>
@@ -264,7 +264,7 @@ export function MitigationSuggestions({ data, onApply, onDismiss }: MitigationSu
                   {suggestion.impact && (
                     <Box sx={{ mb: 1 }}>
                       <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>
-                        {t('scheduleRisk.mitigation.expectedImpact', 'השפעה צפויה')}:
+                        {t('scheduleRisk.mitigation.expectedImpact')}:
                       </Typography>
                       <Typography variant="body2" sx={{ color: 'text.primary', mt: 0.25, fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
                         {suggestion.impact}
@@ -274,7 +274,7 @@ export function MitigationSuggestions({ data, onApply, onDismiss }: MitigationSu
                   {suggestion.target_tasks && suggestion.target_tasks.length > 0 && !suggestion.target_tasks.includes('general') && (
                     <Box sx={{ mb: 1 }}>
                       <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>
-                        {t('scheduleRisk.mitigation.targetTasks', 'משימות מטרה')}:
+                        {t('scheduleRisk.mitigation.targetTasks')}:
                       </Typography>
                       <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mt: 0.5 }}>
                         {suggestion.target_tasks.slice(0, 5).map((task, taskIdx) => (
@@ -304,7 +304,7 @@ export function MitigationSuggestions({ data, onApply, onDismiss }: MitigationSu
                   {suggestion.risk_category && (
                     <Box>
                       <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>
-                        {t('scheduleRisk.mitigation.category', 'קטגוריה')}:
+                        {t('scheduleRisk.mitigation.category')}:
                       </Typography>
                       <Typography variant="body2" sx={{ color: 'text.primary', mt: 0.25, fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
                         {t(`scheduleRisk.category.${suggestion.risk_category}`, suggestion.risk_category.replace(/_/g, ' '))}
@@ -322,7 +322,7 @@ export function MitigationSuggestions({ data, onApply, onDismiss }: MitigationSu
       {data && 'model_used' in data && (
         <Box sx={{ mt: 2, pt: 1.5, borderTop: 1, borderColor: 'divider' }}>
           <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', textAlign: 'center' }}>
-            {t('scheduleRisk.mitigation.poweredBy', 'מופעל על ידי')} {(data as any).model_used}
+            {t('scheduleRisk.mitigation.poweredBy')} {(data as any).model_used}
             {(data as any).processing_time_ms && ` • ${Math.round((data as any).processing_time_ms)}ms`}
           </Typography>
         </Box>

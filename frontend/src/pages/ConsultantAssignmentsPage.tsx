@@ -188,12 +188,12 @@ export default function ConsultantAssignmentsPage() {
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
             <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
               <ToggleButtonGroup value={viewMode} exclusive onChange={(_, v) => v && setViewMode(v)} size="small">
-                <ToggleButton value="list" aria-label="list view">
-                  <ViewListIcon sx={{ mr: 0.5, fontSize: 20 }} />
+                <ToggleButton value="list" aria-label={t('consultantAssignments.listView')}>
+                  <ViewListIcon sx={{ me: 0.5, fontSize: 20 }} />
                   <Typography variant="body2">{t('consultantAssignments.listView')}</Typography>
                 </ToggleButton>
-                <ToggleButton value="calendar" aria-label="calendar view">
-                  <CalendarMonthIcon sx={{ mr: 0.5, fontSize: 20 }} />
+                <ToggleButton value="calendar" aria-label={t('consultantAssignments.calendarView')}>
+                  <CalendarMonthIcon sx={{ me: 0.5, fontSize: 20 }} />
                   <Typography variant="body2">{t('consultantAssignments.calendarView')}</Typography>
                 </ToggleButton>
               </ToggleButtonGroup>

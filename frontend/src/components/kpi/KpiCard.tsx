@@ -47,7 +47,7 @@ export default function KpiCard({ kpiValue, onEdit, onDelete }: KpiCardProps) {
           <Typography variant="body2" color="text.secondary" noWrap sx={{ flex: 1, fontWeight: 500 }}>
             {kpiValue.name}
           </Typography>
-          <Box sx={{ display: 'flex', gap: 0.5, ml: 1, flexShrink: 0 }}>
+          <Box sx={{ display: 'flex', gap: 0.5, ms: 1, flexShrink: 0 }}>
             <IconButton
               size="small"
               onClick={(e) => { e.stopPropagation(); onEdit() }}

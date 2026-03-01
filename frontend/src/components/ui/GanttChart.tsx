@@ -2,7 +2,8 @@ import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { GanttTask, GanttLink, GanttScale } from '../../types/timeline'
 import { ScheduleRiskAnalysis, RiskLevel } from '../../types/scheduleRisk'
-import { Box, Typography, Tooltip, styled } from '@/mui'
+import { Box, Typography, Tooltip, styled, useTheme } from '@/mui'
+import type { Theme } from '@mui/material/styles'
 import { WarningIcon } from '@/icons'
 import { getDateLocale } from '../../utils/dateLocale'
 
@@ -41,22 +42,22 @@ function formatDate(d: Date): string {
   return d.toLocaleDateString(getDateLocale(), { month: 'short', day: 'numeric' })
 }
 
-function getTaskColor(task: GanttTask): string {
-  if (task.type === 'milestone') return '#F57C00'
-  if (task.type === 'project') return '#c4612e'
+function getTaskColor(task: GanttTask, theme: Theme): string {
+  if (task.type === 'milestone') return theme.palette.warning.dark
+  if (task.type === 'project') return theme.palette.primary.dark
   const progress = task.progress ?? 0
-  if (progress >= 100) return '#2E7D32'
-  if (progress > 0) return '#e07842'
-  return '#90A4AE'
+  if (progress >= 100) return theme.palette.success.dark
+  if (progress > 0) return theme.palette.primary.main
+  return theme.palette.action.disabled
 }
 
-function getRiskLevelColor(riskLevel: RiskLevel): string {
+function getRiskLevelColor(riskLevel: RiskLevel, theme: Theme): string {
   switch (riskLevel) {
-    case 'low': return '#4CAF50'
-    case 'medium': return '#FFC107'
-    case 'high': return '#FF9800'
-    case 'critical': return '#F44336'
-    default: return '#90A4AE'
+    case 'low': return theme.palette.success.main
+    case 'medium': return theme.palette.warning.main
+    case 'high': return theme.palette.warning.dark
+    case 'critical': return theme.palette.error.main
+    default: return theme.palette.action.disabled
   }
 }
 
@@ -70,6 +71,7 @@ export function GanttChart({
   onTaskDoubleClick,
 }: GanttChartProps) {
   const { t } = useTranslation()
+  const theme = useTheme() as Theme
   void links
   void scales
 
@@ -155,10 +157,10 @@ export function GanttChart({
         const progress = task.progress ?? 0
         const isMilestone = task.type === 'milestone'
         const isProject = task.type === 'project'
-        const color = getTaskColor(task)
+        const color = getTaskColor(task, theme)
         const riskInfo = riskData?.[task.id]
         const hasRisk = !!riskInfo
-        const riskColor = riskInfo ? getRiskLevelColor(riskInfo.riskLevel) : undefined
+        const riskColor = riskInfo ? getRiskLevelColor(riskInfo.riskLevel, theme) : undefined
 
         return (
           <Box

@@ -90,7 +90,7 @@ export function AnimatedModal({
             {title}
           </Typography>
           {!hideCloseButton && (
-            <IconButton onClick={onClose} size="small" aria-label={t('common.closeDialog')} sx={{ ml: 2 }}>
+            <IconButton onClick={onClose} size="small" aria-label={t('common.closeDialog')} sx={{ ms: 2 }}>
               <CloseIcon fontSize="small" />
             </IconButton>
           )}

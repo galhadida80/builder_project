@@ -607,7 +607,7 @@ export default function InspectionsPage() {
                               sx={{ fontWeight: 500, fontSize: '0.7rem', height: 24 }}
                             />
                           </Box>
-                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, ml: 7, alignItems: 'center' }}>
+                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, ms: 7, alignItems: 'center' }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                               <PersonIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
                               <Typography variant="caption" color="text.secondary">
@@ -628,7 +628,7 @@ export default function InspectionsPage() {
                             </Box>
                           </Box>
                           {((row.currentStage) || (row.findings && row.findings.length > 0)) && (
-                            <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', ml: 7, mt: 1 }}>
+                            <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', ms: 7, mt: 1 }}>
                               {row.currentStage && <Chip label={row.currentStage} size="small" variant="outlined" sx={{ fontSize: '0.7rem', height: 22 }} />}
                               {row.findings && row.findings.length > 0 && (
                                 <>
@@ -686,7 +686,7 @@ export default function InspectionsPage() {
                               size="small"
                               label={t(`common.statuses.${row.status}`, { defaultValue: row.status.replace('_', ' ') })}
                               color={chipColor[row.status] || 'info'}
-                              sx={{ ml: 1, fontWeight: 500, fontSize: '0.7rem', height: 24 }}
+                              sx={{ ms: 1, fontWeight: 500, fontSize: '0.7rem', height: 24 }}
                             />
                           </Box>
                         )

@@ -371,7 +371,7 @@ export default function BimImportWizard({ open, onClose, projectId, model }: Pro
                 ) : (
                   <>
                     {t('bim.import.importButton', { count: totalSelected })}
-                    <ArrowForwardIcon sx={{ fontSize: 18, ml: 0.5, transform: 'scaleX(-1)' }} />
+                    <ArrowForwardIcon sx={{ fontSize: 18, ms: 0.5, transform: 'scaleX(-1)' }} />
                   </>
                 )}
               </Button>

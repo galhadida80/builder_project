@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useDropzone, FileRejection, Accept } from 'react-dropzone'
 import { FileUploadInputBaseProps, FileInputValue } from './types'
 import { CloudUploadIcon, DeleteIcon, InsertDriveFileIcon } from '@/icons'
@@ -76,6 +77,8 @@ export function FileUploadInput({
   name,
   className,
 }: FileUploadInputProps) {
+  const { t } = useTranslation()
+
   // Convert accept prop to react-dropzone Accept format
   const acceptConfig: Accept | undefined = accept
     ? typeof accept === 'string'
@@ -174,19 +177,19 @@ export function FileUploadInput({
         />
         <Typography variant="body2" sx={{ fontSize: '0.875rem', mb: 0.5 }}>
           {isDragActive ? (
-            'Drop files here'
+            t('fileUpload.dropHere')
           ) : (
             <>
-              Drag and drop {multiple ? 'files' : 'a file'} here, or{' '}
+              {t('fileUpload.dragAndDrop')}{' '}
               <Box component="span" sx={{ color: 'primary.main', fontWeight: 600 }}>
-                click to browse
+                {t('fileUpload.clickToBrowse')}
               </Box>
             </>
           )}
         </Typography>
         <Typography variant="caption" color="text.secondary">
-          {accept && `Accepted types: ${Array.isArray(accept) ? accept.join(', ') : accept}`}
-          {maxSize && ` • Max size: ${formatFileSize(maxSize)}`}
+          {accept && `${t('fileUpload.acceptedTypes')}: ${Array.isArray(accept) ? accept.join(', ') : accept}`}
+          {maxSize && ` • ${t('fileUpload.maxSize')}: ${formatFileSize(maxSize)}`}
         </Typography>
       </DropzoneContainer>
 
@@ -214,7 +217,7 @@ export function FileUploadInput({
               </Box>
               <IconButton
                 size="small"
-                aria-label={`Remove ${file.name}`}
+                aria-label={t('fileUpload.removeFile', { name: file.name })}
                 onClick={(e) => {
                   e.stopPropagation()
                   removeFile(index)

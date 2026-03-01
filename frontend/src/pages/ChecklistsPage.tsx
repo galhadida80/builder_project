@@ -381,7 +381,7 @@ export default function ChecklistsPage() {
                             <Typography variant="caption" sx={{ fontWeight: 700, color: 'primary.main' }}>{percent}%</Typography>
                           </Box>
                           <LinearProgress variant="determinate" value={percent}
-                            sx={{ height: 6, borderRadius: 3, bgcolor: 'action.hover', '& .MuiLinearProgress-bar': { borderRadius: 3, bgcolor: percent === 100 ? 'success.main' : '#e07842' } }} />
+                            sx={{ height: 6, borderRadius: 3, bgcolor: 'action.hover', '& .MuiLinearProgress-bar': { borderRadius: 3, bgcolor: percent === 100 ? 'success.main' : 'primary.main' } }} />
                         </Box>
                         {row.created_by && (
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>

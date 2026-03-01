@@ -4,6 +4,7 @@ import { Avatar } from '../ui/Avatar'
 import { Button } from '../ui/Button'
 import { TextField } from '../ui/TextField'
 import { ConfirmModal } from '../ui/Modal'
+import { useToast } from '../common/ToastProvider'
 import { useState } from 'react'
 import { ReplyIcon, CheckCircleIcon, MoreVertIcon, EditIcon, DeleteIcon, CancelIcon, SaveIcon } from '@/icons'
 import { Box, Typography, IconButton, Menu, MenuItem, Divider, styled } from '@/mui'
@@ -145,6 +146,7 @@ export function CommentThread({
   onResolve,
 }: CommentThreadProps) {
   const { t } = useTranslation()
+  const { showError } = useToast()
   const [isReplying, setIsReplying] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [replyText, setReplyText] = useState('')
@@ -180,6 +182,7 @@ export function CommentThread({
       setIsReplying(false)
     } catch (error) {
       console.error('Failed to submit reply:', error)
+      showError(t('documentReview.replyFailed'))
     } finally {
       setIsSubmitting(false)
     }
@@ -208,6 +211,7 @@ export function CommentThread({
       setIsEditing(false)
     } catch (error) {
       console.error('Failed to edit comment:', error)
+      showError(t('documentReview.editFailed'))
     } finally {
       setIsSubmitting(false)
     }
@@ -231,6 +235,7 @@ export function CommentThread({
       await onDelete(comment.id)
     } catch (error) {
       console.error('Failed to delete comment:', error)
+      showError(t('documentReview.deleteFailed'))
     }
   }
 
@@ -443,12 +448,12 @@ export function CommentThread({
         }}
       >
         <MenuItem onClick={handleEditClick}>
-          <EditIcon fontSize="small" sx={{ mr: 1 }} />
+          <EditIcon fontSize="small" sx={{ me: 1 }} />
           {t('common.edit')}
         </MenuItem>
         <Divider />
         <MenuItem onClick={handleDeleteClick} sx={{ color: 'error.main' }}>
-          <DeleteIcon fontSize="small" sx={{ mr: 1 }} />
+          <DeleteIcon fontSize="small" sx={{ me: 1 }} />
           {t('common.delete')}
         </MenuItem>
       </Menu>

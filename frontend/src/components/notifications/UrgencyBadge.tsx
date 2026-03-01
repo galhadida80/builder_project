@@ -17,10 +17,10 @@ const StyledChip = styled(Chip, {
   height: 24,
   '& .MuiChip-label': {
     paddingInlineStart: theme.spacing(1),
-    paddingRight: theme.spacing(1),
+    paddingInlineEnd: theme.spacing(1),
   },
   '& .MuiChip-icon': {
-    marginLeft: theme.spacing(0.5),
+    marginInlineStart: theme.spacing(0.5),
   },
   backgroundColor: alpha(urgencyColor, 0.1),
   color: urgencyColor,

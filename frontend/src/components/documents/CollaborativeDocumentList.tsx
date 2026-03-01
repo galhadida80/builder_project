@@ -120,7 +120,7 @@ export default function CollaborativeDocumentList({
                       <Typography variant="subtitle1" fontWeight={600} noWrap sx={{ flex: 1 }}>
                         {doc.title}
                       </Typography>
-                      <IconButton size="small" onClick={(e) => handleDelete(doc.id, e)} sx={{ ml: 0.5 }}>
+                      <IconButton size="small" onClick={(e) => handleDelete(doc.id, e)} sx={{ ms: 0.5 }}>
                         <DeleteIcon fontSize="small" />
                       </IconButton>
                     </Box>

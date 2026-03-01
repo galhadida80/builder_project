@@ -181,7 +181,16 @@ export default function BIMPage() {
                   {selectedModel ? t('bim.additionalModels', 'Additional Models') : `${models.length} ${t('bim.title')}`}
                 </Typography>
                 {selectedModel && otherModels.length > 3 && (
-                  <Typography variant="caption" color="primary.main" fontWeight={600} sx={{ cursor: 'pointer' }} onClick={() => setSelectedModel(null)}>
+                  <Typography
+                    variant="caption"
+                    color="primary.main"
+                    fontWeight={600}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => setSelectedModel(null)}
+                    onKeyDown={(e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedModel(null) } }}
+                    sx={{ cursor: 'pointer', '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main', outlineOffset: 2 } }}
+                  >
                     {t('bim.viewAll', 'View All')}
                   </Typography>
                 )}

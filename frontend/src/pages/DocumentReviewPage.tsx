@@ -46,7 +46,7 @@ export default function DocumentReviewPage() {
 
   const loadDocumentAndReview = async () => {
     if (!projectId || !documentId) {
-      setError('Invalid project or document ID')
+      setError(t('documentReview.invalidIds'))
       setLoading(false)
       return
     }
@@ -416,7 +416,7 @@ export default function DocumentReviewPage() {
         </Box>
       </Box>
 
-      <Box sx={{ flex: 1, pb: 20 }}>
+      <Box sx={{ flex: 1, pb: reviewStatus === 'approved' || reviewStatus === 'rejected' ? 4 : 20 }}>
         <DocumentReviewPanel
           documentUrl={documentUrl}
           documentName={document.filename}
@@ -439,46 +439,48 @@ export default function DocumentReviewPage() {
         />
       </Box>
 
-      <Box sx={{
-        position: 'fixed', bottom: 0, insetInline: 0,
-        bgcolor: 'background.default', borderTop: 1, borderColor: 'divider',
-        p: 2, pb: 4, zIndex: 20,
-      }}>
-        <Box sx={{ display: 'flex', gap: 1.5, maxWidth: 600, mx: 'auto' }}>
+      {reviewStatus !== 'approved' && reviewStatus !== 'rejected' && (
+        <Box sx={{
+          position: 'fixed', bottom: 0, insetInline: 0,
+          bgcolor: 'background.default', borderTop: 1, borderColor: 'divider',
+          p: 2, pb: 4, zIndex: 20,
+        }}>
+          <Box sx={{ display: 'flex', gap: 1.5, maxWidth: 600, mx: 'auto' }}>
+            <Button
+              onClick={() => handleRequestStatusChange('approved')}
+              variant="contained"
+              color="success"
+              sx={{
+                flex: 1, fontWeight: 700, borderRadius: 3, py: 1.5,
+                textTransform: 'none',
+              }}
+            >
+              {t('documentReview.approve', 'Approve')}
+            </Button>
+            <Button
+              onClick={() => handleRequestStatusChange('changes_requested')}
+              variant="outlined"
+              color="primary"
+              sx={{
+                flex: 1, fontWeight: 700, borderRadius: 3, py: 1.5,
+                textTransform: 'none', borderWidth: 2,
+              }}
+            >
+              {t('documentReview.requestChanges', 'Request changes')}
+            </Button>
+          </Box>
           <Button
-            onClick={() => handleRequestStatusChange('approved')}
-            variant="contained"
-            color="success"
+            onClick={() => handleRequestStatusChange('rejected')}
+            color="error"
             sx={{
-              flex: 1, fontWeight: 700, borderRadius: 3, py: 1.5,
-              textTransform: 'none',
+              mt: 1, width: '100%', maxWidth: 600, mx: 'auto', display: 'flex',
+              fontWeight: 700, textTransform: 'none',
             }}
           >
-            {t('documentReview.approve', 'Approve')}
-          </Button>
-          <Button
-            onClick={() => handleRequestStatusChange('changes_requested')}
-            variant="outlined"
-            color="primary"
-            sx={{
-              flex: 1, fontWeight: 700, borderRadius: 3, py: 1.5,
-              textTransform: 'none', borderWidth: 2,
-            }}
-          >
-            {t('documentReview.requestChanges', 'Request changes')}
+            {t('documentReview.reject', 'Reject')}
           </Button>
         </Box>
-        <Button
-          onClick={() => handleRequestStatusChange('rejected')}
-          color="error"
-          sx={{
-            mt: 1, width: '100%', maxWidth: 600, mx: 'auto', display: 'flex',
-            fontWeight: 700, textTransform: 'none',
-          }}
-        >
-          {t('documentReview.reject', 'Reject')}
-        </Button>
-      </Box>
+      )}
 
       <Dialog
         open={confirmDialog.open}

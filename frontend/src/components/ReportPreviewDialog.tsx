@@ -132,7 +132,7 @@ export default function ReportPreviewDialog({
       </DialogTitle>
 
       <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 3 }}>
-        <Tabs value={activeTab} onChange={handleTabChange} aria-label="report preview tabs">
+        <Tabs value={activeTab} onChange={handleTabChange} aria-label={t('reports.previewTabs', 'Report preview tabs')}>
           <Tab
             value="preview"
             label={

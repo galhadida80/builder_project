@@ -103,7 +103,7 @@ const UserCell = styled(TableCell)(({ theme }) => ({
   left: 0,
   backgroundColor: theme.palette.background.paper,
   zIndex: 5,
-  borderRight: `2px solid ${theme.palette.divider}`,
+  borderInlineEnd: `2px solid ${theme.palette.divider}`,
   minWidth: 200,
   '& .MuiTableRow-root:hover &': {
     backgroundColor: alpha(theme.palette.primary.main, 0.02),

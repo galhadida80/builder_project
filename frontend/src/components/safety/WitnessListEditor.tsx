@@ -68,11 +68,11 @@ export default function WitnessListEditor({
                 aria-label={t('common.removeItem')}
                 onClick={() => removeWitness(idx)}
                 disabled={disabled}
-                sx={{ position: 'absolute', top: 8, right: 8 }}
+                sx={{ position: 'absolute', top: 8, insetInlineEnd: 8 }}
               >
                 <CloseIcon sx={{ fontSize: 18 }} />
               </IconButton>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, pr: 4 }}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, pe: 4 }}>
                 <TextField
                   fullWidth
                   label={t('safety.incidents.witnessName')}

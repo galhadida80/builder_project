@@ -47,7 +47,7 @@ export function AssignmentList({
   const columns: Column<ConsultantAssignment>[] = [
     {
       id: 'consultant',
-      label: 'Consultant',
+      label: t('consultantAssignments.consultant'),
       minWidth: 250,
       render: (row) => (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
@@ -66,10 +66,10 @@ export function AssignmentList({
           </Box>
           <Box>
             <Typography variant="body2" fontWeight={500}>
-              {row.consultant?.fullName || row.consultant?.email || 'Unknown Consultant'}
+              {row.consultant?.fullName || row.consultant?.email || t('consultantAssignments.unknownConsultant')}
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              {row.consultantType?.name || 'No type specified'}
+              {row.consultantType?.name || t('consultantAssignments.noTypeSpecified')}
             </Typography>
           </Box>
         </Box>
@@ -77,7 +77,7 @@ export function AssignmentList({
     },
     {
       id: 'project',
-      label: 'Project',
+      label: t('consultantAssignments.project'),
       minWidth: 180,
       render: (row) => (
         <Typography variant="body2" color={row.project?.name ? 'text.primary' : 'text.secondary'}>
@@ -87,7 +87,7 @@ export function AssignmentList({
     },
     {
       id: 'startDate',
-      label: 'Start Date',
+      label: t('consultantAssignments.startDate'),
       minWidth: 120,
       sortable: true,
       render: (row) => (
@@ -98,7 +98,7 @@ export function AssignmentList({
     },
     {
       id: 'endDate',
-      label: 'End Date',
+      label: t('consultantAssignments.endDate'),
       minWidth: 120,
       sortable: true,
       render: (row) => (
@@ -109,11 +109,11 @@ export function AssignmentList({
     },
     {
       id: 'status',
-      label: 'Status',
+      label: t('common.status'),
       minWidth: 130,
       render: (row) => (
         <Chip
-          label={row.status.charAt(0).toUpperCase() + row.status.slice(1)}
+          label={t(`common.statuses.${row.status}`, row.status)}
           size="small"
           color={getStatusColor(row.status)}
           sx={{ fontWeight: 500 }}

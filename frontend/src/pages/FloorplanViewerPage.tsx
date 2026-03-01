@@ -51,7 +51,7 @@ export default function FloorplanViewerPage() {
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', bgcolor: 'background.default' }}>
       <AppBar position="static" color="default" elevation={1}>
         <Toolbar>
-          <IconButton edge="start" onClick={handleBack} sx={{ mr: 2 }}>
+          <IconButton edge="start" onClick={handleBack} sx={{ me: 2 }}>
             <BackArrowIcon />
           </IconButton>
           <Typography variant="h6" sx={{ flexGrow: 1 }}>

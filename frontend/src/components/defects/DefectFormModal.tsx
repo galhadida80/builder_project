@@ -187,7 +187,7 @@ export default function DefectFormModal({
                 <Box key={idx} sx={{ position: 'relative', width: 80, height: 80, borderRadius: 1.5, overflow: 'hidden', border: '1px solid', borderColor: 'divider' }}>
                   <Box component="img" src={url} alt={pendingPhotos[idx]?.name} sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   <IconButton size="small" aria-label={t('common.removeItem')} onClick={(e) => { e.stopPropagation(); removePhoto(idx) }}
-                    sx={{ position: 'absolute', top: 2, right: 2, bgcolor: 'rgba(0,0,0,0.5)', color: 'white', p: 0.3, '&:hover': { bgcolor: 'rgba(0,0,0,0.7)' } }}
+                    sx={{ position: 'absolute', top: 2, insetInlineEnd: 2, bgcolor: 'rgba(0,0,0,0.5)', color: 'white', p: 0.3, '&:hover': { bgcolor: 'rgba(0,0,0,0.7)' } }}
                   >
                     <CloseIcon sx={{ fontSize: 14 }} />
                   </IconButton>
@@ -203,7 +203,7 @@ export default function DefectFormModal({
               >
                 {analyzing ? t('defects.analyzing') : t('defects.analyzeImage')}
               </Button>
-              <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>{t('defects.analyzeHint')}</Typography>
+              <Typography variant="caption" color="text.secondary" sx={{ ms: 1 }}>{t('defects.analyzeHint')}</Typography>
             </Box>
           )}
           {submitting && uploadProgress > 0 && (

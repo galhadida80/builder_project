@@ -222,7 +222,9 @@
     "editContact": "ערוך איש קשר",
     "editContactGroup": "ערוך קבוצת אנשי קשר",
     "toggleReadNotification": "סמן כנקרא/לא נקרא",
-    "expandItem": "הרחב פריט"
+    "expandItem": "הרחב פריט",
+    "progressPercent": "{{value}}% התקדמות",
+    "strokeWidth": "עובי קו {{width}}px"
   },
   "pwa": {
     "installIOS": "התקן את BuilderOps ב-iOS",
@@ -1685,7 +1687,9 @@
       "fileSize": "גודל קובץ",
       "exportFailed": "הייצוא נכשל",
       "exportSuccess": "הייצוא הושלם בהצלחה",
-      "downloadFile": "הורד קובץ"
+      "downloadFile": "הורד קובץ",
+      "exportStarted": "ייצוא {{format}} החל",
+      "downloadFailed": "ההורדה נכשלה. אנא נסה שוב."
     },
     "settingsUpdated": "ההגדרות עודכנו בהצלחה",
     "languageChanged": "השפה שונתה בהצלחה",
@@ -2113,7 +2117,19 @@
     "justNow": "עכשיו",
     "minutesAgo": "לפני {{count}} דק׳",
     "hoursAgo": "לפני {{count}} שע׳",
-    "daysAgo": "לפני {{count}} ימים"
+    "daysAgo": "לפני {{count}} ימים",
+    "replyFailed": "שליחת התגובה נכשלה. אנא נסה שוב.",
+    "editFailed": "עריכת התגובה נכשלה. אנא נסה שוב.",
+    "deleteFailed": "מחיקת התגובה נכשלה. אנא נסה שוב.",
+    "invalidIds": "מזהה פרויקט או מסמך לא תקין",
+    "approveMessage": "האם אתה בטוח שברצונך לאשר מסמך זה? פעולה זו תסמן את המסמך כמאושר.",
+    "rejectMessage": "האם אתה בטוח שברצונך לדחות מסמך זה? פעולה זו תסמן את המסמך כנדחה.",
+    "requestChangesTitle": "בקש שינויים?",
+    "requestChangesMessage": "האם אתה בטוח שברצונך לבקש שינויים? בעל המסמך יקבל הודעה לביצוע תיקונים.",
+    "resetStatusTitle": "אפס סטטוס?",
+    "resetStatusMessage": "האם אתה בטוח שברצונך לאפס את סטטוס המסמך לממתין?",
+    "markInReviewTitle": "סמן כבסקירה?",
+    "markInReviewMessage": "האם אתה בטוח שברצונך לסמן מסמך זה כבסקירה?"
   },
   "inspections": {
     "title": "בדיקות",
@@ -2241,7 +2257,9 @@
     "unresolveAnnotation": "בטל פתירה",
     "deleteAnnotation": "מחק הערה",
     "annotationPlaceholder": "הוסף תגובה...",
-    "noAnnotations": "אין הערות בעמוד זה"
+    "noAnnotations": "אין הערות בעמוד זה",
+    "fileSize": "גודל",
+    "uploaded": "הועלה"
   },
   "notifications": {
     "closePanel": "סגור פאנל התראות",
@@ -2312,6 +2330,7 @@
     "previousWeek": "שבוע קודם",
     "nextWeek": "שבוע הבא",
     "statusLabel": "סטטוס:",
+    "noProject": "ללא פרויקט",
     "editAssignment": "ערוך הקצאה",
     "createNewAssignment": "צור הקצאה חדשה",
     "saveChanges": "שמור שינויים",
@@ -2329,7 +2348,9 @@
     "endDateRequired": "תאריך סיום נדרש",
     "endDateAfterStart": "תאריך הסיום חייב להיות אחרי תאריך ההתחלה",
     "notesMaxLength": "ההערות חייבות להיות פחות מ-500 תווים",
-    "noneType": "ללא"
+    "noneType": "ללא",
+    "unknownConsultant": "יועץ לא ידוע",
+    "noTypeSpecified": "לא צוין סוג"
   },
   "teamWorkload": {
     "title": "עומס עבודה צוותי",
@@ -3566,7 +3587,34 @@
     "laborCosts": "עלויות עבודה",
     "laborCostsDesc": "ניתוח עלויות עבודה לפי פרויקט ותקופה",
     "complianceAudit": "ביקורת תאימות",
-    "complianceAuditDesc": "ביקורת תאימות לתקנים ודרישות"
+    "complianceAuditDesc": "ביקורת תאימות לתקנים ודרישות",
+    "previewTabs": "לשוניות תצוגה מקדימה של דוח",
+    "weeklyAiLabel": "דוח התקדמות שבועי (AI)",
+    "inspectionAiLabel": "סיכום בדיקות (AI)",
+    "executiveAiLabel": "סיכום מנהלים (AI)",
+    "stepSelectType": "בחר סוג דוח",
+    "stepConfigure": "הגדר פרמטרים",
+    "stepGenerate": "הפקה"
+  },
+  "fileUpload": {
+    "dropHere": "שחרר קבצים כאן",
+    "dragAndDrop": "גרור ושחרר קבצים כאן, או",
+    "clickToBrowse": "לחץ לעיון",
+    "acceptedTypes": "סוגים מותרים",
+    "maxSize": "גודל מקסימלי",
+    "removeFile": "הסר {{name}}"
+  },
+  "safety": {
+    "totalIncidents": "סה\"כ אירועים",
+    "nearMisses": "כמעט תאונות",
+    "trainingCompliance": "תאימות הדרכות",
+    "talkAttendance": "נוכחות שיחות בטיחות",
+    "failedToLoadKpi": "טעינת נתוני מדדי בטיחות נכשלה"
+  },
+  "clientPortal": {
+    "failedToLoadProject": "טעינת נתוני הפרויקט נכשלה",
+    "failedToLoadOverview": "טעינת סקירת הפרויקט נכשלה",
+    "failedToLoadProgress": "טעינת התקדמות הפרויקט נכשלה"
   },
   "help": {
     "title": "עזרה",
@@ -4350,8 +4398,41 @@
       "dismiss": "דחה",
       "applied": "יושם",
       "noSuggestions": "אין המלצות זמינות כרגע",
+      "noSuggestionsDesc": "המלצות AI למיתון סיכונים יופיעו כאן לאחר ניתוח לוח הזמנים",
       "generatedBy": "נוצר על ידי {{model}}",
-      "processingTime": "זמן עיבוד: {{seconds}}s"
+      "processingTime": "זמן עיבוד: {{seconds}}s",
+      "poweredBy": "מופעל על ידי",
+      "markApplied": "סמן כיושם",
+      "category": "קטגוריה"
+    },
+    "notAnalyzed": "טרם נותח",
+    "minutesAgo": "לפני {{count}} דקות",
+    "hoursAgo": "לפני {{count}} שעות",
+    "daysAgo": "לפני {{count}} ימים",
+    "noDataTitle": "אין ניתוח סיכונים זמין",
+    "noDataDescription": "ניתוח סיכוני לוח זמנים יופיע כאן לאחר יצירת וניתוח משימות",
+    "updated": "עודכן",
+    "days": "ימים",
+    "topRisks": "סיכונים מובילים",
+    "riskLevel": {
+      "low": "נמוכה",
+      "medium": "בינונית",
+      "high": "גבוהה",
+      "critical": "קריטית"
+    },
+    "taskRisk": "משימה {{task}}",
+    "confidence": "ביטחון",
+    "predictedDelay": "~{{days}} ימי עיכוב",
+    "noRisksDetected": "לא זוהו סיכוני לוח זמנים",
+    "priority": {
+      "high": "גבוהה",
+      "medium": "בינונית",
+      "low": "נמוכה"
+    },
+    "effort": {
+      "low": "נמוך",
+      "medium": "בינוני",
+      "high": "גבוה"
     }
   },
   "subcontractorPortal": {

@@ -83,7 +83,7 @@ export default function MaterialCardList({ materials, loading, onView, onEdit, o
               </Box>
               <Box sx={{ flex: 1, minWidth: 0 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 0.5 }}>
-                  <Typography variant="body1" fontWeight={700} noWrap sx={{ flex: 1, mr: 1 }}>{m.name}</Typography>
+                  <Typography variant="body1" fontWeight={700} noWrap sx={{ flex: 1, me: 1 }}>{m.name}</Typography>
                   <StatusBadge status={m.status} size="small" />
                 </Box>
                 {m.materialType && (
@@ -111,7 +111,7 @@ export default function MaterialCardList({ materials, loading, onView, onEdit, o
             </Box>
 
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1 }}>
-              <Box sx={{ flex: 1, mr: 1 }}>
+              <Box sx={{ flex: 1, me: 1 }}>
                 <LinearProgress
                   variant="determinate"
                   value={progress.value}

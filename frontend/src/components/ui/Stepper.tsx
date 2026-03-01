@@ -95,7 +95,7 @@ const StepIconContainer = styled('div')<{ active: boolean; completed: boolean; e
       : active
       ? theme.palette.primary.main
       : theme.palette.action.disabledBackground,
-    color: completed || active || error ? '#fff' : theme.palette.text.disabled,
+    color: completed || active || error ? theme.palette.primary.contrastText : theme.palette.text.disabled,
     fontWeight: 600,
     fontSize: '0.875rem',
     transition: 'all 200ms ease-out',
@@ -388,13 +388,18 @@ export function ApprovalWorkflowStepper({
             color: approvalRequest.currentStatus === 'approved' ? 'success.dark' : 'error.dark',
           }}
         >
-          <Typography variant="body2" fontWeight={600}>
-            {approvalRequest.currentStatus === 'approved'
-              ? `✓ ${t('stepper.allStepsCompleted')}`
-              : approvalRequest.currentStatus === 'rejected'
-              ? `✗ ${t('stepper.requestRejected')}`
-              : `⚠ ${t('stepper.requiresAttention')}`}
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            {approvalRequest.currentStatus === 'approved' && <CheckCircleIcon sx={{ fontSize: 18 }} />}
+            {approvalRequest.currentStatus === 'rejected' && <CancelIcon sx={{ fontSize: 18 }} />}
+            {approvalRequest.currentStatus !== 'approved' && approvalRequest.currentStatus !== 'rejected' && <ErrorIcon sx={{ fontSize: 18 }} />}
+            <Typography variant="body2" fontWeight={600}>
+              {approvalRequest.currentStatus === 'approved'
+                ? t('stepper.allStepsCompleted')
+                : approvalRequest.currentStatus === 'rejected'
+                ? t('stepper.requestRejected')
+                : t('stepper.requiresAttention')}
+            </Typography>
+          </Box>
         </Box>
       )}
 

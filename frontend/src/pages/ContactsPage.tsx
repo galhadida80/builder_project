@@ -231,7 +231,7 @@ export default function ContactsPage() {
                       <Typography variant="subtitle2" sx={{ fontWeight: 700, fontSize: '0.85rem', color: 'text.primary', letterSpacing: 0.5 }}>
                         {group.label}
                       </Typography>
-                      <Typography variant="caption" color="text.disabled" sx={{ ml: 0.5 }}>({group.contacts.length})</Typography>
+                      <Typography variant="caption" color="text.disabled" sx={{ ms: 0.5 }}>({group.contacts.length})</Typography>
                     </Box>
                     {group.contacts.map((contact) => (
                       <Box
@@ -249,7 +249,7 @@ export default function ContactsPage() {
                           <Box sx={{ position: 'relative', flexShrink: 0 }}>
                             <Avatar name={contact.contactName} size="xlarge" />
                             <Box sx={{
-                              position: 'absolute', bottom: 2, right: 2,
+                              position: 'absolute', bottom: 2, insetInlineEnd: 2,
                               width: 12, height: 12, borderRadius: '50%',
                               bgcolor: contact.userId ? 'success.main' : 'grey.400',
                               border: '2px solid', borderColor: 'background.paper',

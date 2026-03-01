@@ -101,7 +101,7 @@ export default function SafetyPhotoUploader({
                 sx={{
                   position: 'absolute',
                   top: 2,
-                  right: 2,
+                  insetInlineEnd: 2,
                   bgcolor: 'rgba(0,0,0,0.6)',
                   color: 'white',
                   '&:hover': { bgcolor: 'rgba(0,0,0,0.8)' },

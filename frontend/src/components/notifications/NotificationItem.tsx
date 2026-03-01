@@ -253,7 +253,7 @@ export function NotificationItem({ notification, onClick, onActionClick }: Notif
         <IconButton aria-label={t('common.actions')}
           size="small"
           onClick={handleActionClick}
-          sx={{ ml: 1, color: 'text.secondary' }}
+          sx={{ ms: 1, color: 'text.secondary' }}
         >
           <MoreVertIcon fontSize="small" />
         </IconButton>

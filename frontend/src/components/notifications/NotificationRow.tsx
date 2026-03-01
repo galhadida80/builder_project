@@ -63,7 +63,7 @@ export function NotificationRow({
           <Typography variant="body2" fontWeight={notification.isRead ? 400 : 600} noWrap>
             {notification.title}
           </Typography>
-          <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap', ml: 1 }}>
+          <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap', ms: 1 }}>
             {formatTime(notification.createdAt)}
           </Typography>
         </Stack>

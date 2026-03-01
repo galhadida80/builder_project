@@ -102,7 +102,7 @@ export function AreaPickerAutocomplete({
                   label={selectedOption.path}
                   size="small"
                   icon={<AccountTreeIcon sx={{ fontSize: 14 }} />}
-                  sx={{ mr: 0.5, maxWidth: 200, fontSize: '0.7rem' }}
+                  sx={{ me: 0.5, maxWidth: 200, fontSize: '0.7rem' }}
                   onDelete={() => onChange(null, null)}
                 />
                 {params.InputProps.startAdornment}

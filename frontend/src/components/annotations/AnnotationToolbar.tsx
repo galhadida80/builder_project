@@ -103,7 +103,7 @@ export function AnnotationToolbar({
         size="small"
       >
         {STROKE_WIDTHS.map((w) => (
-          <ToggleButton key={w} value={w} aria-label={`${w}px`}>
+          <ToggleButton key={w} value={w} aria-label={t('accessibility.strokeWidth', { width: w })}>
             <Box
               sx={{
                 width: 20,

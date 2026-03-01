@@ -74,7 +74,7 @@ export function FileList({
   const columns: Column<FileRecord>[] = [
     {
       id: 'filename',
-      label: 'Name',
+      label: t('common.name'),
       minWidth: 300,
       render: (row) => (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
@@ -104,7 +104,7 @@ export function FileList({
     },
     {
       id: 'fileType',
-      label: 'Type',
+      label: t('common.type'),
       minWidth: 140,
       render: (row) => (
         <Typography variant="body2" color="text.secondary">
@@ -114,7 +114,7 @@ export function FileList({
     },
     {
       id: 'fileSize',
-      label: 'Size',
+      label: t('documents.fileSize'),
       minWidth: 100,
       render: (row) => (
         <Typography variant="body2" color="text.secondary">
@@ -124,7 +124,7 @@ export function FileList({
     },
     {
       id: 'uploadedAt',
-      label: 'Uploaded',
+      label: t('documents.uploaded'),
       minWidth: 120,
       render: (row) => (
         <Typography variant="body2" color="text.secondary">
