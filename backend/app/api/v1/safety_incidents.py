@@ -11,8 +11,6 @@ from app.core.permissions import Permission, require_permission
 from app.core.security import get_current_user, verify_project_access
 from app.db.session import get_db
 from app.models.audit import AuditAction
-from app.models.area import ConstructionArea
-from app.models.contact import Contact
 from app.models.project import Project, ProjectMember
 from app.models.safety_incident import SafetyIncident
 from app.models.user import User

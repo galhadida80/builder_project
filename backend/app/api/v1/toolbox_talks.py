@@ -1,9 +1,8 @@
 import logging
-import uuid as uuid_mod
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import select, func
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -14,8 +13,6 @@ from app.models.audit import AuditAction
 from app.models.toolbox_talk import ToolboxTalk, TalkAttendee, TalkStatus
 from app.models.user import User
 from app.schemas.toolbox_talk import (
-    TalkAttendeeCreate,
-    TalkAttendeeResponse,
     ToolboxTalkCreate,
     ToolboxTalkResponse,
     ToolboxTalkUpdate,
