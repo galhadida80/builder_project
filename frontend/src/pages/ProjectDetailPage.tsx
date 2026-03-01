@@ -754,24 +754,6 @@ export default function ProjectDetailPage() {
             label={t('projectDetail.locationAddress')}
             placeholder={t('projectDetail.searchAddress')}
           />
-          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
-            <TextField
-              fullWidth
-              label={t('projectDetail.latitude')}
-              type="number"
-              value={editForm.locationLat}
-              onChange={(e) => setEditForm({ ...editForm, locationLat: e.target.value })}
-              inputProps={{ step: 'any' }}
-            />
-            <TextField
-              fullWidth
-              label={t('projectDetail.longitude')}
-              type="number"
-              value={editForm.locationLng}
-              onChange={(e) => setEditForm({ ...editForm, locationLng: e.target.value })}
-              inputProps={{ step: 'any' }}
-            />
-          </Box>
         </Box>
       </FormModal>
 

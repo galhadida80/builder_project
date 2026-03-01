@@ -13,7 +13,7 @@ import type { Project } from '../types'
 import { validateProjectForm, hasErrors, VALIDATION, type ValidationError } from '../utils/validation'
 import { parseValidationErrors } from '../utils/apiErrors'
 import { useToast } from '../components/common/ToastProvider'
-import { AddIcon, MoreVertIcon, AssignmentIcon, ApartmentIcon, ConstructionIcon, EngineeringIcon, CheckCircleIcon, ScheduleIcon, CameraAltIcon, DeleteIcon } from '@/icons'
+import { AddIcon, MoreVertIcon, ApartmentIcon, CheckCircleIcon, ScheduleIcon, CameraAltIcon, DeleteIcon } from '@/icons'
 import { Box, Typography, Menu, MenuItem, IconButton, Skeleton, Chip, Paper, LinearProgress, alpha } from '@/mui'
 
 function getDaysRemaining(endDate?: string): number | null {
@@ -29,18 +29,7 @@ function getTimerChipProps(days: number | null, t: (key: string, opts?: Record<s
   return { label: t('project.daysLeft', { count: days }), color: 'success' }
 }
 
-const THUMB_GRADIENTS = [
-  'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-  'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-  'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-  'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
-  'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
-  'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)',
-  'linear-gradient(135deg, #fccb90 0%, #d57eeb 100%)',
-  'linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)',
-]
-
-const THUMB_ICONS = [ApartmentIcon, ConstructionIcon, EngineeringIcon]
+const FALLBACK_GRADIENT = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
 
 function getProjectProgress(project: Project): number {
   if (project.completionPercentage != null) return project.completionPercentage
@@ -51,21 +40,6 @@ function getProjectProgress(project: Project): number {
   return hash
 }
 
-function getTaskCount(project: Project): number {
-  const hash = project.id.charCodeAt(0) * 7 + project.id.charCodeAt(1) * 13
-  return (hash % 20) + 3
-}
-
-function getThumbData(projectId: string) {
-  const seed = projectId.charCodeAt(0) + projectId.charCodeAt(1) * 7
-  const count = (seed % 3) + 2
-  const extra = Math.max(0, (seed % 5) - 1)
-  const items = Array.from({ length: count }, (_, i) => ({
-    gradient: THUMB_GRADIENTS[(seed + i * 3) % THUMB_GRADIENTS.length],
-    Icon: THUMB_ICONS[(seed + i) % THUMB_ICONS.length],
-  }))
-  return { items, extra }
-}
 
 export default function ProjectsPage() {
   const { t } = useTranslation()
@@ -317,8 +291,8 @@ export default function ProjectsPage() {
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           {filteredProjects.map((project) => {
             const progress = getProjectProgress(project)
-            const taskCount = getTaskCount(project)
-            const { items: thumbs, extra: extraThumbs } = getThumbData(project.id)
+            const hasImage = !!project.imageUrl
+            const imageUrl = hasImage ? projectsApi.getImageUrl(project.id) : null
             const isCompleted = project.status === 'completed'
             const daysRemaining = getDaysRemaining(project.estimatedEndDate)
             const timerChip = getTimerChipProps(daysRemaining, t)
@@ -357,32 +331,24 @@ export default function ProjectsPage() {
                   </IconButton>
                 </Box>
 
-                {/* Row 2: Image thumbnails (Stitch-style) */}
-                <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-                  {thumbs.map((thumb, i) => (
+                {/* Row 2: Project image */}
+                <Box sx={{ mb: 2, borderRadius: 2, overflow: 'hidden', height: 120, position: 'relative' }}>
+                  {imageUrl ? (
                     <Box
-                      key={i}
-                      sx={{
-                        width: 72, height: 72, borderRadius: 2, flexShrink: 0,
-                        background: thumb.gradient, display: 'flex',
-                        alignItems: 'center', justifyContent: 'center',
-                        position: 'relative', overflow: 'hidden',
+                      component="img"
+                      src={imageUrl}
+                      alt={project.name}
+                      sx={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                      onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+                        e.currentTarget.style.display = 'none'
+                        if (e.currentTarget.parentElement) {
+                          e.currentTarget.parentElement.style.background = FALLBACK_GRADIENT
+                        }
                       }}
-                    >
-                      <thumb.Icon sx={{ fontSize: 28, color: 'rgba(255,255,255,0.5)' }} />
-                    </Box>
-                  ))}
-                  {extraThumbs > 0 && (
-                    <Box
-                      sx={{
-                        width: 72, height: 72, borderRadius: 2, flexShrink: 0,
-                        bgcolor: (theme) => alpha(theme.palette.text.primary, 0.06),
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      }}
-                    >
-                      <Typography sx={{ fontWeight: 600, fontSize: '0.85rem', color: 'text.secondary' }}>
-                        +{extraThumbs}
-                      </Typography>
+                    />
+                  ) : (
+                    <Box sx={{ width: '100%', height: '100%', background: FALLBACK_GRADIENT, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <ApartmentIcon sx={{ fontSize: 36, color: 'rgba(255,255,255,0.4)' }} />
                     </Box>
                   )}
                 </Box>
@@ -413,13 +379,14 @@ export default function ProjectsPage() {
                   />
                 </Box>
 
-                {/* Row 4: Footer - tasks */}
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, color: 'text.secondary', pt: 1, borderTop: 1, borderColor: 'divider' }}>
-                  <AssignmentIcon sx={{ fontSize: 16 }} />
-                  <Typography variant="caption" sx={{ fontWeight: 500 }}>
-                    {taskCount} {t('pages.projects.tasks')}
-                  </Typography>
-                </Box>
+                {/* Row 4: Footer - address */}
+                {project.address && (
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, color: 'text.secondary', pt: 1, borderTop: 1, borderColor: 'divider' }}>
+                    <Typography variant="caption" sx={{ fontWeight: 500 }} noWrap>
+                      {project.address}
+                    </Typography>
+                  </Box>
+                )}
               </Paper>
             )
           })}

@@ -110,6 +110,7 @@ jobs:
             -f frontend/Dockerfile.prod \
             --build-arg VITE_API_URL=${{ steps.backend_url.outputs.url }}/api/v1 \
             --build-arg VITE_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_AUTH_CLIENT_ID }} \
+            --build-arg VITE_GOOGLE_MAPS_KEY=${{ secrets.GOOGLE_MAPS_KEY }} \
             -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.AR_REPO }}/${{ env.FRONTEND_SERVICE }}:${{ github.sha }} \
             frontend/
           docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.AR_REPO }}/${{ env.FRONTEND_SERVICE }}:${{ github.sha }}
