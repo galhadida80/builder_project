@@ -2391,7 +2391,12 @@
       "onHold": "On Hold",
       "completed": "Completed",
       "projectProgress": "Project Progress",
-      "tasks": "Tasks"
+      "tasks": "Tasks",
+      "projectImage": "Project Image",
+      "uploadImage": "Upload Image",
+      "removeImage": "Remove Image",
+      "changeImage": "Change Image",
+      "searchAddress": "Search address..."
     }
   },
   "overview": {
@@ -2463,6 +2468,7 @@
     "openInWaze": "Open in Waze",
     "setLocation": "Set Location",
     "locationAddress": "Location Address",
+    "searchAddress": "Search address...",
     "latitude": "Latitude",
     "longitude": "Longitude",
     "tabs": {

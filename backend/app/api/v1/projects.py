@@ -1,6 +1,8 @@
+import base64
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Body, Depends, HTTPException
+from fastapi.responses import Response
 from sqlalchemy import case, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -17,6 +19,7 @@ from app.models.meeting import Meeting
 from app.models.permission_override import PermissionOverride
 from app.models.project import Project, ProjectMember
 from app.models.user import User
+from app.services.storage_service import StorageBackend, get_storage_backend
 from app.services.subscription_service import SubscriptionService
 from app.schemas.permission import EffectivePermissionsResponse, PermissionOverrideRequest, PermissionOverrideResponse
 from app.schemas.project import (
@@ -446,3 +449,111 @@ async def set_member_permissions(
 
     await db.commit()
     return {"message": "Permissions updated"}
+
+
+@router.put("/{project_id}/image", response_model=ProjectResponse)
+async def upload_project_image(
+    project_id: UUID,
+    image_data: str = Body(..., embed=True),
+    member: ProjectMember = require_permission(Permission.EDIT),
+    db: AsyncSession = Depends(get_db),
+    storage: StorageBackend = Depends(get_storage_backend),
+):
+    result = await db.execute(select(Project).where(Project.id == project_id))
+    project = result.scalar_one_or_none()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    if image_data.startswith("data:image/png;base64,"):
+        ext = "png"
+        content_type = "image/png"
+    elif image_data.startswith("data:image/jpeg;base64,"):
+        ext = "jpg"
+        content_type = "image/jpeg"
+    elif image_data.startswith("data:image/webp;base64,"):
+        ext = "webp"
+        content_type = "image/webp"
+    else:
+        raise HTTPException(status_code=400, detail="Invalid image format, expected base64 PNG, JPEG, or WebP")
+
+    raw_b64 = image_data.split(",", 1)[1]
+    try:
+        image_bytes = base64.b64decode(raw_b64)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid base64 data")
+
+    if len(image_bytes) > 5_000_000:
+        raise HTTPException(status_code=400, detail="Image too large (max 5MB)")
+
+    if project.image_url:
+        try:
+            await storage.delete_file(project.image_url)
+        except Exception:
+            pass
+
+    storage_path = f"projects/{project_id}/cover.{ext}"
+    await storage.save_bytes(image_bytes, storage_path, content_type=content_type)
+    project.image_url = storage_path
+    await db.commit()
+
+    result = await db.execute(
+        select(Project).where(Project.id == project_id)
+        .options(selectinload(Project.members).selectinload(ProjectMember.user))
+    )
+    return result.scalar_one()
+
+
+@router.delete("/{project_id}/image", response_model=ProjectResponse)
+async def delete_project_image(
+    project_id: UUID,
+    member: ProjectMember = require_permission(Permission.EDIT),
+    db: AsyncSession = Depends(get_db),
+    storage: StorageBackend = Depends(get_storage_backend),
+):
+    result = await db.execute(select(Project).where(Project.id == project_id))
+    project = result.scalar_one_or_none()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    if not project.image_url:
+        raise HTTPException(status_code=404, detail="No image found")
+
+    try:
+        await storage.delete_file(project.image_url)
+    except Exception:
+        pass
+
+    project.image_url = None
+    await db.commit()
+
+    result = await db.execute(
+        select(Project).where(Project.id == project_id)
+        .options(selectinload(Project.members).selectinload(ProjectMember.user))
+    )
+    return result.scalar_one()
+
+
+@router.get("/{project_id}/image")
+async def get_project_image(
+    project_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    storage: StorageBackend = Depends(get_storage_backend),
+):
+    result = await db.execute(select(Project).where(Project.id == project_id))
+    project = result.scalar_one_or_none()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    if not project.image_url:
+        raise HTTPException(status_code=404, detail="No image found")
+
+    try:
+        content = await storage.get_file_content(project.image_url)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Image file not found")
+
+    ext = project.image_url.rsplit(".", 1)[-1] if "." in project.image_url else "png"
+    media_types = {"png": "image/png", "jpg": "image/jpeg", "jpeg": "image/jpeg", "webp": "image/webp"}
+    media_type = media_types.get(ext, "image/png")
+    return Response(content=content, media_type=media_type, headers={"Cache-Control": "max-age=3600"})

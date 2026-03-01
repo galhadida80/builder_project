@@ -23,6 +23,7 @@ interface ProjectUpdate {
   location_lng?: number | null
   location_address?: string | null
   notification_digest_interval_hours?: number
+  image_url?: string | null
 }
 
 interface MemberCreate {
@@ -62,5 +63,20 @@ export const projectsApi = {
 
   removeMember: async (projectId: string, userId: string): Promise<void> => {
     await apiClient.delete(`/projects/${projectId}/members/${userId}`)
+  },
+
+  uploadImage: async (projectId: string, imageData: string): Promise<Project> => {
+    const response = await apiClient.put(`/projects/${projectId}/image`, { image_data: imageData })
+    return response.data
+  },
+
+  deleteImage: async (projectId: string): Promise<Project> => {
+    const response = await apiClient.delete(`/projects/${projectId}/image`)
+    return response.data
+  },
+
+  getImageUrl: (projectId: string): string => {
+    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
+    return `${baseUrl}/projects/${projectId}/image`
   },
 }

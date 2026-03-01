@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { withMinDuration } from '../utils/async'
@@ -6,13 +6,14 @@ import { StatusBadge } from '../components/ui/StatusBadge'
 import { SearchField, TextField } from '../components/ui/TextField'
 import { FormModal, ConfirmModal } from '../components/ui/Modal'
 import { EmptyState } from '../components/ui/EmptyState'
+import AddressAutocomplete from '../components/forms/AddressAutocomplete'
 import { projectsApi } from '../api/projects'
 import { useProject } from '../contexts/ProjectContext'
 import type { Project } from '../types'
 import { validateProjectForm, hasErrors, VALIDATION, type ValidationError } from '../utils/validation'
 import { parseValidationErrors } from '../utils/apiErrors'
 import { useToast } from '../components/common/ToastProvider'
-import { AddIcon, MoreVertIcon, AssignmentIcon, ApartmentIcon, ConstructionIcon, EngineeringIcon, CheckCircleIcon, ScheduleIcon } from '@/icons'
+import { AddIcon, MoreVertIcon, AssignmentIcon, ApartmentIcon, ConstructionIcon, EngineeringIcon, CheckCircleIcon, ScheduleIcon, CameraAltIcon, DeleteIcon } from '@/icons'
 import { Box, Typography, Menu, MenuItem, IconButton, Skeleton, Chip, Paper, LinearProgress, alpha } from '@/mui'
 
 function getDaysRemaining(endDate?: string): number | null {
@@ -83,8 +84,12 @@ export default function ProjectsPage() {
   const [deleting, setDeleting] = useState(false)
   const [errors, setErrors] = useState<ValidationError>({})
   const [statusFilter, setStatusFilter] = useState('all')
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [imageFile, setImageFile] = useState<string | null>(null)
+  const imageInputRef = useRef<HTMLInputElement>(null)
   const [formData, setFormData] = useState({
-    name: '', description: '', address: '', startDate: '', estimatedEndDate: ''
+    name: '', description: '', address: '', startDate: '', estimatedEndDate: '',
+    locationAddress: '', locationLat: '', locationLng: '',
   })
 
   useEffect(() => {
@@ -101,9 +106,11 @@ export default function ProjectsPage() {
   }, [loading, searchParams, projects])
 
   const resetForm = () => {
-    setFormData({ name: '', description: '', address: '', startDate: '', estimatedEndDate: '' })
+    setFormData({ name: '', description: '', address: '', startDate: '', estimatedEndDate: '', locationAddress: '', locationLat: '', locationLng: '' })
     setErrors({})
     setEditingProject(null)
+    setImagePreview(null)
+    setImageFile(null)
   }
 
   const handleCloseDialog = () => { setOpenDialog(false); resetForm() }
@@ -114,11 +121,47 @@ export default function ProjectsPage() {
     setFormData({
       name: project.name,
       description: project.description || '', address: project.address || '',
-      startDate: project.startDate || '', estimatedEndDate: project.estimatedEndDate || ''
+      startDate: project.startDate || '', estimatedEndDate: project.estimatedEndDate || '',
+      locationAddress: project.locationAddress || '',
+      locationLat: project.locationLat?.toString() || '',
+      locationLng: project.locationLng?.toString() || '',
     })
+    if (project.imageUrl) {
+      setImagePreview(projectsApi.getImageUrl(project.id))
+    } else {
+      setImagePreview(null)
+    }
+    setImageFile(null)
     setErrors({})
     setOpenDialog(true)
     handleMenuClose()
+  }
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      const dataUrl = reader.result as string
+      setImagePreview(dataUrl)
+      setImageFile(dataUrl)
+    }
+    reader.readAsDataURL(file)
+    e.target.value = ''
+  }
+
+  const handleRemoveImage = () => {
+    setImagePreview(null)
+    setImageFile('remove')
+  }
+
+  const handleAddressChange = (address: string, lat: number | null, lng: number | null) => {
+    setFormData(prev => ({
+      ...prev,
+      locationAddress: address,
+      locationLat: lat?.toString() || prev.locationLat,
+      locationLng: lng?.toString() || prev.locationLng,
+    }))
   }
 
   const handleSaveProject = async () => {
@@ -127,19 +170,33 @@ export default function ProjectsPage() {
     if (hasErrors(validationErrors)) return
     setSaving(true)
     try {
+      const lat = formData.locationLat ? parseFloat(formData.locationLat) : null
+      const lng = formData.locationLng ? parseFloat(formData.locationLng) : null
       if (editingProject) {
         await withMinDuration(projectsApi.update(editingProject.id, {
           name: formData.name, description: formData.description || undefined,
           address: formData.address || undefined, start_date: formData.startDate || undefined,
-          estimated_end_date: formData.estimatedEndDate || undefined
+          estimated_end_date: formData.estimatedEndDate || undefined,
+          location_lat: lat, location_lng: lng,
+          location_address: formData.locationAddress || null,
         }))
+        if (imageFile === 'remove') {
+          await projectsApi.deleteImage(editingProject.id).catch(() => {})
+        } else if (imageFile && imageFile !== 'remove') {
+          await projectsApi.uploadImage(editingProject.id, imageFile)
+        }
         showSuccess(t('pages.projects.updateSuccess'))
       } else {
-        await withMinDuration(projectsApi.create({
+        const created = await withMinDuration(projectsApi.create({
           name: formData.name,
           description: formData.description || undefined, address: formData.address || undefined,
-          start_date: formData.startDate || undefined, estimated_end_date: formData.estimatedEndDate || undefined
+          start_date: formData.startDate || undefined, estimated_end_date: formData.estimatedEndDate || undefined,
+          location_lat: lat ?? undefined, location_lng: lng ?? undefined,
+          location_address: formData.locationAddress || undefined,
         }))
+        if (imageFile && imageFile !== 'remove') {
+          await projectsApi.uploadImage(created.id, imageFile).catch(() => {})
+        }
         showSuccess(t('pages.projects.createSuccess'))
       }
       handleCloseDialog()
@@ -384,6 +441,44 @@ export default function ProjectsPage() {
         loading={saving}
       >
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
+          {/* Image upload area */}
+          <Box
+            onClick={() => !imagePreview && imageInputRef.current?.click()}
+            sx={{
+              width: '100%', height: 140, borderRadius: 3, overflow: 'hidden',
+              border: '2px dashed', borderColor: imagePreview ? 'transparent' : 'divider',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: imagePreview ? 'default' : 'pointer', position: 'relative',
+              bgcolor: imagePreview ? 'transparent' : (theme) => alpha(theme.palette.primary.main, 0.04),
+              transition: 'border-color 0.2s',
+              '&:hover': { borderColor: imagePreview ? 'transparent' : 'primary.main' },
+            }}
+          >
+            {imagePreview ? (
+              <>
+                <Box component="img" src={imagePreview} sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <Box sx={{ position: 'absolute', top: 8, left: 8, display: 'flex', gap: 0.5 }}>
+                  <IconButton size="small" onClick={(e) => { e.stopPropagation(); imageInputRef.current?.click() }}
+                    sx={{ bgcolor: 'rgba(0,0,0,0.5)', color: 'white', '&:hover': { bgcolor: 'rgba(0,0,0,0.7)' } }}>
+                    <CameraAltIcon sx={{ fontSize: 18 }} />
+                  </IconButton>
+                  <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleRemoveImage() }}
+                    sx={{ bgcolor: 'rgba(0,0,0,0.5)', color: 'white', '&:hover': { bgcolor: 'rgba(0,0,0,0.7)' } }}>
+                    <DeleteIcon sx={{ fontSize: 18 }} />
+                  </IconButton>
+                </Box>
+              </>
+            ) : (
+              <Box sx={{ textAlign: 'center' }}>
+                <CameraAltIcon sx={{ fontSize: 32, color: 'text.secondary', mb: 0.5 }} />
+                <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
+                  {t('pages.projects.uploadImage')}
+                </Typography>
+              </Box>
+            )}
+          </Box>
+          <input ref={imageInputRef} type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={handleImageSelect} />
+
           <TextField fullWidth label={t('pages.projects.projectName')} required value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             error={!!errors.name || formData.name.length > VALIDATION.MAX_NAME_LENGTH}
@@ -393,9 +488,14 @@ export default function ProjectsPage() {
             value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             error={!!errors.description}
             helperText={errors.description || (formData.description.length > 0 ? `${formData.description.length}/${VALIDATION.MAX_DESCRIPTION_LENGTH}` : undefined)} />
-          <TextField fullWidth label={t('pages.projects.address')} value={formData.address}
-            onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-            error={!!errors.address} helperText={errors.address} />
+          <AddressAutocomplete
+            value={formData.locationAddress}
+            onChange={handleAddressChange}
+            label={t('pages.projects.address')}
+            placeholder={t('pages.projects.searchAddress')}
+            error={!!errors.address}
+            helperText={errors.address || undefined}
+          />
           <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
             <TextField fullWidth label={t('pages.projects.startDate')} type="date" InputLabelProps={{ shrink: true }}
               value={formData.startDate} onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}

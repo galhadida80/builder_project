@@ -7,6 +7,7 @@ import { StatusBadge } from '../components/ui/StatusBadge'
 import { EmptyState } from '../components/ui/EmptyState'
 import { FormModal } from '../components/ui/Modal'
 import { TextField } from '../components/ui/TextField'
+import AddressAutocomplete from '../components/forms/AddressAutocomplete'
 import { projectsApi } from '../api/projects'
 import { equipmentApi } from '../api/equipment'
 import { materialsApi } from '../api/materials'
@@ -17,7 +18,7 @@ import { validateProjectForm, hasErrors, VALIDATION, type ValidationError } from
 import { getDateLocale } from '../utils/dateLocale'
 import { parseValidationErrors } from '../utils/apiErrors'
 import type { Project, Equipment, Material, Meeting } from '../types'
-import { ArrowBackIcon, EditIcon, LocationOnIcon, CalendarTodayIcon, GroupIcon, ConstructionIcon, InventoryIcon, EventIcon, WarningAmberIcon, PersonAddIcon, CheckCircleIcon, HourglassEmptyIcon, AssignmentIcon, MapIcon } from '@/icons'
+import { ArrowBackIcon, EditIcon, LocationOnIcon, CalendarTodayIcon, GroupIcon, ConstructionIcon, InventoryIcon, EventIcon, WarningAmberIcon, PersonAddIcon, CheckCircleIcon, HourglassEmptyIcon, AssignmentIcon, MapIcon, CameraAltIcon, DeleteIcon } from '@/icons'
 import { Box, Typography, Chip, Skeleton, IconButton, alpha, Divider } from '@/mui'
 import InviteMemberDialog from '../components/InviteMemberDialog'
 
@@ -235,6 +236,9 @@ export default function ProjectDetailPage() {
   const [editSaving, setEditSaving] = useState(false)
   const [editErrors, setEditErrors] = useState<ValidationError>({})
   const [editForm, setEditForm] = useState({ name: '', description: '', address: '', startDate: '', estimatedEndDate: '', locationLat: '', locationLng: '', locationAddress: '' })
+  const [editImagePreview, setEditImagePreview] = useState<string | null>(null)
+  const [editImageFile, setEditImageFile] = useState<string | null>(null)
+  const editImageInputRef = useRef<HTMLInputElement>(null)
   const [inviteOpen, setInviteOpen] = useState(false)
 
   const isOverview = !outlet
@@ -312,8 +316,41 @@ export default function ProjectDetailPage() {
       locationLng: project.locationLng?.toString() || '',
       locationAddress: project.locationAddress || '',
     })
+    if (project.imageUrl) {
+      setEditImagePreview(projectsApi.getImageUrl(project.id))
+    } else {
+      setEditImagePreview(null)
+    }
+    setEditImageFile(null)
     setEditErrors({})
     setEditOpen(true)
+  }
+
+  const handleEditImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      const dataUrl = reader.result as string
+      setEditImagePreview(dataUrl)
+      setEditImageFile(dataUrl)
+    }
+    reader.readAsDataURL(file)
+    e.target.value = ''
+  }
+
+  const handleEditRemoveImage = () => {
+    setEditImagePreview(null)
+    setEditImageFile('remove')
+  }
+
+  const handleEditAddressChange = (address: string, lat: number | null, lng: number | null) => {
+    setEditForm(prev => ({
+      ...prev,
+      locationAddress: address,
+      locationLat: lat?.toString() || prev.locationLat,
+      locationLng: lng?.toString() || prev.locationLng,
+    }))
   }
 
   const handleSaveEdit = async () => {
@@ -334,7 +371,13 @@ export default function ProjectDetailPage() {
         location_lng: lng,
         location_address: editForm.locationAddress || null,
       })
-      setProject(updated)
+      if (editImageFile === 'remove') {
+        await projectsApi.deleteImage(project!.id).catch(() => {})
+      } else if (editImageFile && editImageFile !== 'remove') {
+        await projectsApi.uploadImage(project!.id, editImageFile)
+      }
+      const refreshed = await projectsApi.get(project!.id)
+      setProject(refreshed || updated)
       refreshProjects()
       showSuccess(t('pages.projects.updateSuccess'))
       setEditOpen(false)
@@ -610,6 +653,44 @@ export default function ProjectDetailPage() {
         loading={editSaving}
       >
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
+          {/* Image upload area */}
+          <Box
+            onClick={() => !editImagePreview && editImageInputRef.current?.click()}
+            sx={{
+              width: '100%', height: 140, borderRadius: 3, overflow: 'hidden',
+              border: '2px dashed', borderColor: editImagePreview ? 'transparent' : 'divider',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: editImagePreview ? 'default' : 'pointer', position: 'relative',
+              bgcolor: editImagePreview ? 'transparent' : (theme) => alpha(theme.palette.primary.main, 0.04),
+              transition: 'border-color 0.2s',
+              '&:hover': { borderColor: editImagePreview ? 'transparent' : 'primary.main' },
+            }}
+          >
+            {editImagePreview ? (
+              <>
+                <Box component="img" src={editImagePreview} sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <Box sx={{ position: 'absolute', top: 8, left: 8, display: 'flex', gap: 0.5 }}>
+                  <IconButton size="small" onClick={(e) => { e.stopPropagation(); editImageInputRef.current?.click() }}
+                    sx={{ bgcolor: 'rgba(0,0,0,0.5)', color: 'white', '&:hover': { bgcolor: 'rgba(0,0,0,0.7)' } }}>
+                    <CameraAltIcon sx={{ fontSize: 18 }} />
+                  </IconButton>
+                  <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleEditRemoveImage() }}
+                    sx={{ bgcolor: 'rgba(0,0,0,0.5)', color: 'white', '&:hover': { bgcolor: 'rgba(0,0,0,0.7)' } }}>
+                    <DeleteIcon sx={{ fontSize: 18 }} />
+                  </IconButton>
+                </Box>
+              </>
+            ) : (
+              <Box sx={{ textAlign: 'center' }}>
+                <CameraAltIcon sx={{ fontSize: 32, color: 'text.secondary', mb: 0.5 }} />
+                <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
+                  {t('pages.projects.uploadImage')}
+                </Typography>
+              </Box>
+            )}
+          </Box>
+          <input ref={editImageInputRef} type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={handleEditImageSelect} />
+
           <TextField
             fullWidth
             label={t('pages.projects.projectName')}
@@ -667,11 +748,11 @@ export default function ProjectDetailPage() {
             <MapIcon fontSize="small" color="primary" />
             {t('projectDetail.location')}
           </Typography>
-          <TextField
-            fullWidth
-            label={t('projectDetail.locationAddress')}
+          <AddressAutocomplete
             value={editForm.locationAddress}
-            onChange={(e) => setEditForm({ ...editForm, locationAddress: e.target.value })}
+            onChange={handleEditAddressChange}
+            label={t('projectDetail.locationAddress')}
+            placeholder={t('projectDetail.searchAddress')}
           />
           <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
             <TextField

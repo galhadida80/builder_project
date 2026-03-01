@@ -1063,7 +1063,12 @@
       "onHold": "בהמתנה",
       "completed": "הושלם",
       "projectProgress": "התקדמות פרויקט",
-      "tasks": "משימות"
+      "tasks": "משימות",
+      "projectImage": "תמונת פרויקט",
+      "uploadImage": "העלה תמונה",
+      "removeImage": "הסר תמונה",
+      "changeImage": "שנה תמונה",
+      "searchAddress": "חפש כתובת..."
     }
   },
   "header": {
@@ -2596,6 +2601,7 @@
     "openInWaze": "פתח ב-Waze",
     "setLocation": "הגדר מיקום",
     "locationAddress": "כתובת מיקום",
+    "searchAddress": "חפש כתובת...",
     "latitude": "קו רוחב",
     "longitude": "קו אורך",
     "tabs": {
