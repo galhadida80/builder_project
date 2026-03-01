@@ -1,39 +1,25 @@
 import logging
-from datetime import date, timedelta
-from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, Request
-from sqlalchemy import case, func, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.config import get_settings
 from app.core.security import get_current_user, verify_project_access
 from app.db.session import get_db
-from app.models.approval import ApprovalRequest, ApprovalStep
-from app.models.audit import AuditLog
 from app.models.invitation import InvitationStatus, ProjectInvitation
 from app.models.project import Project, ProjectMember
-from app.models.rfi import RFI, RFIResponse as RFIResponseModel
 from app.models.subcontractor import SubcontractorProfile
-from app.models.task import Task
 from app.models.user import User
-from app.schemas.approval import ApprovalRequestResponse
-from app.schemas.project_overview import TimelineEvent
-from app.schemas.rfi import PaginatedRFIResponse, RFIListResponse
 from app.schemas.subcontractor import (
-    ApprovalStats,
-    RFIStats,
-    SubcontractorDashboardResponse,
     SubcontractorInviteRequest,
     SubcontractorInviteResponse,
     SubcontractorProfileCreate,
     SubcontractorProfileResponse,
     SubcontractorProfileUpdate,
-    TaskStats,
 )
-from app.schemas.task import TaskResponse
 from app.services.email_renderer import render_subcontractor_invite_email
 from app.services.email_service import EmailService
 from app.utils import utcnow
@@ -201,90 +187,6 @@ async def get_my_profile(
     return profile
 
 
-@router.get("/subcontractors/dashboard", response_model=SubcontractorDashboardResponse)
-async def get_dashboard_summary(
-    db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-):
-    """Get dashboard summary statistics for subcontractor"""
-    user_project_ids = select(ProjectMember.project_id).where(
-        ProjectMember.user_id == current_user.id,
-        ProjectMember.role == "subcontractor",
-    )
-
-    today = date.today()
-    upcoming_threshold = today + timedelta(days=7)
-
-    tasks_result = await db.execute(
-        select(
-            func.count(Task.id).label("total"),
-            func.count(case((Task.status == "in_progress", 1))).label("in_progress"),
-            func.count(case((Task.status == "completed", 1))).label("completed"),
-            func.count(case((
-                (Task.due_date < today) & (Task.status != "completed"), 1
-            ))).label("overdue"),
-        ).where(
-            Task.project_id.in_(user_project_ids),
-            Task.assignee_id == current_user.id,
-        )
-    )
-    tasks_data = tasks_result.one()
-
-    rfis_result = await db.execute(
-        select(
-            func.count(RFI.id).label("total"),
-            func.count(case((RFI.status == "open", 1))).label("open"),
-            func.count(case((RFI.status == "waiting_response", 1))).label("waiting_response"),
-            func.count(case((RFI.status == "answered", 1))).label("answered"),
-        ).where(RFI.project_id.in_(user_project_ids))
-    )
-    rfis_data = rfis_result.one()
-
-    approvals_result = await db.execute(
-        select(ApprovalRequest.id, ApprovalRequest.current_status)
-        .where(ApprovalRequest.project_id.in_(user_project_ids))
-    )
-    approvals = approvals_result.all()
-    approval_stats = {
-        "total": len(approvals),
-        "pending": sum(1 for a in approvals if a.current_status == "pending"),
-        "approved": sum(1 for a in approvals if a.current_status == "approved"),
-        "rejected": sum(1 for a in approvals if a.current_status == "rejected"),
-    }
-
-    upcoming_deadlines_result = await db.execute(
-        select(func.count(Task.id)).where(
-            Task.project_id.in_(user_project_ids),
-            Task.assignee_id == current_user.id,
-            Task.due_date.between(today, upcoming_threshold),
-            Task.status != "completed",
-        )
-    )
-    upcoming_deadlines = upcoming_deadlines_result.scalar() or 0
-
-    return SubcontractorDashboardResponse(
-        task_stats=TaskStats(
-            total=tasks_data.total,
-            in_progress=tasks_data.in_progress,
-            completed=tasks_data.completed,
-            overdue=tasks_data.overdue,
-        ),
-        rfi_stats=RFIStats(
-            total=rfis_data.total,
-            open=rfis_data.open,
-            waiting_response=rfis_data.waiting_response,
-            answered=rfis_data.answered,
-        ),
-        approval_stats=ApprovalStats(
-            total=approval_stats["total"],
-            pending=approval_stats["pending"],
-            approved=approval_stats["approved"],
-            rejected=approval_stats["rejected"],
-        ),
-        upcoming_deadlines=upcoming_deadlines,
-    )
-
-
 @router.post("/subcontractors/me", response_model=SubcontractorProfileResponse, status_code=201)
 async def create_my_profile(
     data: SubcontractorProfileCreate,
@@ -363,139 +265,6 @@ async def verify_subcontractor(
     return profile
 
 
-@router.get("/subcontractors/my-tasks", response_model=list[TaskResponse])
-async def get_my_tasks(
-    status: Optional[str] = Query(None),
-    priority: Optional[str] = Query(None),
-    db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-):
-    user_project_ids = select(ProjectMember.project_id).where(
-        ProjectMember.user_id == current_user.id,
-        ProjectMember.role == "subcontractor",
-    )
-    query = (
-        select(Task)
-        .options(
-            selectinload(Task.assignee),
-            selectinload(Task.reporter),
-            selectinload(Task.created_by),
-            selectinload(Task.dependencies),
-        )
-        .where(
-            Task.project_id.in_(user_project_ids),
-            Task.assignee_id == current_user.id,
-        )
-    )
-    if status:
-        query = query.where(Task.status == status)
-    if priority:
-        query = query.where(Task.priority == priority)
-    query = query.order_by(Task.task_number.desc())
-    result = await db.execute(query)
-    return result.scalars().all()
-
-
-@router.get("/subcontractors/my-approvals", response_model=list[ApprovalRequestResponse])
-async def get_my_approvals(
-    db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-):
-    user_project_ids = select(ProjectMember.project_id).where(
-        ProjectMember.user_id == current_user.id,
-        ProjectMember.role == "subcontractor",
-    )
-    result = await db.execute(
-        select(ApprovalRequest)
-        .options(
-            selectinload(ApprovalRequest.created_by),
-            selectinload(ApprovalRequest.steps).selectinload(ApprovalStep.approved_by)
-        )
-        .where(ApprovalRequest.project_id.in_(user_project_ids))
-        .order_by(ApprovalRequest.created_at.desc())
-    )
-    return result.scalars().all()
-
-
-@router.get("/subcontractors/my-rfis", response_model=PaginatedRFIResponse)
-async def get_my_rfis(
-    status: Optional[str] = Query(None),
-    priority: Optional[str] = Query(None),
-    search: Optional[str] = Query(None),
-    page: int = Query(1, ge=1),
-    page_size: int = Query(20, ge=1, le=100),
-    db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-):
-    user_project_ids = select(ProjectMember.project_id).where(
-        ProjectMember.user_id == current_user.id,
-        ProjectMember.role == "subcontractor",
-    )
-
-    query = select(RFI).where(RFI.project_id.in_(user_project_ids))
-
-    if status:
-        query = query.where(RFI.status == status)
-    if priority:
-        query = query.where(RFI.priority == priority)
-    if search:
-        search_pattern = f"%{search}%"
-        query = query.where(
-            (RFI.subject.ilike(search_pattern)) |
-            (RFI.question.ilike(search_pattern)) |
-            (RFI.rfi_number.ilike(search_pattern))
-        )
-
-    count_query = select(func.count()).select_from(query.subquery())
-    total = (await db.execute(count_query)).scalar()
-
-    query = query.order_by(RFI.created_at.desc())
-    offset = (page - 1) * page_size
-    query = query.offset(offset).limit(page_size)
-
-    result = await db.execute(query)
-    rfis = result.scalars().all()
-
-    rfi_ids = [rfi.id for rfi in rfis]
-    count_result = await db.execute(
-        select(RFIResponseModel.rfi_id, func.count(RFIResponseModel.id).label("cnt"))
-        .where(RFIResponseModel.rfi_id.in_(rfi_ids))
-        .group_by(RFIResponseModel.rfi_id)
-    )
-    response_counts = {row.rfi_id: row.cnt for row in count_result.all()}
-
-    rfi_responses = []
-    for rfi in rfis:
-        rfi_responses.append(RFIListResponse(
-            id=rfi.id,
-            project_id=rfi.project_id,
-            rfi_number=rfi.rfi_number,
-            subject=rfi.subject,
-            to_email=rfi.to_email,
-            to_name=rfi.to_name,
-            category=rfi.category,
-            priority=rfi.priority,
-            status=rfi.status,
-            due_date=rfi.due_date,
-            created_at=rfi.created_at,
-            sent_at=rfi.sent_at,
-            responded_at=rfi.responded_at,
-            response_count=response_counts.get(rfi.id, 0),
-            related_equipment_id=rfi.related_equipment_id,
-            related_material_id=rfi.related_material_id
-        ))
-
-    total_pages = (total + page_size - 1) // page_size
-
-    return PaginatedRFIResponse(
-        items=rfi_responses,
-        total=total,
-        page=page,
-        page_size=page_size,
-        total_pages=total_pages
-    )
-
-
 @router.get("/projects/{project_id}/subcontractors/portal", response_model=dict)
 async def get_portal_data(
     project_id: UUID,
@@ -524,40 +293,3 @@ async def get_portal_data(
         "company_name": profile.company_name if profile else None,
         "trade": profile.trade if profile else None,
     }
-
-
-@router.get("/subcontractors/activity-feed", response_model=list[TimelineEvent])
-async def get_activity_feed(
-    limit: int = Query(20, ge=1, le=100),
-    db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-):
-    """Get activity feed for subcontractor across all their projects"""
-    user_project_ids = select(ProjectMember.project_id).where(
-        ProjectMember.user_id == current_user.id,
-        ProjectMember.role == "subcontractor",
-    )
-
-    audit_result = await db.execute(
-        select(AuditLog)
-        .where(AuditLog.project_id.in_(user_project_ids))
-        .order_by(AuditLog.created_at.desc())
-        .limit(limit)
-    )
-
-    timeline_events = []
-    for log in audit_result.scalars():
-        event = TimelineEvent(
-            id=log.id,
-            date=log.created_at,
-            title=f"{log.action.value.title()} {log.entity_type}",
-            description=None,
-            event_type=log.entity_type,
-            entity_id=log.entity_id,
-            entity_type=log.entity_type,
-            user_name=log.user_full_name or log.user_email,
-            metadata={"action": log.action.value}
-        )
-        timeline_events.append(event)
-
-    return timeline_events
