@@ -1,26 +1,22 @@
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useDropzone } from 'react-dropzone'
 import { FormModal } from '../ui/Modal'
 import { TextField } from '../ui/TextField'
+import SafetyPhotoUploader from './SafetyPhotoUploader'
 import type { NearMissCreateData } from '../../api/safety'
 import type { Contact, ConstructionArea } from '../../types'
 import type { ValidationError } from '../../utils/validation'
 import type { NearMissSeverity } from '../../types/safety'
-import { CameraAltIcon, CloseIcon } from '@/icons'
 import {
   Box,
   Typography,
   MenuItem,
-  IconButton,
   LinearProgress,
   TextField as MuiTextField,
   Autocomplete,
   FormControlLabel,
   Checkbox,
 } from '@/mui'
-
-const MAX_PHOTOS = 5
 
 const SEVERITY_OPTIONS: NearMissSeverity[] = ['low', 'medium', 'high']
 
@@ -60,15 +56,6 @@ export default function NearMissFormModal({
   removePhoto,
 }: NearMissFormModalProps) {
   const { t } = useTranslation()
-
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    accept: { 'image/*': [] },
-    maxFiles: MAX_PHOTOS,
-    maxSize: 5 * 1024 * 1024,
-    onDrop: addPhotos,
-    noClick: pendingPhotos.length >= MAX_PHOTOS,
-    noDrag: pendingPhotos.length >= MAX_PHOTOS,
-  })
 
   const handleAnonymousChange = useCallback(
     (checked: boolean) => {
@@ -215,87 +202,13 @@ export default function NearMissFormModal({
         )}
 
         {/* Photo Upload */}
-        <Box>
-          <Typography variant="body2" fontWeight={500} sx={{ mb: 1 }}>
-            {t('safety.nearMisses.attachPhotos')} ({pendingPhotos.length}/
-            {MAX_PHOTOS})
-          </Typography>
-          <Box
-            {...getRootProps()}
-            sx={{
-              border: '2px dashed',
-              borderColor: isDragActive ? 'primary.main' : 'divider',
-              borderRadius: 2,
-              p: 2,
-              textAlign: 'center',
-              cursor:
-                pendingPhotos.length >= MAX_PHOTOS ? 'default' : 'pointer',
-              bgcolor: isDragActive ? 'action.hover' : 'transparent',
-              transition: 'all 200ms ease',
-              '&:hover':
-                pendingPhotos.length < MAX_PHOTOS
-                  ? { borderColor: 'primary.light', bgcolor: 'action.hover' }
-                  : {},
-            }}
-          >
-            <input {...getInputProps()} capture="environment" />
-            <CameraAltIcon sx={{ fontSize: 32, color: 'text.disabled', mb: 0.5 }} />
-            <Typography variant="body2" color="text.secondary">
-              {isDragActive
-                ? t('safety.nearMisses.dropHere')
-                : t('safety.nearMisses.dragOrTap')}
-            </Typography>
-            {pendingPhotos.length >= MAX_PHOTOS && (
-              <Typography variant="caption" color="text.disabled">
-                {t('safety.nearMisses.maxPhotos', { max: MAX_PHOTOS })}
-              </Typography>
-            )}
-          </Box>
-          {pendingPhotos.length > 0 && (
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1.5 }}>
-              {photoPreviews.map((url, idx) => (
-                <Box
-                  key={idx}
-                  sx={{
-                    position: 'relative',
-                    width: 80,
-                    height: 80,
-                    borderRadius: 1.5,
-                    overflow: 'hidden',
-                    border: '1px solid',
-                    borderColor: 'divider',
-                  }}
-                >
-                  <Box
-                    component="img"
-                    src={url}
-                    alt={pendingPhotos[idx]?.name}
-                    sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  />
-                  <IconButton
-                    size="small"
-                    aria-label={t('common.removeItem')}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      removePhoto(idx)
-                    }}
-                    sx={{
-                      position: 'absolute',
-                      top: 2,
-                      right: 2,
-                      bgcolor: 'rgba(0,0,0,0.5)',
-                      color: 'white',
-                      p: 0.3,
-                      '&:hover': { bgcolor: 'rgba(0,0,0,0.7)' },
-                    }}
-                  >
-                    <CloseIcon sx={{ fontSize: 14 }} />
-                  </IconButton>
-                </Box>
-              ))}
-            </Box>
-          )}
-        </Box>
+        <SafetyPhotoUploader
+          pendingPhotos={pendingPhotos}
+          photoPreviews={photoPreviews}
+          onAddPhotos={addPhotos}
+          onRemovePhoto={removePhoto}
+          disabled={submitting}
+        />
 
         {/* Preventive Actions */}
         <TextField

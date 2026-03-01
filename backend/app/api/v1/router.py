@@ -56,6 +56,7 @@ from app.api.v1 import (
     tasks_api,
     time_tracking,
     toolbox_talks,
+    toolbox_talk_attendance,
     webhooks,
     whatsapp,
     work_summary,
@@ -130,4 +131,5 @@ api_router.include_router(safety_incidents.router, tags=["safety_incidents"])
 api_router.include_router(near_misses.router, tags=["near_misses"])
 api_router.include_router(safety_training.router, tags=["safety_training"])
 api_router.include_router(toolbox_talks.router, tags=["toolbox_talks"])
+api_router.include_router(toolbox_talk_attendance.router, tags=["toolbox_talks"])
 api_router.include_router(safety_kpi.router, tags=["safety_kpi"])

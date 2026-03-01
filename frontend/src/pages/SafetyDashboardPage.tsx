@@ -25,11 +25,9 @@ export default function SafetyDashboardPage() {
   const { showError } = useToast()
   const [kpi, setKpi] = useState<SafetyKPI | null>(null)
   const [loading, setLoading] = useState(true)
-
   useEffect(() => {
     if (projectId) loadKPI()
   }, [projectId])
-
   const loadKPI = async () => {
     if (!projectId) return
     setLoading(true)
@@ -42,11 +40,9 @@ export default function SafetyDashboardPage() {
       setLoading(false)
     }
   }
-
   const incidentRate = kpi ? (kpi.totalIncidents > 0 ? ((kpi.incidentsBySeverity.critical || 0) + (kpi.incidentsBySeverity.high || 0)) / kpi.totalIncidents * 100 : 0) : 0
   const trainingComplianceRate = kpi && kpi.totalTrainings > 0 ? (kpi.validTrainings / kpi.totalTrainings * 100) : 0
   const attendanceRate = kpi && kpi.totalTalkAttendees > 0 ? (kpi.totalAttended / kpi.totalTalkAttendees * 100) : 0
-
   return (
     <Box>
       <PageHeader
@@ -57,14 +53,10 @@ export default function SafetyDashboardPage() {
           { label: t('safety.dashboard') },
         ]}
       />
-
       <Box sx={{ p: { xs: 2, sm: 3 } }}>
         <Alert severity="info" sx={{ mb: 3 }}>
-          <Typography variant="body2">
-            {t('safety.dashboardDescription')}
-          </Typography>
+          {t('safety.dashboardDescription')}
         </Alert>
-
         {/* Incidents Section */}
         <Typography variant="h6" fontWeight={600} sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
           <WarningIcon fontSize="small" />
