@@ -552,7 +552,6 @@ async def delete_project_image(
 async def get_project_image(
     project_id: UUID,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
     storage: StorageBackend = Depends(get_storage_backend),
 ):
     result = await db.execute(select(Project).where(Project.id == project_id))
