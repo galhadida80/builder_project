@@ -135,6 +135,19 @@ export interface ToolboxTalk {
   attendees: TalkAttendee[]
 }
 
+// Near Miss Summary
+export interface NearMissSummary {
+  total: number
+  openCount: number
+  inProgressCount: number
+  resolvedCount: number
+  closedCount: number
+  highCount: number
+  mediumCount: number
+  lowCount: number
+  anonymousCount: number
+}
+
 // Safety KPI Summary
 export interface SafetyKPI {
   // Incidents

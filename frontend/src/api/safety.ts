@@ -1,10 +1,13 @@
 import { apiClient } from './client'
 import type {
   SafetyIncident,
+  NearMiss,
   SafetyTraining,
   SafetyKPI,
   IncidentSeverity,
   IncidentStatus,
+  NearMissSeverity,
+  NearMissStatus,
   TrainingStatus
 } from '../types/safety'
 
@@ -94,6 +97,54 @@ export interface SafetyTrainingSummary {
   uniqueWorkers: number
 }
 
+// Near Miss
+export interface NearMissCreateData {
+  title: string
+  description: string
+  severity: NearMissSeverity
+  potentialConsequence?: string
+  occurredAt: string
+  location?: string
+  areaId?: string
+  photos?: string[]
+  isAnonymous: boolean
+  reportedById?: string
+  preventiveActions?: string
+}
+
+export interface NearMissUpdateData {
+  title?: string
+  description?: string
+  severity?: NearMissSeverity
+  status?: NearMissStatus
+  potentialConsequence?: string
+  occurredAt?: string
+  location?: string
+  areaId?: string
+  photos?: string[]
+  reportedById?: string
+  preventiveActions?: string
+}
+
+export interface NearMissListParams {
+  status?: NearMissStatus
+  severity?: NearMissSeverity
+  search?: string
+  isAnonymous?: boolean
+}
+
+export interface NearMissSummary {
+  total: number
+  openCount: number
+  inProgressCount: number
+  resolvedCount: number
+  closedCount: number
+  highCount: number
+  mediumCount: number
+  lowCount: number
+  anonymousCount: number
+}
+
 export const safetyApi = {
   // Safety Incidents
   incidents: {
@@ -154,6 +205,69 @@ export const safetyApi = {
 
     getSummary: async (projectId: string): Promise<SafetyIncidentSummary> => {
       const response = await apiClient.get(`/projects/${projectId}/safety-incidents-summary`)
+      return response.data
+    },
+  },
+
+  // Near Misses
+  nearMisses: {
+    list: async (projectId: string, params?: NearMissListParams): Promise<NearMiss[]> => {
+      const qs = new URLSearchParams()
+      if (params?.status) qs.set('status', params.status)
+      if (params?.severity) qs.set('severity', params.severity)
+      if (params?.search) qs.set('search', params.search)
+      if (params?.isAnonymous !== undefined) qs.set('is_anonymous', String(params.isAnonymous))
+      const query = qs.toString()
+      const response = await apiClient.get(`/projects/${projectId}/near-misses${query ? `?${query}` : ''}`)
+      return response.data
+    },
+
+    get: async (projectId: string, nearMissId: string): Promise<NearMiss> => {
+      const response = await apiClient.get(`/projects/${projectId}/near-misses/${nearMissId}`)
+      return response.data
+    },
+
+    create: async (projectId: string, data: NearMissCreateData): Promise<NearMiss> => {
+      const response = await apiClient.post(`/projects/${projectId}/near-misses`, {
+        title: data.title,
+        description: data.description,
+        severity: data.severity,
+        potential_consequence: data.potentialConsequence,
+        occurred_at: data.occurredAt,
+        location: data.location,
+        area_id: data.areaId,
+        photos: data.photos || [],
+        is_anonymous: data.isAnonymous,
+        reported_by_id: data.isAnonymous ? undefined : data.reportedById,
+        preventive_actions: data.preventiveActions,
+      })
+      return response.data
+    },
+
+    update: async (projectId: string, nearMissId: string, data: NearMissUpdateData): Promise<NearMiss> => {
+      const payload: Record<string, unknown> = {}
+      if (data.title !== undefined) payload.title = data.title
+      if (data.description !== undefined) payload.description = data.description
+      if (data.severity !== undefined) payload.severity = data.severity
+      if (data.status !== undefined) payload.status = data.status
+      if (data.potentialConsequence !== undefined) payload.potential_consequence = data.potentialConsequence
+      if (data.occurredAt !== undefined) payload.occurred_at = data.occurredAt
+      if (data.location !== undefined) payload.location = data.location
+      if (data.areaId !== undefined) payload.area_id = data.areaId
+      if (data.photos !== undefined) payload.photos = data.photos
+      if (data.reportedById !== undefined) payload.reported_by_id = data.reportedById
+      if (data.preventiveActions !== undefined) payload.preventive_actions = data.preventiveActions
+
+      const response = await apiClient.patch(`/projects/${projectId}/near-misses/${nearMissId}`, payload)
+      return response.data
+    },
+
+    delete: async (projectId: string, nearMissId: string): Promise<void> => {
+      await apiClient.delete(`/projects/${projectId}/near-misses/${nearMissId}`)
+    },
+
+    getSummary: async (projectId: string): Promise<NearMissSummary> => {
+      const response = await apiClient.get(`/projects/${projectId}/near-misses-summary`)
       return response.data
     },
   },
