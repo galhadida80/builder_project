@@ -31,7 +31,7 @@ async def pull_rfis(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    await verify_project_access(db, project_id, user)
+    await verify_project_access(project_id, user, db)
     result = await pull_rfis_from_acc(db, project_id)
     await db.commit()
     return PullResponse(**result)
@@ -63,7 +63,7 @@ async def list_user_mappings(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    await verify_project_access(db, project_id, user)
+    await verify_project_access(project_id, user, db)
     result = await db.execute(
         select(AccUserMapping).where(AccUserMapping.project_id == project_id)
     )
@@ -77,7 +77,7 @@ async def create_user_mapping(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    await verify_project_access(db, project_id, user)
+    await verify_project_access(project_id, user, db)
     mapping = AccUserMapping(
         project_id=project_id,
         acc_user_id=body.acc_user_id,
@@ -95,7 +95,7 @@ async def sync_health(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    await verify_project_access(db, project_id, user)
+    await verify_project_access(project_id, user, db)
     link_result = await db.execute(
         select(AccProjectLink).where(AccProjectLink.project_id == project_id)
     )
@@ -146,7 +146,7 @@ async def list_sync_logs(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    await verify_project_access(db, project_id, user)
+    await verify_project_access(project_id, user, db)
     result = await db.execute(
         select(RfiSyncLog)
         .join(RFI, RfiSyncLog.rfi_id == RFI.id)

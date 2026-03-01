@@ -31,7 +31,7 @@ async def link_acc_project(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    await verify_project_access(db, project_id, user)
+    await verify_project_access(project_id, user, db)
     existing = await db.execute(
         select(AccProjectLink).where(AccProjectLink.project_id == project_id)
     )
@@ -55,7 +55,7 @@ async def unlink_acc_project(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    await verify_project_access(db, project_id, user)
+    await verify_project_access(project_id, user, db)
     result = await db.execute(
         select(AccProjectLink).where(AccProjectLink.project_id == project_id)
     )
@@ -73,7 +73,7 @@ async def get_link_status(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    await verify_project_access(db, project_id, user)
+    await verify_project_access(project_id, user, db)
     result = await db.execute(
         select(AccProjectLink).where(AccProjectLink.project_id == project_id)
     )
@@ -88,7 +88,7 @@ async def sync_rfi_to_acc(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    await verify_project_access(db, project_id, user)
+    await verify_project_access(project_id, user, db)
     result = await db.execute(
         select(RFI).where(RFI.id == rfi_id, RFI.project_id == project_id)
     )
@@ -116,7 +116,7 @@ async def push_all_rfis(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    await verify_project_access(db, project_id, user)
+    await verify_project_access(project_id, user, db)
     rfis_result = await db.execute(
         select(RFI).where(
             RFI.project_id == project_id,
