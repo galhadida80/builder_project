@@ -36,6 +36,7 @@ from app.schemas.meeting import (
     MeetingResponse,
     MeetingUpdate,
 )
+from app.schemas.permit import PermitCreate, PermitResponse, PermitSummaryResponse, PermitUpdate
 from app.schemas.project import (
     ProjectCreate,
     ProjectMemberCreate,
