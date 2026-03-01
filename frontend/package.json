@@ -38,6 +38,7 @@
     "gantt-task-react": "^0.3.9",
     "html2canvas": "^1.4.1",
     "i18next": "^25.8.1",
+    "idb": "^8.0.3",
     "jspdf": "^4.1.0",
     "mui-tiptap": "^1.29.0",
     "react": "^18.2.0",
