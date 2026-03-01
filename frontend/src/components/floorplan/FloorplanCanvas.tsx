@@ -4,18 +4,12 @@ import { useParams } from 'react-router-dom'
 import { Canvas, FabricImage } from 'fabric'
 import { Box, CircularProgress, Alert } from '@/mui'
 import DefectFormModal from '../defects/DefectFormModal'
-import { defectsApi, DefectCreateData, DefectAnalysisItem } from '../../api/defects'
-import { floorplansApi } from '../../api/floorplans'
 import { contactsApi } from '../../api/contacts'
 import { areasApi } from '../../api/areas'
-import { filesApi } from '../../api/files'
 import type { Floorplan } from '@/types/floorplan'
 import type { Contact, ConstructionArea } from '../../types'
-import type { ValidationError } from '../../utils/validation'
-import { validateRequired, validateMinLength, hasErrors } from '../../utils/validation'
 import { useToast } from '../common/ToastProvider'
-
-const MAX_PHOTOS = 5
+import { useDefectForm } from '../../hooks/useDefectForm'
 
 interface FloorplanCanvasProps {
   floorplan: Floorplan
@@ -24,33 +18,10 @@ interface FloorplanCanvasProps {
   onPinCreated?: () => void
 }
 
-function compressImage(file: File, maxWidth = 1920, quality = 0.8): Promise<File> {
-  return new Promise((resolve) => {
-    const img = new Image()
-    const url = URL.createObjectURL(file)
-    img.onload = () => {
-      URL.revokeObjectURL(url)
-      if (img.width <= maxWidth && file.size <= 1024 * 1024) { resolve(file); return }
-      const scale = Math.min(1, maxWidth / img.width)
-      const canvas = document.createElement('canvas')
-      canvas.width = Math.round(img.width * scale)
-      canvas.height = Math.round(img.height * scale)
-      const ctx = canvas.getContext('2d')!
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
-      canvas.toBlob((blob) => {
-        if (!blob) { resolve(file); return }
-        resolve(new File([blob], file.name.replace(/\.\w+$/, '.jpg'), { type: 'image/jpeg' }))
-      }, 'image/jpeg', quality)
-    }
-    img.onerror = () => { URL.revokeObjectURL(url); resolve(file) }
-    img.src = url
-  })
-}
-
 export function FloorplanCanvas({ floorplan, width, height, onPinCreated }: FloorplanCanvasProps) {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const { projectId } = useParams()
-  const { showError, showSuccess } = useToast()
+  const { showError } = useToast()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const fabricRef = useRef<Canvas | null>(null)
   const [canvasReady, setCanvasReady] = useState(false)
@@ -59,206 +30,68 @@ export function FloorplanCanvas({ floorplan, width, height, onPinCreated }: Floo
 
   const [dialogOpen, setDialogOpen] = useState(false)
   const [clickPosition, setClickPosition] = useState<{ x: number; y: number } | null>(null)
-  const [submitting, setSubmitting] = useState(false)
-  const [uploadProgress, setUploadProgress] = useState(0)
-  const [analyzing, setAnalyzing] = useState(false)
-  const [pendingPhotos, setPendingPhotos] = useState<File[]>([])
-  const [photoPreviews, setPhotoPreviews] = useState<string[]>([])
-  const [analysisResults, setAnalysisResults] = useState<DefectAnalysisItem[]>([])
-  const [selectedDefects, setSelectedDefects] = useState<boolean[]>([])
-  const [formErrors, setFormErrors] = useState<ValidationError>({})
-  const [form, setForm] = useState<DefectCreateData>({
-    description: '',
-    category: 'other',
-    severity: 'medium',
-    assignee_ids: [],
-  })
   const [contacts, setContacts] = useState<Contact[]>([])
   const [areas, setAreas] = useState<ConstructionArea[]>([])
+
+  const defectForm = useDefectForm({
+    projectId,
+    floorplanId: floorplan.id,
+    onSuccess: () => {
+      handleCloseDialog()
+      onPinCreated?.()
+    },
+  })
 
   useEffect(() => {
     if (!projectId) return
     Promise.all([
-      contactsApi.list(projectId).then(res => setContacts(res)),
-      areasApi.list(projectId).then(res => setAreas(res)),
-    ]).catch(err => showError(t('common.failedToLoad')))
+      contactsApi.list(projectId).then((res) => setContacts(res)),
+      areasApi.list(projectId).then((res) => setAreas(res)),
+    ]).catch((err) => showError(t('common.failedToLoad')))
   }, [projectId, showError, t])
 
-  const validateDefectForm = (data: DefectCreateData): ValidationError => {
-    const errors: ValidationError = {}
-    errors.description = validateRequired(data.description, t('defects.description')) || validateMinLength(data.description, 2, t('defects.description'))
-    errors.category = validateRequired(data.category, t('defects.category'))
-    errors.severity = validateRequired(data.severity, t('defects.severity'))
-    return errors
-  }
+  const handleCanvasClick = useCallback(
+    (e: any) => {
+      if (!fabricRef.current || !canvasReady) return
+      const canvas = fabricRef.current
+      const pointer = canvas.getPointer(e.e)
+      const bgImg = canvas.backgroundImage as FabricImage | null
+      if (!bgImg) return
 
-  const validateDefectField = (field: string) => {
-    const allErrors = validateDefectForm(form)
-    setFormErrors(prev => ({ ...prev, [field]: allErrors[field] || null }))
-  }
+      const imgLeft = bgImg.left || 0
+      const imgTop = bgImg.top || 0
+      const imgWidth = (bgImg.width || 0) * (bgImg.scaleX || 1)
+      const imgHeight = (bgImg.height || 0) * (bgImg.scaleY || 1)
 
-  const addPhotos = useCallback(async (files: File[]) => {
-    const remaining = MAX_PHOTOS - pendingPhotos.length
-    if (remaining <= 0) return
-    const toAdd = files.slice(0, remaining)
-    const compressed = await Promise.all(toAdd.map(f => compressImage(f)))
-    const previews = compressed.map(f => URL.createObjectURL(f))
-    setPendingPhotos(prev => [...prev, ...compressed])
-    setPhotoPreviews(prev => [...prev, ...previews])
-  }, [pendingPhotos.length])
-
-  const removePhoto = useCallback((index: number) => {
-    setPhotoPreviews(prev => { URL.revokeObjectURL(prev[index]); return prev.filter((_, i) => i !== index) })
-    setPendingPhotos(prev => prev.filter((_, i) => i !== index))
-  }, [])
-
-  const clearPhotos = useCallback(() => {
-    photoPreviews.forEach(url => URL.revokeObjectURL(url))
-    setPendingPhotos([]); setPhotoPreviews([])
-  }, [photoPreviews])
-
-  const handleAnalyze = async () => {
-    if (!projectId || pendingPhotos.length === 0) return
-    setAnalyzing(true)
-    try {
-      const lang = (i18n.language || 'en').slice(0, 2)
-      const result = await defectsApi.analyzeImage(projectId, pendingPhotos[0], lang)
-      const defectsResult = result.defects || []
-      if (defectsResult.length <= 1) {
-        const single = defectsResult[0] || { category: 'other', severity: 'medium', description: '' }
-        setForm(prev => ({ ...prev, category: single.category, severity: single.severity, description: single.description }))
-        setAnalysisResults([]); setSelectedDefects([])
-        showSuccess(t('defects.analyzeSuccess'))
-      } else {
-        setAnalysisResults(defectsResult); setSelectedDefects(new Array(defectsResult.length).fill(false))
-        showSuccess(t('defects.multiDefectDetected', { count: defectsResult.length }))
+      if (
+        pointer.x < imgLeft ||
+        pointer.x > imgLeft + imgWidth ||
+        pointer.y < imgTop ||
+        pointer.y > imgTop + imgHeight
+      ) {
+        return
       }
-    } catch (err) {
-      showError(t('defects.analyzeFailed'))
-    } finally {
-      setAnalyzing(false)
-    }
-  }
 
-  const handleCanvasClick = useCallback((e: any) => {
-    if (!fabricRef.current || !canvasReady) return
-    const canvas = fabricRef.current
-    const pointer = canvas.getPointer(e.e)
-    const bgImg = canvas.backgroundImage as FabricImage | null
-    if (!bgImg) return
+      const normalizedX = (pointer.x - imgLeft) / imgWidth
+      const normalizedY = (pointer.y - imgTop) / imgHeight
 
-    const imgLeft = bgImg.left || 0
-    const imgTop = bgImg.top || 0
-    const imgWidth = (bgImg.width || 0) * (bgImg.scaleX || 1)
-    const imgHeight = (bgImg.height || 0) * (bgImg.scaleY || 1)
-
-    if (
-      pointer.x < imgLeft ||
-      pointer.x > imgLeft + imgWidth ||
-      pointer.y < imgTop ||
-      pointer.y > imgTop + imgHeight
-    ) {
-      return
-    }
-
-    const normalizedX = (pointer.x - imgLeft) / imgWidth
-    const normalizedY = (pointer.y - imgTop) / imgHeight
-
-    setClickPosition({ x: normalizedX, y: normalizedY })
-    setDialogOpen(true)
-  }, [canvasReady])
+      setClickPosition({ x: normalizedX, y: normalizedY })
+      setDialogOpen(true)
+    },
+    [canvasReady]
+  )
 
   const handleCloseDialog = () => {
     setDialogOpen(false)
     setClickPosition(null)
-    setForm({ description: '', category: 'other', severity: 'medium', assignee_ids: [] })
-    setFormErrors({})
-    clearPhotos()
-    setAnalysisResults([])
-    setSelectedDefects([])
+    defectForm.resetForm()
   }
 
   const handleSubmitDefect = async () => {
-    if (!projectId || !clickPosition) return
-
-    const selectedCount = selectedDefects.filter(Boolean).length
-    const isMultiDefect = analysisResults.length > 0 && selectedCount > 0
-
-    if (isMultiDefect) {
-      setSubmitting(true)
-      try {
-        const defectsToCreate = analysisResults.filter((_, idx) => selectedDefects[idx])
-        const createdDefectIds: string[] = []
-
-        for (const defectData of defectsToCreate) {
-          const defect = await defectsApi.create(projectId, {
-            description: defectData.description,
-            category: defectData.category,
-            severity: defectData.severity,
-            assignee_ids: [],
-          })
-          createdDefectIds.push(defect.id)
-
-          await floorplansApi.createPin(projectId, floorplan.id, {
-            entityType: 'defect',
-            entityId: defect.id,
-            xPosition: clickPosition.x,
-            yPosition: clickPosition.y,
-          })
-        }
-
-        if (pendingPhotos.length > 0) {
-          for (const photo of pendingPhotos) {
-            for (const defectId of createdDefectIds) {
-              await filesApi.upload(projectId, 'defect', defectId, photo)
-            }
-          }
-        }
-
-        showSuccess(t('defects.createMultipleSuccess', { count: createdDefectIds.length }))
-        handleCloseDialog()
-        onPinCreated?.()
-      } catch (err) {
-        showError(t('defects.createFailed'))
-      } finally {
-        setSubmitting(false)
-      }
-      return
-    }
-
-    const errors = validateDefectForm(form)
-    if (hasErrors(errors)) {
-      setFormErrors(errors)
-      return
-    }
-
-    setSubmitting(true)
-    try {
-      const defect = await defectsApi.create(projectId, form)
-
-      if (pendingPhotos.length > 0) {
-        setUploadProgress(0)
-        for (let i = 0; i < pendingPhotos.length; i++) {
-          await filesApi.upload(projectId, 'defect', defect.id, pendingPhotos[i])
-          setUploadProgress(((i + 1) / pendingPhotos.length) * 100)
-        }
-      }
-
-      await floorplansApi.createPin(projectId, floorplan.id, {
-        entityType: 'defect',
-        entityId: defect.id,
-        xPosition: clickPosition.x,
-        yPosition: clickPosition.y,
-      })
-
-      showSuccess(t('defects.createSuccess'))
+    if (!clickPosition) return
+    const success = await defectForm.handleSubmit(clickPosition)
+    if (success) {
       handleCloseDialog()
-      onPinCreated?.()
-    } catch (err) {
-      showError(t('defects.createFailed'))
-    } finally {
-      setSubmitting(false)
-      setUploadProgress(0)
     }
   }
 
@@ -321,7 +154,15 @@ export function FloorplanCanvas({ floorplan, width, height, onPinCreated }: Floo
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: height || 600, width: width || '100%' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: height || 600,
+          width: width || '100%',
+        }}
+      >
         <CircularProgress />
       </Box>
     )
@@ -335,8 +176,8 @@ export function FloorplanCanvas({ floorplan, width, height, onPinCreated }: Floo
     )
   }
 
-  const selectedCount = selectedDefects.filter(Boolean).length
-  const isMultiDefect = analysisResults.length > 0 && selectedCount > 0
+  const selectedCount = defectForm.selectedDefects.filter(Boolean).length
+  const isMultiDefect = defectForm.analysisResults.length > 0 && selectedCount > 0
 
   return (
     <>
@@ -348,24 +189,24 @@ export function FloorplanCanvas({ floorplan, width, height, onPinCreated }: Floo
         open={dialogOpen}
         onClose={handleCloseDialog}
         onSubmit={handleSubmitDefect}
-        submitting={submitting}
-        uploadProgress={uploadProgress}
-        form={form}
-        setForm={setForm}
-        formErrors={formErrors}
-        validateField={validateDefectField}
+        submitting={defectForm.submitting}
+        uploadProgress={defectForm.uploadProgress}
+        form={defectForm.form}
+        setForm={defectForm.setForm}
+        formErrors={defectForm.formErrors}
+        validateField={defectForm.validateDefectField}
         contacts={contacts}
         areas={areas}
-        pendingPhotos={pendingPhotos}
-        photoPreviews={photoPreviews}
-        addPhotos={addPhotos}
-        removePhoto={removePhoto}
-        analyzing={analyzing}
-        onAnalyze={handleAnalyze}
-        analysisResults={analysisResults}
-        setAnalysisResults={setAnalysisResults}
-        selectedDefects={selectedDefects}
-        setSelectedDefects={setSelectedDefects}
+        pendingPhotos={defectForm.pendingPhotos}
+        photoPreviews={defectForm.photoPreviews}
+        addPhotos={defectForm.addPhotos}
+        removePhoto={defectForm.removePhoto}
+        analyzing={defectForm.analyzing}
+        onAnalyze={defectForm.handleAnalyze}
+        analysisResults={defectForm.analysisResults}
+        setAnalysisResults={defectForm.setAnalysisResults}
+        selectedDefects={defectForm.selectedDefects}
+        setSelectedDefects={defectForm.setSelectedDefects}
         selectedCount={selectedCount}
         isMultiDefect={isMultiDefect}
       />
