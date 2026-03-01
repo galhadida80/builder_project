@@ -129,7 +129,7 @@ async def generate_bulk_qr_pdf(
 async def log_scan(
     project_id: UUID,
     data: ScanHistoryCreate,
-    member: ProjectMember = require_permission(Permission.VIEW),
+    member: ProjectMember = require_permission(Permission.VIEW_ALL),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
     request: Request = None,
