@@ -114,7 +114,7 @@ export function MarketplaceBrowser({ onInstall }: MarketplaceBrowserProps) {
     { label: t('marketplace.tabOfficial'), value: 'official' },
   ]
 
-  const hasActiveFilters = templateType || category || trade || buildingType || tier || searchQuery || tabValue !== 'all'
+  const hasActiveFilters = !!(templateType || category || trade || buildingType || tier || searchQuery || tabValue !== 'all')
 
   return (
     <Box sx={{ width: '100%' }}>

@@ -7,7 +7,7 @@ from app.core.security import get_current_user
 from app.db.session import get_db
 from app.models.user import User
 from app.schemas.vendor import VendorResponse
-from app.services import vendor_analytics_service, vendor_service
+from app.services import vendor_analytics_service
 
 router = APIRouter()
 
