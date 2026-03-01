@@ -72,7 +72,7 @@ export function useIFCHighlighting({
           const cam = camera
           const ctrl = controls
 
-          function animateCamera() {
+          const animateCamera = () => {
             const elapsed = performance.now() - startTime
             const progress = Math.min(elapsed / duration, 1)
             const eased = 1 - Math.pow(1 - progress, 3)
