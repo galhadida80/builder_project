@@ -21,6 +21,7 @@ from app.schemas.file import FileResponse
 from app.schemas.permit import (
     PermitCreate,
     PermitResponse,
+    PermitStatusUpdate,
     PermitUpdate,
 )
 from app.services.audit_service import create_audit_log, get_model_dict
@@ -168,6 +169,53 @@ async def update_permit(
     # Update fields
     for field, value in data.model_dump(exclude_unset=True).items():
         setattr(permit, field, value)
+
+    await db.flush()
+
+    await create_audit_log(
+        db, current_user, "permit", permit.id, AuditAction.UPDATE,
+        project_id=permit.project_id, old_values=old_values, new_values=get_model_dict(permit)
+    )
+
+    result = await db.execute(
+        select(Permit)
+        .options(selectinload(Permit.created_by))
+        .where(Permit.id == permit.id)
+    )
+    return result.scalar_one()
+
+
+@router.patch("/permits/{permit_id}/status", response_model=PermitResponse)
+async def update_permit_status(
+    permit_id: UUID,
+    data: PermitStatusUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Update permit status with audit trail"""
+    result = await db.execute(
+        select(Permit).where(Permit.id == permit_id)
+    )
+    permit = result.scalar_one_or_none()
+    if not permit:
+        raise HTTPException(status_code=404, detail="Permit not found")
+
+    # Check permission via project membership
+    member_result = await db.execute(
+        select(ProjectMember)
+        .where(
+            ProjectMember.project_id == permit.project_id,
+            ProjectMember.user_id == current_user.id
+        )
+    )
+    member = member_result.scalar_one_or_none()
+    if not member and not current_user.is_super_admin:
+        raise HTTPException(status_code=403, detail="Not authorized to update this permit")
+
+    old_values = get_model_dict(permit)
+
+    # Update status
+    permit.status = data.status
 
     await db.flush()
 

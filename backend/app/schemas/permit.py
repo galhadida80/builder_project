@@ -72,6 +72,12 @@ class PermitUpdate(BaseModel):
         return sanitize_string(v)
 
 
+class PermitStatusUpdate(BaseModel):
+    status: Literal[
+        "not_applied", "applied", "under_review", "approved", "conditional", "rejected", "expired"
+    ]
+
+
 class PermitResponse(CamelCaseModel):
     id: UUID
     project_id: UUID
