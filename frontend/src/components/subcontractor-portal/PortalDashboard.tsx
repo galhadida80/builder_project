@@ -12,6 +12,8 @@ import {
   WorkIcon,
 } from '@/icons'
 import type { SubcontractorDashboardResponse } from '@/api/subcontractors'
+import { DashboardQuickStat } from './DashboardQuickStat'
+import { DashboardStatCard } from './DashboardStatCard'
 
 interface PortalDashboardProps {
   dashboard: SubcontractorDashboardResponse | null
@@ -82,25 +84,25 @@ export function PortalDashboard({ dashboard, loading = false }: PortalDashboardP
             gap: { xs: 1.5, sm: 2 },
           }}
         >
-          <QuickStatCell
+          <DashboardQuickStat
             value={taskStats.total}
             label={t('subcontractorPortal.totalTasks')}
             icon={<AssignmentIcon fontSize="small" />}
             color="primary.main"
           />
-          <QuickStatCell
+          <DashboardQuickStat
             value={rfiStats.total}
             label={t('subcontractorPortal.totalRFIs')}
             icon={<HelpOutlineIcon fontSize="small" />}
             color="info.main"
           />
-          <QuickStatCell
+          <DashboardQuickStat
             value={approvalStats.total}
             label={t('subcontractorPortal.totalApprovals')}
             icon={<ApprovalIcon fontSize="small" />}
             color="secondary.main"
           />
-          <QuickStatCell
+          <DashboardQuickStat
             value={upcomingDeadlines}
             label={t('subcontractorPortal.upcomingDeadlines')}
             icon={<ScheduleIcon fontSize="small" />}
@@ -111,7 +113,7 @@ export function PortalDashboard({ dashboard, loading = false }: PortalDashboardP
 
       <Grid container spacing={3}>
         <Grid item xs={12} md={4}>
-          <StatCard
+          <DashboardStatCard
             title={t('subcontractorPortal.tasks')}
             icon={<AssignmentIcon sx={{ fontSize: '1.4rem' }} />}
             color="primary.main"
@@ -139,7 +141,7 @@ export function PortalDashboard({ dashboard, loading = false }: PortalDashboardP
         </Grid>
 
         <Grid item xs={12} md={4}>
-          <StatCard
+          <DashboardStatCard
             title={t('subcontractorPortal.rfis')}
             icon={<HelpOutlineIcon sx={{ fontSize: '1.4rem' }} />}
             color="info.main"
@@ -167,7 +169,7 @@ export function PortalDashboard({ dashboard, loading = false }: PortalDashboardP
         </Grid>
 
         <Grid item xs={12} md={4}>
-          <StatCard
+          <DashboardStatCard
             title={t('subcontractorPortal.approvals')}
             icon={<ApprovalIcon sx={{ fontSize: '1.4rem' }} />}
             color="secondary.main"
@@ -195,126 +197,5 @@ export function PortalDashboard({ dashboard, loading = false }: PortalDashboardP
         </Grid>
       </Grid>
     </Box>
-  )
-}
-
-interface QuickStatCellProps {
-  value: number
-  label: string
-  icon: React.ReactNode
-  color: string
-}
-
-function QuickStatCell({ value, label, icon, color }: QuickStatCellProps) {
-  return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: 0.75,
-        p: { xs: 1.5, sm: 2 },
-        borderRadius: 2,
-        bgcolor: (theme) => alpha(theme.palette.mode === 'dark' ? color : color, 0.08),
-        border: 1,
-        borderColor: (theme) => alpha(color, 0.2),
-      }}
-    >
-      <Box sx={{ color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{icon}</Box>
-      <Typography variant="h4" sx={{ fontWeight: 700, fontSize: { xs: '1.75rem', sm: '2rem' }, color }}>
-        {value}
-      </Typography>
-      <Typography
-        variant="caption"
-        sx={{
-          color: 'text.secondary',
-          fontWeight: 600,
-          fontSize: { xs: '0.7rem', sm: '0.75rem' },
-          textAlign: 'center',
-        }}
-      >
-        {label}
-      </Typography>
-    </Box>
-  )
-}
-
-interface StatItemProps {
-  value: number
-  label: string
-  icon: React.ReactNode
-  color: string
-}
-
-interface StatCardProps {
-  title: string
-  icon: React.ReactNode
-  color: string
-  stats: StatItemProps[]
-}
-
-function StatCard({ title, icon, color, stats }: StatCardProps) {
-  return (
-    <Paper sx={{ borderRadius: 3, p: { xs: 2.5, sm: 3 }, height: '100%' }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2.5 }}>
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: 40,
-            height: 40,
-            borderRadius: 2,
-            background: (theme) =>
-              `linear-gradient(135deg, ${alpha(color, 0.2)}, ${alpha(color, 0.08)})`,
-            color,
-            flexShrink: 0,
-          }}
-        >
-          {icon}
-        </Box>
-        <Typography variant="h6" sx={{ fontWeight: 700, fontSize: '1rem' }}>
-          {title}
-        </Typography>
-      </Box>
-
-      <Box sx={{ display: 'grid', gap: 1.5 }}>
-        {stats.map((stat, index) => (
-          <Box
-            key={index}
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              p: 1.5,
-              borderRadius: 1.5,
-              bgcolor: (theme) => alpha(stat.color, 0.06),
-              border: 1,
-              borderColor: (theme) => alpha(stat.color, 0.15),
-            }}
-          >
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0, flex: 1 }}>
-              <Box sx={{ color: stat.color, display: 'flex', flexShrink: 0 }}>{stat.icon}</Box>
-              <Typography
-                variant="body2"
-                sx={{
-                  color: 'text.secondary',
-                  fontWeight: 600,
-                  fontSize: '0.85rem',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                {stat.label}
-              </Typography>
-            </Box>
-            <Typography variant="h6" sx={{ fontWeight: 700, color: stat.color, flexShrink: 0, ml: 1 }}>
-              {stat.value}
-            </Typography>
-          </Box>
-        ))}
-      </Box>
-    </Paper>
   )
 }

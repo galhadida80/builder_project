@@ -114,7 +114,8 @@ export default function GanttTimelinePage() {
       const summary = await scheduleRiskApi.getProjectRiskSummary(projectId)
       setRiskSummary(summary)
       const riskMap: Record<string, ScheduleRiskAnalysis> = {}
-      for (const task of summary.atRiskTasks || []) {
+      const atRiskTasks = Array.isArray(summary.atRiskTasks) ? summary.atRiskTasks : []
+      for (const task of atRiskTasks) {
         riskMap[task.taskId] = task
       }
       setRiskData(riskMap)

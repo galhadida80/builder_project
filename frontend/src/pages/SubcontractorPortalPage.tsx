@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '../components/ui/Button'
 import { EmptyState } from '../components/ui/EmptyState'
@@ -43,19 +43,6 @@ export default function SubcontractorPortalPage() {
     certifications: [],
   })
 
-  useEffect(() => {
-    loadProfile()
-  }, [])
-
-  useEffect(() => {
-    if (profile && activeTab === 'dashboard' && !dashboard) {
-      loadDashboard()
-    }
-    if (profile && activeTab === 'activity' && activities.length === 0) {
-      loadActivityFeed()
-    }
-  }, [activeTab, profile, dashboard, activities.length])
-
   const loadProfile = async () => {
     setLoading(true)
     try {
@@ -68,7 +55,7 @@ export default function SubcontractorPortalPage() {
     }
   }
 
-  const loadDashboard = async () => {
+  const loadDashboard = useCallback(async () => {
     setDashboardLoading(true)
     try {
       const data = await subcontractorsApi.getDashboard()
@@ -78,9 +65,9 @@ export default function SubcontractorPortalPage() {
     } finally {
       setDashboardLoading(false)
     }
-  }
+  }, [showError, t])
 
-  const loadActivityFeed = async () => {
+  const loadActivityFeed = useCallback(async () => {
     setActivityLoading(true)
     try {
       const data = await subcontractorsApi.getActivityFeed()
@@ -90,7 +77,20 @@ export default function SubcontractorPortalPage() {
     } finally {
       setActivityLoading(false)
     }
-  }
+  }, [showError, t])
+
+  useEffect(() => {
+    loadProfile()
+  }, [])
+
+  useEffect(() => {
+    if (profile && activeTab === 'dashboard' && !dashboard) {
+      loadDashboard()
+    }
+    if (profile && activeTab === 'activity' && activities.length === 0) {
+      loadActivityFeed()
+    }
+  }, [activeTab, profile, dashboard, activities.length, loadDashboard, loadActivityFeed])
 
   const openEditDialog = () => {
     if (profile) {

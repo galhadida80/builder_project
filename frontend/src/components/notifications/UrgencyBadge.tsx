@@ -34,7 +34,7 @@ function getUrgencyConfig(palette: {
   success: { main: string }
 }): Record<
   UrgencyLevel,
-  { icon: React.ReactNode; color: string; labelKey: string }
+  { icon: React.ReactElement; color: string; labelKey: string }
 > {
   return {
     low: {

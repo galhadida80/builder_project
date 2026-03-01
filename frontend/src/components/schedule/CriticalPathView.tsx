@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+
+type TFunc = ReturnType<typeof useTranslation>['t']
 import { useParams } from 'react-router-dom'
 import { Card } from '../ui/Card'
 import { EmptyState } from '../ui/EmptyState'
@@ -41,7 +43,7 @@ const TaskItem = ({ task, index, formatDate, formatDuration, t }: {
   index: number
   formatDate: (dateStr?: string) => string
   formatDuration: (days: number) => string
-  t: (key: string, options?: string | Record<string, unknown>) => string
+  t: TFunc
 }) => (
   <ListItem
     sx={{

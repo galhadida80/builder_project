@@ -110,7 +110,7 @@ export default function AttendanceReport() {
         <Box sx={{ display: 'flex', gap: 2, mb: 3, flexDirection: { xs: 'column', sm: 'row' } }}>
           <Skeleton variant="rounded" height={56} sx={{ flex: 1 }} />
           <Skeleton variant="rounded" height={56} sx={{ flex: 1 }} />
-          <Skeleton variant="rounded" height={56} width={{ xs: '100%', sm: 120 }} />
+          <Skeleton variant="rounded" height={56} sx={{ width: { xs: '100%', sm: 120 } }} />
         </Box>
         <Skeleton variant="rounded" height={300} />
       </Card>
