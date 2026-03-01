@@ -455,7 +455,25 @@
     "medium": "Medium",
     "low": "Low",
     "urgent": "Urgent",
-    "critical": "Critical"
+    "critical": "Critical",
+    "permitTypes": {
+      "buildingPermit": "Building Permit (Heiter Bniya)",
+      "occupancyCertificate": "Occupancy Certificate (Tofes 4)",
+      "completionCertificate": "Completion Certificate (Tofes 5)",
+      "environmentalPermit": "Environmental Permit",
+      "fireSafetyApproval": "Fire Safety Approval"
+    },
+    "statuses": {
+      "notApplied": "Not Applied",
+      "applied": "Applied",
+      "underReview": "Under Review",
+      "approved": "Approved",
+      "conditional": "Conditional",
+      "rejected": "Rejected",
+      "expired": "Expired"
+    },
+    "approvalDateAfterApplication": "Approval date must be after application date",
+    "expirationDateAfterApproval": "Expiration date must be after approval date"
   },
   "meetings": {
     "title": "Meetings",

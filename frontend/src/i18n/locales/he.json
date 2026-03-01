@@ -667,7 +667,25 @@
     "medium": "בינוני",
     "low": "נמוך",
     "urgent": "דחוף",
-    "critical": "קריטי"
+    "critical": "קריטי",
+    "permitTypes": {
+      "buildingPermit": "היתר בנייה (היתר בנייה)",
+      "occupancyCertificate": "תעודת אכלוס (טופס 4)",
+      "completionCertificate": "תעודת גמר (טופס 5)",
+      "environmentalPermit": "היתר סביבתי",
+      "fireSafetyApproval": "אישור בטיחות אש"
+    },
+    "statuses": {
+      "notApplied": "לא הוגש",
+      "applied": "הוגש",
+      "underReview": "בבדיקה",
+      "approved": "אושר",
+      "conditional": "מותנה",
+      "rejected": "נדחה",
+      "expired": "פג תוקף"
+    },
+    "approvalDateAfterApplication": "תאריך האישור חייב להיות לאחר תאריך ההגשה",
+    "expirationDateAfterApproval": "תאריך התפוגה חייב להיות לאחר תאריך האישור"
   },
   "meetings": {
     "title": "פגישות",
