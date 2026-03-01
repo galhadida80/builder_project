@@ -16,6 +16,7 @@ from app.models.checklist import (
     ChecklistTemplate,
     ItemResponseStatus,
 )
+from app.models.collaborative_document import CollaborativeDocument, DocumentCollaborator
 from app.models.contact import Contact
 from app.models.contact_group import ContactGroup, ContactGroupMember
 from app.models.defect import Defect, DefectAssignee
@@ -210,4 +211,6 @@ __all__ = [
     "VendorPerformance",
     "ScanHistory",
     "BatchUpload",
+    "CollaborativeDocument",
+    "DocumentCollaborator",
 ]

@@ -28,6 +28,8 @@
     "@mui/x-date-pickers": "^6.19.2",
     "@react-google-maps/api": "^2.20.8",
     "@react-oauth/google": "^0.13.4",
+    "@tiptap/extension-collaboration": "^3.19.0",
+    "@tiptap/extension-collaboration-cursor": "^3.19.0",
     "@tiptap/pm": "^3.19.0",
     "@tiptap/react": "^3.19.0",
     "@tiptap/starter-kit": "^3.19.0",
@@ -55,6 +57,8 @@
     "three": "^0.160.0",
     "vite-plugin-pwa": "^1.2.0",
     "web-ifc": "^0.0.75",
+    "y-websocket": "^2.1.0",
+    "yjs": "^13.6.20",
     "zod": "^4.3.6"
   },
   "devDependencies": {

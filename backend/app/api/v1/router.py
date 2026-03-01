@@ -19,6 +19,8 @@ from app.api.v1 import (
     chat,
     checklists,
     client_portal,
+    collab_ws,
+    collaborative_documents,
     consultant_assignments,
     consultant_types,
     contact_groups,
@@ -163,3 +165,5 @@ api_router.include_router(vendor_analytics.router, tags=["vendors"])
 api_router.include_router(vendors.router, tags=["vendors"])
 api_router.include_router(qr_codes.router, tags=["qr_codes"])
 api_router.include_router(batch_uploads.router, tags=["batch_uploads"])
+api_router.include_router(collaborative_documents.router, tags=["collaborative_documents"])
+api_router.include_router(collab_ws.router, tags=["collaborative_documents"])

@@ -4426,5 +4426,23 @@
       "inspections": "Inspections",
       "other": "Other"
     }
+  },
+  "collaborativeEditing": {
+    "title": "Collaborative Documents",
+    "newDocument": "New Document",
+    "documentTitle": "Document Title",
+    "contentType": "Content Type",
+    "noDocuments": "No collaborative documents yet",
+    "loadError": "Error loading documents",
+    "createError": "Error creating document",
+    "deleteError": "Error deleting document",
+    "saveError": "Error saving document",
+    "save": "Save",
+    "types": {
+      "general": "General",
+      "meeting_minutes": "Meeting Minutes",
+      "specification": "Specification",
+      "report": "Report"
+    }
   }
 }

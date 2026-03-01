@@ -1,7 +1,7 @@
 """Add batch_uploads table and batch_upload_id to files
 
 Revision ID: 072
-Revises: 070
+Revises: 071
 Create Date: 2026-03-01
 """
 from alembic import op
@@ -9,7 +9,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 revision = "072"
-down_revision = "070"
+down_revision = "071"
 branch_labels = None
 depends_on = None
 

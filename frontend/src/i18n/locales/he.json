@@ -4472,5 +4472,23 @@
       "inspections": "בדיקות",
       "other": "אחר"
     }
+  },
+  "collaborativeEditing": {
+    "title": "מסמכים שיתופיים",
+    "newDocument": "מסמך חדש",
+    "documentTitle": "שם המסמך",
+    "contentType": "סוג תוכן",
+    "noDocuments": "אין מסמכים שיתופיים עדיין",
+    "loadError": "שגיאה בטעינת מסמכים",
+    "createError": "שגיאה ביצירת מסמך",
+    "deleteError": "שגיאה במחיקת מסמך",
+    "saveError": "שגיאה בשמירת מסמך",
+    "save": "שמירה",
+    "types": {
+      "general": "כללי",
+      "meeting_minutes": "פרוטוקול ישיבה",
+      "specification": "מפרט",
+      "report": "דוח"
+    }
   }
 }
