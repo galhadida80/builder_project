@@ -61,6 +61,7 @@ import PricingPage from './pages/PricingPage'
 import BillingPage from './pages/BillingPage'
 import TimeTrackingPage from './pages/TimeTrackingPage'
 import FloorplanViewerPage from './pages/FloorplanViewerPage'
+import MarketplacePage from './pages/MarketplacePage'
 
 const BIMPage = lazy(() => import('./pages/BIMPage'))
 const ProjectStructureWizardPage = lazy(() => import('./pages/ProjectStructureWizardPage'))
@@ -120,6 +121,7 @@ function AppRoutes() {
           <Route element={<Layout />}>
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/projects" element={<ProjectsPage />} />
+            <Route path="/marketplace" element={<MarketplacePage />} />
 
             <Route path="/projects/:projectId" element={<ProjectDetailPage />}>
               <Route index element={<Navigate to="overview" replace />} />

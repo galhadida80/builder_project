@@ -42,6 +42,16 @@ from app.models.material_template import (
     MaterialTemplate,
     MaterialTemplateConsultant,
 )
+from app.models.marketplace_template import (
+    ListingStatus,
+    MarketplaceListing,
+    MarketplaceTemplate,
+    TemplateInstallation,
+    TemplateRating,
+    TemplateReview,
+    TemplateTier,
+    TemplateType,
+)
 from app.models.calendar_token import UserCalendarToken
 from app.models.meeting import Meeting, MeetingAttendee
 from app.models.permission_override import PermissionOverride
@@ -89,6 +99,14 @@ __all__ = [
     "MaterialTemplateConsultant",
     "MaterialApprovalSubmission",
     "MaterialApprovalDecision",
+    "MarketplaceTemplate",
+    "MarketplaceListing",
+    "TemplateInstallation",
+    "TemplateRating",
+    "TemplateReview",
+    "TemplateType",
+    "TemplateTier",
+    "ListingStatus",
     "Meeting",
     "MeetingAttendee",
     "Permit",

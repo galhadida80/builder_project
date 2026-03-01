@@ -21,6 +21,7 @@ from app.db.seeds.checklist_templates import seed_checklist_templates
 from app.db.seeds.consultant_types import seed_consultant_types
 from app.db.seeds.equipment_templates import seed_equipment_templates
 from app.db.seeds.inspection_templates import seed_inspection_templates
+from app.db.seeds.marketplace_templates import seed_marketplace
 from app.db.seeds.material_templates import seed_material_templates
 from app.services.mcp_server import mcp
 from app.utils.localization import get_language_from_request
@@ -55,6 +56,7 @@ async def lifespan(app: FastAPI):
         await seed_material_templates()
         await seed_inspection_templates()
         await seed_checklist_templates()
+        await seed_marketplace()
         logger.info("Database seeds completed successfully")
     except Exception as e:
         logger.error(f"Error running database seeds: {e}")

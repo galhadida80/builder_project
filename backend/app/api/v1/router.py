@@ -35,6 +35,7 @@ from app.api.v1 import (
     floorplans,
     inspections,
     invitations,
+    marketplace,
     material_templates,
     materials,
     meetings,
@@ -83,6 +84,7 @@ api_router.include_router(projects.router, prefix="/projects", tags=["projects"]
 api_router.include_router(equipment.router, tags=["equipment"])
 api_router.include_router(equipment_templates.router, tags=["equipment_templates"])
 api_router.include_router(material_templates.router, tags=["material_templates"])
+api_router.include_router(marketplace.router, tags=["marketplace"])
 api_router.include_router(materials.router, tags=["materials"])
 api_router.include_router(meetings.router, tags=["meetings"])
 api_router.include_router(approvals.router, tags=["approvals"])
