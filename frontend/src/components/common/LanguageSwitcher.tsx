@@ -26,7 +26,7 @@ export function LanguageSwitcher() {
 
   return (
     <>
-      <Tooltip title="Language">
+      <Tooltip title={t('common.language')}>
         <IconButton
           onClick={handleClick}
           size="small"

@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AnnotationToolbar, type AnnotationTool } from './AnnotationToolbar';
-import { Box } from '@/mui';
+import { Box, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button } from '@/mui';
 
 interface DrawOperation {
   tool: AnnotationTool;
@@ -34,6 +34,9 @@ export function PhotoAnnotator({ imageUrl, onSave, onCancel }: PhotoAnnotatorPro
   const [redoStack, setRedoStack] = useState<DrawOperation[]>([]);
   const [drawing, setDrawing] = useState(false);
   const [currentOp, setCurrentOp] = useState<DrawOperation | null>(null);
+  const [textDialogOpen, setTextDialogOpen] = useState(false);
+  const [textDialogValue, setTextDialogValue] = useState('');
+  const [pendingTextCoords, setPendingTextCoords] = useState<{ x: number; y: number } | null>(null);
 
   const getCanvasCoords = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
@@ -168,12 +171,9 @@ export function PhotoAnnotator({ imageUrl, onSave, onCancel }: PhotoAnnotatorPro
     const { x, y } = getCanvasCoords(e);
 
     if (activeTool === 'text') {
-      const text = window.prompt(t('annotations.textPrompt'));
-      if (text) {
-        const op: DrawOperation = { tool: 'text', color: activeColor, strokeWidth, text, startX: x, startY: y };
-        setOperations((prev) => [...prev, op]);
-        setRedoStack([]);
-      }
+      setPendingTextCoords({ x, y });
+      setTextDialogValue('');
+      setTextDialogOpen(true);
       return;
     }
 
@@ -238,6 +238,23 @@ export function PhotoAnnotator({ imageUrl, onSave, onCancel }: PhotoAnnotatorPro
     onSave(canvas.toDataURL('image/png'));
   };
 
+  const handleTextDialogConfirm = () => {
+    if (textDialogValue.trim() && pendingTextCoords) {
+      const op: DrawOperation = { tool: 'text', color: activeColor, strokeWidth, text: textDialogValue.trim(), startX: pendingTextCoords.x, startY: pendingTextCoords.y };
+      setOperations((prev) => [...prev, op]);
+      setRedoStack([]);
+    }
+    setTextDialogOpen(false);
+    setPendingTextCoords(null);
+    setTextDialogValue('');
+  };
+
+  const handleTextDialogCancel = () => {
+    setTextDialogOpen(false);
+    setPendingTextCoords(null);
+    setTextDialogValue('');
+  };
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <AnnotationToolbar
@@ -278,6 +295,27 @@ export function PhotoAnnotator({ imageUrl, onSave, onCancel }: PhotoAnnotatorPro
           onTouchEnd={handlePointerUp}
         />
       </Box>
+
+      <Dialog open={textDialogOpen} onClose={handleTextDialogCancel} maxWidth="xs" fullWidth>
+        <DialogTitle>{t('annotations.enterTextTitle')}</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            fullWidth
+            value={textDialogValue}
+            onChange={(e) => setTextDialogValue(e.target.value)}
+            placeholder={t('annotations.enterTextPlaceholder')}
+            onKeyDown={(e) => { if (e.key === 'Enter') handleTextDialogConfirm(); }}
+            sx={{ mt: 1 }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleTextDialogCancel}>{t('common.cancel')}</Button>
+          <Button onClick={handleTextDialogConfirm} variant="contained" disabled={!textDialogValue.trim()}>
+            {t('common.confirm')}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useNetwork } from '../../contexts/NetworkContext'
 import { Alert, Slide } from '@/mui'
 import { styled } from '@/mui'
@@ -22,12 +23,13 @@ const StyledAlert = styled(Alert)(({ theme }) => ({
 
 export function OfflineBanner() {
   const { isOnline } = useNetwork()
+  const { t } = useTranslation()
 
   return (
     <Slide direction="down" in={!isOnline} mountOnEnter unmountOnExit>
       <StyledBannerContainer>
         <StyledAlert severity="warning" variant="filled">
-          You are currently offline. Some features may be unavailable.
+          {t('offline.offlineBanner')}
         </StyledAlert>
       </StyledBannerContainer>
     </Slide>

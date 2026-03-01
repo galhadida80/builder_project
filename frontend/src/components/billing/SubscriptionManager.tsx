@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Box, Typography, Paper, Button, Chip, LinearProgress, CircularProgress, Divider, useTheme, Grid, alpha } from '@/mui'
 import { CheckCircleIcon, WarningIcon, CancelIcon, TrendingUpIcon, InfoIcon } from '@/icons'
 import { subscriptionsApi } from '@/api/subscriptions'
 import type { Subscription, SubscriptionPlan, SubscriptionStatus } from '@/types/subscription'
 import { useToast } from '../common/ToastProvider'
+import { ConfirmModal } from '../ui/Modal'
 import { getDateLocale } from '../../utils/dateLocale'
 
 interface UsageStats {
@@ -28,6 +30,7 @@ export function SubscriptionManager({
 }: SubscriptionManagerProps) {
   const navigate = useNavigate()
   const theme = useTheme()
+  const { t } = useTranslation()
   const { showSuccess, showError } = useToast()
   const isRtl = theme.direction === 'rtl'
 
@@ -35,6 +38,7 @@ export function SubscriptionManager({
   const [subscription, setSubscription] = useState<Subscription | null>(null)
   const [plans, setPlans] = useState<SubscriptionPlan[]>([])
   const [cancelLoading, setCancelLoading] = useState(false)
+  const [cancelConfirmOpen, setCancelConfirmOpen] = useState(false)
 
   useEffect(() => {
     loadSubscription()
@@ -56,19 +60,20 @@ export function SubscriptionManager({
     }
   }
 
-  const handleCancel = async () => {
-    if (!window.confirm('האם אתה בטוח שברצונך לבטל את המנוי? הביטול ייכנס לתוקף בסוף תקופת החיוב הנוכחית.')) {
-      return
-    }
+  const handleCancelClick = () => {
+    setCancelConfirmOpen(true)
+  }
 
+  const handleConfirmCancel = async () => {
+    setCancelConfirmOpen(false)
     try {
       setCancelLoading(true)
       await subscriptionsApi.cancel({ immediate: false })
-      showSuccess('המנוי בוטל בהצלחה')
+      showSuccess(t('billing.subscription.cancelSuccess'))
       await loadSubscription()
       onCancel?.()
     } catch (error) {
-      showError('שגיאה בביטול המנוי')
+      showError(t('billing.subscription.failedToCancel'))
     } finally {
       setCancelLoading(false)
     }
@@ -273,11 +278,11 @@ export function SubscriptionManager({
             <Button
               variant="outlined"
               color="error"
-              onClick={handleCancel}
+              onClick={handleCancelClick}
               disabled={cancelLoading}
               sx={{ flex: { xs: '1 1 100%', sm: '0 1 auto' } }}
             >
-              {cancelLoading ? 'מבטל...' : 'בטל מנוי'}
+              {cancelLoading ? t('common.saving') : t('billing.subscription.cancelSubscription')}
             </Button>
           )}
         </Box>
@@ -374,6 +379,17 @@ export function SubscriptionManager({
           </Box>
         )}
       </Paper>
+
+      <ConfirmModal
+        open={cancelConfirmOpen}
+        onClose={() => setCancelConfirmOpen(false)}
+        onConfirm={handleConfirmCancel}
+        title={t('billing.subscription.cancelSubscription')}
+        message={t('billing.subscription.cancelConfirmation') + ' ' + t('billing.subscription.cancelWarning')}
+        confirmLabel={t('billing.subscription.cancelSubscription')}
+        variant="danger"
+        loading={cancelLoading}
+      />
     </Box>
   )
 }

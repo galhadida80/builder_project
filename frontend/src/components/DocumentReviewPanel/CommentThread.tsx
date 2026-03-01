@@ -3,6 +3,7 @@ import { getDateLocale } from '../../utils/dateLocale'
 import { Avatar } from '../ui/Avatar'
 import { Button } from '../ui/Button'
 import { TextField } from '../ui/TextField'
+import { ConfirmModal } from '../ui/Modal'
 import { useState } from 'react'
 import { ReplyIcon, CheckCircleIcon, MoreVertIcon, EditIcon, DeleteIcon, CancelIcon, SaveIcon } from '@/icons'
 import { Box, Typography, IconButton, Menu, MenuItem, Divider, styled } from '@/mui'
@@ -114,7 +115,7 @@ const ResolvedBadge = styled(Box)(({ theme }) => ({
   gap: 0.5,
 }))
 
-function formatTimestamp(dateString: string): string {
+function formatTimestamp(dateString: string, t: (key: string, opts?: Record<string, unknown>) => string): string {
   const date = new Date(dateString)
   const now = new Date()
   const diffMs = now.getTime() - date.getTime()
@@ -122,10 +123,10 @@ function formatTimestamp(dateString: string): string {
   const diffHours = Math.floor(diffMins / 60)
   const diffDays = Math.floor(diffHours / 24)
 
-  if (diffMins < 1) return 'Just now'
-  if (diffMins < 60) return `${diffMins}m ago`
-  if (diffHours < 24) return `${diffHours}h ago`
-  if (diffDays < 7) return `${diffDays}d ago`
+  if (diffMins < 1) return t('documentReview.justNow')
+  if (diffMins < 60) return t('documentReview.minutesAgo', { count: diffMins })
+  if (diffHours < 24) return t('documentReview.hoursAgo', { count: diffHours })
+  if (diffDays < 7) return t('documentReview.daysAgo', { count: diffDays })
 
   return date.toLocaleDateString(getDateLocale(), {
     month: 'short',
@@ -150,6 +151,7 @@ export function CommentThread({
   const [editText, setEditText] = useState(comment.commentText)
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
 
   const isOwnComment = currentUserId === comment.userId
   const canReply = depth < 3 // Limit nesting to 3 levels
@@ -216,16 +218,19 @@ export function CommentThread({
     setEditText(comment.commentText)
   }
 
-  const handleDeleteClick = async () => {
+  const handleDeleteClick = () => {
     if (!onDelete) return
     handleMenuClose()
+    setDeleteConfirmOpen(true)
+  }
 
-    if (window.confirm('Are you sure you want to delete this comment?')) {
-      try {
-        await onDelete(comment.id)
-      } catch (error) {
-        console.error('Failed to delete comment:', error)
-      }
+  const handleConfirmDelete = async () => {
+    if (!onDelete) return
+    setDeleteConfirmOpen(false)
+    try {
+      await onDelete(comment.id)
+    } catch (error) {
+      console.error('Failed to delete comment:', error)
     }
   }
 
@@ -244,7 +249,7 @@ export function CommentThread({
         {comment.isResolved && (
           <ResolvedBadge>
             <CheckCircleIcon sx={{ fontSize: 14 }} />
-            Resolved
+            {t('documentReview.resolved')}
           </ResolvedBadge>
         )}
 
@@ -273,8 +278,8 @@ export function CommentThread({
               )}
             </Box>
             <TimeStamp>
-              {formatTimestamp(comment.createdAt)}
-              {comment.updatedAt && comment.updatedAt !== comment.createdAt && ' (edited)'}
+              {formatTimestamp(comment.createdAt, t)}
+              {comment.updatedAt && comment.updatedAt !== comment.createdAt && ` (${t('documentReview.edited')})`}
             </TimeStamp>
           </CommentMeta>
           {isOwnComment && (
@@ -315,7 +320,7 @@ export function CommentThread({
                 disabled={isSubmitting}
                 icon={<CancelIcon fontSize="small" />}
               >
-                Cancel
+                {t('common.cancel')}
               </Button>
               <Button
                 variant="primary"
@@ -325,7 +330,7 @@ export function CommentThread({
                 loading={isSubmitting}
                 icon={<SaveIcon fontSize="small" />}
               >
-                Save
+                {t('common.save')}
               </Button>
             </Box>
           </Box>
@@ -342,7 +347,7 @@ export function CommentThread({
                 onClick={handleReplyClick}
                 icon={<ReplyIcon fontSize="small" />}
               >
-                Reply
+                {t('documentReview.reply')}
               </ActionButton>
             )}
             {depth === 0 && onResolve && (
@@ -355,7 +360,7 @@ export function CommentThread({
                   color: comment.isResolved ? 'success.main' : 'text.secondary',
                 }}
               >
-                {comment.isResolved ? 'Unresolve' : 'Resolve'}
+                {comment.isResolved ? t('documentReview.unresolve') : t('documentReview.resolve')}
               </ActionButton>
             )}
           </ActionBar>
@@ -388,7 +393,7 @@ export function CommentThread({
                 disabled={isSubmitting}
                 icon={<CancelIcon fontSize="small" />}
               >
-                Cancel
+                {t('common.cancel')}
               </Button>
               <Button
                 variant="primary"
@@ -398,7 +403,7 @@ export function CommentThread({
                 loading={isSubmitting}
                 icon={<ReplyIcon fontSize="small" />}
               >
-                Reply
+                {t('documentReview.reply')}
               </Button>
             </Box>
           </Box>
@@ -439,14 +444,24 @@ export function CommentThread({
       >
         <MenuItem onClick={handleEditClick}>
           <EditIcon fontSize="small" sx={{ mr: 1 }} />
-          Edit
+          {t('common.edit')}
         </MenuItem>
         <Divider />
         <MenuItem onClick={handleDeleteClick} sx={{ color: 'error.main' }}>
           <DeleteIcon fontSize="small" sx={{ mr: 1 }} />
-          Delete
+          {t('common.delete')}
         </MenuItem>
       </Menu>
+
+      <ConfirmModal
+        open={deleteConfirmOpen}
+        onClose={() => setDeleteConfirmOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title={t('documentReview.deleteComment')}
+        message={t('documentReview.deleteCommentConfirmation')}
+        confirmLabel={t('common.delete')}
+        variant="danger"
+      />
     </ThreadContainer>
   )
 }

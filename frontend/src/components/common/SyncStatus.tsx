@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { CheckCircleIcon, ErrorIcon, CloudQueueIcon } from '@/icons'
 import { Chip, CircularProgress } from '@/mui'
 
@@ -8,42 +9,26 @@ interface SyncStatusProps {
   size?: 'small' | 'medium'
 }
 
-const statusConfig: Record<
-  SyncStatusType,
-  {
-    label: string
-    color: 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning'
-    iconType: 'idle' | 'syncing' | 'synced' | 'error'
-  }
-> = {
-  idle: {
-    label: 'Idle',
-    color: 'default',
-    iconType: 'idle',
-  },
-  syncing: {
-    label: 'Syncing',
-    color: 'info',
-    iconType: 'syncing',
-  },
-  synced: {
-    label: 'Synced',
-    color: 'success',
-    iconType: 'synced',
-  },
-  error: {
-    label: 'Sync Error',
-    color: 'error',
-    iconType: 'error',
-  },
+const statusColorMap: Record<SyncStatusType, 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning'> = {
+  idle: 'default',
+  syncing: 'info',
+  synced: 'success',
+  error: 'error',
+}
+
+const statusLabelKeyMap: Record<SyncStatusType, string> = {
+  idle: 'sync.idle',
+  syncing: 'sync.syncing',
+  synced: 'sync.synced',
+  error: 'sync.syncError',
 }
 
 export default function SyncStatus({ status, size = 'small' }: SyncStatusProps) {
-  const config = statusConfig[status]
+  const { t } = useTranslation()
   const iconSize = size === 'small' ? 16 : 20
 
   const getIcon = () => {
-    switch (config.iconType) {
+    switch (status) {
       case 'idle':
         return <CloudQueueIcon sx={{ fontSize: iconSize }} />
       case 'syncing':
@@ -57,8 +42,8 @@ export default function SyncStatus({ status, size = 'small' }: SyncStatusProps) 
 
   return (
     <Chip
-      label={config.label}
-      color={config.color}
+      label={t(statusLabelKeyMap[status])}
+      color={statusColorMap[status]}
       size={size}
       icon={getIcon()}
       sx={{
