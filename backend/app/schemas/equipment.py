@@ -93,10 +93,11 @@ class EquipmentBase(BaseModel):
 
 
 class EquipmentCreate(EquipmentBase):
-    pass
+    vendor_id: Optional[UUID] = None
 
 
 class EquipmentUpdate(BaseModel):
+    vendor_id: Optional[UUID] = None
     name: Optional[str] = Field(default=None, min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
     equipment_type: Optional[str] = Field(default=None, max_length=100)
     manufacturer: Optional[str] = Field(default=None, max_length=MAX_NAME_LENGTH)
@@ -167,6 +168,7 @@ class EquipmentResponse(CamelCaseModel):
     last_reminder_sent_at: Optional[datetime] = None
     bim_object_id: Optional[str] = None
     bim_model_id: Optional[UUID] = None
+    vendor_id: Optional[UUID] = None
 
 
 class PaginatedEquipmentResponse(BaseModel):

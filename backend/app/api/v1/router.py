@@ -69,6 +69,8 @@ from app.api.v1 import (
     time_tracking,
     toolbox_talks,
     toolbox_talk_attendance,
+    vendor_analytics,
+    vendors,
     webhooks,
     whatsapp,
     work_summary,
@@ -155,3 +157,5 @@ api_router.include_router(safety_training.router, tags=["safety_training"])
 api_router.include_router(toolbox_talks.router, tags=["toolbox_talks"])
 api_router.include_router(toolbox_talk_attendance.router, tags=["toolbox_talks"])
 api_router.include_router(safety_kpi.router, tags=["safety_kpi"])
+api_router.include_router(vendor_analytics.router, tags=["vendors"])
+api_router.include_router(vendors.router, tags=["vendors"])

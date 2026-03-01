@@ -61,3 +61,11 @@ from app.schemas.safety_incident import (
     SafetyKPIResponse,
 )
 from app.schemas.user import UserBase, UserCreate, UserResponse
+from app.schemas.vendor import (
+    BulkImportResponse,
+    VendorCreate,
+    VendorPerformanceCreate,
+    VendorPerformanceResponse,
+    VendorResponse,
+    VendorUpdate,
+)

@@ -62,6 +62,7 @@ import BillingPage from './pages/BillingPage'
 import TimeTrackingPage from './pages/TimeTrackingPage'
 import FloorplanViewerPage from './pages/FloorplanViewerPage'
 import MarketplacePage from './pages/MarketplacePage'
+import VendorsPage from './pages/VendorsPage'
 
 const BIMPage = lazy(() => import('./pages/BIMPage'))
 const ProjectStructureWizardPage = lazy(() => import('./pages/ProjectStructureWizardPage'))
@@ -151,6 +152,7 @@ function AppRoutes() {
               <Route path="blueprints" element={<Suspense fallback={<LoadingPage />}><BlueprintsPage /></Suspense>} />
               <Route path="structure-wizard" element={<Suspense fallback={<LoadingPage />}><ProjectStructureWizardPage /></Suspense>} />
               <Route path="time-tracking" element={<TimeTrackingPage />} />
+              <Route path="vendors" element={<VendorsPage />} />
             </Route>
 
             <Route path="/organizations" element={<OrganizationsPage />} />

@@ -55,10 +55,14 @@ class Equipment(Base):
     bim_model_id: Mapped[Optional[uuid.UUID]] = mapped_column(
         UUID(as_uuid=True), ForeignKey("bim_models.id", ondelete="SET NULL"), nullable=True
     )
+    vendor_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("vendors.id", ondelete="SET NULL"), nullable=True
+    )
 
     project = relationship("Project", back_populates="equipment")
     created_by = relationship("User", foreign_keys=[created_by_id])
     template = relationship("EquipmentTemplate", foreign_keys=[template_id])
+    vendor = relationship("Vendor", foreign_keys=[vendor_id])
     checklists = relationship("EquipmentChecklist", back_populates="equipment", cascade="all, delete-orphan")
     files = relationship("File", primaryjoin="and_(Equipment.id==foreign(File.entity_id), File.entity_type=='equipment')", viewonly=True)
 

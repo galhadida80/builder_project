@@ -63,6 +63,7 @@ class CostEntryCreate(BaseModel):
     amount: Decimal
     entry_date: date
     vendor: Optional[str] = Field(default=None, max_length=255)
+    vendor_id: Optional[UUID] = None
     reference_number: Optional[str] = Field(default=None, max_length=100)
 
     @field_validator("description", "vendor", mode="before")
@@ -79,6 +80,7 @@ class CostEntryResponse(CamelCaseModel):
     amount: Decimal
     entry_date: date
     vendor: Optional[str] = None
+    vendor_id: Optional[UUID] = None
     reference_number: Optional[str] = None
     created_by_id: UUID
     created_at: datetime

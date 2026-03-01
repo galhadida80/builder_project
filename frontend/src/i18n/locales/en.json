@@ -919,7 +919,8 @@
       "procurement": "Procurement",
       "people": "People",
       "documents": "Documents"
-    }
+    },
+    "vendors": "Vendors"
   },
   "project": {
     "daysLeft": "{{count}} days left",
@@ -4264,5 +4265,74 @@
     "alert": "Alert",
     "notification": "Notification",
     "update": "Update"
+  },
+  "vendors": {
+    "title": "Vendors",
+    "subtitle": "Manage vendors and subcontractors",
+    "addVendor": "Add Vendor",
+    "editVendor": "Edit Vendor",
+    "searchPlaceholder": "Search vendors...",
+    "generalContractors": "General Contractors",
+    "suppliers": "Suppliers",
+    "plumbing": "Plumbing",
+    "trades": {
+      "generalContractor": "General Contractor",
+      "plumbing": "Plumbing",
+      "electrical": "Electrical",
+      "hvac": "HVAC",
+      "concrete": "Concrete",
+      "masonry": "Masonry",
+      "carpentry": "Carpentry",
+      "roofing": "Roofing",
+      "supplier": "Supplier"
+    },
+    "companyName": "Company Name",
+    "trade": "Trade",
+    "contactEmail": "Contact Email",
+    "contactPhone": "Contact Phone",
+    "address": "Address",
+    "licenseNumber": "License Number",
+    "rating": "Rating",
+    "notes": "Notes",
+    "failedToLoad": "Failed to load vendors",
+    "updateSuccess": "Vendor updated successfully!",
+    "createSuccess": "Vendor created successfully!",
+    "failedToUpdate": "Failed to update vendor",
+    "failedToCreate": "Failed to create vendor",
+    "deleteSuccess": "Vendor deleted successfully!",
+    "failedToDelete": "Failed to delete vendor",
+    "deleteVendor": "Delete Vendor",
+    "deleteConfirmationMessage": "Are you sure you want to delete {{name}}? This action cannot be undone.",
+    "noVendors": "No vendors found",
+    "noVendorsDescription": "Add vendors to manage contractors and material suppliers",
+    "certificationsHelp": "Press Enter to add certification",
+    "insuranceExpiry": "Insurance Expiry",
+    "certifications": "Certifications",
+    "insuranceExpired": "Insurance Expired",
+    "insuranceExpiringSoon": "Insurance Expiring Soon",
+    "compareVendors": "Compare Vendors",
+    "comparison": {
+      "title": "Vendor Comparison",
+      "selectVendors": "Select 2-4 vendors to compare",
+      "deliveryScore": "Delivery Score",
+      "qualityScore": "Quality Score",
+      "priceScore": "Price Score",
+      "noCertifications": "No certifications",
+      "noInsuranceInfo": "No info",
+      "expired": "Expired",
+      "best": "Best",
+      "noPerformanceData": "No performance data",
+      "averageScore": "Average Score"
+    },
+    "charts": {
+      "ratingDistribution": "Rating Distribution",
+      "topVendorsByTrade": "Top Vendors by Trade",
+      "fiveStars": "5 Stars",
+      "fourStars": "4 Stars",
+      "threeStars": "3 Stars",
+      "twoStars": "2 Stars",
+      "oneStar": "1 Star",
+      "unrated": "Unrated"
+    }
   }
 }

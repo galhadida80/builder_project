@@ -290,7 +290,8 @@
       "procurement": "רכש",
       "people": "אנשים",
       "documents": "מסמכים"
-    }
+    },
+    "vendors": "ספקים"
   },
   "project": {
     "daysLeft": "{{count}} ימים נותרו",
@@ -4310,5 +4311,74 @@
     "alert": "התראה",
     "notification": "הודעה",
     "update": "עדכון"
+  },
+  "vendors": {
+    "title": "ספקים",
+    "subtitle": "ניהול ספקים וקבלני משנה",
+    "addVendor": "הוסף ספק",
+    "editVendor": "ערוך ספק",
+    "searchPlaceholder": "חיפוש ספקים...",
+    "generalContractors": "קבלנים ראשיים",
+    "suppliers": "ספקים",
+    "plumbing": "אינסטלציה",
+    "trades": {
+      "generalContractor": "קבלן ראשי",
+      "plumbing": "אינסטלציה",
+      "electrical": "חשמל",
+      "hvac": "מיזוג אוויר",
+      "concrete": "בטון",
+      "masonry": "בנייה",
+      "carpentry": "נגרות",
+      "roofing": "קירוי",
+      "supplier": "ספק"
+    },
+    "companyName": "שם החברה",
+    "trade": "תחום התמחות",
+    "contactEmail": "דוא\"ל ליצירת קשר",
+    "contactPhone": "טלפון ליצירת קשר",
+    "address": "כתובת",
+    "licenseNumber": "מספר רישיון",
+    "rating": "דירוג",
+    "notes": "הערות",
+    "failedToLoad": "נכשל בטעינת ספקים",
+    "updateSuccess": "הספק עודכן בהצלחה!",
+    "createSuccess": "הספק נוצר בהצלחה!",
+    "failedToUpdate": "נכשל בעדכון ספק",
+    "failedToCreate": "נכשל ביצירת ספק",
+    "deleteSuccess": "הספק נמחק בהצלחה!",
+    "failedToDelete": "נכשל במחיקת ספק",
+    "deleteVendor": "מחק ספק",
+    "deleteConfirmationMessage": "האם אתה בטוח שברצונך למחוק את {{name}}? פעולה זו לא ניתנת לביטול.",
+    "noVendors": "לא נמצאו ספקים",
+    "noVendorsDescription": "הוסף ספקים לניהול קבלנים וספקי חומרים",
+    "certificationsHelp": "הקש Enter להוספת הסמכה",
+    "insuranceExpiry": "תוקף ביטוח",
+    "certifications": "הסמכות",
+    "insuranceExpired": "ביטוח פג תוקף",
+    "insuranceExpiringSoon": "ביטוח פג תוקף בקרוב",
+    "compareVendors": "השווה ספקים",
+    "comparison": {
+      "title": "השוואת ספקים",
+      "selectVendors": "בחר 2-4 ספקים להשוואה",
+      "deliveryScore": "ציון אספקה",
+      "qualityScore": "ציון איכות",
+      "priceScore": "ציון מחיר",
+      "noCertifications": "אין הסמכות",
+      "noInsuranceInfo": "אין מידע",
+      "expired": "פג תוקף",
+      "best": "הטוב ביותר",
+      "noPerformanceData": "אין נתוני ביצוע",
+      "averageScore": "ציון ממוצע"
+    },
+    "charts": {
+      "ratingDistribution": "התפלגות דירוגים",
+      "topVendorsByTrade": "ספקים מובילים לפי תחום",
+      "fiveStars": "5 כוכבים",
+      "fourStars": "4 כוכבים",
+      "threeStars": "3 כוכבים",
+      "twoStars": "2 כוכבים",
+      "oneStar": "כוכב 1",
+      "unrated": "ללא דירוג"
+    }
   }
 }

@@ -70,6 +70,7 @@ from app.models.toolbox_talk import TalkAttendee, TalkStatus, ToolboxTalk
 from app.models.user import User
 from app.models.analytics import CustomKpiDefinition, KpiSnapshot
 from app.models.budget import BudgetLineItem, ChangeOrder, CostEntry
+from app.models.vendor import Vendor, VendorPerformance
 from app.models.organization import Organization, OrganizationMember
 from app.models.task import Task, TaskDependency
 from app.models.push_subscription import PushSubscription
@@ -203,4 +204,6 @@ __all__ = [
     "ExportFormat",
     "ExportStatus",
     "ExportType",
+    "Vendor",
+    "VendorPerformance",
 ]
