@@ -48,6 +48,42 @@ async def broadcast_notification(project_id: UUID, notification: Notification) -
         )
 
 
+async def broadcast_safety_alert(
+    project_id: UUID,
+    title: str,
+    message: str,
+    severity: str,
+    entity_type: Optional[str] = None,
+    entity_id: Optional[UUID] = None,
+) -> None:
+    try:
+        await ws_manager.broadcast_to_project(
+            str(project_id),
+            {
+                "type": "safety_alert",
+                "alert": {
+                    "title": title,
+                    "message": message,
+                    "severity": severity,
+                    "entity_type": entity_type,
+                    "entity_id": str(entity_id) if entity_id else None,
+                },
+            },
+        )
+    except Exception as e:
+        error_type = type(e).__name__
+        error_message = str(e)
+
+        logger.error(
+            "Failed to broadcast safety alert via WebSocket - "
+            "Project ID: %s, Severity: %s, Title: %s, Entity: %s/%s, "
+            "Error Type: %s, Message: %s",
+            project_id, severity, title, entity_type or 'None', entity_id or 'None',
+            error_type, error_message,
+            exc_info=True
+        )
+
+
 async def create_notification(
     db: AsyncSession,
     user_id: UUID,

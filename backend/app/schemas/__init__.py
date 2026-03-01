@@ -36,6 +36,7 @@ from app.schemas.meeting import (
     MeetingResponse,
     MeetingUpdate,
 )
+from app.schemas.near_miss import NearMissCreate, NearMissResponse, NearMissUpdate
 from app.schemas.project import (
     ProjectCreate,
     ProjectMemberCreate,
@@ -51,5 +52,11 @@ from app.schemas.risk_score import (
     RiskScoreResponse,
     RiskScoreSummaryResponse,
     RiskScoreUpdate,
+)
+from app.schemas.safety_incident import (
+    SafetyIncidentCreate,
+    SafetyIncidentResponse,
+    SafetyIncidentUpdate,
+    SafetyKPIResponse,
 )
 from app.schemas.user import UserBase, UserCreate, UserResponse

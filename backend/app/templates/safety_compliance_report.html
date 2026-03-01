@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="he" dir="{{ direction }}">
+<head>
+<meta charset="UTF-8">
+<style>
+  @font-face {
+    font-family: "NotoHebrew";
+    src: url("fonts/NotoSansHebrew-Regular.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: "NotoHebrew";
+    src: url("fonts/NotoSansHebrew-Bold.ttf") format("truetype");
+    font-weight: 700;
+    font-style: normal;
+  }
+
+  @page {
+    size: A4;
+    margin: 12mm 14mm 16mm 14mm;
+    @bottom-right {
+      content: counter(page) " / " counter(pages);
+      font-family: "NotoHebrew", sans-serif;
+      font-size: 7.5pt;
+      color: #94A3B8;
+    }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: "NotoHebrew", sans-serif;
+    font-size: 10pt;
+    color: #1E293B;
+    direction: {{ direction }};
+    line-height: 1.6;
+    background: #fff;
+  }
+
+  .report-header {
+    background: #0F172A;
+    padding: 28px 32px 24px;
+    margin: -12mm -14mm 0 -14mm;
+    color: #fff;
+  }
+
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 18px;
+  }
+
+  .brand {
+    font-size: 10pt;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #F97316;
+  }
+
+  .header-date {
+    font-size: 9pt;
+    color: #94A3B8;
+  }
+
+  .header-title {
+    font-size: 26pt;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+  }
+
+  .header-project {
+    font-size: 12pt;
+    color: #CBD5E1;
+    font-weight: 400;
+  }
+
+  .header-project .code {
+    color: #F97316;
+    font-weight: 600;
+  }
+
+  .header-rule {
+    border: none;
+    border-top: 2px solid #F97316;
+    margin: 14px 0 0;
+    width: 64px;
+  }
+
+  .section-title {
+    font-size: 14pt;
+    font-weight: 700;
+    color: #0F172A;
+    margin: 20px 0 12px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid #F97316;
+  }
+
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .kpi-card {
+    border: 1px solid #E2E8F0;
+    border-radius: 6px;
+    padding: 12px;
+    background: #F8FAFC;
+  }
+
+  .kpi-label {
+    font-size: 8pt;
+    font-weight: 600;
+    color: #94A3B8;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .kpi-value {
+    font-size: 18pt;
+    font-weight: 700;
+    color: #0F172A;
+    margin-top: 4px;
+  }
+
+  .incident-card {
+    border: 1px solid #E2E8F0;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #fff;
+    margin-bottom: 12px;
+    page-break-inside: avoid;
+  }
+
+  .card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    border-bottom: 1px solid #E2E8F0;
+    background: #F8FAFC;
+  }
+
+  .card-top-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .incident-num {
+    font-size: 15pt;
+    font-weight: 700;
+    color: #0F172A;
+    letter-spacing: -0.3px;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 4px;
+    font-size: 7.5pt;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.3px;
+  }
+
+  .badge-outline {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 4px;
+    font-size: 7.5pt;
+    font-weight: 600;
+    background: #fff;
+    border: 1px solid #CBD5E1;
+    color: #475569;
+    letter-spacing: 0.2px;
+  }
+
+  .card-body {
+    padding: 14px 16px;
+  }
+
+  .field-row {
+    padding: 6px 0;
+    border-bottom: 1px solid #F1F5F9;
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+  }
+
+  .field-row:last-child {
+    border-bottom: none;
+  }
+
+  .field-label {
+    font-size: 8pt;
+    font-weight: 600;
+    color: #94A3B8;
+    letter-spacing: 0.3px;
+    min-width: 90px;
+    flex-shrink: 0;
+  }
+
+  .field-value {
+    font-size: 9.5pt;
+    color: #1E293B;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  .field-value.muted {
+    color: #94A3B8;
+  }
+
+  .photos-section {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid #F1F5F9;
+  }
+
+  .photos-grid {
+    display: flex;
+    gap: 10px;
+  }
+
+  .photo-thumb {
+    width: 220px;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid #E2E8F0;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #94A3B8;
+    font-size: 11pt;
+    font-weight: 500;
+  }
+
+  .training-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+
+  .training-table th {
+    background: #F8FAFC;
+    padding: 8px;
+    text-align: right;
+    font-size: 8pt;
+    font-weight: 600;
+    color: #475569;
+    border-bottom: 2px solid #E2E8F0;
+  }
+
+  .training-table td {
+    padding: 8px;
+    font-size: 9pt;
+    border-bottom: 1px solid #F1F5F9;
+  }
+</style>
+</head>
+<body>
+
+<div class="report-header">
+  <div class="header-top">
+    <div class="brand">BUILDEROPS</div>
+    <div class="header-date">{{ report_date }}</div>
+  </div>
+  <div class="header-title">{{ s.report_title }}</div>
+  <div class="header-project">{{ project_name }}{% if project_code %} <span class="code">{{ project_code }}</span>{% endif %}</div>
+  <hr class="header-rule">
+</div>
+
+<div class="section-title">{{ s.kpi_summary }}</div>
+<div class="kpi-grid">
+  <div class="kpi-card">
+    <div class="kpi-label">{{ s.total_incidents }}</div>
+    <div class="kpi-value">{{ kpi.total_incidents }}</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">{{ s.total_near_misses }}</div>
+    <div class="kpi-value">{{ kpi.total_near_misses }}</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">{{ s.critical_incidents }}</div>
+    <div class="kpi-value">{{ kpi.critical_incidents }}</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">{{ s.training_compliance }}</div>
+    <div class="kpi-value">{{ kpi.training_compliance }}%</div>
+  </div>
+</div>
+
+{% if incidents %}
+<div class="section-title">{{ s.incidents_section }}</div>
+{% for incident in incidents %}
+<div class="incident-card">
+  <div class="card-top">
+    <div class="card-top-right">
+      <span class="incident-num">#{{ incident.number }}</span>
+    </div>
+    <div class="card-top-right">
+      <span class="badge" style="background: {{ incident.severity_color }};">{{ incident.severity }}</span>
+      <span class="badge" style="background: {{ incident.status_color }};">{{ incident.status }}</span>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="field-row">
+      <div class="field-label">{{ s.title }}</div>
+      <div class="field-value">{{ incident.title }}</div>
+    </div>
+    <div class="field-row">
+      <div class="field-label">{{ s.description }}</div>
+      <div class="field-value">{{ incident.description }}</div>
+    </div>
+    <div class="field-row">
+      <div class="field-label">{{ s.location }}</div>
+      <div class="field-value{% if incident.location == '-' %} muted{% endif %}">{{ incident.location }}</div>
+    </div>
+    <div class="field-row">
+      <div class="field-label">{{ s.occurred_at }}</div>
+      <div class="field-value">{{ incident.occurred_at }}</div>
+    </div>
+    <div class="field-row">
+      <div class="field-label">{{ s.root_cause }}</div>
+      <div class="field-value{% if incident.root_cause == '-' %} muted{% endif %}">{{ incident.root_cause }}</div>
+    </div>
+    {% if incident.photos %}
+    <div class="photos-section">
+      <div class="photos-grid">
+        {% for photo in incident.photos %}
+        <img class="photo-thumb" src="{{ photo }}" alt="">
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endfor %}
+{% endif %}
+
+{% if near_misses %}
+<div class="section-title">{{ s.near_misses_section }}</div>
+{% for nm in near_misses %}
+<div class="incident-card">
+  <div class="card-top">
+    <div class="card-top-right">
+      <span class="incident-num">#{{ nm.number }}</span>
+    </div>
+    <div class="card-top-right">
+      <span class="badge" style="background: {{ nm.severity_color }};">{{ nm.severity }}</span>
+      {% if nm.is_anonymous %}
+      <span class="badge-outline">{{ s.anonymous }}</span>
+      {% endif %}
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="field-row">
+      <div class="field-label">{{ s.title }}</div>
+      <div class="field-value">{{ nm.title }}</div>
+    </div>
+    <div class="field-row">
+      <div class="field-label">{{ s.description }}</div>
+      <div class="field-value">{{ nm.description }}</div>
+    </div>
+    <div class="field-row">
+      <div class="field-label">{{ s.potential_consequence }}</div>
+      <div class="field-value{% if nm.potential_consequence == '-' %} muted{% endif %}">{{ nm.potential_consequence }}</div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+{% endif %}
+
+{% if trainings %}
+<div class="section-title">{{ s.trainings_section }}</div>
+<table class="training-table">
+  <thead>
+    <tr>
+      <th>{{ s.worker }}</th>
+      <th>{{ s.training_type }}</th>
+      <th>{{ s.training_date }}</th>
+      <th>{{ s.expiry_date }}</th>
+      <th>{{ s.status }}</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for training in trainings %}
+    <tr>
+      <td>{{ training.worker }}</td>
+      <td>{{ training.training_type }}</td>
+      <td>{{ training.training_date }}</td>
+      <td>{{ training.expiry_date }}</td>
+      <td><span class="badge" style="background: {{ training.status_color }};">{{ training.status }}</span></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+</body>
+</html>

@@ -49,6 +49,10 @@ from app.models.project import Project, ProjectMember
 from app.models.rfi import RFI, RFICategory, RFIEmailLog, RFIPriority, RFIResponse, RFIStatus
 from app.models.risk_score import RiskLevel, RiskScore
 from app.models.risk_threshold import RiskThreshold
+from app.models.near_miss import NearMiss, NearMissSeverity
+from app.models.safety_incident import IncidentSeverity, IncidentStatus, SafetyIncident
+from app.models.safety_training import SafetyTraining, TrainingStatus
+from app.models.toolbox_talk import TalkAttendee, TalkStatus, ToolboxTalk
 from app.models.user import User
 from app.models.analytics import CustomKpiDefinition, KpiSnapshot
 from app.models.budget import BudgetLineItem, ChangeOrder, CostEntry
@@ -153,6 +157,16 @@ __all__ = [
     "RiskScore",
     "RiskLevel",
     "RiskThreshold",
+    "NearMiss",
+    "NearMissSeverity",
+    "SafetyIncident",
+    "IncidentSeverity",
+    "IncidentStatus",
+    "SafetyTraining",
+    "TrainingStatus",
+    "ToolboxTalk",
+    "TalkAttendee",
+    "TalkStatus",
     "ClientPortalAccess",
     "ExportJob",
     "ExportFormat",
