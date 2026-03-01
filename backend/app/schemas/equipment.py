@@ -165,6 +165,8 @@ class EquipmentResponse(CamelCaseModel):
     supervisor_signature_url: Optional[str] = None
     reminder_interval_hours: int = 48
     last_reminder_sent_at: Optional[datetime] = None
+    bim_object_id: Optional[str] = None
+    bim_model_id: Optional[UUID] = None
 
 
 class PaginatedEquipmentResponse(BaseModel):

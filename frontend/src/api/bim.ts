@@ -1,5 +1,11 @@
 import { apiClient } from './client'
-import type { BimModel, BimExtractionResponse, BimImportResult } from '../types'
+import type { BimModel, BimExtractionResponse, BimImportResult, Equipment, Material, ConstructionArea } from '../types'
+
+export interface BimLinkedEntitiesResponse {
+  equipment: Equipment[]
+  materials: Material[]
+  areas: ConstructionArea[]
+}
 
 export const bimApi = {
   list: async (projectId: string): Promise<BimModel[]> => {
@@ -85,6 +91,11 @@ export const bimApi = {
       items,
       item_mappings: itemMappings || [],
     })
+    return response.data
+  },
+
+  getLinkedEntities: async (projectId: string, modelId: string): Promise<BimLinkedEntitiesResponse> => {
+    const response = await apiClient.get(`/projects/${projectId}/bim/${modelId}/entities`)
     return response.data
   },
 }

@@ -91,6 +91,8 @@ class AreaResponse(CamelCaseModel):
     status: str = "not_started"
     order: int = 0
     created_at: datetime
+    bim_object_id: Optional[str] = None
+    bim_model_id: Optional[UUID] = None
     children: list["AreaResponse"] = []
     progress_updates: list[AreaProgressResponse] = []
 

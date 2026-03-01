@@ -2631,6 +2631,17 @@
         "problems": "דורש בדיקה",
         "selected": "נבחרים"
       }
+    },
+    "sidebar": {
+      "tabs": "לשוניות נתוני BIM",
+      "equipment": "ציוד",
+      "materials": "חומרים",
+      "areas": "אזורים",
+      "selectModel": "בחר מודל BIM לצפייה בנתונים",
+      "equipmentEmpty": "אין ציוד מקושר למודל זה",
+      "materialsEmpty": "אין חומרים מקושרים למודל זה",
+      "areasEmpty": "אין אזורים מקושרים למודל זה",
+      "isolationMode": "מצב בידוד"
     }
   },
   "defects": {

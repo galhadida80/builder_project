@@ -101,6 +101,8 @@ export interface Equipment {
   installationDate?: string
   warrantyExpiry?: string
   notes?: string
+  bimObjectId?: string
+  bimModelId?: string
   createdAt: string
   updatedAt: string
   createdBy?: User
@@ -142,6 +144,8 @@ export interface Material {
   actualDelivery?: string
   storageLocation?: string
   notes?: string
+  bimObjectId?: string
+  bimModelId?: string
   createdAt: string
   updatedAt: string
   createdBy?: User
@@ -246,6 +250,8 @@ export interface ConstructionArea {
   areaCode?: string
   totalUnits?: number
   currentProgress?: number
+  bimObjectId?: string
+  bimModelId?: string
   children?: ConstructionArea[]
   progressUpdates?: AreaProgress[]
 }

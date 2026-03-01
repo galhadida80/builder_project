@@ -37,6 +37,10 @@ class ConstructionArea(Base):
     status: Mapped[str] = mapped_column(String(50), default="not_started")
     order: Mapped[int] = mapped_column(Integer, default=0)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow())
+    bim_object_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    bim_model_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("bim_models.id", ondelete="SET NULL"), nullable=True
+    )
 
     project = relationship("Project", back_populates="areas")
     parent = relationship("ConstructionArea", remote_side=[id], backref="children")

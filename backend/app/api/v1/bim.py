@@ -12,15 +12,22 @@ from app.config import get_settings, Settings
 from app.core.permissions import Permission, require_permission
 from app.core.security import get_current_user, verify_project_access
 from app.db.session import get_db
+from app.models.area import ConstructionArea
 from app.models.audit import AuditAction
 from app.models.bim import AutodeskConnection, BimModel, TranslationStatus
+from app.models.equipment import Equipment
+from app.models.material import Material
 from app.models.project import ProjectMember
 from app.models.user import User
+from app.schemas.area import AreaResponse
 from app.schemas.bim import (
+    BimLinkedEntitiesResponse,
     BimModelResponse,
     TranslationStatusResponse,
     ViewerTokenResponse,
 )
+from app.schemas.equipment import EquipmentResponse
+from app.schemas.material import MaterialResponse
 from app.services.aps_service import APSService
 from app.services.audit_service import create_audit_log
 from app.services.storage_service import StorageBackend, generate_storage_path, get_storage_backend
@@ -72,6 +79,56 @@ async def get_bim_model(
     if not model:
         raise HTTPException(status_code=404, detail="BIM model not found")
     return model
+
+
+@router.get("/projects/{project_id}/bim/{model_id}/entities", response_model=BimLinkedEntitiesResponse)
+async def get_bim_linked_entities(
+    project_id: UUID,
+    model_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Fetch all entities (equipment, materials, areas) linked to a BIM model."""
+    await verify_project_access(project_id, current_user, db)
+
+    # Verify the BIM model exists and belongs to this project
+    model_result = await db.execute(
+        select(BimModel).where(BimModel.id == model_id, BimModel.project_id == project_id)
+    )
+    if not model_result.scalar_one_or_none():
+        raise HTTPException(status_code=404, detail="BIM model not found")
+
+    # Fetch equipment linked to this BIM model
+    equipment_result = await db.execute(
+        select(Equipment)
+        .where(Equipment.bim_model_id == model_id, Equipment.project_id == project_id)
+        .options(selectinload(Equipment.created_by), selectinload(Equipment.checklists))
+        .order_by(Equipment.created_at.desc())
+    )
+    equipment = equipment_result.scalars().all()
+
+    # Fetch materials linked to this BIM model
+    materials_result = await db.execute(
+        select(Material)
+        .where(Material.bim_model_id == model_id, Material.project_id == project_id)
+        .options(selectinload(Material.created_by))
+        .order_by(Material.created_at.desc())
+    )
+    materials = materials_result.scalars().all()
+
+    # Fetch areas linked to this BIM model
+    areas_result = await db.execute(
+        select(ConstructionArea)
+        .where(ConstructionArea.bim_model_id == model_id, ConstructionArea.project_id == project_id)
+        .order_by(ConstructionArea.created_at.desc())
+    )
+    areas = areas_result.scalars().all()
+
+    return BimLinkedEntitiesResponse(
+        equipment=[EquipmentResponse.model_validate(e) for e in equipment],
+        materials=[MaterialResponse.model_validate(m) for m in materials],
+        areas=[AreaResponse.model_validate(a) for a in areas],
+    )
 
 
 @router.get("/projects/{project_id}/bim/{model_id}/content")

@@ -45,6 +45,10 @@ class Material(Base):
     template_id: Mapped[Optional[uuid.UUID]] = mapped_column(
         UUID(as_uuid=True), ForeignKey("material_templates.id", ondelete="SET NULL"), nullable=True
     )
+    bim_object_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    bim_model_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("bim_models.id", ondelete="SET NULL"), nullable=True
+    )
 
     project = relationship("Project", back_populates="materials")
     created_by = relationship("User", foreign_keys=[created_by_id])

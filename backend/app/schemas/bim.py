@@ -104,3 +104,10 @@ class BimImportResult(CamelCaseModel):
     skipped_count: int
     linked_count: int = 0
     entity_type: str
+
+
+class BimLinkedEntitiesResponse(CamelCaseModel):
+    """Response containing all entities linked to a BIM model."""
+    equipment: list = []
+    materials: list = []
+    areas: list = []

@@ -161,6 +161,7 @@ export {
   Undo as UndoIcon,
   Redo as RedoIcon,
   Update as UpdateIcon,
+  ViewColumn as ViewColumnIcon,
   ViewInAr as ViewInArIcon,
   ViewList as ViewListIcon,
   ViewStream as ViewStreamIcon,

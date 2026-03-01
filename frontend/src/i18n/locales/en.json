@@ -2585,6 +2585,17 @@
         "problems": "Needs Review",
         "selected": "Selected"
       }
+    },
+    "sidebar": {
+      "tabs": "BIM Data Tabs",
+      "equipment": "Equipment",
+      "materials": "Materials",
+      "areas": "Areas",
+      "selectModel": "Select a BIM model to view data",
+      "equipmentEmpty": "No equipment linked to this model",
+      "materialsEmpty": "No materials linked to this model",
+      "areasEmpty": "No areas linked to this model",
+      "isolationMode": "Isolation Mode"
     }
   },
   "defects": {

@@ -5,18 +5,31 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { IfcAPI } from 'web-ifc'
 import { Box, Skeleton, Typography } from '@/mui'
 import { bimApi } from '../../api/bim'
+import { useIFCHighlighting } from './useIFCHighlighting'
 
 interface IFCViewerProps {
   projectId: string
   modelId: string
   filename: string
+  selectedBimObjectIds?: string[]
+  isolationMode?: boolean
+  onElementClick?: (bimObjectId: string | undefined, multiSelect?: boolean) => void
 }
 
-export default function IFCViewer({ projectId, modelId, filename }: IFCViewerProps) {
+export default function IFCViewer({ projectId, modelId, filename, selectedBimObjectIds = [], isolationMode = false, onElementClick }: IFCViewerProps) {
   const { t } = useTranslation()
   const containerRef = useRef<HTMLDivElement>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const meshMapRef = useRef<Map<string, THREE.Mesh>>(new Map())
+  const selectedMeshesRef = useRef<Map<string, { mesh: THREE.Mesh; originalMaterial: THREE.Material }>>(new Map())
+  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null)
+  const controlsRef = useRef<OrbitControls | null>(null)
+  const sceneRef = useRef<THREE.Scene | null>(null)
+  const onElementClickRef = useRef(onElementClick)
+  onElementClickRef.current = onElementClick
+
+  useIFCHighlighting({ selectedBimObjectIds, isolationMode, meshMapRef, selectedMeshesRef, cameraRef, controlsRef })
 
   useEffect(() => {
     let cancelled = false
@@ -34,9 +47,11 @@ export default function IFCViewer({ projectId, modelId, filename }: IFCViewerPro
 
       const scene = new THREE.Scene()
       scene.background = new THREE.Color(0xf0f0f0)
+      sceneRef.current = scene
 
       const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 10000)
       camera.position.set(15, 15, 15)
+      cameraRef.current = camera
 
       renderer = new THREE.WebGLRenderer({ antialias: true })
       renderer.setSize(width, height)
@@ -45,6 +60,29 @@ export default function IFCViewer({ projectId, modelId, filename }: IFCViewerPro
 
       const controls = new OrbitControls(camera, renderer.domElement)
       controls.enableDamping = true
+      controlsRef.current = controls
+
+      const raycaster = new THREE.Raycaster()
+      const mouse = new THREE.Vector2()
+
+      const handleCanvasClick = (event: MouseEvent) => {
+        const rect = renderer!.domElement.getBoundingClientRect()
+        mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
+        mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
+        raycaster.setFromCamera(mouse, camera)
+        const meshes = Array.from(meshMapRef.current.values())
+        const intersects = raycaster.intersectObjects(meshes, false)
+        if (intersects.length > 0) {
+          const clickedMesh = intersects[0].object as THREE.Mesh
+          const expressID = clickedMesh.userData.expressID
+          if (expressID !== undefined) {
+            const multiSelect = event.ctrlKey || event.metaKey
+            onElementClickRef.current?.(String(expressID), multiSelect)
+          }
+        }
+      }
+
+      renderer.domElement.addEventListener('click', handleCanvasClick)
 
       scene.add(new THREE.AmbientLight(0xffffff, 0.6))
       const dirLight = new THREE.DirectionalLight(0xffffff, 0.8)
@@ -81,36 +119,24 @@ export default function IFCViewer({ projectId, modelId, filename }: IFCViewerPro
 
         const buffer = await blob.arrayBuffer()
         const data = new Uint8Array(buffer)
-        const modelID = ifcApi.OpenModel(data, {
-          COORDINATE_TO_ORIGIN: true,
-          MEMORY_LIMIT: 512 * 1024 * 1024,
-        })
-
+        const ifcModelID = ifcApi.OpenModel(data, { COORDINATE_TO_ORIGIN: true, MEMORY_LIMIT: 512 * 1024 * 1024 })
         const modelGroup = new THREE.Group()
-        ifcApi.StreamAllMeshes(modelID, (mesh) => {
+
+        ifcApi.StreamAllMeshes(ifcModelID, (mesh) => {
           const placedGeometries = mesh.geometries
           for (let i = 0; i < placedGeometries.size(); i++) {
             try {
               const placed = placedGeometries.get(i)
-              const geom = ifcApi!.GetGeometry(modelID, placed.geometryExpressID)
-
+              const geom = ifcApi!.GetGeometry(ifcModelID, placed.geometryExpressID)
               const verts = ifcApi!.GetVertexArray(geom.GetVertexData(), geom.GetVertexDataSize())
               const indices = ifcApi!.GetIndexArray(geom.GetIndexData(), geom.GetIndexDataSize())
-
-              if (verts.length === 0 || indices.length === 0) {
-                geom.delete?.()
-                continue
-              }
+              if (verts.length === 0 || indices.length === 0) { geom.delete?.(); continue }
 
               const positions = new Float32Array(verts.length / 2)
               const normals = new Float32Array(verts.length / 2)
               for (let j = 0; j < verts.length; j += 6) {
-                positions[j / 2] = verts[j]
-                positions[j / 2 + 1] = verts[j + 1]
-                positions[j / 2 + 2] = verts[j + 2]
-                normals[j / 2] = verts[j + 3]
-                normals[j / 2 + 1] = verts[j + 4]
-                normals[j / 2 + 2] = verts[j + 5]
+                positions[j / 2] = verts[j]; positions[j / 2 + 1] = verts[j + 1]; positions[j / 2 + 2] = verts[j + 2]
+                normals[j / 2] = verts[j + 3]; normals[j / 2 + 1] = verts[j + 4]; normals[j / 2 + 2] = verts[j + 5]
               }
 
               const bufferGeometry = new THREE.BufferGeometry()
@@ -119,28 +145,19 @@ export default function IFCViewer({ projectId, modelId, filename }: IFCViewerPro
               bufferGeometry.setIndex(new THREE.BufferAttribute(indices, 1))
 
               const { color } = placed
-              const material = new THREE.MeshPhongMaterial({
-                color: new THREE.Color(color.x, color.y, color.z),
-                opacity: color.w,
-                transparent: color.w < 1,
-                side: THREE.DoubleSide,
-              })
-
+              const material = new THREE.MeshPhongMaterial({ color: new THREE.Color(color.x, color.y, color.z), opacity: color.w, transparent: color.w < 1, side: THREE.DoubleSide })
               const meshObj = new THREE.Mesh(bufferGeometry, material)
-              const matrix = new THREE.Matrix4().fromArray(placed.flatTransformation)
-              meshObj.applyMatrix4(matrix)
+              meshObj.applyMatrix4(new THREE.Matrix4().fromArray(placed.flatTransformation))
+              meshObj.userData.expressID = placed.geometryExpressID
+              meshMapRef.current.set(String(placed.geometryExpressID), meshObj)
               modelGroup.add(meshObj)
-
               geom.delete?.()
-            } catch {
-              // Skip meshes that fail to process
-            }
+            } catch { /* Skip meshes that fail to process */ }
           }
           mesh.delete?.()
         })
 
-        ifcApi.CloseModel(modelID)
-
+        ifcApi.CloseModel(ifcModelID)
         scene.add(modelGroup)
 
         const box = new THREE.Box3().setFromObject(modelGroup)
@@ -150,7 +167,6 @@ export default function IFCViewer({ projectId, modelId, filename }: IFCViewerPro
           const maxDim = Math.max(size.x, size.y, size.z)
           const fov = camera.fov * (Math.PI / 180)
           const distance = maxDim / (2 * Math.tan(fov / 2)) * 1.5
-
           camera.position.set(center.x + distance, center.y + distance * 0.5, center.z + distance)
           controls.target.copy(center)
           controls.update()
@@ -159,10 +175,7 @@ export default function IFCViewer({ projectId, modelId, filename }: IFCViewerPro
         if (!cancelled) setLoading(false)
       } catch (err) {
         console.error('IFC viewer error:', err)
-        if (!cancelled) {
-          setError(t('bim.viewerLoadError'))
-          setLoading(false)
-        }
+        if (!cancelled) { setError(t('bim.viewerLoadError')); setLoading(false) }
       }
     }
 
@@ -170,16 +183,15 @@ export default function IFCViewer({ projectId, modelId, filename }: IFCViewerPro
 
     return () => {
       cancelled = true
+      meshMapRef.current.clear()
+      selectedMeshesRef.current.clear()
+      cameraRef.current = null
+      controlsRef.current = null
+      sceneRef.current = null
       if (resizeHandler) window.removeEventListener('resize', resizeHandler)
       if (animationId !== null) cancelAnimationFrame(animationId)
-      if (renderer) {
-        renderer.dispose()
-        const canvas = renderer.domElement
-        canvas.parentElement?.removeChild(canvas)
-      }
-      if (ifcApi) {
-        try { ifcApi.Dispose() } catch { /* ignore */ }
-      }
+      if (renderer) { renderer.dispose(); const canvas = renderer.domElement; canvas.parentElement?.removeChild(canvas) }
+      if (ifcApi) { try { ifcApi.Dispose() } catch { /* ignore */ } }
     }
   }, [projectId, modelId, filename, t])
 
@@ -188,10 +200,7 @@ export default function IFCViewer({ projectId, modelId, filename }: IFCViewerPro
       {loading && !error && (
         <Box sx={{ position: 'absolute', inset: 0, zIndex: 1 }}>
           <Skeleton variant="rectangular" width="100%" height="100%" />
-          <Typography
-            sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}
-            color="text.secondary"
-          >
+          <Typography sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} color="text.secondary">
             {t('bim.viewerLoading')}
           </Typography>
         </Box>

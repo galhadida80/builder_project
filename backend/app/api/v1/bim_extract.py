@@ -172,6 +172,8 @@ async def import_areas(
             area_type=item.get("area_type"),
             floor_number=item.get("floor_number"),
             area_code=item.get("area_code"),
+            bim_object_id=obj_id,
+            bim_model_id=model_id,
         )
         db.add(area)
         existing_names.add(item["name"].lower())
@@ -235,6 +237,8 @@ async def import_equipment(
             specifications=item.get("specifications"),
             template_id=tpl_uuid,
             created_by_id=current_user.id,
+            bim_object_id=obj_id,
+            bim_model_id=model_id,
         )
         db.add(equip)
         existing_names.add(item["name"].lower())
@@ -299,6 +303,8 @@ async def import_materials(
             model_number=item.get("model_number"),
             template_id=tpl_uuid,
             created_by_id=current_user.id,
+            bim_object_id=obj_id,
+            bim_model_id=model_id,
         )
         db.add(mat)
         existing_names.add(item["name"].lower())
