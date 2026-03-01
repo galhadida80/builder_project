@@ -5,7 +5,7 @@ import { EmptyState } from '../components/ui/EmptyState'
 import { FormModal } from '../components/ui/Modal'
 import { Tabs, TabPanel } from '../components/ui/Tabs'
 import { useToast } from '../components/common/ToastProvider'
-import { subcontractorsApi, SubcontractorProfile, SubcontractorProfileCreate, SubcontractorDashboardResponse } from '../api/subcontractors'
+import { subcontractorsApi, SubcontractorProfile, SubcontractorDashboardResponse } from '../api/subcontractors'
 import type { TimelineEvent } from '../api/clientPortal'
 import { PortalDashboard } from '../components/subcontractor-portal/PortalDashboard'
 import { ProfileView } from '../components/subcontractor-portal/ProfileView'
@@ -14,8 +14,10 @@ import { TasksList } from '../components/subcontractor-portal/TasksList'
 import { RFIsList } from '../components/subcontractor-portal/RFIsList'
 import { ApprovalsList } from '../components/subcontractor-portal/ApprovalsList'
 import { ActivityFeed } from '../components/subcontractor-portal/ActivityFeed'
+import { useProfileEditor } from '../components/subcontractor-portal/ProfileSection'
+import { createTabConfig } from '../components/subcontractor-portal/TabConfig'
 import { Box, Typography, Skeleton, Fab, Paper, alpha, useTheme, useMediaQuery } from '@/mui'
-import { EditIcon, PersonIcon, CheckCircleIcon, DashboardIcon, WorkIcon, AssignmentIcon, HelpOutlineIcon, ApprovalIcon, TimelineIcon } from '@/icons'
+import { EditIcon, PersonIcon, CheckCircleIcon, WorkIcon } from '@/icons'
 
 export default function SubcontractorPortalPage() {
   const { t } = useTranslation()
@@ -30,18 +32,6 @@ export default function SubcontractorPortalPage() {
   const [loading, setLoading] = useState(true)
   const [dashboardLoading, setDashboardLoading] = useState(false)
   const [activityLoading, setActivityLoading] = useState(false)
-  const [dialogOpen, setDialogOpen] = useState(false)
-  const [saving, setSaving] = useState(false)
-  const [form, setForm] = useState<SubcontractorProfileCreate>({
-    companyName: '',
-    trade: '',
-    licenseNumber: '',
-    contactPhone: '',
-    contactEmail: '',
-    address: '',
-    notes: '',
-    certifications: [],
-  })
 
   const loadProfile = async () => {
     setLoading(true)
@@ -54,6 +44,16 @@ export default function SubcontractorPortalPage() {
       setLoading(false)
     }
   }
+
+  const {
+    dialogOpen,
+    setDialogOpen,
+    saving,
+    form,
+    setForm,
+    openEditDialog,
+    handleSave,
+  } = useProfileEditor(profile, loadProfile)
 
   const loadDashboard = useCallback(async () => {
     setDashboardLoading(true)
@@ -91,45 +91,6 @@ export default function SubcontractorPortalPage() {
       loadActivityFeed()
     }
   }, [activeTab, profile, dashboard, activities.length, loadDashboard, loadActivityFeed])
-
-  const openEditDialog = () => {
-    if (profile) {
-      setForm({
-        companyName: profile.companyName,
-        trade: profile.trade,
-        licenseNumber: profile.licenseNumber || '',
-        contactPhone: profile.contactPhone || '',
-        contactEmail: profile.contactEmail || '',
-        address: profile.address || '',
-        notes: profile.notes || '',
-        certifications: profile.certifications || [],
-      })
-    }
-    setDialogOpen(true)
-  }
-
-  const handleSave = async () => {
-    if (!form.companyName || !form.trade) {
-      showError(t('subcontractors.requiredFields'))
-      return
-    }
-    setSaving(true)
-    try {
-      if (profile) {
-        await subcontractorsApi.updateMyProfile(form)
-        showSuccess(t('subcontractors.updateSuccess'))
-      } else {
-        await subcontractorsApi.createMyProfile(form)
-        showSuccess(t('subcontractors.createSuccess'))
-      }
-      setDialogOpen(false)
-      loadProfile()
-    } catch {
-      showError(t('subcontractors.saveFailed'))
-    } finally {
-      setSaving(false)
-    }
-  }
 
   if (loading) {
     return (
@@ -236,42 +197,7 @@ export default function SubcontractorPortalPage() {
         </Paper>
       )}
 
-      <Tabs
-        items={[
-          {
-            label: t('subcontractorPortal.dashboard'),
-            value: 'dashboard',
-            icon: <DashboardIcon sx={{ fontSize: '1rem' }} />,
-          },
-          {
-            label: t('subcontractorPortal.tasks'),
-            value: 'tasks',
-            icon: <AssignmentIcon sx={{ fontSize: '1rem' }} />,
-          },
-          {
-            label: t('subcontractorPortal.rfis'),
-            value: 'rfis',
-            icon: <HelpOutlineIcon sx={{ fontSize: '1rem' }} />,
-          },
-          {
-            label: t('subcontractorPortal.approvals'),
-            value: 'approvals',
-            icon: <ApprovalIcon sx={{ fontSize: '1rem' }} />,
-          },
-          {
-            label: t('subcontractorPortal.activity'),
-            value: 'activity',
-            icon: <TimelineIcon sx={{ fontSize: '1rem' }} />,
-          },
-          {
-            label: t('subcontractorPortal.profile'),
-            value: 'profile',
-            icon: <PersonIcon sx={{ fontSize: '1rem' }} />,
-          },
-        ]}
-        value={activeTab}
-        onChange={setActiveTab}
-      />
+      <Tabs items={createTabConfig(t)} value={activeTab} onChange={setActiveTab} />
 
       <TabPanel value="dashboard" activeValue={activeTab}>
         <PortalDashboard dashboard={dashboard} loading={dashboardLoading} />
