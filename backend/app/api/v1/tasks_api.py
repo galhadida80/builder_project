@@ -22,6 +22,7 @@ from app.schemas.task import (
     TaskUpdate,
 )
 from app.services.notification_service import notify_user
+from app.services.permit_service import check_milestone_permit_requirements
 from app.utils import utcnow
 
 logger = logging.getLogger(__name__)
@@ -210,6 +211,60 @@ async def update_task(
             )
         except Exception:
             logger.exception("Failed to send task status change notification")
+
+    result = await db.execute(
+        select(Task).options(*TASK_LOAD_OPTIONS).where(Task.id == task.id)
+    )
+    return result.scalar_one()
+
+
+@router.patch("/tasks/{task_id}/complete", response_model=TaskResponse)
+async def complete_task(
+    task_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    result = await db.execute(
+        select(Task).where(Task.id == task_id)
+    )
+    task = result.scalar_one_or_none()
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+
+    await verify_project_access(task.project_id, current_user, db)
+
+    if task.is_milestone:
+        missing_permits = await check_milestone_permit_requirements(db, task)
+        if missing_permits:
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "message": "Cannot complete milestone: missing required permits",
+                    "missing_permits": missing_permits,
+                }
+            )
+
+    old_status = task.status
+    task.status = "completed"
+    task.completed_at = utcnow()
+
+    if task.created_by_id and task.created_by_id != current_user.id:
+        try:
+            project = await db.get(Project, task.project_id)
+            project_name = project.name if project else ""
+            creator = await db.get(User, task.created_by_id)
+            await notify_user(
+                db, task.created_by_id, "UPDATE",
+                f"Task #{task.task_number} completed",
+                f"Task {task.title} has been completed",
+                entity_type="task", entity_id=task.id,
+                email=creator.email if creator else None,
+                project_name=project_name,
+                language=creator.language or "en" if creator else "en",
+                project_id=task.project_id,
+            )
+        except Exception:
+            logger.exception("Failed to send task completion notification")
 
     result = await db.execute(
         select(Task).options(*TASK_LOAD_OPTIONS).where(Task.id == task.id)
