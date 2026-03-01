@@ -1,12 +1,18 @@
 import logging
 import uuid
-from typing import Any, Optional
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
-from pydantic import BaseModel, Field
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.api.v1.acc_sync_schemas import (
+    AccConflictsResponse,
+    AccConflictDetail,
+    AccSyncResponse,
+    AccSyncStatusResponse,
+    ConflictResolveRequest,
+    ConflictResolveResponse,
+)
 from app.core.permissions import Permission, require_permission
 from app.core.security import get_current_user
 from app.db.session import get_db
@@ -14,67 +20,12 @@ from app.models.bim import AutodeskConnection
 from app.models.project import ProjectMember
 from app.models.rfi import RFI
 from app.models.user import User
-from app.core.validators import CamelCaseModel
 from app.services.acc_rfi_sync_service import ACCRFISyncService
+from app.services.acc_sync_tasks import run_acc_sync_task
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["acc-sync"])
-
-
-class AccSyncResponse(CamelCaseModel):
-    """Response for manual ACC sync trigger"""
-    message: str
-    project_id: uuid.UUID
-    status: str = Field(default="processing")
-
-
-class AccSyncStatusResponse(CamelCaseModel):
-    """Response for ACC sync health status"""
-    project_id: uuid.UUID
-    last_sync_at: Optional[str] = None
-    sync_health: str = Field(description="ok, warning, error")
-    total_rfis: int = 0
-    synced_rfis: int = 0
-    conflict_count: int = 0
-    has_acc_connection: bool = False
-    details: Optional[str] = None
-
-
-class AccConflictDetail(CamelCaseModel):
-    """Individual conflict details"""
-    rfi_id: uuid.UUID
-    rfi_number: str
-    subject: str
-    local_updated_at: str
-    acc_updated_at: str
-    last_synced_at: str
-    conflicting_fields: list[str]
-
-
-class AccConflictsResponse(CamelCaseModel):
-    """Response for listing conflicts"""
-    project_id: uuid.UUID
-    total_conflicts: int
-    conflicts: list[AccConflictDetail]
-
-
-class ConflictResolveRequest(BaseModel):
-    """Request to resolve a conflict"""
-    strategy: str = Field(
-        default="last_write_wins",
-        description="Resolution strategy: last_write_wins, prefer_local, prefer_acc"
-    )
-
-
-class ConflictResolveResponse(CamelCaseModel):
-    """Response for conflict resolution"""
-    rfi_id: uuid.UUID
-    chosen_version: str
-    reason: str
-    conflicting_fields: list[str]
-    strategy: str
-    resolved_at: str
 
 
 @router.post(
@@ -128,7 +79,7 @@ async def trigger_acc_sync(
     user_id = row[1] or current_user.id
 
     background_tasks.add_task(
-        _run_acc_sync,
+        run_acc_sync_task,
         project_id=project_id,
         user_id=user_id,
         container_id=container_id
@@ -141,31 +92,6 @@ async def trigger_acc_sync(
         project_id=project_id,
         status="processing"
     )
-
-
-async def _run_acc_sync(
-    project_id: uuid.UUID,
-    user_id: uuid.UUID,
-    container_id: str
-):
-    """Background task to run ACC sync"""
-    from app.db.session import AsyncSessionLocal
-
-    async with AsyncSessionLocal() as db:
-        try:
-            service = ACCRFISyncService(db)
-            result = await service.sync_project_rfis(
-                project_id=project_id,
-                user_id=user_id,
-                container_id=container_id
-            )
-            logger.info(
-                f"ACC sync completed for project {project_id}: "
-                f"{result['created']} created, {result['updated']} updated, "
-                f"{result['conflicts']} conflicts"
-            )
-        except Exception as e:
-            logger.error(f"ACC sync failed for project {project_id}: {e}")
 
 
 @router.get(
