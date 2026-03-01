@@ -1225,7 +1225,8 @@
     "selectFloor": "Select Floor",
     "allFloors": "All Floors",
     "unitsInManagement": "Areas in management",
-    "floorProgress": "Floor progress"
+    "floorProgress": "Floor progress",
+    "uploadFloorplan": "Upload Floorplan"
   },
   "settings": {
     "title": "Settings",
@@ -1772,6 +1773,7 @@
     "deleteConfirmation": "Are you sure you want to delete {{name}}?",
     "uploadSuccess": "{{name}} uploaded successfully!",
     "uploadFailed": "Failed to upload {{name}}",
+    "invalidFileType": "Invalid file type. Please select an image file.",
     "downloading": "Downloading {{name}}...",
     "downloadFailed": "Failed to download {{name}}",
     "deleteSuccess": "{{name}} deleted successfully!",
@@ -2640,6 +2642,17 @@
     "resolved": "Resolved",
     "closed": "Closed",
     "critical": "Critical",
+    "allStatuses": "All Statuses",
+    "statusOpen": "Open",
+    "statusInProgress": "In Progress",
+    "statusResolved": "Resolved",
+    "statusClosed": "Closed",
+    "allCategories": "All Categories",
+    "allSeverities": "All Severities",
+    "severityCritical": "Critical",
+    "severityHigh": "High",
+    "severityMedium": "Medium",
+    "severityLow": "Low",
     "statuses": {
       "open": "Open",
       "in_progress": "In Progress",
@@ -2712,6 +2725,19 @@
     "daysAgo": "{{count}} days ago",
     "justNow": "Just now",
     "minutesAgo": "{{count}} minutes ago"
+  },
+  "floorplans": {
+    "title": "Floorplans",
+    "subtitle": "Visual display of defects on building plans",
+    "viewer": "Floorplan Viewer",
+    "invalidParams": "Invalid floorplan parameters",
+    "loadFailed": "Failed to load floorplan",
+    "noImageUrl": "No floorplan image available",
+    "imageLoadError": "Failed to load floorplan image",
+    "canvasError": "Error initializing floorplan canvas",
+    "filterByStatus": "Filter by Status",
+    "searchPins": "Search pins...",
+    "advancedFilters": "Advanced Filters"
   },
   "riskPrediction": {
     "title": "Risk Prediction",

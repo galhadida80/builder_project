@@ -1393,7 +1393,8 @@
     "selectFloor": "בחירת קומה",
     "allFloors": "כל הקומות",
     "unitsInManagement": "אזורים בניהול",
-    "floorProgress": "התקדמות קומה"
+    "floorProgress": "התקדמות קומה",
+    "uploadFloorplan": "העלה תוכנית קומה"
   },
   "settings": {
     "title": "הגדרות",
@@ -1949,6 +1950,7 @@
     "deleteConfirmation": "האם אתה בטוח שברצונך למחוק את {{name}}?",
     "uploadSuccess": "{{name}} הועלה בהצלחה!",
     "uploadFailed": "נכשל בהעלאת {{name}}",
+    "invalidFileType": "סוג קובץ לא חוקי. אנא בחר קובץ תמונה.",
     "downloading": "מוריד את {{name}}...",
     "downloadFailed": "נכשל בהורדת {{name}}",
     "deleteSuccess": "{{name}} נמחק בהצלחה!",
@@ -2686,6 +2688,17 @@
     "resolved": "נפתר",
     "closed": "סגור",
     "critical": "קריטי",
+    "allStatuses": "כל הסטטוסים",
+    "statusOpen": "פתוח",
+    "statusInProgress": "בטיפול",
+    "statusResolved": "נפתר",
+    "statusClosed": "סגור",
+    "allCategories": "כל הקטגוריות",
+    "allSeverities": "כל החומרות",
+    "severityCritical": "קריטי",
+    "severityHigh": "גבוה",
+    "severityMedium": "בינוני",
+    "severityLow": "נמוך",
     "statuses": {
       "open": "פתוח",
       "in_progress": "בטיפול",
@@ -2758,6 +2771,19 @@
     "daysAgo": "לפני {{count}} ימים",
     "justNow": "הרגע",
     "minutesAgo": "לפני {{count}} דקות"
+  },
+  "floorplans": {
+    "title": "תוכניות קומה",
+    "subtitle": "תצוגה ויזואלית של ליקויים על תוכניות הבניין",
+    "viewer": "מציג תוכנית קומה",
+    "invalidParams": "פרמטרים לא תקינים לתוכנית קומה",
+    "loadFailed": "טעינת תוכנית הקומה נכשלה",
+    "noImageUrl": "אין תמונת תוכנית קומה זמינה",
+    "imageLoadError": "טעינת תוכנית הקומה נכשלה",
+    "canvasError": "שגיאה באתחול תוכנית הקומה",
+    "filterByStatus": "סינון לפי סטטוס",
+    "searchPins": "חיפוש פינים...",
+    "advancedFilters": "מסננים מתקדמים"
   },
   "riskPrediction": {
     "title": "ניבוי סיכונים",

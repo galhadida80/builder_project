@@ -32,6 +32,7 @@ from app.api.v1 import (
     equipment_templates,
     exports,
     files,
+    floorplans,
     inspections,
     invitations,
     material_templates,
@@ -110,6 +111,7 @@ api_router.include_router(bim.router, tags=["bim"])
 api_router.include_router(blueprints.router, tags=["blueprints"])
 api_router.include_router(bim_extract.router, tags=["bim_extract"])
 api_router.include_router(defects.router, tags=["defects"])
+api_router.include_router(floorplans.router, tags=["floorplans"])
 api_router.include_router(risk_scores.router, tags=["risk_scores"])
 api_router.include_router(tasks_api.router, tags=["project_tasks"])
 api_router.include_router(budget.router, tags=["budget"])
