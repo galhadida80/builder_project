@@ -58,7 +58,7 @@ export function RFIsList({ onRFIClick }: RFIsListProps) {
       const response = await subcontractorsApi.getMyRFIs()
       setRfis(response.items)
     } catch {
-      showError(t('rfi.loadFailed'))
+      showError(t('rfis.failedToLoad'))
     } finally {
       setLoading(false)
     }
@@ -93,10 +93,10 @@ export function RFIsList({ onRFIClick }: RFIsListProps) {
       <Tabs
         items={[
           { label: t('common.all'), value: 'all', badge: rfis.length },
-          { label: t('rfi.status.open'), value: 'open', badge: rfis.filter(r => r.status === 'open').length },
-          { label: t('rfi.status.waitingResponse'), value: 'waiting_response', badge: rfis.filter(r => r.status === 'waiting_response').length },
-          { label: t('rfi.status.answered'), value: 'answered', badge: rfis.filter(r => r.status === 'answered').length },
-          { label: t('rfi.overdue'), value: 'overdue', badge: overdueCount },
+          { label: t('rfis.statuses.open'), value: 'open', badge: rfis.filter(r => r.status === 'open').length },
+          { label: t('rfis.statuses.waiting_response'), value: 'waiting_response', badge: rfis.filter(r => r.status === 'waiting_response').length },
+          { label: t('rfis.statuses.answered'), value: 'answered', badge: rfis.filter(r => r.status === 'answered').length },
+          { label: t('rfis.overdue'), value: 'overdue', badge: overdueCount },
         ]}
         value={activeTab}
         onChange={setActiveTab}
@@ -104,7 +104,7 @@ export function RFIsList({ onRFIClick }: RFIsListProps) {
       />
 
       <SearchField
-        placeholder={t('rfi.searchPlaceholder')}
+        placeholder={t('rfis.searchPlaceholder')}
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
       />
@@ -112,8 +112,8 @@ export function RFIsList({ onRFIClick }: RFIsListProps) {
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
         {filteredRFIs.length === 0 ? (
           <EmptyState
-            title={t('rfi.noRFIs')}
-            description={t('rfi.noRFIsDescription')}
+            title={t('rfis.noRfis')}
+            description={t('rfis.noRfisDescription')}
             icon={<HelpOutlineIcon sx={{ fontSize: 48, color: 'text.secondary' }} />}
           />
         ) : (
@@ -184,11 +184,11 @@ function RFICard({ rfi, t, onClick }: { rfi: RFIListItem; t: (k: string, o?: Rec
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                 <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: priorityColor.text }} />
                 <Typography variant="caption" sx={{ color: priorityColor.text, fontWeight: 700, fontSize: '0.65rem' }}>
-                  {t(`rfi.priority.${rfi.priority}`, { defaultValue: rfi.priority })}
+                  {t(`rfis.priorities.${rfi.priority}`, { defaultValue: rfi.priority })}
                 </Typography>
               </Box>
               <Chip
-                label={t(`rfi.category.${rfi.category}`, { defaultValue: rfi.category })}
+                label={t(`rfis.categories.${rfi.category}`, { defaultValue: rfi.category })}
                 size="small"
                 sx={{
                   height: 20,
@@ -223,7 +223,7 @@ function RFICard({ rfi, t, onClick }: { rfi: RFIListItem; t: (k: string, o?: Rec
                 </Typography>
                 {rfi.response_count > 0 && (
                   <Chip
-                    label={`${rfi.response_count} ${t('rfi.responses', { count: rfi.response_count })}`}
+                    label={`${rfi.response_count} ${t('rfis.responses', { count: rfi.response_count })}`}
                     size="small"
                     sx={{
                       height: 20,
@@ -236,7 +236,7 @@ function RFICard({ rfi, t, onClick }: { rfi: RFIListItem; t: (k: string, o?: Rec
                 )}
               </Box>
               <Chip
-                label={t(`rfi.status.${rfi.status}`, { defaultValue: rfi.status })}
+                label={t(`rfis.statuses.${rfi.status}`, { defaultValue: rfi.status })}
                 size="small"
                 sx={{
                   height: 22,

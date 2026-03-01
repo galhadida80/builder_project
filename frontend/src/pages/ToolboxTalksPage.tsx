@@ -14,9 +14,8 @@ import { AttendanceDialog } from '../components/safety/AttendanceDialog'
 // import ToolboxTalkFormModal from '../components/safety/ToolboxTalkFormModal'
 import { useToolboxTalks } from '../hooks/useToolboxTalks'
 import { safetyApi } from '../api/safety'
-import { contactsApi } from '../api/contacts'
 import type { ToolboxTalk, ToolboxTalkStatus } from '../types/safety'
-import type { Contact } from '../types'
+import { useProjectContacts } from '../hooks/useProjectContacts'
 import { useToast } from '../components/common/ToastProvider'
 import { AddIcon, PersonIcon } from '@/icons'
 import { Box, Typography, Skeleton, useMediaQuery, useTheme, Stack } from '@/mui'
@@ -28,7 +27,8 @@ export default function ToolboxTalksPage() {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
 
-  const [contacts, setContacts] = useState<Contact[]>([])
+  const { contacts: allContacts } = useProjectContacts(projectId)
+  const contacts = allContacts.filter(c => c.contactType === 'worker' || c.contactType === 'subcontractor' || c.contactType === 'team_member')
   const [dialogOpen, setDialogOpen] = useState(false)
   const [attendanceDialogOpen, setAttendanceDialogOpen] = useState(false)
   const [editingTalk, setEditingTalk] = useState<ToolboxTalk | null>(null)
@@ -41,16 +41,6 @@ export default function ToolboxTalksPage() {
     status: activeTab !== 'all' ? (activeTab as ToolboxTalkStatus) : undefined,
     searchQuery,
   })
-
-  const loadContacts = async () => {
-    if (!projectId) return
-    try {
-      const contactList = await contactsApi.list(projectId).catch(() => [])
-      setContacts(contactList.filter((c) => c.contactType === 'worker' || c.contactType === 'subcontractor'))
-    } catch (error) {
-      console.error('Failed to load contacts:', error)
-    }
-  }
 
   const handleEdit = (talk: ToolboxTalk) => {
     setEditingTalk(talk)

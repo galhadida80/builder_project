@@ -1924,6 +1924,7 @@
       "open": "פתוח",
       "in_progress": "בטיפול",
       "waiting": "ממתין",
+      "waiting_response": "ממתין לתגובה",
       "answered": "נענה",
       "closed": "סגור",
       "cancelled": "בוטל"

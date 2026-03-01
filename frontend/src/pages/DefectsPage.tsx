@@ -14,9 +14,9 @@ import DefectCardList from '../components/defects/DefectCardList'
 import DefectFormModal from '../components/defects/DefectFormModal'
 import { defectsApi, DefectCreateData, DefectAnalysisItem } from '../api/defects'
 import { filesApi } from '../api/files'
-import { contactsApi } from '../api/contacts'
 import { areasApi } from '../api/areas'
-import type { Defect, DefectSummary, DefectSeverity, Contact, ConstructionArea } from '../types'
+import type { Defect, DefectSummary, DefectSeverity, ConstructionArea } from '../types'
+import { useProjectContacts } from '../hooks/useProjectContacts'
 import { useToast } from '../components/common/ToastProvider'
 import { validateRequired, validateMinLength, type ValidationError, hasErrors } from '../utils/validation'
 import { AddIcon, VisibilityIcon, PictureAsPdfIcon } from '@/icons'
@@ -84,7 +84,7 @@ export default function DefectsPage() {
   const [page, setPage] = useState(1)
   const [rowsPerPage, setRowsPerPage] = useState(20)
   const [summary, setSummary] = useState<DefectSummary | null>(null)
-  const [contacts, setContacts] = useState<Contact[]>([])
+  const { contacts } = useProjectContacts(projectId)
   const [areas, setAreas] = useState<ConstructionArea[]>([])
   const [loading, setLoading] = useState(true)
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -166,12 +166,11 @@ export default function DefectsPage() {
   const loadReferenceData = async () => {
     if (!projectId) return
     try {
-      const [defectSummary, contactList, areaList] = await Promise.all([
+      const [defectSummary, areaList] = await Promise.all([
         defectsApi.getSummary(projectId),
-        contactsApi.list(projectId).catch(() => []),
         areasApi.list(projectId).catch(() => []),
       ])
-      setSummary(defectSummary); setContacts(contactList); setAreas(areaList)
+      setSummary(defectSummary); setAreas(areaList)
     } catch (error) { console.error('Failed to load reference data:', error) }
   }
 

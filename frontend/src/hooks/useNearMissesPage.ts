@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from 'react'
 import { safetyApi, NearMissCreateData, NearMissUpdateData } from '../api/safety'
 import type { NearMiss, NearMissSeverity, NearMissSummary } from '../types/safety'
-import type { Contact, ConstructionArea } from '../types'
+import type { ConstructionArea } from '../types'
 import { useToast } from '../components/common/ToastProvider'
 import { useTranslation } from 'react-i18next'
-import { contactsApi } from '../api/contacts'
+import { useProjectContacts } from './useProjectContacts'
 import { areasApi } from '../api/areas'
 import { validateRequired, type ValidationError, hasErrors } from '../utils/validation'
 import { filesToPreviews, filesToBase64 } from '../utils/safetyHelpers'
@@ -16,7 +16,7 @@ export function useNearMissesPage(projectId: string | undefined) {
   // State
   const [nearMisses, setNearMisses] = useState<NearMiss[]>([])
   const [summary, setSummary] = useState<NearMissSummary | null>(null)
-  const [contacts, setContacts] = useState<Contact[]>([])
+  const { contacts } = useProjectContacts(projectId)
   const [areas, setAreas] = useState<ConstructionArea[]>([])
   const [loading, setLoading] = useState(true)
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -50,13 +50,11 @@ export function useNearMissesPage(projectId: string | undefined) {
   const loadReferenceData = async () => {
     if (!projectId) return
     try {
-      const [summaryData, contactList, areaList] = await Promise.all([
+      const [summaryData, areaList] = await Promise.all([
         safetyApi.nearMisses.getSummary(projectId),
-        contactsApi.list(projectId).catch(() => []),
         areasApi.list(projectId).catch(() => []),
       ])
       setSummary(summaryData)
-      setContacts(contactList)
       setAreas(areaList)
     } catch (error) {
       console.error('Failed to load reference data:', error)

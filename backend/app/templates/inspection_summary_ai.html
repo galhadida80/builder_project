@@ -57,7 +57,7 @@
     font-weight: 700;
     letter-spacing: 2px;
     text-transform: uppercase;
-    color: #3B82F6;
+    color: #F97316;
   }
 
   .header-date {
@@ -84,20 +84,20 @@
   }
 
   .header-project .code {
-    color: #3B82F6;
+    color: #F97316;
     font-weight: 600;
   }
 
   .header-rule {
     border: none;
-    border-top: 3px solid #3B82F6;
+    border-top: 3px solid #F97316;
     margin: 14px 0 0;
     width: 80px;
   }
 
   .ai-badge {
     display: inline-block;
-    background: linear-gradient(135deg, #0369A1, #0EA5E9);
+    background: linear-gradient(135deg, #EA580C, #FB923C);
     color: #fff;
     padding: 4px 12px;
     border-radius: 6px;
@@ -125,13 +125,13 @@
     {{ 'right' if direction == 'rtl' else 'left' }}: 0;
     width: 60px;
     height: 3px;
-    background: linear-gradient(90deg, #0369A1 0%, #E2E8F0 100%);
+    background: linear-gradient(90deg, #EA580C 0%, #E2E8F0 100%);
     border-radius: 3px;
   }
 
   .ai-narrative {
-    background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%);
-    border-{{ 'right' if direction == 'rtl' else 'left' }}: 4px solid #0369A1;
+    background: linear-gradient(135deg, #FFF7ED 0%, #E0F2FE 100%);
+    border-{{ 'right' if direction == 'rtl' else 'left' }}: 4px solid #EA580C;
     padding: 20px 24px;
     border-radius: 8px;
     margin-bottom: 20px;
@@ -443,7 +443,7 @@
 <div class="section-title">{{ s.summary_statistics }}</div>
 <div class="stats-row">
   <div class="stat-card">
-    <div class="stat-value" style="color: {{ stats.total_findings_color or '#0369A1' }};">{{ stats.total_findings }}</div>
+    <div class="stat-value" style="color: {{ stats.total_findings_color or '#EA580C' }};">{{ stats.total_findings }}</div>
     <div class="stat-label">{{ s.total_findings }}</div>
   </div>
   {% if stats.critical_findings is defined %}

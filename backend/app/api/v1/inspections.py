@@ -15,7 +15,7 @@ from app.core.security import get_current_user, verify_project_access
 from app.db.session import get_db
 from app.models.audit import AuditAction, AuditLog
 from app.models.inspection import Finding, Inspection, InspectionStage, InspectionStatus
-from app.models.inspection_template import InspectionConsultantType
+from app.models.inspection_template import InspectionConsultantType, InspectionStageTemplate
 from app.models.project import Project, ProjectMember
 from app.models.user import User
 from app.schemas.audit import AuditLogResponse
@@ -32,6 +32,7 @@ from app.schemas.inspection import (
     InspectionSummaryResponse,
     InspectionUpdate,
 )
+from app.schemas.inspection_template import InspectionStageTemplateResponse
 from app.services.audit_service import create_audit_log, get_model_dict
 from app.services.inspection_report_service import generate_inspections_report_pdf
 from app.services.notification_service import notify_project_admins
@@ -91,6 +92,23 @@ async def get_consultant_type(
     if not consultant_type:
         raise HTTPException(status_code=404, detail="Consultant type not found")
     return consultant_type
+
+
+@router.get(
+    "/inspection-consultant-types/{consultant_type_id}/stage-templates",
+    response_model=list[InspectionStageTemplateResponse],
+)
+async def list_stage_templates(
+    consultant_type_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    result = await db.execute(
+        select(InspectionStageTemplate)
+        .where(InspectionStageTemplate.consultant_type_id == consultant_type_id)
+        .order_by(InspectionStageTemplate.stage_order.asc())
+    )
+    return result.scalars().all()
 
 
 @router.post("/inspection-consultant-types/{consultant_type_id}/stages", response_model=InspectionStageResponse)

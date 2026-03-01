@@ -1742,6 +1742,7 @@
       "open": "Open",
       "in_progress": "In Progress",
       "waiting": "Waiting",
+      "waiting_response": "Waiting for Response",
       "answered": "Answered",
       "closed": "Closed",
       "cancelled": "Cancelled"

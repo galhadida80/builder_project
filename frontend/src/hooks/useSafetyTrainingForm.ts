@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { safetyApi, SafetyTrainingCreateData, SafetyTrainingUpdateData, SafetyTrainingSummary } from '../api/safety'
-import { contactsApi } from '../api/contacts'
+import { useProjectContacts } from './useProjectContacts'
 import type { SafetyTraining } from '../types/safety'
-import type { Contact } from '../types'
 import { useToast } from '../components/common/ToastProvider'
 import { validateRequired, type ValidationError, hasErrors } from '../utils/validation'
 
@@ -22,7 +21,8 @@ export function useSafetyTrainingForm(projectId: string | undefined) {
   const { showSuccess } = useToast()
 
   const [summary, setSummary] = useState<SafetyTrainingSummary | null>(null)
-  const [contacts, setContacts] = useState<Contact[]>([])
+  const { contacts: allContacts } = useProjectContacts(projectId)
+  const contacts = allContacts.filter(c => c.contactType === 'worker' || c.contactType === 'subcontractor' || c.contactType === 'team_member')
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingTraining, setEditingTraining] = useState<SafetyTraining | null>(null)
   const [submitting, setSubmitting] = useState(false)
@@ -40,12 +40,8 @@ export function useSafetyTrainingForm(projectId: string | undefined) {
   const loadReferenceData = async () => {
     if (!projectId) return
     try {
-      const [trainingSummary, contactList] = await Promise.all([
-        safetyApi.training.getSummary(projectId),
-        contactsApi.list(projectId).catch(() => []),
-      ])
+      const trainingSummary = await safetyApi.training.getSummary(projectId)
       setSummary(trainingSummary)
-      setContacts(contactList.filter((c) => c.contactType === 'worker' || c.contactType === 'subcontractor'))
     } catch (error) {
       console.error('Failed to load reference data:', error)
     }

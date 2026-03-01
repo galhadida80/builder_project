@@ -334,6 +334,21 @@ async def get_project_overview(
     )
 
 
+@router.get("/{project_id}/members", response_model=list[ProjectMemberResponse])
+async def list_project_members(
+    project_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    await verify_project_access(project_id, current_user, db)
+    result = await db.execute(
+        select(ProjectMember)
+        .options(selectinload(ProjectMember.user))
+        .where(ProjectMember.project_id == project_id)
+    )
+    return result.scalars().all()
+
+
 @router.post("/{project_id}/members", response_model=ProjectMemberResponse)
 async def add_project_member(
     project_id: UUID,

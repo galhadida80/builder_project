@@ -13,7 +13,7 @@
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:28px 0 14px;">
 <tr><td>
   <p style="margin:0;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#0F172A;">{{ title }}</p>
-  <div style="height:3px;background:linear-gradient(90deg,#0369A1 0%,#E2E8F0 100%);border-radius:3px;margin-top:8px;"></div>
+  <div style="height:3px;background:linear-gradient(90deg,#EA580C 0%,#E2E8F0 100%);border-radius:3px;margin-top:8px;"></div>
 </td></tr>
 </table>
 {% endmacro %}
@@ -22,7 +22,7 @@
 <tr><td style="background:linear-gradient(135deg,#0F172A 0%,#1E293B 100%);padding:36px 36px 30px;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
 <tr><td>
-  <p style="margin:0 0 20px;font-size:11px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:#3B82F6;">BUILDEROPS</p>
+  <p style="margin:0 0 20px;font-size:11px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:#F97316;">BUILDEROPS</p>
   <p style="margin:0 0 8px;font-size:28px;">&#128202;</p>
   <h1 style="margin:0 0 8px;color:#ffffff;font-size:24px;font-weight:800;letter-spacing:-0.3px;">{{ s.title }}</h1>
   <p style="margin:0;color:#94A3B8;font-size:14px;font-weight:500;">
@@ -40,7 +40,7 @@
 {# 1. AI-generated executive summary #}
 {% if ai_summary %}
 {{ section_title(s.executive_summary) }}
-<div style="background:#F0F9FF;border-{{ 'right' if direction == 'rtl' else 'left' }}:4px solid #0369A1;padding:20px 24px;border-radius:8px;margin-bottom:16px;">
+<div style="background:#FFF7ED;border-{{ 'right' if direction == 'rtl' else 'left' }}:4px solid #EA580C;padding:20px 24px;border-radius:8px;margin-bottom:16px;">
   <p style="margin:0;font-size:14px;line-height:1.8;color:#1E293B;font-weight:500;">{{ ai_summary }}</p>
 </div>
 {% endif %}
@@ -71,7 +71,7 @@
 {{ section_title(s.key_metrics) }}
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
   <tr>
-    {{ stat_card(s.activity_items, activity_count, "#0369A1", "#F0F9FF") }}
+    {{ stat_card(s.activity_items, activity_count, "#EA580C", "#FFF7ED") }}
     {{ stat_card(s.inspections, inspections.completed, "#16A34A", "#F0FDF4") }}
     {{ stat_card(s.pending_approvals, pending.total, "#EA580C", "#FFF7ED") }}
     {% if rfis.overdue > 0 %}
@@ -137,8 +137,8 @@
 {{ section_title(s.activity_breakdown) }}
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:16px;">
   <tr>
-    {{ stat_card(s.equipment, equipment.created, "#0369A1", "#F0F9FF") }}
-    {{ stat_card(s.materials, materials.created, "#0369A1", "#F0F9FF") }}
+    {{ stat_card(s.equipment, equipment.created, "#EA580C", "#FFF7ED") }}
+    {{ stat_card(s.materials, materials.created, "#EA580C", "#FFF7ED") }}
     {{ stat_card(s.meetings, meetings_count, "#64748B", "#F8FAFC") }}
   </tr>
 </table>
@@ -177,7 +177,7 @@
 
 {% block cta %}
 <tr><td style="padding:0 36px 32px;text-align:center;">
-  <a href="{{ frontend_url }}/projects/{{ project_id }}/reports" style="display:inline-block;background:linear-gradient(135deg,#0369A1,#0EA5E9);color:#ffffff;text-decoration:none;padding:14px 40px;border-radius:12px;font-size:15px;font-weight:700;letter-spacing:0.3px;box-shadow:0 4px 12px rgba(3,105,161,0.3);">{{ s.view_details }}</a>
+  <a href="{{ frontend_url }}/projects/{{ project_id }}/reports" style="display:inline-block;background:linear-gradient(135deg,#EA580C,#FB923C);color:#ffffff;text-decoration:none;padding:14px 40px;border-radius:12px;font-size:15px;font-weight:700;letter-spacing:0.3px;box-shadow:0 4px 12px rgba(249,115,22,0.3);">{{ s.view_details }}</a>
 </td></tr>
 {% endblock %}
 

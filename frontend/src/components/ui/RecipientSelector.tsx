@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { contactsApi } from '../../api/contacts'
+import { useProjectContacts } from '../../hooks/useProjectContacts'
 import type { Contact } from '../../types'
 import { PersonIcon, GroupIcon, CloseIcon } from '@/icons'
 import { Box, Typography, Autocomplete, TextField as MuiTextField, Chip, CircularProgress, Avatar } from '@/mui'
@@ -39,24 +38,7 @@ export default function RecipientSelector({
   helperText,
 }: RecipientSelectorProps) {
   const { t } = useTranslation()
-  const [contacts, setContacts] = useState<Contact[]>([])
-  const [loading, setLoading] = useState(false)
-
-  useEffect(() => {
-    if (!projectId) return
-    const loadContacts = async () => {
-      setLoading(true)
-      try {
-        const data = await contactsApi.list(projectId)
-        setContacts(data)
-      } catch {
-        setContacts([])
-      } finally {
-        setLoading(false)
-      }
-    }
-    loadContacts()
-  }, [projectId])
+  const { contacts, loading } = useProjectContacts(projectId)
 
   const filteredContacts = filterTypes?.length
     ? contacts.filter(c => filterTypes.includes(c.contactType))

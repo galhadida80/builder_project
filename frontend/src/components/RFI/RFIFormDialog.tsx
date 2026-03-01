@@ -16,9 +16,9 @@ import { Modal } from '../ui/Modal'
 import { Button } from '../ui/Button'
 import { TextField } from '../ui/TextField'
 import { Select, SelectOption } from '../ui/Select'
-import { contactsApi } from '../../api/contacts'
 import { contactGroupsApi } from '../../api/contactGroups'
-import type { Contact, ContactGroupListItem } from '../../types'
+import { useProjectContacts } from '../../hooks/useProjectContacts'
+import type { ContactGroupListItem } from '../../types'
 import { Box, Stack, Autocomplete, Chip, Typography, IconButton, List, ListItem, ListItemText, ListItemSecondaryAction, Alert, TextField as MuiTextField } from '@/mui'
 
 const RFI_CATEGORY_KEYS = ['design', 'structural', 'mep', 'architectural', 'specifications', 'schedule', 'cost', 'other'] as const
@@ -77,18 +77,13 @@ export function RFIFormDialog({
     label: t(`rfis.priorities.${key}`),
   }))
 
-  const [projectContacts, setProjectContacts] = useState<Contact[]>([])
+  const { contacts: allContacts } = useProjectContacts(projectId)
+  const projectContacts = allContacts.filter(c => c.email)
   const [contactGroups, setContactGroups] = useState<ContactGroupListItem[]>([])
 
   useEffect(() => {
     if (open && projectId) {
-      Promise.all([
-        contactsApi.list(projectId),
-        contactGroupsApi.list(projectId),
-      ]).then(([contacts, groups]) => {
-        setProjectContacts(contacts.filter(c => c.email))
-        setContactGroups(groups)
-      }).catch(() => {})
+      contactGroupsApi.list(projectId).then(setContactGroups).catch(() => {})
     }
   }, [open, projectId])
 

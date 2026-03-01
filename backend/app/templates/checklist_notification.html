@@ -59,7 +59,7 @@
 {% elif status == 'completed' %}
 <span style="display:inline-block;background:#DCFCE7;color:#166534;padding:6px 18px;border-radius:20px;font-size:14px;font-weight:700;margin-{{ 'right' if direction == 'rtl' else 'left' }}:8px;">&#9989; {{ strings.status_completed }}</span>
 {% else %}
-<span style="display:inline-block;background:#DBEAFE;color:#1E40AF;padding:6px 18px;border-radius:20px;font-size:14px;font-weight:700;margin-{{ 'right' if direction == 'rtl' else 'left' }}:8px;">{{ status }}</span>
+<span style="display:inline-block;background:#FFEDD5;color:#9A3412;padding:6px 18px;border-radius:20px;font-size:14px;font-weight:700;margin-{{ 'right' if direction == 'rtl' else 'left' }}:8px;">{{ status }}</span>
 {% endif %}
 </td>
 </tr>
@@ -113,7 +113,7 @@
 {# CTA #}
 {% if action_url %}
 <div style="text-align:center;margin:0 0 4px;">
-<a href="{{ action_url }}" style="display:inline-block;background:linear-gradient(135deg,#0369A1,#0EA5E9);color:#ffffff;text-decoration:none;padding:14px 40px;border-radius:12px;font-size:15px;font-weight:700;letter-spacing:0.3px;box-shadow:0 4px 12px rgba(3,105,161,0.3);">{{ strings.cta }}</a>
+<a href="{{ action_url }}" style="display:inline-block;background:linear-gradient(135deg,#EA580C,#FB923C);color:#ffffff;text-decoration:none;padding:14px 40px;border-radius:12px;font-size:15px;font-weight:700;letter-spacing:0.3px;box-shadow:0 4px 12px rgba(249,115,22,0.3);">{{ strings.cta }}</a>
 </div>
 {% endif %}
 {% endblock %}

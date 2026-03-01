@@ -4,12 +4,12 @@
 <tr><td style="background:linear-gradient(135deg,#0F172A 0%,#1E293B 100%);padding:36px 36px 30px;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
 <tr><td>
-<p style="margin:0 0 20px;font-size:11px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:#3B82F6;">BUILDEROPS</p>
+<p style="margin:0 0 20px;font-size:11px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:#F97316;">BUILDEROPS</p>
 <h1 style="margin:0 0 8px;color:#ffffff;font-size:24px;font-weight:800;letter-spacing:-0.3px;">{{ strings.title }}</h1>
 <table role="presentation" cellpadding="0" cellspacing="0">
 <tr>
 <td style="padding-{{ 'left' if direction == 'rtl' else 'right' }}:10px;">
-<span style="display:inline-block;background:rgba(59,130,246,0.15);color:#60A5FA;padding:4px 14px;border-radius:8px;font-size:13px;font-weight:700;font-family:monospace;">{{ rfi.rfi_number }}</span>
+<span style="display:inline-block;background:rgba(249,115,22,0.15);color:#FB923C;padding:4px 14px;border-radius:8px;font-size:13px;font-weight:700;font-family:monospace;">{{ rfi.rfi_number }}</span>
 </td>
 {% if not is_response %}
 <td>
@@ -55,7 +55,7 @@
 <tr>
 <td width="50%" style="padding:14px 20px;border-bottom:1px solid #E2E8F0;vertical-align:top;">
 <p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">{{ strings.category }}</p>
-<span style="display:inline-block;background:#EFF6FF;color:#1D4ED8;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:700;">{{ rfi.category | title }}</span>
+<span style="display:inline-block;background:#FFF7ED;color:#C2410C;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:700;">{{ rfi.category | title }}</span>
 </td>
 <td width="50%" style="padding:14px 20px;border-bottom:1px solid #E2E8F0;vertical-align:top;">
 <p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">{{ strings.priority }}</p>
@@ -98,8 +98,8 @@
 <tr>
 {% if sender_name %}
 <td width="50%" style="padding:4px;">
-<div style="background:#F0F9FF;border-radius:10px;padding:14px 16px;">
-<p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#0369A1;">{{ strings.sent_by }}</p>
+<div style="background:#FFF7ED;border-radius:10px;padding:14px 16px;">
+<p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#EA580C;">{{ strings.sent_by }}</p>
 <p style="margin:0;font-size:14px;color:#0F172A;font-weight:600;">{{ sender_name }}</p>
 </div>
 </td>
@@ -121,7 +121,7 @@
 <tr><td>
 <p style="margin:0 0 10px;font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#0F172A;">{{ strings.question }}</p>
 </td></tr>
-<tr><td style="padding:20px 22px;background:#F8FAFC;border-radius:12px;border-{{ 'right' if direction == 'rtl' else 'left' }}:4px solid #0369A1;">
+<tr><td style="padding:20px 22px;background:#F8FAFC;border-radius:12px;border-{{ 'right' if direction == 'rtl' else 'left' }}:4px solid #EA580C;">
 <p style="margin:0;color:#334155;font-size:15px;line-height:1.8;">{{ rfi.question | replace('\n', '<br>') }}</p>
 </td></tr>
 </table>
@@ -144,13 +144,13 @@
 
 {# CTA Button #}
 <div style="text-align:center;margin:0 0 24px;">
-<a href="{{ frontend_url }}/projects/{{ rfi.project_id }}/rfis/{{ rfi.id }}" style="display:inline-block;background:linear-gradient(135deg,#0369A1,#0EA5E9);color:#ffffff;text-decoration:none;padding:14px 40px;border-radius:12px;font-size:15px;font-weight:700;letter-spacing:0.3px;box-shadow:0 4px 12px rgba(3,105,161,0.3);">{{ strings.cta }}</a>
+<a href="{{ frontend_url }}/projects/{{ rfi.project_id }}/rfis/{{ rfi.id }}" style="display:inline-block;background:linear-gradient(135deg,#EA580C,#FB923C);color:#ffffff;text-decoration:none;padding:14px 40px;border-radius:12px;font-size:15px;font-weight:700;letter-spacing:0.3px;box-shadow:0 4px 12px rgba(249,115,22,0.3);">{{ strings.cta }}</a>
 </div>
 
 {# Reply Note & Reference #}
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F0F9FF;border-radius:10px;border:1px solid #BAE6FD;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#FFF7ED;border-radius:10px;border:1px solid #FDBA74;">
 <tr><td style="padding:14px 18px;">
-<p style="margin:0 0 6px;color:#0369A1;font-size:13px;line-height:1.5;">{{ strings.reply_note }}</p>
+<p style="margin:0 0 6px;color:#EA580C;font-size:13px;line-height:1.5;">{{ strings.reply_note }}</p>
 <p style="margin:0;color:#64748B;font-size:12px;">{{ strings.reference }}: <strong style="color:#0F172A;">{{ rfi.rfi_number }}</strong></p>
 </td></tr>
 </table>

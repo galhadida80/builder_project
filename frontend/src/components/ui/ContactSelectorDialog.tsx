@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Button } from './Button'
-import { contactsApi } from '../../api/contacts'
 import { useAuth } from '../../contexts/AuthContext'
+import { useProjectContacts } from '../../hooks/useProjectContacts'
 import type { Contact } from '../../types'
 import { useTranslation } from 'react-i18next'
 import { PersonIcon, AccountCircleIcon } from '@/icons'
@@ -24,8 +24,7 @@ export default function ContactSelectorDialog({
 }: ContactSelectorDialogProps) {
   const { t } = useTranslation()
   const { user } = useAuth()
-  const [contacts, setContacts] = useState<Contact[]>([])
-  const [contactsLoading, setContactsLoading] = useState(false)
+  const { contacts, loading: contactsLoading } = useProjectContacts(projectId)
   const [consultantContact, setConsultantContact] = useState<Contact | null>(null)
   const [inspectorContact, setInspectorContact] = useState<Contact | null>(null)
   const [showValidation, setShowValidation] = useState(false)
@@ -37,19 +36,7 @@ export default function ContactSelectorDialog({
     setConsultantContact(null)
     setInspectorContact(null)
     setShowValidation(false)
-    const loadContacts = async () => {
-      setContactsLoading(true)
-      try {
-        const data = await contactsApi.list(projectId)
-        setContacts(data)
-      } catch {
-        setContacts([])
-      } finally {
-        setContactsLoading(false)
-      }
-    }
-    loadContacts()
-  }, [open, projectId])
+  }, [open])
 
   // Build a "self" contact entry for the current user so they can assign themselves
   const selfContact: Contact | null = user ? {

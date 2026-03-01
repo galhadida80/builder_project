@@ -10,17 +10,17 @@ import type {
 
 export const inspectionsApi = {
   getConsultantTypes: async (): Promise<InspectionConsultantType[]> => {
-    const response = await apiClient.get('/consultant-types')
+    const response = await apiClient.get('/inspection-consultant-types')
     return response.data
   },
 
   getConsultantType: async (id: string): Promise<InspectionConsultantType> => {
-    const response = await apiClient.get(`/consultant-types/${id}`)
+    const response = await apiClient.get(`/inspection-consultant-types/${id}`)
     return response.data
   },
 
   getStageTemplates: async (consultantTypeId: string): Promise<InspectionStageTemplate[]> => {
-    const response = await apiClient.get(`/consultant-types/${consultantTypeId}/templates`)
+    const response = await apiClient.get(`/inspection-consultant-types/${consultantTypeId}/stage-templates`)
     return response.data
   },
 

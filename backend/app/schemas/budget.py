@@ -16,18 +16,27 @@ BUDGET_CATEGORIES = Literal[
 
 CHANGE_ORDER_STATUSES = Literal["draft", "submitted", "approved", "rejected"]
 
+MAX_BUDGET_AMOUNT = Decimal("999999999999.99")
+
 
 class BudgetLineItemCreate(BaseModel):
     name: str = Field(min_length=2, max_length=MAX_NAME_LENGTH)
     category: BUDGET_CATEGORIES
     description: Optional[str] = Field(default=None, max_length=MAX_DESCRIPTION_LENGTH)
-    budgeted_amount: Decimal
+    budgeted_amount: Decimal = Field(gt=0)
     sort_order: int = 0
 
     @field_validator("name", "description", mode="before")
     @classmethod
     def sanitize_text(cls, v: str | None) -> str | None:
         return sanitize_string(v)
+
+    @field_validator("budgeted_amount")
+    @classmethod
+    def validate_budgeted_amount(cls, v: Decimal) -> Decimal:
+        if v > MAX_BUDGET_AMOUNT:
+            raise ValueError(f"Amount must be less than {MAX_BUDGET_AMOUNT}")
+        return v
 
 
 class BudgetLineItemUpdate(BaseModel):
@@ -41,6 +50,13 @@ class BudgetLineItemUpdate(BaseModel):
     @classmethod
     def sanitize_text(cls, v: str | None) -> str | None:
         return sanitize_string(v)
+
+    @field_validator("budgeted_amount")
+    @classmethod
+    def validate_budgeted_amount(cls, v: Decimal | None) -> Decimal | None:
+        if v is not None and v > MAX_BUDGET_AMOUNT:
+            raise ValueError(f"Amount must be less than {MAX_BUDGET_AMOUNT}")
+        return v
 
 
 class BudgetLineItemResponse(CamelCaseModel):
@@ -60,7 +76,7 @@ class BudgetLineItemResponse(CamelCaseModel):
 
 class CostEntryCreate(BaseModel):
     description: Optional[str] = Field(default=None, max_length=500)
-    amount: Decimal
+    amount: Decimal = Field(gt=0)
     entry_date: date
     vendor: Optional[str] = Field(default=None, max_length=255)
     vendor_id: Optional[UUID] = None
@@ -70,6 +86,13 @@ class CostEntryCreate(BaseModel):
     @classmethod
     def sanitize_text(cls, v: str | None) -> str | None:
         return sanitize_string(v)
+
+    @field_validator("amount")
+    @classmethod
+    def validate_amount(cls, v: Decimal) -> Decimal:
+        if v > MAX_BUDGET_AMOUNT:
+            raise ValueError(f"Amount must be less than {MAX_BUDGET_AMOUNT}")
+        return v
 
 
 class CostEntryResponse(CamelCaseModel):

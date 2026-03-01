@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BuilderOps Templates - Black & Orange Theme Preview</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0A0A0A; color: #E5E5E5; }
+  .hero { background: linear-gradient(135deg, #0F172A, #1A1A1A); padding: 60px 40px; text-align: center; border-bottom: 3px solid #F97316; }
+  .hero h1 { font-size: 42px; font-weight: 800; color: #fff; margin-bottom: 12px; }
+  .hero .brand { color: #F97316; font-size: 14px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 20px; }
+  .hero p { color: #94A3B8; font-size: 16px; }
+  .palette { display: flex; gap: 16px; justify-content: center; margin: 30px 0 0; flex-wrap: wrap; }
+  .swatch { width: 80px; height: 80px; border-radius: 12px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 6px; font-size: 10px; font-weight: 700; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+  .section-title { text-align: center; padding: 50px 20px 30px; }
+  .section-title h2 { font-size: 28px; font-weight: 800; color: #F97316; margin-bottom: 8px; }
+  .section-title p { color: #64748B; font-size: 14px; }
+  .preview-row { display: flex; gap: 30px; padding: 0 40px 60px; flex-wrap: wrap; justify-content: center; }
+  .preview-card { background: #111; border-radius: 16px; overflow: hidden; border: 1px solid #222; max-width: 620px; width: 100%; }
+  .preview-label { background: #1A1A1A; padding: 14px 20px; font-size: 13px; font-weight: 700; color: #F97316; letter-spacing: 1px; text-transform: uppercase; border-bottom: 1px solid #222; }
+  .preview-frame { background: #F1F5F9; }
+  .divider { height: 1px; background: linear-gradient(90deg, transparent, #F97316, transparent); margin: 0 40px; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="brand">BUILDEROPS</div>
+  <h1>Black & Orange Theme</h1>
+  <p>Email & PDF Template Design System Preview</p>
+  <div class="palette">
+    <div class="swatch" style="background:#0F172A;">#0F172A</div>
+    <div class="swatch" style="background:#1E293B;">#1E293B</div>
+    <div class="swatch" style="background:#EA580C;">#EA580C</div>
+    <div class="swatch" style="background:#F97316;">#F97316</div>
+    <div class="swatch" style="background:#FB923C;">#FB923C</div>
+    <div class="swatch" style="background:#FFF7ED;color:#EA580C;">#FFF7ED</div>
+    <div class="swatch" style="background:#16A34A;">#16A34A</div>
+    <div class="swatch" style="background:#DC2626;">#DC2626</div>
+  </div>
+</div>
+
+<!-- 1. WELCOME EMAIL -->
+<div class="section-title"><h2>1. Welcome Email</h2><p>welcome.html - New user onboarding</p></div>
+<div class="preview-row"><div class="preview-card"><div class="preview-label">Welcome Email</div><div class="preview-frame">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#F1F5F9;">
+<tr><td align="center" style="padding:32px 16px;">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06),0 8px 32px rgba(0,0,0,0.04);">
+<tr><td style="background:linear-gradient(135deg,#0F172A 0%,#1E293B 100%);padding:36px 36px 30px;">
+<p style="margin:0 0 20px;font-size:11px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:#F97316;">BUILDEROPS</p>
+<p style="margin:0 0 8px;font-size:32px;">&#127881;</p>
+<h1 style="margin:0 0 6px;color:#ffffff;font-size:26px;font-weight:800;letter-spacing:-0.5px;">!ברוכים הבאים</h1>
+<p style="margin:0;color:#94A3B8;font-size:14px;">אנחנו שמחים שהצטרפת אלינו</p>
+</td></tr>
+<tr><td style="padding:36px;text-align:right;">
+<p style="margin:0 0 28px;color:#334155;font-size:16px;line-height:1.7;">שלום גל, ברוכים הבאים לפלטפורמה! אנחנו שמחים שהצטרפת.</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F8FAFC;border-radius:12px;border:1px solid #E2E8F0;margin-bottom:28px;">
+<tr><td style="padding:6px 22px 6px;">
+<p style="margin:12px 0 14px;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#64748B;">פרטי חשבון</p>
+</td></tr>
+<tr><td style="padding:0 22px 18px;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+<tr><td style="padding:8px 0;border-bottom:1px solid #E2E8F0;">
+<span style="font-size:13px;color:#64748B;">שם:</span>
+<span style="font-size:14px;color:#0F172A;font-weight:600;margin-right:8px;">גל חדידה</span>
+</td></tr>
+<tr><td style="padding:8px 0;border-bottom:1px solid #E2E8F0;">
+<span style="font-size:13px;color:#64748B;">אימייל:</span>
+<span style="font-size:14px;color:#0F172A;font-weight:600;margin-right:8px;">gal@builderops.dev</span>
+</td></tr>
+<tr><td style="padding:8px 0;">
+<span style="font-size:13px;color:#64748B;">הצטרפות:</span>
+<span style="font-size:14px;color:#0F172A;font-weight:600;margin-right:8px;">01/03/2026</span>
+</td></tr>
+</table>
+</td></tr>
+</table>
+<p style="margin:0 0 16px;font-size:16px;font-weight:700;color:#0F172A;">?מה הלאה</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
+<tr><td style="padding:8px 0;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F8FAFC;border-radius:10px;border:1px solid #E2E8F0;">
+<tr>
+<td style="width:48px;vertical-align:top;padding:16px;">
+<div style="width:32px;height:32px;background:linear-gradient(135deg,#EA580C,#F97316);border-radius:50%;text-align:center;line-height:32px;font-size:14px;color:#ffffff;font-weight:800;">1</div>
+</td>
+<td style="padding:14px 16px 14px 0;vertical-align:top;">
+<p style="margin:0 0 3px;font-size:14px;color:#0F172A;font-weight:700;">צור פרויקט חדש</p>
+<p style="margin:0;font-size:13px;color:#64748B;line-height:1.5;">הגדר את הפרויקט הראשון שלך</p>
+</td>
+</tr>
+</table>
+</td></tr>
+<tr><td style="padding:8px 0;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F8FAFC;border-radius:10px;border:1px solid #E2E8F0;">
+<tr>
+<td style="width:48px;vertical-align:top;padding:16px;">
+<div style="width:32px;height:32px;background:linear-gradient(135deg,#EA580C,#F97316);border-radius:50%;text-align:center;line-height:32px;font-size:14px;color:#ffffff;font-weight:800;">2</div>
+</td>
+<td style="padding:14px 16px 14px 0;vertical-align:top;">
+<p style="margin:0 0 3px;font-size:14px;color:#0F172A;font-weight:700;">הזמן את הצוות</p>
+<p style="margin:0;font-size:13px;color:#64748B;line-height:1.5;">הוסף חברי צוות ויועצים</p>
+</td>
+</tr>
+</table>
+</td></tr>
+<tr><td style="padding:8px 0;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F8FAFC;border-radius:10px;border:1px solid #E2E8F0;">
+<tr>
+<td style="width:48px;vertical-align:top;padding:16px;">
+<div style="width:32px;height:32px;background:linear-gradient(135deg,#EA580C,#F97316);border-radius:50%;text-align:center;line-height:32px;font-size:14px;color:#ffffff;font-weight:800;">3</div>
+</td>
+<td style="padding:14px 16px 14px 0;vertical-align:top;">
+<p style="margin:0 0 3px;font-size:14px;color:#0F172A;font-weight:700;">התחל לעבוד</p>
+<p style="margin:0;font-size:13px;color:#64748B;line-height:1.5;">נהל ציוד, חומרים וביקורות</p>
+</td>
+</tr>
+</table>
+</td></tr>
+</table>
+<p style="margin:0 0 16px;font-size:16px;font-weight:700;color:#0F172A;">תכונות עיקריות</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
+<tr>
+<td width="50%" style="padding:4px;">
+<div style="background:#FFF7ED;border-radius:10px;padding:18px 14px;text-align:center;">
+<p style="margin:0 0 6px;font-size:24px;">&#128202;</p>
+<p style="margin:0;font-size:13px;color:#EA580C;font-weight:700;">דשבורד</p>
+</div>
+</td>
+<td width="50%" style="padding:4px;">
+<div style="background:#FFF7ED;border-radius:10px;padding:18px 14px;text-align:center;">
+<p style="margin:0 0 6px;font-size:24px;">&#129302;</p>
+<p style="margin:0;font-size:13px;color:#EA580C;font-weight:700;">עוזר AI</p>
+</div>
+</td>
+</tr>
+<tr>
+<td width="50%" style="padding:4px;">
+<div style="background:#F0FDF4;border-radius:10px;padding:18px 14px;text-align:center;">
+<p style="margin:0 0 6px;font-size:24px;">&#128241;</p>
+<p style="margin:0;font-size:13px;color:#16A34A;font-weight:700;">מובייל</p>
+</div>
+</td>
+<td width="50%" style="padding:4px;">
+<div style="background:#FFF7ED;border-radius:10px;padding:18px 14px;text-align:center;">
+<p style="margin:0 0 6px;font-size:24px;">&#128200;</p>
+<p style="margin:0;font-size:13px;color:#EA580C;font-weight:700;">דוחות</p>
+</div>
+</td>
+</tr>
+</table>
+<div style="text-align:center;margin:0 0 24px;">
+<a href="#" style="display:inline-block;background:linear-gradient(135deg,#EA580C,#F97316);color:#ffffff;text-decoration:none;padding:16px 48px;border-radius:12px;font-size:16px;font-weight:700;letter-spacing:0.3px;box-shadow:0 4px 12px rgba(249,115,22,0.3);">התחל עכשיו</a>
+</div>
+</td></tr>
+<tr><td style="background-color:#F8FAFC;padding:24px 36px;text-align:center;border-top:1px solid #E2E8F0;">
+<p style="margin:0 0 8px;color:#94A3B8;font-size:12px;">BuilderOps &copy; 2026</p>
+<p style="margin:0;color:#CBD5E1;font-size:11px;">הודעה זו נשלחה אוטומטית</p>
+</td></tr>
+</table>
+</td></tr>
+</table>
+</div></div></div>
+
+<div class="divider"></div>
+
+<!-- 2. DAILY SUMMARY EMAIL -->
+<div class="section-title"><h2>2. Daily Summary Email</h2><p>daily_summary.html - Project activity report</p></div>
+<div class="preview-row"><div class="preview-card"><div class="preview-label">Daily Summary</div><div class="preview-frame">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#F1F5F9;">
+<tr><td align="center" style="padding:32px 16px;">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+<tr><td style="background:linear-gradient(135deg,#0F172A 0%,#1E293B 100%);padding:36px 36px 30px;">
+<p style="margin:0 0 20px;font-size:11px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:#F97316;">BUILDEROPS</p>
+<p style="margin:0 0 8px;font-size:28px;">&#128203;</p>
+<h1 style="margin:0 0 8px;color:#ffffff;font-size:24px;font-weight:800;letter-spacing:-0.3px;">סיכום יומי</h1>
+<p style="margin:0;color:#94A3B8;font-size:14px;font-weight:500;">
+פרויקט: <span style="color:#CBD5E1;font-weight:600;">מגדל השרון</span>
+&nbsp;&#183;&nbsp;
+תאריך: <span style="color:#CBD5E1;font-weight:600;">01/03/2026</span>
+</p>
+</td></tr>
+<tr><td style="padding:36px;text-align:right;">
+
+<!-- Section: Activity -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 14px;">
+<tr><td>
+<p style="margin:0;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#0F172A;">סקירת פעילות</p>
+<div style="height:3px;background:linear-gradient(90deg,#F97316 0%,#E2E8F0 100%);border-radius:3px;margin-top:8px;"></div>
+</td></tr>
+</table>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #E2E8F0;border-radius:12px;overflow:hidden;">
+<tr style="background:#F8FAFC;">
+<th style="padding:12px 18px;text-align:right;font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;">סוג</th>
+<th style="padding:12px 18px;text-align:right;font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;">פעולה</th>
+<th style="padding:12px 14px;text-align:center;font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;">כמות</th>
+</tr>
+<tr>
+<td style="padding:12px 18px;border-top:1px solid #F1F5F9;font-size:13px;color:#334155;font-weight:600;">ציוד</td>
+<td style="padding:12px 18px;border-top:1px solid #F1F5F9;font-size:13px;color:#334155;">נוצר</td>
+<td style="padding:12px 14px;border-top:1px solid #F1F5F9;font-size:15px;text-align:center;font-weight:800;color:#0F172A;">5</td>
+</tr>
+<tr>
+<td style="padding:12px 18px;border-top:1px solid #F1F5F9;font-size:13px;color:#334155;font-weight:600;">חומרים</td>
+<td style="padding:12px 18px;border-top:1px solid #F1F5F9;font-size:13px;color:#334155;">אושר</td>
+<td style="padding:12px 14px;border-top:1px solid #F1F5F9;font-size:15px;text-align:center;font-weight:800;color:#0F172A;">3</td>
+</tr>
+<tr>
+<td style="padding:12px 18px;border-top:1px solid #F1F5F9;font-size:13px;color:#334155;font-weight:600;">ביקורות</td>
+<td style="padding:12px 18px;border-top:1px solid #F1F5F9;font-size:13px;color:#334155;">הושלם</td>
+<td style="padding:12px 14px;border-top:1px solid #F1F5F9;font-size:15px;text-align:center;font-weight:800;color:#0F172A;">2</td>
+</tr>
+</table>
+
+<!-- Section: Equipment stats -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:28px 0 14px;">
+<tr><td>
+<p style="margin:0;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#0F172A;">ציוד וחומרים</p>
+<div style="height:3px;background:linear-gradient(90deg,#F97316 0%,#E2E8F0 100%);border-radius:3px;margin-top:8px;"></div>
+</td></tr>
+</table>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:16px;">
+<tr>
+<td style="text-align:center;padding:4px;width:33%;">
+<div style="background:#FFF7ED;border-radius:10px;padding:16px 8px;">
+<div style="font-size:28px;font-weight:800;color:#EA580C;letter-spacing:-0.5px;">5</div>
+<div style="font-size:11px;color:#64748B;margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;">נוצר</div>
+</div>
+</td>
+<td style="text-align:center;padding:4px;width:33%;">
+<div style="background:#F0FDF4;border-radius:10px;padding:16px 8px;">
+<div style="font-size:28px;font-weight:800;color:#16A34A;letter-spacing:-0.5px;">3</div>
+<div style="font-size:11px;color:#64748B;margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;">אושר</div>
+</div>
+</td>
+<td style="text-align:center;padding:4px;width:33%;">
+<div style="background:#FEF2F2;border-radius:10px;padding:16px 8px;">
+<div style="font-size:28px;font-weight:800;color:#DC2626;letter-spacing:-0.5px;">1</div>
+<div style="font-size:11px;color:#64748B;margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;">נדחה</div>
+</div>
+</td>
+</tr>
+</table>
+
+<!-- Progress bar -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:28px 0 14px;">
+<tr><td>
+<p style="margin:0;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#0F172A;">התקדמות פרויקט</p>
+<div style="height:3px;background:linear-gradient(90deg,#F97316 0%,#E2E8F0 100%);border-radius:3px;margin-top:8px;"></div>
+</td></tr>
+</table>
+<div style="background:#DCFCE7;border-radius:14px;height:28px;overflow:hidden;margin:8px 0;">
+<div style="background:#16A34A;height:100%;width:72%;border-radius:14px;"></div>
+</div>
+<p style="text-align:center;font-size:18px;font-weight:800;color:#16A34A;margin:8px 0 0;">72.0%</p>
+
+</td></tr>
+<tr><td style="padding:0 36px 32px;text-align:center;">
+<a href="#" style="display:inline-block;background:linear-gradient(135deg,#EA580C,#F97316);color:#ffffff;text-decoration:none;padding:14px 40px;border-radius:12px;font-size:15px;font-weight:700;letter-spacing:0.3px;box-shadow:0 4px 12px rgba(249,115,22,0.3);">צפה באפליקציה</a>
+</td></tr>
+<tr><td style="background-color:#F8FAFC;padding:24px 36px;text-align:center;border-top:1px solid #E2E8F0;">
+<p style="margin:0;color:#94A3B8;font-size:12px;">BuilderOps &copy; 2026</p>
+</td></tr>
+</table>
+</td></tr>
+</table>
+</div></div></div>
+
+<div class="divider"></div>
+
+<!-- 3. RFI EMAIL -->
+<div class="section-title"><h2>3. RFI Email</h2><p>rfi.html - Request for Information</p></div>
+<div class="preview-row"><div class="preview-card"><div class="preview-label">RFI Email</div><div class="preview-frame">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#F1F5F9;">
+<tr><td align="center" style="padding:32px 16px;">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+<tr><td style="background:linear-gradient(135deg,#0F172A 0%,#1E293B 100%);padding:36px 36px 30px;">
+<p style="margin:0 0 20px;font-size:11px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:#F97316;">BUILDEROPS</p>
+<h1 style="margin:0 0 8px;color:#ffffff;font-size:24px;font-weight:800;letter-spacing:-0.3px;">בקשה למידע (RFI)</h1>
+<table role="presentation" cellpadding="0" cellspacing="0">
+<tr>
+<td style="padding-left:10px;">
+<span style="display:inline-block;background:rgba(249,115,22,0.15);color:#FB923C;padding:4px 14px;border-radius:8px;font-size:13px;font-weight:700;font-family:monospace;">RFI-042</span>
+</td>
+<td>
+<span style="display:inline-block;background:#FFF7ED;color:#EA580C;padding:4px 14px;border-radius:8px;font-size:12px;font-weight:700;">דחוף</span>
+</td>
+</tr>
+</table>
+</td></tr>
+<tr><td style="padding:36px;text-align:right;">
+
+<!-- Metadata Grid -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F8FAFC;border-radius:12px;border:1px solid #E2E8F0;margin-bottom:24px;">
+<tr>
+<td width="50%" style="padding:14px 20px;border-bottom:1px solid #E2E8F0;vertical-align:top;">
+<p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">קטגוריה</p>
+<span style="display:inline-block;background:#FFF7ED;color:#C2410C;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:700;">עיצוב</span>
+</td>
+<td width="50%" style="padding:14px 20px;border-bottom:1px solid #E2E8F0;vertical-align:top;">
+<p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">עדיפות</p>
+<span style="display:inline-block;background:#FEF2F2;color:#DC2626;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:700;">דחוף</span>
+</td>
+</tr>
+<tr>
+<td width="50%" style="padding:14px 20px;vertical-align:top;">
+<p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">תאריך יעד</p>
+<p style="margin:0;font-size:14px;color:#334155;font-weight:600;">05/03/2026</p>
+</td>
+<td width="50%" style="padding:14px 20px;vertical-align:top;">
+<p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#94A3B8;">מיקום</p>
+<p style="margin:0;font-size:14px;color:#334155;font-weight:500;">קומה 3, דירה 12</p>
+</td>
+</tr>
+</table>
+
+<!-- Sender/Recipient -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+<tr>
+<td width="50%" style="padding:4px;">
+<div style="background:#FFF7ED;border-radius:10px;padding:14px 16px;">
+<p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#EA580C;">נשלח ע"י</p>
+<p style="margin:0;font-size:14px;color:#0F172A;font-weight:600;">גל חדידה</p>
+</div>
+</td>
+<td width="50%" style="padding:4px;">
+<div style="background:#FFF7ED;border-radius:10px;padding:14px 16px;">
+<p style="margin:0 0 4px;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#EA580C;">מופנה אל</p>
+<p style="margin:0;font-size:14px;color:#0F172A;font-weight:600;">יוסי כהן</p>
+</div>
+</td>
+</tr>
+</table>
+
+<!-- Question -->
+<p style="margin:0 0 10px;font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#0F172A;">שאלה</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+<tr><td style="padding:20px 22px;background:#F8FAFC;border-radius:12px;border-right:4px solid #EA580C;">
+<p style="margin:0;color:#334155;font-size:15px;line-height:1.8;">האם ניתן לשנות את מיקום חלון הסלון מערב למזרח? יש צורך בתשובה דחופה לפני תחילת עבודות הבנייה.</p>
+</td></tr>
+</table>
+
+<div style="text-align:center;margin:0 0 24px;">
+<a href="#" style="display:inline-block;background:linear-gradient(135deg,#EA580C,#F97316);color:#ffffff;text-decoration:none;padding:14px 40px;border-radius:12px;font-size:15px;font-weight:700;letter-spacing:0.3px;box-shadow:0 4px 12px rgba(249,115,22,0.3);">צפה והגב</a>
+</div>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#FFF7ED;border-radius:10px;border:1px solid #FDBA74;">
+<tr><td style="padding:14px 18px;">
+<p style="margin:0 0 6px;color:#EA580C;font-size:13px;line-height:1.5;">ניתן להגיב ישירות על RFI זה דרך המערכת</p>
+<p style="margin:0;color:#64748B;font-size:12px;">מספר הפניה: <strong style="color:#0F172A;">RFI-042</strong></p>
+</td></tr>
+</table>
+
+</td></tr>
+<tr><td style="background-color:#F8FAFC;padding:24px 36px;text-align:center;border-top:1px solid #E2E8F0;">
+<p style="margin:0;color:#94A3B8;font-size:12px;">&copy; 2026 BuilderOps</p>
+</td></tr>
+</table>
+</td></tr>
+</table>
+</div></div></div>
+
+<div class="divider"></div>
+
+<!-- 4. NOTIFICATION EMAIL -->
+<div class="section-title"><h2>4. Notification Email</h2><p>notification.html - Generic notification</p></div>
+<div class="preview-row"><div class="preview-card"><div class="preview-label">Notification</div><div class="preview-frame">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#F1F5F9;">
+<tr><td align="center" style="padding:32px 16px;">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+<tr><td style="background:linear-gradient(135deg,#0F172A 0%,#1E293B 100%);padding:36px 36px 30px;">
+<p style="margin:0 0 20px;font-size:11px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:#F97316;">BUILDEROPS</p>
+<p style="margin:0 0 8px;font-size:28px;">&#128276;</p>
+<h1 style="margin:0 0 6px;color:#ffffff;font-size:24px;font-weight:800;letter-spacing:-0.3px;">התראה חדשה</h1>
+<p style="margin:0;color:#94A3B8;font-size:13px;">פרויקט: <span style="color:#CBD5E1;font-weight:600;">מגדל השרון</span></p>
+</td></tr>
+<tr><td style="padding:36px;text-align:right;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+<tr><td style="padding:20px;background:#F8FAFC;border-radius:12px;border-right:4px solid #EA580C;">
+<p style="margin:0;color:#334155;font-size:15px;line-height:1.7;">ציוד "מנוף צריח 40T" עודכן לסטטוס "אושר". ניתן להמשיך עם ההתקנה.</p>
+</td></tr>
+</table>
+<div style="text-align:center;margin:0 0 24px;">
+<a href="#" style="display:inline-block;background:linear-gradient(135deg,#EA580C,#F97316);color:#ffffff;text-decoration:none;padding:14px 40px;border-radius:12px;font-size:15px;font-weight:700;letter-spacing:0.3px;box-shadow:0 4px 12px rgba(249,115,22,0.3);">צפה בפרטים</a>
+</div>
+</td></tr>
+<tr><td style="background-color:#F8FAFC;padding:24px 36px;text-align:center;border-top:1px solid #E2E8F0;">
+<p style="margin:0;color:#94A3B8;font-size:12px;">BuilderOps &copy; 2026</p>
+</td></tr>
+</table>
+</td></tr>
+</table>
+</div></div></div>
+
+<div class="divider"></div>
+
+<!-- 5. PASSWORD RESET EMAIL -->
+<div class="section-title"><h2>5. Password Reset Email</h2><p>password_reset.html - Security reset</p></div>
+<div class="preview-row"><div class="preview-card"><div class="preview-label">Password Reset</div><div class="preview-frame">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#F1F5F9;">
+<tr><td align="center" style="padding:32px 16px;">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+<tr><td style="background:linear-gradient(135deg,#0F172A 0%,#1E293B 100%);padding:36px 36px 30px;">
+<p style="margin:0 0 20px;font-size:11px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:#F97316;">BUILDEROPS</p>
+<p style="margin:0 0 8px;font-size:28px;">&#128274;</p>
+<h1 style="margin:0;color:#ffffff;font-size:26px;font-weight:800;letter-spacing:-0.5px;">איפוס סיסמה</h1>
+</td></tr>
+<tr><td style="padding:36px;text-align:right;">
+<p style="margin:0 0 24px;color:#334155;font-size:16px;line-height:1.7;">קיבלנו בקשה לאיפוס הסיסמה שלך. לחץ על הכפתור למטה כדי ליצור סיסמה חדשה.</p>
+<div style="text-align:center;margin:0 0 28px;">
+<a href="#" style="display:inline-block;background:linear-gradient(135deg,#EA580C,#F97316);color:#ffffff;text-decoration:none;padding:16px 48px;border-radius:12px;font-size:16px;font-weight:700;letter-spacing:0.3px;box-shadow:0 4px 12px rgba(249,115,22,0.3);">אפס סיסמה</a>
+</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#FFFBEB;border-radius:10px;border:1px solid #FDE68A;margin-bottom:20px;">
+<tr><td style="padding:16px 20px;">
+<p style="margin:0;color:#92400E;font-size:13px;line-height:1.6;">&#9200; קישור זה תקף ל-24 שעות בלבד</p>
+<p style="margin:4px 0 0;color:#92400E;font-size:13px;line-height:1.6;">אם לא ביקשת איפוס סיסמה, התעלם מהודעה זו</p>
+</td></tr>
+</table>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F8FAFC;border-radius:10px;border:1px solid #E2E8F0;">
+<tr><td style="padding:16px 20px;">
+<p style="margin:0 0 10px;font-size:12px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#64748B;">טיפים לאבטחה</p>
+<table role="presentation" cellpadding="0" cellspacing="0">
+<tr>
+<td style="padding:4px 0;vertical-align:top;width:20px;"><span style="color:#EA580C;font-size:13px;">&#8226;</span></td>
+<td style="padding:4px 0;padding-right:6px;"><p style="margin:0;color:#64748B;font-size:13px;">השתמש בסיסמה חזקה עם לפחות 8 תווים</p></td>
+</tr>
+<tr>
+<td style="padding:4px 0;vertical-align:top;width:20px;"><span style="color:#EA580C;font-size:13px;">&#8226;</span></td>
+<td style="padding:4px 0;padding-right:6px;"><p style="margin:0;color:#64748B;font-size:13px;">אל תשתף את הסיסמה שלך עם אף אחד</p></td>
+</tr>
+</table>
+</td></tr>
+</table>
+</td></tr>
+<tr><td style="background-color:#F8FAFC;padding:24px 36px;text-align:center;border-top:1px solid #E2E8F0;">
+<p style="margin:0;color:#94A3B8;font-size:12px;">BuilderOps &copy; 2026</p>
+</td></tr>
+</table>
+</td></tr>
+</table>
+</div></div></div>
+
+<div class="divider"></div>
+
+<!-- 6. PDF - DEFECTS REPORT -->
+<div class="section-title"><h2>6. Defects Report (PDF)</h2><p>defects_report.html - Task/Defect cards</p></div>
+<div class="preview-row"><div class="preview-card"><div class="preview-label">Defects Report PDF</div><div class="preview-frame" style="background:#fff;padding:0;">
+<div style="background:#0F172A;padding:28px 32px 24px;color:#fff;">
+<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;">
+<div style="font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#F97316;">BUILDEROPS</div>
+<div style="font-size:12px;color:#94A3B8;">01/03/2026</div>
+</div>
+<div style="font-size:28px;font-weight:700;letter-spacing:-0.5px;margin-bottom:6px;">דוח ליקויים ומשימות</div>
+<div style="font-size:14px;color:#CBD5E1;font-weight:400;">מגדל השרון <span style="color:#F97316;font-weight:600;">SH-001</span></div>
+<hr style="border:none;border-top:2px solid #F97316;margin:14px 0 0;width:64px;">
+</div>
+<div style="padding:20px 32px;">
+<div style="font-size:14px;font-weight:600;color:#475569;margin-bottom:16px;"><span style="font-weight:700;color:#0F172A;font-size:16px;">12</span> משימות</div>
+
+<!-- Defect Card 1 -->
+<div style="border:1px solid #E2E8F0;border-radius:6px;overflow:hidden;background:#fff;margin-bottom:16px;">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid #E2E8F0;background:#F8FAFC;">
+<div style="display:flex;align-items:center;gap:6px;">
+<span style="font-size:10px;font-weight:500;color:#64748B;">מזהה:</span>
+<span style="font-size:18px;font-weight:700;color:#0F172A;">001</span>
+</div>
+<div style="display:flex;align-items:center;gap:6px;">
+<span style="display:inline-block;padding:2px 10px;border-radius:4px;font-size:10px;font-weight:700;color:#fff;background:#EA580C;">פתוח</span>
+<span style="display:inline-block;padding:2px 10px;border-radius:4px;font-size:10px;font-weight:600;background:#fff;border:1px solid #CBD5E1;color:#475569;">אינסטלציה</span>
+<span style="display:inline-block;padding:2px 10px;border-radius:4px;font-size:10px;font-weight:600;background:#fff;border:1px solid #CBD5E1;color:#475569;">ליקוי</span>
+</div>
+</div>
+<div style="padding:14px 16px;">
+<div style="padding:6px 0;border-bottom:1px solid #F1F5F9;display:flex;gap:8px;align-items:baseline;">
+<div style="font-size:11px;font-weight:600;color:#94A3B8;min-width:90px;">מיקום</div>
+<div style="font-size:12px;color:#1E293B;font-weight:500;">קומה 3, דירה 12</div>
+</div>
+<div style="padding:6px 0;border-bottom:1px solid #F1F5F9;display:flex;gap:8px;align-items:baseline;">
+<div style="font-size:11px;font-weight:600;color:#94A3B8;min-width:90px;">תיאור</div>
+<div style="font-size:12px;color:#1E293B;font-weight:500;">נזילת מים בצנרת הראשית ליד מטבח</div>
+</div>
+<div style="padding:6px 0;display:flex;gap:8px;align-items:baseline;">
+<div style="font-size:11px;font-weight:600;color:#94A3B8;min-width:90px;">אחראי</div>
+<div style="font-size:12px;color:#1E293B;font-weight:500;">יוסי כהן</div>
+</div>
+</div>
+</div>
+
+<!-- Defect Card 2 -->
+<div style="border:1px solid #E2E8F0;border-radius:6px;overflow:hidden;background:#fff;margin-bottom:16px;">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid #E2E8F0;background:#F8FAFC;">
+<div style="display:flex;align-items:center;gap:6px;">
+<span style="font-size:10px;font-weight:500;color:#64748B;">מזהה:</span>
+<span style="font-size:18px;font-weight:700;color:#0F172A;">002</span>
+</div>
+<div style="display:flex;align-items:center;gap:6px;">
+<span style="display:inline-block;padding:2px 10px;border-radius:4px;font-size:10px;font-weight:700;color:#fff;background:#16A34A;">נפתר</span>
+<span style="display:inline-block;padding:2px 10px;border-radius:4px;font-size:10px;font-weight:600;background:#fff;border:1px solid #CBD5E1;color:#475569;">חשמל</span>
+</div>
+</div>
+<div style="padding:14px 16px;">
+<div style="padding:6px 0;border-bottom:1px solid #F1F5F9;display:flex;gap:8px;align-items:baseline;">
+<div style="font-size:11px;font-weight:600;color:#94A3B8;min-width:90px;">מיקום</div>
+<div style="font-size:12px;color:#1E293B;font-weight:500;">קומה 5, חדר מדרגות</div>
+</div>
+<div style="padding:6px 0;display:flex;gap:8px;align-items:baseline;">
+<div style="font-size:11px;font-weight:600;color:#94A3B8;min-width:90px;">תיאור</div>
+<div style="font-size:12px;color:#1E293B;font-weight:500;">תאורת חירום לא פועלת בקומה 5</div>
+</div>
+</div>
+</div>
+
+</div>
+</div></div></div>
+
+<div class="divider"></div>
+
+<!-- 7. MEETING INVITATION -->
+<div class="section-title"><h2>7. Meeting Invitation Email</h2><p>meeting_invitation.html - RSVP buttons</p></div>
+<div class="preview-row"><div class="preview-card"><div class="preview-label">Meeting Invitation</div><div class="preview-frame">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#F1F5F9;">
+<tr><td align="center" style="padding:32px 16px;">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+<tr><td style="background:linear-gradient(135deg,#0F172A 0%,#1E293B 100%);padding:36px 36px 30px;">
+<p style="margin:0 0 20px;font-size:11px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:#F97316;">BUILDEROPS</p>
+<p style="margin:0 0 8px;font-size:28px;">&#128197;</p>
+<h1 style="margin:0 0 6px;color:#ffffff;font-size:24px;font-weight:800;">הזמנה לפגישה</h1>
+<p style="margin:0;color:#94A3B8;font-size:13px;">פרויקט: <span style="color:#CBD5E1;font-weight:600;">מגדל השרון</span></p>
+</td></tr>
+<tr><td style="padding:36px;text-align:right;">
+<p style="margin:0 0 24px;font-size:15px;color:#334155;line-height:1.6;">שלום גל, הוזמנת לפגישת תיאום שבועית</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;background-color:#F8FAFC;border-radius:12px;border:1px solid #E2E8F0;">
+<tr><td style="padding:22px;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+<tr><td style="padding:8px 0;border-bottom:1px solid #E2E8F0;">
+<span style="font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;">פגישה</span><br/>
+<span style="font-size:16px;color:#0F172A;font-weight:700;">פגישת תיאום שבועית</span>
+</td></tr>
+<tr><td style="padding:8px 0;border-bottom:1px solid #E2E8F0;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+<tr>
+<td width="50%">
+<span style="font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;">תאריך</span><br/>
+<span style="font-size:14px;color:#334155;font-weight:600;">05/03/2026</span>
+</td>
+<td width="50%">
+<span style="font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;">שעה</span><br/>
+<span style="font-size:14px;color:#334155;font-weight:600;">10:00</span>
+</td>
+</tr>
+</table>
+</td></tr>
+<tr><td style="padding:8px 0;">
+<span style="font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;">מיקום</span><br/>
+<span style="font-size:14px;color:#334155;font-weight:500;">משרד האתר, קומה 1</span>
+</td></tr>
+</table>
+</td></tr>
+</table>
+
+<p style="margin:0 0 16px;font-size:15px;color:#0F172A;font-weight:700;text-align:center;">?האם תוכל להשתתף</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+<tr>
+<td style="padding:4px;" width="33%">
+<a href="#" style="display:block;text-align:center;padding:14px 8px;background:#16A34A;color:#FFFFFF;text-decoration:none;border-radius:10px;font-size:14px;font-weight:700;">מאשר</a>
+</td>
+<td style="padding:4px;" width="33%">
+<a href="#" style="display:block;text-align:center;padding:14px 8px;background:#D97706;color:#FFFFFF;text-decoration:none;border-radius:10px;font-size:14px;font-weight:700;">אולי</a>
+</td>
+<td style="padding:4px;" width="33%">
+<a href="#" style="display:block;text-align:center;padding:14px 8px;background:#DC2626;color:#FFFFFF;text-decoration:none;border-radius:10px;font-size:14px;font-weight:700;">לא יכול</a>
+</td>
+</tr>
+</table>
+</td></tr>
+<tr><td style="background-color:#F8FAFC;padding:24px 36px;text-align:center;border-top:1px solid #E2E8F0;">
+<p style="margin:0;color:#94A3B8;font-size:12px;">BuilderOps &copy; 2026</p>
+</td></tr>
+</table>
+</td></tr>
+</table>
+</div></div></div>
+
+<div style="text-align:center;padding:60px 20px;color:#64748B;font-size:13px;">
+<p style="color:#F97316;font-weight:700;font-size:14px;margin-bottom:8px;">BUILDEROPS &copy; 2026</p>
+<p>Black & Orange Theme - 20 Templates Updated</p>
+<p style="margin-top:8px;font-size:11px;color:#475569;">base.html &middot; welcome.html &middot; invitation.html &middot; password_reset.html &middot; notification.html &middot; rfi.html &middot; meeting_invitation.html &middot; meeting_vote.html &middot; daily_summary.html &middot; weekly_progress_report.html &middot; notification_digest.html &middot; executive_summary.html &middot; checklist_notification.html &middot; checklist_pdf.html &middot; defects_report.html &middot; inspections_report.html &middot; safety_compliance_report.html &middot; permit_compliance_report.html &middot; qr_code_sheet.html &middot; inspection_summary_ai.html</p>
+</div>
+
+</body>
+</html>

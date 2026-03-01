@@ -8,9 +8,9 @@ import { StatusBadge, SeverityBadge } from '../components/ui/StatusBadge'
 import { ConfirmModal, FormModal } from '../components/ui/Modal'
 import { defectsApi } from '../api/defects'
 import { filesApi, FileRecord } from '../api/files'
-import { contactsApi } from '../api/contacts'
 import { auditApi } from '../api'
-import type { Defect, Contact, AuditLog } from '../types'
+import type { Defect, AuditLog } from '../types'
+import { useProjectContacts } from '../hooks/useProjectContacts'
 import { useToast } from '../components/common/ToastProvider'
 import { PhotoAnnotator } from '../components/annotations/PhotoAnnotator'
 import {
@@ -31,7 +31,7 @@ export default function DefectDetailPage() {
   const [loading, setLoading] = useState(true)
   const [defect, setDefect] = useState<Defect | null>(null)
   const [photos, setPhotos] = useState<FileRecord[]>([])
-  const [contacts, setContacts] = useState<Contact[]>([])
+  const { contacts } = useProjectContacts(projectId)
   const [history, setHistory] = useState<AuditLog[]>([])
   const [statusDialogOpen, setStatusDialogOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
@@ -50,15 +50,13 @@ export default function DefectDetailPage() {
     if (!projectId || !defectId) return
     setLoading(true)
     try {
-      const [defectData, fileList, contactList, auditList] = await Promise.all([
+      const [defectData, fileList, auditList] = await Promise.all([
         defectsApi.get(projectId, defectId),
         filesApi.list(projectId, 'defect', defectId).catch(() => []),
-        contactsApi.list(projectId).catch(() => []),
         auditApi.listByProject(projectId, { entityType: 'defect', entityId: defectId }).catch(() => []),
       ])
       setDefect(defectData)
       setPhotos(fileList)
-      setContacts(contactList)
       setHistory(auditList)
       loadThumbnails(fileList)
     } catch {

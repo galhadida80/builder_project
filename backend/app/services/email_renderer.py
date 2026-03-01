@@ -765,7 +765,7 @@ def render_subcontractor_invite_email(
 <tr><td align="center" style="padding:32px 16px;">
 <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
 <tr><td style="background:linear-gradient(135deg,#0F172A,#1E293B);padding:36px 36px 30px;">
-  <p style="margin:0 0 20px;font-size:11px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:#3B82F6;">BUILDEROPS</p>
+  <p style="margin:0 0 20px;font-size:11px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:#F97316;">BUILDEROPS</p>
   <h1 style="margin:0 0 10px;color:#ffffff;font-size:24px;font-weight:800;">{s["title"]}</h1>
   <p style="margin:0;color:#94A3B8;font-size:14px;">{s["subtitle"]}</p>
 </td></tr>
@@ -786,7 +786,7 @@ def render_subcontractor_invite_email(
     </tr>{message_block}
   </table>
   <div style="text-align:center;margin-bottom:24px;">
-    <a href="{invite_url}" style="display:inline-block;background:linear-gradient(135deg,#0369A1,#0EA5E9);color:#ffffff;text-decoration:none;padding:14px 40px;border-radius:12px;font-size:15px;font-weight:700;box-shadow:0 4px 12px rgba(3,105,161,0.3);">{s["cta"]}</a>
+    <a href="{invite_url}" style="display:inline-block;background:linear-gradient(135deg,#EA580C,#F97316);color:#ffffff;text-decoration:none;padding:14px 40px;border-radius:12px;font-size:15px;font-weight:700;box-shadow:0 4px 12px rgba(249,115,22,0.3);">{s["cta"]}</a>
   </div>
   <p style="margin:0 0 8px;font-size:13px;color:#64748B;text-align:center;">{s["expires"]}</p>
   <p style="margin:0;font-size:13px;color:#94A3B8;text-align:center;">{s["ignore"]}</p>
@@ -863,7 +863,7 @@ def render_meeting_invitation_email(
     return subject, html
 
 
-SLOT_COLORS = ["#2563EB", "#7C3AED", "#0891B2"]
+SLOT_COLORS = ["#EA580C", "#F97316", "#FB923C"]
 
 
 def render_meeting_vote_email(
@@ -1023,7 +1023,7 @@ def render_approval_reminder_email(
 <tr><td align="center" style="padding:32px 16px;">
 <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06),0 8px 32px rgba(0,0,0,0.04);">
 <tr><td style="background:linear-gradient(135deg,#0F172A,#1E293B);padding:36px 36px 30px;">
-  <p style="margin:0 0 20px;font-size:11px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:#3B82F6;">BUILDEROPS</p>
+  <p style="margin:0 0 20px;font-size:11px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:#F97316;">BUILDEROPS</p>
   <h1 style="margin:0 0 10px;color:#ffffff;font-size:24px;font-weight:800;letter-spacing:-0.3px;">{heading}</h1>
   <p style="margin:0;">
     <span style="display:inline-block;background:{accent_bg};color:{accent_color};padding:4px 14px;border-radius:8px;font-size:12px;font-weight:700;">{badge_text} &middot; {pending_days} {"ימים" if language == "he" else "days"}</span>
@@ -1076,7 +1076,7 @@ def render_approval_reminder_email(
     if frontend_url:
         body_html += f"""
   <div style="text-align:center;">
-    <a href="{frontend_url}" style="display:inline-block;background:linear-gradient(135deg,#0369A1,#0EA5E9);color:#ffffff;text-decoration:none;padding:14px 40px;border-radius:12px;font-size:15px;font-weight:700;box-shadow:0 4px 12px rgba(3,105,161,0.3);">{s["cta"]}</a>
+    <a href="{frontend_url}" style="display:inline-block;background:linear-gradient(135deg,#EA580C,#F97316);color:#ffffff;text-decoration:none;padding:14px 40px;border-radius:12px;font-size:15px;font-weight:700;box-shadow:0 4px 12px rgba(249,115,22,0.3);">{s["cta"]}</a>
   </div>"""
 
     body_html += f"""

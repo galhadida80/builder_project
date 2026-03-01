@@ -13,11 +13,11 @@ import { Tabs } from '../components/ui/Tabs'
 import { EmptyState } from '../components/ui/EmptyState'
 import { rfiApi, RFI_PRIORITY_OPTIONS, RFI_CATEGORY_OPTIONS } from '../api/rfi'
 import type { RFIListItem, RFI, RFICreate, RFISummary } from '../api/rfi'
-import { contactsApi } from '../api/contacts'
 import { contactGroupsApi } from '../api/contactGroups'
 import type { Contact, ContactGroupListItem } from '../types'
 import { useToast } from '../components/common/ToastProvider'
 import { useFormShake } from '../hooks/useFormShake'
+import { useProjectContacts } from '../hooks/useProjectContacts'
 import { parseValidationErrors } from '../utils/apiErrors'
 import HelpTooltip from '../components/help/HelpTooltip'
 import { validateRFIForm, hasErrors, type ValidationError } from '../utils/validation'
@@ -59,8 +59,9 @@ export default function RFIPage() {
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [total, setTotal] = useState(0)
-  const [projectContacts, setProjectContacts] = useState<Contact[]>([])
+  const { contacts: projectContacts } = useProjectContacts(projectId)
   const [contactGroups, setContactGroups] = useState<ContactGroupListItem[]>([])
+
 
   useEffect(() => {
     loadRfis()
@@ -68,7 +69,7 @@ export default function RFIPage() {
 
   useEffect(() => {
     loadSummary()
-    loadContactsAndGroups()
+    loadContactGroups()
   }, [projectId])
 
   const loadRfis = async () => {
@@ -102,14 +103,10 @@ export default function RFIPage() {
     }
   }
 
-  const loadContactsAndGroups = async () => {
+  const loadContactGroups = async () => {
     if (!projectId) return
     try {
-      const [contactsData, groupsData] = await Promise.all([
-        contactsApi.list(projectId),
-        contactGroupsApi.list(projectId),
-      ])
-      setProjectContacts(contactsData)
+      const groupsData = await contactGroupsApi.list(projectId)
       setContactGroups(groupsData)
     } catch { /* non-critical */ }
   }
