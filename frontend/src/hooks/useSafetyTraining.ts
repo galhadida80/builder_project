@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next'
 
 interface UseSafetyTrainingParams {
   projectId: string | undefined
-  status?: TrainingStatus
+  status?: TrainingStatus | 'all'
   trainingType?: string
   searchQuery?: string
 }
@@ -61,8 +61,9 @@ export function useSafetyTraining({ projectId, status, trainingType, searchQuery
   }
 
   const updateTraining = async (trainingId: string, data: SafetyTrainingUpdateData) => {
+    if (!projectId) return false
     try {
-      await safetyApi.training.update(trainingId, data)
+      await safetyApi.training.update(projectId, trainingId, data)
       showSuccess(t('safetyTraining.updateSuccess'))
       await loadTrainings()
       return true
@@ -74,8 +75,9 @@ export function useSafetyTraining({ projectId, status, trainingType, searchQuery
   }
 
   const deleteTraining = async (trainingId: string) => {
+    if (!projectId) return false
     try {
-      await safetyApi.training.delete(trainingId)
+      await safetyApi.training.delete(projectId, trainingId)
       showSuccess(t('safetyTraining.deleteSuccess'))
       await loadTrainings()
       return true

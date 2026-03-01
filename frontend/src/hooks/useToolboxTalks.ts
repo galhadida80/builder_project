@@ -1,12 +1,39 @@
 import { useState, useEffect } from 'react'
-import { safetyApi, ToolboxTalkCreateData, ToolboxTalkUpdateData } from '../api/safety'
-import type { ToolboxTalk, TalkStatus } from '../types/safety'
+import { safetyApi } from '../api/safety'
+import type { ToolboxTalk, ToolboxTalkStatus, KeyPoint, TalkActionItem } from '../types/safety'
 import { useToast } from '../components/common/ToastProvider'
 import { useTranslation } from 'react-i18next'
 
+export interface ToolboxTalkCreateData {
+  title: string
+  topic: string
+  description?: string
+  scheduledDate: string
+  location?: string
+  presenter?: string
+  keyPoints?: KeyPoint[]
+  actionItems?: TalkActionItem[]
+  durationMinutes?: number
+  attendeeIds?: string[]
+}
+
+export interface ToolboxTalkUpdateData {
+  title?: string
+  topic?: string
+  description?: string
+  scheduledDate?: string
+  location?: string
+  presenter?: string
+  keyPoints?: KeyPoint[]
+  actionItems?: TalkActionItem[]
+  durationMinutes?: number
+  status?: ToolboxTalkStatus
+  attendeeIds?: string[]
+}
+
 interface UseToolboxTalksParams {
   projectId: string | undefined
-  status?: TalkStatus | 'all'
+  status?: ToolboxTalkStatus | 'all'
   searchQuery?: string
 }
 
@@ -20,7 +47,7 @@ export function useToolboxTalks({ projectId, status, searchQuery }: UseToolboxTa
     if (!projectId) return
     setLoading(true)
     try {
-      const params: { status?: TalkStatus } = {}
+      const params: { status?: ToolboxTalkStatus } = {}
       if (status && status !== 'all') params.status = status
 
       const result = await safetyApi.toolboxTalks.list(projectId, params)

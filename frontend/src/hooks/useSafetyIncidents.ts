@@ -31,9 +31,10 @@ export function useSafetyIncidents({ projectId, severity, status, searchQuery }:
       if (searchQuery) {
         const query = searchQuery.toLowerCase()
         filtered = result.filter(inc =>
+          inc.title.toLowerCase().includes(query) ||
           inc.description.toLowerCase().includes(query) ||
           inc.location?.toLowerCase().includes(query) ||
-          inc.injuredPerson?.toLowerCase().includes(query)
+          inc.reportedBy?.contactName?.toLowerCase().includes(query)
         )
       }
 
@@ -61,8 +62,9 @@ export function useSafetyIncidents({ projectId, severity, status, searchQuery }:
   }
 
   const updateIncident = async (incidentId: string, data: SafetyIncidentUpdateData) => {
+    if (!projectId) return false
     try {
-      await safetyApi.incidents.update(incidentId, data)
+      await safetyApi.incidents.update(projectId, incidentId, data)
       showSuccess(t('incidents.updateSuccess'))
       await loadIncidents()
       return true
@@ -74,8 +76,9 @@ export function useSafetyIncidents({ projectId, severity, status, searchQuery }:
   }
 
   const deleteIncident = async (incidentId: string) => {
+    if (!projectId) return false
     try {
-      await safetyApi.incidents.delete(incidentId)
+      await safetyApi.incidents.delete(projectId, incidentId)
       showSuccess(t('incidents.deleteSuccess'))
       await loadIncidents()
       return true

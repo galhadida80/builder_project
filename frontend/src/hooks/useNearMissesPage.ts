@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { safetyApi, NearMissCreateData, NearMissUpdateData } from '../api/safety'
-import type { NearMiss, NearMissSummary, Contact, ConstructionArea } from '../types'
+import type { NearMiss, NearMissSeverity, NearMissSummary } from '../types/safety'
+import type { Contact, ConstructionArea } from '../types'
 import { useToast } from '../components/common/ToastProvider'
 import { useTranslation } from 'react-i18next'
 import { contactsApi } from '../api/contacts'
@@ -66,9 +67,9 @@ export function useNearMissesPage(projectId: string | undefined) {
     if (!projectId) return
     setLoading(true)
     try {
-      const params: { severity?: string } = {}
-      if (activeTab !== 'all') params.severity = activeTab
-      if (severityFilter) params.severity = severityFilter
+      const params: { severity?: NearMissSeverity } = {}
+      if (activeTab !== 'all') params.severity = activeTab as NearMissSeverity
+      if (severityFilter) params.severity = severityFilter as NearMissSeverity
 
       const result = await safetyApi.nearMisses.list(projectId, params)
 

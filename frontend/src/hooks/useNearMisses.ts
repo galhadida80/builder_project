@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react'
 import { safetyApi, NearMissCreateData, NearMissUpdateData } from '../api/safety'
-import type { NearMiss } from '../types/safety'
+import type { NearMiss, NearMissSeverity } from '../types/safety'
 import { useToast } from '../components/common/ToastProvider'
 import { useTranslation } from 'react-i18next'
 
 interface UseNearMissesParams {
   projectId: string | undefined
-  severity?: string
+  severity?: NearMissSeverity | 'all'
   searchQuery?: string
 }
 
@@ -20,7 +20,7 @@ export function useNearMisses({ projectId, severity, searchQuery }: UseNearMisse
     if (!projectId) return
     setLoading(true)
     try {
-      const params: { severity?: string } = {}
+      const params: { severity?: NearMissSeverity } = {}
       if (severity && severity !== 'all') params.severity = severity
 
       const result = await safetyApi.nearMisses.list(projectId, params)
@@ -59,8 +59,9 @@ export function useNearMisses({ projectId, severity, searchQuery }: UseNearMisse
   }
 
   const updateNearMiss = async (nearMissId: string, data: NearMissUpdateData) => {
+    if (!projectId) return false
     try {
-      await safetyApi.nearMisses.update(nearMissId, data)
+      await safetyApi.nearMisses.update(projectId, nearMissId, data)
       showSuccess(t('nearMisses.updateSuccess'))
       await loadNearMisses()
       return true
@@ -72,8 +73,9 @@ export function useNearMisses({ projectId, severity, searchQuery }: UseNearMisse
   }
 
   const deleteNearMiss = async (nearMissId: string) => {
+    if (!projectId) return false
     try {
-      await safetyApi.nearMisses.delete(nearMissId)
+      await safetyApi.nearMisses.delete(projectId, nearMissId)
       showSuccess(t('nearMisses.deleteSuccess'))
       await loadNearMisses()
       return true
