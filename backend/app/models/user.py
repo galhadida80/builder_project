@@ -36,6 +36,8 @@ class User(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow(), onupdate=lambda: utcnow())
 
     project_memberships = relationship("ProjectMember", back_populates="user")
+    organization_roles_created = relationship("OrganizationRole", foreign_keys="OrganizationRole.created_by_id", back_populates="created_by")
+    project_roles_created = relationship("ProjectRole", foreign_keys="ProjectRole.created_by_id", back_populates="created_by")
 
 
 class PasswordResetToken(Base):

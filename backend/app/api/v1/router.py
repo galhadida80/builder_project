@@ -44,11 +44,15 @@ from app.api.v1 import (
     organization_exports,
     organizations,
     payment_webhooks,
+    permission_audit,
+    permissions,
+    project_roles,
     projects,
     quantity_extraction,
     reports,
     rfis,
     risk_scores,
+    roles,
     safety_incidents,
     safety_kpi,
     safety_training,
@@ -122,6 +126,10 @@ api_router.include_router(risk_scores.router, tags=["risk_scores"])
 api_router.include_router(tasks_api.router, tags=["project_tasks"])
 api_router.include_router(budget.router, tags=["budget"])
 api_router.include_router(organizations.router, tags=["organizations"])
+api_router.include_router(roles.router, tags=["roles"])
+api_router.include_router(project_roles.router, tags=["project_roles"])
+api_router.include_router(permissions.router, tags=["permissions"])
+api_router.include_router(permission_audit.router, tags=["permission_audit"])
 api_router.include_router(analytics_bi.router, prefix="/analytics", tags=["analytics_bi"])
 api_router.include_router(ws.router, tags=["websocket"])
 api_router.include_router(calendar.router, tags=["calendar"])

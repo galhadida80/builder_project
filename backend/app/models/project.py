@@ -55,6 +55,7 @@ class Project(Base):
 
     members = relationship("ProjectMember", back_populates="project", cascade="all, delete-orphan")
     organization = relationship("Organization", back_populates="projects")
+    project_roles = relationship("ProjectRole", back_populates="project", cascade="all, delete-orphan")
     equipment = relationship("Equipment", back_populates="project", cascade="all, delete-orphan")
     equipment_approval_submissions = relationship("EquipmentApprovalSubmission", back_populates="project", cascade="all, delete-orphan")
     materials = relationship("Material", back_populates="project", cascade="all, delete-orphan")
@@ -78,3 +79,4 @@ class ProjectMember(Base):
     project = relationship("Project", back_populates="members")
     user = relationship("User", back_populates="project_memberships")
     permission_overrides = relationship("PermissionOverride", back_populates="project_member", cascade="all, delete-orphan")
+    resource_permissions = relationship("ResourcePermission", back_populates="project_member", cascade="all, delete-orphan")

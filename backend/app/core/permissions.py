@@ -4,11 +4,14 @@ from uuid import UUID
 from fastapi import Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.core.security import get_current_user
 from app.db.session import get_db
 from app.models.project import ProjectMember
+from app.models.role import ProjectRole
 from app.models.user import User
+from app.services.rbac_helpers import get_effective_permissions as get_role_effective_permissions
 
 
 class Permission(str, Enum):
@@ -63,6 +66,57 @@ async def get_effective_permissions(member: ProjectMember, db: AsyncSession) -> 
             base.add(override.permission)
         else:
             base.discard(override.permission)
+    return base
+
+
+async def get_effective_permissions_v2(member: ProjectMember, db: AsyncSession) -> set[str]:
+    """
+    Calculate effective permissions using the RBAC service.
+
+    This version:
+    1. Checks for custom ProjectRole matching the member's role name
+    2. If found, uses RBAC service to calculate permissions with inheritance
+    3. If not found, falls back to hardcoded ROLE_PERMISSIONS
+    4. Applies PermissionOverride on top for granular control
+
+    Args:
+        member: The project member to calculate permissions for
+        db: Database session
+
+    Returns:
+        Set of permission strings the member has
+    """
+    from app.models.permission_override import PermissionOverride
+
+    # Try to find a custom ProjectRole matching the member's role name
+    query = (
+        select(ProjectRole)
+        .options(selectinload(ProjectRole.inherits_from))
+        .where(ProjectRole.project_id == member.project_id)
+        .where(ProjectRole.name == member.role)
+    )
+    result = await db.execute(query)
+    project_role = result.scalar_one_or_none()
+
+    # Calculate base permissions
+    if project_role:
+        permissions_list = await get_role_effective_permissions(project_role)
+        base = set(permissions_list)
+    else:
+        # Fall back to hardcoded ROLE_PERMISSIONS for backward compatibility
+        base = set(ROLE_PERMISSIONS.get(member.role, set()))
+
+    # Apply permission overrides on top
+    override_result = await db.execute(
+        select(PermissionOverride).where(PermissionOverride.project_member_id == member.id)
+    )
+    overrides = override_result.scalars().all()
+    for override in overrides:
+        if override.granted:
+            base.add(override.permission)
+        else:
+            base.discard(override.permission)
+
     return base
 
 

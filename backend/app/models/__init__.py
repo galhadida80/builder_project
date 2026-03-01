@@ -45,7 +45,10 @@ from app.models.material_template import (
 from app.models.calendar_token import UserCalendarToken
 from app.models.meeting import Meeting, MeetingAttendee
 from app.models.permission_override import PermissionOverride
+from app.models.permission_audit import PermissionAction, PermissionAudit
 from app.models.project import Project, ProjectMember
+from app.models.resource_permission import ResourcePermission
+from app.models.role import OrganizationRole, ProjectRole, Role
 from app.models.rfi import RFI, RFICategory, RFIEmailLog, RFIPriority, RFIResponse, RFIStatus
 from app.models.risk_score import RiskLevel, RiskScore
 from app.models.risk_threshold import RiskThreshold
@@ -118,6 +121,12 @@ __all__ = [
     "ChatMessage",
     "ChatAction",
     "PermissionOverride",
+    "PermissionAudit",
+    "PermissionAction",
+    "Role",
+    "OrganizationRole",
+    "ProjectRole",
+    "ResourcePermission",
     "ProjectInvitation",
     "BimModel",
     "AutodeskConnection",

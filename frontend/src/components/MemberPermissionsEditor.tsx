@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from './ui/Button'
 import { apiClient } from '../api/client'
-import { Box, Typography, Checkbox, FormControlLabel, Chip, Alert, CircularProgress } from '@/mui'
+import { Box, Typography, Checkbox, FormControlLabel, Chip, Alert, CircularProgress, Tabs, Tab } from '@/mui'
+import ResourcePermissionEditor from './ResourcePermissionEditor'
 
 interface MemberPermissionsEditorProps {
   projectId: string
@@ -34,6 +35,7 @@ export default function MemberPermissionsEditor({ projectId, memberId, memberRol
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [permStates, setPermStates] = useState<Record<string, boolean>>({})
+  const [activeTab, setActiveTab] = useState(0)
 
   useEffect(() => {
     fetchPermissions()
@@ -87,42 +89,55 @@ export default function MemberPermissionsEditor({ projectId, memberId, memberRol
         <Chip label={t(`roles.${memberRole}`, { defaultValue: memberRole.replace('_', ' ') })} size="small" color="primary" sx={{ textTransform: 'capitalize' }} />
       </Box>
 
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      <Tabs value={activeTab} onChange={(_, newValue) => setActiveTab(newValue)} sx={{ mb: 2, borderBottom: 1, borderColor: 'divider' }}>
+        <Tab label={t('permissions.generalPermissions')} />
+        <Tab label={t('permissions.resourcePermissions')} />
+      </Tabs>
 
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-        {ALL_PERMISSIONS.map((p) => {
-          const isDefault = roleDefaults.includes(p)
-          const isOverride = isDefault !== (permStates[p] ?? false)
-          return (
-            <FormControlLabel
-              key={p}
-              control={
-                <Checkbox
-                  checked={permStates[p] ?? false}
-                  onChange={(e) => setPermStates((prev) => ({ ...prev, [p]: e.target.checked }))}
-                  size="small"
+      {activeTab === 0 && (
+        <Box>
+          {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+            {ALL_PERMISSIONS.map((p) => {
+              const isDefault = roleDefaults.includes(p)
+              const isOverride = isDefault !== (permStates[p] ?? false)
+              return (
+                <FormControlLabel
+                  key={p}
+                  control={
+                    <Checkbox
+                      checked={permStates[p] ?? false}
+                      onChange={(e) => setPermStates((prev) => ({ ...prev, [p]: e.target.checked }))}
+                      size="small"
+                    />
+                  }
+                  label={
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Typography variant="body2">
+                        {t(`permissions.${p}`, p.replace('_', ' '))}
+                      </Typography>
+                      {isOverride && (
+                        <Chip label={t('permissions.override')} size="small" color="warning" variant="outlined" sx={{ height: 20, fontSize: '0.7rem' }} />
+                      )}
+                    </Box>
+                  }
                 />
-              }
-              label={
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Typography variant="body2">
-                    {t(`permissions.${p}`, p.replace('_', ' '))}
-                  </Typography>
-                  {isOverride && (
-                    <Chip label={t('permissions.override')} size="small" color="warning" variant="outlined" sx={{ height: 20, fontSize: '0.7rem' }} />
-                  )}
-                </Box>
-              }
-            />
-          )
-        })}
-      </Box>
+              )
+            })}
+          </Box>
 
-      <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
-        <Button variant="primary" onClick={handleSave} loading={saving}>
-          {t('permissions.save')}
-        </Button>
-      </Box>
+          <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
+            <Button variant="primary" onClick={handleSave} loading={saving}>
+              {t('permissions.save')}
+            </Button>
+          </Box>
+        </Box>
+      )}
+
+      {activeTab === 1 && (
+        <ResourcePermissionEditor projectId={projectId} memberId={memberId} onSaved={onSaved} />
+      )}
     </Box>
   )
 }
