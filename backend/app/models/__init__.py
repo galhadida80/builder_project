@@ -60,6 +60,7 @@ from app.models.permit import Permit, PermitStatus, PermitType
 from app.models.project import Project, ProjectMember
 from app.models.resource_permission import ResourcePermission
 from app.models.role import OrganizationRole, ProjectRole, Role
+from app.models.scan_history import ScanHistory
 from app.models.rfi import RFI, RFICategory, RFIEmailLog, RFIPriority, RFIResponse, RFIStatus
 from app.models.risk_score import RiskLevel, RiskScore
 from app.models.risk_threshold import RiskThreshold
@@ -206,4 +207,5 @@ __all__ = [
     "ExportType",
     "Vendor",
     "VendorPerformance",
+    "ScanHistory",
 ]

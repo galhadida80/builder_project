@@ -50,6 +50,7 @@ from app.api.v1 import (
     permits,
     project_roles,
     projects,
+    qr_codes,
     quantity_extraction,
     reports,
     rfis,
@@ -159,3 +160,4 @@ api_router.include_router(toolbox_talk_attendance.router, tags=["toolbox_talks"]
 api_router.include_router(safety_kpi.router, tags=["safety_kpi"])
 api_router.include_router(vendor_analytics.router, tags=["vendors"])
 api_router.include_router(vendors.router, tags=["vendors"])
+api_router.include_router(qr_codes.router, tags=["qr_codes"])
