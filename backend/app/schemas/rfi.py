@@ -7,6 +7,7 @@ from app.core.validators import (
     MAX_NAME_LENGTH,
     MAX_NOTES_LENGTH,
     MIN_NAME_LENGTH,
+    CamelCaseModel,
     sanitize_string,
 )
 from app.schemas.user import UserResponse
@@ -145,7 +146,7 @@ class RFIResponseCreate(RFIResponseBase):
     is_internal: bool = False
 
 
-class RFIResponseSchema(BaseModel):
+class RFIResponseSchema(CamelCaseModel):
     id: UUID
     rfi_id: UUID
     email_message_id: str | None = None
@@ -165,7 +166,7 @@ class RFIResponseSchema(BaseModel):
         from_attributes = True
 
 
-class RFIEmailLogSchema(BaseModel):
+class RFIEmailLogSchema(CamelCaseModel):
     id: UUID
     rfi_id: UUID | None = None
     event_type: str
@@ -180,7 +181,7 @@ class RFIEmailLogSchema(BaseModel):
         from_attributes = True
 
 
-class RFIListResponse(BaseModel):
+class RFIListResponse(CamelCaseModel):
     id: UUID
     project_id: UUID
     rfi_number: str
@@ -202,7 +203,7 @@ class RFIListResponse(BaseModel):
         from_attributes = True
 
 
-class RFIResponse(BaseModel):
+class RFIResponse(CamelCaseModel):
     id: UUID
     project_id: UUID
     rfi_number: str
@@ -236,7 +237,7 @@ class RFIResponse(BaseModel):
         from_attributes = True
 
 
-class RFISummaryResponse(BaseModel):
+class RFISummaryResponse(CamelCaseModel):
     total_rfis: int
     draft_count: int
     open_count: int
@@ -252,7 +253,7 @@ class RFISendRequest(BaseModel):
     send_now: bool = True
 
 
-class PaginatedRFIResponse(BaseModel):
+class PaginatedRFIResponse(CamelCaseModel):
     items: list[RFIListResponse]
     total: int
     page: int
@@ -260,7 +261,7 @@ class PaginatedRFIResponse(BaseModel):
     total_pages: int
 
 
-class RFIDeadlineResponse(BaseModel):
+class RFIDeadlineResponse(CamelCaseModel):
     id: UUID
     project_id: UUID
     rfi_number: str

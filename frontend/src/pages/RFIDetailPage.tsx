@@ -189,7 +189,7 @@ export default function RFIDetailPage() {
           <IconButton aria-label={t('common.back')} onClick={() => navigate(`/projects/${projectId}/rfis`)} size="small">
             <ArrowBackIcon />
           </IconButton>
-          <Typography variant="subtitle1" fontWeight={700}>{rfi.rfi_number}</Typography>
+          <Typography variant="subtitle1" fontWeight={700}>{rfi.rfiNumber}</Typography>
           <StatusBadge status={rfi.status} />
         </Box>
       </Box>
@@ -216,7 +216,7 @@ export default function RFIDetailPage() {
             <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', mb: 1.5 }}>{rfi.question}</Typography>
             <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
               <ScheduleIcon sx={{ fontSize: 14 }} />
-              {formatFullDate(rfi.sent_at || rfi.created_at)}
+              {formatFullDate(rfi.sentAt || rfi.createdAt)}
             </Typography>
           </Box>
         </Card>
@@ -226,30 +226,30 @@ export default function RFIDetailPage() {
           <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, pb: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
               <Avatar sx={{ width: 40, height: 40, bgcolor: 'primary.main', fontSize: '0.8rem' }}>
-                {getInitials(rfi.to_name, rfi.to_email)}
+                {getInitials(rfi.toName, rfi.toEmail)}
               </Avatar>
               <Box sx={{ flex: 1 }}>
                 <Typography variant="caption" color="text.secondary">{t('rfis.to')}</Typography>
-                <Typography variant="body2" fontWeight={700}>{rfi.to_name || rfi.to_email}</Typography>
+                <Typography variant="body2" fontWeight={700}>{rfi.toName || rfi.toEmail}</Typography>
               </Box>
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, pb: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
               <Avatar sx={{ width: 40, height: 40, bgcolor: 'info.main', fontSize: '0.8rem' }}>
-                {getInitials(rfi.created_by?.fullName, rfi.created_by?.email)}
+                {getInitials(rfi.createdBy?.fullName, rfi.createdBy?.email)}
               </Avatar>
               <Box sx={{ flex: 1 }}>
                 <Typography variant="caption" color="text.secondary">{t('rfiDetail.sentBy')}</Typography>
-                <Typography variant="body2" fontWeight={700}>{rfi.created_by?.fullName || rfi.created_by?.email || 'Unknown'}</Typography>
+                <Typography variant="body2" fontWeight={700}>{rfi.createdBy?.fullName || rfi.createdBy?.email || 'Unknown'}</Typography>
               </Box>
             </Box>
-            {rfi.due_date && (
+            {rfi.dueDate && (
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                <Box sx={{ width: 40, height: 40, borderRadius: '50%', bgcolor: new Date(rfi.due_date) < new Date() ? 'error.light' : 'action.hover', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <ScheduleIcon sx={{ fontSize: 20, color: new Date(rfi.due_date) < new Date() ? 'error.main' : 'text.secondary' }} />
+                <Box sx={{ width: 40, height: 40, borderRadius: '50%', bgcolor: new Date(rfi.dueDate) < new Date() ? 'error.light' : 'action.hover', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <ScheduleIcon sx={{ fontSize: 20, color: new Date(rfi.dueDate) < new Date() ? 'error.main' : 'text.secondary' }} />
                 </Box>
                 <Box>
                   <Typography variant="caption" color="text.secondary">{t('rfis.dueDate')}</Typography>
-                  <Typography variant="body2" fontWeight={700} color={new Date(rfi.due_date) < new Date() ? 'error.main' : 'text.primary'}>{formatDate(rfi.due_date)}</Typography>
+                  <Typography variant="body2" fontWeight={700} color={new Date(rfi.dueDate) < new Date() ? 'error.main' : 'text.primary'}>{formatDate(rfi.dueDate)}</Typography>
                 </Box>
               </Box>
             )}
@@ -263,19 +263,19 @@ export default function RFIDetailPage() {
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               {rfi.responses.map((response) => (
                 <Box key={response.id} sx={{ display: 'flex', gap: 1.5 }}>
-                  <Avatar sx={{ width: 32, height: 32, bgcolor: response.is_internal ? 'warning.main' : 'primary.main', fontSize: '0.7rem', flexShrink: 0, mt: 0.5 }}>
-                    {getInitials(response.from_name, response.from_email)}
+                  <Avatar sx={{ width: 32, height: 32, bgcolor: response.isInternal ? 'warning.main' : 'primary.main', fontSize: '0.7rem', flexShrink: 0, mt: 0.5 }}>
+                    {getInitials(response.fromName, response.fromEmail)}
                   </Avatar>
-                  <Card sx={{ flex: 1, ...(response.is_internal && { borderInlineStart: '3px solid', borderInlineStartColor: 'warning.main' }) }}>
+                  <Card sx={{ flex: 1, ...(response.isInternal && { borderInlineStart: '3px solid', borderInlineStartColor: 'warning.main' }) }}>
                     <Box sx={{ p: 1.5 }}>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                          <Typography variant="caption" fontWeight={700} color="primary.main">{response.from_name || response.from_email}</Typography>
-                          {response.is_internal && <Chip icon={<LockIcon sx={{ fontSize: '10px !important' }} />} label={t('rfiDetail.internal')} size="small" color="warning" sx={{ height: 18, fontSize: '0.6rem' }} />}
+                          <Typography variant="caption" fontWeight={700} color="primary.main">{response.fromName || response.fromEmail}</Typography>
+                          {response.isInternal && <Chip icon={<LockIcon sx={{ fontSize: '10px !important' }} />} label={t('rfiDetail.internal')} size="small" color="warning" sx={{ height: 18, fontSize: '0.6rem' }} />}
                         </Box>
-                        <Typography variant="caption" color="text.disabled">{formatFullDate(response.created_at)}</Typography>
+                        <Typography variant="caption" color="text.disabled">{formatFullDate(response.createdAt)}</Typography>
                       </Box>
-                      <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', fontSize: '0.8rem', lineHeight: 1.6 }}>{response.response_text}</Typography>
+                      <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', fontSize: '0.8rem', lineHeight: 1.6 }}>{response.responseText}</Typography>
                       {response.attachments && response.attachments.length > 0 && (
                         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 1 }}>
                           {response.attachments.map((att) => (

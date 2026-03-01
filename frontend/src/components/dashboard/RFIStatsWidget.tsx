@@ -135,28 +135,28 @@ export default function RFIStatsWidget({ projectId }: RFIStatsWidgetProps) {
         >
           <KPICard
             title={t('rfis.openRfis')}
-            value={stats.open_count}
+            value={stats.openCount}
             icon={<InfoOutlinedIcon />}
             color="info"
             onClick={() => handleStatClick('open')}
           />
           <KPICard
             title={t('rfis.overdue')}
-            value={stats.overdue_count}
+            value={stats.overdueCount}
             icon={<WarningAmberIcon />}
             color="error"
             onClick={handleOverdueClick}
           />
           <KPICard
             title={t('rfis.statuses.answered')}
-            value={stats.answered_count}
+            value={stats.answeredCount}
             icon={<CheckCircleOutlineIcon />}
             color="success"
             onClick={() => handleStatClick('answered')}
           />
           <KPICard
             title={t('rfis.statuses.closed')}
-            value={stats.closed_count}
+            value={stats.closedCount}
             icon={<TaskAltIcon />}
             color="primary"
             onClick={() => handleStatClick('closed')}

@@ -32,7 +32,7 @@ const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
 }
 
 function isOverdue(rfi: RFIListItem) {
-  return rfi.due_date && rfi.status !== 'answered' && rfi.status !== 'closed' && rfi.status !== 'cancelled' && new Date(rfi.due_date) < new Date()
+  return rfi.dueDate && rfi.status !== 'answered' && rfi.status !== 'closed' && rfi.status !== 'cancelled' && new Date(rfi.dueDate) < new Date()
 }
 
 interface RFIsListProps {
@@ -71,7 +71,7 @@ export function RFIsList({ onRFIClick }: RFIsListProps) {
     else if (activeTab !== 'all' && activeTab !== 'overdue' && rfi.status !== activeTab) return false
     if (searchQuery) {
       const q = searchQuery.toLowerCase()
-      return rfi.subject.toLowerCase().includes(q) || rfi.rfi_number.toLowerCase().includes(q) || rfi.category.toLowerCase().includes(q)
+      return rfi.subject.toLowerCase().includes(q) || rfi.rfiNumber.toLowerCase().includes(q) || rfi.category.toLowerCase().includes(q)
     }
     return true
   })
@@ -177,7 +177,7 @@ function RFICard({ rfi, t, onClick }: { rfi: RFIListItem; t: (k: string, o?: Rec
             </Typography>
             <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1, mb: 1, fontSize: '0.65rem' }}>
               <Chip
-                label={rfi.rfi_number}
+                label={rfi.rfiNumber}
                 size="small"
                 sx={{ height: 20, fontSize: '0.65rem', fontWeight: 600 }}
               />
@@ -198,7 +198,7 @@ function RFICard({ rfi, t, onClick }: { rfi: RFIListItem; t: (k: string, o?: Rec
                   color: 'text.secondary',
                 }}
               />
-              {rfi.due_date && (
+              {rfi.dueDate && (
                 <Typography
                   variant="caption"
                   sx={{
@@ -212,18 +212,18 @@ function RFICard({ rfi, t, onClick }: { rfi: RFIListItem; t: (k: string, o?: Rec
                 >
                   {overdue && <WarningIcon sx={{ fontSize: 12 }} />}
                   <AccessTimeIcon sx={{ fontSize: 12 }} />
-                  {new Date(rfi.due_date).toLocaleDateString(getDateLocale())}
+                  {new Date(rfi.dueDate).toLocaleDateString(getDateLocale())}
                 </Typography>
               )}
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem' }}>
-                  {rfi.to_name || rfi.to_email}
+                  {rfi.toName || rfi.toEmail}
                 </Typography>
-                {rfi.response_count > 0 && (
+                {rfi.responseCount > 0 && (
                   <Chip
-                    label={`${rfi.response_count} ${t('rfis.responses', { count: rfi.response_count })}`}
+                    label={`${rfi.responseCount} ${t('rfis.responses', { count: rfi.responseCount })}`}
                     size="small"
                     sx={{
                       height: 20,

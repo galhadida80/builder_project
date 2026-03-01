@@ -2,34 +2,34 @@ import { apiClient } from './client'
 
 export interface RFI {
   id: string
-  project_id: string
-  rfi_number: string
-  email_thread_id?: string
-  email_message_id?: string
+  projectId: string
+  rfiNumber: string
+  emailThreadId?: string
+  emailMessageId?: string
   subject: string
   question: string
   category: string
   priority: string
-  to_email: string
-  to_name?: string
-  cc_emails?: string[]
+  toEmail: string
+  toName?: string
+  ccEmails?: string[]
   status: string
-  due_date?: string
-  responded_at?: string
-  closed_at?: string
+  dueDate?: string
+  respondedAt?: string
+  closedAt?: string
   location?: string
-  drawing_reference?: string
-  specification_reference?: string
+  drawingReference?: string
+  specificationReference?: string
   attachments?: Record<string, unknown>[]
-  created_at: string
-  updated_at: string
-  sent_at?: string
-  created_by?: {
+  createdAt: string
+  updatedAt: string
+  sentAt?: string
+  createdBy?: {
     id: string
     email: string
     fullName: string
   }
-  assigned_to?: {
+  assignedTo?: {
     id: string
     email: string
     fullName: string
@@ -39,40 +39,40 @@ export interface RFI {
 
 export interface RFIResponseData {
   id: string
-  rfi_id: string
-  email_message_id?: string
-  in_reply_to?: string
-  response_text: string
+  rfiId: string
+  emailMessageId?: string
+  inReplyTo?: string
+  responseText: string
   attachments?: Array<{ id: string; filename: string; url: string }>
-  from_email: string
-  from_name?: string
+  fromEmail: string
+  fromName?: string
   responder?: {
     id: string
     email: string
     fullName: string
   }
-  is_internal: boolean
-  is_cc_participant: boolean
+  isInternal: boolean
+  isCcParticipant: boolean
   source: string
-  created_at: string
-  received_at?: string
+  createdAt: string
+  receivedAt?: string
 }
 
 export interface RFIListItem {
   id: string
-  project_id: string
-  rfi_number: string
+  projectId: string
+  rfiNumber: string
   subject: string
-  to_email: string
-  to_name?: string
+  toEmail: string
+  toName?: string
   category: string
   priority: string
   status: string
-  due_date?: string
-  created_at: string
-  sent_at?: string
-  responded_at?: string
-  response_count: number
+  dueDate?: string
+  createdAt: string
+  sentAt?: string
+  respondedAt?: string
+  responseCount: number
 }
 
 export interface RFICreate {
@@ -114,35 +114,35 @@ export interface RFIResponseCreate {
 }
 
 export interface RFISummary {
-  total_rfis: number
-  draft_count: number
-  open_count: number
-  waiting_response_count: number
-  answered_count: number
-  closed_count: number
-  overdue_count: number
-  by_priority: Record<string, number>
-  by_category: Record<string, number>
+  totalRfis: number
+  draftCount: number
+  openCount: number
+  waitingResponseCount: number
+  answeredCount: number
+  closedCount: number
+  overdueCount: number
+  byPriority: Record<string, number>
+  byCategory: Record<string, number>
 }
 
 export interface PaginatedRFIResponse {
   items: RFIListItem[]
   total: number
   page: number
-  page_size: number
-  total_pages: number
+  pageSize: number
+  totalPages: number
 }
 
 export interface RFIEmailLog {
   id: string
-  rfi_id?: string
-  event_type: string
-  email_message_id?: string
-  from_email?: string
-  to_email?: string
+  rfiId?: string
+  eventType: string
+  emailMessageId?: string
+  fromEmail?: string
+  toEmail?: string
   subject?: string
-  error_message?: string
-  created_at: string
+  errorMessage?: string
+  createdAt: string
 }
 
 export interface RFIFilters {

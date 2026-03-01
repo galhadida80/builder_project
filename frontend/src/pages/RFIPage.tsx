@@ -84,7 +84,7 @@ export default function RFIPage() {
         page_size: 20
       })
       setRfis(response.items)
-      setTotalPages(response.total_pages)
+      setTotalPages(response.totalPages)
       setTotal(response.total)
     } catch {
       showError(t('rfis.failedToLoad'))
@@ -178,15 +178,15 @@ export default function RFIPage() {
       setFormData({
         subject: fullRfi.subject,
         question: fullRfi.question,
-        to_email: fullRfi.to_email,
-        to_name: fullRfi.to_name || '',
-        cc_emails: fullRfi.cc_emails || [],
+        to_email: fullRfi.toEmail,
+        to_name: fullRfi.toName || '',
+        cc_emails: fullRfi.ccEmails || [],
         category: fullRfi.category,
         priority: fullRfi.priority,
-        due_date: fullRfi.due_date || '',
+        due_date: fullRfi.dueDate || '',
         location: fullRfi.location || '',
-        drawing_reference: fullRfi.drawing_reference || '',
-        specification_reference: fullRfi.specification_reference || '',
+        drawing_reference: fullRfi.drawingReference || '',
+        specification_reference: fullRfi.specificationReference || '',
       })
       setErrors({})
       setDialogOpen(true)
@@ -288,8 +288,8 @@ export default function RFIPage() {
   }
 
   const isOverdue = (rfi: RFIListItem) => {
-    if (!rfi.due_date || rfi.status === 'closed' || rfi.status === 'answered' || rfi.status === 'cancelled') return false
-    return new Date(rfi.due_date) < new Date()
+    if (!rfi.dueDate || rfi.status === 'closed' || rfi.status === 'answered' || rfi.status === 'cancelled') return false
+    return new Date(rfi.dueDate) < new Date()
   }
 
   const getRelativeTime = (dateStr: string): string => {
@@ -308,7 +308,7 @@ export default function RFIPage() {
 
   const filteredRfis = priorityFilter === 'all' ? rfis : rfis.filter(r => r.priority === priorityFilter)
 
-  const urgentCount = summary?.by_priority?.urgent || 0
+  const urgentCount = summary?.byPriority?.urgent || 0
 
   if (loading && rfis.length === 0) {
     return (
@@ -360,11 +360,11 @@ export default function RFIPage() {
       {summary && (
         <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1.5, mb: 3 }}>
           <Box sx={{ bgcolor: 'background.paper', border: '1px solid', borderColor: 'primary.light', borderRadius: 2.5, p: 2, textAlign: 'center', borderTop: '3px solid', borderTopColor: 'primary.main' }}>
-            <Typography variant="h4" fontWeight={800} color="primary.main">{summary.open_count}</Typography>
+            <Typography variant="h4" fontWeight={800} color="primary.main">{summary.openCount}</Typography>
             <Typography variant="caption" fontWeight={600} color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('rfis.openCount')}</Typography>
           </Box>
           <Box sx={{ bgcolor: 'background.paper', border: '1px solid', borderColor: 'success.light', borderRadius: 2.5, p: 2, textAlign: 'center', borderTop: '3px solid', borderTopColor: 'success.main' }}>
-            <Typography variant="h4" fontWeight={800} color="success.main">{summary.answered_count}</Typography>
+            <Typography variant="h4" fontWeight={800} color="success.main">{summary.answeredCount}</Typography>
             <Typography variant="caption" fontWeight={600} color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('rfis.answeredCount')}</Typography>
           </Box>
           <Box sx={{ bgcolor: 'background.paper', border: '1px solid', borderColor: 'error.light', borderRadius: 2.5, p: 2, textAlign: 'center', borderTop: '3px solid', borderTopColor: 'error.main' }}>
@@ -376,10 +376,10 @@ export default function RFIPage() {
 
       <Tabs
         items={[
-          { label: t('common.all'), value: 'all', badge: summary?.total_rfis || 0 },
-          { label: t('rfis.statuses.open'), value: 'open', badge: summary?.open_count || 0 },
-          { label: t('rfis.statuses.answered'), value: 'answered', badge: summary?.answered_count || 0 },
-          { label: t('rfis.statuses.closed'), value: 'closed', badge: summary?.closed_count || 0 },
+          { label: t('common.all'), value: 'all', badge: summary?.totalRfis || 0 },
+          { label: t('rfis.statuses.open'), value: 'open', badge: summary?.openCount || 0 },
+          { label: t('rfis.statuses.answered'), value: 'answered', badge: summary?.answeredCount || 0 },
+          { label: t('rfis.statuses.closed'), value: 'closed', badge: summary?.closedCount || 0 },
         ]}
         value={activeTab}
         onChange={(val) => { setActiveTab(val); setPage(1) }}
@@ -437,7 +437,7 @@ export default function RFIPage() {
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
                   <StatusBadge status={row.priority} />
                   <Chip
-                    label={`#${row.rfi_number}`}
+                    label={`#${row.rfiNumber}`}
                     size="small"
                     sx={{
                       bgcolor: 'grey.100',
@@ -466,20 +466,20 @@ export default function RFIPage() {
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pt: 1.5, borderTop: '1px solid', borderColor: 'divider' }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <Avatar sx={{ width: 28, height: 28, fontSize: '0.65rem', fontWeight: 700, bgcolor: 'primary.main' }}>
-                      {getInitials(row.to_name)}
+                      {getInitials(row.toName)}
                     </Avatar>
-                    <Typography variant="caption" color="text.secondary">{row.to_name || row.to_email}</Typography>
+                    <Typography variant="caption" color="text.secondary">{row.toName || row.toEmail}</Typography>
                   </Box>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                    {row.due_date && (
+                    {row.dueDate && (
                       <Typography variant="caption" color={isOverdue(row) ? 'error.main' : 'text.secondary'} fontWeight={isOverdue(row) ? 700 : 400}>
-                        {formatDate(row.due_date)}
+                        {formatDate(row.dueDate)}
                       </Typography>
                     )}
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                       <AccessTimeIcon sx={{ fontSize: 13, color: 'text.disabled' }} />
                       <Typography variant="caption" color="text.disabled" sx={{ fontSize: '0.65rem' }}>
-                        {getRelativeTime(row.created_at)}
+                        {getRelativeTime(row.createdAt)}
                       </Typography>
                     </Box>
                     {row.status === 'draft' && (
@@ -653,7 +653,7 @@ export default function RFIPage() {
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={handleConfirmDelete}
         title={t('rfis.deleteRfi')}
-        message={t('rfis.deleteConfirmationMessage', { number: rfiToDelete?.rfi_number })}
+        message={t('rfis.deleteConfirmationMessage', { number: rfiToDelete?.rfiNumber })}
         confirmLabel={t('common.delete')}
         variant="danger"
         loading={deleting}
