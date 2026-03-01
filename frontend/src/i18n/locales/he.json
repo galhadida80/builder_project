@@ -2688,6 +2688,17 @@
     "resolved": "נפתר",
     "closed": "סגור",
     "critical": "קריטי",
+    "allStatuses": "כל הסטטוסים",
+    "statusOpen": "פתוח",
+    "statusInProgress": "בטיפול",
+    "statusResolved": "נפתר",
+    "statusClosed": "סגור",
+    "allCategories": "כל הקטגוריות",
+    "allSeverities": "כל החומרות",
+    "severityCritical": "קריטי",
+    "severityHigh": "גבוה",
+    "severityMedium": "בינוני",
+    "severityLow": "נמוך",
     "statuses": {
       "open": "פתוח",
       "in_progress": "בטיפול",
@@ -2769,7 +2780,10 @@
     "loadFailed": "טעינת תוכנית הקומה נכשלה",
     "noImageUrl": "אין תמונת תוכנית קומה זמינה",
     "imageLoadError": "טעינת תוכנית הקומה נכשלה",
-    "canvasError": "שגיאה באתחול תוכנית הקומה"
+    "canvasError": "שגיאה באתחול תוכנית הקומה",
+    "filterByStatus": "סינון לפי סטטוס",
+    "searchPins": "חיפוש פינים...",
+    "advancedFilters": "מסננים מתקדמים"
   },
   "riskPrediction": {
     "title": "ניבוי סיכונים",

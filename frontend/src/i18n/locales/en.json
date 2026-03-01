@@ -2642,6 +2642,17 @@
     "resolved": "Resolved",
     "closed": "Closed",
     "critical": "Critical",
+    "allStatuses": "All Statuses",
+    "statusOpen": "Open",
+    "statusInProgress": "In Progress",
+    "statusResolved": "Resolved",
+    "statusClosed": "Closed",
+    "allCategories": "All Categories",
+    "allSeverities": "All Severities",
+    "severityCritical": "Critical",
+    "severityHigh": "High",
+    "severityMedium": "Medium",
+    "severityLow": "Low",
     "statuses": {
       "open": "Open",
       "in_progress": "In Progress",
@@ -2723,7 +2734,10 @@
     "loadFailed": "Failed to load floorplan",
     "noImageUrl": "No floorplan image available",
     "imageLoadError": "Failed to load floorplan image",
-    "canvasError": "Error initializing floorplan canvas"
+    "canvasError": "Error initializing floorplan canvas",
+    "filterByStatus": "Filter by Status",
+    "searchPins": "Search pins...",
+    "advancedFilters": "Advanced Filters"
   },
   "riskPrediction": {
     "title": "Risk Prediction",
