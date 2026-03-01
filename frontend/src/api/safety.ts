@@ -3,12 +3,17 @@ import type {
   SafetyIncident,
   NearMiss,
   SafetyTraining,
+  ToolboxTalk,
+  TalkAttendee,
   SafetyKPI,
   IncidentSeverity,
   IncidentStatus,
   NearMissSeverity,
   NearMissStatus,
-  TrainingStatus
+  TrainingStatus,
+  ToolboxTalkStatus,
+  KeyPoint,
+  TalkActionItem
 } from '../types/safety'
 
 // Safety Incidents
@@ -329,6 +334,114 @@ export const safetyApi = {
 
     getSummary: async (projectId: string): Promise<SafetyTrainingSummary> => {
       const response = await apiClient.get(`/projects/${projectId}/safety-training/summary/statistics`)
+      return response.data
+    },
+  },
+
+  // Toolbox Talks
+  toolboxTalks: {
+    list: async (projectId: string, params?: { status?: ToolboxTalkStatus }): Promise<ToolboxTalk[]> => {
+      const qs = new URLSearchParams({ project_id: projectId })
+      if (params?.status) qs.set('status', params.status)
+      const response = await apiClient.get(`/toolbox-talks?${qs.toString()}`)
+      return response.data
+    },
+
+    get: async (talkId: string): Promise<ToolboxTalk> => {
+      const response = await apiClient.get(`/toolbox-talks/${talkId}`)
+      return response.data
+    },
+
+    create: async (projectId: string, data: {
+      title: string
+      topic: string
+      description?: string
+      scheduledDate: string
+      location?: string
+      presenter?: string
+      keyPoints?: KeyPoint[]
+      actionItems?: TalkActionItem[]
+      durationMinutes?: number
+      attendeeIds?: string[]
+    }): Promise<ToolboxTalk> => {
+      const response = await apiClient.post(`/projects/${projectId}/toolbox-talks`, {
+        title: data.title,
+        topic: data.topic,
+        description: data.description,
+        scheduled_date: data.scheduledDate,
+        location: data.location,
+        presenter: data.presenter,
+        key_points: data.keyPoints,
+        action_items: data.actionItems,
+        duration_minutes: data.durationMinutes,
+        attendee_ids: data.attendeeIds,
+      })
+      return response.data
+    },
+
+    update: async (talkId: string, data: {
+      title?: string
+      topic?: string
+      description?: string
+      scheduledDate?: string
+      location?: string
+      presenter?: string
+      keyPoints?: KeyPoint[]
+      actionItems?: TalkActionItem[]
+      durationMinutes?: number
+      status?: ToolboxTalkStatus
+      attendeeIds?: string[]
+    }): Promise<ToolboxTalk> => {
+      const payload: Record<string, unknown> = {}
+      if (data.title !== undefined) payload.title = data.title
+      if (data.topic !== undefined) payload.topic = data.topic
+      if (data.description !== undefined) payload.description = data.description
+      if (data.scheduledDate !== undefined) payload.scheduled_date = data.scheduledDate
+      if (data.location !== undefined) payload.location = data.location
+      if (data.presenter !== undefined) payload.presenter = data.presenter
+      if (data.keyPoints !== undefined) payload.key_points = data.keyPoints
+      if (data.actionItems !== undefined) payload.action_items = data.actionItems
+      if (data.durationMinutes !== undefined) payload.duration_minutes = data.durationMinutes
+      if (data.status !== undefined) payload.status = data.status
+      if (data.attendeeIds !== undefined) payload.attendee_ids = data.attendeeIds
+
+      const response = await apiClient.put(`/toolbox-talks/${talkId}`, payload)
+      return response.data
+    },
+
+    delete: async (talkId: string): Promise<void> => {
+      await apiClient.delete(`/toolbox-talks/${talkId}`)
+    },
+
+    addAttendee: async (talkId: string, data: {
+      workerId?: string
+      workerName?: string
+      attended: boolean
+    }): Promise<TalkAttendee> => {
+      const response = await apiClient.post(`/toolbox-talks/${talkId}/attendees`, {
+        worker_id: data.workerId,
+        worker_name: data.workerName,
+        attended: data.attended,
+      })
+      return response.data
+    },
+
+    updateAttendance: async (talkId: string, attendeeId: string, attended: boolean, signature?: string): Promise<TalkAttendee> => {
+      const qs = new URLSearchParams({ attended: String(attended) })
+      if (signature) qs.set('signature', signature)
+      const response = await apiClient.put(`/toolbox-talks/${talkId}/attendance/${attendeeId}?${qs.toString()}`, {})
+      return response.data
+    },
+
+    getSummary: async (talkId: string): Promise<{
+      talkId: string
+      totalAttendees: number
+      totalAttended: number
+      totalSigned: number
+      attendanceRate: number
+      signatureRate: number
+    }> => {
+      const response = await apiClient.get(`/toolbox-talks/${talkId}/summary`)
       return response.data
     },
   },
