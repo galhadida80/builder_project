@@ -9,6 +9,7 @@ from app.api.v1 import (
     areas,
     audit,
     auth,
+    batch_uploads,
     billing,
     bim,
     bim_extract,
@@ -161,3 +162,4 @@ api_router.include_router(safety_kpi.router, tags=["safety_kpi"])
 api_router.include_router(vendor_analytics.router, tags=["vendors"])
 api_router.include_router(vendors.router, tags=["vendors"])
 api_router.include_router(qr_codes.router, tags=["qr_codes"])
+api_router.include_router(batch_uploads.router, tags=["batch_uploads"])

@@ -4394,5 +4394,37 @@
       "material": "Material",
       "area": "Area"
     }
+  },
+  "batchUpload": {
+    "title": "Batch Document Upload",
+    "dragAndDrop": "Drag and drop files here",
+    "dropHere": "Drop here",
+    "orClickBrowse": "or click to browse files",
+    "limits": "Up to {{maxFiles}} files, {{maxSize}} total",
+    "selectedFiles": "{{count}} files selected",
+    "category": "Category",
+    "noCategory": "No category",
+    "building": "Building",
+    "floor": "Floor",
+    "upload": "Upload Files",
+    "uploadStarted": "Upload started, files are being processed in the background",
+    "uploadFailed": "File upload failed",
+    "processing": "Processing files...",
+    "loading": "Loading status...",
+    "statusError": "Error fetching upload status",
+    "failedCount": "{{count}} files failed to upload",
+    "allCompleted": "All files uploaded successfully",
+    "maxFilesError": "Maximum {{max}} files allowed",
+    "maxSizeError": "Maximum total size: {{max}}",
+    "categories": {
+      "drawings": "Drawings",
+      "specifications": "Specifications",
+      "reports": "Reports",
+      "permits": "Permits",
+      "contracts": "Contracts",
+      "photos": "Photos",
+      "inspections": "Inspections",
+      "other": "Other"
+    }
   }
 }

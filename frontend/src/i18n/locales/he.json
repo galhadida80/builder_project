@@ -4440,5 +4440,37 @@
       "material": "חומר",
       "area": "אזור"
     }
+  },
+  "batchUpload": {
+    "title": "העלאת מסמכים מרובים",
+    "dragAndDrop": "גרור ושחרר קבצים כאן",
+    "dropHere": "שחרר כאן",
+    "orClickBrowse": "או לחץ לבחירת קבצים",
+    "limits": "עד {{maxFiles}} קבצים, סה\"כ {{maxSize}}",
+    "selectedFiles": "{{count}} קבצים נבחרו",
+    "category": "קטגוריה",
+    "noCategory": "ללא קטגוריה",
+    "building": "בניין",
+    "floor": "קומה",
+    "upload": "העלה קבצים",
+    "uploadStarted": "ההעלאה החלה, הקבצים מעובדים ברקע",
+    "uploadFailed": "העלאת הקבצים נכשלה",
+    "processing": "מעבד קבצים...",
+    "loading": "טוען סטטוס...",
+    "statusError": "שגיאה בקבלת סטטוס העלאה",
+    "failedCount": "{{count}} קבצים נכשלו בהעלאה",
+    "allCompleted": "כל הקבצים הועלו בהצלחה",
+    "maxFilesError": "ניתן להעלות עד {{max}} קבצים",
+    "maxSizeError": "גודל כולל מקסימלי: {{max}}",
+    "categories": {
+      "drawings": "שרטוטים",
+      "specifications": "מפרטים",
+      "reports": "דוחות",
+      "permits": "היתרים",
+      "contracts": "חוזים",
+      "photos": "תמונות",
+      "inspections": "בדיקות",
+      "other": "אחר"
+    }
   }
 }

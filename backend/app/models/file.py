@@ -25,5 +25,7 @@ class File(Base):
     storage_path: Mapped[str] = mapped_column(String(500), nullable=False)
     uploaded_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow())
     uploaded_by_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
+    batch_upload_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("batch_uploads.id", ondelete="SET NULL"), nullable=True)
 
     uploaded_by = relationship("User", foreign_keys=[uploaded_by_id])
+    batch_upload = relationship("BatchUpload", back_populates="files")

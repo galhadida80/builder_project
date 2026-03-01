@@ -1,6 +1,7 @@
 from app.models.approval import ApprovalRequest, ApprovalStep
 from app.models.area import AreaChecklistAssignment, AreaProgress, ConstructionArea
 from app.models.audit import AuditLog
+from app.models.batch_upload import BatchUpload
 from app.models.billing import BillingHistory, Invoice, PaymentMethod
 from app.models.bim import AutodeskConnection, BimModel
 from app.models.blueprint_extraction import BlueprintExtraction, BlueprintImport
@@ -208,4 +209,5 @@ __all__ = [
     "Vendor",
     "VendorPerformance",
     "ScanHistory",
+    "BatchUpload",
 ]
