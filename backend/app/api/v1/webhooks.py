@@ -12,6 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import get_settings
 from app.db.session import get_db
 from app.services.gmail_service import GmailService
+from app.services.permit_deadline_service import check_permit_deadlines
 from app.services.rfi_service import RFIService
 
 logger = logging.getLogger(__name__)
@@ -321,4 +322,49 @@ async def execute_scheduled_report(report_id: str):
 
         except Exception as e:
             logger.error(f"Failed to generate scheduled report {report_id}: {e}")
+            await db.rollback()
+
+
+@router.post("/permits/check-deadlines")
+async def permit_deadline_webhook(
+    request: Request,
+    background_tasks: BackgroundTasks,
+    db: AsyncSession = Depends(get_db)
+):
+    """Webhook endpoint for Cloud Scheduler to trigger permit deadline checks."""
+    if not settings.scheduler_secret:
+        raise HTTPException(status_code=500, detail="Scheduler secret not configured")
+
+    try:
+        body = await request.json()
+    except Exception as e:
+        logger.error(f"Failed to parse webhook body: {e}")
+        raise HTTPException(status_code=400, detail="Invalid JSON payload")
+
+    scheduler_secret = body.get("scheduler_secret")
+
+    if not scheduler_secret:
+        raise HTTPException(status_code=401, detail="Missing scheduler_secret")
+
+    if scheduler_secret != settings.scheduler_secret:
+        logger.warning("Scheduler secret verification failed")
+        raise HTTPException(status_code=403, detail="Invalid scheduler_secret")
+
+    background_tasks.add_task(
+        process_permit_deadlines
+    )
+    logger.info("Queued permit deadline check")
+
+    return {"status": "ok"}
+
+
+async def process_permit_deadlines():
+    from app.db.session import AsyncSessionLocal
+
+    async with AsyncSessionLocal() as db:
+        try:
+            notifications = await check_permit_deadlines(db)
+            logger.info(f"Permit deadline check completed: {len(notifications)} alerts created")
+        except Exception as e:
+            logger.error(f"Failed to process permit deadlines: {e}")
             await db.rollback()
