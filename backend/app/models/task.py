@@ -20,6 +20,7 @@ class Task(Base):
     status: Mapped[str] = mapped_column(String(50), default="not_started", index=True)
     priority: Mapped[str] = mapped_column(String(50), default="medium")
     is_milestone: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    milestone_type: Mapped[str | None] = mapped_column(String(50), nullable=True)
     assignee_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), index=True)
     reporter_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"))
     start_date: Mapped[date | None] = mapped_column(Date, nullable=True)
