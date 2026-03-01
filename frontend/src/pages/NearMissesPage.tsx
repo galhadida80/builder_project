@@ -1,42 +1,20 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { getDateLocale } from '../utils/dateLocale'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
-import { DataTable, Column } from '../components/ui/DataTable'
-import { StatusBadge, SeverityBadge } from '../components/ui/StatusBadge'
+import { DataTable } from '../components/ui/DataTable'
 import { PageHeader } from '../components/ui/Breadcrumbs'
-import { SearchField } from '../components/ui/TextField'
 import SummaryBar from '../components/ui/SummaryBar'
 import FilterChips from '../components/ui/FilterChips'
+import { NearMissFilters } from '../components/safety/NearMissFilters'
+import NearMissCard from '../components/safety/NearMissCard'
+import { useNearMissTableColumns } from '../components/safety/NearMissTableColumns'
 import { safetyApi } from '../api/safety'
 import type { NearMiss, NearMissSummary, NearMissSeverity, NearMissStatus } from '../types/safety'
 import { useToast } from '../components/common/ToastProvider'
-import { AddIcon, VisibilityIcon, SecurityIcon } from '@/icons'
-import { Box, Typography, Chip, MenuItem, Tooltip, TablePagination, useMediaQuery, useTheme, TextField as MuiTextField } from '@/mui'
-
-const SEVERITY_BORDER_COLORS: Record<NearMissSeverity, string> = {
-  high: '#EA580C',
-  medium: '#CA8A04',
-  low: '#22C55E',
-}
-
-function formatRelativeTime(dateStr: string, t: (key: string, opts?: Record<string, unknown>) => string): string {
-  const now = new Date()
-  const date = new Date(dateStr)
-  const diffMs = now.getTime() - date.getTime()
-  const diffMinutes = Math.floor(diffMs / 60000)
-  const diffHours = Math.floor(diffMs / 3600000)
-  const diffDays = Math.floor(diffMs / 86400000)
-
-  if (diffMinutes < 1) return t('defects.justNow')
-  if (diffMinutes < 60) return t('defects.minutesAgo', { count: diffMinutes })
-  if (diffHours < 24) return t('defects.hoursAgo', { count: diffHours })
-  if (diffDays === 1) return t('defects.yesterday')
-  if (diffDays < 30) return t('defects.daysAgo', { count: diffDays })
-  return date.toLocaleDateString(getDateLocale())
-}
+import { AddIcon } from '@/icons'
+import { Box, Typography, TablePagination, useMediaQuery, useTheme } from '@/mui'
 
 export default function NearMissesPage() {
   const { t } = useTranslation()
@@ -56,6 +34,8 @@ export default function NearMissesPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [severityFilter, setSeverityFilter] = useState('')
   const [anonymousFilter, setAnonymousFilter] = useState<string>('all')
+
+  const columns = useNearMissTableColumns()
 
   useEffect(() => {
     if (projectId) loadSummary()
@@ -79,7 +59,12 @@ export default function NearMissesPage() {
     if (!projectId) return
     setLoading(true)
     try {
-      const params: { status?: NearMissStatus; severity?: NearMissSeverity; search?: string; isAnonymous?: boolean } = {}
+      const params: {
+        status?: NearMissStatus
+        severity?: NearMissSeverity
+        search?: string
+        isAnonymous?: boolean
+      } = {}
       if (activeTab !== 'all') params.status = activeTab as NearMissStatus
       if (severityFilter) params.severity = severityFilter as NearMissSeverity
       if (searchQuery) params.search = searchQuery
@@ -96,121 +81,6 @@ export default function NearMissesPage() {
       setLoading(false)
     }
   }
-
-  const columns: Column<NearMiss>[] = [
-    {
-      id: 'nearMissNumber',
-      label: '#',
-      minWidth: 70,
-      sortable: true,
-      render: (row) => (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Box
-            sx={{
-              width: 4,
-              height: 28,
-              borderRadius: 1,
-              bgcolor: SEVERITY_BORDER_COLORS[row.severity] || SEVERITY_BORDER_COLORS.low,
-              flexShrink: 0,
-            }}
-          />
-          <Typography variant="body2" fontWeight={600}>
-            #{row.nearMissNumber}
-          </Typography>
-          {row.isAnonymous && (
-            <Tooltip title={t('safety.anonymousReport')} arrow>
-              <SecurityIcon fontSize="small" color="action" />
-            </Tooltip>
-          )}
-        </Box>
-      ),
-    },
-    {
-      id: 'title',
-      label: t('safety.title'),
-      minWidth: 220,
-      render: (row) => (
-        <Typography
-          variant="body2"
-          fontWeight={600}
-          sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 300 }}
-        >
-          {row.title}
-        </Typography>
-      ),
-    },
-    {
-      id: 'location',
-      label: t('safety.location'),
-      minWidth: 130,
-      hideOnMobile: true,
-      render: (row) => (
-        <Typography variant="body2" color={row.area ? 'text.primary' : 'text.secondary'}>
-          {row.area
-            ? `${row.area.name}${row.area.floorNumber != null ? ` / ${t('defects.floor')} ${row.area.floorNumber}` : ''}`
-            : row.location || '-'}
-        </Typography>
-      ),
-    },
-    {
-      id: 'severity',
-      label: t('safety.severity'),
-      minWidth: 110,
-      hideOnMobile: true,
-      render: (row) => <SeverityBadge severity={row.severity} />,
-    },
-    {
-      id: 'status',
-      label: t('common.status'),
-      minWidth: 120,
-      render: (row) => <StatusBadge status={row.status} />,
-    },
-    {
-      id: 'reportedBy',
-      label: t('safety.reportedBy'),
-      minWidth: 140,
-      hideOnMobile: true,
-      render: (row) => (
-        <Typography variant="body2" color={row.reportedBy ? 'text.primary' : 'text.secondary'}>
-          {row.isAnonymous ? t('safety.anonymous') : row.reportedBy?.contactName || '-'}
-        </Typography>
-      ),
-    },
-    {
-      id: 'createdAt',
-      label: t('common.date'),
-      minWidth: 100,
-      sortable: true,
-      hideOnMobile: true,
-      render: (row) => (
-        <Tooltip title={new Date(row.createdAt).toLocaleDateString(getDateLocale())} arrow>
-          <Typography variant="body2" color="text.secondary">
-            {formatRelativeTime(row.createdAt, t)}
-          </Typography>
-        </Tooltip>
-      ),
-    },
-    {
-      id: 'actions',
-      label: '',
-      minWidth: 90,
-      align: 'right',
-      hideOnMobile: true,
-      render: (row) => (
-        <Button
-          variant="tertiary"
-          size="small"
-          icon={<VisibilityIcon />}
-          onClick={(e) => {
-            e.stopPropagation()
-            navigate(`/projects/${projectId}/safety/near-misses/${row.id}`)
-          }}
-        >
-          {t('buttons.view')}
-        </Button>
-      ),
-    },
-  ]
 
   return (
     <Box sx={{ p: { xs: 1, sm: 1.5, md: 3 }, maxWidth: '100%', overflow: 'hidden' }}>
@@ -254,57 +124,20 @@ export default function NearMissesPage() {
 
       <Card>
         <Box sx={{ p: 2 }}>
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: { xs: 'column', sm: 'row' },
-              justifyContent: 'space-between',
-              alignItems: { xs: 'stretch', sm: 'center' },
-              gap: 1,
-              mb: 2,
+          <NearMissFilters
+            severityFilter={severityFilter}
+            anonymousFilter={anonymousFilter}
+            searchQuery={searchQuery}
+            onSeverityChange={(val) => {
+              setSeverityFilter(val)
+              setPage(1)
             }}
-          >
-            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
-              <MuiTextField
-                select
-                size="small"
-                value={severityFilter}
-                onChange={(e) => {
-                  setSeverityFilter(e.target.value)
-                  setPage(1)
-                }}
-                label={t('safety.severity')}
-                sx={{ minWidth: 140 }}
-              >
-                <MenuItem value="">{t('common.all')}</MenuItem>
-                <MenuItem value="high">{t('safety.high')}</MenuItem>
-                <MenuItem value="medium">{t('safety.medium')}</MenuItem>
-                <MenuItem value="low">{t('safety.low')}</MenuItem>
-              </MuiTextField>
-
-              <MuiTextField
-                select
-                size="small"
-                value={anonymousFilter}
-                onChange={(e) => {
-                  setAnonymousFilter(e.target.value)
-                  setPage(1)
-                }}
-                label={t('safety.reportType')}
-                sx={{ minWidth: 140 }}
-              >
-                <MenuItem value="all">{t('common.all')}</MenuItem>
-                <MenuItem value="anonymous">{t('safety.anonymous')}</MenuItem>
-                <MenuItem value="identified">{t('safety.identified')}</MenuItem>
-              </MuiTextField>
-
-              <SearchField
-                placeholder={t('safety.searchNearMisses')}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </Box>
-          </Box>
+            onAnonymousChange={(val) => {
+              setAnonymousFilter(val)
+              setPage(1)
+            }}
+            onSearchChange={setSearchQuery}
+          />
 
           <Box sx={{ mb: 2 }}>
             <FilterChips
@@ -335,39 +168,11 @@ export default function NearMissesPage() {
                 </Typography>
               ) : (
                 nearMisses.map((nearMiss) => (
-                  <Card
+                  <NearMissCard
                     key={nearMiss.id}
-                    sx={{ mb: 1.5, cursor: 'pointer', border: '1px solid', borderColor: 'divider' }}
+                    nearMiss={nearMiss}
                     onClick={() => navigate(`/projects/${projectId}/safety/near-misses/${nearMiss.id}`)}
-                  >
-                    <Box sx={{ p: 2 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                        <Typography variant="body2" fontWeight={600}>
-                          #{nearMiss.nearMissNumber}
-                        </Typography>
-                        {nearMiss.isAnonymous && (
-                          <Chip
-                            label={t('safety.anonymous')}
-                            size="small"
-                            color="info"
-                            icon={<SecurityIcon fontSize="small" />}
-                          />
-                        )}
-                        <Box sx={{ ml: 'auto' }}>
-                          <SeverityBadge severity={nearMiss.severity} />
-                        </Box>
-                      </Box>
-                      <Typography variant="body2" fontWeight={600} sx={{ mb: 1 }}>
-                        {nearMiss.title}
-                      </Typography>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <StatusBadge status={nearMiss.status} />
-                        <Typography variant="caption" color="text.secondary">
-                          {formatRelativeTime(nearMiss.createdAt, t)}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </Card>
+                  />
                 ))
               )}
             </Box>
@@ -405,7 +210,6 @@ export default function NearMissesPage() {
         </Box>
       </Card>
 
-      {/* Mobile FAB */}
       {isMobile && (
         <Box
           sx={{
