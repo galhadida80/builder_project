@@ -48,6 +48,11 @@ from app.api.v1 import (
     rfis,
     risk_scores,
     schedule_risk,
+    subcontractor_approvals,
+    subcontractor_dashboard,
+    subcontractor_rfis,
+    subcontractor_tasks,
+    subcontractors,
     subscriptions,
     tasks_api,
     time_tracking,
@@ -55,7 +60,6 @@ from app.api.v1 import (
     whatsapp,
     work_summary,
     workload,
-    subcontractors,
     ws,
 )
 
@@ -119,5 +123,9 @@ api_router.include_router(reports.router, tags=["reports"])
 api_router.include_router(exports.router, tags=["exports"])
 api_router.include_router(organization_exports.router, tags=["exports"])
 api_router.include_router(subcontractors.router, tags=["subcontractors"])
+api_router.include_router(subcontractor_dashboard.router, tags=["subcontractor-portal"])
+api_router.include_router(subcontractor_tasks.router, tags=["subcontractor-portal"])
+api_router.include_router(subcontractor_rfis.router, tags=["subcontractor-portal"])
+api_router.include_router(subcontractor_approvals.router, tags=["subcontractor-portal"])
 api_router.include_router(time_tracking.router, tags=["time_tracking"])
 api_router.include_router(work_summary.router, prefix="/auth", tags=["auth"])
