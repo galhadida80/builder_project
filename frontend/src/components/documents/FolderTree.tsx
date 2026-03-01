@@ -146,7 +146,7 @@ export function FolderTree({
     return (
       <Box key={folder.id}>
         <StyledListItem
-          sx={{ pl: level * 2 }}
+          sx={{ paddingInlineStart: level * 2 }}
           secondaryAction={
             !isRoot && (
               <ActionsBox className="folder-actions">
@@ -245,17 +245,17 @@ export function FolderTree({
     const filesInFolder = files.filter(f => f.entityId === folder.id).length
 
     const parts: string[] = []
-    if (childFolders > 0) parts.push(`${childFolders} subfolder${childFolders > 1 ? 's' : ''}`)
-    if (filesInFolder > 0) parts.push(`${filesInFolder} file${filesInFolder > 1 ? 's' : ''}`)
+    if (childFolders > 0) parts.push(t('documents.subfoldersCount', { count: childFolders }))
+    if (filesInFolder > 0) parts.push(t('documents.filesCount', { count: filesInFolder }))
 
-    return parts.join(' and ')
+    return parts.join(` ${t('common.and')} `)
   }
 
   return (
     <Box>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-        <Typography variant="subtitle2" fontWeight={600} color="text.secondary">
-          FOLDERS
+        <Typography variant="subtitle2" fontWeight={600} color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+          {t('documents.foldersTitle')}
         </Typography>
         <IconButton
           size="small"
@@ -285,14 +285,14 @@ export function FolderTree({
           setNewFolderName('')
         }}
         onSubmit={handleCreateFolder}
-        title="Create New Folder"
-        submitLabel="Create"
+        title={t('documents.createNewFolder')}
+        submitLabel={t('documents.createFolder')}
         submitDisabled={!newFolderName.trim()}
       >
         <TextField
           autoFocus
           fullWidth
-          label="Folder Name"
+          label={t('documents.folderName')}
           value={newFolderName}
           onChange={(e) => setNewFolderName(e.target.value)}
           onKeyPress={(e) => {
@@ -314,14 +314,14 @@ export function FolderTree({
           setNewFolderName('')
         }}
         onSubmit={handleRenameFolder}
-        title="Rename Folder"
-        submitLabel="Rename"
+        title={t('documents.renameFolder')}
+        submitLabel={t('documents.renameFolder')}
         submitDisabled={!newFolderName.trim()}
       >
         <TextField
           autoFocus
           fullWidth
-          label="Folder Name"
+          label={t('documents.folderName')}
           value={newFolderName}
           onChange={(e) => setNewFolderName(e.target.value)}
           onKeyPress={(e) => {
@@ -342,13 +342,13 @@ export function FolderTree({
           setTargetFolder(null)
         }}
         onConfirm={handleDeleteFolder}
-        title="Delete Folder"
+        title={t('documents.deleteFolder')}
         message={
           targetFolder && hasFolderContent(targetFolder)
-            ? `Cannot delete "${targetFolder.name}". Folder contains ${getContentDescription(targetFolder)}. Please delete or move items first.`
-            : `Are you sure you want to delete "${targetFolder?.name}"? This action cannot be undone.`
+            ? t('documents.cannotDeleteFolderContent', { name: targetFolder.name, content: getContentDescription(targetFolder) })
+            : t('documents.confirmDeleteFolder', { name: targetFolder?.name })
         }
-        confirmLabel={targetFolder && hasFolderContent(targetFolder) ? 'OK' : 'Delete'}
+        confirmLabel={targetFolder && hasFolderContent(targetFolder) ? t('common.confirm') : t('common.delete')}
         variant="danger"
       />
     </Box>

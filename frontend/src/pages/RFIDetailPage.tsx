@@ -12,13 +12,13 @@ import { rfiApi, RFI_CATEGORY_OPTIONS } from '../api/rfi'
 import type { RFI, RFIResponseData } from '../api/rfi'
 import { useToast } from '../components/common/ToastProvider'
 import {
-  ArrowBackIcon,
   EmailIcon,
   SendIcon,
   LockIcon,
   FileDownloadIcon,
   ScheduleIcon,
 } from '@/icons'
+import { BackArrowIcon } from '@/components/ui/BackArrowIcon'
 import {
   Box,
   Typography,
@@ -187,7 +187,7 @@ export default function RFIDetailPage() {
       <Box sx={{ py: 2, flexShrink: 0 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
           <IconButton aria-label={t('common.back')} onClick={() => navigate(`/projects/${projectId}/rfis`)} size="small">
-            <ArrowBackIcon />
+            <BackArrowIcon />
           </IconButton>
           <Typography variant="subtitle1" fontWeight={700}>{rfi.rfiNumber}</Typography>
           <StatusBadge status={rfi.status} />

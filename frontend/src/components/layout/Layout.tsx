@@ -81,7 +81,7 @@ export default function Layout() {
 
   if (projectsLoading || !currentUser) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100dvh' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100dvh', bgcolor: 'background.default' }}>
         <CircularProgress />
       </Box>
     )

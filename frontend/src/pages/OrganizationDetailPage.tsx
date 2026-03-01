@@ -12,7 +12,8 @@ import { Card } from '../components/ui/Card'
 import { EmptyState } from '../components/ui/EmptyState'
 import { TextField } from '../components/ui/TextField'
 import { FormModal, ConfirmModal } from '../components/ui/Modal'
-import { BusinessIcon, AddIcon, GroupIcon, DeleteIcon, FolderIcon, ArrowBackIcon } from '@/icons'
+import { BusinessIcon, AddIcon, GroupIcon, DeleteIcon, FolderIcon } from '@/icons'
+import { BackArrowIcon } from '@/components/ui/BackArrowIcon'
 import {
   Box, Typography, Skeleton, Chip, IconButton,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
@@ -127,7 +128,7 @@ export default function OrganizationDetailPage() {
           { label: org.name },
         ]}
         actions={
-          <Button variant="secondary" icon={<ArrowBackIcon />} onClick={() => navigate('/organizations')}>
+          <Button variant="secondary" icon={<BackArrowIcon />} onClick={() => navigate('/organizations')}>
             {t('common.back', 'Back')}
           </Button>
         }

@@ -426,8 +426,8 @@ export function ApprovalWorkflowStepper({
                   key={step.id}
                   sx={{
                     mb: 2,
-                    borderLeft: 4,
-                    borderLeftColor:
+                    borderInlineStart: 4,
+                    borderInlineStartColor:
                       step.status === 'approved'
                         ? 'success.main'
                         : step.status === 'rejected'

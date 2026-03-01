@@ -7,13 +7,15 @@ import { EmptyState } from '../components/ui/EmptyState'
 import { ScheduleRiskPanel } from '../components/schedule/ScheduleRiskPanel'
 import { WhatIfScenario } from '../components/schedule/WhatIfScenario'
 import { meetingsApi } from '../api/meetings'
+import { tasksApi } from '../api/tasks'
 import { scheduleRiskApi } from '../api/scheduleRisk'
 import { useToast } from '../components/common/ToastProvider'
 import type { GanttTask, GanttLink, GanttScale } from '../types/timeline'
-import type { Meeting } from '../types'
+import type { Meeting, Task } from '../types'
 import type { ProjectRiskSummary, ScheduleRiskAnalysis } from '../types/scheduleRisk'
-import { ZoomInIcon, ZoomOutIcon, TimelineIcon, ArrowBackIcon, CalendarTodayIcon, VisibilityIcon, VisibilityOffIcon, TrendingUpIcon } from '@/icons'
-import { Box, Typography, IconButton, Skeleton, Chip, alpha, Button } from '@/mui'
+import { ZoomInIcon, ZoomOutIcon, TimelineIcon, CalendarTodayIcon, VisibilityIcon, VisibilityOffIcon, TrendingUpIcon } from '@/icons'
+import { BackArrowIcon } from '@/components/ui/BackArrowIcon'
+import { Box, Typography, IconButton, Skeleton, Chip } from '@/mui'
 
 const addDays = (dateStr: string, days: number): string => {
   const d = new Date(dateStr)
@@ -21,7 +23,7 @@ const addDays = (dateStr: string, days: number): string => {
   return d.toISOString().split('T')[0]
 }
 
-const convertMeetingsToTasks = (meetings: Meeting[]): { tasks: GanttTask[], links: GanttLink[] } => {
+const convertMeetingsToGantt = (meetings: Meeting[]): { tasks: GanttTask[], links: GanttLink[] } => {
   const tasks: GanttTask[] = meetings.map(meeting => {
     const startDate = meeting.scheduledDate?.split('T')[0] || new Date().toISOString().split('T')[0]
     const isMilestone = (meeting.meetingType as string) === 'milestone'
@@ -34,39 +36,39 @@ const convertMeetingsToTasks = (meetings: Meeting[]): { tasks: GanttTask[], link
       progress: meeting.status === 'completed' ? 100 : (meeting.status as string) === 'in_progress' ? 50 : 0,
     }
   })
-
   return { tasks, links: [] }
 }
 
+const convertTasksToGanttItems = (projectTasks: Task[]): { tasks: GanttTask[], links: GanttLink[] } => {
+  const today = new Date().toISOString().split('T')[0]
+  const tasks: GanttTask[] = projectTasks.map(task => {
+    const start = task.startDate ? task.startDate.split('T')[0] : (task.dueDate?.split('T')[0] || today)
+    const end = task.dueDate ? task.dueDate.split('T')[0] : addDays(start, 7)
+    return {
+      id: task.id,
+      text: task.title,
+      start,
+      end,
+      type: 'task',
+      progress: task.status === 'completed' ? 100 : task.status === 'in_progress' ? 50 : 0,
+    }
+  })
+  const links: GanttLink[] = projectTasks.flatMap(task =>
+    (task.dependencies || []).map(dep => ({
+      id: dep.id,
+      source: dep.dependsOnId,
+      target: dep.taskId,
+      type: 'e2s' as const,
+    }))
+  )
+  return { tasks, links }
+}
+
 const zoomLevels: Array<{ labelKey: string; scales: GanttScale[] }> = [
-  {
-    labelKey: 'gantt.zoomYearMonth',
-    scales: [
-      { unit: 'year', format: 'YYYY' },
-      { unit: 'month', format: 'MMM' },
-    ],
-  },
-  {
-    labelKey: 'gantt.zoomMonthWeek',
-    scales: [
-      { unit: 'month', format: 'MMM YYYY' },
-      { unit: 'week', format: 'w' },
-    ],
-  },
-  {
-    labelKey: 'gantt.zoomMonthDay',
-    scales: [
-      { unit: 'month', format: 'MMM YYYY' },
-      { unit: 'day', format: 'D' },
-    ],
-  },
-  {
-    labelKey: 'gantt.zoomWeekDay',
-    scales: [
-      { unit: 'week', format: 'MMM D' },
-      { unit: 'day', format: 'ddd D' },
-    ],
-  },
+  { labelKey: 'gantt.zoomYearMonth', scales: [{ unit: 'year', format: 'YYYY' }, { unit: 'month', format: 'MMM' }] },
+  { labelKey: 'gantt.zoomMonthWeek', scales: [{ unit: 'month', format: 'MMM YYYY' }, { unit: 'week', format: 'w' }] },
+  { labelKey: 'gantt.zoomMonthDay', scales: [{ unit: 'month', format: 'MMM YYYY' }, { unit: 'day', format: 'D' }] },
+  { labelKey: 'gantt.zoomWeekDay', scales: [{ unit: 'week', format: 'MMM D' }, { unit: 'day', format: 'ddd D' }] },
 ]
 
 export default function GanttTimelinePage() {
@@ -76,12 +78,14 @@ export default function GanttTimelinePage() {
   const { showError } = useToast()
   const [zoomLevel, setZoomLevel] = useState(2)
   const [filterValue, setFilterValue] = useState('all')
+  const [sourceFilter, setSourceFilter] = useState<'all' | 'meetings' | 'tasks'>('all')
   const [loading, setLoading] = useState(true)
-  const [tasks, setTasks] = useState<GanttTask[]>([])
-  const [links, setLinks] = useState<GanttLink[]>([])
+  const [meetingTasks, setMeetingTasks] = useState<GanttTask[]>([])
+  const [projectTasks, setProjectTasks] = useState<GanttTask[]>([])
+  const [meetingLinks, setMeetingLinks] = useState<GanttLink[]>([])
+  const [taskLinks, setTaskLinks] = useState<GanttLink[]>([])
   const [showRiskOverlay, setShowRiskOverlay] = useState(false)
   const [whatIfModalOpen, setWhatIfModalOpen] = useState(false)
-  const [riskSummary, setRiskSummary] = useState<ProjectRiskSummary | null>(null)
   const [riskData, setRiskData] = useState<Record<string, ScheduleRiskAnalysis>>({})
 
   useEffect(() => {
@@ -96,12 +100,18 @@ export default function GanttTimelinePage() {
     if (!projectId) return
     try {
       setLoading(true)
-      const meetings = await meetingsApi.list(projectId)
-      const { tasks: meetingTasks, links: meetingLinks } = convertMeetingsToTasks(meetings)
-      setTasks(meetingTasks)
-      setLinks(meetingLinks)
+      const [meetings, tasks] = await Promise.all([
+        meetingsApi.list(projectId),
+        tasksApi.list(projectId),
+      ])
+      const { tasks: mTasks, links: mLinks } = convertMeetingsToGantt(meetings)
+      const { tasks: pTasks, links: pLinks } = convertTasksToGanttItems(tasks)
+      setMeetingTasks(mTasks)
+      setMeetingLinks(mLinks)
+      setProjectTasks(pTasks)
+      setTaskLinks(pLinks)
       await loadRiskData()
-    } catch (error) {
+    } catch {
       showError(t('gantt.failedToLoad'))
     } finally {
       setLoading(false)
@@ -111,14 +121,13 @@ export default function GanttTimelinePage() {
   const loadRiskData = async () => {
     if (!projectId) return
     try {
-      const summary = await scheduleRiskApi.getProjectRiskSummary(projectId)
-      setRiskSummary(summary)
+      const summary: ProjectRiskSummary = await scheduleRiskApi.getProjectRiskSummary(projectId)
       const riskMap: Record<string, ScheduleRiskAnalysis> = {}
       for (const task of summary.topRisks || []) {
         if (task.taskId) riskMap[task.taskId] = task
       }
       setRiskData(riskMap)
-    } catch (error) {
+    } catch {
       // Silent fail - risk data is optional
     }
   }
@@ -126,11 +135,7 @@ export default function GanttTimelinePage() {
   if (!projectId) {
     return (
       <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
-        <EmptyState
-          variant="not-found"
-          title={t('gantt.projectNotFound')}
-          description={t('gantt.selectProject')}
-        />
+        <EmptyState variant="not-found" title={t('gantt.projectNotFound')} description={t('gantt.selectProject')} />
       </Box>
     )
   }
@@ -140,16 +145,19 @@ export default function GanttTimelinePage() {
 
   const currentScales = zoomLevels[zoomLevel].scales
 
-  const filteredTasks = filterValue === 'all' ? tasks : tasks.filter(task => {
+  const allTasks = sourceFilter === 'meetings' ? meetingTasks : sourceFilter === 'tasks' ? projectTasks : [...meetingTasks, ...projectTasks]
+  const allLinks = sourceFilter === 'meetings' ? meetingLinks : sourceFilter === 'tasks' ? taskLinks : [...meetingLinks, ...taskLinks]
+
+  const filteredTasks = allTasks.filter(task => {
     if (filterValue === 'in-progress') return (task.progress ?? 0) > 0 && (task.progress ?? 0) < 100
     if (filterValue === 'completed') return (task.progress ?? 0) === 100
     if (filterValue === 'milestones') return task.type === 'milestone'
     return true
   })
 
-  const completedCount = tasks.filter(tk => (tk.progress ?? 0) === 100).length
-  const inProgressCount = tasks.filter(tk => (tk.progress ?? 0) > 0 && (tk.progress ?? 0) < 100).length
-  const overallProgress = tasks.length > 0 ? Math.round(tasks.reduce((sum, tk) => sum + (tk.progress ?? 0), 0) / tasks.length) : 0
+  const completedCount = allTasks.filter(tk => (tk.progress ?? 0) === 100).length
+  const inProgressCount = allTasks.filter(tk => (tk.progress ?? 0) > 0 && (tk.progress ?? 0) < 100).length
+  const overallProgress = allTasks.length > 0 ? Math.round(allTasks.reduce((sum, tk) => sum + (tk.progress ?? 0), 0) / allTasks.length) : 0
 
   const scaleLabels = [
     t('gantt.zoomYearMonth', 'Year'),
@@ -177,7 +185,7 @@ export default function GanttTimelinePage() {
       }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <IconButton size="small" onClick={() => navigate(-1)}>
-            <ArrowBackIcon />
+            <BackArrowIcon />
           </IconButton>
           <Typography variant="h6" fontWeight={700} letterSpacing="-0.02em">
             {t('gantt.title')}
@@ -203,28 +211,13 @@ export default function GanttTimelinePage() {
           >
             {showRiskOverlay ? <VisibilityIcon sx={{ fontSize: 18 }} /> : <VisibilityOffIcon sx={{ fontSize: 18 }} />}
           </IconButton>
-          <IconButton
-            size="small"
-            onClick={() => setWhatIfModalOpen(true)}
-            title={t('gantt.whatIfScenario')}
-            sx={{ bgcolor: 'action.hover' }}
-          >
+          <IconButton size="small" onClick={() => setWhatIfModalOpen(true)} title={t('gantt.whatIfScenario')} sx={{ bgcolor: 'action.hover' }}>
             <TrendingUpIcon sx={{ fontSize: 18 }} />
           </IconButton>
-          <IconButton
-            size="small"
-            onClick={handleZoomOut}
-            disabled={zoomLevel === 0}
-            sx={{ bgcolor: 'action.hover' }}
-          >
+          <IconButton size="small" onClick={handleZoomOut} disabled={zoomLevel === 0} sx={{ bgcolor: 'action.hover' }}>
             <ZoomOutIcon sx={{ fontSize: 18 }} />
           </IconButton>
-          <IconButton
-            size="small"
-            onClick={handleZoomIn}
-            disabled={zoomLevel === zoomLevels.length - 1}
-            sx={{ bgcolor: 'action.hover' }}
-          >
+          <IconButton size="small" onClick={handleZoomIn} disabled={zoomLevel === zoomLevels.length - 1} sx={{ bgcolor: 'action.hover' }}>
             <ZoomInIcon sx={{ fontSize: 18 }} />
           </IconButton>
         </Box>
@@ -239,10 +232,23 @@ export default function GanttTimelinePage() {
         />
       </Box>
 
+      {/* Source filter */}
+      <Box sx={{ px: 2, pb: 1 }}>
+        <SegmentedTabs
+          items={[
+            { label: t('common.all'), value: 'all' },
+            { label: t('gantt.meetings'), value: 'meetings' },
+            { label: t('gantt.tasks'), value: 'tasks' },
+          ]}
+          value={sourceFilter}
+          onChange={(val) => setSourceFilter(val as 'all' | 'meetings' | 'tasks')}
+        />
+      </Box>
+
       {/* Filter chips */}
       <Box sx={{ display: 'flex', gap: 0.75, px: 2, pb: 1.5, overflowX: 'auto', '&::-webkit-scrollbar': { display: 'none' } }}>
         {[
-          { label: `${t('gantt.allTasks')} (${tasks.length})`, value: 'all' },
+          { label: `${t('gantt.allTasks')} (${allTasks.length})`, value: 'all' },
           { label: `${t('gantt.inProgress')} (${inProgressCount})`, value: 'in-progress' },
           { label: `${t('common.completed')} (${completedCount})`, value: 'completed' },
           { label: t('gantt.milestonesOnly'), value: 'milestones' },
@@ -263,15 +269,12 @@ export default function GanttTimelinePage() {
       </Box>
 
       {/* Gantt chart */}
-      <Box sx={{
-        mx: 2, borderRadius: 3, overflow: 'hidden',
-        border: 1, borderColor: 'divider', bgcolor: 'background.paper',
-      }}>
-        <Box sx={{ minHeight: 350, height: { xs: 'calc(100dvh - 340px)', md: 'calc(100dvh - 300px)' } }}>
+      <Box sx={{ mx: 2, borderRadius: 3, overflow: 'hidden', border: 1, borderColor: 'divider', bgcolor: 'background.paper' }}>
+        <Box sx={{ minHeight: 350, height: { xs: 'calc(100dvh - 380px)', md: 'calc(100dvh - 340px)' } }}>
           {filteredTasks.length > 0 ? (
             <GanttChart
               tasks={filteredTasks}
-              links={links}
+              links={allLinks}
               scales={currentScales}
               riskData={showRiskOverlay ? riskData : undefined}
             />
@@ -288,14 +291,11 @@ export default function GanttTimelinePage() {
       </Box>
 
       {/* Bottom progress summary */}
-      {tasks.length > 0 && (
-        <Box sx={{
-          mx: 2, mt: 2, p: 2, borderRadius: 3,
-          border: 1, borderColor: 'divider', bgcolor: 'background.paper',
-        }}>
+      {allTasks.length > 0 && (
+        <Box sx={{ mx: 2, mt: 2, p: 2, borderRadius: 3, border: 1, borderColor: 'divider', bgcolor: 'background.paper' }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
             <Typography variant="caption" fontWeight={700} color="text.secondary">
-              {tasks.length} {t('gantt.task')}
+              {allTasks.length} {t('gantt.task')}
             </Typography>
             <Box sx={{ display: 'flex', gap: 2 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
@@ -308,15 +308,12 @@ export default function GanttTimelinePage() {
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                 <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: 'text.disabled' }} />
-                <Typography variant="caption" color="text.secondary" fontWeight={500}>{tasks.length - completedCount - inProgressCount}</Typography>
+                <Typography variant="caption" color="text.secondary" fontWeight={500}>{allTasks.length - completedCount - inProgressCount}</Typography>
               </Box>
             </Box>
           </Box>
           <Box sx={{ height: 6, bgcolor: 'divider', borderRadius: 3, overflow: 'hidden' }}>
-            <Box sx={{
-              height: '100%', borderRadius: 3, width: `${overallProgress}%`,
-              bgcolor: 'primary.main', transition: 'width 300ms',
-            }} />
+            <Box sx={{ height: '100%', borderRadius: 3, width: `${overallProgress}%`, bgcolor: 'primary.main', transition: 'width 300ms' }} />
           </Box>
         </Box>
       )}
@@ -330,11 +327,7 @@ export default function GanttTimelinePage() {
 
       {/* What-If Scenario Modal */}
       {projectId && (
-        <WhatIfScenario
-          open={whatIfModalOpen}
-          onClose={() => setWhatIfModalOpen(false)}
-          projectId={projectId}
-        />
+        <WhatIfScenario open={whatIfModalOpen} onClose={() => setWhatIfModalOpen(false)} projectId={projectId} />
       )}
     </Box>
   )

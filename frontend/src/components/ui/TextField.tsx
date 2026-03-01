@@ -1,4 +1,5 @@
 import { shake } from '@/utils/animations'
+import { useTranslation } from 'react-i18next'
 import { TextField as MuiTextField, TextFieldProps as MuiTextFieldProps, InputAdornment, styled } from '@/mui'
 
 export interface TextFieldProps extends Omit<MuiTextFieldProps, 'variant'> {
@@ -67,13 +68,14 @@ export function TextField({
 }
 
 export function SearchField(props: Omit<TextFieldProps, 'type'>) {
+  const { t } = useTranslation()
   const { sx, inputProps, ...rest } = props
   return (
     <TextField
       type="search"
-      placeholder="Search..."
+      placeholder={t('common.search') + '...'}
       size="small"
-      inputProps={{ 'aria-label': 'Search', ...inputProps }}
+      inputProps={{ 'aria-label': t('common.search'), ...inputProps }}
       sx={{
         minWidth: 200,
         '& .MuiOutlinedInput-root': {

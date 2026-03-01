@@ -63,7 +63,7 @@ const SectionTitle = styled(Typography)(({ theme }) => ({
   textTransform: 'uppercase',
   letterSpacing: '0.05em',
   fontSize: '0.75rem',
-  paddingLeft: theme.spacing(1),
+  paddingInlineStart: theme.spacing(1),
   marginBottom: theme.spacing(0.5),
 }))
 

@@ -91,8 +91,7 @@ export default function DefectCardList({ defects, loading, projectId }: DefectCa
               borderColor: 'divider',
               cursor: 'pointer',
               position: 'relative',
-              borderLeft: isRtl ? 'none' : `4px solid ${borderColor}`,
-              borderRight: isRtl ? `4px solid ${borderColor}` : 'none',
+              borderInlineStart: `4px solid ${borderColor}`,
               '&:active': { bgcolor: 'action.pressed' },
               transition: 'background-color 150ms ease',
             }}

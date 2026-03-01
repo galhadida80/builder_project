@@ -20,7 +20,7 @@ import { useProjectContacts } from '../hooks/useProjectContacts'
 import { useToast } from '../components/common/ToastProvider'
 import { validateRequired, validateMinLength, type ValidationError, hasErrors } from '../utils/validation'
 import { AddIcon, VisibilityIcon, PictureAsPdfIcon } from '@/icons'
-import { Box, Typography, Chip, MenuItem, Skeleton, TextField as MuiTextField, TablePagination, Tooltip, useMediaQuery, useTheme } from '@/mui'
+import { Box, Typography, Chip, MenuItem, Skeleton, TextField as MuiTextField, TablePagination, Tooltip, useMediaQuery, useTheme, Fab } from '@/mui'
 
 const SEVERITY_BORDER_COLORS: Record<DefectSeverity, string> = {
   critical: '#DC2626',
@@ -368,6 +368,13 @@ export default function DefectsPage() {
         selectedDefects={selectedDefects} setSelectedDefects={setSelectedDefects}
         selectedCount={selectedCount} isMultiDefect={isMultiDefect}
       />
+
+      {isMobile && (
+        <Fab color="primary" aria-label={t('defects.reportDefect')} onClick={() => setDialogOpen(true)}
+          sx={{ position: 'fixed', bottom: 80, insetInlineEnd: 16, zIndex: 10 }}>
+          <AddIcon />
+        </Fab>
+      )}
     </Box>
   )
 }

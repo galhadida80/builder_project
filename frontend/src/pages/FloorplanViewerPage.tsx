@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Box, Typography, IconButton, Skeleton, Toolbar, AppBar } from '@/mui'
-import { ArrowBackIcon } from '@/icons'
+import { BackArrowIcon } from '@/components/ui/BackArrowIcon'
 import { useToast } from '../components/common/ToastProvider'
 import { floorplansApi } from '../api/floorplans'
 import { FloorplanCanvas } from '../components/floorplan/FloorplanCanvas'
@@ -52,7 +52,7 @@ export default function FloorplanViewerPage() {
       <AppBar position="static" color="default" elevation={1}>
         <Toolbar>
           <IconButton edge="start" onClick={handleBack} sx={{ mr: 2 }}>
-            <ArrowBackIcon />
+            <BackArrowIcon />
           </IconButton>
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
             {t('floorplans.viewer')}

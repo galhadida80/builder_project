@@ -35,7 +35,7 @@ import {
   Box, Typography, MenuItem, TextField as MuiTextField, Skeleton,
   Chip, IconButton, Drawer, Divider, Autocomplete, Avatar,
   Switch, FormControlLabel, LinearProgress, Popover, Badge,
-  keyframes,
+  keyframes, Fab,
 } from '@/mui'
 
 interface TeamMemberOption {
@@ -1649,6 +1649,13 @@ export default function MeetingsPage() {
         variant="danger"
         loading={deleting}
       />
+
+      {isMobile && (
+        <Fab color="primary" aria-label={t('meetings.scheduleMeeting')} onClick={handleOpenCreate}
+          sx={{ position: 'fixed', bottom: 80, insetInlineEnd: 16, zIndex: 10 }}>
+          <AddIcon />
+        </Fab>
+      )}
     </Box>
   )
 }

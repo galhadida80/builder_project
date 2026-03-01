@@ -6,7 +6,6 @@ import { Button } from '../components/ui/Button'
 import { PageHeader } from '../components/ui/Breadcrumbs'
 import { EmptyState } from '../components/ui/EmptyState'
 import { TextField } from '../components/ui/TextField'
-import FilterChips from '../components/ui/FilterChips'
 import ReportResults from '../components/reports/ReportResults'
 import { getDateLocale } from '../utils/dateLocale'
 import ReportGenerationWizard from '../components/ReportGenerationWizard'
@@ -14,8 +13,21 @@ import ReportPreviewDialog from '../components/ReportPreviewDialog'
 import { useAiReports } from '../hooks/useAiReports'
 import { reportsApi } from '../api/reports'
 import { useToast } from '../components/common/ToastProvider'
-import { AssessmentIcon, CalendarTodayIcon, DateRangeIcon, CalendarMonthIcon, TuneIcon, DescriptionIcon, DownloadIcon, SearchIcon, AutoAwesomeIcon } from '@/icons'
+import {
+  AssessmentIcon, CalendarTodayIcon, DateRangeIcon, CalendarMonthIcon, TuneIcon,
+  DescriptionIcon, DownloadIcon, SearchIcon, AutoAwesomeIcon,
+  CheckCircleIcon, HelpOutlineIcon, PeopleIcon, AttachMoneyIcon, VerifiedIcon,
+} from '@/icons'
 import { Box, Typography, Skeleton, Alert } from '@/mui'
+
+const REPORT_TYPE_COLORS: Record<string, string> = {
+  'inspection-summary': 'primary',
+  'approval-status': 'success',
+  'rfi-aging': 'warning',
+  'attendance': 'info',
+  'labor-costs': 'secondary',
+  'compliance-audit': 'error',
+}
 
 export default function ReportsPage() {
   const { projectId } = useParams()
@@ -41,9 +53,12 @@ export default function ReportsPage() {
   } = useAiReports(projectId)
 
   const reportTypes = [
-    { value: 'inspection-summary', label: t('reports.inspectionSummary') },
-    { value: 'approval-status', label: t('reports.approvalStatus') },
-    { value: 'rfi-aging', label: t('reports.rfiAging') },
+    { value: 'inspection-summary', label: t('reports.inspectionSummary'), desc: t('reports.inspectionSummaryDesc'), icon: <AssessmentIcon /> },
+    { value: 'approval-status', label: t('reports.approvalStatus'), desc: t('reports.approvalStatusDesc'), icon: <CheckCircleIcon /> },
+    { value: 'rfi-aging', label: t('reports.rfiAging'), desc: t('reports.rfiAgingDesc'), icon: <HelpOutlineIcon /> },
+    { value: 'attendance', label: t('reports.attendance'), desc: t('reports.attendanceDesc'), icon: <PeopleIcon /> },
+    { value: 'labor-costs', label: t('reports.laborCosts'), desc: t('reports.laborCostsDesc'), icon: <AttachMoneyIcon /> },
+    { value: 'compliance-audit', label: t('reports.complianceAudit'), desc: t('reports.complianceAuditDesc'), icon: <VerifiedIcon /> },
   ]
 
   const formatDate = (d: Date) => d.toISOString().slice(0, 10)
@@ -140,6 +155,12 @@ export default function ReportsPage() {
     }
   }
 
+  const handleSelectReportType = (value: string) => {
+    setReportType(value)
+    setReportData(null)
+    reportConfigRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
   return (
     <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 }, maxWidth: '100%', overflow: 'hidden' }}>
       <PageHeader
@@ -190,13 +211,52 @@ export default function ReportsPage() {
           <Typography variant="body2" fontWeight={700} sx={{ mb: 2, borderInlineStart: '4px solid', borderColor: 'primary.main', ps: 1.5 }}>
             {t('reports.reportType')}
           </Typography>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <FilterChips
-              items={reportTypes.map(rt => ({ label: rt.label, value: rt.value }))}
-              value={reportType}
-              onChange={(v) => { setReportType(v); setReportData(null) }}
-            />
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 1.5, mb: 2 }}>
+            {reportTypes.map((rt) => {
+              const colorKey = REPORT_TYPE_COLORS[rt.value] || 'primary'
+              const isActive = reportType === rt.value
+              return (
+                <Box
+                  key={rt.value}
+                  onClick={() => handleSelectReportType(rt.value)}
+                  sx={{
+                    border: '2px solid',
+                    borderColor: isActive ? `${colorKey}.main` : 'divider',
+                    borderRadius: 2,
+                    p: 1.5,
+                    cursor: 'pointer',
+                    bgcolor: isActive ? `${colorKey}.light` : 'background.paper',
+                    transition: 'all 0.15s ease',
+                    '&:hover': { borderColor: `${colorKey}.main`, boxShadow: 1 },
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    textAlign: 'center',
+                    gap: 0.75,
+                  }}
+                >
+                  <Box sx={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: '50%',
+                    bgcolor: `${colorKey}.light`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: `${colorKey}.main`,
+                    border: isActive ? `2px solid` : 'none',
+                    borderColor: `${colorKey}.main`,
+                  }}>
+                    {rt.icon}
+                  </Box>
+                  <Typography variant="body2" fontWeight={700} lineHeight={1.2}>{rt.label}</Typography>
+                  <Typography variant="caption" color="text.secondary" lineHeight={1.3}>{rt.desc}</Typography>
+                </Box>
+              )
+            })}
+          </Box>
 
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             {reportType !== 'rfi-aging' && (
               <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5 }}>
                 <TextField

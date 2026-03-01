@@ -28,7 +28,7 @@ import type { KeyValuePair } from '../components/ui/KeyValueEditor'
 import type { Recipient } from '../components/ui/RecipientSelector'
 import { getCategoryConfig, getCategoryFromType } from '../utils/materialCategory'
 import { AddIcon, VisibilityIcon, EditIcon, DeleteIcon } from '@/icons'
-import { Box, Typography, IconButton, TablePagination, useMediaQuery, useTheme, Skeleton } from '@/mui'
+import { Box, Typography, IconButton, TablePagination, useMediaQuery, useTheme, Skeleton, Fab } from '@/mui'
 
 export default function MaterialsPage() {
   const { projectId } = useParams()
@@ -335,6 +335,12 @@ export default function MaterialsPage() {
 
       <ContactSelectorDialog open={contactDialogOpen} onClose={() => setContactDialogOpen(false)} onConfirm={handleConfirmSubmit} projectId={projectId!} loading={submitting} />
 
+      {isMobile && (
+        <Fab color="primary" aria-label={t('materials.addMaterial')} onClick={handleOpenCreate}
+          sx={{ position: 'fixed', bottom: 80, insetInlineEnd: 16, zIndex: 10 }}>
+          <AddIcon />
+        </Fab>
+      )}
     </Box>
   )
 }

@@ -7,7 +7,7 @@ import { filesApi } from '../api/files'
 import { documentReviewsApi } from '../api/documentReviews'
 import { useAuth } from '../contexts/AuthContext'
 import type { FileRecord } from '../api/files'
-import { ArrowBackIcon } from '@/icons'
+import { BackArrowIcon } from '@/components/ui/BackArrowIcon'
 import { Box, Typography, Skeleton, IconButton, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button, Chip } from '@/mui'
 
 export default function DocumentReviewPage() {
@@ -337,7 +337,7 @@ export default function DocumentReviewPage() {
       <Box sx={{ maxWidth: 600, mx: 'auto', p: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
           <IconButton aria-label={t('common.back')} onClick={handleBack} size="small">
-            <ArrowBackIcon />
+            <BackArrowIcon />
           </IconButton>
           <Typography variant="body2" color="text.secondary">
             {t('documentReview.backToProject')}
@@ -382,7 +382,7 @@ export default function DocumentReviewPage() {
       }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <IconButton aria-label={t('common.back')} onClick={handleBack} size="small">
-            <ArrowBackIcon />
+            <BackArrowIcon />
           </IconButton>
           <Typography variant="body1" fontWeight={700} letterSpacing='-0.02em'>
             {t('documentReview.title', 'Document Review')}

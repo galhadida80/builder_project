@@ -14,7 +14,7 @@ import { budgetApi, BudgetItemCreateData, CostEntryCreateData, ChangeOrderCreate
 import type { BudgetLineItem, BudgetSummary, ChangeOrder, CostEntry, BudgetCategory } from '../types'
 import { useToast } from '../components/common/ToastProvider'
 import { AddIcon, EditIcon, DeleteIcon, AttachMoneyIcon } from '@/icons'
-import { Box, Typography, Skeleton, Chip, MenuItem, IconButton, LinearProgress, TextField as MuiTextField } from '@/mui'
+import { Box, Typography, Skeleton, Chip, MenuItem, IconButton, LinearProgress, TextField as MuiTextField, Fab, useMediaQuery, useTheme } from '@/mui'
 
 const CATEGORIES: BudgetCategory[] = ['labor', 'materials', 'equipment', 'subcontractor', 'permits', 'overhead', 'other']
 const CAT_COLORS: Record<string, string> = { labor: '#e07842', materials: '#1976d2', equipment: '#2e7d32', subcontractor: '#9c27b0', permits: '#0288d1', overhead: '#757575', other: '#9e9e9e' }
@@ -26,6 +26,8 @@ export default function BudgetPage() {
   const { t } = useTranslation()
   const { projectId } = useParams()
   const { showError, showSuccess } = useToast()
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
 
   const [items, setItems] = useState<BudgetLineItem[]>([])
   const [summary, setSummary] = useState<BudgetSummary | null>(null)
@@ -364,7 +366,7 @@ export default function BudgetPage() {
         </Box>
       )}
 
-      <FormModal open={itemDialog} onClose={() => { setItemDialog(false); setEditItem(null) }} onSubmit={handleSaveItem} title={editItem ? t('budget.editItem', { defaultValue: 'Edit Budget Item' }) : t('budget.addItem', { defaultValue: 'Add Budget Item' })} submitDisabled={!itemForm.name || !itemForm.budgeted_amount || itemForm.budgeted_amount <= 0}>
+      <FormModal open={itemDialog} onClose={() => { setItemDialog(false); setEditItem(null) }} onSubmit={handleSaveItem} title={editItem ? t('budget.editItem', { defaultValue: 'Edit Budget Item' }) : t('budget.addItem', { defaultValue: 'Add Budget Item' })} submitDisabled={!itemForm.name.trim() || itemForm.budgeted_amount <= 0}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1 }}>
           <TextField fullWidth label={t('budget.name', { defaultValue: 'Name' })} value={itemForm.name} onChange={(e) => setItemForm({ ...itemForm, name: e.target.value })} required />
           <MuiTextField select fullWidth label={t('budget.category', { defaultValue: 'Category' })} value={itemForm.category} onChange={(e) => setItemForm({ ...itemForm, category: e.target.value })}>
@@ -400,6 +402,16 @@ export default function BudgetPage() {
       </FormModal>
 
       <ConfirmModal open={!!deleteTarget} onClose={() => setDeleteTarget(null)} onConfirm={handleDelete} title={t('budget.confirmDelete', { defaultValue: 'Confirm Delete' })} message={t('budget.deleteMessage', { defaultValue: 'Are you sure? This cannot be undone.' })} loading={deleting} />
+
+      {isMobile && (
+        <Fab color="primary" aria-label={activeTab === 'budget' ? t('budget.addItem', { defaultValue: 'Add Item' }) : t('budget.addChangeOrder', { defaultValue: 'Add Change Order' })} onClick={() => {
+          if (activeTab === 'budget') { setEditItem(null); setItemForm({ name: '', category: 'other', budgeted_amount: 0 }); setItemDialog(true) }
+          else { setEditCO(null); setCoForm({ title: '', amount: 0 }); setCoDialog(true) }
+        }}
+          sx={{ position: 'fixed', bottom: 80, insetInlineEnd: 16, zIndex: 10 }}>
+          <AddIcon />
+        </Fab>
+      )}
     </Box>
   )
 }

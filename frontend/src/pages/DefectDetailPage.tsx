@@ -14,9 +14,10 @@ import { useProjectContacts } from '../hooks/useProjectContacts'
 import { useToast } from '../components/common/ToastProvider'
 import { PhotoAnnotator } from '../components/annotations/PhotoAnnotator'
 import {
-  ArrowBackIcon, AddPhotoAlternateIcon, DeleteIcon, ImageIcon, EditIcon, DrawIcon,
+  AddPhotoAlternateIcon, DeleteIcon, ImageIcon, EditIcon, DrawIcon,
   MoreVertIcon, EmailIcon, PersonAddIcon, LocationOnIcon, CalendarTodayIcon, PersonIcon,
 } from '@/icons'
+import { BackArrowIcon } from '@/components/ui/BackArrowIcon'
 import {
   Box, Typography, Divider, Chip, IconButton, Skeleton, Avatar,
   Tooltip, MenuItem, TextField as MuiTextField, Autocomplete, Dialog, alpha,
@@ -215,7 +216,7 @@ export default function DefectDetailPage() {
       }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <IconButton aria-label={t('common.back')} size="small" onClick={() => navigate(`/projects/${projectId}/defects`)}>
-            <ArrowBackIcon />
+            <BackArrowIcon />
           </IconButton>
           <Typography variant="h6" fontWeight={700} letterSpacing="-0.02em">
             {t('defects.detailTitle', 'Defect Details')}

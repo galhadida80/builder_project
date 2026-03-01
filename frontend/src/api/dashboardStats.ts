@@ -31,8 +31,12 @@ export interface DashboardStats {
 }
 
 export const dashboardStatsApi = {
-  getStats: async (projectId: string): Promise<DashboardStats> => {
-    const response = await apiClient.get(`/analytics/projects/${projectId}/dashboard-stats`)
+  getStats: async (projectId: string, dateFrom?: string, dateTo?: string): Promise<DashboardStats> => {
+    const params = new URLSearchParams()
+    if (dateFrom) params.append('date_from', dateFrom)
+    if (dateTo) params.append('date_to', dateTo)
+    const query = params.toString() ? `?${params.toString()}` : ''
+    const response = await apiClient.get(`/analytics/projects/${projectId}/dashboard-stats${query}`)
     return response.data
   },
 }

@@ -27,7 +27,7 @@ import { useReferenceData } from '../contexts/ReferenceDataContext'
 import type { KeyValuePair } from '../components/ui/KeyValueEditor'
 import type { Recipient } from '../components/ui/RecipientSelector'
 import { AddIcon, BuildIcon, EditIcon, DeleteIcon, VisibilityIcon } from '@/icons'
-import { Box, Typography, IconButton, TablePagination, useMediaQuery, useTheme } from '@/mui'
+import { Box, Typography, IconButton, TablePagination, useMediaQuery, useTheme, Fab } from '@/mui'
 
 export default function EquipmentPage() {
   const { projectId } = useParams()
@@ -204,7 +204,7 @@ export default function EquipmentPage() {
 
   const columns: Column<Equipment>[] = [
     { id: 'name', label: t('equipment.title'), minWidth: 250, render: (row) => (
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, borderLeft: `3px solid ${getCategoryColor(row.equipmentType)}`, pl: 1.5 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, borderInlineStart: `3px solid ${getCategoryColor(row.equipmentType)}`, pl: 1.5 }}>
         <Box sx={{ width: 40, height: 40, borderRadius: 2, bgcolor: 'primary.light', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <BuildIcon sx={{ fontSize: 20, color: 'primary.main' }} />
         </Box>
@@ -345,6 +345,13 @@ export default function EquipmentPage() {
       />
 
       <ContactSelectorDialog open={contactDialogOpen} onClose={() => setContactDialogOpen(false)} onConfirm={handleConfirmSubmit} projectId={projectId!} loading={submitting} />
+
+      {isMobile && (
+        <Fab color="primary" aria-label={t('equipment.addEquipment')} onClick={handleOpenCreate}
+          sx={{ position: 'fixed', bottom: 80, insetInlineEnd: 16, zIndex: 10 }}>
+          <AddIcon />
+        </Fab>
+      )}
     </Box>
   )
 }

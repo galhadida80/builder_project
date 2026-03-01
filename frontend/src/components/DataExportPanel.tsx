@@ -288,7 +288,7 @@ export function DataExportPanel({ projectId, sx }: DataExportPanelProps) {
                         bgcolor: 'error.light',
                         borderRadius: 1,
                         mt: 1,
-                        borderLeft: '3px solid',
+                        borderInlineStart: '3px solid',
                         borderColor: 'error.main',
                       }}
                     >

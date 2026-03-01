@@ -25,8 +25,9 @@ import { useSignatureStamp } from '../hooks/useSignatureStamp'
 import {
   AddIcon, CheckCircleIcon, WarningIcon, EditIcon, DeleteIcon,
   AccessTimeIcon, BuildIcon, InventoryIcon, CancelIcon, DescriptionIcon,
-  TaskAltIcon, ApprovalIcon, ArrowBackIcon,
+  TaskAltIcon, ApprovalIcon, TimelineIcon,
 } from '@/icons'
+import { BackArrowIcon } from '@/components/ui/BackArrowIcon'
 import {
   Box, Typography, Skeleton, Chip, MenuItem, Avatar, Badge,
   TextField as MuiTextField, Autocomplete, IconButton,
@@ -272,14 +273,15 @@ export default function TasksPage() {
       {/* Sticky back button */}
       <Box sx={{ position: 'sticky', top: 0, zIndex: 10, bgcolor: 'background.default', pb: 1, display: { md: 'none' } }}>
         <IconButton onClick={() => navigate(-1)} size="small" sx={{ bgcolor: 'action.hover', '&:hover': { bgcolor: 'action.selected' } }}>
-          <ArrowBackIcon sx={{ fontSize: 20 }} />
+          <BackArrowIcon sx={{ fontSize: 20 }} />
         </IconButton>
       </Box>
       <PageHeader
         title={t('tasksAndApprovals.pageTitle')}
         subtitle={t('tasksAndApprovals.pageSubtitle')}
         actions={section === 'tasks' ? (
-          <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+          <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 1 }}>
+            <Button variant="secondary" icon={<TimelineIcon />} onClick={() => navigate(`/projects/${projectId}/timeline`)}>{t('tasks.timeline')}</Button>
             <Button variant="primary" icon={<AddIcon />} onClick={openCreateDialog}>{t('tasks.createTask')}</Button>
           </Box>
         ) : pendingApprovals.length > 0 ? (

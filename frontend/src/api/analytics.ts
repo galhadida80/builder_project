@@ -40,8 +40,12 @@ export const analyticsApi = {
   deleteKpi: async (kpiId: string): Promise<void> => {
     await apiClient.delete(`/analytics/kpi-definitions/${kpiId}`)
   },
-  getKpiValues: async (projectId?: string): Promise<KpiValue[]> => {
-    const qs = projectId ? `?project_id=${projectId}` : ''
+  getKpiValues: async (projectId?: string, dateFrom?: string, dateTo?: string): Promise<KpiValue[]> => {
+    const params = new URLSearchParams()
+    if (projectId) params.set('project_id', projectId)
+    if (dateFrom) params.set('date_from', dateFrom)
+    if (dateTo) params.set('date_to', dateTo)
+    const qs = params.toString() ? `?${params.toString()}` : ''
     const response = await apiClient.get(`/analytics/kpi-values${qs}`)
     return response.data
   },

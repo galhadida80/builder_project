@@ -26,7 +26,7 @@ export function TrainingCard({ training, onClick }: TrainingCardProps) {
       sx={{
         p: 2,
         cursor: 'pointer',
-        borderLeft: `4px solid ${TRAINING_BORDER_COLORS[training.status]}`,
+        borderInlineStart: `4px solid ${TRAINING_BORDER_COLORS[training.status]}`,
         '&:hover': { boxShadow: theme.shadows[4] },
       }}
     >

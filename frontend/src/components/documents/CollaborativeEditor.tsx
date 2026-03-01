@@ -11,7 +11,7 @@ import {
   CircularProgress,
   Alert,
 } from '@mui/material'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import { BackArrowIcon } from '@/components/ui/BackArrowIcon'
 import PeopleIcon from '@mui/icons-material/People'
 import SaveIcon from '@mui/icons-material/Save'
 import { useEditor, EditorContent } from '@tiptap/react'
@@ -168,7 +168,7 @@ export default function CollaborativeEditor({
         }}
       >
         <IconButton onClick={onBack} size="small">
-          <ArrowBackIcon />
+          <BackArrowIcon />
         </IconButton>
         <Typography variant="h6" sx={{ flex: 1, fontSize: '1rem' }} noWrap>
           {document?.title}

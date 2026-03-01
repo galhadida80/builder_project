@@ -16,7 +16,7 @@ const StyledChip = styled(Chip, {
   fontSize: '0.75rem',
   height: 24,
   '& .MuiChip-label': {
-    paddingLeft: theme.spacing(1),
+    paddingInlineStart: theme.spacing(1),
     paddingRight: theme.spacing(1),
   },
   '& .MuiChip-icon': {

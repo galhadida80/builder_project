@@ -190,7 +190,7 @@ export function ApprovalAuditTrail({ actions, loading = false, sx }: ApprovalAud
                     bgcolor: 'action.hover',
                     borderRadius: 1,
                     mb: 1,
-                    borderLeft: '3px solid',
+                    borderInlineStart: '3px solid',
                     borderColor: `${config.color}.main`,
                   }}
                 >

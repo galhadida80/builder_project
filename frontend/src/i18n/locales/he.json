@@ -110,6 +110,7 @@
     "previous": "הקודם",
     "yes": "כן",
     "no": "לא",
+    "and": "ו",
     "optional": "אופציונלי",
     "language": "שפה",
     "english": "אנגלית",
@@ -357,7 +358,8 @@
     "openRfis": "בקשות מידע פתוחות",
     "pendingApprovals": "אישורים ממתינים",
     "openDefects": "ליקויים פתוחים",
-    "recentItems": "פריטים אחרונים"
+    "recentItems": "פריטים אחרונים",
+    "changeAvatar": "שנה תמונת פרופיל"
   },
   "equipment": {
     "title": "ציוד",
@@ -937,6 +939,10 @@
     "approvalsPending": "אישורים ממתינים",
     "noTeamMembers": "לא הוקצו חברי צוות",
     "overviewSubtitle": "סקירה כללית של פעולות הבנייה שלך",
+    "periodWeek": "שבוע",
+    "periodMonth": "חודש",
+    "periodQuarter": "רבעון",
+    "periodYear": "שנה",
     "failedToLoad": "נכשל בטעינת נתוני לוח הבקרה. אנא רענן את הדף.",
     "selectProjectFirst": "אנא בחר פרויקט תחילה",
     "addEquipment": "הוסף ציוד",
@@ -962,7 +968,8 @@
       "bim": "מודל BIM",
       "checklist_instance": "מופע צ׳קליסט",
       "checklist_item_response": "תגובת צ׳קליסט",
-      "file": "קובץ"
+      "file": "קובץ",
+      "project": "פרויקט"
     },
     "charts": {
       "activityTrend": "פעילות שבועית",
@@ -2204,6 +2211,13 @@
     "addSubfolder": "הוסף תיקיית משנה",
     "expandFolder": "הרחב תיקייה",
     "collapseFolder": "כווץ תיקייה",
+    "foldersTitle": "תיקיות",
+    "createNewFolder": "צור תיקייה חדשה",
+    "folderName": "שם תיקייה",
+    "cannotDeleteFolderContent": "לא ניתן למחוק את \"{{name}}\". התיקייה מכילה {{content}}. אנא מחק או העבר פריטים תחילה.",
+    "confirmDeleteFolder": "האם אתה בטוח שברצונך למחוק את \"{{name}}\"? פעולה זו אינה ניתנת לביטול.",
+    "subfoldersCount": "{{count}} תיקיות משנה",
+    "filesCount": "{{count}} קבצים",
     "versions": "היסטוריית גרסאות",
     "currentVersion": "גרסה נוכחית",
     "versionNumber": "גרסה {{number}}",
@@ -2531,7 +2545,9 @@
     "zoomMonthDay": "חודש/יום",
     "zoomWeekDay": "שבוע/יום",
     "toggleRiskOverlay": "הצג/הסתר סיכונים",
-    "whatIfScenario": "תרחיש מה-אם"
+    "whatIfScenario": "תרחיש מה-אם",
+    "meetings": "פגישות",
+    "tasks": "משימות"
   },
   "overview": {
     "title": "סקירת פרויקט",
@@ -2783,7 +2799,9 @@
     "scheduled": "מתוזמן",
     "monthInspections": "ביקורות החודש",
     "defectsFound": "ליקויים שנמצאו",
-    "complianceRate": "אחוז עמידה"
+    "complianceRate": "אחוז עמידה",
+    "completedInspections": "בדיקות שהושלמו",
+    "pendingInspections": "בדיקות ממתינות"
   },
   "pmDashboard": {
     "title": "לוח בקרה - מנהל פרויקט",
@@ -3218,7 +3236,8 @@
       "completed": "הושלם",
       "on_hold": "בהמתנה",
       "cancelled": "בוטל"
-    }
+    },
+    "timeline": "ציר זמן"
   },
   "budget": {
     "pageTitle": "תקציב",
@@ -3442,7 +3461,18 @@
     "replyingTo": "מגיב לתגובה",
     "failedToLoad": "טעינת הדיונים נכשלה",
     "failedToCreate": "פרסום התגובה נכשל",
-    "edited": "נערך"
+    "edited": "נערך",
+    "entityTypes": {
+      "equipment": "ציוד",
+      "material": "חומר",
+      "rfi": "RFI",
+      "inspection": "בדיקה",
+      "defect": "ליקוי",
+      "meeting": "פגישה",
+      "area": "אזור",
+      "task": "משימה",
+      "project": "פרויקט"
+    }
   },
   "reports": {
     "title": "דוחות",
@@ -3507,7 +3537,16 @@
     "edit": "עריכה",
     "previewFrame": "תצוגה מקדימה של הדוח",
     "editWarning": "עריכה ישירה של HTML. היזהר לשמור על המבנה והעיצוב.",
-    "downloadPdf": "הורד PDF"
+    "downloadPdf": "הורד PDF",
+    "inspectionSummaryDesc": "סיכום כל הבדיקות לפי סטטוס, תאריך וחומרה",
+    "approvalStatusDesc": "מעקב אחר סטטוס אישורים לציוד וחומרים",
+    "rfiAgingDesc": "ניתוח זמני תגובה ו-RFI פתוחים",
+    "attendance": "נוכחות",
+    "attendanceDesc": "דוח נוכחות עובדים ויועצים",
+    "laborCosts": "עלויות עבודה",
+    "laborCostsDesc": "ניתוח עלויות עבודה לפי פרויקט ותקופה",
+    "complianceAudit": "ביקורת תאימות",
+    "complianceAuditDesc": "ביקורת תאימות לתקנים ודרישות"
   },
   "help": {
     "title": "עזרה",
@@ -3958,7 +3997,18 @@
     "notificationsEnabled": "הודעות מופעלות",
     "notificationsDisabled": "הודעות כבויות",
     "enableNotifications": "הפעל הודעות",
-    "disableNotifications": "כבה הודעות"
+    "disableNotifications": "כבה הודעות",
+    "phoneRequired": "מספר טלפון נדרש",
+    "codeSent": "קוד אימות נשלח",
+    "codeRequired": "קוד אימות נדרש",
+    "verifySuccess": "וואטסאפ אומת בהצלחה",
+    "linkedDescription": "הוואטסאפ שלך מקושר ומאומת",
+    "unlinkButton": "נתק וואטסאפ",
+    "codeSentMessage": "קוד אימות נשלח לוואטסאפ שלך",
+    "verificationCode": "קוד אימות",
+    "phoneHelp": "הזן את מספר הוואטסאפ שלך עם קידומת מדינה",
+    "linkButton": "קשר וואטסאפ",
+    "verifyButton": "אמת קוד"
   },
   "billing": {
     "title": "חיוב ותשלומים",
@@ -4527,5 +4577,14 @@
     "addMapping": "הוסף מיפוי",
     "accUserId": "מזהה משתמש ACC",
     "builderopsUser": "משתמש BuilderOps"
+  },
+  "timeTracking": {
+    "clockInOut": "כניסה/יציאה",
+    "timesheets": "דוחות שעות",
+    "clockDescription": "עקוב אחר שעות העבודה שלך",
+    "activeShift": "משמרת פעילה",
+    "clockedInAt": "שעת כניסה",
+    "pendingTimesheets": "דוחות ממתינים",
+    "approvedTimesheets": "דוחות מאושרים"
   }
 }

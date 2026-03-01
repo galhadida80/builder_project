@@ -12,9 +12,17 @@ import { SearchField, TextField } from '../components/ui/TextField'
 import { FormModal, ConfirmModal } from '../components/ui/Modal'
 import { EmptyState } from '../components/ui/EmptyState'
 import { AddIcon, CommentIcon, SendIcon, ReplyIcon, DeleteIcon, EditIcon, AccessTimeIcon, ExpandMoreIcon, ExpandLessIcon, GroupsIcon, PeopleIcon } from '@/icons'
-import { Box, Typography, Skeleton, IconButton, Collapse, Divider, useTheme, useMediaQuery } from '@/mui'
+import { Box, Typography, Skeleton, IconButton, Collapse, Divider, useTheme, useMediaQuery, Chip } from '@/mui'
 import { Avatar } from '../components/ui/Avatar'
 import FilterChips from '../components/ui/FilterChips'
+
+const ENTITY_TYPE_COLORS: Record<string, { bg: string; text: string }> = {
+  equipment: { bg: '#e3f2fd', text: '#1565c0' }, material: { bg: '#e8f5e9', text: '#2e7d32' },
+  rfi: { bg: '#fff3e0', text: '#e65100' }, inspection: { bg: '#f3e5f5', text: '#7b1fa2' },
+  defect: { bg: '#fce4ec', text: '#c62828' }, meeting: { bg: '#e0f2f1', text: '#00695c' },
+  area: { bg: '#f1f8e9', text: '#558b2f' }, task: { bg: '#e8eaf6', text: '#283593' },
+  project: { bg: '#fafafa', text: '#616161' },
+}
 
 interface Author { id: string; fullName: string; email: string }
 
@@ -45,9 +53,9 @@ export default function DiscussionsPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const [filter, setFilter] = useState('all')
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
-  const [filter, setFilter] = useState('all')
 
   useEffect(() => { if (projectId) loadDiscussions() }, [projectId]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -55,42 +63,31 @@ export default function DiscussionsPage() {
     if (!projectId) return
     setLoading(true)
     try {
-      const { data } = await apiClient.get<Discussion[]>(
-        `/projects/${projectId}/discussions`,
-        { params: { entity_type: 'project', entity_id: projectId } }
-      )
+      const { data } = await apiClient.get<Discussion[]>(`/projects/${projectId}/discussions`, { params: { entity_type: 'project', entity_id: projectId } })
       setDiscussions(data)
     } catch { showError(t('discussions.failedToLoad')) }
     finally { setLoading(false) }
   }
-
   const handleCreate = async () => {
     if (!projectId || !content.trim()) return
     setSaving(true)
     try {
-      await apiClient.post(`/projects/${projectId}/discussions`, {
-        entity_type: 'project', entity_id: projectId, content: content.trim(),
-      })
+      await apiClient.post(`/projects/${projectId}/discussions`, { entity_type: 'project', entity_id: projectId, content: content.trim() })
       showSuccess(t('discussions.createSuccess'))
       setCreateOpen(false); setContent(''); loadDiscussions()
     } catch { showError(t('discussions.failedToCreate')) }
     finally { setSaving(false) }
   }
-
   const handleReply = async (parentId: string) => {
     if (!projectId || !replyContent.trim()) return
     setReplyLoading(true)
     try {
-      await apiClient.post(`/projects/${projectId}/discussions`, {
-        entity_type: 'project', entity_id: projectId,
-        content: replyContent.trim(), parent_id: parentId,
-      })
+      await apiClient.post(`/projects/${projectId}/discussions`, { entity_type: 'project', entity_id: projectId, content: replyContent.trim(), parent_id: parentId })
       showSuccess(t('discussions.replySuccess'))
       setReplyingTo(null); setReplyContent(''); loadDiscussions()
     } catch { showError(t('discussions.failedToReply')) }
     finally { setReplyLoading(false) }
   }
-
   const handleEdit = async (discussionId: string) => {
     if (!projectId || !editContent.trim()) return
     setSaving(true)
@@ -101,7 +98,6 @@ export default function DiscussionsPage() {
     } catch { showError(t('discussions.failedToEdit')) }
     finally { setSaving(false) }
   }
-
   const handleDelete = async () => {
     if (!projectId || !deletingId) return
     setDeleting(true)
@@ -128,32 +124,27 @@ export default function DiscussionsPage() {
     return days < 30 ? t('discussions.daysAgo', { count: days }) : new Date(dateStr).toLocaleDateString(getDateLocale())
   }
   const isOwner = (d: Discussion) => user?.id === d.authorId
+  const sl = (s: string) => s.toLowerCase()
   const filteredDiscussions = search
-    ? discussions.filter(d => d.content.toLowerCase().includes(search.toLowerCase()) ||
-        d.author?.fullName.toLowerCase().includes(search.toLowerCase()) ||
-        d.replies.some(r => r.content.toLowerCase().includes(search.toLowerCase())))
+    ? discussions.filter(d => sl(d.content).includes(sl(search)) || sl(d.author?.fullName || '').includes(sl(search)) || d.replies.some(r => sl(r.content).includes(sl(search))))
     : discussions
   const totalReplies = discussions.reduce((sum, d) => sum + d.replies.length, 0)
   const uniqueAuthors = new Set(discussions.flatMap(d => [d.authorId, ...d.replies.map(r => r.authorId)])).size
-  const displayedDiscussions = filteredDiscussions.filter(d => {
-    if (filter === 'my') return d.authorId === user?.id
-    if (filter === 'recent') return new Date(d.createdAt).getTime() > Date.now() - 7 * 24 * 60 * 60 * 1000
-    return true
-  })
+  const displayedDiscussions = filteredDiscussions.filter(d =>
+    filter === 'my' ? d.authorId === user?.id : filter === 'recent' ? new Date(d.createdAt).getTime() > Date.now() - 604800000 : true
+  )
 
   const TimeStamp = ({ date }: { date: string }) => (
     <Typography variant="caption" color="text.disabled" sx={{ display: 'flex', alignItems: 'center', gap: 0.3 }}>
       <AccessTimeIcon sx={{ fontSize: 12 }} />{getRelativeTime(date)}
     </Typography>
   )
-
   const OwnerActions = ({ item, iconSize = 14 }: { item: Discussion; iconSize?: number }) => (
     isOwner(item) && editingId !== item.id ? (<Box sx={{ display: 'flex', gap: 0.5 }}>
       <IconButton size="small" onClick={() => { setEditingId(item.id); setEditContent(item.content) }}><EditIcon sx={{ fontSize: iconSize }} /></IconButton>
       <IconButton size="small" color="error" onClick={() => { setDeletingId(item.id); setDeleteDialogOpen(true) }}><DeleteIcon sx={{ fontSize: iconSize }} /></IconButton>
     </Box>) : null
   )
-
   const EditInline = ({ id }: { id: string }) => (
     <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-end' }}>
       <TextField fullWidth size="small" multiline maxRows={4} value={editContent} onChange={(e) => setEditContent(e.target.value)} />
@@ -170,13 +161,11 @@ export default function DiscussionsPage() {
           <Typography variant="caption" fontWeight={700}>{reply.author?.fullName}</Typography>
           <TimeStamp date={reply.createdAt} />
         </Box>
-        {editingId === reply.id ? <EditInline id={reply.id} />
-          : <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{reply.content}</Typography>}
+        {editingId === reply.id ? <EditInline id={reply.id} /> : <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{reply.content}</Typography>}
         <OwnerActions item={reply} />
       </Box>
     </Box>
   )
-
   if (loading && discussions.length === 0) return (
     <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
       <Skeleton variant="text" width={200} height={48} sx={{ mb: 1 }} />
@@ -205,7 +194,6 @@ export default function DiscussionsPage() {
       <Box sx={{ mb: 2 }}>
         <SearchField placeholder={t('discussions.searchPlaceholder')} value={search} onChange={(e) => setSearch(e.target.value)} />
       </Box>
-
       <Box sx={{ mb: 2 }}>
         <FilterChips
           items={[
@@ -230,9 +218,15 @@ export default function DiscussionsPage() {
                 <Avatar name={discussion.author?.fullName || '?'} size="medium" />
                 <Box sx={{ flex: 1, minWidth: 0 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
                       <Typography variant="body2" fontWeight={700}>{discussion.author?.fullName}</Typography>
                       <TimeStamp date={discussion.createdAt} />
+                      {discussion.entityType && discussion.entityType !== 'project' && (
+                        <Chip label={t(`discussions.entityTypes.${discussion.entityType}`, { defaultValue: discussion.entityType })} size="small"
+                          sx={{ height: 20, fontSize: '0.6rem', fontWeight: 700,
+                            bgcolor: ENTITY_TYPE_COLORS[discussion.entityType]?.bg || '#f5f5f5',
+                            color: ENTITY_TYPE_COLORS[discussion.entityType]?.text || '#757575' }} />
+                      )}
                     </Box>
                     <OwnerActions item={discussion} iconSize={16} />
                   </Box>

@@ -10,7 +10,8 @@ import { authApi } from '../api/auth'
 import { projectsApi } from '../api/projects'
 import { passwordSchema } from '../schemas/validation'
 import { GoogleLogin } from '@react-oauth/google'
-import { ConstructionIcon, EmailIcon, LockIcon, PersonIcon, VisibilityIcon, VisibilityOffIcon, ArrowBackIcon, FingerprintIcon } from '@/icons'
+import { ConstructionIcon, EmailIcon, LockIcon, PersonIcon, VisibilityIcon, VisibilityOffIcon, FingerprintIcon } from '@/icons'
+import { BackArrowIcon } from '@/components/ui/BackArrowIcon'
 import { Box, Typography, Alert, Link, Divider, Fade, IconButton } from '@/mui'
 
 export default function LoginPage() {
@@ -418,7 +419,7 @@ export default function LoginPage() {
                       }}
                       sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer' }}
                     >
-                      <ArrowBackIcon sx={{ fontSize: 16 }} />
+                      <BackArrowIcon sx={{ fontSize: 16 }} />
                       {t('backToSignIn')}
                     </Link>
                   </Box>

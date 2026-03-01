@@ -18,7 +18,8 @@ import { validateProjectForm, hasErrors, VALIDATION, type ValidationError } from
 import { getDateLocale } from '../utils/dateLocale'
 import { parseValidationErrors } from '../utils/apiErrors'
 import type { Project, Equipment, Material, Meeting } from '../types'
-import { ArrowBackIcon, EditIcon, LocationOnIcon, CalendarTodayIcon, GroupIcon, ConstructionIcon, InventoryIcon, EventIcon, WarningAmberIcon, PersonAddIcon, CheckCircleIcon, HourglassEmptyIcon, AssignmentIcon, MapIcon, CameraAltIcon, DeleteIcon } from '@/icons'
+import { EditIcon, LocationOnIcon, CalendarTodayIcon, GroupIcon, ConstructionIcon, InventoryIcon, EventIcon, WarningAmberIcon, PersonAddIcon, CheckCircleIcon, HourglassEmptyIcon, AssignmentIcon, MapIcon, CameraAltIcon, DeleteIcon } from '@/icons'
+import { BackArrowIcon } from '@/components/ui/BackArrowIcon'
 import { Box, Typography, Chip, Skeleton, IconButton, alpha, Divider } from '@/mui'
 import InviteMemberDialog from '../components/InviteMemberDialog'
 
@@ -397,7 +398,7 @@ export default function ProjectDetailPage() {
     <Box sx={{ p: { xs: 1.5, md: 2 }, maxWidth: 1200, mx: 'auto' }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
         <IconButton aria-label={t('projectDetail.backToProjects')} onClick={() => navigate('/projects')} size="small" sx={{ color: 'text.secondary' }}>
-          <ArrowBackIcon />
+          <BackArrowIcon />
         </IconButton>
         <Typography variant="body2" color="text.secondary">
           {t('projectDetail.backToProjects')}

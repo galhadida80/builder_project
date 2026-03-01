@@ -120,11 +120,14 @@ export function AnimatedConfirmModal({
   onConfirm,
   title,
   message,
-  confirmLabel = 'Confirm',
-  cancelLabel = 'Cancel',
+  confirmLabel,
+  cancelLabel,
   variant = 'danger',
   loading = false,
 }: AnimatedConfirmModalProps) {
+  const { t } = useTranslation()
+  const resolvedConfirmLabel = confirmLabel || t('common.confirm')
+  const resolvedCancelLabel = cancelLabel || t('common.cancel')
   return (
     <AnimatedModal
       open={open}
@@ -134,10 +137,10 @@ export function AnimatedConfirmModal({
       actions={
         <>
           <Button variant="tertiary" onClick={onClose} disabled={loading}>
-            {cancelLabel}
+            {resolvedCancelLabel}
           </Button>
           <Button variant={variant === 'danger' ? 'danger' : 'primary'} onClick={onConfirm} loading={loading}>
-            {confirmLabel}
+            {resolvedConfirmLabel}
           </Button>
         </>
       }
@@ -165,11 +168,14 @@ export function AnimatedFormModal({
   onSubmit,
   title,
   children,
-  submitLabel = 'Save',
-  cancelLabel = 'Cancel',
+  submitLabel,
+  cancelLabel,
   loading = false,
   submitDisabled = false,
 }: AnimatedFormModalProps) {
+  const { t } = useTranslation()
+  const resolvedSubmitLabel = submitLabel || t('common.save')
+  const resolvedCancelLabel = cancelLabel || t('common.cancel')
   return (
     <AnimatedModal
       open={open}
@@ -179,10 +185,10 @@ export function AnimatedFormModal({
       actions={
         <>
           <Button variant="tertiary" onClick={onClose} disabled={loading}>
-            {cancelLabel}
+            {resolvedCancelLabel}
           </Button>
           <Button variant="primary" onClick={onSubmit} loading={loading} disabled={submitDisabled}>
-            {submitLabel}
+            {resolvedSubmitLabel}
           </Button>
         </>
       }

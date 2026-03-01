@@ -11,6 +11,7 @@ import KpiCard from '../components/kpi/KpiCard'
 import KpiFormDialog from '../components/kpi/KpiFormDialog'
 import { useToast } from '../components/common/ToastProvider'
 import type { CustomKpiDefinition, KpiValue } from '../types'
+import { LineChart } from '@mui/x-charts/LineChart'
 import { AddIcon, ShowChartIcon, CalendarMonthIcon } from '@/icons'
 import { Box, Typography, Skeleton, Switch, FormControlLabel, Fab, useTheme, useMediaQuery } from '@/mui'
 
@@ -32,11 +33,23 @@ export default function CustomKPIPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [kpiToDelete, setKpiToDelete] = useState<string | null>(null)
 
+  const getDateRange = (p: string) => {
+    const days = p === 'week' ? 7 : p === 'month' ? 30 : p === 'quarter' ? 90 : 365
+    const dateTo = new Date()
+    const dateFrom = new Date()
+    dateFrom.setDate(dateTo.getDate() - days)
+    return {
+      dateFrom: dateFrom.toISOString().slice(0, 10),
+      dateTo: dateTo.toISOString().slice(0, 10),
+    }
+  }
+
   const loadData = useCallback(async () => {
     try {
       setLoading(true)
+      const { dateFrom, dateTo } = getDateRange(period)
       const [values, defs] = await Promise.all([
-        analyticsApi.getKpiValues(pid),
+        analyticsApi.getKpiValues(pid, dateFrom, dateTo),
         analyticsApi.listKpis(pid),
       ])
       setKpiValues(values)
@@ -46,7 +59,7 @@ export default function CustomKPIPage() {
     } finally {
       setLoading(false)
     }
-  }, [pid, t])
+  }, [pid, period, t])
 
   useEffect(() => { loadData() }, [loadData])
 
@@ -158,7 +171,20 @@ export default function CustomKPIPage() {
       ) : (
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 1.5 }}>
           {filteredValues.map(kv => (
-            <KpiCard key={kv.kpiId} kpiValue={kv} onEdit={() => handleEdit(kv.kpiId)} onDelete={() => handleDelete(kv.kpiId)} />
+            <Box key={kv.kpiId}>
+              <KpiCard kpiValue={kv} onEdit={() => handleEdit(kv.kpiId)} onDelete={() => handleDelete(kv.kpiId)} />
+              {kv.trend && kv.trend.length > 1 && (
+                <Box sx={{ mt: -0.5, mx: 0.5, bgcolor: 'background.paper', borderRadius: '0 0 8px 8px', border: 1, borderTop: 0, borderColor: 'divider', overflow: 'hidden' }}>
+                  <LineChart
+                    xAxis={[{ data: kv.trend.map(p => new Date(p.snapshotDate)), scaleType: 'time' }]}
+                    series={[{ data: kv.trend.map(p => p.value), showMark: false, color: kv.color || theme.palette.primary.main }]}
+                    height={60}
+                    margin={{ top: 8, right: 8, bottom: 8, left: 8 }}
+                    sx={{ '& .MuiChartsAxis-root': { display: 'none' } }}
+                  />
+                </Box>
+              )}
+            </Box>
           ))}
         </Box>
       )}

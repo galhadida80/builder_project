@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { BarChart } from '@mui/x-charts/BarChart'
@@ -6,6 +6,7 @@ import { Card } from '../components/ui/Card'
 import { AvatarGroup } from '../components/ui/Avatar'
 import { ProgressBar, CircularProgressDisplay } from '../components/ui/ProgressBar'
 import { EmptyState } from '../components/ui/EmptyState'
+import FilterChips from '../components/ui/FilterChips'
 import { Button } from '../components/ui/Button'
 import DistributionChart from '../pages/Analytics/components/DistributionChart'
 import ProjectMetricsChart from '../pages/Analytics/components/ProjectMetricsChart'
@@ -46,6 +47,15 @@ export default function DashboardPage() {
   const [statsLoading, setStatsLoading] = useState(false)
   const [projects, setProjects] = useState<Project[]>([])
   const [criticalDefectsCount, setCriticalDefectsCount] = useState(0)
+  const [period, setPeriod] = useState('month')
+
+  const getDateRange = useCallback((p: string) => {
+    const now = new Date()
+    const dateTo = now.toISOString().split('T')[0]
+    const days = p === 'week' ? 7 : p === 'quarter' ? 90 : p === 'year' ? 365 : 30
+    const from = new Date(now.getTime() - days * 86400000)
+    return { dateFrom: from.toISOString().split('T')[0], dateTo }
+  }, [])
 
   useEffect(() => {
     let stale = false
@@ -91,18 +101,19 @@ export default function DashboardPage() {
     }
     load()
     if (selectedProjectId) {
-      loadDashboardStats()
+      const { dateFrom, dateTo } = getDateRange(period)
+      loadDashboardStats(dateFrom, dateTo)
     } else {
       setDashboardStats(null)
     }
     return () => { stale = true }
-  }, [selectedProjectId])
+  }, [selectedProjectId, period])
 
-  const loadDashboardStats = async () => {
+  const loadDashboardStats = async (dateFrom?: string, dateTo?: string) => {
     if (!selectedProjectId) return
     try {
       setStatsLoading(true)
-      const stats = await dashboardStatsApi.getStats(selectedProjectId)
+      const stats = await dashboardStatsApi.getStats(selectedProjectId, dateFrom, dateTo)
       setDashboardStats(stats)
     } catch (error) {
       console.error('Failed to load dashboard stats:', error)
@@ -230,10 +241,23 @@ export default function DashboardPage() {
       {/* Greeting */}
       <Typography
         variant="h5"
-        sx={{ fontWeight: 700, color: 'text.primary', mb: { xs: 2, md: 2.5 }, fontSize: { xs: '1.25rem', sm: '1.5rem' } }}
+        sx={{ fontWeight: 700, color: 'text.primary', mb: 1.5, fontSize: { xs: '1.25rem', sm: '1.5rem' } }}
       >
         {t('dashboard.greeting', { name: user?.fullName || user?.email || '' })}
       </Typography>
+
+      <Box sx={{ mb: { xs: 2, md: 2.5 } }}>
+        <FilterChips
+          value={period}
+          onChange={setPeriod}
+          items={[
+            { label: t('dashboard.periodWeek'), value: 'week' },
+            { label: t('dashboard.periodMonth'), value: 'month' },
+            { label: t('dashboard.periodQuarter'), value: 'quarter' },
+            { label: t('dashboard.periodYear'), value: 'year' },
+          ]}
+        />
+      </Box>
 
       {/* KPI Grid - 2 columns */}
       <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: { xs: 1.5, md: 2 }, mb: { xs: 2, md: 2.5 } }}>

@@ -95,6 +95,10 @@
     "approvalsPending": "Approvals Pending",
     "noTeamMembers": "No team members assigned",
     "overviewSubtitle": "Overview of your construction operations",
+    "periodWeek": "Week",
+    "periodMonth": "Month",
+    "periodQuarter": "Quarter",
+    "periodYear": "Year",
     "failedToLoad": "Failed to load dashboard data. Please refresh the page.",
     "selectProjectFirst": "Please select a project first",
     "addEquipment": "Add Equipment",
@@ -120,7 +124,8 @@
       "bim": "a BIM model",
       "checklist_instance": "a checklist instance",
       "checklist_item_response": "a checklist response",
-      "file": "a file"
+      "file": "a file",
+      "project": "project"
     },
     "charts": {
       "activityTrend": "Weekly Activity",
@@ -739,6 +744,7 @@
     "previous": "Previous",
     "yes": "Yes",
     "no": "No",
+    "and": "and",
     "optional": "Optional",
     "language": "Language",
     "english": "English",
@@ -986,7 +992,8 @@
     "openRfis": "Open RFIs",
     "pendingApprovals": "Pending Approvals",
     "openDefects": "Open Defects",
-    "recentItems": "Recent Items"
+    "recentItems": "Recent Items",
+    "changeAvatar": "Change Avatar"
   },
   "auditLog": {
     "pageTitle": "Audit Log",
@@ -2022,6 +2029,13 @@
     "addSubfolder": "Add subfolder",
     "expandFolder": "Expand folder",
     "collapseFolder": "Collapse folder",
+    "foldersTitle": "Folders",
+    "createNewFolder": "Create New Folder",
+    "folderName": "Folder Name",
+    "cannotDeleteFolderContent": "Cannot delete \"{{name}}\". Folder contains {{content}}. Please delete or move items first.",
+    "confirmDeleteFolder": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
+    "subfoldersCount": "{{count}} subfolders",
+    "filesCount": "{{count}} files",
     "versions": "Version History",
     "currentVersion": "Current Version",
     "versionNumber": "Version {{number}}",
@@ -2349,7 +2363,9 @@
     "zoomMonthDay": "Month/Day",
     "zoomWeekDay": "Week/Day",
     "toggleRiskOverlay": "Toggle Risk Overlay",
-    "whatIfScenario": "What-If Scenario"
+    "whatIfScenario": "What-If Scenario",
+    "meetings": "Meetings",
+    "tasks": "Tasks"
   },
   "pages": {
     "projects": {
@@ -2728,7 +2744,9 @@
     "scheduled": "Scheduled",
     "monthInspections": "This month",
     "defectsFound": "Defects found",
-    "complianceRate": "Compliance"
+    "complianceRate": "Compliance",
+    "completedInspections": "Completed",
+    "pendingInspections": "Pending"
   },
   "pmDashboard": {
     "title": "Project Manager Dashboard",
@@ -3172,7 +3190,8 @@
       "completed": "Completed",
       "on_hold": "On Hold",
       "cancelled": "Cancelled"
-    }
+    },
+    "timeline": "Timeline"
   },
   "budget": {
     "pageTitle": "Budget",
@@ -3396,7 +3415,18 @@
     "replyingTo": "Replying to comment",
     "failedToLoad": "Failed to load discussions",
     "failedToCreate": "Failed to post comment",
-    "edited": "edited"
+    "edited": "edited",
+    "entityTypes": {
+      "equipment": "Equipment",
+      "material": "Material",
+      "rfi": "RFI",
+      "inspection": "Inspection",
+      "defect": "Defect",
+      "meeting": "Meeting",
+      "area": "Area",
+      "task": "Task",
+      "project": "Project"
+    }
   },
   "reports": {
     "title": "Reports",
@@ -3461,7 +3491,16 @@
     "edit": "Edit",
     "previewFrame": "Report Preview",
     "editWarning": "Editing HTML directly. Be careful to preserve the structure and styling.",
-    "downloadPdf": "Download PDF"
+    "downloadPdf": "Download PDF",
+    "inspectionSummaryDesc": "Summary of all inspections by status, date, and severity",
+    "approvalStatusDesc": "Track approval status for equipment and materials",
+    "rfiAgingDesc": "Analyze response times and open RFIs",
+    "attendance": "Attendance",
+    "attendanceDesc": "Employee and consultant attendance report",
+    "laborCosts": "Labor Costs",
+    "laborCostsDesc": "Analyze labor costs by project and period",
+    "complianceAudit": "Compliance Audit",
+    "complianceAuditDesc": "Compliance audit for standards and requirements"
   },
   "help": {
     "title": "Help",
@@ -3912,7 +3951,18 @@
     "notificationsEnabled": "Notifications Enabled",
     "notificationsDisabled": "Notifications Disabled",
     "enableNotifications": "Enable Notifications",
-    "disableNotifications": "Disable Notifications"
+    "disableNotifications": "Disable Notifications",
+    "phoneRequired": "Phone number is required",
+    "codeSent": "Verification code sent",
+    "codeRequired": "Verification code is required",
+    "verifySuccess": "WhatsApp verified successfully",
+    "linkedDescription": "Your WhatsApp is linked and verified",
+    "unlinkButton": "Unlink WhatsApp",
+    "codeSentMessage": "A verification code was sent to your WhatsApp",
+    "verificationCode": "Verification Code",
+    "phoneHelp": "Enter your WhatsApp number with country code",
+    "linkButton": "Link WhatsApp",
+    "verifyButton": "Verify Code"
   },
   "billing": {
     "title": "Billing & Payments",
@@ -4481,5 +4531,14 @@
     "addMapping": "Add Mapping",
     "accUserId": "ACC User ID",
     "builderopsUser": "BuilderOps User"
+  },
+  "timeTracking": {
+    "clockInOut": "Clock In/Out",
+    "timesheets": "Timesheets",
+    "clockDescription": "Track your work hours",
+    "activeShift": "Active Shift",
+    "clockedInAt": "Clocked in at",
+    "pendingTimesheets": "Pending Timesheets",
+    "approvedTimesheets": "Approved Timesheets"
   }
 }

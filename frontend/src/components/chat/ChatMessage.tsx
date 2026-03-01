@@ -167,7 +167,7 @@ export default memo(function ChatMessage({ message, onActionExecute, onActionRej
                     </Box>
                   ),
                   th: ({ children }) => (
-                    <th style={{ border: `1px solid ${borderColor}`, padding: '6px 10px', textAlign: 'left', fontWeight: 600, backgroundColor: headerBg }}>
+                    <th style={{ border: `1px solid ${borderColor}`, padding: '6px 10px', textAlign: 'start', fontWeight: 600, backgroundColor: headerBg }}>
                       {children}
                     </th>
                   ),

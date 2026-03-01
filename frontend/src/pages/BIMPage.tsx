@@ -13,7 +13,8 @@ import BimModelCard from '../components/bim/BimModelCard'
 import BimUploadButton from '../components/bim/BimUploadButton'
 import { isIfc } from '../components/bim/bimConstants'
 import type { BimModel } from '../types'
-import { ArrowBackIcon, DescriptionIcon, FullscreenIcon, ViewColumnIcon } from '@/icons'
+import { DescriptionIcon, FullscreenIcon, ViewColumnIcon } from '@/icons'
+import { BackArrowIcon } from '@/components/ui/BackArrowIcon'
 import { Box, Typography, Skeleton, IconButton, Drawer, useTheme, useMediaQuery } from '@/mui'
 
 export default function BIMPage() {
@@ -154,7 +155,7 @@ export default function BIMPage() {
 
       <Box sx={{ position: 'sticky', top: 0, zIndex: 20, bgcolor: 'background.default', borderBottom: 1, borderColor: 'divider', px: { xs: 1.5, sm: 2, md: 3 }, py: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <IconButton size="small" onClick={() => navigate(-1)}><ArrowBackIcon /></IconButton>
+          <IconButton size="small" onClick={() => navigate(-1)}><BackArrowIcon /></IconButton>
           <Typography variant="h6" fontWeight={700}>{t('bim.modelTitle', 'BIM Model')}</Typography>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>

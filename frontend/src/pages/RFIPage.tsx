@@ -22,7 +22,7 @@ import { parseValidationErrors } from '../utils/apiErrors'
 import HelpTooltip from '../components/help/HelpTooltip'
 import { validateRFIForm, hasErrors, type ValidationError } from '../utils/validation'
 import { AddIcon, DeleteIcon, EmailIcon, AccessTimeIcon, FilterListIcon } from '@/icons'
-import { Box, Typography, Divider, MenuItem, TextField as MuiTextField, Skeleton, Chip, IconButton, Autocomplete, Avatar, FormControl, InputLabel, Select } from '@/mui'
+import { Box, Typography, Divider, MenuItem, TextField as MuiTextField, Skeleton, Chip, IconButton, Autocomplete, Avatar, FormControl, InputLabel, Select, Fab, useMediaQuery, useTheme } from '@/mui'
 
 export default function RFIPage() {
   const { t } = useTranslation()
@@ -30,6 +30,8 @@ export default function RFIPage() {
   const navigate = useNavigate()
   const { showError, showSuccess } = useToast()
   const { formRef, triggerShake } = useFormShake()
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const [loading, setLoading] = useState(true)
   const [rfis, setRfis] = useState<RFIListItem[]>([])
   const [summary, setSummary] = useState<RFISummary | null>(null)
@@ -658,6 +660,13 @@ export default function RFIPage() {
         variant="danger"
         loading={deleting}
       />
+
+      {isMobile && (
+        <Fab color="primary" aria-label={t('rfis.addRfi')} onClick={handleOpenCreate}
+          sx={{ position: 'fixed', bottom: 80, insetInlineEnd: 16, zIndex: 10 }}>
+          <AddIcon />
+        </Fab>
+      )}
     </Box>
   )
 }

@@ -18,6 +18,7 @@ export default function InspectorDashboard() {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const [loading, setLoading] = useState(true)
   const [inspections, setInspections] = useState<Inspection[]>([])
+  const [allInspections, setAllInspections] = useState<Inspection[]>([])
   const [isOffline, setIsOffline] = useState(!navigator.onLine)
 
   useEffect(() => {
@@ -47,14 +48,15 @@ export default function InspectorDashboard() {
     if (!projectId) return
     try {
       setLoading(true)
-      const allInspections = await inspectionsApi.getProjectInspections(projectId)
+      const fetchedInspections = await inspectionsApi.getProjectInspections(projectId)
+      setAllInspections(fetchedInspections)
 
       const today = new Date()
       today.setHours(0, 0, 0, 0)
       const tomorrow = new Date(today)
       tomorrow.setDate(tomorrow.getDate() + 1)
 
-      const todayInspections = allInspections.filter(inspection => {
+      const todayInspections = fetchedInspections.filter(inspection => {
         const scheduledDate = new Date(inspection.scheduledDate)
         return scheduledDate >= today && scheduledDate < tomorrow
       })
@@ -231,17 +233,25 @@ export default function InspectorDashboard() {
         </Button>
       </Box>
 
-      <Box sx={{ display: 'flex', gap: 1.5, px: 2, mb: 3, overflowX: 'auto' }}>
-        <Box sx={{ minWidth: 130, flexShrink: 0 }}>
-          <KPICard title={t('inspector.monthInspections')} value={inspections.length} icon={<TrendingUpIcon />} color="primary" />
-        </Box>
-        <Box sx={{ minWidth: 130, flexShrink: 0 }}>
-          <KPICard title={t('inspector.defectsFound')} value={0} icon={<WarningIcon />} color="warning" />
-        </Box>
-        <Box sx={{ minWidth: 130, flexShrink: 0 }}>
-          <KPICard title={t('inspector.complianceRate')} value="--" icon={<TrendingUpIcon />} color="success" />
-        </Box>
-      </Box>
+      {(() => {
+        const completedCount = allInspections.filter(i => i.status === 'completed').length
+        const pendingCount = allInspections.filter(i => i.status === 'in_progress' || i.status === 'pending').length
+        const totalInspections = allInspections.length
+        const complianceRate = totalInspections > 0 ? Math.round((completedCount / totalInspections) * 100) : 0
+        return (
+          <Box sx={{ display: 'flex', gap: 1.5, px: 2, mb: 3, overflowX: 'auto' }}>
+            <Box sx={{ minWidth: 130, flexShrink: 0 }}>
+              <KPICard title={t('inspector.completedInspections')} value={completedCount} icon={<TrendingUpIcon />} color="primary" />
+            </Box>
+            <Box sx={{ minWidth: 130, flexShrink: 0 }}>
+              <KPICard title={t('inspector.pendingInspections')} value={pendingCount} icon={<WarningIcon />} color="warning" />
+            </Box>
+            <Box sx={{ minWidth: 130, flexShrink: 0 }}>
+              <KPICard title={t('inspector.complianceRate')} value={`${complianceRate}%`} icon={<TrendingUpIcon />} color="success" />
+            </Box>
+          </Box>
+        )
+      })()}
     </Box>
   )
 }

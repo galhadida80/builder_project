@@ -19,7 +19,8 @@ import type {
   ChecklistItemResponseUpdate,
   ChecklistTemplate,
 } from '../types'
-import { CheckCircleIcon, AssignmentIcon, ArrowBackIcon, SendIcon } from '@/icons'
+import { CheckCircleIcon, AssignmentIcon, SendIcon } from '@/icons'
+import { BackArrowIcon } from '@/components/ui/BackArrowIcon'
 import { Box, Typography, LinearProgress, Skeleton, Alert, Snackbar, FormControlLabel, Radio, RadioGroup, styled } from '@/mui'
 
 const MobileContainer = styled(Box)(({ theme }) => ({
@@ -346,7 +347,7 @@ export default function MobileChecklistPage() {
         <Header>
           <Button
             variant="tertiary"
-            icon={<ArrowBackIcon />}
+            icon={<BackArrowIcon />}
             onClick={() => navigate(backPath)}
           >
             {t('common.back', 'Back')}
@@ -372,7 +373,7 @@ export default function MobileChecklistPage() {
         <Header>
           <Button
             variant="tertiary"
-            icon={<ArrowBackIcon />}
+            icon={<BackArrowIcon />}
             onClick={() => navigate(backPath)}
           >
             {t('common.back', 'Back')}
@@ -393,7 +394,7 @@ export default function MobileChecklistPage() {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
           <Button
             variant="tertiary"
-            icon={<ArrowBackIcon />}
+            icon={<BackArrowIcon />}
             onClick={() => navigate(backPath)}
             size="small"
           >

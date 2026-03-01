@@ -25,7 +25,7 @@ import { useFormShake } from '../hooks/useFormShake'
 import { useReferenceData } from '../contexts/ReferenceDataContext'
 import HelpTooltip from '../components/help/HelpTooltip'
 import { AddIcon, CheckCircleIcon, WarningIcon, ErrorIcon, ScheduleIcon, AssignmentIcon, DescriptionIcon, PersonIcon, AccessTimeIcon, CalendarTodayIcon } from '@/icons'
-import { Box, Typography, Skeleton, Chip, Alert, MenuItem, TextField as MuiTextField, IconButton, Tooltip, useMediaQuery, useTheme, Divider } from '@/mui'
+import { Box, Typography, Skeleton, Chip, Alert, MenuItem, TextField as MuiTextField, IconButton, Tooltip, useMediaQuery, useTheme, Divider, Fab } from '@/mui'
 
 export default function InspectionsPage() {
   const { t } = useTranslation()
@@ -582,7 +582,7 @@ export default function InspectionsPage() {
                             cursor: 'pointer',
                             position: 'relative',
                             overflow: 'hidden',
-                            borderLeft: `4px solid ${borderColor}`,
+                            borderInlineStart: `4px solid ${borderColor}`,
                             '&:active': { bgcolor: 'action.pressed' },
                           }}
                         >
@@ -672,7 +672,7 @@ export default function InspectionsPage() {
                               borderBottom: '1px solid',
                               borderColor: 'divider',
                               cursor: 'pointer',
-                              borderLeft: `4px solid ${borderColor}`,
+                              borderInlineStart: `4px solid ${borderColor}`,
                               '&:active': { bgcolor: 'action.pressed' },
                             }}
                           >
@@ -759,6 +759,13 @@ export default function InspectionsPage() {
         onClose={() => setPreviewInspection(null)}
         inspection={previewInspection}
       />
+
+      {isMobile && (
+        <Fab color="primary" aria-label={t('inspections.scheduleInspection')} onClick={() => setDialogOpen(true)}
+          sx={{ position: 'fixed', bottom: 80, insetInlineEnd: 16, zIndex: 10 }}>
+          <AddIcon />
+        </Fab>
+      )}
     </Box>
   )
 }

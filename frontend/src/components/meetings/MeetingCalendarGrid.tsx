@@ -71,7 +71,7 @@ const MeetingChip = styled(Box, {
   padding: '2px 6px',
   marginBottom: 2,
   borderRadius: 4,
-  borderLeft: `3px solid ${typeColor}`,
+  borderInlineStart: `3px solid ${typeColor}`,
   backgroundColor: alpha(typeColor, theme.palette.mode === 'dark' ? 0.15 : 0.08),
   cursor: 'pointer',
   overflow: 'hidden',

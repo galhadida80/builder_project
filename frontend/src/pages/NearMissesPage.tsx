@@ -14,7 +14,7 @@ import { safetyApi } from '../api/safety'
 import type { NearMiss, NearMissSummary, NearMissSeverity, NearMissStatus } from '../types/safety'
 import { useToast } from '../components/common/ToastProvider'
 import { AddIcon } from '@/icons'
-import { Box, Typography, TablePagination, useMediaQuery, useTheme } from '@/mui'
+import { Box, Typography, TablePagination, useMediaQuery, useTheme, Fab } from '@/mui'
 
 export default function NearMissesPage() {
   const { t } = useTranslation()
@@ -211,22 +211,10 @@ export default function NearMissesPage() {
       </Card>
 
       {isMobile && (
-        <Box
-          sx={{
-            position: 'fixed',
-            bottom: 16,
-            right: 16,
-            zIndex: 1000,
-          }}
-        >
-          <Button
-            variant="primary"
-            icon={<AddIcon />}
-            onClick={() => navigate(`/projects/${projectId}/safety/near-misses/new`)}
-          >
-            {t('safety.reportNearMiss')}
-          </Button>
-        </Box>
+        <Fab color="primary" aria-label={t('safety.reportNearMiss')} onClick={() => navigate(`/projects/${projectId}/safety/near-misses/new`)}
+          sx={{ position: 'fixed', bottom: 80, insetInlineEnd: 16, zIndex: 10 }}>
+          <AddIcon />
+        </Fab>
       )}
     </Box>
   )

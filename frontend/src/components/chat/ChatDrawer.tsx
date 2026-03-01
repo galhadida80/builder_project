@@ -7,7 +7,8 @@ import { chatApi } from '../../api/chat'
 import type { ChatMessage as ChatMessageType, ChatAction, Conversation } from '../../api/chat'
 import { useVoiceOutput } from '@/hooks/useVoiceOutput'
 import VoiceSettingsDialog from './VoiceSettingsDialog'
-import { CloseIcon, ArrowBackIcon, AddIcon, HistoryIcon, DeleteOutlineIcon, SmartToyIcon } from '@/icons'
+import { CloseIcon, AddIcon, HistoryIcon, DeleteOutlineIcon, SmartToyIcon } from '@/icons'
+import { BackArrowIcon } from '@/components/ui/BackArrowIcon'
 import { Box, Drawer, Typography, IconButton, Chip, Stack, Divider, List, ListItemButton, ListItemText, useMediaQuery } from '@/mui'
 import { useTheme } from '@/mui'
 
@@ -200,7 +201,7 @@ export default function ChatDrawer({ open, onClose, projectId }: ChatDrawerProps
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 2, borderBottom: 1, borderColor: 'divider' }}>
           {showHistory ? (
             <IconButton size="small" aria-label={t('chat.backToChat')} onClick={() => setShowHistory(false)}>
-              <ArrowBackIcon />
+              <BackArrowIcon />
             </IconButton>
           ) : (
             <SmartToyIcon color="primary" />

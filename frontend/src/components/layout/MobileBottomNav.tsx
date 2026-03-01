@@ -141,7 +141,12 @@ export default function MobileBottomNav({ projectId, onMenuOpen }: MobileBottomN
         >
           {/* Left nav items */}
           <BottomNavigation
-            value={activeTab < 2 ? activeTab : -1}
+            value={activeTab < 2 ? activeTab : false}
+            onChange={(_, newValue) => {
+              if (typeof newValue === 'number' && newValue >= 0 && newValue < leftTabs.length) {
+                handleNavigation(leftTabs[newValue])
+              }
+            }}
             showLabels
             sx={{
               flex: 1,
@@ -172,7 +177,6 @@ export default function MobileBottomNav({ projectId, onMenuOpen }: MobileBottomN
                 key={tab.labelKey}
                 label={t(tab.labelKey)}
                 icon={tab.icon}
-                onClick={() => handleNavigation(tab)}
                 value={index}
               />
             ))}
@@ -202,7 +206,12 @@ export default function MobileBottomNav({ projectId, onMenuOpen }: MobileBottomN
 
           {/* Right nav items */}
           <BottomNavigation
-            value={activeTab >= 2 ? activeTab - 2 : -1}
+            value={activeTab >= 2 ? activeTab - 2 : false}
+            onChange={(_, newValue) => {
+              if (typeof newValue === 'number' && newValue >= 0 && newValue < rightTabs.length) {
+                handleNavigation(rightTabs[newValue])
+              }
+            }}
             showLabels
             sx={{
               flex: 1,
@@ -233,7 +242,6 @@ export default function MobileBottomNav({ projectId, onMenuOpen }: MobileBottomN
                 key={tab.labelKey}
                 label={t(tab.labelKey)}
                 icon={tab.icon}
-                onClick={() => handleNavigation(tab)}
                 aria-label={tab.action === 'menu' ? t('common.openNavMenu') : undefined}
                 value={index}
               />

@@ -25,7 +25,7 @@ export default function NearMissCard({ nearMiss, onClick }: NearMissCardProps) {
       sx={{
         p: 2,
         cursor: 'pointer',
-        borderLeft: `4px solid ${SEVERITY_BORDER_COLORS[nearMiss.severity]}`,
+        borderInlineStart: `4px solid ${SEVERITY_BORDER_COLORS[nearMiss.severity]}`,
         '&:hover': { boxShadow: theme.shadows[4] },
       }}
     >
