@@ -103,3 +103,16 @@ class PermitSummaryResponse(CamelCaseModel):
     permit_number: str | None = None
     expiration_date: date | None = None
     created_at: datetime
+
+
+class PermitComplianceReportResponse(CamelCaseModel):
+    total_permits: int
+    not_applied_count: int
+    applied_count: int
+    under_review_count: int
+    approved_count: int
+    conditional_count: int
+    rejected_count: int
+    expired_count: int
+    expiring_soon_count: int
+    permits_by_type: dict[str, int]

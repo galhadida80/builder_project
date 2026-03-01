@@ -1,10 +1,11 @@
 import logging
+from datetime import datetime, timedelta
 from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile
 from fastapi import File as FastAPIFile
-from sqlalchemy import select
+from sqlalchemy import case, func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -19,6 +20,7 @@ from app.models.project import Project, ProjectMember
 from app.models.user import User
 from app.schemas.file import FileResponse
 from app.schemas.permit import (
+    PermitComplianceReportResponse,
     PermitCreate,
     PermitResponse,
     PermitStatusUpdate,
@@ -72,6 +74,63 @@ async def list_permits_nested(
         .order_by(Permit.expiration_date.asc())
     )
     return result.scalars().all()
+
+
+@router.get("/projects/{project_id}/permits/compliance-report", response_model=PermitComplianceReportResponse)
+async def get_permit_compliance_report(
+    project_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get compliance report with permit status and expiration tracking"""
+    await verify_project_access(project_id, current_user, db)
+
+    # Calculate expiring soon threshold (30 days from now)
+    today = datetime.now().date()
+    expiring_threshold = today + timedelta(days=30)
+
+    # Get permit counts by status
+    status_result = await db.execute(
+        select(
+            func.count().label('total'),
+            func.sum(case((Permit.status == 'not_applied', 1), else_=0)).label('not_applied'),
+            func.sum(case((Permit.status == 'applied', 1), else_=0)).label('applied'),
+            func.sum(case((Permit.status == 'under_review', 1), else_=0)).label('under_review'),
+            func.sum(case((Permit.status == 'approved', 1), else_=0)).label('approved'),
+            func.sum(case((Permit.status == 'conditional', 1), else_=0)).label('conditional'),
+            func.sum(case((Permit.status == 'rejected', 1), else_=0)).label('rejected'),
+            func.sum(case((Permit.status == 'expired', 1), else_=0)).label('expired'),
+            func.sum(case((
+                (Permit.expiration_date.isnot(None)) &
+                (Permit.expiration_date <= expiring_threshold) &
+                (Permit.expiration_date > today) &
+                (Permit.status != 'expired'), 1
+            ), else_=0)).label('expiring_soon')
+        )
+        .where(Permit.project_id == project_id)
+    )
+    status_row = status_result.one()
+
+    # Get permit counts by type
+    type_result = await db.execute(
+        select(Permit.permit_type, func.count().label('count'))
+        .where(Permit.project_id == project_id)
+        .group_by(Permit.permit_type)
+    )
+    permits_by_type = {row.permit_type: row.count for row in type_result}
+
+    return PermitComplianceReportResponse(
+        total_permits=status_row.total or 0,
+        not_applied_count=status_row.not_applied or 0,
+        applied_count=status_row.applied or 0,
+        under_review_count=status_row.under_review or 0,
+        approved_count=status_row.approved or 0,
+        conditional_count=status_row.conditional or 0,
+        rejected_count=status_row.rejected or 0,
+        expired_count=status_row.expired or 0,
+        expiring_soon_count=status_row.expiring_soon or 0,
+        permits_by_type=permits_by_type
+    )
 
 
 @router.post("/projects/{project_id}/permits", response_model=PermitResponse)
