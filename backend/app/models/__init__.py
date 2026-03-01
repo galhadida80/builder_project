@@ -45,6 +45,7 @@ from app.models.material_template import (
 from app.models.calendar_token import UserCalendarToken
 from app.models.meeting import Meeting, MeetingAttendee
 from app.models.permission_override import PermissionOverride
+from app.models.permit import Permit, PermitStatus, PermitType
 from app.models.project import Project, ProjectMember
 from app.models.rfi import RFI, RFICategory, RFIEmailLog, RFIPriority, RFIResponse, RFIStatus
 from app.models.risk_score import RiskLevel, RiskScore
@@ -83,6 +84,9 @@ __all__ = [
     "MaterialApprovalDecision",
     "Meeting",
     "MeetingAttendee",
+    "Permit",
+    "PermitStatus",
+    "PermitType",
     "ApprovalRequest",
     "ApprovalStep",
     "ConstructionArea",
