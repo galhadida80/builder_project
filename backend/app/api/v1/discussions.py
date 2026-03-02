@@ -76,7 +76,7 @@ async def create_discussion(
 
     result = await db.execute(
         select(Discussion)
-        .options(selectinload(Discussion.author))
+        .options(*DISCUSSION_LOAD_OPTIONS)
         .where(Discussion.id == discussion.id)
     )
     created = result.scalar_one()
@@ -119,7 +119,7 @@ async def update_discussion(
 
     result = await db.execute(
         select(Discussion)
-        .options(selectinload(Discussion.author))
+        .options(*DISCUSSION_LOAD_OPTIONS)
         .where(Discussion.id == discussion.id)
     )
     return result.scalar_one()
