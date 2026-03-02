@@ -133,7 +133,7 @@ def require_permission(permission: Permission):
                     ProjectMember.user_id == current_user.id,
                 )
             )
-            member = result.scalar_one_or_none()
+            member = result.scalars().first()
             if member:
                 return member
             placeholder = ProjectMember(
@@ -149,7 +149,7 @@ def require_permission(permission: Permission):
                 ProjectMember.user_id == current_user.id,
             )
         )
-        member = result.scalar_one_or_none()
+        member = result.scalars().first()
         if not member:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -179,7 +179,7 @@ async def check_permission(permission: Permission, project_id: UUID, user_id: UU
             ProjectMember.user_id == user_id,
         )
     )
-    member = result.scalar_one_or_none()
+    member = result.scalars().first()
     if not member:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

@@ -383,7 +383,7 @@ async def remove_project_member(
     result = await db.execute(
         select(ProjectMember).where(ProjectMember.project_id == project_id, ProjectMember.user_id == user_id)
     )
-    member = result.scalar_one_or_none()
+    member = result.scalars().first()
     if not member:
         raise HTTPException(status_code=404, detail="Member not found")
 

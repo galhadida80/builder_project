@@ -403,7 +403,7 @@ async def get_dashboard_stats(
             ProjectMember.user_id == current_user.id,
         )
     )
-    if not membership.scalar_one_or_none() and not current_user.is_super_admin:
+    if not membership.scalars().first() and not current_user.is_super_admin:
         raise HTTPException(status_code=403, detail="Not a project member")
 
     equip_result = await db.execute(
