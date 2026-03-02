@@ -21,6 +21,7 @@ from app.services.chart_service import (
     generate_inspection_chart,
     generate_progress_chart,
 )
+from app.services.email_icons import ICON_DATA
 from app.utils import utcnow
 
 TEMPLATES_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates")
@@ -29,6 +30,7 @@ env = Environment(
     loader=FileSystemLoader(TEMPLATES_DIR),
     autoescape=select_autoescape(["html"]),
 )
+env.globals["icons"] = ICON_DATA
 
 STRINGS = {
     "he": {
