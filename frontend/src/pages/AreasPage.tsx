@@ -133,7 +133,10 @@ export default function AreasPage() {
     return areaList.reduce<ConstructionArea[]>((acc, area) => {
       const matchesFloor = floorFilter === null || area.floorNumber === floorFilter
       const matchesSearch = !term || area.name.toLowerCase().includes(term) || (area.areaCode || '').toLowerCase().includes(term)
-      if (matchesFloor && matchesSearch) {
+      const progress = Number(area.currentProgress) || 0
+      const derivedStatus = progress === 100 ? 'completed' : progress > 0 ? 'in_progress' : 'not_started'
+      const matchesStatus = statusFilter === 'all' || derivedStatus === statusFilter
+      if (matchesFloor && matchesSearch && matchesStatus) {
         acc.push(area)
       } else if (area.children?.length) {
         const filteredChildren = filterAreasTree(area.children)

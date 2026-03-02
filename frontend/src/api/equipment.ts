@@ -12,6 +12,7 @@ interface EquipmentCreate {
   installation_date?: string
   warranty_expiry?: string
   notes?: string
+  area_id?: string
 }
 
 interface EquipmentUpdate {
@@ -24,6 +25,7 @@ interface EquipmentUpdate {
   installation_date?: string
   warranty_expiry?: string
   notes?: string
+  area_id?: string
 }
 
 interface ChecklistCreate {
@@ -34,6 +36,7 @@ interface ChecklistCreate {
 export interface EquipmentListParams {
   status?: string
   search?: string
+  areaId?: string
   page?: number
   pageSize?: number
 }
@@ -43,6 +46,7 @@ export const equipmentApi = {
     const qs = new URLSearchParams()
     if (params?.status) qs.set('status', params.status)
     if (params?.search) qs.set('search', params.search)
+    if (params?.areaId) qs.set('area_id', params.areaId)
     if (params?.page) qs.set('page', String(params.page))
     if (params?.pageSize) qs.set('page_size', String(params.pageSize))
     const query = qs.toString()

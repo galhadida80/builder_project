@@ -14,6 +14,7 @@ from app.db.session import get_db
 from app.models.approval import ApprovalStep
 from app.models.audit import AuditAction
 from app.models.contact import Contact
+from app.models.invitation import ProjectInvitation
 from app.models.project import ProjectMember
 from app.models.user import User
 from app.schemas.contact import BulkContactImport, BulkImportResponse, ContactCreate, ContactResponse, ContactUpdate
@@ -21,6 +22,15 @@ from app.services.audit_service import create_audit_log, get_model_dict
 from app.utils.localization import get_language_from_request, translate_message
 
 router = APIRouter()
+
+
+ROLE_TO_CONTACT_TYPE = {
+    "project_admin": "manager",
+    "contractor": "contractor",
+    "consultant": "consultant",
+    "supervisor": "supervisor",
+    "inspector": "inspector",
+}
 
 
 @router.get("/projects/{project_id}/contacts", response_model=list[ContactResponse])
@@ -51,12 +61,46 @@ async def list_contacts(
     )
     counts_map = {row.contact_id: row.cnt for row in count_result}
 
+    members_result = await db.execute(
+        select(ProjectMember)
+        .options(selectinload(ProjectMember.user))
+        .where(ProjectMember.project_id == project_id)
+    )
+    members = members_result.scalars().all()
+    member_by_user_id = {m.user_id: m for m in members}
+
+    contact_user_ids = {c.user_id for c in contacts if c.user_id}
+
     response = []
     for contact in contacts:
         contact_data = ContactResponse.model_validate(contact)
         contact_data.pending_approvals_count = counts_map.get(contact.id, 0)
+        if contact.user_id and contact.user_id in member_by_user_id:
+            member = member_by_user_id[contact.user_id]
+            contact_data.is_project_member = True
+            contact_data.member_role = member.role
         response.append(contact_data)
 
+    for member in members:
+        if member.user_id in contact_user_ids:
+            continue
+        user = member.user
+        if not user:
+            continue
+        response.append(ContactResponse(
+            id=member.id,
+            project_id=project_id,
+            contact_type=ROLE_TO_CONTACT_TYPE.get(member.role, "other"),
+            contact_name=user.full_name or user.email,
+            email=user.email,
+            is_project_member=True,
+            member_role=member.role,
+            source="member",
+            created_at=member.added_at,
+            updated_at=member.added_at,
+        ))
+
+    response.sort(key=lambda c: (c.company_name or "", c.contact_name or ""))
     return response
 
 
@@ -226,9 +270,41 @@ async def create_contact(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    contact = Contact(**data.model_dump(), project_id=project_id)
+    add_as_member = data.add_as_member
+    member_role = data.member_role or "project_member"
+    contact_data = data.model_dump(exclude={"add_as_member", "member_role"})
+    contact = Contact(**contact_data, project_id=project_id)
     db.add(contact)
     await db.flush()
+
+    if add_as_member and data.email:
+        user_result = await db.execute(
+            select(User).where(User.email == data.email)
+        )
+        user = user_result.scalars().first()
+        if user:
+            existing_member = await db.execute(
+                select(ProjectMember).where(
+                    ProjectMember.project_id == project_id,
+                    ProjectMember.user_id == user.id
+                )
+            )
+            if not existing_member.scalars().first():
+                new_member = ProjectMember(
+                    project_id=project_id,
+                    user_id=user.id,
+                    role=member_role,
+                )
+                db.add(new_member)
+            contact.user_id = user.id
+        else:
+            invitation = ProjectInvitation(
+                project_id=project_id,
+                email=data.email,
+                role=member_role,
+                invited_by_id=current_user.id,
+            )
+            db.add(invitation)
 
     await create_audit_log(db, current_user, "contact", contact.id, AuditAction.CREATE,
                           project_id=project_id, new_values=get_model_dict(contact))

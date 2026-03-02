@@ -9,9 +9,10 @@ import KeyValueEditor, { type KeyValuePair, EQUIPMENT_SUGGESTIONS } from '../ui/
 import RecipientSelector from '../ui/RecipientSelector'
 import type { Recipient } from '../ui/RecipientSelector'
 import type { EquipmentTemplate } from '../../api/equipmentTemplates'
+import type { ConstructionArea } from '../../types'
 import { VALIDATION, type ValidationError } from '../../utils/validation'
-import { BuildIcon, DescriptionIcon, CheckCircleIcon, CloudUploadIcon, PersonIcon, CalendarTodayIcon, EditNoteIcon, ContentCopyIcon } from '@/icons'
-import { Box, Typography, Divider, MenuItem, TextField as MuiTextField, Chip, Checkbox, FormControlLabel, Alert, LinearProgress } from '@/mui'
+import { BuildIcon, DescriptionIcon, CheckCircleIcon, CloudUploadIcon, PersonIcon, CalendarTodayIcon, EditNoteIcon, ContentCopyIcon, LocationOnIcon } from '@/icons'
+import { Box, Typography, Divider, MenuItem, TextField as MuiTextField, Chip, Checkbox, FormControlLabel, Alert, LinearProgress, Autocomplete } from '@/mui'
 
 interface EquipmentFormModalProps {
   open: boolean
@@ -20,10 +21,11 @@ interface EquipmentFormModalProps {
   saving: boolean
   editing: boolean
   projectId: string
-  formData: { name: string; templateId: string; manufacturer: string; modelNumber: string; notes: string; approvalDueDate: string }
+  formData: { name: string; templateId: string; manufacturer: string; modelNumber: string; notes: string; approvalDueDate: string; areaId: string }
   setFormData: (data: EquipmentFormModalProps['formData']) => void
   errors: ValidationError
   templates: EquipmentTemplate[]
+  areas: ConstructionArea[]
   selectedTemplate: EquipmentTemplate | null
   specificationValues: Record<string, string | number | boolean>
   setSpecificationValues: (v: Record<string, string | number | boolean>) => void
@@ -44,7 +46,7 @@ interface EquipmentFormModalProps {
 
 export default function EquipmentFormModal({
   open, onClose, onSubmit, saving, editing, projectId,
-  formData, setFormData, errors, templates, selectedTemplate,
+  formData, setFormData, errors, templates, areas, selectedTemplate,
   specificationValues, setSpecificationValues,
   documentFiles, setDocumentFiles,
   checklistResponses, setChecklistResponses,
@@ -155,6 +157,19 @@ export default function EquipmentFormModal({
         <TextField fullWidth label={t('equipment.manufacturer')} value={formData.manufacturer} onChange={(e) => setFormData({ ...formData, manufacturer: e.target.value })} />
         <TextField fullWidth label={t('equipment.model')} value={formData.modelNumber} onChange={(e) => setFormData({ ...formData, modelNumber: e.target.value })} />
         <TextField fullWidth label={t('common.notes')} multiline rows={3} value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} error={!!errors.notes || formData.notes.length > VALIDATION.MAX_NOTES_LENGTH} helperText={errors.notes || (formData.notes.length > 0 ? `${formData.notes.length}/${VALIDATION.MAX_NOTES_LENGTH}` : undefined)} />
+
+        {areas.length > 0 && (
+          <Autocomplete
+            options={areas}
+            getOptionLabel={(option) => `${option.name}${option.floorNumber !== undefined ? ` (${t('areas.floor')} ${option.floorNumber})` : ''}`}
+            value={areas.find(a => a.id === formData.areaId) || null}
+            onChange={(_, val) => setFormData({ ...formData, areaId: val?.id || '' })}
+            renderInput={(params) => (
+              <MuiTextField {...params} label={t('equipment.area')} placeholder={t('equipment.selectArea')} InputProps={{ ...params.InputProps, startAdornment: <LocationOnIcon sx={{ fontSize: 18, color: 'text.secondary', mr: 0.5 }} /> }} />
+            )}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
+          />
+        )}
 
         {/* Template specifications */}
         {formMode === 'template' && selectedTemplate && selectedTemplate.required_specifications?.length > 0 && (

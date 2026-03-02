@@ -86,6 +86,7 @@ class ProjectUpdate(BaseModel):
 class ProjectMemberCreate(BaseModel):
     user_id: UUID
     role: str
+    department: Optional[str] = None
 
 
 class ProjectMemberResponse(CamelCaseModel):
@@ -93,6 +94,7 @@ class ProjectMemberResponse(CamelCaseModel):
     user_id: UUID
     user: UserResponse
     role: str
+    department: Optional[str] = None
     added_at: datetime
 
 

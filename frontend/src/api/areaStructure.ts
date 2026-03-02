@@ -41,4 +41,13 @@ export const areaStructureApi = {
     const response = await apiClient.get(`/projects/${projectId}/areas/${areaId}/checklist-summary`)
     return response.data
   },
+
+  getEntities: async (projectId: string, areaId: string): Promise<{
+    equipment: Array<{ id: string; name: string; equipmentType?: string; status: string }>
+    materials: Array<{ id: string; name: string; materialType?: string; status: string }>
+    checklists: Array<{ id: string; unitIdentifier: string; status: string }>
+  }> => {
+    const response = await apiClient.get(`/projects/${projectId}/areas/${areaId}/entities`)
+    return response.data
+  },
 }

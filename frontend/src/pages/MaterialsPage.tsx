@@ -17,8 +17,9 @@ import MaterialFormModal from '../components/materials/MaterialFormModal'
 import ContactSelectorDialog from '../components/ui/ContactSelectorDialog'
 import HelpTooltip from '../components/help/HelpTooltip'
 import { materialsApi } from '../api/materials'
+import { areasApi } from '../api/areas'
 import { filesApi } from '../api/files'
-import type { Material } from '../types'
+import type { Material, ConstructionArea } from '../types'
 import { validateMaterialForm, hasErrors, type ValidationError } from '../utils/validation'
 import { parseValidationErrors } from '../utils/apiErrors'
 import { useToast } from '../components/common/ToastProvider'
@@ -59,7 +60,7 @@ export default function MaterialsPage() {
   const [errors, setErrors] = useState<ValidationError>({})
   const [activeTab, setActiveTab] = useState('all')
   const [activeCategory, setActiveCategory] = useState('all')
-  const [formData, setFormData] = useState({ name: '', templateId: '', manufacturer: '', modelNumber: '', quantity: '', unit: '', expectedDelivery: '', storageLocation: '', notes: '', approvalDueDate: '' })
+  const [formData, setFormData] = useState({ name: '', templateId: '', manufacturer: '', modelNumber: '', quantity: '', unit: '', expectedDelivery: '', storageLocation: '', notes: '', approvalDueDate: '', areaId: '' })
   const [specificationValues, setSpecificationValues] = useState<Record<string, string | number | boolean>>({})
   const [documentFiles, setDocumentFiles] = useState<Record<string, File | null>>({})
   const [checklistResponses, setChecklistResponses] = useState<Record<string, boolean>>({})
@@ -68,6 +69,18 @@ export default function MaterialsPage() {
   const [approvers, setApprovers] = useState<Recipient[]>([])
   const [distributionList, setDistributionList] = useState<Recipient[]>([])
   const [isClosed, setIsClosed] = useState(false)
+  const [flatAreas, setFlatAreas] = useState<ConstructionArea[]>([])
+
+  useEffect(() => {
+    if (projectId) {
+      areasApi.list(projectId).then(tree => {
+        const flat: ConstructionArea[] = []
+        const flatten = (list: ConstructionArea[]) => { list.forEach(a => { flat.push(a); if (a.children?.length) flatten(a.children) }) }
+        flatten(tree)
+        setFlatAreas(flat)
+      }).catch(() => {})
+    }
+  }, [projectId])
 
   const selectedTemplate = useMemo(() => materialTemplates.find(t => t.id === formData.templateId) || null, [materialTemplates, formData.templateId])
 
@@ -86,7 +99,7 @@ export default function MaterialsPage() {
   }
 
   const resetForm = () => {
-    setFormData({ name: '', templateId: '', manufacturer: '', modelNumber: '', quantity: '', unit: '', expectedDelivery: '', storageLocation: '', notes: '', approvalDueDate: '' })
+    setFormData({ name: '', templateId: '', manufacturer: '', modelNumber: '', quantity: '', unit: '', expectedDelivery: '', storageLocation: '', notes: '', approvalDueDate: '', areaId: '' })
     setSpecificationValues({}); setDocumentFiles({}); setChecklistResponses({}); setCustomFields([]); setErrors({}); setEditingMaterial(null)
     setApprovers([]); setDistributionList([]); setIsClosed(false)
   }
@@ -104,7 +117,7 @@ export default function MaterialsPage() {
     if (e) e.stopPropagation()
     setEditingMaterial(material)
     const matchingTemplate = materialTemplates.find(t => t.name_he === material.materialType) || materialTemplates.find(t => t.name === material.materialType)
-    setFormData({ name: material.name, templateId: matchingTemplate?.id || '', manufacturer: material.manufacturer || '', modelNumber: material.modelNumber || '', quantity: material.quantity?.toString() || '', unit: material.unit || '', expectedDelivery: material.expectedDelivery || '', storageLocation: material.storageLocation || '', notes: material.notes || '', approvalDueDate: '' })
+    setFormData({ name: material.name, templateId: matchingTemplate?.id || '', manufacturer: material.manufacturer || '', modelNumber: material.modelNumber || '', quantity: material.quantity?.toString() || '', unit: material.unit || '', expectedDelivery: material.expectedDelivery || '', storageLocation: material.storageLocation || '', notes: material.notes || '', approvalDueDate: '', areaId: material.areaId || '' })
     setDocumentFiles({}); setChecklistResponses({})
     const existingSpecs = material.specifications || {}
     const templateSpecKeys = new Set(matchingTemplate?.required_specifications?.map(s => s.name) || [])
@@ -126,7 +139,7 @@ export default function MaterialsPage() {
     try {
       const specs: Record<string, unknown> = { ...specificationValues }
       customFields.forEach(f => { specs[f.key] = f.value })
-      const payload = { name: formData.name, material_type: selectedTemplate?.name_he || undefined, manufacturer: formData.manufacturer || undefined, model_number: formData.modelNumber || undefined, quantity: formData.quantity ? parseFloat(formData.quantity) : undefined, unit: formData.unit || undefined, specifications: Object.keys(specs).length > 0 ? specs : undefined, expected_delivery: formData.expectedDelivery || undefined, storage_location: formData.storageLocation || undefined, notes: formData.notes || undefined }
+      const payload = { name: formData.name, material_type: selectedTemplate?.name_he || undefined, manufacturer: formData.manufacturer || undefined, model_number: formData.modelNumber || undefined, quantity: formData.quantity ? parseFloat(formData.quantity) : undefined, unit: formData.unit || undefined, specifications: Object.keys(specs).length > 0 ? specs : undefined, expected_delivery: formData.expectedDelivery || undefined, storage_location: formData.storageLocation || undefined, notes: formData.notes || undefined, area_id: formData.areaId || undefined }
       let entityId: string
       if (editingMaterial) {
         const updated = await withMinDuration(materialsApi.update(projectId, editingMaterial.id, payload))
@@ -314,6 +327,7 @@ export default function MaterialsPage() {
         setFormData={setFormData}
         errors={errors}
         templates={materialTemplates}
+        areas={flatAreas}
         selectedTemplate={selectedTemplate}
         specificationValues={specificationValues}
         setSpecificationValues={setSpecificationValues}

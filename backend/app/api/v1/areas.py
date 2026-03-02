@@ -10,6 +10,9 @@ from app.core.security import get_current_user, verify_project_access
 from app.db.session import get_db
 from app.models.area import AreaProgress, ConstructionArea
 from app.models.audit import AuditAction
+from app.models.equipment import Equipment
+from app.models.material import Material
+from app.models.checklist import ChecklistInstance
 from app.models.project import ProjectMember
 from app.models.user import User
 from app.schemas.area import AreaCreate, AreaProgressCreate, AreaProgressResponse, AreaResponse, AreaUpdate
@@ -244,3 +247,55 @@ async def list_area_progress(
         .order_by(AreaProgress.reported_at.desc())
     )
     return result.scalars().all()
+
+
+@router.get("/projects/{project_id}/areas/{area_id}/entities")
+async def get_area_entities(
+    project_id: UUID,
+    area_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    await verify_project_access(project_id, current_user, db)
+    area_result = await db.execute(
+        select(ConstructionArea.id).where(
+            ConstructionArea.id == area_id, ConstructionArea.project_id == project_id
+        )
+    )
+    if not area_result.scalar_one_or_none():
+        raise HTTPException(status_code=404, detail="Area not found in this project")
+
+    eq_result = await db.execute(
+        select(Equipment)
+        .where(Equipment.area_id == area_id, Equipment.project_id == project_id)
+        .order_by(Equipment.created_at.desc())
+    )
+    mat_result = await db.execute(
+        select(Material)
+        .where(Material.area_id == area_id, Material.project_id == project_id)
+        .order_by(Material.created_at.desc())
+    )
+    cl_result = await db.execute(
+        select(ChecklistInstance)
+        .where(ChecklistInstance.area_id == area_id, ChecklistInstance.project_id == project_id)
+        .order_by(ChecklistInstance.created_at.desc())
+    )
+
+    equipment_list = eq_result.scalars().all()
+    materials_list = mat_result.scalars().all()
+    checklists_list = cl_result.scalars().all()
+
+    return {
+        "equipment": [
+            {"id": str(e.id), "name": e.name, "equipmentType": e.equipment_type, "status": e.status}
+            for e in equipment_list
+        ],
+        "materials": [
+            {"id": str(m.id), "name": m.name, "materialType": m.material_type, "status": m.status}
+            for m in materials_list
+        ],
+        "checklists": [
+            {"id": str(c.id), "unitIdentifier": c.unit_identifier, "status": c.status}
+            for c in checklists_list
+        ],
+    }

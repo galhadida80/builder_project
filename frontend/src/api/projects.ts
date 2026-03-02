@@ -56,6 +56,11 @@ export const projectsApi = {
     await apiClient.delete(`/projects/${id}`)
   },
 
+  listMembers: async (projectId: string): Promise<ProjectMember[]> => {
+    const response = await apiClient.get(`/projects/${projectId}/members`)
+    return response.data
+  },
+
   addMember: async (projectId: string, data: MemberCreate): Promise<ProjectMember> => {
     const response = await apiClient.post(`/projects/${projectId}/members`, data)
     return response.data

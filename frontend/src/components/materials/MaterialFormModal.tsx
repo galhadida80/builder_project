@@ -9,9 +9,10 @@ import KeyValueEditor, { type KeyValuePair, MATERIAL_SUGGESTIONS } from '../ui/K
 import RecipientSelector from '../ui/RecipientSelector'
 import type { Recipient } from '../ui/RecipientSelector'
 import type { MaterialTemplate } from '../../api/materialTemplates'
+import type { ConstructionArea } from '../../types'
 import { VALIDATION, type ValidationError } from '../../utils/validation'
-import { InventoryIcon, DescriptionIcon, CheckCircleIcon, CloudUploadIcon, PersonIcon, CalendarTodayIcon, EditNoteIcon, ContentCopyIcon } from '@/icons'
-import { Box, Typography, Divider, MenuItem, TextField as MuiTextField, Chip, Checkbox, FormControlLabel, LinearProgress } from '@/mui'
+import { InventoryIcon, DescriptionIcon, CheckCircleIcon, CloudUploadIcon, PersonIcon, CalendarTodayIcon, EditNoteIcon, ContentCopyIcon, LocationOnIcon } from '@/icons'
+import { Box, Typography, Divider, MenuItem, TextField as MuiTextField, Chip, Checkbox, FormControlLabel, LinearProgress, Autocomplete } from '@/mui'
 
 const UNIT_KEYS = ['ton', 'm3', 'm2', 'm', 'kg', 'unit', 'box', 'pallet', 'roll'] as const
 
@@ -22,10 +23,11 @@ interface MaterialFormModalProps {
   saving: boolean
   editing: boolean
   projectId: string
-  formData: { name: string; templateId: string; manufacturer: string; modelNumber: string; quantity: string; unit: string; expectedDelivery: string; storageLocation: string; notes: string; approvalDueDate: string }
+  formData: { name: string; templateId: string; manufacturer: string; modelNumber: string; quantity: string; unit: string; expectedDelivery: string; storageLocation: string; notes: string; approvalDueDate: string; areaId: string }
   setFormData: (data: MaterialFormModalProps['formData']) => void
   errors: ValidationError
   templates: MaterialTemplate[]
+  areas: ConstructionArea[]
   selectedTemplate: MaterialTemplate | null
   specificationValues: Record<string, string | number | boolean>
   setSpecificationValues: (v: Record<string, string | number | boolean>) => void
@@ -46,7 +48,7 @@ interface MaterialFormModalProps {
 
 export default function MaterialFormModal({
   open, onClose, onSubmit, saving, editing, projectId,
-  formData, setFormData, errors, templates, selectedTemplate,
+  formData, setFormData, errors, templates, areas, selectedTemplate,
   specificationValues, setSpecificationValues,
   documentFiles, setDocumentFiles,
   checklistResponses, setChecklistResponses,
@@ -166,6 +168,19 @@ export default function MaterialFormModal({
           <TextField fullWidth label={t('materials.storageLocation')} value={formData.storageLocation} onChange={(e) => setFormData({ ...formData, storageLocation: e.target.value })} />
         </Box>
         <TextField fullWidth label={t('common.notes')} multiline rows={2} value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} error={!!errors.notes || formData.notes.length > VALIDATION.MAX_NOTES_LENGTH} helperText={errors.notes || (formData.notes.length > 0 ? `${formData.notes.length}/${VALIDATION.MAX_NOTES_LENGTH}` : undefined)} />
+
+        {areas.length > 0 && (
+          <Autocomplete
+            options={areas}
+            getOptionLabel={(option) => `${option.name}${option.floorNumber !== undefined ? ` (${t('areas.floor')} ${option.floorNumber})` : ''}`}
+            value={areas.find(a => a.id === formData.areaId) || null}
+            onChange={(_, val) => setFormData({ ...formData, areaId: val?.id || '' })}
+            renderInput={(params) => (
+              <MuiTextField {...params} label={t('materials.area')} placeholder={t('materials.selectArea')} InputProps={{ ...params.InputProps, startAdornment: <LocationOnIcon sx={{ fontSize: 18, color: 'text.secondary', mr: 0.5 }} /> }} />
+            )}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
+          />
+        )}
 
         {/* Template specifications */}
         {formMode === 'template' && selectedTemplate && selectedTemplate.required_specifications?.length > 0 && (

@@ -75,6 +75,7 @@ class ProjectMember(Base):
     project_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("projects.id", ondelete="CASCADE"))
     user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"))
     role: Mapped[str] = mapped_column(String(50), nullable=False)
+    department: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     added_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow())
 
     project = relationship("Project", back_populates="members")

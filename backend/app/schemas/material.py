@@ -64,8 +64,10 @@ class MaterialBase(BaseModel):
         return v
 class MaterialCreate(MaterialBase):
     vendor_id: Optional[UUID] = None
+    area_id: Optional[UUID] = None
 class MaterialUpdate(BaseModel):
     vendor_id: Optional[UUID] = None
+    area_id: Optional[UUID] = None
     name: Optional[str] = Field(default=None, min_length=MIN_NAME_LENGTH, max_length=MAX_NAME_LENGTH)
     material_type: Optional[str] = Field(default=None, max_length=100)
     manufacturer: Optional[str] = Field(default=None, max_length=MAX_NAME_LENGTH)
@@ -146,6 +148,7 @@ class MaterialResponse(CamelCaseModel):
     bim_object_id: Optional[str] = None
     bim_model_id: Optional[UUID] = None
     vendor_id: Optional[UUID] = None
+    area_id: Optional[UUID] = None
 
 
 class PaginatedMaterialResponse(BaseModel):

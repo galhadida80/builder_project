@@ -58,8 +58,12 @@ class Equipment(Base):
     vendor_id: Mapped[Optional[uuid.UUID]] = mapped_column(
         UUID(as_uuid=True), ForeignKey("vendors.id", ondelete="SET NULL"), nullable=True
     )
+    area_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("construction_areas.id", ondelete="SET NULL"), nullable=True
+    )
 
     project = relationship("Project", back_populates="equipment")
+    area = relationship("ConstructionArea", foreign_keys=[area_id])
     created_by = relationship("User", foreign_keys=[created_by_id])
     template = relationship("EquipmentTemplate", foreign_keys=[template_id])
     vendor = relationship("Vendor", foreign_keys=[vendor_id])

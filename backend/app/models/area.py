@@ -46,6 +46,8 @@ class ConstructionArea(Base):
     parent = relationship("ConstructionArea", remote_side=[id], backref="children")
     progress_updates = relationship("AreaProgress", back_populates="area", cascade="all, delete-orphan")
     checklist_instances = relationship("ChecklistInstance", back_populates="area")
+    equipment = relationship("Equipment", foreign_keys="Equipment.area_id", viewonly=True)
+    materials = relationship("Material", foreign_keys="Material.area_id", viewonly=True)
 
 
 class AreaProgress(Base):

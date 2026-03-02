@@ -10,6 +10,8 @@ import { Button } from '../components/ui/Button'
 import { SummaryTab, StatsTab, StatCell, TimelineTab, TeamTab } from '../components/overview/ProjectSummaryCards'
 import type { TimelineEvent, TeamStats } from '../components/overview/ProjectSummaryCards'
 import { apiClient } from '../api/client'
+import { projectsApi } from '../api/projects'
+import type { ProjectMember } from '../types'
 import { useToast } from '../components/common/ToastProvider'
 import { getDateLocale } from '../utils/dateLocale'
 import { MapIcon, LocationOnIcon, NavigateNextIcon } from '@/icons'
@@ -61,6 +63,7 @@ export default function ProjectOverviewPage() {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const [loading, setLoading] = useState(true)
   const [overviewData, setOverviewData] = useState<ProjectOverviewData | null>(null)
+  const [members, setMembers] = useState<ProjectMember[]>([])
   const [activeTab, setActiveTab] = useState('summary')
   const dateLocale = getDateLocale()
 
@@ -69,8 +72,12 @@ export default function ProjectOverviewPage() {
       if (!projectId) return
       try {
         setLoading(true)
-        const response = await apiClient.get(`/projects/${projectId}/overview`)
-        setOverviewData(response.data)
+        const [overviewRes, membersRes] = await Promise.allSettled([
+          apiClient.get(`/projects/${projectId}/overview`),
+          projectsApi.listMembers(projectId),
+        ])
+        if (overviewRes.status === 'fulfilled') setOverviewData(overviewRes.value.data)
+        if (membersRes.status === 'fulfilled') setMembers(membersRes.value)
       } catch (error) {
         console.error('Failed to load project overview:', error)
         showError(t('overview.failedToLoad'))
@@ -234,7 +241,7 @@ export default function ProjectOverviewPage() {
         <Box sx={{ mt: 2.5 }}>
           {activeTab === 'summary' && <SummaryTab progress={progress} stats={stats} t={t} />}
           {activeTab === 'timeline' && <TimelineTab timeline={timeline} dateLocale={dateLocale} t={t} />}
-          {activeTab === 'team' && <TeamTab teamStats={teamStats} t={t} />}
+          {activeTab === 'team' && <TeamTab members={members} teamStats={teamStats} t={t} onInvite={() => navigate(`/projects/${projectId}/settings`)} />}
           {activeTab === 'stats' && <StatsTab progress={progress} totalItems={totalItems} completedItems={completedItems} pendingItems={pendingItems} t={t} />}
         </Box>
       </Box>

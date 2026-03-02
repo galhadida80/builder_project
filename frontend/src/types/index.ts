@@ -43,6 +43,7 @@ export interface ProjectMember {
   user: User
   role: UserRole
   addedAt: string
+  department?: string
 }
 
 export interface Project {
@@ -85,6 +86,9 @@ export interface Contact {
   userId?: string
   user?: LinkedUser
   pendingApprovalsCount?: number
+  isProjectMember?: boolean
+  memberRole?: string
+  source?: 'contact' | 'member'
   createdAt: string
 }
 
@@ -131,6 +135,7 @@ export interface Equipment {
   installationDate?: string
   warrantyExpiry?: string
   vendorId?: string
+  areaId?: string
   notes?: string
   bimObjectId?: string
   bimModelId?: string
@@ -175,6 +180,7 @@ export interface Material {
   actualDelivery?: string
   storageLocation?: string
   vendorId?: string
+  areaId?: string
   notes?: string
   bimObjectId?: string
   bimModelId?: string

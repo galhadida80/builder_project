@@ -54,6 +54,7 @@ async def list_materials(
     project_id: UUID,
     status: Optional[str] = Query(None),
     search: Optional[str] = Query(None),
+    area_id: Optional[UUID] = Query(None),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
@@ -64,6 +65,8 @@ async def list_materials(
     base_filter = Material.project_id == project_id
     if status:
         base_filter = and_(base_filter, Material.status == status)
+    if area_id:
+        base_filter = and_(base_filter, Material.area_id == area_id)
     if search:
         escaped = search.replace("%", "\\%").replace("_", "\\_")
         search_filter = f"%{escaped}%"

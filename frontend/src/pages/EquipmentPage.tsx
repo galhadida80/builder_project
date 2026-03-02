@@ -17,8 +17,9 @@ import EquipmentFormModal from '../components/equipment/EquipmentFormModal'
 import ContactSelectorDialog from '../components/ui/ContactSelectorDialog'
 import HelpTooltip from '../components/help/HelpTooltip'
 import { equipmentApi } from '../api/equipment'
+import { areasApi } from '../api/areas'
 import { filesApi } from '../api/files'
-import type { Equipment } from '../types'
+import type { Equipment, ConstructionArea } from '../types'
 import { validateEquipmentForm, hasErrors, type ValidationError } from '../utils/validation'
 import { parseValidationErrors } from '../utils/apiErrors'
 import { useToast } from '../components/common/ToastProvider'
@@ -57,7 +58,7 @@ export default function EquipmentPage() {
   const [submitting, setSubmitting] = useState(false)
   const [errors, setErrors] = useState<ValidationError>({})
   const [activeTab, setActiveTab] = useState('all')
-  const [formData, setFormData] = useState({ name: '', templateId: '', manufacturer: '', modelNumber: '', notes: '', approvalDueDate: '' })
+  const [formData, setFormData] = useState({ name: '', templateId: '', manufacturer: '', modelNumber: '', notes: '', approvalDueDate: '', areaId: '' })
   const [specificationValues, setSpecificationValues] = useState<Record<string, string | number | boolean>>({})
   const [documentFiles, setDocumentFiles] = useState<Record<string, File | null>>({})
   const [checklistResponses, setChecklistResponses] = useState<Record<string, boolean>>({})
@@ -66,6 +67,18 @@ export default function EquipmentPage() {
   const [approvers, setApprovers] = useState<Recipient[]>([])
   const [distributionList, setDistributionList] = useState<Recipient[]>([])
   const [isClosed, setIsClosed] = useState(false)
+  const [flatAreas, setFlatAreas] = useState<ConstructionArea[]>([])
+
+  useEffect(() => {
+    if (projectId) {
+      areasApi.list(projectId).then(tree => {
+        const flat: ConstructionArea[] = []
+        const flatten = (list: ConstructionArea[]) => { list.forEach(a => { flat.push(a); if (a.children?.length) flatten(a.children) }) }
+        flatten(tree)
+        setFlatAreas(flat)
+      }).catch(() => {})
+    }
+  }, [projectId])
 
   const selectedTemplate = useMemo(() => {
     return equipmentTemplates.find(t => t.id === formData.templateId) || null
@@ -95,7 +108,7 @@ export default function EquipmentPage() {
   }
 
   const resetForm = () => {
-    setFormData({ name: '', templateId: '', manufacturer: '', modelNumber: '', notes: '', approvalDueDate: '' })
+    setFormData({ name: '', templateId: '', manufacturer: '', modelNumber: '', notes: '', approvalDueDate: '', areaId: '' })
     setSpecificationValues({}); setDocumentFiles({}); setChecklistResponses({}); setCustomFields([]); setErrors({}); setEditingEquipment(null)
     setApprovers([]); setDistributionList([]); setIsClosed(false)
   }
@@ -113,7 +126,7 @@ export default function EquipmentPage() {
     if (e) e.stopPropagation()
     setEditingEquipment(eq)
     const matchingTemplate = equipmentTemplates.find(t => t.name_he === eq.equipmentType) || equipmentTemplates.find(t => t.name === eq.equipmentType)
-    setFormData({ name: eq.name, templateId: matchingTemplate?.id || '', manufacturer: eq.manufacturer || '', modelNumber: eq.modelNumber || '', notes: eq.notes || '', approvalDueDate: '' })
+    setFormData({ name: eq.name, templateId: matchingTemplate?.id || '', manufacturer: eq.manufacturer || '', modelNumber: eq.modelNumber || '', notes: eq.notes || '', approvalDueDate: '', areaId: eq.areaId || '' })
     setDocumentFiles({}); setChecklistResponses({})
     const existingSpecs = eq.specifications || {}
     const templateSpecKeys = new Set(matchingTemplate?.required_specifications?.map(s => s.name) || [])
@@ -135,7 +148,7 @@ export default function EquipmentPage() {
     try {
       const specs: Record<string, unknown> = { ...specificationValues }
       customFields.forEach(f => { specs[f.key] = f.value })
-      const payload = { name: formData.name, equipment_type: selectedTemplate?.name_he || undefined, manufacturer: formData.manufacturer || undefined, model_number: formData.modelNumber || undefined, specifications: Object.keys(specs).length > 0 ? specs : undefined, notes: formData.notes || undefined }
+      const payload = { name: formData.name, equipment_type: selectedTemplate?.name_he || undefined, manufacturer: formData.manufacturer || undefined, model_number: formData.modelNumber || undefined, specifications: Object.keys(specs).length > 0 ? specs : undefined, notes: formData.notes || undefined, area_id: formData.areaId || undefined }
       let entityId: string
       if (editingEquipment) {
         const updated = await withMinDuration(equipmentApi.update(projectId, editingEquipment.id, payload))
@@ -316,6 +329,7 @@ export default function EquipmentPage() {
         setFormData={setFormData}
         errors={errors}
         templates={equipmentTemplates}
+        areas={flatAreas}
         selectedTemplate={selectedTemplate}
         specificationValues={specificationValues}
         setSpecificationValues={setSpecificationValues}

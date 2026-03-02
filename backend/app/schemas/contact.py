@@ -37,6 +37,8 @@ class ContactBase(BaseModel):
         return validate_phone(v)
 class ContactCreate(ContactBase):
     user_id: Optional[UUID] = None
+    add_as_member: bool = False
+    member_role: Optional[str] = None
 class ContactUpdate(BaseModel):
     contact_type: Optional[str] = Field(default=None, min_length=1, max_length=50)
     company_name: Optional[str] = Field(default=None, max_length=MAX_NAME_LENGTH)
@@ -94,5 +96,8 @@ class ContactResponse(CamelCaseModel):
     user_id: Optional[UUID] = None
     user: Optional[LinkedUserResponse] = None
     pending_approvals_count: int = 0
+    is_project_member: bool = False
+    member_role: Optional[str] = None
+    source: str = "contact"
     created_at: datetime
     updated_at: datetime

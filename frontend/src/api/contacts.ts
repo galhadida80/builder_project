@@ -10,6 +10,8 @@ interface ContactCreate {
   role_description?: string
   is_primary?: boolean
   user_id?: string
+  add_as_member?: boolean
+  member_role?: string
 }
 
 interface ContactUpdate {

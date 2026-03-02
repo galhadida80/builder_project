@@ -20,7 +20,7 @@ import { parseValidationErrors } from '../utils/apiErrors'
 import { withMinDuration } from '../utils/async'
 import { AddIcon, EditIcon, DeleteIcon, PersonIcon, GroupIcon, AssignmentIcon, PhoneIcon, EmailIcon, FileUploadIcon, FileDownloadIcon } from '@/icons'
 import ImportContactsDialog from '../components/contacts/ImportContactsDialog'
-import { Box, Typography, MenuItem, TextField as MuiTextField, Skeleton, Chip, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Autocomplete, Tab as MuiTab, Tabs as MuiTabs, useMediaQuery, useTheme } from '@/mui'
+import { Box, Typography, MenuItem, TextField as MuiTextField, Skeleton, Chip, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Autocomplete, Tab as MuiTab, Tabs as MuiTabs, useMediaQuery, useTheme, Switch, FormControlLabel, Divider, Tooltip } from '@/mui'
 
 export default function ContactsPage() {
   const { t } = useTranslation()
@@ -41,7 +41,7 @@ export default function ContactsPage() {
   const [deleting, setDeleting] = useState(false)
   const [errors, setErrors] = useState<ValidationError>({})
   const [projectUsers, setProjectUsers] = useState<{ id: string; email: string; fullName?: string }[]>([])
-  const [formData, setFormData] = useState({ contactName: '', contactType: '', customType: '', companyName: '', email: '', phone: '', roleDescription: '', userId: '' as string | '' })
+  const [formData, setFormData] = useState({ contactName: '', contactType: '', customType: '', companyName: '', email: '', phone: '', roleDescription: '', userId: '' as string | '', addAsMember: false, memberRole: '' })
   const [mainTab, setMainTab] = useState(0)
   const [groups, setGroups] = useState<ContactGroupListItem[]>([])
   const [groupDialogOpen, setGroupDialogOpen] = useState(false)
@@ -65,6 +65,7 @@ export default function ContactsPage() {
   ]
 
   const filterChipTypes = [
+    { value: 'member', label: t('contacts.projectMembers') },
     { value: 'contractor', label: t('contacts.contractors') },
     { value: 'consultant', label: t('contacts.consultants') },
     { value: 'supplier', label: t('contacts.suppliers') },
@@ -76,7 +77,7 @@ export default function ContactsPage() {
   const loadProjectUsers = async () => { try { const res = await apiClient.get(`/projects/${projectId}/members`); const members = res.data as { user: { id: string; email: string; fullName?: string } }[]; setProjectUsers(members.map(m => m.user)) } catch { /* silent */ } }
   const loadGroups = async () => { try { const data = await contactGroupsApi.list(projectId!); setGroups(data) } catch { /* silent */ } }
 
-  const resetForm = () => { setFormData({ contactName: '', contactType: '', customType: '', companyName: '', email: '', phone: '', roleDescription: '', userId: '' }); setErrors({}); setEditingContact(null) }
+  const resetForm = () => { setFormData({ contactName: '', contactType: '', customType: '', companyName: '', email: '', phone: '', roleDescription: '', userId: '', addAsMember: false, memberRole: '' }); setErrors({}); setEditingContact(null) }
   const handleCloseDialog = () => { setDialogOpen(false); resetForm() }
   const handleOpenCreate = () => { resetForm(); setDialogOpen(true) }
 
@@ -84,7 +85,7 @@ export default function ContactsPage() {
     setEditingContact(contact)
     const knownTypes = contactTypes.map(t => t.value)
     const isKnownType = knownTypes.includes(contact.contactType)
-    setFormData({ contactName: contact.contactName, contactType: isKnownType ? contact.contactType : 'other', customType: isKnownType ? '' : contact.contactType, companyName: contact.companyName || '', email: contact.email || '', phone: contact.phone || '', roleDescription: contact.roleDescription || '', userId: contact.userId || '' })
+    setFormData({ contactName: contact.contactName, contactType: isKnownType ? contact.contactType : 'other', customType: isKnownType ? '' : contact.contactType, companyName: contact.companyName || '', email: contact.email || '', phone: contact.phone || '', roleDescription: contact.roleDescription || '', userId: contact.userId || '', addAsMember: false, memberRole: '' })
     setErrors({}); setDialogOpen(true)
   }
 
@@ -97,7 +98,7 @@ export default function ContactsPage() {
     if (hasErrors(validationErrors)) { triggerShake(t('validation.checkFields')); return }
     setSaving(true)
     try {
-      const payload = { contact_name: formData.contactName, contact_type: resolvedType, company_name: formData.companyName || undefined, email: formData.email, phone: formData.phone || undefined, role_description: formData.roleDescription || undefined, user_id: formData.userId || undefined }
+      const payload = { contact_name: formData.contactName, contact_type: resolvedType, company_name: formData.companyName || undefined, email: formData.email, phone: formData.phone || undefined, role_description: formData.roleDescription || undefined, user_id: formData.userId || undefined, ...((!editingContact && formData.addAsMember) ? { add_as_member: true, member_role: formData.memberRole || undefined } : {}) }
       if (editingContact) { await withMinDuration(contactsApi.update(projectId, editingContact.id, payload)); showSuccess(t('contacts.updateSuccess')) }
       else { await withMinDuration(contactsApi.create(projectId, payload)); showSuccess(t('contacts.createSuccess')) }
       handleCloseDialog(); loadContacts()
@@ -118,12 +119,12 @@ export default function ContactsPage() {
 
   const filteredContacts = contacts.filter(c => {
     const matchesSearch = c.contactName.toLowerCase().includes(search.toLowerCase()) || c.companyName?.toLowerCase().includes(search.toLowerCase()) || c.email?.toLowerCase().includes(search.toLowerCase())
-    const matchesType = filterType === 'all' || c.contactType === filterType
+    const matchesType = filterType === 'all' || (filterType === 'member' ? c.isProjectMember : c.contactType === filterType)
     return matchesSearch && matchesType
   })
 
   const getTypeConfig = (type: string) => contactTypes.find(t => t.value === type) || { label: type, color: '#757575' }
-  const typeCount = (type: string) => contacts.filter(c => c.contactType === type).length
+  const typeCount = (type: string) => type === 'member' ? contacts.filter(c => c.isProjectMember).length : contacts.filter(c => c.contactType === type).length
 
   const handleOpenGroupCreate = () => { setEditingGroup(null); setGroupFormData({ name: '', description: '', contactIds: [] }); setGroupDialogOpen(true) }
   const handleOpenGroupEdit = async (group: ContactGroupListItem) => { try { const full = await contactGroupsApi.get(projectId!, group.id); setEditingGroup(full); setGroupFormData({ name: full.name, description: full.description || '', contactIds: full.contacts.map(c => c.id) }); setGroupDialogOpen(true) } catch { showError(t('contactGroups.failedToLoad')) } }
@@ -198,7 +199,7 @@ export default function ContactsPage() {
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, gap: 1.5, mb: 3 }}>
         <KPICard title={t('contacts.title')} value={contacts.length} icon={<GroupIcon />} color="primary" />
         <KPICard title={t('contacts.types.contractor')} value={typeCount('contractor')} icon={<PersonIcon />} color="info" />
-        <KPICard title={t('contacts.types.consultant')} value={typeCount('consultant')} icon={<PersonIcon />} color="warning" />
+        <KPICard title={t('contacts.projectMembers')} value={contacts.filter(c => c.isProjectMember).length} icon={<GroupIcon />} color="success" />
       </Box>
 
       <MuiTabs value={mainTab} onChange={(_, v) => setMainTab(v)} sx={{ mb: 2 }}>
@@ -245,7 +246,7 @@ export default function ContactsPage() {
                           '&:active': { bgcolor: 'action.selected' },
                         }}
                       >
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flex: 1, minWidth: 0, cursor: 'pointer', '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main', outlineOffset: 2 } }} onClick={() => handleOpenEdit(contact)} role="button" tabIndex={0} onKeyDown={(e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleOpenEdit(contact) } }} aria-label={`${t('accessibility.editContact')}: ${contact.contactName}`}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flex: 1, minWidth: 0, cursor: contact.source === 'member' ? 'default' : 'pointer', '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main', outlineOffset: 2 } }} onClick={() => { if (contact.source !== 'member') handleOpenEdit(contact) }} role="button" tabIndex={0} onKeyDown={(e: React.KeyboardEvent) => { if ((e.key === 'Enter' || e.key === ' ') && contact.source !== 'member') { e.preventDefault(); handleOpenEdit(contact) } }} aria-label={`${t('accessibility.editContact')}: ${contact.contactName}`}>
                           <Box sx={{ position: 'relative', flexShrink: 0 }}>
                             <Avatar name={contact.contactName} size="xlarge" />
                             <Box sx={{
@@ -259,6 +260,7 @@ export default function ContactsPage() {
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                               <Typography variant="body1" fontWeight={700} noWrap sx={{ fontSize: '0.95rem' }}>{contact.contactName}</Typography>
                               {contact.isPrimary && <Chip label={t('contacts.primary')} size="small" color="warning" sx={{ height: 18, fontSize: '0.6rem' }} />}
+                              {contact.isProjectMember && <Chip label={t('contacts.memberBadge')} size="small" color="info" sx={{ height: 18, fontSize: '0.6rem' }} />}
                             </Box>
                             <Typography variant="body2" color="text.secondary" noWrap sx={{ fontSize: '0.8rem', mt: 0.25 }}>
                               {[contact.companyName, contact.roleDescription].filter(Boolean).join(' \u00b7 ')}
@@ -319,11 +321,17 @@ export default function ContactsPage() {
                     {filteredContacts.map((contact) => {
                       const typeConfig = getTypeConfig(contact.contactType)
                       return (
-                        <TableRow key={contact.id} hover onClick={() => handleOpenEdit(contact)} sx={{ cursor: 'pointer', '&:last-child td': { borderBottom: 0 } }}>
+                        <TableRow key={contact.id} hover onClick={() => { if (contact.source !== 'member') handleOpenEdit(contact) }} sx={{ cursor: contact.source === 'member' ? 'default' : 'pointer', '&:last-child td': { borderBottom: 0 } }}>
                           <TableCell>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                               <Avatar name={contact.contactName} size="small" />
-                              <Box><Typography variant="body2" fontWeight={600}>{contact.contactName}</Typography>{contact.isPrimary && <Chip label={t('contacts.primary')} size="small" color="warning" sx={{ height: 18, fontSize: '0.65rem', mt: 0.25 }} />}</Box>
+                              <Box>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                  <Typography variant="body2" fontWeight={600}>{contact.contactName}</Typography>
+                                  {contact.isProjectMember && <Chip label={t('contacts.memberBadge')} size="small" color="info" sx={{ height: 18, fontSize: '0.65rem' }} />}
+                                </Box>
+                                {contact.isPrimary && <Chip label={t('contacts.primary')} size="small" color="warning" sx={{ height: 18, fontSize: '0.65rem', mt: 0.25 }} />}
+                              </Box>
                             </Box>
                           </TableCell>
                           <TableCell><Chip label={typeConfig.label} size="small" sx={{ bgcolor: `${typeConfig.color}15`, color: typeConfig.color, fontWeight: 500, fontSize: '0.75rem' }} /></TableCell>
@@ -333,10 +341,14 @@ export default function ContactsPage() {
                           <TableCell><Typography variant="body2" color="text.secondary">{contact.phone || '\u2014'}</Typography></TableCell>
                           <TableCell align="center">{(contact.pendingApprovalsCount ?? 0) > 0 ? <Chip label={contact.pendingApprovalsCount} size="small" color="warning" icon={<AssignmentIcon sx={{ fontSize: 14 }} />} /> : <Typography variant="body2" color="text.disabled">0</Typography>}</TableCell>
                           <TableCell align="center" onClick={(e) => e.stopPropagation()}>
-                            <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center' }}>
-                              <IconButton aria-label={t('common.edit')} size="small" onClick={() => handleOpenEdit(contact)}><EditIcon fontSize="small" /></IconButton>
-                              <IconButton aria-label={t('common.delete')} size="small" onClick={() => handleDeleteClick(contact)} color="error"><DeleteIcon fontSize="small" /></IconButton>
-                            </Box>
+                            {contact.source === 'member' ? (
+                              <Tooltip title={t('contacts.memberReadOnly')}><Typography variant="caption" color="text.disabled">—</Typography></Tooltip>
+                            ) : (
+                              <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center' }}>
+                                <IconButton aria-label={t('common.edit')} size="small" onClick={() => handleOpenEdit(contact)}><EditIcon fontSize="small" /></IconButton>
+                                <IconButton aria-label={t('common.delete')} size="small" onClick={() => handleDeleteClick(contact)} color="error"><DeleteIcon fontSize="small" /></IconButton>
+                              </Box>
+                            )}
                           </TableCell>
                         </TableRow>
                       )
@@ -409,6 +421,24 @@ export default function ContactsPage() {
           </Box>
           <TextField fullWidth label={t('contacts.roleDescription')} multiline rows={2} value={formData.roleDescription} onChange={(e) => setFormData({ ...formData, roleDescription: e.target.value })} />
           <Autocomplete options={projectUsers} getOptionLabel={(opt) => opt.fullName ? `${opt.fullName} (${opt.email})` : opt.email} value={projectUsers.find(u => u.id === formData.userId) || null} onChange={(_, val) => setFormData({ ...formData, userId: val?.id || '' })} renderInput={(params) => <MuiTextField {...params} label={t('contacts.linkedUser')} helperText={t('contacts.linkedUserHint')} size="small" />} size="small" isOptionEqualToValue={(opt, val) => opt.id === val.id} />
+          {!editingContact && (
+            <>
+              <Divider />
+              <FormControlLabel
+                control={<Switch checked={formData.addAsMember} onChange={(e) => setFormData({ ...formData, addAsMember: e.target.checked })} />}
+                label={t('contacts.addAsMember')}
+              />
+              {formData.addAsMember && (
+                <MuiTextField fullWidth select label={t('contacts.memberRole')} value={formData.memberRole} onChange={(e) => setFormData({ ...formData, memberRole: e.target.value })} size="small">
+                  <MenuItem value="project_admin">{t('roles.project_admin')}</MenuItem>
+                  <MenuItem value="contractor">{t('roles.contractor')}</MenuItem>
+                  <MenuItem value="consultant">{t('roles.consultant')}</MenuItem>
+                  <MenuItem value="supervisor">{t('roles.supervisor')}</MenuItem>
+                  <MenuItem value="inspector">{t('roles.inspector')}</MenuItem>
+                </MuiTextField>
+              )}
+            </>
+          )}
         </Box>
       </FormModal>
 
