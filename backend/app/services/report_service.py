@@ -6,9 +6,10 @@ from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.equipment_submission import EquipmentSubmission
+from app.models.approval import ApprovalRequest
+from app.models.equipment import Equipment
 from app.models.inspection import Inspection, Finding
-from app.models.material_template import MaterialApprovalSubmission
+from app.models.material import Material
 from app.models.rfi import RFI
 from app.models.time_entry import TimeEntry
 from app.utils import utcnow
@@ -51,12 +52,23 @@ async def generate_inspection_summary(
     for f in findings_list:
         severity_counts[f["severity"]] = severity_counts.get(f["severity"], 0) + 1
 
+    inspection_items = []
+    for insp in inspections:
+        inspection_items.append({
+            "id": str(insp.id),
+            "status": insp.status,
+            "scheduled_date": insp.scheduled_date.isoformat() if insp.scheduled_date else None,
+            "notes": insp.notes or "",
+            "findings_count": sum(1 for f in findings_list if str(insp.id) in str(f.get("id", ""))),
+        })
+
     return {
         "total_inspections": len(inspections),
         "status_breakdown": status_counts,
         "total_findings": len(findings_list),
         "severity_breakdown": severity_counts,
         "findings": findings_list,
+        "inspections": inspection_items,
         "date_from": date_from.isoformat(),
         "date_to": date_to.isoformat(),
     }
@@ -65,57 +77,63 @@ async def generate_inspection_summary(
 async def generate_approval_report(
     db: AsyncSession, project_id: UUID, date_from: datetime, date_to: datetime
 ) -> dict:
-    eq_result = await db.execute(
-        select(EquipmentSubmission).where(
-            EquipmentSubmission.project_id == project_id,
-            EquipmentSubmission.created_at >= date_from,
-            EquipmentSubmission.created_at <= date_to,
+    result = await db.execute(
+        select(ApprovalRequest).where(
+            ApprovalRequest.project_id == project_id,
+            ApprovalRequest.created_at >= date_from,
+            ApprovalRequest.created_at <= date_to,
         )
     )
-    equipment_submissions = eq_result.scalars().all()
-
-    mat_result = await db.execute(
-        select(MaterialApprovalSubmission).where(
-            MaterialApprovalSubmission.project_id == project_id,
-            MaterialApprovalSubmission.created_at >= date_from,
-            MaterialApprovalSubmission.created_at <= date_to,
-        )
-    )
-    material_submissions = mat_result.scalars().all()
+    approvals = result.scalars().all()
 
     eq_status = {}
-    for sub in equipment_submissions:
-        eq_status[sub.status] = eq_status.get(sub.status, 0) + 1
-
     mat_status = {}
-    for sub in material_submissions:
-        mat_status[sub.status] = mat_status.get(sub.status, 0) + 1
-
     eq_items = []
-    for sub in equipment_submissions:
-        eq_items.append({
-            "id": str(sub.id),
-            "name": sub.name,
-            "status": sub.status,
-            "created_at": sub.created_at.isoformat() if sub.created_at else None,
-            "updated_at": sub.updated_at.isoformat() if sub.updated_at else None,
-        })
-
     mat_items = []
-    for sub in material_submissions:
-        mat_items.append({
-            "id": str(sub.id),
-            "name": sub.name,
-            "status": sub.status,
-            "created_at": sub.created_at.isoformat() if sub.created_at else None,
-            "updated_at": sub.updated_at.isoformat() if sub.updated_at else None,
-        })
+
+    entity_ids_eq = [a.entity_id for a in approvals if a.entity_type == "equipment"]
+    entity_ids_mat = [a.entity_id for a in approvals if a.entity_type == "material"]
+
+    eq_map = {}
+    if entity_ids_eq:
+        eq_result = await db.execute(select(Equipment).where(Equipment.id.in_(entity_ids_eq)))
+        eq_map = {e.id: e for e in eq_result.scalars().all()}
+
+    mat_map = {}
+    if entity_ids_mat:
+        mat_result = await db.execute(select(Material).where(Material.id.in_(entity_ids_mat)))
+        mat_map = {m.id: m for m in mat_result.scalars().all()}
+
+    for appr in approvals:
+        status = appr.current_status
+        if appr.entity_type == "equipment":
+            eq_status[status] = eq_status.get(status, 0) + 1
+            entity = eq_map.get(appr.entity_id)
+            eq_items.append({
+                "id": str(appr.id),
+                "entity_type": "equipment",
+                "name": entity.name if entity else "Unknown",
+                "status": status,
+                "created_at": appr.created_at.isoformat() if appr.created_at else None,
+                "updated_at": appr.updated_at.isoformat() if appr.updated_at else None,
+            })
+        elif appr.entity_type == "material":
+            mat_status[status] = mat_status.get(status, 0) + 1
+            entity = mat_map.get(appr.entity_id)
+            mat_items.append({
+                "id": str(appr.id),
+                "entity_type": "material",
+                "name": entity.name if entity else "Unknown",
+                "status": status,
+                "created_at": appr.created_at.isoformat() if appr.created_at else None,
+                "updated_at": appr.updated_at.isoformat() if appr.updated_at else None,
+            })
 
     return {
-        "total_equipment_submissions": len(equipment_submissions),
+        "total_equipment_submissions": len(eq_items),
         "equipment_status_breakdown": eq_status,
         "equipment_items": eq_items,
-        "total_material_submissions": len(material_submissions),
+        "total_material_submissions": len(mat_items),
         "material_status_breakdown": mat_status,
         "material_items": mat_items,
         "date_from": date_from.isoformat(),

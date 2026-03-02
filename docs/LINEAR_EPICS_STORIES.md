@@ -819,6 +819,7 @@ As a user, I want feedback on my interactions so that the app feels responsive.
 **Priority:** P0 - Critical
 **Estimate:** 46 points
 **Linear Epic:** BUI-93
+**Design:** Stitch project `1875263988375601203` — see `docs/epics/epic-11-rfi/designs/DESIGNS.md`
 
 ### Architecture Overview
 ```
@@ -1041,6 +1042,7 @@ As a developer, I need integration tests for the RFI system.
 **Priority:** P1 - High
 **Estimate:** 18 points
 **Status:** Complete (except WhatsApp Phase 2)
+**Design:** Stitch project `1875263988375601203` — see `docs/epics/epic-12-ai-chat/designs/DESIGNS.md`
 
 ### User Stories:
 
@@ -1144,6 +1146,7 @@ As a field user, I want to chat with project data via WhatsApp.
 **Priority:** P2 - Medium
 **Estimate:** 10 points
 **Status:** Complete
+**Design:** Stitch project `1875263988375601203` — see `docs/epics/epic-13-daily-summary/designs/DESIGNS.md`
 
 ### User Stories:
 
@@ -1241,6 +1244,7 @@ As a DevOps engineer, I need to create the Cloud Scheduler job to trigger daily 
 **Priority:** P1 - High
 **Estimate:** 44 points
 **Status:** In Progress (9/11 stories done — ACC RFI Sync remaining). US-14.7, US-14.8 fuzzy matching completed. US-14.9 template match UI completed. Migration 051 adds template_id FK to equipment/materials tables.
+**Design:** Stitch project `1875263988375601203` — see `docs/epics/epic-14-bim-integration/designs/DESIGNS.md`
 
 ### Architecture Overview
 ```
@@ -1439,9 +1443,10 @@ As a user, I want to pull RFIs from ACC into BuilderOps so all project communica
 ---
 
 ## EPIC 15: BI Dashboard & Reporting COMPLETED
-**Description:** Add visual charts and analytics to the main project dashboard so managers get at-a-glance project health via donut charts, bar charts, line trends, and a progress gauge.
+**Description:** Add visual charts and analytics to the main project dashboard so managers get at-a-glance project health via donut charts, bar charts, line trends, and a progress gauge. Includes time period filter (week/month/quarter/year) and custom KPI trend sparklines.
 **Priority:** P1 - High
 **Estimate:** 8 points
+**Design:** Stitch project `1875263988375601203` — see `docs/epics/epic-15-bi-dashboard/designs/DESIGNS.md`
 
 ### User Stories:
 
@@ -1479,6 +1484,44 @@ As a project manager, I want to see visual charts on the dashboard including act
 **Estimate:** 3 points
 **Labels:** frontend, dashboard, charts
 
+#### US-15.3.1: Dashboard Time Period Filter
+**Title:** Add Period Selector to Dashboard
+**Description:**
+As a project manager, I want to filter dashboard data by time period (week/month/quarter/year) so I can focus on relevant timeframes.
+
+**Acceptance Criteria:**
+- [x] FilterChips component with period options below greeting
+- [x] Date range computed from selected period
+- [x] Passed to dashboardStatsApi.getStats() and analyticsApi calls
+**Estimate:** 1 point
+**Labels:** frontend, dashboard
+
+#### US-15.3.2: KPI Trend Sparklines
+**Title:** Add Mini Trend Charts Below KPI Cards
+**Description:**
+As a user, I want to see small trend charts below each KPI card showing recent data trends.
+
+**Acceptance Criteria:**
+- [x] LineChart (MUI X Charts) sparkline below each KPI card
+- [x] Uses kv.trend data (snapshotDate, value)
+- [x] 60px height, no axis labels, matches KPI color
+- [x] Only shown when trend has 2+ data points
+**Estimate:** 1 point
+**Labels:** frontend, dashboard, charts
+
+#### US-15.3.3: Inspector Dashboard Real KPI Data
+**Title:** Compute Inspector KPIs from Actual Data
+**Description:**
+As an inspector, I want to see real KPI values (not hardcoded) on my dashboard.
+
+**Acceptance Criteria:**
+- [x] Completed count from inspections with status=completed
+- [x] Pending count from status=in_progress or pending
+- [x] Scheduled count from status=scheduled (future date)
+- [x] Compliance rate: completed / total percentage
+**Estimate:** 1 point
+**Labels:** frontend, dashboard, inspector
+
 #### US-15.3: i18n for Dashboard Charts
 **Title:** Add Translations for Dashboard Chart Labels
 **Description:**
@@ -1498,6 +1541,7 @@ As a user, I want dashboard chart titles and labels translated in English, Hebre
 **Priority:** P0 - Critical
 **Estimate:** 15 points
 **Status:** Done
+**Design:** Stitch project `1875263988375601203` — see `docs/epics/epic-16-defects/designs/DESIGNS.md`
 
 ### User Stories:
 
@@ -1547,11 +1591,12 @@ As a user, I want to view, create, and manage defects with a KPI dashboard and p
 ---
 
 ## EPIC 17: Task Management COMPLETED
-**Description:** Project task management with dependencies, priority tracking, time estimation, bulk operations, and assignee workflows. Supports finish-to-start and other dependency types.
+**Description:** Project task management with dependencies, priority tracking, time estimation, bulk operations, and assignee workflows. Supports finish-to-start and other dependency types. Includes Gantt timeline view with task bars, dependency arrows, and meeting integration.
 **Priority:** P1 - High
 **Estimate:** 10 points
 **Status:** Done
-**Note:** Tasks page now unified with Approvals (Epic 4) into single "Tasks & Approvals" page at `/projects/:id/tasks`. SegmentedTabs toggle between Tasks and Approvals sections. Combined KPI row shows task totals, pending approvals, overdue, and today counts.
+**Note:** Tasks page now unified with Approvals (Epic 4) into single "Tasks & Approvals" page at `/projects/:id/tasks`. SegmentedTabs toggle between Tasks and Approvals sections. Combined KPI row shows task totals, pending approvals, overdue, and today counts. Timeline button navigates to GanttTimelinePage which shows both meetings and tasks with source filter tabs.
+**Design:** Stitch project `1875263988375601203` — see `docs/epics/epic-17-tasks/designs/DESIGNS.md`
 
 ### User Stories:
 
@@ -1601,6 +1646,7 @@ As a user, I want to manage project tasks with a KPI dashboard and multiple view
 **Priority:** P1 - High
 **Estimate:** 12 points
 **Status:** Done
+**Design:** Stitch project `1875263988375601203` — see `docs/epics/epic-18-budget/designs/DESIGNS.md`
 
 ### User Stories:
 
@@ -1650,6 +1696,7 @@ As a project manager, I want to track budget, costs, and change orders in one pa
 **Priority:** P2 - Medium
 **Estimate:** 8 points
 **Status:** Done
+**Design:** Stitch project `1875263988375601203` — see `docs/epics/epic-19-organizations/designs/DESIGNS.md`
 
 ### User Stories:
 
@@ -1696,6 +1743,7 @@ As an admin, I want to manage organizations and their members.
 **Priority:** P1 - High
 **Estimate:** 8 points
 **Status:** Done
+**Design:** Stitch project `1875263988375601203` — see `docs/epics/epic-20-meetings/designs/DESIGNS.md`
 
 ### User Stories:
 
@@ -1741,10 +1789,11 @@ As an attendee, I want to respond to meeting invitations via a public link.
 ---
 
 ## EPIC 21: Reports & Compliance COMPLETED
-**Description:** Project-level reporting with inspection summaries, approval status, RFI aging analysis, and compliance audit trails. Supports date-range filtering and CSV export.
+**Description:** Project-level reporting with inspection summaries, approval status, RFI aging analysis, and compliance audit trails. Supports date-range filtering and CSV export. Report type selector uses visual card grid (2x3) with color-coded icons for 6 report types.
 **Priority:** P1 - High
 **Estimate:** 6 points
 **Status:** Done
+**Design:** Stitch project `1875263988375601203` — see `docs/epics/epic-21-reports/designs/DESIGNS.md`
 
 ### User Stories:
 
@@ -1779,10 +1828,11 @@ As a project manager, I want to view and export project reports.
 ---
 
 ## EPIC 22: Contact Groups & Discussions COMPLETED
-**Description:** Group contacts for bulk operations and threaded discussions on any entity with real-time WebSocket updates.
+**Description:** Group contacts for bulk operations and threaded discussions on any entity with real-time WebSocket updates. Discussion cards show entity type colored badges (equipment, material, RFI, inspection, defect, meeting, task, area).
 **Priority:** P2 - Medium
 **Estimate:** 6 points
 **Status:** Done
+**Design:** Stitch project `1875263988375601203` — see `docs/epics/epic-22-contact-groups/designs/DESIGNS.md`
 
 ### User Stories:
 
@@ -1819,6 +1869,7 @@ As a user, I want to comment on any entity with threaded replies and real-time u
 **Priority:** P2 - Medium
 **Estimate:** 5 points
 **Status:** Done
+**Design:** Stitch project `1875263988375601203` — see `docs/epics/epic-23-security/designs/DESIGNS.md`
 
 ### User Stories:
 
@@ -1855,6 +1906,7 @@ As a user, I want to reset my password via email link.
 **Priority:** P2 - Medium
 **Estimate:** 3 points
 **Status:** Done
+**Design:** Stitch project `1875263988375601203` — see `docs/epics/epic-24-quantity-extraction/designs/DESIGNS.md`
 
 ### User Stories:
 
@@ -1878,6 +1930,7 @@ As a user, I want to upload PDFs and extract room/floor quantities using AI.
 **Priority:** P1 - High
 **Estimate:** 18 points
 **Status:** Done
+**Design:** Stitch project `1875263988375601203` — see `docs/epics/epic-25-project-structure/designs/DESIGNS.md`
 
 ### User Stories:
 
@@ -1957,6 +2010,7 @@ As a user, I want to link checklist instances to specific areas when creating th
 **Priority:** P1 - High
 **Estimate:** 5 points
 **Status:** Done
+**Design:** Stitch project `1875263988375601203` — see `docs/epics/epic-26-contact-import/designs/DESIGNS.md`
 
 ### User Stories:
 
@@ -1995,6 +2049,7 @@ As a developer, I need a JSON endpoint to import multiple contacts at once for i
 **Priority:** P1 - High
 **Estimate:** 5 points
 **Status:** Done
+**Design:** Stitch project `1875263988375601203` — see `docs/epics/epic-27-form-validation/designs/DESIGNS.md`
 
 ### User Stories:
 
@@ -2040,7 +2095,7 @@ As a developer, I need a JSON endpoint to import multiple contacts at once for i
 | 12. AI Chat with Project Data | 7 | 26 | COMPLETED (Phase 1) |
 | 13. Daily Work Summary Email | 6 | 11 | COMPLETED |
 | 14. Autodesk Revit/BIM Integration | 11 | 47 | In Progress (9/11) |
-| 15. BI Dashboard & Reporting | 3 | 8 | COMPLETED |
+| 15. BI Dashboard & Reporting | 6 | 11 | COMPLETED |
 | 16. Defect Tracking & AI Analysis | 3 | 15 | COMPLETED |
 | 17. Task Management | 3 | 10 | COMPLETED |
 | 18. Budget & Cost Tracking | 3 | 12 | COMPLETED |
@@ -2053,7 +2108,7 @@ As a developer, I need a JSON endpoint to import multiple contacts at once for i
 | 25. Project Structure & Checklist Integration | 5 | 18 | COMPLETED |
 | 26. Contact Import | 2 | 5 | COMPLETED |
 | 27. Form Validation UX & Signature Stamp | 3 | 5 | COMPLETED |
-| **TOTAL** | **116 stories** | **363 points** | |
+| **TOTAL** | **119 stories** | **366 points** | |
 
 ---
 
@@ -2076,6 +2131,7 @@ As a developer, I need a JSON endpoint to import multiple contacts at once for i
 | Sprint 13 | Epic 22 (Groups/Discussions) + Epic 23 (Security) + Epic 24 (Qty Extract) | Done |
 | Sprint 14 | Epic 25 (Project Structure & Checklist Integration) | Done |
 | Sprint 15 | Epic 26 (Contact Import) + Epic 27 (Form Validation UX & Signature Stamp) | Done |
+| Sprint 16 | Design gap fixes: Dashboard period filter, KPI trend sparklines, Gantt tasks integration, Reports card grid, Discussion entity badges, Inspector real KPIs. Stitch designs for all 17 epics (11-27). Meeting attendee autocomplete bug fix. | Done |
 
 ---
 

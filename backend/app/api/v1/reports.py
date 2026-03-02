@@ -159,7 +159,8 @@ async def export_report(
         if not date_from or not date_to:
             raise HTTPException(status_code=400, detail="date_from and date_to are required")
         report = await generate_inspection_summary(db, project_id, date_from, date_to)
-        csv_data = generate_csv_export(report.get("findings", []))
+        findings = report.get("findings", [])
+        csv_data = generate_csv_export(findings if findings else report.get("inspections", []))
     elif report_type == "approval-status":
         if not date_from or not date_to:
             raise HTTPException(status_code=400, detail="date_from and date_to are required")
