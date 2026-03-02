@@ -82,7 +82,8 @@ async def get_project_rfis(
             responded_at=rfi.responded_at,
             response_count=response_counts.get(rfi.id, 0),
             related_equipment_id=rfi.related_equipment_id,
-            related_material_id=rfi.related_material_id
+            related_material_id=rfi.related_material_id,
+            related_area_id=rfi.related_area_id
         ))
 
     total_pages = (total + page_size - 1) // page_size
@@ -122,7 +123,8 @@ async def create_rfi(
         attachments=rfi_data.attachments,
         assigned_to_id=rfi_data.assigned_to_id,
         related_equipment_id=rfi_data.related_equipment_id,
-        related_material_id=rfi_data.related_material_id
+        related_material_id=rfi_data.related_material_id,
+        related_area_id=rfi_data.related_area_id
     )
     return await service.get_rfi(rfi.id)
 

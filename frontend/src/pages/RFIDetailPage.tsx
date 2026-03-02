@@ -17,6 +17,9 @@ import {
   LockIcon,
   FileDownloadIcon,
   ScheduleIcon,
+  LocationOnIcon,
+  BuildIcon,
+  InventoryIcon,
 } from '@/icons'
 import { BackArrowIcon } from '@/components/ui/BackArrowIcon'
 import {
@@ -255,6 +258,41 @@ export default function RFIDetailPage() {
             )}
           </Box>
         </Card>
+
+        {/* References */}
+        {(rfi.relatedArea || rfi.relatedEquipment || rfi.relatedMaterial || rfi.location || rfi.drawingReference || rfi.specificationReference) && (
+          <Card sx={{ mb: 2 }}>
+            <Box sx={{ p: 2 }}>
+              <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1.5 }}>{t('rfis.references')}</Typography>
+              {(rfi.relatedArea || rfi.relatedEquipment || rfi.relatedMaterial) && (
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: (rfi.location || rfi.drawingReference || rfi.specificationReference) ? 2 : 0 }}>
+                  {rfi.relatedArea && (
+                    <Chip icon={<LocationOnIcon />} label={`${rfi.relatedArea.name}${rfi.relatedArea.areaCode ? ` (${rfi.relatedArea.areaCode})` : ''}`} color="primary" variant="outlined" size="small" />
+                  )}
+                  {rfi.relatedEquipment && (
+                    <Chip icon={<BuildIcon />} label={rfi.relatedEquipment.name} color="info" variant="outlined" size="small" />
+                  )}
+                  {rfi.relatedMaterial && (
+                    <Chip icon={<InventoryIcon />} label={rfi.relatedMaterial.name} color="warning" variant="outlined" size="small" />
+                  )}
+                </Box>
+              )}
+              {(rfi.location || rfi.drawingReference || rfi.specificationReference) && (
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                  {rfi.location && (
+                    <Typography variant="body2" color="text.secondary">{t('rfis.location')}: {rfi.location}</Typography>
+                  )}
+                  {rfi.drawingReference && (
+                    <Typography variant="body2" color="text.secondary">{t('rfis.drawingReference')}: {rfi.drawingReference}</Typography>
+                  )}
+                  {rfi.specificationReference && (
+                    <Typography variant="body2" color="text.secondary">{t('rfis.specificationReference')}: {rfi.specificationReference}</Typography>
+                  )}
+                </Box>
+              )}
+            </Box>
+          </Card>
+        )}
 
         {/* Response cards */}
         {rfi.responses && rfi.responses.length > 0 && (

@@ -441,7 +441,9 @@
     "fromTemplateDesc": "בחר מתבנית מוכנה עם מפרטים ומסמכים נדרשים",
     "fromScratch": "הזנה ידנית",
     "fromScratchDesc": "הגדר ציוד חדש עם מאפיינים מותאמים אישית",
-    "switchMode": "שנה אופן הוספה"
+    "switchMode": "שנה אופן הוספה",
+    "area": "אזור בנייה",
+    "selectArea": "בחר אזור בנייה"
   },
   "marketplace": {
     "title": "שוק התבניות",
@@ -632,7 +634,9 @@
     "fromTemplateDesc": "בחר מתבנית מוכנה עם מפרטים ומסמכים נדרשים",
     "fromScratch": "הזנה ידנית",
     "fromScratchDesc": "הגדר חומר חדש עם מאפיינים מותאמים אישית",
-    "switchMode": "שנה אופן הוספה"
+    "switchMode": "שנה אופן הוספה",
+    "area": "אזור בנייה",
+    "selectArea": "בחר אזור בנייה"
   },
   "permits": {
     "title": "היתרי בנייה",
@@ -1635,7 +1639,11 @@
     "allFloors": "כל הקומות",
     "unitsInManagement": "אזורים בניהול",
     "floorProgress": "התקדמות קומה",
-    "uploadFloorplan": "העלה תוכנית קומה"
+    "uploadFloorplan": "העלה תוכנית קומה",
+    "linkedEquipment": "ציוד מקושר",
+    "linkedMaterials": "חומרים מקושרים",
+    "noLinkedEquipment": "אין ציוד מקושר לאזור זה",
+    "noLinkedMaterials": "אין חומרים מקושרים לאזור זה"
   },
   "settings": {
     "title": "הגדרות",
@@ -1842,6 +1850,13 @@
     "linkedUser": "משתמש מקושר",
     "linkedUserHint": "קשר איש קשר זה למשתמש במערכת לאכיפת אישורים",
     "pendingApprovals": "אישורים ממתינים",
+    "projectMembers": "חברי צוות",
+    "addAsMember": "הוסף כחבר פרויקט",
+    "memberRole": "תפקיד בפרויקט",
+    "memberBadge": "חבר צוות",
+    "memberReadOnly": "חבר צוות - ניתן לעריכה דרך ניהול צוות",
+    "invitationSent": "הזמנה נשלחה ל-{{email}}",
+    "memberAdded": "{{name}} נוסף כחבר פרויקט",
     "import": {
       "button": "ייבוא",
       "title": "ייבוא אנשי קשר",
@@ -1918,6 +1933,12 @@
     "createRfi": "צור בקשה",
     "toEmail": "דוא\"ל הנמען",
     "toName": "שם הנמען",
+    "projectReferences": "הפניות לפרויקט",
+    "references": "הפניות",
+    "relatedArea": "אזור קשור",
+    "relatedEquipment": "ציוד קשור",
+    "relatedMaterial": "חומר קשור",
+    "textReferences": "הפניות טקסט",
     "optionalReferences": "הפניות (אופציונלי)",
     "drawingReference": "הפניה לשרטוט",
     "specificationReference": "הפניה למפרט",
@@ -2617,6 +2638,13 @@
       "timeline": "ציר זמן",
       "team": "צוות",
       "statistics": "סטטיסטיקות"
+    },
+    "team": {
+      "inviteMember": "הזמן חבר צוות",
+      "noDepartment": "ללא מחלקה",
+      "memberSince": "חבר מאז",
+      "noMembers": "אין חברי צוות בפרויקט",
+      "noMembersDescription": "הזמן חברי צוות לפרויקט כדי להתחיל לשתף פעולה"
     }
   },
   "teamCard": {
@@ -4746,5 +4774,14 @@
     "gpsTimeout": "זמן בקשת GPS פג",
     "gpsUnavailable": "שירות GPS לא זמין",
     "gpsPermissionRequired": "נדרשת הרשאת GPS"
+  },
+  "departments": {
+    "management": "הנהלה",
+    "construction": "בנייה",
+    "mep": "מערכות מכניות",
+    "safety": "בטיחות",
+    "design": "עיצוב",
+    "finance": "כספים",
+    "other": "אחר"
   }
 }

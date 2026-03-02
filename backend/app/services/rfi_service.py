@@ -72,7 +72,8 @@ class RFIService:
         attachments: Optional[list[dict]] = None,
         assigned_to_id: Optional[uuid.UUID] = None,
         related_equipment_id: Optional[uuid.UUID] = None,
-        related_material_id: Optional[uuid.UUID] = None
+        related_material_id: Optional[uuid.UUID] = None,
+        related_area_id: Optional[uuid.UUID] = None
     ) -> RFI:
         rfi_number = await self.generate_rfi_number()
         rfi = RFI(
@@ -86,6 +87,7 @@ class RFIService:
             assigned_to_id=assigned_to_id,
             related_equipment_id=related_equipment_id,
             related_material_id=related_material_id,
+            related_area_id=related_area_id,
             to_email=to_email.lower(),
             to_name=to_name,
             cc_emails=cc_emails or [],
@@ -386,7 +388,10 @@ class RFIService:
             .options(
                 selectinload(RFI.responses).selectinload(RFIResponse.responder),
                 selectinload(RFI.created_by),
-                selectinload(RFI.assigned_to)
+                selectinload(RFI.assigned_to),
+                selectinload(RFI.related_equipment),
+                selectinload(RFI.related_material),
+                selectinload(RFI.related_area),
             )
             .where(RFI.id == rfi_id)
         )

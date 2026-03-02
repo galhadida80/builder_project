@@ -13,6 +13,7 @@ from app.db.session import Base
 from app.utils import utcnow
 
 if TYPE_CHECKING:
+    from app.models.area import ConstructionArea
     from app.models.equipment import Equipment
     from app.models.material import Material
     from app.models.project import Project
@@ -88,6 +89,9 @@ class RFI(Base):
     related_material_id: Mapped[Optional[uuid.UUID]] = mapped_column(
         UUID(as_uuid=True), ForeignKey("materials.id", ondelete="SET NULL")
     )
+    related_area_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("construction_areas.id", ondelete="SET NULL"), nullable=True
+    )
 
     to_email: Mapped[str] = mapped_column(String(255), nullable=False)
     to_name: Mapped[Optional[str]] = mapped_column(String(255))
@@ -128,6 +132,9 @@ class RFI(Base):
     )
     related_material: Mapped[Optional["Material"]] = relationship(
         "Material", foreign_keys=[related_material_id]
+    )
+    related_area: Mapped[Optional["ConstructionArea"]] = relationship(
+        "ConstructionArea", foreign_keys=[related_area_id]
     )
     responses: Mapped[list["RFIResponse"]] = relationship(
         "RFIResponse",

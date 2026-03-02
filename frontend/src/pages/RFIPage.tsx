@@ -14,7 +14,10 @@ import { EmptyState } from '../components/ui/EmptyState'
 import { rfiApi, RFI_PRIORITY_OPTIONS, RFI_CATEGORY_OPTIONS } from '../api/rfi'
 import type { RFIListItem, RFI, RFICreate, RFISummary } from '../api/rfi'
 import { contactGroupsApi } from '../api/contactGroups'
-import type { Contact, ContactGroupListItem } from '../types'
+import { equipmentApi } from '../api/equipment'
+import { materialsApi } from '../api/materials'
+import { areasApi } from '../api/areas'
+import type { Contact, ContactGroupListItem, ConstructionArea, Equipment, Material } from '../types'
 import { useToast } from '../components/common/ToastProvider'
 import { useFormShake } from '../hooks/useFormShake'
 import { useProjectContacts } from '../hooks/useProjectContacts'
@@ -56,6 +59,9 @@ export default function RFIPage() {
     location: '',
     drawing_reference: '',
     specification_reference: '',
+    related_equipment_id: '',
+    related_material_id: '',
+    related_area_id: '',
   })
   const [priorityFilter, setPriorityFilter] = useState('all')
   const [page, setPage] = useState(1)
@@ -63,7 +69,9 @@ export default function RFIPage() {
   const [total, setTotal] = useState(0)
   const { contacts: projectContacts } = useProjectContacts(projectId)
   const [contactGroups, setContactGroups] = useState<ContactGroupListItem[]>([])
-
+  const [projectAreas, setProjectAreas] = useState<ConstructionArea[]>([])
+  const [projectEquipment, setProjectEquipment] = useState<Equipment[]>([])
+  const [projectMaterials, setProjectMaterials] = useState<Material[]>([])
 
   useEffect(() => {
     loadRfis()
@@ -72,6 +80,7 @@ export default function RFIPage() {
   useEffect(() => {
     loadSummary()
     loadContactGroups()
+    loadProjectReferences()
   }, [projectId])
 
   const loadRfis = async () => {
@@ -113,6 +122,20 @@ export default function RFIPage() {
     } catch { /* non-critical */ }
   }
 
+  const loadProjectReferences = async () => {
+    if (!projectId) return
+    try {
+      const [areasData, equipData, matData] = await Promise.all([
+        areasApi.list(projectId),
+        equipmentApi.list(projectId).then(r => r.items),
+        materialsApi.list(projectId).then(r => r.items),
+      ])
+      setProjectAreas(areasData)
+      setProjectEquipment(equipData)
+      setProjectMaterials(matData)
+    } catch { /* non-critical */ }
+  }
+
   const handleSelectContact = (contact: Contact | null) => {
     if (!contact) return
     setFormData(prev => ({
@@ -151,6 +174,9 @@ export default function RFIPage() {
       location: '',
       drawing_reference: '',
       specification_reference: '',
+      related_equipment_id: '',
+      related_material_id: '',
+      related_area_id: '',
     })
     setErrors({})
     setEditingRfi(null)
@@ -189,6 +215,9 @@ export default function RFIPage() {
         location: fullRfi.location || '',
         drawing_reference: fullRfi.drawingReference || '',
         specification_reference: fullRfi.specificationReference || '',
+        related_equipment_id: fullRfi.relatedEquipmentId || '',
+        related_material_id: fullRfi.relatedMaterialId || '',
+        related_area_id: fullRfi.relatedAreaId || '',
       })
       setErrors({})
       setDialogOpen(true)
@@ -228,6 +257,9 @@ export default function RFIPage() {
           location: formData.location || undefined,
           drawing_reference: formData.drawing_reference || undefined,
           specification_reference: formData.specification_reference || undefined,
+          related_equipment_id: formData.related_equipment_id || undefined,
+          related_material_id: formData.related_material_id || undefined,
+          related_area_id: formData.related_area_id || undefined,
         }))
         showSuccess(t('rfis.updateSuccess'))
       } else {
@@ -238,6 +270,9 @@ export default function RFIPage() {
           location: formData.location || undefined,
           drawing_reference: formData.drawing_reference || undefined,
           specification_reference: formData.specification_reference || undefined,
+          related_equipment_id: formData.related_equipment_id || undefined,
+          related_material_id: formData.related_material_id || undefined,
+          related_area_id: formData.related_area_id || undefined,
         }))
         showSuccess(t('rfis.createSuccess'))
       }
@@ -619,6 +654,40 @@ export default function RFIPage() {
             onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
             InputLabelProps={{ shrink: true }}
           />
+          <Divider />
+          <Typography variant="subtitle2" color="text.secondary">{t('rfis.projectReferences')}</Typography>
+          <Autocomplete
+            options={projectAreas}
+            getOptionLabel={(opt) => `${opt.name}${opt.areaCode ? ` (${opt.areaCode})` : ''}`}
+            value={projectAreas.find(a => a.id === formData.related_area_id) || null}
+            onChange={(_, val) => setFormData(prev => ({ ...prev, related_area_id: val?.id || '' }))}
+            renderInput={(params) => (
+              <MuiTextField {...params} label={t('rfis.relatedArea')} size="small" />
+            )}
+            size="small"
+          />
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+            <Autocomplete
+              options={projectEquipment}
+              getOptionLabel={(opt) => `${opt.name}${opt.equipmentType ? ` (${opt.equipmentType})` : ''}`}
+              value={projectEquipment.find(e => e.id === formData.related_equipment_id) || null}
+              onChange={(_, val) => setFormData(prev => ({ ...prev, related_equipment_id: val?.id || '' }))}
+              renderInput={(params) => (
+                <MuiTextField {...params} label={t('rfis.relatedEquipment')} size="small" />
+              )}
+              size="small"
+            />
+            <Autocomplete
+              options={projectMaterials}
+              getOptionLabel={(opt) => `${opt.name}${opt.materialType ? ` (${opt.materialType})` : ''}`}
+              value={projectMaterials.find(m => m.id === formData.related_material_id) || null}
+              onChange={(_, val) => setFormData(prev => ({ ...prev, related_material_id: val?.id || '' }))}
+              renderInput={(params) => (
+                <MuiTextField {...params} label={t('rfis.relatedMaterial')} size="small" />
+              )}
+              size="small"
+            />
+          </Box>
           <Divider />
           <Typography variant="subtitle2" color="text.secondary">{t('rfis.optionalReferences')}</Typography>
           <TextField

@@ -228,7 +228,9 @@
     "fromTemplateDesc": "Choose a ready-made template with specs and required documents",
     "fromScratch": "From Scratch",
     "fromScratchDesc": "Define new equipment with custom properties",
-    "switchMode": "Change mode"
+    "switchMode": "Change mode",
+    "area": "Construction Area",
+    "selectArea": "Select construction area"
   },
   "marketplace": {
     "title": "Template Marketplace",
@@ -419,7 +421,9 @@
     "fromTemplateDesc": "Choose a ready-made template with specs and required documents",
     "fromScratch": "From Scratch",
     "fromScratchDesc": "Define new material with custom properties",
-    "switchMode": "Change mode"
+    "switchMode": "Change mode",
+    "area": "Construction Area",
+    "selectArea": "Select construction area"
   },
   "permits": {
     "title": "Building Permits",
@@ -1462,7 +1466,11 @@
     "allFloors": "All Floors",
     "unitsInManagement": "Areas in management",
     "floorProgress": "Floor progress",
-    "uploadFloorplan": "Upload Floorplan"
+    "uploadFloorplan": "Upload Floorplan",
+    "linkedEquipment": "Linked Equipment",
+    "linkedMaterials": "Linked Materials",
+    "noLinkedEquipment": "No equipment linked to this area",
+    "noLinkedMaterials": "No materials linked to this area"
   },
   "settings": {
     "title": "Settings",
@@ -1660,6 +1668,13 @@
     "linkedUser": "Linked User",
     "linkedUserHint": "Link this contact to a system user for approval enforcement",
     "pendingApprovals": "Pending Approvals",
+    "projectMembers": "Team Members",
+    "addAsMember": "Add as project member",
+    "memberRole": "Project role",
+    "memberBadge": "Team Member",
+    "memberReadOnly": "Team member - editable via team management",
+    "invitationSent": "Invitation sent to {{email}}",
+    "memberAdded": "{{name}} added as project member",
     "import": {
       "button": "Import",
       "title": "Import Contacts",
@@ -1736,6 +1751,12 @@
     "createRfi": "Create RFI",
     "toEmail": "To Email",
     "toName": "To Name",
+    "projectReferences": "Project References",
+    "references": "References",
+    "relatedArea": "Related Area",
+    "relatedEquipment": "Related Equipment",
+    "relatedMaterial": "Related Material",
+    "textReferences": "Text References",
     "optionalReferences": "Optional References",
     "drawingReference": "Drawing Reference",
     "specificationReference": "Specification Reference",
@@ -2484,6 +2505,13 @@
       "timeline": "Timeline",
       "team": "Team",
       "statistics": "Statistics"
+    },
+    "team": {
+      "inviteMember": "Invite Team Member",
+      "noDepartment": "No Department",
+      "memberSince": "Member since",
+      "noMembers": "No team members",
+      "noMembersDescription": "Invite team members to the project to start collaborating"
     }
   },
   "teamCard": {
@@ -4700,5 +4728,14 @@
     "gpsTimeout": "GPS request timed out",
     "gpsUnavailable": "GPS service unavailable",
     "gpsPermissionRequired": "GPS permission required"
+  },
+  "departments": {
+    "management": "Management",
+    "construction": "Construction",
+    "mep": "MEP Systems",
+    "safety": "Safety",
+    "design": "Design",
+    "finance": "Finance",
+    "other": "Other"
   }
 }

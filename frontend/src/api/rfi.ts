@@ -34,6 +34,12 @@ export interface RFI {
     email: string
     fullName: string
   }
+  relatedEquipmentId?: string
+  relatedMaterialId?: string
+  relatedAreaId?: string
+  relatedEquipment?: { id: string; name: string; equipmentType?: string }
+  relatedMaterial?: { id: string; name: string; materialType?: string }
+  relatedArea?: { id: string; name: string; areaCode?: string; floorNumber?: number }
   responses?: RFIResponseData[]
 }
 
@@ -89,6 +95,9 @@ export interface RFICreate {
   specification_reference?: string
   attachments?: Record<string, unknown>[]
   assigned_to_id?: string
+  related_equipment_id?: string
+  related_material_id?: string
+  related_area_id?: string
 }
 
 export interface RFIUpdate {
@@ -105,6 +114,9 @@ export interface RFIUpdate {
   specification_reference?: string
   attachments?: Record<string, unknown>[]
   assigned_to_id?: string
+  related_equipment_id?: string
+  related_material_id?: string
+  related_area_id?: string
 }
 
 export interface RFIResponseCreate {

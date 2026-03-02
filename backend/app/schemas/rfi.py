@@ -70,6 +70,7 @@ class RFICreate(RFIBase):
     assigned_to_id: UUID | None = None
     related_equipment_id: UUID | None = None
     related_material_id: UUID | None = None
+    related_area_id: UUID | None = None
 
 
 class RFIUpdate(BaseModel):
@@ -88,6 +89,7 @@ class RFIUpdate(BaseModel):
     assigned_to_id: UUID | None = None
     related_equipment_id: UUID | None = None
     related_material_id: UUID | None = None
+    related_area_id: UUID | None = None
 
     @field_validator("subject", "question", "to_name", "location", mode="before")
     @classmethod
@@ -181,6 +183,34 @@ class RFIEmailLogSchema(CamelCaseModel):
         from_attributes = True
 
 
+class RelatedEquipmentBrief(CamelCaseModel):
+    id: UUID
+    name: str
+    equipment_type: str | None = None
+
+    class Config:
+        from_attributes = True
+
+
+class RelatedMaterialBrief(CamelCaseModel):
+    id: UUID
+    name: str
+    material_type: str | None = None
+
+    class Config:
+        from_attributes = True
+
+
+class RelatedAreaBrief(CamelCaseModel):
+    id: UUID
+    name: str
+    area_code: str | None = None
+    floor_number: int | None = None
+
+    class Config:
+        from_attributes = True
+
+
 class RFIListResponse(CamelCaseModel):
     id: UUID
     project_id: UUID
@@ -198,6 +228,7 @@ class RFIListResponse(CamelCaseModel):
     response_count: int = 0
     related_equipment_id: UUID | None = None
     related_material_id: UUID | None = None
+    related_area_id: UUID | None = None
 
     class Config:
         from_attributes = True
@@ -231,6 +262,10 @@ class RFIResponse(CamelCaseModel):
     assigned_to: UserResponse | None = None
     related_equipment_id: UUID | None = None
     related_material_id: UUID | None = None
+    related_area_id: UUID | None = None
+    related_equipment: RelatedEquipmentBrief | None = None
+    related_material: RelatedMaterialBrief | None = None
+    related_area: RelatedAreaBrief | None = None
     responses: list[RFIResponseSchema] = []
 
     class Config:
