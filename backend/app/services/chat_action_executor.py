@@ -17,6 +17,7 @@ from app.models.material import Material
 from app.models.material_template import MaterialApprovalSubmission
 from app.models.meeting import Meeting
 from app.models.rfi import RFI
+from app.services.chat_permissions import authorize_action
 from app.utils import utcnow
 
 VALID_EQUIPMENT_STATUSES = {"draft", "submitted", "under_review", "approved", "rejected", "revision_requested"}
@@ -28,6 +29,10 @@ VALID_DEFECT_STATUSES = {"open", "in_progress", "resolved", "closed"}
 
 
 async def execute_action(db: AsyncSession, action: ChatAction, user_id: uuid.UUID, project_id: uuid.UUID) -> dict:
+    auth_error = await authorize_action(db, action, user_id, project_id)
+    if auth_error:
+        return auth_error
+
     handlers = {
         "update_equipment_status": handle_update_equipment_status,
         "update_material_status": handle_update_material_status,

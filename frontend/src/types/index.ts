@@ -1047,3 +1047,77 @@ export type {
   BillingHistory,
   PaymentMethodCreate,
 } from './billing'
+
+export type InboxEntityType = 'approval' | 'task' | 'rfi' | 'meeting' | 'defect'
+
+export interface InboxApprovalItem {
+  id: string
+  entityType: 'approval'
+  projectId: string
+  projectName: string
+  entityKind: string
+  entityId: string
+  currentStatus: string
+  createdAt: string
+}
+
+export interface InboxTaskItem {
+  id: string
+  entityType: 'task'
+  projectId: string
+  projectName: string
+  title: string
+  status: string
+  priority: string
+  dueDate?: string
+}
+
+export interface InboxRFIItem {
+  id: string
+  entityType: 'rfi'
+  projectId: string
+  projectName: string
+  subject: string
+  rfiNumber: number
+  priority: string
+  status: string
+  dueDate?: string
+}
+
+export interface InboxMeetingItem {
+  id: string
+  entityType: 'meeting'
+  projectId: string
+  projectName: string
+  title: string
+  scheduledDate?: string
+  location?: string
+  meetingType?: string
+}
+
+export interface InboxDefectItem {
+  id: string
+  entityType: 'defect'
+  projectId: string
+  projectName: string
+  description?: string
+  defectNumber: number
+  severity?: string
+  category?: string
+}
+
+export type InboxItem = InboxApprovalItem | InboxTaskItem | InboxRFIItem | InboxMeetingItem | InboxDefectItem
+
+export interface InboxCounts {
+  total: number
+  approvalCount: number
+  taskCount: number
+  rfiCount: number
+  meetingCount: number
+  defectCount: number
+}
+
+export interface InboxResponse {
+  counts: InboxCounts
+  items: InboxItem[]
+}

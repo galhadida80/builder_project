@@ -295,7 +295,35 @@
       "people": "אנשים",
       "documents": "מסמכים"
     },
-    "vendors": "ספקים"
+    "vendors": "ספקים",
+    "inbox": "תיבת דואר"
+  },
+  "inbox": {
+    "pageTitle": "מה מחכה לי",
+    "total": "סה״כ פריטים",
+    "approvals": "אישורים",
+    "tasks": "משימות",
+    "rfis": "בקשות מידע",
+    "meetings": "פגישות",
+    "defects": "ליקויים",
+    "all": "הכל",
+    "overdue": "באיחור",
+    "today": "היום",
+    "upcoming": "קרוב",
+    "noDate": "ללא תאריך",
+    "emptyTitle": "אין פריטים ממתינים",
+    "emptyDescription": "כל המשימות שלך מטופלות!",
+    "approval": "אישור",
+    "task": "משימה",
+    "rfi": "בקשת מידע",
+    "meeting": "פגישה",
+    "defect": "ליקוי",
+    "viewItem": "צפה",
+    "project": "פרויקט",
+    "dueDate": "תאריך יעד",
+    "scheduledDate": "תאריך מתוכנן",
+    "defectNumber": "ליקוי #{{number}}",
+    "rfiNumber": "RFI #{{number}}"
   },
   "project": {
     "daysLeft": "{{count}} ימים נותרו",
@@ -311,6 +339,7 @@
     "inspections": "בדיקות",
     "checklists": "צ'קליסטים",
     "defects": "ליקויים",
+    "inbox": "תיבת דואר",
     "quickCreate": "יצירה מהירה",
     "quickActions": {
       "newProject": "פרויקט חדש",

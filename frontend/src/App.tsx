@@ -56,6 +56,7 @@ import ClientPortalLoginPage from './pages/ClientPortalLoginPage'
 import ClientPortalDashboardPage from './pages/ClientPortalDashboardPage'
 import ClientPortalPhotosPage from './pages/ClientPortalPhotosPage'
 import ClientPortalDocumentsPage from './pages/ClientPortalDocumentsPage'
+import InboxPage from './pages/InboxPage'
 import NotFoundPage from './pages/NotFoundPage'
 import PricingPage from './pages/PricingPage'
 import BillingPage from './pages/BillingPage'
@@ -164,6 +165,7 @@ function AppRoutes() {
             <Route path="/team-workload" element={<TeamWorkloadPage />} />
             <Route path="/inspector-dashboard" element={<InspectorDashboardPage />} />
             <Route path="/notifications" element={<NotificationsPage />} />
+            <Route path="/inbox" element={<InboxPage />} />
             <Route path="/subcontractor-portal" element={<SubcontractorPortalPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/profile" element={<ProfilePage />} />

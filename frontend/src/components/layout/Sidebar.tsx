@@ -1,8 +1,9 @@
 import { memo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { DashboardIcon, FolderIcon, BuildIcon, InventoryIcon, EventIcon, CheckCircleIcon, AccountTreeIcon, ContactsIcon, HistoryIcon, SettingsIcon, AssignmentIcon, ConstructionIcon, EmailIcon, ArchitectureIcon, ChecklistIcon, ReportProblemIcon, TaskAltIcon, AccountBalanceIcon, BusinessIcon, HelpOutlineIcon, ShowChartIcon, ExpandMoreIcon, ExpandLessIcon } from '@/icons'
-import { Box, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, Typography, Collapse } from '@/mui'
+import { DashboardIcon, FolderIcon, BuildIcon, InventoryIcon, EventIcon, CheckCircleIcon, AccountTreeIcon, ContactsIcon, HistoryIcon, SettingsIcon, AssignmentIcon, ConstructionIcon, EmailIcon, ArchitectureIcon, ChecklistIcon, ReportProblemIcon, TaskAltIcon, AccountBalanceIcon, BusinessIcon, HelpOutlineIcon, ShowChartIcon, ExpandMoreIcon, ExpandLessIcon, InboxIcon } from '@/icons'
+import { Badge, Box, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, Typography, Collapse } from '@/mui'
+import { useInboxCount } from '@/hooks/useInboxCount'
 import HelpDrawer from '../help/HelpDrawer'
 
 const DRAWER_WIDTH = 260
@@ -16,6 +17,7 @@ interface NavItem {
 
 const mainNavItems: NavItem[] = [
   { label: 'nav.dashboard', path: '/dashboard', icon: <DashboardIcon /> },
+  { label: 'nav.inbox', path: '/inbox', icon: <InboxIcon /> },
   { label: 'nav.projects', path: '/projects', icon: <FolderIcon />, tourId: 'projects' },
   { label: 'nav.organizations', path: '/organizations', icon: <BusinessIcon /> },
 ]
@@ -84,6 +86,7 @@ export default memo(function Sidebar({ projectId, mobileOpen = false, onMobileCl
   const navigate = useNavigate()
   const [helpOpen, setHelpOpen] = useState(false)
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({})
+  const inboxCount = useInboxCount()
 
   const isActive = (path: string) => {
     if (path === '/projects' && location.pathname.startsWith('/projects')) {
@@ -197,7 +200,11 @@ export default memo(function Sidebar({ projectId, mobileOpen = false, onMobileCl
               }}
             >
               <ListItemIcon sx={{ minWidth: 40, color: 'text.secondary' }}>
-                {item.icon}
+                {item.path === '/inbox' ? (
+                  <Badge badgeContent={inboxCount} color="error" max={99}>
+                    {item.icon}
+                  </Badge>
+                ) : item.icon}
               </ListItemIcon>
               <ListItemText
                 primary={t(item.label)}

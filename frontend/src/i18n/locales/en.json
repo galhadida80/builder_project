@@ -933,7 +933,35 @@
       "people": "People",
       "documents": "Documents"
     },
-    "vendors": "Vendors"
+    "vendors": "Vendors",
+    "inbox": "Inbox"
+  },
+  "inbox": {
+    "pageTitle": "What's Waiting for Me",
+    "total": "Total Items",
+    "approvals": "Approvals",
+    "tasks": "Tasks",
+    "rfis": "RFIs",
+    "meetings": "Meetings",
+    "defects": "Defects",
+    "all": "All",
+    "overdue": "Overdue",
+    "today": "Today",
+    "upcoming": "Upcoming",
+    "noDate": "No Date",
+    "emptyTitle": "No pending items",
+    "emptyDescription": "All your tasks are handled!",
+    "approval": "Approval",
+    "task": "Task",
+    "rfi": "RFI",
+    "meeting": "Meeting",
+    "defect": "Defect",
+    "viewItem": "View",
+    "project": "Project",
+    "dueDate": "Due date",
+    "scheduledDate": "Scheduled date",
+    "defectNumber": "Defect #{{number}}",
+    "rfiNumber": "RFI #{{number}}"
   },
   "project": {
     "daysLeft": "{{count}} days left",
@@ -949,6 +977,7 @@
     "inspections": "Inspections",
     "checklists": "Checklists",
     "defects": "Defects",
+    "inbox": "Inbox",
     "quickCreate": "Quick Create",
     "quickActions": {
       "newProject": "New Project",

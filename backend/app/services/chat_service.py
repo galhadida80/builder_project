@@ -14,6 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import get_settings
 from app.models.chat import ChatConversation, ChatMessage
 from app.models.chat_action import ChatAction
+from app.services.chat_permissions import CREATE_TOOLS, EDIT_TOOLS, APPROVE_TOOLS, get_user_chat_context
 from app.services.chat_tools import TOOL_REGISTRY, get_full_project_context
 from app.utils import utcnow
 
@@ -144,6 +145,9 @@ class ChatDeps:
     project_id: uuid.UUID
     conversation_id: uuid.UUID
     message_id: uuid.UUID
+    user_id: uuid.UUID = None
+    user_role: str = ""
+    allowed_tools: set = None
 
 
 def _create_agent() -> Agent:
@@ -169,6 +173,23 @@ agent = _create_agent()
 async def inject_project_context(ctx: RunContext[ChatDeps]) -> str:
     context = await get_full_project_context(ctx.deps.db, ctx.deps.project_id)
     return f"\n## Current Project Data Snapshot\n{context}"
+
+
+@agent.system_prompt
+async def inject_role_context(ctx: RunContext[ChatDeps]) -> str:
+    role = ctx.deps.user_role or "unknown"
+    denied = (CREATE_TOOLS | EDIT_TOOLS | APPROVE_TOOLS) - (ctx.deps.allowed_tools or set())
+    prompt = f"\n## User Role & Permissions\nUser role: **{role}**\n"
+    if denied:
+        prompt += f"Tools NOT available to this user: {', '.join(sorted(denied))}\n"
+        prompt += "If the user asks for a denied action, explain their role lacks permission.\n"
+    return prompt
+
+
+def check_tool_access(ctx: RunContext[ChatDeps], tool_name: str) -> dict | None:
+    if ctx.deps.allowed_tools and tool_name not in ctx.deps.allowed_tools:
+        return {"error": f"Permission denied: role '{ctx.deps.user_role}' cannot perform this action"}
+    return None
 
 
 @agent.tool
@@ -353,6 +374,9 @@ async def search_documents(ctx: RunContext[ChatDeps], query: str, limit: int = 1
 @agent.tool
 async def propose_update_equipment_status(ctx: RunContext[ChatDeps], entity_id: str, new_status: str, reason: str) -> dict:
     """Propose changing an equipment item's status. Status values: draft, submitted, under_review, approved, rejected. The user must approve this action."""
+    denied = check_tool_access(ctx, "propose_update_equipment_status")
+    if denied:
+        return denied
     action = ChatAction(
         conversation_id=ctx.deps.conversation_id,
         message_id=ctx.deps.message_id,
@@ -371,6 +395,9 @@ async def propose_update_equipment_status(ctx: RunContext[ChatDeps], entity_id: 
 @agent.tool
 async def propose_update_material_status(ctx: RunContext[ChatDeps], entity_id: str, new_status: str, reason: str) -> dict:
     """Propose changing a material's status. Status values: draft, submitted, under_review, approved, rejected. The user must approve this action."""
+    denied = check_tool_access(ctx, "propose_update_material_status")
+    if denied:
+        return denied
     action = ChatAction(
         conversation_id=ctx.deps.conversation_id,
         message_id=ctx.deps.message_id,
@@ -389,6 +416,9 @@ async def propose_update_material_status(ctx: RunContext[ChatDeps], entity_id: s
 @agent.tool
 async def propose_update_rfi_status(ctx: RunContext[ChatDeps], entity_id: str, new_status: str, reason: str) -> dict:
     """Propose changing an RFI's status. Status values: draft, open, waiting_response, answered, closed, cancelled. The user must approve."""
+    denied = check_tool_access(ctx, "propose_update_rfi_status")
+    if denied:
+        return denied
     action = ChatAction(
         conversation_id=ctx.deps.conversation_id,
         message_id=ctx.deps.message_id,
@@ -407,6 +437,9 @@ async def propose_update_rfi_status(ctx: RunContext[ChatDeps], entity_id: str, n
 @agent.tool
 async def propose_update_inspection_status(ctx: RunContext[ChatDeps], entity_id: str, new_status: str, reason: str) -> dict:
     """Propose changing an inspection's status. Status values: pending, in_progress, completed, failed. The user must approve."""
+    denied = check_tool_access(ctx, "propose_update_inspection_status")
+    if denied:
+        return denied
     action = ChatAction(
         conversation_id=ctx.deps.conversation_id,
         message_id=ctx.deps.message_id,
@@ -425,6 +458,9 @@ async def propose_update_inspection_status(ctx: RunContext[ChatDeps], entity_id:
 @agent.tool
 async def propose_update_meeting_status(ctx: RunContext[ChatDeps], entity_id: str, new_status: str, reason: str) -> dict:
     """Propose changing a meeting's status. Status values: scheduled, invitations_sent, pending_votes, completed, cancelled. The user must approve."""
+    denied = check_tool_access(ctx, "propose_update_meeting_status")
+    if denied:
+        return denied
     action = ChatAction(
         conversation_id=ctx.deps.conversation_id,
         message_id=ctx.deps.message_id,
@@ -443,6 +479,9 @@ async def propose_update_meeting_status(ctx: RunContext[ChatDeps], entity_id: st
 @agent.tool
 async def propose_update_area_progress(ctx: RunContext[ChatDeps], entity_id: str, new_progress: float, notes: str) -> dict:
     """Propose updating a construction area's progress percentage (0-100). The user must approve."""
+    denied = check_tool_access(ctx, "propose_update_area_progress")
+    if denied:
+        return denied
     action = ChatAction(
         conversation_id=ctx.deps.conversation_id,
         message_id=ctx.deps.message_id,
@@ -461,6 +500,9 @@ async def propose_update_area_progress(ctx: RunContext[ChatDeps], entity_id: str
 @agent.tool
 async def propose_create_rfi(ctx: RunContext[ChatDeps], subject: str, question: str, category: str, priority: str, to_email: str) -> dict:
     """Propose creating a new RFI. Categories: design, structural, mep, architectural, specifications, schedule, cost, other. Priorities: low, medium, high, urgent."""
+    denied = check_tool_access(ctx, "propose_create_rfi")
+    if denied:
+        return denied
     action = ChatAction(
         conversation_id=ctx.deps.conversation_id,
         message_id=ctx.deps.message_id,
@@ -479,6 +521,9 @@ async def propose_create_rfi(ctx: RunContext[ChatDeps], subject: str, question: 
 @agent.tool
 async def propose_create_meeting(ctx: RunContext[ChatDeps], title: str, description: str, scheduled_date: str, location: str) -> dict:
     """Propose creating a new meeting. scheduled_date must be ISO format (e.g. 2026-03-01T10:00:00)."""
+    denied = check_tool_access(ctx, "propose_create_meeting")
+    if denied:
+        return denied
     action = ChatAction(
         conversation_id=ctx.deps.conversation_id,
         message_id=ctx.deps.message_id,
@@ -497,6 +542,9 @@ async def propose_create_meeting(ctx: RunContext[ChatDeps], title: str, descript
 @agent.tool
 async def propose_schedule_inspection(ctx: RunContext[ChatDeps], consultant_type_id: str, scheduled_date: str, notes: str) -> dict:
     """Propose scheduling a new inspection. scheduled_date must be ISO format."""
+    denied = check_tool_access(ctx, "propose_schedule_inspection")
+    if denied:
+        return denied
     action = ChatAction(
         conversation_id=ctx.deps.conversation_id,
         message_id=ctx.deps.message_id,
@@ -515,6 +563,9 @@ async def propose_schedule_inspection(ctx: RunContext[ChatDeps], consultant_type
 @agent.tool
 async def propose_approve_submission(ctx: RunContext[ChatDeps], submission_id: str, entity_type: str, comments: str) -> dict:
     """Propose approving an equipment or material approval submission. entity_type: equipment_submission or material_submission."""
+    denied = check_tool_access(ctx, "propose_approve_submission")
+    if denied:
+        return denied
     action = ChatAction(
         conversation_id=ctx.deps.conversation_id,
         message_id=ctx.deps.message_id,
@@ -533,6 +584,9 @@ async def propose_approve_submission(ctx: RunContext[ChatDeps], submission_id: s
 @agent.tool
 async def propose_create_equipment(ctx: RunContext[ChatDeps], name: str, equipment_type: str = "", manufacturer: str = "", model_number: str = "", notes: str = "") -> dict:
     """Propose creating a new equipment item. The user must approve this action."""
+    denied = check_tool_access(ctx, "propose_create_equipment")
+    if denied:
+        return denied
     params = {"name": name, "equipment_type": equipment_type, "manufacturer": manufacturer, "model_number": model_number, "notes": notes}
     action = ChatAction(
         conversation_id=ctx.deps.conversation_id,
@@ -552,6 +606,9 @@ async def propose_create_equipment(ctx: RunContext[ChatDeps], name: str, equipme
 @agent.tool
 async def propose_create_material(ctx: RunContext[ChatDeps], name: str, material_type: str = "", manufacturer: str = "", quantity: float = 0, unit: str = "", notes: str = "") -> dict:
     """Propose creating a new material item. The user must approve this action."""
+    denied = check_tool_access(ctx, "propose_create_material")
+    if denied:
+        return denied
     params = {"name": name, "material_type": material_type, "manufacturer": manufacturer, "quantity": quantity, "unit": unit, "notes": notes}
     action = ChatAction(
         conversation_id=ctx.deps.conversation_id,
@@ -571,6 +628,9 @@ async def propose_create_material(ctx: RunContext[ChatDeps], name: str, material
 @agent.tool
 async def propose_create_area(ctx: RunContext[ChatDeps], name: str, area_type: str = "", floor_number: int = 0, area_code: str = "", total_units: int = 1) -> dict:
     """Propose creating a new construction area. total_units must be >= 1. The user must approve this action."""
+    denied = check_tool_access(ctx, "propose_create_area")
+    if denied:
+        return denied
     if total_units < 1:
         total_units = 1
     params = {"name": name, "area_type": area_type, "floor_number": floor_number, "area_code": area_code, "total_units": total_units}
@@ -592,6 +652,9 @@ async def propose_create_area(ctx: RunContext[ChatDeps], name: str, area_type: s
 @agent.tool
 async def propose_create_contact(ctx: RunContext[ChatDeps], contact_name: str, contact_type: str, company_name: str = "", email: str = "", phone: str = "", role_description: str = "") -> dict:
     """Propose creating a new project contact. contact_type examples: contractor, consultant, supplier, client, architect, engineer. The user must approve."""
+    denied = check_tool_access(ctx, "propose_create_contact")
+    if denied:
+        return denied
     params = {"contact_name": contact_name, "contact_type": contact_type, "company_name": company_name, "email": email, "phone": phone, "role_description": role_description}
     action = ChatAction(
         conversation_id=ctx.deps.conversation_id,
@@ -611,6 +674,9 @@ async def propose_create_contact(ctx: RunContext[ChatDeps], contact_name: str, c
 @agent.tool
 async def propose_create_defect(ctx: RunContext[ChatDeps], description: str, category: str, severity: str = "medium", defect_type: str = "non_conformance") -> dict:
     """Propose creating a new defect. Categories: structural, electrical, plumbing, finishing, safety, other. Severities: low, medium, high, critical. Types: non_conformance, damage, safety_hazard, design_error, workmanship."""
+    denied = check_tool_access(ctx, "propose_create_defect")
+    if denied:
+        return denied
     params = {"description": description, "category": category, "severity": severity, "defect_type": defect_type}
     action = ChatAction(
         conversation_id=ctx.deps.conversation_id,
@@ -630,6 +696,9 @@ async def propose_create_defect(ctx: RunContext[ChatDeps], description: str, cat
 @agent.tool
 async def propose_update_defect_status(ctx: RunContext[ChatDeps], entity_id: str, new_status: str, reason: str) -> dict:
     """Propose changing a defect's status. Status values: open, in_progress, resolved, closed, rejected. The user must approve."""
+    denied = check_tool_access(ctx, "propose_update_defect_status")
+    if denied:
+        return denied
     action = ChatAction(
         conversation_id=ctx.deps.conversation_id,
         message_id=ctx.deps.message_id,
@@ -727,11 +796,16 @@ async def send_message(db: AsyncSession, project_id: uuid.UUID, user_id: uuid.UU
     if conversation_id:
         message_history = await load_conversation_history(db, conversation.id, settings.chat_max_history)
 
+    role, allowed_tools = await get_user_chat_context(db, user_id, project_id)
+
     deps = ChatDeps(
         db=db,
         project_id=project_id,
         conversation_id=conversation.id,
         message_id=assistant_msg.id,
+        user_id=user_id,
+        user_role=role,
+        allowed_tools=allowed_tools,
     )
 
     logger.info(f"Chat request | project={project_id} conv={conversation.id} message='{message[:100]}'")

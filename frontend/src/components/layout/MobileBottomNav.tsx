@@ -14,8 +14,10 @@ import {
   EventIcon,
   BuildIcon,
   InventoryIcon,
+  InboxIcon,
 } from '@/icons'
 import {
+  Badge,
   BottomNavigation,
   BottomNavigationAction,
   Paper,
@@ -26,6 +28,7 @@ import {
   ListItemText,
   Box,
 } from '@/mui'
+import { useInboxCount } from '@/hooks/useInboxCount'
 
 interface NavTab {
   labelKey: string
@@ -38,7 +41,7 @@ const globalTabs: NavTab[] = [
   { labelKey: 'mobileNav.menu', path: '', icon: <MenuIcon />, action: 'menu' },
   { labelKey: 'mobileNav.dashboard', path: '/dashboard', icon: <DashboardIcon /> },
   { labelKey: 'mobileNav.projects', path: '/projects', icon: <FolderIcon /> },
-  { labelKey: 'mobileNav.profile', path: '/profile', icon: <PersonIcon /> },
+  { labelKey: 'mobileNav.inbox', path: '/inbox', icon: <InboxIcon /> },
 ]
 
 const projectTabs = (projectId: string): NavTab[] => [
@@ -77,6 +80,7 @@ export default function MobileBottomNav({ projectId, onMenuOpen }: MobileBottomN
   const location = useLocation()
   const navigate = useNavigate()
   const [fabMenuAnchor, setFabMenuAnchor] = useState<null | HTMLElement>(null)
+  const inboxCount = useInboxCount()
 
   const tabs = projectId ? projectTabs(projectId) : globalTabs
   const leftTabs = tabs.slice(0, 2)
@@ -241,7 +245,7 @@ export default function MobileBottomNav({ projectId, onMenuOpen }: MobileBottomN
               <BottomNavigationAction
                 key={tab.labelKey}
                 label={t(tab.labelKey)}
-                icon={tab.icon}
+                icon={tab.path === '/inbox' ? <Badge badgeContent={inboxCount} color="error" max={99}>{tab.icon}</Badge> : tab.icon}
                 aria-label={tab.action === 'menu' ? t('common.openNavMenu') : undefined}
                 value={index}
               />
