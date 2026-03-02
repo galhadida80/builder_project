@@ -882,7 +882,7 @@ def render_notification_email(
 ) -> tuple[str, str]:
     s = STRINGS["notification"].get(language, STRINGS["notification"]["en"])
     settings = get_settings()
-    frontend_url = settings.frontend_url or "https://app.builderops.dev"
+    frontend_url = settings.frontend_base_url or "https://app.builderops.dev"
     direction = "rtl" if language == "he" else "ltr"
     align = "right" if language == "he" else "left"
 

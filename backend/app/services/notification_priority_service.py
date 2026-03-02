@@ -118,14 +118,12 @@ async def _adjust_urgency_by_behavior(
                 func.sum(
                     case(
                         (NotificationInteraction.interaction_type == InteractionType.ACTED_UPON.value, 1),
-                        else_=0
-                    )
+                    ).else_(0)
                 ).label("acted_upon"),
                 func.sum(
                     case(
                         (NotificationInteraction.interaction_type == InteractionType.DISMISSED.value, 1),
-                        else_=0
-                    )
+                    ).else_(0)
                 ).label("dismissed"),
             )
             .select_from(NotificationInteraction)
