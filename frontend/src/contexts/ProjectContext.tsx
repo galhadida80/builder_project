@@ -40,6 +40,17 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     try {
       const data = await projectsApi.list()
       setProjects(data)
+
+      // Validate selectedProjectId against accessible projects
+      const storedId = localStorage.getItem('selectedProjectId')
+      if (storedId && data.length > 0 && !data.some(p => p.id === storedId)) {
+        // Stale project ID — reset to first accessible project
+        setSelectedProjectId(data[0].id)
+        localStorage.setItem('selectedProjectId', data[0].id)
+      } else if (!storedId && data.length > 0) {
+        setSelectedProjectId(data[0].id)
+        localStorage.setItem('selectedProjectId', data[0].id)
+      }
     } catch (error) {
       console.error('Failed to load projects:', error)
     } finally {
