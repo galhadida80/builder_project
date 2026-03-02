@@ -307,9 +307,9 @@ export function FindingDocumentationCard({
               {finding.createdBy?.fullName || finding.createdBy?.email || t('common.unknown')}
             </Typography>
           </Box>
-          <Box sx={{ textAlign: 'right' }}>
+          <Box sx={{ textAlign: 'end' }}>
             <Typography variant="caption" color="text.secondary">
-              Documented at
+              {t('inspections.documentedAt')}
             </Typography>
             <Typography variant="body2" sx={{ fontWeight: 500, fontSize: '0.75rem' }}>
               {formatTimestamp(finding.createdAt)}
@@ -326,7 +326,7 @@ export function FindingDocumentationCard({
             onClick={onAssign}
             disabled={!onAssign}
           >
-            Assign
+            {t('common.assign')}
           </ActionButton>
           <ActionButton
             variant="contained"
@@ -335,7 +335,7 @@ export function FindingDocumentationCard({
             onClick={onResolve}
             disabled={!onResolve}
           >
-            Resolve
+            {t('inspections.resolve')}
           </ActionButton>
           <ActionButton
             variant="outlined"
@@ -344,7 +344,7 @@ export function FindingDocumentationCard({
             onClick={onAddPhoto}
             disabled={!onAddPhoto}
           >
-            Add Photo
+            {t('inspections.addPhoto')}
           </ActionButton>
         </Box>
       </Box>

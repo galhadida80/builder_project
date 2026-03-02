@@ -723,6 +723,7 @@
     "edit": "Edit",
     "view": "View",
     "add": "Add",
+    "assign": "Assign",
     "download": "Download",
     "search": "Search",
     "loading": "Loading",
@@ -2015,7 +2016,9 @@
     "today": "Today",
     "tomorrow": "Tomorrow",
     "recentlyCompleted": "Recently Completed",
-    "scheduled": "Scheduled"
+    "scheduled": "Scheduled",
+    "documentedAt": "Documented at",
+    "addPhoto": "Add Photo"
   },
   "documents": {
     "title": "Document Library",

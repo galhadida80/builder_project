@@ -197,7 +197,7 @@ export default function ChecklistsPage() {
       return (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, minWidth: 140 }}>
           <LinearProgress variant="determinate" value={percent} sx={{ flex: 1, height: 8, borderRadius: 4, bgcolor: 'action.hover', '& .MuiLinearProgress-bar': { borderRadius: 4, bgcolor: percent === 100 ? 'success.main' : 'primary.main' } }} />
-          <Typography variant="caption" color="text.secondary" sx={{ minWidth: 44, textAlign: 'right' }}>{completed}/{total}</Typography>
+          <Typography variant="caption" color="text.secondary" sx={{ minWidth: 44, textAlign: 'end' }}>{completed}/{total}</Typography>
         </Box>
       )
     }},

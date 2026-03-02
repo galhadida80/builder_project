@@ -320,7 +320,7 @@ const baseThemeOptions: ThemeOptions = {
     MuiDrawer: {
       styleOverrides: {
         paper: {
-          borderRight: 'none',
+          borderInlineEnd: 'none',
           boxShadow: shadows.lg,
         },
       },
@@ -577,7 +577,7 @@ export function createDarkTheme() {
         styleOverrides: {
           paper: {
             backgroundColor: colors.surface.dark.default,
-            borderRight: `1px solid ${colors.warmDark.border}`,
+            borderInlineEnd: `1px solid ${colors.warmDark.border}`,
           },
         },
       },

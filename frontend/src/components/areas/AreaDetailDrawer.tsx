@@ -205,7 +205,7 @@ export function AreaDetailDrawer({ open, onClose, area, projectId }: AreaDetailD
                             },
                           }}
                         />
-                        <Typography variant="caption" color="text.secondary" sx={{ minWidth: 36, textAlign: 'right' }}>
+                        <Typography variant="caption" color="text.secondary" sx={{ minWidth: 36, textAlign: 'end' }}>
                           {completedItems}/{totalItems}
                         </Typography>
                       </Box>

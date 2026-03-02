@@ -101,7 +101,7 @@ export function TeamCard({ teamName, members, onClick, showDetails = false }: Te
                     </Box>
                   </Box>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Typography variant="body2" sx={{ fontWeight: 600, minWidth: 45, textAlign: 'right' }}>
+                    <Typography variant="body2" sx={{ fontWeight: 600, minWidth: 45, textAlign: 'end' }}>
                       {Math.round(member.workloadPercent)}%
                     </Typography>
                     <Chip

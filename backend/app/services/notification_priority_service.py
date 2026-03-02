@@ -2,7 +2,7 @@ import logging
 from typing import Optional
 from uuid import UUID
 
-from sqlalchemy import func, select
+from sqlalchemy import case, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.notification import NotificationCategory, UrgencyLevel
@@ -116,13 +116,13 @@ async def _adjust_urgency_by_behavior(
             select(
                 func.count(NotificationInteraction.id).label("total"),
                 func.sum(
-                    func.case(
+                    case(
                         (NotificationInteraction.interaction_type == InteractionType.ACTED_UPON.value, 1),
                         else_=0
                     )
                 ).label("acted_upon"),
                 func.sum(
-                    func.case(
+                    case(
                         (NotificationInteraction.interaction_type == InteractionType.DISMISSED.value, 1),
                         else_=0
                     )

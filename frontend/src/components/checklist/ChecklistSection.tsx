@@ -162,7 +162,7 @@ export function ChecklistSection({
           </Box>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Box sx={{ minWidth: 80, textAlign: 'right' }}>
+          <Box sx={{ minWidth: 80, textAlign: 'end' }}>
             <Typography variant="caption" fontWeight={600} sx={{ color: isComplete ? 'success.main' : 'primary.main' }}>
               {progressPercent}%
             </Typography>

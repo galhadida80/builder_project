@@ -89,6 +89,7 @@
     "edit": "ערוך",
     "view": "צפה",
     "add": "הוסף",
+    "assign": "שייך",
     "download": "הורד",
     "search": "חיפוש",
     "loading": "טוען",
@@ -2197,7 +2198,9 @@
     "today": "היום",
     "tomorrow": "מחר",
     "recentlyCompleted": "הושלמו לאחרונה",
-    "scheduled": "מתוזמן"
+    "scheduled": "מתוזמן",
+    "documentedAt": "תועד ב",
+    "addPhoto": "הוסף תמונה"
   },
   "documents": {
     "title": "ספריית מסמכים",
