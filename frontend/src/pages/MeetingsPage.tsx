@@ -135,7 +135,7 @@ export default function MeetingsPage() {
     if (!projectId) return
     try {
       const members = await teamMembersApi.list(projectId)
-      setTeamMembers(members.map((m: any) => ({ id: m.userId, name: m.user?.fullName || m.user?.email || '', email: m.user?.email })))
+      setTeamMembers(members.map(m => ({ id: m.id, name: m.name, email: m.email })))
     } catch {
       // non-critical
     }

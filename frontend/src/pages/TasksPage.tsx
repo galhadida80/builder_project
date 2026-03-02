@@ -145,19 +145,14 @@ export default function TasksPage() {
       setEquipment(eqRes.items)
       setMaterials(matRes.items)
 
-      // Load risk data for all tasks
-      const riskMap = new Map<string, ScheduleRiskAnalysis>()
-      await Promise.all(
-        taskList.map(async (task) => {
-          try {
-            const risk = await scheduleRiskApi.getTaskRisk(projectId, task.id)
-            riskMap.set(task.id, risk)
-          } catch {
-            // Ignore errors for individual task risks
-          }
-        })
-      )
-      setTaskRisks(riskMap)
+      // Load risk data from project summary (non-blocking)
+      scheduleRiskApi.getProjectRiskSummary(projectId).then((summary) => {
+        const riskMap = new Map<string, ScheduleRiskAnalysis>()
+        for (const risk of summary.topRisks || []) {
+          if (risk.taskId) riskMap.set(risk.taskId, risk)
+        }
+        setTaskRisks(riskMap)
+      }).catch(() => { /* Risk data is optional */ })
     } catch {
       showError(t('tasks.loadFailed'))
     } finally {

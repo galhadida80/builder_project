@@ -129,8 +129,8 @@ export default function BudgetPage() {
   const usagePct = summary ? (summary.totalBudgeted > 0 ? Math.round((summary.totalActual / summary.totalBudgeted) * 100) : 0) : 0
   const categorySummary = items.reduce((acc, item) => {
     if (!acc[item.category]) acc[item.category] = { budgeted: 0, actual: 0 }
-    acc[item.category].budgeted += item.budgetedAmount
-    acc[item.category].actual += item.actualAmount
+    acc[item.category].budgeted += Number(item.budgetedAmount) || 0
+    acc[item.category].actual += Number(item.actualAmount) || 0
     return acc
   }, {} as Record<string, { budgeted: number; actual: number }>)
 

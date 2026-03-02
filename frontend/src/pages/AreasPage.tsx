@@ -119,9 +119,9 @@ export default function AreasPage() {
   }
 
   const allAreas = getAllAreas(areas)
-  const completedAreas = allAreas.filter(a => (a.currentProgress ?? 0) === 100).length
-  const inProgressAreas = allAreas.filter(a => { const p = a.currentProgress ?? 0; return p > 0 && p < 100 }).length
-  const overallProgress = allAreas.length > 0 ? Math.round(allAreas.reduce((sum, a) => sum + (a.currentProgress ?? 0), 0) / allAreas.length) : 0
+  const completedAreas = allAreas.filter(a => Number(a.currentProgress) === 100).length
+  const inProgressAreas = allAreas.filter(a => { const p = Number(a.currentProgress) || 0; return p > 0 && p < 100 }).length
+  const overallProgress = allAreas.length > 0 ? Math.round(allAreas.reduce((sum, a) => sum + (Number(a.currentProgress) || 0), 0) / allAreas.length) : 0
 
   const uniqueFloors = useMemo(() => {
     const floors = allAreas.filter(a => a.floorNumber !== undefined && a.floorNumber !== null).map(a => a.floorNumber!)
