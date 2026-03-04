@@ -15,6 +15,8 @@ const ACTION_COLORS: Record<string, { palette: string; border: string }> = {
   approval: { palette: 'info', border: 'info.main' },
   update: { palette: 'warning', border: 'warning.main' },
   delete: { palette: 'error', border: 'error.main' },
+  status_change: { palette: 'info', border: 'info.main' },
+  rejection: { palette: 'error', border: 'error.main' },
 }
 
 function getActivityIcon(action: string) {
@@ -23,6 +25,8 @@ function getActivityIcon(action: string) {
     case 'approval': return <CheckCircleIcon sx={{ fontSize: 20 }} />
     case 'update': return <WarningAmberIcon sx={{ fontSize: 20 }} />
     case 'delete': return <ErrorOutlineIcon sx={{ fontSize: 20 }} />
+    case 'status_change': return <AssignmentIcon sx={{ fontSize: 20 }} />
+    case 'rejection': return <ErrorOutlineIcon sx={{ fontSize: 20 }} />
     default: return <AssignmentIcon sx={{ fontSize: 20 }} />
   }
 }

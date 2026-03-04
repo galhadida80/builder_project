@@ -248,6 +248,7 @@ export function RFIFormDialog({
             <Autocomplete
               options={projectContacts}
               getOptionLabel={(opt) => `${opt.contactName} (${opt.email})`}
+              isOptionEqualToValue={(option, value) => option.id === value.id}
               onChange={(_, val) => {
                 if (val) {
                   setValue('toEmail', val.email || '')
@@ -334,6 +335,7 @@ export function RFIFormDialog({
             <Autocomplete
               options={contactGroups}
               getOptionLabel={(opt) => `${opt.name} (${opt.memberCount})`}
+              isOptionEqualToValue={(option, value) => option.id === value.id}
               onChange={async (_, val) => {
                 if (val && projectId) {
                   try {

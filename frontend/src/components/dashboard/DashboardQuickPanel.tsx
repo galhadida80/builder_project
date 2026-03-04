@@ -1,5 +1,4 @@
 import { useTranslation } from 'react-i18next'
-import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
 import { AvatarGroup } from '../ui/Avatar'
 import { ProgressBar, CircularProgressDisplay } from '../ui/ProgressBar'

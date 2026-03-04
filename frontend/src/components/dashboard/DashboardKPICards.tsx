@@ -1,5 +1,4 @@
 import { useTranslation } from 'react-i18next'
-import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
 import { BusinessIcon, CheckCircleIcon, ErrorOutlineIcon } from '@/icons'
 import { Box, Typography, Paper, LinearProgress, alpha, Chip } from '@/mui'

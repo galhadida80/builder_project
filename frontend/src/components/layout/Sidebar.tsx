@@ -1,7 +1,7 @@
 import { memo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { DashboardIcon, FolderIcon, BuildIcon, InventoryIcon, EventIcon, CheckCircleIcon, AccountTreeIcon, ContactsIcon, HistoryIcon, SettingsIcon, AssignmentIcon, ConstructionIcon, EmailIcon, ArchitectureIcon, ChecklistIcon, ReportProblemIcon, TaskAltIcon, AccountBalanceIcon, BusinessIcon, HelpOutlineIcon, ShowChartIcon, ExpandMoreIcon, ExpandLessIcon, InboxIcon } from '@/icons'
+import { DashboardIcon, FolderIcon, BuildIcon, InventoryIcon, EventIcon, CheckCircleIcon, AccountTreeIcon, ContactsIcon, HistoryIcon, SettingsIcon, AssignmentIcon, ConstructionIcon, EmailIcon, ArchitectureIcon, ChecklistIcon, ReportProblemIcon, TaskAltIcon, AccountBalanceIcon, BusinessIcon, HelpOutlineIcon, ShowChartIcon, ExpandMoreIcon, ExpandLessIcon, InboxIcon, DescriptionIcon } from '@/icons'
 import { Badge, Box, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, Typography, Collapse } from '@/mui'
 import { useInboxCount } from '@/hooks/useInboxCount'
 import HelpDrawer from '../help/HelpDrawer'
@@ -63,6 +63,7 @@ const projectNavGroups: NavGroup[] = [
   {
     label: 'nav.groups.documents',
     items: [
+      { label: 'nav.documents', path: '/documents', icon: <DescriptionIcon /> },
       { label: 'nav.blueprints', path: '/blueprints', icon: <ArchitectureIcon /> },
     ],
   },

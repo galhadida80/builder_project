@@ -18,7 +18,7 @@ export default function DashboardCharts({ dashboardStats, statsLoading, dateLoca
   const { t } = useTranslation()
 
   const activityChartData = useMemo(() => {
-    if (!dashboardStats) return { data: [], labels: [] }
+    if (!dashboardStats?.weeklyActivity?.length) return { data: [], labels: [] }
     const labels = dashboardStats.weeklyActivity.map(p => {
       const d = new Date(p.date)
       return d.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric' })
