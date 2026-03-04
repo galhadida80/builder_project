@@ -447,6 +447,10 @@ async def add_assignee(
     if not defect:
         raise HTTPException(status_code=404, detail="Defect not found")
 
+    contact = await db.get(Contact, contact_id)
+    if not contact or contact.project_id != project_id:
+        raise HTTPException(status_code=404, detail="Contact not found in this project")
+
     existing = await db.execute(
         select(DefectAssignee).where(
             DefectAssignee.defect_id == defect_id,
