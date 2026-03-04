@@ -92,3 +92,9 @@ docs/archive/playwright-mcp/
 docs/archive/screenshots/
 email_previews/
 design/
+
+# Temp snapshot/notes files
+snap-*.md
+snapshot-*.md
+test_material_doc.txt
+docs/UX_BUG_AUDIT_*.md
