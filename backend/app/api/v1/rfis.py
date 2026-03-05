@@ -40,6 +40,7 @@ async def get_project_rfis(
     status: Optional[str] = Query(None),
     priority: Optional[str] = Query(None),
     search: Optional[str] = Query(None),
+    sync_status: Optional[str] = Query(None),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
@@ -52,6 +53,7 @@ async def get_project_rfis(
         status=status,
         priority=priority,
         search=search,
+        sync_status=sync_status,
         page=page,
         page_size=page_size
     )
@@ -83,7 +85,12 @@ async def get_project_rfis(
             response_count=response_counts.get(rfi.id, 0),
             related_equipment_id=rfi.related_equipment_id,
             related_material_id=rfi.related_material_id,
-            related_area_id=rfi.related_area_id
+            related_area_id=rfi.related_area_id,
+            acc_issue_id=rfi.acc_issue_id,
+            acc_project_id=rfi.acc_project_id,
+            sync_source=rfi.sync_source,
+            sync_status=rfi.sync_status,
+            last_synced_at=rfi.last_synced_at
         ))
 
     total_pages = (total + page_size - 1) // page_size

@@ -498,6 +498,36 @@ export default function RFIPage() {
                     sx={{ fontSize: '0.65rem', height: 22, borderColor: 'primary.light', color: 'primary.main' }}
                   />
                   <StatusBadge status={row.status} size="small" />
+                  {row.sync_source === 'acc' && (
+                    <Chip
+                      label="ACC"
+                      size="small"
+                      sx={{
+                        fontSize: '0.65rem',
+                        height: 22,
+                        bgcolor: 'info.light',
+                        color: 'info.dark',
+                        fontWeight: 700,
+                        border: '1px solid',
+                        borderColor: 'info.main',
+                      }}
+                    />
+                  )}
+                  {row.sync_status === 'conflict' && (
+                    <Chip
+                      label={t('rfis.conflict')}
+                      size="small"
+                      sx={{
+                        fontSize: '0.65rem',
+                        height: 22,
+                        bgcolor: 'warning.light',
+                        color: 'warning.dark',
+                        fontWeight: 700,
+                        border: '1px solid',
+                        borderColor: 'warning.main',
+                      }}
+                    />
+                  )}
                 </Box>
 
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pt: 1.5, borderTop: '1px solid', borderColor: 'divider' }}>

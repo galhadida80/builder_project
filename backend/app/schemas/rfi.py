@@ -163,6 +163,11 @@ class RFIResponseSchema(CamelCaseModel):
     source: str = "email"
     created_at: datetime
     received_at: datetime | None = None
+    acc_comment_id: str | None = None
+    acc_issue_id: str | None = None
+    sync_source: str | None = None
+    sync_status: str | None = None
+    last_synced_at: datetime | None = None
 
     class Config:
         from_attributes = True
@@ -229,6 +234,11 @@ class RFIListResponse(CamelCaseModel):
     related_equipment_id: UUID | None = None
     related_material_id: UUID | None = None
     related_area_id: UUID | None = None
+    acc_issue_id: str | None = None
+    acc_project_id: str | None = None
+    sync_source: str | None = None
+    sync_status: str | None = None
+    last_synced_at: datetime | None = None
 
     class Config:
         from_attributes = True
@@ -267,6 +277,11 @@ class RFIResponse(CamelCaseModel):
     related_material: RelatedMaterialBrief | None = None
     related_area: RelatedAreaBrief | None = None
     responses: list[RFIResponseSchema] = []
+    acc_issue_id: str | None = None
+    acc_project_id: str | None = None
+    sync_source: str | None = None
+    sync_status: str | None = None
+    last_synced_at: datetime | None = None
 
     class Config:
         from_attributes = True

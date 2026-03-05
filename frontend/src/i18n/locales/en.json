@@ -1882,6 +1882,34 @@
       "vcfHowDescription": "iPhone: Contacts → Select → Share → Save to Files. Android: Contacts → ⋮ → Export → VCF file."
     }
   },
+  "acc": {
+    "sync": {
+      "title": "ACC Sync",
+      "lastSync": "Last Sync",
+      "trigger": "Sync Now",
+      "conflicts": "Conflicts",
+      "totalSynced": "Total Synced",
+      "neverSynced": "Never",
+      "justNow": "Just now",
+      "minutesAgo": "{{count}}m ago",
+      "hoursAgo": "{{count}}h ago",
+      "daysAgo": "{{count}}d ago",
+      "syncTriggered": "Sync started successfully",
+      "failedToTrigger": "Failed to trigger sync",
+      "failedToLoadStatus": "Failed to load sync status",
+      "errorMessage": "Sync encountered errors. Please check the logs.",
+      "conflictsDetected": "{{count}} conflict(s) detected",
+      "resolveConflict": "Resolve Conflict",
+      "status": {
+        "synced": "Synced",
+        "conflict": "Conflict",
+        "pending": "Pending",
+        "ok": "OK",
+        "warning": "Warning",
+        "error": "Error"
+      }
+    }
+  },
   "rfis": {
     "title": "RFIs",
     "subtitle": "Manage requests for information",
@@ -1984,7 +2012,8 @@
     "lastResponse": "Last Response",
     "priorityFilter": "Filter by Priority",
     "timeAgo": "{{time}} ago",
-    "allPriorities": "All Priorities"
+    "allPriorities": "All Priorities",
+    "conflict": "Conflict"
   },
   "contactGroups": {
     "title": "Contact Groups",

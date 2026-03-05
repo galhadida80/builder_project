@@ -403,6 +403,7 @@ class RFIService:
         status: Optional[str] = None,
         priority: Optional[str] = None,
         search: Optional[str] = None,
+        sync_status: Optional[str] = None,
         page: int = 1,
         page_size: int = 20
     ) -> tuple[list[RFI], int]:
@@ -412,6 +413,8 @@ class RFIService:
             query = query.where(RFI.status == status)
         if priority:
             query = query.where(RFI.priority == priority)
+        if sync_status:
+            query = query.where(RFI.sync_status == sync_status)
         if search:
             search_term = f"%{search}%"
             query = query.where(

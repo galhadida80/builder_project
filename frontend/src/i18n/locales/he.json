@@ -2064,6 +2064,34 @@
       "vcfHowDescription": "באייפון: אנשי קשר → בחר → שתף → שמור כקובץ. באנדרואיד: אנשי קשר → ⋮ → ייצוא → קובץ VCF."
     }
   },
+  "acc": {
+    "sync": {
+      "title": "סנכרון ACC",
+      "lastSync": "סנכרון אחרון",
+      "trigger": "סנכרן כעת",
+      "conflicts": "קונפליקטים",
+      "totalSynced": "סה\"כ מסונכרן",
+      "neverSynced": "לא בוצע מעולם",
+      "justNow": "עכשיו",
+      "minutesAgo": "לפני {{count}} דק'",
+      "hoursAgo": "לפני {{count}} ש'",
+      "daysAgo": "לפני {{count}} ימים",
+      "syncTriggered": "הסנכרון התחיל בהצלחה",
+      "failedToTrigger": "נכשל להפעיל סנכרון",
+      "failedToLoadStatus": "נכשל לטעון סטטוס סנכרון",
+      "errorMessage": "הסנכרון נתקל בשגיאות. אנא בדוק את הלוגים.",
+      "conflictsDetected": "התגלו {{count}} קונפליקטים",
+      "resolveConflict": "פתור קונפליקט",
+      "status": {
+        "synced": "מסונכרן",
+        "conflict": "קונפליקט",
+        "pending": "ממתין",
+        "ok": "תקין",
+        "warning": "אזהרה",
+        "error": "שגיאה"
+      }
+    }
+  },
   "rfis": {
     "title": "בקשות מידע",
     "subtitle": "ניהול בקשות מידע (RFI)",
@@ -2166,7 +2194,8 @@
     "lastResponse": "תשובה אחרונה",
     "priorityFilter": "סינון לפי דחיפות",
     "timeAgo": "לפני {{time}}",
-    "allPriorities": "כל העדיפויות"
+    "allPriorities": "כל העדיפויות",
+    "conflict": "קונפליקט"
   },
   "contactGroups": {
     "title": "קבוצות אנשי קשר",

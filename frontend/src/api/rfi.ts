@@ -41,6 +41,9 @@ export interface RFI {
   relatedMaterial?: { id: string; name: string; materialType?: string }
   relatedArea?: { id: string; name: string; areaCode?: string; floorNumber?: number }
   responses?: RFIResponseData[]
+  sync_source?: string
+  sync_status?: string
+  last_synced_at?: string
 }
 
 export interface RFIResponseData {
@@ -79,6 +82,9 @@ export interface RFIListItem {
   sentAt?: string
   respondedAt?: string
   responseCount: number
+  syncSource?: string
+  syncStatus?: string
+  lastSyncedAt?: string
 }
 
 export interface RFICreate {
@@ -165,6 +171,28 @@ export interface RFIFilters {
   page_size?: number
 }
 
+export interface ACCSyncStatus {
+  syncHealth: 'ok' | 'warning' | 'error'
+  lastSyncedAt?: string
+  totalSynced: number
+  conflictCount: number
+  errorMessage?: string
+}
+
+export interface ACCConflictItem {
+  id: string
+  rfiNumber: string
+  subject: string
+  conflictFields: string[]
+  localUpdatedAt: string
+  accUpdatedAt: string
+  accMetadata?: Record<string, unknown>
+}
+
+export interface ACCConflictResolveRequest {
+  strategy: 'last_write_wins' | 'prefer_local' | 'prefer_acc'
+}
+
 export const rfiApi = {
   list: async (projectId: string, filters?: RFIFilters): Promise<PaginatedRFIResponse> => {
     const params = new URLSearchParams()
@@ -235,6 +263,26 @@ export const rfiApi = {
 
   reopenRfi: async (rfiId: string): Promise<RFI> => {
     const response = await apiClient.patch(`/rfis/${rfiId}/status`, { status: 'open' })
+    return response.data
+  },
+
+  triggerAccSync: async (projectId: string): Promise<{ message: string }> => {
+    const response = await apiClient.post(`/projects/${projectId}/acc/sync`)
+    return response.data
+  },
+
+  getAccSyncStatus: async (projectId: string): Promise<ACCSyncStatus> => {
+    const response = await apiClient.get(`/projects/${projectId}/acc/sync/status`)
+    return response.data
+  },
+
+  getAccConflicts: async (projectId: string): Promise<ACCConflictItem[]> => {
+    const response = await apiClient.get(`/projects/${projectId}/acc/conflicts`)
+    return response.data
+  },
+
+  resolveConflict: async (projectId: string, rfiId: string, strategy: ACCConflictResolveRequest['strategy']): Promise<RFI> => {
+    const response = await apiClient.post(`/projects/${projectId}/acc/conflicts/${rfiId}/resolve`, { strategy })
     return response.data
   },
 }

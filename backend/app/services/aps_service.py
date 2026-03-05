@@ -1,17 +1,29 @@
 import asyncio
 import base64
+import logging
 import time
 import urllib.parse
+from datetime import timedelta
 from typing import Any, Optional
+from uuid import UUID
 
 import httpx
+from fastapi import HTTPException
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Settings
+from app.models.bim import AutodeskConnection
+from app.utils import utcnow
+
+logger = logging.getLogger(__name__)
 
 APS_BASE_URL = "https://developer.api.autodesk.com"
 
 
 class APSService:
+    """Core Autodesk Platform Services client."""
+
     cached_token: Optional[str] = None
     token_expires_at: float = 0
     token_lock: asyncio.Lock = asyncio.Lock()
@@ -22,6 +34,7 @@ class APSService:
         self.callback_url = settings.aps_callback_url
 
     async def get_2legged_token(self) -> str:
+        """Get 2-legged OAuth token (app-level access)."""
         if APSService.cached_token and time.time() < APSService.token_expires_at:
             return APSService.cached_token
 
@@ -47,6 +60,7 @@ class APSService:
             return APSService.cached_token
 
     async def ensure_bucket(self, bucket_key: str) -> dict[str, Any]:
+        """Ensure OSS bucket exists, create if needed."""
         token = await self.get_2legged_token()
         async with httpx.AsyncClient() as client:
             resp = await client.post(
@@ -62,7 +76,14 @@ class APSService:
             resp.raise_for_status()
             return resp.json()
 
-    async def upload_object(self, bucket_key: str, object_key: str, content: bytes, content_type: str) -> dict[str, Any]:
+    async def upload_object(
+        self,
+        bucket_key: str,
+        object_key: str,
+        content: bytes,
+        content_type: str
+    ) -> dict[str, Any]:
+        """Upload object to OSS bucket."""
         token = await self.get_2legged_token()
         async with httpx.AsyncClient(timeout=300.0) as client:
             resp = await client.put(
@@ -77,6 +98,7 @@ class APSService:
             return resp.json()
 
     async def translate_model(self, urn: str) -> dict[str, Any]:
+        """Request model translation to SVF2 format."""
         token = await self.get_2legged_token()
         encoded_urn = base64.urlsafe_b64encode(urn.encode()).decode().rstrip("=")
         async with httpx.AsyncClient() as client:
@@ -104,6 +126,7 @@ class APSService:
             return resp.json()
 
     async def get_translation_status(self, urn: str) -> dict[str, Any]:
+        """Get model translation status and progress."""
         token = await self.get_2legged_token()
         encoded_urn = base64.urlsafe_b64encode(urn.encode()).decode().rstrip("=")
         async with httpx.AsyncClient() as client:
@@ -134,6 +157,7 @@ class APSService:
         }
 
     def get_auth_url(self, state: str) -> str:
+        """Generate OAuth authorization URL for 3-legged flow."""
         params = urllib.parse.urlencode({
             "response_type": "code",
             "client_id": self.client_id,
@@ -144,6 +168,7 @@ class APSService:
         return f"{APS_BASE_URL}/authentication/v2/authorize?{params}"
 
     async def exchange_code(self, code: str) -> dict[str, Any]:
+        """Exchange OAuth authorization code for tokens."""
         async with httpx.AsyncClient() as client:
             resp = await client.post(
                 f"{APS_BASE_URL}/authentication/v2/token",
@@ -159,6 +184,7 @@ class APSService:
             return resp.json()
 
     async def refresh_token(self, refresh_token_value: str) -> dict[str, Any]:
+        """Refresh OAuth access token."""
         async with httpx.AsyncClient() as client:
             resp = await client.post(
                 f"{APS_BASE_URL}/authentication/v2/token",
@@ -172,7 +198,49 @@ class APSService:
             resp.raise_for_status()
             return resp.json()
 
+    async def get_user_token(self, db: AsyncSession, user_id: UUID) -> str:
+        """Get user's 3-legged OAuth token, refreshing if expired."""
+        stmt = select(AutodeskConnection).where(AutodeskConnection.user_id == user_id)
+        result = await db.execute(stmt)
+        connection = result.scalar_one_or_none()
+
+        if not connection:
+            raise HTTPException(status_code=404, detail="Autodesk connection not found for user")
+
+        if not connection.access_token or not connection.refresh_token:
+            raise HTTPException(status_code=401, detail="User not authenticated with Autodesk")
+
+        now = utcnow()
+        if connection.token_expires_at and connection.token_expires_at > now:
+            return connection.access_token
+
+        try:
+            token_data = await self.refresh_token(connection.refresh_token)
+
+            connection.access_token = token_data["access_token"]
+            if "refresh_token" in token_data:
+                connection.refresh_token = token_data["refresh_token"]
+
+            expires_in = token_data.get("expires_in", 3600)
+            connection.token_expires_at = now + timedelta(seconds=expires_in)
+
+            await db.commit()
+            await db.refresh(connection)
+
+            return connection.access_token
+
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 400:
+                raise HTTPException(
+                    status_code=401,
+                    detail="Failed to refresh Autodesk token. Please re-authenticate.",
+                )
+            raise HTTPException(status_code=500, detail=f"Error refreshing Autodesk token: {str(e)}")
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Unexpected error managing Autodesk token: {str(e)}")
+
     async def get_model_views(self, urn: str) -> list[dict[str, Any]]:
+        """Get available views/viewables from translated model."""
         token = await self.get_2legged_token()
         encoded_urn = base64.urlsafe_b64encode(urn.encode()).decode().rstrip("=")
         async with httpx.AsyncClient() as client:
@@ -185,6 +253,7 @@ class APSService:
         return data.get("data", {}).get("metadata", [])
 
     async def get_object_tree(self, urn: str, guid: str) -> dict[str, Any]:
+        """Get model object tree for specific view."""
         token = await self.get_2legged_token()
         encoded_urn = base64.urlsafe_b64encode(urn.encode()).decode().rstrip("=")
         async with httpx.AsyncClient(timeout=180.0) as client:
@@ -196,6 +265,7 @@ class APSService:
             return resp.json()
 
     async def get_object_properties(self, urn: str, guid: str) -> list[dict[str, Any]]:
+        """Get properties for all objects in model view."""
         token = await self.get_2legged_token()
         encoded_urn = base64.urlsafe_b64encode(urn.encode()).decode().rstrip("=")
         async with httpx.AsyncClient(timeout=180.0) as client:
