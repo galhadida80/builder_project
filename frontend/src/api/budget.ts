@@ -22,6 +22,7 @@ export interface CostEntryCreateData {
   amount: number
   entry_date: string
   vendor?: string
+  vendor_id?: string
   reference_number?: string
 }
 

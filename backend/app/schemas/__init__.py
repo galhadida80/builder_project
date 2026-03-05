@@ -66,6 +66,7 @@ from app.schemas.vendor import (
     VendorCreate,
     VendorPerformanceCreate,
     VendorPerformanceResponse,
+    VendorPerformanceUpdate,
     VendorResponse,
     VendorUpdate,
 )

@@ -57,6 +57,7 @@ export {
   Popover,
   Radio,
   RadioGroup,
+  Rating,
   Select,
   Skeleton,
   Slide,

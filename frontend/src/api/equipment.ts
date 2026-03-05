@@ -11,6 +11,7 @@ interface EquipmentCreate {
   specifications?: Record<string, unknown>
   installation_date?: string
   warranty_expiry?: string
+  vendor_id?: string
   notes?: string
   area_id?: string
 }
@@ -24,6 +25,7 @@ interface EquipmentUpdate {
   specifications?: Record<string, unknown>
   installation_date?: string
   warranty_expiry?: string
+  vendor_id?: string
   notes?: string
   area_id?: string
 }

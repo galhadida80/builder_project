@@ -162,6 +162,7 @@ api_router.include_router(subcontractor_tasks.router, tags=["subcontractor-porta
 api_router.include_router(subcontractor_rfis.router, tags=["subcontractor-portal"])
 api_router.include_router(subcontractor_approvals.router, tags=["subcontractor-portal"])
 api_router.include_router(time_tracking.router, tags=["time_tracking"])
+api_router.include_router(vendors.router, tags=["vendors"])
 api_router.include_router(work_summary.router, prefix="/auth", tags=["auth"])
 api_router.include_router(safety_incidents.router, tags=["safety_incidents"])
 api_router.include_router(near_misses.router, tags=["near_misses"])

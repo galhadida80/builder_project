@@ -86,6 +86,7 @@ from app.models.client_portal_access import ClientPortalAccess
 from app.models.export_job import ExportJob, ExportFormat, ExportStatus, ExportType
 from app.models.time_entry import TimeEntry
 from app.models.timesheet import Timesheet
+from app.models.vendor import Vendor, VendorPerformance
 
 __all__ = [
     "AccProjectLink",
