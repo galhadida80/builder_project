@@ -41,9 +41,9 @@ export interface RFI {
   relatedMaterial?: { id: string; name: string; materialType?: string }
   relatedArea?: { id: string; name: string; areaCode?: string; floorNumber?: number }
   responses?: RFIResponseData[]
-  sync_source?: string
-  sync_status?: string
-  last_synced_at?: string
+  syncSource?: string
+  syncStatus?: string
+  lastSyncedAt?: string
 }
 
 export interface RFIResponseData {

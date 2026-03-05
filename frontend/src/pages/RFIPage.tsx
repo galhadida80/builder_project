@@ -498,7 +498,7 @@ export default function RFIPage() {
                     sx={{ fontSize: '0.65rem', height: 22, borderColor: 'primary.light', color: 'primary.main' }}
                   />
                   <StatusBadge status={row.status} size="small" />
-                  {row.sync_source === 'acc' && (
+                  {row.syncSource === 'acc' && (
                     <Chip
                       label="ACC"
                       size="small"
@@ -513,7 +513,7 @@ export default function RFIPage() {
                       }}
                     />
                   )}
-                  {row.sync_status === 'conflict' && (
+                  {row.syncStatus === 'conflict' && (
                     <Chip
                       label={t('rfis.conflict')}
                       size="small"

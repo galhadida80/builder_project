@@ -69,7 +69,6 @@ import BillingPage from './pages/BillingPage'
 import TimeTrackingPage from './pages/TimeTrackingPage'
 import FloorplanViewerPage from './pages/FloorplanViewerPage'
 import MarketplacePage from './pages/MarketplacePage'
-import VendorsPage from './pages/VendorsPage'
 import DocumentLibraryPage from './pages/DocumentLibraryPage'
 
 const BIMPage = lazy(() => import('./pages/BIMPage'))
