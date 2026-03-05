@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+
+type TFunc = ReturnType<typeof useTranslation>['t']
 import { useParams } from 'react-router-dom'
 import { Card } from '../ui/Card'
 import { EmptyState } from '../ui/EmptyState'
