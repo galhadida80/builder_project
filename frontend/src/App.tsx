@@ -43,6 +43,11 @@ import ChecklistsPage from './pages/ChecklistsPage'
 import MobileChecklistPage from './pages/MobileChecklistPage'
 import DefectsPage from './pages/DefectsPage'
 import DefectDetailPage from './pages/DefectDetailPage'
+import SafetyDashboardPage from './pages/SafetyDashboardPage'
+import SafetyTrainingPage from './pages/SafetyTrainingPage'
+import IncidentsPage from './pages/IncidentsPage'
+import NearMissesPage from './pages/NearMissesPage'
+import ToolboxTalksPage from './pages/ToolboxTalksPage'
 import TasksPage from './pages/TasksPage'
 import BudgetPage from './pages/BudgetPage'
 import OrganizationsPage from './pages/OrganizationsPage'
@@ -144,6 +149,11 @@ function AppRoutes() {
               <Route path="checklists/fill/:instanceId" element={<MobileChecklistPage />} />
               <Route path="defects" element={<DefectsPage />} />
               <Route path="defects/:defectId" element={<DefectDetailPage />} />
+              <Route path="safety" element={<SafetyDashboardPage />} />
+              <Route path="safety/incidents" element={<IncidentsPage />} />
+              <Route path="safety/near-misses" element={<NearMissesPage />} />
+              <Route path="safety/toolbox-talks" element={<ToolboxTalksPage />} />
+              <Route path="safety/training" element={<SafetyTrainingPage />} />
               <Route path="tasks" element={<TasksPage />} />
               <Route path="budget" element={<BudgetPage />} />
               <Route path="kpis" element={<CustomKPIPage />} />

@@ -1,0 +1,82 @@
+{
+  "files_to_modify": {
+    "backend": [
+      "app/models/__init__.py",
+      "app/schemas/__init__.py",
+      "app/api/v1/router.py"
+    ],
+    "frontend": [
+      "src/App.tsx",
+      "src/i18n/locales/he.json",
+      "src/i18n/locales/en.json"
+    ]
+  },
+  "files_to_create": {
+    "backend": [
+      "app/models/safety_incident.py",
+      "app/models/near_miss.py",
+      "app/models/safety_training.py",
+      "app/models/toolbox_talk.py",
+      "app/schemas/safety_incident.py",
+      "app/schemas/near_miss.py",
+      "app/schemas/safety_training.py",
+      "app/schemas/toolbox_talk.py",
+      "app/api/v1/safety.py",
+      "app/services/safety_report_service.py",
+      "alembic/versions/056_add_safety_incident_tables.py"
+    ],
+    "frontend": [
+      "src/types/safety.ts",
+      "src/api/safety.ts",
+      "src/pages/SafetyDashboardPage.tsx",
+      "src/pages/IncidentsPage.tsx",
+      "src/pages/NearMissesPage.tsx",
+      "src/pages/SafetyTrainingPage.tsx",
+      "src/pages/ToolboxTalksPage.tsx",
+      "src/components/safety/IncidentFormModal.tsx",
+      "src/components/safety/NearMissFormModal.tsx",
+      "src/components/safety/SafetyKPICards.tsx",
+      "src/components/safety/ToolboxTalkFormModal.tsx"
+    ]
+  },
+  "files_to_reference": [
+    "backend/app/models/inspection.py",
+    "backend/app/models/defect.py",
+    "backend/app/schemas/inspection.py",
+    "backend/app/schemas/defect.py",
+    "backend/app/api/v1/inspections.py",
+    "backend/app/api/v1/defects.py",
+    "backend/app/services/notification_service.py",
+    "frontend/src/pages/InspectionsPage.tsx",
+    "frontend/src/pages/DefectsPage.tsx",
+    "frontend/src/components/defects/DefectFormModal.tsx"
+  ],
+  "patterns": {
+    "model_pattern": "Use SQLAlchemy Base with UUID primary keys, mapped_column for fields, relationship() for FKs. Include created_at, updated_at, created_by_id. Use Enum classes for status fields.",
+    "schema_pattern": "Request schemas use BaseModel with field validators. Response schemas extend CamelCaseModel (auto converts snake_case to camelCase). Use sanitize_string for text fields.",
+    "route_pattern": "Use APIRouter, nested endpoints like /projects/{project_id}/resource. POST always nested. Use require_permission() decorator for RBAC. Include audit logging via create_audit_log().",
+    "service_pattern": "Separate service layer for business logic. Use async/await. Services handle notifications via notify_project_admins() or broadcast_notification().",
+    "frontend_pattern": "React functional components with TypeScript. Use MUI components, useTranslation() for i18n, react-hook-form for forms. Mobile-first RTL design.",
+    "migration_pattern": "Alembic migrations numbered sequentially (056, 057, etc). Use descriptive names. Always include upgrade() and downgrade()."
+  },
+  "existing_implementations": {
+    "description": "Found existing inspection system with Finding model (similar to incident reporting), defect tracking system, and notification broadcasting system. Can reuse patterns from these modules.",
+    "relevant_files": [
+      "backend/app/models/inspection.py",
+      "backend/app/models/defect.py",
+      "backend/app/services/notification_service.py",
+      "frontend/src/pages/InspectionsPage.tsx"
+    ],
+    "reusable_components": {
+      "severity_badges": "SeverityBadge component in frontend",
+      "notification_system": "broadcast_notification in notification_service",
+      "photo_upload": "Photos field in Finding model (JSONB list)",
+      "audit_logging": "create_audit_log in audit_service"
+    }
+  },
+  "regulatory_context": {
+    "israeli_standard": "teken 5970 - Israeli workplace safety regulations",
+    "required_fields": "severity classification, photos, witness details, root cause analysis",
+    "compliance_features": "Safety KPI dashboard for regulatory reporting"
+  }
+}
