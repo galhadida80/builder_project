@@ -1,7 +1,5 @@
 """PDF processing service for splitting and extracting pages."""
 
-import io
-
 import fitz  # PyMuPDF
 
 

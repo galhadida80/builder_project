@@ -1,7 +1,6 @@
 """Document processing Celery tasks for batch uploads."""
 
 import uuid
-from datetime import datetime
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
