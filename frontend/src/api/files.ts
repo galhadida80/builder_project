@@ -13,6 +13,39 @@ export interface FileRecord {
   uploadedById?: string
 }
 
+export interface BatchUploadMetadata {
+  entityType: string
+  entityId: string
+}
+
+export interface ProcessingTask {
+  id: string
+  batchUploadId: string
+  fileId: string
+  taskType: string
+  status: string
+  progressPercent: number
+  errorMessage?: string
+  celeryTaskId?: string
+  startedAt?: string
+  completedAt?: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface BatchUploadRecord {
+  id: string
+  projectId: string
+  userId: string
+  totalFiles: number
+  completedFiles: number
+  failedFiles: number
+  status: string
+  createdAt: string
+  updatedAt: string
+  processingTasks: ProcessingTask[]
+}
+
 export const filesApi = {
   list: async (projectId: string, entityType?: string, entityId?: string): Promise<FileRecord[]> => {
     const params = new URLSearchParams()
@@ -53,5 +86,34 @@ export const filesApi = {
       responseType: 'blob',
     })
     return URL.createObjectURL(response.data)
+  },
+
+  batchUpload: async (
+    projectId: string,
+    files: File[],
+    metadata: BatchUploadMetadata
+  ): Promise<BatchUploadRecord> => {
+    const formData = new FormData()
+    files.forEach((file) => {
+      formData.append('files', file)
+    })
+    formData.append('entity_type', metadata.entityType)
+    formData.append('entity_id', metadata.entityId)
+    const response = await apiClient.post(
+      `/projects/${projectId}/batch-uploads`,
+      formData,
+      { headers: { 'Content-Type': 'multipart/form-data' } }
+    )
+    return response.data
+  },
+
+  getBatchStatus: async (batchId: string): Promise<BatchUploadRecord> => {
+    const response = await apiClient.get(`/batch-uploads/${batchId}`)
+    return response.data
+  },
+
+  triggerProcessing: async (batchId: string): Promise<{ taskId: string; batchId: string }> => {
+    const response = await apiClient.post(`/batch-uploads/${batchId}/process`)
+    return response.data
   },
 }
