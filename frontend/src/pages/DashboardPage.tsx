@@ -133,7 +133,7 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <Box sx={{ p: { xs: 2, sm: 2, md: 3 } }}>
+      <Box sx={{ p: { xs: 2, sm: 2, md: 3 }, maxWidth: 1200, mx: 'auto' }}>
         <Skeleton variant="text" width={200} height={32} sx={{ mb: 1 }} />
         <Skeleton variant="text" width={300} height={20} sx={{ mb: { xs: 2, md: 2.5 } }} />
         <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: { xs: 1.5, md: 2 }, mb: { xs: 2, md: 2.5 } }}>
@@ -162,7 +162,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <Box sx={{ p: { xs: 2, sm: 2, md: 3 }, maxWidth: '100%', overflow: 'hidden', boxSizing: 'border-box' }}>
+    <Box sx={{ p: { xs: 2, sm: 2, md: 3 }, maxWidth: 1200, mx: 'auto', overflow: 'hidden', boxSizing: 'border-box' }}>
       <Typography
         variant="h5"
         sx={{ fontWeight: 700, color: 'text.primary', mb: 1.5, fontSize: { xs: '1.25rem', sm: '1.5rem' } }}
