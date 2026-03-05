@@ -58,15 +58,17 @@ async def create_invitation(
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
 
-    existing = await db.execute(
+    existing_result = await db.execute(
         select(ProjectInvitation).where(
             ProjectInvitation.project_id == project_id,
             ProjectInvitation.email == data.email,
             ProjectInvitation.status == InvitationStatus.PENDING.value,
         )
     )
-    if existing.scalar_one_or_none():
-        raise HTTPException(status_code=400, detail="Pending invitation already exists for this email")
+    existing_invitation = existing_result.scalar_one_or_none()
+    if existing_invitation:
+        existing_invitation.status = InvitationStatus.REVOKED.value
+        await db.flush()
 
     invitation = ProjectInvitation(
         project_id=project_id,

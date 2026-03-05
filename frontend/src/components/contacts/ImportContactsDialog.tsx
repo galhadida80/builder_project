@@ -193,9 +193,10 @@ export default function ImportContactsDialog({ open, onClose, projectId, onImpor
         client_id: GOOGLE_CLIENT_ID,
         scope: CONTACTS_SCOPE,
         callback: () => {},
-        error_callback: () => {
+        error_callback: (error: { type: string; message: string }) => {
+          console.error('[GoogleContacts] GIS error:', error.type, error.message)
           setGoogleLoading(false)
-          setGoogleError(t('contacts.import.googleError'))
+          setGoogleError(`${t('contacts.import.googleError')} (${error.type})`)
         },
       })
     }).catch(() => {})
@@ -261,7 +262,8 @@ export default function ImportContactsDialog({ open, onClose, projectId, onImpor
           const newOnes = contacts.filter(c => !existingNames.has(c.name))
           return [...prev, ...newOnes]
         })
-      } catch {
+      } catch (err) {
+        console.error('[GoogleContacts] Fetch error:', err)
         setGoogleError(t('contacts.import.googleError'))
       } finally { setGoogleLoading(false) }
     }
