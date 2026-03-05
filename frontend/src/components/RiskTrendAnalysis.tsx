@@ -57,7 +57,7 @@ export default function RiskTrendAnalysis({
 
   if (loading) {
     return (
-      <Box sx={{ maxWidth: 600, mx: 'auto', p: { xs: 2, sm: 3 } }}>
+      <Box sx={{ maxWidth: { xs: 600, md: '100%' }, mx: 'auto', p: { xs: 2, sm: 3 } }}>
         <Skeleton width={200} height={32} sx={{ mb: 2 }} />
         <Skeleton variant="rectangular" width="100%" height={350} sx={{ borderRadius: 2, mb: 2 }} />
         <Skeleton variant="rectangular" width="100%" height={350} sx={{ borderRadius: 2 }} />

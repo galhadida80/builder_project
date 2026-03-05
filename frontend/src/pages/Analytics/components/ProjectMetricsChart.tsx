@@ -1,5 +1,5 @@
 import { LineChart } from '@mui/x-charts/LineChart'
-import { Box, Typography, Skeleton, Paper, styled } from '@/mui'
+import { Box, Typography, Skeleton, Paper, styled, useTheme, useMediaQuery } from '@/mui'
 
 interface ProjectMetricsChartProps {
   title: string
@@ -14,7 +14,10 @@ interface ProjectMetricsChartProps {
 }
 
 const ChartContainer = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(3),
+  padding: theme.spacing(2),
+  [theme.breakpoints.up('md')]: {
+    padding: theme.spacing(3),
+  },
   borderRadius: 12,
   height: '100%',
   display: 'flex',
@@ -29,16 +32,21 @@ export default function ProjectMetricsChart({
   height = 350,
   chartType = 'line',
 }: ProjectMetricsChartProps) {
+  const theme = useTheme()
+  const isDesktop = useMediaQuery(theme.breakpoints.up('md'))
+  const isLargeDesktop = useMediaQuery(theme.breakpoints.up('lg'))
+
+  const responsiveHeight = isLargeDesktop ? Math.max(height, 350) : isDesktop ? Math.max(height, 300) : height
+
   if (loading) {
     return (
       <ChartContainer>
         <Skeleton width={200} height={28} sx={{ mb: 2 }} />
-        <Skeleton variant="rectangular" width="100%" height={height - 60} sx={{ borderRadius: 2 }} />
+        <Skeleton variant="rectangular" width="100%" height={responsiveHeight - 60} sx={{ borderRadius: 2 }} />
       </ChartContainer>
     )
   }
 
-  // Transform data into the format expected by MUI X Charts
   const series = data.map((item) => ({
     data: item.values,
     label: item.label,
@@ -48,7 +56,7 @@ export default function ProjectMetricsChart({
   return (
     <ChartContainer>
       <Typography
-        variant="h6"
+        variant={isDesktop ? 'subtitle1' : 'h6'}
         sx={{
           fontWeight: 600,
           color: 'text.primary',
@@ -63,7 +71,7 @@ export default function ProjectMetricsChart({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          minHeight: height,
+          minHeight: responsiveHeight,
         }}
       >
         <LineChart
@@ -75,18 +83,20 @@ export default function ProjectMetricsChart({
               label: '',
             },
           ]}
-          height={height}
-          margin={{ top: 10, right: 20, bottom: 30, left: 50 }}
+          height={responsiveHeight}
+          margin={{ top: 10, right: isDesktop ? 30 : 20, bottom: 30, left: 50 }}
           sx={(theme) => ({
             width: '100%',
             '& .MuiChartsAxis-tickLabel': {
               fill: theme.palette.text.secondary,
+              fontSize: isDesktop ? '0.8125rem' : '0.75rem',
             },
             '& .MuiChartsAxis-label': {
               fill: theme.palette.text.primary,
             },
             '& .MuiChartsLegend-series text': {
               fill: theme.palette.text.primary,
+              fontSize: isDesktop ? '0.8125rem' : '0.75rem',
             },
           })}
         />

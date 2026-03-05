@@ -1,5 +1,5 @@
 import { PieChart } from '@mui/x-charts/PieChart'
-import { Box, Typography, Skeleton, Paper, styled } from '@/mui'
+import { Box, Typography, Skeleton, Paper, styled, useTheme, useMediaQuery } from '@/mui'
 
 interface DistributionChartProps {
   title: string
@@ -18,7 +18,10 @@ interface DistributionChartProps {
 }
 
 const ChartContainer = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(3),
+  padding: theme.spacing(2),
+  [theme.breakpoints.up('md')]: {
+    padding: theme.spacing(3),
+  },
   borderRadius: 12,
   height: '100%',
   display: 'flex',
@@ -46,25 +49,30 @@ export default function DistributionChart({
   showLegend = true,
   showLabels = true,
 }: DistributionChartProps) {
+  const theme = useTheme()
+  const isDesktop = useMediaQuery(theme.breakpoints.up('md'))
+  const isLargeDesktop = useMediaQuery(theme.breakpoints.up('lg'))
+
+  const responsiveHeight = isLargeDesktop ? Math.max(height, 320) : isDesktop ? Math.max(height, 280) : height
+  const responsiveOuter = isLargeDesktop ? outerRadius * 1.4 : isDesktop ? outerRadius * 1.2 : outerRadius
+  const responsiveInner = isLargeDesktop ? innerRadius * 1.4 : isDesktop ? innerRadius * 1.2 : innerRadius
+
   if (loading) {
     return (
       <ChartContainer>
         <Skeleton width={200} height={28} sx={{ mb: 2 }} />
-        <Skeleton variant="rectangular" width="100%" height={height - 60} sx={{ borderRadius: 2 }} />
+        <Skeleton variant="rectangular" width="100%" height={responsiveHeight - 60} sx={{ borderRadius: 2 }} />
       </ChartContainer>
     )
   }
 
-  // Add default colors to data if not provided
   const chartData = data.map((item, index) => ({
     ...item,
     color: item.color || defaultColors[index % defaultColors.length],
   }))
 
-  // Calculate total for percentage display
   const total = chartData.reduce((sum, item) => sum + item.value, 0)
 
-  // Format data for PieChart with percentages in labels
   const formattedData = chartData.map((item) => ({
     ...item,
     label: showLabels && total > 0 ? `${item.label} (${((item.value / total) * 100).toFixed(1)}%)` : item.label,
@@ -73,7 +81,7 @@ export default function DistributionChart({
   return (
     <ChartContainer>
       <Typography
-        variant="h6"
+        variant={isDesktop ? 'subtitle1' : 'h6'}
         sx={{
           fontWeight: 600,
           color: 'text.primary',
@@ -88,27 +96,33 @@ export default function DistributionChart({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          minHeight: height,
+          minHeight: responsiveHeight,
         }}
       >
         <PieChart
           series={[
             {
               data: formattedData,
-              innerRadius,
-              outerRadius,
+              innerRadius: responsiveInner,
+              outerRadius: responsiveOuter,
               paddingAngle: 2,
               cornerRadius: 4,
               highlightScope: { fade: 'global', highlight: 'item' },
             },
           ]}
-          height={height}
-          margin={{ top: 10, right: 20, bottom: 30, left: 20 }}
+          height={responsiveHeight}
+          margin={{ top: 10, right: isDesktop ? 30 : 20, bottom: 30, left: isDesktop ? 30 : 20 }}
+          slotProps={{
+            legend: {
+              direction: isDesktop ? 'column' : 'row',
+              position: { vertical: isDesktop ? 'middle' : 'bottom', horizontal: isDesktop ? 'right' : 'middle' },
+            },
+          }}
           sx={(theme) => ({
             width: '100%',
             '& .MuiChartsLegend-series text': {
               fill: theme.palette.text.primary,
-              fontSize: '0.875rem',
+              fontSize: isDesktop ? '0.8125rem' : '0.75rem',
             },
             '& .MuiChartsLegend-mark': {
               rx: 2,

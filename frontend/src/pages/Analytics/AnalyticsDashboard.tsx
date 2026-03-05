@@ -89,14 +89,14 @@ export default function AnalyticsDashboard() {
 
   if (loading) {
     return (
-      <Box sx={{ maxWidth: 600, mx: 'auto', p: { xs: 2, sm: 3 } }}>
+      <Box sx={{ maxWidth: { xs: 600, md: '100%' }, mx: 'auto', p: { xs: 2, sm: 3 } }}>
         <Skeleton variant="rounded" height={48} sx={{ borderRadius: 2, mb: 3 }} />
         <Box sx={{ display: 'flex', gap: 1, mb: 3 }}>
           {[...Array(4)].map((_, i) => (
             <Skeleton key={i} variant="rounded" height={36} width={70} sx={{ borderRadius: 4 }} />
           ))}
         </Box>
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1.5, mb: 3 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 1.5, mb: 3 }}>
           {[...Array(4)].map((_, i) => (
             <Skeleton key={i} variant="rounded" height={100} sx={{ borderRadius: 3 }} />
           ))}
@@ -111,7 +111,7 @@ export default function AnalyticsDashboard() {
 
   if (!metricsData) {
     return (
-      <Box sx={{ maxWidth: 600, mx: 'auto' }}>
+      <Box sx={{ maxWidth: { xs: 600, md: '100%' }, mx: 'auto' }}>
         <PageHeader
           title={t('analytics.title')}
           icon={<AssessmentIcon />}
@@ -123,7 +123,7 @@ export default function AnalyticsDashboard() {
   }
 
   return (
-    <Box sx={{ maxWidth: 600, mx: 'auto', pb: 10 }}>
+    <Box sx={{ maxWidth: { xs: 600, md: '100%' }, mx: 'auto', pb: 10 }}>
       <PageHeader
         title={t('analytics.title')}
         icon={<AssessmentIcon />}
@@ -158,7 +158,7 @@ export default function AnalyticsDashboard() {
           />
         </Box>
 
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1.5, px: { xs: 2, sm: 3 }, py: 3 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 1.5, px: { xs: 2, sm: 3 }, py: 3 }}>
           <AnalyticsKPICard
             title={t('analytics.totalProjects')}
             value={metricsData?.totalProjects ?? 0}
@@ -205,7 +205,7 @@ export default function AnalyticsDashboard() {
 
         <Box sx={{ px: { xs: 2, sm: 3 }, mb: 3 }}>
           <Grid container spacing={2}>
-            <Grid item xs={12}>
+            <Grid item xs={12} md={6}>
               <DistributionChart
                 title={t('analytics.rfiStatus')}
                 data={distributionsData?.rfiStatus ?? []}
@@ -213,7 +213,7 @@ export default function AnalyticsDashboard() {
                 loading={loading}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid item xs={12} md={6}>
               <DistributionChart
                 title={t('analytics.equipmentStatus')}
                 data={distributionsData?.equipmentStatus ?? []}

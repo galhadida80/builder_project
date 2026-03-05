@@ -6,7 +6,7 @@ import { EmptyState } from '../ui/EmptyState'
 import DistributionChart from '../../pages/Analytics/components/DistributionChart'
 import ProjectMetricsChart from '../../pages/Analytics/components/ProjectMetricsChart'
 import type { DashboardStats } from '../../api/dashboardStats'
-import { Box, Typography, Paper, Skeleton } from '@/mui'
+import { Box, Typography, Paper, Skeleton, useTheme, useMediaQuery } from '@/mui'
 
 interface DashboardChartsProps {
   dashboardStats: DashboardStats | null
@@ -16,6 +16,10 @@ interface DashboardChartsProps {
 
 export default function DashboardCharts({ dashboardStats, statsLoading, dateLocale }: DashboardChartsProps) {
   const { t } = useTranslation()
+  const theme = useTheme()
+  const isDesktop = useMediaQuery(theme.breakpoints.up('md'))
+  const isLargeDesktop = useMediaQuery(theme.breakpoints.up('lg'))
+  const barChartHeight = isLargeDesktop ? 320 : isDesktop ? 280 : 200
 
   const activityChartData = useMemo(() => {
     if (!dashboardStats?.weeklyActivity?.length) return { data: [], labels: [] }
@@ -44,7 +48,7 @@ export default function DashboardCharts({ dashboardStats, statsLoading, dateLoca
           data={activityChartData.data}
           xAxisLabels={activityChartData.labels}
           loading={statsLoading}
-          height={220}
+          height={barChartHeight}
         />
         <Paper
           elevation={0}
@@ -66,7 +70,7 @@ export default function DashboardCharts({ dashboardStats, statsLoading, dateLoca
             <Skeleton variant="circular" width={120} height={120} />
           ) : (
             <>
-              <CircularProgressDisplay value={dashboardStats?.overallProgress ?? 0} size={100} thickness={8} color="primary" />
+              <CircularProgressDisplay value={dashboardStats?.overallProgress ?? 0} size={isDesktop ? 140 : 100} thickness={8} color="primary" />
               <Typography variant="caption" color="text.secondary" sx={{ mt: 1.5 }}>
                 {dashboardStats?.areaProgressByFloor.length ?? 0} {t('dashboard.charts.floorsTracked')}
               </Typography>
@@ -77,9 +81,9 @@ export default function DashboardCharts({ dashboardStats, statsLoading, dateLoca
 
       {/* Distribution Charts */}
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: { xs: 1.5, md: 2 }, mb: { xs: 2.5, md: 3 } }}>
-        <DistributionChart title={t('dashboard.charts.equipmentStatus')} data={toDistChartData(dashboardStats?.equipmentDistribution ?? [])} loading={statsLoading} height={200} innerRadius={50} outerRadius={75} />
-        <DistributionChart title={t('dashboard.charts.materialStatus')} data={toDistChartData(dashboardStats?.materialDistribution ?? [])} loading={statsLoading} height={200} innerRadius={50} outerRadius={75} />
-        <DistributionChart title={t('dashboard.charts.rfiStatus')} data={toDistChartData(dashboardStats?.rfiDistribution ?? [])} loading={statsLoading} height={200} innerRadius={50} outerRadius={75} />
+        <DistributionChart title={t('dashboard.charts.equipmentStatus')} data={toDistChartData(dashboardStats?.equipmentDistribution ?? [])} loading={statsLoading} height={isDesktop ? 280 : 200} innerRadius={50} outerRadius={75} />
+        <DistributionChart title={t('dashboard.charts.materialStatus')} data={toDistChartData(dashboardStats?.materialDistribution ?? [])} loading={statsLoading} height={isDesktop ? 280 : 200} innerRadius={50} outerRadius={75} />
+        <DistributionChart title={t('dashboard.charts.rfiStatus')} data={toDistChartData(dashboardStats?.rfiDistribution ?? [])} loading={statsLoading} height={isDesktop ? 280 : 200} innerRadius={50} outerRadius={75} />
       </Box>
 
       {/* Area Progress + Findings Severity */}
@@ -97,13 +101,13 @@ export default function DashboardCharts({ dashboardStats, statsLoading, dateLoca
             {t('dashboard.charts.areaProgress')}
           </Typography>
           {statsLoading ? (
-            <Skeleton variant="rectangular" height={200} sx={{ borderRadius: 2 }} />
+            <Skeleton variant="rectangular" height={barChartHeight} sx={{ borderRadius: 2 }} />
           ) : (dashboardStats?.areaProgressByFloor.length ?? 0) > 0 ? (
             <BarChart
               xAxis={[{ scaleType: 'band' as const, data: dashboardStats!.areaProgressByFloor.map(f => `${t('dashboard.charts.floor')} ${f.floor}`) }]}
               yAxis={[{ valueFormatter: (v: number | null) => v == null ? '' : `${Math.round(v)}%` }]}
               series={[{ data: dashboardStats!.areaProgressByFloor.map(f => Math.round(f.avgProgress)), label: t('dashboard.charts.avgProgress'), color: '#e07842', valueFormatter: (v: number | null) => v == null ? '' : `${Math.round(v)}%` }]}
-              height={200}
+              height={barChartHeight}
               margin={{ top: 20, right: 10, bottom: 30, left: 40 }}
             />
           ) : (
@@ -123,12 +127,12 @@ export default function DashboardCharts({ dashboardStats, statsLoading, dateLoca
             {t('dashboard.charts.findingsSeverity')}
           </Typography>
           {statsLoading ? (
-            <Skeleton variant="rectangular" height={200} sx={{ borderRadius: 2 }} />
+            <Skeleton variant="rectangular" height={barChartHeight} sx={{ borderRadius: 2 }} />
           ) : (dashboardStats?.findingsSeverity.length ?? 0) > 0 ? (
             <BarChart
               xAxis={[{ scaleType: 'band' as const, data: dashboardStats!.findingsSeverity.map(f => f.label) }]}
               series={[{ data: dashboardStats!.findingsSeverity.map(f => f.value), label: t('dashboard.charts.findings'), color: '#d32f2f' }]}
-              height={200}
+              height={barChartHeight}
               margin={{ top: 20, right: 10, bottom: 30, left: 40 }}
             />
           ) : (
