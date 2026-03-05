@@ -1,0 +1,680 @@
+{
+  "feature": "Floorplan-Based Defect & Issue Pinning",
+  "workflow_type": "feature",
+  "workflow_rationale": "Multi-service feature requiring database models, backend APIs, and frontend UI components. Builds on existing defects infrastructure to add spatial visualization.",
+  "phases": [
+    {
+      "id": "phase-1-database",
+      "name": "Database Models & Migration",
+      "type": "implementation",
+      "description": "Create floorplan and pin data models with migration",
+      "depends_on": [],
+      "parallel_safe": true,
+      "subtasks": [
+        {
+          "id": "subtask-1-1",
+          "description": "Create Floorplan model for storing floorplan metadata",
+          "service": "backend",
+          "files_to_modify": [],
+          "files_to_create": [
+            "backend/app/models/floorplan.py"
+          ],
+          "patterns_from": [
+            "backend/app/models/file.py",
+            "backend/app/models/area.py"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "python -c \"from backend.app.models.floorplan import Floorplan, FloorplanPin; print('OK')\"",
+            "expected": "OK"
+          },
+          "status": "completed",
+          "activeForm": "Creating Floorplan model for storing floorplan metadata",
+          "notes": "Created Floorplan and FloorplanPin models following established patterns. Models include project_id, floor_number, file_id for Floorplan; and floorplan_id, entity_type, entity_id, x/y positions for FloorplanPin. Verification passed successfully.",
+          "updated_at": "2026-02-28T23:24:16.850579+00:00"
+        },
+        {
+          "id": "subtask-1-2",
+          "description": "Create Alembic migration for floorplans and pins tables",
+          "service": "backend",
+          "files_to_modify": [],
+          "files_to_create": [
+            "backend/alembic/versions/XXX_add_floorplans_and_pins.py"
+          ],
+          "patterns_from": [
+            "backend/alembic/versions/025_add_defects.py"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "cd backend && alembic check",
+            "expected": "No new upgrade operations detected"
+          },
+          "status": "completed",
+          "activeForm": "Creating Alembic migration for floorplans and pins tables",
+          "notes": "Created migration 062_add_floorplans_and_pins.py following the pattern from 025_add_defects.py. Migration includes floorplans table with project_id, floor_number, name, file_id, version, is_active, timestamps, and indexes. Also includes floorplan_pins table with floorplan_id, entity_type, entity_id, x/y positions, and appropriate indexes. All foreign keys and cascade rules properly configured. Syntax verification passed successfully.",
+          "updated_at": "2026-02-28T23:26:23.810901+00:00"
+        }
+      ]
+    },
+    {
+      "id": "phase-2-backend-schemas",
+      "name": "Backend Schemas",
+      "type": "implementation",
+      "description": "Create Pydantic schemas for floorplan and pin requests/responses",
+      "depends_on": [
+        "phase-1-database"
+      ],
+      "parallel_safe": true,
+      "subtasks": [
+        {
+          "id": "subtask-2-1",
+          "description": "Create Pydantic schemas for floorplan CRUD",
+          "service": "backend",
+          "files_to_modify": [],
+          "files_to_create": [
+            "backend/app/schemas/floorplan.py"
+          ],
+          "patterns_from": [
+            "backend/app/schemas/defect.py"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "python -c \"from backend.app.schemas.floorplan import FloorplanCreate, FloorplanResponse, FloorplanPinCreate; print('OK')\"",
+            "expected": "OK"
+          },
+          "status": "completed",
+          "activeForm": "Creating Pydantic schemas for floorplan CRUD",
+          "notes": "Created Pydantic schemas for floorplan CRUD following the defect.py pattern. Includes FloorplanCreate, FloorplanUpdate, FloorplanResponse, FloorplanPinCreate, FloorplanPinUpdate, and FloorplanPinResponse schemas. All schemas use proper validation, sanitization, and CamelCase conversion for responses. Position fields are constrained to 0.0-1.0 normalized range. Verification passed successfully.",
+          "updated_at": "2026-02-28T23:28:38.440100+00:00"
+        }
+      ]
+    },
+    {
+      "id": "phase-3-backend-api",
+      "name": "Backend API Endpoints",
+      "type": "implementation",
+      "description": "Build REST API endpoints for floorplan and pin management",
+      "depends_on": [
+        "phase-2-backend-schemas"
+      ],
+      "parallel_safe": true,
+      "subtasks": [
+        {
+          "id": "subtask-3-1",
+          "description": "Create floorplan CRUD API endpoints",
+          "service": "backend",
+          "files_to_modify": [
+            "backend/app/api/v1/router.py"
+          ],
+          "files_to_create": [
+            "backend/app/api/v1/floorplans.py"
+          ],
+          "patterns_from": [
+            "backend/app/api/v1/defects.py",
+            "backend/app/api/v1/files.py"
+          ],
+          "verification": {
+            "type": "api",
+            "method": "GET",
+            "url": "http://localhost:8000/api/v1/projects/{project_id}/floorplans",
+            "expected_status": 200
+          },
+          "status": "completed",
+          "activeForm": "Creating floorplan CRUD API endpoints",
+          "notes": "Created backend/app/api/v1/floorplans.py with full CRUD endpoints following the patterns from defects.py and files.py. Includes GET (list), POST (create), GET (single), PUT (update), and DELETE endpoints. All endpoints include proper audit logging, permission checks, and localization. Updated router.py to include floorplans router. Python syntax verification passed successfully.",
+          "updated_at": "2026-02-28T23:31:30.990149+00:00"
+        },
+        {
+          "id": "subtask-3-2",
+          "description": "Create pin creation and retrieval endpoints",
+          "service": "backend",
+          "files_to_modify": [
+            "backend/app/api/v1/floorplans.py"
+          ],
+          "files_to_create": [],
+          "patterns_from": [
+            "backend/app/api/v1/defects.py"
+          ],
+          "verification": {
+            "type": "api",
+            "method": "POST",
+            "url": "http://localhost:8000/api/v1/projects/{project_id}/floorplans/{floorplan_id}/pins",
+            "expected_status": 201
+          },
+          "status": "completed",
+          "activeForm": "Creating pin creation and retrieval endpoints",
+          "notes": "Created pin creation and retrieval endpoints in backend/app/api/v1/floorplans.py. Added GET endpoint to list all pins for a floorplan (with optional entity_type filter) and POST endpoint to create new pins. Included helper function verify_floorplan_exists to reduce code duplication. All endpoints include proper audit logging, permission checks, and localized error messages. File optimized to 300 lines exactly. Syntax verification passed successfully.",
+          "updated_at": "2026-02-28T23:35:48.199053+00:00"
+        }
+      ]
+    },
+    {
+      "id": "phase-4-frontend-types",
+      "name": "Frontend TypeScript Types",
+      "type": "implementation",
+      "description": "Define TypeScript interfaces for floorplan and pin data",
+      "depends_on": [
+        "phase-2-backend-schemas"
+      ],
+      "parallel_safe": true,
+      "subtasks": [
+        {
+          "id": "subtask-4-1",
+          "description": "Create TypeScript types for floorplan and pins",
+          "service": "frontend",
+          "files_to_modify": [],
+          "files_to_create": [
+            "frontend/src/types/floorplan.ts"
+          ],
+          "patterns_from": [
+            "frontend/src/types/index.ts"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "cd frontend && npm run type-check",
+            "expected": "No TypeScript errors"
+          },
+          "status": "completed",
+          "activeForm": "Creating TypeScript types for floorplan and pins",
+          "notes": "Created TypeScript types for floorplan and pins following the pattern from index.ts. Includes Floorplan, FloorplanPin, FileBrief interfaces with proper camelCase field names matching the backend CamelCaseModel responses. Also includes request types for create and update operations. Type-check verification passed successfully.",
+          "updated_at": "2026-02-28T23:37:50.644524+00:00"
+        }
+      ]
+    },
+    {
+      "id": "phase-5-frontend-api",
+      "name": "Frontend API Client",
+      "type": "implementation",
+      "description": "Build API client functions for floorplan operations",
+      "depends_on": [
+        "phase-4-frontend-types"
+      ],
+      "parallel_safe": true,
+      "subtasks": [
+        {
+          "id": "subtask-5-1",
+          "description": "Create floorplan API client with CRUD methods",
+          "service": "frontend",
+          "files_to_modify": [],
+          "files_to_create": [
+            "frontend/src/api/floorplans.ts"
+          ],
+          "patterns_from": [
+            "frontend/src/api/defects.ts",
+            "frontend/src/api/files.ts"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "cd frontend && npm run type-check",
+            "expected": "No TypeScript errors"
+          },
+          "status": "completed",
+          "activeForm": "Creating floorplan API client with CRUD methods",
+          "notes": "Created frontend/src/api/floorplans.ts with full CRUD methods for floorplans and pins following patterns from defects.ts and files.ts. Includes list, get, create, update, delete for floorplans, and listPins, createPin for pins. TypeScript type-check verification passed successfully.",
+          "updated_at": "2026-02-28T23:39:27.014038+00:00"
+        }
+      ]
+    },
+    {
+      "id": "phase-6-frontend-canvas",
+      "name": "Floorplan Canvas Component",
+      "type": "implementation",
+      "description": "Build interactive floorplan viewer with Fabric.js",
+      "depends_on": [
+        "phase-5-frontend-api"
+      ],
+      "parallel_safe": true,
+      "subtasks": [
+        {
+          "id": "subtask-6-1",
+          "description": "Create FloorplanCanvas component with Fabric.js integration",
+          "service": "frontend",
+          "files_to_modify": [],
+          "files_to_create": [
+            "frontend/src/components/floorplan/FloorplanCanvas.tsx"
+          ],
+          "patterns_from": [
+            "frontend/src/components/checklist/ImageAnnotator.tsx"
+          ],
+          "verification": {
+            "type": "browser",
+            "url": "http://localhost:5173/projects/:projectId/floorplans/:floorplanId",
+            "checks": [
+              "Canvas renders",
+              "Floorplan image loads",
+              "No console errors"
+            ]
+          },
+          "status": "completed",
+          "activeForm": "Creating FloorplanCanvas component with Fabric.js integration",
+          "notes": "Created FloorplanCanvas component with Fabric.js integration following ImageAnnotator pattern. Component includes canvas initialization, responsive sizing, floorplan image loading from file URL, and proper loading/error states. Added Hebrew and English i18n translations. TypeScript type-check verification passed successfully.",
+          "updated_at": "2026-02-28T23:42:22.714321+00:00"
+        },
+        {
+          "id": "subtask-6-2",
+          "description": "Create FloorplanPinOverlay component for pin rendering",
+          "service": "frontend",
+          "files_to_modify": [],
+          "files_to_create": [
+            "frontend/src/components/floorplan/FloorplanPinOverlay.tsx"
+          ],
+          "patterns_from": [
+            "frontend/src/components/defects/DefectCardList.tsx"
+          ],
+          "verification": {
+            "type": "browser",
+            "url": "http://localhost:5173/projects/:projectId/floorplans/:floorplanId",
+            "checks": [
+              "Pins render on canvas",
+              "Color-coded by status",
+              "Clickable pins"
+            ]
+          },
+          "status": "completed",
+          "activeForm": "Creating FloorplanPinOverlay component for pin rendering",
+          "notes": "Created FloorplanPinOverlay component following the pattern from DefectCardList. Component includes Fabric.js Circle rendering for pins, color-coded by defect status (red for open, yellow for in_progress, green for resolved, blue for closed). Implemented click handlers and entity status fetching via defectsApi. Pins render at normalized positions (0-1 range) on canvas. TypeScript type-check verification passed successfully.",
+          "updated_at": "2026-02-28T23:44:43.482860+00:00"
+        },
+        {
+          "id": "subtask-6-3",
+          "description": "Add click-to-create-defect interaction on canvas",
+          "service": "frontend",
+          "files_to_modify": [
+            "frontend/src/components/floorplan/FloorplanCanvas.tsx"
+          ],
+          "files_to_create": [],
+          "patterns_from": [
+            "frontend/src/components/defects/DefectFormModal.tsx"
+          ],
+          "verification": {
+            "type": "browser",
+            "url": "http://localhost:5173/projects/:projectId/floorplans/:floorplanId",
+            "checks": [
+              "Click opens defect form",
+              "Position coordinates captured",
+              "Pin created after save"
+            ]
+          },
+          "status": "completed",
+          "activeForm": "Adding click-to-create-defect interaction on canvas",
+          "notes": "Added click-to-create-defect interaction to FloorplanCanvas component. When users click on the canvas, the click position is captured (normalized to 0-1 range), the DefectFormModal opens, and upon saving the defect, a pin is automatically created at the clicked coordinates. Supports both single defect creation and multi-defect analysis via AI. TypeScript type-check verification passed successfully.",
+          "updated_at": "2026-02-28T23:48:24.765577+00:00"
+        }
+      ]
+    },
+    {
+      "id": "phase-7-frontend-page",
+      "name": "Floorplan Viewer Page",
+      "type": "implementation",
+      "description": "Build the main floorplan viewer page with layout and navigation",
+      "depends_on": [
+        "phase-6-frontend-canvas"
+      ],
+      "parallel_safe": true,
+      "subtasks": [
+        {
+          "id": "subtask-7-1",
+          "description": "Create FloorplanViewerPage with canvas and controls",
+          "service": "frontend",
+          "files_to_modify": [
+            "frontend/src/App.tsx"
+          ],
+          "files_to_create": [
+            "frontend/src/pages/FloorplanViewerPage.tsx"
+          ],
+          "patterns_from": [
+            "frontend/src/pages/DefectsPage.tsx"
+          ],
+          "verification": {
+            "type": "browser",
+            "url": "http://localhost:5173/projects/:projectId/floorplans/:floorplanId",
+            "checks": [
+              "Page loads",
+              "Canvas visible",
+              "Navigation works"
+            ]
+          },
+          "status": "completed",
+          "activeForm": "Creating FloorplanViewerPage with canvas and controls",
+          "notes": "Created FloorplanViewerPage with canvas, zoom controls (zoom in/out, fit to screen), pan/drag functionality, and mobile-responsive design. Added route to App.tsx and necessary i18n translations for both Hebrew and English.",
+          "updated_at": "2026-02-28T23:53:05.914780+00:00"
+        },
+        {
+          "id": "subtask-7-2",
+          "description": "Add floorplan upload flow to AreasPage or new upload page",
+          "service": "frontend",
+          "files_to_modify": [
+            "frontend/src/pages/AreasPage.tsx"
+          ],
+          "files_to_create": [],
+          "patterns_from": [
+            "frontend/src/api/files.ts"
+          ],
+          "verification": {
+            "type": "browser",
+            "url": "http://localhost:5173/projects/:projectId/areas",
+            "checks": [
+              "Upload button visible",
+              "File picker opens",
+              "Floorplan uploaded"
+            ]
+          },
+          "status": "completed",
+          "activeForm": "Adding floorplan upload flow to AreasPage or new upload page",
+          "notes": "Implemented floorplan upload functionality in AreasPage with upload button, file input, validation, and success/error handling. Added translations for Hebrew and English.",
+          "updated_at": "2026-02-28T23:58:51.701720+00:00"
+        }
+      ]
+    },
+    {
+      "id": "phase-8-filters",
+      "name": "Pin Filtering & Controls",
+      "type": "implementation",
+      "description": "Add filter panel for status, trade, priority, date filtering",
+      "depends_on": [
+        "phase-7-frontend-page"
+      ],
+      "parallel_safe": true,
+      "subtasks": [
+        {
+          "id": "subtask-8-1",
+          "description": "Create PinFilterPanel component with filter controls",
+          "service": "frontend",
+          "files_to_modify": [],
+          "files_to_create": [
+            "frontend/src/components/floorplan/PinFilterPanel.tsx"
+          ],
+          "patterns_from": [
+            "frontend/src/pages/DefectsPage.tsx"
+          ],
+          "verification": {
+            "type": "browser",
+            "url": "http://localhost:5173/projects/:projectId/floorplans/:floorplanId",
+            "checks": [
+              "Filter panel visible",
+              "Status filter works",
+              "Pins update on filter change"
+            ]
+          },
+          "status": "completed",
+          "activeForm": "Creating PinFilterPanel component with filter controls",
+          "notes": "Created PinFilterPanel component with filter controls including status chips, search field, and collapsible advanced filters (category, severity). Added all required Hebrew and English translations. Component is mobile-responsive and follows existing patterns from DefectsPage. TypeScript type-check passed successfully.",
+          "updated_at": "2026-03-01T00:04:45.827608+00:00"
+        },
+        {
+          "id": "subtask-8-2",
+          "description": "Implement pin clustering for zoomed-out view",
+          "service": "frontend",
+          "files_to_modify": [
+            "frontend/src/components/floorplan/FloorplanPinOverlay.tsx"
+          ],
+          "files_to_create": [],
+          "patterns_from": [],
+          "verification": {
+            "type": "browser",
+            "url": "http://localhost:5173/projects/:projectId/floorplans/:floorplanId",
+            "checks": [
+              "Pins cluster when zoomed out",
+              "Cluster shows count",
+              "Expands on zoom in"
+            ]
+          },
+          "status": "completed",
+          "activeForm": "Implementing pin clustering for zoomed-out view",
+          "notes": "Implemented pin clustering for zoomed-out view. Pins cluster when zoom level is below 1.5x using distance-based clustering algorithm (50px threshold). Cluster markers show count with white text on larger circles (20px radius). Clusters automatically expand to individual pins when zooming in. TypeScript type-check verification passed successfully.",
+          "updated_at": "2026-03-01T00:09:05.914497+00:00"
+        }
+      ]
+    },
+    {
+      "id": "phase-9-i18n",
+      "name": "Internationalization",
+      "type": "implementation",
+      "description": "Add Hebrew and English translations for all new strings",
+      "depends_on": [
+        "phase-7-frontend-page"
+      ],
+      "parallel_safe": true,
+      "subtasks": [
+        {
+          "id": "subtask-9-1",
+          "description": "Add Hebrew translations for floorplan UI strings",
+          "service": "frontend",
+          "files_to_modify": [
+            "frontend/src/i18n/locales/he.json"
+          ],
+          "files_to_create": [],
+          "patterns_from": [
+            "frontend/src/i18n/locales/he.json"
+          ],
+          "verification": {
+            "type": "browser",
+            "url": "http://localhost:5173/projects/:projectId/floorplans/:floorplanId",
+            "checks": [
+              "Hebrew strings display correctly",
+              "No missing translation keys"
+            ]
+          },
+          "status": "completed",
+          "activeForm": "Adding Hebrew translations for floorplan UI strings",
+          "notes": "Hebrew translations for floorplan UI strings were already added during previous subtask implementations (subtasks 6-1, 7-1, 7-2, and 8-1). All required translation keys verified present in he.json including: floorplans.title, subtitle, viewer, invalidParams, loadFailed, noImageUrl, imageLoadError, canvasError, filterByStatus, searchPins, advancedFilters. Translations committed in commit 3169ebe. TypeScript type-check verification passed successfully.",
+          "updated_at": "2026-03-01T00:14:58.599400+00:00"
+        },
+        {
+          "id": "subtask-9-2",
+          "description": "Add English translations for floorplan UI strings",
+          "service": "frontend",
+          "files_to_modify": [
+            "frontend/src/i18n/locales/en.json"
+          ],
+          "files_to_create": [],
+          "patterns_from": [
+            "frontend/src/i18n/locales/en.json"
+          ],
+          "verification": {
+            "type": "browser",
+            "url": "http://localhost:5173/projects/:projectId/floorplans/:floorplanId",
+            "checks": [
+              "English strings display correctly",
+              "No missing translation keys"
+            ]
+          },
+          "status": "completed",
+          "activeForm": "Adding English translations for floorplan UI strings",
+          "notes": "English translations for floorplan UI strings were already present in en.json. All required translation keys verified: floorplans.title, subtitle, viewer, invalidParams, loadFailed, noImageUrl, imageLoadError, canvasError, filterByStatus, searchPins, advancedFilters. Keys match perfectly with Hebrew translations. No modifications needed.",
+          "updated_at": "2026-03-01T00:19:11.962589+00:00"
+        }
+      ]
+    },
+    {
+      "id": "phase-10-integration",
+      "name": "End-to-End Integration",
+      "type": "integration",
+      "description": "Verify complete flow from upload to pin creation to defect viewing",
+      "depends_on": [
+        "phase-8-filters",
+        "phase-9-i18n"
+      ],
+      "parallel_safe": false,
+      "subtasks": [
+        {
+          "id": "subtask-10-1",
+          "description": "End-to-end test of floorplan upload and pin creation flow",
+          "all_services": true,
+          "files_to_modify": [],
+          "files_to_create": [],
+          "patterns_from": [],
+          "verification": {
+            "type": "e2e",
+            "steps": [
+              "Upload a floorplan PDF for a floor",
+              "Navigate to floorplan viewer",
+              "Click on canvas to create a defect",
+              "Fill defect form and save",
+              "Verify pin appears on canvas with correct color",
+              "Filter by status and verify pin visibility",
+              "Click pin to view defect details"
+            ]
+          },
+          "status": "pending",
+          "activeForm": "Running end-to-end test of floorplan upload and pin creation flow"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total_phases": 10,
+    "total_subtasks": 17,
+    "services_involved": [
+      "backend",
+      "frontend",
+      "database"
+    ],
+    "parallelism": {
+      "max_parallel_phases": 4,
+      "parallel_groups": [
+        {
+          "phases": [
+            "phase-2-backend-schemas",
+            "phase-4-frontend-types"
+          ],
+          "reason": "Both depend only on phase-1, work on different services"
+        },
+        {
+          "phases": [
+            "phase-3-backend-api",
+            "phase-5-frontend-api"
+          ],
+          "reason": "Backend API and frontend API client can be built in parallel"
+        },
+        {
+          "phases": [
+            "phase-8-filters",
+            "phase-9-i18n"
+          ],
+          "reason": "Filters and i18n both depend on phase-7, different concerns"
+        }
+      ],
+      "recommended_workers": 2,
+      "speedup_estimate": "1.6x faster than sequential"
+    },
+    "startup_command": "source auto-claude/.venv/bin/activate && python auto-claude/run.py --spec 269 --parallel 2"
+  },
+  "verification_strategy": {
+    "risk_level": "medium",
+    "skip_validation": false,
+    "test_creation_phase": "post_implementation",
+    "test_types_required": [
+      "unit",
+      "integration"
+    ],
+    "security_scanning_required": false,
+    "staging_deployment_required": false,
+    "acceptance_criteria": [
+      "All existing tests pass (backend pytest, frontend vitest)",
+      "New code has test coverage for critical paths",
+      "TypeScript type-check passes with no errors",
+      "Floorplan viewer renders correctly on mobile and desktop",
+      "Pin creation and filtering works end-to-end"
+    ],
+    "verification_steps": [
+      {
+        "name": "Backend Unit Tests",
+        "command": "cd backend && pytest -v",
+        "expected_outcome": "All tests pass",
+        "type": "test",
+        "required": true,
+        "blocking": true
+      },
+      {
+        "name": "Frontend Type Check",
+        "command": "cd frontend && npm run type-check",
+        "expected_outcome": "No TypeScript errors",
+        "type": "test",
+        "required": true,
+        "blocking": true
+      },
+      {
+        "name": "Frontend Tests",
+        "command": "cd frontend && npm run test:run",
+        "expected_outcome": "All tests pass",
+        "type": "test",
+        "required": true,
+        "blocking": true
+      },
+      {
+        "name": "Lint Backend",
+        "command": "cd backend && ruff check .",
+        "expected_outcome": "No linting errors",
+        "type": "test",
+        "required": false,
+        "blocking": false
+      },
+      {
+        "name": "Lint Frontend",
+        "command": "cd frontend && npm run lint",
+        "expected_outcome": "No linting errors",
+        "type": "test",
+        "required": false,
+        "blocking": false
+      }
+    ],
+    "reasoning": "Medium risk feature that extends existing defects system with new UI components. Requires integration testing to ensure pin positioning accuracy and Fabric.js compatibility."
+  },
+  "qa_acceptance": {
+    "unit_tests": {
+      "required": true,
+      "commands": [
+        "cd backend && pytest -v",
+        "cd frontend && npm run test:run"
+      ],
+      "minimum_coverage": null
+    },
+    "integration_tests": {
+      "required": true,
+      "commands": [
+        "cd backend && pytest tests/integration/"
+      ],
+      "services_to_test": [
+        "backend",
+        "frontend"
+      ]
+    },
+    "e2e_tests": {
+      "required": false,
+      "commands": [],
+      "flows": []
+    },
+    "browser_verification": {
+      "required": true,
+      "pages": [
+        {
+          "url": "http://localhost:5173/projects/:projectId/floorplans/:floorplanId",
+          "checks": [
+            "canvas-renders",
+            "pins-visible",
+            "click-creates-pin",
+            "filters-work",
+            "mobile-responsive"
+          ]
+        }
+      ]
+    },
+    "database_verification": {
+      "required": true,
+      "checks": [
+        "migrations-exist",
+        "migrations-applied",
+        "schema-valid",
+        "foreign-keys-valid"
+      ]
+    }
+  },
+  "qa_signoff": null,
+  "status": "in_progress",
+  "planStatus": "in_progress",
+  "xstateState": "backlog",
+  "executionPhase": "coding",
+  "updated_at": "2026-03-01T00:21:03.406Z",
+  "last_updated": "2026-03-01T00:19:11.962599+00:00"
+}
