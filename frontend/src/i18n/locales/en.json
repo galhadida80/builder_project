@@ -2542,8 +2542,16 @@
     "signIn": "Sign In",
     "heroTitle": "Build Smarter\nInspect Faster\nDeliver Excellence",
     "heroSubtitle": "Streamline your construction management with our comprehensive platform. From project planning to final inspection, we've got you covered.",
+    "heroBadge": "Israel's #1 Construction Management Platform",
+    "trustedBy": "Trusted by hundreds of construction companies in Israel",
     "getStarted": "Get Started Free",
-    "requestDemo": "Request Demo",
+    "requestDemo": "Watch Demo",
+    "nav": {
+      "features": "Features",
+      "howItWorks": "How It Works",
+      "pricing": "Pricing",
+      "faq": "FAQ"
+    },
     "featuresLabel": "Features",
     "featuresTitle": "Everything you need to manage construction projects",
     "featuresSubtitle": "From equipment tracking to inspection management, BuilderOps provides the tools your team needs to deliver projects on time and on budget.",
@@ -2563,13 +2571,60 @@
     },
     "stats": {
       "constructionTeams": "Construction Teams",
+      "activeProjects": "Active Projects",
+      "satisfactionRate": "Satisfaction Rate",
+      "timeSaved": "Weekly Time Saved",
       "projectsManaged": "Projects Managed",
       "onTimeDelivery": "On-time Delivery",
       "inspectionsCompleted": "Inspections Completed"
     },
+    "howItWorks": {
+      "label": "How It Works",
+      "title": "Three Simple Steps to Get Started",
+      "step1Title": "Set Up Project",
+      "step1Desc": "Create a project, define areas, equipment and materials, and invite team members",
+      "step2Title": "Manage & Track",
+      "step2Desc": "Manage inspections, approvals, tasks and meetings in one simple interface",
+      "step3Title": "Reports & Insights",
+      "step3Desc": "Get analytics, automated reports and AI insights for smarter decision-making"
+    },
+    "demo": {
+      "title": "See BuilderOps in Action",
+      "subtitle": "Discover how BuilderOps streamlines construction management with smart tools, real-time tracking and AI insights"
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "q1": "Is BuilderOps suitable for small construction companies?",
+      "a1": "Absolutely! Our Starter plan is perfect for small teams with up to 5 projects. Upgrade anytime with no commitment.",
+      "q2": "How long does implementation take?",
+      "a2": "Most teams get started within hours. We offer free personal onboarding and data import from existing systems.",
+      "q3": "Does the system fully support Hebrew?",
+      "a3": "Yes! BuilderOps was built from the ground up with full Hebrew support, RTL interface, Hebrew reports and local tech support.",
+      "q4": "What integrations are supported?",
+      "a4": "We support Excel imports, BIM/IFC files from Autodesk, Google Calendar integration, and more. Enterprise teams get custom integrations.",
+      "q5": "How is my data protected?",
+      "a5": "We use end-to-end encryption, secure Google Cloud storage, two-factor authentication, and automatic daily backups."
+    },
     "ctaTitle": "Ready to streamline your construction operations?",
     "ctaSubtitle": "Join 500+ construction teams already using BuilderOps to deliver projects on time.",
     "allRightsReserved": "All rights reserved.",
+    "footer": {
+      "description": "Smart construction management platform. Build faster, smarter, on budget.",
+      "product": "Product",
+      "company": "Company",
+      "support": "Support",
+      "features": "Features",
+      "pricing": "Pricing",
+      "integrations": "Integrations",
+      "about": "About",
+      "blog": "Blog",
+      "careers": "Careers",
+      "helpCenter": "Help Center",
+      "docs": "Documentation",
+      "contact": "Contact Us",
+      "terms": "Terms of Service",
+      "privacy": "Privacy Policy"
+    },
     "mobilePreview": {
       "title": "Take BuilderOps to the Field",
       "subtitle": "Access your project data, submit inspections, and manage approvals right from your phone. Stay connected with your team wherever the job takes you."

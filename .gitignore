@@ -59,7 +59,7 @@ frontend/tsconfig.tsbuildinfo
 .agent/
 .agents/
 .augment/
-.claude/skills/
+.claude/
 .cursor/
 .gemini/
 .junie/
