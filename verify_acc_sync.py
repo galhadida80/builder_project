@@ -41,7 +41,7 @@ def verify_model_fields():
         RFI = rfi_module.RFI
         acc_fields = [attr for attr in dir(RFI) if 'acc' in attr.lower() or attr in ['sync_status', 'sync_source', 'last_synced_at']]
 
-        required_fields = ['acc_issue_id', 'acc_project_id', 'acc_container_id', 'sync_source', 'sync_status', 'last_synced_at', 'acc_metadata']
+        required_fields = ['acc_rfi_id', 'sync_status', 'last_synced_at', 'sync_error', 'acc_origin']
 
         found_fields = []
         for field in required_fields:

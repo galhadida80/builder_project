@@ -32,10 +32,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       const userData = await authApi.getCurrentUser()
       setUser(userData)
-    } catch {
-      localStorage.removeItem('authToken')
-      localStorage.removeItem('userId')
-      setUser(null)
+    } catch (err: unknown) {
+      const status = (err as { response?: { status?: number } })?.response?.status
+      if (status === 401) {
+        localStorage.removeItem('authToken')
+        localStorage.removeItem('userId')
+        setUser(null)
+      }
+      // On network errors / 5xx, keep the existing token and user — don't log out
     } finally {
       setLoading(false)
     }

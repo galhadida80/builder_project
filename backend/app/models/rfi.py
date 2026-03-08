@@ -3,7 +3,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Optional
 
 from sqlalchemy import Boolean, DateTime, ForeignKey, Index, String, Text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
@@ -54,8 +54,7 @@ class RFI(Base):
         Index("ix_rfis_status", "status"),
         Index("ix_rfis_rfi_number", "rfi_number"),
         Index("ix_rfis_email_thread_id", "email_thread_id"),
-        Index("ix_rfis_acc_issue_id", "acc_issue_id"),
-        Index("ix_rfis_acc_project_id", "acc_project_id"),
+        Index("ix_rfis_acc_rfi_id", "acc_rfi_id"),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(
@@ -112,14 +111,6 @@ class RFI(Base):
 
     attachments: Mapped[Optional[list]] = mapped_column(JSONB, default=list)
 
-    acc_issue_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
-    acc_project_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
-    acc_container_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
-    sync_source: Mapped[str] = mapped_column(String(50), nullable=False, default="builderops")
-    last_synced_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
-    sync_status: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
-    acc_metadata: Mapped[Optional[Any]] = mapped_column(JSONB, nullable=True)
-
     created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=lambda: utcnow(), onupdate=lambda: utcnow()
@@ -164,8 +155,6 @@ class RFIResponse(Base):
     __tablename__ = "rfi_responses"
     __table_args__ = (
         Index("ix_rfi_responses_rfi_id", "rfi_id"),
-        Index("ix_rfi_responses_acc_issue_id", "acc_issue_id"),
-        Index("ix_rfi_responses_acc_project_id", "acc_project_id"),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(
@@ -190,14 +179,6 @@ class RFIResponse(Base):
     is_internal: Mapped[bool] = mapped_column(Boolean, default=False)
     is_cc_participant: Mapped[bool] = mapped_column(Boolean, default=False)
     source: Mapped[str] = mapped_column(String(50), default="email")
-
-    acc_issue_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
-    acc_project_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
-    acc_container_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
-    sync_source: Mapped[str] = mapped_column(String(50), nullable=False, default="builderops")
-    last_synced_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
-    sync_status: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
-    acc_metadata: Mapped[Optional[Any]] = mapped_column(JSONB, nullable=True)
 
     created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow())
     received_at: Mapped[Optional[datetime]] = mapped_column(DateTime)

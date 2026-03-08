@@ -30,7 +30,6 @@ export default function LoginPage() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [biometricLoading, setBiometricLoading] = useState(false)
-  const submittingRef = useRef(false)
   const [error, setError] = useState<string | null>(null)
   const [errorCode, setErrorCode] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
@@ -124,8 +123,7 @@ export default function LoginPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (submittingRef.current) return
-    submittingRef.current = true
+    if (loading) return
     setLoading(true)
     setError(null)
 
@@ -142,21 +140,18 @@ export default function LoginPage() {
       }
     } finally {
       setLoading(false)
-      submittingRef.current = false
     }
   }
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (submittingRef.current) return
-    submittingRef.current = true
+    if (loading) return
     setLoading(true)
     setError(null)
 
     if (password !== confirmPassword) {
       setError(t('passwordsMismatch'))
       setLoading(false)
-      submittingRef.current = false
       return
     }
 
@@ -164,7 +159,6 @@ export default function LoginPage() {
     if (!pwResult.success) {
       setPasswordErrors(pwResult.error.issues.map((i) => i.message))
       setLoading(false)
-      submittingRef.current = false
       return
     }
     setPasswordErrors([])
@@ -193,7 +187,6 @@ export default function LoginPage() {
       }
     } finally {
       setLoading(false)
-      submittingRef.current = false
     }
   }
 
@@ -447,6 +440,7 @@ export default function LoginPage() {
                       onChange={(e) => setPassword(e.target.value)}
                       required
                       autoComplete="current-password"
+                      inputProps={{ dir: 'ltr', style: { textAlign: 'left' } }}
                       startIcon={<LockIcon sx={{ color: 'text.disabled', fontSize: 20 }} />}
                       endIcon={
                         <IconButton
@@ -577,6 +571,7 @@ export default function LoginPage() {
                       onChange={(e) => setPassword(e.target.value)}
                       required
                       autoComplete="new-password"
+                      inputProps={{ dir: 'ltr', style: { textAlign: 'left' } }}
                       error={passwordErrors.length > 0}
                       helperText={passwordErrors.length > 0 ? passwordErrors[0] : t('atLeast8Chars')}
                       startIcon={<LockIcon sx={{ color: 'text.disabled', fontSize: 20 }} />}
@@ -604,6 +599,7 @@ export default function LoginPage() {
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       required
                       autoComplete="new-password"
+                      inputProps={{ dir: 'ltr', style: { textAlign: 'left' } }}
                       startIcon={<LockIcon sx={{ color: 'text.disabled', fontSize: 20 }} />}
                     />
 

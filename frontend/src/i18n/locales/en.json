@@ -4365,6 +4365,7 @@
   },
   "whatsapp": {
     "title": "WhatsApp",
+    "description": "Link your WhatsApp number to receive notifications and interact with AI chat via WhatsApp",
     "linkAccount": "Link WhatsApp Account",
     "unlinkAccount": "Unlink WhatsApp Account",
     "accountLinked": "Account Linked",

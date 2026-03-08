@@ -145,8 +145,9 @@ export default function MobileBottomNav({ projectId, onMenuOpen }: MobileBottomN
         >
           {/* Left nav items */}
           <BottomNavigation
-            value={activeTab < 2 ? activeTab : false}
+            value={activeTab >= 0 && activeTab < 2 ? activeTab : false}
             onChange={(_, newValue) => {
+              if (newValue === false) return
               if (typeof newValue === 'number' && newValue >= 0 && newValue < leftTabs.length) {
                 handleNavigation(leftTabs[newValue])
               }
@@ -212,6 +213,7 @@ export default function MobileBottomNav({ projectId, onMenuOpen }: MobileBottomN
           <BottomNavigation
             value={activeTab >= 2 ? activeTab - 2 : false}
             onChange={(_, newValue) => {
+              if (newValue === false) return
               if (typeof newValue === 'number' && newValue >= 0 && newValue < rightTabs.length) {
                 handleNavigation(rightTabs[newValue])
               }

@@ -132,12 +132,12 @@ class ACCRFISyncService:
         Uses mapper, conflict_resolver, user_mapper.
         Returns: 'created' | 'updated' | 'conflict'
         """
-        acc_issue_id = acc_issue.get("id")
+        acc_rfi_id = acc_issue.get("id")
 
         result = await self.db.execute(
             select(RFI)
             .options(selectinload(RFI.created_by))
-            .where(RFI.acc_issue_id == acc_issue_id)
+            .where(RFI.acc_rfi_id == acc_rfi_id)
         )
         existing_rfi = result.scalar_one_or_none()
 
@@ -152,17 +152,16 @@ class ACCRFISyncService:
                 await self.db.flush()
                 return "conflict"
 
-            await self._update_rfi_from_acc(existing_rfi, acc_issue, container_id)
+            await self._update_rfi_from_acc(existing_rfi, acc_issue)
             return "updated"
         else:
-            await self._create_rfi_from_acc(acc_issue, project_id, container_id)
+            await self._create_rfi_from_acc(acc_issue, project_id)
             return "created"
 
     async def _create_rfi_from_acc(
         self,
         acc_issue: dict[str, Any],
         project_id: uuid.UUID,
-        container_id: str
     ) -> RFI:
         """Create a new RFI from ACC issue data."""
         rfi_data = await self.mapper.map_acc_issue_to_rfi(
@@ -187,13 +186,10 @@ class ACCRFISyncService:
             due_date=rfi_data.get("due_date"),
             location=rfi_data.get("location"),
             attachments=rfi_data.get("attachments", []),
-            acc_issue_id=acc_issue.get("id"),
-            acc_project_id=acc_issue.get("projectId"),
-            acc_container_id=container_id,
-            sync_source="acc",
+            acc_rfi_id=acc_issue.get("id"),
+            acc_origin=True,
             sync_status="synced",
             last_synced_at=utcnow(),
-            acc_metadata=acc_issue
         )
 
         self.db.add(rfi)
@@ -207,7 +203,6 @@ class ACCRFISyncService:
         self,
         rfi: RFI,
         acc_issue: dict[str, Any],
-        container_id: str
     ) -> None:
         """Update existing RFI with ACC issue data."""
         rfi_data = await self.mapper.map_acc_issue_to_rfi(
@@ -228,11 +223,8 @@ class ACCRFISyncService:
         rfi.due_date = rfi_data.get("due_date")
         rfi.location = rfi_data.get("location")
         rfi.attachments = rfi_data.get("attachments", [])
-        rfi.acc_project_id = acc_issue.get("projectId")
-        rfi.acc_container_id = container_id
         rfi.sync_status = "synced"
         rfi.last_synced_at = utcnow()
-        rfi.acc_metadata = acc_issue
 
         await self.db.flush()
         logger.info(f"Updated RFI {rfi.rfi_number} from ACC issue {acc_issue.get('id')}")
@@ -248,23 +240,13 @@ class ACCRFISyncService:
         """
         resolution = await self.conflict_resolver.resolve_conflict(
             rfi,
-            None,  # Use metadata from RFI
+            None,
             strategy
         )
 
         if resolution["chosen_version"] == "acc":
-            metadata = rfi.acc_metadata
-            if isinstance(metadata, dict):
-                latest_conflict = metadata.get("latest_conflict")
-                if latest_conflict:
-                    acc_version = latest_conflict.get("acc_version")
-                    if acc_version:
-                        logger.info(f"Applying ACC version to RFI {rfi.rfi_number}")
-                        await self._update_rfi_from_acc(
-                            rfi,
-                            acc_version,
-                            rfi.acc_container_id
-                        )
+            rfi.sync_status = "synced"
+            rfi.last_synced_at = utcnow()
         else:
             rfi.sync_status = "synced"
             rfi.last_synced_at = utcnow()

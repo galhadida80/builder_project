@@ -5,6 +5,7 @@ from typing import Any
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.models.acc_sync import AccProjectLink
 from app.models.project import Project
 from app.models.rfi import RFI
 from app.services.aps_service import APSService
@@ -30,18 +31,11 @@ class ACCPollingService:
         Returns summary: synced_projects, created, updated, conflicts.
         """
         now = utcnow()
-        polling_threshold = now - timedelta(minutes=POLLING_INTERVAL_MINUTES)
 
         result = await self.db.execute(
-            select(Project)
-            .join(RFI, RFI.project_id == Project.id)
-            .where(
-                RFI.acc_issue_id.isnot(None),
-                RFI.acc_container_id.isnot(None)
-            )
-            .distinct()
+            select(AccProjectLink).where(AccProjectLink.enabled.is_(True))
         )
-        projects_with_acc = result.scalars().all()
+        acc_links = result.scalars().all()
 
         synced_projects = 0
         total_created = 0
@@ -49,9 +43,9 @@ class ACCPollingService:
         total_conflicts = 0
         errors = []
 
-        for project in projects_with_acc:
+        for link in acc_links:
             try:
-                sync_result = await self._poll_project_rfis(project)
+                sync_result = await self._poll_project_rfis(link)
 
                 if sync_result["should_sync"]:
                     synced_projects += 1
@@ -63,9 +57,9 @@ class ACCPollingService:
                         errors.extend(sync_result["errors"])
 
             except Exception as e:
-                logger.error(f"Failed to poll project {project.id}: {e}")
+                logger.error(f"Failed to poll project {link.project_id}: {e}")
                 errors.append({
-                    "project_id": str(project.id),
+                    "project_id": str(link.project_id),
                     "error": str(e)
                 })
 
@@ -87,25 +81,23 @@ class ACCPollingService:
             "polled_at": now.isoformat()
         }
 
-    async def _poll_project_rfis(self, project: Project) -> dict[str, Any]:
+    async def _poll_project_rfis(self, link: AccProjectLink) -> dict[str, Any]:
         """
         Poll a single project for updated ACC RFIs.
         Only syncs if issues have been modified since last sync.
-
-        Uses last_synced_at timestamp to filter ACC issues.
         """
         result = await self.db.execute(
             select(func.max(RFI.last_synced_at))
             .where(
-                RFI.project_id == project.id,
-                RFI.acc_issue_id.isnot(None),
+                RFI.project_id == link.project_id,
+                RFI.acc_rfi_id.isnot(None),
                 RFI.last_synced_at.isnot(None)
             )
         )
         last_synced_at = result.scalar()
 
         if not last_synced_at:
-            logger.debug(f"Project {project.id} has no synced RFIs, skipping poll")
+            logger.debug(f"Project {link.project_id} has no synced RFIs, skipping poll")
             return {
                 "should_sync": False,
                 "created": 0,
@@ -113,33 +105,25 @@ class ACCPollingService:
                 "conflicts": 0
             }
 
-        result = await self.db.execute(
-            select(RFI.acc_container_id, RFI.created_by_id)
-            .where(
-                RFI.project_id == project.id,
-                RFI.acc_container_id.isnot(None),
-                RFI.created_by_id.isnot(None)
-            )
-            .limit(1)
-        )
-        row = result.first()
-
-        if not row:
-            logger.debug(f"Project {project.id} has no ACC container, skipping poll")
-            return {
-                "should_sync": False,
-                "created": 0,
-                "updated": 0,
-                "conflicts": 0
-            }
-
-        container_id = row[0]
-        user_id = row[1]
+        container_id = link.acc_project_id
 
         try:
+            user_result = await self.db.execute(
+                select(RFI.created_by_id)
+                .where(
+                    RFI.project_id == link.project_id,
+                    RFI.acc_rfi_id.isnot(None),
+                    RFI.created_by_id.isnot(None)
+                )
+                .limit(1)
+            )
+            user_id = user_result.scalar()
+            if not user_id:
+                return {"should_sync": False, "created": 0, "updated": 0, "conflicts": 0}
+
             user_token = await self.aps_service.get_user_token(self.db, user_id)
         except Exception as e:
-            logger.error(f"Failed to get user token for project {project.id}: {e}")
+            logger.error(f"Failed to get user token for project {link.project_id}: {e}")
             return {
                 "should_sync": False,
                 "created": 0,
@@ -187,7 +171,7 @@ class ACCPollingService:
                         if self.sync_service:
                             sync_result = await self.sync_service._sync_single_rfi(
                                 acc_issue=acc_issue,
-                                project_id=project.id,
+                                project_id=link.project_id,
                                 container_id=container_id
                             )
 
@@ -219,7 +203,7 @@ class ACCPollingService:
 
         if should_sync:
             logger.info(
-                f"Polled project {project.id}: {created_count} created, "
+                f"Polled project {link.project_id}: {created_count} created, "
                 f"{updated_count} updated, {conflict_count} conflicts"
             )
 

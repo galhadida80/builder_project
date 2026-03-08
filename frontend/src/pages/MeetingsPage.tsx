@@ -676,6 +676,11 @@ export default function MeetingsPage() {
               mb: 2,
               scrollbarWidth: 'none',
               '&::-webkit-scrollbar': { display: 'none' },
+              bgcolor: 'background.paper',
+              borderRadius: 2,
+              p: 1,
+              border: '1px solid',
+              borderColor: 'divider',
             }}
           >
             {dateStripDays.map((day) => {

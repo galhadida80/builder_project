@@ -4411,6 +4411,7 @@
   },
   "whatsapp": {
     "title": "WhatsApp",
+    "description": "קשר את מספר הוואטסאפ שלך כדי לקבל התראות ולתקשר עם צ'אט AI דרך WhatsApp",
     "linkAccount": "קישור חשבון WhatsApp",
     "unlinkAccount": "ניתוק חשבון WhatsApp",
     "accountLinked": "חשבון מקושר",

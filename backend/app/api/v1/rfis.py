@@ -86,9 +86,7 @@ async def get_project_rfis(
             related_equipment_id=rfi.related_equipment_id,
             related_material_id=rfi.related_material_id,
             related_area_id=rfi.related_area_id,
-            acc_issue_id=rfi.acc_issue_id,
-            acc_project_id=rfi.acc_project_id,
-            sync_source=rfi.sync_source,
+            acc_rfi_id=rfi.acc_rfi_id,
             sync_status=rfi.sync_status,
             last_synced_at=rfi.last_synced_at
         ))

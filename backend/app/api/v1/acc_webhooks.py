@@ -107,7 +107,7 @@ async def acc_webhook(
     try:
         # Look for existing RFI with this ACC issue ID to get project context
         result = await db.execute(
-            select(RFI).where(RFI.acc_issue_id == issue_id).limit(1)
+            select(RFI).where(RFI.acc_rfi_id == issue_id).limit(1)
         )
         existing_rfi = result.scalar_one_or_none()
 
@@ -240,7 +240,7 @@ async def sync_acc_issue(
             elif event_type == "issue.deleted-1.0":
                 # Mark RFI as deleted or sync status
                 rfi_result = await session.execute(
-                    select(RFI).where(RFI.acc_issue_id == issue_id)
+                    select(RFI).where(RFI.acc_rfi_id == issue_id)
                 )
                 rfi = rfi_result.scalar_one_or_none()
 
