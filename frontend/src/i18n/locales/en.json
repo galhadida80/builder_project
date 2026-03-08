@@ -2590,7 +2590,12 @@
     },
     "demo": {
       "title": "See BuilderOps in Action",
-      "subtitle": "Discover how BuilderOps streamlines construction management with smart tools, real-time tracking and AI insights"
+      "subtitle": "Discover how BuilderOps streamlines construction management with smart tools, real-time tracking and AI insights",
+      "screens": {
+        "dashboard": "Dashboard",
+        "inspections": "Inspections",
+        "analytics": "Analytics"
+      }
     },
     "faq": {
       "title": "Frequently Asked Questions",
@@ -2630,16 +2635,16 @@
       "subtitle": "Access your project data, submit inspections, and manage approvals right from your phone. Stay connected with your team wherever the job takes you."
     },
     "testimonials": {
-      "sectionTitle": "What Construction Leaders Say",
+      "sectionTitle": "What Our Clients Say",
       "quote1": "BuilderOps transformed how we manage inspections across our 12 active sites. The real-time tracking alone saved us 15 hours per week.",
-      "name1": "David Chen",
-      "role1": "VP of Operations, Meridian Builders",
+      "name1": "Avi Levy",
+      "role1": "VP of Operations, A.L. Construction & Investments",
       "quote2": "We reduced our approval cycle time by 60%. The workflow automation is exactly what our team needed to stay on schedule.",
-      "name2": "Sarah Thompson",
-      "role2": "Project Director, Atlas Construction Group",
+      "name2": "Ronit Mizrahi",
+      "role2": "Project Director, Mizrahi Construction Group",
       "quote3": "The inspection management system gives us complete visibility. Our compliance rate went from 82% to 97% in just three months.",
-      "name3": "Michael Rodriguez",
-      "role3": "Quality Manager, Summit Infrastructure"
+      "name3": "Yossi Shapira",
+      "role3": "Quality Manager, Shapira Engineering & Construction"
     },
     "pricing": {
       "label": "Pricing",

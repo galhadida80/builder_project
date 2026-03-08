@@ -1,3 +1,5 @@
+import { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Box } from '@/mui'
 import LandingNav from '@/components/landing/LandingNav'
 import LandingHero from '@/components/landing/LandingHero'
@@ -10,8 +12,26 @@ import LandingFAQ from '@/components/landing/LandingFAQ'
 import LandingFooter from '@/components/landing/LandingFooter'
 
 export default function LandingPage() {
+  const { i18n } = useTranslation()
+
+  useEffect(() => {
+    const prevLang = i18n.language
+    if (prevLang !== 'he') {
+      i18n.changeLanguage('he')
+      document.documentElement.setAttribute('dir', 'rtl')
+      document.documentElement.setAttribute('lang', 'he')
+    }
+    return () => {
+      if (prevLang !== 'he') {
+        i18n.changeLanguage(prevLang)
+        document.documentElement.setAttribute('dir', prevLang === 'he' ? 'rtl' : 'ltr')
+        document.documentElement.setAttribute('lang', prevLang)
+      }
+    }
+  }, [i18n])
+
   return (
-    <Box sx={{ minHeight: '100dvh', bgcolor: 'background.default', overflowX: 'hidden' }}>
+    <Box sx={{ minHeight: '100dvh', bgcolor: 'background.default', overflowX: 'hidden', direction: 'rtl' }}>
       <LandingNav />
       <LandingHero />
       <LandingStats />
