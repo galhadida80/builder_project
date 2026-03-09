@@ -17,11 +17,11 @@ import { Avatar } from '../components/ui/Avatar'
 import FilterChips from '../components/ui/FilterChips'
 
 const ENTITY_TYPE_COLORS: Record<string, { bg: string; text: string }> = {
-  equipment: { bg: '#e3f2fd', text: '#1565c0' }, material: { bg: '#e8f5e9', text: '#2e7d32' },
-  rfi: { bg: '#fff3e0', text: '#e65100' }, inspection: { bg: '#f3e5f5', text: '#7b1fa2' },
-  defect: { bg: '#fce4ec', text: '#c62828' }, meeting: { bg: '#e0f2f1', text: '#00695c' },
-  area: { bg: '#f1f8e9', text: '#558b2f' }, task: { bg: '#e8eaf6', text: '#283593' },
-  project: { bg: '#fafafa', text: '#616161' },
+  equipment: { bg: 'info.light', text: 'info.dark' }, material: { bg: 'success.light', text: 'success.dark' },
+  rfi: { bg: 'warning.light', text: 'warning.dark' }, inspection: { bg: 'secondary.light', text: 'secondary.dark' },
+  defect: { bg: 'error.light', text: 'error.dark' }, meeting: { bg: 'info.light', text: 'info.dark' },
+  area: { bg: 'success.light', text: 'success.dark' }, task: { bg: 'primary.light', text: 'primary.dark' },
+  project: { bg: 'action.hover', text: 'text.secondary' },
 }
 
 interface Author { id: string; fullName: string; email: string }
@@ -224,8 +224,8 @@ export default function DiscussionsPage() {
                       {discussion.entityType && discussion.entityType !== 'project' && (
                         <Chip label={t(`discussions.entityTypes.${discussion.entityType}`, { defaultValue: discussion.entityType })} size="small"
                           sx={{ height: 20, fontSize: '0.6rem', fontWeight: 700,
-                            bgcolor: ENTITY_TYPE_COLORS[discussion.entityType]?.bg || '#f5f5f5',
-                            color: ENTITY_TYPE_COLORS[discussion.entityType]?.text || '#757575' }} />
+                            bgcolor: ENTITY_TYPE_COLORS[discussion.entityType]?.bg || 'action.hover',
+                            color: ENTITY_TYPE_COLORS[discussion.entityType]?.text || 'text.secondary' }} />
                       )}
                     </Box>
                     <OwnerActions item={discussion} iconSize={16} />
@@ -276,7 +276,7 @@ export default function DiscussionsPage() {
         </Typography>
       )}
       {isMobile && (
-        <Box sx={{ position: 'fixed', bottom: 80, left: 16, zIndex: 10 }}>
+        <Box sx={{ position: 'fixed', bottom: 80, insetInlineStart: 16, zIndex: 10 }}>
           <Button variant="primary" icon={<AddIcon />} onClick={() => setCreateOpen(true)}>{t('discussions.create')}</Button>
         </Box>
       )}

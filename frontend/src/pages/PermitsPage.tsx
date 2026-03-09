@@ -205,7 +205,7 @@ export default function PermitsPage() {
           sx={{
             position: 'fixed',
             bottom: 16,
-            right: 16,
+            insetInlineEnd: 16,
           }}
         >
           <AddIcon />

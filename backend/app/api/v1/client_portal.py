@@ -208,6 +208,7 @@ async def get_client_project_overview(
     audit_result = await db.execute(
         select(AuditLog)
         .where(AuditLog.project_id == project_id)
+        .options(selectinload(AuditLog.user))
         .order_by(AuditLog.created_at.desc())
         .limit(20)
     )
@@ -215,13 +216,13 @@ async def get_client_project_overview(
         event = TimelineEvent(
             id=log.id,
             date=log.created_at,
-            title=f"{log.action.value.title()} {log.entity_type}",
+            title=f"{log.action.title()} {log.entity_type}",
             description=None,
             event_type=log.entity_type,
             entity_id=log.entity_id,
             entity_type=log.entity_type,
-            user_name=log.user_full_name or log.user_email,
-            metadata={"action": log.action.value}
+            user_name=log.user.full_name if log.user else None,
+            metadata={"action": log.action}
         )
         timeline_events.append(event)
 
@@ -229,8 +230,8 @@ async def get_client_project_overview(
     days_elapsed = None
     if project.start_date:
         days_elapsed = (utcnow().date() - project.start_date).days
-    if project.end_date:
-        days_remaining = (project.end_date - utcnow().date()).days
+    if project.estimated_end_date:
+        days_remaining = (project.estimated_end_date - utcnow().date()).days
 
     return ProjectOverviewResponse(
         project_id=project.id,

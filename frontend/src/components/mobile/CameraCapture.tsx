@@ -87,7 +87,7 @@ export default function CameraCapture({ open, onClose, onCapture, facingMode = '
       <Box sx={{ position: 'relative', width: '100%', height: '100%', bgcolor: 'black' }}>
         <IconButton
           onClick={handleClose}
-          sx={{ position: 'absolute', top: 8, right: 8, zIndex: 10, color: 'white' }}
+          sx={{ position: 'absolute', top: 8, insetInlineEnd: 8, zIndex: 10, color: 'white' }}
         >
           <CloseIcon />
         </IconButton>

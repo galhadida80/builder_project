@@ -69,7 +69,7 @@ export default function KeyPointsEditor({
                 aria-label={t('common.removeItem')}
                 onClick={() => removeKeyPoint(idx)}
                 disabled={disabled}
-                sx={{ position: 'absolute', top: 8, right: 8 }}
+                sx={{ position: 'absolute', top: 8, insetInlineEnd: 8 }}
               >
                 <CloseIcon sx={{ fontSize: 18 }} />
               </IconButton>

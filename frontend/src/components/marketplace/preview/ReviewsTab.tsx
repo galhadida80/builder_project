@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Box, Typography, Divider, List, ListItem, TextField } from '@/mui'
+import { getDateLocale } from '@/utils/dateLocale'
 import { Rating } from '@mui/material'
 import { Button } from '../../ui/Button'
 import { TemplateRating } from '../../../api/marketplace'
@@ -91,7 +92,7 @@ export function ReviewsTab({ ratings, reviewCount, onSubmitReview }: ReviewsTabP
                   </Typography>
                 )}
                 <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
-                  {new Date(rating.createdAt).toLocaleDateString()}
+                  {new Date(rating.createdAt).toLocaleDateString(getDateLocale())}
                 </Typography>
               </Box>
             </ListItem>

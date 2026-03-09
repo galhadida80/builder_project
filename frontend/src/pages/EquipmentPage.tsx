@@ -207,12 +207,12 @@ export default function EquipmentPage() {
   }, [equipment])
 
   const getCategoryColor = (equipmentType?: string): string => {
-    if (!equipmentType) return '#9CA3AF'
+    if (!equipmentType) return theme.palette.text.disabled
     const lower = equipmentType.toLowerCase()
-    if (lower.includes('crane') || lower.includes('מנוף')) return '#e07842'
-    if (lower.includes('heavy') || lower.includes('כבד')) return '#EAB308'
-    if (lower.includes('transport') || lower.includes('הובלה') || lower.includes('משאית')) return '#3B82F6'
-    return '#9CA3AF'
+    if (lower.includes('crane') || lower.includes('מנוף')) return theme.palette.warning.main
+    if (lower.includes('heavy') || lower.includes('כבד')) return theme.palette.warning.light
+    if (lower.includes('transport') || lower.includes('הובלה') || lower.includes('משאית')) return theme.palette.info.main
+    return theme.palette.text.disabled
   }
 
   const columns: Column<Equipment>[] = [

@@ -250,11 +250,22 @@ export default function EquipmentFormModal({
           {t('equipment.approvalSettings')}
         </Typography>
         <TextField fullWidth label={t('equipment.approvalDueDate')} type="date" InputLabelProps={{ shrink: true }} value={formData.approvalDueDate} onChange={(e) => setFormData({ ...formData, approvalDueDate: e.target.value })} inputProps={{ min: minDateStr, max: maxDateStr }} />
-        <RecipientSelector projectId={projectId} label={t('equipment.approvers')} value={approvers} onChange={setApprovers} filterTypes={['consultant', 'inspector', 'supervisor']} placeholder={t('equipment.selectApprovers')} multiple />
+        <RecipientSelector projectId={projectId} label={t('equipment.approvers')} value={approvers} onChange={(newApprovers) => {
+          setApprovers(newApprovers)
+          const currentDistIds = new Set(distributionList.map(r => r.id))
+          const toAdd = newApprovers.filter(a => !currentDistIds.has(a.id))
+          if (toAdd.length > 0) {
+            setDistributionList([...distributionList, ...toAdd])
+          }
+        }} filterTypes={['consultant', 'inspector', 'supervisor']} placeholder={t('equipment.selectApprovers')} multiple />
         <RecipientSelector projectId={projectId} label={t('equipment.distributionList')} value={distributionList} onChange={setDistributionList} placeholder={t('equipment.selectDistribution')} multiple />
 
-        <Divider />
-        <FormControlLabel control={<Checkbox checked={isClosed} onChange={(e) => setIsClosed(e.target.checked)} />} label={<Typography variant="body2">{t('equipment.markAsClosed')}</Typography>} />
+        {editing && (
+          <>
+            <Divider />
+            <FormControlLabel control={<Checkbox checked={isClosed} onChange={(e) => setIsClosed(e.target.checked)} />} label={<Typography variant="body2">{t('equipment.markAsClosed')}</Typography>} />
+          </>
+        )}
       </Box>
     </FormModal>
   )

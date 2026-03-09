@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { Box, Typography, Chip } from '@/mui'
+import { getDateLocale } from '@/utils/dateLocale'
 import type { Vendor, VendorPerformance } from '../../types'
 
 interface ScoreCellProps {
@@ -53,7 +54,7 @@ export function formatInsuranceExpiry(date: string | undefined, t: (key: string)
   const expiryDate = new Date(date)
   const now = new Date()
   const isExpired = expiryDate < now
-  const formattedDate = expiryDate.toLocaleDateString()
+  const formattedDate = expiryDate.toLocaleDateString(getDateLocale())
   return isExpired ? `${formattedDate} (${t('vendors.comparison.expired')})` : formattedDate
 }
 

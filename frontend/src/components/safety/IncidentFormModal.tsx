@@ -142,11 +142,14 @@ export default function IncidentFormModal({
         />
 
         {/* Location */}
-        <TextField
-          fullWidth
-          label={t('safety.incidents.location')}
+        <Autocomplete
+          freeSolo
+          options={areas.map(a => `${a.name}${a.floorNumber != null ? ` (${t('defects.floor')} ${a.floorNumber})` : ''}`)}
           value={form.location || ''}
-          onChange={(e) => setForm({ ...form, location: e.target.value })}
+          onInputChange={(_, value) => setForm({ ...form, location: value })}
+          renderInput={(params) => (
+            <MuiTextField {...params} label={t('safety.incidents.location')} fullWidth size="small" />
+          )}
         />
 
         {/* Area */}

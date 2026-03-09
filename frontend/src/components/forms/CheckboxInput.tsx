@@ -17,8 +17,8 @@ export interface CheckboxInputProps extends CheckboxInputBaseProps {
 
 const StyledFormControl = styled(FormControl)(({ theme }) => ({
   '& .MuiFormControlLabel-root': {
-    marginLeft: 0,
-    marginRight: 0,
+    marginInlineStart: 0,
+    marginInlineEnd: 0,
   },
   '& .MuiCheckbox-root': {
     transition: 'all 200ms ease-out',

@@ -165,7 +165,15 @@ export default function MaterialFormModal({
         </Box>
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
           <TextField fullWidth label={t('materials.deliveryDate')} type="date" InputLabelProps={{ shrink: true }} value={formData.expectedDelivery} onChange={(e) => setFormData({ ...formData, expectedDelivery: e.target.value })} />
-          <TextField fullWidth label={t('materials.storageLocation')} value={formData.storageLocation} onChange={(e) => setFormData({ ...formData, storageLocation: e.target.value })} />
+          <Autocomplete
+            freeSolo
+            options={areas.map(a => `${a.name}${a.floorNumber !== undefined ? ` (${t('areas.floor')} ${a.floorNumber})` : ''}`)}
+            value={formData.storageLocation || ''}
+            onInputChange={(_, value) => setFormData({ ...formData, storageLocation: value })}
+            renderInput={(params) => (
+              <MuiTextField {...params} label={t('materials.storageLocation')} fullWidth size="small" />
+            )}
+          />
         </Box>
         <TextField fullWidth label={t('common.notes')} multiline rows={2} value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} error={!!errors.notes || formData.notes.length > VALIDATION.MAX_NOTES_LENGTH} helperText={errors.notes || (formData.notes.length > 0 ? `${formData.notes.length}/${VALIDATION.MAX_NOTES_LENGTH}` : undefined)} />
 
@@ -261,7 +269,14 @@ export default function MaterialFormModal({
           {t('materials.approvalSettings')}
         </Typography>
         <TextField fullWidth label={t('materials.approvalDueDate')} type="date" InputLabelProps={{ shrink: true }} value={formData.approvalDueDate} onChange={(e) => setFormData({ ...formData, approvalDueDate: e.target.value })} inputProps={{ min: minDateStr, max: maxDateStr }} />
-        <RecipientSelector projectId={projectId} label={t('materials.approvers')} value={approvers} onChange={setApprovers} filterTypes={['consultant', 'inspector', 'supervisor']} placeholder={t('materials.selectApprovers')} multiple />
+        <RecipientSelector projectId={projectId} label={t('materials.approvers')} value={approvers} onChange={(newApprovers) => {
+          setApprovers(newApprovers)
+          const currentDistIds = new Set(distributionList.map(r => r.id))
+          const toAdd = newApprovers.filter(a => !currentDistIds.has(a.id))
+          if (toAdd.length > 0) {
+            setDistributionList([...distributionList, ...toAdd])
+          }
+        }} filterTypes={['consultant', 'inspector', 'supervisor']} placeholder={t('materials.selectApprovers')} multiple />
         <RecipientSelector projectId={projectId} label={t('materials.distributionList')} value={distributionList} onChange={setDistributionList} placeholder={t('materials.selectDistribution')} multiple />
 
         <Divider />

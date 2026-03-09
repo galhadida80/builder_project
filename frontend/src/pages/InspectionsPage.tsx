@@ -466,7 +466,7 @@ export default function InspectionsPage() {
                   <Typography
                     variant="caption"
                     dir="rtl"
-                    sx={{ color: selectedType?.id === type.id ? 'rgba(255,255,255,0.8)' : 'text.secondary' }}
+                    sx={{ color: selectedType?.id === type.id ? 'primary.contrastText' : 'text.secondary' }}
                   >
                     {type.nameHe}
                   </Typography>

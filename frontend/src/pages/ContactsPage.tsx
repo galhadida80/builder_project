@@ -190,7 +190,7 @@ export default function ContactsPage() {
         breadcrumbs={[{ label: t('nav.projects'), href: '/projects' }, { label: t('nav.contacts') }]}
         actions={mainTab === 0 ? (
           <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-            <Button variant="secondary" icon={<FileUploadIcon />} onClick={() => setImportDialogOpen(true)} sx={{ display: { xs: 'none', md: 'flex' } }}>{t('contacts.import.button')}</Button>
+            <Button variant="secondary" icon={<FileUploadIcon />} onClick={() => setImportDialogOpen(true)}>{t('contacts.import.button')}</Button>
             <Button variant="primary" icon={<AddIcon />} onClick={handleOpenCreate}>{t('contacts.addContact')}</Button>
           </Box>
         ) : <Button variant="primary" icon={<AddIcon />} onClick={handleOpenGroupCreate}>{t('contactGroups.createGroup')}</Button>}

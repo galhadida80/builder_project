@@ -1,4 +1,3 @@
-import { GoogleOAuthProvider } from '@react-oauth/google'
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import Layout from './components/layout/Layout'
 import { PWAInstallPrompt } from './components/common/PWAInstallPrompt'
@@ -202,24 +201,12 @@ function AppRoutes() {
   )
 }
 
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || ''
-
 export default function App() {
-  const content = (
+  return (
     <ErrorBoundary>
       <AuthProvider>
         <AppRoutes />
       </AuthProvider>
     </ErrorBoundary>
   )
-
-  if (GOOGLE_CLIENT_ID) {
-    return (
-      <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-        {content}
-      </GoogleOAuthProvider>
-    )
-  }
-
-  return content
 }

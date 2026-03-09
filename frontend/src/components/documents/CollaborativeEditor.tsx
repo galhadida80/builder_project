@@ -204,14 +204,14 @@ export default function CollaborativeEditor({
             '& p': { margin: '0.5em 0' },
           },
           '& .collaboration-cursor__caret': {
-            borderLeft: '2px solid', borderRight: 'none',
-            marginLeft: '-1px', pointerEvents: 'none',
+            borderInlineStart: '2px solid', borderInlineEnd: 'none',
+            marginInlineStart: '-1px', pointerEvents: 'none',
             position: 'relative', wordBreak: 'normal',
           },
           '& .collaboration-cursor__label': {
             fontSize: '11px', fontWeight: 600,
             padding: '1px 4px', borderRadius: '3px',
-            position: 'absolute', top: '-1.4em', left: '-1px',
+            position: 'absolute', top: '-1.4em', insetInlineStart: '-1px',
             whiteSpace: 'nowrap', color: '#fff',
           },
         }}

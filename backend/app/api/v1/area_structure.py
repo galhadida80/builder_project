@@ -147,7 +147,7 @@ async def trigger_create_checklists(
     for child in children_result.scalars().all():
         count += await create_checklists_for_area(db, project_id, child, current_user.id)
 
-    return {"checklists_created": count}
+    return {"checklistsCreated": count}
 
 
 @router.get("/projects/{project_id}/areas/{area_id}/checklist-summary")

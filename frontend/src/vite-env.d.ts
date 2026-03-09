@@ -1,5 +1,16 @@
 /// <reference types="vite/client" />
 
+interface Window {
+  google?: {
+    accounts?: {
+      id?: {
+        disableAutoSelect: () => void
+        cancel: () => void
+      }
+    }
+  }
+}
+
 // SVG imports
 declare module '*.svg' {
   const content: string

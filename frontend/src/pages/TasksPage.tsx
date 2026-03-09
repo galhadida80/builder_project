@@ -36,17 +36,17 @@ import {
 const STATUS_OPTIONS = ['not_started', 'in_progress', 'completed', 'on_hold', 'cancelled'] as const
 const PRIORITY_OPTIONS = ['low', 'medium', 'high', 'urgent'] as const
 const PRIORITY_COLORS: Record<string, { bg: string; text: string }> = {
-  low: { bg: '#F1F5F9', text: '#64748B' },
-  medium: { bg: '#DBEAFE', text: '#2563EB' },
-  high: { bg: '#FFEDD5', text: '#EA580C' },
-  urgent: { bg: '#FEE2E2', text: '#DC2626' },
+  low: { bg: 'action.hover', text: 'text.secondary' },
+  medium: { bg: 'info.light', text: 'info.dark' },
+  high: { bg: 'warning.light', text: 'warning.dark' },
+  urgent: { bg: 'error.light', text: 'error.dark' },
 }
 
 const RISK_COLORS: Record<RiskLevel, { bg: string; text: string }> = {
-  low: { bg: '#DCFCE7', text: '#22C55E' },
-  medium: { bg: '#FEF3C7', text: '#F59E0B' },
-  high: { bg: '#FFEDD5', text: '#F97316' },
-  critical: { bg: '#FEE2E2', text: '#EF4444' },
+  low: { bg: 'success.light', text: 'success.dark' },
+  medium: { bg: 'warning.light', text: 'warning.dark' },
+  high: { bg: 'warning.light', text: 'warning.dark' },
+  critical: { bg: 'error.light', text: 'error.dark' },
 }
 
 function isToday(dateStr: string) {
@@ -363,8 +363,8 @@ export default function TasksPage() {
                 const entity = getEntityDetails(approval)
                 const isPending = approval.currentStatus !== 'approved' && approval.currentStatus !== 'rejected'
                 const categoryColor = approval.entityType === 'equipment'
-                  ? { bg: '#e3f2fd', text: '#1565c0', label: t('approvals.equipment') }
-                  : { bg: '#e8f5e9', text: '#2e7d32', label: t('approvals.material') }
+                  ? { bg: 'info.light', text: 'info.dark', label: t('approvals.equipment') }
+                  : { bg: 'success.light', text: 'success.dark', label: t('approvals.material') }
                 const docCount = entity && 'documents' in entity ? ((entity as Equipment | Material).documents?.length || 0) : 0
 
                 return (
@@ -549,7 +549,7 @@ function TaskCard({ task, t, onEdit, onDelete, riskAnalysis }: { task: Task; t: 
   const r = riskAnalysis ? RISK_COLORS[riskAnalysis.riskLevel] : null
   const overdue = isOverdue(task)
   const isComplete = task.status === 'completed'
-  const borderColor = overdue ? '#DC2626' : task.priority === 'urgent' ? '#DC2626' : task.priority === 'high' ? '#e07842' : task.priority === 'medium' ? '#2563EB' : '#64748B'
+  const borderColor = overdue ? 'error.main' : task.priority === 'urgent' ? 'error.main' : task.priority === 'high' ? 'warning.main' : task.priority === 'medium' ? 'info.main' : 'text.secondary'
   const dueTime = task.dueDate ? new Date(task.dueDate).toLocaleTimeString(getDateLocale(), { hour: '2-digit', minute: '2-digit' }) : null
 
   return (

@@ -149,15 +149,15 @@ export default function TimeTrackingPage() {
                 sx={{
                   p: 2,
                   borderRadius: 2,
-                  bgcolor: 'rgba(224, 120, 66, 0.08)',
+                  bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(237, 108, 2, 0.12)' : 'rgba(237, 108, 2, 0.08)',
                   border: '1px solid',
-                  borderColor: 'rgba(224, 120, 66, 0.2)',
+                  borderColor: 'warning.light',
                 }}
               >
                 <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
                   {t('timeTracking.pendingTimesheets', { defaultValue: 'Pending Timesheets' })}
                 </Typography>
-                <Typography variant="h5" fontWeight={700} sx={{ color: '#e07842' }}>
+                <Typography variant="h5" fontWeight={700} sx={{ color: 'warning.main' }}>
                   {timesheets.filter(ts => ts.status === 'submitted').length}
                 </Typography>
               </Box>
@@ -165,15 +165,15 @@ export default function TimeTrackingPage() {
                 sx={{
                   p: 2,
                   borderRadius: 2,
-                  bgcolor: 'rgba(46, 125, 50, 0.08)',
+                  bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(46, 125, 50, 0.12)' : 'rgba(46, 125, 50, 0.08)',
                   border: '1px solid',
-                  borderColor: 'rgba(46, 125, 50, 0.2)',
+                  borderColor: 'success.light',
                 }}
               >
                 <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
                   {t('timeTracking.approvedTimesheets', { defaultValue: 'Approved Timesheets' })}
                 </Typography>
-                <Typography variant="h5" fontWeight={700} sx={{ color: '#2e7d32' }}>
+                <Typography variant="h5" fontWeight={700} sx={{ color: 'success.main' }}>
                   {timesheets.filter(ts => ts.status === 'approved').length}
                 </Typography>
               </Box>

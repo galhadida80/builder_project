@@ -32,7 +32,7 @@ export function OfflineQueueIndicator() {
 
   return (
     <Box sx={{
-      position: 'fixed', bottom: 80, right: 16, zIndex: 1200,
+      position: 'fixed', bottom: 80, insetInlineEnd: 16, zIndex: 1200,
       display: 'flex', alignItems: 'center', gap: 1,
       bgcolor: 'warning.main', color: 'warning.contrastText',
       px: 2, py: 1, borderRadius: 2, boxShadow: 3,

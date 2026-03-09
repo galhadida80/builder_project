@@ -83,7 +83,7 @@ export function FileList({
               width: 40,
               height: 40,
               borderRadius: 2,
-              bgcolor: 'grey.100',
+              bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'grey.100',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',

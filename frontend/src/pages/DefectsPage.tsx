@@ -23,10 +23,10 @@ import { AddIcon, VisibilityIcon, PictureAsPdfIcon } from '@/icons'
 import { Box, Typography, Chip, MenuItem, Skeleton, TextField as MuiTextField, TablePagination, Tooltip, useMediaQuery, useTheme, Fab } from '@/mui'
 
 const SEVERITY_BORDER_COLORS: Record<DefectSeverity, string> = {
-  critical: '#DC2626',
-  high: '#EA580C',
-  medium: '#CA8A04',
-  low: '#22C55E',
+  critical: 'error.main',
+  high: 'warning.main',
+  medium: 'warning.light',
+  low: 'success.main',
 }
 
 function formatRelativeTime(dateStr: string, t: (key: string, opts?: Record<string, unknown>) => string): string {

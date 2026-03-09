@@ -152,7 +152,7 @@ export function GanttChart({
         const taskEnd = task.end ? parseDate(task.end) : (task.duration ? new Date(taskStart.getTime() + task.duration * 86400000) : new Date(taskStart.getTime() + 86400000))
         const offsetDays = daysBetween(timelineStart, taskStart)
         const durationDays = Math.max(daysBetween(taskStart, taskEnd), 1)
-        const left = offsetDays * DAY_WIDTH
+        const insetStart = offsetDays * DAY_WIDTH
         const width = durationDays * DAY_WIDTH
         const progress = task.progress ?? 0
         const isMilestone = task.type === 'milestone'
@@ -228,7 +228,7 @@ export function GanttChart({
                       sx={{
                         position: 'absolute',
                         top: '50%',
-                        left: left + width / 2 - 6,
+                        insetInlineStart: insetStart + width / 2 - 6,
                         width: 12,
                         height: 12,
                         transform: 'translateY(-50%) rotate(45deg)',
@@ -246,7 +246,7 @@ export function GanttChart({
                         sx={{
                           position: 'absolute',
                           top: '50%',
-                          left: left + width / 2 + 10,
+                          insetInlineStart: insetStart + width / 2 + 10,
                           transform: 'translateY(-50%)',
                           fontSize: 14,
                           color: riskColor,
@@ -260,7 +260,7 @@ export function GanttChart({
                       sx={{
                         position: 'absolute',
                         top: isProject ? 6 : 8,
-                        left,
+                        insetInlineStart: insetStart,
                         width: Math.max(width, 4),
                         height: isProject ? ROW_HEIGHT - 12 : ROW_HEIGHT - 16,
                         borderRadius: isProject ? 0.5 : 1,
@@ -283,8 +283,8 @@ export function GanttChart({
                           sx={{
                             position: 'absolute',
                             top: 0,
-                            left: 0,
-                            right: 0,
+                            insetInlineStart: 0,
+                            insetInlineEnd: 0,
                             bottom: 0,
                             bgcolor: riskColor,
                             opacity: 0.15,
@@ -297,7 +297,7 @@ export function GanttChart({
                         sx={{
                           position: 'absolute',
                           top: isProject ? 8 : 10,
-                          left: left + 4,
+                          insetInlineStart: insetStart + 4,
                           fontSize: 14,
                           color: riskColor,
                         }}

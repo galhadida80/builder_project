@@ -27,7 +27,7 @@ const StyledGanttPaper = styled(Paper)(({ theme }) => ({
   '& ._1uWLi': {
     // Task list styling
     backgroundColor: theme.palette.background.paper,
-    borderRight: `1px solid ${theme.palette.divider}`,
+    borderInlineEnd: `1px solid ${theme.palette.divider}`,
   },
   '& ._36ChA': {
     // Grid styling
@@ -57,7 +57,7 @@ const StyledTooltip = styled(Box)(({ theme }) => ({
   },
   '& .tooltip-label': {
     fontWeight: 500,
-    marginRight: theme.spacing(0.5),
+    marginInlineEnd: theme.spacing(0.5),
     color: theme.palette.text.primary,
   },
 }))

@@ -3,6 +3,7 @@ from datetime import date, timedelta
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy import case, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.core.security import get_current_user
 from app.db.session import get_db
@@ -122,6 +123,7 @@ async def get_activity_feed(
     audit_result = await db.execute(
         select(AuditLog)
         .where(AuditLog.project_id.in_(user_project_ids))
+        .options(selectinload(AuditLog.user))
         .order_by(AuditLog.created_at.desc())
         .limit(limit)
     )
@@ -131,13 +133,13 @@ async def get_activity_feed(
         event = TimelineEvent(
             id=log.id,
             date=log.created_at,
-            title=f"{log.action.value.title()} {log.entity_type}",
+            title=f"{log.action.title()} {log.entity_type}",
             description=None,
             event_type=log.entity_type,
             entity_id=log.entity_id,
             entity_type=log.entity_type,
-            user_name=log.user_full_name or log.user_email,
-            metadata={"action": log.action.value}
+            user_name=log.user.full_name if log.user else None,
+            metadata={"action": log.action}
         )
         timeline_events.append(event)
 

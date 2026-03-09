@@ -36,8 +36,11 @@ export default function DashboardKPICards({
             position: 'relative',
             overflow: 'hidden',
             background: (theme) =>
-              `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
-            color: 'primary.contrastText',
+              theme.palette.mode === 'dark'
+                ? `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`
+                : `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.12)} 0%, ${alpha(theme.palette.primary.main, 0.06)} 100%)`,
+            color: (theme) => theme.palette.mode === 'dark' ? 'primary.contrastText' : 'text.primary',
+            border: (theme) => theme.palette.mode === 'light' ? `1px solid ${alpha(theme.palette.primary.main, 0.2)}` : 'none',
             boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
             display: 'flex',
             alignItems: 'center',
@@ -45,7 +48,7 @@ export default function DashboardKPICards({
             minHeight: { xs: 'auto', md: 72 },
           }}
         >
-          <Box sx={{ width: 40, height: 40, borderRadius: 2, bgcolor: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <Box sx={{ width: 40, height: 40, borderRadius: 2, bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.2)' : alpha(theme.palette.primary.main, 0.15), display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: 'primary.main' }}>
             <BusinessIcon sx={{ fontSize: 22 }} />
           </Box>
           <Box sx={{ minWidth: 0 }}>
@@ -59,7 +62,7 @@ export default function DashboardKPICards({
               <Chip
                 label={`+${activeProjects.length} ${t('dashboard.newThisMonth')}`}
                 size="small"
-                sx={{ height: 20, fontSize: '0.6rem', fontWeight: 600, bgcolor: 'rgba(255,255,255,0.2)', color: 'inherit', mt: 0.5 }}
+                sx={{ height: 20, fontSize: '0.6rem', fontWeight: 600, bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.2)' : alpha(theme.palette.primary.main, 0.12), color: 'inherit', mt: 0.5 }}
               />
             )}
           </Box>
@@ -73,8 +76,11 @@ export default function DashboardKPICards({
             position: 'relative',
             overflow: 'hidden',
             background: (theme) =>
-              `linear-gradient(135deg, ${theme.palette.warning.main} 0%, ${theme.palette.warning.dark} 100%)`,
-            color: 'warning.contrastText',
+              theme.palette.mode === 'dark'
+                ? `linear-gradient(135deg, ${theme.palette.warning.main} 0%, ${theme.palette.warning.dark} 100%)`
+                : `linear-gradient(135deg, ${alpha(theme.palette.warning.main, 0.12)} 0%, ${alpha(theme.palette.warning.main, 0.06)} 100%)`,
+            color: (theme) => theme.palette.mode === 'dark' ? 'warning.contrastText' : 'text.primary',
+            border: (theme) => theme.palette.mode === 'light' ? `1px solid ${alpha(theme.palette.warning.main, 0.2)}` : 'none',
             boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
             display: 'flex',
             alignItems: 'center',
@@ -84,7 +90,7 @@ export default function DashboardKPICards({
           }}
           onClick={() => selectedProjectId ? onNavigate(`/projects/${selectedProjectId}/tasks`) : onNavigate('/dashboard')}
         >
-          <Box sx={{ width: 40, height: 40, borderRadius: 2, bgcolor: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <Box sx={{ width: 40, height: 40, borderRadius: 2, bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.2)' : alpha(theme.palette.warning.main, 0.15), display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: 'warning.dark' }}>
             <CheckCircleIcon sx={{ fontSize: 22 }} />
           </Box>
           <Box sx={{ minWidth: 0 }}>
@@ -155,7 +161,10 @@ export default function DashboardKPICards({
             position: 'relative',
             cursor: 'pointer',
             background: (theme) =>
-              `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 100%)`,
+              theme.palette.mode === 'dark'
+                ? `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 100%)`
+                : `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.1)} 0%, ${alpha(theme.palette.primary.main, 0.05)} 100%)`,
+            border: (theme) => theme.palette.mode === 'light' ? `1px solid ${alpha(theme.palette.primary.main, 0.2)}` : 'none',
             boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
             maxWidth: { md: 600 },
           }}
@@ -166,10 +175,10 @@ export default function DashboardKPICards({
               p: { xs: 2, md: 2.5 },
               position: 'relative',
               zIndex: 1,
-              color: 'primary.contrastText',
+              color: (theme) => theme.palette.mode === 'dark' ? 'primary.contrastText' : 'text.primary',
             }}
           >
-            <Typography variant="overline" sx={{ opacity: 0.8, fontSize: '0.65rem', letterSpacing: 1.5 }}>
+            <Typography variant="overline" sx={{ opacity: 0.8, fontSize: '0.65rem', letterSpacing: 1.5, color: (theme) => theme.palette.mode === 'dark' ? 'inherit' : 'primary.main' }}>
               {t('dashboard.featuredProject')}
             </Typography>
             <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>
@@ -183,9 +192,9 @@ export default function DashboardKPICards({
                   sx={{
                     height: 5,
                     borderRadius: 3,
-                    bgcolor: 'rgba(255,255,255,0.2)',
+                    bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.2)' : alpha(theme.palette.primary.main, 0.15),
                     '& .MuiLinearProgress-bar': {
-                      bgcolor: 'rgba(255,255,255,0.9)',
+                      bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.9)' : 'primary.main',
                       borderRadius: 3,
                     },
                   }}

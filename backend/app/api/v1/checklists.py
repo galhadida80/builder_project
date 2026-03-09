@@ -185,10 +185,17 @@ async def delete_checklist_template(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    result = await db.execute(select(ChecklistTemplate).where(
-        ChecklistTemplate.id == template_id,
-        or_(ChecklistTemplate.project_id == project_id, ChecklistTemplate.project_id.is_(None))
-    ))
+    result = await db.execute(
+        select(ChecklistTemplate)
+        .options(
+            selectinload(ChecklistTemplate.subsections).selectinload(ChecklistSubSection.items),
+            selectinload(ChecklistTemplate.instances).selectinload(ChecklistInstance.responses),
+        )
+        .where(
+            ChecklistTemplate.id == template_id,
+            or_(ChecklistTemplate.project_id == project_id, ChecklistTemplate.project_id.is_(None))
+        )
+    )
     checklist_template = result.scalar_one_or_none()
     if not checklist_template:
         raise HTTPException(status_code=404, detail="Checklist template not found")
@@ -318,6 +325,7 @@ async def delete_checklist_subsection(
 ):
     result = await db.execute(
         select(ChecklistSubSection)
+        .options(selectinload(ChecklistSubSection.items))
         .where(ChecklistSubSection.id == subsection_id, ChecklistSubSection.template_id == template_id)
     )
     subsection = result.scalar_one_or_none()
@@ -642,9 +650,11 @@ async def delete_checklist_instance(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    result = await db.execute(select(ChecklistInstance).where(
-        ChecklistInstance.id == instance_id, ChecklistInstance.project_id == project_id
-    ))
+    result = await db.execute(
+        select(ChecklistInstance)
+        .options(selectinload(ChecklistInstance.responses))
+        .where(ChecklistInstance.id == instance_id, ChecklistInstance.project_id == project_id)
+    )
     checklist_instance = result.scalar_one_or_none()
     if not checklist_instance:
         raise HTTPException(status_code=404, detail="Checklist instance not found")

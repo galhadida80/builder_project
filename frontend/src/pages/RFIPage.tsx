@@ -720,13 +720,14 @@ export default function RFIPage() {
           </Box>
           <Divider />
           <Typography variant="subtitle2" color="text.secondary">{t('rfis.optionalReferences')}</Typography>
-          <TextField
-            fullWidth
-            label={t('rfis.location')}
-            value={formData.location}
-            onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-            error={!!errors.location}
-            helperText={errors.location}
+          <Autocomplete
+            freeSolo
+            options={projectAreas.map(a => `${a.name}${a.floorNumber !== undefined ? ` (${t('areas.floor')} ${a.floorNumber})` : ''}`)}
+            value={formData.location || ''}
+            onInputChange={(_, value) => setFormData({ ...formData, location: value })}
+            renderInput={(params) => (
+              <MuiTextField {...params} label={t('rfis.location')} fullWidth size="small" error={!!errors.location} helperText={errors.location} />
+            )}
           />
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
             <TextField

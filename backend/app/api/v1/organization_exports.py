@@ -81,7 +81,6 @@ async def create_organization_export(
         data.export_type,
         None,
         organization_id,
-        db,
         storage,
     )
 
@@ -166,7 +165,6 @@ async def create_all_projects_export(
         ExportType.ORGANIZATION,
         None,
         None,
-        db,
         storage,
     )
 

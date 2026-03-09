@@ -87,7 +87,7 @@ export default function LandingFooter() {
       </Box>
 
       {/* Footer */}
-      <Box sx={{ bgcolor: '#0f172a', py: { xs: 6, md: 8 }, px: { xs: 2, md: 6 } }}>
+      <Box sx={{ bgcolor: (th) => th.palette.mode === 'dark' ? '#0f172a' : 'background.paper', borderTop: '1px solid', borderColor: 'divider', py: { xs: 6, md: 8 }, px: { xs: 2, md: 6 } }}>
         <Container maxWidth="lg">
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '2fr 1fr 1fr 1fr' }, gap: { xs: 4, md: 6 } }}>
             {/* Brand column */}
@@ -96,11 +96,11 @@ export default function LandingFooter() {
                 <Box sx={{ bgcolor: '#C75B20', p: 0.75, borderRadius: 2, display: 'flex', color: 'white' }}>
                   <ConstructionIcon sx={{ fontSize: 20 }} />
                 </Box>
-                <Typography sx={{ fontWeight: 800, fontSize: '1.05rem', color: 'white' }}>
+                <Typography sx={{ fontWeight: 800, fontSize: '1.05rem', color: 'text.primary' }}>
                   BuilderOps
                 </Typography>
               </Box>
-              <Typography sx={{ fontSize: '0.85rem', color: '#94a3b8', lineHeight: 1.7, maxWidth: 260 }}>
+              <Typography sx={{ fontSize: '0.85rem', color: 'text.secondary', lineHeight: 1.7, maxWidth: 260 }}>
                 {t('landing.footer.description')}
               </Typography>
             </Box>
@@ -108,7 +108,7 @@ export default function LandingFooter() {
             {/* Link columns */}
             {COLUMNS.map((col) => (
               <Box key={col.title}>
-                <Typography sx={{ fontWeight: 700, fontSize: '0.85rem', color: 'white', mb: 2, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                <Typography sx={{ fontWeight: 700, fontSize: '0.85rem', color: 'text.primary', mb: 2, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   {col.title}
                 </Typography>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
@@ -118,10 +118,10 @@ export default function LandingFooter() {
                       onClick={link.action}
                       sx={{
                         fontSize: '0.85rem',
-                        color: '#94a3b8',
+                        color: 'text.secondary',
                         cursor: 'pointer',
                         transition: 'color 200ms',
-                        '&:hover': { color: 'white' },
+                        '&:hover': { color: 'text.primary' },
                       }}
                     >
                       {link.label}
@@ -132,17 +132,17 @@ export default function LandingFooter() {
             ))}
           </Box>
 
-          <Divider sx={{ my: 4, borderColor: 'rgba(255,255,255,0.08)' }} />
+          <Divider sx={{ my: 4 }} />
 
           <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: 'center', gap: 2 }}>
-            <Typography sx={{ fontSize: '0.75rem', color: '#64748b' }}>
+            <Typography sx={{ fontSize: '0.75rem', color: 'text.disabled' }}>
               &copy; {new Date().getFullYear()} BuilderOps. {t('landing.allRightsReserved')}
             </Typography>
             <Box sx={{ display: 'flex', gap: 3 }}>
-              <Typography sx={{ fontSize: '0.75rem', color: '#64748b', cursor: 'pointer', '&:hover': { color: '#94a3b8' } }}>
+              <Typography sx={{ fontSize: '0.75rem', color: 'text.disabled', cursor: 'pointer', '&:hover': { color: 'text.secondary' } }}>
                 {t('landing.footer.terms')}
               </Typography>
-              <Typography sx={{ fontSize: '0.75rem', color: '#64748b', cursor: 'pointer', '&:hover': { color: '#94a3b8' } }}>
+              <Typography sx={{ fontSize: '0.75rem', color: 'text.disabled', cursor: 'pointer', '&:hover': { color: 'text.secondary' } }}>
                 {t('landing.footer.privacy')}
               </Typography>
             </Box>

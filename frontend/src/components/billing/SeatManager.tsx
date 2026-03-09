@@ -230,7 +230,7 @@ export function SeatManager() {
                   sx={{
                     position: 'absolute',
                     top: 8,
-                    right: 8,
+                    insetInlineEnd: 8,
                     zIndex: 1,
                   }}
                 >

@@ -31,14 +31,14 @@ const PreviewHeader = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
 }))
 
-const PreviewContent = styled(Box)({
+const PreviewContent = styled(Box)(({ theme }) => ({
   flex: 1,
   overflow: 'auto',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  backgroundColor: '#f5f5f5',
-})
+  backgroundColor: theme.palette.mode === 'dark' ? theme.palette.background.default : '#f5f5f5',
+}))
 
 const ImagePreview = styled('img')({
   maxWidth: '100%',

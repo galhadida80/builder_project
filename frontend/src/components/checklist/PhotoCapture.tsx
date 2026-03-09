@@ -272,7 +272,7 @@ export function PhotoCapture({
                     alt={`Photo ${index + 1}`}
                     sx={{ objectFit: 'cover' }}
                   />
-                  <Box sx={{ position: 'absolute', top: 8, right: 8, display: 'flex', gap: 0.5 }}>
+                  <Box sx={{ position: 'absolute', top: 8, insetInlineEnd: 8, display: 'flex', gap: 0.5 }}>
                     <IconButton
                       aria-label={t('checklists.annotateImage')}
                       size="small"

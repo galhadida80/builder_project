@@ -32,7 +32,7 @@ export const areaStructureApi = {
     await apiClient.delete(`/projects/${projectId}/area-checklist-assignments/${id}`)
   },
 
-  createAreaChecklists: async (projectId: string, areaId: string): Promise<{ checklists_created: number }> => {
+  createAreaChecklists: async (projectId: string, areaId: string): Promise<{ checklistsCreated: number }> => {
     const response = await apiClient.post(`/projects/${projectId}/areas/${areaId}/create-checklists`)
     return response.data
   },

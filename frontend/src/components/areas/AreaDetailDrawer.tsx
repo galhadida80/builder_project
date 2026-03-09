@@ -96,7 +96,7 @@ export function AreaDetailDrawer({ open, onClose, area, projectId }: AreaDetailD
     setCreating(true)
     try {
       const result = await areaStructureApi.createAreaChecklists(projectId, area.id)
-      showSuccess(t('areaChecklists.checklistsCreated', { count: result.checklists_created }))
+      showSuccess(t('areaChecklists.checklistsCreated', { count: result.checklistsCreated }))
       loadData(area.id)
     } catch {
       showError(t('checklists.failedToCreate'))

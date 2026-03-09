@@ -110,7 +110,9 @@
       "create": "created",
       "update": "updated",
       "approval": "approved",
-      "delete": "deleted"
+      "delete": "deleted",
+      "status_change": "changed status of",
+      "rejection": "rejected"
     },
     "activityEntities": {
       "equipment": "equipment",

@@ -9,7 +9,7 @@ import { invitationsApi } from '../api/invitations'
 import { authApi } from '../api/auth'
 import { projectsApi } from '../api/projects'
 import { passwordSchema } from '../schemas/validation'
-import { GoogleLogin } from '@react-oauth/google'
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google'
 import { ConstructionIcon, EmailIcon, LockIcon, PersonIcon, VisibilityIcon, VisibilityOffIcon, FingerprintIcon } from '@/icons'
 import { BackArrowIcon } from '@/components/ui/BackArrowIcon'
 import { Box, Typography, Alert, Link, Divider, Fade, IconButton } from '@/mui'
@@ -508,15 +508,17 @@ export default function LoginPage() {
 
                 {googleConfigured && (
                   <Box sx={{ display: 'flex', justifyContent: 'center', mb: webauthnAvailable && webauthnEmail ? 1.5 : 0, opacity: googleLoading ? 0.6 : 1 }}>
-                    <GoogleLogin
-                      onSuccess={handleGoogleSuccess}
-                      onError={() => setError(t('googleSignInFailed'))}
-                      size="large"
-                      width="352"
-                      text="signin_with"
-                      shape="rectangular"
-                      logo_alignment="center"
-                    />
+                    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+                      <GoogleLogin
+                        onSuccess={handleGoogleSuccess}
+                        onError={() => setError(t('googleSignInFailed'))}
+                        size="large"
+                        width="352"
+                        text="signin_with"
+                        shape="rectangular"
+                        logo_alignment="center"
+                      />
+                    </GoogleOAuthProvider>
                   </Box>
                 )}
 
@@ -628,15 +630,17 @@ export default function LoginPage() {
                       </Typography>
                     </Divider>
                     <Box sx={{ display: 'flex', justifyContent: 'center', opacity: googleLoading ? 0.6 : 1 }}>
-                      <GoogleLogin
-                        onSuccess={handleGoogleSuccess}
-                        onError={() => setError(t('googleSignInFailed'))}
-                        size="large"
-                        width="352"
-                        text="signup_with"
-                        shape="rectangular"
-                        logo_alignment="center"
-                      />
+                      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+                        <GoogleLogin
+                          onSuccess={handleGoogleSuccess}
+                          onError={() => setError(t('googleSignInFailed'))}
+                          size="large"
+                          width="352"
+                          text="signup_with"
+                          shape="rectangular"
+                          logo_alignment="center"
+                        />
+                      </GoogleOAuthProvider>
                     </Box>
                   </>
                 )}

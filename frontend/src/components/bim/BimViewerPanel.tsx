@@ -61,7 +61,7 @@ export default function BimViewerPanel({
           sx={{
             position: 'absolute',
             top: 12,
-            right: 12,
+            insetInlineEnd: 12,
             bgcolor: 'action.hover',
             fontSize: '0.65rem',
             fontWeight: 600,

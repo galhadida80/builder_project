@@ -43,7 +43,8 @@ function ProgressRing({ value, size = 120, strokeWidth = 10 }: { value: number; 
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="rgba(255,255,255,0.08)"
+          stroke="currentColor"
+          strokeOpacity={0.08}
           strokeWidth={strokeWidth}
         />
         <circle
@@ -76,7 +77,7 @@ function ProgressRing({ value, size = 120, strokeWidth = 10 }: { value: number; 
           sx={{
             fontSize: { xs: '1.75rem', sm: '2rem' },
             fontWeight: 800,
-            color: 'white',
+            color: 'text.primary',
             lineHeight: 1,
             letterSpacing: '-0.02em',
           }}
@@ -145,14 +146,15 @@ function QuickNavCard({ title, value, icon, color, onClick }: {
         position: 'relative',
         p: { xs: 1.75, sm: 2 },
         borderRadius: 3,
-        bgcolor: 'rgba(255,255,255,0.03)',
-        border: '1px solid rgba(255,255,255,0.06)',
+        bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.03)' : 'background.paper',
+        border: '1px solid',
+        borderColor: 'divider',
         cursor: 'pointer',
         overflow: 'hidden',
         transition: 'all 250ms cubic-bezier(0.4, 0, 0.2, 1)',
         '&:hover': {
           transform: 'translateY(-2px)',
-          bgcolor: 'rgba(255,255,255,0.05)',
+          bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'action.hover',
           borderColor: alpha(color, 0.4),
           boxShadow: `0 8px 24px ${alpha(color, 0.15)}`,
         },
@@ -163,8 +165,8 @@ function QuickNavCard({ title, value, icon, color, onClick }: {
           content: '""',
           position: 'absolute',
           top: 0,
-          left: 0,
-          right: 0,
+          insetInlineStart: 0,
+          insetInlineEnd: 0,
           height: '2px',
           background: `linear-gradient(90deg, transparent, ${color}, transparent)`,
           opacity: 0,
@@ -432,7 +434,7 @@ export default function ProjectDetailPage() {
                   sx={{
                     fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2rem' },
                     fontWeight: 800,
-                    color: 'white',
+                    color: 'text.primary',
                     letterSpacing: '-0.02em',
                     lineHeight: 1.2,
                   }}
@@ -442,23 +444,23 @@ export default function ProjectDetailPage() {
                 <StatusBadge status={project.status} />
               </Box>
               {project.description && (
-                <Typography sx={{ color: 'rgba(255,255,255,0.6)', mb: 1.5, maxWidth: 600, fontSize: { xs: '0.85rem', sm: '0.95rem' }, lineHeight: 1.5 }}>
+                <Typography sx={{ color: 'text.secondary', mb: 1.5, maxWidth: 600, fontSize: { xs: '0.85rem', sm: '0.95rem' }, lineHeight: 1.5 }}>
                   {project.description}
                 </Typography>
               )}
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: { xs: 1.5, sm: 3 } }}>
                 {project.address && (
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-                    <LocationOnIcon sx={{ fontSize: 16, color: 'rgba(255,255,255,0.4)' }} />
-                    <Typography sx={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.8rem' }}>
+                    <LocationOnIcon sx={{ fontSize: 16, color: 'text.disabled' }} />
+                    <Typography sx={{ color: 'text.secondary', fontSize: '0.8rem' }}>
                       {project.address}
                     </Typography>
                   </Box>
                 )}
                 {project.startDate && (
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-                    <CalendarTodayIcon sx={{ fontSize: 16, color: 'rgba(255,255,255,0.4)' }} />
-                    <Typography sx={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.8rem' }}>
+                    <CalendarTodayIcon sx={{ fontSize: 16, color: 'text.disabled' }} />
+                    <Typography sx={{ color: 'text.secondary', fontSize: '0.8rem' }}>
                       {new Date(project.startDate).toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' })}
                       {project.estimatedEndDate && ` - ${new Date(project.estimatedEndDate).toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' })}`}
                     </Typography>
@@ -472,11 +474,11 @@ export default function ProjectDetailPage() {
                 icon={<PersonAddIcon />}
                 onClick={() => setInviteOpen(true)}
                 sx={{
-                  bgcolor: 'rgba(255,255,255,0.06)',
-                  color: 'rgba(255,255,255,0.8)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  backdropFilter: 'blur(8px)',
-                  '&:hover': { bgcolor: 'rgba(255,255,255,0.1)', borderColor: 'rgba(255,255,255,0.2)' },
+                  bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'action.hover',
+                  color: 'text.secondary',
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  '&:hover': { bgcolor: 'action.selected', borderColor: 'text.disabled' },
                 }}
               >
                 <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
@@ -488,11 +490,11 @@ export default function ProjectDetailPage() {
                 icon={<EditIcon />}
                 onClick={handleOpenEdit}
                 sx={{
-                  bgcolor: 'rgba(255,255,255,0.06)',
-                  color: 'rgba(255,255,255,0.8)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  backdropFilter: 'blur(8px)',
-                  '&:hover': { bgcolor: 'rgba(255,255,255,0.1)', borderColor: 'rgba(255,255,255,0.2)' },
+                  bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'action.hover',
+                  color: 'text.secondary',
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  '&:hover': { bgcolor: 'action.selected', borderColor: 'text.disabled' },
                 }}
               >
                 <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
@@ -510,12 +512,13 @@ export default function ProjectDetailPage() {
               alignItems: { xs: 'center', sm: 'center' },
               gap: { xs: 2.5, sm: 4 },
               pt: 2,
-              borderTop: '1px solid rgba(255,255,255,0.06)',
+              borderTop: '1px solid',
+              borderColor: 'divider',
             }}
           >
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
               <ProgressRing value={completionPercent} size={110} strokeWidth={8} />
-              <Typography sx={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', fontWeight: 500, mt: 1 }}>
+              <Typography sx={{ color: 'text.secondary', fontSize: '0.75rem', fontWeight: 500, mt: 1 }}>
                 {t('projectDetail.overallCompletion')}
               </Typography>
             </Box>
@@ -670,7 +673,7 @@ export default function ProjectDetailPage() {
             {editImagePreview ? (
               <>
                 <Box component="img" src={editImagePreview} sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                <Box sx={{ position: 'absolute', top: 8, left: 8, display: 'flex', gap: 0.5 }}>
+                <Box sx={{ position: 'absolute', top: 8, insetInlineStart: 8, display: 'flex', gap: 0.5 }}>
                   <IconButton size="small" onClick={(e) => { e.stopPropagation(); editImageInputRef.current?.click() }}
                     sx={{ bgcolor: 'rgba(0,0,0,0.5)', color: 'white', '&:hover': { bgcolor: 'rgba(0,0,0,0.7)' } }}>
                     <CameraAltIcon sx={{ fontSize: 18 }} />

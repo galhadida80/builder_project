@@ -424,7 +424,7 @@ export default function ProjectsPage() {
             {imagePreview ? (
               <>
                 <Box component="img" src={imagePreview} sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                <Box sx={{ position: 'absolute', top: 8, left: 8, display: 'flex', gap: 0.5 }}>
+                <Box sx={{ position: 'absolute', top: 8, insetInlineStart: 8, display: 'flex', gap: 0.5 }}>
                   <IconButton size="small" onClick={(e) => { e.stopPropagation(); imageInputRef.current?.click() }}
                     sx={{ bgcolor: 'rgba(0,0,0,0.5)', color: 'white', '&:hover': { bgcolor: 'rgba(0,0,0,0.7)' } }}>
                     <CameraAltIcon sx={{ fontSize: 18 }} />

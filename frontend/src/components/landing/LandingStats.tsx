@@ -57,9 +57,12 @@ export default function LandingStats() {
     <Box
       ref={ref}
       sx={{
-        bgcolor: '#0f172a',
+        bgcolor: (th) => th.palette.mode === 'dark' ? '#0f172a' : 'background.paper',
         py: { xs: 5, md: 7 },
         px: { xs: 2, md: 6 },
+        borderTop: '1px solid',
+        borderBottom: '1px solid',
+        borderColor: 'divider',
       }}
     >
       <Container maxWidth="lg">
@@ -71,17 +74,18 @@ export default function LandingStats() {
                 textAlign: 'center',
                 p: { xs: 2.5, md: 3 },
                 borderRadius: 3,
-                bgcolor: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.06)',
+                bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(255,255,255,0.04)' : 'background.default',
+                border: '1px solid',
+                borderColor: 'divider',
                 transition: 'all 300ms ease',
-                '&:hover': { bgcolor: 'rgba(255,255,255,0.07)', transform: 'translateY(-2px)' },
+                '&:hover': { bgcolor: (th) => th.palette.mode === 'dark' ? 'rgba(255,255,255,0.07)' : 'action.hover', transform: 'translateY(-2px)' },
               }}
             >
               <Box sx={{ color: '#C75B20', mb: 1.5 }}>{stat.icon}</Box>
-              <Typography sx={{ fontSize: { xs: '1.75rem', md: '2.25rem' }, fontWeight: 800, color: 'white', lineHeight: 1 }}>
+              <Typography sx={{ fontSize: { xs: '1.75rem', md: '2.25rem' }, fontWeight: 800, color: 'text.primary', lineHeight: 1 }}>
                 {stat.value}
               </Typography>
-              <Typography sx={{ fontSize: '0.85rem', color: '#94a3b8', mt: 0.75, fontWeight: 500 }}>
+              <Typography sx={{ fontSize: '0.85rem', color: 'text.secondary', mt: 0.75, fontWeight: 500 }}>
                 {stat.label}
               </Typography>
             </Box>

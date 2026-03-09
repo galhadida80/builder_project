@@ -1,3 +1,5 @@
+import { getDateLocale } from '@/utils/dateLocale'
+
 /**
  * Format a date as relative time for safety-related displays
  */
@@ -15,7 +17,7 @@ export function formatRelativeTime(
   if (diffMinutes < 60) return t('common.minutesAgo', { count: diffMinutes })
   if (diffHours < 24) return t('common.hoursAgo', { count: diffHours })
   if (diffDays < 7) return t('common.daysAgo', { count: diffDays })
-  return date.toLocaleDateString()
+  return date.toLocaleDateString(getDateLocale())
 }
 
 /**

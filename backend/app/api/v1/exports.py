@@ -63,7 +63,6 @@ async def create_project_export(
         data.export_type,
         project_id,
         None,
-        db,
         storage,
     )
 

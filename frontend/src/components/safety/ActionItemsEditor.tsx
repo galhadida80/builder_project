@@ -74,7 +74,7 @@ export default function ActionItemsEditor({
                 aria-label={t('common.removeItem')}
                 onClick={() => removeActionItem(idx)}
                 disabled={disabled}
-                sx={{ position: 'absolute', top: 8, right: 8 }}
+                sx={{ position: 'absolute', top: 8, insetInlineEnd: 8 }}
               >
                 <CloseIcon sx={{ fontSize: 18 }} />
               </IconButton>

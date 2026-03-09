@@ -207,29 +207,29 @@ export default function KeyValueEditor({ entries, onChange, label, suggestions }
 
       {/* Suggested properties as clickable chips */}
       {suggestions && availableSuggestions.length > 0 && (
-        <Box sx={{ mb: 2 }}>
-          <Typography variant="caption" color="text.secondary" sx={{ mb: 0.75, display: 'block', fontWeight: 500 }}>
+        <Box sx={{ mb: 1.5 }}>
+          <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block', fontWeight: 500 }}>
             {t('keyValueEditor.suggestedProperties')}
           </Typography>
           {Object.entries(groupedSuggestions).map(([category, items]) => {
             const catColor = CATEGORY_COLORS[category] || theme.palette.primary.main
             return (
-              <Box key={category} sx={{ mb: 1 }}>
-                <Typography variant="caption" sx={{ fontSize: 10, fontWeight: 600, color: catColor, mb: 0.5, display: 'block' }}>
+              <Box key={category} sx={{ mb: 0.5 }}>
+                <Typography variant="caption" sx={{ fontSize: 10, fontWeight: 600, color: catColor, mb: 0.25, display: 'block' }}>
                   {t(`customProps.categories.${category}`)}
                 </Typography>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                   {items.map((suggestion) => (
                     <Chip
                       key={suggestion.key}
-                      icon={<AddCircleOutlineIcon sx={{ fontSize: '16px !important', color: `${catColor} !important` }} />}
+                      icon={<AddCircleOutlineIcon sx={{ fontSize: '14px !important', color: `${catColor} !important` }} />}
                       label={`${t(suggestion.labelKey)}${suggestion.unit ? ` (${suggestion.unit})` : ''}`}
                       size="small"
                       variant="outlined"
                       onClick={() => handleAddSuggestion(suggestion)}
                       sx={{
                         cursor: 'pointer',
-                        height: 28,
+                        height: 24,
                         fontSize: 11,
                         fontWeight: 500,
                         borderColor: alpha(catColor, 0.3),
@@ -249,16 +249,16 @@ export default function KeyValueEditor({ entries, onChange, label, suggestions }
       {/* Added properties in dashed container */}
       {entries.length > 0 && (
         <Box sx={{
-          border: '2px dashed',
+          border: '1.5px dashed',
           borderColor: 'divider',
-          borderRadius: 3,
-          p: 2,
-          mb: 2,
+          borderRadius: 2,
+          p: 1.5,
+          mb: 1.5,
         }}>
-          <Typography variant="caption" sx={{ fontWeight: 600, color: 'primary.main', textTransform: 'uppercase', letterSpacing: 0.5, mb: 1.5, display: 'block' }}>
+          <Typography variant="caption" sx={{ fontWeight: 600, color: 'primary.main', textTransform: 'uppercase', letterSpacing: 0.5, mb: 1, display: 'block', fontSize: 10 }}>
             {t('keyValueEditor.title')}
           </Typography>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
             {entries.map((entry, index) => (
               <Box key={index}>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
@@ -297,9 +297,9 @@ export default function KeyValueEditor({ entries, onChange, label, suggestions }
         onClick={() => setModalOpen(true)}
         sx={{
           width: '100%',
-          p: 1.5,
-          borderRadius: 3,
-          border: '2px dashed',
+          p: 1,
+          borderRadius: 2,
+          border: '1.5px dashed',
           borderColor: 'divider',
           display: 'flex',
           alignItems: 'center',

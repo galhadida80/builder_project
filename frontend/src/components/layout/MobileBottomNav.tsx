@@ -136,11 +136,10 @@ export default function MobileBottomNav({ projectId, onMenuOpen }: MobileBottomN
         <Box
           sx={{
             display: 'flex',
-            alignItems: 'center',
+            alignItems: 'flex-end',
             justifyContent: 'space-around',
             height: 68,
             px: 1,
-            pb: '4px',
           }}
         >
           {/* Left nav items */}
@@ -156,10 +155,10 @@ export default function MobileBottomNav({ projectId, onMenuOpen }: MobileBottomN
             sx={{
               flex: 1,
               bgcolor: 'transparent',
-              height: '100%',
+              height: 56,
               '& .MuiBottomNavigationAction-root': {
                 minWidth: 'auto',
-                padding: '6px 0',
+                padding: '6px 0 8px',
                 transition: 'color 200ms ease-out',
                 color: (theme) => theme.palette.mode === 'dark' ? '#475569' : 'text.secondary',
                 '&.Mui-selected': {
@@ -187,14 +186,14 @@ export default function MobileBottomNav({ projectId, onMenuOpen }: MobileBottomN
             ))}
           </BottomNavigation>
 
-          {/* Center FAB */}
-          <Box sx={{ display: 'flex', justifyContent: 'center', flex: '0 0 64px', mt: '-20px' }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-end', flex: '0 0 64px', pb: '8px' }}>
             <Fab
               aria-label={t('mobileNav.quickCreate')}
               onClick={handleFabClick}
               sx={{
                 width: 50,
                 height: 50,
+                mb: '12px',
                 background: 'linear-gradient(135deg, #e07842 0%, #d06832 100%)',
                 boxShadow: '0 4px 20px rgba(224, 120, 66, 0.35)',
                 color: 'white',
@@ -222,10 +221,10 @@ export default function MobileBottomNav({ projectId, onMenuOpen }: MobileBottomN
             sx={{
               flex: 1,
               bgcolor: 'transparent',
-              height: '100%',
+              height: 56,
               '& .MuiBottomNavigationAction-root': {
                 minWidth: 'auto',
-                padding: '6px 0',
+                padding: '6px 0 8px',
                 transition: 'color 200ms ease-out',
                 color: (theme) => theme.palette.mode === 'dark' ? '#475569' : 'text.secondary',
                 '&.Mui-selected': {

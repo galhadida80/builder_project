@@ -122,7 +122,16 @@ function loadGisScript(): Promise<void> {
   return new Promise((resolve, reject) => {
     if (window.google?.accounts?.oauth2) { resolve(); return }
     const existing = document.querySelector(`script[src="${GIS_SCRIPT_URL}"]`)
-    if (existing) { existing.addEventListener('load', () => resolve()); return }
+    if (existing) {
+      const checkReady = (attempts = 0) => {
+        if (window.google?.accounts?.oauth2) { resolve(); return }
+        if (attempts > 50) { reject(new Error('GIS script timeout')); return }
+        setTimeout(() => checkReady(attempts + 1), 100)
+      }
+      existing.addEventListener('load', () => checkReady())
+      checkReady()
+      return
+    }
     const script = document.createElement('script')
     script.src = GIS_SCRIPT_URL
     script.async = true

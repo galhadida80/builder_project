@@ -17,8 +17,9 @@ import { useResponsive } from '../hooks/useResponsive'
 import { useAuth } from '../contexts/AuthContext'
 import { meetingsApi } from '../api/meetings'
 import { teamMembersApi } from '../api/teamMembers'
+import { areasApi } from '../api/areas'
 import { filesApi, type FileRecord } from '../api/files'
-import type { Meeting, MeetingAttendee, MeetingTimeSlot } from '../types'
+import type { Meeting, MeetingAttendee, MeetingTimeSlot, ConstructionArea } from '../types'
 import { validateMeetingForm, hasErrors, type ValidationError } from '../utils/validation'
 import { useFormShake } from '../hooks/useFormShake'
 import { useToast } from '../components/common/ToastProvider'
@@ -118,6 +119,7 @@ export default function MeetingsPage() {
   const [bulkSyncing, setBulkSyncing] = useState(false)
   const [subscribeAnchor, setSubscribeAnchor] = useState<HTMLElement | null>(null)
   const [feedUrl, setFeedUrl] = useState('')
+  const [areas, setAreas] = useState<ConstructionArea[]>([])
 
   const loadMeetings = async () => {
     try {
@@ -141,6 +143,14 @@ export default function MeetingsPage() {
     }
   }
 
+  const loadAreas = async () => {
+    if (!projectId) return
+    try {
+      const data = await areasApi.list(projectId)
+      setAreas(data)
+    } catch { /* non-critical */ }
+  }
+
   const loadCalendarStatus = async () => {
     try {
       const status = await meetingsApi.getCalendarStatus()
@@ -156,6 +166,7 @@ export default function MeetingsPage() {
     loadMeetings()
     loadTeamMembers()
     loadCalendarStatus()
+    loadAreas()
   }, [projectId])
 
   const handleConnectCalendar = async () => {
@@ -1437,13 +1448,14 @@ export default function MeetingsPage() {
             />
           )}
           {(formData.meetingFormat === 'in_person' || formData.meetingFormat === 'hybrid' || !formData.meetingFormat) && (
-            <TextField
-              fullWidth
-              label={t('meetings.location')}
-              value={formData.location}
-              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-              error={!!errors.location}
-              helperText={errors.location}
+            <Autocomplete
+              freeSolo
+              options={areas.map(a => `${a.name}${a.floorNumber !== undefined ? ` (${t('areas.floor')} ${a.floorNumber})` : ''}`)}
+              value={formData.location || ''}
+              onInputChange={(_, value) => setFormData({ ...formData, location: value })}
+              renderInput={(params) => (
+                <MuiTextField {...params} label={t('meetings.location')} fullWidth size="small" error={!!errors.location} helperText={errors.location} />
+              )}
             />
           )}
           {!editingMeeting && (

@@ -101,6 +101,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('authToken')
     localStorage.removeItem('userId')
     localStorage.removeItem('webauthn_email')
+    try {
+      window.google?.accounts?.id?.disableAutoSelect()
+    } catch {
+      // GIS not loaded
+    }
     setUser(null)
     navigate('/login')
   }, [navigate])

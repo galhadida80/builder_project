@@ -187,7 +187,7 @@ export function FindingDocumentationCard({
                           sx={{
                             position: 'absolute',
                             top: 4,
-                            right: 4,
+                            insetInlineEnd: 4,
                             bgcolor: 'rgba(0,0,0,0.6)',
                             color: 'white',
                             '&:hover': { bgcolor: 'rgba(0,0,0,0.8)' },

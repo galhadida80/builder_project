@@ -3,7 +3,7 @@ import { FormModal } from '../ui/Modal'
 import { TextField } from '../ui/TextField'
 import KeyPointsEditor, { type KeyPoint } from './KeyPointsEditor'
 import ActionItemsEditor, { type TalkActionItem } from './ActionItemsEditor'
-import type { Contact } from '../../types'
+import type { Contact, ConstructionArea } from '../../types'
 import type { ValidationError } from '../../utils/validation'
 import {
   Box,
@@ -35,6 +35,7 @@ interface ToolboxTalkFormModalProps {
   formErrors: ValidationError
   validateField: (field: string) => void
   contacts: Contact[]
+  areas: ConstructionArea[]
 }
 
 export default function ToolboxTalkFormModal({
@@ -47,6 +48,7 @@ export default function ToolboxTalkFormModal({
   formErrors,
   validateField,
   contacts,
+  areas,
 }: ToolboxTalkFormModalProps) {
   const { t } = useTranslation()
 
@@ -115,11 +117,14 @@ export default function ToolboxTalkFormModal({
         />
 
         {/* Location */}
-        <TextField
-          fullWidth
-          label={t('safety.toolboxTalks.location')}
+        <Autocomplete
+          freeSolo
+          options={areas.map(a => `${a.name}${a.floorNumber != null ? ` (${t('areas.floor')} ${a.floorNumber})` : ''}`)}
           value={form.location || ''}
-          onChange={(e) => setForm({ ...form, location: e.target.value })}
+          onInputChange={(_, value) => setForm({ ...form, location: value })}
+          renderInput={(params) => (
+            <MuiTextField {...params} label={t('safety.toolboxTalks.location')} fullWidth size="small" />
+          )}
         />
 
         {/* Presenter */}

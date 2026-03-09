@@ -1180,7 +1180,9 @@
       "create": "יצר/ה",
       "update": "עדכנ/ה",
       "approval": "אישר/ה",
-      "delete": "מחק/ה"
+      "delete": "מחק/ה",
+      "status_change": "שינה/תה סטטוס",
+      "rejection": "דחה/תה"
     },
     "activityEntities": {
       "equipment": "ציוד",

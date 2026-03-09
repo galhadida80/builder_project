@@ -122,7 +122,7 @@ export default function EntityVersionHistory({
         <Box
           sx={{
             position: 'absolute',
-            left: 10,
+            insetInlineStart: 10,
             top: 0,
             bottom: 0,
             width: 2,
@@ -144,7 +144,7 @@ export default function EntityVersionHistory({
                 '&::before': {
                   content: '""',
                   position: 'absolute',
-                  left: -19,
+                  insetInlineStart: -19,
                   top: 12,
                   width: 10,
                   height: 10,

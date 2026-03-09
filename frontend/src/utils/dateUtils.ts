@@ -1,3 +1,5 @@
+import { getDateLocale } from '@/utils/dateLocale'
+
 /**
  * Formats a date string as relative time (e.g., "2 hours ago", "yesterday")
  */
@@ -18,7 +20,7 @@ export function formatRelativeTime(
   if (diffDays === 1) return t('defects.yesterday')
   if (diffDays < 30) return t('defects.daysAgo', { count: diffDays })
 
-  return date.toLocaleDateString()
+  return date.toLocaleDateString(getDateLocale())
 }
 
 /**
@@ -38,5 +40,5 @@ export function formatFutureRelativeTime(
   if (diffDays === 1) return t('safetyTraining.expiresTime.tomorrow')
   if (diffDays <= 30) return t('safetyTraining.expiresTime.inDays', { count: diffDays })
 
-  return date.toLocaleDateString()
+  return date.toLocaleDateString(getDateLocale())
 }
