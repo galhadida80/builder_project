@@ -12,6 +12,7 @@ from app.models.area import ConstructionArea
 from app.models.audit import AuditLog
 from app.models.equipment import ApprovalStatus, Equipment
 from app.models.equipment_template import EquipmentApprovalSubmission
+from app.models.defect import Defect
 from app.models.inspection import Finding, Inspection, InspectionStatus
 from app.models.material import Material
 from app.models.material_template import MaterialApprovalSubmission
@@ -446,15 +447,14 @@ async def get_dashboard_stats(
         for row in approval_result.all()
     ]
 
-    findings_result = await db.execute(
-        select(Finding.severity, func.count(Finding.id).label("count"))
-        .join(Inspection, Finding.inspection_id == Inspection.id)
-        .where(Inspection.project_id == project_id)
-        .group_by(Finding.severity)
+    defect_severity_result = await db.execute(
+        select(Defect.severity, func.count(Defect.id).label("count"))
+        .where(Defect.project_id == project_id)
+        .group_by(Defect.severity)
     )
     findings_severity = [
         DistributionItem(label=row.severity, value=row.count)
-        for row in findings_result.all()
+        for row in defect_severity_result.all()
     ]
 
     today = utcnow().date()
