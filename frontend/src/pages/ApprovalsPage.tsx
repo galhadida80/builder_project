@@ -217,7 +217,7 @@ export default function ApprovalsPage() {
           {selectedApproval && (
             <Box sx={{ mb: 3, p: 2, bgcolor: 'action.hover', borderRadius: 2 }}>
               <Typography variant="body2" color="text.secondary">
-                {t('approvals.aboutTo', { action: actionType })}
+                {actionType === 'approve' ? t('approvals.aboutToApprove') : t('approvals.aboutToReject')}
               </Typography>
               <Typography variant="subtitle1" fontWeight={600}>
                 {getEntityDetails(selectedApproval)?.name || t('approvals.unknown')}
@@ -232,7 +232,7 @@ export default function ApprovalsPage() {
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             onBlur={() => setCommentTouched(true)}
-            required={actionType === 'reject'}
+            required={false}
             error={actionType === 'reject' && commentTouched && !comment.trim()}
             helperText={actionType === 'reject' && commentTouched && !comment.trim() ? t('approvals.rejectionReasonRequired') : undefined}
             placeholder={actionType === 'approve'

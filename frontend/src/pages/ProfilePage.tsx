@@ -509,6 +509,7 @@ export default function ProfilePage() {
                   <Chip
                     label={t('profile.activeStamp')}
                     size="small"
+                    variant="outlined"
                     color="success"
                     sx={{ position: 'absolute', top: 8, insetInlineEnd: 8, fontWeight: 600, fontSize: '0.65rem' }}
                   />

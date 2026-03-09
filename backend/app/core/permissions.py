@@ -26,6 +26,12 @@ class Permission(str, Enum):
 
 ROLE_PERMISSIONS: dict[str, set[str]] = {
     "project_admin": {p.value for p in Permission},
+    "project_member": {
+        Permission.CREATE.value,
+        Permission.EDIT.value,
+        Permission.APPROVE.value,
+        Permission.VIEW_ALL.value,
+    },
     "supervisor": {
         Permission.CREATE.value,
         Permission.EDIT.value,
@@ -45,6 +51,9 @@ ROLE_PERMISSIONS: dict[str, set[str]] = {
     "inspector": {
         Permission.CREATE.value,
         Permission.EDIT.value,
+        Permission.VIEW_ALL.value,
+    },
+    "viewer": {
         Permission.VIEW_ALL.value,
     },
     "subcontractor": {
