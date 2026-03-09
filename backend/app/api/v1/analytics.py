@@ -13,7 +13,7 @@ from app.models.audit import AuditLog
 from app.models.equipment import ApprovalStatus, Equipment
 from app.models.equipment_template import EquipmentApprovalSubmission
 from app.models.defect import Defect
-from app.models.inspection import Finding, Inspection, InspectionStatus
+from app.models.inspection import Inspection, InspectionStatus
 from app.models.material import Material
 from app.models.material_template import MaterialApprovalSubmission
 from app.models.meeting import Meeting

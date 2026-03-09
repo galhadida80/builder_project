@@ -28,7 +28,7 @@ vi.mock('react-router-dom', () => ({
 }))
 
 vi.mock('../contexts/ProjectContext', () => ({
-  useProject: () => ({ selectedProjectId: 'test-project-id' }),
+  useProject: () => ({ selectedProjectId: 'test-project-id', projects: [], projectsLoading: false, refreshProjects: vi.fn() }),
 }))
 
 vi.mock('../contexts/AuthContext', () => ({
