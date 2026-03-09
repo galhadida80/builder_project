@@ -93,7 +93,7 @@ export function TemplateCard({ template, onClick }: TemplateCardProps) {
         subheader={
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mt: 0.5, flexWrap: 'wrap' }}>
             <Chip
-              label={t(`marketplace.templateTypes.${template.templateType}`)}
+              label={template.templateType ? t(`marketplace.templateTypes.${template.templateType}`, { defaultValue: template.templateType }) : t('common.general')}
               size="small"
               color={getTemplateTypeColor(template.templateType)}
               sx={{ height: 20, fontSize: '0.7rem' }}
