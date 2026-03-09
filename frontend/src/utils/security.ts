@@ -15,19 +15,8 @@ export function sanitizeHtml(html: string): string {
     return ''
   }
 
-  let sanitized = html
-
-  // Remove script tags
-  sanitized = sanitized.replace(XSS_PATTERNS.script, '')
-
-  // Remove event handlers
-  sanitized = sanitized.replace(XSS_PATTERNS.eventHandler, '')
-
-  // Remove data: and javascript: protocols
-  sanitized = sanitized.replace(XSS_PATTERNS.dataProtocol, '')
-  sanitized = sanitized.replace(XSS_PATTERNS.jsProtocol, '')
-
-  return sanitized.trim()
+  const doc = new DOMParser().parseFromString(html, 'text/html')
+  return doc.body.textContent || ''
 }
 
 export function sanitizeUrl(url: string): string {

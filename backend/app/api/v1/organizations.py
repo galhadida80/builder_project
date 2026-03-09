@@ -383,7 +383,6 @@ async def list_organization_projects(
         {
             "id": str(p.id),
             "name": p.name,
-            "code": p.code,
             "description": p.description,
             "status": p.status,
             "startDate": p.start_date.isoformat() if p.start_date else None,

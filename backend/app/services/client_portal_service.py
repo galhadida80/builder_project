@@ -47,7 +47,7 @@ async def authenticate_client_portal_access(
         )
     )
     result = await db.execute(query)
-    return result.scalar_one_or_none()
+    return result.scalars().first()
 
 
 async def update_last_accessed(

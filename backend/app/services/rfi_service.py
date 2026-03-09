@@ -37,8 +37,9 @@ class RFIService:
     async def generate_rfi_number(self) -> str:
         try:
             await self.db.execute(text("SELECT pg_advisory_xact_lock(hashtext('rfi_number_gen'))"))
-        except Exception:
-            pass
+        except Exception as e:
+            logger.error(f"Failed to acquire advisory lock for RFI number generation: {e}")
+            raise
         year = utcnow().year
         prefix = f"RFI-{year}-"
         result = await self.db.execute(

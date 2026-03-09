@@ -38,7 +38,7 @@ async def verify_project_exists(
         .join(ProjectMember, Project.id == ProjectMember.project_id)
         .where(Project.id == project_id, ProjectMember.user_id == current_user.id)
     )
-    project = result.scalar_one_or_none()
+    project = result.scalars().first()
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
 
@@ -120,7 +120,7 @@ async def execute_chat_action(
         .join(ChatConversation, ChatAction.conversation_id == ChatConversation.id)
         .where(ChatAction.id == action_id, ChatConversation.project_id == project_id)
     )
-    action = result.scalar_one_or_none()
+    action = result.scalars().first()
     if not action:
         raise HTTPException(status_code=404, detail="Action not found")
     if action.status != "proposed":
@@ -166,7 +166,7 @@ async def reject_chat_action(
         .join(ChatConversation, ChatAction.conversation_id == ChatConversation.id)
         .where(ChatAction.id == action_id, ChatConversation.project_id == project_id)
     )
-    action = result.scalar_one_or_none()
+    action = result.scalars().first()
     if not action:
         raise HTTPException(status_code=404, detail="Action not found")
     if action.status != "proposed":

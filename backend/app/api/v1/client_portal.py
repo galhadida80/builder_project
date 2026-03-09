@@ -110,7 +110,7 @@ async def get_client_project(
         .where(Project.id == project_id, ProjectMember.user_id == current_user.id)
         .options(selectinload(Project.members).selectinload(ProjectMember.user))
     )
-    project = result.scalar_one_or_none()
+    project = result.scalars().first()
     if not project:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -131,7 +131,7 @@ async def get_client_project_overview(
         .join(ProjectMember, Project.id == ProjectMember.project_id)
         .where(Project.id == project_id, ProjectMember.user_id == current_user.id)
     )
-    project = result.scalar_one_or_none()
+    project = result.scalars().first()
     if not project:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -283,7 +283,7 @@ async def get_client_project_progress(
         .join(ProjectMember, Project.id == ProjectMember.project_id)
         .where(Project.id == project_id, ProjectMember.user_id == current_user.id)
     )
-    project = result.scalar_one_or_none()
+    project = result.scalars().first()
     if not project:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -359,7 +359,7 @@ async def list_client_project_photos(
         .join(ProjectMember, Project.id == ProjectMember.project_id)
         .where(Project.id == project_id, ProjectMember.user_id == current_user.id)
     )
-    project = result.scalar_one_or_none()
+    project = result.scalars().first()
     if not project:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -399,7 +399,7 @@ async def list_client_project_documents(
         .join(ProjectMember, Project.id == ProjectMember.project_id)
         .where(Project.id == project_id, ProjectMember.user_id == current_user.id)
     )
-    project = result.scalar_one_or_none()
+    project = result.scalars().first()
     if not project:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -431,7 +431,7 @@ async def list_client_project_feedback(
         .join(ProjectMember, Project.id == ProjectMember.project_id)
         .where(Project.id == project_id, ProjectMember.user_id == current_user.id)
     )
-    project = result.scalar_one_or_none()
+    project = result.scalars().first()
     if not project:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -467,7 +467,7 @@ async def create_client_project_feedback(
         .join(ProjectMember, Project.id == ProjectMember.project_id)
         .where(Project.id == project_id, ProjectMember.user_id == current_user.id)
     )
-    project = result.scalar_one_or_none()
+    project = result.scalars().first()
     if not project:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
