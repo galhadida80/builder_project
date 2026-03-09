@@ -336,10 +336,10 @@ export default function RFIPage() {
     const diffMins = Math.floor(diffMs / 60000)
     const diffHours = Math.floor(diffMins / 60)
     const diffDays = Math.floor(diffHours / 24)
-    if (diffMins < 1) return t('rfis.timeAgo', { time: '<1m' })
-    if (diffMins < 60) return t('rfis.timeAgo', { time: `${diffMins}m` })
-    if (diffHours < 24) return t('rfis.timeAgo', { time: `${diffHours}h` })
-    if (diffDays < 30) return t('rfis.timeAgo', { time: `${diffDays}d` })
+    if (diffMins < 1) return t('rfis.timeJustNow')
+    if (diffMins < 60) return t('rfis.timeAgo', { time: t('rfis.timeMinutes', { count: diffMins }) })
+    if (diffHours < 24) return t('rfis.timeAgo', { time: t('rfis.timeHours', { count: diffHours }) })
+    if (diffDays < 30) return t('rfis.timeAgo', { time: t('rfis.timeDays', { count: diffDays }) })
     return formatDate(dateStr)
   }
 

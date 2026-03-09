@@ -208,7 +208,11 @@
     "expand": "הרחב",
     "collapse": "כווץ",
     "more": "עוד",
-    "moreOptions": "אפשרויות נוספות"
+    "moreOptions": "אפשרויות נוספות",
+    "timeJustNow": "עכשיו",
+    "timeMinutesAgo": "לפני {{count}} דק׳",
+    "timeHoursAgo": "לפני {{count}} שע׳",
+    "timeDaysAgo": "לפני {{count}} ימים"
   },
   "table": {
     "rowsPerPage": "שורות בעמוד:",
@@ -2294,6 +2298,10 @@
     "lastResponse": "תשובה אחרונה",
     "priorityFilter": "סינון לפי דחיפות",
     "timeAgo": "לפני {{time}}",
+    "timeJustNow": "עכשיו",
+    "timeMinutes": "{{count}} דק׳",
+    "timeHours": "{{count}} שע׳",
+    "timeDays": "{{count}} ימים",
     "allPriorities": "כל העדיפויות",
     "conflict": "קונפליקט"
   },

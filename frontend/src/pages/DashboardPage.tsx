@@ -6,7 +6,7 @@ import DashboardKPICards from '../components/dashboard/DashboardKPICards'
 import DashboardActivityFeed from '../components/dashboard/DashboardActivityFeed'
 import DashboardCharts from '../components/dashboard/DashboardCharts'
 import DashboardQuickPanel from '../components/dashboard/DashboardQuickPanel'
-import type { Equipment, Material, Meeting, ApprovalRequest, AuditLog, TeamMember, Project } from '../types'
+import type { Equipment, Material, Meeting, ApprovalRequest, AuditLog, TeamMember } from '../types'
 import type { DashboardStats } from '../api/dashboardStats'
 import { equipmentApi } from '../api/equipment'
 import { materialsApi } from '../api/materials'
@@ -15,7 +15,6 @@ import { approvalsApi } from '../api/approvals'
 import { auditApi } from '../api/audit'
 import { workloadApi } from '../api/workload'
 import { dashboardStatsApi } from '../api/dashboardStats'
-import { projectsApi } from '../api/projects'
 import { defectsApi } from '../api/defects'
 import { useToast } from '../components/common/ToastProvider'
 import { useProject } from '../contexts/ProjectContext'
@@ -29,7 +28,7 @@ export default function DashboardPage() {
   const { user } = useAuth()
   const dateLocale = getDateLocale()
   const { showError, showWarning } = useToast()
-  const { selectedProjectId } = useProject()
+  const { selectedProjectId, projects } = useProject()
 
   const [loading, setLoading] = useState(true)
   const [equipment, setEquipment] = useState<Equipment[]>([])
@@ -40,7 +39,6 @@ export default function DashboardPage() {
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([])
   const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null)
   const [statsLoading, setStatsLoading] = useState(false)
-  const [projects, setProjects] = useState<Project[]>([])
   const [criticalDefectsCount, setCriticalDefectsCount] = useState(0)
   const [period, setPeriod] = useState('month')
 
@@ -71,14 +69,13 @@ export default function DashboardPage() {
       try {
         setLoading(true)
         const pid = selectedProjectId
-        const [equipmentData, materialsData, meetingsData, approvalsData, auditData, teamData, projectsData] = await Promise.all([
+        const [equipmentData, materialsData, meetingsData, approvalsData, auditData, teamData] = await Promise.all([
           equipmentApi.list(pid),
           materialsApi.list(pid),
           meetingsApi.list(pid),
           approvalsApi.list(pid),
           pid ? auditApi.listByProject(pid, { limit: 10 }) : auditApi.listAll({ limit: 10 }),
           workloadApi.getTeamMembers(pid),
-          projectsApi.list()
         ])
         if (stale) return
         setEquipment(equipmentData.items)
@@ -87,7 +84,6 @@ export default function DashboardPage() {
         setApprovals(approvalsData)
         setAuditLogs(auditData)
         setTeamMembers(teamData)
-        setProjects(projectsData)
 
         if (pid) {
           try {

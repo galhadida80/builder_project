@@ -1037,7 +1037,11 @@
     "loadingPage": "Loading page...",
     "expand": "Expand",
     "collapse": "Collapse",
-    "more": "More"
+    "more": "More",
+    "timeJustNow": "Just now",
+    "timeMinutesAgo": "{{count}}m ago",
+    "timeHoursAgo": "{{count}}h ago",
+    "timeDaysAgo": "{{count}}d ago"
   },
   "table": {
     "rowsPerPage": "Rows per page:",
@@ -2112,6 +2116,10 @@
     "lastResponse": "Last Response",
     "priorityFilter": "Filter by Priority",
     "timeAgo": "{{time}} ago",
+    "timeJustNow": "Just now",
+    "timeMinutes": "{{count}}m",
+    "timeHours": "{{count}}h",
+    "timeDays": "{{count}}d",
     "allPriorities": "All Priorities",
     "conflict": "Conflict"
   },

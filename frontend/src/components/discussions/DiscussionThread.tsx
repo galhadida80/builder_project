@@ -34,16 +34,16 @@ function getInitials(name: string): string {
     .slice(0, 2)
 }
 
-function formatTime(dateStr: string): string {
+function formatTime(dateStr: string, t: (key: string, opts?: Record<string, unknown>) => string): string {
   const date = new Date(dateStr)
   const now = new Date()
   const diffMs = now.getTime() - date.getTime()
   const diffMin = Math.floor(diffMs / 60000)
 
-  if (diffMin < 1) return 'Just now'
-  if (diffMin < 60) return `${diffMin}m ago`
+  if (diffMin < 1) return t('common.timeJustNow')
+  if (diffMin < 60) return t('common.timeMinutesAgo', { count: diffMin })
   const diffHours = Math.floor(diffMin / 60)
-  if (diffHours < 24) return `${diffHours}h ago`
+  if (diffHours < 24) return t('common.timeHoursAgo', { count: diffHours })
   return date.toLocaleDateString(getDateLocale())
 }
 
@@ -94,7 +94,7 @@ function CommentItem({ comment, projectId, onReply, onRefresh, depth }: CommentI
               {authorName}
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              {formatTime(comment.createdAt)}
+              {formatTime(comment.createdAt, t)}
             </Typography>
           </Box>
 
