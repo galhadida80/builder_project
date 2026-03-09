@@ -112,7 +112,7 @@ class ChecklistItemResponse(Base):
     status: Mapped[str] = mapped_column(String(50), default=ItemResponseStatus.PENDING.value)
     notes: Mapped[str | None] = mapped_column(Text)
     image_urls: Mapped[list | None] = mapped_column(JSONB, default=list)
-    signature_url: Mapped[str | None] = mapped_column(String(500))
+    signature_url: Mapped[str | None] = mapped_column(Text)
     completed_at: Mapped[datetime | None] = mapped_column(DateTime)
     completed_by_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
     created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: utcnow())

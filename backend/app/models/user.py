@@ -3,7 +3,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, String
+from sqlalchemy import Boolean, DateTime, ForeignKey, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -28,7 +28,7 @@ class User(Base):
     language: Mapped[str] = mapped_column(String(10), default='en')
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     is_super_admin: Mapped[bool] = mapped_column(Boolean, default=False)
-    signature_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    signature_url: Mapped[str | None] = mapped_column(Text, nullable=True)
     avatar_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     totp_secret: Mapped[str | None] = mapped_column(String(255), nullable=True)
     two_factor_enabled: Mapped[bool] = mapped_column(Boolean, default=False)

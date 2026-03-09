@@ -202,7 +202,7 @@ class ChecklistItemResponseBase(BaseModel):
     status: Literal["pending", "approved", "rejected", "not_applicable"] = "pending"
     notes: str | None = Field(default=None, max_length=MAX_NOTES_LENGTH)
     image_urls: list | None = None
-    signature_url: str | None = Field(default=None, max_length=500)
+    signature_url: str | None = Field(default=None, max_length=500000)
     completed_at: datetime | None = None
 
     @field_validator("completed_at", mode="before")
@@ -231,7 +231,7 @@ class ChecklistItemResponseUpdate(BaseModel):
     status: Literal["pending", "approved", "rejected", "not_applicable"] | None = None
     notes: str | None = Field(default=None, max_length=MAX_NOTES_LENGTH)
     image_urls: list | None = None
-    signature_url: str | None = Field(default=None, max_length=500)
+    signature_url: str | None = Field(default=None, max_length=500000)
     completed_at: datetime | None = None
 
     @field_validator("completed_at", mode="before")

@@ -46,8 +46,8 @@ class Equipment(Base):
     last_reminder_sent_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     distribution_emails: Mapped[Optional[list]] = mapped_column(JSONB, default=list)
     approver_contact_ids: Mapped[Optional[list]] = mapped_column(JSONB, default=list)
-    contractor_signature_url: Mapped[Optional[str]] = mapped_column(String(500))
-    supervisor_signature_url: Mapped[Optional[str]] = mapped_column(String(500))
+    contractor_signature_url: Mapped[Optional[str]] = mapped_column(Text)
+    supervisor_signature_url: Mapped[Optional[str]] = mapped_column(Text)
     approval_due_date: Mapped[Optional[date]] = mapped_column(Date)
     template_id: Mapped[Optional[uuid.UUID]] = mapped_column(
         UUID(as_uuid=True), ForeignKey("equipment_templates.id", ondelete="SET NULL"), nullable=True

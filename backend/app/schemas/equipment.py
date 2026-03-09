@@ -62,8 +62,8 @@ class EquipmentBase(BaseModel):
     approval_due_date: Optional[date] = None
     distribution_emails: Optional[list[str]] = None
     approver_contact_ids: Optional[list[str]] = None
-    contractor_signature_url: Optional[str] = Field(default=None, max_length=500)
-    supervisor_signature_url: Optional[str] = Field(default=None, max_length=500)
+    contractor_signature_url: Optional[str] = Field(default=None, max_length=500000)
+    supervisor_signature_url: Optional[str] = Field(default=None, max_length=500000)
     reminder_interval_hours: Optional[int] = Field(default=48, ge=24, le=720)
 
     @field_validator('name', 'equipment_type', 'manufacturer', 'model_number', 'serial_number', 'notes', mode='before')
@@ -113,8 +113,8 @@ class EquipmentUpdate(BaseModel):
     approval_due_date: Optional[date] = None
     distribution_emails: Optional[list[str]] = None
     approver_contact_ids: Optional[list[str]] = None
-    contractor_signature_url: Optional[str] = Field(default=None, max_length=500)
-    supervisor_signature_url: Optional[str] = Field(default=None, max_length=500)
+    contractor_signature_url: Optional[str] = Field(default=None, max_length=500000)
+    supervisor_signature_url: Optional[str] = Field(default=None, max_length=500000)
     reminder_interval_hours: Optional[int] = Field(default=None, ge=24, le=720)
 
     @field_validator('name', 'equipment_type', 'manufacturer', 'model_number', 'serial_number', 'notes', mode='before')
