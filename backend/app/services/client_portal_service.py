@@ -69,8 +69,13 @@ async def get_client_project_overview(
     project_data = await get_project_data(db, access.project_id)
     progress_data = await get_project_progress(db, access.project_id)
     budget_data = None
-    if access.can_view_budget and access.project.budget_visible_to_clients:
-        budget_data = await get_budget_summary(db, access.project_id)
+    if access.can_view_budget:
+        project_result = await db.execute(
+            select(Project).where(Project.id == access.project_id)
+        )
+        project = project_result.scalar_one_or_none()
+        if project and project.budget_visible_to_clients:
+            budget_data = await get_budget_summary(db, access.project_id)
     recent_photos = await get_recent_photos(db, access.project_id, limit=6)
     upcoming_milestones = await get_upcoming_milestones(db, access.project_id, limit=5)
 
