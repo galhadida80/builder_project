@@ -4,10 +4,11 @@ import { GroupsIcon, AssignmentTurnedInIcon, SpeedIcon, StarIcon } from '@/icons
 import { Box, Container, Typography } from '@/mui'
 
 function useCountUp(target: number, duration = 2000, startCounting: boolean) {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState<number | null>(null)
 
   useEffect(() => {
     if (!startCounting) return
+    setCount(0)
     let start = 0
     const increment = target / (duration / 16)
     const timer = setInterval(() => {
@@ -47,10 +48,10 @@ export default function LandingStats() {
   const hours = useCountUp(15, 1500, visible)
 
   const STATS = [
-    { value: `${teams}+`, label: t('landing.stats.constructionTeams'), icon: <GroupsIcon sx={{ fontSize: 28 }} /> },
-    { value: projects.toLocaleString() + '+', label: t('landing.stats.activeProjects'), icon: <AssignmentTurnedInIcon sx={{ fontSize: 28 }} /> },
-    { value: `${satisfaction}%`, label: t('landing.stats.satisfactionRate'), icon: <StarIcon sx={{ fontSize: 28 }} /> },
-    { value: `${hours}h`, label: t('landing.stats.timeSaved'), icon: <SpeedIcon sx={{ fontSize: 28 }} /> },
+    { value: teams !== null ? `${teams}+` : '500+', label: t('landing.stats.constructionTeams'), icon: <GroupsIcon sx={{ fontSize: 28 }} /> },
+    { value: projects !== null ? projects.toLocaleString() + '+' : '2,400+', label: t('landing.stats.activeProjects'), icon: <AssignmentTurnedInIcon sx={{ fontSize: 28 }} /> },
+    { value: satisfaction !== null ? `${satisfaction}%` : '98%', label: t('landing.stats.satisfactionRate'), icon: <StarIcon sx={{ fontSize: 28 }} /> },
+    { value: hours !== null ? `${hours}h` : '15h', label: t('landing.stats.timeSaved'), icon: <SpeedIcon sx={{ fontSize: 28 }} /> },
   ]
 
   return (

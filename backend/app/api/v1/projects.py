@@ -102,7 +102,7 @@ async def get_project(
         .where(Project.id == project_id, ProjectMember.user_id == current_user.id)
         .options(selectinload(Project.members).selectinload(ProjectMember.user))
     )
-    project = result.scalar_one_or_none()
+    project = result.scalars().first()
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
     return project
@@ -121,7 +121,7 @@ async def update_project(
         .join(ProjectMember, Project.id == ProjectMember.project_id)
         .where(Project.id == project_id, ProjectMember.user_id == current_user.id)
     )
-    project = result.scalar_one_or_none()
+    project = result.scalars().first()
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
 
@@ -152,7 +152,7 @@ async def delete_project(
         .join(ProjectMember, Project.id == ProjectMember.project_id)
         .where(Project.id == project_id, ProjectMember.user_id == current_user.id)
     )
-    project = result.scalar_one_or_none()
+    project = result.scalars().first()
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
 
@@ -175,7 +175,7 @@ async def get_project_overview(
         .join(ProjectMember, Project.id == ProjectMember.project_id)
         .where(Project.id == project_id, ProjectMember.user_id == current_user.id)
     )
-    project = result.scalar_one_or_none()
+    project = result.scalars().first()
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
 

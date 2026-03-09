@@ -70,7 +70,7 @@ export default function BIMPage() {
           }
         } catch { /* silent polling failure */ }
       }))
-    }, 5000)
+    }, 15000)
     return () => clearInterval(interval)
   }, [pollingIds, projectId, showSuccess, t])
 

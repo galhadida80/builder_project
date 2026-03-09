@@ -98,7 +98,7 @@ export function DataExportPanel({ projectId, sx }: DataExportPanelProps) {
 
     const pollInterval = setInterval(() => {
       fetchExportJobs()
-    }, 3000)
+    }, 10000)
 
     return () => clearInterval(pollInterval)
   }, [exportJobs, projectId])

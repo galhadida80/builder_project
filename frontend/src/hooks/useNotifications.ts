@@ -39,9 +39,13 @@ export function useNotifications(
         setLoading(true)
         setError(null)
 
-        const response = await notificationsApi.getAll(category ? { category } : undefined)
+        const [response, count] = await Promise.all([
+          notificationsApi.getAll(category ? { category } : undefined),
+          notificationsApi.getUnreadCount(),
+        ])
 
         setNotifications(response.items)
+        setUnreadCount(count)
         // API returns all notifications at once (no server-side pagination)
         setHasMore(false)
       } catch (err) {

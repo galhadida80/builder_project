@@ -21,7 +21,7 @@ interface BatchUploadProgressProps {
   onComplete: () => void
 }
 
-const POLL_INTERVAL = 2000
+const POLL_INTERVAL = 5000
 
 export function BatchUploadProgress({ projectId, batchId, onComplete }: BatchUploadProgressProps) {
   const { t } = useTranslation()
