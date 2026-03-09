@@ -90,7 +90,7 @@ export default function EquipmentCardList({ equipment, loading, onView, onEdit, 
                 </Box>
                 {eq.equipmentType && (
                   <Chip
-                    label={eq.equipmentType}
+                    label={t(`templatePicker.categories.${catConfig.category}`, { defaultValue: eq.equipmentType })}
                     size="small"
                     sx={{
                       bgcolor: catConfig.bgColor,

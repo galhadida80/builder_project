@@ -4082,6 +4082,76 @@
       "assignedTo": "Assigned To"
     }
   },
+  "safetyTraining": {
+    "title": "Safety Training",
+    "createNew": "New Training",
+    "editTraining": "Edit Training",
+    "worker": "Worker",
+    "trainingType": "Training Type",
+    "trainingDate": "Training Date",
+    "expiryDate": "Expiry Date",
+    "certificateNumber": "Certificate Number",
+    "instructor": "Instructor",
+    "notes": "Notes",
+    "searchPlaceholder": "Search trainings...",
+    "filterByType": "Filter by Type",
+    "noTrainings": "No trainings",
+    "loadFailed": "Failed to load trainings",
+    "createSuccess": "Training created successfully",
+    "createFailed": "Failed to create training",
+    "updateSuccess": "Training updated successfully",
+    "updateFailed": "Failed to update training",
+    "deleteSuccess": "Training deleted successfully",
+    "deleteFailed": "Failed to delete training",
+    "expired": "Expired",
+    "tabs": {
+      "all": "All",
+      "valid": "Valid",
+      "expiringSoon": "Expiring Soon",
+      "expired": "Expired"
+    },
+    "summary": {
+      "total": "Total",
+      "valid": "Valid",
+      "expiringSoon": "Expiring Soon",
+      "expired": "Expired"
+    },
+    "status": {
+      "label": "Status"
+    },
+    "expiresTime": {
+      "today": "Expires today",
+      "tomorrow": "Expires tomorrow",
+      "inDays": "Expires in {{count}} days"
+    }
+  },
+  "toolboxTalks": {
+    "title": "Toolbox Talks",
+    "topic": "Topic",
+    "scheduledDate": "Scheduled Date",
+    "presenter": "Presenter",
+    "attendance": "Attendance",
+    "manageAttendance": "Manage Attendance",
+    "noAttendees": "No attendees",
+    "noTalks": "No toolbox talks",
+    "createNew": "New Talk",
+    "searchPlaceholder": "Search talks...",
+    "attendanceUpdated": "Attendance updated",
+    "attendanceFailed": "Failed to update attendance",
+    "loadFailed": "Failed to load talks",
+    "createSuccess": "Talk created successfully",
+    "createFailed": "Failed to create talk",
+    "updateSuccess": "Talk updated successfully",
+    "updateFailed": "Failed to update talk",
+    "deleteSuccess": "Talk deleted successfully",
+    "deleteFailed": "Failed to delete talk",
+    "tabs": {
+      "all": "All",
+      "scheduled": "Scheduled",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    }
+  },
   "clientPortal": {
     "failedToLoadProject": "Failed to load project data",
     "failedToLoadOverview": "Failed to load project overview",

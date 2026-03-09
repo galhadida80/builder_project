@@ -208,7 +208,7 @@ export default function MaterialsPage() {
     }},
     { id: 'manufacturer', label: t('materials.manufacturer'), minWidth: 140, hideOnMobile: true, render: (row) => <Typography variant="body2" color={row.manufacturer ? 'text.primary' : 'text.secondary'}>{row.manufacturer || '-'}</Typography> },
     { id: 'quantity', label: t('materials.quantity'), minWidth: 120, hideOnMobile: true, render: (row) => (
-      <Box><Typography variant="body2" fontWeight={500}>{row.quantity ? `${Number(row.quantity).toLocaleString()} ${row.unit || ''}` : '-'}</Typography>{row.storageLocation && <Typography variant="caption" color="text.secondary">{row.storageLocation}</Typography>}</Box>
+      <Box><Typography variant="body2" fontWeight={500}>{row.quantity ? `${Number(row.quantity).toLocaleString()} ${row.unit ? t(`materials.units.${row.unit}`, { defaultValue: row.unit }) : ''}` : '-'}</Typography>{row.storageLocation && <Typography variant="caption" color="text.secondary">{row.storageLocation}</Typography>}</Box>
     )},
     { id: 'status', label: t('common.status'), minWidth: 130, render: (row) => <StatusBadge status={row.status} /> },
     { id: 'actions', label: '', minWidth: 140, align: 'right', hideOnMobile: true, render: (row) => (

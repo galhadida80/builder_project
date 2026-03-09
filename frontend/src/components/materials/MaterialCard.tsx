@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import type { Material } from '../../types'
+import { getCategoryFromType } from '../../utils/materialCategory'
 import { InventoryIcon, LocationOnIcon, WarningAmberIcon } from '@/icons'
 import { Card, CardContent, CardMedia, Box, Typography, Chip, styled } from '@/mui'
 
@@ -99,7 +100,7 @@ export function MaterialCard({ material, onClick, lowStockThreshold = 10 }: Mate
 
         {material.materialType && (
           <Chip
-            label={material.materialType}
+            label={t(`templatePicker.categories.${getCategoryFromType(material.materialType)}`, { defaultValue: material.materialType })}
             size="small"
             sx={{
               mb: 2,
@@ -119,7 +120,7 @@ export function MaterialCard({ material, onClick, lowStockThreshold = 10 }: Mate
             <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary', fontSize: '0.875rem' }}>
               {material.quantity !== undefined ? (
                 <>
-                  {material.quantity} {material.unit || 'units'}
+                  {material.quantity} {material.unit ? t(`materials.units.${material.unit}`, { defaultValue: material.unit }) : t('materials.units.unit')}
                 </>
               ) : (
                 'N/A'

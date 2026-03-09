@@ -4128,6 +4128,76 @@
       "assignedTo": "מוקצה ל"
     }
   },
+  "safetyTraining": {
+    "title": "הדרכות בטיחות",
+    "createNew": "הדרכה חדשה",
+    "editTraining": "עריכת הדרכה",
+    "worker": "עובד",
+    "trainingType": "סוג הדרכה",
+    "trainingDate": "תאריך הדרכה",
+    "expiryDate": "תאריך תפוגה",
+    "certificateNumber": "מספר תעודה",
+    "instructor": "מדריך",
+    "notes": "הערות",
+    "searchPlaceholder": "חיפוש הדרכות...",
+    "filterByType": "סינון לפי סוג",
+    "noTrainings": "אין הדרכות",
+    "loadFailed": "טעינת הדרכות נכשלה",
+    "createSuccess": "הדרכה נוצרה בהצלחה",
+    "createFailed": "יצירת הדרכה נכשלה",
+    "updateSuccess": "הדרכה עודכנה בהצלחה",
+    "updateFailed": "עדכון הדרכה נכשל",
+    "deleteSuccess": "הדרכה נמחקה בהצלחה",
+    "deleteFailed": "מחיקת הדרכה נכשלה",
+    "expired": "פג תוקף",
+    "tabs": {
+      "all": "הכל",
+      "valid": "בתוקף",
+      "expiringSoon": "פג תוקף בקרוב",
+      "expired": "פג תוקף"
+    },
+    "summary": {
+      "total": "סה\"כ",
+      "valid": "בתוקף",
+      "expiringSoon": "פג תוקף בקרוב",
+      "expired": "פג תוקף"
+    },
+    "status": {
+      "label": "סטטוס"
+    },
+    "expiresTime": {
+      "today": "פג תוקף היום",
+      "tomorrow": "פג תוקף מחר",
+      "inDays": "פג תוקף בעוד {{count}} ימים"
+    }
+  },
+  "toolboxTalks": {
+    "title": "שיחות בטיחות",
+    "topic": "נושא",
+    "scheduledDate": "תאריך מתוכנן",
+    "presenter": "מציג",
+    "attendance": "נוכחות",
+    "manageAttendance": "ניהול נוכחות",
+    "noAttendees": "אין משתתפים",
+    "noTalks": "אין שיחות בטיחות",
+    "createNew": "שיחה חדשה",
+    "searchPlaceholder": "חיפוש שיחות...",
+    "attendanceUpdated": "הנוכחות עודכנה",
+    "attendanceFailed": "עדכון נוכחות נכשל",
+    "loadFailed": "טעינת שיחות נכשלה",
+    "createSuccess": "שיחה נוצרה בהצלחה",
+    "createFailed": "יצירת שיחה נכשלה",
+    "updateSuccess": "שיחה עודכנה בהצלחה",
+    "updateFailed": "עדכון שיחה נכשל",
+    "deleteSuccess": "שיחה נמחקה בהצלחה",
+    "deleteFailed": "מחיקת שיחה נכשלה",
+    "tabs": {
+      "all": "הכל",
+      "scheduled": "מתוכננות",
+      "completed": "הושלמו",
+      "cancelled": "בוטלו"
+    }
+  },
   "clientPortal": {
     "failedToLoadProject": "טעינת נתוני הפרויקט נכשלה",
     "failedToLoadOverview": "טעינת סקירת הפרויקט נכשלה",

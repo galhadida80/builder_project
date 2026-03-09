@@ -87,7 +87,7 @@ export default function MaterialCardList({ materials, loading, onView, onEdit, o
                   <StatusBadge status={m.status} size="small" />
                 </Box>
                 {m.materialType && (
-                  <Chip label={m.materialType} size="small" sx={{ bgcolor: catConfig.bgColor, color: catConfig.color, fontWeight: 600, fontSize: '0.7rem', height: 22, mb: 0.5 }} />
+                  <Chip label={t(`templatePicker.categories.${catConfig.category}`, { defaultValue: m.materialType })} size="small" sx={{ bgcolor: catConfig.bgColor, color: catConfig.color, fontWeight: 600, fontSize: '0.7rem', height: 22, mb: 0.5 }} />
                 )}
                 {m.manufacturer && (
                   <Typography variant="caption" color="text.secondary" display="block">
@@ -100,7 +100,7 @@ export default function MaterialCardList({ materials, loading, onView, onEdit, o
             <Box sx={{ display: 'flex', gap: 2, mt: 1.5, pt: 1, borderTop: '1px solid', borderColor: 'divider' }}>
               {m.quantity && (
                 <Typography variant="body2" fontWeight={600} sx={{ flex: 1 }}>
-                  {Number(m.quantity).toLocaleString()} {m.unit || ''}
+                  {Number(m.quantity).toLocaleString()} {m.unit ? t(`materials.units.${m.unit}`, { defaultValue: m.unit }) : ''}
                 </Typography>
               )}
               {m.expectedDelivery && (
