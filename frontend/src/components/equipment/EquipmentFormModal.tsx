@@ -252,8 +252,8 @@ export default function EquipmentFormModal({
         <TextField fullWidth label={t('equipment.approvalDueDate')} type="date" InputLabelProps={{ shrink: true }} value={formData.approvalDueDate} onChange={(e) => setFormData({ ...formData, approvalDueDate: e.target.value })} inputProps={{ min: minDateStr, max: maxDateStr }} />
         <RecipientSelector projectId={projectId} label={t('equipment.approvers')} value={approvers} onChange={(newApprovers) => {
           setApprovers(newApprovers)
-          const currentDistIds = new Set(distributionList.map(r => r.id))
-          const toAdd = newApprovers.filter(a => !currentDistIds.has(a.id))
+          const currentDistIds = new Set(distributionList.map(r => r.contactId))
+          const toAdd = newApprovers.filter(a => !currentDistIds.has(a.contactId))
           if (toAdd.length > 0) {
             setDistributionList([...distributionList, ...toAdd])
           }

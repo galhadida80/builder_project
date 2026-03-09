@@ -1,12 +1,11 @@
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Any
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.acc_sync import AccProjectLink
-from app.models.project import Project
 from app.models.rfi import RFI
 from app.services.aps_service import APSService
 from app.utils import utcnow

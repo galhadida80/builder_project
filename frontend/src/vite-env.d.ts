@@ -7,6 +7,8 @@ interface Window {
         disableAutoSelect: () => void
         cancel: () => void
       }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      oauth2?: any
     }
   }
 }
