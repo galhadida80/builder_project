@@ -1,4 +1,4 @@
-import { useRef, useCallback } from 'react'
+import { useRef, useCallback, useEffect } from 'react'
 import { Autocomplete, useJsApiLoader } from '@react-google-maps/api'
 import { TextField } from '../ui/TextField'
 import { CircularProgress, InputAdornment } from '@/mui'
@@ -22,6 +22,17 @@ export default function AddressAutocomplete({ value, onChange, label, error, hel
   })
 
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null)
+
+  useEffect(() => {
+    if (!isLoaded) return
+    const observer = new MutationObserver(() => {
+      document.querySelectorAll<HTMLElement>('.pac-container').forEach(el => {
+        if (el.style.zIndex !== '1500') el.style.zIndex = '1500'
+      })
+    })
+    observer.observe(document.body, { childList: true, subtree: true })
+    return () => observer.disconnect()
+  }, [isLoaded])
 
   const handleLoad = useCallback((autocomplete: google.maps.places.Autocomplete) => {
     autocompleteRef.current = autocomplete
