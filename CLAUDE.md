@@ -144,6 +144,17 @@ After completing ANY task:
 - For any UI/UX work, use the Stitch MCP to create new designs before implementing
 - Keep the design folder organized: update existing designs in place, move outdated ones to an archive subfolder, never leave stale designs in the root design directory
 
+### UI/UX + Backend Quality Checks (MANDATORY after every feature)
+After implementing any feature, proactively check for these common bug categories:
+1. **Dark mode visibility**: Ensure all elements (signatures, stamps, drawings, canvases) have proper contrast on dark backgrounds. Never render dark content on dark cards — use white/light backgrounds for drawing surfaces.
+2. **z-index / layering on mobile**: Autocomplete dropdowns, modals, date pickers, and select menus must appear ABOVE the keyboard and other form elements on mobile. Test z-index stacking.
+3. **NaN / undefined / null display**: Any computed value (percentages, workload, progress) must handle division-by-zero, missing data, and null gracefully. Never show `%NaN`, `undefined`, or empty values to users — show `0%`, a dash, or "אין נתונים".
+4. **i18n completeness**: ALL user-facing text must be translated. Chart labels, enum values (low/medium/high), status badges, error messages — everything. No English strings in Hebrew UI.
+5. **Stub/fake data detection**: Before shipping, verify endpoints return real data. Hardcoded values (e.g., workloadPercent=75) must be replaced with actual calculations.
+6. **Chart data sanity**: Y-axis for counts must use integers (not decimals). Empty charts should show a "no data" message, not empty axes. Legend and labels must be translated.
+7. **Error UX**: Error banners/toasts must include actionable guidance (what went wrong + what to do). Never show raw error codes or generic "failed" messages.
+8. **Notification badge overflow**: Show actual count or "99+" — not a raw "+99" badge with no meaning.
+
 ### Approach Constraints
 - Before every task, check if there is a skill (`/skill`) or MCP tool that can help — use them first
 - Always search for the best approach and design pattern to solve the problem. If unsure, search the web for current best practices. If a skill or plugin would help, download and use it

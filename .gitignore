@@ -98,3 +98,9 @@ snap-*.md
 snapshot-*.md
 test_material_doc.txt
 docs/UX_BUG_AUDIT_*.md
+
+# QA and debug artifacts
+QA_BUG_REPORT*.md
+QA_FULL_BUG_REPORT*.csv
+inspections_snapshot.md
+rfi-network-requests.json
