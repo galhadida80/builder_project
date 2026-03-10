@@ -76,7 +76,7 @@ export default function AddressAutocomplete({ value, onChange, label, error, hel
     <Autocomplete
       onLoad={handleLoad}
       onPlaceChanged={handlePlaceChanged}
-      options={{ componentRestrictions: { country: 'il' }, types: ['address'] }}
+      options={{ componentRestrictions: { country: 'il' }, types: ['address'], language: 'he' }}
     >
       <TextField
         fullWidth

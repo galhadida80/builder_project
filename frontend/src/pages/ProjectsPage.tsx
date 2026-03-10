@@ -302,7 +302,7 @@ export default function ProjectsPage() {
                 key={project.id}
                 onClick={() => navigate(`/projects/${project.id}`)}
                 sx={{
-                  borderRadius: 3, overflow: 'hidden', cursor: 'pointer', p: 2,
+                  borderRadius: 3, overflow: 'hidden', cursor: 'pointer', p: 1.5,
                   bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider',
                   transition: 'box-shadow 0.2s, transform 0.15s',
                   '&:hover': { boxShadow: 3, transform: 'translateY(-1px)' },
@@ -332,7 +332,7 @@ export default function ProjectsPage() {
                 </Box>
 
                 {/* Row 2: Project image */}
-                <Box sx={{ mb: 2, borderRadius: 2, overflow: 'hidden', height: 120, position: 'relative' }}>
+                <Box sx={{ mb: 1.5, borderRadius: 2, overflow: 'hidden', height: 80, position: 'relative' }}>
                   {imageUrl ? (
                     <Box
                       component="img"
@@ -354,7 +354,7 @@ export default function ProjectsPage() {
                 </Box>
 
                 {/* Row 3: Progress */}
-                <Box sx={{ mb: 1.5 }}>
+                <Box sx={{ mb: 1 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.75 }}>
                     <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 500 }}>
                       {t('pages.projects.projectProgress')}
