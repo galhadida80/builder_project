@@ -126,6 +126,7 @@ export default function DefectFormModal({
             isOptionEqualToValue={(option, value) => option.id === value.id}
             value={areas.find(a => a.id === form.area_id) || null}
             onChange={(_, val) => setForm({ ...form, area_id: val?.id })}
+            slotProps={{ popper: { sx: { zIndex: 1500 } } }}
             renderInput={(params) => <MuiTextField {...params} label={t('defects.location')} />}
           />
         )}
@@ -137,6 +138,7 @@ export default function DefectFormModal({
               isOptionEqualToValue={(option, value) => option.id === value.id}
               value={contacts.find(c => c.id === form.assigned_contact_id) || null}
               onChange={(_, val) => setForm({ ...form, assigned_contact_id: val?.id })}
+              slotProps={{ popper: { sx: { zIndex: 1500 } } }}
               renderInput={(params) => <MuiTextField {...params} label={t('defects.primaryAssignee')} />}
             />
             <Autocomplete multiple options={contacts}
@@ -144,6 +146,7 @@ export default function DefectFormModal({
               isOptionEqualToValue={(option, value) => option.id === value.id}
               value={contacts.filter(c => form.assignee_ids?.includes(c.id))}
               onChange={(_, val) => setForm({ ...form, assignee_ids: val.map(v => v.id) })}
+              slotProps={{ popper: { sx: { zIndex: 1500 } } }}
               renderInput={(params) => <MuiTextField {...params} label={t('defects.additionalAssignees')} />}
             />
             <Autocomplete options={contacts}
@@ -151,6 +154,7 @@ export default function DefectFormModal({
               isOptionEqualToValue={(option, value) => option.id === value.id}
               value={contacts.find(c => c.id === form.reporter_id) || null}
               onChange={(_, val) => setForm({ ...form, reporter_id: val?.id })}
+              slotProps={{ popper: { sx: { zIndex: 1500 } } }}
               renderInput={(params) => <MuiTextField {...params} label={t('defects.reporter')} />}
             />
             <Autocomplete options={contacts}
@@ -158,6 +162,7 @@ export default function DefectFormModal({
               isOptionEqualToValue={(option, value) => option.id === value.id}
               value={contacts.find(c => c.id === form.followup_contact_id) || null}
               onChange={(_, val) => setForm({ ...form, followup_contact_id: val?.id })}
+              slotProps={{ popper: { sx: { zIndex: 1500 } } }}
               renderInput={(params) => <MuiTextField {...params} label={t('defects.followupPerson')} />}
             />
           </>

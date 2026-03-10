@@ -21,7 +21,7 @@ const SignatureContainer = styled(Box)(({ theme }) => ({
 const CanvasWrapper = styled(Box)(({ theme }) => ({
   border: `1px solid ${theme.palette.divider}`,
   borderRadius: theme.shape.borderRadius,
-  backgroundColor: '#ffffff',
+  backgroundColor: '#ffffff', // Always white for signature visibility in both light/dark modes
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',

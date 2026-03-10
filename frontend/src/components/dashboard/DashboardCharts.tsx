@@ -130,7 +130,8 @@ export default function DashboardCharts({ dashboardStats, statsLoading, dateLoca
             <Skeleton variant="rectangular" height={barChartHeight} sx={{ borderRadius: 2 }} />
           ) : (dashboardStats?.findingsSeverity.length ?? 0) > 0 ? (
             <BarChart
-              xAxis={[{ scaleType: 'band' as const, data: dashboardStats!.findingsSeverity.map(f => f.label) }]}
+              xAxis={[{ scaleType: 'band' as const, data: dashboardStats!.findingsSeverity.map(f => t(`statuses.${f.label}`, { defaultValue: f.label })) }]}
+              yAxis={[{ valueFormatter: (v: number | null) => v == null ? '' : `${Math.round(v)}` }]}
               series={[{ data: dashboardStats!.findingsSeverity.map(f => f.value), label: t('dashboard.charts.findings'), color: '#d32f2f' }]}
               height={barChartHeight}
               margin={{ top: 20, right: 10, bottom: 30, left: 40 }}

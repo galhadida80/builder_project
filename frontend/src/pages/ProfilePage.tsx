@@ -513,7 +513,7 @@ export default function ProfilePage() {
                     color="success"
                     sx={{ position: 'absolute', top: 8, insetInlineEnd: 8, fontWeight: 600, fontSize: '0.65rem' }}
                   />
-                  <img src={signatureImageUrl} alt={t('profile.signature')} style={{ maxWidth: '100%', maxHeight: 120, opacity: 0.85 }} />
+                  <img src={signatureImageUrl} alt={t('profile.signature')} style={{ maxWidth: '100%', maxHeight: 120, opacity: 0.85, backgroundColor: '#ffffff', borderRadius: 8, padding: 8 }} />
                   <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
                     {t('profile.stampDescription')}
                   </Typography>

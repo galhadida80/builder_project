@@ -255,6 +255,7 @@ export function RFIFormDialog({
                   setValue('toName', val.contactName || '')
                 }
               }}
+              slotProps={{ popper: { sx: { zIndex: 1500 } } }}
               renderInput={(params) => (
                 <MuiTextField {...params} label={t('rfis.selectRecipient')} size="small" />
               )}
@@ -351,6 +352,7 @@ export function RFIFormDialog({
                   } catch { /* ignore */ }
                 }
               }}
+              slotProps={{ popper: { sx: { zIndex: 1500 } } }}
               renderInput={(params) => (
                 <MuiTextField {...params} label={t('rfis.selectGroup')} size="small" helperText={t('rfis.selectGroupHint')} />
               )}

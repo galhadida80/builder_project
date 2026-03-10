@@ -33,14 +33,14 @@ export default function TeamWorkloadView() {
     }
   }
 
-  const sortedMembers = [...teamMembers].sort((a, b) => b.workloadPercent - a.workloadPercent)
+  const sortedMembers = [...teamMembers].sort((a, b) => (b.workloadPercent || 0) - (a.workloadPercent || 0))
 
   const totalMembers = teamMembers.length
   const avgWorkload = teamMembers.length > 0
-    ? Math.round(teamMembers.reduce((sum, m) => sum + m.workloadPercent, 0) / teamMembers.length)
+    ? Math.round(teamMembers.reduce((sum, m) => sum + (m.workloadPercent || 0), 0) / teamMembers.length)
     : 0
-  const totalAssignedHours = teamMembers.reduce((sum, m) => sum + m.assignedHours, 0)
-  const overCapacityCount = teamMembers.filter(m => m.workloadPercent > 100).length
+  const totalAssignedHours = teamMembers.reduce((sum, m) => sum + (m.assignedHours || 0), 0)
+  const overCapacityCount = teamMembers.filter(m => (m.workloadPercent || 0) > 100).length
 
   const getWorkloadLabel = (pct: number) => {
     if (pct > 90) return { label: t('teamWorkload.overloaded', 'Overloaded'), color: 'error' as const }

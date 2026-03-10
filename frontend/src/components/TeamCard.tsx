@@ -40,7 +40,7 @@ const MemberRow = styled(Box)(({ theme }) => ({
 export function TeamCard({ teamName, members, onClick, showDetails = false }: TeamCardProps) {
   const { t } = useTranslation()
   const avgWorkload = members.length > 0
-    ? members.reduce((sum, m) => sum + m.workloadPercent, 0) / members.length
+    ? members.reduce((sum, m) => sum + (m.workloadPercent || 0), 0) / members.length
     : 0
 
   return (

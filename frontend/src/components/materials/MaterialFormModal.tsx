@@ -170,6 +170,7 @@ export default function MaterialFormModal({
             options={areas.map(a => `${a.name}${a.floorNumber !== undefined ? ` (${t('areas.floor')} ${a.floorNumber})` : ''}`)}
             value={formData.storageLocation || ''}
             onInputChange={(_, value) => setFormData({ ...formData, storageLocation: value })}
+            slotProps={{ popper: { sx: { zIndex: 1500 } } }}
             renderInput={(params) => (
               <MuiTextField {...params} label={t('materials.storageLocation')} fullWidth size="small" />
             )}
@@ -183,6 +184,7 @@ export default function MaterialFormModal({
             getOptionLabel={(option) => `${option.name}${option.floorNumber !== undefined ? ` (${t('areas.floor')} ${option.floorNumber})` : ''}`}
             value={areas.find(a => a.id === formData.areaId) || null}
             onChange={(_, val) => setFormData({ ...formData, areaId: val?.id || '' })}
+            slotProps={{ popper: { sx: { zIndex: 1500 } } }}
             renderInput={(params) => (
               <MuiTextField {...params} label={t('materials.area')} placeholder={t('materials.selectArea')} InputProps={{ ...params.InputProps, startAdornment: <LocationOnIcon sx={{ fontSize: 18, color: 'text.secondary', mr: 0.5 }} /> }} />
             )}

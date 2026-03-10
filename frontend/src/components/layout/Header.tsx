@@ -77,7 +77,7 @@ export default memo(function Header({ user, currentProject, projects, onProjectC
           </Box>
 
           <IconButton aria-label={t('common.notifications')} onClick={() => setNotificationPanelOpen(true)} size="small">
-            <Badge badgeContent={unreadCount} color="error" max={99}>
+            <Badge badgeContent={unreadCount > 99 ? '99+' : unreadCount} color="error">
               <NotificationsIcon fontSize="small" />
             </Badge>
           </IconButton>

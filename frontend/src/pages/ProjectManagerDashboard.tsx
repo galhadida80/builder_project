@@ -76,7 +76,7 @@ export default function ProjectManagerDashboard() {
           email: t.user?.email || '',
           role: t.role || 'Team Member',
           assignedProjects: 1,
-          workload: t.workloadPercent > 90 ? 'overload' : t.workloadPercent > 70 ? 'high' : t.workloadPercent > 40 ? 'moderate' : 'low',
+          workload: (t.workloadPercent || 0) > 90 ? 'overload' : (t.workloadPercent || 0) > 70 ? 'high' : (t.workloadPercent || 0) > 40 ? 'moderate' : 'low',
         }))
 
         setProjects(mappedProjects)
