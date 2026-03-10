@@ -231,7 +231,7 @@ export default function ProjectsPage() {
 
   if (loading) {
     return (
-      <Box sx={{ p: { xs: 2, sm: 3 }, maxWidth: '100%', overflow: 'hidden' }}>
+      <Box sx={{ p: { xs: 2, sm: 3 }, maxWidth: 1200, mx: 'auto', overflow: 'hidden' }}>
         <Skeleton variant="text" width={160} height={32} sx={{ mb: 1 }} />
         <Skeleton variant="rounded" width="100%" height={48} sx={{ mb: 2, borderRadius: 3 }} />
         <Box sx={{ display: 'flex', gap: 1, mb: 3 }}>
@@ -243,7 +243,7 @@ export default function ProjectsPage() {
   }
 
   return (
-    <Box sx={{ p: { xs: 2, sm: 3 }, maxWidth: '100%', overflow: 'hidden' }}>
+    <Box sx={{ p: { xs: 2, sm: 3 }, maxWidth: 1200, mx: 'auto', overflow: 'hidden' }}>
       {/* Header */}
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2.5 }}>
         <Typography variant="h5" sx={{ fontWeight: 700, fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>
@@ -288,7 +288,7 @@ export default function ProjectsPage() {
           <EmptyState variant="no-results" title={t('pages.projects.noProjectsFound')} description={t('pages.projects.noProjectsDescription')} action={{ label: t('pages.projects.createProject'), onClick: handleOpenCreate }} />
         </Box>
       ) : (
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }, gap: 2 }}>
           {filteredProjects.map((project) => {
             const progress = getProjectProgress(project)
             const hasImage = !!project.imageUrl
