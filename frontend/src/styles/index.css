@@ -42,6 +42,11 @@ input[type="radio"],
   }
 }
 
+/* Google Places autocomplete dropdown above MUI modals (z-index 1300) */
+.pac-container {
+  z-index: 1500 !important;
+}
+
 /* Remove tap highlight on touch devices */
 * {
   -webkit-tap-highlight-color: transparent;
