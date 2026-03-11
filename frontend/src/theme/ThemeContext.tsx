@@ -52,6 +52,10 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     localStorage.setItem('theme-mode', mode)
   }, [mode])
 
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light')
+  }, [isDark])
+
   const isDark = useMemo(() => {
     if (mode === 'system') return systemPrefersDark
     return mode === 'dark'

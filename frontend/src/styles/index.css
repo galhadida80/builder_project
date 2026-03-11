@@ -45,6 +45,35 @@ input[type="radio"],
 /* Google Places autocomplete dropdown above MUI modals (z-index 1300) */
 .pac-container {
   z-index: 1500 !important;
+  border-radius: 12px !important;
+  margin-top: 4px !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.25) !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+}
+
+/* Dark mode styling for Google Places autocomplete */
+html[data-theme="dark"] .pac-container {
+  background-color: #1e1e1e !important;
+  border-color: rgba(224,120,66,0.2) !important;
+}
+html[data-theme="dark"] .pac-item {
+  color: #e0e0e0 !important;
+  border-top-color: rgba(255,255,255,0.08) !important;
+  padding: 8px 12px !important;
+}
+html[data-theme="dark"] .pac-item:hover {
+  background-color: rgba(224,120,66,0.12) !important;
+}
+html[data-theme="dark"] .pac-item-query {
+  color: #ffffff !important;
+}
+html[data-theme="dark"] .pac-icon {
+  filter: invert(1) !important;
+}
+
+/* Light mode - ensure clean look */
+html[data-theme="light"] .pac-item {
+  padding: 8px 12px !important;
 }
 
 /* Remove tap highlight on touch devices */

@@ -206,7 +206,7 @@ export default function DefectDetailPage() {
   const statusColor = defect.status === 'open' ? 'error' : defect.status === 'in_progress' ? 'warning' : 'success'
 
   return (
-    <Box sx={{ maxWidth: 600, mx: 'auto', pb: 12 }}>
+    <Box sx={{ maxWidth: { xs: '100%', md: 1200 }, mx: 'auto', pb: 12 }}>
       {/* Sticky header */}
       <Box sx={{
         position: 'sticky', top: 0, zIndex: 20,

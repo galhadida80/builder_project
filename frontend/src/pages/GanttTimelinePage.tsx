@@ -167,7 +167,7 @@ export default function GanttTimelinePage() {
   ]
 
   if (loading) return (
-    <Box sx={{ maxWidth: 600, mx: 'auto', p: { xs: 1.5, sm: 2, md: 3 } }}>
+    <Box sx={{ maxWidth: { xs: '100%', md: 1200 }, mx: 'auto', p: { xs: 1.5, sm: 2, md: 3 } }}>
       <Skeleton variant="rounded" height={48} sx={{ borderRadius: 2, mb: 2 }} />
       <Skeleton variant="rounded" height={40} sx={{ borderRadius: 2, mb: 2 }} />
       <Skeleton variant="rounded" height={400} sx={{ borderRadius: 3 }} />

@@ -57,7 +57,7 @@ export default function TeamWorkloadView() {
 
   if (loading) {
     return (
-      <Box sx={{ maxWidth: 600, mx: 'auto', p: { xs: 2, sm: 3 }, pb: 10 }}>
+      <Box sx={{ maxWidth: { xs: '100%', md: 1200 }, mx: 'auto', p: { xs: 2, sm: 3 }, pb: 10 }}>
         <Skeleton variant="rounded" height={48} sx={{ borderRadius: 2, mb: 3 }} />
         <Box sx={{ display: 'flex', gap: 1.5, mb: 3 }}>
           {[...Array(3)].map((_, i) => (
@@ -72,7 +72,7 @@ export default function TeamWorkloadView() {
   }
 
   return (
-    <Box sx={{ maxWidth: 600, mx: 'auto', pb: 10 }}>
+    <Box sx={{ maxWidth: { xs: '100%', md: 1200 }, mx: 'auto', pb: 10 }}>
       <Box sx={{
         position: 'sticky', top: 0, zIndex: 20,
         bgcolor: 'background.default', px: { xs: 2, sm: 3 }, py: 2,

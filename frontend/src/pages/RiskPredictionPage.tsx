@@ -43,7 +43,7 @@ export default function RiskPredictionPage() {
 
   if (loading) {
     return (
-      <Box sx={{ maxWidth: 600, mx: 'auto', p: { xs: 2, sm: 3 } }}>
+      <Box sx={{ maxWidth: { xs: '100%', md: 1200 }, mx: 'auto', p: { xs: 2, sm: 3 } }}>
         <Skeleton variant="rounded" height={48} sx={{ borderRadius: 2, mb: 3 }} />
         <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1.5, mb: 3 }}>
           {[...Array(4)].map((_, i) => (
@@ -57,7 +57,7 @@ export default function RiskPredictionPage() {
   }
 
   return (
-    <Box sx={{ maxWidth: 600, mx: 'auto', pb: 10 }}>
+    <Box sx={{ maxWidth: { xs: '100%', md: 1200 }, mx: 'auto', pb: 10 }}>
       <Box
         sx={{
           position: 'sticky',

@@ -73,7 +73,7 @@ export default function AdminUsersPage() {
 
   if (loading) {
     return (
-      <Box sx={{ maxWidth: 600, mx: 'auto', p: { xs: 2, sm: 3 } }}>
+      <Box sx={{ maxWidth: { xs: '100%', md: 1200 }, mx: 'auto', p: { xs: 2, sm: 3 } }}>
         <Skeleton variant="rounded" height={48} sx={{ mb: 2, borderRadius: 2 }} />
         <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1.5, mb: 3 }}>
           {[...Array(3)].map((_, i) => (
@@ -88,7 +88,7 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <Box sx={{ maxWidth: 600, mx: 'auto', pb: 10 }}>
+    <Box sx={{ maxWidth: { xs: '100%', md: 1200 }, mx: 'auto', pb: 10 }}>
       <PageHeader title={t('admin.usersTitle')} icon={<AdminPanelSettingsIcon />} />
 
       <Box sx={{

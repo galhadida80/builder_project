@@ -84,7 +84,7 @@ export default function OrganizationsPage() {
 
   if (loading) {
     return (
-      <Box sx={{ p: { xs: 2, sm: 3 }, maxWidth: 600, mx: 'auto' }}>
+      <Box sx={{ p: { xs: 2, sm: 3 }, maxWidth: { xs: '100%', md: 1200 }, mx: 'auto' }}>
         <Skeleton variant="text" width={150} height={36} sx={{ mb: 2 }} />
         <Skeleton variant="rounded" height={48} sx={{ borderRadius: 2, mb: 3 }} />
         {[...Array(3)].map((_, i) => (
@@ -95,7 +95,7 @@ export default function OrganizationsPage() {
   }
 
   return (
-    <Box sx={{ maxWidth: 600, mx: 'auto', pb: 10 }}>
+    <Box sx={{ maxWidth: { xs: '100%', md: 1200 }, mx: 'auto', pb: 10 }}>
       <PageHeader
         title={t('organizations.title')}
         subtitle={`${organizations.length} ${t('organizations.totalOrgs')}`}
