@@ -12,6 +12,7 @@ from app.models.marketplace_template import (
     ListingStatus,
     MarketplaceListing,
     MarketplaceTemplate,
+    TemplateRating,
 )
 from app.models.organization import OrganizationMember
 from app.models.user import User
@@ -105,7 +106,7 @@ async def get_marketplace_template(
         .options(
             selectinload(MarketplaceTemplate.listing),
             selectinload(MarketplaceTemplate.created_by),
-            selectinload(MarketplaceTemplate.ratings).selectinload("user"),
+            selectinload(MarketplaceTemplate.ratings).selectinload(TemplateRating.user),
         )
         .join(MarketplaceListing, MarketplaceTemplate.id == MarketplaceListing.template_id)
         .where(
